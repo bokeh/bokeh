@@ -77,7 +77,7 @@ script:
     #
     # Run examples_new
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -sv -m examples --rerun=10 --upload --examplereport=examples.html -n4; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -sv -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples
     #
     - echo "poor man logger"
     - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
