@@ -285,8 +285,8 @@ Bokeh to use relative paths to development resources, issue:
 
     BOKEH_RESOURCES=relative-dev python example.py
 
-For Bokeh server examples, it's necessary to add ``BOKEH_RESOURCES=server-dev``
-to the server invocation:
+For Bokeh server examples, add ``BOKEH_RESOURCES=server-dev`` to the server
+invocation:
 
 .. code-block:: sh
 
