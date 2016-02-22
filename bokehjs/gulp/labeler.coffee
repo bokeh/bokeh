@@ -70,7 +70,9 @@ namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (ro
     .replace(/\.(coffee|js|eco)$/, "")
     .split(path.sep).join("/")
     .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
-    .replace("browserify/node_modules/process/browser", "_process")
+
+  if modName.indexOf("process/browser") != -1
+    modName = "_process"
 
   if argv.verbose
     gutil.log("Processing #{modName}")
