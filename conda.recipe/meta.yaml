@@ -56,9 +56,11 @@ test:
     - pytest
     - pytest-cov ==1.8.1
     - pytest-selenium
+    - pytest-xdist
     - beautiful-soup
     - scipy
     - pillow
+    - boto
 
     # examples
     - jupyter
