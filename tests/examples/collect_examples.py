@@ -68,7 +68,7 @@ def get_all_examples():
 def get_file_examples():
     all_examples = get_all_examples()
     file_examples = [example for example, flags in all_examples if (flags & Flags.file) and not (flags & Flags.skip)]
-    return file_examples[:10]
+    return file_examples
 
 
 def get_server_examples():
