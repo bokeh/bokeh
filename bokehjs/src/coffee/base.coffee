@@ -7,6 +7,13 @@ window = {location: {href: "local"}} unless window?
 # add some useful functions to underscore
 require("./core/util/underscore").patch()
 
+# fixup for PhantomJS deficiency
+#
+# see https://github.com/ariya/phantomjs/issues/10522#issuecomment-66449127
+Function.prototype.bind = Function.prototype.bind || (thisp) ->
+  fn = this
+  return () -> fn.apply(thisp, arguments)
+
 Config = {}
 url = window.location.href
 if url.indexOf('/bokeh') > 0
