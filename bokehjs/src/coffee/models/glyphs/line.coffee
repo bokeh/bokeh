@@ -51,7 +51,7 @@ class LineView extends Glyph.View
       x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
       y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
     shortest = 9999
-    threshold = Math.max(2, @visuals.line.width.value() / 2)
+    threshold = Math.max(2, @visuals.line.line_width.value() / 2)
 
     for i in [0...@sx.length-1]
       [p0, p1] = [{x: @sx[i], y: @sy[i]}, {x: @sx[i+1], y: @sy[i+1]}]
