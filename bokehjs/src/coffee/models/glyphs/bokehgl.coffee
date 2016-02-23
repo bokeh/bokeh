@@ -467,11 +467,6 @@ class LineGLGlyph extends BaseGLGlyph
       // Compute distance to cap ----------------------------------------------------
       float cap( int type, float dx, float dy, float t, float miter_limit, float linewidth )
       {
-          // Apply miter limit
-          if (dy < miter_limit*linewidth/2.0) {
-              type = 0;
-          }
-          
           float d = 0.0;
           dx = abs(dx);
           dy = abs(dy);
@@ -488,15 +483,12 @@ class LineGLGlyph extends BaseGLGlyph
       float join( in int type, in float d, in vec2 segment, in vec2 texcoord, in vec2 miter,
             in float miter_limit, in float linewidth )
       {
+          // texcoord.x is distance from start
+          // texcoord.y is distance from centerline
+          // segment.x and y indicate the limits (as for texcoord.x) for this segment
+
           float dx = texcoord.x;
-          
-          // Apply miter limit; when the ratio of the distance to the join to the line width
-          // exceeds the miter limit, the join becomes a bevel. This is to prevent lines
-          // from becoming so pointy that they far exceed their centerline.
-          if ((type == 0) && (d < miter_limit*linewidth/2.0)) {
-              type = 2;
-          }
-          
+
           // Round join
           if( type == 1 ) {
               if (dx < segment.x) {
@@ -532,7 +524,7 @@ class LineGLGlyph extends BaseGLGlyph
           if( v_color.a <= 0.0 ) {
               discard;
           }
-
+          
           // Test if dash pattern is the solid one (0)
           bool solid =  (u_dash_index == 0.0);
 
@@ -550,7 +542,14 @@ class LineGLGlyph extends BaseGLGlyph
           vec2 dash_caps = u_dash_caps;
           float line_start = 0.0;
           float line_stop = v_length;
-
+          
+          // Apply miter limit; fragments too far into the miter are simply discarded
+          if( (dx < v_segment.x) || (dx > v_segment.y) ) {
+              float into_miter = max(v_segment.x - dx, dx - v_segment.y);
+              if (into_miter > u_miter_limit*v_linewidth/2.0)
+                discard;
+          }
+          
           // Solid line --------------------------------------------------------------
           if( solid ) {
               d = abs(dy);
