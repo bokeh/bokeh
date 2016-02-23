@@ -1,3 +1,4 @@
+_ = require "underscore"
 gloo2 = require "gloo2"
 color = require "../../core/util/color"
 color2rgba = color.color2rgba
@@ -36,43 +37,58 @@ fill_array_with_vec = (n, m, val) ->
         a[i*m+j] = val[j]
     return a
 
+visual_prop_is_singular = (visual, propname) ->
+    # This touches the internals of the visual, so we limit use in this function
+    # See renderer.coffee:cache_select() for similar code
+    return not _.isUndefined(visual[propname].spec.value)
+
 attach_float = (prog, vbo, att_name, n, visual, name) ->
     # Attach a float attribute to the program. Use singleton value if we can,
     # otherwise use VBO to apply array.
-    vbo.used = true
-    if visual[name].spec.value?
-      prog.set_attribute(att_name, 'float', null, visual[name].spec.value)
+    if not visual.doit
       vbo.used = false
+      prog.set_attribute(att_name, 'float', null, 0)
+    else if visual_prop_is_singular(visual, name)
+      vbo.used = false
+      prog.set_attribute(att_name, 'float', null, visual[name].value())
     else
+      vbo.used = true
       a = new Float32Array(visual.cache[name + '_array'])
       vbo.set_size(n*4)
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'float', [vbo, 0, 0])
-    return a
 
-attach_color = (prog, vbo, att_name, n, visual) ->
+attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     # Attach the color attribute to the program. If there's just one color,
     # then use this single color for all vertices (no VBO). Otherwise we
     # create an array and upload that to the VBO, which we attahce to the prog.
     m = 4
-    vbo.used = true
-    if visual.color.spec.value? and visual.alpha.spec.value?
-      rgba = color2rgba(visual.color.spec.value, visual.alpha.spec.value)
-      prog.set_attribute(att_name, 'vec4', null, rgba)
+    colorname = prefix + '_color'
+    alphaname = prefix + '_alpha'
+    
+    if not visual.doit
+      # Don't draw (draw transparent)
       vbo.used = false
-
+      prog.set_attribute(att_name, 'vec4', null, [0,0,0,0])
+    else if visual_prop_is_singular(visual, colorname) and visual_prop_is_singular(visual, alphaname)
+      # Nice and simple; both color and alpha are singular
+      vbo.used = false
+      rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
+      prog.set_attribute(att_name, 'vec4', null, rgba)
     else
+      # Use vbo; we need an array for both the color and the alpha
+      vbo.used = true
       # Get array of colors
-      if visual.color.spec.value?
-        colors = (visual.color.spec.value for i in [0...n])
+      if visual_prop_is_singular(visual, colorname)
+        colors = (visual[colorname].value() for i in [0...n])
       else
-        colors = visual.cache.color_array
+        colors = visual.cache[colorname+'_array']
       # Get array of alphas
-      if visual.alpha.spec.value?
-        alphas = fill_array_with_float(n, visual.alpha.spec.value)
+      if visual_prop_is_singular(visual, alphaname)
+        alphas = fill_array_with_float(n, visual[alphaname].value())
       else
-        alphas = visual.cache.alpha_array
-      # Get array of rgbs
+        alphas = visual.cache[alphaname+'_array']
+      # Create array of rgbs
       a = new Float32Array(n*m)
       for i in [0...n]
         rgba = color2rgba(colors[i], alphas[i])
@@ -82,7 +98,6 @@ attach_color = (prog, vbo, att_name, n, visual) ->
       vbo.set_size(n*m*4)
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'vec4', [vbo, 0, 0])
-    return a
 
 
 class DashAtlas
@@ -278,7 +293,7 @@ class LineGLGlyph extends BaseGLGlyph
           // This is the actual half width of the line
           float w = ceil(1.25*u_antialias+v_linewidth)/2.0;
 
-          vec2 position = a_position * abs_scale;
+          vec2 position = (a_position + u_offset) * abs_scale;
 
           vec2 t1 = normalize(a_tangents.xy * abs_scale_aspect);  // note the scaling for aspect ratio here
           vec2 t2 = normalize(a_tangents.zw * abs_scale_aspect);
@@ -406,7 +421,7 @@ class LineGLGlyph extends BaseGLGlyph
 
           // Calculate position in device coordinates. Note that we
           // already scaled with abs scale above.
-          vec2 normpos = position * sign(u_scale_aspect) + (u_offset - vec2(0.5, 0.5));
+          vec2 normpos = position * sign(u_scale_aspect) - vec2(0.5, 0.5);
           normpos /= u_canvas_size;  // in 0..1
           gl_Position = vec4(normpos*2.0-1.0, 0.0, 1.0);
           gl_Position.y *= -1.0;
@@ -450,12 +465,11 @@ class LineGLGlyph extends BaseGLGlyph
       varying float v_linewidth;
 
       // Compute distance to cap ----------------------------------------------------
-      float cap( int type, float dx, float dy, float t )
+      float cap( int type, float dx, float dy, float t, float miter_limit, float linewidth )
       {
           float d = 0.0;
           dx = abs(dx);
           dy = abs(dy);
-
           if      (type == 0)  discard;  // None
           else if (type == 1)  d = sqrt(dx*dx+dy*dy);  // Round
           else if (type == 3)  d = (dx+abs(dy));  // Triangle in
@@ -469,7 +483,12 @@ class LineGLGlyph extends BaseGLGlyph
       float join( in int type, in float d, in vec2 segment, in vec2 texcoord, in vec2 miter,
             in float miter_limit, in float linewidth )
       {
+          // texcoord.x is distance from start
+          // texcoord.y is distance from centerline
+          // segment.x and y indicate the limits (as for texcoord.x) for this segment
+
           float dx = texcoord.x;
+
           // Round join
           if( type == 1 ) {
               if (dx < segment.x) {
@@ -483,7 +502,7 @@ class LineGLGlyph extends BaseGLGlyph
           // Bevel join
           else if ( type == 2 ) {
               if (dx < segment.x) {
-                  vec2 x= texcoord - vec2(segment.x,0.0);
+                  vec2 x = texcoord - vec2(segment.x,0.0);
                   d = max(d, max(abs(x.x), abs(x.y)));
 
               } else if (dx > segment.y) {
@@ -495,10 +514,7 @@ class LineGLGlyph extends BaseGLGlyph
                   d = max(d, min(abs(x.x),abs(x.y)));
               */
           }
-          // Miter limit
-          if( (dx < segment.x) ||  (dx > segment.y) ) {
-              d = max(d, min(abs(miter.x),abs(miter.y)) - miter_limit*linewidth/2.0 );
-          }
+          
           return d;
       }
 
@@ -508,7 +524,7 @@ class LineGLGlyph extends BaseGLGlyph
           if( v_color.a <= 0.0 ) {
               discard;
           }
-
+          
           // Test if dash pattern is the solid one (0)
           bool solid =  (u_dash_index == 0.0);
 
@@ -526,15 +542,22 @@ class LineGLGlyph extends BaseGLGlyph
           vec2 dash_caps = u_dash_caps;
           float line_start = 0.0;
           float line_stop = v_length;
-
+          
+          // Apply miter limit; fragments too far into the miter are simply discarded
+          if( (dx < v_segment.x) || (dx > v_segment.y) ) {
+              float into_miter = max(v_segment.x - dx, dx - v_segment.y);
+              if (into_miter > u_miter_limit*v_linewidth/2.0)
+                discard;
+          }
+          
           // Solid line --------------------------------------------------------------
           if( solid ) {
               d = abs(dy);
               if( (!closed) && (dx < line_start) ) {
-                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t );
+                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t, u_miter_limit, v_linewidth );
               }
               else if( (!closed) &&  (dx > line_stop) ) {
-                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t );
+                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t, u_miter_limit, v_linewidth );
               }
               else {
                   d = join( int(u_linejoin), abs(dy), v_segment, v_texcoord, v_miter, u_miter_limit, v_linewidth );
@@ -666,21 +689,21 @@ class LineGLGlyph extends BaseGLGlyph
 
               // Line cap at start
               if( (dx < line_start) && (dash_start < line_start) && (dash_stop > line_start) ) {
-                  d = cap( int(linecaps.x), dx-line_start, dy, t);
+                  d = cap( int(linecaps.x), dx-line_start, dy, t, u_miter_limit, v_linewidth);
               }
               // Line cap at stop
               else if( (dx > line_stop) && (dash_stop > line_stop) && (dash_start < line_stop) ) {
-                  d = cap( int(linecaps.y), dx-line_stop, dy, t);
+                  d = cap( int(linecaps.y), dx-line_stop, dy, t, u_miter_limit, v_linewidth);
               }
               // Dash cap left - dash_type = -1, 0 or 1, but there may be roundoff errors
               else if( dash_type < -0.5 ) {
-                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t);
+                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t, u_miter_limit, v_linewidth);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
               // Dash cap right
               else if( dash_type > 0.5 ) {
-                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t);
+                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t, u_miter_limit, v_linewidth);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
@@ -726,10 +749,9 @@ class LineGLGlyph extends BaseGLGlyph
           d = d - t;
           if( d < 0.0 ) {
               gl_FragColor = color;
-          }
-          else {
+          } else {
               d /= u_antialias;
-              gl_FragColor = vec4(color.xyz, exp(-d*d)*color.a);
+              gl_FragColor = vec4(color.rgb, exp(-d*d)*color.a);
           }
       }
     """
@@ -752,10 +774,12 @@ class LineGLGlyph extends BaseGLGlyph
       @dash_atlas = new DashAtlas(gl)
 
     draw: (indices, mainGlyph, trans) ->
-
-      if @data_changed
-        @_set_data()
-        @data_changed = false
+      mainGlGlyph = mainGlyph.glglyph
+      
+      if mainGlGlyph.data_changed
+        mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _bake() and below
+        mainGlGlyph._set_data()
+        mainGlGlyph.data_changed = false
       if @visuals_changed
         @_set_visuals()
         @visuals_changed = false
@@ -772,21 +796,22 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Select buffers from main glyph
       # (which may be this glyph but maybe not if this is a (non)selection glyph)
-      @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, 0])
-      @prog.set_attribute('a_tangents', 'vec4', [mainGlyph.glglyph.vbo_tangents, 0, 0])
-      @prog.set_attribute('a_segment', 'vec2', [mainGlyph.glglyph.vbo_segment, 0, 0])
-      @prog.set_attribute('a_angles', 'vec2', [mainGlyph.glglyph.vbo_angles, 0, 0])
-      @prog.set_attribute('a_texcoord', 'vec2', [mainGlyph.glglyph.vbo_texcoord, 0, 0])
+      @prog.set_attribute('a_position', 'vec2', [mainGlGlyph.vbo_position, 0, 0])
+      @prog.set_attribute('a_tangents', 'vec4', [mainGlGlyph.vbo_tangents, 0, 0])
+      @prog.set_attribute('a_segment', 'vec2', [mainGlGlyph.vbo_segment, 0, 0])
+      @prog.set_attribute('a_angles', 'vec2', [mainGlGlyph.vbo_angles, 0, 0])
+      @prog.set_attribute('a_texcoord', 'vec2', [mainGlGlyph.vbo_texcoord, 0, 0])
       #
-      @prog.set_uniform('u_length', 'float', [mainGlyph.glglyph.cumsum])
+      @prog.set_uniform('u_length', 'float', [mainGlGlyph.cumsum])
       @prog.set_texture('u_dash_atlas', @dash_atlas.tex)
 
       # Handle transformation to device coordinates
+      baked_offset = mainGlGlyph._baked_offset
       @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-      @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
+      @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
-
+      
       if @I_triangles.length < 65535
         # Data is small enough to draw in one pass
         @index_buffer.set_size(@I_triangles.length*2)
@@ -812,11 +837,11 @@ class LineGLGlyph extends BaseGLGlyph
           offset = chunk * chunksize * 4
           if these_indices.length == 0
             continue
-          @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, offset * 2])
-          @prog.set_attribute('a_tangents', 'vec4', [mainGlyph.glglyph.vbo_tangents, 0, offset * 4])
-          @prog.set_attribute('a_segment', 'vec2', [mainGlyph.glglyph.vbo_segment, 0, offset * 2])
-          @prog.set_attribute('a_angles', 'vec2', [mainGlyph.glglyph.vbo_angles, 0, offset * 2])
-          @prog.set_attribute('a_texcoord', 'vec2', [mainGlyph.glglyph.vbo_texcoord, 0, offset * 2])
+          @prog.set_attribute('a_position', 'vec2', [mainGlGlyph.vbo_position, 0, offset * 2])
+          @prog.set_attribute('a_tangents', 'vec4', [mainGlGlyph.vbo_tangents, 0, offset * 4])
+          @prog.set_attribute('a_segment', 'vec2', [mainGlGlyph.vbo_segment, 0, offset * 2])
+          @prog.set_attribute('a_angles', 'vec2', [mainGlGlyph.vbo_angles, 0, offset * 2])
+          @prog.set_attribute('a_texcoord', 'vec2', [mainGlGlyph.vbo_texcoord, 0, offset * 2])
           # The actual drawing
           @index_buffer.set_size(these_indices.length*2)
           @index_buffer.set_data(0, these_indices)
@@ -838,26 +863,26 @@ class LineGLGlyph extends BaseGLGlyph
       @vbo_texcoord.set_data(0, @V_texcoord)
 
     _set_visuals: () ->
-      window.X = this
-
-      color = color2rgba(@glyph.visuals.line.color.value(), @glyph.visuals.line.alpha.value())
-      cap = @CAPS[@glyph.visuals.line.cap.value()]
-      join = @JOINS[@glyph.visuals.line.join.value()]
+      
+      color = color2rgba(@glyph.visuals.line.line_color.value(), @glyph.visuals.line.line_alpha.value())
+      cap = @CAPS[@glyph.visuals.line.line_cap.value()]
+      join = @JOINS[@glyph.visuals.line.line_join.value()]
 
       @prog.set_uniform('u_color', 'vec4', color)
-      @prog.set_uniform('u_linewidth', 'float', [@glyph.visuals.line.width.value()])
+      @prog.set_uniform('u_linewidth', 'float', [@glyph.visuals.line.line_width.value()])
       @prog.set_uniform('u_antialias', 'float', [0.9])  # Smaller aa-region to obtain crisper images
 
       @prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
       @prog.set_uniform('u_linejoin', 'float', [join])
       @prog.set_uniform('u_miter_limit', 'float', [10.0])  # Should be a good value
+      # https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
-      dash_pattern = @glyph.visuals.line.dash.value()
+      dash_pattern = @glyph.visuals.line.line_dash.value()
       dash_index = 0; dash_period = 1
       if dash_pattern.length
         [dash_index, dash_period] = @dash_atlas.get_atlas_data(dash_pattern)
       @prog.set_uniform('u_dash_index', 'float', [dash_index])  # 0 means solid line
-      @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.dash_offset.value()])
+      @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.line_dash_offset.value()])
       @prog.set_uniform('u_dash_period', 'float', [dash_period])
       @prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
       @prog.set_uniform('u_closed', 'float', [0])  # We dont do closed lines
@@ -877,8 +902,8 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Init array of implicit shape nx2
       n = @nvertices
-      _x = new Float32Array(@glyph.x)
-      _y = new Float32Array(@glyph.y)
+      _x = new Float64Array(@glyph.x)
+      _y = new Float64Array(@glyph.y)
 
       # Init vertex data
       V_position = Vp = new Float32Array(n*2)
@@ -889,8 +914,8 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Position
       for i in [0...n]
-          V_position[i*2+0] = _x[i]
-          V_position[i*2+1] = _y[i]
+          V_position[i*2+0] = _x[i] + @_baked_offset[0]
+          V_position[i*2+1] = _y[i] + @_baked_offset[1]
 
       # Tangents & norms (need tangents to calculate segments based on scale)
       @tangents = T = new Float32Array(n*2-2)
@@ -1035,7 +1060,7 @@ class MarkerGLGlyph extends BaseGLGlyph
         v_bg_color = a_bg_color;
         v_rotation = vec2(cos(-a_angle), sin(-a_angle));
         // Calculate position - the -0.5 is to correct for canvas origin
-        vec2 pos = vec2(a_x, a_y) * u_scale + u_offset - vec2(0.5, 0.5); // in pixels
+        vec2 pos = (vec2(a_x, a_y) + u_offset) * u_scale - vec2(0.5, 0.5); // in pixels
         pos /= u_canvas_size;  // in 0..1
         gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
         gl_Position.y *= -1.0;
@@ -1131,12 +1156,14 @@ class MarkerGLGlyph extends BaseGLGlyph
   draw: (indices, mainGlyph, trans) ->
 
     # The main glyph has the data, *this* glyph has the visuals.
-    nvertices = mainGlyph.glglyph.nvertices
-
+    mainGlGlyph = mainGlyph.glglyph
+    nvertices = mainGlGlyph.nvertices
+   
     # Upload data if we must. Only happens for main glyph.
-    if @data_changed
-      @_set_data(nvertices)
-      @data_changed = false
+    if mainGlGlyph.data_changed
+      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _set_data() and below
+      mainGlGlyph._set_data(nvertices)
+      mainGlGlyph.data_changed = false
     else if @glyph.radius? and (trans.sx != @last_trans.sx or trans.sy != @last_trans.sy)
       # Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
       @last_trans = trans
@@ -1148,16 +1175,18 @@ class MarkerGLGlyph extends BaseGLGlyph
       @visuals_changed = false
 
     # Handle transformation to device coordinates
+    # Note the baked-in offset to avoid float32 precision problems
+    baked_offset = mainGlGlyph._baked_offset
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
+    @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
-
+    
     # Select buffers from main glyph
     # (which may be this glyph but maybe not if this is a (non)selection glyph)
-    @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, 0])
-    @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, 0])
-    @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, 0])
-    @prog.set_attribute('a_angle', 'float', [mainGlyph.glglyph.vbo_a, 0, 0])
+    @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, 0])
+    @prog.set_attribute('a_y', 'float', [mainGlGlyph.vbo_y, 0, 0])
+    @prog.set_attribute('a_size', 'float', [mainGlGlyph.vbo_s, 0, 0])
+    @prog.set_attribute('a_angle', 'float', [mainGlGlyph.vbo_a, 0, 0])
 
     # Draw directly or using indices. Do not handle indices if they do not
     # fit in a uint16; WebGL 1.0 does not support uint32.
@@ -1186,10 +1215,10 @@ class MarkerGLGlyph extends BaseGLGlyph
         offset = chunk * chunksize * 4
         if these_indices.length == 0
           continue
-        @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, offset])
-        @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, offset])
-        @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, offset])
-        @prog.set_attribute('a_angle', 'float', [mainGlyph.glglyph.vbo_a, 0, offset])
+        @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, offset])
+        @prog.set_attribute('a_y', 'float', [mainGlGlyph.vbo_y, 0, offset])
+        @prog.set_attribute('a_size', 'float', [mainGlGlyph.vbo_s, 0, offset])
+        @prog.set_attribute('a_angle', 'float', [mainGlGlyph.vbo_a, 0, offset])
         if @vbo_linewidth.used
           @prog.set_attribute('a_linewidth', 'float', [@vbo_linewidth, 0, offset])
         if @vbo_fg_color.used
@@ -1209,9 +1238,15 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_y.set_size(n)
     @vbo_a.set_size(n)
     @vbo_s.set_size(n)
-    # Upload data for x and y
-    @vbo_x.set_data(0, new Float32Array(@glyph.x))
-    @vbo_y.set_data(0, new Float32Array(@glyph.y))
+    # Upload data for x and y, apply a baked-in offset for float32 precision (issue #3795)
+    # The exact value for the baked_offset does not matter, as long as it brings the data to less extreme values
+    xx = new Float64Array(@glyph.x)
+    yy = new Float64Array(@glyph.y)
+    for i in [0...nvertices]
+       xx[i] += @_baked_offset[0]
+       yy[i] += @_baked_offset[1]
+    @vbo_x.set_data(0, new Float32Array(xx))
+    @vbo_y.set_data(0, new Float32Array(yy))
     # Angle if available; circle does not have angle. If we don't set data, angle is default 0 in glsl
     if @glyph.angle?
       @vbo_a.set_data(0, new Float32Array(@glyph.angle))
@@ -1223,9 +1258,9 @@ class MarkerGLGlyph extends BaseGLGlyph
       @vbo_s.set_data(0, new Float32Array(@glyph.size))
 
   _set_visuals: (nvertices) ->
-    attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'width')
-    attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line)
-    attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill)
+    attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'line_width')
+    attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line, 'line')
+    attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill, 'fill')
     # Static value for antialias. Smaller aa-region to obtain crisper images
     @prog.set_uniform('u_antialias', 'float', [0.9])
 

@@ -3,7 +3,11 @@ from bokeh.models.layouts import BaseBox
 from bokeh.core import validation
 from bokeh.core.validation.warnings import EMPTY_LAYOUT
 
-from examples.app.crossfilter.models.helpers import load_component
+import sys
+from os.path import dirname
+sys.path.append(dirname(__file__))
+
+from helpers import load_component
 
 class StyleableBox(BaseBox):
     '''
