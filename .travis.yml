@@ -54,6 +54,10 @@ before_install:
     # We don't use the travis saucelabs add on because it installs on every
     # test run, but we can manually use travis' saucelabs start/stop commands
     - source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)
+    # Use xvfb to run tests that require firefox - using this for saucelabs example tests
+    # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
+    - "export DISPLAY=:99.0"
+    - "sh -e /etc/init.d/xvfb start"
 
 install:
     - scripts/travis_install
