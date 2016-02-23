@@ -11,7 +11,7 @@ from py.xml import html
 
 from tests.plugins.constants import __version__, default_diff
 from tests.plugins.utils import get_version_from_git
-from tests.plugins.upload_to_s3 import upload_file_to_s3, S3_URL
+from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
 from .collect_examples import (
     example_dir,
@@ -178,8 +178,8 @@ class ExamplesTestReport(object):
 
         if pytest.config.option.upload:
             upload_example_pngs_to_s3(diff_version)
-            upload_file_to_s3(session.config.option.examplereport, "text/html")
-            upload_file_to_s3(session.config.option.log_file, "text/text")
+            upload_file_to_s3_by_job_id(session.config.option.examplereport, "text/html")
+            upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text")
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(
