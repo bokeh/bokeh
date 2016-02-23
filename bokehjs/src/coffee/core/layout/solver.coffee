@@ -5,11 +5,10 @@ kiwi = require "kiwi"
 {Variable, Expression, Constraint, Operator, Strength} = kiwi
 
 _constrainer = (op) ->
-  () ->
-    args = [null]
-    for arg in arguments
-      args.push(arg)
-    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op )
+  () =>
+    expr = Object.create(Expression.prototype)
+    Expression.apply(expr, arguments)
+    return new Constraint(expr, op)
 
 class Solver
 
