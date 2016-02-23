@@ -35,6 +35,7 @@ from .utils import (
 )
 
 
+
 @pytest.mark.examples
 def test_server_examples(server_example, bokeh_server, diff):
     # Note this is currently broken - server uses random sessions but we're
@@ -145,7 +146,7 @@ def _assert_snapshot(example, url, example_type, diff):
         wait = pytest.config.option.notebook_phantom_wait * 1000
         height = 2000
     else:
-        wait = 1000
+        wait = 10 * 1000
         height = 1000
 
     result = get_phantomjs_screenshot(url, screenshot_path, wait, height=height)

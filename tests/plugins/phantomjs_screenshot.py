@@ -9,17 +9,17 @@ from .utils import info, fail
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10, help="how long should PhantomJS wait before taking a snapshot of a notebook (in seconds)"
-    )
-    parser.addoption(
         "--phantomjs", type=str, default="phantomjs", help="phantomjs executable"
     )
 
 
-def get_phantomjs_screenshot(url, screenshot_path, width=1000, height=1000):
+def get_phantomjs_screenshot(url, screenshot_path, wait, width=1000, height=1000):
+    """
+    wait is in milliseconds
+    """
     phantomjs = pytest.config.getoption('phantomjs')
 
-    cmd = [phantomjs, join(dirname(__file__), "phantomjs_screenshot.js"), url, screenshot_path, str(wait), width, height]
+    cmd = [phantomjs, join(dirname(__file__), "phantomjs_screenshot.js"), url, screenshot_path, str(wait), str(width), str(height)]
     info("Running command: %s" % " ".join(cmd))
 
     try:

@@ -13,7 +13,12 @@ from tests.plugins.constants import __version__, default_diff
 from tests.plugins.utils import get_version_from_git
 from tests.plugins.upload_to_s3 import upload_file_to_s3, S3_URL
 
-from .collect_examples import example_dir
+from .collect_examples import (
+    example_dir,
+    get_file_examples,
+    get_server_examples,
+    get_notebook_examples,
+)
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
 
@@ -24,6 +29,12 @@ if not PY3:
 
 def pytest_addoption(parser):
     parser.addoption(
+        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10, help="How long should PhantomJS wait before taking a snapshot of a notebook (in seconds)"
+    )
+    parser.addoption(
+        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
+    )
+    parser.addoption(
         "--examplereport", action='store', dest='examplereport', metavar='path', default=None, help='create examples html report file at given path.'
     )
     parser.addoption(
@@ -32,6 +43,18 @@ def pytest_addoption(parser):
     parser.addoption(
         "--diff", type=str, default=default_diff, help="compare generated images against this ref"
     )
+
+
+def pytest_generate_tests(metafunc):
+    if 'file_example' in metafunc.fixturenames:
+        examples = get_file_examples()
+        metafunc.parametrize('file_example', examples)
+    if 'server_example' in metafunc.fixturenames:
+        examples = get_server_examples()
+        metafunc.parametrize('server_example', examples)
+    if 'notebook_example' in metafunc.fixturenames:
+        examples = get_notebook_examples()
+        metafunc.parametrize('notebook_example', examples)
 
 
 @pytest.fixture

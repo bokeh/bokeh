@@ -1,6 +1,5 @@
 import yaml
 import os
-import pytest
 
 from os.path import join, dirname, abspath, pardir
 
@@ -74,10 +73,7 @@ def get_all_examples():
         except KeyError:
             example_type = None
 
-        if not pytest.config.getoption('all_notebooks'):
-            skip_status = example.get("skip") or example.get("skip_travis")
-        else:
-            skip_status = example.get("skip")
+        skip_status = example.get("skip")
 
         list_of_examples = add_examples(list_of_examples, path, example_type=example_type, skip=skip_status)
 
