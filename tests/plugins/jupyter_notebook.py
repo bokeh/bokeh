@@ -71,7 +71,8 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'server'
 
-    notebook_dir = join(dirname(__file__), pardir)
+    # Launch from the base directory of bokeh repo
+    notebook_dir = join(dirname(__file__), pardir, pardir)
 
     cmd = ["jupyter", "notebook"]
     argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir]
