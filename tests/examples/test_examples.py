@@ -26,6 +26,7 @@ from tests.plugins.utils import (
     write,
     yellow,
 )
+from tests.plugins.image_diff import process_image_diff
 
 from .collect_examples import base_dir, example_dir
 from .utils import (
@@ -68,6 +69,30 @@ def test_file_examples(file_example, diff):
         _get_pdiff(file_example, diff)
 
 
+def _get_pdiff(example, diff):
+    test_png, ref_png, diff_png = get_example_pngs(example, diff)
+    info("generated image: " + test_png)
+
+    retrieved_reference_image = _get_reference_image_from_s3(example, diff)
+
+    if retrieved_reference_image:
+        ref_png_path = dirname(ref_png)
+        if not exists(ref_png_path):
+            os.makedirs(ref_png_path)
+
+        with open(ref_png, "wb") as f:
+            f.write(retrieved_reference_image)
+
+        info("saved reference: " + ref_png)
+
+        code = process_image_diff(diff_png, test_png, ref_png)
+        if code != 0:
+            warn("generated and reference images differ")
+            warn("diff: " + diff_png)
+        else:
+            ok("generated and reference images match")
+
+
 def _get_path_parts(path):
     parts = []
     while True:
@@ -90,35 +115,6 @@ def _get_reference_image_from_s3(example, diff):
         info("reference image %s doesn't exist" % ref_url)
         return None
     return response.content
-
-
-def _get_pdiff(example, diff):
-    test_png, ref_png, diff_png = get_example_pngs(example, diff)
-    retrieved_reference_image = _get_reference_image_from_s3(example, diff)
-    if retrieved_reference_image:
-        ref_png_path = dirname(ref_png)
-        if not exists(ref_png_path):
-            os.makedirs(ref_png_path)
-
-        with open(ref_png, "wb") as f:
-            f.write(retrieved_reference_image)
-
-        cmd = ["perceptualdiff", "-output", diff_png, test_png, ref_png]
-        try:
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            code = proc.wait()
-        except OSError:
-            write("Failed to run: %s" % " ".join(cmd))
-            sys.exit(1)
-
-        info("generated: " + test_png)
-        info("reference: " + ref_png)
-
-        if code != 0:
-            warn("generated and reference images differ")
-            warn("diff: " + diff_png)
-        else:
-            ok("generated and reference images match")
 
 
 def _get_result_from_phantomjs(example, url, example_type, diff):
