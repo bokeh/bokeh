@@ -8,17 +8,17 @@ from bokeh.io import output_file
 def selenium(selenium):
     # Give items a chance to load
     selenium.implicitly_wait(10)
-    selenium.set_window_size(width=600, height=600)
+    selenium.set_window_size(width=1200, height=600)
     return selenium
 
 
 @pytest.fixture(scope='session')
 def base_url(request, file_server):
-    return 'http://localhost:%s' % file_server.port
+    return file_server.where_is('')
 
 
 @pytest.fixture
-def output_file_url(request, base_url):
+def output_file_url(request, file_server):
 
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
@@ -31,7 +31,7 @@ def output_file_url(request, base_url):
             file_obj.remove()
     request.addfinalizer(tearDown)
 
-    return '%s/%s' % (base_url, file_path)
+    return file_server.where_is(file_path)
 
 
 @pytest.fixture(scope="session")
