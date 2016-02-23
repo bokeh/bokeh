@@ -27,7 +27,7 @@ def upload_file_to_s3(file_path, s3_filename, content_type="text/html"):
     try:
         conn = boto.connect_s3()
         bucket = conn.get_bucket(S3_BUCKET)
-        with open(file_path, "r") as f:
+        with open(file_path, "rb") as f:
             contents = f.read()
         key = S3Key(bucket, s3_filename)
         key.set_metadata("Content-Type", content_type)
