@@ -30,12 +30,6 @@ def pytest_addoption(parser):
         "--patterns", type=str, nargs="*", help="select a subset of examples to test"
     )
     parser.addoption(
-        "--phantomjs", type=str, default="phantomjs", help="phantomjs executable"
-    )
-    parser.addoption(
-        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10, help="how long should PhantomJS wait before taking a snapshot of a notebook (in seconds)"
-    )
-    parser.addoption(
         "--diff", type=str, default=default_diff, help="compare generated images against this ref"
     )
 

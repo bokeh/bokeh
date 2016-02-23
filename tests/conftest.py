@@ -3,8 +3,6 @@ import pytest
 from tests.plugins.constants import default_upload
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
 
-pytest_plugins = "tests.examples.examples_report_plugin", "tests.plugins.bokeh_server", "tests.plugins.jupyter_notebook", "tests.plugins.webserver"
-
 
 def pytest_addoption(parser):
     parser.addoption(

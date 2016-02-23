@@ -1,9 +1,7 @@
-import json
 import os
 import pytest
 import requests
 import subprocess
-import sys
 import signal
 
 from os.path import (
@@ -27,8 +25,9 @@ from tests.plugins.utils import (
     yellow,
 )
 from tests.plugins.image_diff import process_image_diff
+from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
 
-from .collect_examples import base_dir, example_dir
+from .collect_examples import example_dir
 from .utils import (
     deal_with_output_cells,
     get_example_pngs,
@@ -105,37 +104,11 @@ def _get_path_parts(path):
     return parts
 
 
-def _get_reference_image_from_s3(example, diff):
-    example_path = relpath(splitext(example)[0], example_dir)
-    ref_loc = join(diff, example_path + ".png")
-    ref_url = join(S3_URL, ref_loc)
-    response = requests.get(ref_url)
+def _print_phantomjs_output(result):
+    errors = result['errors']
+    messages = result['messages']
+    resources = result['resources']
 
-    if not response.ok:
-        info("reference image %s doesn't exist" % ref_url)
-        return None
-    return response.content
-
-
-def _get_result_from_phantomjs(example, url, example_type, diff):
-    test_png, _, _ = get_example_pngs(example, diff)
-    wait = pytest.config.option.notebook_phantom_wait
-    phantomjs = pytest.config.option.phantomjs
-
-    cmd = [phantomjs, join(base_dir, "test.js"), example_type, url, test_png, str(wait)]
-    write("Running command: %s" % " ".join(cmd))
-
-    try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        proc.wait()
-    except OSError:
-        write("Failed to run: %s" % " ".join(cmd))
-        sys.exit(1)
-
-    return json.loads(proc.stdout.read().decode("utf-8"))
-
-
-def _print_phantomjs_errors(messages):
     for message in messages:
         msg = message['msg']
         line = message.get('line')
@@ -148,12 +121,34 @@ def _print_phantomjs_errors(messages):
         else:
             write("%s:%s: %s" % (source, line, msg))
 
+    # Process resources
+    for resource in resources:
+        url = resource['url']
+        if url.endswith(".png"):
+            ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
+        else:
+            warn("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
+
+    # You can have a successful test, and still have errors reported, so not failing here.
+    for error in errors:
+        warn("%s: %s" % (red("PhatomJS Error: "), error['msg']))
+        for item in error['trace']:
+            write("    %s: %d" % (item['file'], item['line']))
+
 
 def _assert_snapshot(example, url, example_type, diff):
     # Get setup datapoints
-    verbose = pytest.config.option.verbose
 
-    result = _get_result_from_phantomjs(example, url, example_type, diff)
+    screenshot_path, _, _ = get_example_pngs(example, diff)
+
+    if example_type == 'notebook':
+        wait = pytest.config.option.notebook_phantom_wait * 1000
+        height = 2000
+    else:
+        wait = 1000
+        height = 1000
+
+    result = get_phantomjs_screenshot(url, screenshot_path, wait, height=height)
 
     status = result['status']
     errors = result['errors']
@@ -163,22 +158,21 @@ def _assert_snapshot(example, url, example_type, diff):
     if status != 'success':
         assert False, "PhantomJS did not succeed: %s | %s | %s" % (errors, messages, resources)
     else:
-        if verbose:
-            _print_phantomjs_errors(messages)
-        # Process resources
-        for resource in resources:
-            url = resource['url']
-            if url.endswith(".png"):
-                ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
-            else:
-                warn("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
-        # Process errors
-        # You can have a successful test, and still have errors reported, so not failing here.
-        for error in errors:
-            warn("%s: %s" % (red("PhatomJS Error: "), error['msg']))
-            for item in error['trace']:
-                write("    %s: %d" % (item['file'], item['line']))
+        if pytest.config.option.verbose:
+            _print_phantomjs_output(result)
         assert True
+
+
+def _get_reference_image_from_s3(example, diff):
+    example_path = relpath(splitext(example)[0], example_dir)
+    ref_loc = join(diff, example_path + ".png")
+    ref_url = join(S3_URL, ref_loc)
+    response = requests.get(ref_url)
+
+    if not response.ok:
+        info("reference image %s doesn't exist" % ref_url)
+        return None
+    return response.content
 
 
 def _run_example(example):

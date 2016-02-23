@@ -2,10 +2,11 @@ var page = require('webpage').create();
 var system = require('system');
 var fs = require('fs');
 
-var type = system.args[1];
-var url = system.args[2];
-var png = system.args[3];
-var wait = system.args[4];
+var url = system.args[1];
+var png = system.args[2];
+var wait = system.args[3];
+var width = system.args[4];
+var height = system.args[5];
 
 var errors = [];
 var messages = [];
@@ -46,12 +47,7 @@ page.onResourceReceived = function(response) {
     }
 };
 
-// TODO: fit viewport's size to content
-if (type === 'notebook') {
-        page.viewportSize = { width: 1000, height: 2000 };
-    } else {
-        page.viewportSize = { width: 1000, height: 1000 };
-    }
+page.viewportSize = { width: width, height: height };
 
 page.open(url, function(status) {
     page.evaluate(function() {
@@ -72,13 +68,5 @@ page.open(url, function(status) {
         }));
 
         phantom.exit();
-    }, timer());
+    }, wait);
 });
-
-function timer() {
-    if (type === 'notebook') {
-        return wait * 1000;
-    } else {
-        return 1000;
-    }
-}
