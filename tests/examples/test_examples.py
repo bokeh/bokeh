@@ -19,7 +19,6 @@ from os.path import (
 
 from tests.utils.constants import s3
 from tests.utils.utils import (
-    fail,
     info,
     ok,
     red,
@@ -165,25 +164,25 @@ def _assert_snapshot(example, url, example_type, diff):
     messages = result['messages']
     resources = result['resources']
 
-    if status == 'fail':
-        assert False, "Failed to load %s" % url
+    if status != 'success':
+        assert False, "PhantomJS did not succeed: %s | %s | %s" % (errors, messages, resources)
     else:
         if verbose:
             _print_phantomjs_errors(messages)
-
         # Process resources
         for resource in resources:
             url = resource['url']
             if url.endswith(".png"):
-                warn("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
+                ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
             else:
-                assert False, "Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText'])
-
+                warn("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
         # Process errors
-        if len(errors) > 0:
-            assert False, "PhantomJS errors: %s" % (errors)
-
-    assert True
+        # You can have a successful test, and still have errors reported, so not failing here.
+        for error in errors:
+            warn("%s: %s" % (red("PhatomJS Error: "), error['msg']))
+            for item in error['trace']:
+                write("    %s: %d" % (item['file'], item['line']))
+        assert True
 
 
 def _run_example(example):
