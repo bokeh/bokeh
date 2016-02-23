@@ -2,7 +2,7 @@ import os
 import pytest
 import requests
 import subprocess
-import sys
+import signal
 
 from os.path import (
     abspath,
@@ -33,6 +33,7 @@ from .utils import (
     get_example_pngs,
     no_ext,
 )
+
 
 
 @pytest.mark.examples
@@ -198,25 +199,33 @@ with open(filename, 'rb') as example:
     env['BOKEH_RESOURCES'] = 'relative'
     env['BOKEH_BROWSER'] = 'none'
 
+    class Timeout(Exception):
+        pass
+
+    def alarm_handler(sig, frame):
+        raise Timeout
+
+    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.alarm(10)
+
     try:
         proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
-        status_code = proc.returncode
 
-        # Write-out info to screen
-        def write_bytes(stdx):
-            for line in stdx.splitlines():
-                write(line.decode("utf-8"), end="")
+        try:
+            def dump(f):
+                for line in iter(f.readline, b""):
+                    write(line.decode("utf-8"), end="")
 
-        write_bytes(stdout)
-        write_bytes(stderr)
+            dump(proc.stdout)
+            dump(proc.stderr)
 
-        return status_code
-
-    except KeyboardInterrupt:
+            return proc.wait()
+        except KeyboardInterrupt:
+            proc.kill()
+            raise
+    except Timeout:
+        warn("Timeout - Example timed out when attempting to run")
         proc.kill()
-        raise
-
-    except OSError:
-        write("Failed to run: %s" % cmd)
-        sys.exit(1)
+        return 0
+    finally:
+        signal.alarm(0)
