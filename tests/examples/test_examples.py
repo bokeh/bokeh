@@ -142,11 +142,14 @@ def _assert_snapshot(example, url, example_type, diff):
 
     screenshot_path, _, _ = get_example_pngs(example, diff)
 
+    long_wait = pytest.config.option.notebook_phantom_wait * 1000
     if example_type == 'notebook':
-        wait = pytest.config.option.notebook_phantom_wait * 1000
+        wait = long_wait
         height = 2000
+    elif 'compat' in example:
+        wait = long_wait
     else:
-        wait = 10 * 1000
+        wait = 1000
         height = 1000
 
     result = get_phantomjs_screenshot(url, screenshot_path, wait, height=height)
