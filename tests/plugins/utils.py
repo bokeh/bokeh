@@ -5,10 +5,6 @@ import colorama
 import subprocess
 import sys
 
-from boto.s3.key import Key as S3Key
-from boto.exception import NoAuthHandlerFound
-from os.path import join
-
 #
 # Output to stdout
 #
@@ -54,28 +50,6 @@ def info(msg=None):
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
     write("%s%s" % (green("[OK]"), msg))
-
-
-def upload_file_to_s3(file_path, content_type="text/html"):
-    # Uploads into a build_id folder
-    from .constants import s3, s3_bucket, build_id
-
-    try:
-        conn = boto.connect_s3()
-        bucket = conn.get_bucket(s3_bucket)
-        with open(file_path, "r") as f:
-            html = f.read()
-        filename = join(build_id, file_path)
-        key = S3Key(bucket, filename)
-        key.set_metadata("Content-Type", content_type)
-        key.set_contents_from_string(html, policy="public-read")
-        ok("Access report at: %s" % (join(s3, filename)))
-
-    except NoAuthHandlerFound:
-        fail("Upload was requested but could not connect to S3.")
-
-    except OSError:
-        fail("Upload was requested but report was not generated.")
 
 
 def get_version_from_git(ref=None):
