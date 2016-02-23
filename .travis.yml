@@ -79,8 +79,8 @@ script:
     #
     # Run examples_new
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples in serial for py2.7
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && "$TRAVIS_PYTHON_VERSION" == '3.4' ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n3; fi; fi # Run the examples in parallel for py3.4
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n2; fi; fi # Run the examples in serial for py2.7
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && "$TRAVIS_PYTHON_VERSION" == '3.4' ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples in parallel for py3.4
     #
     - echo "poor man logger"
     - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
