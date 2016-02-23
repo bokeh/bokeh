@@ -35,7 +35,7 @@ matrix:
         - python: 3.5
           env: GROUP=flake_docs
         #
-        # TEMPORARILY DISABLE EXAMPLES_NEW for py 3.5
+        # TEMPORARILY DISABLE EXAMPLES for py 3.5
         - python: 3.5
           env: GROUP=examples
 
@@ -76,7 +76,7 @@ script:
     #
     # Run examples_new
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html --default-phantom-timeout=10; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html --default-phantom-timeout=10 -n2; fi; fi # Run the examples
     #
     - echo "poor man logger"
     - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
