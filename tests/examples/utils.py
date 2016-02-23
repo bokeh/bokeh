@@ -1,11 +1,10 @@
 import boto
 import json
-import os
 import pytest
 
 from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
-from os.path import split, splitext, abspath, isfile, join, relpath
+from os.path import splitext, abspath, isfile, join, relpath
 
 from tests.utils.utils import warn, fail, write, green
 from tests.utils.constants import __version__, s3, s3_bucket, job_id
@@ -29,7 +28,7 @@ def get_example_pngs(example_file, diff):
     return (test_png, ref_png, diff_png)
 
 
-def _upload_image(bucket, path, s3_png_file):
+def _upload_example_image(bucket, path, s3_png_file):
     with open(path, 'rb') as f:
         png = f.read()
     write("%s Uploading image to S3 to %s/%s" % (green(">>>"), s3, s3_png_file))
@@ -57,10 +56,10 @@ def upload_example_pngs_to_s3(diff):
             test_png, _, diff_png = get_example_pngs(example, diff)
             if test_png:
                 if isfile(test_png):
-                    _upload_image(bucket, test_png, s3_path + ".png")
+                    _upload_example_image(bucket, test_png, s3_path + ".png")
             if diff_png:
                 if isfile(diff_png):
-                    _upload_image(bucket, diff_png, s3_path + diff + "-diff.png")
+                    _upload_example_image(bucket, diff_png, s3_path + diff + "-diff.png")
 
 
 def deal_with_output_cells(example):
@@ -106,42 +105,3 @@ def deal_with_output_cells(example):
             save_nb(example, nb)
 
     return True
-
-
-def get_path_parts(path):
-    parts = []
-    while True:
-        newpath, tail = split(path)
-        parts.append(tail)
-        path = newpath
-        if tail == 'examples':
-            break
-    parts.reverse()
-    return parts
-
-
-class Timeout(Exception):
-    pass
-
-
-def make_env():
-    env = os.environ.copy()
-    env['BOKEH_RESOURCES'] = 'relative'
-    env['BOKEH_BROWSER'] = 'none'
-    return env
-
-
-def human_bytes(n):
-    """
-    Return the number of bytes n in more human readable form.
-    """
-    if n < 1024:
-        return '%d B' % n
-    k = n / 1024
-    if k < 1024:
-        return '%d KB' % round(k)
-    m = k / 1024
-    if m < 1024:
-        return '%.1f MB' % m
-    g = m / 1024
-    return '%.2f GB' % g

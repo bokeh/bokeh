@@ -6,7 +6,16 @@ import subprocess
 import sys
 import signal
 
-from os.path import dirname, abspath, join, splitext, relpath, exists, basename
+from os.path import (
+    abspath,
+    basename,
+    dirname,
+    exists,
+    join,
+    relpath,
+    split,
+    splitext,
+)
 
 from tests.utils.constants import s3
 from tests.utils.utils import (
@@ -22,11 +31,8 @@ from tests.utils.utils import (
 from .collect_examples import base_dir, example_dir
 from .utils import (
     deal_with_output_cells,
-    get_path_parts,
     get_example_pngs,
-    make_env,
     no_ext,
-    Timeout,
 )
 
 
@@ -37,18 +43,18 @@ def test_server_examples(server_example, bokeh_server, diff):
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
     assert _run_example(server_example) == 0, 'Example did not run'
-    assert _get_snapshot(server_example, url, 'server', diff), 'Snapshot from phantomjs failed'
+    _assert_snapshot(server_example, url, 'server', diff)
     if diff:
         _get_pdiff(server_example, diff)
 
 
 @pytest.mark.examples
-def test_notebook_examples(notebook_example, jupyter_notebook_examples, diff):
+def test_notebook_examples(notebook_example, jupyter_notebook, diff):
     notebook_port = pytest.config.option.notebook_port
-    url_path = join(*get_path_parts(abspath(notebook_example)))
+    url_path = join(*_get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
     assert deal_with_output_cells(notebook_example), 'Notebook failed'
-    assert _get_snapshot(notebook_example, url, 'notebook', diff), 'Snapshot from phantomjs failed'
+    _assert_snapshot(notebook_example, url, 'notebook', diff)
     if diff:
         _get_pdiff(notebook_example, diff)
 
@@ -58,9 +64,21 @@ def test_file_examples(file_example, diff):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
     assert _run_example(file_example) == 0, 'Example did not run'
-    assert _get_snapshot(file_example, url, 'file', diff), 'Snapshot from phantomjs failed'
+    _assert_snapshot(file_example, url, 'file', diff)
     if diff:
         _get_pdiff(file_example, diff)
+
+
+def _get_path_parts(path):
+    parts = []
+    while True:
+        newpath, tail = split(path)
+        parts.append(tail)
+        path = newpath
+        if tail == 'examples':
+            break
+    parts.reverse()
+    return parts
 
 
 def _get_reference_image_from_s3(example, diff):
@@ -113,7 +131,7 @@ def _get_result_from_phantomjs(example, url, example_type, diff):
     write("Running command: %s" % " ".join(cmd))
 
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait()
     except OSError:
         write("Failed to run: %s" % " ".join(cmd))
@@ -136,44 +154,36 @@ def _print_phantomjs_errors(messages):
             write("%s:%s: %s" % (source, line, msg))
 
 
-def _get_snapshot(example, url, example_type, diff):
+def _assert_snapshot(example, url, example_type, diff):
     # Get setup datapoints
     verbose = pytest.config.option.verbose
 
     result = _get_result_from_phantomjs(example, url, example_type, diff)
+
     status = result['status']
     errors = result['errors']
     messages = result['messages']
     resources = result['resources']
 
     if status == 'fail':
-        fail("failed to load %s" % url)
-        return False
+        assert False, "Failed to load %s" % url
     else:
         if verbose:
             _print_phantomjs_errors(messages)
 
         # Process resources
-        resource_errors = False
         for resource in resources:
             url = resource['url']
             if url.endswith(".png"):
                 warn("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
             else:
-                fail("%s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
-                resource_errors = True
+                assert False, "Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText'])
 
         # Process errors
-        for error in errors:
-            write(error['msg'])
-            for item in error['trace']:
-                write("    %s: %d" % (item['file'], item['line']))
+        if len(errors) > 0:
+            assert False, "PhantomJS errors: %s" % (errors)
 
-        if resource_errors or errors:
-            fail(example)
-            return False
-
-    return True
+    assert True
 
 
 def _run_example(example):
@@ -194,7 +204,13 @@ with open(filename, 'rb') as example:
 
     cmd = ["python", "-c", code]
     cwd = dirname(example_path)
-    env = make_env()
+
+    env = os.environ.copy()
+    env['BOKEH_RESOURCES'] = 'relative'
+    env['BOKEH_BROWSER'] = 'none'
+
+    class Timeout(Exception):
+        pass
 
     def alarm_handler(sig, frame):
         raise Timeout

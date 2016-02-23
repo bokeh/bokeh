@@ -7,9 +7,8 @@ import subprocess
 import sys
 import time
 
-
 from bokeh.io import output_file
-from os.path import join, exists
+from os.path import join, exists, dirname, pardir
 from requests.exceptions import ConnectionError
 
 from tests.utils.constants import default_upload
@@ -25,6 +24,18 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
+    )
+    parser.addoption(
+        "--bokeh-port", dest="bokeh_port", type=int, default=5006, help="port on which Bokeh server resides"
+    )
+    parser.addoption(
+        "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides"
+    )
+    parser.addoption(
+        "--all-notebooks", action="store_true", default=False, help="test all the notebooks inside examples/plotting/notebook folder."
+    )
+    parser.addoption(
+        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
     )
 
 
@@ -95,11 +106,10 @@ def bokeh_server(request, log_file):
     bokeh_server_url = 'http://localhost:%s' % bokeh_port
 
     try:
-        proc = subprocess.Popen(cmd + argv, stdout=log_file, stderr=log_file)
+        proc = subprocess.Popen(cmd + argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError:
         write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)
-
     else:
         # Add in the clean-up code
         def stop_bokeh_server():
@@ -140,10 +150,11 @@ def bokeh_server(request, log_file):
 
 
 @pytest.fixture(scope="session")
-def jupyter_custom_js(request):
+def jupyter_notebook(request, bokeh_server, log_file):
+    # First - set-up the notebooks to run all cells when they're opened
+    #
     # Can be cleaned up further to remember the user's existing customJS
     # and then restore it after the test run.
-
     from jupyter_core import paths
     config_dir = paths.jupyter_config_dir()
 
@@ -154,7 +165,6 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     });
 });
 """
-
     custom = join(config_dir, "custom")
     if not exists(custom):
         os.makedirs(custom)
@@ -169,3 +179,61 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             f.write("")
 
     request.addfinalizer(clean_up_customjs)
+
+    # Second - Run a notebook server at the examples directory
+    #
+
+    notebook_port = pytest.config.option.notebook_port
+
+    env = os.environ.copy()
+    env['BOKEH_RESOURCES'] = 'server'
+
+    notebook_dir = join(dirname(__file__), pardir)
+
+    cmd = ["jupyter", "notebook"]
+    argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir]
+    jupter_notebook_url = "http://localhost:%d" % notebook_port
+
+    try:
+        proc = subprocess.Popen(cmd + argv, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError:
+        write("Failed to run: %s" % " ".join(cmd + argv))
+        sys.exit(1)
+    else:
+        # Add in the clean-up code
+        def stop_jupyter_notebook():
+            write("Shutting down jupyter-notebook ...")
+            proc.kill()
+
+        request.addfinalizer(stop_jupyter_notebook)
+
+        def wait_until(func, timeout=5.0, interval=0.01):
+            start = time.time()
+
+            while True:
+                if func():
+                    return True
+                if time.time() - start > timeout:
+                    return False
+                time.sleep(interval)
+
+        def wait_for_jupyter_notebook():
+            def helper():
+                if proc.returncode is not None:
+                    return True
+                try:
+                    return requests.get(jupter_notebook_url)
+                except ConnectionError:
+                    return False
+
+            return wait_until(helper)
+
+        if not wait_for_jupyter_notebook():
+            write("Timeout when running: %s" % " ".join(cmd + argv))
+            sys.exit(1)
+
+        if proc.returncode is not None:
+            write("Jupyter notebook exited with code " + str(proc.returncode))
+            sys.exit(1)
+
+        return jupter_notebook_url

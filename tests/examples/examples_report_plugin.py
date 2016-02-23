@@ -29,22 +29,10 @@ def pytest_addoption(parser):
         "--patterns", type=str, nargs="*", help="select a subset of examples to test"
     )
     parser.addoption(
-        "--bokeh-port", type=int, default=5006, help="port on which Bokeh server resides"
-    )
-    parser.addoption(
-        "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides"
-    )
-    parser.addoption(
         "--phantomjs", type=str, default="phantomjs", help="phantomjs executable"
     )
     parser.addoption(
         "--timeout", type=int, default=default_timeout, help="how long can an example run (in seconds)"
-    )
-    parser.addoption(
-        "--all-notebooks", action="store_true", default=False, help="test all the notebooks inside examples/plotting/notebook folder."
-    )
-    parser.addoption(
-        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
     )
     parser.addoption(
         "--diff", type=str, default=default_diff, help="compare generated images against this ref"
