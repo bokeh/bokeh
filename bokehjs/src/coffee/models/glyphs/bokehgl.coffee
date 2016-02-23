@@ -1,3 +1,4 @@
+_ = require "underscore"
 gloo2 = require "gloo2"
 color = require "../../core/util/color"
 color2rgba = color.color2rgba
@@ -36,14 +37,22 @@ fill_array_with_vec = (n, m, val) ->
         a[i*m+j] = val[j]
     return a
 
+visual_prop_is_singular = (visual, propname) ->
+    # This touches the internals of the visual, so we limit use in this function
+    # See renderer.coffee:cache_select() for similar code
+    return not _.isUndefined(visual[propname].spec.value)
+
 attach_float = (prog, vbo, att_name, n, visual, name) ->
     # Attach a float attribute to the program. Use singleton value if we can,
     # otherwise use VBO to apply array.
-    vbo.used = true
-    if visual[name].spec.value?
-      prog.set_attribute(att_name, 'float', null, visual[name].spec.value)
+    if not visual.doit
       vbo.used = false
+      prog.set_attribute(att_name, 'float', null, 0)
+    else if visual_prop_is_singular(visual, name)
+      vbo.used = false
+      prog.set_attribute(att_name, 'float', null, visual[name].value())
     else
+      vbo.used = true
       a = new Float32Array(visual.cache[name + '_array'])
       vbo.set_size(n*4)
       vbo.set_data(0, a)
@@ -54,29 +63,32 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     # then use this single color for all vertices (no VBO). Otherwise we
     # create an array and upload that to the VBO, which we attahce to the prog.
     m = 4
-    vbo.used = true
     colorname = prefix + '_color'
     alphaname = prefix + '_alpha'
-    if visual[colorname].spec.value? and visual[alphaname].spec.value?
-      rgba = color2rgba(visual[colorname].spec.value, visual[alphaname].spec.value)
-      prog.set_attribute(att_name, 'vec4', null, rgba)
+    
+    if not visual.doit
+      # Don't draw (draw transparent)
       vbo.used = false
-
+      prog.set_attribute(att_name, 'vec4', null, [0,0,0,0])
+    else if visual_prop_is_singular(visual, colorname) and visual_prop_is_singular(visual, alphaname)
+      # Nice and simple; both color and alpha are singular
+      vbo.used = false
+      rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
+      prog.set_attribute(att_name, 'vec4', null, rgba)
     else
+      # Use vbo; we need an array for both the color and the alpha
+      vbo.used = true
       # Get array of colors
-      if visual[colorname].spec.value?
-        colors = (visual[colorname].spec.value for i in [0...n])
-      else if visual.cache[colorname+'_array']?
+      if visual_prop_is_singular(visual, colorname)
+        colors = (visual[colorname].value() for i in [0...n])
+      else
         colors = visual.cache[colorname+'_array']
-      else  # color is None / null
-        prog.set_attribute(att_name, 'vec4', null, [0,0,0,0])
-        return
       # Get array of alphas
-      if visual[alphaname].spec.value?
-        alphas = fill_array_with_float(n, visual[alphaname].spec.value)
+      if visual_prop_is_singular(visual, alphaname)
+        alphas = fill_array_with_float(n, visual[alphaname].value())
       else
         alphas = visual.cache[alphaname+'_array']
-      # Get array of rgbs
+      # Create array of rgbs
       a = new Float32Array(n*m)
       for i in [0...n]
         rgba = color2rgba(colors[i], alphas[i])
