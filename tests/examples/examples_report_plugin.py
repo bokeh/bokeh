@@ -9,7 +9,7 @@ import sys
 from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
-from tests.utils.constants import __version__, default_diff, default_timeout, s3
+from tests.utils.constants import __version__, default_diff, s3
 from tests.utils.utils import upload_file_to_s3, get_version_from_git
 
 from .collect_examples import example_dir
@@ -32,7 +32,7 @@ def pytest_addoption(parser):
         "--phantomjs", type=str, default="phantomjs", help="phantomjs executable"
     )
     parser.addoption(
-        "--timeout", type=int, default=default_timeout, help="how long can an example run (in seconds)"
+        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10, help="how long should PhantomJS wait before taking a snapshot of a notebook (in seconds)"
     )
     parser.addoption(
         "--diff", type=str, default=default_diff, help="compare generated images against this ref"

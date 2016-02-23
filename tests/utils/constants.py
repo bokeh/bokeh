@@ -3,7 +3,6 @@ from os.path import dirname, join, abspath, pardir
 
 from .utils import get_version_from_git
 
-default_timeout = int(os.environ.get("BOKEH_DEFAULT_TIMEOUT", 10))
 default_diff = os.environ.get("BOKEH_DEFAULT_DIFF", None)
 default_upload = default_diff is not None
 

@@ -123,10 +123,10 @@ def _get_pdiff(example, diff):
 
 def _get_result_from_phantomjs(example, url, example_type, diff):
     test_png, _, _ = get_example_pngs(example, diff)
-    timeout = pytest.config.option.timeout
+    wait = pytest.config.option.notebook_phantom_wait
     phantomjs = pytest.config.option.phantomjs
 
-    cmd = [phantomjs, join(base_dir, "test.js"), example_type, url, test_png, str(timeout)]
+    cmd = [phantomjs, join(base_dir, "test.js"), example_type, url, test_png, str(wait)]
     write("Running command: %s" % " ".join(cmd))
 
     try:
