@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 
+
 from bokeh.io import output_file
 from os.path import join, exists, dirname, pardir
 from requests.exceptions import ConnectionError
@@ -42,7 +43,8 @@ def pytest_addoption(parser):
 def pytest_sessionfinish(session, exitstatus):
     try_upload = session.config.option.upload
     seleniumreport = session.config.option.htmlpath
-    if try_upload and seleniumreport:
+    is_slave = hasattr(session.config, 'slaveinput')
+    if try_upload and seleniumreport and not is_slave:
         upload_file_to_s3(seleniumreport)
 
 

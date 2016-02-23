@@ -7,7 +7,7 @@ import sys
 
 from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
-from os.path import join, isfile
+from os.path import join
 
 #
 # Output to stdout
@@ -59,26 +59,23 @@ def ok(msg=None):
 def upload_file_to_s3(file_path, content_type="text/html"):
     # Uploads into a build_id folder
     from .constants import s3, s3_bucket, build_id
-    file_ready = isfile(file_path)
-    if file_ready:
-        try:
-            conn = boto.connect_s3()
-            bucket = conn.get_bucket(s3_bucket)
-            upload = True
-        except NoAuthHandlerFound:
-            fail("Upload was requested but could not connect to S3.")
-            upload = False
 
-        if upload is True:
-            with open(file_path, "r") as f:
-                html = f.read()
-            filename = join(build_id, file_path)
-            key = S3Key(bucket, filename)
-            key.set_metadata("Content-Type", content_type)
-            key.set_contents_from_string(html, policy="public-read")
-            ok("Access report at: %s" % (join(s3, filename)))
-    else:
-        fail("%s is not a file" % file_path)
+    try:
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket(s3_bucket)
+        with open(file_path, "r") as f:
+            html = f.read()
+        filename = join(build_id, file_path)
+        key = S3Key(bucket, filename)
+        key.set_metadata("Content-Type", content_type)
+        key.set_contents_from_string(html, policy="public-read")
+        ok("Access report at: %s" % (join(s3, filename)))
+
+    except NoAuthHandlerFound:
+        fail("Upload was requested but could not connect to S3.")
+
+    except OSError:
+        fail("Upload was requested but report was not generated.")
 
 
 def get_version_from_git(ref=None):
