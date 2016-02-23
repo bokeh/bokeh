@@ -9,8 +9,9 @@ import sys
 from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
-from tests.utils.constants import __version__, default_diff, s3
-from tests.utils.utils import upload_file_to_s3, get_version_from_git
+from tests.plugins.constants import __version__, default_diff
+from tests.plugins.utils import get_version_from_git
+from tests.plugins.upload_to_s3 import upload_file_to_s3, S3_URL
 
 from .collect_examples import example_dir
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
@@ -100,10 +101,10 @@ class ExamplesTestReport(object):
         else:
             # We have to update the paths so that the html refers to the uploaded ones
             example_path = relpath(no_ext(example), example_dir)
-            test_url = join(s3, __version__, example_path) + '.png'
+            test_url = join(S3_URL, __version__, example_path) + '.png'
             if self.diff:
-                diff_url = join(s3, __version__, example_path) + self.diff + '-diff.png'
-                ref_url = join(s3, self.diff, example_path) + '.png'
+                diff_url = join(S3_URL, __version__, example_path) + self.diff + '-diff.png'
+                ref_url = join(S3_URL, self.diff, example_path) + '.png'
             else:
                 diff_url = None
                 ref_url = None

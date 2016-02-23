@@ -15,3 +15,12 @@ def pytest_generate_tests(metafunc):
     if 'notebook_example' in metafunc.fixturenames:
         examples = get_notebook_examples()
         metafunc.parametrize('notebook_example', examples)
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--all-notebooks", action="store_true", default=False, help="test all the notebooks inside examples/plotting/notebook folder."
+    )
+    parser.addoption(
+        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
+    )

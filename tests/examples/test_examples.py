@@ -17,8 +17,8 @@ from os.path import (
     splitext,
 )
 
-from tests.utils.constants import s3
-from tests.utils.utils import (
+from tests.plugins.upload_to_s3 import S3_URL
+from tests.plugins.utils import (
     info,
     ok,
     red,
@@ -83,7 +83,7 @@ def _get_path_parts(path):
 def _get_reference_image_from_s3(example, diff):
     example_path = relpath(splitext(example)[0], example_dir)
     ref_loc = join(diff, example_path + ".png")
-    ref_url = join(s3, ref_loc)
+    ref_url = join(S3_URL, ref_loc)
     response = requests.get(ref_url)
 
     if not response.ok:
