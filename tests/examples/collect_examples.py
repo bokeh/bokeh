@@ -74,7 +74,7 @@ def get_all_examples():
         except KeyError:
             example_type = None
 
-        if not pytest.config.option.all_notebooks:
+        if not pytest.config.getoption('all_notebooks'):
             skip_status = example.get("skip") or example.get("skip_travis")
         else:
             skip_status = example.get("skip")
