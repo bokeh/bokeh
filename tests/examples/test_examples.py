@@ -8,16 +8,8 @@ import signal
 
 from os.path import dirname, abspath, join, splitext, relpath, exists, basename
 
-from .utils import (
-    deal_with_output_cells,
-    get_path_parts,
-    get_example_pngs,
-    make_env,
-    no_ext,
-    Timeout,
-)
-
-from ..utils import (
+from tests.utils.constants import s3
+from tests.utils.utils import (
     fail,
     info,
     ok,
@@ -27,7 +19,15 @@ from ..utils import (
     yellow,
 )
 
-from ..constants import base_dir, example_dir, s3
+from .collect_examples import base_dir, example_dir
+from .utils import (
+    deal_with_output_cells,
+    get_path_parts,
+    get_example_pngs,
+    make_env,
+    no_ext,
+    Timeout,
+)
 
 
 @pytest.mark.examples
@@ -43,7 +43,7 @@ def test_server_examples(server_example, bokeh_server, diff):
 
 
 @pytest.mark.examples
-def test_notebook_examples(notebook_example, jupyter_notebook, diff):
+def test_notebook_examples(notebook_example, jupyter_notebook_examples, diff):
     notebook_port = pytest.config.option.notebook_port
     url_path = join(*get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
@@ -109,7 +109,7 @@ def _get_result_from_phantomjs(example, url, example_type, diff):
     timeout = pytest.config.option.timeout
     phantomjs = pytest.config.option.phantomjs
 
-    cmd = [phantomjs, join(base_dir, "examples", "test.js"), example_type, url, test_png, str(timeout)]
+    cmd = [phantomjs, join(base_dir, "test.js"), example_type, url, test_png, str(timeout)]
     write("Running command: %s" % " ".join(cmd))
 
     try:

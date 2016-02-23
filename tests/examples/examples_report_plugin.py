@@ -9,10 +9,12 @@ import sys
 from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
-from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import upload_file_to_s3, get_version_from_git
+from tests.utils.constants import __version__, default_diff, default_timeout, s3
+from tests.utils.utils import upload_file_to_s3, get_version_from_git
 
+from .collect_examples import example_dir
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
+
 
 PY3 = sys.version_info[0] == 3
 if not PY3:

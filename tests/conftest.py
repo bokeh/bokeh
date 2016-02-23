@@ -9,16 +9,12 @@ import time
 
 
 from bokeh.io import output_file
-from os.path import split, join, exists
+from os.path import join, exists
 from requests.exceptions import ConnectionError
 
-from tests.examples.utils import upload_example_pngs_to_s3
-
-from .constants import (
-    example_dir, default_upload
-)
-from .utils import write, upload_file_to_s3
-from .webserver import SimpleWebServer
+from tests.utils.constants import default_upload
+from tests.utils.utils import write, upload_file_to_s3
+from tests.utils.webserver import SimpleWebServer
 
 pytest_plugins = "tests.examples.examples_report_plugin"
 
@@ -53,7 +49,7 @@ def selenium(selenium):
     return selenium
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope='session')
 def file_server(request):
     server = SimpleWebServer()
     server.start()
@@ -173,32 +169,3 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             f.write("")
 
     request.addfinalizer(clean_up_customjs)
-
-
-@pytest.fixture(scope="session")
-def jupyter_notebook(request, jupyter_custom_js, log_file):
-    notebook_port = pytest.config.option.notebook_port
-
-    env = os.environ.copy()
-    env['BOKEH_RESOURCES'] = 'inline'
-
-    notebook_dir = split(example_dir)[0]
-
-    cmd = ["jupyter", "notebook"]
-    argv = ["--no-browser", "--port=%s" % notebook_port,
-            "--notebook-dir=%s" % notebook_dir]
-
-    try:
-        proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
-    except OSError:
-        write("Failed to run: %s" % " ".join(cmd + argv))
-        sys.exit(1)
-
-    # Add in the clean-up code
-    def stop_jupyter_notebook():
-        write("Shutting down jupyter-notebook ...")
-        proc.kill()
-
-    request.addfinalizer(stop_jupyter_notebook)
-
-    return proc

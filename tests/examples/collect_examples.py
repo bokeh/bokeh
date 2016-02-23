@@ -2,8 +2,27 @@ import yaml
 import os
 import pytest
 
-from os.path import join, dirname
-from ..constants import Flags, example_dir
+from os.path import join, dirname, abspath, pardir
+
+base_dir = dirname(__file__)
+example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
+
+
+class Flags(object):
+    file = 1 << 1
+    server = 1 << 2
+    notebook = 1 << 3
+    animated = 1 << 4
+    skip = 1 << 5
+
+
+def example_type(flags):
+    if flags & Flags.file:
+        return "file"
+    elif flags & Flags.server:
+        return "server"
+    elif flags & Flags.notebook:
+        return "notebook"
 
 
 def add_examples(list_of_examples, path, example_type=None, skip=None):

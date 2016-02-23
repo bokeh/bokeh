@@ -7,10 +7,10 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
-from ..utils import warn, fail, write, green
-from ..constants import __version__, s3, s3_bucket, example_dir, job_id
+from tests.utils.utils import warn, fail, write, green
+from tests.utils.constants import __version__, s3, s3_bucket, job_id
 
-from .collect_examples import get_all_examples
+from .collect_examples import get_all_examples, example_dir
 
 
 def no_ext(path):
