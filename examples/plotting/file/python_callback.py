@@ -12,8 +12,6 @@ from bokeh.io import vform
 from bokeh.plotting import figure, hplot, output_file, show, ColumnDataSource
 from bokeh.models import CustomJS, Slider
 
-window = None  # stub name to use in PyScript callback
-
 x = np.linspace(0, 10, 500)
 y = np.sin(x)
 
@@ -23,7 +21,7 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-def callback(source=source):
+def callback(source=source, window=None):
     data = source.get('data')
     A, B = amp.get('value'), offset.get('value')
     k, phi = freq.get('value'), phase.get('value')

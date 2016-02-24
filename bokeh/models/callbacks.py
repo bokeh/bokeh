@@ -44,6 +44,7 @@ class CustomJS(Callback):
         default_values = func.__defaults__  # Python 2.6+
         default_names = func.__code__.co_varnames[:len(default_values)]
         args = dict(zip(default_names, default_values))
+        args.pop('window', None)  # Clear window, so we use the global window object
         # Get JS code, we could rip out the function def, or just
         # call the function. We do the latter.
         code = py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
