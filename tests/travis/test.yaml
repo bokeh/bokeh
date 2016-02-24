@@ -8,7 +8,7 @@
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py", "choropleth.py", "iris_blend.py",
-         "scatter10k.py", "clustering.py", "line10k.py", "python_callback.py"]
+         "scatter10k.py", "clustering.py", "line10k.py"]
 - path: "plotting/server"
   type: server
 - path: "plotting/notebook"
