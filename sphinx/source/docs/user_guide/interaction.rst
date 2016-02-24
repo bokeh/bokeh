@@ -301,6 +301,10 @@ JavaScript. To use this functionality you need the Flexx library
 For more information about the subset of Python that is supported in
 callbacks, see the `<PyScript documentation_>`_.
 
+We recommend using ``window.x`` for variables specific to JavaScript
+to avoid confusion and help static code analysis tools. You can add
+``window`` as an argument to the callback function to help readability
+(and pyflakes), as in the example below.
 
 .. code-block:: python
 
@@ -318,12 +322,12 @@ callbacks, see the `<PyScript documentation_>`_.
     plot = Figure(plot_width=400, plot_height=400)
     plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-    def callback(source=source):
+    def callback(source=source, window=None):
         data = source.get('data')
         f = cb_obj.get('value')
         x, y = data['x'], data['y']
         for i in range(len(x)):
-            y[i] = Math.pow(x[i], f)
+            y[i] = window.Math.pow(x[i], f)
         source.trigger('change')
 
     slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
