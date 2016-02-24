@@ -209,8 +209,7 @@ with open(filename, 'rb') as example:
 
     try:
         proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=log_file, stderr=log_file)
-        proc.wait()
-        return proc.returncode
+        return proc.wait()
     except Timeout:
         warn("Timeout - Example timed out when attempting to run")
         proc.kill()
