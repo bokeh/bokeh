@@ -40,7 +40,7 @@ topic:
     Combine multiple plots and widgets into specified layouts.
 
 :ref:`userguide_notebook`
-    Creating and display interactive plots inside Jupyter/IPython notebooks.
+    Create and display interactive plots inside Jupyter/IPython notebooks.
 
 :ref:`userguide_interaction`
     Create more sophisticated interactions including widgets or linked
