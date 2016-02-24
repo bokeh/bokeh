@@ -27,7 +27,7 @@ def bokeh_server(request, log_file):
     bokeh_server_url = 'http://localhost:%s' % bokeh_port
 
     try:
-        proc = subprocess.Popen(cmd + argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd + argv, stdout=log_file, stderr=log_file)
     except OSError:
         write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)

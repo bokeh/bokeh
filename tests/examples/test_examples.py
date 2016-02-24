@@ -35,14 +35,13 @@ from .utils import (
 )
 
 
-
 @pytest.mark.examples
-def test_server_examples(server_example, bokeh_server, diff):
+def test_server_examples(server_example, bokeh_server, diff, log_file):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
-    assert _run_example(server_example) == 0, 'Example did not run'
+    assert _run_example(server_example, log_file) == 0, 'Example did not run'
     _assert_snapshot(server_example, url, 'server', diff)
     if diff:
         _get_pdiff(server_example, diff)
@@ -60,10 +59,10 @@ def test_notebook_examples(notebook_example, jupyter_notebook, diff):
 
 
 @pytest.mark.examples
-def test_file_examples(file_example, diff):
+def test_file_examples(file_example, diff, log_file):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
-    assert _run_example(file_example) == 0, 'Example did not run'
+    assert _run_example(file_example, log_file) == 0, 'Example did not run'
     _assert_snapshot(file_example, url, 'file', diff)
     if diff:
         _get_pdiff(file_example, diff)
@@ -176,7 +175,7 @@ def _get_reference_image_from_s3(example, diff):
     return response.content
 
 
-def _run_example(example):
+def _run_example(example, log_file):
     example_path = join(example_dir, example)
 
     code = """\
@@ -209,20 +208,9 @@ with open(filename, 'rb') as example:
     signal.alarm(10)
 
     try:
-        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        try:
-            def dump(f):
-                for line in iter(f.readline, b""):
-                    write(line.decode("utf-8"), end="")
-
-            dump(proc.stdout)
-            dump(proc.stderr)
-
-            return proc.wait()
-        except KeyboardInterrupt:
-            proc.kill()
-            raise
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=log_file, stderr=log_file)
+        proc.wait()
+        return proc.returncode
     except Timeout:
         warn("Timeout - Example timed out when attempting to run")
         proc.kill()

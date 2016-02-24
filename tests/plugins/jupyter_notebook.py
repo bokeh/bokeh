@@ -79,7 +79,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     jupter_notebook_url = "http://localhost:%d" % notebook_port
 
     try:
-        proc = subprocess.Popen(cmd + argv, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
     except OSError:
         write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)
