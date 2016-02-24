@@ -5,10 +5,12 @@ from __future__ import absolute_import
 import sys
 from types import FunctionType
 from ..model import Model
+from ..util.dependencies import import_required
 
 from ..core.properties import abstract
 from ..core.properties import Dict, Instance, String, Enum
 from ..core.enums import ScriptingLanguage
+
 
 @abstract
 class Callback(Model):
@@ -35,11 +37,9 @@ class CustomJS(Callback):
         """
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
-        try:
-            from flexx.pyscript import py2js
-        except ImportError:
-            raise RuntimeError('To use Python functions for CustomJS, you need Flexx '
-                                '("conda install -c bokeh flexx" or "pip install flexx")')
+        pyscript = import_required('flexx.pyscript',
+                                   'To use Python functions for CustomJS, you need Flexx ' +
+                                   '("conda install -c bokeh flexx" or "pip install flexx")')
         # Collect default values
         default_values = func.__defaults__  # Python 2.6+
         default_names = func.__code__.co_varnames[:len(default_values)]
@@ -47,7 +47,7 @@ class CustomJS(Callback):
         args.pop('window', None)  # Clear window, so we use the global window object
         # Get JS code, we could rip out the function def, or just
         # call the function. We do the latter.
-        code = py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
+        code = pyscript.py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
         return cls(code=code, args=args, lang='javascript')
 
     args = Dict(String, Instance(Model), help="""
