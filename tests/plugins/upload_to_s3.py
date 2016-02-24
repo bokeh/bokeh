@@ -16,7 +16,7 @@ def upload_file_to_s3_by_job_id(file_path, content_type="text/html"):
     Uploads a file to bokeh-travis s3 bucket under a job_id folder
     """
     s3_filename = join(job_id, file_path)
-    return upload_file_to_s3(file_path, s3_filename)
+    return upload_file_to_s3(file_path, s3_filename, content_type)
 
 
 def upload_file_to_s3(file_path, s3_filename, content_type="text/html"):
