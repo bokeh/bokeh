@@ -74,7 +74,7 @@ script:
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
     #
-    # Run examples_new
+    # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n2 -x; fi; fi # Run the examples
     #
