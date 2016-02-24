@@ -104,11 +104,7 @@ class ExamplesTestReport(object):
         # It can be got from the report.location attribute which is a tuple
         # that looks # something like this:
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py]')
-        example_search = re.search(r'\[(.*?)\]', report.location[2])
-        if example_search:
-            example = example_search.group(1)
-        else:
-            example = ''
+        example = re.search(r'\[(.*?)\]', report.location[2]).group(1)
         example_path = no_ext(example)
         test_png, ref_png, diff_png = get_example_pngs(example, self.diff)
 
