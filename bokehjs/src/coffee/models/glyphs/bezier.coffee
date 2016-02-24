@@ -1,5 +1,6 @@
 _ = require "underscore"
 rbush = require "rbush"
+
 Glyph = require "./glyph"
 
 # algorithm adapted from http://stackoverflow.com/a/14429749/3406693
@@ -80,7 +81,7 @@ class BezierView extends Glyph.View
     return index
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) ->
-    if @visuals.line.do_stroke
+    if @visuals.line.doit
       for i in indices
         if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])
           continue
@@ -97,8 +98,10 @@ class BezierView extends Glyph.View
 
 class Bezier extends Glyph.Model
   default_view: BezierView
+
   type: 'Bezier'
-  visuals: ['line']
+
+  mixins: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
 
 module.exports =

@@ -1,14 +1,21 @@
 _ = require "underscore"
+
 TileSource = require "./tile_source"
+p = require "../../core/properties"
 
 class MercatorTileSource extends TileSource
-
   type: 'MercatorTileSource'
 
+  props: ->
+    return _.extend {}, super(), {
+      x_origin_offset:    [ p.Number, 20037508.34        ]
+      y_origin_offset:    [ p.Number, 20037508.34        ]
+      initial_resolution: [ p.Number, 156543.03392804097 ]
+      wrap_around:        [ p.Bool,   true               ]
+    }
+
   initialize: (options) ->
-
     super(options)
-
     @_resolutions = (@get_resolution(z) for z in [0..30])
 
   _computed_initial_resolution: () ->
@@ -20,14 +27,14 @@ class MercatorTileSource extends TileSource
       2 * Math.PI * 6378137 / @get('tile_size')
 
   is_valid_tile: (x, y, z) ->
-    
+
     if not @get('wrap_around')
       if x < 0 or x >= Math.pow(2, z)
         return false
 
     if y < 0 or y >= Math.pow(2, z)
       return false
-      
+
     return true
 
   retain_children:(reference_tile) ->
@@ -273,13 +280,5 @@ class MercatorTileSource extends TileSource
 
   calculate_world_x_by_tile_xyz: (x, y, z) ->
     return Math.floor(x / Math.pow(2, z))
-
-  defaults: =>
-    return _.extend {}, super(), {
-      x_origin_offset : 20037508.34
-      y_origin_offset : 20037508.34
-      initial_resolution : 156543.03392804097
-      wrap_around : true
-    }
 
 module.exports = MercatorTileSource

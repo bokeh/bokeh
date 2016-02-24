@@ -1,13 +1,15 @@
 _ = require "underscore"
+
 Range = require "./range"
+p = require "../../core/properties"
 
 class DataRange extends Range.Model
   type: 'DataRange'
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      names: []
-      renderers: []
+      names:     [ p.Array, [] ]
+      renderers: [ p.Array, [] ]
     }
 
 module.exports =

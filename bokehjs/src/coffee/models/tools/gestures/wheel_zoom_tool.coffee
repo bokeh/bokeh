@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 GestureTool = require "./gesture_tool"
+p = require "../../../core/properties"
 
 # Here for testing purposes
 document = {} unless document?
@@ -111,12 +113,17 @@ class WheelZoomTool extends GestureTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
+  props: () ->
+    return _.extend({}, super(), {
+      dimensions: [ p.Array, ["width", "height"] ]
+    })
+
   nonserializable_attribute_names: () ->
     super().concat(['speed'])
 
   defaults: () ->
     return _.extend({}, super(), {
-      dimensions: ["width", "height"]
+      # internal
       speed: 1/600
     })
 

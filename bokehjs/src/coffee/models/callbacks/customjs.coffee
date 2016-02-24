@@ -1,8 +1,17 @@
 _ = require "underscore"
+
+p = require "../../core/properties"
 Model = require "../../model"
 
 class CustomJS extends Model
   type: 'CustomJS'
+
+  props: ->
+    return _.extend {}, super(), {
+      args: [ p.Any,     {}           ] # TODO (bev) better type
+      code: [ p.String,  ''           ]
+      lang: [ p.String , 'javascript' ] # TODO (bev) enum
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -32,13 +41,6 @@ class CustomJS extends Model
     # this relies on _.keys(args) and _.values(args) returning keys and values
     # in the same order
     new Function(_.keys(@get("args"))..., "cb_obj", "cb_data", "require", code)
-
-  defaults: ->
-    return _.extend {}, super(), {
-      args: {}
-      code: ""
-      lang: "javascript"
-    }
 
 module.exports =
   Model: CustomJS

@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 SelectTool = require "./select_tool"
 PolyAnnotation = require "../../annotations/poly_annotation"
+p = require "../../../core/properties"
 
 class LassoSelectToolView extends SelectTool.View
 
@@ -65,6 +67,18 @@ class LassoSelectToolView extends SelectTool.View
 
     return null
 
+DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
+  level: "overlay"
+  xs_units: "screen"
+  ys_units: "screen"
+  fill_color: "lightgrey"
+  fill_alpha: 0.5
+  line_color: "black"
+  line_alpha: 1.0
+  line_width: 2
+  line_dash: [4, 4]
+})
+
 class LassoSelectTool extends SelectTool.Model
   default_view: LassoSelectToolView
   type: "LassoSelectTool"
@@ -73,24 +87,15 @@ class LassoSelectTool extends SelectTool.Model
   event_type: "pan"
   default_order: 12
 
+  props: () ->
+    return _.extend({}, super(), {
+      select_every_mousemove: [ p.Bool,    true                  ]
+      overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
+    })
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @get('overlay').set('silent_update', true, {silent: true})
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      select_every_mousemove: true
-      overlay: new PolyAnnotation.Model({
-        xs_units: "screen"
-        ys_units: "screen"
-        fill_color: "lightgrey"
-        fill_alpha: 0.5
-        line_color: "black"
-        line_alpha: 1.0
-        line_width: 2
-        line_dash: [4, 4]
-      })
-    })
 
 module.exports =
   Model: LassoSelectTool

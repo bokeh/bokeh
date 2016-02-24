@@ -48,7 +48,6 @@ class LayoutBox extends Model
       name = '_'+v
       @[name] = new Variable(v)
       @register_property(v, @_get_var, false)
-      @register_setter(v, @_set_var)
       @solver.add_edit_variable(@[name], kiwi.Strength.strong)
 
     for v in ['right', 'bottom']
@@ -93,7 +92,6 @@ class LayoutBox extends Model
     @register_property('aspect',
         () => return @get('width') / @get('height')
       , true)
-    @register_setter('aspect', @_set_aspect)
     @add_dependencies('aspect', this, ['width', 'height'])
 
   contains: (vx, vy) ->
@@ -102,23 +100,26 @@ class LayoutBox extends Model
       vy >= @get('bottom') and vy <= @get('top')
     )
 
-  _set_var: (value, prop_name) ->
-    v = @['_' + prop_name]
+  set_var: (name, value) ->
+    v = @['_' + name]
     if _.isNumber(value)
       @solver.suggest_value(v, value)
     else if _.isString(value)
         # handle namespaced later
     else
       c = new Constraint(new Expression(v, [-1, value]), Eq)
-      if not @var_constraints[prop_name]?
-        @var_constraints[prop_name] = []
-      @var_constraints[prop_name].push(c)
+      if not @var_constraints[name]?
+        @var_constraints[name] = []
+      @var_constraints[name].push(c)
       @solver.add_constraint(c)
+      # TODO (bev) this is a bit of a hack, but let's us
+      # remove property setters entirely
+      @trigger('change:#{name}')
 
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
 
-  _set_aspect: (aspect) ->
+  set_aspect: (aspect) ->
     if @_aspect_constraint?
       @solver.remove_constraint(@aspect_constraint)
       c = new Constraint(new Expression([aspect, @_height], [-1, @_width]), Eq)

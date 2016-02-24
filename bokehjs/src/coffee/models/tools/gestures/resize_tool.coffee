@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 GestureTool = require "./gesture_tool"
+p = require "../../../core/properties"
 
 class ResizeToolView extends GestureTool.View
   className: "bk-resize-popup"
@@ -76,7 +78,10 @@ class ResizeTool extends GestureTool.Model
 
   defaults: () ->
     return _.extend({}, super(), {
+      # overrides
       level: 'overlay'
+
+      # internal
       data: {}
     })
 

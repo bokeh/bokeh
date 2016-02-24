@@ -50,7 +50,6 @@ echo "npm version $(npm -v)"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
     conda install --yes pdiff
-    conda install --yes boto
 fi
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")

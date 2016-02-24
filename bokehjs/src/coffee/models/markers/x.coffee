@@ -22,7 +22,7 @@ class XView extends Marker.View
       if angle[i]
         ctx.rotate(-angle[i])
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -31,7 +31,6 @@ class XView extends Marker.View
 class X extends Marker.Model
   default_view: XView
   type: 'X'
-  props: ['line']
 
 module.exports =
   Model: X

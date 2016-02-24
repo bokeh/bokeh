@@ -564,7 +564,6 @@ class XYBuilder(Builder):
     def set_ranges(self):
         """Calculate and set the x and y ranges."""
         # ToDo: handle when only single dimension is provided
-
         extents = self.get_dim_extents()
 
         endx = extents['x_max']
@@ -623,7 +622,14 @@ class XYBuilder(Builder):
         if dtype == 'object':
             factors = values.drop_duplicates()
             if sort:
-                factors.sort(inplace=True)
+                # TODO (fpliger):   this handles pandas API change so users do not experience
+                #                   the related annoying deprecation warning. This is probably worth
+                #                   removing when pandas deprecated version (0.16) is "old" enough
+                try:
+                    factors.sort_values(inplace=True)
+                except AttributeError:
+                    factors.sort(inplace=True)
+
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
         elif 'datetime' in dtype:

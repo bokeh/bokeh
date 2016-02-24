@@ -6,7 +6,7 @@ from bokeh.plotting import figure, show, output_file
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
-y2 = linspace(0, 100, len(y))
+y2 = linspace(0, 100, len(x))
 
 p = figure(x_range=(-6.5, 6.5), y_range=(-1.1, 1.1), min_border=80)
 

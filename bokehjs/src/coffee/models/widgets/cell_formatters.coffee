@@ -1,10 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 Numeral = require "numeral"
+
+p = require "../../core/properties"
 Model = require "../../model"
 
 class CellFormatter extends Model
-  formatterDefaults: {}
+  formatterProps: {}
 
   format: (row, cell, value, columnDef, dataContext) ->
     if value == null
@@ -12,13 +14,15 @@ class CellFormatter extends Model
     else
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-  defaults: () ->
-    return _.extend {}, super(), @formatterDefaults
+  props: () ->
+    return _.extend {}, super(), @formatterProps
 
 class StringFormatter extends CellFormatter
   type: 'StringFormatter'
-  formatterDefaults:
-    text_color: null
+  formatterProps:
+    font_style: [ p.FontStyle, "normal" ]
+    text_align: [ p.TextAlign, "left"   ]
+    text_color: [ p.Color ]
 
   format: (row, cell, value, columnDef, dataContext) ->
     text = super(row, cell, value, columnDef, dataContext)
@@ -40,13 +44,13 @@ class StringFormatter extends CellFormatter
 
 class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
-  formatterDefaults:
-    font_style: "normal"
-    text_align: "left"
-    text_color: null
-    format: '0,0'
-    language: 'en'
-    rounding: 'round'
+  formatterProps:
+    font_style: [ p.FontStyle, "normal" ]
+    text_align: [ p.TextAlign, "left"   ]
+    text_color: [ p.Color               ]
+    format:     [ p.String, '0,0'       ] # TODO (bev)
+    language:   [ p.String, 'en'        ] # TODO (bev)
+    rounding:   [ p.String, 'round'     ] # TODO (bev)
 
   format: (row, cell, value, columnDef, dataContext) ->
     format = @get("format")
@@ -60,16 +64,16 @@ class NumberFormatter extends StringFormatter
 
 class BooleanFormatter extends CellFormatter
   type: 'BooleanFormatter'
-  formatterDefaults:
-    icon: 'check'
+  formatterProps:
+    icon: [ p.String, 'check' ]
 
   format: (row, cell, value, columnDef, dataContext) ->
     if !!value then $('<i>').addClass(@get("icon")).html() else ""
 
 class DateFormatter extends CellFormatter
   type: 'DateFormatter'
-  formatterDefaults:
-    format: 'yy M d'
+  formatterProps:
+    format: [ p.String, 'yy M d' ]
 
   getFormat: () ->
     format = @get("format")
@@ -93,8 +97,8 @@ class DateFormatter extends CellFormatter
 
 class HTMLTemplateFormatter extends CellFormatter
   type: 'HTMLTemplateFormatter'
-  formatterDefaults:
-    template: '<%= value %>'
+  formatterProps:
+    template: [ p.String, '<%= value %>' ]
 
   format: (row, cell, value, columnDef, dataContext) ->
     template = @get("template")
