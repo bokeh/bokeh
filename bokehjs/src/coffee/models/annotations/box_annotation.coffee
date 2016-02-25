@@ -68,7 +68,6 @@ class BoxAnnotationView extends Renderer.View
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    debugger
     @visuals.fill.set_value(ctx)
     ctx.fill()
 
