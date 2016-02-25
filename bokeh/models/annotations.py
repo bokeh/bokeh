@@ -236,6 +236,11 @@ class Label(Annotation):
     The %s values for the text.
     """)
 
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the text is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas"."""
+
+
 class PolyAnnotation(Annotation):
     """ Render a shaded polygonal region as an annotation.
 
