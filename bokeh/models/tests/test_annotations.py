@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation, Span
+from bokeh.models.annotations import Legend, BoxAnnotation, Span, Label
 from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -15,6 +15,9 @@ LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
 LABEL = ["label_text_font", "label_text_font_size", "label_text_font_style",
     "label_text_color", "label_text_alpha", "label_text_align",
     "label_text_baseline"]
+TEXT = ["text_font", "text_font_size", "text_font_style", "text_color",
+    "text_alpha", "text_align", "text_baseline"]
+ANGLE = ["angle", "angle_units"]
 PROPS = ["name", "tags"]
 
 def check_border(annotation):
@@ -59,6 +62,15 @@ def check_line(annotation, line_color='#cccccc', line_width=0.3, line_alpha=1.0)
     assert annotation.line_cap == LineCap.butt
     assert annotation.line_dash == []
     assert annotation.line_dash_offset == 0
+
+def check_text(annotation):
+    assert annotation.text_font == "helvetica"
+    assert annotation.text_font_size == {"value": "12pt"}
+    assert annotation.text_font_style == FontStyle.normal
+    assert annotation.text_color == "#444444"
+    assert annotation.text_alpha == 1.0
+    assert annotation.text_align == TextAlign.left
+    assert annotation.text_baseline == TextBaseline.bottom
 
 def test_Legend():
     legend = Legend()
@@ -121,6 +133,30 @@ def test_BoxAnnotation():
         "y_range_name",
         "level",
     ], LINE, FILL)
+
+def test_Label():
+    label = Label()
+    assert label.x is None
+    assert label.y is None
+    assert label.x_units == 'data'
+    assert label.y_units == 'data'
+    assert label.text ==  'text'
+    assert label.angle == 0
+    assert label.x_offset == 0
+    assert label.y_offset == 0
+    yield check_text, label
+    yield (check_props, label, [
+        "plot",
+        "level",
+        "x",
+        "y",
+        "x_units",
+        "y_units",
+        "text",
+        "angle",
+        "x_offset",
+        "y_offset"
+    ], TEXT, ANGLE)
 
 def test_Span():
     line = Span()
