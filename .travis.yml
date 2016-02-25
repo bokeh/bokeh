@@ -56,7 +56,13 @@ before_install:
     # test run, but we can manually use travis' saucelabs start/stop commands
     - if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External committer, not using saucelabs"; else export SAUCELABS=True; fi
     - echo $SAUCELABS
-    - if [[ -z "${SAUCELABS}" ]]; then "source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)"; else "export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start"; fi
+    - if [[ -z "${SAUCELABS}" ]]; 
+      then
+        source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh); 
+      else 
+        export DISPLAY=:99.0;
+        sh -e /etc/init.d/xvfb start; 
+      fi
 
 install:
     - scripts/travis_install
