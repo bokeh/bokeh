@@ -8,6 +8,7 @@ module.exports = {
   ToolEvents:               require './tool_events'
 
   BoxAnnotation:            require '../models/annotations/box_annotation'
+  Label:                    require '../models/annotations/label'
   Legend:                   require '../models/annotations/legend'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
