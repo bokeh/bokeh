@@ -253,6 +253,12 @@ class Plot(Component):
             raise ValueError("'annotation' argument to add_annotation must be \
                              Annotation subclass")
 
+         if annotation.plot is not None:
+             raise ValueError("annotation %s to be added already has 'plot' \
+                               attribute set" % annotation)
+
+        annotation.plot = self
+
         self.renderers.append(annotation)
         return annotation
 
