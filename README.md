@@ -51,8 +51,8 @@ Please visit the [Bokeh web page](http://bokeh.pydata.org/en/latest) for more in
 
 To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/en/latest/docs/quickstart.html) in the online documentation, or the QUICKSTART.md located in the top level of the bokeh repository.
 
-Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots), as well as on
-[Vine](https://vine.co/bokehplots), and [Youtube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw)!
+Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots), and [Youtube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw)!
+
 
 
 Interactive gallery
