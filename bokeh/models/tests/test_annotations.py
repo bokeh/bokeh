@@ -146,6 +146,7 @@ def test_Label():
     assert label.angle == 0
     assert label.x_offset == 0
     assert label.y_offset == 0
+    assert label.render_mode == 'canvas'
     yield check_text, label
     yield (check_props, label, [
         "plot",
@@ -157,7 +158,8 @@ def test_Label():
         "text",
         "angle",
         "x_offset",
-        "y_offset"
+        "y_offset",
+        "render_mode"
     ], TEXT, ANGLE)
 
 def test_Span():

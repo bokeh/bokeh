@@ -238,7 +238,8 @@ class Label(Annotation):
 
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas"."""
+    css element overlaid on the canvas. The default mode is "canvas".
+    """)
 
 
 class PolyAnnotation(Annotation):
