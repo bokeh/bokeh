@@ -178,8 +178,8 @@ class ExamplesTestReport(object):
 
         if pytest.config.option.upload:
             upload_example_pngs_to_s3(diff_version)
-            upload_file_to_s3_by_job_id(session.config.option.examplereport, "text/html")
-            upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text")
+            upload_file_to_s3_by_job_id(session.config.option.examplereport, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
+            upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED")
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(
