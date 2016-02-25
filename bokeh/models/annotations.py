@@ -11,7 +11,8 @@ from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
-    Include, NumberSpec, Either, Auto, Float, Override, Seq
+    Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
+    AngleSpec
 )
 from ..util.deprecate import deprecated
 from .renderers import Renderer, GlyphRenderer
@@ -181,6 +182,56 @@ class BoxAnnotation(Annotation):
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
 
+    """)
+
+
+class Label(Annotation):
+    """ Render a text box as an annotation.
+
+    """
+
+    x = NumberSpec(help="""
+    The x-coordinates to locate the text anchors.
+    """)
+
+    y = NumberSpec(help="""
+    The y-coordinates to locate the text anchors.
+    """)
+
+    x_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the xs attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    y_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the ys attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    text = StringSpec("text", help="""
+    The text values to render.
+    """)
+
+    angle = AngleSpec(default=0, help="""
+    The angles to rotate the text, as measured from the horizontal.
+    """)
+
+    x_offset = NumberSpec(default=0, help="""
+    Offset values to apply to the x-coordinates.
+
+    This is useful, for instance, if it is desired to "float" text a fixed
+    distance in screen units from a given data position.
+    """)
+
+    y_offset = NumberSpec(default=0, help="""
+    Offset values to apply to the y-coordinates.
+
+    This is useful, for instance, if it is desired to "float" text a fixed
+    distance in screen units from a given data position.
+    """)
+
+    text_props = Include(TextProps, use_prefix=False, help="""
+    The %s values for the text.
     """)
 
 class PolyAnnotation(Annotation):
