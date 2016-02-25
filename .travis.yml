@@ -73,10 +73,10 @@ script:
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=True; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "$SAUCELABS" == "True" ]]; then travis_start_sauce_connect; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "$SAUCELABS" == "True" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n 4; fi  # Run the integration tests on saucelabs
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "$SAUCELABS" == "True" ]]; then travis_stop_sauce_connect; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "$SAUCELABS" == "False" ]]; then py.test -m integration --html=tests/pytest-report.html; fi  # Run the integration tests on saucelabs
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "${SAUCELABS}" == "True" ]]; then travis_start_sauce_connect; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "${SAUCELABS}" == "True" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n 4; fi  # Run the integration tests on saucelabs
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && "${SAUCELABS}" == "True" ]]; then travis_stop_sauce_connect; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration &&  -z "${SAUCELABS}" ]]; then py.test -m integration --html=tests/pytest-report.html; fi  # Run the integration tests on saucelabs
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=False; fi
     #
     # Flake/docs testing only once (Py 2.7)
