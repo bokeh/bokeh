@@ -230,6 +230,8 @@ class Label(Annotation):
     distance in screen units from a given data position.
     """)
 
+    level = Override(default='overlay')
+
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
     """)
