@@ -149,6 +149,7 @@ def test_Label():
     assert label.render_mode == 'canvas'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
+    assert label.data_source is None
     yield check_text, label
     yield (check_props, label, [
         "plot",
@@ -164,6 +165,7 @@ def test_Label():
         "render_mode",
         "x_range_name",
         "y_range_name",
+        "data_source"
     ], TEXT, ANGLE)
 
 def test_Span():
