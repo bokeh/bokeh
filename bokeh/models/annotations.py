@@ -15,7 +15,9 @@ from ..core.properties import (
     AngleSpec
 )
 from ..util.deprecate import deprecated
+
 from .renderers import Renderer, GlyphRenderer
+from .sources import DataSource
 
 @abstract
 class Annotation(Renderer):
@@ -234,6 +236,20 @@ class Label(Annotation):
 
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
+    """)
+
+    data_source = Instance(DataSource, help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
     """)
 
     render_mode = Enum(RenderMode, default="canvas", help="""
