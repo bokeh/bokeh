@@ -36,7 +36,6 @@ class LabelView extends Renderer.View
     [@sx, @sy] = @map_to_screen(_.map(@x, (x) -> x + x_offset),
                                 _.map(@y, (y) -> y + y_offset))
 
-    debugger;
     for i in [0...@x.length]
       ctx.save()
       ctx.translate(@sx[i], @sy[i])
