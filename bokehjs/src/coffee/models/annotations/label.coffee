@@ -19,6 +19,9 @@ class LabelView extends Renderer.View
       @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: () ->
+
+    @set_data(@mget('source'))
+
     if @mget('render_mode') == 'css'
       @_css_text()
     else
@@ -27,14 +30,21 @@ class LabelView extends Renderer.View
   _canvas_text: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    ctx.save()
-    ctx.translate(@mget('x')+@mget('x_offset'), @mget('y')+@mget('y_offset'))
-    ctx.rotate(@mget('angle'))
+    x_offset = @mget('x_offset')
+    y_offset = @mget('y_offset')
 
-    @visuals.text.set_value(ctx)
-    # ctx.fillText(@mget('text'), 0, 0)
-    ctx.fillText(@mget('text'), 300, 300)
-    ctx.restore()
+    [@sx, @sy] = @map_to_screen(_.map(@x, (x) -> x + x_offset),
+                                _.map(@y, (y) -> y + y_offset))
+
+    debugger;
+    for i in [0...@x.length]
+      ctx.save()
+      ctx.translate(@sx[i], @sy[i])
+      ctx.rotate(@mget('angle'))
+
+      @visuals.text.set_value(ctx)
+      ctx.fillText(@text[i], 0, 0)
+      ctx.restore()
 
   _css_text: () ->
     console.log('css not implemented')
@@ -48,12 +58,19 @@ class Label extends Annotation.Model
 
   props: ->
     return _.extend {}, super(), {
-      render_mode:  [ p.RenderMode,   'canvas'  ]
-      x_units:      [ p.SpatialUnits, 'data'    ]
-      y_units:      [ p.SpatialUnits, 'data'    ]
-      angle:        [ p.AngleSpec,    0         ]
-      x_offset:     [ p.Number,       0         ]
-      y_offset:     [ p.Number,       0         ]
+      x:            [ p.NumberSpec                      ]
+      x_units:      [ p.SpatialUnits, 'data'            ]
+      y:            [ p.NumberSpec                      ]
+      y_units:      [ p.SpatialUnits, 'data'            ]
+      text:         [ p.StringSpec,   { field :"text" } ]
+      angle:        [ p.AngleSpec,    0                 ]
+      x_offset:     [ p.Number,       0                 ]
+      y_offset:     [ p.Number,       0                 ]
+      level:        [ p.RenderLevel, 'overlay'          ]
+      source:       [ p.Instance                        ]
+      x_range_name: [ p.String,      'default'          ]
+      y_range_name: [ p.String,      'default'          ]
+      render_mode:  [ p.RenderMode,  'canvas'           ]
     }
 
   defaults: ->
