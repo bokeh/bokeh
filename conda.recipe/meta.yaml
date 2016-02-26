@@ -4,6 +4,9 @@ package:
 
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
+  noarch_python: True
+  entry_points:
+    - bokeh = bokeh.__main__:main
 
 extra:
   channels:
@@ -36,7 +39,7 @@ requirements:
 
     # server
     - tornado >=4.3
-    - futures        [py27]
+    #- futures        [py27]
 
 test:
   requires:
