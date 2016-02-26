@@ -49,8 +49,9 @@ example plots for all of them by clicking on entries in the list below:
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-screen units), and ``angle`` (radians by default). Additionally, |circle| has
-a ``radius`` property that can be used to specify data-space units.
+:ref:`screen units <userguide_glossary>`), and ``angle`` (radians by default).
+Additionally, |circle| has a ``radius`` property that can be used to specify
+:ref:`data-space units <userguide_glossary>`.
 
 .. _userguide_plotting_line_glyphs:
 
@@ -189,9 +190,10 @@ The |segment| function accepts start points ``x0``, ``y0`` and end points
     :source-position: above
 
 The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in screen units) and an ``angle``. The default ``angle_units`` are ``"rad"``
-but can also be changed to ``"deg"``. To have an "infinite" ray, that always
-extends to the edge of the plot, specify ``0`` for the length:
+(in :ref:`screen units <userguide_glossary>`) and an ``angle``. The default 
+``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an
+"infinite" ray, that always extends to the edge of the plot, specify ``0`` for
+the length:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ray.py
     :source-position: above
@@ -235,7 +237,7 @@ Specialized Curves
 
 Bokeh also provides |quadratic| and |bezier| glyph methods for drawing
 parameterized quadratic and cubic curves. These are somewhat uncommon;
-please refer to the reference documentation linked above for details.
+please refer to the :ref:`reference documentation <bokeh.plotting>` for details.
 
 .. _userguide_plotting_multiple_glyphs:
 
@@ -276,7 +278,6 @@ Below is a an example that shows both methods of setting the range:
 
 Ranges can also accept a min and max property that allow you to specify the
 edges of the plot that you do not want the user to be able to pan/zoom beyond.
-By default, Bokeh will set these to the max and min of your data.
 
 .. _userguide_plotting_axis_types:
 
