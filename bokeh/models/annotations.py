@@ -196,13 +196,13 @@ class Label(Annotation):
     The x-coordinates to locate the text anchors.
     """)
 
-    y = NumberSpec(help="""
-    The y-coordinates to locate the text anchors.
-    """)
-
     x_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the xs attribute. Interpreted as "data space" units
     by default.
+    """)
+
+    y = NumberSpec(help="""
+    The y-coordinates to locate the text anchors.
     """)
 
     y_units = Enum(SpatialUnits, default='data', help="""
@@ -238,7 +238,7 @@ class Label(Annotation):
     The %s values for the text.
     """)
 
-    data_source = Instance(DataSource, help="""
+    source = Instance(DataSource, help="""
     Local data source to use when rendering annotations on the plot.
     """)
 
