@@ -152,6 +152,10 @@ class Slider(InputWidget):
     A callback to run in the browser whenever the current Slider value changes.
     """)
 
+    delay_callback = Bool(default = False, help="""
+    Delay the execution of the callback until the slider is released.
+    """)
+
 class DateRangeSlider(InputWidget):
     """ Slider-based date range selection widget.
 
