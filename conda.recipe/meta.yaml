@@ -3,8 +3,8 @@ package:
   version: 'nightly'
 
 build:
-  number: {{ environ.get('BINSTAR_BUILD', 1) }}
-  noarch_python: True
+  number: {{ environ.get('BINSTAR_BUILD', 2) }}
+  noarch_python: false
   entry_points:
     - bokeh = bokeh.__main__:main
 
@@ -18,7 +18,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - nodejs >=4.1
+    - nodejs >=4.1  [unix]
     - six
     - python-dateutil
     - numpy
@@ -57,9 +57,9 @@ test:
     - mock
     - pandas
     - pytest
-    - pytest-cov ==1.8.1
-    - pytest-selenium
-    - beautiful-soup
+    - pytest-cov ==1.8.1  [unix]
+    - pytest-selenium     [unix]
+    - beautiful-soup      [unix]
     - scipy
     - pillow
 
@@ -69,12 +69,12 @@ test:
     - sympy
     - ggplot
     - seaborn
-    - icalendar
+    - icalendar          [unix]
     - flask
-    - flexx           [py3k]
+    - flexx
 
   commands:
-    - bokeh -h        [linux64 or osx]
+    - bokeh -h
 
   imports:
     - bokeh
