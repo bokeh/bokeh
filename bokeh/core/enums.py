@@ -166,6 +166,3 @@ ScriptingLanguage = enumeration("javascript", "coffeescript")
 
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")
-
-#: Specify a mode for stepwise interpolation
-StepMode = enumeration("before", "after", "center")
