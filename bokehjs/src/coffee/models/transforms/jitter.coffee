@@ -18,12 +18,5 @@ class Jitter extends Transform.Model
     # Apply the tranform to a vector of values
     pass
 
-#  map_to_target: (x) ->
-#    # do step transform for one value using @get('points')
-#    return(x + ((Math.random() - 0.5) * width))
-
-#  v_map_to_target(xs) ->
-#    # do step transform for an array of values using @get('points')
-
 module.exports =
   Model: Jitter
