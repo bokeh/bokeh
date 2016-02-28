@@ -22,26 +22,15 @@ class SliderView extends ContinuumView
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)
     logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
-    if @mget('delay_callback') == true
-      @$('.slider').slider({
-        orientation: @mget('orientation')
-        animate: "fast",
-        stop: @slide,
-        value: @mget('value')
-        min: min,
-        max: max,
-        step: step,
-      })
-    else
-      @$('.slider').slider({
-        orientation: @mget('orientation')
-        animate: "fast",
-        slide: _.throttle(@slide, 200),
-        value: @mget('value')
-        min: min,
-        max: max,
-        step: step,
-      })
+    @$('.slider').slider({
+      orientation: @mget('orientation')
+      animate: "fast",
+      slide: _.throttle(@slide, 200),
+      value: @mget('value')
+      min: min,
+      max: max,
+      step: step,
+    })
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
 
@@ -64,7 +53,6 @@ class Slider extends InputWidget.Model
       end: 1
       step: 0.1
       orientation: "horizontal"
-      delay_callback: false
     }
 
 module.exports =
