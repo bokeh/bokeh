@@ -4,7 +4,7 @@ package:
 
 build:
   number: {{ environ.get('BINSTAR_BUILD', 2) }}
-  noarch_python: false
+  noarch_python: True
   entry_points:
     - bokeh = bokeh.__main__:main
 
