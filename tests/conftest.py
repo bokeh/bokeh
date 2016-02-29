@@ -1,50 +1,42 @@
-from __future__ import print_function
-
-import os
-import boto
 import pytest
-from boto.s3.key import Key as S3Key
-from boto.exception import NoAuthHandlerFound
-from os.path import join
 
-s3_bucket = "bokeh-travis"
-s3 = "https://s3.amazonaws.com/%s" % s3_bucket
-build_id = os.environ.get("TRAVIS_BUILD_ID")
-# Can we make this not hard coded and read in the report location from pytest?
-report_file = "tests/pytest-report.html"
+from tests.plugins.constants import default_upload
+from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
+
+pytest_plugins = (
+    "tests.examples.examples_report_plugin",
+    "tests.plugins.bokeh_server",
+    "tests.plugins.jupyter_notebook",
+    "tests.plugins.phantomjs_screenshot",
+    "tests.plugins.image_diff",
+    "tests.plugins.file_server",
+    "tests.plugins.upload_to_s3",
+)
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--upload", dest="upload", action="store_true", default=default_upload, help="upload test artefacts to S3"
+    )
+    parser.addoption(
+        "--log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
+    )
 
 
 def pytest_sessionfinish(session, exitstatus):
-
-    if os.environ.get("UPLOAD_PYTEST_HTML", "False") != "True":
-        return
-
-    if hasattr(session.config, 'slaveinput'):
-        # when slave nodes (xdist) finish, the report won't be ready
-        return
-
-    try:
-        conn = boto.connect_s3()
-        bucket = conn.get_bucket(s3_bucket)
-
-        with open(report_file, "r") as f:
-            html = f.read()
-
-        filename = join(build_id, "report.html")
-        key = S3Key(bucket, filename)
-        key.set_metadata("Content-Type", "text/html")
-        key.set_contents_from_string(html, policy="public-read")
-        print("\n%s Access report at: %s" % ("---", join(s3, filename)))
-
-    except NoAuthHandlerFound:
-        print("Upload was requested but could not connect to S3.")
-
-    except OSError:
-        print("Upload was requested but report was not generated.")
+    try_upload = session.config.option.upload
+    seleniumreport = session.config.option.htmlpath
+    is_slave = hasattr(session.config, 'slaveinput')
+    if try_upload and seleniumreport and not is_slave:
+        upload_file_to_s3_by_job_id(seleniumreport)
 
 
-@pytest.fixture(scope="session")
-def capabilities(capabilities):
-    capabilities["browserName"] = "firefox"
-    capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
-    return capabilities
+@pytest.yield_fixture(scope="session")
+def log_file(request):
+    is_slave = hasattr(request.config, 'slaveinput')
+    if not is_slave:
+        with open(request.config.option.log_file, 'w') as f:
+            # Clean-out any existing log-file
+            f.write("")
+    with open(pytest.config.option.log_file, 'a') as f:
+        yield f
