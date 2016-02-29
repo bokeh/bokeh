@@ -14,9 +14,12 @@ class Jitter extends Transform.Model
     # Apply the transform to a single value
     return(x + ((Math.random() - 0.5) * @get('interval')))
 
-  v_compute: () ->
+  v_compute: (xs) ->
     # Apply the tranform to a vector of values
-    pass
+    result = new Float64Array(xs.length)
+    for x, idx in xs
+      result[idx] = this.compute(x)
+    return result
 
 module.exports =
   Model: Jitter
