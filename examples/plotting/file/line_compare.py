@@ -13,6 +13,7 @@ p2 = Figure(title="WebGL", webgl=True)
 
 ys = 10  # yscale, to increase anisotropy
 
+lines = []
 for p in (p1, p2):
 
     t = np.linspace(0, 2 * np.pi, 50)
@@ -39,9 +40,10 @@ for p in (p1, p2):
     l4 = p.line(y, x * ys, color="#aa2222",
                 line_width=6, line_cap='butt',
                 line_join='round', line_dash=(10, 10))
+    
+    lines.extend([l1, l2, l3, l4])
 
 def add_callback(widget, prop):
-    lines = [l1, l2, l3, l4]
     widget.callback = CustomJS(args=dict(widget=widget), code="""
         for ( var i = 0; i < %s; i++ ) {
             var g = eval( 'line' + i ).get( 'glyph' );

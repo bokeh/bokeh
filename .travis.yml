@@ -50,6 +50,7 @@ before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
     - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+<<<<<<< HEAD
     # We don't use the travis saucelabs add on because it installs on every
     # test run, but we can manually use travis' saucelabs start/stop commands
     - source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)
@@ -57,6 +58,15 @@ before_install:
     # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
     - "export DISPLAY=:99.0"
     - "sh -e /etc/init.d/xvfb start"
+=======
+    - if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External committer, not using saucelabs"; else export SAUCELABS=True; fi
+    # We don't use the travis saucelabs add on because it installs on every test run, but we can manually use travis' saucelabs start/stop commands
+    # Furthermore, we only want to use it when it's not an external contributor.
+    - if [[ -n "${SAUCELABS}" ]]; then source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh); fi
+    - if [[ -z "${SAUCELABS}" ]]; then export DISPLAY=:99.0; fi
+    - if [[ -z "${SAUCELABS}" ]]; then sh -e /etc/init.d/xvfb start; fi
+
+>>>>>>> master
 
 install:
     - scripts/travis_install
@@ -70,20 +80,19 @@ script:
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
     #
     # Run integration tests only once (Py 3.4)
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then travis_start_sauce_connect; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 --upload; fi  # Run the integration tests on saucelabs
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then travis_stop_sauce_connect; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 --upload; fi  # Run the integration tests on saucelabs
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_stop_sauce_connect; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -z "${SAUCELABS}" ]]; then py.test -m integration --driver Firefox; fi
     #
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
     #
-    # Run examples_new
+    # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples in serial for py2.7
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && "$TRAVIS_PYTHON_VERSION" == '3.4' ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples in parallel for py3.4
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n2 -x; fi; fi # Run the examples
     #
-    - echo "poor man logger"
-    - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
+    - echo "***** POOR MAN LOGGER ******"; echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST; if [[ "$GROUP" == integration ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html"; fi; if [[ "$GROUP" == examples ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html"; fi; echo "********** END POOR MAN LOGGER ************"
 
 after_success:
     |

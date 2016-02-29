@@ -1,10 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
-ContinuumView = require "common/continuum_view"
+BokehView = require "core/bokeh_view"
 BaseBox = require "models/layouts/basebox"
 
-class StyleableBoxView extends ContinuumView
+class StyleableBoxView extends BokehView
   tag: "div"
   attributes:
     class: "bk-vbox"

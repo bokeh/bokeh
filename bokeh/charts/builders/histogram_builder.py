@@ -152,7 +152,7 @@ class HistogramBuilder(BarBuilder):
         y_max = max([comp_glyph.y_max for comp_glyph in self.comp_glyphs])
         y_min = min([comp_glyph.y_min for comp_glyph in self.comp_glyphs])
 
-        x_buffer = ((x_max + x_min)/2.0)*0.1
+        x_buffer = ((x_max + x_min)/2.0)*0.05
 
         self.x_range = Range1d(start=x_min - x_buffer, end=x_max + x_buffer)
 

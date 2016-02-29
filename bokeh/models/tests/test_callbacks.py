@@ -1,7 +1,7 @@
 
 import sys
 
-from pytest import raises, mark
+from pytest import raises
 from bokeh.models import CustomJS, Slider
 
 
@@ -21,7 +21,6 @@ def test_js_callback():
         CustomJS(code="foo();", x=slider)
 
 
-@mark.skipif(sys.version_info < (3, ), reason='requires Python 3')
 def test_py_callback():
     
     slider = Slider()
