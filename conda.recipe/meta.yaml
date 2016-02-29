@@ -57,10 +57,12 @@ test:
     - pytest-cov ==1.8.1
     - pytest-selenium
     - pytest-xdist
+    - pytest-rerunfailures
     - beautiful-soup
     - scipy
     - pillow
     - boto
+    - pdiff
 
     # examples
     - jupyter
