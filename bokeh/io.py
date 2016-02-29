@@ -378,14 +378,23 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 def _detect_filename(ext):
     import inspect
     from os.path import exists, dirname, basename, splitext, join
+    from inspect import getouterframes, currentframe, getframeinfo
 
-    frame_info = inspect.getframeinfo(inspect.getouterframes(inspect.currentframe())[-1][0])
+    frames = [ getframeinfo(frame) for frame, _, _, _, _, _ in getouterframes(inspect.currentframe()) ]
 
-    if frame_info.function == "<module>" and exists(frame_info.filename):
-        name, _ = splitext(basename(frame_info.filename))
-        return join(dirname(frame_info.filename), name + "." + ext)
-    else:
+    while frames and frames[-1].function == "<module>" and frames[-1].filename == "<string>":
+        frames.pop()
+
+    if not frames:
         return None
+    else:
+        frame_info = frames[-1]
+
+        if frame_info.function == "<module>" and exists(frame_info.filename):
+            name, _ = splitext(basename(frame_info.filename))
+            return join(dirname(frame_info.filename), name + "." + ext)
+        else:
+            return None
 
 def _get_save_args(state, filename, resources, title):
     warn = True
