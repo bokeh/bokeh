@@ -79,18 +79,14 @@ Matplotlib, potentially in both directions (i.e., with Matplotlib able
 to display Bokeh plots).
 
 You can see examples of Bokeh rendering Matplotlib plots generated
-from each of these libraries in the `examples/compat`_ directory. This
-link points to master; don't forget to make sure you're looking at
-examples that match with the version of bokeh you're using.
+from each of these libraries in the :bokeh-tree:`examples/compat` directory. 
 
-.. _examples/compat: https://github.com/bokeh/bokeh/tree/master/examples/compat/
-
+.. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
 .. _ggplot.py: https://github.com/yhat/ggplot
+.. _HoloViews: http://holoviews.org
 .. _Matplotlib: http://matplotlib.org
 .. _MEP 25: https://github.com/matplotlib/matplotlib/wiki/MEP25
 .. _mplexporter:
 .. _Pandas: http://pandas.pydata.org
-.. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn
-.. _HoloViews: http://holoviews.org
-.. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
 .. _PhosphorJS: http://phosphorjs.github.io
+.. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn
