@@ -26,7 +26,8 @@ topic:
 
 :ref:`userguide_compat`
     Display a wide range of plots created using `Matplotlib`_, `Seaborn`_,
-    `pandas`_, or `ggplot.py`_ as Bokeh plots.
+    `pandas`_, or `ggplot.py`_ as Bokeh plots, or build Bokeh plots
+    using `HoloViews`_.
 
 :ref:`userguide_styling`
     Customize every visual aspect of Bokeh plots---axes, grids, labels,
@@ -81,6 +82,7 @@ structure.
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. _ggplot.py: https://github.com/yhat/ggplot
+.. _HoloViews: http://holoviews.org
 .. _Matplotlib: http://matplotlib.org
 .. _Pandas: http://pandas.pydata.org
 .. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn
