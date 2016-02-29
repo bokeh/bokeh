@@ -26,11 +26,6 @@ class Transform(Model):
             # compute the transform of an array of values
 
     '''
-
-    teststring = Float(-321, help = '''
-    This is a test variable
-    ''')
-
     pass
 
 
