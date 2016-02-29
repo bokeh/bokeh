@@ -31,9 +31,3 @@ for own key, val of global.window
   if blacklist.indexOf(key) == -1
     global[key] = val
 
-require "./client"
-require "./core"
-require "./document"
-require "./models"
-
-require "./test_common"

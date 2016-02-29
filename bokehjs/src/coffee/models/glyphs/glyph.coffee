@@ -3,8 +3,8 @@ rbush = require "rbush"
 
 CategoricalMapper = require "../mappers/categorical_mapper"
 Renderer = require "../renderers/renderer"
-bbox = require "../../common/bbox"
 p = require "../../core/properties"
+bbox = require "../../core/util/bbox"
 Model = require "../../model"
 
 class GlyphView extends Renderer.View
@@ -48,10 +48,10 @@ class GlyphView extends Renderer.View
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
       return false
-
+    [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
     trans =
         width: ctx.glcanvas.width, height: ctx.glcanvas.height,
-        dx: dx, dy: dy, sx: (dx[1]-dx[0])/wx, sy: (dy[1]-dy[0])/wy
+        dx: dx[0]/sx, dy: dy[0]/sy, sx: sx, sy: sy
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 

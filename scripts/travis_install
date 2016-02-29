@@ -48,11 +48,6 @@ conda install --yes nodejs
 echo "node version $(node -v)"
 echo "npm version $(npm -v)"
 
-if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
-    conda install --yes pdiff
-    conda install --yes boto
-fi
-
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 

@@ -5,7 +5,7 @@ window = {location: {href: "local"}} unless window?
 {logger} = require "./core/logging"
 
 # add some useful functions to underscore
-require("./common/custom").monkey_patch()
+require("./core/util/underscore").patch()
 
 Config = {}
 url = window.location.href

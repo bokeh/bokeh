@@ -24,6 +24,7 @@ class ButtonView extends BokehView
         val.$el.detach()
 
     @$el.empty()
+    @$el.attr("type","button")
     @$el.addClass("bk-bs-btn")
     @$el.addClass("bk-bs-btn-" + @mget("type"))
     if @mget("disabled") then @$el.attr("disabled", "disabled")

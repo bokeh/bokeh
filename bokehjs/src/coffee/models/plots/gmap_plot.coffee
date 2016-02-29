@@ -3,7 +3,6 @@ proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
 
 Plot = require "./plot"
-Solver = require "../../common/solver"
 p = require "../../core/properties"
 
 class GMapPlotView extends Plot.View

@@ -37,7 +37,7 @@ class MultiSelectView extends BokehView
     )
 
   change_input: () ->
-    @mset('value', @$('select').val(), {'silent': true})
+    @mset('value', @$('select').val())
     @mget('callback')?.execute(@model)
 
 class MultiSelect extends InputWidget.Model

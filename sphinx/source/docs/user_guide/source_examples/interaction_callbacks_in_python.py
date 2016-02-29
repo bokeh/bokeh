@@ -12,12 +12,12 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 plot = Figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-def callback(source=source):
+def callback(source=source, window=None):
     data = source.get('data')
     f = cb_obj.get('value')
     x, y = data['x'], data['y']
     for i in range(len(x)):
-        y[i] = Math.pow(x[i], f)
+        y[i] = window.Math.pow(x[i], f)
     source.trigger('change');
 
 slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", 

@@ -57,11 +57,15 @@ test:
     - mock
     - pandas
     - pytest
-    - pytest-cov ==1.8.1  [unix]
-    - pytest-selenium     [unix]
-    - beautiful-soup      [unix]
+    - pytest-cov ==1.8.1    [unix]
+    - pytest-selenium
+    - pytest-xdist
+    - pytest-rerunfailures
+    - beautiful-soup        [unix]
     - scipy
     - pillow
+    - boto
+    - pdiff
 
     # examples
     - jupyter
