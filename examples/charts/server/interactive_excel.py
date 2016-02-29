@@ -26,14 +26,14 @@ countries = ['Brazil', 'Italy', 'USA', 'Japan']
 
 def create_line(data):
     """ Convenience function to create a new line chart with the right args """
-    return Line(data, x='year', y=countries, responsive = False,
+    return Line(data, x='year', y=countries,
                 legend=True, width=1400, height=300, ylabel='Energy use per capita',
                 palette=['purple', 'green', 'blue', 'pink'])
 
 def create_bar(data):
     op = blend(*countries, labels_name='countries', name='energy')
     return Bar(data, label='year', values=op, color='countries', group='countries',
-            width=1400, height=600, responsive = False, ylabel='Energy use per capita',
+            width=1400, height=600, ylabel='Energy use per capita',
             palette=['purple', 'green', 'blue', 'pink'],
             legend=True)
 

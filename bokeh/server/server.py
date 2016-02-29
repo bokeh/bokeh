@@ -12,6 +12,8 @@ from tornado.httpserver import HTTPServer
 
 from .tornado import BokehTornado
 
+from bokeh import __version__
+
 from bokeh.application import Application
 
 from bokeh.resources import DEFAULT_SERVER_PORT
@@ -50,6 +52,8 @@ class Server(object):
     '''
 
     def __init__(self, applications, **kwargs):
+        log.info("Starting Bokeh server version %s" % __version__)
+        
         if isinstance(applications, Application):
             self._applications = { '/' : applications }
         else:
@@ -192,4 +196,3 @@ class Server(object):
         from bokeh.util.browser import view
         url = "http://localhost:%d%s%s" % (self.port, self.prefix, app_path)
         view(url, browser=browser, new=new)
-

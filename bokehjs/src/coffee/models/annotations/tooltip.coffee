@@ -1,10 +1,12 @@
 $ = require "jquery"
 _ = require "underscore"
-Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
-{logger} = require "../../common/logging"
 
-class TooltipView extends PlotWidget
+Annotation = require "./annotation"
+Renderer = require "../renderers/renderer"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class TooltipView extends Renderer.View
   className: "bk-tooltip"
 
   initialize: (options) ->
@@ -70,7 +72,22 @@ class TooltipView extends PlotWidget
 
 class Tooltip extends Annotation.Model
   default_view: TooltipView
+
   type: 'Tooltip'
+
+  props: ->
+    return _.extend {}, super(), {
+      side:       [ p.String, 'auto' ] # TODO (bev) enum?
+      inner_only: [ p.Bool,   true   ]
+    }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+      level: 'overlay'
+
+      # internal
+    }
 
   nonserializable_attribute_names: () ->
     super().concat(['data', 'custom'])
@@ -83,12 +100,7 @@ class Tooltip extends Annotation.Model
     data.push([vx, vy, content])
     @set('data', data)
 
-  defaults: ->
-    return _.extend {}, super(), {
-      level: 'overlay'
-      side: "auto"
-      inner_only: true
-    }
+
 
 module.exports =
   Model: Tooltip

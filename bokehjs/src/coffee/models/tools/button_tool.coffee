@@ -1,5 +1,6 @@
 _ = require "underscore"
 Backbone = require "backbone"
+
 Tool = require "./tool"
 button_tool_template = require "./button_tool_template"
 
@@ -42,6 +43,7 @@ class ButtonTool extends Tool.Model
 
   defaults: () ->
     return _.extend({}, super(), {
+      # internal
       active: false
       disabled: if @disabled? then @disabled else false
       tool_name: @tool_name

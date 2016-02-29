@@ -1,6 +1,8 @@
 _ = require "underscore"
-Span = require "../../annotations/span"
+
 InspectTool = require "./inspect_tool"
+Span = require "../../annotations/span"
+p = require "../../../core/properties"
 
 class CrosshairToolView extends InspectTool.View
 
@@ -30,6 +32,23 @@ class CrosshairTool extends InspectTool.Model
   default_view: CrosshairToolView
   type: "CrosshairTool"
   tool_name: "Crosshair"
+
+  props: () ->
+    return _.extend({}, super(), {
+      dimensions: [ p.Array, ["width", "height"] ]
+      line_color: [ p.Color, 'black'             ]
+      line_width: [ p.Number, 1                  ]
+      line_alpha: [ p.Number, 1.0                ]
+    })
+
+  nonserializable_attribute_names: () ->
+    super().concat(['location_units', 'render_mode', 'spans'])
+
+  defaults: () ->
+    return _.extend({}, super(), {
+      location_units: "screen"
+      render_mode: "css",
+    })
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -67,19 +86,6 @@ class CrosshairTool extends InspectTool.Model
     renderers.push(@get('spans').width)
     renderers.push(@get('spans').height)
     @get('plot').set('renderers', renderers)
-
-  nonserializable_attribute_names: () ->
-    super().concat(['location_units', 'render_mode', 'spans'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      dimensions: ["width", "height"]
-      location_units: "screen"
-      render_mode: "css",
-      line_color: 'black',
-      line_width: 1,
-      line_alpha: 1.0
-    })
 
 module.exports =
   Model: CrosshairTool

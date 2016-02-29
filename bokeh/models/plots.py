@@ -536,7 +536,7 @@ class Plot(Component):
     """)
 
     min_border = Int(50, help="""
-    A convenience property to set all all the ``min_X_border`` properties
+    A convenience property to set all all the ``min_border_X`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
     """)

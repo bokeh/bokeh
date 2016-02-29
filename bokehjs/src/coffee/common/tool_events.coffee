@@ -1,6 +1,6 @@
 _ = require "underscore"
 Model = require "../model"
-{logger} = require "./logging"
+{logger} = require "../core/logging"
 
 class ToolEvents extends Model
   type: 'ToolEvents'

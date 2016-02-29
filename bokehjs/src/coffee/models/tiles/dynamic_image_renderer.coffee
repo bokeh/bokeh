@@ -1,11 +1,11 @@
 _ = require "underscore"
-Renderer = require "../renderers/renderer"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
-ImagePool = require "./image_pool"
-{logger} = require "../../common/logging"
 
-class DynamicImageView extends PlotWidget
+ImagePool = require "./image_pool"
+Renderer = require "../renderers/renderer"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class DynamicImageView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -98,7 +98,7 @@ class DynamicImageView extends PlotWidget
       @map_canvas.restore()
 
   _set_rect:() ->
-    outline_width = @plot_view.outline_props.width.value()
+    outline_width = @plot_model.properties.outline_line_width.value()
     l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
     t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
     w = @map_frame.get('width') - outline_width
@@ -106,16 +106,20 @@ class DynamicImageView extends PlotWidget
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
-class DynamicImageRenderer extends Renderer
+class DynamicImageRenderer extends Renderer.Model
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
-  visuals: []
+
+  props: ->
+    return _.extend {}, super(), {
+      alpha:          [ p.Number, 1.0 ]
+      image_source:   [ p.Instance    ]
+      render_parents: [ p.Bool, true ]
+    }
 
   defaults: ->
     return _.extend {}, super(), {
-      alpha: 1.0
-      image_source: null
-      render_parents: true
+      # overrides
       level: 'underlay'
     }
 

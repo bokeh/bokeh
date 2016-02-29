@@ -1,8 +1,10 @@
 _ = require "underscore"
 SPrintf = require "sprintf"
 tz = require "timezone"
+
 TickFormatter = require "./tick_formatter"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
@@ -52,6 +54,11 @@ _strftime = (t, format) ->
 
 class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
+
+  props: () ->
+    return _.extend {}, super(), {
+      formats: [ p.Any, {} ] # TODO (bev)
+    }
 
   # Labels of time units, from finest to coarsest.
   format_order: [
@@ -229,11 +236,6 @@ class DatetimeTickFormatter extends TickFormatter.Model
         labels.push(s)
 
     return labels
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      formats: {}
-    }
 
 module.exports =
   Model: DatetimeTickFormatter

@@ -303,7 +303,8 @@ def generate_changelog(issues, after, heading, rtag=False):
         with open("../CHANGELOG", "r") as f:
             flines = f.readlines()
         with open("../sphinx/source/docs/releases/" + rtag + ".rst", "r") as f:
-            flines[2:2] = ["  " + line for line in f.readlines() if line.startswith("*")]
+            starters = ("*", "  -", "  ")
+            flines[2:2] = ["  " + line for line in f.readlines() if line.startswith(starters)]
         with open("../CHANGELOG", "w") as f:
             f.writelines(flines)
     else:

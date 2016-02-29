@@ -1,13 +1,14 @@
 _ = require "underscore"
 Layout = require "./layout"
+p = require "../../core/properties"
 
 class BaseBox extends Layout.Model
   type: "BaseBox"
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      width: null
-      height: null
+      height: [ p.Number, null ]
+      width:  [ p.Number, null ]
     }
 
 module.exports =

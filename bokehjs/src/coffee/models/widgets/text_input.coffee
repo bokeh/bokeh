@@ -1,11 +1,13 @@
 _ = require "underscore"
-build_views = require "../../common/build_views"
-ContinuumView = require "../../common/continuum_view"
-{logger} = require "../../common/logging"
-template = require "./text_input_template"
-InputWidget = require "./input_widget"
 
-class TextInputView extends ContinuumView
+InputWidget = require "./input_widget"
+template = require "./text_input_template"
+build_views = require "../../common/build_views"
+BokehView = require "../../core/bokeh_view"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class TextInputView extends BokehView
   tagName: "div"
   attributes:
      class: "bk-widget-form-group"
@@ -32,10 +34,9 @@ class TextInput extends InputWidget.Model
   type: "TextInput"
   default_view: TextInputView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      value: ""
-      title: ""
+      value: [ p.String, "" ]
     }
 
 module.exports =

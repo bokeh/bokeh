@@ -1,14 +1,30 @@
 _ = require "underscore"
+
 DataSource = require './data_source'
-{logger} = require "../../common/logging"
-SelectionManager = require "../../common/selection_manager"
 hittest = require "../../common/hittest"
+SelectionManager = require "../../common/selection_manager"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.
 # Each column should be the same length.
 class ColumnDataSource extends DataSource.Model
   type: 'ColumnDataSource'
+
+  props: ->
+    return _.extend {}, super(), {
+      data:              [ p.Any,      {} ]
+      column_names:      [ p.Array,    [] ]
+    }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+
+      # internal
+      selection_manager: new SelectionManager({'source':@})
+    }
 
   nonserializable_attribute_names: () ->
     super().concat(['selection_manager', 'inspected'])
@@ -47,13 +63,6 @@ class ColumnDataSource extends DataSource.Model
         data[k] = data[k].slice(-rollover)
     @set('data', data, {silent: true})
     @trigger('stream')
-
-  defaults: =>
-    return _.extend {}, super(), {
-      data: {}
-      selection_manager: new SelectionManager({'source':@})
-      column_names: []
-    }
 
 module.exports =
   Model: ColumnDataSource

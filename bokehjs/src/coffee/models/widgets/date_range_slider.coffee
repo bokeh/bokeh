@@ -1,10 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "jqrangeslider/jQDateRangeSlider"
-ContinuumView = require "../../common/continuum_view"
-InputWidget = require "./input_widget"
 
-class DateRangeSliderView extends ContinuumView
+InputWidget = require "./input_widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+
+class DateRangeSliderView extends BokehView
 
   initialize: (options) ->
     super(options)
@@ -44,16 +46,17 @@ class DateRangeSlider extends InputWidget.Model
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      value: null
-      range: null
-      bounds: null
-      step: {}
-      enabled: true
-      arrows: true
-      value_labels: "show"
-      wheel_mode: null
+      # TODO (bev) types
+      value:        [ p.Any            ]
+      range:        [ p.Any            ]
+      bounds:       [ p.Any            ]
+      step:         [ p.Any,    {}     ]
+      enabled:      [ p.Bool,   true   ]
+      arrows:       [ p.Bool,   true   ]
+      value_labels: [ p.String, "show" ]
+      wheel_mode:   [ p.Any            ]
       ###
       formatter
       scales

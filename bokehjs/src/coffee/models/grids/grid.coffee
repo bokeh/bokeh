@@ -1,14 +1,12 @@
 _ = require "underscore"
-GuideRenderer = require "../renderers/guide_renderer"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
 
-class GridView extends PlotWidget
+GuideRenderer = require "../renderers/guide_renderer"
+Renderer = require "../renderers/renderer"
+p = require "../../core/properties"
+
+class GridView extends Renderer.View
   initialize: (attrs, options) ->
     super(attrs, options)
-    @grid_props = new properties.Line({obj: @model, prefix: 'grid_'})
-    @minor_grid_props = new properties.Line({obj: @model, prefix: 'minor_grid_'})
-    @band_props = new properties.Fill({obj: @model, prefix: 'band_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 
@@ -25,10 +23,10 @@ class GridView extends PlotWidget
     @listenTo(@model, 'change', @request_render)
 
   _draw_regions: (ctx) ->
-    if not @band_props.do_fill
+    if not @visuals.band_fill.doit
       return
     [xs, ys] = @mget('grid_coords')
-    @band_props.set_value(ctx)
+    @visuals.band_fill.set_value(ctx)
     for i in [0...xs.length-1]
       if i % 2 == 1
         [sx0, sy0] = @plot_view.map_to_screen(xs[i], ys[i], @x_range_name,
@@ -40,16 +38,16 @@ class GridView extends PlotWidget
     return
 
   _draw_grids: (ctx) ->
-    if not @grid_props.do_stroke
+    if not @visuals.grid_line.doit
       return
     [xs, ys] = @mget('grid_coords')
-    @_draw_grid_helper(ctx, @grid_props, xs, ys)
+    @_draw_grid_helper(ctx, @visuals.grid_line, xs, ys)
 
   _draw_minor_grids: (ctx) ->
-    if not @minor_grid_props.do_stroke
+    if not @visuals.minor_grid_line.doit
       return
     [xs, ys] = @mget('minor_grid_coords')
-    @_draw_grid_helper(ctx, @minor_grid_props, xs, ys)
+    @_draw_grid_helper(ctx, @visuals.minor_grid_line, xs, ys)
 
   _draw_grid_helper: (ctx, props, xs, ys) ->
     props.set_value(ctx)
@@ -65,7 +63,31 @@ class GridView extends PlotWidget
 
 class Grid extends GuideRenderer.Model
   default_view: GridView
+
   type: 'Grid'
+
+  mixins: ['line:grid_', 'line:minor_grid_', 'fill:band_']
+
+  props: ->
+    return _.extend {}, super(), {
+      bounds:       [ p.Any,     'auto'    ] # TODO (bev)
+      dimension:    [ p.Number,  0         ]
+      ticker:       [ p.Instance           ]
+      x_range_name: [ p.String,  'default' ]
+      y_range_name: [ p.String,  'default' ]
+    }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+      level: "underlay"
+      band_fill_color: null
+      band_fill_alpha: 0
+      grid_line_color: '#cccccc'
+      minor_grid_line_color: null
+
+      # internal
+    }
 
   initialize: (attrs, options)->
     super(attrs, options)
@@ -155,32 +177,6 @@ class Grid extends GuideRenderer.Model
       coords[j].push(dim_j)
 
     return coords
-
-  defaults: ->
-    return _.extend {}, super(), {
-      x_range_name: "default"
-      y_range_name: "default"
-      level: "underlay"
-      bounds: 'auto'
-      dimension: 0
-      ticker: null
-      band_fill_color: null
-      band_fill_alpha: 0
-      grid_line_color: '#cccccc'
-      grid_line_width: 1
-      grid_line_alpha: 1.0
-      grid_line_join: 'miter'
-      grid_line_cap: 'butt'
-      grid_line_dash: []
-      grid_line_dash_offset: 0
-      minor_grid_line_color: null
-      minor_grid_line_width: 1
-      minor_grid_line_alpha: 1.0
-      minor_grid_line_join: 'miter'
-      minor_grid_line_cap: 'butt'
-      minor_grid_line_dash: []
-      minor_grid_line_dash_offset: 0
-    }
 
 module.exports =
   Model: Grid

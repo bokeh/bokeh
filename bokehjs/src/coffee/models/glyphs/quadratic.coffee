@@ -1,5 +1,6 @@
 _ = require "underscore"
 rbush = require "rbush"
+
 Glyph = require "./glyph"
 
 # Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -38,7 +39,7 @@ class QuadraticView extends Glyph.View
     return index
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) ->
-    if @visuals.line.do_stroke
+    if @visuals.line.doit
       for i in indices
         if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])
           continue
@@ -55,8 +56,10 @@ class QuadraticView extends Glyph.View
 
 class Quadratic extends Glyph.Model
   default_view: QuadraticView
+
   type: 'Quadratic'
-  visuals: ['line']
+
+  mixins: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
 
 module.exports =

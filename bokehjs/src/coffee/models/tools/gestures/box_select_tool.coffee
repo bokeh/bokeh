@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 SelectTool = require "./select_tool"
 BoxAnnotation = require "../../annotations/box_annotation"
+p = require "../../../core/properties"
 
 class BoxSelectToolView extends SelectTool.View
 
@@ -93,6 +95,21 @@ class BoxSelectToolView extends SelectTool.View
 
     return
 
+DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
+  level: "overlay"
+  render_mode: "css"
+  top_units: "screen"
+  left_units: "screen"
+  bottom_units: "screen"
+  right_units: "screen"
+  fill_color: "lightgrey"
+  fill_alpha: 0.5
+  line_color: "black"
+  line_alpha: 1.0
+  line_width: 2
+  line_dash: [4, 4]
+})
+
 class BoxSelectTool extends SelectTool.Model
   default_view: BoxSelectToolView
   type: "BoxSelectTool"
@@ -100,6 +117,14 @@ class BoxSelectTool extends SelectTool.Model
   icon: "bk-tool-icon-box-select"
   event_type: "pan"
   default_order: 30
+
+  props: () ->
+    return _.extend({}, super(), {
+      dimensions:             [ p.Array,    ["width", "height"] ]
+      select_every_mousemove: [ p. Bool,    false               ]
+      callback:               [ p.Instance                      ]
+      overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
+    })
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -111,27 +136,6 @@ class BoxSelectTool extends SelectTool.Model
         )
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      dimensions: ["width", "height"]
-      select_every_mousemove: false
-      callback: null
-      overlay: new BoxAnnotation.Model({
-        level: "overlay"
-        render_mode: "css"
-        top_units: "screen"
-        left_units: "screen"
-        bottom_units: "screen"
-        right_units: "screen"
-        fill_color: "lightgrey"
-        fill_alpha: 0.5
-        line_color: "black"
-        line_alpha: 1.0
-        line_width: 2
-        line_dash: [4, 4]
-      })
-    })
 
 module.exports =
   Model: BoxSelectTool

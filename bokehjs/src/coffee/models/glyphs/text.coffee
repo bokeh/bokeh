@@ -1,11 +1,9 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
-properties = require "../../common/properties"
+p = require "../../core/properties"
 
 class TextView extends Glyph.View
-  initialize: (options) ->
-    super(options)
-    @text_props = new properties.Text({obj:@model, prefix: ''})
 
   _index_data: () ->
     @_xy_index()
@@ -15,13 +13,14 @@ class TextView extends Glyph.View
       if (isNaN(sx[i]+sy[i]+x_offset[i]+y_offset[i]+angle[i]) or not text[i]?)
         continue
 
-      ctx.save()
-      ctx.translate(sx[i]+x_offset[i], sy[i]+y_offset[i])
-      ctx.rotate(angle[i])
+      if @visuals.text.doit
+        ctx.save()
+        ctx.translate(sx[i]+x_offset[i], sy[i]+y_offset[i])
+        ctx.rotate(angle[i])
 
-      @visuals.text.set_vectorize(ctx, i)
-      ctx.fillText(text[i], 0, 0)
-      ctx.restore()
+        @visuals.text.set_vectorize(ctx, i)
+        ctx.fillText(text[i], 0, 0)
+        ctx.restore()
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
     ctx.save()
@@ -36,17 +35,17 @@ class TextView extends Glyph.View
 
 class Text extends Glyph.Model
   default_view: TextView
-  type: 'Text'
-  visuals: ['text']
-  angles: ['angle']
-  fields: ['text:string', 'x_offset', 'y_offset']
 
-  defaults: ->
+  type: 'Text'
+
+  mixins: ['text']
+
+  props: ->
     return _.extend {}, super(), {
-      angle: 0
-      x_offset: 0
-      y_offset: 0
-      text: { field :"text" }
+      text:     [ p.StringSpec, { field :"text" } ]
+      angle:    [ p.AngleSpec,  0                 ]
+      x_offset: [ p.NumberSpec, 0                 ]
+      y_offset: [ p.NumberSpec, 0                 ]
     }
 
 module.exports =

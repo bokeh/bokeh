@@ -1,15 +1,17 @@
 _ = require "underscore"
+
 Widget = require "./widget"
+p = require "../../core/properties"
 
 class AbstractButton extends Widget.Model
   type: "AbstractButton"
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      callback: null
-      label: "Button"
-      icon: null
-      type: "default"
+      callback: [ p.Instance          ]
+      label:    [ p.String, "Button"  ]
+      icon:     [ p.String            ]
+      type:     [ p.String, "default" ] # TODO (bev)
     }
 
 module.exports =
