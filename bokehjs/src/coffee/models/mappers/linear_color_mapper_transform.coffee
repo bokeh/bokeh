@@ -18,6 +18,7 @@ class LinearColorMapperTransform extends Model
       palette: null
       reserve_val: null
       reserve_color: "#ffffff"
+      transform: null
     })
 
   v_map_screen: (data) ->

@@ -62,6 +62,8 @@ module.exports = {
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'
   LogMapper:                require '../models/mappers/log_mapper'
+  LinearColorMapperTransform:        require '../models/mappers/linear_color_mapper_transform'
+
 
   Transform:                require '../models/transforms/transform'
   Jitter:                   require '../models/transforms/jitter'
