@@ -1,9 +1,10 @@
 _ = require "underscore"
-kiwi = require "kiwi"
 
+LayoutBox = require "../canvas/layout_box"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
-LayoutBox = require "../../common/layout_box"
+
+{EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -363,40 +364,32 @@ class Axis extends GuideRenderer.Model
     @register_property('dimension', (() -> @_dim), true)
     @register_property('offsets', @_offsets, true)
 
+  _doc_attached: () ->
+    @panel = new LayoutBox.Model()
+    @panel.attach_document(@document)
+
   initialize_layout: (solver) ->
-    panel = new LayoutBox.Model({solver: solver})
-    @panel = panel
-
-    # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
-    # should be (no multiple inheritnce in CoffeeScript)
-    @_top = panel._top
-    @_bottom = panel._bottom
-    @_left = panel._left
-    @_right = panel._right
-    @_width = panel._width
-    @_height = panel._height
-
     side = @get('layout_location')
     if side == "above"
       @_dim = 0
       @_normals = [0, -1]
-      @_size = panel._height
-      @_anchor = panel._bottom
+      @_size = @panel._height
+      @_anchor = @panel._bottom
     else if side == "below"
       @_dim = 0
       @_normals = [0, 1]
-      @_size = panel._height
-      @_anchor = panel._top
+      @_size = @panel._height
+      @_anchor = @panel._top
     else if side == "left"
       @_dim = 1
       @_normals = [-1, 0]
-      @_size = panel._width
-      @_anchor = panel._right
+      @_size = @panel._width
+      @_anchor = @panel._right
     else if side == "right"
       @_dim = 1
       @_normals = [1, 0]
-      @_size = panel._width
-      @_anchor = panel._left
+      @_size = @panel._width
+      @_anchor = @panel._left
     else
       logger.error("unrecognized side: '#{ side }'")
 
@@ -416,7 +409,7 @@ class Axis extends GuideRenderer.Model
 
     if @_size_constraint?
       solver.remove_constraint(@_size_constraint)
-    @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.Eq)
+    @_size_constraint = EQ(@_size, -size)
     solver.add_constraint(@_size_constraint)
 
   _offsets: () ->
