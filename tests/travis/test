@@ -72,6 +72,8 @@ parser.add_argument("-d", "--diff", type=str, default=default_diff,
                     help="compare generated images against this ref")
 parser.add_argument("-u", "--upload", dest="upload", action="store_true", default=default_upload,
                     help="upload generated images as reference images to S3")
+parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
+                    help="run all selected examples (disregarding skip flag)")
 
 args = parser.parse_args()
 
@@ -591,7 +593,7 @@ def skip(example, reason):
 
 try:
     for example, flags in sorted(selected_examples):
-        if flags & Flags.skip:
+        if not args.force and flags & Flags.skip:
             skip(example, "requested to skip")
         elif flags & Flags.server and not bokeh_server:
             skip(example, "bokeh server is not available")
