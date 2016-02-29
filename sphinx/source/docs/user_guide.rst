@@ -82,7 +82,7 @@ structure.
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. _ggplot.py: https://github.com/yhat/ggplot
+.. _HoloViews: http://holoviews.org
 .. _Matplotlib: http://matplotlib.org
 .. _Pandas: http://pandas.pydata.org
 .. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn
-.. _HoloViews: http://holoviews.org
