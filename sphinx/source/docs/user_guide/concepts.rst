@@ -32,13 +32,6 @@ Charts
     interface to quickly construct these kinds of plots. See
     :ref:`userguide_charts` for examples and usage.
 
-Data-space Units
-    Units used to specify glyph height or width relative to the data in a graph. 
-    Bokeh supports both data-space units and screen units. For example, in a 400 
-    pixel by 400 pixel graph with x and y axes ranging from 0 through 10, a 
-    glyph one fifth as wide and tall as the graph would be 80 screen units or 
-    2 data-space units.
-
 Documents
     An organizing data structure for Bokeh applications. Documents
     contain all the Bokeh Models and data needed to render an interactive
@@ -62,13 +55,6 @@ Models
     plots consist of collections of models, so it is important to understand
     them enough to configure their attributes and properties. See
     :ref:`userguide_styling` for more information.
-
-Screen Units
-    Raw numbers of pixels used to specify glyph height or width. Bokeh supports 
-    both screen units and data-space units. For example, in a 400 pixel by 400 
-    pixel graph with x and y axes ranging from 0 through 10, a glyph one fifth 
-    as wide and tall as the graph would be 80 screen units or 2 data-space 
-    units.
 
 Server
     The Bokeh server is an optional component that can be used for sharing
