@@ -253,7 +253,7 @@ class BinStats(Stat):
 
         self.bin_count = int(np.ceil((values.max() - values.min()) / self.bin_width))
 
-        if self.bin_count == 1:
+        if self.bin_count <= 1:
             self.bin_count = 3
 
     def calculate(self):

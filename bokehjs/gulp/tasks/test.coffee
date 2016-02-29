@@ -4,8 +4,35 @@ mocha = require "gulp-mocha"
 paths = require "../paths"
 utils = require "../utils"
 
-gulp.task "test", ->
-  gulp.src "./test", read: false
+gulp.task "test", ["defaults:generate"], ->
+  gulp.src ["./test", "./test/all.coffee"], read: false
+    .pipe mocha()
+
+gulp.task "test:client", ->
+  gulp.src ["./test", "./test/client.coffee"], read: false
+    .pipe mocha()
+
+gulp.task "test:core", ->
+  gulp.src ["./test", "./test/core"], read: false
+    .pipe mocha()
+
+gulp.task "test:document", ->
+  gulp.src ["./test", "./test/document.coffee"], read: false
+    .pipe mocha()
+
+gulp.task "test:models", ->
+  gulp.src ["./test", "./test/models"], read: false
+    .pipe mocha()
+
+gulp.task "test:utils", ->
+  gulp.src ["./test", "./test/utils.coffee"], read: false
+    .pipe mocha()
+
+gulp.task "test:test_common", ["defaults:generate"], ->
+  gulp.src ["./test", "./test/test_common"], read: false
     .pipe mocha()
 
 utils.buildWatchTask "test", paths.test.watchSources
+
+
+# require "./test_common"

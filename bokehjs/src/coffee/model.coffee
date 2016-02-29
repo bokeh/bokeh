@@ -1,13 +1,13 @@
 _ = require "underscore"
-HasProperties = require "./common/has_properties"
+HasProps = require "./core/has_props"
+p = require "./core/properties"
 
-class Model extends HasProperties
+class Model extends HasProps
   type: "Model"
 
-  defaults: ->
-    return _.extend {}, super(), {
-      tags: []
-      name: null
-    }
+  props: () -> _.extend {}, super(), {
+    tags: [ p.Array, [] ]
+    name: [ p.String    ]
+  }
 
 module.exports = Model

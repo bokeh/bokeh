@@ -78,6 +78,7 @@ def test_Legend():
     yield (check_props, legend, [
         "plot",
         "location",
+        "orientation",
         "label_standoff",
         "label_height",
         "label_width",

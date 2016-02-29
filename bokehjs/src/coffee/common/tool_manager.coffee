@@ -2,13 +2,13 @@ _ = require "underscore"
 $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
 Backbone = require "backbone"
-ActionTool = require "../tool/actions/action_tool"
-HelpTool = require "../tool/actions/help_tool"
-GestureTool = require "../tool/gestures/gesture_tool"
-InspectTool = require "../tool/inspectors/inspect_tool"
-{logger} = require "./logging"
+ActionTool = require "../models/tools/actions/action_tool"
+HelpTool = require "../models/tools/actions/help_tool"
+GestureTool = require "../models/tools/gestures/gesture_tool"
+InspectTool = require "../models/tools/inspectors/inspect_tool"
+{logger} = require "../core/logging"
 toolbar_template = require "./toolbar_template"
-HasProperties = require "./has_properties"
+HasProps = require "../core/has_props"
 
 class ToolManagerView extends Backbone.View
   template: toolbar_template
@@ -65,7 +65,7 @@ class ToolManagerView extends Backbone.View
 
     return @
 
-class ToolManager extends HasProperties
+class ToolManager extends HasProps
   type: 'ToolManager'
 
   initialize: (attrs, options) ->

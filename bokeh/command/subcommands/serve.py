@@ -15,6 +15,16 @@ i.e.,
 
     http://localhost:{DEFAULT_PORT}/app_script
 
+It is also possible to run the same commmand with jupyter notebooks:
+
+.. code-block:: sh
+
+    bokeh serve app_notebook.ipynb
+
+This will generate the same results as described with a python script
+and the application will be served on a default port ({DEFAULT_PORT})
+at localhost, under the path ``/app_notebook``
+
 Applications can also be created from directories. The directory should
 contain a ``main.py`` (and any other helper modules that are required) as
 well as any additional assets (e.g., theme files). Pass the directory name
@@ -229,8 +239,8 @@ The value is specified in milliseconds. The default lifetime interval
 for unused sessions is 30 minutes. Only positive integer values are
 accepted.
 
-Development Options
-~~~~~~~~~~~~~~~~~~~
+Logging Options
+~~~~~~~~~~~~~~~
 
 The logging level can be controlled by the ``--log-level`` argument:
 
@@ -239,6 +249,14 @@ The logging level can be controlled by the ``--log-level`` argument:
     bokeh serve app_script.py --log-level=debug
 
 The available log levels are: {LOGLEVELS}
+
+The log format can be controlled by the ``--log-format`` argument:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --log-format="%(levelname)s: %(message)s"
+
+The default log format is ``"{DEFAULT_LOG_FORMAT}"``
 
 '''
 from __future__ import absolute_import
@@ -257,11 +275,13 @@ from ..util import build_single_handler_applications, die
 
 LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
+DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
 __doc__ = __doc__.format(
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
-    SESSION_ID_MODES=nice_join(SESSION_ID_MODES)
+    SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
+    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
 
 base_serve_args = (
@@ -382,7 +402,7 @@ class Serve(Subcommand):
         applications = build_single_handler_applications(args.files)
 
         log_level = getattr(logging, args.log_level.upper())
-        logging.basicConfig(level=log_level)
+        logging.basicConfig(level=log_level, format=args.log_format)
 
         if len(applications) == 0:
             # create an empty application by default, typically used with output_server

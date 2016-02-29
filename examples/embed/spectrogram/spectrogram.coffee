@@ -120,9 +120,10 @@ class SpectrogramApp
 class SpectrogramPlot
 
   constructor: (@model, @config) ->
-    @cmap = new Bokeh.LinearColorMapper.Model({
-      palette: Bokeh.Palettes.YlGnBu9, low: 0, high: 5
-    })
+
+    palette = ['#081d58', '#253494', '#225ea8', '#1d91c0', '#41b6c4', '#7fcdbb', '#c7e9b4', '#edf8b1', '#ffffd9']
+    Bokeh.Collections('LinearColorMapper').model({'palette':palette, low:0, high:5})
+    @cmap = Bokeh.Collections('LinearColorMapper').models[0]
 
     @num_images = Math.ceil(@config.NGRAMS/@config.TILE_WIDTH) + 1
 
