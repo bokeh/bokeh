@@ -19,13 +19,11 @@ from tests.plugins.upload_to_s3 import S3_URL
 from tests.plugins.utils import (
     info,
     ok,
-    red,
     warn,
     write,
-    yellow,
 )
 from tests.plugins.image_diff import process_image_diff
-from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
+from tests.plugins.selenium_screenshot import get_selenium_screenshot
 
 from .collect_examples import example_dir
 from .utils import (
@@ -36,34 +34,34 @@ from .utils import (
 
 
 @pytest.mark.examples
-def test_server_examples(server_example, bokeh_server, diff, log_file):
+def test_server_examples(selenium, server_example, bokeh_server, diff, log_file):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
     assert _run_example(server_example, log_file) == 0, 'Example did not run'
-    _assert_snapshot(server_example, url, 'server', diff)
+    _assert_snapshot(selenium, server_example, url, 'server', diff)
     if diff:
         _get_pdiff(server_example, diff)
 
 
 @pytest.mark.examples
-def test_notebook_examples(notebook_example, jupyter_notebook, diff):
+def test_notebook_examples(selenium, notebook_example, jupyter_notebook, diff):
     notebook_port = pytest.config.option.notebook_port
     url_path = join(*_get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
     assert deal_with_output_cells(notebook_example), 'Notebook failed'
-    _assert_snapshot(notebook_example, url, 'notebook', diff)
+    _assert_snapshot(selenium, notebook_example, url, 'notebook', diff)
     if diff:
         _get_pdiff(notebook_example, diff)
 
 
 @pytest.mark.examples
-def test_file_examples(file_example, diff, log_file):
+def test_file_examples(selenium, file_example, diff, log_file):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
     assert _run_example(file_example, log_file) == 0, 'Example did not run'
-    _assert_snapshot(file_example, url, 'file', diff)
+    _assert_snapshot(selenium, file_example, url, 'file', diff)
     if diff:
         _get_pdiff(file_example, diff)
 
@@ -104,63 +102,21 @@ def _get_path_parts(path):
     return parts
 
 
-def _print_phantomjs_output(result):
-    errors = result['errors']
-    messages = result['messages']
-    resources = result['resources']
-
-    for message in messages:
-        msg = message['msg']
-        line = message.get('line')
-        source = message.get('source')
-
-        if source is None:
-            write(msg)
-        elif line is None:
-            write("%s: %s" % (source, msg))
-        else:
-            write("%s:%s: %s" % (source, line, msg))
-
-    # Process resources
-    for resource in resources:
-        url = resource['url']
-        if url.endswith(".png"):
-            ok("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
-        else:
-            warn("Resource error:: %s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
-
-    # You can have a successful test, and still have errors reported, so not failing here.
-    for error in errors:
-        warn("%s: %s" % (red("PhatomJS Error: "), error['msg']))
-        for item in error['trace']:
-            write("    %s: %d" % (item['file'], item['line']))
-
-
-def _assert_snapshot(example, url, example_type, diff):
+def _assert_snapshot(selenium, example, url, example_type, diff):
     # Get setup datapoints
 
     screenshot_path, _, _ = get_example_pngs(example, diff)
 
     if example_type == 'notebook':
-        wait = pytest.config.option.notebook_phantom_wait * 1000
+        wait = pytest.config.option.notebook_phantom_wait
         height = 2000
     else:
-        wait = 1000
+        wait = 1
         height = 1000
 
-    result = get_phantomjs_screenshot(url, screenshot_path, wait, height=height)
+    get_selenium_screenshot(selenium, url, screenshot_path, wait, height=height)
 
-    status = result['status']
-    errors = result['errors']
-    messages = result['messages']
-    resources = result['resources']
-
-    if status != 'success':
-        assert False, "PhantomJS did not succeed: %s | %s | %s" % (errors, messages, resources)
-    else:
-        if pytest.config.option.verbose:
-            _print_phantomjs_output(result)
-        assert True
+    return True
 
 
 def _get_reference_image_from_s3(example, diff):

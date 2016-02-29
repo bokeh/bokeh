@@ -7,7 +7,6 @@ pytest_plugins = (
     "tests.examples.examples_report_plugin",
     "tests.plugins.bokeh_server",
     "tests.plugins.jupyter_notebook",
-    "tests.plugins.phantomjs_screenshot",
     "tests.plugins.image_diff",
     "tests.plugins.file_server",
     "tests.plugins.upload_to_s3",
