@@ -17,7 +17,6 @@ packages installed in order to build Bokeh documentation:
 * yaml
 * pyyaml
 * ggplot
-* seaborn
 
 These can be installed using ``conda`` or ``pip`` or from source. In
 addition to the package requirements, you will also need to have the sample
@@ -71,4 +70,3 @@ can be reasonably read as "title_font IS a font used for the plot title".
 .. _Google Style Docstrings: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html#example-google
 .. _Sphinx: http://sphinx-doc.org
 .. _Sphinx Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
-
