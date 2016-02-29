@@ -7,12 +7,12 @@ class Jitter extends Transform.Model
 
   defaults: ->
     return _.extend({}, super(), {
-      width: 1
+      interval: 1
     })
 
   compute: (x) ->
     # Apply the transform to a single value
-    return(x + ((Math.random() - 0.5) * @get('width')))
+    return(x + ((Math.random() - 0.5) * @get('interval')))
 
   v_compute: () ->
     # Apply the tranform to a vector of values
