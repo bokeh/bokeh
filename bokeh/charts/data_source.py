@@ -151,7 +151,7 @@ class DataGroup(object):
             data (:class:`pandas.DataFrame`): the subset of data associated with the group
             attr_specs dict(str, :class:`AttrSpec`): mapping between attribute name and
             the associated :class:`AttrSpec`.
-            
+
         """
         self.label = label
         self.data = data.reset_index()
@@ -319,12 +319,15 @@ class ChartDataSource(object):
 
         self.input_type = kwargs.pop('input_type', None)
         self.attrs = attrs or []
-        self._data = df
+        self._data = df.copy(deep=False)
         self._dims = dims
         self.operations = []
         self._required_dims = required_dims
-        self.column_assigner = column_assigner(df=df, dims=list(self._dims),
-                                               attrs=self.attrs)
+        self.column_assigner = column_assigner(
+            df=self._data,
+            dims=list(self._dims),
+            attrs=self.attrs,
+        )
         self._selections = self.get_selections(selections, **kwargs)
         self.setup_derived_columns()
         self.apply_operations()

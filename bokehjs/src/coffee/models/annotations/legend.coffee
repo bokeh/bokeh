@@ -1,60 +1,53 @@
 _ = require "underscore"
+
 Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
-textutils = require "../../common/textutils"
+Renderer = require "../renderers/renderer"
+p = require "../../core/properties"
+{get_text_height} = require "../../core/util/text"
 
-# Legends:
-#
-# legend_padding is the boundary between the legend and the edge of the plot
-# legend_spacing goes between each legend entry and the edge of the legend,
-# as well as between 2 adjacent legend entries.  It is also the space between
-# the legend label, and the legend glyph.
-#
-# A legend in the top right corner looks like this
-#
-# plotborder
-# padding
-# legendborder
-# spacing
-# legendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder
-# spacing
-# legendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder
-# spacing
-# border
-
-class LegendView extends PlotWidget
+class LegendView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @label_props = new properties.Text({obj:@model, prefix: 'label_'})
-    @border_props = new properties.Line({obj: @model, prefix: 'border_'})
-    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
     @need_calc_dims = true
     @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
   calc_dims: (options) ->
     legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
+
+    glyph_height = @mget('glyph_height')
+    glyph_width = @mget('glyph_width')
+
     label_height = @mget('label_height')
-    @glyph_height = @mget('glyph_height')
     label_width = @mget('label_width')
-    @glyph_width = @mget('glyph_width')
+
     legend_spacing = @mget('legend_spacing')
-    @label_height = _.max(
-      [textutils.getTextHeight(@label_props.font_value()),
-       label_height, @glyph_height])
-    @legend_height = @label_height
-    #add legend spacing
-    @legend_height = (legend_names.length * @legend_height +
-                      (1 + legend_names.length) * legend_spacing)
+
+    @max_label_height = _.max(
+      [get_text_height(@visuals.label_text.font_value()), label_height, glyph_height]
+    )
+
+    # this is to measure text properties
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
-    @label_props.set_value(ctx)
-    text_widths = _.map(legend_names, (txt) -> ctx.measureText(txt).width)
+    @visuals.label_text.set_value(ctx)
+    @text_widths = {}
+    for name in legend_names
+      @text_widths[name] = _.max([ctx.measureText(name).width, label_width])
     ctx.restore()
 
-    text_width = _.max(text_widths)
-    @label_width = _.max([text_width, label_width])
-    @legend_width = @label_width + @glyph_width + 3 * legend_spacing
+    max_label_width = _.max(_.values(@text_widths))
+
+    if @mget("orientation") == "vertical"
+      @legend_height = (
+        legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing
+      )
+      @legend_width = max_label_width + glyph_width + 3 * legend_spacing
+    else
+      @legend_width = 0
+      for name, width of @text_widths
+        @legend_width += (_.max([width, label_width]) + glyph_width + 3 * legend_spacing)
+      @legend_height = @max_label_height + 2 * legend_spacing
+
     location = @mget('location')
     legend_padding = @mget('legend_padding')
     h_range = @plot_view.frame.get('h_range')
@@ -100,6 +93,11 @@ class LegendView extends PlotWidget
     if @need_calc_dims
       @calc_dims()
       @need_calc_dims = false
+
+    glyph_height = @mget('glyph_height')
+    glyph_width = @mget('glyph_width')
+    orientation = @mget('orientation')
+
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
@@ -107,26 +105,37 @@ class LegendView extends PlotWidget
     ctx.rect(@box_coords[0], @box_coords[1],
       @legend_width, @legend_height
     )
-    # Populate background fill properties (fill_color/fill_alpha) for legend,
-    # defaulting to opaque white
-    @background_props.set_value(ctx)
+
+    @visuals.background_fill.set_value(ctx)
     ctx.fill()
-    if @border_props.do_stroke
-      @border_props.set_value(ctx)
+    if @visuals.border_line.doit
+      @visuals.border_line.set_value(ctx)
       ctx.stroke()
+
     legend_spacing = @mget('legend_spacing')
+    N = @mget("legends").length
+
+    xoffset = 0
     for [legend_name, glyphs], idx in @mget("legends")
-      yoffset = idx * @label_height
-      yspacing = (1 + idx) * legend_spacing
-      y = @box_coords[1] +  @label_height / 2.0 + yoffset + yspacing
-      x = @box_coords[0] + legend_spacing
-      x1 = @box_coords[0] + 2 * legend_spacing + @label_width
-      x2 = x1 + @glyph_width
-      y1 = @box_coords[1] + yoffset + yspacing
-      y2 = y1 + @glyph_height
-      @label_props.set_value(ctx)
-      ctx.fillText(legend_name, x, y)
-      for renderer in @model.resolve_ref(glyphs)
+      if orientation == "vertical"
+        yoffset = idx * @legend_height / N
+        x1 = @box_coords[0] + legend_spacing
+        x2 = x1 + glyph_width
+        y1 = @box_coords[1] + yoffset + legend_spacing
+        y2 = y1 + glyph_height
+      else
+        x1 = @box_coords[0] + xoffset + legend_spacing
+        x2 = x1 + glyph_width
+        y1 = @box_coords[1] + legend_spacing
+        y2 = y1 + glyph_height
+        xoffset += @text_widths[legend_name] + 3*legend_spacing + glyph_width
+
+      tx = x2 + legend_spacing
+      ty = y1 + @max_label_height / 2.0
+
+      @visuals.label_text.set_value(ctx)
+      ctx.fillText(legend_name, tx, ty)
+      for renderer in glyphs
         view = @plot_view.renderers[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
 
@@ -134,40 +143,34 @@ class LegendView extends PlotWidget
 
 class Legend extends Annotation.Model
   default_view: LegendView
+
   type: 'Legend'
+
+  mixins: ['text:label_', 'line:border_', 'fill:background_']
+
+  props: ->
+    return _.extend {}, super(), {
+      legends:        [ p.Array,          []          ]
+      orientation:    [ p.Orientation,    'vertical'  ]
+      location:       [ p.Any,            'top_right' ] # TODO (bev)
+      label_standoff: [ p.Number,         15          ]
+      glyph_height:   [ p.Number,         20          ]
+      glyph_width:    [ p.Number,         20          ]
+      label_height:   [ p.Number,         20          ]
+      label_width:    [ p.Number,         50          ]
+      legend_padding: [ p.Number,         10          ]
+      legend_spacing: [ p.Number,         3           ]
+    }
 
   defaults: ->
     return _.extend {}, super(), {
-      legends: []
-      level: "annotation"
-
+      # overrides
       border_line_color: 'black'
-      border_line_width: 1
-      border_line_alpha: 1.0
-      border_line_join: 'miter'
-      border_line_cap: 'butt'
-      border_line_dash: []
-      border_line_dash_offset: 0
-
       background_fill_color: "#ffffff"
-      background_fill_alpha: 1.0
-
-      label_standoff: 15
-      label_text_font: "helvetica"
       label_text_font_size: "10pt"
-      label_text_font_style: "normal"
-      label_text_color: "#444444"
-      label_text_alpha: 1.0
-      label_text_align: "left"
       label_text_baseline: "middle"
 
-      glyph_height: 20
-      glyph_width: 20
-      label_height: 20
-      label_width: 50
-      legend_padding: 10
-      legend_spacing: 3
-      location: 'top_right'
+      # internal
     }
 
 module.exports =

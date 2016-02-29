@@ -1,10 +1,23 @@
 $ = require "jquery"
 _ = require "underscore"
-{logger} = require "../../common/logging"
+
 RemoteDataSource = require "./remote_data_source"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class AjaxDataSource extends RemoteDataSource.Model
   type: 'AjaxDataSource'
+
+  props: ->
+    return _.extend {}, super(), {
+      mode:         [ p.String, 'replace'          ]
+      data_url:     [ p.String                     ]
+      content_type: [ p.String, 'application/json' ]
+      http_headers: [ p.Any,    {}                 ] # TODO (bev)
+      max_size:     [ p.Number                     ]
+      method:       [ p.String, 'POST'             ] # TODO (bev)  enum?
+      if_modified:  [ p.Bool,   false              ]
+    }
 
   destroy : () =>
     if @interval?
@@ -44,17 +57,6 @@ class AjaxDataSource extends RemoteDataSource.Model
       logger.error(arguments)
     )
     return null
-
-  defaults: =>
-    return _.extend {}, super(), {
-      mode: 'replace'
-      data_url : null
-      content_type : 'application/json'
-      http_headers : {}
-      max_size: null
-      method: 'POST'
-      if_modified: false
-    }
 
 module.exports =
   Model: AjaxDataSource

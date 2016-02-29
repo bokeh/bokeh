@@ -1,7 +1,6 @@
 MercatorTileSource = require('./mercator_tile_source')
 
 class TMSTileSource extends MercatorTileSource
-
   type: 'TMSTileSource'
 
   get_image_url: (x, y, z) ->

@@ -29,7 +29,7 @@ from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
 
 from .mplexporter.renderers import Renderer
-from .mpl_helpers import convert_dashes, get_props_cycled, is_ax_end, xkcd_line
+from .mpl_helpers import convert_color, convert_dashes, get_props_cycled, xkcd_line
 
 pd = import_optional('pandas')
 
@@ -69,8 +69,11 @@ class BokehRenderer(Renderer):
         else:
             # This list comprehension splits the plot.renderers list at the "marker"
             # points returning small sublists corresponding with each subplot.
-            subrends = [list(x[1]) for x in itertools.groupby(
-                        self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
+            subrends = []
+            for i in range(1, len(self._axes)):
+                start, end = self._axes[i-1], self._axes[i]
+                subrends += [self.plot.renderers[start:end]]
+
             plots = []
             for i, axes in enumerate(fig.axes):
                 # create a new plot for each subplot
@@ -144,9 +147,7 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        background_fill_color = ax.get_axis_bgcolor()
-        if background_fill_color == 'w':
-            background_fill_color = 'white'
+        background_fill_color = convert_color(ax.get_axis_bgcolor())
         self.plot.background_fill_color = background_fill_color
         if self.xkcd:
             self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
@@ -154,8 +155,8 @@ class BokehRenderer(Renderer):
             self.plot.title_text_color = "black"
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
-        dummy_source = ColumnDataSource(data=dict(name="ax_end"))
-        self.plot.renderers.append(GlyphRenderer(data_source=dummy_source, glyph=X()))
+        self._axes = getattr(self, "_axes", [0])
+        self._axes.append(len(self.plot.renderers))
 
     def open_legend(self, legend, props):
         lgnd = Legend(location="top_right")
@@ -189,7 +190,7 @@ class BokehRenderer(Renderer):
         line.x = source.add(x)
         line.y = source.add(y)
 
-        line.line_color = style['color']
+        line.line_color = convert_color(style['color'])
         line.line_width = style['linewidth']
         line.line_alpha = style['alpha']
         line.line_dash = [] if style['dasharray'] is "none" else [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
@@ -230,8 +231,8 @@ class BokehRenderer(Renderer):
         marker.x = source.add(x)
         marker.y = source.add(y)
 
-        marker.line_color = style['edgecolor']
-        marker.fill_color = style['facecolor']
+        marker.line_color = convert_color(style['edgecolor'])
+        marker.fill_color = convert_color(style['facecolor'])
         marker.line_width = style['edgewidth']
         marker.size = style['markersize']
         marker.fill_alpha = marker.line_alpha = style['alpha']
@@ -263,7 +264,7 @@ class BokehRenderer(Renderer):
         # baseline not implemented in Bokeh, defaulting to bottom.
         text.text_alpha = style['alpha']
         text.text_font_size = "%dpx" % style['fontsize']
-        text.text_color = style['color']
+        text.text_color = convert_color(style['color'])
         text.text_align = style['halign']
         text.text_baseline = alignment_map[style['valign']]
         text.angle = style['rotation']
@@ -292,11 +293,15 @@ class BokehRenderer(Renderer):
         #  * map `labelpad` to `major_label_standoff`
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
-
         tf = props['tickformat']
+        tv = props['tickvalues']
         if tf and any(isinstance(x, string_types) for x in tf):
             laxis = CategoricalAxis(axis_label=ax.get_label_text())
-            rng = FactorRange(factors=[str(x) for x in tf], offset=-1.0)
+            assert np.min(tv) >= 0, "Assuming categorical axis have positive-integer dump tick values"
+            # Seaborn position its categories on dump tick values indented to zero;
+            # Matplotlib does from 1. We need then different offset given the assumed identation.
+            offset = np.min(tv) - 1
+            rng = FactorRange(factors=[str(x) for x in tf], offset=offset)
             if location in ["above", "below"]:
                 self.plot.x_range = rng
             else:
@@ -345,9 +350,8 @@ class BokehRenderer(Renderer):
         "Given a mpl axes instance, returns a Bokeh Grid object."
         lgrid = Grid(dimension=dimension,
                      ticker=baxis.ticker,
-                     grid_line_color=gridline.get_color(),
+                     grid_line_color=convert_color(gridline.get_color()),
                      grid_line_width=gridline.get_linewidth())
-
         self.plot.add_layout(lgrid)
 
     def make_line_collection(self, col):
@@ -398,10 +402,12 @@ class BokehRenderer(Renderer):
     def multiline_props(self, source, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."
         colors = get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
+        colors = [convert_color(x) for x in colors]
         widths = get_props_cycled(col, col.get_linewidth())
         multiline.line_color = source.add(colors)
         multiline.line_width = source.add(widths)
-        multiline.line_alpha = col.get_alpha()
+        if col.get_alpha() is not None:
+            multiline.line_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
         if not col.get_linestyle()[0][1]:
             on_off = []
@@ -413,13 +419,16 @@ class BokehRenderer(Renderer):
     def patches_props(self, source, patches, col):
         "Takes a mpl collection object to extract and set up some Bokeh patches properties."
         face_colors = get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+        face_colors = [convert_color(x) for x in face_colors]
         patches.fill_color = source.add(face_colors)
         edge_colors = get_props_cycled(col, col.get_edgecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+        edge_colors = [convert_color(x) for x in edge_colors]
         patches.line_color = source.add(edge_colors)
         widths = get_props_cycled(col, col.get_linewidth())
         patches.line_width = source.add(widths)
-        patches.line_alpha = col.get_alpha()
-        patches.fill_alpha = col.get_alpha()
+        if col.get_alpha() is not None:
+            patches.line_alpha = col.get_alpha()
+            patches.fill_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
         if not col.get_linestyle()[0][1]:
             on_off = []

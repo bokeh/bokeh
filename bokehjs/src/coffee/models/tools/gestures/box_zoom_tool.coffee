@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 GestureTool = require "./gesture_tool"
 BoxAnnotation = require "../../annotations/box_annotation"
+p = require "../../../core/properties"
 
 class BoxZoomToolView extends GestureTool.View
 
@@ -67,6 +69,21 @@ class BoxZoomToolView extends GestureTool.View
     @plot_view.push_state('box_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info)
 
+DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
+  level: "overlay"
+  render_mode: "css"
+  top_units: "screen"
+  left_units: "screen"
+  bottom_units: "screen"
+  right_units: "screen"
+  fill_color: "lightgrey"
+  fill_alpha: 0.5
+  line_color: "black"
+  line_alpha: 1.0
+  line_width: 2
+  line_dash: [4, 4]
+})
+
 class BoxZoomTool extends GestureTool.Model
   default_view: BoxZoomToolView
   type: "BoxZoomTool"
@@ -86,23 +103,10 @@ class BoxZoomTool extends GestureTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-  defaults: () ->
+  props: () ->
     return _.extend({}, super(), {
-      dimensions: ["width", "height"]
-      overlay: new BoxAnnotation.Model({
-        level: "overlay"
-        render_mode: "css"
-        top_units: "screen"
-        left_units: "screen"
-        bottom_units: "screen"
-        right_units: "screen"
-        fill_color: "lightgrey"
-        fill_alpha: 0.5
-        line_color: "black"
-        line_alpha: 1.0
-        line_width: 2
-        line_dash: [4, 4]
-      })
+      dimensions: [ p.Array,    ["width", "height"] ]
+      overlay:    [ p.Instance, DEFAULT_BOX_OVERLAY ]
     })
 
 module.exports =

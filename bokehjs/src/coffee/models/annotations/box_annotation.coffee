@@ -1,13 +1,12 @@
 _ = require "underscore"
-Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
 
-class BoxAnnotationView extends PlotWidget
+Annotation = require "./annotation"
+Renderer = require "../renderers/renderer"
+p = require "../../core/properties"
+
+class BoxAnnotationView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @fill_props = new properties.Fill({obj: @model, prefix: ''})
-    @line_props = new properties.Line({obj: @model, prefix: ''})
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
     @$el.addClass('shading')
     @$el.hide()
@@ -69,10 +68,11 @@ class BoxAnnotationView extends PlotWidget
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    @fill_props.set_value(ctx)
+    debugger
+    @visuals.fill.set_value(ctx)
     ctx.fill()
 
-    @line_props.set_value(ctx)
+    @visuals.line.set_value(ctx)
     ctx.stroke()
 
     ctx.restore()
@@ -89,7 +89,37 @@ class BoxAnnotationView extends PlotWidget
 
 class BoxAnnotation extends Annotation.Model
   default_view: BoxAnnotationView
+
   type: 'BoxAnnotation'
+
+  mixins: ['line', 'fill']
+
+  props: ->
+    return _.extend {}, super(), {
+      render_mode:  [ p.RenderMode,   'canvas'  ]
+      x_range_name: [ p.String,       'default' ]
+      y_range_name: [ p.String,       'default' ]
+      top:          [ p.Number,       null      ]
+      top_units:    [ p.SpatialUnits, 'data'    ]
+      bottom:       [ p.Number,       null      ]
+      bottom_units: [ p.SpatialUnits, 'data'    ]
+      left:         [ p.Number,       null      ]
+      left_units:   [ p.SpatialUnits, 'data'    ]
+      right:        [ p.Number,       null      ]
+      right_units:  [ p.SpatialUnits, 'data'    ]
+    }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+      fill_color: '#fff9ba'
+      fill_alpha: 0.4
+      line_color: '#cccccc'
+      line_alpha: 0.3
+
+      # internal
+      silent_update: false
+    }
 
   nonserializable_attribute_names: () ->
     super().concat(['silent_update'])
@@ -103,32 +133,6 @@ class BoxAnnotation extends Annotation.Model
     else
       @set({left: left, right: right, top: top, bottom: bottom})
     @trigger('data_update')
-
-  defaults: ->
-    return _.extend {}, super(), {
-      silent_update: false
-      render_mode: "canvas"
-      x_range_name: "default"
-      y_range_name: "default"
-      level: 'annotation'
-      left: null
-      right: null
-      top: null
-      bottom: null
-      left_units: 'data'
-      right_units: 'data'
-      top_units: 'data'
-      bottom_units: 'data'
-      fill_color: '#fff9ba'
-      fill_alpha: 0.4
-      line_color: '#cccccc'
-      line_width: 1
-      line_alpha: 0.3
-      line_join: 'miter'
-      line_cap: 'butt'
-      line_dash: []
-      line_dash_offset: 0
-    }
 
 module.exports =
   Model: BoxAnnotation

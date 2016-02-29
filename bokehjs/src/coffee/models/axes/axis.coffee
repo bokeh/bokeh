@@ -1,10 +1,11 @@
 _ = require "underscore"
 kiwi = require "kiwi"
+
 GuideRenderer = require "../renderers/guide_renderer"
+Renderer = require "../renderers/renderer"
 LayoutBox = require "../../common/layout_box"
-{logger} = require "../../common/logging"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # axis title text, based on it's location and orientation
@@ -42,7 +43,6 @@ HANGING = 'hanging'
 LEFT = 'left'
 RIGHT = 'right'
 CENTER = 'center'
-
 
 _angle_lookup = {
   above:
@@ -147,14 +147,9 @@ _apply_location_heuristics = (ctx, side, orient) ->
   ctx.textBaseline = baseline
   ctx.textAlign = align
 
-class AxisView extends PlotWidget
+class AxisView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @rule_props = new properties.Line({obj: @model, prefix: 'axis_'})
-    @major_tick_props = new properties.Line({obj: @model, prefix: 'major_tick_'})
-    @minor_tick_props = new properties.Line({obj: @model, prefix: 'minor_tick_'})
-    @major_label_props = new properties.Text({obj: @model, prefix: 'major_label_'})
-    @axis_label_props = new properties.Text({obj: @model, prefix: 'axis_label_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 
@@ -178,14 +173,14 @@ class AxisView extends PlotWidget
     @listenTo(@model, 'change', @plot_view.request_render)
 
   _draw_rule: (ctx) ->
-    if not @rule_props.do_stroke
+    if not @visuals.axis_line.doit
       return
     [x, y] = coords = @mget('rule_coords')
     [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
-    @rule_props.set_value(ctx)
+    @visuals.axis_line.set_value(ctx)
     ctx.beginPath()
     ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
     for i in [1...sx.length]
@@ -193,7 +188,7 @@ class AxisView extends PlotWidget
     ctx.stroke()
 
   _draw_major_ticks: (ctx) ->
-    if not @major_tick_props.do_stroke
+    if not @visuals.major_tick_line.doit
       return
     coords = @mget('tick_coords')
     [x, y] = coords.major
@@ -203,7 +198,7 @@ class AxisView extends PlotWidget
 
     tin = @mget('major_tick_in')
     tout = @mget('major_tick_out')
-    @major_tick_props.set_value(ctx)
+    @visuals.major_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff),
@@ -213,7 +208,7 @@ class AxisView extends PlotWidget
       ctx.stroke()
 
   _draw_minor_ticks: (ctx) ->
-    if not @minor_tick_props.do_stroke
+    if not @visuals.minor_tick_line.doit
       return
     coords = @mget('tick_coords')
     [x, y] = coords.minor
@@ -223,7 +218,7 @@ class AxisView extends PlotWidget
 
     tin = @mget('minor_tick_in')
     tout = @mget('minor_tick_out')
-    @minor_tick_props.set_value(ctx)
+    @visuals.minor_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff),
@@ -250,7 +245,7 @@ class AxisView extends PlotWidget
 
     labels = @mget('formatter').format(coords.major[dim])
 
-    @major_label_props.set_value(ctx)
+    @visuals.major_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
 
     for i in [0...sx.length]
@@ -284,7 +279,7 @@ class AxisView extends PlotWidget
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
 
-    @axis_label_props.set_value(ctx)
+    @visuals.axis_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
 
     if angle
@@ -298,7 +293,57 @@ class AxisView extends PlotWidget
 
 class Axis extends GuideRenderer.Model
   default_view: AxisView
+
   type: 'Axis'
+
+  mixins: [
+    'line:axis_',
+    'line:major_tick_',
+    'line:minor_tick_',
+    'text:major_label_',
+    'text:axis_label_'
+  ]
+
+  props: ->
+    return _.extend {}, super(), {
+      visible:        [ p.Bool,     true      ]
+      location:       [ p.String,   'auto'    ] # TODO (bev) enum
+      bounds:         [ p.Any,      'auto'    ] # TODO (bev)
+      ticker:         [ p.Instance, null      ]
+      formatter:      [ p.Instance, null      ]
+      x_range_name:   [ p.String,   'default' ]
+      y_range_name:   [ p.String,   'default' ]
+      axis_label:     [ p.String,   ''        ]
+      major_tick_in:  [ p.Number,   2         ]
+      major_tick_out: [ p.Number,   6         ]
+      minor_tick_in:  [ p.Number,   0         ]
+      minor_tick_out: [ p.Number,   4         ]
+    }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+      axis_line_color: 'black'
+
+      major_tick_line_color: 'black'
+      minor_tick_line_color: 'black'
+
+      major_label_standoff: 5
+      major_label_orientation: "horizontal"
+      major_label_text_font_size: "10pt"
+      major_label_text_align: "center"
+      major_label_text_baseline: "alphabetic"
+
+      axis_label_standoff: 5
+      axis_label_text_font_size: "16pt"
+      axis_label_text_align: "center"
+      axis_label_text_baseline: "alphabetic"
+
+      # internal
+    }
+
+  nonserializable_attribute_names: () ->
+    super().concat(['layout_location'])
 
   initialize: (attrs, options)->
     super(attrs, options)
@@ -317,9 +362,6 @@ class Axis extends GuideRenderer.Model
     @register_property('normals', (() -> @_normals), true)
     @register_property('dimension', (() -> @_dim), true)
     @register_property('offsets', @_offsets, true)
-
-  nonserializable_attribute_names: () ->
-    super().concat(['layout_location'])
 
   initialize_layout: (solver) ->
     panel = new LayoutBox.Model({solver: solver})
@@ -522,7 +564,7 @@ class Axis extends GuideRenderer.Model
 
     labels = @get('formatter').format(coords[dim])
 
-    view.major_label_props.set_value(ctx)
+    view.visuals.major_label_text.set_value(ctx)
 
     if _.isString(orient)
       hscale = 1
@@ -562,7 +604,7 @@ class Axis extends GuideRenderer.Model
     orient = 'parallel'
     ctx = view.plot_view.canvas_view.ctx
 
-    view.axis_label_props.set_value(ctx)
+    view.visuals.axis_label_text.set_value(ctx)
 
     angle = Math.abs(_angle_lookup[side][orient])
     c = Math.cos(angle)
@@ -570,7 +612,7 @@ class Axis extends GuideRenderer.Model
 
     if @get('axis_label')
       extent += @get('axis_label_standoff')
-      view.axis_label_props.set_value(ctx)
+      view.visuals.axis_label_text.set_value(ctx)
       w = ctx.measureText(@get('axis_label')).width * 1.1
       h = ctx.measureText(@get('axis_label')).ascent * 0.9
       if side == "above" or side == "below"
@@ -579,64 +621,6 @@ class Axis extends GuideRenderer.Model
         extent += w*c + h*s
 
     return extent
-
-  defaults: ->
-    return _.extend {}, super(), {
-      location: "auto"
-      bounds: "auto"
-      x_range_name: "default"
-      y_range_name: "default"
-      axis_label: ""
-
-      visible: true
-
-      axis_line_color: 'black'
-      axis_line_width: 1
-      axis_line_alpha: 1.0
-      axis_line_join: 'miter'
-      axis_line_cap: 'butt'
-      axis_line_dash: []
-      axis_line_dash_offset: 0
-
-      major_tick_in: 2
-      major_tick_out: 6
-      major_tick_line_color: 'black'
-      major_tick_line_width: 1
-      major_tick_line_alpha: 1.0
-      major_tick_line_join: 'miter'
-      major_tick_line_cap: 'butt'
-      major_tick_line_dash: []
-      major_tick_line_dash_offset: 0
-
-      minor_tick_in: 0
-      minor_tick_out: 4
-      minor_tick_line_color: 'black'
-      minor_tick_line_width: 1
-      minor_tick_line_alpha: 1.0
-      minor_tick_line_join: 'miter'
-      minor_tick_line_cap: 'butt'
-      minor_tick_line_dash: []
-      minor_tick_line_dash_offset: 0
-
-      major_label_standoff: 5
-      major_label_orientation: "horizontal"
-      major_label_text_font: "helvetica"
-      major_label_text_font_size: "10pt"
-      major_label_text_font_style: "normal"
-      major_label_text_color: "#444444"
-      major_label_text_alpha: 1.0
-      major_label_text_align: "center"
-      major_label_text_baseline: "alphabetic"
-
-      axis_label_standoff: 5
-      axis_label_text_font: "helvetica"
-      axis_label_text_font_size: "16pt"
-      axis_label_text_font_style: "normal"
-      axis_label_text_color: "#444444"
-      axis_label_text_alpha: 1.0
-      axis_label_text_align: "center"
-      axis_label_text_baseline: "alphabetic"
-    }
 
 module.exports =
   Model: Axis

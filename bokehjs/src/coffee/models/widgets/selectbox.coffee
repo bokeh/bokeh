@@ -1,10 +1,12 @@
 _ = require "underscore"
-ContinuumView = require "../../common/continuum_view"
-{logger} = require "../../common/logging"
-template = require "./selecttemplate"
-InputWidget = require "./input_widget"
 
-class SelectView extends ContinuumView
+InputWidget = require "./input_widget"
+template = require "./selecttemplate"
+BokehView = require "../../core/bokeh_view"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class SelectView extends BokehView
   tagName: "div"
   template: template
   events:
@@ -31,11 +33,10 @@ class Select extends InputWidget.Model
   type: "Select"
   default_view: SelectView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      title: ''
-      value: ''
-      options: []
+      value:   [ p.String, '' ]
+      options: [ p.Any,    [] ] # TODO (bev) is this used?
     }
 
 module.exports =

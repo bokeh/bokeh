@@ -1,21 +1,23 @@
 _ = require "underscore"
-Model = require "../../model"
-CellEditors = require "./cell_formatters"
+
+CellEditors = require "./cell_editors"
 CellFormatters = require "./cell_formatters"
+p = require "../../core/properties"
+Model = require "../../model"
 
 class TableColumn extends Model
   type: 'TableColumn'
   default_view: null
 
-  defaults: () ->
+  props:  ->
     return _.extend {}, super(), {
-      field: null
-      title: null
-      width: 300
-      formatter: new CellFormatters.String.Model()
-      editor: new CellEditors.String.Model()
-      sortable: true
-      default_sort: "ascending"
+      field:        [ p.String                                      ]
+      title:        [ p.String                                      ]
+      width:        [ p.Number,   300                               ]
+      formatter:    [ p.Instance, new CellFormatters.String.Model() ]
+      editor:       [ p.Instance, new CellEditors.String.Model()    ]
+      sortable:     [ p.Bool,     true                              ]
+      default_sort: [ p.String,   "ascending"                       ]
     }
 
   toColumn: () ->

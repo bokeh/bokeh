@@ -42,7 +42,7 @@ Valid values are:
 If you would like to hide the toolbar entirely, pass ``None``.
 
 Below is some code that positions the toolbar below the plot. Try
-running the code and changing the ``toolbar_position`` value.
+running the code and changing the ``toolbar_location`` value.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
     :source-position: above

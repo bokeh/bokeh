@@ -392,9 +392,9 @@ class BasicProperty(Property):
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def _trigger(self, obj, old, value):
+    def _trigger(self, obj, old, value, hint=None):
         if hasattr(obj, 'trigger'):
-            obj.trigger(self.name, old, value)
+            obj.trigger(self.name, old, value, hint)
 
     def _get_default(self, obj):
         if self.name in obj._property_values:
@@ -419,7 +419,7 @@ class BasicProperty(Property):
 
         return default
 
-    def _real_set(self, obj, old, value):
+    def _real_set(self, obj, old, value, hint=None):
         unchanged = self.descriptor.matches(value, old)
         if unchanged:
             return
@@ -443,7 +443,7 @@ class BasicProperty(Property):
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._trigger(obj, old, value)
+        self._trigger(obj, old, value, hint)
 
     def __set__(self, obj, value):
         if not hasattr(obj, '_property_values'):
@@ -460,14 +460,14 @@ class BasicProperty(Property):
     # somewhat weirdly, "old" is a copy and the new "value"
     # should already be set unless we change it due to
     # validation.
-    def _notify_mutated(self, obj, old):
+    def _notify_mutated(self, obj, old, hint=None):
         value = self.__get__(obj)
 
         # re-validate because the contents of 'old' have changed,
         # in some cases this could give us a new object for the value
         value = self.descriptor.prepare_value(obj.__class__, self.name, value)
 
-        self._real_set(obj, old, value)
+        self._real_set(obj, old, value, hint)
 
     def __delete__(self, obj):
         if self.name in obj._property_values:

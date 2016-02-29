@@ -1,8 +1,17 @@
 _ = require "underscore"
+
 Range = require "./range"
+p = require "../../core/properties"
 
 class Range1d extends Range.Model
   type: 'Range1d'
+
+  props: ->
+    return _.extend {}, super(), {
+      start:  [ p.Number, 0 ]
+      end:    [ p.Number, 1 ]
+      bounds: [ p.Any       ] # TODO (bev)
+    }
 
   _set_auto_bounds: () ->
     if @get('bounds') == 'auto'
@@ -31,13 +40,6 @@ class Range1d extends Range.Model
   reset: () ->
     @set({start: @_initial_start, end: @_initial_end})
     @_set_auto_bounds()
-
-  defaults: ->
-    return _.extend {}, super(), {
-      start: 0
-      end: 1
-      bounds: null
-    }
 
 module.exports =
   Model: Range1d

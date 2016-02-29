@@ -1,6 +1,8 @@
 _ = require "underscore"
 $1 = require "jquery-ui/autocomplete"
+
 TextInput = require "./text_input"
+p = require "../../core/properties"
 
 class AutocompleteInputView extends TextInput.View
 
@@ -15,9 +17,9 @@ class AutocompleteInput extends TextInput.Model
   type: "AutocompleteInput"
   default_view: AutocompleteInputView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      completions: []
+      completions: [ p.Array, [] ]
     }
 
 module.exports =

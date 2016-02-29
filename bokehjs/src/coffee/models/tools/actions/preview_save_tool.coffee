@@ -1,6 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
+
 ActionTool = require "./action_tool"
 preview_save_tool_template = require "./preview_save_tool_template"
 

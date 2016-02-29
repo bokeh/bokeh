@@ -1,4 +1,5 @@
 _ = require "underscore"
+
 BasicTicker = require "./basic_ticker"
 SingleIntervalTicker = require "./single_interval_ticker"
 util = require "./util"

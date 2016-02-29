@@ -1,13 +1,13 @@
 _ = require "underscore"
-Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
 
-class SpanView extends PlotWidget
+Annotation = require "./annotation"
+Renderer = require "../renderers/renderer"
+p = require "../../core/properties"
+
+class SpanView extends Renderer.View
 
   initialize: (options) ->
     super(options)
-    @line_props = new properties.Line({obj: @model, prefix: ''})
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
     @$el.css({position: 'absolute'})
     @$el.hide()
@@ -40,11 +40,11 @@ class SpanView extends PlotWidget
       stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
       sleft = canvas.vx_to_sx(frame.get('left'))
       width = frame.get('width')
-      height = @line_props.width.value()
+      height = @model.properties.line_width.value()
     else
       stop = canvas.vy_to_sy(frame.get('top'))
       sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
-      width = @line_props.width.value()
+      width = @model.properties.line_width.value()
       height = frame.get('height')
 
     if @mget("render_mode") == "css"
@@ -54,8 +54,8 @@ class SpanView extends PlotWidget
         'width': "#{width}px",
         'height': "#{height}px"
         'z-index': 1000
-        'background-color': @line_props.color.value()
-        'opacity': @line_props.alpha.value()
+        'background-color': @model.properties.line_color.value()
+        'opacity': @model.properties.line_alpha.value()
       })
       @$el.show()
 
@@ -64,7 +64,7 @@ class SpanView extends PlotWidget
       ctx.save()
 
       ctx.beginPath()
-      @line_props.set_value(ctx)
+      @visuals.line.set_value(ctx)
       ctx.moveTo(sleft, stop)
       if @mget('dimension') == "width"
         ctx.lineTo(sleft + width, stop)
@@ -83,30 +83,32 @@ class SpanView extends PlotWidget
 
 class Span extends Annotation.Model
   default_view: SpanView
+
   type: 'Span'
 
-  nonserializable_attribute_names: () ->
-    super().concat(['for_hover', 'computed_location'])
+  mixins: ['line']
+
+  props: ->
+    return _.extend {}, super(), {
+      render_mode:    [ p.RenderMode,   'canvas'  ]
+      x_range_name:   [ p.String,       'default' ]
+      y_range_name:   [ p.String,       'default' ]
+      location:       [ p.Number,       null      ]
+      location_units: [ p.SpatialUnits, 'data'    ]
+      dimension:      [ p.Dimension,    'width'   ]
+    }
 
   defaults: ->
     return _.extend {}, super(), {
-      for_hover: false
-      x_range_name: "default"
-      y_range_name: "default"
-      render_mode: "canvas"
-      location_units: "data"
-      level: 'annotation'
-
-      dimension: "width"
-      location: null
+      # overrides
       line_color: 'black'
-      line_width: 1
-      line_alpha: 1.0
-      line_dash: []
-      line_dash_offset: 0
-      line_cap: "butt"
-      line_join: "miter"
+
+      # internal
+      for_hover: false
     }
+
+  nonserializable_attribute_names: () ->
+    super().concat(['for_hover', 'computed_location'])
 
 module.exports =
   Model: Span

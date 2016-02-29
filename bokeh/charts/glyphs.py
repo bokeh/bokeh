@@ -514,14 +514,16 @@ class AggregateGlyph(NestedCompositeGlyph):
         labels = [tuple(label.values()) if isinstance(label, dict) else label for label
                   in labels]
         [grouped[label].append(glyph) for label, glyph in zip(labels, glyphs)]
-        return grouped
+        labels = pd.Series(labels).drop_duplicates().values
+        return labels, grouped
 
     def __stack__(self, glyphs):
         """Apply relative shifts to the composite glyphs for stacking."""
         filtered_glyphs = self.filter_glyphs(glyphs)
-        grouped = self.groupby(filtered_glyphs, 'x_label')
+        labels, grouped = self.groupby(filtered_glyphs, 'x_label')
 
-        for index, group in iteritems(grouped):
+        for label in labels:
+            group = grouped[label]
 
             # separate the negative and positive aggregates into separate groups
             neg_group = [glyph for glyph in group if glyph.span < 0]
@@ -541,14 +543,15 @@ class AggregateGlyph(NestedCompositeGlyph):
         """Apply relative shifts to the composite glyphs for dodging."""
         if self.dodge_label is not None:
             filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'dodge_label')
+            labels, grouped = self.groupby(filtered_glyphs, 'dodge_label')
 
             # calculate transformations
             step = np.linspace(0, 1.0, len(grouped.keys()) + 1, endpoint=False)
             width = min(0.2, (1. / len(grouped.keys())) ** 1.1)
 
             # set bar attributes and re-aggregate
-            for i, (index, group) in enumerate(iteritems(grouped)):
+            for i, label in enumerate(labels):
+                group = grouped[label]
                 for glyph in group:
                     glyph.dodge_shift = step[i + 1]
                     glyph.width = width

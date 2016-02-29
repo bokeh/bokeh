@@ -1,5 +1,6 @@
 _ = require "underscore"
 rbush = require "rbush"
+
 Glyph = require "./glyph"
 
 class SegmentView extends Glyph.View
@@ -14,7 +15,7 @@ class SegmentView extends Glyph.View
     return index
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->
-    if @visuals.line.do_stroke
+    if @visuals.line.doit
       for i in indices
         if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i])
           continue
@@ -31,8 +32,10 @@ class SegmentView extends Glyph.View
 
 class Segment extends Glyph.Model
   default_view: SegmentView
+
   type: 'Segment'
-  visuals: ['line']
+
+  mixins: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
 
 module.exports =

@@ -1,34 +1,37 @@
 _ = require "underscore"
-{logger} = require "../../common/logging"
-Renderer = require "./renderer"
-PlotWidget = require "../../common/plot_widget"
-RemoteDataSource = require "../sources/remote_data_source"
 
-class GlyphRendererView extends PlotWidget
+Renderer = require "./renderer"
+RemoteDataSource = require "../sources/remote_data_source"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class GlyphRendererView extends Renderer.View
 
   initialize: (options) ->
     super(options)
 
     @glyph = @build_glyph_view(@mget("glyph"))
 
+    glyph_attrs =  _.omit(_.clone(@mget("glyph").attributes), 'id')
+
     selection_glyph = @mget("selection_glyph")
     if not selection_glyph?
-      selection_glyph = @mget("glyph").clone()
-      selection_glyph.set(@model.selection_defaults, {silent: true})
+      attrs = _.extend {}, glyph_attrs, @model.selection_defaults
+      selection_glyph = new (@mget("glyph")).constructor(attrs)
     @selection_glyph = @build_glyph_view(selection_glyph)
 
     nonselection_glyph = @mget("nonselection_glyph")
     if not nonselection_glyph?
-      nonselection_glyph = @mget("glyph").clone()
-      nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
+      attrs = _.extend {}, glyph_attrs, @model.nonselection_defaults
+      nonselection_glyph = new (@mget("glyph")).constructor(attrs)
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
     hover_glyph = @mget("hover_glyph")
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
 
-    decimated_glyph = @mget("glyph").clone()
-    decimated_glyph.set(@model.decimated_defaults, {silent: true})
+    attrs = _.extend {}, glyph_attrs, @model.decimated_defaults
+    decimated_glyph = new (@mget("glyph")).constructor(attrs)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
@@ -40,11 +43,12 @@ class GlyphRendererView extends PlotWidget
       @mget('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: this})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view, plot_model: @plot_model})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
+    @listenTo(@mget('data_source'), 'stream', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
     if @hover_glyph?
       @listenTo(@mget('data_source'), 'inspect', @request_render)
@@ -68,6 +72,9 @@ class GlyphRendererView extends PlotWidget
     t0 = Date.now()
     source = @mget('data_source')
 
+    # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
+    # mapping functions on the base Renderer class
+    @glyph.model.set({x_range_name: @mget('x_range_name'), y_range_name: @mget('y_range_name')}, {silent: true})
     @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)
@@ -208,25 +215,26 @@ class GlyphRendererView extends PlotWidget
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
-class GlyphRenderer extends Renderer
+class GlyphRenderer extends Renderer.Model
   default_view: GlyphRendererView
+
   type: 'GlyphRenderer'
+
+  props: ->
+    return _.extend {}, super(), {
+      level:              [ p.RenderLevel, 'glyph'   ]
+      x_range_name:       [ p.String,      'default' ]
+      y_range_name:       [ p.String,      'default' ]
+      data_source:        [ p.Instance               ]
+      glyph:              [ p.Instance               ]
+      hover_glyph:        [ p.Instance               ]
+      nonselection_glyph: [ p.Instance               ]
+      selection_glyph:    [ p.Instance               ]
+    }
 
   selection_defaults: {}
   decimated_defaults: {fill_alpha: 0.3, line_alpha: 0.3, fill_color: "grey", line_color: "grey"}
   nonselection_defaults: {fill_alpha: 0.2, line_alpha: 0.2}
-
-  defaults: ->
-    return _.extend {}, super(), {
-      x_range_name: "default"
-      y_range_name: "default"
-      data_source: null
-      level: 'glyph'
-      glyph: null
-      hover_glyph: null
-      nonselection_glyph: null
-      selection_glyph: null
-    }
 
 module.exports =
   Model: GlyphRenderer

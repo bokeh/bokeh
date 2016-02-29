@@ -1,10 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
-{logger} = require "../../../common/logging"
-Tooltip = require "../../annotations/tooltip"
-Util = require "../../../util/util"
+
 InspectTool = require "./inspect_tool"
+Tooltip = require "../../annotations/tooltip"
 hittest = require "../../../common/hittest"
+{logger} = require "../../../core/logging"
+p = require "../../../core/properties"
+Util = require "../../../util/util"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -227,11 +229,24 @@ class HoverTool extends InspectTool.Model
   tool_name: "Hover Tool"
   icon: "bk-tool-icon-hover"
 
+  props: () ->
+    return _.extend({}, super(), {
+      tooltips: [ p.Any,
+        [
+          ["index",         "$index"]
+          ["data (x, y)",   "($x, $y)"]
+          ["canvas (x, y)", "($sx, $sy)"]
+        ] ] # TODO (bev)
+      renderers:    [ p.Array,  []             ]
+      names:        [ p.Array,  []             ]
+      mode:         [ p.String, 'mouse'        ] # TODO (bev)
+      point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
+      line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
+      callback:     [ p.Instance               ]
+    })
+
   nonserializable_attribute_names: () ->
     super().concat(['ttmodels', 'computed_renderers'])
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -263,22 +278,6 @@ class HoverTool extends InspectTool.Model
     @set('ttmodels', ttmodels)
     @get('plot').set('renderers', renderers)
     return
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      tooltips: [
-        ["index",         "$index"]
-        ["data (x, y)",   "($x, $y)"]
-        ["canvas (x, y)", "($sx, $sy)"]
-      ]
-      renderers: []
-      names: []
-      mode: 'mouse'
-      point_policy: "snap_to_data" #, "follow_mouse", "none"
-      line_policy: "prev" # "next", "nearest", "interp", "none"
-      callback: null
-
-    })
 
 module.exports =
   Model: HoverTool
