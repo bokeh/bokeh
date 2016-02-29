@@ -5,9 +5,10 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Float, Color, Enum, Seq
+from ..core.properties import Float, Color, Enum, Seq, Instance
 from ..core.enums import Palette
 from .. import palettes
+from .transforms import Jitter
 
 @abstract
 class ColorMapper(Model):
@@ -108,6 +109,14 @@ class LinearColorMapperTransform(ColorMapper):
     Used by Abstract Rendering.
     """)
 
+    transform = Instance(Jitter, help="""
+    A ``ColorMapper`` to use to map the scalar data from ``image``
+    into RGBA values for display.
+
+    .. note::
+        The color mapping step happens on the client.
+    """)
+
     def __init__(self, palette=None, **kwargs):
         if palette is not None: kwargs['palette'] = palette
-        super(LinearColorMapper, self).__init__(**kwargs)
+        super(LinearColorMapperTransform, self).__init__(**kwargs)

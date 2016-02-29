@@ -1,7 +1,7 @@
 _ = require "underscore"
 Model = require "../../model"
 
-class LinearColorMapper extends Model
+class LinearColorMapperTransform extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -94,4 +94,4 @@ class LinearColorMapper extends Model
     return new_palette
 
 module.exports =
-  Model: LinearColorMapper
+  Model: LinearColorMapperTransform
