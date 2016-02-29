@@ -3,7 +3,7 @@ package:
   version: 'nightly'
 
 build:
-  number: {{ environ.get('BINSTAR_BUILD', 2) }}
+  number: {{ environ.get('BINSTAR_BUILD', 1) }}
   noarch_python: True
   entry_points:
     - bokeh = bokeh.__main__:main
@@ -58,14 +58,14 @@ test:
     - pandas
     - pytest
     - pytest-cov ==1.8.1    [unix]
-    - pytest-selenium
+    - pytest-selenium       [unix]
     - pytest-xdist
     - pytest-rerunfailures
     - beautiful-soup        [unix]
     - scipy
     - pillow
     - boto
-    - pdiff
+    - pdiff                 [unix]
 
     # examples
     - jupyter
