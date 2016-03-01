@@ -24,26 +24,19 @@ class SliderView extends BokehView
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)
     logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
+    opts = {
+      orientation: @mget('orientation')
+      animate: "fast",
+      value: @mget('value')
+      min: min,
+      max: max,
+      step: step,
+    }
     if @mget('delay_callback') == true
-      @$('.slider').slider({
-        orientation: @mget('orientation')
-        animate: "fast",
-        stop: @slide,
-        value: @mget('value')
-        min: min,
-        max: max,
-        step: step,
-      })
+      opts.stop = @slide
     else
-      @$('.slider').slider({
-        orientation: @mget('orientation')
-        animate: "fast",
-        slide: _.throttle(@slide, 200),
-        value: @mget('value')
-        min: min,
-        max: max,
-        step: step,
-      })
+      opts.slide = _.throttle(@slide, 200)
+    @$('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
 
