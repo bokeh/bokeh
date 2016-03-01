@@ -27,7 +27,7 @@ class AsteriskView extends Marker.View
       if angle[i]
         ctx.rotate(-angle[i])
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -36,7 +36,6 @@ class AsteriskView extends Marker.View
 class Asterisk extends Marker.Model
   default_view: AsteriskView
   type: 'Asterisk'
-  props: ['line']
 
 module.exports =
   Model: Asterisk

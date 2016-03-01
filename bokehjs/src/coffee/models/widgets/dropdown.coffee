@@ -1,9 +1,11 @@
 _ = require "underscore"
 $ = require "jquery"
-ContinuumView = require "../../common/continuum_view"
-AbstractButton = require "./abstract_button"
 
-class DropdownView extends ContinuumView
+AbstractButton = require "./abstract_button"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+
+class DropdownView extends BokehView
   tagName: "div"
 
   initialize: (options) ->
@@ -63,12 +65,17 @@ class Dropdown extends AbstractButton.Model
   type: "Dropdown"
   default_view: DropdownView
 
+  props: () ->
+    return _.extend {}, super(), {
+      value:         [ p.String    ]
+      default_value: [ p.String    ]
+      menu:          [ p.Array, [] ]
+    }
+
   defaults: () ->
     return _.extend {}, super(), {
-      value: null
-      default_value: null
+      # overrides
       label: "Dropdown"
-      menu: []
     }
 
 module.exports =

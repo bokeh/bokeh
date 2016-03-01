@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
 
 class AnnulusView extends Glyph.View
 
@@ -8,11 +10,11 @@ class AnnulusView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    if @distances.inner_radius.units == "data"
+    if @model.properties.inner_radius.units == "data"
       @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
     else
       @sinner_radius = @inner_radius
-    if @distances.outer_radius.units == "data"
+    if @model.properties.outer_radius.units == "data"
       @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
     else
       @souter_radius = @outer_radius
@@ -21,20 +23,20 @@ class AnnulusView extends Glyph.View
     for i in indices
       if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i])
         continue
-      
+
       # Because this visual has a whole in it, it proved "challenging"
       # for some browsers to render if drawn in one go --- i.e. it did not
       # work on IE. If we render in two parts (upper and lower part),
       # it is unambiguous what part should be filled. The line is
       # better drawn in one go though, otherwise the part where the pieces
-      # meet will not be fully closed due to aa. 
-      
+      # meet will not be fully closed due to aa.
+
       # Detect Microsoft browser. Might need change for newer versions.
       isie = (navigator.userAgent.indexOf('MSIE') >= 0 ||
               navigator.userAgent.indexOf('Trident') > 0 ||
               navigator.userAgent.indexOf('Edge') > 0)
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.beginPath()
         if isie
@@ -48,7 +50,7 @@ class AnnulusView extends Glyph.View
             ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
           @visuals.line.set_vectorize(ctx, i)
           ctx.beginPath()
           ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI)
@@ -106,8 +108,14 @@ class AnnulusView extends Glyph.View
 
 class Annulus extends Glyph.Model
   default_view: AnnulusView
+
   type: 'Annulus'
-  distances: ['inner_radius', 'outer_radius']
+
+  props: ->
+    return _.extend {}, super(), {
+      inner_radius: [ p.DistanceSpec ]
+      outer_radius: [ p.DistanceSpec ]
+    }
 
 module.exports =
   Model: Annulus

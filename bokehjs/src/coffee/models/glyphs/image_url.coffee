@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
 {logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class ImageURLView extends Glyph.View
 
@@ -96,21 +98,23 @@ class ImageURLView extends Glyph.View
 
 class ImageURL extends Glyph.Model
   default_view: ImageURLView
-  type: 'ImageURL'
-  visuals: []
-  distances: ['w', 'h']
-  angles: ['angle']
-  fields: ['url:string']
 
-  defaults: ->
+  type: 'ImageURL'
+
+  mixins: []
+
+  props: ->
     return _.extend {}, super(), {
-      anchor: "top_left"
-      angle: 0
-      dilate: false
-      retry_attempts: 0
-      retry_timeout: 0
-      global_alpha: 1.0
-    }
+      url:            [ p.StringSpec            ]
+      anchor:         [ p.Anchor,    'top_left' ]
+      global_alpha:   [ p.Number,    1.0        ]
+      angle:          [ p.AngleSpec, 0          ]
+      w:              [ p.NumberSpec            ]
+      h:              [ p.NumberSpec            ]
+      dilate:         [ p.Bool,      false      ]
+      retry_attempts: [ p.Number,    0          ]
+      retry_timeout:  [ p.Number,    0          ]
+  }
 
 module.exports =
   Model: ImageURL

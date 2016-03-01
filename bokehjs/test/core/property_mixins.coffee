@@ -7,14 +7,10 @@ describe "property_mixins module", ->
 
   describe "exports", ->
 
-    it "should have context properties", ->
-      expect("Line" of mixins).to.be.true
-      expect("Fill" of mixins).to.be.true
-      expect("Text" of mixins).to.be.true
+    it "should have mixins", ->
+      expect("line" of mixins).to.be.true
+      expect("fill" of mixins).to.be.true
+      expect("text" of mixins).to.be.true
 
-    it "should have property factories", ->
-      expect("coords" of mixins.factories).to.be.true
-      expect("distances" of mixins.factories).to.be.true
-      expect("angles" of mixins.factories).to.be.true
-      expect("fields" of mixins.factories).to.be.true
-      expect("visuals" of mixins.factories).to.be.true
+    it "should have a create function", ->
+       expect("create" of mixins).to.be.true

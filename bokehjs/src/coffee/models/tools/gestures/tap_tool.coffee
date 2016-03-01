@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 SelectTool = require "./select_tool"
+p = require "../../../core/properties"
 
 class TapToolView extends SelectTool.View
 
@@ -38,9 +40,9 @@ class TapTool extends SelectTool.Model
   event_type: "tap"
   default_order: 10
 
-  defaults: ->
+  props: ->
     return _.extend({}, super(), {
-      callback: null
+      callback: [ p.Instance ]
     })
 
 module.exports =

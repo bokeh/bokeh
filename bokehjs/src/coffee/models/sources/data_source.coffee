@@ -1,14 +1,16 @@
 _ = require "underscore"
+
 Model = require "../../model"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
 
 class DataSource extends Model
   type: 'DataSource'
 
-  defaults: =>
+  props: ->
     return _.extend {}, super(), {
-      selected: hittest.create_hit_test_result()
-      callback: null
+      selected: [ p.Any, hittest.create_hit_test_result() ] # TODO (bev)
+      callback: [ p.Instance ]
     }
 
   initialize: (options) ->

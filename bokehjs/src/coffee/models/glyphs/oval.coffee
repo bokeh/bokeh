@@ -1,25 +1,27 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
+p = require "../../core/properties"
 
 class OvalView extends Glyph.View
 
   _set_data: () ->
     @max_w2 = 0
-    if @distances.width.units == "data"
+    if @model.properties.width.units == "data"
       @max_w2 = @max_width/2
     @max_h2 = 0
-    if @distances.height.units == "data"
+    if @model.properties.height.units == "data"
       @max_h2 = @max_height/2
 
   _index_data: () ->
     @_xy_index()
 
   _map_data: () ->
-    if @distances.width.units == "data"
+    if @model.properties.width.units == "data"
       @sw = @sdist(@renderer.xmapper, @x, @width, 'center')
     else
       @sw = @width
-    if @distances.height.units == "data"
+    if @model.properties.height.units == "data"
       @sh = @sdist(@renderer.ymapper, @y, @height, 'center')
     else
       @sh = @height
@@ -38,11 +40,11 @@ class OvalView extends Glyph.View
       ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2)
       ctx.closePath()
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -80,13 +82,14 @@ class OvalView extends Glyph.View
 
 class Oval extends Glyph.Model
   default_view: OvalView
-  type: 'Oval'
-  distances: ['width', 'height']
-  angles: ['angle']
 
-  defaults: ->
+  type: 'Oval'
+
+  props: ->
     return _.extend {}, super(), {
-      angle: 0.0
+      angle:  [ p.AngleSpec,   0.0 ]
+      width:  [ p.DistanceSpec     ]
+      height: [ p.DistanceSpec     ]
     }
 
 module.exports =

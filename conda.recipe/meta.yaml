@@ -56,9 +56,13 @@ test:
     - pytest
     - pytest-cov ==1.8.1
     - pytest-selenium
+    - pytest-xdist
+    - pytest-rerunfailures
     - beautiful-soup
     - scipy
     - pillow
+    - boto
+    - pdiff
 
     # examples
     - jupyter
@@ -68,7 +72,7 @@ test:
     - seaborn
     - icalendar
     - flask
-    - flexx           [py3k]
+    - flexx
 
   commands:
     - bokeh -h        [linux64 or osx]

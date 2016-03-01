@@ -1,4 +1,5 @@
 _ = require "underscore"
+
 AdaptiveTicker = require "./adaptive_ticker"
 CompositeTicker = require "./composite_ticker"
 DaysTicker = require "./days_ticker"

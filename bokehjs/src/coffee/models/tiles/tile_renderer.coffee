@@ -1,13 +1,13 @@
 _ = require "underscore"
 $ = require "jquery"
-Renderer = require "../renderers/renderer"
-PlotWidget = require "../../common/plot_widget"
-properties = require "../../core/properties"
-wmts = require "./wmts_tile_source"
-ImagePool = require "./image_pool"
-{logger} = require "../../core/logging"
 
-class TileRendererView extends PlotWidget
+ImagePool = require "./image_pool"
+wmts = require "./wmts_tile_source"
+Renderer = require "../renderers/renderer"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class TileRendererView extends Renderer.View
 
   initialize: (options) ->
     @attributionEl = null
@@ -157,7 +157,7 @@ class TileRendererView extends PlotWidget
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _set_rect:() ->
-    outline_width = @plot_view.outline_props.width.value()
+    outline_width = @plot_model.properties.outline_line_width.value()
     l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
     t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
     w = @map_frame.get('width') - outline_width
@@ -271,18 +271,21 @@ class TileRendererView extends PlotWidget
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-class TileRenderer extends Renderer
+class TileRenderer extends Renderer.Model
   default_view: TileRendererView
   type: 'TileRenderer'
-  visuals: []
+
+  props: ->
+    return _.extend {}, super(), {
+      alpha:          [ p.Number,   1.0              ]
+      x_range_name:   [ p.String,   "default"        ]
+      y_range_name:   [ p.String,   "default"        ]
+      tile_source:    [ p.Instance, new wmts.Model() ]
+      render_parents: [ p.Bool,     true             ]
+    }
 
   defaults: ->
     return _.extend {}, super(), {
-      alpha: 1.0
-      x_range_name: "default"
-      y_range_name: "default"
-      tile_source: new wmts.Model()
-      render_parents: true
       level: 'underlay'
     }
 

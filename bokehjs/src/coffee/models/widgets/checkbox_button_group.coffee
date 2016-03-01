@@ -1,10 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
-ContinuumView = require "../../common/continuum_view"
-Model = require "../../model"
 
-class CheckboxButtonGroupView extends ContinuumView
+Widget = require "./widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+
+class CheckboxButtonGroupView extends BokehView
   tagName: "div"
   events:
     "change input": "change_input"
@@ -37,16 +39,15 @@ class CheckboxButtonGroupView extends ContinuumView
     @mset('active', active)
     @mget('callback')?.execute(@model)
 
-class CheckboxButtonGroup extends Model
+class CheckboxButtonGroup extends Widget.Model
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      active: []
-      labels: []
-      type: "default"
-      disabled: false
+      active:   [ p.Array,  []        ]
+      labels:   [ p.Array,  []        ]
+      type:     [ p.String, "default" ]
     }
 
 module.exports =

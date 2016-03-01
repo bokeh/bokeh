@@ -1,8 +1,17 @@
 _ = require "underscore"
-Model = require "../../model"
+
 {logger} = require "../../core/logging"
+p = require "../../core/properties"
+Model = require "../../model"
 
 class ImageSource extends Model
+  type: 'ImageSource'
+
+  props: ->
+    return _.extend {}, super(), {
+      url:            [ p.String, '' ]
+      extra_url_vars: [ p.Any,    {} ]
+    }
 
   constructor: (options={}) ->
     super
@@ -19,14 +28,6 @@ class ImageSource extends Model
     url = url.replace('{height}','{HEIGHT}')
     url = url.replace('{width}','{WIDTH}')
     @set('url', url)
-
-  defaults: =>
-    return _.extend {}, super(), {
-      url : ''
-      extra_url_vars : {}
-    }
-
-  type: 'ImageSource'
 
   string_lookup_replace: (str, lookup) ->
     result_str = str

@@ -4,10 +4,12 @@ $1 = require "jquery-ui/sortable"
 SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
-ContinuumView = require "../../common/continuum_view"
-DOMUtil = require "../../util/dom_util"
-hittest = require "../../common/hittest"
+
 TableWidget = require "./table_widget"
+hittest = require "../../common/hittest"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+DOMUtil = require "../../util/dom_util"
 
 class DataProvider
 
@@ -52,7 +54,7 @@ class DataProvider
   updateSource: () ->
     # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
     # so that would be a no-op. We have to trigger change events manually instead.
-    @source.forceTrigger("data")
+    @source.trigger("change:data", @, @source.attributes['data'])
 
   getItemMetadata: (index) -> null
 
@@ -85,7 +87,7 @@ class DataProvider
 
     @updateSource()
 
-class DataTableView extends ContinuumView
+class DataTableView extends BokehView
   attributes:
     class: "bk-data-table"
 
@@ -185,17 +187,17 @@ class DataTable extends TableWidget.Model
   type: 'DataTable'
   default_view: DataTableView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      columns: []
-      width: null
-      height: 400
-      fit_columns: true
-      sortable: true
-      editable: false
-      selectable: true
-      row_headers: true
-      scroll_to_selection: true
+      columns:             [ p.Array,  []    ]
+      width:               [ p.Number        ]
+      height:              [ p.Number, 400   ]
+      fit_columns:         [ p.Bool,   true  ]
+      sortable:            [ p.Bool,   true  ]
+      editable:            [ p.Bool,   false ]
+      selectable:          [ p.Bool,   true  ]
+      row_headers:         [ p.Bool,   true  ]
+      scroll_to_selection: [ p.Bool,   true  ]
     }
 
 module.exports =

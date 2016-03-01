@@ -18,6 +18,11 @@ range = (start, stop, step) ->
 class LogTicker extends AdaptiveTicker.Model
   type: 'LogTicker'
 
+  defaults: () ->
+    return _.extend {}, super(), {
+      mantissas: [1, 5]
+    }
+
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
 
     num_minor_ticks = @get('num_minor_ticks')
@@ -79,11 +84,6 @@ class LogTicker extends AdaptiveTicker.Model
     return {
       "major": ticks
       "minor": minor_ticks
-    }
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      mantissas: [1, 5]
     }
 
 module.exports =

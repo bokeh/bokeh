@@ -25,11 +25,11 @@ class DiamondView extends Marker.View
       ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 

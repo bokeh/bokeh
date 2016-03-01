@@ -1,8 +1,9 @@
 _ = require "underscore"
-Solver = require "../../common/solver"
-Plot = require "./plot"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
+
+Plot = require "./plot"
+p = require "../../core/properties"
 
 class GMapPlotView extends Plot.View
 
@@ -160,12 +161,13 @@ class GMapPlotView extends Plot.View
 
 class GMapPlot extends Plot.Model
   type: 'GMapPlot'
+
   default_view: GMapPlotView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      map_options: null
-      disabled: false
+      map_options: [ p.Any         ]
+      disabled:    [ p.Bool, false ]
     }
 
   initialize: (attrs, options) ->

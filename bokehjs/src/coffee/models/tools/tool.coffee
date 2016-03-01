@@ -1,9 +1,11 @@
 _ = require "underscore"
-Model = require "../../model"
-{logger} = require "../../core/logging"
-PlotWidget = require "../../common/plot_widget"
 
-class ToolView extends PlotWidget
+Renderer = require "../renderers/renderer"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+Model = require "../../model"
+
+class ToolView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:active', () =>
@@ -21,8 +23,19 @@ class ToolView extends PlotWidget
 
 class Tool extends Model
 
+  props: () ->
+    return _.extend {}, super(), {
+      plot: [ p.Instance ]
+    }
+
   nonserializable_attribute_names: () ->
     super().concat(['active', 'level', 'tool_name'])
+
+  defaults: () ->
+    return _.extend {}, super(), {
+      tool_name: @tool_name
+      level: 'overlay'
+    }
 
   # TODO (bev) The following "dim" functions should probably
   # go in a helper util module, or something. Would be best
@@ -84,13 +97,6 @@ class Tool extends Model
       vylim = [vr.get('min'), vr.get('max')]
 
     return [vxlim, vylim]
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      plot: null
-      tool_name: @tool_name
-      level: 'overlay'
-    })
 
 module.exports =
   Model: Tool
