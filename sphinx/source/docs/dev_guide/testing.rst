@@ -81,3 +81,18 @@ To run any of the tests without standard output captured use:
   py.test -s
 
 See the py.test documentation at http://pytest.org/latest/ for further information on py.test and it's options.
+
+Selenium Testing
+----------------
+
+The tests that run with the ``-m integration`` run on selenium. By default,
+these will run locally using firefox, but you can also run them against
+SauceLabs. You will need a SauceLabs account and the environment variables
+``SAUCELABS_USERNAME`` and ``SAUCELABS_API_KEY`` set. In addition, you will
+need to be running an instance of SauceConnect:
+https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect
+
+To run with SauceLabs use ``--driver=SauceLabs``. If you are using the
+SauceLabs driver, you can also use the ``--cross-browser`` command line
+argument to run the integration tests against a combination of browsers and
+platforms.
