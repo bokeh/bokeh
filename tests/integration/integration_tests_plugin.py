@@ -47,23 +47,13 @@ def pytest_generate_tests(metafunc):
         cross_browser_list = [
             {
                 "browserName": "firefox",
-                "platform": "Windows 10",
+                "platform": "Linux",
                 "version": None
             },
             {
                 "browserName": "chrome",
-                "platform": "Windows 10",
+                "platform": "Linux",
                 "version": None
-            },
-            {
-                "browserName": "internet explorer",
-                "platform": "Windows 10",
-                "version": "11.0"
-            },
-            {
-                "browserName": "safari",
-                "platform": "OS X 10.11",
-                "version": "9.0"
             },
         ]
         metafunc.parametrize('cross_browser', cross_browser_list, scope="session")
@@ -72,7 +62,7 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture(scope="session")
 def cross_browser():
     # If version is None, latest will be used
-    return {"browserName": "firefox", "platform": "Windows 10", "version": None}
+    return {"browserName": "firefox", "platform": "Linux", "version": None}
 
 
 @pytest.fixture(scope="session")
