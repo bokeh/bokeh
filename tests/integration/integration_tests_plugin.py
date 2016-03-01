@@ -34,8 +34,23 @@ def output_file_url(request, file_server):
     return file_server.where_is(file_path)
 
 
+def pytest_addoption(parser):
+    parser.addoption("--cross-browser", action="store_true", default=False, help="Run tests against cross browser configuration")
+
+
+def pytest_generate_tests(metafunc):
+    if metafunc.config.option.cross_browser:
+        metafunc.parametrize('browserName', ["firefox", "chrome", "internet explorer"], scope="session")
+
+
 @pytest.fixture(scope="session")
-def capabilities(capabilities):
-    capabilities["browserName"] = "firefox"
+def browserName():
+    return "firefox"
+
+
+@pytest.fixture(scope="session")
+def capabilities(capabilities, browserName):
+    capabilities["browserName"] = browserName
+    capabilities["platform"] = "Windows 10"
     capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
