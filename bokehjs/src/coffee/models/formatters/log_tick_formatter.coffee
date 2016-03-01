@@ -1,14 +1,16 @@
 _ = require "underscore"
-{logger} = require "../../core/logging"
-TickFormatter = require "./tick_formatter"
+
 BasicTickFormatter = require "./basic_tick_formatter"
+TickFormatter = require "./tick_formatter"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class LogTickFormatter extends TickFormatter.Model
   type: 'LogTickFormatter'
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      ticker: null
+      ticker: [ p.Instance, null ]
     }
 
   initialize: (attrs, options) ->

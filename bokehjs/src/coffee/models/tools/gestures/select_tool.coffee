@@ -1,6 +1,8 @@
 _ = require "underscore"
-{logger} = require "../../../core/logging"
+
 GestureTool = require "./gesture_tool"
+{logger} = require "../../../core/logging"
+p = require "../../../core/properties"
 
 class SelectToolView extends GestureTool.View
 
@@ -45,6 +47,21 @@ class SelectToolView extends GestureTool.View
 
 class SelectTool extends GestureTool.Model
 
+  props: () ->
+    return _.extend {}, super(), {
+      renderers: [ p.Array, [] ]
+      names:     [ p.Array, [] ]
+    }
+
+  nonserializable_attribute_names: () ->
+    super().concat(['multi_select_modifier'])
+
+  defaults: () ->
+    return _.extend({}, super(), {
+      #internal
+      multi_select_modifier: "shift"
+    })
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -63,16 +80,6 @@ class SelectTool extends GestureTool.Model
     for r in renderers
       logger.debug(" - #{r.type} #{r.id}")
     return null
-
-  nonserializable_attribute_names: () ->
-    super().concat(['multi_select_modifier'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      renderers: []
-      names: []
-      multi_select_modifier: "shift"
-    })
 
 module.exports =
   Model: SelectTool

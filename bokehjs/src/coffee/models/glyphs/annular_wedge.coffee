@@ -1,7 +1,9 @@
 _ = require "underscore"
-mathutils = require "../../common/mathutils"
+
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
+{angle_between} = require "../../core/util/math"
 
 class AnnularWedgeView extends Glyph.View
 
@@ -9,11 +11,11 @@ class AnnularWedgeView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    if @distances.inner_radius.units == "data"
+    if @model.properties.inner_radius.units == "data"
       @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
     else
       @sinner_radius = @inner_radius
-    if @distances.outer_radius.units == "data"
+    if @model.properties.outer_radius.units == "data"
       @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
     else
       @souter_radius = @outer_radius
@@ -21,9 +23,10 @@ class AnnularWedgeView extends Glyph.View
     for i in [0...@start_angle.length]
       @angle[i] = @end_angle[i] - @start_angle[i]
 
-  _render: (ctx, indices, {sx, sy, start_angle, angle, sinner_radius, souter_radius, direction}) ->
+  _render: (ctx, indices, {sx, sy, start_angle, angle, sinner_radius, souter_radius}) ->
+    direction = @model.properties.direction.value()
     for i in indices
-      if isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+start_angle[i]+angle[i]+direction[i])
+      if isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+start_angle[i]+angle[i])
         continue
 
       ctx.translate(sx[i], sy[i])
@@ -31,20 +34,20 @@ class AnnularWedgeView extends Glyph.View
 
       ctx.moveTo(souter_radius[i], 0)
       ctx.beginPath()
-      ctx.arc(0, 0, souter_radius[i], 0, angle[i], direction[i])
+      ctx.arc(0, 0, souter_radius[i], 0, angle[i], direction)
       ctx.rotate(@angle[i])
       ctx.lineTo(sinner_radius[i], 0)
-      ctx.arc(0, 0, sinner_radius[i], 0, -angle[i], not direction[i])
+      ctx.arc(0, 0, sinner_radius[i], 0, -angle[i], not direction)
       ctx.closePath()
 
       ctx.rotate(-angle[i]-start_angle[i])
       ctx.translate(-sx[i], -sy[i])
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -54,7 +57,7 @@ class AnnularWedgeView extends Glyph.View
     y = @renderer.ymapper.map_from_target(vy, true)
 
     # check radius first
-    if @distances.outer_radius.units == "data"
+    if @model.properties.outer_radius.units == "data"
       x0 = x - @max_outer_radius
       x1 = x + @max_outer_radius
 
@@ -82,13 +85,14 @@ class AnnularWedgeView extends Glyph.View
       if dist <= or2 and dist >= ir2
         candidates.push([i, dist])
 
+    direction = @model.properties.direction.value()
     hits = []
     for [i, dist] in candidates
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
-      if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i], @direction[i])
+      if angle_between(-angle, -@start_angle[i], -@end_angle[i], direction)
         hits.push([i, dist])
 
     result = hittest.create_hit_test_result()
@@ -103,14 +107,16 @@ class AnnularWedgeView extends Glyph.View
 
 class AnnularWedge extends Glyph.Model
   default_view: AnnularWedgeView
-  type: 'AnnularWedge'
-  distances: ['inner_radius', 'outer_radius']
-  angles: ['start_angle', 'end_angle']
-  fields: ['direction:direction']
 
-  defaults: ->
+  type: 'AnnularWedge'
+
+  props: ->
     return _.extend {}, super(), {
-      direction: 'anticlock'
+      direction:    [ p.Direction,   'anticlock' ]
+      inner_radius: [ p.DistanceSpec             ]
+      outer_radius: [ p.DistanceSpec             ]
+      start_angle:  [ p.AngleSpec                ]
+      end_angle:    [ p.AngleSpec                ]
     }
 
 module.exports =

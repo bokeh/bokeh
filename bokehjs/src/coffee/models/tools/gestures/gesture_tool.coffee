@@ -11,14 +11,15 @@ class GestureToolView extends ButtonTool.View
 
 class GestureTool extends ButtonTool.Model
 
-  nonserializable_attribute_names: () ->
-    super().concat(['event_type', 'default_order'])
-
   defaults: () ->
     return _.extend({}, super(), {
+      # internal
       event_type: @event_type
       default_order: @default_order
     })
+
+  nonserializable_attribute_names: () ->
+    super().concat(['event_type', 'default_order'])
 
 module.exports =
   Model: GestureTool

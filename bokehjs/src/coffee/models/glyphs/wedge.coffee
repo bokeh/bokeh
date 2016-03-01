@@ -1,7 +1,9 @@
 _ = require "underscore"
-mathutils = require "../../common/mathutils"
+
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
+{angle_between} = require "../../core/util/math"
 
 class WedgeView extends Glyph.View
 
@@ -9,26 +11,27 @@ class WedgeView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    if @distances.radius.units == "data"
+    if @model.properties.radius.units == "data"
       @sradius = @sdist(@renderer.xmapper, @x, @radius)
     else
       @sradius = @radius
 
-  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle, direction}) ->
+  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle}) ->
+    direction = @model.properties.direction.value()
     for i in indices
-      if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i]+direction[i])
+      if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i])
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction[i])
+      ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction)
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -38,7 +41,7 @@ class WedgeView extends Glyph.View
     y = @renderer.ymapper.map_from_target(vy, true)
 
     # check radius first
-    if @distances.radius.units == "data"
+    if @model.properties.radius.units == "data"
       x0 = x - @max_radius
       x1 = x + @max_radius
 
@@ -65,13 +68,14 @@ class WedgeView extends Glyph.View
       if dist <= r2
         candidates.push([i, dist])
 
+    direction = @model.properties.direction.value()
     hits = []
     for [i, dist] in candidates
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
-      if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i], @direction[i])
+      if angle_between(-angle, -@start_angle[i], -@end_angle[i], direction)
         hits.push([i, dist])
 
     result = hittest.create_hit_test_result()
@@ -86,14 +90,15 @@ class WedgeView extends Glyph.View
 
 class Wedge extends Glyph.Model
   default_view: WedgeView
-  type: 'Wedge'
-  distances: ['radius']
-  angles: ['start_angle', 'end_angle']
-  fields: ['direction:direction']
 
-  defaults: ->
+  type: 'Wedge'
+
+  props: ->
     return _.extend {}, super(), {
-      direction: 'anticlock'
+      direction:    [ p.Direction,   'anticlock' ]
+      radius:       [ p.DistanceSpec             ]
+      start_angle:  [ p.AngleSpec                ]
+      end_angle:    [ p.AngleSpec                ]
     }
 
 module.exports =

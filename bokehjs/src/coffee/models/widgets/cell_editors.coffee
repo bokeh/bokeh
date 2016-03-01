@@ -2,16 +2,18 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/autocomplete"
 $2 = require "jquery-ui/spinner"
-ContinuumView = require "../../common/continuum_view"
+
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 Model = require "../../model"
 
 class CellEditor extends Model
-  editorDefaults: {}
+  editorProps: {}
 
-  defaults: () ->
-    return _.extend {}, super(), @editorDefaults
+  props: () ->
+    return _.extend {}, super(), @editorProps
 
-class CellEditorView extends ContinuumView
+class CellEditorView extends BokehView
 
   tagName: "div"
   className: "bk-cell-editor"
@@ -106,8 +108,8 @@ class StringEditorView extends CellEditorView
 class StringEditor extends CellEditor
   type: 'StringEditor'
   default_view: StringEditorView
-  editorDefaults:
-    completions: []
+  editorProps:
+    completions: [ p.Array, [] ]
 
 class TextEditorView extends CellEditorView
 
@@ -131,8 +133,8 @@ class SelectEditorView extends CellEditorView
 class SelectEditor extends CellEditor
   type: 'SelectEditor'
   default_view: SelectEditorView
-  editorDefaults:
-    options: []
+  editorProps:
+    options: [ p.Array, [] ]
 
 class PercentEditorView extends CellEditorView
 
@@ -186,8 +188,8 @@ class IntEditorView extends CellEditorView
 class IntEditor extends CellEditor
   type: 'IntEditor'
   default_view: IntEditorView
-  editorDefaults:
-    step: 1
+  editorProps:
+    step: [ p.Number, 1 ]
 
 class NumberEditorView extends CellEditorView
 
@@ -218,8 +220,8 @@ class NumberEditorView extends CellEditorView
 class NumberEditor extends CellEditor
   type: 'NumberEditor'
   default_view: NumberEditorView
-  editorDefaults:
-    step: 0.01
+  editorProps:
+    step: [ p.Number, 0.01 ]
 
 class TimeEditorView extends CellEditorView
 

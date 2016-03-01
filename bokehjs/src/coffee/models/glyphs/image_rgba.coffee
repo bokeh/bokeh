@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
+p = require "../../core/properties"
 
 class ImageRGBAView extends Glyph.View
 
@@ -87,17 +89,25 @@ class ImageRGBAView extends Glyph.View
 
 class ImageRGBA extends Glyph.Model
   default_view: ImageRGBAView
-  type: 'ImageRGBA'
-  visuals: []
-  distances: ['dw', 'dh']
-  fields: ['image:array', '?rows', '?cols']
 
-  defaults: ->
+  type: 'ImageRGBA'
+
+  mixins: []
+
+  props: ->
     return _.extend {}, super(), {
-      dilate: false
-      rows: null
-      cols: null
-    }
+      image:  [ p.NumberSpec       ] # TODO (bev) array spec?
+      rows:   [ p.NumberSpec       ]
+      cols:   [ p.NumberSpec       ]
+      dw:     [ p.NumberSpec       ]
+      dh:     [ p.NumberSpec       ]
+      dilate: [ p.Bool,      false ]
+  }
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @properties.rows.optional = true
+    @properties.cols.optional = true
 
 module.exports =
   Model: ImageRGBA

@@ -150,7 +150,7 @@ Notebook Examples
 =================
 
 A large number of static examples may be viewed directly online (or
-downloaded nad executed locally) at the `Bokeh NBViewer Gallery`_.
+downloaded and executed locally) at the `Bokeh NBViewer Gallery`_.
 
 
 .. _gallery_static_examples:

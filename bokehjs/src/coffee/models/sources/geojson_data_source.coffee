@@ -1,23 +1,27 @@
 _ = require "underscore"
-{logger} = require "../../core/logging"
+
 ColumnDataSource = require "./column_data_source"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class GeoJSONDataSource extends ColumnDataSource.Model
   type: 'GeoJSONDataSource'
+
+  props: ->
+    return _.extend({}, super(), {
+      geojson: [ p.Any     ] # TODO (bev)
+      data:    [ p.Any, {} ]
+    })
+
+  # TODO (bev) investigate, exists on python side
+  # nonserializable_attribute_names: () ->
+  #   super().concat(['data'])
 
   initialize: (options) ->
     super(options)
     @geojson_to_column_data() # this just validates the initial geojson value
     @register_property('data', @geojson_to_column_data, true)
     @add_dependencies('data', this, ['geojson'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      geojson: null
-    })
-
-  nonserializable_attribute_names: () ->
-    super().concat(['data'])
 
   _get_new_list_array: (length) ->
     array = new Array(length)

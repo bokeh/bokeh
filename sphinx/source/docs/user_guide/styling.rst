@@ -74,6 +74,18 @@ following ways:
 
 .. include:: ../includes/colors.txt
 
+.. warning::
+    Supplying lists of RGB or RGBA color tuples as color arguments (either
+    directly or as a DataSource column reference) doesn't work. You may read a
+    discussion of the issue on our project `GitHub`_ page. Suggested
+    work-arounds include using lists of:
+
+    * RGB hexadecimal values
+    * `bokeh.colors.RGB` objects (i.e. ``[RGB(255, 0, 0), RGB(0, 255, 0)"]``)
+    * CSS-format RGB/RGBA strings (i.e. ``["rgb(255, 0, 0)", "rgb(0, 255, 0)"]``)
+
+.. _GitHub: https://github.com/bokeh/bokeh/issues/2622
+
 Color alpha can be specified in multiple ways for the visual properties. This
 can be by specifying the alpha directly with ``line|fill_alpha``, or by
 providing the alpha through the RGBA 4-tuple for the ``line|fill_color``.

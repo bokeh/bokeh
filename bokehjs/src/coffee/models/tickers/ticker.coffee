@@ -1,4 +1,5 @@
 _ = require "underscore"
+
 Model = require "../../model"
 
 # The base class for all Ticker objects.  It needs to be subclassed before

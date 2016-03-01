@@ -1,13 +1,14 @@
 _ = require "underscore"
+
 MercatorTileSource = require('./mercator_tile_source')
+p = require "../../core/properties"
 
 class BBoxTileSource extends MercatorTileSource
-
   type: 'BBoxTileSource'
-  
-  defaults: =>
+
+  props: ->
     return _.extend {}, super(), {
-      use_latlon : false
+      use_latlon : [ p.Bool, false ]
     }
 
   get_image_url: (x, y, z) ->

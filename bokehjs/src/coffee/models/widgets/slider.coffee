@@ -1,11 +1,13 @@
 _ = require "underscore"
 $2 = require "jquery-ui/slider"
-ContinuumView = require "../../common/continuum_view"
-{logger} = require "../../core/logging"
-slidertemplate = require "./slidertemplate"
-InputWidget = require "./input_widget"
 
-class SliderView extends ContinuumView
+InputWidget = require "./input_widget"
+slidertemplate = require "./slidertemplate"
+BokehView = require "../../core/bokeh_view"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+class SliderView extends BokehView
   tagName: "div"
   template: slidertemplate
 
@@ -45,14 +47,13 @@ class Slider extends InputWidget.Model
   type: "Slider"
   default_view: SliderView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      title: ''
-      value: 0.5
-      start: 0
-      end: 1
-      step: 0.1
-      orientation: "horizontal"
+      value:       [ p.Number,      0.5          ]
+      start:       [ p.Number,      0            ]
+      end:         [ p.Number,      1            ]
+      step:        [ p.Number,      0.1          ]
+      orientation: [ p.Orientation, "horizontal" ]
     }
 
 module.exports =
