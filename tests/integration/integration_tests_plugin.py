@@ -1,6 +1,7 @@
 import os
 import pytest
 
+from tests.plugins.utils import write, red
 from bokeh.io import output_file
 
 
@@ -40,17 +41,45 @@ def pytest_addoption(parser):
 
 def pytest_generate_tests(metafunc):
     if metafunc.config.option.cross_browser:
-        metafunc.parametrize('browserName', ["firefox", "chrome", "internet explorer"], scope="session")
+        if metafunc.config.option.driver != "SauceLabs":
+            raise ValueError("--cross-browser only valid when used with --driver=SauceLabs")
+
+        cross_browser_list = [
+            {
+                "browserName": "firefox",
+                "platform": "Windows 10",
+                "version": None
+            },
+            {
+                "browserName": "chrome",
+                "platform": "Windows 10",
+                "version": None
+            },
+            {
+                "browserName": "internet explorer",
+                "platform": "Windows 10",
+                "version": "11.0"
+            },
+            {
+                "browserName": "safari",
+                "platform": "OS X 10.11",
+                "version": "9.0"
+            },
+        ]
+        metafunc.parametrize('cross_browser', cross_browser_list, scope="session")
 
 
 @pytest.fixture(scope="session")
-def browserName():
-    return "firefox"
+def cross_browser():
+    # If version is None, latest will be used
+    return {"browserName": "firefox", "platform": "Windows 10", "version": None}
 
 
 @pytest.fixture(scope="session")
-def capabilities(capabilities, browserName):
-    capabilities["browserName"] = browserName
-    capabilities["platform"] = "Windows 10"
+def capabilities(capabilities, cross_browser):
+    capabilities["browserName"] = cross_browser["browserName"]
+    capabilities["platform"] = cross_browser["platform"]
+    if cross_browser["version"]:
+        capabilities["version"] = cross_browser["version"]
     capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
