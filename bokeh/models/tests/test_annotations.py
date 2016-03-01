@@ -20,10 +20,10 @@ TEXT = ["text_font", "text_font_size", "text_font_style", "text_color",
 ANGLE = ["angle", "angle_units"]
 PROPS = ["name", "tags"]
 
-def check_border(annotation):
-    assert annotation.border_line_color == Color.black
-    assert annotation.border_line_width == 1
-    assert annotation.border_line_alpha == 1.0
+def check_border(annotation, line_color=Color.black, line_width=1.0, line_alpha=1.0):
+    assert annotation.border_line_color == line_color
+    assert annotation.border_line_width == line_width
+    assert annotation.border_line_alpha == line_alpha
     assert annotation.border_line_join == LineJoin.miter
     assert annotation.border_line_cap == LineCap.butt
     assert annotation.border_line_dash == []
@@ -50,9 +50,9 @@ def check_fill(annotation):
     assert annotation.fill_color == '#fff9ba'
     assert annotation.fill_alpha == 0.4
 
-def check_background(annotation):
-    assert annotation.background_fill_color == '#ffffff'
-    assert annotation.background_fill_alpha == 1.0
+def check_background(annotation, fill_color='#ffffff', fill_alpha=1.0):
+    assert annotation.background_fill_color == fill_color
+    assert annotation.background_fill_alpha == fill_alpha
 
 def check_line(annotation, line_color='#cccccc', line_width=0.3, line_alpha=1.0):
     assert annotation.line_color == line_color
@@ -151,6 +151,8 @@ def test_Label():
     assert label.y_range_name == 'default'
     assert label.source is None
     yield check_text, label
+    yield check_background, label, None
+    yield check_border, label, None, 1.0, 1.0
     yield (check_props, label, [
         "plot",
         "level",
@@ -166,7 +168,7 @@ def test_Label():
         "x_range_name",
         "y_range_name",
         "source"
-    ], TEXT, ANGLE)
+    ], TEXT, ANGLE, BORDER, BACKGROUND)
 
 def test_Span():
     line = Span()
