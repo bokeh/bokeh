@@ -53,6 +53,10 @@ class Screenshot(object):
         if exists(self.base_screenshot_path):
             return self.get_screenshot_as_b64(self.base_screenshot_path)
 
+    def get_current_as_base64(self):
+        if exists(self.base_screenshot_path):
+            return self.get_screenshot_as_b64(self.current_screenshot_path)
+
     def is_valid(self):
         self.set_current_screenshot()
         if self.set_new_base:

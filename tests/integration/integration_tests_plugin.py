@@ -99,10 +99,12 @@ def pytest_runtest_makereport(item, call):
     xfail = hasattr(report, 'wasxfail')
     failure = (report.skipped and xfail) or (report.failed and not xfail)
     pytest_html = item.config.pluginmanager.getplugin('html')
-    extra = getattr(report, 'extra', [])
 
     # Don't add screenshots if test passed
     if failure:
-        extra.append(pytest_html.extras.image(screenshot.get_diff_as_base64(), 'Diff'))
-        extra.append(pytest_html.extras.image(screenshot.get_base_as_base64(), 'Base'))
-        report.extra = extra
+        diff = pytest_html.extras.image(screenshot.get_diff_as_base64(), '')
+        base = pytest_html.extras.image(screenshot.get_base_as_base64(), '')
+        test = pytest_html.extras.image(screenshot.get_current_as_base64(), '')
+        # Override existing extra and logs for screenshot tests (keeps output manageable)
+        report.extra = [test, diff, base]
+        report.longrepr = ''
