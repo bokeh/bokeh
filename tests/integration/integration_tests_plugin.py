@@ -2,6 +2,13 @@ import os
 import pytest
 
 from bokeh.io import output_file
+from .screenshot import Screenshot
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--set-new-base-screenshot", dest="set_new_base_screenshot", action="store_true", default=False, help="Use to set a new screenshot for imagediff testing. Be sure to only set for the tests you want by usign the -k pytest option to select your test."
+    )
 
 
 @pytest.fixture
@@ -39,3 +46,12 @@ def capabilities(capabilities):
     capabilities["browserName"] = "firefox"
     capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
+
+
+@pytest.fixture
+def screenshot(request):
+    if request.config.option.set_new_base_screenshot:
+        screenshot = Screenshot(request=request, set_new_base=True)
+    else:
+        screenshot = Screenshot(request=request, set_new_base=False)
+    return screenshot
