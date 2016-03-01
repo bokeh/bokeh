@@ -43,13 +43,29 @@ def output_file_url(request, file_server):
 
 @pytest.fixture(scope="session")
 def capabilities(capabilities):
-    capabilities["browserName"] = "firefox"
+    capabilities["browserName"] = "chrome"
+    capabilities["platform"] = "Linux"
     capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
 
 
 @pytest.fixture
 def screenshot(request):
+    # Screenshot tests can only be run under the following circumstances:
+    # - driver: SauceLabs
+    # - capabilities: browserName: firefox
+    # - capabilities: platform: linux
+    # This helps ensure that screenshots are comparable.
+
+    if request.config.option.driver != 'SauceLabs':
+        pytest.skip('Screenshot tests can only be run with --driver=SauceLabs')
+
+    capabilities = request.getfuncargvalue('capabilities')
+    if capabilities['browserName'] != 'firefox':
+        pytest.skip('Screenshot tests can only be run with browserName firefox. Capabilties are: %s' % capabilities)
+    if capabilities['platform'] != 'Linux':
+        pytest.skip('Screenshot tests can only be run with platform linux. Capabilities are: %s' % capabilities)
+
     if request.config.option.set_new_base_screenshot:
         screenshot = Screenshot(request=request, set_new_base=True)
     else:
