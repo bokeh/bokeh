@@ -71,3 +71,38 @@ def screenshot(request):
     else:
         screenshot = Screenshot(request=request, set_new_base=False)
     return screenshot
+
+
+#
+# Hook into the pytest report to add the screnshot diff
+#
+
+@pytest.mark.hookwrapper
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+
+    # Only run through this at the end of the test
+    if call.when != 'call':
+        return
+
+    # Don't continue if this isn't a screenshot test
+    if 'screenshot' not in item.fixturenames:
+        return
+
+    # Don't add screenshots if we can't create a screenshot
+    try:
+        screenshot = Screenshot(item=item)
+    except AssertionError:
+        return
+
+    report = outcome.get_result()
+    xfail = hasattr(report, 'wasxfail')
+    failure = (report.skipped and xfail) or (report.failed and not xfail)
+    pytest_html = item.config.pluginmanager.getplugin('html')
+    extra = getattr(report, 'extra', [])
+
+    # Don't add screenshots if test passed
+    if failure:
+        extra.append(pytest_html.extras.image(screenshot.get_diff_as_base64(), 'Diff'))
+        extra.append(pytest_html.extras.image(screenshot.get_base_as_base64(), 'Base'))
+        report.extra = extra

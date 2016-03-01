@@ -1,3 +1,6 @@
+import base64
+
+from os.path import exists
 from tests.plugins.image_diff import process_image_diff
 
 
@@ -29,11 +32,26 @@ class Screenshot(object):
         screenshot_path_root = screenshot_dir.join(prefix + '__' + test_file + '__' + test_name + '.png')
         return screenshot_path_root.strpath
 
+    @classmethod
+    def get_screenshot_as_b64(cls, path):
+        with open(path, 'rb') as f:
+            screenshot = f.read()
+        b64_screenshot = base64.b64encode(screenshot).decode("utf-8")
+        return b64_screenshot
+
     def set_current_screenshot(self):
         self.driver.get_screenshot_as_file(self.current_screenshot_path)
 
     def set_base_screenshot(self):
         self.driver.get_screenshot_as_file(self.base_screenshot_path)
+
+    def get_diff_as_base64(self):
+        if exists(self.diff_screenshot_path):
+            return self.get_screenshot_as_b64(self.diff_screenshot_path)
+
+    def get_base_as_base64(self):
+        if exists(self.base_screenshot_path):
+            return self.get_screenshot_as_b64(self.base_screenshot_path)
 
     def is_valid(self):
         self.set_current_screenshot()
