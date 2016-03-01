@@ -25,7 +25,7 @@ def test_hover_changes_color(output_file_url, selenium, screenshot):
     rect = plot.rect(
         x=[1, 2], y=[1, 1],
         width=1, height=1,
-        fill_color='blue', hover_fill_color='magenta',
+        fill_color='cyan', hover_fill_color='magenta',
         line_color=None,   hover_line_color=None
     )
     plot.add_tools(HoverTool(tooltips=None, renderers=[rect]))
