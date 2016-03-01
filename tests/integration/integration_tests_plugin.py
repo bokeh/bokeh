@@ -43,7 +43,7 @@ def output_file_url(request, file_server):
 
 @pytest.fixture(scope="session")
 def capabilities(capabilities):
-    capabilities["browserName"] = "chrome"
+    capabilities["browserName"] = "firefox"
     capabilities["platform"] = "Linux"
     capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
