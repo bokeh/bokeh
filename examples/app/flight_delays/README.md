@@ -1,19 +1,9 @@
-In order to run `flight_delays`, simply use a `bokeh` command.
+Create a plot of all the airports in US with the number of arriving flights and delays.
 
-There are three basic bokeh commands:
+#### Running
 
-The bokeh html command can create standalone HTML documents from any kind of
-Bokeh application source: e.g., python scripts, app directories, JSON files,
-jupyter notebooks and others. For example:
+To view the app directly from a Bokeh server, navigate to the parent
+directory [`examples/app`](https://github.com/bokeh/bokeh/tree/master/examples/app), 
+and execute the command:
 
-`bokeh html flight_delays`
-The bokeh json command will generate a serialized JSON representation of a
-Bokeh document from any kind of Bokeh application source. For example:
-
-`bokeh json flight_delays`
-Finally, the bokeh serve command let’s you instantly turn Bokeh documents into
-interactive web applications. For example:
-
-`bokeh serve flight_delays`
-In all of these cases, the same file can be used without modification
-to generate different sorts of output.
+    bokeh serve --show flight_delays
