@@ -29,13 +29,12 @@ class InspectTool extends Tool.Model
 
   nonserializable_attribute_names: () ->
     attrs = _.without(super(), 'active')
-    return attrs.concat(['event_type', 'inner_only'])
+    return attrs.concat(['event_type'])
 
   defaults: ->
     return _.extend {}, super(), {
       # internal
       active: true
-      inner_only: true
       event_type: 'move'
     }
 

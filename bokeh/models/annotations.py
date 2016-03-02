@@ -288,7 +288,3 @@ class Tooltip(Annotation):
     Whether the tooltip should display to the left or right off the cursor
     position, or if it should be automatically placed.
     """)
-
-    inner_only = Bool(default=True, help="""
-    Whether to display outside a central plot frame area.
-    """)

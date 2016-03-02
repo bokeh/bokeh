@@ -33,8 +33,6 @@ class TooltipView extends Renderer.View
 
     for val in @mget('data')
       [vx, vy, content] = val
-      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
-          continue
       tip = $('<div />').appendTo(@$el)
       tip.append(content)
     sx = @plot_view.mget('canvas').vx_to_sx(vx)
@@ -78,7 +76,6 @@ class Tooltip extends Annotation.Model
   props: ->
     return _.extend {}, super(), {
       side:       [ p.String, 'auto' ] # TODO (bev) enum?
-      inner_only: [ p.Bool,   true   ]
     }
 
   defaults: ->
