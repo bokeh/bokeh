@@ -41,12 +41,47 @@ def output_file_url(request, file_server):
     return file_server.where_is(file_path)
 
 
-@pytest.fixture(scope="session")
-def capabilities(capabilities):
-    capabilities["browserName"] = "firefox"
-    capabilities["platform"] = "Linux"
-    capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
+def pytest_generate_tests(metafunc):
+    # hasattr(metafunc.function, "foo") is like doing item.get_marker("foo")
+    # This is ugly, but unfortunately there's not currently a better interface
+    # https://github.com/pytest-dev/pytest/issues/1425
+    if hasattr(metafunc.function, "cross_browser"):
+        if metafunc.config.option.driver == "SauceLabs":
+            cross_browser_list = [
+                {
+                    "browserName": "firefox",
+                    "platform": "Linux",
+                    "version": None
+                },
+                {
+                    "browserName": "chrome",
+                    "platform": "Linux",
+                    "version": None
+                },
+            ]
+            metafunc.fixturenames.append('test_browser')
+            metafunc.parametrize('test_browser', cross_browser_list, ids=["firefox", "chrome"])
+
+
+@pytest.fixture()
+def test_browser():
+    # If version is None, latest will be used
+    return {"browserName": "firefox", "platform": "Linux", "version": None}
+
+
+@pytest.fixture()
+def capabilities(capabilities, test_browser):
+    capabilities["browserName"] = test_browser["browserName"]
+    capabilities["platform"] = test_browser["platform"]
+    if test_browser["version"]:
+        capabilities["version"] = test_browser["version"]
     return capabilities
+
+
+@pytest.fixture(scope="session")
+def session_capabilities(session_capabilities):
+    session_capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
+    return session_capabilities
 
 
 @pytest.fixture
