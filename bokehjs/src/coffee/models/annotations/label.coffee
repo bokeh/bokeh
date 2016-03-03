@@ -67,8 +67,18 @@ class LabelView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
     for i in [0...@text.length]
       ctx.save()
-      ctx.translate(@sx[i], @sy[i])
+
       ctx.rotate(@mget('angle'))
+      ctx.translate(@sx[i], @sy[i])
+
+      ctx.beginPath()
+      ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
+
+      @visuals.fill.set_vectorize(ctx, i)
+      ctx.fill()
+
+      @visuals.line.set_vectorize(ctx, i)
+      ctx.stroke()
 
       @visuals.text.set_vectorize(ctx, i)
       ctx.fillText(@text[i], 0, 0)
@@ -82,7 +92,6 @@ class LabelView extends Renderer.View
       if @label_div[i].html() == ""
         @label_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-events'))
 
-      debugger;
       @label_div[i]
         .html(@text[i])
         .css({
@@ -101,7 +110,8 @@ class Label extends Annotation.Model
   type: 'LabelAnnotation'
 
   coords: [ ['x', 'y'] ]
-  mixins: ['text']
+  # mixins: ['text', 'line:border_', 'fill:background_']
+  mixins: ['text', 'line', 'fill']
 
   props: ->
     return _.extend {}, super(), {
@@ -119,7 +129,12 @@ class Label extends Annotation.Model
     }
 
   defaults: ->
-    return _.extend {}, super(), {}
+    return _.extend {}, super(), {
+      #overrides
+      border_line_color: 'black'
+      background_fill_color: "#ffffff"
+
+    }
 
 module.exports =
   Model: Label
