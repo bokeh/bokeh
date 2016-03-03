@@ -60,9 +60,10 @@ class ResizeToolView extends GestureTool.View
 
   _update: (dx, dy) ->
     @plot_view.pause()
-    @plot_view.canvas.set_dims([@cw+dx, @ch+dy])
+    canvas = @plot_view.canvas
+    canvas._set_dims([@cw+dx, @ch+dy]) # TODO (bev) proper non-private API
     @plot_view.unpause()
-    return
+    return null
 
 class ResizeTool extends GestureTool.Model
   default_view: ResizeToolView

@@ -1,5 +1,8 @@
 module.exports = {
 
+  Canvas:                   require './canvas'
+  LayoutBox:                require './layout_box'
+  CartesianFrame:           require './cartesian_frame'
   SelectionManager:         require './selection_manager'
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
@@ -17,10 +20,6 @@ module.exports = {
 
   CustomJS:                 require '../models/callbacks/customjs'
   OpenURL:                  require '../models/callbacks/open_url'
-
-  Canvas:                   require '../models/canvas/canvas'
-  LayoutBox:                require '../models/canvas/layout_box'
-  CartesianFrame:           require '../models/canvas/cartesian_frame'
 
   BasicTickFormatter:       require '../models/formatters/basic_tick_formatter'
   CategoricalTickFormatter: require '../models/formatters/categorical_tick_formatter'
