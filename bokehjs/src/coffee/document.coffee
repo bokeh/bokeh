@@ -1,7 +1,6 @@
 _ = require "underscore"
 
 {Collections} = require "./base"
-{Solver} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
@@ -82,10 +81,6 @@ class Document
     @_all_models_by_name = new _MultiValuedDict()
     @_all_model_counts = {}
     @_callbacks = []
-    @_solver = new Solver()
-
-  solver: () ->
-    @_solver
 
   clear : () ->
     while @_roots.length > 0

@@ -1,27 +1,27 @@
 _ = require "underscore"
 $ = require "jquery"
 Backbone = require "backbone"
+kiwi = require "kiwi"
+{Expression, Constraint, Operator} = kiwi
+{Eq, Le, Ge} = Operator
 
-Canvas = require "../canvas/canvas"
-CartesianFrame = require "../canvas/cartesian_frame"
-LayoutBox = require "../canvas/layout_box"
-Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
-
 build_views = require "../../common/build_views"
+Canvas = require "../../common/canvas"
+CartesianFrame = require "../../common/cartesian_frame"
+LayoutBox = require "../../common/layout_box"
+plot_template = require "../../common/plot_template"
+Solver = require "../../common/solver"
 ToolEvents = require "../../common/tool_events"
 ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
-
+Component = require "../component"
 BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
-{EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
-
-plot_template = require "./plot_template"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -86,7 +86,7 @@ class PlotView extends Renderer.View
 
   request_render: () =>
     if not @is_paused
-      @throttled_render()
+      @throttled_render(true)
     return
 
   remove: () =>
@@ -124,7 +124,7 @@ class PlotView extends Renderer.View
 
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
-    @canvas_view.render(true)
+    @canvas_view.render()
 
     # If requested, try enabling webgl
     if @mget('webgl') or window.location.search.indexOf('webgl=1') > 0
@@ -142,7 +142,8 @@ class PlotView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
+    @model.add_constraints(@canvas.solver)
+    @listenTo(@canvas.solver, 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
       tool_manager: @mget('tool_manager')
@@ -269,7 +270,7 @@ class PlotView extends Renderer.View
       @update_dimensions(info.dimensions)
 
   update_dimensions: (dimensions) ->
-    @canvas.set_dims([dimensions.width, dimensions.height])
+    @canvas._set_dims([dimensions.width, dimensions.height])
 
   reset_dimensions: () ->
     @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
@@ -412,9 +413,6 @@ class PlotView extends Renderer.View
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
-    if not @model.document?
-      return
-
     if Date.now() - @interactive_timestamp < @mget('lod_interval')
       @interactive = true
       lod_timeout = @mget('lod_timeout')
@@ -431,8 +429,9 @@ class PlotView extends Renderer.View
 
     if (@canvas.get("canvas_width") != width or
         @canvas.get("canvas_height") != height)
-      @canvas.set_dims([width, height], trigger=false)
+      @canvas._set_dims([width, height], trigger=false)
 
+    super()
     @canvas_view.render(force_canvas)
 
     if @tm_view?
@@ -445,7 +444,7 @@ class PlotView extends Renderer.View
 
     for k, v of @renderers
       if v.model.update_layout?
-        v.model.update_layout(v, @model.document.solver())
+        v.model.update_layout(v, @canvas.solver)
 
     for k, v of @renderers
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -463,7 +462,7 @@ class PlotView extends Renderer.View
     @model.get('frame').set_var('width', canvas.get('width')-1)
     @model.get('frame').set_var('height', canvas.get('height')-1)
 
-    @model.document.solver().update_variables(false)
+    @canvas.solver.update_variables(false)
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
@@ -547,7 +546,7 @@ class PlotView extends Renderer.View
   resize_width_height: (use_width, use_height, maintain_ar=true) =>
     # Resize plot based on available width and/or height
 
-    # the solver falls over if we try and resize too small.
+    # kiwi.js falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
@@ -570,17 +569,17 @@ class PlotView extends Renderer.View
     if maintain_ar is false
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
-        @canvas.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
+        @canvas._set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
       else if use_width
-        @canvas.set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
+        @canvas._set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
       else if use_height
-        @canvas.set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
+        @canvas._set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
     else
       # Find best size to fill space while maintaining aspect ratio
       ar = @canvas.get('width') / @canvas.get('height')
       w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
       if w_h?
-        @canvas.set_dims(w_h)
+        @canvas._set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -642,6 +641,7 @@ class Plot extends Component.Model
       canvas_width: @get('plot_width'),
       canvas_height: @get('plot_height'),
       hidpi: @get('hidpi')
+      solver: new Solver()
     })
     @set('canvas', canvas)
 
@@ -656,19 +656,23 @@ class Plot extends Component.Model
     logger.debug("Plot initialized")
 
   initialize_layout: (solver) ->
-    @add_constraints(@document.solver())
-
-    for r in @get('renderers')
-      if r.initialize_layout?
-        r.initialize_layout(solver)
-
-    # TODO (bev) titles should probably be a proper guide, then they could go
-    # on any side, this will do to get the PR merged
-    @title_panel = @_above_panel
-    @title_panel._anchor = @title_panel._bottom
-
-  _doc_attached: () ->
-    @get('canvas').attach_document(@document)
+    existing_or_new_layout = (side, name) =>
+      list = @get(side)
+      box = null
+      for model in list
+        if model.get('name') == name
+          box = model
+          break
+      if box?
+        box.set('solver', solver)
+      else
+        box = new LayoutBox.Model({
+          name: name,
+          solver: solver
+        })
+        list.push(box)
+        @set(side, list)
+      return box
 
     canvas = @get('canvas')
     frame = new CartesianFrame.Model({
@@ -678,9 +682,14 @@ class Plot extends Component.Model
       y_range: @get('y_range'),
       extra_y_ranges: @get('extra_y_ranges'),
       y_mapper_type: @get('y_mapper_type'),
+      solver: solver
     })
-    frame.attach_document(@document)
     @set('frame', frame)
+
+    # TODO (bev) titles should probably be a proper guide, then they could go
+    # on any side, this will do to get the PR merged
+    @title_panel = existing_or_new_layout('above', 'title_panel')
+    @title_panel._anchor = @title_panel._bottom
 
   add_constraints: (solver) ->
     min_border_top    = @get('min_border_top')
@@ -688,16 +697,21 @@ class Plot extends Component.Model
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
 
-    do_side = (solver, min_size, side, cnames, dim) =>
+    do_side = (solver, min_size, side, cnames, dim, op) =>
       canvas = @get('canvas')
       frame = @get('frame')
-      box = new LayoutBox.Model()
-      box.attach_document(@document)
+      box = new LayoutBox.Model({solver: solver})
       c0 = '_'+cnames[0]
       c1 = '_'+cnames[1]
-      solver.add_constraint( GE(box['_'+dim], -min_size) )
-      solver.add_constraint( EQ(frame.panel[c0], [-1, box[c1]]) )
-      solver.add_constraint( EQ(box[c0], [-1, canvas.panel[c0]]) )
+      solver.add_constraint(
+        new Constraint(new Expression(box['_'+dim], -min_size), Ge),
+        kiwi.Strength.strong)
+      solver.add_constraint(
+        new Constraint(new Expression(frame[c0], [-1, box[c1]]),
+        Eq))
+      solver.add_constraint(
+        new Constraint(new Expression(box[c0], [-1, canvas[c0]]),
+        Eq))
       last = frame
       elts = @get(side)
       for r in elts
@@ -705,18 +719,24 @@ class Plot extends Component.Model
           r.set('layout_location', side, { silent: true })
         else
           r.set('layout_location', r.get('location'), { silent: true })
-        solver.add_constraint( EQ(last.panel[c0], [-1, r.panel[c1]]) )
+        if r.initialize_layout?
+          r.initialize_layout(solver)
+        solver.add_constraint(
+          new Constraint(new Expression(last[c0], [-1, r[c1]]), Eq),
+          kiwi.Strength.strong)
         last = r
-      padding = new LayoutBox.Model()
-      padding.attach_document(@document)
-      solver.add_constraint( EQ(last.panel[c0], [-1, padding[c1]]) )
-      solver.add_constraint( EQ(padding[c0], [-1, canvas.panel[c0]]) )
-      return box
+      padding = new LayoutBox.Model({solver: solver})
+      solver.add_constraint(
+        new Constraint(new Expression(last[c0], [-1, padding[c1]]), Eq),
+        kiwi.Strength.strong)
+      solver.add_constraint(
+        new Constraint(new Expression(padding[c0], [-1, canvas[c0]]), Eq),
+        kiwi.Strength.strong)
 
-    @_above_panel = do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
-    @_below_panel = do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
-    @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
-    @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
+    do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height', Le)
+    do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height', Ge)
+    do_side(solver, min_border_left, 'left', ['left', 'right'], 'width', Ge)
+    do_side(solver, min_border_right, 'right', ['right', 'left'], 'width', Le)
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
@@ -724,7 +744,7 @@ class Plot extends Component.Model
     @set('renderers', renderers)
 
   nonserializable_attribute_names: () ->
-    super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
+    super().concat(['solver', 'canvas', 'tool_manager', 'frame', 'min_size'])
 
   serializable_attributes: () ->
     attrs = super()

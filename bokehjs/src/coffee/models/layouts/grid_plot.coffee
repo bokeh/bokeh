@@ -7,7 +7,7 @@ Component = require "../component"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
 ToolManager = require "../../common/tool_manager"
-plot_template = require "../plots/plot_template"
+plot_template = require "../../common/plot_template"
 
 class ToolProxy extends Backbone.Model
 

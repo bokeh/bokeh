@@ -26,7 +26,7 @@ class HoverToolView extends InspectTool.View
     for r in @mget('computed_renderers')
       @listenTo(r.get('data_source'), 'inspect', @_update)
 
-    @plot_view.canvas_view.$el.css('cursor', 'crosshair')
+    @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
   _move: (e) ->
     if not @mget('active')

@@ -382,9 +382,6 @@ class HasProps extends Backbone.Model
     for name, prop of @properties
       prop.update()
 
-    if @_doc_attached?
-      @_doc_attached()
-
   detach_document: () ->
     if @document != null
       if @document._notify_detach(@) == 0
