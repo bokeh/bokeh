@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function
 
-from os.path import abspath
+from os.path import abspath, dirname
 from types import ModuleType
 import os
 import sys
@@ -11,7 +11,7 @@ from bokeh.util.serialization import make_id
 class _CodeRunner(object):
     """ Compile and run a Python source code."""
 
-    def __init__(self, source, path):
+    def __init__(self, source, path, **kwargs):
         self._failed = False
         self._error = None
         self._error_detail = None
@@ -68,7 +68,19 @@ class _CodeRunner(object):
 
     def run(self, module, post_check):
         try:
+            # Simulate the sys.path behaviour decribed here:
+            #
+            # https://docs.python.org/2/library/sys.html#sys.path
+            _cwd = os.getcwd()
+            os.chdir(dirname(self._path))
+            sys.path.insert(0, '')
+
             exec(self._code, module.__dict__)
+
+            # undo sys.path, cwd fixups
+            del sys.path[0]
+            os.chdir(_cwd)
+            
             post_check()
         except Exception as e:
             self._failed = True
