@@ -3,11 +3,7 @@ from bokeh.models.layouts import BaseBox
 from bokeh.core import validation
 from bokeh.core.validation.warnings import EMPTY_LAYOUT
 
-import sys
-from os.path import dirname
-sys.path.append(dirname(__file__))
-
-from helpers import load_component
+from .helpers import load_component
 
 class StyleableBox(BaseBox):
     '''
@@ -21,7 +17,7 @@ class StatsBox(BaseBox):
     __implementation__ = load_component('./stats_box.coffee')
     styles = String(default=None)
     display_items = Dict(String, Any, default=None)
-    
+
     @validation.warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
         pass
