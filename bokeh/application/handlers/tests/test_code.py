@@ -71,3 +71,19 @@ class TestCodeHandler(unittest.TestCase):
 
         assert handler.error is not None
         assert 'nope' in handler.error
+
+    def test_script_sys_path(self):
+        doc = Document()
+        handler = CodeHandler("""import sys; raise RuntimeError("path: '%s'" % sys.path[0])""", "/test_filename")
+        handler.modify_document(doc)
+
+        assert handler.error is not None
+        assert "path: ''" in handler.error
+
+    def test_script_cwd(self):
+        doc = Document()
+        handler = CodeHandler("""import os; raise RuntimeError("cwd: '%s'" % os.getcwd())""", "/test_filename")
+        handler.modify_document(doc)
+
+        assert handler.error is not None
+        assert "cwd: '/'" in handler.error
