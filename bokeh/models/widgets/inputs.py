@@ -152,8 +152,18 @@ class Slider(InputWidget):
     A callback to run in the browser whenever the current Slider value changes.
     """)
 
-    delay_callback = Bool(default=False, help="""
-    Delay the execution of the callback until the slider is released.
+    callback_throttle = Float(default=200, help="""
+    Number of microseconds to pause between callback calls as the slider is moved.
+    """)
+
+    callback_policy = Enum("continious", "throttle", "mouseup", default="throttle", help="""
+    An enumeration which controls the method by which the callback is initated.  This parameter can take on only one of three options.
+
+       "continious": Implies that the callback will be initiated immediatly for each movement of the slider
+       "throttle": Implies that the callback will be executed while the slider is being moved but not more often than what is specified in the `callback_throttle` time in miliseconds.
+       "mouseup": Implies that the callback will be executed only once when the slider is released.
+
+       The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
     """)
 
 class DateRangeSlider(InputWidget):

@@ -25,17 +25,23 @@ class SliderView extends BokehView
     step = @mget('step') or ((max - min)/50)
     logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
     opts = {
-      orientation: @mget('orientation')
+      orientation: @mget('orientation'),
       animate: "fast",
-      value: @mget('value')
+      value: @mget('value'),
       min: min,
       max: max,
-      step: step,
+      step: step
     }
-    if @mget('delay_callback') == true
-      opts.stop = @slide
-    else
-      opts.slide = _.throttle(@slide, 200)
+    switch @mget('callback_policy')
+      when 'continious'
+        opts.slide = @slide
+      when 'throttle'
+        opts.slide = _.throttle(@slide, @mget('callback_throttle'))
+      when 'mouseup'
+        opts.stop = @slide
+      else
+        opts.stop = @slide
+        logger.debug("slider render: ERROR: do not know how to handle the callback policy")
     @$('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
@@ -53,12 +59,13 @@ class Slider extends InputWidget.Model
 
   props: ->
     return _.extend {}, super(), {
-      value:          [ p.Number,      0.5          ]
-      start:          [ p.Number,      0            ]
-      end:            [ p.Number,      1            ]
-      step:           [ p.Number,      0.1          ]
-      orientation:    [ p.Orientation, "horizontal" ]
-      delay_callback: [ p.Bool,        false        ]
+      value:             [ p.Number,      0.5          ]
+      start:             [ p.Number,      0            ]
+      end:               [ p.Number,      1            ]
+      step:              [ p.Number,      0.1          ]
+      orientation:       [ p.Orientation, "horizontal" ]
+      callback_throttle: [ p.Number,      200          ]
+      callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
 
 module.exports =
