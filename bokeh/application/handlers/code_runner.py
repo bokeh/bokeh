@@ -11,7 +11,7 @@ from bokeh.util.serialization import make_id
 class _CodeRunner(object):
     """ Compile and run a Python source code."""
 
-    def __init__(self, source, path, **kwargs):
+    def __init__(self, source, path):
         self._failed = False
         self._error = None
         self._error_detail = None
