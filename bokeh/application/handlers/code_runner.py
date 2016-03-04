@@ -76,12 +76,8 @@ class _CodeRunner(object):
             sys.path.insert(0, '')
 
             exec(self._code, module.__dict__)
-
-            # undo sys.path, cwd fixups
-            del sys.path[0]
-            os.chdir(_cwd)
-            
             post_check()
+
         except Exception as e:
             self._failed = True
             self._error_detail = traceback.format_exc()
@@ -90,3 +86,8 @@ class _CodeRunner(object):
             filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
 
             self._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
+
+        finally:
+            # undo sys.path, CWD fixups
+            del sys.path[0]
+            os.chdir(_cwd)
