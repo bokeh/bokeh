@@ -72,6 +72,7 @@ class _CodeRunner(object):
             #
             # https://docs.python.org/2/library/sys.html#sys.path
             _cwd = os.getcwd()
+            _sys_path = list(sys.path)
             os.chdir(dirname(self._path))
             sys.path.insert(0, '')
 
@@ -89,5 +90,5 @@ class _CodeRunner(object):
 
         finally:
             # undo sys.path, CWD fixups
-            del sys.path[0]
             os.chdir(_cwd)
+            sys.path = _sys_path
