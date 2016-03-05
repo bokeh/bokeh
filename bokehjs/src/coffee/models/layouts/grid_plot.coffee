@@ -182,7 +182,6 @@ class GridViewState extends HasProps
     }
 
 class GridPlotView extends BokehView
-  className: ""
   template: plot_template
 
   initialize: (options) ->

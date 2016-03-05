@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function
 
-from os.path import abspath
+from os.path import abspath, dirname
 from types import ModuleType
 import os
 import sys
@@ -68,8 +68,17 @@ class _CodeRunner(object):
 
     def run(self, module, post_check):
         try:
+            # Simulate the sys.path behaviour decribed here:
+            #
+            # https://docs.python.org/2/library/sys.html#sys.path
+            _cwd = os.getcwd()
+            _sys_path = list(sys.path)
+            os.chdir(dirname(self._path))
+            sys.path.insert(0, '')
+
             exec(self._code, module.__dict__)
             post_check()
+
         except Exception as e:
             self._failed = True
             self._error_detail = traceback.format_exc()
@@ -78,3 +87,8 @@ class _CodeRunner(object):
             filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
 
             self._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
+
+        finally:
+            # undo sys.path, CWD fixups
+            os.chdir(_cwd)
+            sys.path = _sys_path
