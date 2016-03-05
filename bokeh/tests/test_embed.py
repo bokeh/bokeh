@@ -48,12 +48,12 @@ class TestComponents(unittest.TestCase):
         html = bs4.BeautifulSoup(div)
 
         divs = html.findAll(name='div')
-        self.assertEqual(len(divs), 1)
+        self.assertEqual(len(divs), 2)
 
         div = divs[0]
         self.assertTrue(set(div.attrs), set(['class', 'id']))
-        self.assertEqual(div.attrs['class'], ['plotdiv', 'bk-plot'])
-        self.assertEqual(div.text, "")
+        self.assertEqual(div.attrs['class'], ['bk-root'])
+        self.assertEqual(div.text, '\n\n')
 
     def test_script_is_utf8_encoded(self):
         script, div = embed.components(_embed_test_plot)
@@ -102,12 +102,12 @@ class TestNotebookDiv(unittest.TestCase):
         r = embed.notebook_div(_embed_test_plot)
         html = bs4.BeautifulSoup(r)
         divs = html.findAll(name='div')
-        self.assertEqual(len(divs), 1)
+        self.assertEqual(len(divs), 2)
 
         div = divs[0]
         self.assertTrue(set(div.attrs), set(['class', 'id']))
-        self.assertEqual(div.attrs['class'], ['plotdiv', 'bk-plot'])
-        self.assertEqual(div.text, "")
+        self.assertEqual(div.attrs['class'], ['bk-root'])
+        self.assertEqual(div.text, '\n\n')
 
 class TestFileHTML(unittest.TestCase):
 

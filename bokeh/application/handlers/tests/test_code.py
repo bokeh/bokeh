@@ -40,7 +40,7 @@ class TestCodeHandler(unittest.TestCase):
 
     def test_empty_script(self):
         doc = Document()
-        handler = CodeHandler("# This script does nothing", "test_filename")
+        handler = CodeHandler("# This script does nothing", "/test_filename")
         handler.modify_document(doc)
         if handler.failed:
             raise RuntimeError(handler.error)
@@ -49,7 +49,7 @@ class TestCodeHandler(unittest.TestCase):
 
     def test_script_adds_roots(self):
         doc = Document()
-        handler = CodeHandler(script_adds_two_roots, "test_filename")
+        handler = CodeHandler(script_adds_two_roots, "/test_filename")
         handler.modify_document(doc)
         if handler.failed:
             raise RuntimeError(handler.error)
@@ -58,7 +58,7 @@ class TestCodeHandler(unittest.TestCase):
 
     def test_script_bad_syntax(self):
         doc = Document()
-        handler = CodeHandler("This is a syntax error", "test_filename")
+        handler = CodeHandler("This is a syntax error", "/test_filename")
         handler.modify_document(doc)
 
         assert handler.error is not None
@@ -66,8 +66,24 @@ class TestCodeHandler(unittest.TestCase):
 
     def test_script_runtime_error(self):
         doc = Document()
-        handler = CodeHandler("raise RuntimeError('nope')", "test_filename")
+        handler = CodeHandler("raise RuntimeError('nope')", "/test_filename")
         handler.modify_document(doc)
 
         assert handler.error is not None
         assert 'nope' in handler.error
+
+    def test_script_sys_path(self):
+        doc = Document()
+        handler = CodeHandler("""import sys; raise RuntimeError("path: '%s'" % sys.path[0])""", "/test_filename")
+        handler.modify_document(doc)
+
+        assert handler.error is not None
+        assert "path: ''" in handler.error
+
+    def test_script_cwd(self):
+        doc = Document()
+        handler = CodeHandler("""import os; raise RuntimeError("cwd: '%s'" % os.getcwd())""", "/test_filename")
+        handler.modify_document(doc)
+
+        assert handler.error is not None
+        assert "cwd: '/'" in handler.error

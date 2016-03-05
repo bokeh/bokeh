@@ -10,11 +10,6 @@ from bokeh.models import HBox, Select
 from bokeh.plotting import Figure
 from bokeh.sampledata.autompg import autompg
 
-# this is to be able to import modules from the app directory
-import sys
-from os.path import dirname
-sys.path.append(dirname(__file__))
-
 from models import StyleableBox, StatsBox
 from models.helpers import load_component
 
