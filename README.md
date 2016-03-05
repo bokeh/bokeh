@@ -38,6 +38,14 @@ Bokeh
     </a>
   </td>
 </tr>
+<tr>
+  <td>Gitter</td>
+  <td>
+    <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
+    <img src="https://badges.gitter.im/bokeh/bokeh.svg" />
+    </a>
+  </td>
+</tr>
 </table>
 
 Bokeh is a Python interactive visualization library that targets modern
