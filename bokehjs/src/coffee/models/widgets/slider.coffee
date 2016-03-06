@@ -17,6 +17,14 @@ class SliderView extends BokehView
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
+    @callbackWrapper = null
+    if @mget('callback_policy') == 'continious'
+      @callbackWrapper = () ->
+        @mget('callback')?.execute(@model)
+    if @mget('callback_policy') == 'throttle' and @mget('callback')
+      @callbackWrapper = _.throttle(() ->
+        @mget('callback')?.execute(@model)
+      , @mget('callback_throttle'))
     @render()
 
   render: () ->
@@ -30,20 +38,11 @@ class SliderView extends BokehView
       value: @mget('value'),
       min: min,
       max: max,
-      step: step
-      start: @slidestart
-      stop: @slidestop
+      step: step,
+      start: @slidestart,
+      stop: @slidestop,
+      slide: @slide
     }
-    switch @mget('callback_policy')
-      when 'continious'
-        opts.slide = @slide
-      when 'throttle'
-        opts.slide = _.throttle(@slide, @mget('callback_throttle'))
-      when 'mouseup'
-        opts.stop = @slide
-      else
-        opts.stop = @slide
-        logger.debug("slider render: ERROR: do not know how to handle the callback policy")
     @$('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
@@ -52,14 +51,16 @@ class SliderView extends BokehView
     @$( "##{ @mget('id') }" ).css('color', '#ffceab')
 
   slidestop: (event, ui) =>
-      @$( "##{ @mget('id') }" ).css('color', '#f6931f')
+    @$( "##{ @mget('id') }" ).css('color', '#f6931f')
+    if @mget('callback_policy') == 'mouseup' or @mget('callback_policy') == 'throttle'
+      @mget('callback')?.execute(@model)
 
   slide: (event, ui) =>
     value = ui.value
     logger.debug("slide value = #{value}")
     @$( "##{ @mget('id') }" ).val( ui.value )
     @mset('value', value)
-    @mget('callback')?.execute(@model)
+    if @callbackWrapper then @callbackWrapper()
 
 class Slider extends InputWidget.Model
   type: "Slider"
