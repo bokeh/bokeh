@@ -31,6 +31,8 @@ class SliderView extends BokehView
       min: min,
       max: max,
       step: step
+      start: @slidestart
+      stop: @slidestop
     }
     switch @mget('callback_policy')
       when 'continious'
@@ -45,6 +47,12 @@ class SliderView extends BokehView
     @$('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
+
+  slidestart: (event, ui) =>
+    @$( "##{ @mget('id') }" ).css('color', '#ffceab')
+
+  slidestop: (event, ui) =>
+      @$( "##{ @mget('id') }" ).css('color', '#f6931f')
 
   slide: (event, ui) =>
     value = ui.value
