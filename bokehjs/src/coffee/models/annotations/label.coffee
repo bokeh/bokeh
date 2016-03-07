@@ -30,7 +30,7 @@ class LabelView extends Renderer.View
     for i in [0...@text.length]
       @visuals.text.set_vectorize(ctx, i)
       @width[i] = ctx.measureText(@text[i]).width
-      @height[i] = ctx.measureText(@text[i]).ascent / 1.6
+      @height[i] = ctx.measureText(@text[i]).ascent / 1.6 * 1.175
       [ @x_shift[i], @y_shift[i] ] = @_calculate_offset(ctx, @height[i], @width[i])
 
   _calculate_offset: (ctx, height, width) ->
@@ -44,13 +44,13 @@ class LabelView extends Renderer.View
     if ctx.textBaseline == 'top'
       y_shift = 0.2 * height
     if ctx.textBaseline == 'middle'
-      y_shift = -height / 2
+      y_shift = -0.4 * height
     if ctx.textBaseline == 'bottom'
-      y_shift = -1.2 * height
+      y_shift = -1.0 * height
     if ctx.textBaseline == 'alphabetic'
-      y_shift = -3 * height / 4 - 0.2 * height
+      y_shift = -0.8 * height
     if ctx.textBaseline == 'hanging'
-      y_shift = -height / 4 + 0.2 * height
+      y_shift = -0.025 * height
 
     return [x_shift, y_shift]
 
