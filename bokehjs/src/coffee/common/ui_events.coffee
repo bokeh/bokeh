@@ -90,16 +90,26 @@ class UIEvents extends Backbone.Model
 
   _trigger: (event_type, e) ->
     pv = @get('plot_view')
+    tm = pv.mget('tool_manager')
 
-    for view in pv.renderer_views()
-      if view.bbox?
-        if view.bbox().contains(e.bokeh.sx, e.bokeh.sy)
-          if view.onHit?
-            view.onHit(e.bokeh.sx, e.bokeh.sy)
+    switch event_type
+      when 'tap'
+        for view in pv.renderer_views()
+          if view.bbox?().contains(e.bokeh.sx, e.bokeh.sy)
+              view.onHit?(e.bokeh.sx, e.bokeh.sy)
+      when 'scroll'
+        HoverTool = require("../models/tools/inspectors/hover_tool")
+        hovers = (tool for tool in tm.get('tools') when tool instanceof HoverTool.Model)
 
-    tm = @get('tool_manager')
-    base_event_type = event_type.split(":")[0]
+        for hover in hovers
+          for rid, tt of hover.get("ttmodels")
+            if tt.get("active")
+              e.preventDefault()
+              e.stopPropagation()
+              tt.trigger("scroll", e.bokeh.delta)
+
     gestures = tm.get('gestures')
+    base_event_type = event_type.split(":")[0]
     active_tool = gestures[base_event_type].active
     if active_tool?
       @_trigger_event(event_type, active_tool, e)

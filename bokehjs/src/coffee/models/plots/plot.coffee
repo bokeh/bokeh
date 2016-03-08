@@ -145,7 +145,6 @@ class PlotView extends Renderer.View
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
       hit_area: @canvas_view.$el
       plot_view: @
     })
