@@ -89,6 +89,14 @@ class UIEvents extends Backbone.Model
       tool_view.listenTo(@, "doubletap", tool_view._doubletap)
 
   _trigger: (event_type, e) ->
+    pv = @get('plot_view')
+
+    for view in pv.renderer_views()
+      if view.bbox?
+        if view.bbox().contains(e.bokeh.sx, e.bokeh.sy)
+          if view.onHit?
+            view.onHit(e.bokeh.sx, e.bokeh.sy)
+
     tm = @get('tool_manager')
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
