@@ -226,7 +226,7 @@ class RendererView extends BokehView
       if prop instanceof p.Distance
         @["max_#{name}"] = array_max(@[name])
 
-    if @renderer.plot_model.use_map
+    if @plot_model.use_map
       if @x?
         [@x, @y] = @project_xy(@x, @y)
       if @xs?
@@ -249,6 +249,7 @@ class RendererView extends BokehView
 
   _set_data: () -> null
   _map_data: () -> null
+  _index_data: () -> null
   _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
 
