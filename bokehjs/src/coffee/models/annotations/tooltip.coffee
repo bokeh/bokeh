@@ -18,6 +18,12 @@ class TooltipView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:data', @_draw_tips)
+    @listenTo(@model, 'scroll', @scroll)
+
+  scroll: (delta) ->
+    if @page != null
+      @page -= delta
+      @render()
 
   render: () ->
     @_draw_tips()
@@ -25,16 +31,36 @@ class TooltipView extends Renderer.View
   _draw_tips: () ->
     @$el.empty()
     @$el.hide()
+    @mset("active", false)
 
     @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
 
     if _.isEmpty(@mget('data'))
+      @page = null
       return
 
-    for val in @mget('data')
-      [vx, vy, content] = val
+    if @page == null
+      @page = 0
+
+    data = @mget('data')
+    l = 3
+    n = data.length
+
+    np = Math.ceil(n/l)
+    p = @page
+
+    if p < 0
+      p = np - 1
+    else if p >= np
+      p = 0
+
+    data = data.slice(p*l, (p+1)*l)
+    @page = p
+
+    for [vx, vy, content] in data
       tip = $('<div />').appendTo(@$el)
       tip.append(content)
+
     sx = @plot_view.mget('canvas').vx_to_sx(vx)
     sy = @plot_view.mget('canvas').vy_to_sy(vy)
 
@@ -67,6 +93,7 @@ class TooltipView extends Renderer.View
     if @$el.children().length > 0
       @$el.css({top: top, left: left})
       @$el.show()
+      @mset("active", true)
 
 class Tooltip extends Annotation.Model
   default_view: TooltipView
@@ -75,6 +102,7 @@ class Tooltip extends Annotation.Model
 
   props: ->
     return _.extend {}, super(), {
+      active:     [ p.Bool,   false  ]
       side:       [ p.String, 'auto' ] # TODO (bev) enum?
     }
 
@@ -87,7 +115,7 @@ class Tooltip extends Annotation.Model
     }
 
   nonserializable_attribute_names: () ->
-    super().concat(['data', 'custom'])
+    super().concat(['data', 'custom', 'active'])
 
   clear: () ->
     @set('data', [])
