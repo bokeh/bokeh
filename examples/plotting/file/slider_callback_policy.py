@@ -25,7 +25,7 @@ callback = CustomJS(code="""
 
 para = Paragraph(text = "<H3>Slider Values</H3><P>Slider 1: 0<P>Slider 2: 0<P>Slider 3: 0")
 
-s1 = Slider(title="Slider 1 (Continious)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="continious")
+s1 = Slider(title="Slider 1 (Continuous)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="continuous")
 s2 = Slider(title="Slider 2 (Throttle)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="throttle", callback_throttle=2000)
 s3 = Slider(title="Slider 3 (Mouse Up)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="mouseup")
 
