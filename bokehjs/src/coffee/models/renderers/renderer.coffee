@@ -179,6 +179,7 @@ class RendererView extends BokehView
   request_render: () ->
     @plot_view.request_render()
 
+  # final
   render: () ->
     if @mget("visible")
       @_do_render()

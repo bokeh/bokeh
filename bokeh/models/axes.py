@@ -22,10 +22,6 @@ class Axis(GuideRenderer):
 
     """
 
-    visible = Bool(True, help="""
-    Ability to hide the entire axis from the plot.
-    """)
-
     location = Either(Auto, Enum(Location), help="""
     Where should labels and ticks be located in relation to the axis rule.
     """)
