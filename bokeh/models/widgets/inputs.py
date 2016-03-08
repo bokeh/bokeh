@@ -156,7 +156,7 @@ class Slider(InputWidget):
     Number of microseconds to pause between callback calls as the slider is moved.
     """)
 
-    callback_policy = Enum("continious", "throttle", "mouseup", default="throttle", help="""
+    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
     An enumeration which controls the method by which the callback is initated.  This parameter can take on only one of three options.
 
        "continious": Implies that the callback will be initiated immediatly for each movement of the slider
