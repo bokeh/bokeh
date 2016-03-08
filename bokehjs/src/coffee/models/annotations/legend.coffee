@@ -11,7 +11,7 @@ class LegendView extends Renderer.View
     @need_calc_dims = true
     @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
-  calc_dims: (options) ->
+  calc_dims: () ->
     legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
 
     glyph_height = @mget('glyph_height')
