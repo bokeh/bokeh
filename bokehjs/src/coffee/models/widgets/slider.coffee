@@ -18,7 +18,7 @@ class SliderView extends BokehView
     html = @template(@model.attributes)
     @$el.html(html)
     @callbackWrapper = null
-    if @mget('callback_policy') == 'continious'
+    if @mget('callback_policy') == 'continuous'
       @callbackWrapper = () ->
         @mget('callback')?.execute(@model)
     if @mget('callback_policy') == 'throttle' and @mget('callback')
