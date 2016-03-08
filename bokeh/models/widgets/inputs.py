@@ -159,7 +159,7 @@ class Slider(InputWidget):
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
     An enumeration which controls the method by which the callback is initated.  This parameter can take on only one of three options.
 
-       "continious": Implies that the callback will be initiated immediatly for each movement of the slider
+       "continuous": Implies that the callback will be initiated immediatly for each movement of the slider
        "throttle": Implies that the callback will be executed while the slider is being moved but not more often than what is specified in the `callback_throttle` time in miliseconds.
        "mouseup": Implies that the callback will be executed only once when the slider is released.
 
