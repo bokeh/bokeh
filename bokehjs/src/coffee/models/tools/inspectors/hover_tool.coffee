@@ -31,16 +31,24 @@ class HoverToolView extends InspectTool.View
   _move: (e) ->
     if not @mget('active')
       return
+
     canvas = @plot_view.canvas
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    if not @plot_view.frame.contains(vx, vy)
-      for rid, tt of @mget('ttmodels')
-        tt.clear()
-      return
-    @_inspect(vx, vy)
 
-  _move_exit: ()->
+    hits_legend = () =>
+      Legend = require("../../annotations/legend")
+      for view in @plot_view.renderer_views()
+        if view instanceof Legend.View and view.bbox().contains(vx, vy)
+          return true
+      return false
+
+    if @plot_view.frame.contains(vx, vy) and not hits_legend()
+      @_inspect(vx, vy)
+    else
+      @_move_exit()
+
+  _move_exit: () ->
     for rid, tt of @mget('ttmodels')
       tt.clear()
 
