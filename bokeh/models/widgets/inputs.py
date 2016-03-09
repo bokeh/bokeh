@@ -9,6 +9,7 @@ from ...core.properties import abstract
 from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
+from ...core.enums import SliderCallbackPolicy
 
 @abstract
 class InputWidget(Widget):
@@ -150,6 +151,20 @@ class Slider(InputWidget):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the current Slider value changes.
+    """)
+
+    callback_throttle = Float(default=200, help="""
+    Number of microseconds to pause between callback calls as the slider is moved.
+    """)
+
+    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
+    An enumeration which controls the method by which the callback is initated.  This parameter can take on only one of three options.
+
+       "continuous": Implies that the callback will be initiated immediatly for each movement of the slider
+       "throttle": Implies that the callback will be executed while the slider is being moved but not more often than what is specified in the `callback_throttle` time in miliseconds.
+       "mouseup": Implies that the callback will be executed only once when the slider is released.
+
+       The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
     """)
 
 class DateRangeSlider(InputWidget):
