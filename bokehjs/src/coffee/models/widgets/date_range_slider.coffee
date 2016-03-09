@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-$1 = require "jqrangeslider/jQDateRangeSlider"
 
 InputWidget = require "./input_widget"
 BokehView = require "../../core/bokeh_view"

@@ -71,8 +71,6 @@
     "slick_grid/slick.grid": "./src/vendor/slick-grid-2.1.0/slick.grid.js",
     "slick_grid/plugins/slick.rowselectionmodel": "./src/vendor/slick-grid-2.1.0/plugins/slick.rowselectionmodel.js",
     "slick_grid/plugins/slick.checkboxselectcolumn": "./src/vendor/slick-grid-2.1.0/plugins/slick.checkboxselectcolumn.js",
-    "jqrangeslider/jQRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQRangeSlider.js",
-    "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
@@ -92,6 +90,7 @@
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",
-    "coffee-script": "^1.9.3"
+    "coffee-script": "^1.9.3",
+    "ion-rangeslider": "^2.1.2"
   }
 }
