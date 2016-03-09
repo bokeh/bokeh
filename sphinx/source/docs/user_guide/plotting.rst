@@ -49,12 +49,9 @@ example plots for all of them by clicking on entries in the list below:
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-screen units), and ``angle`` (radians by default). Additionally, |circle| has a 
-``radius`` property that can be used to specify data-space units. Screen units 
-use raw numbers of pixels to specify height or width, while data-space units are 
-relative to the data and the axes of the chart. For example, in a 400 pixel by 
-400 pixel graph with x and y axes ranging from 0 through 10, a glyph one fifth 
-as wide and tall as the graph would be 80 screen units or 2 data-space units.
+:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by 
+default). Additionally, |circle| has a ``radius`` property that can be used to 
+specify :ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
 
@@ -193,11 +190,10 @@ The |segment| function accepts start points ``x0``, ``y0`` and end points
     :source-position: above
 
 The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in screen units) and an ``angle``. Screen units use raw numbers of pixels, 
-while data-space units are relative to the data and the axes of the chart. The 
-default ``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To 
-have an "infinite" ray, that always extends to the edge of the plot, specify 
-``0`` for the length:
+(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default 
+``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an 
+"infinite" ray, that always extends to the edge of the plot, specify ``0`` for 
+the length:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ray.py
     :source-position: above
