@@ -431,7 +431,7 @@ class Serve(Subcommand):
     )
 
     def invoke(self, args):
-        argvs = { f : args.argv for f in args.files}
+        argvs = { f : args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 
         log_level = getattr(logging, args.log_level.upper())
