@@ -605,6 +605,7 @@ def vform(*children, **kwargs):
     ''' Generate a layout that arranges several subplots vertically.
 
     '''
+    _remove_roots(children)
     layout = VBoxForm(children=list(children), **kwargs)
     curdoc().add_root(layout)
     _push_or_save(layout)
