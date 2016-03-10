@@ -14,6 +14,8 @@ import itertools
 
 from bokeh.sampledata.us_states import data as states
 
+COLORS = list(reversed(Reds5))
+
 def load_data():
 
     # load states
@@ -39,48 +41,38 @@ def load_data():
 
     return state_xs, state_ys, airline_delays_df, adf
 
-def on_year_change(attr, old, new):
-    global year
-    year = new
-    update_map()
-
-def on_month_change(attr, old, new):
-    global month
-    month = new
-    update_map()
-
-def on_carrier_change(attr, old, new):
-    global carrier
-    carrier = new
+def on_change(attr, old, new):
     update_map()
 
 def update_map():
-    global p
-    p.title = 'US Airport Delays ({}/{})'.format(month, year)
+    p.title = 'US Airport Delays ({}/{})'.format(month.value, year.value)
 
-    date_value = datetime.date(year=year, month=month, day=1)
+    date_value = datetime.date(year=year.value, month=month.value, day=1)
     df1 = airline_delays_df[airline_delays_df.period == date_value]
 
-    if carrier != 'All':
-        df1 = df1[df1.carrier_name == carrier]
+    if carrier.value != 'All':
+        df1 = df1[df1.carrier_name == carrier.value]
 
     df1 = df1.groupby('airport', as_index=False).sum()
     df1.set_index('airport', inplace=True)
 
     if df1.empty:
         data = {}
+        data['color'] = []
         data['x'] = []
         data['y'] = []
+        data['size'] = []
+        data['name'] = []
+        data['late_pct'] = []
         source.data = data
         return
 
     df1['late_pct'] = df1['arr_del15'] / df1['arr_flights'] * 100
     df1 = df1[np.isfinite(df1.late_pct)]
 
-    colors = list(reversed(Reds5))
     percents_late = df1['late_pct'].tolist()
-    groups = pd.qcut(percents_late, min(len(colors), len(set(percents_late))))
-    df1['color'] = [colors[l] for l in groups.codes]
+    groups = pd.qcut(percents_late, min(len(COLORS), len(set(percents_late))))
+    df1['color'] = [COLORS[l] for l in groups.codes]
 
     size_groups = pd.qcut(df1['arr_flights'].tolist(), len(sizes))
     df1['size'] = [sizes[l] for l in size_groups.codes]
@@ -96,10 +88,6 @@ def update_map():
     source.data = data
 
 state_xs, state_ys, airline_delays_df, airports_df = load_data()
-year = 2004
-month = 1
-day = 1
-carrier = 'All'
 sizes = [3, 6, 9, 12, 15]
 
 TIPS = [
@@ -111,25 +99,25 @@ source = ColumnDataSource(data=dict(x=[], y=[], color=[], size=[], name=[]))
 
 # create figure
 p = Figure(title="US Airports Delays", plot_width=990, plot_height=570, toolbar_location=None)
-p.patches(state_xs, state_ys, fill_alpha=0.0, line_color="#884444", line_width=2, line_alpha=0.3)
-circle_renderer = p.circle('x', 'y', color='color', size='size', source=source, alpha=.7, line_color='black')
-p.add_tools(HoverTool(renderers=[circle_renderer], tooltips=TIPS))
 p.grid.grid_line_alpha = 0
 
-update_map()
+p.patches(state_xs, state_ys, fill_alpha=0.0, line_color="#884444", line_width=2, line_alpha=0.3)
+cr = p.circle('x', 'y', color='color', size='size', source=source, alpha=.7, line_color='black')
+
+p.add_tools(HoverTool(tooltips=TIPS, renderers=[cr]))
 
 # create controls
-year_slider = Slider(title="Year", value=year, start=2004, end=2014, step=1)
-year_slider.on_change('value', on_year_change)
+year = Slider(title="Year", value=2004, start=2004, end=2014, step=1)
+year.on_change('value', on_change)
 
-month_slider = Slider(title="Month", value=month, start=1, end=12, step=1)
-month_slider.on_change('value', on_month_change)
+month = Slider(title="Month", value=1, start=1, end=12, step=1)
+month.on_change('value', on_change)
 
 carriers = ['All'] + sorted(airline_delays_df['carrier_name'].unique().tolist())
-airline_selector = Select.create(name='Carrier', value=carrier, options=carriers)
-airline_selector.on_change('value', on_carrier_change)
+carrier = Select.create(name='Carrier', value='All', options=carriers)
+carrier.on_change('value', on_change)
 
-controls_box = HBox(width=990, children=[year_slider, month_slider, airline_selector])
+controls_box = HBox(width=990, children=[year, month, carrier])
 
 intro_text = 'The map above shows U.S. airports symbolized by flight delay information for the time period selected above.'
 color_text = 'The color of the airport represents its percentage of delayed flights with lighter red for lower percentage of delays and darker red for greater.'
@@ -140,5 +128,7 @@ text_box = HBox(width=990, children=[Paragraph(text=intro_text), Paragraph(text=
 
 # create plot
 plot_box = VBox(width=990, height=700, children=[controls_box, p, text_box])
+
+update_map()
 
 curdoc().add_root(plot_box)
