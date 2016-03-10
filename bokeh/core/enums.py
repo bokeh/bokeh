@@ -169,3 +169,6 @@ StartEnd = enumeration("start", "end")
 
 #: Specify a mode for stepwise interpolation
 StepMode = enumeration("before", "after", "center")
+
+#: Specify different callback policies for the slider widget
+SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")

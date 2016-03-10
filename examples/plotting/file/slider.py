@@ -29,7 +29,7 @@ callback = CustomJS(args=dict(source=source), code="""
 """)
 
 amp_slider = Slider(start=0.1, end=10, value=1, step=.1,
-                    title="Amplitude", callback=callback)
+                    title="Amplitude", callback=callback, callback_policy='mouseup')
 callback.args["amp"] = amp_slider
 
 freq_slider = Slider(start=0.1, end=10, value=1, step=.1,
