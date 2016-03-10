@@ -16,7 +16,7 @@
 .tableheader {
   background-color: #C0C0C0;
 }
-#notebook .bk-plot-wrapper table {
+.bk-plot-wrapper table {
   border: none !important;
   tr {
     border: none !important;
@@ -24,16 +24,16 @@
       border: none !important;
       padding: 0 !important;
       margin: 0 !important;
-      &.bk-plot-above {
+      &.bk-toolbar-above {
         border-bottom: 2px solid #efefef !important;
       }
-      &.bk-plot-below {
+      &.bk-toolbar-below {
         border-top: 2px solid #efefef !important;
       }
-      &.bk-plot-left, {
+      &.bk-toolbar-left, {
         border-right: 2px solid #efefef !important;
       }
-      &.bk-plot-right {
+      &.bk-toolbar-right {
         border-left: 2px solid #efefef !important;
       }
     }
@@ -377,13 +377,13 @@
 }
 
 /* css specific to toolbar orientation (left, right)*/
-.bk-plot-left.bk-toolbar-active{
+.bk-toolbar-left.bk-toolbar-active{
   border-right: 2px solid #e5e5e5;
 }
-.bk-plot-right.bk-toolbar-active {
+.bk-toolbar-right.bk-toolbar-active {
   border-left: 2px solid #e5e5e5;
 }
-.bk-plot-left.bk-toolbar-active, .bk-plot-right.bk-toolbar-active {
+.bk-toolbar-left.bk-toolbar-active, .bk-toolbar-right.bk-toolbar-active {
   display: block;
   margin: 45px 0 0 0;
   .bk-logo  {
