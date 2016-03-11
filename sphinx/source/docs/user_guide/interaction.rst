@@ -48,16 +48,58 @@ Now you have learned how to link brushing between plots.
 Adding Widgets
 --------------
 
+Widgets are interactive controls that can be added to Bokeh applications to 
+provide a front end user interface to a visualization. They can drive new computations, 
+update plots, and connect to other programmatic functionality. When used with the 
+Bokeh server, widgets can run arbitrary Python code, enabling complex applications.
+Widgets can also be used without the Bokeh server in standalone HTML documents through the 
+browser's Javascript runtime.
+
+To use widgets, you must add them to your document and define their functionality. 
+Widgets can be added directly to the document root or nested inside a layout. There
+are two ways to program a widget's functionality:
+
+    * Use the ``CustomJS`` callback (see :ref:`userguide_interaction_actions_widget_callbacks`). This will work in standalone HTML documents.
+    * Use ``bokeh serve`` to start the Bokeh server and set up event handlers with ``.on_change`` (or for some widgets, ``.on_click``).
+
+Event handlers are user-defined Python functions that can be attached to widgets. These functions are 
+then called when certain attributes on the widget are changed. The necessary function 
+signature of event handlers is determined by how they are attached to widgets (whether they 
+are passed through ``.on_change`` or ``.on_click``). 
+ 
+All widgets have an ``.on_change`` method that takes an attribute name and one or more event handlers as 
+parameters. These handlers are expected to have the function signature, ``(attr, old, new)``, 
+where ``attr`` refers to the changed attribute's name, and ``old`` and ``new`` refer to the previous and 
+updated values of the attribute. ``.on_change`` must be used when you need the previous value of an attribute.
+
+.. code-block:: python
+
+    def my_text_input_handler(attr, old, new):
+        print("Previous label: " + old)
+        print("Updated label: " + new)
+
+    text_input = TextInput(value="default", title="Label:")
+    text_input.on_change("value", my_text_input_handler)
+
+Additionally, some widgets, including the button, dropdown, and checkbox, have an ``.on_click`` method that 
+takes an event handler as its only parameter. For the Button, this handler is called without parameters. 
+For the other widgets with ``.on_click``, the handler is passed the new attribute value.
+
+.. code-block:: python
+
+    def my_radio_handler(new):
+        print 'Radio button option ' + str(new) + ' selected.'
+
+    radio_group = RadioGroup(
+        labels=["Option 1", "Option 2", "Option 3"], active=0)
+    radio_group.on_click(my_radio_handler)
+
 Bokeh provides a simple default set of widgets, largely based off the Bootstrap
 JavaScript library. In the future, it will be possible for users to wrap and use
-other widget libraries, or their own custom widgets. By themselves, most widgets
-are not useful. There are two ways to use widgets to drive interactions:
+other widget libraries, or their own custom widgets. 
 
-* Use the ``CustomJS`` callback (see below). This will work in static HTML documents.
-* Use the ``bokeh-server`` and set up event handlers with ``.on_change``.
-
-The current value of interactive widgets is available from the ``.value``
-attribute.
+For more information about the attributes to watch using ``.on_change`` or whether ``.on_click`` is 
+available, go to the :ref:`refguide`. Widgets can be found under :ref:`bokeh.models`.
 
 Button
 ~~~~~~
