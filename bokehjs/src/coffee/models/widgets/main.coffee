@@ -11,6 +11,7 @@ module.exports = {
   TableColumn:              require './table_column'
   DataTable:                require './data_table'
   Paragraph:                require './paragraph'
+  Div:                      require './div'
   TextInput:                require './text_input'
   AutocompleteInput:        require './autocomplete_input'
   PreText:                  require './pretext'
