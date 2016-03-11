@@ -253,6 +253,7 @@ class GridPlotView extends BokehView
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
       @tm_view.render()
 
