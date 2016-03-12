@@ -22,10 +22,20 @@ class CodeHandler(Handler):
     _io_functions = ['output_server', 'output_notebook', 'output_file',
                      'show', 'save', 'push', 'reset_output']
 
-    def __init__(self, source, filename, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(CodeHandler, self).__init__(*args, **kwargs)
 
-        self._runner = _CodeRunner(source, filename)
+        if 'source' not in kwargs:
+            raise ValueError('Must pass source to CodeHandler')
+        source = kwargs['source']
+
+        if 'filename' not in kwargs:
+            raise ValueError('Must pass a filename to CodeHandler')
+        filename = kwargs['filename']
+
+        argv = kwargs.get('argv', [])
+
+        self._runner = _CodeRunner(source, filename, argv)
 
         self._loggers = {}
         for f in CodeHandler._io_functions:
