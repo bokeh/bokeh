@@ -82,6 +82,7 @@ DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
   line_alpha: 1.0
   line_width: 2
   line_dash: [4, 4]
+  silent_update: true
 })
 
 class BoxZoomTool extends GestureTool.Model
@@ -94,7 +95,6 @@ class BoxZoomTool extends GestureTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
     @register_property('tooltip', () ->
         @_get_dim_tooltip(
           @get("tool_name"),

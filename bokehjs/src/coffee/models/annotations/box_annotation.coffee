@@ -1,5 +1,4 @@
 _ = require "underscore"
-$ = require "jquery"
 
 Annotation = require "./annotation"
 ColumnDataSource = require "../sources/column_data_source"
@@ -55,7 +54,7 @@ class BoxAnnotationView extends Renderer.View
     # is called by super(set_data)
     if @box_div?.length != @top.length
       @$el.remove().unbind()
-      @box_div = ($("<div>").addClass('shading') for i in @top)
+      @box_div = (@$el.clone().addClass('shading') for i in @top)
 
   _reset_coords: () ->
     @left = [@mget('left')]
