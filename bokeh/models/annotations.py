@@ -246,7 +246,7 @@ class Span(Annotation):
 
     """
 
-    location = Float(help="""
+    location = NumberSpec(help="""
     The location of the span, along ``dimension``.
     """)
 
@@ -257,6 +257,10 @@ class Span(Annotation):
 
     dimension = Enum(Dimension, default='width', help="""
     The direction of the span.
+    """)
+
+    source = Instance(DataSource, default=None, help="""
+    Local data source to use when rendering annotations on the plot.
     """)
 
     x_range_name = String('default', help="""
