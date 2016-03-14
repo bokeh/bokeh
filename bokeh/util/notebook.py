@@ -10,7 +10,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
 
     Args:
         resources (Resource, optional) :
-            how and where to load BokehJS from (default: None, impliying CDN)
+            how and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :
             whether to report detailed settings (default: False)
