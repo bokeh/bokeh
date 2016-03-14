@@ -10,7 +10,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
 
     Args:
         resources (Resource, optional) :
-            how and where to load BokehJS from
+            how and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :
             whether to report detailed settings (default: False)
@@ -110,4 +110,3 @@ def get_comms(target_name):
     '''
     from ipykernel.comm import Comm
     return Comm(target_name=target_name, data={})
-
