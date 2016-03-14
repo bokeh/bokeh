@@ -57,7 +57,7 @@ interactive plots, dashboards, and data applications.
 
 Please visit the [Bokeh web page](http://bokeh.pydata.org/en/latest) for more information and full documentation.
 
-To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/en/latest/docs/quickstart.html) in the online documentation, or the QUICKSTART.md located in the top level of the bokeh repository.
+To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html) in the online documentation.
 
 Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots), as well as on
 [Vine](https://vine.co/bokehplots), and [Youtube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw)!

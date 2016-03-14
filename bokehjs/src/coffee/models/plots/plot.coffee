@@ -156,6 +156,7 @@ class PlotView extends Renderer.View
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
 
     @update_dataranges()
