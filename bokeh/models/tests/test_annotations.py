@@ -101,6 +101,7 @@ def test_BoxAnnotation():
     assert box.bottom_units == 'data'
     assert box.top == None
     assert box.top_units == 'data'
+    assert box.source == None
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
     assert box.level == 'annotation'
@@ -129,6 +130,7 @@ def test_Span():
     assert line.location is None
     assert line.location_units == 'data'
     assert line.dimension == 'width'
+    assert line.source == None
     assert line.x_range_name == 'default'
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
@@ -139,6 +141,7 @@ def test_Span():
         "location",
         "location_units",
         "dimension",
+        "source",
         "x_range_name",
         "y_range_name",
         "level",
