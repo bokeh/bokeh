@@ -117,6 +117,7 @@ def test_BoxAnnotation():
         "bottom_units",
         "top",
         "top_units",
+        "source",
         "x_range_name",
         "y_range_name",
         "level",
