@@ -2,29 +2,72 @@ _ = require "underscore"
 $ = require "jquery"
 
 Annotation = require "./annotation"
+ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
 class BoxAnnotationView extends Renderer.View
   initialize: (options) ->
     super(options)
-    # if @mget('source')?
-    @set_data(@mget('source'))
-    @indices = [0...Math.max(@mget('top')?.length, @mget('bottom')?.length, @mget('left')?.length, @mget('right')?.length)]
-    @box_div = (null for i in @indices)
+    if not @mget('source')?
+      this.mset('source', new ColumnDataSource.Model())
     @frame = @plot_model.get('frame')
     @canvas = @plot_model.get('canvas')
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
     @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @set_data()
 
   bind_bokeh_events: () ->
+
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'data_update', @render)
+      @listenTo(@model, 'change', () ->
+        @set_data()
+        @render())
+
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @render())
+
+      @listenTo(@model, 'coords_update', () ->
+      # non-BB event triggered update
+        @_reset_coords()
+        @render())
+
     else
-      @listenTo(@model, 'data_update', @plot_view.request_render)
+      @listenTo(@model, 'change', () ->
+        @set_data()
+        @plot_view.request_render())
+
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @plot_view.request_render())
+
+      @listenTo(@model, 'coords_update', () ->
+        @_reset_coords()
+        @plot_view.request_render())
+
+  set_data: () ->
+    super(@mget('source'))
+    @set_visuals(@mget('source'))
+
+  _set_data: () ->
+    # is called by super(set_data)
+    if @box_div?.length != @top.length
+      @$el.remove().unbind()
+      @box_div = ($("<div>").addClass('shading') for i in @top)
+
+  _reset_coords: () ->
+    @left = [@mget('left')]
+    @right = [@mget('right')]
+    @bottom = [@mget('bottom')]
+    @top = [@mget('top')]
 
   render: () ->
+    if not @mget('left')? and not @mget('right')? and not @mget('top')? and not @mget('bottom')?
+      @box_div[0].hide()
+      return null
+
     sleft = @canvas.v_vx_to_sx(@_calc_dim('left', @xmapper, @frame.get('h_range').get('start')))
     sright = @canvas.v_vx_to_sx(@_calc_dim('right', @xmapper, @frame.get('h_range').get('end')))
     sbottom = @canvas.v_vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.get('v_range').get('start')))
@@ -37,16 +80,10 @@ class BoxAnnotationView extends Renderer.View
       @_canvas_box(sleft, sright, sbottom, stop)
 
   _css_box: (sleft, sright, sbottom, stop) ->
-    for i in @indices
+    for i in [0...@box_div.length]
 
-      if @box_div[i] == null
-        @box_div[i] = $("<div>").addClass('shading')
-        @box_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-        @$el.hide()
-
-      # don't render if *all* position are null
-      if not @mget('left')? and not @mget('right')? and not @mget('top')? and not @mget('bottom')?
-        continue
+      if not @box_div[i].style?
+        @box_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-overlays')).hide()
 
       # try our best to honor line dashing in some way, if we can
       if _.isArray(@mget("line_dash"))
@@ -75,14 +112,16 @@ class BoxAnnotationView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    ctx.beginPath()
-    ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
+    if @visuals.fill.doit
+      for i in [0...@box_div.length]
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
 
-    @visuals.fill.set_value(ctx)
-    ctx.fill()
-
-    @visuals.line.set_value(ctx)
-    ctx.stroke()
+    if @visuals.line.doit
+      ctx.beginPath()
+      for i in [0...@box_div.length]
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
     ctx.restore()
 
@@ -104,7 +143,6 @@ class BoxAnnotation extends Annotation.Model
   type: 'BoxAnnotation'
 
   mixins: ['line', 'fill']
-  coords: ['top', 'bottom', 'left', 'right']
 
   props: ->
     return _.extend {}, super(), {
@@ -119,7 +157,7 @@ class BoxAnnotation extends Annotation.Model
       left_units:   [ p.SpatialUnits, 'data'    ]
       right:        [ p.NumberSpec,   null      ]
       right_units:  [ p.SpatialUnits, 'data'    ]
-      source:       [ p.Instance,               ]
+      source:       [ p.Instance                ]
     }
 
   defaults: ->
@@ -138,14 +176,9 @@ class BoxAnnotation extends Annotation.Model
     super().concat(['silent_update'])
 
   update:({left, right, top, bottom}) ->
+    @set({left: left, right: right, top: top, bottom: bottom}, {silent: @get('silent_update')})
     if @get('silent_update')
-      @attributes['left'] = left
-      @attributes['right'] = right
-      @attributes['top'] = top
-      @attributes['bottom'] = bottom
-    else
-      @set({left: left, right: right, top: top, bottom: bottom})
-    @trigger('data_update')
+      @trigger('coords_update')
 
 module.exports =
   Model: BoxAnnotation
