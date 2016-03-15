@@ -1,6 +1,8 @@
-Description of defect, deficiency or desired feature.
-
-For defects or deficiencies:
+For defects or deficiencies, please provide:
+* Description of expected behavior and the observed behavior
 * self-contained example code that generates the issue (if possible)
 * stack traceback and/or browser console error output
 * python, bokeh and browser versions
+
+For desired features, please provide:
+* Description of the desired feature
