@@ -1,34 +1,43 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
 class PolyAnnotationView extends Renderer.View
+  initialize: (options) ->
+    super(options)
+    if not @mget('source')?
+      this.mset('source', new ColumnDataSource.Model())
+    @canvas = @plot_model.get('canvas')
+    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
+    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @set_data()
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'data_update', @plot_view.request_render)
 
-  render: (ctx) ->
-    xs = @mget('xs')
-    ys = @mget('ys')
+  set_data: () ->
+    super(@mget('source'))
+    @set_visuals(@mget('source'))
 
-    if xs.length != ys.length
-      return null
-
-    if xs.length < 3 or ys.length < 3
-      return null
-
-    canvas = @plot_view.canvas
+  render: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    for i in [0...xs.length]
-      if @mget('xs_units') == 'screen'
-        vx = xs[i]
-      if @mget('ys_units') == 'screen'
-        vy = ys[i]
-      sx = canvas.vx_to_sx(vx)
-      sy = canvas.vy_to_sy(vy)
+    for i in [0...@xs.length]
+
+      if @xs[i].length != @ys[i].length
+        return null
+
+      if @xs[i].length < 3 or @ys[i].length < 3
+        return null
+
+      sx = @canvas.v_vx_to_sx(@_calc_dim('xs', @xmapper))
+      sy = @canvas.v_vy_to_sy(@_calc_dim('ys', @ymapper))
+
+      debugger;
+
       if i == 0
         ctx.beginPath()
         ctx.moveTo(sx, sy)
@@ -45,6 +54,16 @@ class PolyAnnotationView extends Renderer.View
       @visuals.fill.set_value(ctx)
       ctx.fill()
 
+  _calc_dim: (dim, mapper) ->
+    vdim = []
+    for value in dim
+      if @mget(dim+'_units') == 'data'
+        vdim.push(mapper.map_to_target(value))
+      else
+        vdim.push(value)
+    return vdim
+
+
 class PolyAnnotation extends Annotation.Model
   default_view: PolyAnnotationView
 
@@ -54,12 +73,13 @@ class PolyAnnotation extends Annotation.Model
 
   props: ->
     return _.extend {}, super(), {
-      xs:           [ p.Array,        []        ]
+      xs:           [ p.NumberSpec,   []        ]
       xs_units:     [ p.SpatialUnits, 'data'    ]
-      ys:           [ p.Array,        []        ]
+      ys:           [ p.NumberSpec,   []        ]
       ys_units:     [ p.SpatialUnits, 'data'    ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]
+      source:       [ p.instance                ]
     }
 
   defaults: () ->
