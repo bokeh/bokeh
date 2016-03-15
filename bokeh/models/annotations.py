@@ -197,8 +197,8 @@ class PolyAnnotation(Annotation):
 
     """
 
-    xs = Seq(Float, default=[], help="""
-    The x-coordinates of the region to draw.
+    xs = NumberSpec(help="""
+    The x-coordinates for all the patches, given as a "list of lists".
     """)
 
     xs_units = Enum(SpatialUnits, default='data', help="""
@@ -206,13 +206,17 @@ class PolyAnnotation(Annotation):
     by default.
     """)
 
-    ys = Seq(Float, default=[], help="""
-    The y-coordinates of the region to draw.
+    ys = NumberSpec(help="""
+    The y-coordinates for all the poly annotations, given as a "list of lists".
     """)
 
     ys_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the ys attribute. Interpreted as "data space" units
     by default.
+    """)
+
+    source = Instance(DataSource, default=None, help="""
+    Local data source to use when rendering annotations on the plot.
     """)
 
     x_range_name = String('default', help="""
