@@ -77,6 +77,7 @@ DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
   line_alpha: 1.0
   line_width: 2
   line_dash: [4, 4]
+  silent_update: true
 })
 
 class LassoSelectTool extends SelectTool.Model
