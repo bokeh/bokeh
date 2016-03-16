@@ -67,8 +67,8 @@ script:
     # Eventually, we need to get rid of the generated stuff before packaging
     #
     # Run (JS and Python) unit tests on all python versions
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -s -m js; fi  # Run just the JS first so we see the output
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc; fi  # Run the not examples or js tests (we can eat stdout for this one)
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi

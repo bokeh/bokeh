@@ -26,13 +26,13 @@ and let everybody know that you intend to work on it.
    or data we have to have to reproduce the issue, the less likely we will be able to. 
 4. Include relevant system information. At minimum, you should provide output of:
 
-      `python -c "import bokeh; print(bokeh.print_versions())"`
+      `python -c "import bokeh; print(bokeh.__version__)"`
 
 5. Include relevant browser information (if the issue is browser-related). Just saying that you
    use Chrome is generally not sufficient. We may ask you for additional information to 
    reproduce and fix the issue.
-6. Include relevant JavaScript console and/or `bokeh-server` logs. 
-7. If the problem is user interface related, it is always good to include a screenshot. 
+6. Include relevant JavaScript console and/or `bokeh serve` logs. 
+7. If the problem is user interface related, it is *always* good to include a screenshot. 
 8. State the expected behavior.
 
 ## Creating a pull request (PR)

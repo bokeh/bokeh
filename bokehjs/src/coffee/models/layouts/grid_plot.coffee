@@ -182,7 +182,6 @@ class GridViewState extends HasProps
     }
 
 class GridPlotView extends BokehView
-  className: ""
   template: plot_template
 
   initialize: (options) ->
@@ -201,6 +200,7 @@ class GridPlotView extends BokehView
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
     @render()
     return this
@@ -253,6 +253,7 @@ class GridPlotView extends BokehView
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
       @tm_view.render()
 

@@ -68,8 +68,6 @@ get_size_for_available_space = (use_width, use_height, client_width, client_heig
 
 # TODO (bev) PlotView should not be a RendererView
 class PlotView extends Renderer.View
-
-  className: "bk-plot"
   template: plot_template
 
   state: { history: [], index: -1 }
@@ -158,6 +156,7 @@ class PlotView extends Renderer.View
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
 
     @update_dataranges()

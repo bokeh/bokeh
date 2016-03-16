@@ -600,10 +600,7 @@ class Interval(AggregateGlyph):
 
     def get_end(self):
         """Get the value for the end of the glyph."""
-        if len(self.values.index) == 1 and not self.values.dtype.name == 'object':
-            self.end_agg = None
-            return self.values[0]
-        elif isinstance(self.end_agg, str):
+        if isinstance(self.end_agg, str):
             self.end_agg = stats[self.end_agg]()
 
         self.end_agg.set_data(self.values)

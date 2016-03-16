@@ -78,7 +78,7 @@ vendor libraries that BokehJS includes are:
 * jquery-ui-1.11.2
 * jsnlog.js-2.7.5
 * kiwi
-* numeral.js-1.5.3
+* numbro.js-1.6.2
 * qunit
 * rbush
 * requirejs

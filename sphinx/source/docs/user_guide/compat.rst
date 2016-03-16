@@ -25,7 +25,7 @@ allowing quick prototyping of figures for data analysis.  For
 instance, to build an interactive figure with three linked Bokeh plots
 requires only one line of code in HoloViews:
 
-.. image:: ../_images/hv_sample.png
+.. image:: /_images/hv_sample.png
  :width: 976 px
  :height: 510 px
  :scale: 80 %

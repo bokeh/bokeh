@@ -14,10 +14,12 @@ class DirectoryHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(DirectoryHandler, self).__init__(*args, **kwargs)
+
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to DirectoryHandler')
-
         src_path = kwargs['filename']
+        argv = kwargs.get('argv', [])
+
         main_py = join(src_path, 'main.py')
         main_ipy = join(src_path, 'main.ipynb')
         if exists(main_py) and exists(main_ipy):
@@ -31,12 +33,12 @@ class DirectoryHandler(Handler):
             raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
         self._path = src_path
         self._main = main
-        self._main_handler = ScriptHandler(filename=self._main)
+        self._main_handler = ScriptHandler(filename=self._main, argv=argv)
 
         lifecycle = join(src_path, 'server_lifecycle.py')
         if exists(lifecycle):
             self._lifecycle = lifecycle
-            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle)
+            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv)
         else:
             self._lifecycle = None
             self._lifecycle_handler = Handler() # no-op handler

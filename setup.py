@@ -472,6 +472,9 @@ path = abspath(dirname(__file__))
 
 print()
 if 'develop' in sys.argv:
+    if exists('bokeh/__conda_version__.py'):
+        print(bright(red("ERROR:")) + " Detected a __conda_version__.py file, exiting")
+        sys.exit(1)
     check_remove_bokeh_install(site_packages)
     with open(path_file, "w+") as f:
         f.write(path)
