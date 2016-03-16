@@ -1,4 +1,4 @@
-All pull requests must have an associated issue in issue tracker. If there
+All pull requests must have an associated issue in the issue tracker. If there
 isn't one, please go open an issue describing the defect, deficiency or desired
 feature.
 
