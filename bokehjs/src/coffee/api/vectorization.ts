@@ -1,8 +1,10 @@
 import {SpatialUnits,AngleUnits} from "./enums";
 
+export type Field = string;
+
 export interface Vectorized<T> {
     value?: T;
-    field?: string;
+    field?: Field;
 }
 
 export interface Spatial extends Vectorized<number> {
