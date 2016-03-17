@@ -320,7 +320,7 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     chart = create_and_build(BarBuilder, data, **kw)
 
     # hide x labels if there is a single value, implying stacking only
-    if len(chart.x_range.factors) == 1:
+    if len(chart.x_range.factors) == 1 and not label:
         chart.below[0].visible = False
 
     return chart
