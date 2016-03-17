@@ -5,8 +5,8 @@ import {DataSource} from "./sources";
 import {Glyph} from "./glyphs";
 import {Renderer,GlyphRenderer} from "./renderers";
 import {Tool,ToolEvents} from "./tools";
-import {Location,Logo,Place} from "./enums";
-import {Int,Color} from "./types";
+import {Location,Logo,Place} from "../enums";
+import {Int,Color} from "../types";
 
 export interface Plot extends Component {
     title: string;

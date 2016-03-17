@@ -1,5 +1,5 @@
 import {Model} from "./model";
-import {Int} from "./types";
+import {Int} from "../types";
 
 export interface TileSource extends Model {
     url: string;

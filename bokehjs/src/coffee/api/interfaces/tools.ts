@@ -3,8 +3,8 @@ import {BackRef} from "./plots";
 import {Renderer} from "./renderers";
 import {Callback} from "./callbacks";
 import {Tooltip} from "./annotations";
-import {Dimension,HoverMode,PointPolicy,LinePolicy} from "./enums";
-import {Color} from "./types";
+import {Dimension,HoverMode,PointPolicy,LinePolicy} from "../enums";
+import {Color} from "../types";
 
 export interface ToolEvents extends Model {
     geometries: Array<any>;

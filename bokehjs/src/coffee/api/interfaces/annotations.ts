@@ -1,9 +1,9 @@
-import {Auto,RenderLevel,RenderMode,LegendLocation,Orientation,SpatialUnits,Side,Dimension} from "./enums";
+import {Auto,RenderLevel,RenderMode,LegendLocation,Orientation,SpatialUnits,Side,Dimension} from "../enums";
 import {Renderer,GlyphRenderer} from "./renderers";
 import {BackRef} from "./plots";
-import {Numerical} from "./vectorization";
+import {Numerical} from "../vectorization";
 import {FillProps,LineProps} from "./mixins";
-import {Int} from "./types";
+import {Int} from "../types";
 
 export interface Annotation extends Renderer, BackRef {
     level: RenderLevel;

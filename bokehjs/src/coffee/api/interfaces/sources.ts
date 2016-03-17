@@ -1,8 +1,8 @@
 import {Model} from "./model";
 import {Selected} from "./selected";
 import {Callback} from "./callbacks";
-import {HTTPMethod} from "./enums";
-import {Int} from "./types";
+import {HTTPMethod} from "../enums";
+import {Int} from "../types";
 
 export interface DataSource extends Model {
     column_names: Array<string>;

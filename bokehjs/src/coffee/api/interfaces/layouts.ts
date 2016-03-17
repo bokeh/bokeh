@@ -1,5 +1,5 @@
 import {Component} from "./component";
-import {Int} from "./types";
+import {Int} from "../types";
 
 export interface Layout extends Component {
     width: Int;

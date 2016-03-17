@@ -1,5 +1,5 @@
 import {Model} from "./model";
-import {Int} from "./types";
+import {Int} from "../types";
 
 export interface Ticker extends Model {
     num_minor_ticks: Int;

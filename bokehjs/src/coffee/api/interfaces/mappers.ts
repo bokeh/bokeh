@@ -1,6 +1,6 @@
 import {Model} from "./model";
-import {Palette} from "./palettes";
-import {Color} from "./types";
+import {Palette} from "../palettes";
+import {Color} from "../types";
 
 export interface ColorMapper extends Model {}
 

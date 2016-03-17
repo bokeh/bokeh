@@ -1,6 +1,6 @@
 import {GuideRenderer} from "./renderers";
 import {Ticker} from "./tickers";
-import {Int} from "./types";
+import {Int} from "../types";
 
 export interface Grid extends GuideRenderer {
     dimension: Int;

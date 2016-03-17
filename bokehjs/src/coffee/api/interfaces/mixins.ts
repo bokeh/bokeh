@@ -1,6 +1,6 @@
-import {Vectorized} from "./vectorization";
-import {LineJoin,LineCap,DashPattern,FontStyle,TextAlign,TextBaseline} from "./enums";
-import {Int,Color,Percent,FontSize} from "./types";
+import {Vectorized} from "../vectorization";
+import {LineJoin,LineCap,DashPattern,FontStyle,TextAlign,TextBaseline} from "../enums";
+import {Int,Color,Percent,FontSize} from "../types";
 
 export interface FillProps {
     fill_color: Vectorized<Color>;

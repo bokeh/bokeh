@@ -1,6 +1,6 @@
 import {Plot} from "./plots";
-import {MapType} from "./enums";
-import {Int} from "./types";
+import {MapType} from "../enums";
+import {Int} from "../types";
 
 export interface MapOptions {
     lat: number;

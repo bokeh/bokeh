@@ -1,8 +1,8 @@
 import {Model} from "./model";
 import {Renderer} from "./renderers";
 import {Callback} from "./callbacks";
-import {Auto,StartEnd} from "./enums";
-import {Int} from "./types";
+import {Auto,StartEnd} from "../enums";
+import {Int} from "../types";
 
 export interface Range extends Model {
     callback: Callback;

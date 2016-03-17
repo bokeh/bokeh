@@ -1,5 +1,5 @@
 import {Model} from './model';
-import {ScriptingLanguage} from './enums';
+import {ScriptingLanguage} from '../enums';
 
 export interface Callback extends Model {}
 

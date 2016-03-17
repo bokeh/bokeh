@@ -1,9 +1,9 @@
 import {Model} from "./model";
 import {FillProps,LineProps,TextProps} from "./mixins";
-import {Vectorized,Spatial,Angular,Numerical,Categorical,MultiNumerical,MultiCategorical} from "./vectorization";
+import {Vectorized,Spatial,Angular,Numerical,Categorical,MultiNumerical,MultiCategorical} from "../vectorization";
 import {ColorMapper} from "./mappers";
-import {Direction,Anchor} from "./enums";
-import {Int,Percent} from "./types";
+import {Direction,Anchor} from "../enums";
+import {Int,Percent} from "../types";
 
 export interface Glyph extends Model {
     visible: boolean;

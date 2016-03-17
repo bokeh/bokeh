@@ -3,8 +3,8 @@ import {Glyph} from "./glyphs";
 import {DataSource} from "./sources";
 import {TileSource} from "./tiles";
 import {ImageSource} from "./images";
-import {Auto,RenderLevel} from "./enums";
-import {Percent} from "./types";
+import {Auto,RenderLevel} from "../enums";
+import {Percent} from "../types";
 
 export interface Renderer extends Model {}
 

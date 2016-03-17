@@ -1,6 +1,6 @@
 import {Model} from "./model";
-import {Auto,NumeralLanguage,RoundingFunction} from "./enums";
-import {Int} from "./types";
+import {Auto,NumeralLanguage,RoundingFunction} from "../enums";
+import {Int} from "../types";
 
 export interface TickFormatter extends Model {}
 

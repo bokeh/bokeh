@@ -1,8 +1,8 @@
 import {GuideRenderer} from "./renderers";
 import {Ticker} from "./tickers";
 import {TickFormatter} from "./formatters";
-import {Location,Orientation} from './enums';
-import {Int} from "./types";
+import {Location,Orientation} from '../enums';
+import {Int} from "../types";
 
 export interface Axis extends GuideRenderer {
     visible: boolean;

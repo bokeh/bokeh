@@ -1,5 +1,5 @@
 import {Glyph} from "./glyphs";
-import {Int} from "./types";
+import {Int} from "../types";
 
 export type Selected0d = {indices: Array<Int>, glyph?: Glyph};
 export type Selected1d = {indices: Array<Int>};

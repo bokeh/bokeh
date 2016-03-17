@@ -1,7 +1,7 @@
 import {Glyph} from "./glyphs";
 import {FillProps,LineProps} from "./mixins";
-import {Spatial,Angular,Numerical,Categorical} from "./vectorization";
-import {Dimension} from "./enums";
+import {Spatial,Angular,Numerical,Categorical} from "../vectorization";
+import {Dimension} from "../enums";
 
 export interface Marker extends Glyph, FillProps, LineProps {
     x: Numerical | Categorical;
