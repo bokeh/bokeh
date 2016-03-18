@@ -49,8 +49,8 @@ example plots for all of them by clicking on entries in the list below:
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by 
-default). Additionally, |circle| has a ``radius`` property that can be used to 
+:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by
+default). Additionally, |circle| has a ``radius`` property that can be used to
 specify :ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
@@ -190,9 +190,9 @@ The |segment| function accepts start points ``x0``, ``y0`` and end points
     :source-position: above
 
 The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default 
-``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an 
-"infinite" ray, that always extends to the edge of the plot, specify ``0`` for 
+(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default
+``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an
+"infinite" ray, that always extends to the edge of the plot, specify ``0`` for
 the length:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ray.py
@@ -390,6 +390,17 @@ emphasize desired plot regions. By default, box annotation dimensions (e.g.
 left or top) default will extend the annotation to the edge of the plot area.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
+    :source-position: above
+
+.. _userguide_plotting_poly_annotations:
+
+Poly Annotations
+~~~~~~~~~~~~~~~
+
+Poly annotations also can be linked to either data or screen coordinates in order to
+emphasize desired plot regions.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_poly_annotation.py
     :source-position: above
 
 .. _userguide_plotting_spans:
