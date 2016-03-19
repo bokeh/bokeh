@@ -228,6 +228,10 @@ class Chart(Plot):
             legend = Legend(location=location, legends=legends)
             self.add_layout(legend)
 
+    def add_annotations(self, annotations):
+        for annotation in annotations:
+            self.add_layout(annotation)
+
     def make_axis(self, dim, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
         scale and with the proper labels.

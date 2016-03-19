@@ -295,6 +295,7 @@ class Builder(HasProps):
 
         self._data = data
         self._legends = []
+        self._annotations = []
 
     def _setup_attrs(self, data, kws):
         """Handle overridden attributes and initialize them with data.
@@ -531,6 +532,8 @@ class Builder(HasProps):
 
         chart.add_scales('x', self.xscale)
         chart.add_scales('y', self.yscale)
+
+        chart.add_annotations(self._annotations)
 
         if self.tooltips is not None:
             tooltips = build_hover_tooltips(hover_spec=self.tooltips,

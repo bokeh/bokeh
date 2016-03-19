@@ -694,7 +694,7 @@ class BarGlyph(Interval):
     A bar always begins from 0, or the value that is being compared to, and
     extends to some positive or negative value.
     """
-
+    baseline = Float(default=0.0)
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
         kwargs['start_agg'] = None
@@ -702,7 +702,13 @@ class BarGlyph(Interval):
         self.setup()
 
     def get_start(self):
-        return 0.0
+        """Get the value for the start of the glyph."""
+        return self.baseline
+
+    def get_end(self):
+        """Get the value for the end of the glyph."""
+        self.end_agg.set_data(self.values)
+        return self.end_agg.value + self.baseline
 
 
 class DotGlyph(Interval):
