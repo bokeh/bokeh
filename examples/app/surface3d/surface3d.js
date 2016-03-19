@@ -26,7 +26,7 @@ class Surface3dView extends BokehView
     data = @set_data()
     @container = $(@mget('selector'));
     debugger
-    @graph = new vis.Graph3d(@container[0], data, @model.options)
+    @graph = new vis.Graph3d(@container[0], data, @mget('options'))
     @bind_bokeh_events()
 
   set_data: () ->
