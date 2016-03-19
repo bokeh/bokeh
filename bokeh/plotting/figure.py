@@ -50,7 +50,10 @@ class Figure(Plot):
         if x_axiscls:
             if x_axiscls is LogAxis:
                 self.x_mapper_type = 'log'
-            xaxis = x_axiscls(plot=self)
+            if x_axis_location is None:
+                xaxis = x_axiscls(plot=None)
+            else:
+                xaxis = x_axiscls(plot=self)
             if hasattr(xaxis.ticker, 'num_minor_ticks'):
                 xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
             axis_label = x_axis_label
@@ -66,7 +69,10 @@ class Figure(Plot):
         if y_axiscls:
             if y_axiscls is LogAxis:
                 self.y_mapper_type = 'log'
-            yaxis = y_axiscls(plot=self)
+            if y_axis_location is None:
+                yaxis = y_axiscls(plot=None)
+            else:
+                yaxis = y_axiscls(plot=self)
             if hasattr(yaxis.ticker, 'num_minor_ticks'):
                 yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
             axis_label = y_axis_label
