@@ -14,7 +14,7 @@ class LinearInterpolator extends Interpolator.Model
     # Apply the transform to a single value
     @sort(descending = false)
 
-    ind = _.findIndex(@_x_sorted, (num) ->
+    ind = _.findLastIndex(@_x_sorted, (num) ->
         return x >= num
     )
 
