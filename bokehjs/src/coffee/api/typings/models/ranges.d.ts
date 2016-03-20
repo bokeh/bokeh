@@ -3,6 +3,7 @@ declare namespace Bokeh {
         callback: Callback;
     }
 
+    export var Range1d: { new(): Range1d };
     export interface Range1d extends Range {
         start: number;
         end: number;
@@ -14,6 +15,7 @@ declare namespace Bokeh {
         renderers: Array<Renderer>;
     }
 
+    export var DataRange1d: { new(): DataRange1d };
     export interface DataRange1d extends DataRange {
         range_padding: number;
 
@@ -28,6 +30,7 @@ declare namespace Bokeh {
         default_span: number;
     }
 
+    export var FactorRange: { new(): FactorRange };
     export interface FactorRange extends Range {
         offset: number;
         factors: Array<string> | Array<Int>;

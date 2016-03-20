@@ -3,6 +3,7 @@ declare namespace Bokeh {
         visible: boolean;
     }
 
+    export var AnnularWedge: { new(): AnnularWedge };
     export interface AnnularWedge extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -13,6 +14,7 @@ declare namespace Bokeh {
         direction: Direction;
     }
 
+    export var Annulus: { new(): Annulus };
     export interface Annulus extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -20,6 +22,7 @@ declare namespace Bokeh {
         outer_radius: Spatial;
     }
 
+    export var Arc: { new(): Arc };
     export interface Arc extends Glyph, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -29,6 +32,7 @@ declare namespace Bokeh {
         direction: Direction;
     }
 
+    export var Bezier: { new(): Bezier };
     export interface Bezier extends Glyph, LineProps {
         x0: Numerical | Categorical;
         y0: Numerical | Categorical;
@@ -40,6 +44,7 @@ declare namespace Bokeh {
         cy1: Numerical | Categorical;
     }
 
+    export var ImageRGBA: { new(): ImageRGBA };
     export interface ImageRGBA extends Glyph {
         image: Vectorized<Array<number>>;
         rows: Vectorized<Int>;
@@ -51,10 +56,12 @@ declare namespace Bokeh {
         dilate: boolean;
     }
 
+    export var Image: { new(): Image };
     export interface Image extends ImageRGBA {
         color_mapper: ColorMapper;
     }
 
+    export var ImageURL: { new(): ImageURL };
     export interface ImageURL extends Glyph {
         url: Vectorized<string>;
         x: Numerical | Categorical;
@@ -69,16 +76,19 @@ declare namespace Bokeh {
         retry_timeout: Int;
     }
 
+    export var Line: { new(): Line };
     export interface Line extends Glyph, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
     }
 
+    export var MultiLine: { new(): MultiLine };
     export interface MultiLine extends Glyph, LineProps {
         xs: MultiNumerical | MultiCategorical;
         ys: MultiNumerical | MultiCategorical;
     }
 
+    export var Oval: { new(): Oval };
     export interface Oval extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -87,16 +97,19 @@ declare namespace Bokeh {
         angle: Angular;
     }
 
+    export var Patch: { new(): Patch };
     export interface Patch extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
     }
 
+    export var Patches: { new(): Patches };
     export interface Patches extends Glyph, LineProps, FillProps {
         xs: MultiNumerical | MultiCategorical;
         ys: MultiNumerical | MultiCategorical;
     }
 
+    export var Quad: { new(): Quad };
     export interface Quad extends Glyph, FillProps, LineProps {
         left: Numerical | Categorical;
         right: Numerical | Categorical;
@@ -104,6 +117,7 @@ declare namespace Bokeh {
         top: Numerical | Categorical;
     }
 
+    export var Quadratic: { new(): Quadratic };
     export interface Quadratic extends Glyph, LineProps {
         x0: Numerical | Categorical;
         y0: Numerical | Categorical;
@@ -113,6 +127,7 @@ declare namespace Bokeh {
         cy: Numerical | Categorical;
     }
 
+    export var Ray: { new(): Ray };
     export interface Ray extends Glyph, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -120,6 +135,7 @@ declare namespace Bokeh {
         angle: Angular;
     }
 
+    export var Rect: { new(): Rect };
     export interface Rect extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -129,6 +145,7 @@ declare namespace Bokeh {
         dilate: boolean;
     }
 
+    export var Segment: { new(): Segment };
     export interface Segment extends Glyph, LineProps {
         x0: Numerical | Categorical;
         y0: Numerical | Categorical;
@@ -136,6 +153,7 @@ declare namespace Bokeh {
         y1: Numerical | Categorical;
     }
 
+    export var Text: { new(): Text };
     export interface Text extends Glyph, TextProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -145,6 +163,7 @@ declare namespace Bokeh {
         y_offset: Spatial;
     }
 
+    export var Wedge: { new(): Wedge };
     export interface Wedge extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -154,6 +173,7 @@ declare namespace Bokeh {
         direction: Direction;
     }
 
+    export var Gear: { new(): Gear };
     export interface Gear extends Glyph, LineProps, FillProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;

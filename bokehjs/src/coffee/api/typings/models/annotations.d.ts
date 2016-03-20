@@ -3,6 +3,7 @@ declare namespace Bokeh {
         level: RenderLevel;
     }
 
+    export var Legend: { new(): Legend };
     export interface Legend extends Annotation {
         location: LegendLocation;
         orientation: Orientation;
@@ -24,6 +25,7 @@ declare namespace Bokeh {
         legends: Array<[string, Array<GlyphRenderer>]>;
     }
 
+    export var BoxAnnotation: { new(): BoxAnnotation };
     export interface BoxAnnotation extends Annotation, LineProps, FillProps {
         left: Auto | Numerical;
         left_units: SpatialUnits;
@@ -43,6 +45,7 @@ declare namespace Bokeh {
         render_mode: RenderMode;
     }
 
+    export var PolyAnnotation: { new(): PolyAnnotation };
     export interface PolyAnnotation extends Annotation, LineProps, FillProps {
         xs: Array<number>;
         xs_units: SpatialUnits;
@@ -54,6 +57,7 @@ declare namespace Bokeh {
         y_range_name: string;
     }
 
+    export var Span: { new(): Span };
     export interface Span extends Annotation, LineProps {
         location: number;
         location_units: SpatialUnits;
@@ -66,8 +70,10 @@ declare namespace Bokeh {
         render_mode: RenderMode;
     }
 
+    export var Overlay: { new(): Overlay };
     export interface Overlay extends Annotation {}
 
+    export var Tooltip: { new(): Tooltip };
     export interface Tooltip extends Overlay {
         side: Auto | Side;
         inner_only: boolean;

@@ -1,4 +1,5 @@
 declare namespace Bokeh {
+    export var Plot: { new(): Plot };
     export interface Plot extends Component {
         title: string;
 
@@ -63,6 +64,7 @@ declare namespace Bokeh {
         plot: Plot;
     }
 
+    export var GridPlot: { new(): GridPlot };
     export interface GridPlot extends Plot {
         children: Array<Array<Plot>>;
         border_space: Int;

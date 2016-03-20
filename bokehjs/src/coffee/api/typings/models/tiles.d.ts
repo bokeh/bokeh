@@ -10,6 +10,7 @@ declare namespace Bokeh {
         attribution: string;
     }
 
+    export var MercatorTileSource: { new(): MercatorTileSource };
     export interface MercatorTileSource extends TileSource {
         x_origin_offset: number;
         y_origin_offset: number;
@@ -17,12 +18,16 @@ declare namespace Bokeh {
         wrap_around: boolean;
     }
 
+    export var TMSTileSource: { new(): TMSTileSource };
     export interface TMSTileSource extends MercatorTileSource {}
 
+    export var WMTSTileSource: { new(): WMTSTileSource };
     export interface WMTSTileSource extends MercatorTileSource {}
 
+    export var QUADKEYTileSource: { new(): QUADKEYTileSource };
     export interface QUADKEYTileSource extends MercatorTileSource {}
 
+    export var BBoxTileSource: { new(): BBoxTileSource };
     export interface BBoxTileSource extends MercatorTileSource {
         use_latlon: boolean;
     }

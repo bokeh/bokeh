@@ -27,12 +27,16 @@ declare namespace Bokeh {
 
     export interface ContinuousAxis extends Axis {}
 
+    export var LinearAxis: { new(): LinearAxis };
     export interface LinearAxis extends ContinuousAxis {}
 
+    export var LogAxis: { new(): LogAxis };
     export interface LogAxis extends ContinuousAxis {}
 
+    export var CategoricalAxis: { new(): CategoricalAxis };
     export interface CategoricalAxis extends Axis {}
 
+    export var DatetimeAxis: { new(): DatetimeAxis };
     export interface DatetimeAxis extends LinearAxis {
         scale: string;
         num_labels: Int;
