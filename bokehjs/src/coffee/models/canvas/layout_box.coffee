@@ -59,12 +59,6 @@ class LayoutBox extends Model
       , false)
     @add_dependencies('v_range', this, ['bottom', 'height'])
 
-    @_aspect_constraint = null
-    @register_property('aspect',
-        () => return @get('width') / @get('height')
-      , true)
-    @add_dependencies('aspect', this, ['width', 'height'])
-
   contains: (vx, vy) ->
     return (
       vx >= @get('left') and vx <= @get('right') and
@@ -73,13 +67,6 @@ class LayoutBox extends Model
 
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
-
-  set_aspect: (aspect) ->
-    if @_aspect_constraint?
-      solver.remove_constraint(@aspect_constraint)
-      c = EQ([aspect, @_height], [-1, @_width])
-      @_aspect_constraint = c
-      @document.solver().add_constraint(c)
 
 module.exports =
   Model: LayoutBox
