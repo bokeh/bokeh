@@ -16,11 +16,11 @@ class LinearColorMapper extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @palette       = @_build_palette(@get('palette'))
-    @little_endian = @_is_little_endian()
+    @_palette       = @_build_palette(@get('palette'))
+    @_little_endian = @_is_little_endian()
     if @get('reserve_color')?
-      @reserve_color = parseInt(@get('reserve_color').slice(1), 16)
-      @reserve_val   = @get('reserve_val')
+      @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
+      @_reserve_val   = @get('reserve_val')
 
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)
@@ -29,22 +29,22 @@ class LinearColorMapper extends Model
     low = @get('low') ? _.min(data)
     high = @get('high') ? _.max(data)
 
-    N = @palette.length - 1
+    N = @_palette.length - 1
     scale = N/(high-low)
     offset = -scale*low
 
-    if @little_endian
+    if @_little_endian
       for i in [0...data.length]
         d = data[i]
 
-        if (d == @reserve_val)
-          value = @reserve_color
+        if (d == @_reserve_val)
+          value = @_reserve_color
         else
           if (d > high)
             d = high
           if (d < low)
             d = low
-          value = @palette[Math.floor(d*scale+offset)]
+          value = @_palette[Math.floor(d*scale+offset)]
 
         color[i] =
           (0xff << 24)               | # alpha
@@ -55,14 +55,14 @@ class LinearColorMapper extends Model
     else
       for i in [0...data.length]
         d = data[i]
-        if (d == @reserve_val)
-          value = @reserve_color
+        if (d == @_reserve_val)
+          value = @_reserve_color
         else
           if (d > high)
             d = high
           if (d < low)
             d = low
-          value = @palette[Math.floor(d*scale+offset)] # rgb
+          value = @_palette[Math.floor(d*scale+offset)] # rgb
 
         color[i] = (value << 8) | 0xff               # alpha
 
