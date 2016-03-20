@@ -6,9 +6,9 @@ class Jitter extends Transform.Model
     super(attrs, options)
 
   defaults: ->
-    return _.extend({}, super(), {
-      interval: 1
-    })
+    return _.extend {}, super(), {
+      interval: [ p.Number, 1]
+    }
 
   compute: (x) ->
     # Apply the transform to a single value
