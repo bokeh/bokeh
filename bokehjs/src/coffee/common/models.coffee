@@ -68,6 +68,7 @@ module.exports = {
   Transform:                require '../models/transforms/transform'
   Jitter:                   require '../models/transforms/jitter'
   Interpolator:             require '../models/transforms/interpolator'
+  LinearInterpolator:       require '../models/transforms/linear_interpolator'
 
   Asterisk:                 require '../models/markers/asterisk'
   CircleCross:              require '../models/markers/circle_cross'

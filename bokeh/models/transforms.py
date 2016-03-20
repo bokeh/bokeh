@@ -49,33 +49,44 @@ class Interpolator(Transform):
 
     .. code-block: python
 
-        interp = Interpolator(values=[2, 5, 10, 12, 16])
-
-    Or a tuple ``(data source, column name)`` that specifies a column from
-    a `ColumnDataSource` that should be used as the values to interpolate:
+        interp = Interpolator(y=[2, 5, 10, 12, 16])
 
     .. code-block: python
 
-        interp = Interpolator(values=(source, "earnings"))
+        interp = Interpolator(x="year", y="earnings", data=jewlery_prices))
 
     '''
-    pass
-#    values = Either(Tuple(Instance(ColumnDataSource, String)), Seq(Float), help="""
-#
-#    """)
+    x = Either(String, Seq(Float), help="""
+    Independant coordiante denoting the location of a point.
+    """)
+
+    y = Either(String, Seq(Float), help="""
+    Dependant coordinate denoting the value of a point at a location.
+    """)
+
+    data = Instance(ColumnDataSource, help="""
+    Data which defines the source for the named columns if a string is passed to either the `x` or `y` parameters.
+    """)
+
+    # Define an initialization routine to do some cross checking of input values
+    def __init__(self, palette=None, **kwargs):
+        super(Interpolator, self).__init__(**kwargs)
 
 
-class LinearInterp(Interpolator):
+class LinearInterpolator(Interpolator):
     ''' Compute a linear interpolation between the points given by ``values``.
 
     '''
     pass
 
 
-class LogInterp(Interpolator):
+class LogInterpolator(Interpolator):
     ''' Compute a log interpolation between the points given by ``values``.
 
     '''
+    base = Float(default=10, help="""
+    Base value for the logorithm.  For example, if base = 10, then that would imply log_10.
+    """)
     pass
 
 
