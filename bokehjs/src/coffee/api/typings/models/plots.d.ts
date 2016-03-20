@@ -65,8 +65,9 @@ declare namespace Bokeh {
     }
 
     export var GridPlot: { new(attributes?: KeyVal, options?: KeyVal): GridPlot };
-    export interface GridPlot extends Plot {
+    export interface GridPlot extends Component {
         children: Array<Array<Plot>>;
         border_space: Int;
+        toolbar_location: Location;
     }
 }
