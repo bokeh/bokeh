@@ -10,10 +10,6 @@ LayoutBox = require "./layout_box"
 class CartesianFrame extends LayoutBox.Model
   type: 'CartesianFrame'
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @panel = @
-
   _doc_attached: () ->
     super()
 
