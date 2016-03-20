@@ -44,6 +44,12 @@ class CartesianFrame extends LayoutBox.Model
 
     @listenTo(@document.solver(), 'layout_update', @_update_mappers)
 
+  contains: (vx, vy) ->
+    return (
+      vx >= @get('left') and vx <= @get('right') and
+      vy >= @get('bottom') and vy <= @get('top')
+    )
+
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
     vx = @get('x_mappers')[x_name].v_map_to_target(x)
     sx = canvas.v_vx_to_sx(vx)

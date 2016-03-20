@@ -10,35 +10,42 @@ class LayoutBox extends Model
   nonserializable_attribute_names: () ->
     super().concat(['layout_location'])
 
+  get_constraints: () ->
+    constraints = []
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_bottom))
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_right))
+    constraints.push(GE(@_width))
+    constraints.push(GE(@_height))
+    constraints.push(EQ(@_left, @_width, [-1, @_right]))
+    constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
+    return constraints
+
   _doc_attached: () ->
+    @_top = new Variable('top')
+    @_left = new Variable('left')
+    @_width = new Variable('width')
+    @_height = new Variable('height')
+    @_right = new Variable('right')
+    @_bottom = new Variable('bottom')
+
+    @register_property('height', @_get_var, false)
+    @register_property('width', @_get_var, false)
+    @register_property('right', @_get_var, false)
+    @register_property('left', @_get_var, false)
+    @register_property('top', @_get_var, false)
+    @register_property('bottom', @_get_var, false)
+
     solver = @document.solver()
+    solver.add_edit_variable(@_top, Strength.strong)
+    solver.add_edit_variable(@_left, Strength.strong)
+    solver.add_edit_variable(@_width, Strength.strong)
+    solver.add_edit_variable(@_height, Strength.strong)
+    for constraint in @get_constraints()
+      solver.add_constraint(constraint)
 
-    @var_constraints = {}
-
-    for v in ['top', 'left', 'width', 'height']
-      name = '_'+v
-      @[name] = new Variable(v)
-      @register_property(v, @_get_var, false)
-      solver.add_edit_variable(@[name], Strength.strong)
-
-    for v in ['right', 'bottom']
-      name = '_'+v
-      @[name] = new Variable(v)
-      @register_property(v, @_get_var, false)
-
-    solver.add_constraint(GE(@_top))
-    solver.add_constraint(GE(@_bottom))
-    solver.add_constraint(GE(@_left))
-    solver.add_constraint(GE(@_right))
-    solver.add_constraint(GE(@_width))
-    solver.add_constraint(GE(@_height))
-    solver.add_constraint(EQ(@_left, @_width, [-1, @_right]))
-    solver.add_constraint(EQ(@_bottom, @_height, [-1, @_top]))
-
-    @_h_range = new Range1d.Model({
-      start: @get('left'),
-      end:   @get('left') + @get('width')
-    })
+    @_h_range = new Range1d.Model({start: @get('left'), end: @get('left') + @get('width')})
     @register_property('h_range',
         () =>
           @_h_range.set('start', @get('left'))
@@ -47,10 +54,7 @@ class LayoutBox extends Model
       , false)
     @add_dependencies('h_range', this, ['left', 'width'])
 
-    @_v_range = new Range1d.Model({
-      start: @get('bottom'),
-      end:   @get('bottom') + @get('height')
-    })
+    @_v_range = new Range1d.Model({start: @get('bottom'), end: @get('bottom') + @get('height')})
     @register_property('v_range',
         () =>
           @_v_range.set('start', @get('bottom'))
@@ -58,12 +62,6 @@ class LayoutBox extends Model
           return @_v_range
       , false)
     @add_dependencies('v_range', this, ['bottom', 'height'])
-
-  contains: (vx, vy) ->
-    return (
-      vx >= @get('left') and vx <= @get('right') and
-      vy >= @get('bottom') and vy <= @get('top')
-    )
 
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
