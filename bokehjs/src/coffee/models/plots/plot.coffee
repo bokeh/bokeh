@@ -443,11 +443,6 @@ class PlotView extends Renderer.View
         @update_dataranges()
         break
 
-    # Note: -1 to effectively dilate the canvas by 1px
-    @frame.set_var('width', @canvas.get('width') - 1)
-    @frame.set_var('height', @canvas.get('height') - 1)
-    # The order here is very important - update constraints has to come after
-    # setting frame (note the above call makes a call to solver)
     @update_constraints()
 
     ctx = @canvas_view.ctx
@@ -507,6 +502,10 @@ class PlotView extends Renderer.View
       @set_initial_range()
 
   update_constraints: () =>
+    s = @model.document.solver()
+    # Note: -1 to effectively dilate the canvas by 1px
+    s.suggest_value(@frame._width, @canvas.get('width') - 1)
+    s.suggest_value(@frame._height, @canvas.get('height') - 1)
     for i, renderer_view of @renderers
       if renderer_view.update_constraints?
         renderer_view.update_constraints()

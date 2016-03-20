@@ -71,10 +71,6 @@ class LayoutBox extends Model
       vy >= @get('bottom') and vy <= @get('top')
     )
 
-  set_var: (name, value) ->
-    v = @['_' + name]
-    @document.solver().suggest_value(v, value)
-
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
 
