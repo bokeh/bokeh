@@ -3,12 +3,11 @@
 '''
 from __future__ import absolute_import
 
-from ..core.enums import StepMode
+from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.properties import abstract
 from ..core.properties import Either, Enum, Float, Instance, Seq, String, Tuple
 from ..model import Model
 from .sources import ColumnDataSource
-
 
 @abstract
 class Transform(Model):
@@ -34,10 +33,18 @@ class Jitter(Transform):
 
     '''
 
-    interval = Float(default=0.8, help="""
-    The width of the random sample interval to use for jitter.
+
+    mean = Float(default=0, help="""
+    The central value for the random sample
     """)
 
+    width = Float(default=1, help="""
+    The width (absolute for uniform distribution and sigma for the normal distribution) of the random sample.
+    """)
+
+    distribution = Enum(JitterRandomDistribution, default='uniform', help="""
+    The random distribution upon which to pull the random scatter
+    """)
 
 @abstract
 class Interpolator(Transform):

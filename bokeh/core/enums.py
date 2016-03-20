@@ -172,3 +172,6 @@ StepMode = enumeration("before", "after", "center")
 
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
+
+#: Specify a distribution to use for the Jitter class
+JitterRandomDistribution = enumeration("uniform", "normal")
