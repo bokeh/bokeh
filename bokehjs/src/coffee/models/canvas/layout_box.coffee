@@ -10,6 +10,14 @@ class LayoutBox extends Model
   nonserializable_attribute_names: () ->
     super().concat(['layout_location'])
 
+  get_edit_variables: () ->
+    editables = []
+    editables.push({edit_variable: @_top, strength: Strength.strong})
+    editables.push({edit_variable: @_left, strength: Strength.strong})
+    editables.push({edit_variable: @_width, strength: Strength.strong})
+    editables.push({edit_variable: @_height, strength: Strength.strong})
+    return editables
+
   get_constraints: () ->
     constraints = []
     constraints.push(GE(@_top))
@@ -36,12 +44,6 @@ class LayoutBox extends Model
     @register_property('left', @_get_var, false)
     @register_property('top', @_get_var, false)
     @register_property('bottom', @_get_var, false)
-
-    solver = @document.solver()
-    solver.add_edit_variable(@_top, Strength.strong)
-    solver.add_edit_variable(@_left, Strength.strong)
-    solver.add_edit_variable(@_width, Strength.strong)
-    solver.add_edit_variable(@_height, Strength.strong)
 
     @_h_range = new Range1d.Model({start: @get('left'), end: @get('left') + @get('width')})
     @register_property('h_range',
