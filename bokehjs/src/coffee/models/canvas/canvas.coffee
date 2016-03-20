@@ -82,11 +82,14 @@ class Canvas extends LayoutBox.Model
     @document.solver().update_variables(trigger)
     return
 
+  get_constraints: () ->
+    constraints = super()
+    constraints.push(EQ(@_left))
+    constraints.push(EQ(@_bottom))
+    return constraints
+
   _doc_attached: () ->
     super()
-    solver = @document.solver()
-    solver.add_constraint(EQ(@_left))
-    solver.add_constraint(EQ(@_bottom))
     @set_dims([@get('canvas_width'), @get('canvas_height')])
     logger.debug("Canvas attached to document")
 
