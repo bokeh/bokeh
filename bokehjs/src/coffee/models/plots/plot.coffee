@@ -446,13 +446,9 @@ class PlotView extends Renderer.View
     # Note: -1 to effectively dilate the canvas by 1px
     @frame.set_var('width', @canvas.get('width') - 1)
     @frame.set_var('height', @canvas.get('height') - 1)
-
-    for i, renderer_view of @renderers
-      if renderer_view.update_constraints?
-        renderer_view.update_constraints()
-    # TODO The event from the solver update doesn't reach 
-    # the frame in time (sometimes) so force an update here for now
-    @frame._update_mappers()
+    # The order here is very important - update constraints has to come after
+    # setting frame (note the above call makes a call to solver)
+    @update_constraints()
 
     ctx = @canvas_view.ctx
     frame_box = [
@@ -509,6 +505,11 @@ class PlotView extends Renderer.View
 
     if not @initial_range_info?
       @set_initial_range()
+
+  update_constraints: () =>
+    for i, renderer_view of @renderers
+      if renderer_view.update_constraints?
+        renderer_view.update_constraints()
 
   resize: () =>
     @resize_width_height(true, false)

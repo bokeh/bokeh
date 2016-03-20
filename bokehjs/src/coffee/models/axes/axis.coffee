@@ -187,7 +187,7 @@ class AxisView extends Renderer.View
       s.remove_constraint(@_size_constraint)
     @_size_constraint = EQ(@model._size, -size)
     s.add_constraint(@_size_constraint)
-    s.update_variables(false)
+    s.update_variables()
 
   _draw_rule: (ctx) ->
     if not @visuals.axis_line.doit
