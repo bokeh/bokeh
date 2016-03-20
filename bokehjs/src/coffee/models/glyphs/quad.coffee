@@ -55,7 +55,8 @@ class Quad extends Glyph.Model
 
   type: 'Quad'
 
-  coords: [ ['right', 'bottom'], ['left', 'top'] ]
+  @coords [['right', 'bottom'], ['left', 'top']]
+  @mixins ['line', 'fill']
 
 module.exports =
   Model: Quad

@@ -47,8 +47,8 @@ class MultiLine extends Glyph.Model
 
   type: 'MultiLine'
 
-  mixins: ['line']
-  coords: [ ['xs', 'ys'] ]
+  @coords [['xs', 'ys']]
+  @mixins ['line']
 
 module.exports =
   Model: MultiLine

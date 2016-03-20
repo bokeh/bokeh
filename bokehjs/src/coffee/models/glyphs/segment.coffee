@@ -35,8 +35,8 @@ class Segment extends Glyph.Model
 
   type: 'Segment'
 
-  mixins: ['line']
-  coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
+  @coords [['x0', 'y0'], ['x1', 'y1']]
+  @mixins ['line']
 
 module.exports =
   Model: Segment

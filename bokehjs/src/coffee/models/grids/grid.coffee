@@ -66,10 +66,9 @@ class Grid extends GuideRenderer.Model
 
   type: 'Grid'
 
-  mixins: ['line:grid_', 'line:minor_grid_', 'fill:band_']
+  @mixins ['line:grid_', 'line:minor_grid_', 'fill:band_']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       bounds:       [ p.Any,     'auto'    ] # TODO (bev)
       dimension:    [ p.Number,  0         ]
       ticker:       [ p.Instance           ]

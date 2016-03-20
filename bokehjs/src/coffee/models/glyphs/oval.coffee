@@ -85,8 +85,9 @@ class Oval extends Glyph.Model
 
   type: 'Oval'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       angle:  [ p.AngleSpec,   0.0 ]
       width:  [ p.DistanceSpec     ]
       height: [ p.DistanceSpec     ]

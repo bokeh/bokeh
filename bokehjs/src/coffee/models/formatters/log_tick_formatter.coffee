@@ -8,8 +8,7 @@ p = require "../../core/properties"
 class LogTickFormatter extends TickFormatter.Model
   type: 'LogTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       ticker: [ p.Instance, null ]
     }
 

@@ -30,11 +30,6 @@ class VBoxForm extends VBox.Model
   type: "VBoxForm"
   default_view: VBoxFormView
 
-  props: ->
-    return _.extend {}, super(), {
-      children: [ p.Array, [] ]
-    }
-
   children: () ->
     return @get('children')
 

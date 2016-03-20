@@ -119,8 +119,9 @@ class Gear extends Glyph.Model
 
   type: 'Gear'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       angle:          [ p.AngleSpec,  0     ]
       module:         [ p.NumberSpec, null  ]
       pressure_angle: [ p.NumberSpec, 20    ] # TODO: units: deg

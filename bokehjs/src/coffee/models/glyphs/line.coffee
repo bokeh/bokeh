@@ -110,7 +110,8 @@ class Line extends Glyph.Model
 
   type: 'Line'
 
-  mixins: ['line']
+  @coords [['x', 'y']]
+  @mixins ['line']
 
 module.exports =
   Model: Line

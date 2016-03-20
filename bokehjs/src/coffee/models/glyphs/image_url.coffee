@@ -101,10 +101,9 @@ class ImageURL extends Glyph.Model
 
   type: 'ImageURL'
 
-  mixins: []
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins []
+  @define {
       url:            [ p.StringSpec            ]
       anchor:         [ p.Anchor,    'top_left' ]
       global_alpha:   [ p.Number,    1.0        ]

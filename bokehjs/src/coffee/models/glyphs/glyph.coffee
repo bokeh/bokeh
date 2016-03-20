@@ -165,15 +165,7 @@ class GlyphView extends Renderer.View
       ctx.stroke()
 
 class Glyph extends Renderer.Model
-
-  # Many glyphs have simple x and y coordinates. Override this in
-  # subclasses that use other coordinates
-  coords: [ ['x', 'y'] ]
-
-  mixins: ['line', 'fill']
-
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       visible: [ p.Bool, true ]
     }
 

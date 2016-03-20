@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class AbstractButton extends Widget.Model
   type: "AbstractButton"
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       callback: [ p.Instance          ]
       label:    [ p.String, "Button"  ]
       icon:     [ p.String            ]

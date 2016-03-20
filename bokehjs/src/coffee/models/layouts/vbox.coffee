@@ -45,11 +45,6 @@ class VBox extends BaseBox.Model
   type: "VBox"
   default_view: VBoxView
 
-  props: ->
-    return _.extend {}, super(), {
-      children: [ p.Array, [] ]
-    }
-
   children: () ->
     return @get('children')
 

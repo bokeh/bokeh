@@ -38,11 +38,6 @@ class HBox extends BaseBox.Model
   type: "HBox"
   default_view: HBoxView
 
-  props: ->
-    return _.extend {}, super(), {
-      children: [ p.Array, [] ]
-    }
-
   children: () ->
     return @get('children')
 

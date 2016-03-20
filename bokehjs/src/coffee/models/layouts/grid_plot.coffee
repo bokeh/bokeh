@@ -8,6 +8,7 @@ HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../plots/plot_template"
+p = require "../../core/properties"
 
 class ToolProxy extends Backbone.Model
 
@@ -318,6 +319,8 @@ class GridPlot extends Component.Model
         num_plots: children.length
       })
     , true)
+
+  @define("children", p.Array, [[]])
 
   defaults: () ->
     return _.extend {}, super(), {

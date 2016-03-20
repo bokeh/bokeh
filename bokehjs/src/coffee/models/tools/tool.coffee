@@ -23,8 +23,7 @@ class ToolView extends Renderer.View
 
 class Tool extends Model
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       plot: [ p.Instance ]
     }
 

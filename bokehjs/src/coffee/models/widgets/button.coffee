@@ -45,8 +45,7 @@ class Button extends AbstractButton.Model
   type: "Button"
   default_view: ButtonView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       clicks: [ p.Number, 0        ]
     }
 

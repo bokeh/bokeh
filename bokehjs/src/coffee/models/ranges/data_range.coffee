@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class DataRange extends Range.Model
   type: 'DataRange'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       names:     [ p.Array, [] ]
       renderers: [ p.Array, [] ]
     }

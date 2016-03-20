@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class Range1d extends Range.Model
   type: 'Range1d'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       start:  [ p.Number, 0 ]
       end:    [ p.Number, 1 ]
       bounds: [ p.Any       ] # TODO (bev)

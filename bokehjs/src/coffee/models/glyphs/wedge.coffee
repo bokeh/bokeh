@@ -93,8 +93,9 @@ class Wedge extends Glyph.Model
 
   type: 'Wedge'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       direction:    [ p.Direction,   'anticlock' ]
       radius:       [ p.DistanceSpec             ]
       start_angle:  [ p.AngleSpec                ]

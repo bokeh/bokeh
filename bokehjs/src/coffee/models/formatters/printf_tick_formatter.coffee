@@ -7,8 +7,7 @@ p = require "../../core/properties"
 class PrintfTickFormatter extends TickFormatter.Model
   type: 'PrintfTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       format: [ p.String, '%s' ]
     }
 

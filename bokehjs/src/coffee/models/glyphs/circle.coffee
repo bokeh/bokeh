@@ -211,13 +211,14 @@ class CircleView extends Glyph.View
     data = {sx: sx, sy: sy, sradius: sradius}
     @_render(ctx, indices, data)
 
-class Circle extends Glyph.Model
+class Circle extends Glyph.Model # XXX: Marker.Model
   default_view: CircleView
 
   type: 'Circle'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       angle:            [ p.AngleSpec,    0                             ]
       size:             [ p.DistanceSpec, { units: "screen", value: 4 } ]
       radius:           [ p.DistanceSpec, null                          ]

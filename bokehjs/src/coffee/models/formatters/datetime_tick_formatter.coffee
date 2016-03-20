@@ -55,8 +55,7 @@ _strftime = (t, format) ->
 class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       formats: [ p.Any, {} ] # TODO (bev)
     }
 

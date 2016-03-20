@@ -617,7 +617,7 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
-  mixins: ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -737,8 +737,7 @@ class Plot extends Component.Model
     'fill:background_'
   ]
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       title:             [ p.String,   ''                     ]
       title_standoff:    [ p.Number,   8                      ]
 

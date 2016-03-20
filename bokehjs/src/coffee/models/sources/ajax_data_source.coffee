@@ -8,10 +8,8 @@ p = require "../../core/properties"
 class AjaxDataSource extends RemoteDataSource.Model
   type: 'AjaxDataSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       mode:         [ p.String, 'replace'          ]
-      data_url:     [ p.String                     ]
       content_type: [ p.String, 'application/json' ]
       http_headers: [ p.Any,    {}                 ] # TODO (bev)
       max_size:     [ p.Number                     ]

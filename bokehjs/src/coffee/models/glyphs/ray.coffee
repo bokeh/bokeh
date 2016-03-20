@@ -46,10 +46,9 @@ class Ray extends Glyph.Model
 
   type: 'Ray'
 
-  mixins: ['line']
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line']
+  @define {
       length: [ p.DistanceSpec ]
       angle:  [ p.AngleSpec    ]
     }

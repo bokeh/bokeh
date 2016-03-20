@@ -86,10 +86,9 @@ class Span extends Annotation.Model
 
   type: 'Span'
 
-  mixins: ['line']
+  @mixins ['line']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       render_mode:    [ p.RenderMode,   'canvas'  ]
       x_range_name:   [ p.String,       'default' ]
       y_range_name:   [ p.String,       'default' ]

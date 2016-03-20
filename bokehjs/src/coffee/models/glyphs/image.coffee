@@ -89,10 +89,9 @@ class Image extends Glyph.Model
 
   type: 'Image'
 
-  mixins: []
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins []
+  @define {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]

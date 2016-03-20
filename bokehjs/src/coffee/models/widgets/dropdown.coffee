@@ -65,8 +65,7 @@ class Dropdown extends AbstractButton.Model
   type: "Dropdown"
   default_view: DropdownView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       value:         [ p.String    ]
       default_value: [ p.String    ]
       menu:          [ p.Array, [] ]

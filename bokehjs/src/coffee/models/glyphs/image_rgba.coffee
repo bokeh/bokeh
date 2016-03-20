@@ -92,10 +92,9 @@ class ImageRGBA extends Glyph.Model
 
   type: 'ImageRGBA'
 
-  mixins: []
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins []
+  @define {
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
       rows:   [ p.NumberSpec       ]
       cols:   [ p.NumberSpec       ]

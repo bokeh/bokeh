@@ -181,7 +181,8 @@ class Patches extends Glyph.Model
 
   type: 'Patches'
 
-  coords: [ ['xs', 'ys'] ]
+  @coords [ ['xs', 'ys'] ]
+  @mixins ['line', 'fill']
 
 module.exports =
   Model: Patches

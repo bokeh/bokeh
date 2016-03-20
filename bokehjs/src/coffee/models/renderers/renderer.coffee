@@ -182,7 +182,7 @@ class RendererView extends BokehView
     # todo: if using gl, skip this (when is this called?)
 
     # map all the coordinate fields
-    for [xname, yname] in @model.coords
+    for [xname, yname] in @model._coords
       sxname = "s#{xname}"
       syname = "s#{yname}"
       if _.isArray(@[xname]?[0])
@@ -270,19 +270,18 @@ class RendererView extends BokehView
 class Renderer extends Model
   type: "Renderer"
 
-  # Specify any coordinate pairs here, they will be added as NumberSpec
-  # properties to HasProps.properties
-  coords: []
+  _coords: []
 
-  props: ->
-    return _.extend {}, super(), @_coords()
+  @coords: (coords) ->
+    _coords = this.prototype._coords.concat(coords)
+    this.prototype._coords = _coords
 
-  _coords: ->
     result = {}
-    for [x, y] in @coords
+    for [x, y] in coords
       result[x] = [ p.NumberSpec ]
       result[y] = [ p.NumberSpec ]
-    return result
+
+    @define(result)
 
 module.exports =
   Model: Renderer

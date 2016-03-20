@@ -35,10 +35,9 @@ class Arc extends Glyph.Model
 
   type: 'Arc'
 
-  mixins: ['line']
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line']
+  @define {
       direction:   [ p.Direction,   'anticlock' ]
       radius:      [ p.DistanceSpec             ]
       start_angle: [ p.AngleSpec                ]

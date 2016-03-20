@@ -6,23 +6,20 @@ p = require "../../core/properties"
 Model = require "../../model"
 
 class CellFormatter extends Model
-  formatterProps: {}
-
   format: (row, cell, value, columnDef, dataContext) ->
     if value == null
       return ""
     else
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-  props: () ->
-    return _.extend {}, super(), @formatterProps
-
 class StringFormatter extends CellFormatter
   type: 'StringFormatter'
-  formatterProps:
+
+  @define {
     font_style: [ p.FontStyle, "normal" ]
     text_align: [ p.TextAlign, "left"   ]
     text_color: [ p.Color ]
+  }
 
   format: (row, cell, value, columnDef, dataContext) ->
     text = super(row, cell, value, columnDef, dataContext)
@@ -44,13 +41,15 @@ class StringFormatter extends CellFormatter
 
 class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
-  formatterProps:
+
+  @define {
     font_style: [ p.FontStyle, "normal" ]
     text_align: [ p.TextAlign, "left"   ]
     text_color: [ p.Color               ]
     format:     [ p.String, '0,0'       ] # TODO (bev)
     language:   [ p.String, 'en'        ] # TODO (bev)
     rounding:   [ p.String, 'round'     ] # TODO (bev)
+  }
 
   format: (row, cell, value, columnDef, dataContext) ->
     format = @get("format")
@@ -64,16 +63,20 @@ class NumberFormatter extends StringFormatter
 
 class BooleanFormatter extends CellFormatter
   type: 'BooleanFormatter'
-  formatterProps:
+
+  @define {
     icon: [ p.String, 'check' ]
+  }
 
   format: (row, cell, value, columnDef, dataContext) ->
     if !!value then $('<i>').addClass(@get("icon")).html() else ""
 
 class DateFormatter extends CellFormatter
   type: 'DateFormatter'
-  formatterProps:
+
+  @define {
     format: [ p.String, 'yy M d' ]
+  }
 
   getFormat: () ->
     format = @get("format")
@@ -97,8 +100,10 @@ class DateFormatter extends CellFormatter
 
 class HTMLTemplateFormatter extends CellFormatter
   type: 'HTMLTemplateFormatter'
-  formatterProps:
+
+  @define {
     template: [ p.String, '<%= value %>' ]
+  }
 
   format: (row, cell, value, columnDef, dataContext) ->
     template = @get("template")

@@ -110,8 +110,9 @@ class AnnularWedge extends Glyph.Model
 
   type: 'AnnularWedge'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       direction:    [ p.Direction,   'anticlock' ]
       inner_radius: [ p.DistanceSpec             ]
       outer_radius: [ p.DistanceSpec             ]

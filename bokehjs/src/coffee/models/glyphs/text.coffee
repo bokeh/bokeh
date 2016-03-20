@@ -38,10 +38,9 @@ class Text extends Glyph.Model
 
   type: 'Text'
 
-  mixins: ['text']
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['text']
+  @define {
       text:     [ p.StringSpec, { field :"text" } ]
       angle:    [ p.AngleSpec,  0                 ]
       x_offset: [ p.NumberSpec, 0                 ]

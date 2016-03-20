@@ -6,14 +6,13 @@ p = require "../../core/properties"
 class LinearColorMapper extends Model
   type: "LinearColorMapper"
 
-  props: ->
-    return _.extend({}, super(), {
+  @define {
       high:          [ p.Number           ]
       low:           [ p.Number           ]
       palette:       [ p.Any              ] # TODO (bev)
       reserve_val:   [ p.Number           ]
       reserve_color: [ p.Color, '#ffffff' ]
-    })
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)

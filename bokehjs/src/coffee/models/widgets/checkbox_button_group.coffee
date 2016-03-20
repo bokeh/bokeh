@@ -43,8 +43,7 @@ class CheckboxButtonGroup extends Widget.Model
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       active:   [ p.Array,  []        ]
       labels:   [ p.Array,  []        ]
       type:     [ p.String, "default" ]

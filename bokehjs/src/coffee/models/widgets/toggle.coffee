@@ -46,8 +46,7 @@ class Toggle extends AbstractButton.Model
   type: "Toggle"
   default_view: ToggleView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       active: [ p. Bool, false ]
     }
 

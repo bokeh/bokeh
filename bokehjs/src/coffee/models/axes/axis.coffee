@@ -297,7 +297,7 @@ class Axis extends GuideRenderer.Model
 
   type: 'Axis'
 
-  mixins: [
+  @mixins [
     'line:axis_',
     'line:major_tick_',
     'line:minor_tick_',
@@ -305,8 +305,7 @@ class Axis extends GuideRenderer.Model
     'text:axis_label_'
   ]
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       visible:        [ p.Bool,     true      ]
       location:       [ p.String,   'auto'    ] # TODO (bev) enum
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)

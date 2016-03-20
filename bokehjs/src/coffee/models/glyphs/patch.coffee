@@ -54,6 +54,9 @@ class Patch extends Glyph.Model
 
   type: 'Patch'
 
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+
 module.exports =
   Model: Patch
   View: PatchView

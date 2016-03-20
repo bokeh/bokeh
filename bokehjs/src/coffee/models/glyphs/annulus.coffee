@@ -111,8 +111,9 @@ class Annulus extends Glyph.Model
 
   type: 'Annulus'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       inner_radius: [ p.DistanceSpec ]
       outer_radius: [ p.DistanceSpec ]
     }

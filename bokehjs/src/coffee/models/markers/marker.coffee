@@ -99,7 +99,9 @@ class MarkerView extends Glyph.View
 
 class Marker extends Glyph.Model
 
-  props: -> _.extend super(), {
+  @coords [ ['x', 'y'] ]
+  @mixins ['line', 'fill']
+  @define {
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
     angle: [ p.AngleSpec,    0                             ]
   }

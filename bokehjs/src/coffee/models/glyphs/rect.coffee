@@ -142,8 +142,9 @@ class Rect extends Glyph.Model
 
   type: 'Rect'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       angle:  [ p.AngleSpec,   0     ]
       width:  [ p.DistanceSpec       ]
       height: [ p.DistanceSpec       ]

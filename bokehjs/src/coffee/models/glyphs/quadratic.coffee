@@ -59,8 +59,8 @@ class Quadratic extends Glyph.Model
 
   type: 'Quadratic'
 
-  mixins: ['line']
-  coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
+  @coords [['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']]
+  @mixins ['line']
 
 module.exports =
   Model: Quadratic
