@@ -440,15 +440,6 @@ class PlotView extends Renderer.View
     if @tm_view?
       @tm_view.render()
 
-    ctx = @canvas_view.ctx
-
-    canvas = @mget('canvas')
-    s = @model.document.solver()
-
-    for k, v of @renderers
-      if v.model.update_layout?
-        v.model.update_layout(v, s)
-
     for k, v of @renderers
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
@@ -458,17 +449,21 @@ class PlotView extends Renderer.View
     @frame.set_var('width', @canvas.get('width') - 1)
     @frame.set_var('height', @canvas.get('height') - 1)
 
+    s = @model.document.solver()
+    for k, v of @renderers
+      if v.model.update_layout?
+        v.model.update_layout(v, s)
     s.update_variables(false)
     # TODO The event from the solver update doesn't reach the frame in time (sometimes) so force an update here for now
     @frame._update_mappers()
 
+    ctx = @canvas_view.ctx
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
       @canvas.vy_to_sy(@frame.get('top')),
       @frame.get('width'),
       @frame.get('height'),
     ]
-
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
 
