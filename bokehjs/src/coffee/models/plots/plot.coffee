@@ -394,10 +394,7 @@ class PlotView extends Renderer.View
 
     width = @mget("plot_width")
     height = @mget("plot_height")
-
-    if (@canvas.get("canvas_width") != width or
-        @canvas.get("canvas_height") != height)
-      @canvas.set_dims([width, height], trigger=false)
+    @canvas.set_dims([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
 

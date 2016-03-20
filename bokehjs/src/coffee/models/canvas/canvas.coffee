@@ -100,11 +100,6 @@ class Canvas extends LayoutBox.Model
     constraints.push(EQ(@_bottom))
     return constraints
 
-  _doc_attached: () ->
-    super()
-    @set_dims([@get('canvas_width'), @get('canvas_height')])
-    logger.debug("Canvas attached to document")
-
   # transform view coordinates to underlying screen coordinates
   vx_to_sx: (x) -> x
 
