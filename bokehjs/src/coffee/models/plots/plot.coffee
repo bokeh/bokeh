@@ -36,8 +36,6 @@ plot_template = require "./plot_template"
 
 global_gl_canvas = null
 
-MIN_BORDER = 50
-
 get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
     # client_width and height represent the available size
 
@@ -668,46 +666,48 @@ class Plot extends Component.Model
     canvas = @get('canvas')
     frame = @get('frame')
 
+    # Add the padding
     above_box = new LayoutBox.Model()
     above_box.attach_document(@document)
     solver.add_constraint(GE(above_box._height, -min_border_top))
-    solver.add_constraint(EQ(frame.panel._top, [-1, above_box._bottom]))
-    solver.add_constraint(EQ(above_box._top, [-1, canvas.panel._top]))
+    solver.add_constraint(EQ(frame._top, [-1, above_box._bottom]))
+    solver.add_constraint(EQ(above_box._top, [-1, canvas._top]))
     @above_panel = above_box
 
     below_box = new LayoutBox.Model()
     below_box.attach_document(@document)
     solver.add_constraint(GE(below_box._height, -min_border_bottom))
-    solver.add_constraint(EQ(frame.panel._bottom, [-1, below_box._top]))
-    solver.add_constraint(EQ(below_box._bottom, [-1, canvas.panel._bottom]))
+    solver.add_constraint(EQ(frame._bottom, [-1, below_box._top]))
+    solver.add_constraint(EQ(below_box._bottom, [-1, canvas._bottom]))
     @below_panel = below_box
 
     left_box = new LayoutBox.Model()
     left_box.attach_document(@document)
     solver.add_constraint(GE(left_box._width, -min_border_left))
-    solver.add_constraint(EQ(frame.panel._left, [-1, left_box._right]))
-    solver.add_constraint(EQ(left_box._left, [-1, canvas.panel._left]))
+    solver.add_constraint(EQ(frame._left, [-1, left_box._right]))
+    solver.add_constraint(EQ(left_box._left, [-1, canvas._left]))
     @left_panel = left_box
 
     right_box = new LayoutBox.Model()
     right_box.attach_document(@document)
     solver.add_constraint(GE(right_box._width, -min_border_right))
-    solver.add_constraint(EQ(frame.panel._right, [-1, right_box._left]))
-    solver.add_constraint(EQ(right_box._right, [-1, canvas.panel._right]))
+    solver.add_constraint(EQ(frame._right, [-1, right_box._left]))
+    solver.add_constraint(EQ(right_box._right, [-1, canvas._right]))
     @right_panel = right_box
 
+    # Position all the sides next to each other
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
       last = frame
       for r in layout_renderers
         if side == "above"
-          solver.add_constraint(EQ(last.panel._top, [-1, r.panel._bottom]))
+          solver.add_constraint(EQ(last._top, [-1, r.panel._bottom]))
         if side == "below"
-          solver.add_constraint(EQ(last.panel._bottom, [-1, r.panel._top]))
+          solver.add_constraint(EQ(last._bottom, [-1, r.panel._top]))
         if side == "left"
-          solver.add_constraint(EQ(last.panel._left, [-1, r.panel._right]))
+          solver.add_constraint(EQ(last._left, [-1, r.panel._right]))
         if side == "right"
-          solver.add_constraint(EQ(last.panel._right, [-1, r.panel._left]))
+          solver.add_constraint(EQ(last._right, [-1, r.panel._left]))
         last = r
 
   add_renderers: (new_renderers) ->
@@ -766,11 +766,11 @@ class Plot extends Component.Model
       hidpi:             [ p.Bool,     true                   ]
       responsive:        [ p.Bool,     false                  ]
 
-      min_border:        [ p.Number,   MIN_BORDER             ]
-      min_border_top:    [ p.Number,   MIN_BORDER             ]
-      min_border_left:   [ p.Number,   MIN_BORDER             ]
-      min_border_bottom: [ p.Number,   MIN_BORDER             ]
-      min_border_right:  [ p.Number,   MIN_BORDER             ]
+      min_border:        [ p.Number,   50                     ]
+      min_border_top:    [ p.Number,   50                     ]
+      min_border_left:   [ p.Number,   50                     ]
+      min_border_bottom: [ p.Number,   50                     ]
+      min_border_right:  [ p.Number,   50                     ]
     }
 
   defaults: ->
