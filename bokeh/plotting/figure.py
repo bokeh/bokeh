@@ -46,8 +46,8 @@ class Figure(Plot):
         self.x_range = _get_range(x_range)
         self.y_range = _get_range(y_range)
 
-        _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range)
-        _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range)
+        _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range, 0)
+        _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range, 1)
 
         tool_objs = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)

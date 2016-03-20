@@ -248,7 +248,7 @@ def _tool_from_string(name):
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
 
-def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng):
+def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
     axiscls = _get_axis_class(axis_type, rng)
     if axiscls:
 
@@ -265,7 +265,7 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         if axis_label:
             axis.axis_label = axis_label
 
-        grid = Grid(plot=plot, dimension=0, ticker=axis.ticker); grid
+        grid = Grid(plot=plot, dimension=dim, ticker=axis.ticker); grid
 
         if axis_location is not None:
             getattr(plot, axis_location).append(axis)
