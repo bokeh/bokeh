@@ -42,8 +42,6 @@ class LayoutBox extends Model
     solver.add_edit_variable(@_left, Strength.strong)
     solver.add_edit_variable(@_width, Strength.strong)
     solver.add_edit_variable(@_height, Strength.strong)
-    for constraint in @get_constraints()
-      solver.add_constraint(constraint)
 
     @_h_range = new Range1d.Model({start: @get('left'), end: @get('left') + @get('width')})
     @register_property('h_range',

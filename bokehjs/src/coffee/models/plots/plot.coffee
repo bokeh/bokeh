@@ -644,6 +644,24 @@ class Plot extends Component.Model
 
     logger.debug("Plot attached to document")
 
+  get_layoutable_children: () ->
+    children = [
+      @above_panel,
+      @below_panel,
+      @left_panel,
+      @right_panel,
+      @get('canvas'),
+      @get('frame')
+    ]
+    # Add the layout panels for each of the axes
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        if r.panel?
+          children.push(r.panel)
+    return children
+
+
   get_constraints: () ->
     constraints = []
 
@@ -669,6 +687,8 @@ class Plot extends Component.Model
     constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
 
     # Position all the sides next to each other
+    # We do this here as opposed to in the axis.coffee because they all relate
+    # to the plot.
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
       last = frame
@@ -682,6 +702,11 @@ class Plot extends Component.Model
         if side == "right"
           constraints.push(EQ(last._right, [-1, r.panel._left]))
         last = r
+
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+
     return constraints
 
   add_renderers: (new_renderers) ->
