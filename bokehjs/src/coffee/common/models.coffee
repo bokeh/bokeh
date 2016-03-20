@@ -65,9 +65,9 @@ module.exports = {
   LogMapper:                require '../models/mappers/log_mapper'
   LinearColorMapperTransform:        require '../models/mappers/linear_color_mapper_transform'
 
-
   Transform:                require '../models/transforms/transform'
   Jitter:                   require '../models/transforms/jitter'
+  Interpolator:             require '../models/transforms/interpolator'
 
   Asterisk:                 require '../models/markers/asterisk'
   CircleCross:              require '../models/markers/circle_cross'
