@@ -633,11 +633,16 @@ class Plot extends Component.Model
     logger.debug("Plot initialized")
 
   initialize_layout: (solver) ->
-    @add_constraints(@document.solver())
-
-    for r in @get('renderers')
-      if r.initialize_layout?
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        if r.get('location') ? 'auto' == 'auto'
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
         r.initialize_layout(solver)
+
+    @add_constraints(@document.solver())
 
   _doc_attached: () ->
     @get('canvas').attach_document(@document)
@@ -660,31 +665,50 @@ class Plot extends Component.Model
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
 
-    do_side = (solver, min_size, side, cnames, dim) =>
-      canvas = @get('canvas')
-      frame = @get('frame')
-      box = new LayoutBox.Model()
-      box.attach_document(@document)
-      c0 = '_'+cnames[0]
-      c1 = '_'+cnames[1]
-      solver.add_constraint( GE(box['_'+dim], -min_size) )
-      solver.add_constraint( EQ(frame.panel[c0], [-1, box[c1]]) )
-      solver.add_constraint( EQ(box[c0], [-1, canvas.panel[c0]]) )
-      last = frame
-      elts = @get(side)
-      for r in elts
-        if r.get('location') ? 'auto' == 'auto'
-          r.set('layout_location', side, { silent: true })
-        else
-          r.set('layout_location', r.get('location'), { silent: true })
-        solver.add_constraint( EQ(last.panel[c0], [-1, r.panel[c1]]) )
-        last = r
-      return box
+    canvas = @get('canvas')
+    frame = @get('frame')
 
-    @_above_panel = do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
-    @_below_panel = do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
-    @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
-    @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
+    above_box = new LayoutBox.Model()
+    above_box.attach_document(@document)
+    solver.add_constraint(GE(above_box._height, -min_border_top))
+    solver.add_constraint(EQ(frame.panel._top, [-1, above_box._bottom]))
+    solver.add_constraint(EQ(above_box._top, [-1, canvas.panel._top]))
+    @above_panel = above_box
+
+    below_box = new LayoutBox.Model()
+    below_box.attach_document(@document)
+    solver.add_constraint(GE(below_box._height, -min_border_bottom))
+    solver.add_constraint(EQ(frame.panel._bottom, [-1, below_box._top]))
+    solver.add_constraint(EQ(below_box._bottom, [-1, canvas.panel._bottom]))
+    @below_panel = below_box
+
+    left_box = new LayoutBox.Model()
+    left_box.attach_document(@document)
+    solver.add_constraint(GE(left_box._width, -min_border_left))
+    solver.add_constraint(EQ(frame.panel._left, [-1, left_box._right]))
+    solver.add_constraint(EQ(left_box._left, [-1, canvas.panel._left]))
+    @left_panel = left_box
+
+    right_box = new LayoutBox.Model()
+    right_box.attach_document(@document)
+    solver.add_constraint(GE(right_box._width, -min_border_right))
+    solver.add_constraint(EQ(frame.panel._right, [-1, right_box._left]))
+    solver.add_constraint(EQ(right_box._right, [-1, canvas.panel._right]))
+    @right_panel = right_box
+
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      last = frame
+      for r in layout_renderers
+        if side == "above"
+          solver.add_constraint(EQ(last.panel._top, [-1, r.panel._bottom]))
+        if side == "below"
+          solver.add_constraint(EQ(last.panel._bottom, [-1, r.panel._top]))
+        if side == "left"
+          solver.add_constraint(EQ(last.panel._left, [-1, r.panel._right]))
+        if side == "right"
+          solver.add_constraint(EQ(last.panel._right, [-1, r.panel._left]))
+        last = r
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
