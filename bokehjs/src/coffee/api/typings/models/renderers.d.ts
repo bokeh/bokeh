@@ -1,48 +1,48 @@
 declare namespace Bokeh {
-export interface Renderer extends Model {}
+    export interface Renderer extends Model {}
 
-export interface DataRenderer extends Renderer {}
+    export interface DataRenderer extends Renderer {}
 
-export interface TileRenderer extends DataRenderer {
-    tile_source: TileSource;
+    export interface TileRenderer extends DataRenderer {
+        tile_source: TileSource;
 
-    alpha: Percent;
+        alpha: Percent;
 
-    x_range_name: string;
-    y_range_name: string;
+        x_range_name: string;
+        y_range_name: string;
 
-    level: RenderLevel;
+        level: RenderLevel;
 
-    render_parents: boolean;
-}
+        render_parents: boolean;
+    }
 
-export interface DynamicImageRenderer extends DataRenderer {
-    image_source: ImageSource;
+    export interface DynamicImageRenderer extends DataRenderer {
+        image_source: ImageSource;
 
-    alpha: Percent;
+        alpha: Percent;
 
-    level: RenderLevel;
-    render_parents: boolean;
-}
+        level: RenderLevel;
+        render_parents: boolean;
+    }
 
-export interface GlyphRenderer extends Renderer {
-    data_source: DataSource;
+    export interface GlyphRenderer extends Renderer {
+        data_source: DataSource;
 
-    glyph: Glyph;
-    hover_glyph: Glyph;
-    selection_glyph: Glyph;
-    nonselection_glyph: Glyph;
+        glyph: Glyph;
+        hover_glyph: Glyph;
+        selection_glyph: Glyph;
+        nonselection_glyph: Glyph;
 
-    x_range_name: string;
-    y_range_name: string;
+        x_range_name: string;
+        y_range_name: string;
 
-    level: RenderLevel;
-}
+        level: RenderLevel;
+    }
 
-export interface GuideRenderer extends Renderer {
-    bounds: Auto | [number, number];
+    export interface GuideRenderer extends Renderer {
+        bounds: Auto | [number, number];
 
-    x_range_name: string;
-    y_range_name: string;
-}
+        x_range_name: string;
+        y_range_name: string;
+    }
 }
