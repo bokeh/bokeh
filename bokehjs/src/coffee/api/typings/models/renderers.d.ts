@@ -3,7 +3,7 @@ declare namespace Bokeh {
 
     export interface DataRenderer extends Renderer {}
 
-    export var TileRenderer: { new(): TileRenderer };
+    export var TileRenderer: { new(attributes?: KeyVal, options?: KeyVal): TileRenderer };
     export interface TileRenderer extends DataRenderer {
         tile_source: TileSource;
 
@@ -17,7 +17,7 @@ declare namespace Bokeh {
         render_parents: boolean;
     }
 
-    export var DynamicImageRenderer: { new(): DynamicImageRenderer };
+    export var DynamicImageRenderer: { new(attributes?: KeyVal, options?: KeyVal): DynamicImageRenderer };
     export interface DynamicImageRenderer extends DataRenderer {
         image_source: ImageSource;
 
@@ -27,7 +27,7 @@ declare namespace Bokeh {
         render_parents: boolean;
     }
 
-    export var GlyphRenderer: { new(): GlyphRenderer };
+    export var GlyphRenderer: { new(attributes?: KeyVal, options?: KeyVal): GlyphRenderer };
     export interface GlyphRenderer extends Renderer {
         data_source: DataSource;
 

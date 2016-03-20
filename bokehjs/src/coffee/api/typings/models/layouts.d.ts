@@ -8,9 +8,9 @@ declare namespace Bokeh {
         children: Array<Component>;
     }
 
-    export var HBox: { new(): HBox };
+    export var HBox: { new(attributes?: KeyVal, options?: KeyVal): HBox };
     export interface HBox extends BaseBox {}
 
-    export var VBox: { new(): VBox };
+    export var VBox: { new(attributes?: KeyVal, options?: KeyVal): VBox };
     export interface VBox extends BaseBox {}
 }

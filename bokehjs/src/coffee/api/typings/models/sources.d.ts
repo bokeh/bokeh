@@ -5,7 +5,7 @@ declare namespace Bokeh {
         callback: Callback;
     }
 
-    export var ColumnDataSource: { new(): ColumnDataSource };
+    export var ColumnDataSource: { new(attributes?: KeyVal, options?: KeyVal): ColumnDataSource };
     export interface ColumnDataSource extends DataSource {
         data: {[key: string]: ArrayLike<any>};
     }
@@ -15,7 +15,7 @@ declare namespace Bokeh {
         polling_interval: Int;
     }
 
-    export var AjaxDataSource: { new(): AjaxDataSource };
+    export var AjaxDataSource: { new(attributes?: KeyVal, options?: KeyVal): AjaxDataSource };
     export interface AjaxDataSource extends RemoteSource {
         method: HTTPMethod;
     }

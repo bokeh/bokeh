@@ -3,7 +3,7 @@ declare namespace Bokeh {
         visible: boolean;
     }
 
-    export var AnnularWedge: { new(): AnnularWedge };
+    export var AnnularWedge: { new(attributes?: KeyVal, options?: KeyVal): AnnularWedge };
     export interface AnnularWedge extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -14,7 +14,7 @@ declare namespace Bokeh {
         direction: Direction;
     }
 
-    export var Annulus: { new(): Annulus };
+    export var Annulus: { new(attributes?: KeyVal, options?: KeyVal): Annulus };
     export interface Annulus extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -22,7 +22,7 @@ declare namespace Bokeh {
         outer_radius: Spatial;
     }
 
-    export var Arc: { new(): Arc };
+    export var Arc: { new(attributes?: KeyVal, options?: KeyVal): Arc };
     export interface Arc extends Glyph, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -32,7 +32,7 @@ declare namespace Bokeh {
         direction: Direction;
     }
 
-    export var Bezier: { new(): Bezier };
+    export var Bezier: { new(attributes?: KeyVal, options?: KeyVal): Bezier };
     export interface Bezier extends Glyph, LineProps {
         x0: Numerical | Categorical;
         y0: Numerical | Categorical;
@@ -44,7 +44,7 @@ declare namespace Bokeh {
         cy1: Numerical | Categorical;
     }
 
-    export var ImageRGBA: { new(): ImageRGBA };
+    export var ImageRGBA: { new(attributes?: KeyVal, options?: KeyVal): ImageRGBA };
     export interface ImageRGBA extends Glyph {
         image: Vectorized<Array<number>>;
         rows: Vectorized<Int>;
@@ -56,12 +56,12 @@ declare namespace Bokeh {
         dilate: boolean;
     }
 
-    export var Image: { new(): Image };
+    export var Image: { new(attributes?: KeyVal, options?: KeyVal): Image };
     export interface Image extends ImageRGBA {
         color_mapper: ColorMapper;
     }
 
-    export var ImageURL: { new(): ImageURL };
+    export var ImageURL: { new(attributes?: KeyVal, options?: KeyVal): ImageURL };
     export interface ImageURL extends Glyph {
         url: Vectorized<string>;
         x: Numerical | Categorical;
@@ -76,19 +76,19 @@ declare namespace Bokeh {
         retry_timeout: Int;
     }
 
-    export var Line: { new(): Line };
+    export var Line: { new(attributes?: KeyVal, options?: KeyVal): Line };
     export interface Line extends Glyph, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
     }
 
-    export var MultiLine: { new(): MultiLine };
+    export var MultiLine: { new(attributes?: KeyVal, options?: KeyVal): MultiLine };
     export interface MultiLine extends Glyph, LineProps {
         xs: MultiNumerical | MultiCategorical;
         ys: MultiNumerical | MultiCategorical;
     }
 
-    export var Oval: { new(): Oval };
+    export var Oval: { new(attributes?: KeyVal, options?: KeyVal): Oval };
     export interface Oval extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -97,19 +97,19 @@ declare namespace Bokeh {
         angle: Angular;
     }
 
-    export var Patch: { new(): Patch };
+    export var Patch: { new(attributes?: KeyVal, options?: KeyVal): Patch };
     export interface Patch extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
     }
 
-    export var Patches: { new(): Patches };
+    export var Patches: { new(attributes?: KeyVal, options?: KeyVal): Patches };
     export interface Patches extends Glyph, LineProps, FillProps {
         xs: MultiNumerical | MultiCategorical;
         ys: MultiNumerical | MultiCategorical;
     }
 
-    export var Quad: { new(): Quad };
+    export var Quad: { new(attributes?: KeyVal, options?: KeyVal): Quad };
     export interface Quad extends Glyph, FillProps, LineProps {
         left: Numerical | Categorical;
         right: Numerical | Categorical;
@@ -117,7 +117,7 @@ declare namespace Bokeh {
         top: Numerical | Categorical;
     }
 
-    export var Quadratic: { new(): Quadratic };
+    export var Quadratic: { new(attributes?: KeyVal, options?: KeyVal): Quadratic };
     export interface Quadratic extends Glyph, LineProps {
         x0: Numerical | Categorical;
         y0: Numerical | Categorical;
@@ -127,7 +127,7 @@ declare namespace Bokeh {
         cy: Numerical | Categorical;
     }
 
-    export var Ray: { new(): Ray };
+    export var Ray: { new(attributes?: KeyVal, options?: KeyVal): Ray };
     export interface Ray extends Glyph, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -135,7 +135,7 @@ declare namespace Bokeh {
         angle: Angular;
     }
 
-    export var Rect: { new(): Rect };
+    export var Rect: { new(attributes?: KeyVal, options?: KeyVal): Rect };
     export interface Rect extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -145,7 +145,7 @@ declare namespace Bokeh {
         dilate: boolean;
     }
 
-    export var Segment: { new(): Segment };
+    export var Segment: { new(attributes?: KeyVal, options?: KeyVal): Segment };
     export interface Segment extends Glyph, LineProps {
         x0: Numerical | Categorical;
         y0: Numerical | Categorical;
@@ -153,7 +153,7 @@ declare namespace Bokeh {
         y1: Numerical | Categorical;
     }
 
-    export var Text: { new(): Text };
+    export var Text: { new(attributes?: KeyVal, options?: KeyVal): Text };
     export interface Text extends Glyph, TextProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -163,7 +163,7 @@ declare namespace Bokeh {
         y_offset: Spatial;
     }
 
-    export var Wedge: { new(): Wedge };
+    export var Wedge: { new(attributes?: KeyVal, options?: KeyVal): Wedge };
     export interface Wedge extends Glyph, FillProps, LineProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;
@@ -173,7 +173,7 @@ declare namespace Bokeh {
         direction: Direction;
     }
 
-    export var Gear: { new(): Gear };
+    export var Gear: { new(attributes?: KeyVal, options?: KeyVal): Gear };
     export interface Gear extends Glyph, LineProps, FillProps {
         x: Numerical | Categorical;
         y: Numerical | Categorical;

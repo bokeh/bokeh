@@ -1,7 +1,7 @@
 declare namespace Bokeh {
     type JsObj = {[key: string]: any};
 
-    export var Document: { new(): Document } & DocumentStatic;
+    export var Document: { new(attributes?: KeyVal, options?: KeyVal): Document } & DocumentStatic;
     export interface Document {
         clear(): void;
         roots(): Array<Model>;
