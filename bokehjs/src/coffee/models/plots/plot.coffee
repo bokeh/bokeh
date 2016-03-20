@@ -125,7 +125,6 @@ class PlotView extends Renderer.View
         else
           r.set('layout_location', r.get('location'), { silent: true })
         r.initialize_layout()
-
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -448,12 +447,11 @@ class PlotView extends Renderer.View
     @frame.set_var('width', @canvas.get('width') - 1)
     @frame.set_var('height', @canvas.get('height') - 1)
 
-    s = @model.document.solver()
-    for k, v of @renderers
-      if v.model.update_layout?
-        v.model.update_layout(v, s)
-    s.update_variables(false)
-    # TODO The event from the solver update doesn't reach the frame in time (sometimes) so force an update here for now
+    for i, renderer_view of @renderers
+      if renderer_view.update_constraints?
+        renderer_view.update_constraints()
+    # TODO The event from the solver update doesn't reach 
+    # the frame in time (sometimes) so force an update here for now
     @frame._update_mappers()
 
     ctx = @canvas_view.ctx
@@ -645,7 +643,6 @@ class Plot extends Component.Model
     @right_panel.attach_document(@document)
 
     logger.debug("Plot attached to document")
-
 
   get_constraints: () ->
     constraints = []
