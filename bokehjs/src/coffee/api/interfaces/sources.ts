@@ -11,7 +11,7 @@ export interface DataSource extends Model {
 }
 
 export interface ColumnDataSource extends DataSource {
-    data: {[key: string]: any};
+    data: {[key: string]: ArrayLike<any>};
 }
 
 export interface RemoteSource extends DataSource {
