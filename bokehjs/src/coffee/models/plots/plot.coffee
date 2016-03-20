@@ -116,6 +116,7 @@ class PlotView extends Renderer.View
       }
     }
 
+    # Formerly in initialize_layout
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @mget(side)
       for r in layout_renderers
@@ -142,8 +143,6 @@ class PlotView extends Renderer.View
       @levels[level] = {}
     @build_levels()
     @bind_bokeh_events()
-
-    @model.add_constraints()
 
     @ui_event_bus = new UIEvents({
       tool_manager: @mget('tool_manager')
@@ -634,46 +633,43 @@ class Plot extends Component.Model
     })
     frame.attach_document(@document)
     @set('frame', frame)
+    
+    # Add the panels that make up the layout
+    @above_panel = new LayoutBox.Model()
+    @above_panel.attach_document(@document)
+    @below_panel = new LayoutBox.Model()
+    @below_panel.attach_document(@document)
+    @left_panel = new LayoutBox.Model()
+    @left_panel.attach_document(@document)
+    @right_panel = new LayoutBox.Model()
+    @right_panel.attach_document(@document)
 
-  add_constraints: () ->
-    s = @document.solver()
+    logger.debug("Plot attached to document")
+
+
+  get_constraints: () ->
+    constraints = []
 
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
+    frame             = @get('frame')
+    canvas            = @get('canvas')
 
-    frame = @get('frame')
-    canvas = @get('canvas')
-
-    # Add the padding
-    above_box = new LayoutBox.Model()
-    above_box.attach_document(@document)
-    s.add_constraint(GE(above_box._height, -min_border_top))
-    s.add_constraint(EQ(frame._top, [-1, above_box._bottom]))
-    s.add_constraint(EQ(above_box._top, [-1, canvas._top]))
-    @above_panel = above_box
-
-    below_box = new LayoutBox.Model()
-    below_box.attach_document(@document)
-    s.add_constraint(GE(below_box._height, -min_border_bottom))
-    s.add_constraint(EQ(frame._bottom, [-1, below_box._top]))
-    s.add_constraint(EQ(below_box._bottom, [-1, canvas._bottom]))
-    @below_panel = below_box
-
-    left_box = new LayoutBox.Model()
-    left_box.attach_document(@document)
-    s.add_constraint(GE(left_box._width, -min_border_left))
-    s.add_constraint(EQ(frame._left, [-1, left_box._right]))
-    s.add_constraint(EQ(left_box._left, [-1, canvas._left]))
-    @left_panel = left_box
-
-    right_box = new LayoutBox.Model()
-    right_box.attach_document(@document)
-    s.add_constraint(GE(right_box._width, -min_border_right))
-    s.add_constraint(EQ(frame._right, [-1, right_box._left]))
-    s.add_constraint(EQ(right_box._right, [-1, canvas._right]))
-    @right_panel = right_box
+    # Setup the sides of the panel
+    constraints.push(GE(@above_panel._height, -min_border_top))
+    constraints.push(EQ(frame._top, [-1, @above_panel._bottom]))
+    constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
+    constraints.push(GE(@below_panel._height, -min_border_bottom))
+    constraints.push(EQ(frame._bottom, [-1, @below_panel._top]))
+    constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
+    constraints.push(GE(@left_panel._width, -min_border_left))
+    constraints.push(EQ(frame._left, [-1, @left_panel._right]))
+    constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
+    constraints.push(GE(@right_panel._width, -min_border_right))
+    constraints.push(EQ(frame._right, [-1, @right_panel._left]))
+    constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
 
     # Position all the sides next to each other
     for side in ['above', 'below', 'left', 'right']
@@ -681,14 +677,15 @@ class Plot extends Component.Model
       last = frame
       for r in layout_renderers
         if side == "above"
-          s.add_constraint(EQ(last._top, [-1, r.panel._bottom]))
+          constraints.push(EQ(last._top, [-1, r.panel._bottom]))
         if side == "below"
-          s.add_constraint(EQ(last._bottom, [-1, r.panel._top]))
+          constraints.push(EQ(last._bottom, [-1, r.panel._top]))
         if side == "left"
-          s.add_constraint(EQ(last._left, [-1, r.panel._right]))
+          constraints.push(EQ(last._left, [-1, r.panel._right]))
         if side == "right"
-          s.add_constraint(EQ(last._right, [-1, r.panel._left]))
+          constraints.push(EQ(last._right, [-1, r.panel._left]))
         last = r
+    return constraints
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
