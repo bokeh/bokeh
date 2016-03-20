@@ -18,7 +18,7 @@ class LogTickFormatter extends TickFormatter.Model
     if not @get('ticker')?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     if ticks.length == 0
       return []
 
@@ -36,7 +36,7 @@ class LogTickFormatter extends TickFormatter.Model
         break
 
     if small_interval
-      labels = @basic_formatter.format(ticks)
+      labels = @basic_formatter.doFormat(ticks)
 
     return labels
 

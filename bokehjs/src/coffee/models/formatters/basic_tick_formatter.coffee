@@ -27,7 +27,7 @@ class BasicTickFormatter extends TickFormatter.Model
 
     @last_precision = 3
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     if ticks.length == 0
       return []
 

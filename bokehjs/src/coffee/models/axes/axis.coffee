@@ -244,7 +244,7 @@ class AxisView extends Renderer.View
       angle = -orient
     standoff = @model._tick_extent(@) + @mget('major_label_standoff')
 
-    labels = @mget('formatter').format(coords.major[dim])
+    labels = @mget('formatter').doFormat(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
@@ -554,7 +554,7 @@ class Axis extends GuideRenderer.Model
     side = @get('layout_location')
     orient = @get('major_label_orientation')
 
-    labels = @get('formatter').format(coords[dim])
+    labels = @get('formatter').doFormat(coords[dim])
 
     view.visuals.major_label_text.set_value(ctx)
 

@@ -14,7 +14,7 @@ class NumeralTickFormatter extends TickFormatter.Model
       rounding: [ p.String, 'round' ]
     }
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     format = @get("format")
     language = @get("language")
     rounding = switch @get("rounding")
