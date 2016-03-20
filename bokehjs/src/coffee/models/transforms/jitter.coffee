@@ -21,8 +21,8 @@ class Jitter extends Transform.Model
     loop
       r1 = Math.random()
       r2 = Math.random()
-      r2 = (2*r2-1)*sqrt(2*(1/Math.E))
-      break if -4*r1*r1*Math.Log(r1) >= r2*r2
+      r2 = (2*r2-1)*Math.sqrt(2*(1/Math.E))
+      break if -4*r1*r1*Math.log(r1) >= r2*r2
     rn = r2/r1
 
     # Transform the standard normal to meet the characteristics that we want (mu, sigma)
