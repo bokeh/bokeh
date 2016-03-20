@@ -17,9 +17,7 @@ declare namespace Bokeh {
 
     export var DatetimeTickFormatter: { new(attributes?: KeyVal, options?: KeyVal): DatetimeTickFormatter };
     export interface DatetimeTickFormatter extends TickFormatter {
-        /*
-        formats: Map[DatetimeUnits, List[String]]];
-        */
+        formats: {[key: string /*DatetimeUnits*/]: Array<string>};
     }
 
     export var NumeralTickFormatter: { new(attributes?: KeyVal, options?: KeyVal): NumeralTickFormatter };
