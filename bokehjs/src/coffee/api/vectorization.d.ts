@@ -1,5 +1,4 @@
-import {SpatialUnits,AngleUnits} from "./enums";
-
+declare namespace Bokeh {
 export type Field = string;
 
 export interface Vectorized<T> {
@@ -20,3 +19,4 @@ export type Categorical = Vectorized<string>;
 
 export type MultiNumerical = Vectorized<Array<number>>;
 export type MultiCategorical = Vectorized<Array<string>>;
+}

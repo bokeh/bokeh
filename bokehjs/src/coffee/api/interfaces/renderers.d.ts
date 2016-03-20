@@ -1,11 +1,4 @@
-import {Model} from "./model";
-import {Glyph} from "./glyphs";
-import {DataSource} from "./sources";
-import {TileSource} from "./tiles";
-import {ImageSource} from "./images";
-import {Auto,RenderLevel} from "../enums";
-import {Percent} from "../types";
-
+declare namespace Bokeh {
 export interface Renderer extends Model {}
 
 export interface DataRenderer extends Renderer {}
@@ -51,4 +44,5 @@ export interface GuideRenderer extends Renderer {
 
     x_range_name: string;
     y_range_name: string;
+}
 }

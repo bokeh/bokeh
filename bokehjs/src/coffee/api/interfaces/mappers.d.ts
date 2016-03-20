@@ -1,7 +1,4 @@
-import {Model} from "./model";
-import {Palette} from "../palettes";
-import {Color} from "../types";
-
+declare namespace Bokeh {
 export interface ColorMapper extends Model {}
 
 export interface LinearColorMapper extends ColorMapper {
@@ -12,4 +9,5 @@ export interface LinearColorMapper extends ColorMapper {
 
     reserve_color: Color;
     reserve_val: number;
+}
 }

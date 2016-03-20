@@ -1,3 +1,4 @@
+declare namespace Bokeh {
 type NamedColor =
     "aliceblue"            |
     "antiquewhite"         |
@@ -146,3 +147,4 @@ type NamedColor =
     "whitesmoke"           |
     "yellow"               |
     "yellowgreen";
+}

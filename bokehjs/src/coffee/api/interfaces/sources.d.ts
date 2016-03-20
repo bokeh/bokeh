@@ -1,9 +1,4 @@
-import {Model} from "./model";
-import {Selected} from "./selected";
-import {Callback} from "./callbacks";
-import {HTTPMethod} from "../enums";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface DataSource extends Model {
     column_names: Array<string>;
     selected: Selected;
@@ -21,4 +16,5 @@ export interface RemoteSource extends DataSource {
 
 export interface AjaxDataSource extends RemoteSource {
     method: HTTPMethod;
+}
 }

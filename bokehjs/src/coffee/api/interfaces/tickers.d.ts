@@ -1,6 +1,4 @@
-import {Model} from "./model";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface Ticker extends Model {
     num_minor_ticks: Int;
     desired_num_ticks: Int;
@@ -42,3 +40,4 @@ export interface LogTicker extends AdaptiveTicker {}
 export interface CategoricalTicker extends Ticker {}
 
 export interface DatetimeTicker extends Ticker {}
+}

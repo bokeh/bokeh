@@ -1,5 +1,5 @@
-import {Model} from './model';
-
+declare namespace Bokeh {
 export interface Component extends Model {
     disabled: boolean;
+}
 }

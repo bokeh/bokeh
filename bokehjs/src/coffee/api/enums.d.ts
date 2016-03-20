@@ -1,3 +1,4 @@
+declare namespace Bokeh {
 export type Auto = "auto";
 
 export type LineJoin = "miter" | "round" | "bevel";
@@ -36,3 +37,4 @@ export type PointPolicy = "snap_to_data" | "follow_mouse" | "none";
 export type LinePolicy = "prev" | "next" | "nearest" | "interp" | "none";
 export type HTTPMethod = "POST" | "GET";
 export type Place = "left" | "right" | "above" | "below" | "center";
+}

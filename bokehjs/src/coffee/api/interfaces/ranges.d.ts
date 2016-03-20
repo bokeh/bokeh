@@ -1,9 +1,4 @@
-import {Model} from "./model";
-import {Renderer} from "./renderers";
-import {Callback} from "./callbacks";
-import {Auto,StartEnd} from "../enums";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface Range extends Model {
     callback: Callback;
 }
@@ -37,4 +32,5 @@ export interface FactorRange extends Range {
     offset: number;
     factors: Array<string> | Array<Int>;
     bounds: Auto | Array<string> | Array<Int>;
+}
 }

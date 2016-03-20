@@ -1,13 +1,4 @@
-import {Model} from "./model";
-import {Component} from "./component";
-import {Range} from "./ranges";
-import {DataSource} from "./sources";
-import {Glyph} from "./glyphs";
-import {Renderer,GlyphRenderer} from "./renderers";
-import {Tool,ToolEvents} from "./tools";
-import {Location,Logo,Place} from "../enums";
-import {Int,Color} from "../types";
-
+declare namespace Bokeh {
 export interface Plot extends Component {
     title: string;
 
@@ -75,4 +66,5 @@ export interface BackRef {
 export interface GridPlot extends Plot {
     children: Array<Array<Plot>>;
     border_space: Int;
+}
 }

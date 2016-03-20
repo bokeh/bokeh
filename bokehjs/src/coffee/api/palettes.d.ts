@@ -1,3 +1,4 @@
+declare namespace Bokeh {
 export type YlGn     = "YlGn3"     | "YlGn4"     | "YlGn5"     | "YlGn6"     | "YlGn7"     | "YlGn8"     | "YlGn9";
 export type YlGnBu   = "YlGnBu3"   | "YlGnBu4"   | "YlGnBu5"   | "YlGnBu6"   | "YlGnBu7"   | "YlGnBu8"   | "YlGnBu9";
 export type GnBu     = "GnBu3"     | "GnBu4"     | "GnBu5"     | "GnBu6"     | "GnBu7"     | "GnBu8"     | "GnBu9";
@@ -30,4 +31,4 @@ export type Palette =
     YlGn | YlGnBu | GnBu | BuGn | PuBuGn | PuBu | BuPu | RdPu | PuRd | OrRd |
     YlOrRd | YlOrBr | Purples | Blues | Greens | Oranges | Reds | Greys |
     PuOr | BrBG | PRGn | PiYG | RdBu | RdGy | RdYlBu | Spectral | RdYlGn;
-
+}

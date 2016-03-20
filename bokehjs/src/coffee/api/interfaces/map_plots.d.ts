@@ -1,7 +1,4 @@
-import {Plot} from "./plots";
-import {MapType} from "../enums";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface MapOptions {
     lat: number;
     lng: number;
@@ -17,4 +14,5 @@ export interface GMapOptions extends MapOptions {
 
 export interface GMapPlot extends MapPlot {
     map_options: GMapOptions;
+}
 }

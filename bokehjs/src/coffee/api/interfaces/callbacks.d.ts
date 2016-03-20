@@ -1,6 +1,4 @@
-import {Model} from './model';
-import {ScriptingLanguage} from '../enums';
-
+declare namespace Bokeh {
 export interface Callback extends Model {}
 
 export interface OpenURL extends Callback {
@@ -11,4 +9,5 @@ export interface CustomJS extends Callback {
     args: {[key: string]: Model};
     code: string;
     lang: ScriptingLanguage;
+}
 }

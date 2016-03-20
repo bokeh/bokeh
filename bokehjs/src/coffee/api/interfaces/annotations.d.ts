@@ -1,10 +1,4 @@
-import {Auto,RenderLevel,RenderMode,LegendLocation,Orientation,SpatialUnits,Side,Dimension} from "../enums";
-import {Renderer,GlyphRenderer} from "./renderers";
-import {BackRef} from "./plots";
-import {Numerical} from "../vectorization";
-import {FillProps,LineProps} from "./mixins";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface Annotation extends Renderer, BackRef {
     level: RenderLevel;
 }
@@ -77,4 +71,5 @@ export interface Overlay extends Annotation {}
 export interface Tooltip extends Overlay {
     side: Auto | Side;
     inner_only: boolean;
+}
 }

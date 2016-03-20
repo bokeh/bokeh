@@ -1,7 +1,4 @@
-import {Model} from "./model";
-import {Auto,NumeralLanguage,RoundingFunction} from "../enums";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface TickFormatter extends Model {}
 
 export interface BasicTickFormatter extends TickFormatter {
@@ -29,4 +26,5 @@ export interface NumeralTickFormatter extends TickFormatter {
 
 export interface PrintfTickFormatter extends TickFormatter {
     format: string;
+}
 }

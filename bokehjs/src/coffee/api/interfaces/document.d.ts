@@ -1,5 +1,4 @@
-import {Model} from "./model";
-
+declare namespace Bokeh {
 type JsObj = {[key: string]: any};
 
 export interface Document {
@@ -27,7 +26,7 @@ interface DocumentStatic {
     from_json(json: JsObj): Document;
 }
 
-export declare var Document: DocumentStatic;
+export var Document: DocumentStatic;
 
 export interface DocumentChangedEvent {}
 
@@ -45,4 +44,5 @@ export interface RootAddedEvent extends DocumentChangedEvent {
 
 export interface RootRemovedEvent extends DocumentChangedEvent {
     constructor(document: Document, model: Model): void;
+}
 }

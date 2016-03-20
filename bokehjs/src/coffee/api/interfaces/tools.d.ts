@@ -1,11 +1,4 @@
-import {Model} from "./model";
-import {BackRef} from "./plots";
-import {Renderer} from "./renderers";
-import {Callback} from "./callbacks";
-import {Tooltip} from "./annotations";
-import {Dimension,HoverMode,PointPolicy,LinePolicy} from "../enums";
-import {Color} from "../types";
-
+declare namespace Bokeh {
 export interface ToolEvents extends Model {
     geometries: Array<any>;
 }
@@ -77,4 +70,5 @@ export interface HoverTool extends TransientSelectTool, InspectTool {
 export interface HelpTool extends Tool {
     help_tooltip: string;
     redirect: string;
+}
 }

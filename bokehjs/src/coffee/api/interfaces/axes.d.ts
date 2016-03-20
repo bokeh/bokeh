@@ -1,9 +1,4 @@
-import {GuideRenderer} from "./renderers";
-import {Ticker} from "./tickers";
-import {TickFormatter} from "./formatters";
-import {Location,Orientation} from '../enums';
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface Axis extends GuideRenderer {
     visible: boolean;
     location: Location;
@@ -43,4 +38,5 @@ export interface DatetimeAxis extends LinearAxis {
     num_labels: Int;
     char_width: Int;
     fill_ratio: number;
+}
 }

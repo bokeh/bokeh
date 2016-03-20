@@ -1,7 +1,4 @@
-import {Vectorized} from "../vectorization";
-import {LineJoin,LineCap,DashPattern,FontStyle,TextAlign,TextBaseline} from "../enums";
-import {Int,Color,Percent,FontSize} from "../types";
-
+declare namespace Bokeh {
 export interface FillProps {
     fill_color: Vectorized<Color>;
     fill_alpha: Vectorized<Percent>;
@@ -25,4 +22,5 @@ export interface TextProps {
     text_alpha: Vectorized<Percent>;
     text_align: TextAlign;
     text_baseline: TextBaseline;
+}
 }

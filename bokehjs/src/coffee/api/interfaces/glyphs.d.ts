@@ -1,10 +1,4 @@
-import {Model} from "./model";
-import {FillProps,LineProps,TextProps} from "./mixins";
-import {Vectorized,Spatial,Angular,Numerical,Categorical,MultiNumerical,MultiCategorical} from "../vectorization";
-import {ColorMapper} from "./mappers";
-import {Direction,Anchor} from "../enums";
-import {Int,Percent} from "../types";
-
+declare namespace Bokeh {
 export interface Glyph extends Model {
     visible: boolean;
 }
@@ -169,4 +163,5 @@ export interface Gear extends Glyph, LineProps, FillProps {
     pressure_angle: Angular;
     shaft_size: Vectorized<number>;
     internal: Vectorized<boolean>;
+}
 }

@@ -1,7 +1,4 @@
-import {GuideRenderer} from "./renderers";
-import {Ticker} from "./tickers";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface Grid extends GuideRenderer {
     dimension: Int;
     ticker: Ticker;
@@ -9,4 +6,5 @@ export interface Grid extends GuideRenderer {
     //grid = include[LineProps]
     //minor_grid = include[LineProps]
     //band = include[FillProps]
+}
 }

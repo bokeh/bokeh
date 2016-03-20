@@ -1,8 +1,4 @@
-import {Glyph} from "./glyphs";
-import {FillProps,LineProps} from "./mixins";
-import {Spatial,Angular,Numerical,Categorical} from "../vectorization";
-import {Dimension} from "../enums";
-
+declare namespace Bokeh {
 export interface Marker extends Glyph, FillProps, LineProps {
     x: Numerical | Categorical;
     y: Numerical | Categorical;
@@ -28,3 +24,4 @@ export interface SquareCross extends Marker {}
 export interface SquareX extends Marker {}
 export interface Triangle extends Marker {}
 export interface X extends Marker {}
+}

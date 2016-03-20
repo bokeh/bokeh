@@ -1,6 +1,4 @@
-import {Model} from "./model";
-import {Int} from "../types";
-
+declare namespace Bokeh {
 export interface TileSource extends Model {
     url: string;
     tile_size: Int;
@@ -27,4 +25,5 @@ export interface QUADKEYTileSource extends MercatorTileSource {}
 
 export interface BBoxTileSource extends MercatorTileSource {
     use_latlon: boolean;
+}
 }
