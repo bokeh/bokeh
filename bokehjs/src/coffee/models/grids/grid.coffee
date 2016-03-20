@@ -7,8 +7,8 @@ p = require "../../core/properties"
 class GridView extends Renderer.View
   initialize: (attrs, options) ->
     super(attrs, options)
-    @x_range_name = @mget('x_range_name')
-    @y_range_name = @mget('y_range_name')
+    @_x_range_name = @mget('x_range_name')
+    @_y_range_name = @mget('y_range_name')
 
   render: () ->
     ctx = @plot_view.canvas_view.ctx
@@ -29,10 +29,8 @@ class GridView extends Renderer.View
     @visuals.band_fill.set_value(ctx)
     for i in [0...xs.length-1]
       if i % 2 == 1
-        [sx0, sy0] = @plot_view.map_to_screen(xs[i], ys[i], @x_range_name,
-                                              @y_range_name)
-        [sx1, sy1] = @plot_view.map_to_screen(xs[i+1], ys[i+1], @x_range_name,
-                                              @y_range_name)
+        [sx0, sy0] = @plot_view.map_to_screen(xs[i], ys[i], @_x_range_name, @_y_range_name)
+        [sx1, sy1] = @plot_view.map_to_screen(xs[i+1], ys[i+1], @_x_range_name, @_y_range_name)
         ctx.fillRect(sx0[0], sy0[0], sx1[1]-sx0[0], sy1[1]-sy0[0])
         ctx.fill()
     return
@@ -52,8 +50,7 @@ class GridView extends Renderer.View
   _draw_grid_helper: (ctx, props, xs, ys) ->
     props.set_value(ctx)
     for i in [0...xs.length]
-      [sx, sy] = @plot_view.map_to_screen(xs[i], ys[i], @x_range_name,
-                                          @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(xs[i], ys[i], @_x_range_name, @_y_range_name)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
       for i in [1...sx.length]
