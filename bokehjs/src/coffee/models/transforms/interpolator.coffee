@@ -4,7 +4,6 @@ p = require "../../core/properties"
 
 class Interpolator extends Transform.Model
 
-
   initialize: (attrs, options) ->
     super(attrs, options)
     @_x_sorted = []
@@ -58,8 +57,8 @@ class Interpolator extends Transform.Model
       )
 
     for k in [0..list.length-1]
-        @_x_sorted[k] = list[k].x;
-        @_y_sorted[k] = list[k].y;
+      @_x_sorted[k] = list[k].x;
+      @_y_sorted[k] = list[k].y;
 
     _sorted_dirty = false
 
