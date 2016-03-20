@@ -33,7 +33,7 @@ class Interpolator extends Transform.Model
       return
 
     # Stop processing this if the dirty flag is not set
-    if(_sorted_dirty == false)
+    if(@_sorted_dirty == false)
       return
 
     data = @get('data')
@@ -60,7 +60,7 @@ class Interpolator extends Transform.Model
       @_x_sorted[k] = list[k].x;
       @_y_sorted[k] = list[k].y;
 
-    _sorted_dirty = false
+    @_sorted_dirty = false
 
 module.exports =
   Model: Interpolator
