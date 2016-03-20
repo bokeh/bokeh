@@ -18,8 +18,6 @@ class StepInterpolator extends Interpolator.Model
         return x >= num
     )
 
-    alert([@_x_sorted, x, ind])
-
     ret = @_y_sorted[ind]
     return(ret)
 
