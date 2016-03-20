@@ -95,30 +95,35 @@ class PlotView extends Renderer.View
     super(options)
     @pause()
 
-    @_initial_state_info = {
-      range: null                     # set later by set_initial_range()
-      selection: {}                   # XXX: initial selection?
-      dimensions: {
-        width: @mget("canvas").get("width")
-        height: @mget("canvas").get("height")
-      }
-    }
-
-    @model.initialize_layout(@model.solver)
-
     # compat, to be removed
     @frame = @mget('frame')
+    @canvas = @mget('canvas')
+    @canvas_view = new @canvas.default_view({'model': @canvas})
     @x_range = @frame.get('x_ranges')['default']
     @y_range = @frame.get('y_ranges')['default']
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
 
     @$el.html(@template())
-
-    @canvas = @mget('canvas')
-    @canvas_view = new @canvas.default_view({'model': @canvas})
-
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
+
+    @_initial_state_info = {
+      range: null                     # set later by set_initial_range()
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @canvas.get("width")
+        height: @canvas.get("height")
+      }
+    }
+
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @mget(side)
+      for r in layout_renderers
+        if r.get('location') ? 'auto' == 'auto'
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
+        r.initialize_layout()
 
     @canvas_view.render(true)
 
@@ -138,6 +143,7 @@ class PlotView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
+    @model.add_constraints()
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
@@ -191,7 +197,6 @@ class PlotView extends Renderer.View
 
   update_dataranges: () ->
     # Update any DataRange1ds here
-    frame = @model.get('frame')
     bounds = {}
     for k, v of @renderers
       bds = v.glyph?.bounds?()
@@ -200,20 +205,20 @@ class PlotView extends Renderer.View
 
     follow_enabled = false
     has_bounds = false
-    for xr in _.values(frame.get('x_ranges'))
+    for xr in _.values(@frame.get('x_ranges'))
       xr.update?(bounds, 0, @model.id)
       follow_enabled = true if xr.get('follow')?
       has_bounds = true if xr.get('bounds')?
-    for yr in _.values(frame.get('y_ranges'))
+    for yr in _.values(@frame.get('y_ranges'))
       yr.update?(bounds, 1, @model.id)
       follow_enabled = true if yr.get('follow')?
       has_bounds = true if yr.get('bounds')?
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.get('x_ranges'))
+      for xr in _.values(@frame.get('x_ranges'))
         xr.set('bounds', null)
-      for yr in _.values(frame.get('y_ranges'))
+      for yr in _.values(@frame.get('y_ranges'))
         yr.set('bounds', null)
 
     @range_update_timestamp = Date.now()
@@ -370,9 +375,9 @@ class PlotView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @mget('frame').get('x_ranges')
+    for name, rng of @frame.get('x_ranges')
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @mget('frame').get('y_ranges')
+    for name, rng of @frame.get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
     @listenTo(@model, 'change:tool', @build_levels)
@@ -437,12 +442,12 @@ class PlotView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    frame = @model.get('frame')
-    canvas = @model.get('canvas')
+    canvas = @mget('canvas')
+    solver = @model.document.solver()
 
     for k, v of @renderers
       if v.model.update_layout?
-        v.model.update_layout(v, @model.document.solver())
+        v.model.update_layout(v, solver)
 
     for k, v of @renderers
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -450,14 +455,14 @@ class PlotView extends Renderer.View
         break
 
     # Note: -1 to effectively dilate the canvas by 1px
-    @model.get('frame').set_var('width', canvas.get('width')-1)
-    @model.get('frame').set_var('height', canvas.get('height')-1)
+    @frame.set_var('width', @canvas.get('width') - 1)
+    @frame.set_var('height', @canvas.get('height') - 1)
 
-    @model.document.solver().update_variables(false)
+    solver.update_variables(false)
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
-    @model.get('frame')._update_mappers()
+    @frame._update_mappers()
 
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
@@ -514,9 +519,6 @@ class PlotView extends Renderer.View
 
     if not @initial_range_info?
       @set_initial_range()
-
-    # TODO - This should only be on in testing
-    # @$el.find('canvas').attr('data-hash', ctx.hash());
 
   resize: () =>
     @resize_width_height(true, false)
@@ -627,22 +629,8 @@ class Plot extends Component.Model
 
     logger.debug("Plot initialized")
 
-  initialize_layout: (solver) ->
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
-      for r in layout_renderers
-        if r.get('location') ? 'auto' == 'auto'
-          r.set('layout_location', side, { silent: true })
-        else
-          r.set('layout_location', r.get('location'), { silent: true })
-        r.initialize_layout(solver)
-
-    @add_constraints(@document.solver())
-
   _doc_attached: () ->
     @get('canvas').attach_document(@document)
-
-    canvas = @get('canvas')
     frame = new CartesianFrame.Model({
       x_range: @get('x_range'),
       extra_x_ranges: @get('extra_x_ranges'),
@@ -654,14 +642,16 @@ class Plot extends Component.Model
     frame.attach_document(@document)
     @set('frame', frame)
 
-  add_constraints: (solver) ->
+  add_constraints: () ->
+    solver = @document.solver()
+
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
 
-    canvas = @get('canvas')
     frame = @get('frame')
+    canvas = @get('canvas')
 
     # Add the padding
     above_box = new LayoutBox.Model()

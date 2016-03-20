@@ -368,7 +368,7 @@ class Axis extends GuideRenderer.Model
     @panel = new LayoutBox.Model()
     @panel.attach_document(@document)
 
-  initialize_layout: (solver) ->
+  initialize_layout: () ->
     side = @get('layout_location')
     if side == "above"
       @_dim = 0
@@ -394,6 +394,8 @@ class Axis extends GuideRenderer.Model
       logger.error("unrecognized side: '#{ side }'")
 
   update_layout: (view, solver) ->
+    # This is called from plot's render method
+
     if not @get('visible')
       # if not visible, avoid applying constraints until visible again
       return
