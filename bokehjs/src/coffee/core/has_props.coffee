@@ -28,13 +28,13 @@ class HasProps extends Backbone.Model
         # XXX: should be an error, but Backbone.Model.url must be removed first
         console.log("attempted to redefine attribute '#{this.name}.#{name}'")
 
-      #Object.defineProperty(this.prototype, name, {
-      #  get: ()      -> this.get(name)
-      #  set: (value) -> this.set(name, value)
-      #}, {
-      #  configurable: false
-      #  enumerable: true
-      #})
+      Object.defineProperty(this.prototype, name, {
+        get: ()      -> this.get(name)
+        set: (value) -> this.set(name, value)
+      }, {
+        configurable: false
+        enumerable: true
+      })
 
       props = _.clone(this.prototype.props)
       props[name] = prop
