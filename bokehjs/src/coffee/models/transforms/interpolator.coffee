@@ -16,30 +16,51 @@ class Interpolator extends Transform.Model
 
   props: ->
     return _.extend {}, super(), {
-      x: [ p.String, '']
-      y: [ p.String, '']
+      x: [ p.Any, '']
+      y: [ p.Any, '']
       data: [ p.Any, null]
     }
 
   sort: (descending = false) ->
     # Verify that all necessary objects exist...
-    if @get('x').length == 0
+    if typeof(@get('x')) != typeof(@get('y'))
+      # ToDo: Throw a resonable error here
       return
 
-    if @get('y').length == 0
-      return
+    if typeof(@get('x')) == 'object'
+      if @get('x').length != @get('y').length
+        # ToDo: Throw a resonable error here
+        return
+    else
+      if @get('x').length == 0
+        return
 
-    if @get('data') == null
-      return
+      if @get('y').length == 0
+        return
+
+      if @get('data') == null
+        # ToDo: Throw a resonable error here.
+        return
 
     # Stop processing this if the dirty flag is not set
     if(@_sorted_dirty == false)
       return
 
-    data = @get('data')
+    console.log('Sorting...')
 
-    tsx = data.get_column(@get('x'))
-    tsy = data.get_column(@get('y'))
+    tsx = []
+    tsy = []
+
+    # Populate the tsx and tsy variables correctly depending on the method by which the user populated the interpolation
+    # data.
+    if typeof(@get('x')) == 'string'
+      data = @get('data')
+
+      tsx = data.get_column(@get('x'))
+      tsy = data.get_column(@get('y'))
+    else
+      tsx = @get('x')
+      tsy = @get('y')
 
     # The following sorting code is referenced from:
     # http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
