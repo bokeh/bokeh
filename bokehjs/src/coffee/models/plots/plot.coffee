@@ -679,10 +679,6 @@ class Plot extends Component.Model
           r.set('layout_location', r.get('location'), { silent: true })
         solver.add_constraint( EQ(last.panel[c0], [-1, r.panel[c1]]) )
         last = r
-      padding = new LayoutBox.Model()
-      padding.attach_document(@document)
-      solver.add_constraint( EQ(last.panel[c0], [-1, padding[c1]]) )
-      solver.add_constraint( EQ(padding[c0], [-1, canvas.panel[c0]]) )
       return box
 
     @_above_panel = do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
