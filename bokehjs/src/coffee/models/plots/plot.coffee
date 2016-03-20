@@ -144,7 +144,6 @@ class PlotView extends Renderer.View
     @bind_bokeh_events()
 
     @model.add_constraints()
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
       tool_manager: @mget('tool_manager')
@@ -383,6 +382,7 @@ class PlotView extends Renderer.View
     @listenTo(@model, 'change:tool', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
+    @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -443,11 +443,11 @@ class PlotView extends Renderer.View
     ctx = @canvas_view.ctx
 
     canvas = @mget('canvas')
-    solver = @model.document.solver()
+    s = @model.document.solver()
 
     for k, v of @renderers
       if v.model.update_layout?
-        v.model.update_layout(v, solver)
+        v.model.update_layout(v, s)
 
     for k, v of @renderers
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -458,10 +458,8 @@ class PlotView extends Renderer.View
     @frame.set_var('width', @canvas.get('width') - 1)
     @frame.set_var('height', @canvas.get('height') - 1)
 
-    solver.update_variables(false)
-
-    # TODO (bev) OK this sucks, but the event from the solver update doesn't
-    # reach the frame in time (sometimes) so force an update here for now
+    s.update_variables(false)
+    # TODO The event from the solver update doesn't reach the frame in time (sometimes) so force an update here for now
     @frame._update_mappers()
 
     frame_box = [
@@ -643,7 +641,7 @@ class Plot extends Component.Model
     @set('frame', frame)
 
   add_constraints: () ->
-    solver = @document.solver()
+    s = @document.solver()
 
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
@@ -656,30 +654,30 @@ class Plot extends Component.Model
     # Add the padding
     above_box = new LayoutBox.Model()
     above_box.attach_document(@document)
-    solver.add_constraint(GE(above_box._height, -min_border_top))
-    solver.add_constraint(EQ(frame._top, [-1, above_box._bottom]))
-    solver.add_constraint(EQ(above_box._top, [-1, canvas._top]))
+    s.add_constraint(GE(above_box._height, -min_border_top))
+    s.add_constraint(EQ(frame._top, [-1, above_box._bottom]))
+    s.add_constraint(EQ(above_box._top, [-1, canvas._top]))
     @above_panel = above_box
 
     below_box = new LayoutBox.Model()
     below_box.attach_document(@document)
-    solver.add_constraint(GE(below_box._height, -min_border_bottom))
-    solver.add_constraint(EQ(frame._bottom, [-1, below_box._top]))
-    solver.add_constraint(EQ(below_box._bottom, [-1, canvas._bottom]))
+    s.add_constraint(GE(below_box._height, -min_border_bottom))
+    s.add_constraint(EQ(frame._bottom, [-1, below_box._top]))
+    s.add_constraint(EQ(below_box._bottom, [-1, canvas._bottom]))
     @below_panel = below_box
 
     left_box = new LayoutBox.Model()
     left_box.attach_document(@document)
-    solver.add_constraint(GE(left_box._width, -min_border_left))
-    solver.add_constraint(EQ(frame._left, [-1, left_box._right]))
-    solver.add_constraint(EQ(left_box._left, [-1, canvas._left]))
+    s.add_constraint(GE(left_box._width, -min_border_left))
+    s.add_constraint(EQ(frame._left, [-1, left_box._right]))
+    s.add_constraint(EQ(left_box._left, [-1, canvas._left]))
     @left_panel = left_box
 
     right_box = new LayoutBox.Model()
     right_box.attach_document(@document)
-    solver.add_constraint(GE(right_box._width, -min_border_right))
-    solver.add_constraint(EQ(frame._right, [-1, right_box._left]))
-    solver.add_constraint(EQ(right_box._right, [-1, canvas._right]))
+    s.add_constraint(GE(right_box._width, -min_border_right))
+    s.add_constraint(EQ(frame._right, [-1, right_box._left]))
+    s.add_constraint(EQ(right_box._right, [-1, canvas._right]))
     @right_panel = right_box
 
     # Position all the sides next to each other
@@ -688,13 +686,13 @@ class Plot extends Component.Model
       last = frame
       for r in layout_renderers
         if side == "above"
-          solver.add_constraint(EQ(last._top, [-1, r.panel._bottom]))
+          s.add_constraint(EQ(last._top, [-1, r.panel._bottom]))
         if side == "below"
-          solver.add_constraint(EQ(last._bottom, [-1, r.panel._top]))
+          s.add_constraint(EQ(last._bottom, [-1, r.panel._top]))
         if side == "left"
-          solver.add_constraint(EQ(last._left, [-1, r.panel._right]))
+          s.add_constraint(EQ(last._left, [-1, r.panel._right]))
         if side == "right"
-          solver.add_constraint(EQ(last._right, [-1, r.panel._left]))
+          s.add_constraint(EQ(last._right, [-1, r.panel._left]))
         last = r
 
   add_renderers: (new_renderers) ->
