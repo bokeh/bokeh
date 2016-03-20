@@ -618,8 +618,6 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
-  mixins: ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
