@@ -185,6 +185,8 @@ class RendererView extends BokehView
     for [xname, yname] in @model._coords
       sxname = "s#{xname}"
       syname = "s#{yname}"
+      xname = "_#{xname}"
+      yname = "_#{yname}"
       if _.isArray(@[xname]?[0])
         [ @[sxname], @[syname] ] = [ [], [] ]
         for i in [0...@[xname].length]
@@ -222,18 +224,18 @@ class RendererView extends BokehView
       # this skips optional properties like radius for circles
       if (prop.optional || false) and prop.spec.value == null and (name not of @model._set_after_defaults)
         continue
-      @[name] = prop.array(source)
+      @["_#{name}"] = prop.array(source)
       if prop instanceof p.Distance
-        @["max_#{name}"] = array_max(@[name])
+        @["max_#{name}"] = array_max(@["_#{name}"])
 
     if @renderer.plot_model.use_map
-      if @x?
-        [@x, @y] = @project_xy(@x, @y)
-      if @xs?
-        [@xs, @ys] = @project_xsys(@xs, @ys)
+      if @_x?
+        [@_x, @_y] = @project_xy(@_x, @_y)
+      if @_xs?
+        [@_xs, @_ys] = @project_xsys(@_xs, @_ys)
 
     if @glglyph?
-      @glglyph.set_data_changed(@x.length)
+      @glglyph.set_data_changed(@_x.length)
 
     @_set_data()
 

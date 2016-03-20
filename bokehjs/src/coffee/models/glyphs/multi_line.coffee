@@ -8,9 +8,9 @@ class MultiLineView extends Glyph.View
   _index_data: () ->
     index = rbush()
     pts = []
-    for i in [0...@xs.length]
-      xs = (x for x in @xs[i] when not _.isNaN(x))
-      ys = (y for y in @ys[i] when not _.isNaN(y))
+    for i in [0...@_xs.length]
+      xs = (x for x in @_xs[i] when not _.isNaN(x))
+      ys = (y for y in @_ys[i] when not _.isNaN(y))
       if xs.length == 0
         continue
       pts.push([

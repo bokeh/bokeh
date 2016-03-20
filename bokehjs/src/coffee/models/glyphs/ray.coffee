@@ -9,7 +9,7 @@ class RayView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    @slength = @sdist(@renderer.xmapper, @x, @length)
+    @slength = @sdist(@renderer.xmapper, @_x, @_length)
 
   _render: (ctx, indices, {sx, sy, slength, angle}) ->
     if @visuals.line.doit

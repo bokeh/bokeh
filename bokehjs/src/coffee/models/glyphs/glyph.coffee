@@ -79,13 +79,13 @@ class GlyphView extends Renderer.View
 
     # if the range is categorical, map to synthetic coordinates first
     if @renderer.xmapper instanceof CategoricalMapper.Model
-      xx = @renderer.xmapper.v_map_to_target(@x, true)
+      xx = @renderer.xmapper.v_map_to_target(@_x, true)
     else
-      xx = @x
+      xx = @_x
     if @renderer.ymapper instanceof CategoricalMapper.Model
-      yy = @renderer.ymapper.v_map_to_target(@y, true)
+      yy = @renderer.ymapper.v_map_to_target(@_y, true)
     else
-      yy = @y
+      yy = @_y
 
     for i in [0...xx.length]
       x = xx[i]

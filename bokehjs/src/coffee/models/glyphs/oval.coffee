@@ -18,21 +18,21 @@ class OvalView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @x, @width, 'center')
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
     else
-      @sw = @width
+      @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @y, @height, 'center')
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center')
     else
-      @sh = @height
+      @sh = @_height
 
   _render: (ctx, indices, {sx, sy, sw, sh}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+@angle[i])
+      if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+@_angle[i])
         continue
 
       ctx.translate(sx[i], sy[i])
-      ctx.rotate(@angle[i])
+      ctx.rotate(@_angle[i])
 
       ctx.beginPath()
       ctx.moveTo(0, -sh[i]/2)
@@ -48,7 +48,7 @@ class OvalView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
-      ctx.rotate(-@angle[i])
+      ctx.rotate(-@_angle[i])
       ctx.translate(-sx[i], -sy[i])
 
   draw_legend: (ctx, x0, x1, y0, y1) ->

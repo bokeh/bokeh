@@ -12,16 +12,16 @@ class AnnularWedgeView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.inner_radius.units == "data"
-      @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
+      @sinner_radius = @sdist(@renderer.xmapper, @_x, @_inner_radius)
     else
-      @sinner_radius = @inner_radius
+      @sinner_radius = @_inner_radius
     if @model.properties.outer_radius.units == "data"
-      @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
+      @souter_radius = @sdist(@renderer.xmapper, @_x, @_outer_radius)
     else
-      @souter_radius = @outer_radius
-    @angle = new Float32Array(@start_angle.length)
-    for i in [0...@start_angle.length]
-      @angle[i] = @end_angle[i] - @start_angle[i]
+      @souter_radius = @_outer_radius
+    @angle = new Float32Array(@_start_angle.length)
+    for i in [0...@_start_angle.length]
+      @angle[i] = @_end_angle[i] - @_start_angle[i]
 
   _render: (ctx, indices, {sx, sy, start_angle, angle, sinner_radius, souter_radius}) ->
     direction = @model.properties.direction.value()
@@ -30,7 +30,7 @@ class AnnularWedgeView extends Glyph.View
         continue
 
       ctx.translate(sx[i], sy[i])
-      ctx.rotate(@start_angle[i])
+      ctx.rotate(@_start_angle[i])
 
       ctx.moveTo(souter_radius[i], 0)
       ctx.beginPath()
@@ -78,9 +78,9 @@ class AnnularWedgeView extends Glyph.View
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)
-      sx1 = @renderer.xmapper.map_to_target(@x[i], true)
+      sx1 = @renderer.xmapper.map_to_target(@_x[i], true)
       sy0 = @renderer.ymapper.map_to_target(y, true)
-      sy1 = @renderer.ymapper.map_to_target(@y[i], true)
+      sy1 = @renderer.ymapper.map_to_target(@_y[i], true)
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         candidates.push([i, dist])
@@ -92,7 +92,7 @@ class AnnularWedgeView extends Glyph.View
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
-      if angle_between(-angle, -@start_angle[i], -@end_angle[i], direction)
+      if angle_between(-angle, -@_start_angle[i], -@_end_angle[i], direction)
         hits.push([i, dist])
 
     result = hittest.create_hit_test_result()

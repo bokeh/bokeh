@@ -11,34 +11,34 @@ class ImageRGBAView extends Glyph.View
   # TODO (bev) to improve. Currently, if only one image has changed, can
   # pass index as "arg" to prevent full re-preocessing (useful for streaming)
   _set_data: (source, arg) ->
-    if not @image_data? or @image_data.length != @image.length
-      @image_data = new Array(@image.length)
+    if not @image_data? or @image_data.length != @_image.length
+      @image_data = new Array(@_image.length)
 
-    if not @width? or @width.length != @image.length
-      @width = new Array(@image.length)
+    if not @_width? or @_width.length != @_image.length
+      @_width = new Array(@_image.length)
 
-    if not @height? or @height.length != @image.length
-      @height = new Array(@image.length)
+    if not @_height? or @_height.length != @_image.length
+      @_height = new Array(@_image.length)
 
-    for i in [0...@image.length]
+    for i in [0...@_image.length]
       if arg?
         if i != arg
           continue
-      if @rows?
-        @height[i] = @rows[i]
-        @width[i] = @cols[i]
+      if @_rows?
+        @_height[i] = @_rows[i]
+        @_width[i] = @_cols[i]
       else
-        @height[i] = @image[i].length
-        @width[i] = @image[i][0].length
+        @_height[i] = @_image[i].length
+        @_width[i] = @_image[i][0].length
       canvas = document.createElement('canvas')
-      canvas.width = @width[i]
-      canvas.height = @height[i]
+      canvas.width = @_width[i]
+      canvas.height = @_height[i]
       ctx = canvas.getContext('2d')
-      image_data = ctx.getImageData(0, 0, @width[i], @height[i])
-      if @rows?
-        image_data.data.set(new Uint8ClampedArray(@image[i]))
+      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
+      if @_rows?
+        image_data.data.set(new Uint8ClampedArray(@_image[i]))
       else
-        flat = _.flatten(@image[i])
+        flat = _.flatten(@_image[i])
         buf = new ArrayBuffer(flat.length * 4)
         color = new Uint32Array(buf)
         for j in [0...flat.length]
@@ -49,15 +49,15 @@ class ImageRGBAView extends Glyph.View
       @image_data[i] = canvas
 
       @max_dw = 0
-      if @dw.units == "data"
-        @max_dw = _.max(@dw)
+      if @_dw.units == "data"
+        @max_dw = _.max(@_dw)
       @max_dh = 0
-      if @dh.units == "data"
-        @max_dh = _.max(@dh)
+      if @_dh.units == "data"
+        @max_dh = _.max(@_dh)
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, @dh, 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()

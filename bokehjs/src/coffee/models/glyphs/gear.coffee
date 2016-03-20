@@ -11,7 +11,7 @@ class GearView extends Glyph.View
     return @_xy_index()
 
   _map_data: () ->
-    @smodule = @sdist(@renderer.xmapper, @x, @module, 'edge')
+    @smodule = @sdist(@renderer.xmapper, @_x, @module, 'edge')
 
   _render: (ctx, indices, {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal}) ->
     for i in indices

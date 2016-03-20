@@ -19,13 +19,13 @@ class RectView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @x, @width, 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @mget('dilate'))
     else
-      @sw = @width
+      @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @y, @height, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @mget('dilate'))
     else
-      @sh = @height
+      @sh = @_height
 
   _render: (ctx, indices, {sx, sy, sw, sh, angle}) ->
     if @visuals.fill.doit
@@ -110,10 +110,10 @@ class RectView extends Glyph.View
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-      if @angle[i]
+      if @_angle[i]
         d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
-        s = Math.sin(-@angle[i])
-        c = Math.cos(-@angle[i])
+        s = Math.sin(-@_angle[i])
+        c = Math.cos(-@_angle[i])
         px = c * (sx-@sx[i]) - s * (sy-@sy[i]) + @sx[i]
         py = s * (sx-@sx[i]) + c * (sy-@sy[i]) + @sy[i]
         sx = px

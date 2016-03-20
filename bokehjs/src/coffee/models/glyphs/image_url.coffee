@@ -38,8 +38,8 @@ class ImageURLView extends Glyph.View
       img.src = @url[i]
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, @h, 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @_x, @_w, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @_y, @_h, 'edge', @mget('dilate'))
 
   _render: (ctx, indices, {url, image, sx, sy, sw, sh, angle}) ->
 
