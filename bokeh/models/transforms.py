@@ -90,7 +90,7 @@ class LogInterpolator(Interpolator):
     pass
 
 
-class StepInterp(Interpolator):
+class StepInterpolator(Interpolator):
     ''' Compute a step-wise interpolation between the points given
     by ``values``.
 
