@@ -1,11 +1,12 @@
 _ = require "underscore"
 Transform = require "./transform"
+p = require "../../core/properties"
 
 class Jitter extends Transform.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
       mean:         [ p.Number, 0        ]
       width:        [ p.Number, 1        ]
@@ -32,10 +33,10 @@ class Jitter extends Transform.Model
   compute: (x) ->
     # Apply the transform to a single value
     if @get('distribution') == 'uniform'
-        return(x + ((Math.random() - 0.5) * @get('interval')))
+        return(x + @get('mean') + ((Math.random() - 0.5) * @get('width')))
 
     if @get('distribution') == 'normal'
-        return(x + rnorm(@get('mean'), @get('width')))
+        return(x + @rnorm(@get('mean'), @get('width')))
 
   v_compute: (xs) ->
     # Apply the tranform to a vector of values
