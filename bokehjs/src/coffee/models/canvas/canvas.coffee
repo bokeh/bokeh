@@ -76,6 +76,24 @@ class Canvas extends LayoutBox.Model
       use_hidpi: true
     }
 
+  _set_width: (width) ->
+    solver = @document.solver()
+    if @_width_constraint?
+      solver.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@_width, -width)
+    solver.add_constraint(@_width_constraint)
+    solver.update_variables()
+    return
+
+  _set_height: (height) ->
+    solver = @document.solver()
+    if @_height_constraint?
+      solver.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@_height, -height)
+    solver.add_constraint(@_height_constraint)
+    solver.update_variables()
+    return
+
   set_dims: (dims, trigger=true) ->
     @_set_width(dims[0])
     @_set_height(dims[1])
@@ -132,29 +150,6 @@ class Canvas extends LayoutBox.Model
     for y, idx in yy
       yy[idx] = canvas_height - (y + 1)
     return yy
-
-  _set_width: (width) ->
-    solver = @document.solver()
-    if @_width_constraint?
-      solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@_width, -width)
-    solver.add_constraint(@_width_constraint)
-    solver.update_variables()
-    return
-
-  _set_height: (height) ->
-    solver = @document.solver()
-    if @_height_constraint?
-      solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@_height, -height)
-    solver.add_constraint(@_height_constraint)
-    solver.update_variables()
-    return
-
-  _set_dims: (dims, trigger=true) ->
-    logger.warn("_set_dims is deprecated, use set_dims")
-    @set_dims(dims, trigger)
-    return
 
 module.exports =
   Model: Canvas
