@@ -66,6 +66,31 @@ class CanvasView extends BokehView
 
     return
 
+  set_dimensions: (dimensions) ->
+    @_requested_width = dimensions[0]
+    @_requested_height = dimensions[1]
+
+  update_constraints: (trigger=true) ->
+    requested_width = @_requested_width
+    requested_height = @_requested_height
+
+    if not requested_height? or not requested_width?
+      return
+
+    solver = @model.document.solver()
+
+    if @_height_constraint?
+      solver.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@model._height, -requested_height)
+    solver.add_constraint(@_height_constraint)
+
+    if @_width_constraint?
+      solver.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@model._width, -requested_width)
+    solver.add_constraint(@_width_constraint)
+
+    solver.update_variables(trigger)
+
 class Canvas extends LayoutBox.Model
   type: 'Canvas'
   default_view: CanvasView

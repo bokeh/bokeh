@@ -236,21 +236,8 @@ class PlotView extends Renderer.View
       @update_dimensions(info.dimensions)
 
   update_dimensions: (dimensions, trigger) ->
-    solver = @model.document.solver()
-    requested_width = dimensions[0]
-    requested_height = dimensions[1]
-
-    if @_height_constraint?
-      solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@canvas._height, -requested_height)
-    solver.add_constraint(@_height_constraint)
-
-    if @_width_constraint?
-      solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@canvas._width, -requested_width)
-    solver.add_constraint(@_width_constraint)
-
-    solver.update_variables(trigger)
+    @canvas_view.set_dimensions(dimensions)
+    @canvas_view.update_constraints(trigger)
 
   reset_dimensions: () ->
     @update_dimensions([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
@@ -483,10 +470,13 @@ class PlotView extends Renderer.View
       @set_initial_range()
 
   update_constraints: () =>
-    s = @model.document.solver()
+    @canvas_view.update_constraints(false)
+    
     # Note: -1 to effectively dilate the canvas by 1px
+    s = @model.document.solver()
     s.suggest_value(@frame._width, @canvas.get('width') - 1)
     s.suggest_value(@frame._height, @canvas.get('height') - 1)
+
     for i, renderer_view of @renderer_views
       if renderer_view.update_constraints?
         renderer_view.update_constraints()
