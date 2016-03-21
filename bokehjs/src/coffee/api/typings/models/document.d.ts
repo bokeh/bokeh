@@ -25,21 +25,26 @@ declare namespace Bokeh {
         from_json(json: JsObj): Document;
     }
 
-    export interface DocumentChangedEvent {}
+    export interface DocumentChangedEvent {
+        document: Document;
+    }
 
     export interface ModelChangedEvent extends DocumentChangedEvent {
-        constructor(document: Document, model: Model, attr: string, old: any, new_: any): void;
+         model: Model;
+         attr: string;
+         old: any;
+         new_: any;
     }
 
     export interface TitleChangedEvent extends DocumentChangedEvent {
-        constructor(document: Document, title: string): void;
+        title: string;
     }
 
     export interface RootAddedEvent extends DocumentChangedEvent {
-        constructor(document: Document, model: Model): void;
+        model: Model;
     }
 
     export interface RootRemovedEvent extends DocumentChangedEvent {
-        constructor(document: Document, model: Model): void;
+        model: Model;
     }
 }
