@@ -18,6 +18,14 @@ class Range1d extends Range.Model
       max = Math.max(@_initial_start, @_initial_end)
       @set('bounds', [min, max])
 
+  constructor: () ->
+    # new Range1d({start: start, end: end}) or Range1d(start, end)
+    if this instanceof Range1d
+      return super(arguments...)
+    else
+      [start, end] = arguments
+      return new Range1d({start: start, end: end})
+
   initialize: (attrs, options) ->
     super(attrs, options)
 

@@ -3,7 +3,10 @@ declare namespace Bokeh {
         callback: Callback;
     }
 
-    export var Range1d: { new(attributes?: KeyVal, options?: KeyVal): Range1d };
+    export var Range1d: {
+        new(attributes?: KeyVal, options?: KeyVal): Range1d;
+        (start: number, end: number): Range1d;
+    }
     export interface Range1d extends Range {
         start: number;
         end: number;

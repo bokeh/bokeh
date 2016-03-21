@@ -33,7 +33,7 @@ let y = x.map((v) => v*0.5 + 3.0);
 let lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}});
 
 let xdr = new Bokeh.Range1d({start: -0.5, end: 20.5});
-let ydr = new Bokeh.Range1d({start: -0.5, end: 20.5});
+let ydr = Bokeh.Range1d(-0.5, 20.5);
 
 function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
     let plot = new Bokeh.Plot({
