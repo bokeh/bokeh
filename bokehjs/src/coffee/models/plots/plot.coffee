@@ -106,7 +106,7 @@ class PlotView extends Renderer.View
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
-    @renderers = {}
+    @renderer_views = {}
     @tools = {}
 
     @levels = {}
@@ -133,6 +133,8 @@ class PlotView extends Renderer.View
       })
 
     @update_dataranges()
+
+    @update_dimensions([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
 
     @unpause()
 
@@ -161,7 +163,7 @@ class PlotView extends Renderer.View
   update_dataranges: () ->
     # Update any DataRange1ds here
     bounds = {}
-    for k, v of @renderers
+    for k, v of @renderer_views
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
@@ -234,10 +236,10 @@ class PlotView extends Renderer.View
       @update_dimensions(info.dimensions)
 
   update_dimensions: (dimensions) ->
-    @canvas.set_dims([dimensions.width, dimensions.height])
+    @canvas.set_dims(dimensions)
 
   reset_dimensions: () ->
-    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+    @update_dimensions([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
 
   get_selection: () ->
     selection = []
@@ -320,8 +322,8 @@ class PlotView extends Renderer.View
 
   build_levels: () ->
     # should only bind events on NEW views and tools
-    old_renderers = _.keys(@renderers)
-    views = build_views(@renderers, @mget('renderers'), @view_options())
+    old_renderers = _.keys(@renderer_views)
+    views = build_views(@renderer_views, @mget('renderers'), @view_options())
     renderers_to_remove = _.difference(old_renderers,
                                        _.pluck(@mget('renderers'), 'id'))
     for id_ in renderers_to_remove
@@ -404,7 +406,7 @@ class PlotView extends Renderer.View
     if @tm_view?
       @tm_view.render()
 
-    for k, v of @renderers
+    for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
@@ -472,7 +474,7 @@ class PlotView extends Renderer.View
     # Note: -1 to effectively dilate the canvas by 1px
     s.suggest_value(@frame._width, @canvas.get('width') - 1)
     s.suggest_value(@frame._height, @canvas.get('height') - 1)
-    for i, renderer_view of @renderers
+    for i, renderer_view of @renderer_views
       if renderer_view.update_constraints?
         renderer_view.update_constraints()
 
