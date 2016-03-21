@@ -617,8 +617,6 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
-  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -730,12 +728,7 @@ class Plot extends Component.Model
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
     attrs
 
-  mixins: [
-    'text:title_',
-    'line:outline_',
-    'fill:border_',
-    'fill:background_'
-  ]
+  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   @define {
       title:             [ p.String,   ''                     ]
