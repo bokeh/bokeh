@@ -235,8 +235,22 @@ class PlotView extends Renderer.View
     if info.dimensions?
       @update_dimensions(info.dimensions)
 
-  update_dimensions: (dimensions) ->
-    @canvas.set_dims(dimensions)
+  update_dimensions: (dimensions, trigger) ->
+    solver = @model.document.solver()
+    requested_width = dimensions[0]
+    requested_height = dimensions[1]
+
+    if @_height_constraint?
+      solver.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@canvas._height, -requested_height)
+    solver.add_constraint(@_height_constraint)
+
+    if @_width_constraint?
+      solver.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@canvas._width, -requested_width)
+    solver.add_constraint(@_width_constraint)
+
+    solver.update_variables(trigger)
 
   reset_dimensions: () ->
     @update_dimensions([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
@@ -397,9 +411,8 @@ class PlotView extends Renderer.View
     width = @mget("plot_width")
     height = @mget("plot_height")
 
-    if (@canvas.get("canvas_width") != width or
-        @canvas.get("canvas_height") != height)
-      @canvas.set_dims([width, height], trigger=false)
+    if (@canvas.get("canvas_width") != width or @canvas.get("canvas_height") != height)
+      @update_dimensions([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
 

@@ -76,23 +76,6 @@ class Canvas extends LayoutBox.Model
       use_hidpi: true
     }
 
-  set_dims: (dims, trigger=true) ->
-    solver = @document.solver()
-    requested_width = dims[0]
-    requested_height = dims[1]
-
-    if @_height_constraint?
-      solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@_height, -requested_height)
-    solver.add_constraint(@_height_constraint)
-
-    if @_width_constraint?
-      solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@_width, -requested_width)
-    solver.add_constraint(@_width_constraint)
-
-    solver.update_variables(trigger)
-
   get_constraints: () ->
     constraints = super()
     constraints.push(EQ(@_left))
