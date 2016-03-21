@@ -8,6 +8,7 @@ LayoutBox = require "../canvas/layout_box"
 Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
+ColumnDataSource = require "../sources/column_data_source"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
@@ -714,11 +715,6 @@ class Plot extends Component.Model
     @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
     @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
 
-  add_renderers: (new_renderers) ->
-    renderers = @get('renderers')
-    renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
-
   nonserializable_attribute_names: () ->
     super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
 
@@ -727,6 +723,34 @@ class Plot extends Component.Model
     if 'renderers' of attrs
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
     attrs
+
+  add_renderers: (new_renderers...) ->
+    renderers = @get('renderers')
+    renderers = renderers.concat(new_renderers)
+    @set('renderers', renderers)
+
+  add_layout: (renderer, place="center") ->
+    if renderer.props.plot?
+      renderer.plot = this
+
+    @add_renderers(renderer)
+
+    if place != 'center'
+      @set(place, @get(place).concat([renderer]))
+
+  add_glyph: (glyph, source) ->
+    if not source?
+      source = new ColumnDataSource.Model()
+
+    renderer = new GlyphRenderer.Model({data_source: source, glyph: glyph})
+    @add_renderers(renderer)
+
+    return renderer
+
+  add_tools: (tools...) ->
+    for tool in tools
+      tool.plot = this
+      @set("tools", @get("tools").concat([tool]))
 
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
