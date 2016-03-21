@@ -52,12 +52,10 @@ declare namespace Bokeh {
 
         responsive: boolean;
 
-        addTools(...tools: Array<Tool>): void;
-
-        addLayout(obj: Model, place?: Place): void;
-
-        addGlyph(glyph: Glyph): GlyphRenderer;
-        addGlyph(source: DataSource, glyph: Glyph): GlyphRenderer;
+        add_renderers(...Renderer: Array<Renderer>): void;
+        add_layout(obj: Model, place?: Place): void;
+        add_glyph(glyph: Glyph, source?: DataSource): GlyphRenderer;
+        add_tools(...tools: Array<Tool>): void;
     }
 
     export interface BackRef {
