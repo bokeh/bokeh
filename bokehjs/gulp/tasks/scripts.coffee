@@ -42,9 +42,11 @@ gulp.task "scripts:eco", () ->
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 tsOpts = {
-  noImplicitAny: true,
-  target: "ES5",
-  module: "commonjs",
+  noImplicitAny: true
+  noEmitOnError: true
+  module: "commonjs"
+  moduleResolution: "node"
+  target: "ES5"
 }
 
 gulp.task "scripts:ts", () ->
