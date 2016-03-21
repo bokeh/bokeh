@@ -21,24 +21,25 @@ class HasProps extends Backbone.Model
       object = name_or_object
 
     for name, prop of object
-      if this.prototype.props[name]?
-        throw new Error("attempted to redefine property '#{this.name}.#{name}'")
+      do (name, prop) =>
+        if this.prototype.props[name]?
+          throw new Error("attempted to redefine property '#{this.name}.#{name}'")
 
-      if this.prototype[name]?
-        # XXX: should be an error, but Backbone.Model.url must be removed first
-        console.log("attempted to redefine attribute '#{this.name}.#{name}'")
+        if this.prototype[name]?
+          # XXX: should be an error, but Backbone.Model.url must be removed first
+          console.log("attempted to redefine attribute '#{this.name}.#{name}'")
 
-      Object.defineProperty(this.prototype, name, {
-        get: ()      -> this.get(name)
-        set: (value) -> this.set(name, value)
-      }, {
-        configurable: false
-        enumerable: true
-      })
+        Object.defineProperty(this.prototype, name, {
+          get: ()      -> this.get(name)
+          set: (value) -> this.set(name, value)
+        }, {
+          configurable: false
+          enumerable: true
+        })
 
-      props = _.clone(this.prototype.props)
-      props[name] = prop
-      this.prototype.props = props
+        props = _.clone(this.prototype.props)
+        props[name] = prop
+        this.prototype.props = props
 
   @mixin: (names...) ->
     @define(property_mixins.create(names))
