@@ -1,4 +1,4 @@
-import {Int} from "./types";
+import Int = Bokeh.Int;
 
 export function transpose<T>(array: Array<Array<T>>): Array<Array<T>> {
     let rows = array.length;
