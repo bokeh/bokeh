@@ -7,7 +7,7 @@
     "target": "ES5"
   },
   "files": [
-    "../../../bokehjs/src/coffee/api/typings.d.ts",
+    "../../src/coffee/api/typings.d.ts",
     "anscombe.ts"
   ]
 }
