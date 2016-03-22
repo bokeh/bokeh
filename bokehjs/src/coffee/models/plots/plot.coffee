@@ -750,7 +750,8 @@ class Plot extends Component.Model
   add_tools: (tools...) ->
     for tool in tools
       tool.plot = this
-      @set("tools", @get("tools").concat([tool]))
+
+    @set("tools", @get("tools").concat(tools))
 
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
