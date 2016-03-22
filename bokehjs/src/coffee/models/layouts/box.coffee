@@ -33,6 +33,7 @@ class BoxView extends BokehView
     @listenTo(@document.solver(), 'resize', @resize)
 
   render: () ->
+    console.log('render: box')
     @$el.css({
       position: 'absolute',
       left: @dom_left,
@@ -42,7 +43,7 @@ class BoxView extends BokehView
     })
 
   resize: () ->
-    console.log('resize')
+    console.log('resize: box')
     for child_view in @child_views
       [left, top] = @_ensure_origin_variables(child_view)
       child_view.set_dom_origin(left._value, top._value)
@@ -75,6 +76,7 @@ class Box extends LayoutBox.Model
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
     return constraints
+
 
 
 module.exports =

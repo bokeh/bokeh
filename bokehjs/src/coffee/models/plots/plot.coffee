@@ -1,6 +1,4 @@
 _ = require "underscore"
-$ = require "jquery"
-Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
@@ -14,9 +12,8 @@ ToolEvents = require "../../common/tool_events"
 ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
-BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
-{EQ, GE, Strength} = require "../../core/layout/solver"
+{Variable, EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
@@ -135,7 +132,7 @@ class PlotView extends Renderer.View
 
     @update_dataranges()
 
-    @update_dimensions([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
+    @resize()
 
     @unpause()
 
@@ -237,6 +234,7 @@ class PlotView extends Renderer.View
       @update_dimensions(info.dimensions)
 
   update_dimensions: (dimensions, trigger) ->
+    console.log('update_dimensions')
     @canvas_view.set_dimensions(dimensions)
     @canvas_view.update_constraints(trigger)
 
@@ -351,6 +349,7 @@ class PlotView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
     @listenTo(@document.solver(), 'layout_update', @request_render)
+    @listenTo(@document.solver(), 'resize', @resize)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -382,7 +381,7 @@ class PlotView extends Renderer.View
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
-    console.log('plot render')
+    console.log('render: plot')
 
     if not @model.document?
       return
@@ -472,20 +471,24 @@ class PlotView extends Renderer.View
     if not @initial_range_info?
       @set_initial_range()
 
+  resize: () ->
+    console.log('resize: plot')
+    width = @model._width._value
+    height = @model._height._value
+    # Set the DOM Box
     @$el.css({
-      position: 'absolute',
-      left: @mget('dom_left'),
-      top: @mget('dom_top'),
-      width: @canvas._width._value,
-      height: @canvas._height._value,
+      position: 'absolute'
+      left: @dom_left
+      top: @dom_top
+      width: width
+      height: height
     })
-
-  set_dom_origin: (left, top) ->
-    @dom_left = left
-    @dom_top = top
-    @update_dimensions([@canvas._width._value, @canvas._height._value])
+    # Set the Canvas Dimensions
+    @update_dimensions([width, height])
+    return null
 
   update_constraints: () =>
+    console.log('update_constraints: plot')
     @canvas_view.update_constraints(false)
     
     # Note: -1 to effectively dilate the canvas by 1px
@@ -496,6 +499,7 @@ class PlotView extends Renderer.View
     for i, renderer_view of @renderer_views
       if renderer_view.update_constraints?
         renderer_view.update_constraints()
+    return null
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -591,6 +595,9 @@ class Plot extends Component.Model
     @right_panel = new LayoutBox.Model()
     @right_panel.attach_document(@document)
 
+    @_width = new Variable()
+    @_height = new Variable()
+
     logger.debug("Plot attached to document")
 
   get_layoutable_children: () ->
@@ -626,6 +633,9 @@ class Plot extends Component.Model
     min_border_right  = @get('min_border_right')
     frame             = @get('frame')
     canvas            = @get('canvas')
+
+    constraints.push(GE(@_width, - canvas._width._value))
+    constraints.push(GE(@_height, - canvas._height._value))
 
     # Setup the sides of the panel
     constraints.push(GE(@above_panel._height, -min_border_top))
@@ -663,6 +673,12 @@ class Plot extends Component.Model
       constraints = constraints.concat(child.get_constraints())
 
     return constraints
+
+  get_constrained_variables: () ->
+    {
+      'width' : @_width
+      'height' : @_height
+    }
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')

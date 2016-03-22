@@ -6,7 +6,7 @@ $ = require "jquery"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
-{Variable} = require "./core/layout/solver"
+{Variable, EQ} = require "./core/layout/solver"
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -93,9 +93,9 @@ class Document
     @resize()
 
   resize: () ->
-    console.log("calling resize")
-    width = window.innerWidth - 20
-    height = window.innerHeight - 20
+    console.log("resize: document")
+    width = window.innerWidth - 25
+    height = window.innerHeight - 80  # TODO This is just compensating for toolbar, only works in one plot setup
     @_solver.suggest_value(@_doc_width, width)
     @_solver.suggest_value(@_doc_height, height)
     @_solver.update_variables()
@@ -129,6 +129,16 @@ class Document
       @_solver.add_edit_variable(v.edit_variable, v.strength)
     for constraint in model.get_constraints()
       @_solver.add_constraint(constraint)
+
+    # set the size of the root layoutable to the window size
+    # TODO This isn't going to work if there's more than one root
+    root_vars = model.get_constrained_variables()
+    root_width = root_vars['width']
+    root_height = root_vars['height']
+    @_solver.add_constraint(EQ(root_width, [-1, @_doc_width]))
+    @_solver.add_constraint(EQ(root_height, [-1, @_doc_height]))
+    @_solver.update_variables()
+
     @_trigger_on_change(new RootAddedEvent(@, model))
 
   remove_root : (model) ->
