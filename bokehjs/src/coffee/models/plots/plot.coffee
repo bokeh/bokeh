@@ -350,7 +350,7 @@ class PlotView extends Renderer.View
     @listenTo(@model, 'change:tool', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
+    @listenTo(@document.solver(), 'layout_update', @request_render)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -381,6 +381,8 @@ class PlotView extends Renderer.View
 
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
+
+    console.log('plot render')
 
     if not @model.document?
       return
@@ -478,6 +480,11 @@ class PlotView extends Renderer.View
       height: @canvas._height._value,
     })
 
+  set_dom_origin: (left, top) ->
+    @dom_left = left
+    @dom_top = top
+    @update_dimensions([@canvas._width._value, @canvas._height._value])
+
   update_constraints: () =>
     @canvas_view.update_constraints(false)
     
@@ -530,8 +537,8 @@ class Plot extends Component.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @set('dom_left', 0)
-    @set('dom_top', 0)
+    @dom_left = 0
+    @dom_top = 0
 
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
       xr = @resolve_ref(xr)
@@ -730,9 +737,6 @@ class Plot extends Component.Model
       # internal
       min_size: 120
     }
-
-  set_dom_origin: (left, top) ->
-    @set({ dom_left: left, dom_top: top })
 
 module.exports =
   Model: Plot
