@@ -1,8 +1,8 @@
 import Int = Bokeh.Int;
 
 export function transpose<T>(array: Array<Array<T>>): Array<Array<T>> {
-    let rows = array.length;
-    let cols = array[0].length;
+    const rows = array.length;
+    const cols = array[0].length;
 
     let transposed: Array<Array<T>> = [];
 
@@ -17,12 +17,23 @@ export function transpose<T>(array: Array<Array<T>>): Array<Array<T>> {
     return transposed;
 }
 
-export function linspace(a: number, b: number, length: Int = 100): Array<number> {
-    let increment = (b - a) / (length - 1);
-    let array = new Array(length);
+export function linspace(start: number, stop: number, num: Int = 100): Array<number> {
+    const step = (stop - start) / (num - 1);
+    let array = new Array(num);
 
-    for (let i = 0; i < length; i++) {
-        array[i] = a + increment*i;
+    for (let i = 0; i < num; i++) {
+        array[i] = start + step*i;
+    }
+
+    return array;
+}
+
+export function arange(start: number, stop: number, step: number = 1): Array<number> {
+    const num = Math.ceil((stop - start) / step);
+    let array = new Array(num);
+
+    for (let i = 0; i < num; i++) {
+        array[i] = start + step*i;
     }
 
     return array;

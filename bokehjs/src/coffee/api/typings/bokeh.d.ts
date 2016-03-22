@@ -12,6 +12,7 @@ declare namespace Bokeh {
 
     namespace LinAlg {
         export function transpose<T>(array: Array<Array<T>>): Array<Array<T>>;
-        export function linspace(a: number, b: number, length?: Int): Array<number>;
+        export function linspace(start: number, stop: number, num?: Int): Array<number>;
+        export function arange(start: number, stop: number, step?: number): Array<number>;
     }
 }
