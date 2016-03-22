@@ -596,10 +596,11 @@ class XYBuilder(Builder):
         if len(self.sort_legend) > 0:
             for attr, asc in self.sort_legend:
                 if len(self.attributes[attr].columns) > 0:
-                    item_order = self.attributes[attr].items
+                    item_order = [x[0] for x in self.attributes[attr].items]
+
                     self._legends = list(sorted(self._legends, key=lambda leg:
                                                 item_order.index(leg[0]),
-                                                reverse=~asc))
+                                                reverse=not asc))
 
     def _get_range(self, dim, start, end):
         """Create a :class:`Range` for the :class:`Chart`.
