@@ -1,6 +1,7 @@
 gulp = require "gulp"
 gutil = require "gulp-util"
 ts = require 'gulp-typescript'
+run = require 'run-sequence'
 
 reporter = ts.reporter.nullReporter()
 
@@ -11,7 +12,7 @@ compile = (name) ->
          .js
          .pipe(gulp.dest("./"))
 
-gulp.task "examples:anscombe", () -> compile("anscombe")
-gulp.task "examples:burtin",   () -> compile("burtin")
+gulp.task "examples:anscombe", ["scripts:build", "styles:build"], () -> compile("anscombe")
+gulp.task "examples:burtin",   ["scripts:build", "styles:build"], () -> compile("burtin")
 
-gulp.task "examples", ["examples:anscombe", "examples:burtin"]
+gulp.task "examples", (cb) -> run(["examples:anscombe", "examples:burtin"], cb)
