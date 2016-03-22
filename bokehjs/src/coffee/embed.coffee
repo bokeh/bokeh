@@ -29,8 +29,8 @@ _init_comms = (target, doc) ->
   else
     console.warn('Juptyer notebooks comms not available. push_notebook will not function');
 
-_create_view = (model, document) ->
-  view = new model.default_view({model : model, document: document})
+_create_view = (model) ->
+  view = new model.default_view({model : model})
   base.index[model.id] = view
   view
 
@@ -39,7 +39,7 @@ add_model_static = (element, model_id, doc) ->
   model = doc.get_model_by_id(model_id)
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
-  view = _create_view(model, doc)
+  view = _create_view(model)
   _.delay(-> $(element).replaceWith(view.$el))
 
 _render_document_to_element = (element, document, use_for_title) ->
@@ -48,7 +48,7 @@ _render_document_to_element = (element, document, use_for_title) ->
   # the views we create.
   views = {}
   render_model = (model) ->
-    view = _create_view(model, document)
+    view = _create_view(model)
     views[model.id] = view
     $(element).append(view.$el)
   unrender_model = (model) ->
@@ -108,7 +108,7 @@ add_model_from_session = (element, websocket_url, model_id, session_id) ->
       model = session.document.get_model_by_id(model_id)
       if not model?
         throw new Error("Did not find model #{model_id} in session")
-      view = _create_view(model, session.document)
+      view = _create_view(model)
       $(element).replaceWith(view.$el)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
