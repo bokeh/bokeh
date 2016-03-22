@@ -4,10 +4,49 @@ $ = require("jquery")
 embed = require("../embed")
 models = require("./models")
 
+_default_tooltips = [
+  ["index", "$index"],
+  ["data (x, y)", "($x, $y)"],
+  ["canvas (x, y)", "($sx, $sy)"],
+]
+
+_default_tools = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+
+_known_tools = {
+  pan:          () -> new models.PanTool(dimensions: ["width", "height"])
+  xpan:         () -> new models.PanTool(dimensions: ["width"])
+  ypan:         () -> new models.PanTool(dimensions: ["height"])
+  wheel_zoom:   () -> new models.WheelZoomTool(dimensions: ["width", "height"])
+  xwheel_zoom:  () -> new models.WheelZoomTool(dimensions: ["width"])
+  ywheel_zoom:  () -> new models.WheelZoomTool(dimensions: ["height"])
+  save:         () -> new models.PreviewSaveTool()
+  resize:       () -> new models.ResizeTool()
+  click:        () -> new models.TapTool()
+  tap:          () -> new models.TapTool()
+  crosshair:    () -> new models.CrosshairTool()
+  box_select:   () -> new models.BoxSelectTool()
+  xbox_select:  () -> new models.BoxSelectTool(dimensions: ['width'])
+  ybox_select:  () -> new models.BoxSelectTool(dimensions: ['height'])
+  poly_select:  () -> new models.PolySelectTool()
+  lasso_select: () -> new models.LassoSelectTool()
+  box_zoom:     () -> new models.BoxZoomTool(dimensions: ['width', 'height'])
+  xbox_zoom:    () -> new models.BoxZoomTool(dimensions: ['width'])
+  ybox_zoom:    () -> new models.BoxZoomTool(dimensions: ['height'])
+  hover:        () -> new models.HoverTool(tooltips: _default_tooltips)
+  previewsave:  () -> new models.PreviewSaveTool()
+  undo:         () -> new models.UndoTool()
+  redo:         () -> new models.RedoTool()
+  reset:        () -> new models.ResetTool()
+  help:         () -> new models.HelpTool()
+}
+
 class Figure extends models.Plot
 
   constructor: (attrs={}) ->
     attrs = _.clone(attrs)
+
+    tools = attrs.tools ? _default_tools
+    delete attrs.tools
 
     attrs.x_range = @_get_range(attrs.x_range)
     attrs.y_range = @_get_range(attrs.y_range)
@@ -65,6 +104,8 @@ class Figure extends models.Plot
         this.left = (this.left ? []).concat([yaxis])
       else if y_axis_location == "right"
         this.right = (this.right ? []).concat([yaxis])
+
+    @add_tools(@_process_tools(tools)...)
 
   _glyph: (cls, params, args) ->
     params = params.split(",")
@@ -151,6 +192,18 @@ class Figure extends models.Plot
       if axis_class == models.LogAxis
         return 10
       return 5
+
+  _process_tools: (tools) ->
+    if _.isString(tools)
+      tools = tools.split(/\s*,\s*/)
+
+    objs = for tool in tools
+      if _.isString(tool)
+        _known_tools[tool]()
+      else
+        tool
+
+    return objs
 
 figure = (attrs={}) -> new Figure(attrs)
 

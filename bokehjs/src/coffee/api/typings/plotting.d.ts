@@ -3,7 +3,27 @@ declare namespace Bokeh.Plotting {
 
     type AxisType = "linear" | "log" | "datetime" | Auto;
 
+    type ToolType =
+        "pan" | "xpan" | "ypan" |
+        "wheel_zoom" | "xwheel_zoom" | "ywheel_zoom" |
+        "save" |
+        "resize" |
+        "click" | "tap" |
+        "crosshair" |
+        "box_select" | "xbox_select" | "ybox_select" |
+        "poly_select" |
+        "lasso_select" |
+        "box_zoom" | "xbox_zoom" | "ybox_zoom" |
+        "hover" |
+        "previewsave" |
+        "undo" |
+        "redo" |
+        "reset" |
+        "help";
+
     export interface FigureAttrs {
+        tools?: Array<Tool | ToolType> | string;
+
         x_range?: Range | [number, number] | Array<string>;
         y_range?: Range | [number, number] | Array<string>;
 
