@@ -107,18 +107,6 @@ class Figure extends models.Plot
 
     @add_tools(@_process_tools(tools)...)
 
-  _glyph: (cls, params, args) ->
-    params = params.split(",")
-
-    if args.length == 1
-      [attrs] = args
-    else
-      [args..., opts] = args
-
-    return new models.GlyphRenderer()
-
-  _marker: (cls, args) -> @_glyph(cls, "x,y", args)
-
   annular_wedge:     (args...) -> @_glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
   annulus:           (args...) -> @_glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args)
   arc:               (args...) -> @_glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args)
@@ -153,6 +141,47 @@ class Figure extends models.Plot
   square_x:          (args...) -> @_marker(models.SquareX,          args)
   triangle:          (args...) -> @_marker(models.Triangle,         args)
   x:                 (args...) -> @_marker(models.X,                args)
+
+  _glyph: (cls, params, args) ->
+    params = params.split(",")
+
+    if args.length == 1
+      [attrs] = args
+      attrs = _.clone(attrs)
+    else
+      [args..., opts] = args
+      attrs = _.clone(opts)
+      for param, i in params
+        attrs[param] = args[i]
+
+    source = attrs.source ? new models.ColumnDataSource()
+    delete attrs.source
+
+    # TODO: process and pop other *_color and *_alpha attrs
+    glyph_ca   = {}
+    nsglyph_ca = {}
+    sglyph_ca  = {}
+    hglyph_ca  = {}
+    delete attrs.color
+
+    _make_glyph = (cls, attrs, ca) => new cls(attrs)
+
+    glyph   = _make_glyph(cls, attrs, glyph_ca)
+    nsglyph = _make_glyph(cls, attrs, nsglyph_ca)
+    sglyph  = _make_glyph(cls, attrs, sglyph_ca)
+    hglyph  = _make_glyph(cls, attrs, hglyph_ca)
+
+    glyph_renderer = new models.GlyphRenderer({
+      data_source:        source
+      glyph:              glyph
+      nonselection_glyph: nsglyph
+      selection_glyph:    sglyph
+      hover_glyph:        hglyph
+    })
+
+    @add_renderers(glyph_renderer)
+
+  _marker: (cls, args) -> @_glyph(cls, "x,y", args)
 
   _get_range: (range) ->
     if not range?
