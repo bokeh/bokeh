@@ -253,7 +253,13 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
     if axiscls:
 
         if axiscls is LogAxis:
-            plot.x_mapper_type = 'log'
+            # TODO (bev) this mapper type hinting is ugly
+            if dim == 0:
+                plot.x_mapper_type = 'log'
+            elif dim == 1:
+                plot.y_mapper_type = 'log'
+            else:
+                raise ValueError("received invalid dimension value: %r" % dim)
 
         # this is so we can get a ticker off the axis, even if we discard it
         axis = axiscls(plot=plot if axis_location else None)
