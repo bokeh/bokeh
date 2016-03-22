@@ -45,24 +45,6 @@ class LayoutBox extends Model
     @register_property('top', @_get_var, false)
     @register_property('bottom', @_get_var, false)
 
-    @_h_range = new Range1d.Model({start: @get('left'), end: @get('left') + @get('width')})
-    @register_property('h_range',
-        () =>
-          @_h_range.set('start', @get('left'))
-          @_h_range.set('end',   @get('left') + @get('width'))
-          return @_h_range
-      , false)
-    @add_dependencies('h_range', this, ['left', 'width'])
-
-    @_v_range = new Range1d.Model({start: @get('bottom'), end: @get('bottom') + @get('height')})
-    @register_property('v_range',
-        () =>
-          @_v_range.set('start', @get('bottom'))
-          @_v_range.set('end',   @get('bottom') + @get('height'))
-          return @_v_range
-      , false)
-    @add_dependencies('v_range', this, ['bottom', 'height'])
-
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
 
