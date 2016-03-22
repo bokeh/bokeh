@@ -1,4 +1,4 @@
-import plt = Bokeh.plt;
+import plt = Bokeh.Plotting;
 import arange = Bokeh.LinAlg.arange;
 import Color = Bokeh.Color;
 

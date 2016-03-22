@@ -1,4 +1,4 @@
-declare namespace Bokeh.plt {
+declare namespace Bokeh.Plotting {
     function show(figure: Figure): void;
 
     type AxisType = "linear" | "log" | "datetime" | Auto;
