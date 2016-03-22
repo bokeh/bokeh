@@ -4,6 +4,7 @@
 /// <reference path="./typings/enums.d.ts" />
 /// <reference path="./typings/mixins.d.ts" />
 /// <reference path="./typings/palettes.d.ts" />
+/// <reference path="./typings/plotting.d.ts" />
 /// <reference path="./typings/selected.d.ts" />
 /// <reference path="./typings/types.d.ts" />
 /// <reference path="./typings/vectorization.d.ts" />
