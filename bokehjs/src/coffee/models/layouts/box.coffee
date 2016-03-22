@@ -1,5 +1,4 @@
 _ = require "underscore"
-$ = require "jquery"
 p = require "../../core/properties"
 BokehView = require "../../core/bokeh_view"
 LayoutBox = require "../canvas/layout_box"
@@ -30,12 +29,8 @@ class BoxView extends BokehView
     @child_views
 
   bind_bokeh_events: () ->
-    $(window).on("resize", $.proxy(@resize, @))
     @listenTo(@document.solver(), 'dom_update', @render)
-
-  resize: () ->
-    console.log('resize')
-    @variables_updated()
+    @listenTo(@document.solver(), 'resize', @resize)
 
   render: () ->
     @$el.css({
@@ -46,7 +41,8 @@ class BoxView extends BokehView
       height: @model._height._value
     })
 
-  variables_updated: () ->
+  resize: () ->
+    console.log('resize')
     for child_view in @child_views
       [left, top] = @_ensure_origin_variables(child_view)
       child_view.set_dom_origin(left._value, top._value)

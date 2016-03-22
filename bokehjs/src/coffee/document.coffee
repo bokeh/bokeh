@@ -1,10 +1,12 @@
 _ = require "underscore"
+$ = require "jquery"
 
 {Collections} = require "./base"
 {Solver} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
+{Variable} = require "./core/layout/solver"
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -83,6 +85,21 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
+    @_doc_width = new Variable()
+    @_doc_height = new Variable()
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+    $(window).on("resize", $.proxy(@resize, @))
+    @resize()
+
+  resize: () ->
+    console.log("calling resize")
+    width = window.innerWidth - 20
+    height = window.innerHeight - 20
+    @_solver.suggest_value(@_doc_width, width)
+    @_solver.suggest_value(@_doc_height, height)
+    @_solver.update_variables()
+    @_solver.trigger('resize')
 
   solver: () ->
     @_solver
