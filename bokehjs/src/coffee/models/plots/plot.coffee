@@ -65,6 +65,7 @@ class PlotView extends Renderer.View
 
   initialize: (options) ->
     super(options)
+
     @pause()
 
     # compat, to be removed
@@ -469,6 +470,14 @@ class PlotView extends Renderer.View
     if not @initial_range_info?
       @set_initial_range()
 
+    @$el.css({
+      position: 'absolute',
+      left: @mget('dom_left'),
+      top: @mget('dom_top'),
+      width: @canvas._width._value,
+      height: @canvas._height._value,
+    })
+
   update_constraints: () =>
     @canvas_view.update_constraints(false)
     
@@ -520,6 +529,9 @@ class Plot extends Component.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+
+    @set('dom_left', 0)
+    @set('dom_top', 0)
 
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
       xr = @resolve_ref(xr)
@@ -718,6 +730,9 @@ class Plot extends Component.Model
       # internal
       min_size: 120
     }
+
+  set_dom_origin: (left, top) ->
+    @set({ dom_left: left, dom_top: top })
 
 module.exports =
   Model: Plot
