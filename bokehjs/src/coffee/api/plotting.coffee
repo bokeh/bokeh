@@ -142,6 +142,51 @@ class Figure extends models.Plot
   triangle:          (args...) -> @_marker(models.Triangle,         args)
   x:                 (args...) -> @_marker(models.X,                args)
 
+  _vectorable: [
+      "fill_color", "fill_alpha",
+      "line_color", "line_alpha", "line_width",
+      "text_color", "text_alpha", "text_font_size",
+  ]
+
+  _default_color: "#1f77b4"
+  _default_alpha: 1.0
+
+  _pop_colors_and_alpha: (cls, attrs, prefix="") ->
+      result = {}
+
+      color = attrs[prefix + "color"] ? @_default_color
+      alpha = attrs[prefix + "alpha"] ? @_default_alpha
+
+      delete attrs[prefix + "color"]
+      delete attrs[prefix + "alpha"]
+
+      _update_with = (name, default_value) ->
+        if cls.prototype.props[name]?
+          result[name] = attrs[prefix + name] ? default_value
+          delete attrs[prefix + name]
+
+      _update_with("fill_color", color)
+      _update_with("line_color", color)
+      _update_with("text_color", "black")
+
+      _update_with("fill_alpha", alpha)
+      _update_with("line_alpha", alpha)
+      _update_with("text_alpha", alpha)
+
+      return result
+
+  _fixup_values: (cls, source, attrs) ->
+    for name, value of attrs
+      [prop, ...] = cls.prototype.props[name]
+
+      if prop.prototype.dataspec
+        if value?
+          if _.isArray(value)
+            source.data[name] = value
+            attrs[name] = { field: name }
+          else if _.isNumber(value) or _.isString(value) # or Date?
+            attrs[name] = { value: value }
+
   _glyph: (cls, params, args) ->
     params = params.split(",")
 
@@ -157,19 +202,25 @@ class Figure extends models.Plot
     source = attrs.source ? new models.ColumnDataSource()
     delete attrs.source
 
-    # TODO: process and pop other *_color and *_alpha attrs
-    glyph_ca   = {}
-    nsglyph_ca = {}
-    sglyph_ca  = {}
-    hglyph_ca  = {}
-    delete attrs.color
+    glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
+    nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_")
+    sglyph_ca  = @_pop_colors_and_alpha(cls, attrs, "selection_")
+    hglyph_ca  = @_pop_colors_and_alpha(cls, attrs, "hover_")
 
-    _make_glyph = (cls, attrs, ca) => new cls(attrs)
+    @_fixup_values(cls, source,   glyph_ca)
+    @_fixup_values(cls, source, nsglyph_ca)
+    @_fixup_values(cls, source,  sglyph_ca)
+    @_fixup_values(cls, source,  hglyph_ca)
 
-    glyph   = _make_glyph(cls, attrs, glyph_ca)
+    @_fixup_values(cls, source, attrs)
+
+    _make_glyph = (cls, attrs, extra_attrs) =>
+      new cls(_.extend({}, attrs, extra_attrs))
+
+    glyph   = _make_glyph(cls, attrs,   glyph_ca)
     nsglyph = _make_glyph(cls, attrs, nsglyph_ca)
-    sglyph  = _make_glyph(cls, attrs, sglyph_ca)
-    hglyph  = _make_glyph(cls, attrs, hglyph_ca)
+    sglyph  = _make_glyph(cls, attrs,  sglyph_ca)
+    hglyph  = _make_glyph(cls, attrs,  hglyph_ca)
 
     glyph_renderer = new models.GlyphRenderer({
       data_source:        source
