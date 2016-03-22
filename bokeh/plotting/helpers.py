@@ -13,7 +13,7 @@ from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
-    LogAxis, PanTool, PolySelectTool,
+    LogAxis, PanTool, PolySelectTool, ContinuousTicker,
     PreviewSaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
@@ -258,7 +258,7 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         # this is so we can get a ticker off the axis, even if we discard it
         axis = axiscls(plot=plot if axis_location else None)
 
-        if hasattr(axis.ticker, 'num_minor_ticks'):
+        if isinstance(axis.ticker, ContinuousTicker):
             axis.ticker.num_minor_ticks = _get_num_minor_ticks(axiscls, minor_ticks)
 
         axis_label = axis_label
