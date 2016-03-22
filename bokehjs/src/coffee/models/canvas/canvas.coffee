@@ -83,7 +83,7 @@ class CanvasView extends BokehView
     if requested_width == @mget('width')
       return
 
-    solver = @model.document.solver()
+    solver = @document.solver()
 
     if @_height_constraint?
       solver.remove_constraint(@_height_constraint)

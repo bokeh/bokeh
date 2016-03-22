@@ -4,7 +4,11 @@ Backbone = require "backbone"
 class BokehView extends Backbone.View
   initialize: (options) ->
     if not _.has(options, 'id')
-      this.id = _.uniqueId('BokehView')
+      @id = _.uniqueId('BokehView')
+    if _.has(options, 'document')
+      @document = options.document
+    else
+      @document = @model.document
 
   bind_bokeh_events: () ->
 
