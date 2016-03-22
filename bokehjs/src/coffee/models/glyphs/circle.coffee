@@ -20,7 +20,7 @@ class CircleView extends Glyph.View
     if @_radius?
       if @model.properties.radius.spec.units == "data"
         rd = @model.properties.radius_dimension.spec.value
-        @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @_radius)
+        @sradius = @sdist(@renderer["#{rd}mapper"], @["_"+rd], @_radius)
       else
         @sradius = @_radius
         @max_size = 2 * @max_radius

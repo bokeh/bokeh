@@ -13,45 +13,45 @@ class GearView extends Glyph.View
   _map_data: () ->
     @smodule = @sdist(@renderer.xmapper, @_x, @module, 'edge')
 
-  _render: (ctx, indices, {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal}) ->
+  _render: (ctx, indices, {sx, sy, smodule, _angle, _teeth, _pressure_angle, _shaft_size, _internal}) ->
     for i in indices
 
-      if isNaN(sx[i]+sy[i]+angle[i]+smodule[i]+teeth[i]+pressure_angle[i]+shaft_size[i]+internal[i])
+      if isNaN(sx[i]+sy[i]+_angle[i]+smodule[i]+_teeth[i]+_pressure_angle[i]+_shaft_size[i]+_internal[i])
         continue
 
-      pitch_radius = smodule[i]*teeth[i]/2
+      pitch_radius = smodule[i]*_teeth[i]/2
 
       if internal[i]
         fn = GearUtils.create_internal_gear_tooth
       else
         fn = GearUtils.create_gear_tooth
 
-      seq0 = fn(smodule[i], teeth[i], pressure_angle[i])
+      seq0 = fn(smodule[i], _teeth[i], _pressure_angle[i])
 
       [M, x, y] = seq0[0..2]
       seq = seq0[3..]
 
       ctx.save()
       ctx.translate(sx[i], sy[i])
-      ctx.rotate(angle[i])
+      ctx.rotate(_angle[i])
 
       ctx.beginPath()
 
-      rot = 2*Math.PI/teeth[i]
+      rot = 2*Math.PI/_teeth[i]
       ctx.moveTo(x, y)
 
-      for j in [0...teeth[i]]
+      for j in [0..._teeth[i]]
         @_render_seq(ctx, seq)
         ctx.rotate(rot)
 
       ctx.closePath()
 
-      if internal[i]
+      if _internal[i]
         rim_radius = pitch_radius + 2.75*smodule[i]
         ctx.moveTo(rim_radius, 0)
         ctx.arc(0, 0, rim_radius, 0, 2*Math.PI, true)
-      else if shaft_size[i] > 0
-        shaft_radius = pitch_radius*shaft_size[i]
+      else if _shaft_size[i] > 0
+        shaft_radius = pitch_radius*_shaft_size[i]
         ctx.moveTo(shaft_radius, 0)
         ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 

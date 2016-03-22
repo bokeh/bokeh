@@ -14,15 +14,15 @@ class ArcView extends Glyph.View
     else
       @sradius = @radius
 
-  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle}) ->
+  _render: (ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) ->
     if @visuals.line.doit
       direction = @model.properties.direction.value()
       for i in indices
-        if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i])
+        if isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction)
+        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

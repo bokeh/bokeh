@@ -8,18 +8,18 @@ class TextView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-  _render: (ctx, indices, {sx, sy, x_offset, y_offset, angle, text}) ->
+  _render: (ctx, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) ->
     for i in indices
-      if (isNaN(sx[i]+sy[i]+x_offset[i]+y_offset[i]+angle[i]) or not text[i]?)
+      if (isNaN(sx[i]+sy[i]+_x_offset[i]+_y_offset[i]+_angle[i]) or not _text[i]?)
         continue
 
       if @visuals.text.doit
         ctx.save()
-        ctx.translate(sx[i]+x_offset[i], sy[i]+y_offset[i])
-        ctx.rotate(angle[i])
+        ctx.translate(sx[i]+_x_offset[i], sy[i]+_y_offset[i])
+        ctx.rotate(_angle[i])
 
         @visuals.text.set_vectorize(ctx, i)
-        ctx.fillText(text[i], 0, 0)
+        ctx.fillText(_text[i], 0, 0)
         ctx.restore()
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
