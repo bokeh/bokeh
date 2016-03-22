@@ -1,33 +1,24 @@
-from __future__ import absolute_import, print_function
+import os
 import pytest
 
 from bokeh.io import output_file
-from .webserver import SimpleWebServer
 
 
 @pytest.fixture
 def selenium(selenium):
     # Give items a chance to load
     selenium.implicitly_wait(10)
-    selenium.set_window_size(width=600, height=600)
+    selenium.set_window_size(width=1200, height=600)
     return selenium
 
 
-@pytest.fixture(scope='session', autouse=True)
-def server(request):
-    server = SimpleWebServer()
-    server.start()
-    request.addfinalizer(server.stop)
-    return server
-
-
 @pytest.fixture(scope='session')
-def base_url(request, server):
-    return 'http://%s:%s' % (server.host, server.port)
+def base_url(request, file_server):
+    return file_server.where_is('')
 
 
 @pytest.fixture
-def output_file_url(request, base_url):
+def output_file_url(request, file_server):
 
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
@@ -40,4 +31,11 @@ def output_file_url(request, base_url):
             file_obj.remove()
     request.addfinalizer(tearDown)
 
-    return '%s/%s' % (base_url, file_path)
+    return file_server.where_is(file_path)
+
+
+@pytest.fixture(scope="session")
+def capabilities(capabilities):
+    capabilities["browserName"] = "firefox"
+    capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
+    return capabilities

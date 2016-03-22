@@ -37,10 +37,12 @@ except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 LOGGER = logging.getLogger(__name__)
+WEBDRIVER = os.environ.get('WEBDRIVER')
 HTML_ROOT = os.path.dirname(__file__)
 if not os.path.isdir(HTML_ROOT):
-    message = ("Can't find 'common_web' directory, try setting WEBDRIVER"
-               " environment variable WEBDRIVER:" + WEBDRIVER + "  HTML_ROOT:" + HTML_ROOT )
+    message = (
+        "Can't find 'common_web' directory, try setting WEBDRIVER environment variable WEBDRIVER:" + WEBDRIVER + "  HTML_ROOT:" + HTML_ROOT
+    )
     LOGGER.error(message)
     assert 0, message
 
@@ -67,6 +69,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
         """Override default to avoid trashing stderr"""
         pass
 
+
 class SimpleWebServer(object):
     """A very basic web server."""
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT):
@@ -81,8 +84,7 @@ class SimpleWebServer(object):
                 self.port = port
                 break
             except socket.error:
-                LOGGER.debug("port %d is in use, trying to next one"
-                              % port)
+                LOGGER.debug("port %d is in use, trying to next one" % port)
                 port += 1
 
         self.thread = threading.Thread(target=self._run_web_server)
@@ -103,7 +105,7 @@ class SimpleWebServer(object):
         self.stop_serving = True
         try:
             # This is to force stop the server loop
-            urllib_request.URLopener().open("http://%s:%d" % (self.host,self.port))
+            urllib_request.URLopener().open("http://%s:%d" % (self.host, self.port))
         except IOError:
             pass
         LOGGER.info("Shutting down the webserver")
@@ -111,3 +113,17 @@ class SimpleWebServer(object):
 
     def where_is(self, path):
         return "http://%s:%d/%s" % (self.host, self.port, path)
+
+
+# ---------------------------------------------
+
+
+import pytest
+
+
+@pytest.fixture(scope='session')
+def file_server(request):
+    server = SimpleWebServer()
+    server.start()
+    request.addfinalizer(server.stop)
+    return server
