@@ -176,7 +176,7 @@ class AxisView extends Renderer.View
   update_constraints: () ->
     if not @mget('visible')
       return # if not visible, avoid applying constraints until visible again
-    s = @model.document.solver()
+    s = @document.solver()
     size = (@_tick_extent() + @_tick_label_extent() + @_axis_label_extent())
     if not @_last_size?
       @_last_size = -1

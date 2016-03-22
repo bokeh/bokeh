@@ -14,7 +14,6 @@ ToolEvents = require "../../common/tool_events"
 ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
-BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
 {EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
@@ -43,7 +42,7 @@ class PlotView extends Renderer.View
   state: { history: [], index: -1 }
 
   view_options: () ->
-    _.extend({plot_model: @model, plot_view: @}, @options)
+    _.extend({plot_model: @model, plot_view: @, document: @document}, @options)
 
   pause: () ->
     @is_paused = true
@@ -66,6 +65,8 @@ class PlotView extends Renderer.View
   initialize: (options) ->
     super(options)
     @pause()
+
+    @document = options.document
 
     # compat, to be removed
     @frame = @mget('frame')
@@ -349,7 +350,7 @@ class PlotView extends Renderer.View
     @listenTo(@model, 'change:tool', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
+    @listenTo(@document.solver(), 'layout_update', @request_render)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -381,7 +382,7 @@ class PlotView extends Renderer.View
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
-    if not @model.document?
+    if not @document?
       return
 
     if Date.now() - @interactive_timestamp < @mget('lod_interval')
@@ -473,7 +474,7 @@ class PlotView extends Renderer.View
     @canvas_view.update_constraints(false)
     
     # Note: -1 to effectively dilate the canvas by 1px
-    s = @model.document.solver()
+    s = @document.solver()
     s.suggest_value(@frame._width, @canvas.get('width') - 1)
     s.suggest_value(@frame._height, @canvas.get('height') - 1)
 
