@@ -2,15 +2,16 @@ _ = require "underscore"
 $ = require "jquery"
 
 Annotation = require "./annotation"
+ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
 class LabelView extends Renderer.View
   initialize: (options) ->
     super(options)
-
-    @set_visuals(@mget('source'))
-    @set_data(@mget('source'))
+    if not @mget('source')?
+      this.mset('source', new ColumnDataSource.Model())
+    @set_data()
 
   bind_bokeh_events: () ->
     if @mget('render_mode') == 'css'
@@ -18,6 +19,10 @@ class LabelView extends Renderer.View
       @listenTo(@model, 'data_update', @render)
     else
       @listenTo(@model, 'data_update', @plot_view.request_render)
+
+  set_data: () ->
+    super(@mget('source'))
+    @set_visuals(@mget('source'))
 
   _set_data: () ->
     @label_div = ($("<div>").addClass('label').hide() for i in @text)
@@ -30,7 +35,7 @@ class LabelView extends Renderer.View
     for i in [0...@text.length]
       @visuals.text.set_vectorize(ctx, i)
       @width[i] = ctx.measureText(@text[i]).width
-      @height[i] = ctx.measureText(@text[i]).ascent / 1.6 * 1.175
+      @height[i] = ctx.measureText(@text[i]).ascent / 1.175
       [ @x_shift[i], @y_shift[i] ] = @_calculate_offset(ctx, @height[i], @width[i])
 
   _calculate_offset: (ctx, height, width) ->
@@ -42,22 +47,20 @@ class LabelView extends Renderer.View
       x_shift = -width
 
     if ctx.textBaseline == 'top'
-      y_shift = 0.2 * height
+      y_shift = 0.0
     if ctx.textBaseline == 'middle'
-      y_shift = -0.4 * height
+      y_shift = -0.5 * height
     if ctx.textBaseline == 'bottom'
       y_shift = -1.0 * height
     if ctx.textBaseline == 'alphabetic'
       y_shift = -0.8 * height
     if ctx.textBaseline == 'hanging'
-      y_shift = -0.025 * height
+      y_shift = -0.17 * height
 
     return [x_shift, y_shift]
 
   render: () ->
-
-    @map_data() ##unclear why calling this in init returns NaNs
-
+    @map_data()
     if @mget('render_mode') == 'canvas'
       @_canvas_text()
     else
@@ -74,23 +77,27 @@ class LabelView extends Renderer.View
       ctx.beginPath()
       ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
 
-      @visuals.fill.set_vectorize(ctx, i)
-      ctx.fill()
+      if @visuals.fill.doit
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
 
-      @visuals.line.set_vectorize(ctx, i)
-      ctx.stroke()
+      if @visuals.line.doit
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
-      @visuals.text.set_vectorize(ctx, i)
-      ctx.fillText(@text[i], 0, 0)
+      if @visuals.text.doit
+        @visuals.text.set_vectorize(ctx, i)
+        ctx.fillText(@text[i], 0, 0)
       ctx.restore()
 
   _css_text: () ->
     ctx = @plot_view.canvas_view.ctx
 
     for i in [0...@text.length]
+      @visuals.text.set_vectorize(ctx, i)
 
-      if @label_div[i].html() == ""
-        @label_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-events'))
+      if not @label_div[i].style?
+        @label_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-overlays')).hide()
 
       @label_div[i]
         .html(@text[i])
@@ -98,7 +105,7 @@ class LabelView extends Renderer.View
           'position': 'absolute'
           'top': "#{@sy[i] + @mget('y_offset') + @y_shift[i]}px"
           'left': "#{@sx[i] + @mget('x_offset') + @x_shift[i]}px"
-          # 'background-color': 'rgba(255, 255, 255, 0)'
+          # 'background-color': 'rgba(0, 255, 0, 0.2)'
           'font-size': "#{@text_font_size[i]}"
           'font-family': "#{@mget('text_font')}"
           })
