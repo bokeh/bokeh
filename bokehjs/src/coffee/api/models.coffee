@@ -121,6 +121,7 @@ module.exports = {
 
   ## api/typings/models/tickers.d.ts
   Ticker:                                 require("../models/tickers/ticker").Model
+  ContinuousTicker:                       require("../models/tickers/continuous_ticker").Model
   FixedTicker:                            require("../models/tickers/fixed_ticker").Model
   AdaptiveTicker:                         require("../models/tickers/adaptive_ticker").Model
   CompositeTicker:                        require("../models/tickers/composite_ticker").Model

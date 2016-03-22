@@ -1,16 +1,18 @@
 declare namespace Bokeh {
-    export interface Ticker extends Model {
+    export interface Ticker extends Model {}
+
+    export interface ContinuousTicker extends Ticker {
         num_minor_ticks: Int;
         desired_num_ticks: Int;
     }
 
     export var FixedTicker: { new(attributes?: KeyVal, options?: KeyVal): FixedTicker };
-    export interface FixedTicker extends Ticker {
+    export interface FixedTicker extends ContinuousTicker {
         ticks: Array<number>;
     }
 
     export var AdaptiveTicker: { new(attributes?: KeyVal, options?: KeyVal): AdaptiveTicker };
-    export interface AdaptiveTicker extends Ticker {
+    export interface AdaptiveTicker extends ContinuousTicker {
         base: number;
         mantissas: Array<number>;
         min_interval: number;
@@ -18,12 +20,12 @@ declare namespace Bokeh {
     }
 
     export var CompositeTicker: { new(attributes?: KeyVal, options?: KeyVal): CompositeTicker };
-    export interface CompositeTicker extends Ticker {
+    export interface CompositeTicker extends ContinuousTicker {
         tickers: Array<Ticker>;
     }
 
     export var SingleIntervalTicker: { new(attributes?: KeyVal, options?: KeyVal): SingleIntervalTicker };
-    export interface SingleIntervalTicker extends Ticker {
+    export interface SingleIntervalTicker extends ContinuousTicker {
         interval: number;
     }
 
