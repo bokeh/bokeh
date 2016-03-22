@@ -1,6 +1,8 @@
 declare namespace Bokeh {
     var version: string;
 
+    var index: {[key: string]: Model};
+
     //var logger: JSNLog.JSNLogLogger;
 
     type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
