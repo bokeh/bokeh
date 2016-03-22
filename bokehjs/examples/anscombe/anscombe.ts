@@ -1,7 +1,7 @@
 console.log(`Bokeh ${Bokeh.version}`);
 Bokeh.set_log_level("debug");
 
-let anscombe_quartet = Bokeh.LinAlg.transpose([
+const anscombe_quartet = Bokeh.LinAlg.transpose([
     [10.0,  8.04, 10.0, 9.14, 10.0,  7.46,  8.0,  6.58],
     [ 8.0,  6.95,  8.0, 8.14,  8.0,  6.77,  8.0,  5.76],
     [13.0,  7.58, 13.0, 8.74, 13.0, 12.74,  8.0,  7.71],
@@ -14,7 +14,7 @@ let anscombe_quartet = Bokeh.LinAlg.transpose([
     [ 7.0,  4.82,  7.0, 7.26,  7.0,  6.42,  8.0,  7.91],
     [ 5.0,  5.68,  5.0, 4.74,  5.0,  5.73,  8.0,  6.89]]);
 
-let circles = new Bokeh.ColumnDataSource({
+const circles = new Bokeh.ColumnDataSource({
     data: {
         "xi"   : anscombe_quartet[0],
         "yi"   : anscombe_quartet[1],
@@ -27,16 +27,16 @@ let circles = new Bokeh.ColumnDataSource({
     }
 });
 
-let x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
-let y = x.map((v) => v*0.5 + 3.0);
+const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
+const y = x.map((v) => v*0.5 + 3.0);
 
-let lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}});
+const lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}});
 
-let xdr = new Bokeh.Range1d({start: -0.5, end: 20.5});
-let ydr = Bokeh.Range1d(-0.5, 20.5);
+const xdr = new Bokeh.Range1d({start: -0.5, end: 20.5});
+const ydr = Bokeh.Range1d(-0.5, 20.5);
 
 function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
-    let plot = new Bokeh.Plot({
+    const plot = new Bokeh.Plot({
         x_range: xdr,
         y_range: ydr,
         title: title,
@@ -45,31 +45,31 @@ function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
         border_fill_color: "white",
         background_fill_color: "#e9e0db",
     });
-    let xaxis = new Bokeh.LinearAxis({axis_line_color: null});
-    let yaxis = new Bokeh.LinearAxis({axis_line_color: null});
+    const xaxis = new Bokeh.LinearAxis({axis_line_color: null});
+    const yaxis = new Bokeh.LinearAxis({axis_line_color: null});
     plot.add_layout(xaxis, "below");
     plot.add_layout(yaxis, "left");
-    let xgrid = new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0});
-    let ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1});
+    const xgrid = new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0});
+    const ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1});
     plot.add_layout(xgrid);
     plot.add_layout(ygrid);
-    let line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2});
+    const line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2});
     plot.add_glyph(line, lines);
-    let circle = new Bokeh.Circle({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5});
+    const circle = new Bokeh.Circle({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5});
     plot.add_glyph(circle, circles);
 
     return plot;
 }
 
-let I   = make_plot("I",   "xi",   "yi");
-let II  = make_plot("II",  "xii",  "yii");
-let III = make_plot("III", "xiii", "yiii");
-let IV  = make_plot("IV",  "xiv",  "yiv");
+const I   = make_plot("I",   "xi",   "yi");
+const II  = make_plot("II",  "xii",  "yii");
+const III = make_plot("III", "xiii", "yiii");
+const IV  = make_plot("IV",  "xiv",  "yiv");
 
-let grid = new Bokeh.GridPlot({children: [[I, II], [III, IV]]});
+const grid = new Bokeh.GridPlot({children: [[I, II], [III, IV]]});
 
-var doc = new Bokeh.Document();
+const doc = new Bokeh.Document();
 doc.add_root(grid);
 
-var div = document.getElementById("plot");
+const div = document.getElementById("plot");
 Bokeh.embed.add_document_static(div, doc);
