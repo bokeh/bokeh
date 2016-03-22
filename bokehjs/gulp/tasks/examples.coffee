@@ -12,5 +12,6 @@ compile = (name) ->
          .pipe(gulp.dest("./"))
 
 gulp.task "examples:anscombe", () -> compile("anscombe")
+gulp.task "examples:burtin",   () -> compile("burtin")
 
-gulp.task "examples", ["examples:anscombe"]
+gulp.task "examples", ["examples:anscombe", "examples:burtin"]
