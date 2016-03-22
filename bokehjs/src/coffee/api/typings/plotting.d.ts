@@ -4,8 +4,8 @@ declare namespace Bokeh.Plotting {
     type AxisType = "linear" | "log" | "datetime" | Auto;
 
     export interface FigureAttrs {
-        x_range?: Range | [number, number];
-        y_range?: Range | [number, number];
+        x_range?: Range | [number, number] | Array<string>;
+        y_range?: Range | [number, number] | Array<string>;
 
         x_axis_type?: AxisType;
         y_axis_type?: AxisType;
@@ -104,7 +104,6 @@ declare namespace Bokeh.Plotting {
             module: ValueAttr<number>,
             teeth: ValueAttr<Int>,
             opts?: GearOpts):             GlyphRenderer;
-
         image(
             color_mapper: ColorMapper,
             image: ValueAttr<Array<number>>,
@@ -115,7 +114,6 @@ declare namespace Bokeh.Plotting {
             dw: SpatialAttr,
             dh: SpatialAttr,
             opts?: ImageOpts):            GlyphRenderer;
-
         image_rgba(
             image: ValueAttr<Array<number>>,
             rows: ValueAttr<Int>,
@@ -125,7 +123,6 @@ declare namespace Bokeh.Plotting {
             dw: SpatialAttr,
             dh: SpatialAttr,
             opts?: ImageRGBAOpts):        GlyphRenderer;
-
         image_url(
             url: ValueAttr<string>,
             x: DataAttr,
