@@ -16,12 +16,15 @@ class ServerLifecycleHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(ServerLifecycleHandler, self).__init__(*args, **kwargs)
+
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to ServerLifecycleHandler')
+        filename = kwargs['filename']
+        argv = kwargs.get('argv', [])
 
-        kwargs['source'] = codecs.open(kwargs['filename'], 'r', 'UTF-8').read()
+        source = codecs.open(filename, 'r', 'UTF-8').read()
 
-        self._runner = _CodeRunner(kwargs['source'], kwargs['filename'])
+        self._runner = _CodeRunner(source, filename, argv)
 
         self._on_server_loaded = _do_nothing
         self._on_server_unloaded = _do_nothing

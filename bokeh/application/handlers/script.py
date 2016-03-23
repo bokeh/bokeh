@@ -19,9 +19,9 @@ class ScriptHandler(CodeHandler):
     def __init__(self, *args, **kwargs):
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to ScriptHandler')
+        filename = kwargs['filename']
 
-        with codecs.open(kwargs['filename'], 'r', 'UTF-8') as f:
+        with codecs.open(filename, 'r', 'UTF-8') as f:
             kwargs['source'] = f.read()
+            
         super(ScriptHandler, self).__init__(*args, **kwargs)
-
-

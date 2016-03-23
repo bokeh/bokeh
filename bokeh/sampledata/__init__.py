@@ -7,10 +7,10 @@ from zipfile import ZipFile
 from six.moves.urllib.request import urlopen
 
 def _bokeh_dir(create=False):
-    bokeh_dir = expanduser("~/.bokeh")
+    bokeh_dir = join(expanduser("~"), ".bokeh")
     if not exists(bokeh_dir):
         if not create: return bokeh_dir
-        print("Creating ~/.bokeh directory")
+        print("Creating %s directory" % bokeh_dir)
         try:
             mkdir(bokeh_dir)
         except OSError:

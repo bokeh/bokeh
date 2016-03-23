@@ -4,6 +4,7 @@ Abstract base class for subcommands that output to a file (or stdout).
 from __future__ import absolute_import
 
 from abc import abstractmethod
+import argparse
 import io
 
 from bokeh.util.string import decode_utf8
@@ -38,6 +39,12 @@ class FileOutputSubcommand(Subcommand):
                 type=str,
                 help="Name of the output file or - for standard output."
             )),
+
+            ('--args', dict(
+                metavar='COMMAND-LINE-ARGS',
+                nargs=argparse.REMAINDER,
+                help="Any command line arguments remaining are passed on to the application handler",
+            )),
         )
 
     def filename_from_route(self, route, ext):
@@ -49,7 +56,8 @@ class FileOutputSubcommand(Subcommand):
         return "%s.%s" % (base, ext)
 
     def invoke(self, args):
-        applications = build_single_handler_applications(args.files)
+        argvs = { f : args.args for f in args.files}
+        applications = build_single_handler_applications(args.files, argvs)
 
         if args.output is None:
             outputs = []

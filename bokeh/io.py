@@ -117,7 +117,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
             command). If False, then the file is only saved upon calling
             :func:`show` or :func:`save`.
 
-        mode (str, optional) : how to include BokehJS (default: ``'inline'``)
+        mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
             One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
             ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
 
@@ -156,7 +156,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
 
     Args:
         resources (Resource, optional) :
-            How and where to load BokehJS from (default: INLINE)
+            How and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :
             whether to display detailed BokehJS banner (default: False)

@@ -11,7 +11,7 @@ from bokeh.util.serialization import make_id
 class _CodeRunner(object):
     """ Compile and run a Python source code."""
 
-    def __init__(self, source, path):
+    def __init__(self, source, path, argv):
         self._failed = False
         self._error = None
         self._error_detail = None
@@ -30,6 +30,7 @@ class _CodeRunner(object):
 
         self._path = path
         self._source = source
+        self._argv = argv
 
     @property
     def source(self):
@@ -73,8 +74,10 @@ class _CodeRunner(object):
             # https://docs.python.org/2/library/sys.html#sys.path
             _cwd = os.getcwd()
             _sys_path = list(sys.path)
+            _sys_argv = list(sys.argv)
             os.chdir(dirname(self._path))
             sys.path.insert(0, '')
+            sys.argv = [os.path.basename(self._path)] + self._argv
 
             exec(self._code, module.__dict__)
             post_check()
@@ -92,3 +95,4 @@ class _CodeRunner(object):
             # undo sys.path, CWD fixups
             os.chdir(_cwd)
             sys.path = _sys_path
+            sys.argv = _sys_argv
