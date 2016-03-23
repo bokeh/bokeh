@@ -71,7 +71,7 @@ declare namespace Bokeh {
 
         add_renderers(...Renderer: Array<Renderer>): void;
         add_layout(obj: Model, place?: Place): void;
-        add_glyph(glyph: Glyph, source?: DataSource): GlyphRenderer;
+        add_glyph(glyph: Glyph, source?: DataSource, attrs?: KeyVal): GlyphRenderer;
         add_tools(...tools: Array<Tool>): void;
     }
 

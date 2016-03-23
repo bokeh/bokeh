@@ -738,11 +738,13 @@ class Plot extends Component.Model
     if place != 'center'
       @set(place, @get(place).concat([renderer]))
 
-  add_glyph: (glyph, source) ->
+  add_glyph: (glyph, source, attrs={}) ->
     if not source?
       source = new ColumnDataSource.Model()
 
-    renderer = new GlyphRenderer.Model({data_source: source, glyph: glyph})
+    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    renderer = new GlyphRenderer.Model(attrs)
+
     @add_renderers(renderer)
 
     return renderer
