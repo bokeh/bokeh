@@ -8,9 +8,35 @@ declare namespace Bokeh {
         location: LegendLocation;
         orientation: Orientation;
 
-        //background = include[LineProps]
-        //border = include[LineProps]
-        //label = include[TextProps]
+        // {{{ background = include[LineProps]
+        background_line_color: Color;
+        background_line_width: number;
+        background_line_alpha: Percent;
+        background_line_join: LineJoin;
+        background_line_cap: LineCap;
+        background_line_dash: DashPattern;
+        background_line_dash_offset: Int;
+        // }}}
+
+        // {{{ border = include[LineProps]
+        border_line_color: Color;
+        border_line_width: number;
+        border_line_alpha: Percent;
+        border_line_join: LineJoin;
+        border_line_cap: LineCap;
+        border_line_dash: DashPattern;
+        border_line_dash_offset: Int;
+        // }}}
+
+        // {{{ label = include[TextProps]
+        label_text_font: string;
+        label_text_font_size: FontSize;
+        label_text_font_style: FontStyle;
+        label_text_color: Color;
+        label_text_alpha: Percent;
+        label_text_align: TextAlign;
+        label_text_baseline: TextBaseline;
+        // }}}
 
         label_standoff: Int;
         label_height: Int;

@@ -3,8 +3,25 @@ declare namespace Bokeh {
     export interface Plot extends Component {
         title: string;
 
-        //title = include[TextProps]
-        //outline = include[LineProps]
+        // {{{ title = include[TextProps]
+        title_text_font: string;
+        title_text_font_size: FontSize;
+        title_text_font_style: FontStyle;
+        title_text_color: Color;
+        title_text_alpha: Percent;
+        title_text_align: TextAlign;
+        title_text_baseline: TextBaseline;
+        // }}}
+
+        // {{{ outline = include[LineProps]
+        outline_line_color: Color;
+        outline_line_width: number;
+        outline_line_alpha: Percent;
+        outline_line_join: LineJoin;
+        outline_line_cap: LineCap;
+        outline_line_dash: DashPattern;
+        outline_line_dash_offset: Int;
+        // }}}
 
         x_range: Range;
         y_range: Range;
