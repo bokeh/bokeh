@@ -156,11 +156,11 @@ class Figure extends models.Plot
   _default_color: "#1f77b4"
   _default_alpha: 1.0
 
-  _pop_colors_and_alpha: (cls, attrs, prefix="") ->
+  _pop_colors_and_alpha: (cls, attrs, prefix="", default_color=@_default_color, default_alpha=@_default_alpha) ->
       result = {}
 
-      color = _with_default(attrs[prefix + "color"], @_default_color)
-      alpha = _with_default(attrs[prefix + "alpha"], @_default_alpha)
+      color = _with_default(attrs[prefix + "color"], default_color)
+      alpha = _with_default(attrs[prefix + "alpha"], default_alpha)
 
       delete attrs[prefix + "color"]
       delete attrs[prefix + "alpha"]
@@ -210,7 +210,7 @@ class Figure extends models.Plot
     has_hglyph = _.any(_.keys(attrs), (key) -> key.startsWith("hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
-    nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_")
+    nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
     sglyph_ca  = if has_sglyph then @_pop_colors_and_alpha(cls, attrs, "selection_") else {}
     hglyph_ca  = if has_hglyph then @_pop_colors_and_alpha(cls, attrs, "hover_") else {}
 
