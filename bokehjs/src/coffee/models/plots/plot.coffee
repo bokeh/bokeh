@@ -73,8 +73,6 @@ class PlotView extends Renderer.View
     @y_range = @frame.get('y_ranges')['default']
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
-    @dom_left = 0
-    @dom_top = 0
 
     @$el.html(@template())
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
@@ -466,9 +464,10 @@ class PlotView extends Renderer.View
       @set_initial_range()
 
   resize: () ->
-    logger.debug("resize: Plot")
     width = @model._width._value
     height = @model._height._value
+
+    logger.debug("resize: Plot #{@model.id} -- #{width} x #{height}")
 
     # Set the Canvas Dimensions
     @update_dimensions([width, height], trigger=false)
@@ -476,10 +475,11 @@ class PlotView extends Renderer.View
     # Set the DOM Box
     @$el.css({
       position: 'absolute'
-      left: @dom_left
-      top: @dom_top
+      left: @mget('dom_left')
+      top: @mget('dom_top')
       width: width
       height: height
+      border: "2px solid cornflowerblue"
     })
 
     @document.solver().trigger('layout_update')
@@ -537,6 +537,9 @@ class Plot extends Component.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+
+    @set('dom_left', 0)
+    @set('dom_top', 0)
 
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
       xr = @resolve_ref(xr)
@@ -680,9 +683,29 @@ class Plot extends Component.Model
     return constraints
 
   get_constrained_variables: () ->
+    frame = @get('frame')
     {
       'width' : @_width
       'height' : @_height
+
+      #'on-top-edge-align': frame._top
+      #'on-right-edge-align': frame._right
+      #'on-bottom-edge-align': frame._bottom
+      #'on-left-edge-align': frame._left
+      #'on-top-edge-align': @above_panel._bottom
+      #'on-right-edge-align': @right_panel._left
+      #'on-bottom-edge-align': @below_panel._top
+      #'on-left-edge-align': @left_panel._right
+
+      'box-cell-align-top' : @above_panel._bottom
+      'box-cell-align-right' : @right_panel._left
+      'box-cell-align-bottom' : @below_panel._top
+      'box-cell-align-left' : @left_panel._right
+
+      'box-equal-size-top' : @above_panel._bottom
+      'box-equal-size-right' : @right_panel._left
+      'box-equal-size-bottom' : @below_panel._top
+      'box-equal-size-left' : @left_panel._right
     }
 
   add_renderers: (new_renderers) ->
@@ -758,6 +781,9 @@ class Plot extends Component.Model
       # internal
       min_size: 120
     }
+
+  set_dom_origin: (left, top) ->
+    @set({ dom_left: left, dom_top: top })
 
 module.exports =
   Model: Plot

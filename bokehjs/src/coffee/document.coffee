@@ -96,8 +96,8 @@ class Document
 
   resize: () ->
     logger.debug("resize: Document")
-    width = window.innerWidth - 25
-    height = window.innerHeight - 80  # TODO This is just compensating for toolbar, only works in one plot setup
+    width = window.innerWidth - 20
+    height = window.innerHeight - 5
     @_solver.suggest_value(@_doc_width, width)
     @_solver.suggest_value(@_doc_height, height)
     @_solver.update_variables(false)

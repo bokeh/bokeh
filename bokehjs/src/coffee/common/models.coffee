@@ -54,6 +54,7 @@ module.exports = {
   Grid:                     require '../models/grids/grid'
 
   Row:                      require '../models/layouts/row'
+  Column:                   require '../models/layouts/column'
 
   GridPlot:                 require '../models/layouts_legacy/grid_plot'
   HBox:                     require '../models/layouts_legacy/hbox'
