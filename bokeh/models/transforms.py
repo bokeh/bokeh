@@ -87,16 +87,6 @@ class LinearInterpolator(Interpolator):
     pass
 
 
-class LogInterpolator(Interpolator):
-    ''' Compute a log interpolation between the points given by ``values``.
-
-    '''
-    base = Float(default=10, help="""
-    Base value for the logorithm.  For example, if base = 10, then that would imply log_10.
-    """)
-    pass
-
-
 class StepInterpolator(Interpolator):
     ''' Compute a step-wise interpolation between the points given
     by ``values``.
