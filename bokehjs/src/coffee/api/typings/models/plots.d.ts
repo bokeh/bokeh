@@ -29,8 +29,8 @@ declare namespace Bokeh {
         extra_x_ranges: {[key: string]: Range};
         extra_y_ranges: {[key: string]: Range};
 
-        x_mapper_type: string;
-        y_mapper_type: string;
+        x_mapper_type: Auto | "log";
+        y_mapper_type: Auto | "log";
 
         renderers: Array<Renderer>;
         tools: Array<Tool>;
