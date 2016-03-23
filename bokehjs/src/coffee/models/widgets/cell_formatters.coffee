@@ -6,7 +6,7 @@ p = require "../../core/properties"
 Model = require "../../model"
 
 class CellFormatter extends Model
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     if value == null
       return ""
     else
@@ -21,7 +21,7 @@ class StringFormatter extends CellFormatter
     text_color: [ p.Color ]
   }
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     text = super(row, cell, value, columnDef, dataContext)
 
     font_style = @get("font_style")
@@ -43,15 +43,12 @@ class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
 
   @define {
-    font_style: [ p.FontStyle, "normal" ]
-    text_align: [ p.TextAlign, "left"   ]
-    text_color: [ p.Color               ]
     format:     [ p.String, '0,0'       ] # TODO (bev)
     language:   [ p.String, 'en'        ] # TODO (bev)
     rounding:   [ p.String, 'round'     ] # TODO (bev)
   }
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     format = @get("format")
     language = @get("language")
     rounding = switch @get("rounding")
@@ -68,7 +65,7 @@ class BooleanFormatter extends CellFormatter
     icon: [ p.String, 'check' ]
   }
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     if !!value then $('<i>').addClass(@get("icon")).html() else ""
 
 class DateFormatter extends CellFormatter
@@ -93,7 +90,7 @@ class DateFormatter extends CellFormatter
       else                                       null
     if name? then $.datepicker[name] else format
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     value = if _.isString(value) then parseInt(value, 10) else value
     date = $.datepicker.formatDate(@getFormat(), new Date(value))
     return super(row, cell, date, columnDef, dataContext)
@@ -105,7 +102,7 @@ class HTMLTemplateFormatter extends CellFormatter
     template: [ p.String, '<%= value %>' ]
   }
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     template = @get("template")
     if value == null
       return ""

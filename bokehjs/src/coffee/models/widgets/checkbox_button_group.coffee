@@ -28,7 +28,7 @@ class CheckboxButtonGroupView extends BokehView
       if i in active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("type"))
+      $label.addClass("bk-bs-btn-" + @mget("button_type"))
       if i in active then $label.addClass("bk-bs-active")
       @$el.append($label)
 
@@ -44,9 +44,9 @@ class CheckboxButtonGroup extends Widget.Model
   default_view: CheckboxButtonGroupView
 
   @define {
-      active:   [ p.Array,  []        ]
-      labels:   [ p.Array,  []        ]
-      type:     [ p.String, "default" ]
+      active:      [ p.Array,  []        ]
+      labels:      [ p.Array,  []        ]
+      button_type: [ p.String, "default" ]
     }
 
 module.exports =

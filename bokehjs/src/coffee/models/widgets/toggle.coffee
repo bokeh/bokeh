@@ -23,7 +23,7 @@ class ToggleView extends BokehView
 
     @$el.empty()
     @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("type"))
+    @$el.addClass("bk-bs-btn-" + @mget("button_type"))
     if @mget("disabled") then @$el.attr("disabled", "disabled")
 
     label = @mget("label")

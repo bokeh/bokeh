@@ -20,7 +20,7 @@ class DropdownView extends BokehView
 
     $button = $('<button></button>')
     $button.addClass("bk-bs-btn")
-    $button.addClass("bk-bs-btn-" + @mget("type"))
+    $button.addClass("bk-bs-btn-" + @mget("button_type"))
     $button.text(@mget("label"))
 
     $caret = $('<span class="bk-bs-caret"></span>')
