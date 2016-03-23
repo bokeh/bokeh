@@ -43,6 +43,11 @@ declare namespace Bokeh.Plotting {
 
         plot_width?: Int;
         plot_height?: Int;
+
+        min_border: Int;
+        outline_line_color: Color;
+        background_fill_color: Color;
+        border_fill_color: Color;
     }
 
     function figure(attrs?: FigureAttrs): Figure;
