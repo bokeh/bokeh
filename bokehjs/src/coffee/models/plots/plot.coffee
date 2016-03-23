@@ -132,6 +132,11 @@ class PlotView extends Renderer.View
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
+    @ui_event_bus = new UIEvents({
+      tool_manager: @mget('tool_manager')
+      hit_area: @canvas_view.$el
+    })
+
     @renderers = {}
     @tools = {}
 
@@ -142,13 +147,6 @@ class PlotView extends Renderer.View
     @bind_bokeh_events()
 
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
-
-    @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
-      hit_area: @canvas_view.$el
-    })
-    for id, tool_view of @tools
-      @ui_event_bus.register_tool(tool_view)
 
     toolbar_location = @mget('toolbar_location')
     if toolbar_location?
@@ -366,10 +364,11 @@ class PlotView extends Renderer.View
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-    for t in tools
-      level = t.mget('level')
-      @levels[level][t.model.id] = t
-      t.bind_bokeh_events()
+    for tool_view in tools
+      level = tool_view.mget('level')
+      @levels[level][tool_view.model.id] = tool_view
+      tool_view.bind_bokeh_events()
+      @ui_event_bus.register_tool(tool_view)
     return this
 
   bind_bokeh_events: () ->
@@ -378,7 +377,7 @@ class PlotView extends Renderer.View
     for name, rng of @mget('frame').get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tool', @build_levels)
+    @listenTo(@model, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
 
@@ -645,11 +644,7 @@ class Plot extends Component.Model
 
     @solver = canvas.get('solver')
 
-    @set('tool_manager', new ToolManager.Model({
-      tools: @get('tools')
-      toolbar_location: @get('toolbar_location')
-      logo: @get('logo')
-    }))
+    @set('tool_manager', new ToolManager.Model({ plot: this }))
 
     logger.debug("Plot initialized")
 

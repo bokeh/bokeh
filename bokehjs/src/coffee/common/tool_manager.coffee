@@ -72,6 +72,7 @@ class ToolManager extends HasProps
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @listenTo(@get('plot'), 'change:tools', () => @_init_tools())
     @_init_tools()
 
   serializable_in_document: () -> false
@@ -79,7 +80,7 @@ class ToolManager extends HasProps
   _init_tools: () ->
     gestures = @get('gestures')
 
-    for tool in @get('tools')
+    for tool in @get('plot').get('tools')
       if tool instanceof InspectTool.Model
         inspectors = @get('inspectors')
         inspectors.push(tool)
