@@ -14,7 +14,6 @@ function values<V>(obj: Map<V>): Array<V> {
     return values;
 };
 
-
 console.log(`Bokeh ${Bokeh.version}`);
 Bokeh.set_log_level("debug");
 
@@ -62,14 +61,14 @@ const df: Antibiotics = {
 }
 
 const drug_color: Map<Color> = {
-    "Penicillin":   "red", //"#0d3362",
-    "Streptomycin": "green", //"#c64737",
+    "Penicillin":   "#0d3362",
+    "Streptomycin": "#c64737",
     "Neomycin":     "black"  ,
 }
 
 const gram_color: Map<Color> = {
-    "positive": "red", //"#aeaeb8",
-    "negative": "green", //"#e69584",
+    "positive": "#aeaeb8",
+    "negative": "#e69584",
 }
 
 const width = 800
@@ -94,13 +93,13 @@ const p = plt.figure({
     plot_width: width, plot_height: height,
     x_axis_type: null, y_axis_type: null,
     x_range: [-420, 420], y_range: [-420, 420],
-    /*min_border: 0,
+    min_border: 0,
     outline_line_color: "black",
     background_fill_color: "#f0e1d2",
-    border_fill_color: "#f0e1d2"*/})
+    border_fill_color: "#f0e1d2"})
 
-// p.xgrid.grid_line_color = null;
-// p.ygrid.grid_line_color = null;
+p.xgrid.grid_line_color = null
+p.ygrid.grid_line_color = null
 
 // annular wedges
 const angles = df.index.map((i) => Math.PI/2 - big_angle/2 - i*big_angle)
@@ -124,6 +123,7 @@ p.annular_wedge(0, 0, inner_radius, rad(df.neomycin),
 // circular axes and lables
 const labels = arange(-3, 4).map((v) => 10**v)
 const radii = labels.map((label) => a * Math.sqrt(Math.log(label * 1E4)) + b)
+
 p.circle(0, 0, {radius: radii, fill_color: null, line_color: "white"})
 p.text(0, radii.slice(0, -1), labels.slice(0, -1).map((label) => label.toString()),
        {text_font_size: "8pt", text_align: "center", text_baseline: "middle"})
