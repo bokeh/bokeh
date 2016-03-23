@@ -40,12 +40,15 @@ _known_tools = {
   help:         () -> new models.HelpTool()
 }
 
+_with_default = (value, default_value) ->
+  if value == undefined then default_value else value
+
 class Figure extends models.Plot
 
   constructor: (attrs={}) ->
     attrs = _.clone(attrs)
 
-    tools = attrs.tools ? _default_tools
+    tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
 
     attrs.x_range = @_get_range(attrs.x_range)
@@ -83,11 +86,12 @@ class Figure extends models.Plot
       axis_label = x_axis_label
       if axis_label.length != 0
         xaxis.axis_label = axis_label
-      xgrid = new models.Grid({plot: this, dimension: 0, ticker: xaxis.ticker})
+      @xgrid = new models.Grid({plot: this, dimension: 0, ticker: xaxis.ticker})
       if x_axis_location == "above"
         this.above = (this.above ? []).concat([xaxis])
       else if x_axis_location == "below"
         this.below = (this.below ? []).concat([xaxis])
+      @add_renderers(xaxis, @xgrid)
 
     y_axiscls = @_get_axis_class(y_axis_type, this.y_range)
     if y_axiscls?
@@ -99,11 +103,12 @@ class Figure extends models.Plot
       axis_label = y_axis_label
       if axis_label.length != 0
         yaxis.axis_label = axis_label
-      xgrid = new models.Grid({plot: this, dimension: 1, ticker: yaxis.ticker})
+      @ygrid = new models.Grid({plot: this, dimension: 1, ticker: yaxis.ticker})
       if y_axis_location == "left"
         this.left = (this.left ? []).concat([yaxis])
       else if y_axis_location == "right"
         this.right = (this.right ? []).concat([yaxis])
+      @add_renderers(yaxis, @ygrid)
 
     @add_tools(@_process_tools(tools)...)
 
@@ -154,15 +159,15 @@ class Figure extends models.Plot
   _pop_colors_and_alpha: (cls, attrs, prefix="") ->
       result = {}
 
-      color = attrs[prefix + "color"] ? @_default_color
-      alpha = attrs[prefix + "alpha"] ? @_default_alpha
+      color = _with_default(attrs[prefix + "color"], @_default_color)
+      alpha = _with_default(attrs[prefix + "alpha"], @_default_alpha)
 
       delete attrs[prefix + "color"]
       delete attrs[prefix + "alpha"]
 
       _update_with = (name, default_value) ->
         if cls.prototype.props[name]?
-          result[name] = attrs[prefix + name] ? default_value
+          result[name] = _with_default(attrs[prefix + name], default_value)
           delete attrs[prefix + name]
 
       _update_with("fill_color", color)
@@ -175,17 +180,18 @@ class Figure extends models.Plot
 
       return result
 
-  _fixup_values: (cls, source, attrs) ->
+  _fixup_values: (cls, data, attrs) ->
     for name, value of attrs
-      [prop, ...] = cls.prototype.props[name]
+      do (name, value) ->
+        [prop, ...] = cls.prototype.props[name]
 
-      if prop.prototype.dataspec
-        if value?
-          if _.isArray(value)
-            source.data[name] = value
-            attrs[name] = { field: name }
-          else if _.isNumber(value) or _.isString(value) # or Date?
-            attrs[name] = { value: value }
+        if prop.prototype.dataspec
+          if value?
+            if _.isArray(value)
+              data[name] = value
+              attrs[name] = { field: name }
+            else if _.isNumber(value) or _.isString(value) # or Date?
+              attrs[name] = { value: value }
 
   _glyph: (cls, params, args) ->
     params = params.split(",")
@@ -197,30 +203,37 @@ class Figure extends models.Plot
       [args..., opts] = args
       attrs = _.clone(opts)
       for param, i in params
-        attrs[param] = args[i]
+        do (param, i) ->
+          attrs[param] = args[i]
 
-    source = attrs.source ? new models.ColumnDataSource()
-    delete attrs.source
+    has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
+    has_hglyph = _.any(_.keys(attrs), (key) -> key.startsWith("hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
     nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_")
-    sglyph_ca  = @_pop_colors_and_alpha(cls, attrs, "selection_")
-    hglyph_ca  = @_pop_colors_and_alpha(cls, attrs, "hover_")
+    sglyph_ca  = if has_sglyph then @_pop_colors_and_alpha(cls, attrs, "selection_") else {}
+    hglyph_ca  = if has_hglyph then @_pop_colors_and_alpha(cls, attrs, "hover_") else {}
 
-    @_fixup_values(cls, source,   glyph_ca)
-    @_fixup_values(cls, source, nsglyph_ca)
-    @_fixup_values(cls, source,  sglyph_ca)
-    @_fixup_values(cls, source,  hglyph_ca)
+    data = {}
 
-    @_fixup_values(cls, source, attrs)
+    @_fixup_values(cls, data,   glyph_ca)
+    @_fixup_values(cls, data, nsglyph_ca)
+    @_fixup_values(cls, data,  sglyph_ca)
+    @_fixup_values(cls, data,  hglyph_ca)
+
+    @_fixup_values(cls, data, attrs)
 
     _make_glyph = (cls, attrs, extra_attrs) =>
       new cls(_.extend({}, attrs, extra_attrs))
 
     glyph   = _make_glyph(cls, attrs,   glyph_ca)
     nsglyph = _make_glyph(cls, attrs, nsglyph_ca)
-    sglyph  = _make_glyph(cls, attrs,  sglyph_ca)
-    hglyph  = _make_glyph(cls, attrs,  hglyph_ca)
+    sglyph  = if has_sglyph then _make_glyph(cls, attrs,  sglyph_ca) else null
+    hglyph  = if has_hglyph then _make_glyph(cls, attrs,  hglyph_ca) else null
+
+    source = attrs.source ? new models.ColumnDataSource()
+    source.data = _.extend({}, source.data, data)
+    delete attrs.source
 
     glyph_renderer = new models.GlyphRenderer({
       data_source:        source
