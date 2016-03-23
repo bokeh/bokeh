@@ -6,13 +6,10 @@ LinearMapper = require "../mappers/linear_mapper"
 LogMapper = require "../mappers/log_mapper"
 {logging} = require "../../core/logging"
 LayoutBox = require "./layout_box"
+Range1d = require "../ranges/range1d"
 
 class CartesianFrame extends LayoutBox.Model
   type: 'CartesianFrame'
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @panel = @
 
   _doc_attached: () ->
     super()
@@ -47,6 +44,31 @@ class CartesianFrame extends LayoutBox.Model
     @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
     @listenTo(@document.solver(), 'layout_update', @_update_mappers)
+
+    @_h_range = new Range1d.Model({start: @get('left'), end: @get('left') + @get('width')})
+    @register_property('h_range',
+        () =>
+          @_h_range.set('start', @get('left'))
+          @_h_range.set('end',   @get('left') + @get('width'))
+          return @_h_range
+      , false)
+    @add_dependencies('h_range', this, ['left', 'width'])
+
+    @_v_range = new Range1d.Model({start: @get('bottom'), end: @get('bottom') + @get('height')})
+    @register_property('v_range',
+        () =>
+          @_v_range.set('start', @get('bottom'))
+          @_v_range.set('end',   @get('bottom') + @get('height'))
+          return @_v_range
+      , false)
+    @add_dependencies('v_range', this, ['bottom', 'height'])
+
+
+  contains: (vx, vy) ->
+    return (
+      vx >= @get('left') and vx <= @get('right') and
+      vy >= @get('bottom') and vy <= @get('top')
+    )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
     vx = @get('x_mappers')[x_name].v_map_to_target(x)

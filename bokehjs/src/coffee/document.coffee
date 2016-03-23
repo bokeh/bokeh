@@ -1,10 +1,13 @@
 _ = require "underscore"
+$ = require "jquery"
 
 {Collections} = require "./base"
 {Solver} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
+{Variable, EQ} = require "./core/layout/solver"
+{throttle} = require "./core/util/throttle"
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -83,6 +86,22 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
+    @_doc_width = new Variable()
+    @_doc_height = new Variable()
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+    @throttled_resize = throttle(@resize, 15)
+    $(window).on("resize", $.proxy(@throttled_resize, @))
+    @resize()
+
+  resize: () ->
+    logger.debug("resize: Document")
+    width = window.innerWidth
+    height = window.innerHeight
+    @_solver.suggest_value(@_doc_width, width)
+    @_solver.suggest_value(@_doc_height, height)
+    @_solver.update_variables(false)
+    @_solver.trigger('resize')
 
   solver: () ->
     @_solver
@@ -108,6 +127,20 @@ class Document
       return
     @_roots.push(model)
     model.attach_document(@)
+    for v in model.get_edit_variables()
+      @_solver.add_edit_variable(v.edit_variable, v.strength)
+    for constraint in model.get_constraints()
+      @_solver.add_constraint(constraint)
+
+    # set the size of the root layoutable to the window size
+    # TODO This isn't going to work if there's more than one root
+    root_vars = model.get_constrained_variables()
+    root_width = root_vars['width']
+    root_height = root_vars['height']
+    @_solver.add_constraint(EQ(root_width, [-1, @_doc_width]))
+    @_solver.add_constraint(EQ(root_height, [-1, @_doc_height]))
+    @_solver.update_variables()
+
     @_trigger_on_change(new RootAddedEvent(@, model))
 
   remove_root : (model) ->

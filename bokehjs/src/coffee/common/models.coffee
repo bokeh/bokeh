@@ -53,10 +53,13 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
-  GridPlot:                 require '../models/layouts/grid_plot'
-  HBox:                     require '../models/layouts/hbox'
-  VBox:                     require '../models/layouts/vbox'
-  VBoxForm:                 require '../models/layouts/vboxform'
+  Row:                      require '../models/layouts/row'
+  Column:                   require '../models/layouts/column'
+
+  GridPlot:                 require '../models/layouts_legacy/grid_plot'
+  HBox:                     require '../models/layouts_legacy/hbox'
+  VBox:                     require '../models/layouts_legacy/vbox'
+  VBoxForm:                 require '../models/layouts_legacy/vboxform'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'

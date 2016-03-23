@@ -1,6 +1,4 @@
 _ = require "underscore"
-$ = require "jquery"
-Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
@@ -14,9 +12,8 @@ ToolEvents = require "../../common/tool_events"
 ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
-BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
-{EQ, GE, Strength} = require "../../core/layout/solver"
+{Variable, EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
@@ -35,36 +32,6 @@ plot_template = require "./plot_template"
 # marker that we use throughout that determines whether we have gl support.
 
 global_gl_canvas = null
-
-MIN_BORDER = 50
-
-get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
-    # client_width and height represent the available size
-
-    if use_width
-      new_width1 = Math.max(client_width, min_size)
-      new_height1 = parseInt(new_width1 / aspect_ratio)
-      if new_height1 < min_size
-        new_height1 = min_size
-        new_width1 = parseInt(new_height1 * aspect_ratio)
-    if use_height
-      new_height2 = Math.max(client_height, min_size)
-      new_width2 = parseInt(new_height2 * aspect_ratio)
-      if new_width2 < min_size
-        new_width2 = min_size
-        new_height2 = parseInt(new_width2 / aspect_ratio)
-
-    if (not use_height) and (not use_width)
-      return null  # remain same size
-    else if use_height and use_width
-      if new_width1 < new_width2
-        return [new_width1, new_height1]
-      else
-        return [new_width2, new_height2]
-    else if use_height
-     return [new_width2, new_height2]
-    else
-      return [new_width1, new_height1]
 
 # TODO (bev) PlotView should not be a RendererView
 class PlotView extends Renderer.View
@@ -95,33 +62,39 @@ class PlotView extends Renderer.View
 
   initialize: (options) ->
     super(options)
+
     @pause()
-
-    @_initial_state_info = {
-      range: null                     # set later by set_initial_range()
-      selection: {}                   # XXX: initial selection?
-      dimensions: {
-        width: @mget("canvas").get("width")
-        height: @mget("canvas").get("height")
-      }
-    }
-
-    @model.initialize_layout(@model.solver)
 
     # compat, to be removed
     @frame = @mget('frame')
+    @canvas = @mget('canvas')
+    @canvas_view = new @canvas.default_view({'model': @canvas})
     @x_range = @frame.get('x_ranges')['default']
     @y_range = @frame.get('y_ranges')['default']
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
 
     @$el.html(@template())
-
-    @canvas = @mget('canvas')
-    @canvas_view = new @canvas.default_view({'model': @canvas})
-
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
+    @_initial_state_info = {
+      range: null                     # set later by set_initial_range()
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @canvas.get("width")
+        height: @canvas.get("height")
+      }
+    }
+
+    # Formerly in initialize_layout
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @mget(side)
+      for r in layout_renderers
+        if r.get('location') ? 'auto' == 'auto'
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
+        r.initialize_layout()
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -129,9 +102,10 @@ class PlotView extends Renderer.View
       if window.location.search.indexOf('webgl=0') == -1
         @init_webgl()
 
-    @throttled_render = throttle(@render, 15) # TODO (bev) configurable
+    @throttled_render = throttle(@render, 15)
+    @throttled_resize = throttle(@resize, 15)
 
-    @renderers = {}
+    @renderer_views = {}
     @tools = {}
 
     @levels = {}
@@ -139,8 +113,6 @@ class PlotView extends Renderer.View
       @levels[level] = {}
     @build_levels()
     @bind_bokeh_events()
-
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
       tool_manager: @mget('tool_manager')
@@ -161,11 +133,7 @@ class PlotView extends Renderer.View
 
     @update_dataranges()
 
-    if @mget('responsive')
-      throttled_resize = _.throttle(@resize, 100)
-      $(window).on("resize", throttled_resize)
-      # Just need to wait a small delay so container has a width
-      _.delay(@resize, 10)
+    @resize()
 
     @unpause()
 
@@ -193,29 +161,28 @@ class PlotView extends Renderer.View
 
   update_dataranges: () ->
     # Update any DataRange1ds here
-    frame = @model.get('frame')
     bounds = {}
-    for k, v of @renderers
+    for k, v of @renderer_views
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
 
     follow_enabled = false
     has_bounds = false
-    for xr in _.values(frame.get('x_ranges'))
+    for xr in _.values(@frame.get('x_ranges'))
       xr.update?(bounds, 0, @model.id)
       follow_enabled = true if xr.get('follow')?
       has_bounds = true if xr.get('bounds')?
-    for yr in _.values(frame.get('y_ranges'))
+    for yr in _.values(@frame.get('y_ranges'))
       yr.update?(bounds, 1, @model.id)
       follow_enabled = true if yr.get('follow')?
       has_bounds = true if yr.get('bounds')?
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.get('x_ranges'))
+      for xr in _.values(@frame.get('x_ranges'))
         xr.set('bounds', null)
-      for yr in _.values(frame.get('y_ranges'))
+      for yr in _.values(@frame.get('y_ranges'))
         yr.set('bounds', null)
 
     @range_update_timestamp = Date.now()
@@ -267,11 +234,12 @@ class PlotView extends Renderer.View
     if info.dimensions?
       @update_dimensions(info.dimensions)
 
-  update_dimensions: (dimensions) ->
-    @canvas.set_dims([dimensions.width, dimensions.height])
+  update_dimensions: (dimensions, trigger=true) ->
+    @canvas_view.set_dimensions(dimensions)
+    @canvas_view.update_constraints(trigger)
 
   reset_dimensions: () ->
-    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+    @update_dimensions([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
 
   get_selection: () ->
     selection = []
@@ -354,8 +322,8 @@ class PlotView extends Renderer.View
 
   build_levels: () ->
     # should only bind events on NEW views and tools
-    old_renderers = _.keys(@renderers)
-    views = build_views(@renderers, @mget('renderers'), @view_options())
+    old_renderers = _.keys(@renderer_views)
+    views = build_views(@renderer_views, @mget('renderers'), @view_options())
     renderers_to_remove = _.difference(old_renderers,
                                        _.pluck(@mget('renderers'), 'id'))
     for id_ in renderers_to_remove
@@ -372,14 +340,16 @@ class PlotView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @mget('frame').get('x_ranges')
+    for name, rng of @frame.get('x_ranges')
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @mget('frame').get('y_ranges')
+    for name, rng of @frame.get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
     @listenTo(@model, 'change:tool', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
+    @listenTo(@document.solver(), 'layout_update', @request_render)
+    @listenTo(@document.solver(), 'resize', @throttled_resize)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -425,56 +395,25 @@ class PlotView extends Renderer.View
     else
       @interactive = false
 
-    width = @mget("plot_width")
-    height = @mget("plot_height")
-
-    if (@canvas.get("canvas_width") != width or
-        @canvas.get("canvas_height") != height)
-      @canvas.set_dims([width, height], trigger=false)
-
     @canvas_view.render(force_canvas)
 
     if @tm_view?
       @tm_view.render()
 
-    ctx = @canvas_view.ctx
-
-    frame = @model.get('frame')
-    canvas = @model.get('canvas')
-
-    for k, v of @renderers
-      if v.model.update_layout?
-        v.model.update_layout(v, @model.document.solver())
-
-    for k, v of @renderers
+    for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
-    title = @mget('title')
-    if title
-      @visuals.title_text.set_value(@canvas_view.ctx)
-      th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
-      if th != @model.title_panel.get('height')
-        @model.title_panel.set_var('height', th)
+    @update_constraints()
 
-    # Note: -1 to effectively dilate the canvas by 1px
-    @model.get('frame').set_var('width', canvas.get('width')-1)
-    @model.get('frame').set_var('height', canvas.get('height')-1)
-
-    @model.document.solver().update_variables(false)
-
-    # TODO (bev) OK this sucks, but the event from the solver update doesn't
-    # reach the frame in time (sometimes) so force an update here for now
-    @model.get('frame')._update_mappers()
-
+    ctx = @canvas_view.ctx
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
       @canvas.vy_to_sy(@frame.get('top')),
       @frame.get('width'),
       @frame.get('height'),
     ]
-
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
 
@@ -521,65 +460,42 @@ class PlotView extends Renderer.View
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
-    if title
-      vx = switch @visuals.title_text.text_align.value()
-        when 'left'   then 0
-        when 'center' then @canvas.get('width')/2
-        when 'right'  then @canvas.get('width')
-      vy = @model.title_panel.get('bottom') + @model.get('title_standoff')
-
-      sx = @canvas.vx_to_sx(vx)
-      sy = @canvas.vy_to_sy(vy)
-
-      @visuals.title_text.set_value(ctx)
-      ctx.fillText(title, sx, sy)
-
     if not @initial_range_info?
       @set_initial_range()
 
-    # TODO - This should only be on in testing
-    # @$el.find('canvas').attr('data-hash', ctx.hash());
+  resize: () ->
+    width = @model._width._value
+    height = @model._height._value
 
-  resize: () =>
-    @resize_width_height(true, false)
+    logger.debug("resize: Plot #{@model.id} -- #{width} x #{height}")
 
-  resize_width_height: (use_width, use_height, maintain_ar=true) =>
-    # Resize plot based on available width and/or height
+    # Set the Canvas Dimensions
+    @update_dimensions([width, height], trigger=false)
 
-    # the solver falls over if we try and resize too small.
-    # min_size is currently set in defaults to 120, we can make this
-    # user-configurable in the future, as it may not be the right number
-    # if people set a large border on their plots, for example.
+    # Set the DOM Box
+    @$el.css({
+      position: 'absolute'
+      left: @mget('dom_left')
+      top: @mget('dom_top')
+      width: width
+      height: height
+    })
 
-    # We need the parent node, because the el node itself collapses to zero
-    # height. It might not be available though, if the initial resize
-    # happened before the plot was added to the DOM. If that happens, we
-    # try again in increasingly larger intervals (the first try should just
-    # work, but lets play it safe).
-    @_re_resized = @_re_resized or 0
-    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
-      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
-      @_re_resized += 1
-      return
+    @document.solver().trigger('layout_update')
+    return null
 
-    avail_width = @.el.clientWidth
-    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
-    min_size = @mget('min_size')
+  update_constraints: () ->
+    @canvas_view.update_constraints(false)
+    
+    # Note: -1 to effectively dilate the canvas by 1px
+    s = @model.document.solver()
+    s.suggest_value(@frame._width, @canvas.get('width') - 1)
+    s.suggest_value(@frame._height, @canvas.get('height') - 1)
 
-    if maintain_ar is false
-      # Just change width and/or height; aspect ratio will change
-      if use_width and use_height
-        @canvas.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
-      else if use_width
-        @canvas.set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
-      else if use_height
-        @canvas.set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
-    else
-      # Find best size to fill space while maintaining aspect ratio
-      ar = @canvas.get('width') / @canvas.get('height')
-      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
-      if w_h?
-        @canvas.set_dims(w_h)
+    for i, renderer_view of @renderer_views
+      if renderer_view.update_constraints?
+        renderer_view.update_constraints()
+    return null
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -618,10 +534,11 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
-  mixins: ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
-
   initialize: (attrs, options) ->
     super(attrs, options)
+
+    @set('dom_left', 0)
+    @set('dom_top', 0)
 
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
       xr = @resolve_ref(xr)
@@ -643,33 +560,27 @@ class Plot extends Component.Model
       hidpi: @get('hidpi')
     })
     @set('canvas', canvas)
-
-    @solver = canvas.get('solver')
-
     @set('tool_manager', new ToolManager.Model({
       tools: @get('tools')
       toolbar_location: @get('toolbar_location')
       logo: @get('logo')
     }))
 
+    min_border = @get('min_border')
+    if min_border?
+      if not @get('min_border_top')?
+        @set('min_border_top', min_border)
+      if not @get('min_border_bottom')?
+        @set('min_border_bottom', min_border)
+      if not @get('min_border_left')?
+        @set('min_border_left', min_border)
+      if not @get('min_border_right')?
+        @set('min_border_right', min_border)
+
     logger.debug("Plot initialized")
-
-  initialize_layout: (solver) ->
-    @add_constraints(@document.solver())
-
-    for r in @get('renderers')
-      if r.initialize_layout?
-        r.initialize_layout(solver)
-
-    # TODO (bev) titles should probably be a proper guide, then they could go
-    # on any side, this will do to get the PR merged
-    @title_panel = @_above_panel
-    @title_panel._anchor = @title_panel._bottom
 
   _doc_attached: () ->
     @get('canvas').attach_document(@document)
-
-    canvas = @get('canvas')
     frame = new CartesianFrame.Model({
       x_range: @get('x_range'),
       extra_x_ranges: @get('extra_x_ranges'),
@@ -680,42 +591,121 @@ class Plot extends Component.Model
     })
     frame.attach_document(@document)
     @set('frame', frame)
+    
+    # Add the panels that make up the layout
+    @above_panel = new LayoutBox.Model()
+    @above_panel.attach_document(@document)
+    @below_panel = new LayoutBox.Model()
+    @below_panel.attach_document(@document)
+    @left_panel = new LayoutBox.Model()
+    @left_panel.attach_document(@document)
+    @right_panel = new LayoutBox.Model()
+    @right_panel.attach_document(@document)
 
-  add_constraints: (solver) ->
+    @_width = new Variable("plot_width")
+    @_height = new Variable("plot_height")
+
+    logger.debug("Plot attached to document")
+
+  get_layoutable_children: () ->
+    children = [
+      @above_panel,
+      @below_panel,
+      @left_panel,
+      @right_panel,
+      @get('canvas'),
+      @get('frame')
+    ]
+    # Add the layout panels for each of the axes
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        if r.panel?
+          children.push(r.panel)
+    return children
+
+  get_edit_variables: () ->
+    edit_variables = []
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = []
+
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
+    frame             = @get('frame')
+    canvas            = @get('canvas')
 
-    do_side = (solver, min_size, side, cnames, dim) =>
-      canvas = @get('canvas')
-      frame = @get('frame')
-      box = new LayoutBox.Model()
-      box.attach_document(@document)
-      c0 = '_'+cnames[0]
-      c1 = '_'+cnames[1]
-      solver.add_constraint( GE(box['_'+dim], -min_size) )
-      solver.add_constraint( EQ(frame.panel[c0], [-1, box[c1]]) )
-      solver.add_constraint( EQ(box[c0], [-1, canvas.panel[c0]]) )
+    constraints.push(GE(@_width, - canvas._width._value))
+    constraints.push(GE(@_height, - canvas._height._value))
+
+    # Setup the sides of the panel
+    constraints.push(GE(@above_panel._height, -min_border_top))
+    constraints.push(EQ(frame._top, [-1, @above_panel._bottom]))
+    constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
+    constraints.push(GE(@below_panel._height, -min_border_bottom))
+    constraints.push(EQ(frame._bottom, [-1, @below_panel._top]))
+    constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
+    constraints.push(GE(@left_panel._width, -min_border_left))
+    constraints.push(EQ(frame._left, [-1, @left_panel._right]))
+    constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
+    constraints.push(GE(@right_panel._width, -min_border_right))
+    constraints.push(EQ(frame._right, [-1, @right_panel._left]))
+    constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
+
+    # Position all the sides next to each other
+    # We do this here as opposed to in the axis.coffee because they all relate
+    # to the plot.
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
       last = frame
-      elts = @get(side)
-      for r in elts
-        if r.get('location') ? 'auto' == 'auto'
-          r.set('layout_location', side, { silent: true })
-        else
-          r.set('layout_location', r.get('location'), { silent: true })
-        solver.add_constraint( EQ(last.panel[c0], [-1, r.panel[c1]]) )
+      for r in layout_renderers
+        if side == "above"
+          constraints.push(EQ(last._top, [-1, r.panel._bottom]))
+        if side == "below"
+          constraints.push(EQ(last._bottom, [-1, r.panel._top]))
+        if side == "left"
+          constraints.push(EQ(last._left, [-1, r.panel._right]))
+        if side == "right"
+          constraints.push(EQ(last._right, [-1, r.panel._left]))
         last = r
-      padding = new LayoutBox.Model()
-      padding.attach_document(@document)
-      solver.add_constraint( EQ(last.panel[c0], [-1, padding[c1]]) )
-      solver.add_constraint( EQ(padding[c0], [-1, canvas.panel[c0]]) )
-      return box
 
-    @_above_panel = do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
-    @_below_panel = do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
-    @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
-    @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+
+    return constraints
+
+  get_constrained_variables: () ->
+    frame = @get('frame')
+    {
+      'width' : @_width
+      'height' : @_height
+
+      #'on-top-edge-align': frame._top
+      #'on-right-edge-align': frame._right
+      #'on-bottom-edge-align': frame._bottom
+      #'on-left-edge-align': frame._left
+      #'on-top-edge-align': @above_panel._bottom
+      #'on-right-edge-align': @right_panel._left
+      #'on-bottom-edge-align': @below_panel._top
+      #'on-left-edge-align': @left_panel._right
+
+      'box-cell-align-top' : @above_panel._bottom
+      'box-cell-align-right' : @right_panel._left
+      'box-cell-align-bottom' : @below_panel._top
+      'box-cell-align-left' : @left_panel._right
+
+      'box-equal-size-top' : @above_panel._bottom
+      'box-equal-size-right' : @right_panel._left
+      'box-equal-size-bottom' : @below_panel._top
+      'box-equal-size-left' : @left_panel._right
+    }
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
@@ -732,7 +722,6 @@ class Plot extends Component.Model
     attrs
 
   mixins: [
-    'text:title_',
     'line:outline_',
     'fill:border_',
     'fill:background_'
@@ -740,9 +729,6 @@ class Plot extends Component.Model
 
   props: ->
     return _.extend {}, super(), {
-      title:             [ p.String,   ''                     ]
-      title_standoff:    [ p.Number,   8                      ]
-
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
       h_symmetry:        [ p.Bool,     true                   ]
@@ -777,19 +763,16 @@ class Plot extends Component.Model
       hidpi:             [ p.Bool,     true                   ]
       responsive:        [ p.Bool,     false                  ]
 
-      min_border:        [ p.Number,   MIN_BORDER             ]
-      min_border_top:    [ p.Number,   MIN_BORDER             ]
-      min_border_left:   [ p.Number,   MIN_BORDER             ]
-      min_border_bottom: [ p.Number,   MIN_BORDER             ]
-      min_border_right:  [ p.Number,   MIN_BORDER             ]
+      min_border:        [ p.Number,   50                     ]
+      min_border_top:    [ p.Number,   null                     ]
+      min_border_left:   [ p.Number,   null                     ]
+      min_border_bottom: [ p.Number,   null                     ]
+      min_border_right:  [ p.Number,   null                     ]
     }
 
   defaults: ->
     return _.extend {}, super(), {
       # overrides
-      title_text_font_size: "20pt",
-      title_text_align: "center"
-      title_text_baseline: "alphabetic"
       outline_line_color: '#aaaaaa'
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
@@ -798,7 +781,9 @@ class Plot extends Component.Model
       min_size: 120
     }
 
+  set_dom_origin: (left, top) ->
+    @set({ dom_left: left, dom_top: top })
+
 module.exports =
-  get_size_for_available_space: get_size_for_available_space
   Model: Plot
   View: PlotView
