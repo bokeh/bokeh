@@ -77,12 +77,6 @@ class CanvasView extends BokehView
     if not requested_height? or not requested_width?
       return
 
-    if requested_height == @mget('height')
-      return
-
-    if requested_width == @mget('width')
-      return
-
     solver = @document.solver()
 
     if @_height_constraint?

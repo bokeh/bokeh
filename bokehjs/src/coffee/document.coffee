@@ -7,6 +7,7 @@ $ = require "jquery"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
 {Variable, EQ} = require "./core/layout/solver"
+{throttle} = require "./core/util/throttle"
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -89,16 +90,17 @@ class Document
     @_doc_height = new Variable()
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
-    $(window).on("resize", $.proxy(@resize, @))
+    @throttled_resize = throttle(@resize, 15)
+    $(window).on("resize", $.proxy(@throttled_resize, @))
     @resize()
 
   resize: () ->
-    console.log("resize: document")
+    logger.debug("resize: Document")
     width = window.innerWidth - 25
     height = window.innerHeight - 80  # TODO This is just compensating for toolbar, only works in one plot setup
     @_solver.suggest_value(@_doc_width, width)
     @_solver.suggest_value(@_doc_height, height)
-    @_solver.update_variables()
+    @_solver.update_variables(false)
     @_solver.trigger('resize')
 
   solver: () ->

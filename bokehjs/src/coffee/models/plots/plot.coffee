@@ -73,6 +73,8 @@ class PlotView extends Renderer.View
     @y_range = @frame.get('y_ranges')['default']
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
+    @dom_left = 0
+    @dom_top = 0
 
     @$el.html(@template())
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
@@ -102,7 +104,8 @@ class PlotView extends Renderer.View
       if window.location.search.indexOf('webgl=0') == -1
         @init_webgl()
 
-    @throttled_render = throttle(@render, 15) # TODO (bev) configurable
+    @throttled_render = throttle(@render, 15)
+    @throttled_resize = throttle(@resize, 15)
 
     @renderer_views = {}
     @tools = {}
@@ -233,8 +236,7 @@ class PlotView extends Renderer.View
     if info.dimensions?
       @update_dimensions(info.dimensions)
 
-  update_dimensions: (dimensions, trigger) ->
-    console.log('update_dimensions')
+  update_dimensions: (dimensions, trigger=true) ->
     @canvas_view.set_dimensions(dimensions)
     @canvas_view.update_constraints(trigger)
 
@@ -349,7 +351,7 @@ class PlotView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
     @listenTo(@document.solver(), 'layout_update', @request_render)
-    @listenTo(@document.solver(), 'resize', @resize)
+    @listenTo(@document.solver(), 'resize', @throttled_resize)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -381,8 +383,6 @@ class PlotView extends Renderer.View
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
-    console.log('render: plot')
-
     if not @model.document?
       return
 
@@ -396,12 +396,6 @@ class PlotView extends Renderer.View
         , lod_timeout)
     else
       @interactive = false
-
-    width = @mget("plot_width")
-    height = @mget("plot_height")
-
-    if (@canvas.get("canvas_width") != width or @canvas.get("canvas_height") != height)
-      @update_dimensions([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
 
@@ -472,9 +466,13 @@ class PlotView extends Renderer.View
       @set_initial_range()
 
   resize: () ->
-    console.log('resize: plot')
+    logger.debug("resize: Plot")
     width = @model._width._value
     height = @model._height._value
+
+    # Set the Canvas Dimensions
+    @update_dimensions([width, height], trigger=false)
+
     # Set the DOM Box
     @$el.css({
       position: 'absolute'
@@ -483,12 +481,11 @@ class PlotView extends Renderer.View
       width: width
       height: height
     })
-    # Set the Canvas Dimensions
-    @update_dimensions([width, height])
+
+    @document.solver().trigger('layout_update')
     return null
 
-  update_constraints: () =>
-    console.log('update_constraints: plot')
+  update_constraints: () ->
     @canvas_view.update_constraints(false)
     
     # Note: -1 to effectively dilate the canvas by 1px
@@ -541,9 +538,6 @@ class Plot extends Component.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @dom_left = 0
-    @dom_top = 0
-
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
       xr = @resolve_ref(xr)
       plots = xr.get('plots')
@@ -595,8 +589,8 @@ class Plot extends Component.Model
     @right_panel = new LayoutBox.Model()
     @right_panel.attach_document(@document)
 
-    @_width = new Variable()
-    @_height = new Variable()
+    @_width = new Variable("plot_width")
+    @_height = new Variable("plot_height")
 
     logger.debug("Plot attached to document")
 
