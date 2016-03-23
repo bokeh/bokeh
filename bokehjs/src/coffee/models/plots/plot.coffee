@@ -748,10 +748,17 @@ class Plot extends Component.Model
     return renderer
 
   add_tools: (tools...) ->
-    for tool in tools
-      tool.plot = this
+    new_tools = for tool in tools
+      if tool.plot?
+        tool
+      else
+        # XXX: this part should be unnecessary, but you can't configure tool.plot
+        # after construting a tool. When this limitation is lifted, remove this code.
+        attrs = _.clone(tool.attributes)
+        attrs.plot = this
+        new tool.constructor(attrs)
 
-    @set("tools", @get("tools").concat(tools))
+    @set("tools", @get("tools").concat(new_tools))
 
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
