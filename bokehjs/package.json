@@ -14,7 +14,7 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git://github.com/bokeh/bokeh.git"
+    "url": "https://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
     "browserify": "^11.1.0",
@@ -45,7 +45,7 @@
     "hammerjs": "^2.0.4",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
-    "numbro": "git://github.com/bokeh/numbro.git#b4ccab0",
+    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs": "1.9.7-15",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",

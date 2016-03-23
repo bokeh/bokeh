@@ -807,19 +807,19 @@ to start the Supervisor process. Then to control processes execute
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf start all
+    supervisorctl -c /path/to/supervisord.conf start all
 
 To stop all processes run:
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf start all
+    supervisorctl -c /path/to/supervisord.conf start all
 
 And to update the process control after editing the config file, run:
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf update
+    supervisorctl -c /path/to/supervisord.conf update
 
 
 .. _userguide_server_deployment_automation:

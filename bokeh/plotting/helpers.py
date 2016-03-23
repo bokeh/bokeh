@@ -13,7 +13,7 @@ from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
-    LogAxis, PanTool, Plot, PolySelectTool,
+    LogAxis, PanTool, PolySelectTool, ContinuousTicker,
     PreviewSaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
@@ -246,6 +246,36 @@ def _tool_from_string(name):
             matches, text = known_tools, "possible"
 
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
+
+
+def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
+    axiscls = _get_axis_class(axis_type, rng)
+    if axiscls:
+
+        if axiscls is LogAxis:
+            # TODO (bev) this mapper type hinting is ugly
+            if dim == 0:
+                plot.x_mapper_type = 'log'
+            elif dim == 1:
+                plot.y_mapper_type = 'log'
+            else:
+                raise ValueError("received invalid dimension value: %r" % dim)
+
+        # this is so we can get a ticker off the axis, even if we discard it
+        axis = axiscls(plot=plot if axis_location else None)
+
+        if isinstance(axis.ticker, ContinuousTicker):
+            axis.ticker.num_minor_ticks = _get_num_minor_ticks(axiscls, minor_ticks)
+
+        axis_label = axis_label
+        if axis_label:
+            axis.axis_label = axis_label
+
+        grid = Grid(plot=plot, dimension=dim, ticker=axis.ticker); grid
+
+        if axis_location is not None:
+            getattr(plot, axis_location).append(axis)
+
 
 def _process_tools_arg(plot, tools):
     """ Adds tools to the plot object

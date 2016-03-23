@@ -98,6 +98,15 @@ class TestFigure(unittest.TestCase):
         p.right.append(ax4)
         self.assertEqual(set(p.axis), expected)
 
+    def test_log_axis(self):
+        p = plt.figure(x_axis_type='log')
+        p.circle([1, 2, 3], [1, 2, 3])
+        self.assertEqual(p.x_mapper_type, 'log')
+
+        p = plt.figure(y_axis_type='log')
+        p.circle([1, 2, 3], [1, 2, 3])
+        self.assertEqual(p.y_mapper_type, 'log')
+
     def test_xgrid(self):
         p = plt.figure()
         p.circle([1, 2, 3], [1, 2, 3])

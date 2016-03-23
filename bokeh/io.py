@@ -156,7 +156,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
 
     Args:
         resources (Resource, optional) :
-            How and where to load BokehJS from (default: INLINE)
+            How and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :
             whether to display detailed BokehJS banner (default: False)
