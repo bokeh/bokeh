@@ -76,41 +76,18 @@ class Figure extends models.Plot
 
     super(attrs)
 
-    x_axiscls = @_get_axis_class(x_axis_type, this.x_range)
-    if x_axiscls?
-      if x_axiscls == models.LogAxis
-        this.x_mapper_type = 'log'
-      xaxis = new x_axiscls({plot: this})
-      if xaxis.ticker instanceof models.ContinuousTicker
-        xaxis.ticker.num_minor_ticks = @_get_num_minor_ticks(x_axiscls, x_minor_ticks)
-      axis_label = x_axis_label
-      if axis_label.length != 0
-        xaxis.axis_label = axis_label
-      @xgrid = new models.Grid({plot: this, dimension: 0, ticker: xaxis.ticker})
-      if x_axis_location == "above"
-        this.above = (this.above ? []).concat([xaxis])
-      else if x_axis_location == "below"
-        this.below = (this.below ? []).concat([xaxis])
-      @add_renderers(xaxis, @xgrid)
-
-    y_axiscls = @_get_axis_class(y_axis_type, this.y_range)
-    if y_axiscls?
-      if y_axiscls == models.LogAxis
-        this.y_mapper_type = 'log'
-      yaxis = new y_axiscls({plot: this})
-      if yaxis.ticker instanceof models.ContinuousTicker
-        yaxis.ticker.num_minor_ticks = @_get_num_minor_ticks(y_axiscls, y_minor_ticks)
-      axis_label = y_axis_label
-      if axis_label.length != 0
-        yaxis.axis_label = axis_label
-      @ygrid = new models.Grid({plot: this, dimension: 1, ticker: yaxis.ticker})
-      if y_axis_location == "left"
-        this.left = (this.left ? []).concat([yaxis])
-      else if y_axis_location == "right"
-        this.right = (this.right ? []).concat([yaxis])
-      @add_renderers(yaxis, @ygrid)
+    @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
+    @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
 
     @add_tools(@_process_tools(tools)...)
+
+  Object.defineProperty this.prototype, "xgrid", {
+    get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 0)[0] # TODO
+  }
+
+  Object.defineProperty this.prototype, "ygrid", {
+    get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 1)[0] # TODO
+  }
 
   annular_wedge:     (args...) -> @_glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
   annulus:           (args...) -> @_glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args)
@@ -257,6 +234,31 @@ class Figure extends models.Plot
         return new models.FactorRange({factors: range})
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
+
+  _process_guides: (dim, axis_type, axis_location, minor_ticks, axis_label) ->
+    range = if dim == 0 then @x_range else @y_range
+    axiscls = @_get_axis_class(axis_type, range)
+
+    if axiscls?
+      if axiscls == models.LogAxis
+        if dim == 0
+          @x_mapper_type = 'log'
+        else
+          @y_mapper_type = 'log'
+
+      axis = new axiscls({plot: if axis_location? then this else null})
+
+      if axis.ticker instanceof models.ContinuousTicker
+        axis.ticker.num_minor_ticks = @_get_num_minor_ticks(axiscls, minor_ticks)
+      if axis_label.length != 0
+        axis.axis_label = axis_label
+
+      grid = new models.Grid({plot: this, dimension: dim, ticker: axis.ticker})
+
+      if axis_location?
+        this[axis_location] = (this[axis_location] ? []).concat([axis])
+
+      @add_renderers(axis, grid)
 
   _get_axis_class: (axis_type, range) ->
     if not axis_type?
