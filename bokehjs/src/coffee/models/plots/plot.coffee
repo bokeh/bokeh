@@ -479,7 +479,6 @@ class PlotView extends Renderer.View
       top: @mget('dom_top')
       width: width
       height: height
-      border: "2px solid cornflowerblue"
     })
 
     @document.solver().trigger('layout_update')

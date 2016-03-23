@@ -53,7 +53,7 @@ class CanvasView extends BokehView
       @canvas.attr('style', "width:#{width}px; height:#{height}px")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)
 
-      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px; border:2px solid aliceblue")
+      @$el.attr('style', "z-index: 50; position: absolute; top: 0; left: 0; width:#{width}px; height:#{height}px;")
       @$el.attr("width", width).attr('height', height)
 
       @$('div.bk-canvas-overlays').attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")

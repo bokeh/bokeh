@@ -96,8 +96,8 @@ class Document
 
   resize: () ->
     logger.debug("resize: Document")
-    width = window.innerWidth - 20
-    height = window.innerHeight - 5
+    width = window.innerWidth
+    height = window.innerHeight
     @_solver.suggest_value(@_doc_width, width)
     @_solver.suggest_value(@_doc_height, height)
     @_solver.update_variables(false)

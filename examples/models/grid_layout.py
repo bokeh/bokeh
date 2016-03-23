@@ -31,11 +31,11 @@ def make_plot(yname, line_color, below_axis=True, left_axis=True):
         y_range=DataRange1d(),
         min_border=1,
         toolbar_location=None,
-        border_fill_color="LemonChiffon",
-        border_fill_alpha=0.8,
-        outline_line_color="Coral",
+        border_fill_color="Coral",
+        border_fill_alpha=0.3,
+        outline_line_color=None,
         background_fill_color="Thistle",
-        background_fill_alpha=0.8,
+        background_fill_alpha=0.3,
     )
     if below_axis:
         plot.add_layout(LinearAxis(), 'below')
