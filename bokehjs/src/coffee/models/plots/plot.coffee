@@ -564,6 +564,17 @@ class Plot extends Component.Model
       logo: @get('logo')
     }))
 
+    min_border = @get('min_border')
+    if min_border?
+      if not @get('min_border_top')?
+        @set('min_border_top', min_border)
+      if not @get('min_border_bottom')?
+        @set('min_border_bottom', min_border)
+      if not @get('min_border_left')?
+        @set('min_border_left', min_border)
+      if not @get('min_border_right')?
+        @set('min_border_right', min_border)
+
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
@@ -731,10 +742,10 @@ class Plot extends Component.Model
       responsive:        [ p.Bool,     false                  ]
 
       min_border:        [ p.Number,   50                     ]
-      min_border_top:    [ p.Number,   50                     ]
-      min_border_left:   [ p.Number,   50                     ]
-      min_border_bottom: [ p.Number,   50                     ]
-      min_border_right:  [ p.Number,   50                     ]
+      min_border_top:    [ p.Number,   null                     ]
+      min_border_left:   [ p.Number,   null                     ]
+      min_border_bottom: [ p.Number,   null                     ]
+      min_border_right:  [ p.Number,   null                     ]
     }
 
   defaults: ->
