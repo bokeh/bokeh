@@ -5,10 +5,13 @@ declare namespace Bokeh {
         callback: Callback;
     }
 
+    type Data = {[key: string]: ArrayLike<any>};
+
     export var ColumnDataSource: { new(attributes?: KeyVal, options?: KeyVal): ColumnDataSource };
     export interface ColumnDataSource extends DataSource {
-        data: {[key: string]: ArrayLike<any>};
-        stream(new_data: Object, rollover: Number): void;
+        data: Data;
+
+        stream(new_data: Data, rollover: number): void;
     }
 
     export interface RemoteSource extends DataSource {
