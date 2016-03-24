@@ -12,7 +12,7 @@ compile = (name) ->
          .js
          .pipe(gulp.dest("./"))
 
-examples = ["anscombe", "burtin", "legends", "tap"]
+examples = ["anscombe", "burtin", "legends", "tap", "stocks"]
 
 for example in examples
   do (example) ->
