@@ -4,7 +4,7 @@ canvas_template = require "./canvas_template"
 LayoutBox = require "./layout_box"
 
 BokehView = require "../../core/bokeh_view"
-{EQ} = require "../../core/layout/solver"
+{GE, EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio} = require "../../core/util/canvas"
 
@@ -81,12 +81,12 @@ class CanvasView extends BokehView
 
     if @_height_constraint?
       solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@model._height, -requested_height)
+    @_height_constraint = GE(@model._height, -requested_height)
     solver.add_constraint(@_height_constraint)
 
     if @_width_constraint?
       solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@model._width, -requested_width)
+    @_width_constraint = GE(@model._width, -requested_width)
     solver.add_constraint(@_width_constraint)
 
     solver.update_variables(trigger)
@@ -105,6 +105,9 @@ class Canvas extends LayoutBox.Model
     constraints = super()
     constraints.push(EQ(@_left))
     constraints.push(EQ(@_bottom))
+    # Prevent canvas getting too small - make configurable?
+    constraints.push(GE(@_width, -200))
+    constraints.push(GE(@_height, -200))
     return constraints
 
   # transform view coordinates to underlying screen coordinates

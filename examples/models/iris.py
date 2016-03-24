@@ -27,7 +27,7 @@ source = ColumnDataSource(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=80, title="Iris Data")
+plot = Plot(x_range=xdr, y_range=ydr, min_border=5, title="Iris Data")
 
 circle = Circle(
     x="petal_length", y="petal_width", size=10,
