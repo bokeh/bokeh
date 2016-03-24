@@ -1,0 +1,3 @@
+This is not as gnarly as scratch_new_layout_4
+
+But doesn't give equal space to the surrounding panels and so axes get cut off.
