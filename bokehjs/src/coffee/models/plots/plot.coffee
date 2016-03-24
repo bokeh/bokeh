@@ -36,6 +36,7 @@ global_gl_canvas = null
 # TODO (bev) PlotView should not be a RendererView
 class PlotView extends Renderer.View
   template: plot_template
+  className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
 
@@ -75,7 +76,7 @@ class PlotView extends Renderer.View
     @ymapper = @frame.get('y_mappers')['default']
 
     @$el.html(@template())
-    @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
+    @$('.bk-plot-canvas-wrapper').replaceWith(@canvas_view.el)
 
     @_initial_state_info = {
       range: null                     # set later by set_initial_range()
