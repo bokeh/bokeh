@@ -161,15 +161,18 @@ class Figure extends models.Plot
   _fixup_values: (cls, data, attrs) ->
     for name, value of attrs
       do (name, value) ->
-        [prop, ...] = cls.prototype.props[name]
+        descriptor = cls.prototype.props[name]
 
-        if prop.prototype.dataspec
-          if value?
-            if _.isArray(value)
-              data[name] = value
-              attrs[name] = { field: name }
-            else if _.isNumber(value) or _.isString(value) # or Date?
-              attrs[name] = { value: value }
+        if descriptor?
+          [prop, ...] = descriptor
+
+          if prop.prototype.dataspec
+            if value?
+              if _.isArray(value)
+                data[name] = value
+                attrs[name] = { field: name }
+              else if _.isNumber(value) or _.isString(value) # or Date?
+                attrs[name] = { value: value }
 
   _glyph: (cls, params, args) ->
     params = params.split(",")
