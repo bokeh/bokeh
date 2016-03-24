@@ -306,9 +306,9 @@ class Figure extends models.Plot
 
 figure = (attrs={}) -> new Figure(attrs)
 
-show = (figure, target) ->
+show = (obj, target) ->
   doc = new Document()
-  doc.add_root(figure)
+  doc.add_root(obj)
 
   div = $("<div class='bk-root'>")
   $(target ? "body").append(div)
