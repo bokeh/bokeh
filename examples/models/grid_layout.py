@@ -29,7 +29,7 @@ def make_plot(yname, line_color, below_axis=True, left_axis=True):
     plot = Plot(
         x_range=DataRange1d(),
         y_range=DataRange1d(),
-        min_border=1,
+        min_border=30,
         border_fill_color="Coral",
         border_fill_alpha=0.3,
         outline_line_color=None,

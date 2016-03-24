@@ -13,7 +13,7 @@ ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
 enums = require "../../core/enums"
-{Variable, EQ, GE, Strength} = require "../../core/layout/solver"
+{EQ, GE, Strength, WEAK_EQ, WEAK_GE, Variable} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
@@ -534,6 +534,36 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @set('dom_left', 0)
+    @set('dom_top', 0)
+    @_width = new Variable()
+    @_height = new Variable()
+    # these are the COORDINATES of the four plot sides
+    @_plot_left = new Variable()
+    @_plot_right = new Variable()
+    @_plot_top = new Variable()
+    @_plot_bottom = new Variable()
+    # this is the DISTANCE FROM THE SIDE of the right and bottom,
+    # since that isn't the same as the coordinate
+    @_width_minus_plot_right = new Variable()
+    @_height_minus_plot_bottom = new Variable()
+    # these are the plot width and height, but written
+    # as a function of the coordinates because we compute
+    # them that way
+    @_plot_right_minus_plot_left = new Variable()
+    @_plot_bottom_minus_plot_top = new Variable()
+    @_whitespace_left = new Variable()
+    @_whitespace_right = new Variable()
+    @_whitespace_top = new Variable()
+    @_whitespace_bottom = new Variable()
+
+    @_left_axis_width = new Variable()
+    @_right_axis_width = new Variable()
+    @_bottom_axis_height = new Variable()
+    @_above_axis_height = new Variable()
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -641,9 +671,6 @@ class Plot extends Component.Model
     frame             = @get('frame')
     canvas            = @get('canvas')
 
-    constraints.push(GE(@_width, - canvas._width._value))
-    constraints.push(GE(@_height, - canvas._height._value))
-
     # Setup the sides of the panel
     constraints.push(GE(@above_panel._height, -min_border_top))
     constraints.push(EQ(frame._top, [-1, @above_panel._bottom]))
@@ -679,32 +706,100 @@ class Plot extends Component.Model
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
 
+    # Do the layout constraints
+
+    # plot width and height are a function of plot sides...
+    constraints.push(EQ([-1, @_plot_right], @_plot_left, @_plot_right_minus_plot_left))
+    constraints.push(EQ([-1, @_plot_bottom], @_plot_top, @_plot_bottom_minus_plot_top))
+
+    # min size, weak in case it doesn't fit
+    constraints.push(WEAK_GE(@_plot_right_minus_plot_left, -150))
+    constraints.push(WEAK_GE(@_plot_bottom_minus_plot_top, -150))
+
+    # whitespace is weakly zero because we prefer to expand the
+    # plot not the whitespace. When kiwi can't satisfy a weak
+    # constraint, it still tries to get as close as possible.
+    constraints.push(WEAK_EQ(@_whitespace_left))
+    constraints.push(WEAK_EQ(@_whitespace_right))
+    constraints.push(WEAK_EQ(@_whitespace_top))
+    constraints.push(WEAK_EQ(@_whitespace_bottom))
+
+    # whitespace has to be positive
+    constraints.push(GE(@_whitespace_left))
+    constraints.push(GE(@_whitespace_right))
+    constraints.push(GE(@_whitespace_top))
+    constraints.push(GE(@_whitespace_bottom))
+
+    # Axes and title are hardcoded size if we are going to draw them at all
+    if @left_panel?
+      constraints.push(EQ(@_left_axis_width, @left_panel._width))
+    else
+      constraints.push(EQ(@_left_axis_width))
+
+    if @right_panel?
+      constraints.push(EQ(@_right_axis_width, @right_panel._width))
+    else
+      constraints.push(EQ(@_right_axis_width))
+
+    if @below_panel?
+      constraints.push(EQ(@_bottom_axis_height, @below_panel._height))
+    else
+      constraints.push(EQ(@_bottom_axis_height))
+
+    if @above_panel?
+      constraints.push(EQ(@_above_axis_height, @above_panel._height))
+    else
+      constraints.push(EQ(@_above_axis_height))
+
+    # plot has to be inside the width/height
+    constraints.push(GE(@_plot_left))
+    constraints.push(GE(@_width, [-1, @_plot_right]))
+    constraints.push(GE(@_plot_top))
+    constraints.push(GE(@_height, [-1, @_plot_bottom]))
+
+    # plot sides align with the sum of the stuff outside the plot
+    constraints.push(EQ(@_whitespace_left, @_left_axis_width, [-1, @_plot_left]))
+    constraints.push(EQ(@_plot_right, @_right_axis_width, @_whitespace_right, [-1, @_width]))
+    constraints.push(EQ(@_whitespace_top, @_above_axis_height, [-1, @_plot_top]))
+    constraints.push(EQ(@_plot_bottom, @_bottom_axis_height, @_whitespace_bottom, [-1, @_height]))
+
+    # compute plot bottom/right indent
+    constraints.push(EQ(@_height_minus_plot_bottom, [-1, @_height], @_plot_bottom))
+    constraints.push(EQ(@_width_minus_plot_right, [-1, @_width], @_plot_right))
+
     return constraints
 
   get_constrained_variables: () ->
-    frame = @get('frame')
     {
-      'width' : @_width
+      'width' : @_width,
       'height' : @_height
-
-      #'on-top-edge-align': frame._top
-      #'on-right-edge-align': frame._right
-      #'on-bottom-edge-align': frame._bottom
-      #'on-left-edge-align': frame._left
-      #'on-top-edge-align': @above_panel._bottom
-      #'on-right-edge-align': @right_panel._left
-      #'on-bottom-edge-align': @below_panel._top
-      #'on-left-edge-align': @left_panel._right
-
-      'box-cell-align-top' : @above_panel._bottom
-      'box-cell-align-right' : @right_panel._left
-      'box-cell-align-bottom' : @below_panel._top
-      'box-cell-align-left' : @left_panel._right
-
-      'box-equal-size-top' : @above_panel._bottom
-      'box-equal-size-right' : @right_panel._left
-      'box-equal-size-bottom' : @below_panel._top
-      'box-equal-size-left' : @left_panel._right
+      # when this widget is on the edge of a box visually,
+      # align these variables down that edge. Right/bottom
+      # are an inset from the edge.
+      'on-top-edge-align' : @_plot_top
+      'on-bottom-edge-align' : @_height_minus_plot_bottom
+      'on-left-edge-align' : @_plot_left
+      'on-right-edge-align' : @_width_minus_plot_right
+      # when this widget is in a box cell with the same "arity
+      # path" as a widget in another cell, align these variables
+      # between the two box cells. Right/bottom are an inset from
+      # the edge.
+      'box-cell-align-top' : @_plot_top
+      'box-cell-align-bottom' : @_height_minus_plot_bottom
+      'box-cell-align-left' : @_plot_left
+      'box-cell-align-right' : @_width_minus_plot_right
+      # when this widget is in a box, make these the same distance
+      # apart in every widget. Right/bottom are inset from the edge.
+      'box-equal-size-top' : @_plot_top
+      'box-equal-size-bottom' : @_height_minus_plot_bottom
+      'box-equal-size-left' : @_plot_left
+      'box-equal-size-right' : @_width_minus_plot_right
+      # insets from the edge that are whitespace (contain no pixels),
+      # this is used for spacing within a box.
+      'whitespace-top' : @_whitespace_top
+      'whitespace-bottom' : @_whitespace_bottom
+      'whitespace-left' : @_whitespace_left
+      'whitespace-right' : @_whitespace_right
     }
 
   add_renderers: (new_renderers) ->
@@ -783,6 +878,10 @@ class Plot extends Component.Model
 
   set_dom_origin: (left, top) ->
     @set({ dom_left: left, dom_top: top })
+
+  variables_updated: () ->
+    # hack to force re-render
+    @trigger('change')
 
 module.exports =
   Model: Plot
