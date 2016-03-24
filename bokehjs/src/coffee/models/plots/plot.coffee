@@ -562,7 +562,7 @@ class Plot extends Component.Model
 
     @_left_axis_width = new Variable()
     @_right_axis_width = new Variable()
-    @_bottom_axis_height = new Variable()
+    @_below_axis_height = new Variable()
     @_above_axis_height = new Variable()
 
   initialize: (attrs, options) ->
@@ -743,9 +743,9 @@ class Plot extends Component.Model
       constraints.push(EQ(@_right_axis_width))
 
     if @below_panel?
-      constraints.push(EQ(@_bottom_axis_height, @below_panel._height))
+      constraints.push(EQ(@_below_axis_height, @below_panel._height))
     else
-      constraints.push(EQ(@_bottom_axis_height))
+      constraints.push(EQ(@_below_axis_height))
 
     if @above_panel?
       constraints.push(EQ(@_above_axis_height, @above_panel._height))
@@ -762,7 +762,7 @@ class Plot extends Component.Model
     constraints.push(EQ(@_whitespace_left, @_left_axis_width, [-1, @_plot_left]))
     constraints.push(EQ(@_plot_right, @_right_axis_width, @_whitespace_right, [-1, @_width]))
     constraints.push(EQ(@_whitespace_top, @_above_axis_height, [-1, @_plot_top]))
-    constraints.push(EQ(@_plot_bottom, @_bottom_axis_height, @_whitespace_bottom, [-1, @_height]))
+    constraints.push(EQ(@_plot_bottom, @_below_axis_height, @_whitespace_bottom, [-1, @_height]))
 
     # compute plot bottom/right indent
     constraints.push(EQ(@_height_minus_plot_bottom, [-1, @_height], @_plot_bottom))
