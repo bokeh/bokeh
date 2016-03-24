@@ -10,12 +10,6 @@ class LayoutBox extends Model
   nonserializable_attribute_names: () ->
     super().concat(['layout_location'])
 
-  get_constrained_variables: () ->
-    {
-      'width' : @_width
-      'height' : @_height
-    }
-
   get_edit_variables: () ->
     editables = []
     editables.push({edit_variable: @_top, strength: Strength.strong})
