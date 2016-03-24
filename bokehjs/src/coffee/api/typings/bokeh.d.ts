@@ -3,7 +3,9 @@ declare namespace Bokeh {
 
     var index: {[key: string]: Model};
 
-    //var logger: JSNLog.JSNLogLogger;
+    var _: UnderscoreStatic;
+
+    var logger: JSNLog.JSNLogLogger;
 
     type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
     function set_log_level(level: LogLevel): void;
