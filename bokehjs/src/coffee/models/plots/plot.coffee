@@ -555,10 +555,6 @@ class Plot extends Component.Model
     # them that way
     @_plot_right_minus_plot_left = new Variable()
     @_plot_bottom_minus_plot_top = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
 
     @_left_axis_width = new Variable()
     @_right_axis_width = new Variable()
@@ -728,20 +724,6 @@ class Plot extends Component.Model
     constraints.push(WEAK_GE(@_plot_right_minus_plot_left, -150))
     constraints.push(WEAK_GE(@_plot_bottom_minus_plot_top, -150))
 
-    # whitespace is weakly zero because we prefer to expand the
-    # plot not the whitespace. When kiwi can't satisfy a weak
-    # constraint, it still tries to get as close as possible.
-    constraints.push(WEAK_EQ(@_whitespace_left))
-    constraints.push(WEAK_EQ(@_whitespace_right))
-    constraints.push(WEAK_EQ(@_whitespace_top))
-    constraints.push(WEAK_EQ(@_whitespace_bottom))
-
-    # whitespace has to be positive
-    constraints.push(GE(@_whitespace_left))
-    constraints.push(GE(@_whitespace_right))
-    constraints.push(GE(@_whitespace_top))
-    constraints.push(GE(@_whitespace_bottom))
-
     constraints.push(EQ(@_left_axis_width, @left_panel._width))
     constraints.push(EQ(@_right_axis_width, @right_panel._width))
     constraints.push(EQ(@_below_axis_height, @below_panel._height))
@@ -754,10 +736,10 @@ class Plot extends Component.Model
     constraints.push(GE(@_height, [-1, @_plot_bottom]))
 
     # plot sides align with the sum of the stuff outside the plot
-    constraints.push(EQ(@_whitespace_left, @_left_axis_width, [-1, @_plot_left]))
-    constraints.push(EQ(@_plot_right, @_right_axis_width, @_whitespace_right, [-1, @_width]))
-    constraints.push(EQ(@_whitespace_top, @_above_axis_height, [-1, @_plot_top]))
-    constraints.push(EQ(@_plot_bottom, @_below_axis_height, @_whitespace_bottom, [-1, @_height]))
+    constraints.push(EQ(@left_panel._width, [-1, @_plot_left]))
+    constraints.push(EQ(@_plot_right, @right_panel._width, [-1, @_width]))
+    constraints.push(EQ(@above_panel._height, [-1, @_plot_top]))
+    constraints.push(EQ(@_plot_bottom, @below_panel._height, [-1, @_height]))
 
     # compute plot bottom/right indent
     constraints.push(EQ(@_height_minus_plot_bottom, [-1, @_height], @_plot_bottom))
@@ -790,12 +772,6 @@ class Plot extends Component.Model
       'box-equal-size-bottom' : @_height_minus_plot_bottom
       'box-equal-size-left' : @_plot_left
       'box-equal-size-right' : @_width_minus_plot_right
-      # insets from the edge that are whitespace (contain no pixels),
-      # this is used for spacing within a box.
-      'whitespace-top' : @_whitespace_top
-      'whitespace-bottom' : @_whitespace_bottom
-      'whitespace-left' : @_whitespace_left
-      'whitespace-right' : @_whitespace_right
     }
 
   add_renderers: (new_renderers) ->
