@@ -1,16 +1,16 @@
 Box = require "./box"
 
-class RowView extends Box.View
+class ColumnView extends Box.View
   className: "bk-grid-column"
 
-class Row extends Box.Model
-  type: 'Row'
-  default_view: RowView
+class Column extends Box.Model
+  type: 'Column'
+  default_view: ColumnView
 
   constructor: (attrs, options) ->
     super(attrs, options)
     @_horizontal = false
 
 module.exports =
-  View: RowView
-  Model: Row
+  View: ColumnView
+  Model: Column
