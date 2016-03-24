@@ -1,5 +1,6 @@
 _ = require("underscore")
 $ = require("jquery")
+sprintf = require("sprintf")
 {Document} = require("../document")
 embed = require("../embed")
 models = require("./models")
@@ -311,8 +312,11 @@ show = (figure, target) ->
 
   embed.add_document_static(div, doc)
 
+color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
+
 module.exports = {
   Figure: Figure
   figure: figure
   show  : show
+  color : color
 }
