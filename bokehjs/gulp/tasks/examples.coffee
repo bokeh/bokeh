@@ -14,5 +14,6 @@ compile = (name) ->
 
 gulp.task "examples:anscombe", ["scripts:build", "styles:build"], () -> compile("anscombe")
 gulp.task "examples:burtin",   ["scripts:build", "styles:build"], () -> compile("burtin")
+gulp.task "examples:tap",      ["scripts:build", "styles:build"], () -> compile("tap")
 
-gulp.task "examples", (cb) -> run(["examples:anscombe", "examples:burtin"], cb)
+gulp.task "examples", (cb) -> run(["examples:anscombe", "examples:burtin", "examples:tap"], cb)
