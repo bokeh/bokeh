@@ -1,3 +1,2 @@
-This is not as gnarly as scratch_new_layout_4
-
-But doesn't give equal space to the surrounding panels and so axes get cut off.
+Building off a direct copy from havoc, take the learnings from scratch_new_layout_7 about having the axes 
+get the space they need

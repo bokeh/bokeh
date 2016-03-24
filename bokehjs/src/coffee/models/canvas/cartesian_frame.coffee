@@ -1,11 +1,12 @@
 _ = require "underscore"
 
 CategoricalMapper = require "../mappers/categorical_mapper"
+{EQ, GE} = require "../../core/layout/solver"
 GridMapper = require "../mappers/grid_mapper"
+LayoutBox = require "./layout_box"
 LinearMapper = require "../mappers/linear_mapper"
 LogMapper = require "../mappers/log_mapper"
 {logging} = require "../../core/logging"
-LayoutBox = require "./layout_box"
 Range1d = require "../ranges/range1d"
 
 class CartesianFrame extends LayoutBox.Model
@@ -13,6 +14,8 @@ class CartesianFrame extends LayoutBox.Model
 
   _doc_attached: () ->
     super()
+
+    @panel = @
 
     @register_property('x_ranges',
         () -> @_get_ranges('x')
@@ -119,6 +122,18 @@ class CartesianFrame extends LayoutBox.Model
       extra_x_ranges: {}
       extra_y_ranges: {}
     }
+
+  get_constraints: () ->
+    constraints = []
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_bottom))
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_right))
+    constraints.push(GE(@_width))
+    constraints.push(GE(@_height))
+    constraints.push(EQ(@_left, @_width, [-1, @_right]))
+    constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
+    return constraints
 
 module.exports =
   Model: CartesianFrame

@@ -1,12 +1,13 @@
 _ = require "underscore"
 
-LayoutBox = require "../canvas/layout_box"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
 
 {EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
+
+AxisPanel = require "./axis_panel"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # axis title text, based on it's location and orientation
@@ -453,7 +454,7 @@ class Axis extends GuideRenderer.Model
     @register_property('offsets', @_offsets, true)
 
   _doc_attached: () ->
-    @panel = new LayoutBox.Model()
+    @panel = new AxisPanel.Model()
     @panel.attach_document(@document)
 
   initialize_layout: () ->

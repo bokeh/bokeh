@@ -672,27 +672,29 @@ class Plot extends Component.Model
     frame             = @get('frame')
     canvas            = @get('canvas')
 
-    # Setup the sides of the panel
     constraints.push(GE(@above_panel._height, -min_border_top))
-    constraints.push(EQ(frame._top, [-1, @above_panel._bottom]))
-    constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
     constraints.push(GE(@below_panel._height, -min_border_bottom))
-    constraints.push(EQ(frame._bottom, [-1, @below_panel._top]))
-    constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
     constraints.push(GE(@left_panel._width, -min_border_left))
-    constraints.push(EQ(frame._left, [-1, @left_panel._right]))
-    constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
     constraints.push(GE(@right_panel._width, -min_border_right))
-    constraints.push(EQ(frame._right, [-1, @right_panel._left]))
-    constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
 
-    # Position all the sides next to each other
-    # We do this here as opposed to in the axis.coffee because they all relate
-    # to the plot.
+    # Set panel top and bottom related to canvas and frame
+    constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
+    constraints.push(EQ(@above_panel._bottom, [-1, frame._top]))
+
+    constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
+    constraints.push(EQ(@below_panel._top, [-1, frame._bottom]))
+
+    constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
+    constraints.push(EQ(@left_panel._right, [-1, frame._left]))
+
+    constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
+    constraints.push(EQ(@right_panel._left, [-1, frame._right]))
+
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
       last = frame
       for r in layout_renderers
+        # Stack together the renderers
         if side == "above"
           constraints.push(EQ(last._top, [-1, r.panel._bottom]))
         if side == "below"
@@ -702,6 +704,15 @@ class Plot extends Component.Model
         if side == "right"
           constraints.push(EQ(last._right, [-1, r.panel._left]))
         last = r
+      # Set panel extent to match the side renderers (e.g. axes)
+      if side == "above"
+        constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
+      if side == "below"
+        constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
+      if side == "left"
+        constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
+      if side == "right"
+        constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
 
     # Go down the children to pick up any more constraints
     for child in @get_layoutable_children()
@@ -731,26 +742,10 @@ class Plot extends Component.Model
     constraints.push(GE(@_whitespace_top))
     constraints.push(GE(@_whitespace_bottom))
 
-    # Axes and title are hardcoded size if we are going to draw them at all
-    if @left_panel?
-      constraints.push(EQ(@_left_axis_width, @left_panel._width))
-    else
-      constraints.push(EQ(@_left_axis_width))
-
-    if @right_panel?
-      constraints.push(EQ(@_right_axis_width, @right_panel._width))
-    else
-      constraints.push(EQ(@_right_axis_width))
-
-    if @below_panel?
-      constraints.push(EQ(@_below_axis_height, @below_panel._height))
-    else
-      constraints.push(EQ(@_below_axis_height))
-
-    if @above_panel?
-      constraints.push(EQ(@_above_axis_height, @above_panel._height))
-    else
-      constraints.push(EQ(@_above_axis_height))
+    constraints.push(EQ(@_left_axis_width, @left_panel._width))
+    constraints.push(EQ(@_right_axis_width, @right_panel._width))
+    constraints.push(EQ(@_below_axis_height, @below_panel._height))
+    constraints.push(EQ(@_above_axis_height, @above_panel._height))
 
     # plot has to be inside the width/height
     constraints.push(GE(@_plot_left))

@@ -103,8 +103,14 @@ class Canvas extends LayoutBox.Model
 
   get_constraints: () ->
     constraints = super()
-    constraints.push(EQ(@_left))
-    constraints.push(EQ(@_bottom))
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_bottom))
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_right))
+
+    constraints.push(EQ(@_width, [-1, @_right]))
+    constraints.push(EQ(@_height, [-1, @_top]))
+    #
     # Prevent canvas getting too small - make configurable?
     constraints.push(GE(@_width, -200))
     constraints.push(GE(@_height, -200))
