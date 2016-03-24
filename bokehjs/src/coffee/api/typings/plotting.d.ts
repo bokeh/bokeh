@@ -1,5 +1,5 @@
 declare namespace Bokeh.Plotting {
-    function show(figure: Figure): void;
+    function show(figure: Figure, target?: HTMLElement): void;
 
     type AxisType = "linear" | "log" | "datetime" | Auto;
 
