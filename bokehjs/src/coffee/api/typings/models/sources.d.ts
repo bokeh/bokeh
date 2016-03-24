@@ -8,6 +8,7 @@ declare namespace Bokeh {
     export var ColumnDataSource: { new(attributes?: KeyVal, options?: KeyVal): ColumnDataSource };
     export interface ColumnDataSource extends DataSource {
         data: {[key: string]: ArrayLike<any>};
+        stream(new_data: Object, rollover: Number): void;
     }
 
     export interface RemoteSource extends DataSource {
