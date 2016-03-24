@@ -187,6 +187,9 @@ class Figure extends models.Plot
         do (param, i) ->
           attrs[param] = args[i]
 
+    legend = attrs.legend
+    delete attrs.legend
+
     has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
     has_hglyph = _.any(_.keys(attrs), (key) -> key.startsWith("hover_"))
 
@@ -223,6 +226,9 @@ class Figure extends models.Plot
       selection_glyph:    sglyph
       hover_glyph:        hglyph
     })
+
+    if legend?
+      @_update_legend(legend, glyph_renderer)
 
     @add_renderers(glyph_renderer)
 
@@ -283,7 +289,7 @@ class Figure extends models.Plot
   _get_num_minor_ticks: (axis_class, num_minor_ticks) ->
     if _.isNumber(num_minor_ticks)
       if num_minor_ticks <= 1
-        throw new ValueError("num_minor_ticks must be > 1")
+        throw new Error("num_minor_ticks must be > 1")
       return num_minor_ticks
     if not num_minor_ticks?
       return 0
@@ -303,6 +309,29 @@ class Figure extends models.Plot
         tool
 
     return objs
+
+  _update_legend: (legend_name, glyph_renderer) ->
+    legends = @renderers.filter((r) -> r instanceof models.Legend)
+
+    switch legends.length
+      when 0
+        legend = new models.Legend({plot: this})
+        @add_renderers(legend)
+      when 1
+        legend = legends[0]
+      else
+        throw new Error("plot configured with more than one legend")
+
+    legends = _.clone(legend.legends)
+
+    for [name, renderers] in legends
+      if name == legend_name
+        renderers.push(glyph_renderer)
+        legend.legends = legends
+        return
+
+    legends.push([legend_name, [glyph_renderer]])
+    legend.legends = legends
 
 figure = (attrs={}) -> new Figure(attrs)
 

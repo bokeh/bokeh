@@ -317,9 +317,13 @@ declare namespace Bokeh.Plotting {
         text_baseline?: TextBaseline;
     }
 
-    export interface GlyphOpts {
-        visible?: boolean;
+    export interface AuxGlyphOpts {
         source?: DataSource;
+        legend?: string;
+    }
+
+    export interface GlyphOpts extends AuxGlyphOpts {
+        visible?: boolean;
     }
 
     export interface AnnularWedgeOpts extends GlyphOpts, FillPropsOpts, LinePropsOpts {
