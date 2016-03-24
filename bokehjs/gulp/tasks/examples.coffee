@@ -12,7 +12,7 @@ compile = (name) ->
          .js
          .pipe(gulp.dest("./"))
 
-examples = ["anscombe", "burtin", "tap"]
+examples = ["anscombe", "burtin", "legends", "tap"]
 
 for example in examples
   gulp.task "examples:#{example}", () -> compile(example)
