@@ -12,8 +12,10 @@ compile = (name) ->
          .js
          .pipe(gulp.dest("./"))
 
-gulp.task "examples:anscombe", ["scripts:build", "styles:build"], () -> compile("anscombe")
-gulp.task "examples:burtin",   ["scripts:build", "styles:build"], () -> compile("burtin")
-gulp.task "examples:tap",      ["scripts:build", "styles:build"], () -> compile("tap")
+examples = ["anscombe", "burtin", "tap"]
 
-gulp.task "examples", (cb) -> run(["examples:anscombe", "examples:burtin", "examples:tap"], cb)
+for example in examples
+  gulp.task "examples:#{example}", () -> compile(example)
+
+gulp.task "examples", ["scripts:build", "styles:build"], (cb) ->
+  run(("examples:#{example}" for example in examples), cb)
