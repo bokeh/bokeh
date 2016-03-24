@@ -61,7 +61,9 @@
     "root-require": "^0.3.1",
     "event-stream": "^3.3.1",
     "jsdom": "^5.6.1",
-    "websocket":"^1.0.22"
+    "websocket":"^1.0.22",
+    "typings": "^0.7.9",
+    "typings-core": "^0.2.11"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
