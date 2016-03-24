@@ -15,7 +15,8 @@ compile = (name) ->
 examples = ["anscombe", "burtin", "legends", "tap"]
 
 for example in examples
-  gulp.task "examples:#{example}", () -> compile(example)
+  do (example) ->
+    gulp.task "examples:#{example}", () -> compile(example)
 
 gulp.task "examples", ["scripts:build", "styles:build"], (cb) ->
   run(("examples:#{example}" for example in examples), cb)
