@@ -6,25 +6,22 @@ p = require "../../core/properties"
 Model = require "../../model"
 
 class CellFormatter extends Model
-  formatterProps: {}
-
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     if value == null
       return ""
     else
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-  props: () ->
-    return _.extend {}, super(), @formatterProps
-
 class StringFormatter extends CellFormatter
   type: 'StringFormatter'
-  formatterProps:
+
+  @define {
     font_style: [ p.FontStyle, "normal" ]
     text_align: [ p.TextAlign, "left"   ]
     text_color: [ p.Color ]
+  }
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     text = super(row, cell, value, columnDef, dataContext)
 
     font_style = @get("font_style")
@@ -44,15 +41,14 @@ class StringFormatter extends CellFormatter
 
 class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
-  formatterProps:
-    font_style: [ p.FontStyle, "normal" ]
-    text_align: [ p.TextAlign, "left"   ]
-    text_color: [ p.Color               ]
+
+  @define {
     format:     [ p.String, '0,0'       ] # TODO (bev)
     language:   [ p.String, 'en'        ] # TODO (bev)
     rounding:   [ p.String, 'round'     ] # TODO (bev)
+  }
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     format = @get("format")
     language = @get("language")
     rounding = switch @get("rounding")
@@ -64,16 +60,20 @@ class NumberFormatter extends StringFormatter
 
 class BooleanFormatter extends CellFormatter
   type: 'BooleanFormatter'
-  formatterProps:
-    icon: [ p.String, 'check' ]
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  @define {
+    icon: [ p.String, 'check' ]
+  }
+
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     if !!value then $('<i>').addClass(@get("icon")).html() else ""
 
 class DateFormatter extends CellFormatter
   type: 'DateFormatter'
-  formatterProps:
+
+  @define {
     format: [ p.String, 'yy M d' ]
+  }
 
   getFormat: () ->
     format = @get("format")
@@ -90,17 +90,19 @@ class DateFormatter extends CellFormatter
       else                                       null
     if name? then $.datepicker[name] else format
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     value = if _.isString(value) then parseInt(value, 10) else value
     date = $.datepicker.formatDate(@getFormat(), new Date(value))
     return super(row, cell, date, columnDef, dataContext)
 
 class HTMLTemplateFormatter extends CellFormatter
   type: 'HTMLTemplateFormatter'
-  formatterProps:
-    template: [ p.String, '<%= value %>' ]
 
-  format: (row, cell, value, columnDef, dataContext) ->
+  @define {
+    template: [ p.String, '<%= value %>' ]
+  }
+
+  doFormat: (row, cell, value, columnDef, dataContext) ->
     template = @get("template")
     if value == null
       return ""

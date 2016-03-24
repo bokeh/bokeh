@@ -12,8 +12,7 @@ p = require "../../core/properties"
 class ColumnDataSource extends DataSource.Model
   type: 'ColumnDataSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       data:              [ p.Any,      {} ]
       column_names:      [ p.Array,    [] ]
     }

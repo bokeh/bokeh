@@ -18,7 +18,7 @@ class VBoxView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
-    children = @model.children()
+    children = @model.get("children")
     build_views(@views, children)
     for own key, val of @views
       val.$el.detach()
@@ -44,14 +44,6 @@ class VBoxView extends BokehView
 class VBox extends BaseBox.Model
   type: "VBox"
   default_view: VBoxView
-
-  props: ->
-    return _.extend {}, super(), {
-      children: [ p.Array, [] ]
-    }
-
-  children: () ->
-    return @get('children')
 
 module.exports =
   Model: VBox

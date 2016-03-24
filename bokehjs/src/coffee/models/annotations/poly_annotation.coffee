@@ -50,10 +50,9 @@ class PolyAnnotation extends Annotation.Model
 
   type: "PolyAnnotation"
 
-  mixins: ['line', 'fill']
+  @mixins ['line', 'fill']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       xs:           [ p.Array,        []        ]
       xs_units:     [ p.SpatialUnits, 'data'    ]
       ys:           [ p.Array,        []        ]

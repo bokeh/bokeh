@@ -9,8 +9,7 @@ p = require "../../core/properties"
 class SingleIntervalTicker extends ContinuousTicker.Model
   type: 'SingleIntervalTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       interval: [ p.Number ]
     }
 

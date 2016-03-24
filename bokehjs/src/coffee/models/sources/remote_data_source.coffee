@@ -6,9 +6,7 @@ p = require "../../core/properties"
 class RemoteDataSource extends ColumnDataSource.Model
   type: 'RemoteDataSource'
 
-  props: =>
-    return _.extend {}, super(), {
-      data:             [ p.Any,   {} ] # TODO
+  @define {
       data_url:         [ p.String    ]
       polling_interval: [ p.Number    ]
     }

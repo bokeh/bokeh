@@ -38,8 +38,8 @@ class ImageURLView extends Glyph.View
       img.src = @url[i]
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, @h, 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @_x, @_w, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @_y, @_h, 'edge', @mget('dilate'))
 
   _render: (ctx, indices, {url, image, sx, sy, sw, sh, angle}) ->
 
@@ -101,10 +101,9 @@ class ImageURL extends Glyph.Model
 
   type: 'ImageURL'
 
-  mixins: []
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins []
+  @define {
       url:            [ p.StringSpec            ]
       anchor:         [ p.Anchor,    'top_left' ]
       global_alpha:   [ p.Number,    1.0        ]

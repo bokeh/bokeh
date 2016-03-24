@@ -8,7 +8,7 @@ widget_defaults = require "./defaults/widgets_defaults"
 {Collections} = utils.require "base"
 mixins = utils.require "core/property_mixins"
 HasProps = utils.require "core/has_props"
-Bokeh = utils.require "main"
+Models = utils.require "api/models"
 
 widget_locations = utils.require "models/widgets/main"
 Collections.register_locations(widget_locations)
@@ -138,13 +138,13 @@ describe "Defaults", ->
 
   # this is skipped while we decide whether to automate putting them all
   # in Bokeh or just leave it as a curated (or ad hoc?) subset
-  it.skip "have all non-Widget view models from Python in the Bokeh object", ->
+  it.skip "have all non-Widget view models from Python in the Models object", ->
     missing = []
     for name in core_defaults.all_view_model_names()
-      if name not of Bokeh
+      if name not of Models
         missing.push(name)
     for m in missing
-      console.log("'Bokeh.#{m}' not found but there's a Python model '#{m}'")
+      console.log("'Models.#{m}' not found but there's a Python model '#{m}'")
     expect(missing.length).to.equal 0
 
   it "have all Widget view models from Python in widget locations registry", ->

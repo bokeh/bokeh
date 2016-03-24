@@ -75,8 +75,7 @@ class Tooltip extends Annotation.Model
 
   type: 'Tooltip'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       side:       [ p.String, 'auto' ] # TODO (bev) enum?
       inner_only: [ p.Bool,   true   ]
     }

@@ -37,8 +37,7 @@ date_range_by_month = (start_time, end_time) ->
 class DaysTicker extends SingleIntervalTicker.Model
   type: 'DaysTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       days: [ p.Array, [] ]
     }
 
