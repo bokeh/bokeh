@@ -9,7 +9,7 @@ function make_plot(title:string, source:Bokeh.ColumnDataSource) {
     // Create plot
     const xr = new Bokeh.DataRange1d({});
     const yr = new Bokeh.DataRange1d({});
-    const plot = new plt.Figure({
+    const plot = plt.figure({
         tools: "pan,wheel_zoom,save,reset",        
         x_range: xr,
         y_range: yr,         
@@ -33,9 +33,10 @@ function make_plot(title:string, source:Bokeh.ColumnDataSource) {
     for (let key in source.data) {
         if (key != 't') {
             i += 1;
-            let line = new Bokeh.Line({x:{field:'t'}, y:{field:key}, legend: key, 
-                                       line_color: colors[i%6], line_width: 2});
-            plot.add_glyph(line, source);
+            plot.line({field:'t'}, {field:key},
+                      {source: source, legend: key, line_color: colors[i%6], line_width: 2});
+            //let line = new Bokeh.Line({x:{field:'t'}, y:{field:key}, legend: key, line_color: colors[i%6], line_width: 2});
+            //plot.add_glyph(line, source);
         }
     }
     
@@ -50,20 +51,20 @@ function make_plot(title:string, source:Bokeh.ColumnDataSource) {
 }
 
 // Create source
-const source = new Bokeh.ColumnDataSource({data: {  t: [1000,2000,3000,4000,5000,6000,7000,8000], 
-                                                  foo: [1,4,3,5,2,3,2,4],
-                                                  bar: [4,5,7,6,8,6,7,4],
-                                                 spam: [2,1,2,1,3,1,2,3]} });
+const source = new Bokeh.ColumnDataSource({data: {     t: [1000,2000,3000,4000,5000,6000,7000,8000],
+                                                  corp_a: [1,4,3,5,2,3,2,4],
+                                                  corp_b: [4,5,7,6,8,6,7,4],
+                                                  corp_c: [2,1,2,1,3,1,2,3]} });
 
 // Make source update on an interval
 let t = 8;
 const period = 0.5;  // seconds
 function new_data() {
     t += period;
-    let d:Bokeh.Data = {'t': [t*1000], 
-                      'foo': [Math.sin(t*0.3+0) * 2 + Math.random() + 3],
-                      'bar': [Math.sin(t*0.5+1) * 2 + Math.random() + 3],
-                     'spam': [Math.sin(t*0.7+2) * 2 + Math.random() + 3]}
+    let d:Bokeh.Data = {t: [t*1000], 
+                    corp_a: [Math.sin(t*0.3+0) * 2 + Math.random() + 3.0],
+                    corp_b: [Math.sin(t*0.5+1) * 2 + Math.random() + 3.4],
+                    corp_c: [Math.sin(t*0.7+2) * 2 + Math.random() + 3.8]}
     source.stream(d, 50);
 }
 setInterval(new_data, period*1000);
