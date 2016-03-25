@@ -102,6 +102,11 @@ If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
 that the server is configured to listen on (by default: {DEFAULT_PORT}).
 
+If an asterix ``*`` is used in the host value (for example ``--host *``) then
+it will be treated as a wildcard.  As a warning, using permissive host values
+like ``*`` may be insecure and open your application to HTTP host header
+attacks.
+
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
 
