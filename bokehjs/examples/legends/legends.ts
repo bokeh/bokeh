@@ -8,13 +8,15 @@ module Legends {
     const y2 = y.map((v) => 2*v)
     const y3 = y.map((v) => 3*v)
 
-    const p1 = plt.figure({title: "Legends Example"})
+    const xr = new Bokeh.DataRange1d({});
+    const yr = new Bokeh.DataRange1d({});
+    const p1 = plt.figure({title: "Legends Example", x_range:xr, y_range:yr})
 
     p1.circle(x, y,  {legend: "sin(x)"})
     p1.circle(x, y2, {legend: "2*sin(x)", color: "orange"})
     p1.circle(x, y3, {legend: "3*sin(x)", color: "green"})
 
-    const p2 = plt.figure({title: "Another Legend Example"})
+    const p2 = plt.figure({title: "Another Legend Example", x_range:xr, y_range:yr})
 
     p2.circle(x, y, {legend: "sin(x)"})
     p2.line(x, y, {legend: "sin(x)"})
@@ -23,6 +25,10 @@ module Legends {
 
     p2.square(x, y3, {legend: "3*sin(x)", fill_color: null, line_color: "green"})
     p2.line(x, y3, {legend: "3*sin(x)", line_color: "green"})
+
+    // Tweaks to work around bootstrap problems 
+    xr.renderers = p1.renderers;
+    yr.renderers = p1.renderers;
 
     plt.show(new Bokeh.VBox({children: [p1, p2]}))
 }
