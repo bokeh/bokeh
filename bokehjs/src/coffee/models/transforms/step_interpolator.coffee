@@ -18,11 +18,29 @@ class StepInterpolator extends Interpolator.Model
     # Apply the transform to a single value
     @sort(descending = false)
 
-    ind = _.findLastIndex(@_x_sorted, (num) ->
+    ind = -1
+    if @get('mode') == "after"
+      ind = _.findLastIndex(@_x_sorted, (num) ->
         return x >= num
-    )
+      )
 
-    ret = @_y_sorted[ind]
+    if @get('mode') == "before"
+      ind = _.findIndex(@_x_sorted, (num) ->
+        return x <= num
+      )
+
+    if @get('mode') == "center"
+      diffs = (Math.abs(tx - x) for tx in @_x_sorted)
+      mdiff = _.min(diffs)
+      ind = _.findIndex(diffs, (num) ->
+        return mdiff == num
+      )
+
+    if ind != -1
+      ret = @_y_sorted[ind]
+    else
+      ret = NULL
+
     return(ret)
 
   v_compute: (xs) ->
