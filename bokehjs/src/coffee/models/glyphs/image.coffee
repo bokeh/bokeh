@@ -99,12 +99,6 @@ class Image extends Glyph.Model
       color_mapper: [ p.Instance,  new LinearColorMapper.Model(palette: Greys9) ]
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @properties.rows.optional = true
-    @properties.cols.optional = true
-
-
 module.exports =
   Model: Image
   View: ImageView
