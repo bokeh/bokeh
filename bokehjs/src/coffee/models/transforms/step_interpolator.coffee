@@ -1,14 +1,18 @@
 _ = require "underscore"
 Transform = require "./transform"
 Interpolator = require "./interpolator"
+p = require "../../core/properties"
+
 
 class StepInterpolator extends Interpolator.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-  defaults: ->
-    return _.extend({}, super())
+  props: ->
+    return _.extend {}, super(), {
+      mode: [ p.String, "after"]
+    }
 
   compute: (x) ->
     # Apply the transform to a single value
