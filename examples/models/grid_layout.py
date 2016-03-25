@@ -19,29 +19,6 @@ css3_colors = pd.DataFrame([
     ("FireBrick",             "#B22222", "Red"),
     ("DarkRed",               "#8B0000", "Red"),
     ("Red",                   "#FF0000", "Red"),
-    ("OrangeRed",             "#FF4500", "Orange"),
-    ("Orange",                "#FFA500", "Orange"),
-    ("Yellow",                "#FFFF00", "Yellow"),
-    ("Gold",                  "#FFD700", "Yellow"),
-    ("Cornsilk",              "#FFF8DC", "Brown"),
-    ("Brown",                 "#A52A2A", "Brown"),
-    ("Maroon",                "#800000", "Brown"),
-    ("DarkOliveGreen",        "#556B2F", "Green"),
-    ("Olive",                 "#808000", "Green"),
-    ("DarkGreen",             "#006400", "Green"),
-    ("MediumAquamarine",      "#66CDAA", "Cyan"),
-    ("Aqua",                  "#00FFFF", "Cyan"),
-    ("Cyan",                  "#00FFFF", "Cyan"),
-    ("Teal",                  "#008080", "Cyan"),
-    ("LightSteelBlue",        "#B0C4DE", "Blue"),
-    ("PowderBlue",            "#B0E0E6", "Blue"),
-    ("LightBlue",             "#ADD8E6", "Blue"),
-    ("Navy",                  "#000080", "Blue"),
-    ("MidnightBlue",          "#191970", "Blue"),
-    ("Lavender",              "#E6E6FA", "Purple"),
-    ("Thistle",               "#D8BFD8", "Purple"),
-    ("Plum",                  "#DDA0DD", "Purple"),
-    ("MediumSlateBlue",       "#7B68EE", "Purple"),
     ("White",                 "#FFFFFF", "White"),
     ("Snow",                  "#FFFAFA", "White"),
     ("Honeydew",              "#F0FFF0", "White"),
@@ -64,19 +41,17 @@ source = ColumnDataSource(data=dict(
 ))
 
 
-def make_plot(yname, line_color, below_axis=True, left_axis=True):
+def make_plot(yname, line_color, below_axis=True, left_axis=True, right_axis=False, border_fill_color="white"):
     """ Returns a tuple (plot, [obj1...objN]); the former can be added
     to a GridPlot, and the latter is added to the plotcontext.
     """
     plot = Plot(
         x_range=DataRange1d(),
         y_range=DataRange1d(),
-        min_border=10,
-        border_fill_color="Coral",
-        border_fill_alpha=0.3,
-        outline_line_color=None,
-        background_fill_color="Thistle",
-        background_fill_alpha=0.3,
+        min_border=15,
+        border_fill_color=border_fill_color,
+        border_fill_alpha=0.1,
+        toolbar_location=None,
     )
     if below_axis:
         plot.add_layout(LinearAxis(), 'below')
@@ -84,12 +59,14 @@ def make_plot(yname, line_color, below_axis=True, left_axis=True):
         plot.add_layout(LinearAxis(), 'above')
     if left_axis:
         plot.add_layout(LinearAxis(), 'left')
+    if right_axis:
+        plot.add_layout(LinearAxis(), 'right')
     plot.add_glyph(source, Line(x="x", y=yname, line_color=line_color))
     plot.add_tools(ResizeTool())
     return plot
 
-plot1 = make_plot("y1", "blue", below_axis=False)
-plot2 = make_plot("y2", "red")
+plot1 = make_plot("y1", "blue", below_axis=False, border_fill_color="Thistle")
+plot2 = make_plot("y2", "red", right_axis=True)
 plot3 = make_plot("y3", "green", left_axis=False)
 plot4 = make_plot("y4", "black", left_axis=False, below_axis=False)
 
@@ -110,8 +87,8 @@ cat_plot.add_layout(CategoricalAxis(), 'left')
 
 row1 = Row(children=[plot1, plot2])
 row2col1 = Column(children=[plot3, plot4])
-row2col2 = Column(children=[cat_plot])
-row2 = Row(children=[row2col1, row2col2])
+row2 = Row(children=[row2col1, cat_plot])
+row3 = Row(children=[plot3, plot4])
 
 doc = Document()
 doc.add_root(Column(children=[row1, row2]))
