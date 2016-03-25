@@ -107,13 +107,12 @@ class Canvas extends LayoutBox.Model
     constraints.push(GE(@_bottom))
     constraints.push(GE(@_left))
     constraints.push(GE(@_right))
+    constraints.push(GE(@_width))
+    constraints.push(GE(@_height))
 
     constraints.push(EQ(@_width, [-1, @_right]))
     constraints.push(EQ(@_height, [-1, @_top]))
-    #
-    # Prevent canvas getting too small - make configurable?
-    constraints.push(GE(@_width, -200))
-    constraints.push(GE(@_height, -200))
+
     return constraints
 
   # transform view coordinates to underlying screen coordinates
