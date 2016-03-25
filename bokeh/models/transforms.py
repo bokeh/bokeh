@@ -29,7 +29,7 @@ class Transform(Model):
 
 
 class Jitter(Transform):
-    ''' Apply uniformly sampled random jitter to data.
+    ''' Apply either a uniform or normally sampled random jitter to data.
 
     '''
 
@@ -56,7 +56,9 @@ class Interpolator(Transform):
 
     .. code-block: python
 
-        interp = Interpolator(y=[2, 5, 10, 12, 16])
+        interp = Interpolator(x=[1, 2, 3, 4, 5], y=[2, 5, 10, 12, 16])
+
+    * or a pair of columns defined in a `ColumnDataSource` object:
 
     .. code-block: python
 
