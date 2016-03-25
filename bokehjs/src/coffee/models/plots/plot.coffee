@@ -556,11 +556,6 @@ class Plot extends Component.Model
     @_plot_right_minus_plot_left = new Variable()
     @_plot_bottom_minus_plot_top = new Variable()
 
-    @_left_axis_width = new Variable()
-    @_right_axis_width = new Variable()
-    @_below_axis_height = new Variable()
-    @_above_axis_height = new Variable()
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -700,15 +695,16 @@ class Plot extends Component.Model
         if side == "right"
           constraints.push(EQ(last._right, [-1, r.panel._left]))
         last = r
-      # Set panel extent to match the side renderers (e.g. axes)
-      if side == "above"
-        constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
-      if side == "below"
-        constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
-      if side == "left"
-        constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
-      if side == "right"
-        constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
+      if layout_renderers.length != 0
+        # Set panel extent to match the side renderers (e.g. axes)
+        if side == "above"
+          constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
+        if side == "below"
+          constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
+        if side == "left"
+          constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
+        if side == "right"
+          constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
 
     # Go down the children to pick up any more constraints
     for child in @get_layoutable_children()
@@ -723,11 +719,6 @@ class Plot extends Component.Model
     # min size, weak in case it doesn't fit
     constraints.push(WEAK_GE(@_plot_right_minus_plot_left, -150))
     constraints.push(WEAK_GE(@_plot_bottom_minus_plot_top, -150))
-
-    constraints.push(EQ(@_left_axis_width, @left_panel._width))
-    constraints.push(EQ(@_right_axis_width, @right_panel._width))
-    constraints.push(EQ(@_below_axis_height, @below_panel._height))
-    constraints.push(EQ(@_above_axis_height, @above_panel._height))
 
     # plot has to be inside the width/height
     constraints.push(GE(@_plot_left))
@@ -744,6 +735,12 @@ class Plot extends Component.Model
     # compute plot bottom/right indent
     constraints.push(EQ(@_height_minus_plot_bottom, [-1, @_height], @_plot_bottom))
     constraints.push(EQ(@_width_minus_plot_right, [-1, @_width], @_plot_right))
+    
+    # specify panel dimensions
+    constraints.push(GE(@above_panel._height, [-1, canvas._top], frame._top))
+    constraints.push(GE(@below_panel._height, [-1, canvas._bottom], frame._bottom))
+    constraints.push(GE(@left_panel._width, [-1, canvas._left], frame._left))
+    constraints.push(GE(@right_panel._width, [-1, canvas._right], frame._right))
 
     return constraints
 
@@ -758,14 +755,6 @@ class Plot extends Component.Model
       'on-bottom-edge-align' : @_height_minus_plot_bottom
       'on-left-edge-align' : @_plot_left
       'on-right-edge-align' : @_width_minus_plot_right
-      # when this widget is in a box cell with the same "arity
-      # path" as a widget in another cell, align these variables
-      # between the two box cells. Right/bottom are an inset from
-      # the edge.
-      'box-cell-align-top' : @_plot_top
-      'box-cell-align-bottom' : @_height_minus_plot_bottom
-      'box-cell-align-left' : @_plot_left
-      'box-cell-align-right' : @_width_minus_plot_right
       # when this widget is in a box, make these the same distance
       # apart in every widget. Right/bottom are inset from the edge.
       'box-equal-size-top' : @_plot_top
