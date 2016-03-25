@@ -70,7 +70,7 @@ class GlyphRendererView extends Renderer.View
   # for image, e.g.)
   set_data: (request_render=true, arg) ->
     t0 = Date.now()
-    source = @mget('data_source')
+    source = @mget('data_source').get('column_data')
 
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class

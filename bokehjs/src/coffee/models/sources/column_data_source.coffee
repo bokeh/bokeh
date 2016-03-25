@@ -14,8 +14,7 @@ class ColumnDataSource extends DataSource.Model
 
   props: ->
     return _.extend {}, super(), {
-      data:              [ p.Any,      {} ]
-      column_names:      [ p.Array,    [] ]
+      column_data:      [ p.Any,    {} ]
     }
 
   defaults: ->
@@ -30,10 +29,10 @@ class ColumnDataSource extends DataSource.Model
     super().concat(['selection_manager', 'inspected'])
 
   get_column: (colname) ->
-    return @get('data')[colname] ? null
+    return @get('column_data').get('data')[colname]
 
   get_length: () ->
-    data = @get('data')
+    data = @get('column_data').get('data')
     if _.keys(data).length == 0
       return null # XXX: don't guess, treat on case-by-case basis
     else
