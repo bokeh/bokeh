@@ -47,6 +47,78 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
+class ColumnData(Model):
+
+    data = Dict(String, Any, help=" ")
+    
+    column_names = List(String, help=" ")
+    
+    
+    def __init__(self, *args, **kw):
+        """ If called with a single argument that is a dict or
+        pandas.DataFrame, treat that implicitly as the "data" attribute.
+        """
+        if len(args) == 1 and "data" not in kw:
+            kw["data"] = args[0]
+        # TODO (bev) invalid to pass args and "data", check and raise exception
+        raw_data = kw.pop("data", {})
+        if not isinstance(raw_data, dict):
+            if pd and isinstance(raw_data, pd.DataFrame):
+                raw_data = self._data_from_df(raw_data)
+            else:
+                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+        super(ColumnData, self).__init__(**kw)
+        for name, data in raw_data.items():
+            self.add(data, name)        
+            
+    def add(self, data, name=None):
+        """ Appends a new column of data to the data source.
+
+        Args:
+            data (seq) : new data to add
+            name (str, optional) : column name to use.
+                If not supplied, generate a name go the form "Series ####"
+
+        Returns:
+            str:  the column name used
+
+        """
+        if name is None:
+            n = len(self.data)
+            while "Series %d"%n in self.data:
+                n += 1
+            name = "Series %d"%n
+        self.column_names.append(name)
+        self.data[name] = data
+        return name
+
+    def _to_json_like(self, include_defaults):
+        attrs = super(ColumnData, self)._to_json_like(include_defaults=include_defaults)
+        if 'data' in attrs:
+            attrs['data'] = transform_column_source_data(attrs['data'])
+        return attrs
+
+    def remove(self, name):
+        """ Remove a column of data.
+
+        Args:
+            name (str) : name of the column to remove
+
+        Returns:
+            None
+
+        .. note::
+            If the column name does not exist, a warning is issued.
+
+        """
+        try:
+            self.column_names.remove(name)
+            del self.data[name]
+        except (ValueError, KeyError):
+            import warnings
+            warnings.warn("Unable to find column '%s' in data source" % name)
+            
+            
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
 
@@ -63,31 +135,16 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Any, help="""
-    Mapping of column names to sequences of data. The data can be, e.g,
-    Python lists or tuples, NumPy arrays, etc.
-    """)
-
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
+    column_data = Instance(ColumnData)
 
     def __init__(self, *args, **kw):
-        """ If called with a single argument that is a dict or
-        pandas.DataFrame, treat that implicitly as the "data" attribute.
-        """
-        if len(args) == 1 and "data" not in kw:
-            kw["data"] = args[0]
-        # TODO (bev) invalid to pass args and "data", check and raise exception
-        raw_data = kw.pop("data", {})
-        if not isinstance(raw_data, dict):
-            if pd and isinstance(raw_data, pd.DataFrame):
-                raw_data = self._data_from_df(raw_data)
-            else:
-                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+        column_data = kw.pop('column_data', None)
         super(ColumnDataSource, self).__init__(**kw)
-        for name, data in raw_data.items():
-            self.add(data, name)
+        if column_data:
+            self.column_data = column_data
+        else:
+            self.column_data = ColumnData(*args, **kw)
+
 
     @staticmethod
     def _data_from_df(df):
@@ -160,19 +217,10 @@ class ColumnDataSource(DataSource):
             str:  the column name used
 
         """
-        if name is None:
-            n = len(self.data)
-            while "Series %d"%n in self.data:
-                n += 1
-            name = "Series %d"%n
-        self.column_names.append(name)
-        self.data[name] = data
-        return name
+        return self.column_data.add(data, name)
 
     def _to_json_like(self, include_defaults):
         attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
-        if 'data' in attrs:
-            attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs
 
     def remove(self, name):
@@ -188,12 +236,7 @@ class ColumnDataSource(DataSource):
             If the column name does not exist, a warning is issued.
 
         """
-        try:
-            self.column_names.remove(name)
-            del self.data[name]
-        except (ValueError, KeyError):
-            import warnings
-            warnings.warn("Unable to find column '%s' in data source" % name)
+        self.column_data.remove(name)
 
     @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
     def push_notebook(self):
@@ -217,7 +260,7 @@ class ColumnDataSource(DataSource):
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):
-        lengths = set(len(x) for x in self.data.values())
+        lengths = set(len(x) for x in self.column_data.data.values())
         if len(lengths) > 1:
             return str(self)
 

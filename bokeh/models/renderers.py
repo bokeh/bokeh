@@ -100,7 +100,7 @@ class GlyphRenderer(DataRenderer):
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
             if name not in specs: continue
             if not isinstance(item, dict): continue
-            if 'field' in item and item['field'] not in self.data_source.column_names:
+            if 'field' in item and item['field'] not in self.data_source.column_data.column_names:
                 missing.add(item['field'])
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
