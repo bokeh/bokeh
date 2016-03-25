@@ -15,6 +15,7 @@ class ToolManagerView extends Backbone.View
 
   initialize: (options) ->
     super(options)
+    @location = options.location
     @listenTo(@model.get('plot'), 'change:tools change:logo', () => @render())
     @listenTo(@model, 'change', () => @render())
     @have_rendered = false
@@ -23,7 +24,7 @@ class ToolManagerView extends Backbone.View
     if @have_rendered
       return
     @have_rendered = true
-    @$el.html(@template({logo: @model.get("plot").get("logo")}))
+    @$el.html(@template({logo: @model.get("plot")?.get("logo")}))
     @$el.addClass("bk-toolbar-#{@location}")
     @$el.addClass("bk-sidebar")
     @$el.addClass("bk-toolbar-active")
