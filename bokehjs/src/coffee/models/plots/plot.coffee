@@ -472,7 +472,7 @@ class PlotView extends Renderer.View
 
     # Set the Canvas Dimensions
     @update_dimensions([width, height], trigger=false)
-
+ 
     # Set the DOM Box
     @$el.css({
       position: 'absolute'
@@ -726,21 +726,22 @@ class Plot extends Component.Model
     constraints.push(GE(@_plot_top))
     constraints.push(GE(@_height, [-1, @_plot_bottom]))
 
-    # plot sides align with the sum of the stuff outside the plot
-    constraints.push(EQ(@left_panel._width, [-1, @_plot_left]))
-    constraints.push(EQ(@_plot_right, @right_panel._width, [-1, @_width]))
-    constraints.push(EQ(@above_panel._height, [-1, @_plot_top]))
-    constraints.push(EQ(@_plot_bottom, @below_panel._height, [-1, @_height]))
-
     # compute plot bottom/right indent
     constraints.push(EQ(@_height_minus_plot_bottom, [-1, @_height], @_plot_bottom))
     constraints.push(EQ(@_width_minus_plot_right, [-1, @_width], @_plot_right))
+
+    # plot sides align
+    constraints.push(EQ(@below_panel._height, [-1, @_height], @_plot_bottom))
+    constraints.push(EQ(@below_panel._height, [-1, frame._bottom]))
+
+    constraints.push(EQ(@left_panel._width, [-1, @_plot_left]))
+    constraints.push(EQ(@left_panel._width, [-1, frame._left]))
     
-    # specify panel dimensions
-    constraints.push(GE(@above_panel._height, [-1, canvas._top], frame._top))
-    constraints.push(GE(@below_panel._height, [-1, canvas._bottom], frame._bottom))
-    constraints.push(GE(@left_panel._width, [-1, canvas._left], frame._left))
-    constraints.push(GE(@right_panel._width, [-1, canvas._right], frame._right))
+    constraints.push(EQ(@above_panel._height, [-1, @_plot_top]))
+    constraints.push(EQ(@above_panel._height, [-1, canvas._top], frame._top))
+
+    constraints.push(EQ(@right_panel._width, [-1, @_width], @_plot_right))
+    constraints.push(EQ(@right_panel._width, [-1, canvas._right], frame._right))
 
     return constraints
 
@@ -761,6 +762,14 @@ class Plot extends Component.Model
       'box-equal-size-bottom' : @_height_minus_plot_bottom
       'box-equal-size-left' : @_plot_left
       'box-equal-size-right' : @_width_minus_plot_right
+      # when this widget is in a box cell with the same "arity
+      # path" as a widget in another cell, align these variables
+      # between the two box cells. Right/bottom are an inset from
+      # the edge.
+      'box-cell-align-top' : @_plot_top
+      'box-cell-align-bottom' : @_height_minus_plot_bottom
+      'box-cell-align-left' : @_plot_left
+      'box-cell-align-right' : @_width_minus_plot_right
     }
 
   add_renderers: (new_renderers) ->
