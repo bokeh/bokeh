@@ -34,19 +34,19 @@ class Div(Markup):
     """
 
     text = String(default="", help="""
-    The contents of the widget.
+    The contents of the widget (blank default).
     """)
 
     width = Int(600, help="""
-    The width of the block in pixels.
+    The width of the block in pixels (600px default).
     """)
 
     height = Int(400, help="""
-    The height of the block in pixels.
+    The height of the block in pixels (400px default).
     """)
 
     render_as_text = Bool(False, help="""
-    Should the text be rendered as raw text (False), or should the text be interprited as an HTML string (True)
+    Should the text be rendered as raw text (False, default), or should the text be interprited as an HTML string (True)
     """)
 
 class PreText(Paragraph):
