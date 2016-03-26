@@ -18,7 +18,8 @@ describe "step_interpolator_transform module", ->
     transform.set('distribution', 'uniform')
 
     it "should average the fixed values", ->
-      vals =  Array.apply(null, Array(10)).map(function(){return 5})
+      vals =  Array.apply(null, Array(10)).map ->
+                5
       rets = transform.v_compute(vals)
 
       add(a, b) ->
@@ -34,7 +35,8 @@ describe "step_interpolator_transform module", ->
     transform.set('distribution', 'normal')
 
     it "should average the fixed values", ->
-      vals =  Array.apply(null, Array(10)).map(function(){return 5})
+      vals =  Array.apply(null, Array(10)).map ->
+                5
       rets = transform.v_compute(vals)
 
       add(a, b) ->
