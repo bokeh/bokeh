@@ -70,7 +70,31 @@ class ColumnData(Model):
         super(ColumnData, self).__init__(**kw)
         for name, data in raw_data.items():
             self.add(data, name)        
-            
+    
+    @staticmethod
+    def _data_from_df(df):
+        """ Create a ``dict`` of columns from a Pandas DataFrame,
+        suitable for creating a ColumnData.
+
+        Args:
+            df (DataFrame) : data to convert
+
+        Returns:
+            dict(str, list)
+
+        """
+        index = df.index
+        new_data = {}
+        for colname in df:
+            new_data[colname] = df[colname].tolist()
+        if index.name:
+            new_data[index.name] = index.tolist()
+        elif index.names and not all([x is None for x in index.names]):
+            new_data["_".join(index.names)] = index.tolist()
+        else:
+            new_data["index"] = index.tolist()
+        return new_data
+    
     def add(self, data, name=None):
         """ Appends a new column of data to the data source.
 
@@ -145,30 +169,6 @@ class ColumnDataSource(DataSource):
         else:
             self.column_data = ColumnData(*args, **kw)
 
-
-    @staticmethod
-    def _data_from_df(df):
-        """ Create a ``dict`` of columns from a Pandas DataFrame,
-        suitable for creating a ColumnDataSource.
-
-        Args:
-            df (DataFrame) : data to convert
-
-        Returns:
-            dict(str, list)
-
-        """
-        index = df.index
-        new_data = {}
-        for colname in df:
-            new_data[colname] = df[colname].tolist()
-        if index.name:
-            new_data[index.name] = index.tolist()
-        elif index.names and not all([x is None for x in index.names]):
-            new_data["_".join(index.names)] = index.tolist()
-        else:
-            new_data["index"] = index.tolist()
-        return new_data
 
     @classmethod
     @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
