@@ -46,8 +46,6 @@ class Interpolator extends Transform.Model
     if(@_sorted_dirty == false)
       return
 
-    console.log('Sorting...')
-
     tsx = []
     tsy = []
 
