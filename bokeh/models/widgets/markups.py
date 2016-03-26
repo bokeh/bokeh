@@ -37,7 +37,7 @@ class Div(Markup):
     The contents of the widget.
     """)
 
-    width = Int(500, help="""
+    width = Int(600, help="""
     The width of the block in pixels.
     """)
 
