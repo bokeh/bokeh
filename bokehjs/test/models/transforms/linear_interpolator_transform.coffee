@@ -32,7 +32,7 @@ describe "linear_interpolator_transform module", ->
       expect(mapper.v_compute([0, 2, 5])).to.be.deep.equal new Float64Array [10, 14, 20]
 
     it "should map to a Float64Array", ->
-      expect(mapper.v_map_to_target([-1,0,5,10,11])).to.be.instanceof Float64Array
+      expect(mapper.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
 
   describe "creation with inline ranges", ->
     mapper = generate_interpolator_inline()
@@ -48,4 +48,4 @@ describe "linear_interpolator_transform module", ->
       expect(mapper.v_compute([0, 2, 5])).to.be.deep.equal new Float64Array [10, 14, 20]
 
     it "should map to a Float64Array", ->
-      expect(mapper.v_map_to_target([-1,0,5,10,11])).to.be.instanceof Float64Array
+      expect(mapper.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
