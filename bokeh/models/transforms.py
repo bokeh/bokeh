@@ -50,7 +50,9 @@ class Jitter(Transform):
 class Interpolator(Transform):
     ''' Base class for interpolator transforms.
 
-    Interpolators are configured with ``values`` which can either be:
+    Interpolators return the value of a function which has been evalauted between pre-sepcified (x, y) pairs of data.  As an example, if two control point pairs were provided to the interpolator, a linear interpolaction at a specific value of 'x' would result in the value of 'y' which existed on the line conneting the two control points.
+
+    The control point pairs for the interpolators can be specified through either
 
     * A literal sequence of values:
 
@@ -64,6 +66,8 @@ class Interpolator(Transform):
 
         interp = Interpolator(x="year", y="earnings", data=jewlery_prices))
 
+
+    This is the base class and is not intended to end use.  Please see the documentation for the final derived classes (Jitter, LineraInterpolator, StepInterpolator) for mor information on their specific methods of interpolation.
     '''
     x = Either(String, Seq(Float), help="""
     Independant coordiante denoting the location of a point.
@@ -74,7 +78,7 @@ class Interpolator(Transform):
     """)
 
     data = Instance(ColumnDataSource, help="""
-    Data which defines the source for the named columns if a string is passed to either the `x` or `y` parameters.
+    Data which defines the source for the named columns if a string is passed to either the ``x`` or ``y`` parameters.
     """)
 
     # Define an initialization routine to do some cross checking of input values
@@ -83,18 +87,21 @@ class Interpolator(Transform):
 
 
 class LinearInterpolator(Interpolator):
-    ''' Compute a linear interpolation between the points given by ``values``.
+    ''' Compute a linear interpolation between the control points provided throught the ``x``, ``y``, and ``data`` parameters.
 
     '''
     pass
 
 
 class StepInterpolator(Interpolator):
-    ''' Compute a step-wise interpolation between the points given
-    by ``values``.
+    ''' Compute a step-wise interpolation between the points provided throught the ``x``, ``y``, and ``data`` parameters.
 
     '''
 
     mode = Enum(StepMode, default="after", help="""
+    Adjust the behavior of the returned value in relation to the control points.  The parameter can assume one of three values:
 
+    * ``after`` (default): Assume the y-value associated with the nearest x-value which is less than or equal to the point to transform.
+    * ``before``: Assume the y-value associated with the nearest x-value which is greater than the point to transform.
+    * ``center``: Assume the y-value associated with the nearest x-value to the point to transform.
     """)
