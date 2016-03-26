@@ -30,6 +30,8 @@ class Div extends Markup.Model
   props: () ->
     return _.extend {}, super(), {
       text:           [ p.String, '' ]
+      width:          [ p.Number, 600]
+      height:         [ p.Number, 400]
       render_as_text: [ p.Bool,   false]
     }
 
