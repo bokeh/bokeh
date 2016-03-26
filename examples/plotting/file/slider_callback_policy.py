@@ -20,10 +20,10 @@ callback = CustomJS(code="""
       };
     }
 
-    para.set('text', "<H1>Slider Values</H1><P>Slider 1: {0}<P>Slider 2: {1}<P>Slider 3: {2}".format(s1, s2, s3))
+    para.set('text', "<h1>Slider Values</h1><p>Slider 1: {0}<p>Slider 2: {1}<p>Slider 3: {2}".format(s1, s2, s3))
 """)
 
-para = Div(text = "<H1>Slider Values:</H1><P>Slider 1: 0<P>Slider 2: 0<P>Slider 3: 0", width = 200, height = 150, render_as_text = False)
+para = Div(text = "<h1>Slider Values:</h1><p>Slider 1: 0<p>Slider 2: 0<p>Slider 3: 0", width = 200, height = 150, render_as_text = False)
 
 s1 = Slider(title="Slider 1 (Continuous)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="continuous")
 s2 = Slider(title="Slider 2 (Throttle)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="throttle", callback_throttle=2000)
