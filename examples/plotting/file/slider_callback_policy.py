@@ -1,5 +1,5 @@
 from bokeh.io import vform, output_file, show
-from bokeh.models import CustomJS, Slider, Div, PreText
+from bokeh.models import CustomJS, Slider, Div
 
 # NOTE: the JS functions to forvide the format code for strings is found the answer
 # from the user fearphage at http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
