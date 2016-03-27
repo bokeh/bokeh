@@ -43,7 +43,7 @@ def log_file(request):
     with open(pytest.config.option.log_file, 'a') as f:
         yield f
     def fin():
-        if request.session.testsfailed > 0
+        if request.session.testsfailed > 0:
             fail("Tests failed, printing examples.log")
             with open(pytest.config.option.log_file, 'r') as f:
                 for line in f:
