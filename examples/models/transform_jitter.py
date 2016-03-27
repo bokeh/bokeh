@@ -20,11 +20,13 @@ enable_callback=CustomJS(args=dict(scatter_obj=scatter_obj, source=source, figur
         for (i=0; i < data['y'].length; i++) {
             data['xplot'][i] = data['xp'][i]
         }
+        para.set('text', 'Enabled')
     } else {
         var data=source.get('data')
         for (i=0; i < data['y'].length; i++) {
             data['xplot'][i] = data['x'][i]
         }
+        para.set('text', 'Disabled')
     }
     source.trigger('change')
 """)
@@ -74,8 +76,11 @@ distribution_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p)
     source.trigger('change')
 """)
 
+enable_paragraph = Paragraph(text='Disabled')
+
 enable_button = Toggle(label='Enable Jitter', type='default', callback=enable_callback)
 enable_callback.args['button'] = enable_button
+enable_callback.args['para'] = enable_paragraph
 
 width_slider = Slider(start=0, end=2, value=0, step=0.01, title='Width', callback=width_callback, callback_policy='continuous')
 width_callback.args['slider'] = width_slider
@@ -92,6 +97,6 @@ distribution_callback.args['button'] = enable_button
 title = Paragraph(text='Jitter Parameters')
 spacer = Paragraph(text=' ')
 
-output_file("transform_jitter.html", title="Example Transforms")
+output_file("transform_jitter.html", title="Example Jitter Transform")
 
-show(hplot(p, vplot(enable_button, spacer, title, spacer, center_slider, width_slider, distribution_select)))
+show(hplot(p, vplot(hplot(enable_button, enable_paragraph), spacer, title, spacer, center_slider, width_slider, distribution_select)))
