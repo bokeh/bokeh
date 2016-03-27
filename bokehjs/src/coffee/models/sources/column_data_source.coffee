@@ -24,11 +24,22 @@ class ColumnDataSource extends DataSource.Model
         () -> @.get('column_data').get('selection_manager')
       , true)
 
+    @register_property('data', 
+        () -> @.get('column_data').get('data')
+      , true)
+
   nonserializable_attribute_names: () ->
     super().concat(['selection_manager', 'inspected'])
 
+  convert_selection: (selection) ->
+    indices = @.get('indices')
+    indices_1d = (indices[i] for i in selection['1d']['indices'])
+    selection['1d']['indices'] = indices_1d
+    return selection
+
   get_column: (colname) ->
-    return @get('column_data').get('data')[colname]
+    full_column = @get('column_data').get('data')[colname]
+    return (full_column[i] for i in @get('indices'))
 
   get_length: () ->
     data = @get('column_data').get('data')

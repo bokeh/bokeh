@@ -24,6 +24,9 @@ class SelectionManager extends HasProps
     indices = renderer_view.hit_test(geometry)
 
     if indices?
+      if source == renderer_view.mget('data_source').get('column_data')
+        indices = renderer_view.mget('data_source').convert_selection(indices)
+
       selector = @_get_selector(renderer_view)
       selector.update(indices, final, append)
 
