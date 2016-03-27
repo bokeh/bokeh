@@ -96,6 +96,6 @@ distribution_callback.args['button'] = enable_button
 title = Paragraph(text='Jitter Parameters')
 spacer = Paragraph(text=' ')
 
-output_file("transforms.html", title="Example Transforms")
+output_file("transform_jitter.html", title="Example Transforms")
 
 show(hplot(p, vplot(enable_button, spacer, title, spacer, center_slider, width_slider, distribution_dropdown)))
