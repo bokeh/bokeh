@@ -39,8 +39,8 @@ requirements:
 
     # server
     - tornado >=4.3
-    # we only need futures on py27, but selector applies at build time
-    - futures
+    # meta-package installs futures for py 2.7 but not for py 3.x
+    - futures-compat
 
 test:
   requires:
