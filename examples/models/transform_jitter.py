@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.io import vplot, hplot
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import Slider, CustomJS, Dropdown, Toggle, Paragraph
+from bokeh.models import Slider, CustomJS, Dropdown, Toggle, Paragraph, Select
 from bokeh.models.transforms import Jitter
 
 N = 50
@@ -27,7 +27,6 @@ enable_callback=CustomJS(args=dict(scatter_obj=scatter_obj, source=source, figur
         }
     }
     source.trigger('change')
-    figure.trigger('change')
 """)
 
 width_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
@@ -43,7 +42,6 @@ width_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code=
         }
     }
     source.trigger('change')
-    figure.trigger('change')
 """)
 
 center_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
@@ -59,11 +57,10 @@ center_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code
         }
     }
     source.trigger('change')
-    figure.trigger('change')
 """)
 
 distribution_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
-    jitter.set('distribution', menu.get('value'))
+    jitter.set('distribution', menu.get('value').toLowerCase())
     data=source.get('data')
     for (i=0; i < data['y'].length; i++) {
         data['xp'][i] = jitter.compute(data['x'][i])
@@ -75,10 +72,9 @@ distribution_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p)
         }
     }
     source.trigger('change')
-    figure.trigger('change')
 """)
 
-enable_button = Toggle(label='Enable Jitter', type='success', callback=enable_callback)
+enable_button = Toggle(label='Enable Jitter', type='default', callback=enable_callback)
 enable_callback.args['button'] = enable_button
 
 width_slider = Slider(start=0, end=2, value=0, step=0.01, title='Width', callback=width_callback, callback_policy='continuous')
@@ -89,8 +85,8 @@ center_slider = Slider(start=-1, end=1, value=0, step=0.01, title='Center', call
 center_callback.args['slider'] = center_slider
 center_callback.args['button'] = enable_button
 
-distribution_dropdown = Dropdown(label='Distribution', type='success', menu=[('Uniform', 'uniform'), ('Normal', 'normal')], callback=distribution_callback)
-distribution_callback.args['menu'] = distribution_dropdown
+distribution_select = Select(title='Distribition', value='Uniform', options=['Uniform', 'Normal'], callback=distribution_callback)
+distribution_callback.args['menu'] = distribution_select
 distribution_callback.args['button'] = enable_button
 
 title = Paragraph(text='Jitter Parameters')
@@ -98,4 +94,4 @@ spacer = Paragraph(text=' ')
 
 output_file("transform_jitter.html", title="Example Transforms")
 
-show(hplot(p, vplot(enable_button, spacer, title, spacer, center_slider, width_slider, distribution_dropdown)))
+show(hplot(p, vplot(enable_button, spacer, title, spacer, center_slider, width_slider, distribution_select)))
