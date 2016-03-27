@@ -175,6 +175,7 @@ class ColumnDataSource(DataSource):
     
     def __init__(self, *args, **kw):
         column_data = kw.pop('column_data', None)
+        indices = kw.pop('indices', None)
         super(ColumnDataSource, self).__init__(**kw)
         
         if column_data:
@@ -182,7 +183,9 @@ class ColumnDataSource(DataSource):
         else:
             self.column_data = ColumnData(*args, **kw)
 
-        if self.indices == None:
+        if indices:
+            self.indices = indices
+        else:
             self.indices = list(range(self._get_column_length()))
 
     @classmethod
