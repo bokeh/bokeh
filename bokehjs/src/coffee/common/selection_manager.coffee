@@ -18,7 +18,7 @@ class SelectionManager extends HasProps
 
   select: (tool, renderer_view, geometry, final, append=false) ->
     source = @get('source')
-    if source != renderer_view.mget('data_source')
+    if source != renderer_view.mget('data_source') and source != renderer_view.mget('data_source').get('column_data')
       logger.warn('select called with mis-matched data sources')
 
     indices = renderer_view.hit_test(geometry)
@@ -34,7 +34,7 @@ class SelectionManager extends HasProps
 
   inspect: (tool, renderer_view, geometry, data) ->
     source = @get('source')
-    if source != renderer_view.mget('data_source')
+    if source != renderer_view.mget('data_source') and source != renderer_view.mget('data_source').get('column_data')
       logger.warn('inspect called with mis-matched data sources')
 
     indices = renderer_view.hit_test(geometry)
