@@ -47,7 +47,7 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnData(Model):
+class ColumnData(DataSource):
 
     data = Dict(String, Any, help=" ")
     

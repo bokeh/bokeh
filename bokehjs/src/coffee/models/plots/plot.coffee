@@ -277,7 +277,7 @@ class PlotView extends Renderer.View
     selection = []
     for renderer in @mget('renderers')
       if renderer instanceof GlyphRenderer.Model
-        selected = renderer.get('data_source').get("selected")
+        selected = renderer.get('data_source').get('column_data').get("selected")
         selection[renderer.id] = selected
     selection
 

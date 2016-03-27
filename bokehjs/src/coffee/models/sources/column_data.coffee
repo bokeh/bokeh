@@ -1,9 +1,10 @@
 _ = require "underscore"
 
-Model = require "../../model"
+DataSource = require "./data_source"
+SelectionManager = require "../../common/selection_manager"
 p = require "../../core/properties"
 
-class ColumnData extends Model
+class ColumnData extends DataSource.Model
   type: 'ColumnData'
   
   props: ->
@@ -11,6 +12,18 @@ class ColumnData extends Model
       data:              [ p.Any,      {} ]
       column_names:      [ p.Array,    [] ]
     }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+
+      # internal
+      selection_manager: new SelectionManager({'source':@})
+    }
+
+  nonserializable_attribute_names: () ->
+    super().concat(['selection_manager', 'inspected'])
+
 
   get_column: (colname) ->
     return @get('data')[colname] ? null

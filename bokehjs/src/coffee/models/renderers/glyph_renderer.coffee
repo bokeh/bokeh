@@ -49,7 +49,7 @@ class GlyphRendererView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'stream', @set_data)
-    @listenTo(@mget('data_source'), 'select', @request_render)
+    @listenTo(@mget('data_source').get('column_data'), 'select', @request_render)
     if @hover_glyph?
       @listenTo(@mget('data_source'), 'inspect', @request_render)
 
@@ -121,7 +121,7 @@ class GlyphRendererView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    selected = @mget('data_source').get('selected')
+    selected = @mget('data_source').get('column_data').get('selected')
     if !selected or selected.length == 0
       selected = []
     else

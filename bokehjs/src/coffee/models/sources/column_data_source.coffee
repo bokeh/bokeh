@@ -2,7 +2,6 @@ _ = require "underscore"
 
 DataSource = require './data_source'
 hittest = require "../../common/hittest"
-SelectionManager = require "../../common/selection_manager"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -17,13 +16,12 @@ class ColumnDataSource extends DataSource.Model
       column_data:      [ p.Any,    {} ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
+  initialize: (attrs, options)->
+    super(attrs, options)
 
-      # internal
-      selection_manager: new SelectionManager({'source':@})
-    }
+    @register_property('selection_manager',
+        () -> @.get('column_data').get('selection_manager')
+      , true)
 
   nonserializable_attribute_names: () ->
     super().concat(['selection_manager', 'inspected'])
