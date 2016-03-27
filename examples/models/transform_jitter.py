@@ -11,7 +11,7 @@ source = ColumnDataSource(data=dict(x=[1]*N + [2]*N, xp=[1]*N + [2]*N, xplot=[1]
 
 jitter = Jitter(mean=0, width=0)
 
-p = figure(x_range=(-10,10), y_range=(0,10))
+p = figure(x_range=(0, 3), y_range=(0,10))
 scatter_obj = p.scatter(x='xplot', y='y', color='col', source=source, size = 10, alpha=0.5)
 
 enable_callback=CustomJS(args=dict(scatter_obj=scatter_obj, source=source, figure=p, jitter=jitter), code="""
