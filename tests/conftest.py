@@ -2,6 +2,7 @@ import pytest
 
 from tests.plugins.constants import default_upload
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
+from tests.plugins.utils import fail, write
 
 pytest_plugins = (
     "tests.examples.examples_report_plugin",
@@ -41,3 +42,11 @@ def log_file(request):
             f.write("")
     with open(pytest.config.option.log_file, 'a') as f:
         yield f
+    def fin():
+        if request.session.testsfailed > 0
+            fail("Tests failed, printing examples.log")
+            with open(pytest.config.option.log_file, 'r') as f:
+                for line in f:
+                    write(line)
+
+    request.addfinalizer(fin)
