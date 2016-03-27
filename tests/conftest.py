@@ -47,6 +47,6 @@ def log_file(request):
             fail("Tests failed, printing examples.log")
             with open(pytest.config.option.log_file, 'r') as f:
                 for line in f:
-                    write(line)
+                    write(line, end="")
 
     request.addfinalizer(fin)
