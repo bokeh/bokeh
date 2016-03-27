@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecate import deprecated
@@ -141,8 +141,16 @@ class ColumnData(DataSource):
         except (ValueError, KeyError):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
-            
-            
+
+    def _get_column_length(self):
+        return len(list(self.data.values())[0])
+
+    @validation.error(COLUMN_LENGTHS)
+    def _check_column_lengths(self):
+        lengths = set(len(x) for x in self.data.values())
+        if len(lengths) > 1:
+            return str(self)
+
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
 
@@ -161,14 +169,21 @@ class ColumnDataSource(DataSource):
 
     column_data = Instance(ColumnData)
 
+    indices = Seq(Int, help="""
+        
+    """)
+    
     def __init__(self, *args, **kw):
         column_data = kw.pop('column_data', None)
         super(ColumnDataSource, self).__init__(**kw)
+        
         if column_data:
             self.column_data = column_data
         else:
             self.column_data = ColumnData(*args, **kw)
 
+        if self.indices == None:
+            self.indices = list(range(self._get_column_length()))
 
     @classmethod
     @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
@@ -238,6 +253,12 @@ class ColumnDataSource(DataSource):
         """
         self.column_data.remove(name)
 
+    def _get_column_length(self):
+        if len(self.column_data.data) > 0:
+            return len(list(self.column_data.data.values())[0])
+        else:
+            return 0
+
     @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
     def push_notebook(self):
         """ Update a data source for a plot in a Jupyter notebook.
@@ -257,12 +278,6 @@ class ColumnDataSource(DataSource):
         """
         from bokeh.io import push_notebook
         push_notebook()
-
-    @validation.error(COLUMN_LENGTHS)
-    def _check_column_lengths(self):
-        lengths = set(len(x) for x in self.column_data.data.values())
-        if len(lengths) > 1:
-            return str(self)
 
 
     def stream(self, new_data, rollover=None):

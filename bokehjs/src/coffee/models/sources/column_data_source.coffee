@@ -14,6 +14,7 @@ class ColumnDataSource extends DataSource.Model
   props: ->
     return _.extend {}, super(), {
       column_data:      [ p.Any,    {} ]
+      indices:          [ p.Array,  [] ]
     }
 
   initialize: (attrs, options)->
