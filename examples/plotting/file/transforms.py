@@ -1,33 +1,101 @@
 import numpy as np
 
-from bokeh.io import VBoxForm
+from bokeh.io import vplot, hplot
 from bokeh.plotting import figure, show, output_file
-from bokeh.models.mappers import LinearColorMapperTransform
-from bokeh.models import Slider, CustomJS
+from bokeh.models.sources import ColumnDataSource
+from bokeh.models import Slider, CustomJS, Dropdown, Toggle, Paragraph
 from bokeh.models.transforms import Jitter
 
-N = 500
-x = np.linspace(0, 10, N)
-y = np.linspace(0, 10, N)
-xx, yy = np.meshgrid(x, y)
-d = np.sin(xx)*np.cos(yy)
+N = 50
+source = ColumnDataSource(data=dict(x=[1]*N + [2]*N, xp=[1]*N + [2]*N, xplot=[1]*N + [2]*N, col=['#ab324b']*N + ['#0022aa']*N, y=np.random.random(2*N)*10))
 
-p = figure(x_range=(0, 10), y_range=(0, 10))
+jitter = Jitter(mean=0, width=0)
 
-jitter = Jitter(interval = 0.2)
-cm = LinearColorMapperTransform(palette = 'Spectral11', transform = jitter)
+p = figure(x_range=(-10,10), y_range=(0,10))
+scatter_obj = p.scatter(x='xplot', y='y', color='col', source=source, size = 10, alpha=0.5)
 
-# must give a vector of image data for image parameter
-image = p.image(image=[d], x=0, y=0, dw=10, dh=10, color_mapper = cm)
+enable_callback=CustomJS(args=dict(scatter_obj=scatter_obj, source=source, figure=p, jitter=jitter), code="""
+    if(button.get('active') == true) {
+        var data=source.get('data')
+        for (i=0; i < data['y'].length; i++) {
+            data['xplot'][i] = data['xp'][i]
+        }
+    } else {
+        var data=source.get('data')
+        for (i=0; i < data['y'].length; i++) {
+            data['xplot'][i] = data['x'][i]
+        }
+    }
+    source.trigger('change')
+    figure.trigger('change')
+""")
 
-callback = CustomJS(args=dict(image = image, jitter = jitter), code="""
-        jitter.set('interval', cb_obj.get('value'))
-        image.attributes.data_source.forceTrigger()
-    """)
+width_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
+    jitter.set('width', slider.get('value'))
+    data=source.get('data')
+    for (i=0; i < data['y'].length; i++) {
+        data['xp'][i] = jitter.compute(data['x'][i])
+    }
+    if(button.get('active') == true) {
+        var data=source.get('data')
+        for (i=0; i < data['y'].length; i++) {
+            data['xplot'][i] = data['xp'][i]
+        }
+    }
+    source.trigger('change')
+    figure.trigger('change')
+""")
 
-slider = Slider(start=0, end=4, value=jitter.interval, step=.1, title="Jitter Width", callback=callback)
+center_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
+    jitter.set('mean', slider.get('value'))
+    data=source.get('data')
+    for (i=0; i < data['y'].length; i++) {
+        data['xp'][i] = jitter.compute(data['x'][i])
+    }
+    if(button.get('active') == true) {
+        var data=source.get('data')
+        for (i=0; i < data['y'].length; i++) {
+            data['xplot'][i] = data['xp'][i]
+        }
+    }
+    source.trigger('change')
+    figure.trigger('change')
+""")
 
-output_file("image.html", title="image.py example")
+distribution_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
+    jitter.set('distribution', menu.get('value'))
+    data=source.get('data')
+    for (i=0; i < data['y'].length; i++) {
+        data['xp'][i] = jitter.compute(data['x'][i])
+    }
+    if(button.get('active') == true) {
+        var data=source.get('data')
+        for (i=0; i < data['y'].length; i++) {
+            data['xplot'][i] = data['xp'][i]
+        }
+    }
+    source.trigger('change')
+    figure.trigger('change')
+""")
 
-layout = VBoxForm(slider, p)
-show(layout)
+enable_button = Toggle(label='Enable Jitter', type='success', callback=enable_callback)
+enable_callback.args['button'] = enable_button
+
+width_slider = Slider(start=0, end=2, value=0, step=0.01, title='Width', callback=width_callback, callback_policy='continuous')
+width_callback.args['slider'] = width_slider
+width_callback.args['button'] = enable_button
+
+center_slider = Slider(start=-1, end=1, value=0, step=0.01, title='Center', callback=center_callback, callback_policy='continuous')
+center_callback.args['slider'] = center_slider
+center_callback.args['button'] = enable_button
+
+distribution_dropdown = Dropdown(label='Distribution', type='success', menu=[('Uniform', 'uniform'), ('Normal', 'normal')], callback=distribution_callback)
+distribution_callback.args['menu'] = distribution_dropdown
+distribution_callback.args['button'] = enable_button
+
+title = Paragraph(text='Jitter Parameters')
+spacer = Paragraph(text=' ')
+
+output_file("transforms.html", title="Example Transforms")
+
+show(hplot(p, vplot(enable_button, spacer, title, spacer, center_slider, width_slider, distribution_dropdown)))
