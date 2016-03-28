@@ -13,35 +13,35 @@ class ImageURLView extends Glyph.View
   _index_data: () ->
 
   _set_data: () ->
-    if not @image? or @image.length != @url.length
-      @image = (null for img in @url)
+    if not @image? or @image.length != @_url.length
+      @image = (null for img in @_url)
 
     retry_attempts = @mget('retry_attempts')
     retry_timeout = @mget('retry_timeout')
 
-    @retries = (retry_attempts for img in @url)
+    @retries = (retry_attempts for img in @_url)
 
-    for i in [0...@url.length]
+    for i in [0...@_url.length]
       img = new Image()
       img.onerror = do (i, img) =>
         return () =>
           if @retries[i] > 0
-            logger.trace("ImageURL failed to load #{@url[i]} image, retrying in #{retry_timeout} ms")
-            setTimeout((=> img.src = @url[i]), retry_timeout)
+            logger.trace("ImageURL failed to load #{@_url[i]} image, retrying in #{retry_timeout} ms")
+            setTimeout((=> img.src = @_url[i]), retry_timeout)
           else
-            logger.warn("ImageURL unable to load #{@url[i]} image after #{retry_attempts} retries")
+            logger.warn("ImageURL unable to load #{@_url[i]} image after #{retry_attempts} retries")
           @retries[i] -= 1
       img.onload = do (img, i) =>
         return () =>
           @image[i] = img
           @renderer.request_render()
-      img.src = @url[i]
+      img.src = @_url[i]
 
   _map_data: () ->
     @sw = @sdist(@renderer.xmapper, @_x, @_w, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @_y, @_h, 'edge', @mget('dilate'))
 
-  _render: (ctx, indices, {url, image, sx, sy, sw, sh, angle}) ->
+  _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
 
     # TODO (bev): take actual border width into account when clipping
     frame = @renderer.plot_view.frame
@@ -52,7 +52,7 @@ class ImageURLView extends Glyph.View
     ctx.clip()
 
     for i in indices
-      if isNaN(sx[i]+sy[i]+angle[i])
+      if isNaN(sx[i]+sy[i]+_angle[i])
         continue
 
       if @retries[i] == -1
@@ -61,7 +61,7 @@ class ImageURLView extends Glyph.View
       if not image[i]?
         continue
 
-      @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
+      @_render_image(ctx, i, image[i], sx, sy, sw, sh, _angle)
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor

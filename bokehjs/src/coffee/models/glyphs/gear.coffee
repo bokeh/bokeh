@@ -11,7 +11,7 @@ class GearView extends Glyph.View
     return @_xy_index()
 
   _map_data: () ->
-    @smodule = @sdist(@renderer.xmapper, @_x, @module, 'edge')
+    @smodule = @sdist(@renderer.xmapper, @_x, @_module, 'edge')
 
   _render: (ctx, indices, {sx, sy, smodule, _angle, _teeth, _pressure_angle, _shaft_size, _internal}) ->
     for i in indices
@@ -21,7 +21,7 @@ class GearView extends Glyph.View
 
       pitch_radius = smodule[i]*_teeth[i]/2
 
-      if internal[i]
+      if _internal[i]
         fn = GearUtils.create_internal_gear_tooth
       else
         fn = GearUtils.create_gear_tooth
