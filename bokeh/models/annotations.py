@@ -238,20 +238,21 @@ class Label(Annotation):
     The %s values for the text.
     """)
 
-    background_props = Include(FillProps, use_prefix=False, help="""
+    background_props = Include(FillProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
-    # background_fill_color = Override(default=None)
-    fill_color = Override(default='black')
+    background_fill_color = Override(default="#ffffff")
 
-    border_props = Include(LineProps, use_prefix=False, help="""
+    background_fill_alpha = Override(default=0.0)
+
+    border_props = Include(LineProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
-    # border_line_color = Override(default=None)
-    line_color = Override(default=None)
+    border_line_color = Override(default="black")
 
+    border_line_alpha = Override(default=0.0)
 
     source = Instance(DataSource, help="""
     Local data source to use when rendering annotations on the plot.

@@ -151,8 +151,8 @@ def test_Label():
     assert label.y_range_name == 'default'
     assert label.source is None
     yield check_text, label
-    yield check_background, label, None
-    yield check_border, label, None, 1.0, 1.0
+    yield check_background, label, "#ffffff", 0.0
+    yield check_border, label, "black", 1.0, 0.0
     yield (check_props, label, [
         "plot",
         "level",
