@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
@@ -8,77 +9,118 @@ class SpanView extends Renderer.View
 
   initialize: (options) ->
     super(options)
-    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.css({position: 'absolute'})
-    @$el.hide()
+    if not @mget('source')?
+      this.mset('source', new ColumnDataSource.Model())
+    @frame = @plot_model.get('frame')
+    @canvas = @plot_model.get('canvas')
+    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
+    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @set_data()
 
   bind_bokeh_events: () ->
-    if @mget('for_hover')
-      @listenTo(@model, 'change:computed_location', @_draw_span)
+    if @mget('render_mode') == 'css'
+      # dispatch CSS update immediately
+      @listenTo(@model, 'change', () ->
+        @set_data()
+        @render())
+
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @render())
+
+      @listenTo(@model, 'coords_update', () ->
+      # non-BB event triggered update
+        @_reset_coords()
+        @render())
+
     else
-      @listenTo(@model, 'change:location', @_draw_span)
+      @listenTo(@model, 'change', () ->
+        @set_data()
+        @plot_view.request_render())
+
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @plot_view.request_render())
+
+      @listenTo(@model, 'coords_update', () ->
+        @_reset_coords()
+        @plot_view.request_render())
+
+  set_data: () ->
+    super(@mget('source'))
+    @set_visuals(@mget('source'))
+
+  _set_data: () ->
+    # is called by super(set_data)
+    if @span_div?.length != @location.length
+      @span_div = (@$el.clone().addClass('spanning') for i in @location)
+
+  _reset_coords: () ->
+    @location = [@mget('location')]
+
+  _vectorize: (prop) ->
+    return (prop for i in @span_div)
 
   render: () ->
-    @_draw_span()
-
-  _draw_span: () ->
-    if @mget('for_hover')
-      loc = @mget('computed_location')
-    else
-      loc = @mget('location')
-
-    if not loc?
-      @$el.hide()
-      return
-
-    frame = @plot_model.get('frame')
-    canvas = @plot_model.get('canvas')
-    xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    if @mget('location') == null
+      @span_div[0].hide()
+      return null
 
     if @mget('dimension') == 'width'
-      stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
-      sleft = canvas.vx_to_sx(frame.get('left'))
-      width = frame.get('width')
-      height = @model.properties.line_width.value()
+      stop = @canvas.v_vy_to_sy(@_calc_dim(@location, @ymapper))
+      sleft = @_vectorize(@canvas.vx_to_sx(@frame.get('left')))
+      swidth = @_vectorize(@frame.get('width'))
+      sheight = @_vectorize(@model.properties.line_width.value())
     else
-      stop = canvas.vy_to_sy(frame.get('top'))
-      sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
-      width = @model.properties.line_width.value()
-      height = frame.get('height')
+      stop = @_vectorize(@canvas.vy_to_sy(@frame.get('top')))
+      sleft = @canvas.v_vx_to_sx(@_calc_dim(@location, @xmapper))
+      swidth = @_vectorize(@model.properties.line_width.value())
+      sheight = @_vectorize(@frame.get('height'))
 
-    if @mget("render_mode") == "css"
-      @$el.css({
-        'top': stop,
-        'left': sleft,
-        'width': "#{width}px",
-        'height': "#{height}px"
-        'z-index': 1000
-        'background-color': @model.properties.line_color.value()
-        'opacity': @model.properties.line_alpha.value()
-      })
-      @$el.show()
+    if @mget('render_mode') == 'css'
+      @_css_span(stop, sleft, swidth, sheight)
+    else
+      @_canvas_span(stop, sleft, swidth, sheight)
 
-    else if @mget("render_mode") == "canvas"
-      ctx = @plot_view.canvas_view.ctx
-      ctx.save()
+  _css_span: (stop, sleft, swidth, sheight) ->
+    for i in [0...@span_div.length]
 
+      if not @span_div[i].style?
+        @span_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-overlays')).hide()
+
+      @span_div[i].css({
+        "position": "absolute"
+        "top": "#{stop[i]}px",
+        "left": "#{sleft[i]}px",
+        "width": "#{swidth[i]}px",
+        "height": "#{sheight[i]}px"
+        "z-index": 1000
+        "background-color": "#{@line_color[i]}"
+        "opacity": "#{@line_alpha[i]}"
+        })
+      @span_div[i].show()
+
+  _canvas_span: (stop, sleft, swidth, sheight) ->
+    ctx = @plot_view.canvas_view.ctx
+    ctx.save()
+    for i in [0...@span_div.length]
       ctx.beginPath()
-      @visuals.line.set_value(ctx)
-      ctx.moveTo(sleft, stop)
+      @visuals.line.set_vectorize(ctx, i)
+      ctx.moveTo(sleft[i], stop[i])
       if @mget('dimension') == "width"
-        ctx.lineTo(sleft + width, stop)
+        ctx.lineTo(sleft[i] + swidth[i], stop[i])
       else
-        ctx.lineTo(sleft, stop + height)
+        ctx.lineTo(sleft[i], stop[i] + sheight[i])
       ctx.stroke()
-
-      ctx.restore()
+    ctx.restore()
 
   _calc_dim: (location, mapper) ->
+    vdim = []
+    for loc in location
       if @mget('location_units') == 'data'
-        vdim = mapper.map_to_target(location)
+        vdim.push(mapper.map_to_target(loc))
       else
-        vdim = location
+        vdim.push(loc)
       return vdim
 
 class Span extends Annotation.Model
@@ -90,12 +132,13 @@ class Span extends Annotation.Model
 
   props: ->
     return _.extend {}, super(), {
+      location:       [ p.NumberSpec,   null      ]
       render_mode:    [ p.RenderMode,   'canvas'  ]
       x_range_name:   [ p.String,       'default' ]
       y_range_name:   [ p.String,       'default' ]
-      location:       [ p.Number,       null      ]
       location_units: [ p.SpatialUnits, 'data'    ]
       dimension:      [ p.Dimension,    'width'   ]
+      source:         [ p.Instance                ]
     }
 
   defaults: ->
@@ -104,11 +147,16 @@ class Span extends Annotation.Model
       line_color: 'black'
 
       # internal
-      for_hover: false
+      silent_update: false
     }
 
   nonserializable_attribute_names: () ->
-    super().concat(['for_hover', 'computed_location'])
+    super().concat(['silent_update'])
+
+  update:({location}) ->
+    @set({location: location}, {silent: @get('silent_update')})
+    if @get('silent_update')
+      @trigger('coords_update')
 
 module.exports =
   Model: Span

@@ -16,17 +16,17 @@ class CrosshairToolView extends InspectTool.View
     for dim in @mget('dimensions')
       span = @mget('spans')[dim]
       if not frame.contains(vx, vy)
-        span.unset('computed_location')
+        span.update({'location': null})
       else
         if dim == "width"
-          span.set('computed_location', vy)
+          span.update({'location': vy})
         else
-          span.set('computed_location', vx)
+          span.update({'location': vx})
 
   _move_exit: (e)->
     for dim in @mget('dimensions')
       span = @mget('spans')[dim]
-      span.unset('computed_location')
+      span.update({'location': null})
 
 class CrosshairTool extends InspectTool.Model
   default_view: CrosshairToolView
@@ -52,7 +52,6 @@ class CrosshairTool extends InspectTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-
     @register_property('tooltip', () ->
         @_get_dim_tooltip(
           "Crosshair",
@@ -63,7 +62,7 @@ class CrosshairTool extends InspectTool.Model
 
     @set('spans', {
       width: new Span.Model({
-        for_hover: true
+        silent_update: true
         dimension: "width",
         render_mode: @get("render_mode")
         location_units: @get("location_units")
@@ -72,7 +71,7 @@ class CrosshairTool extends InspectTool.Model
         line_alpha: @get('line_alpha')
       }),
       height: new Span.Model({
-        for_hover: true
+        silent_update: true
         dimension: "height"
         render_mode: @get("render_mode")
         location_units: @get("location_units")

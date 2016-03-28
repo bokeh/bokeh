@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation, Span
+from bokeh.models.annotations import Legend, BoxAnnotation, Span, PolyAnnotation
 from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -43,9 +43,9 @@ def check_props(annotation, *props):
     assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
     assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
-def check_fill(annotation):
-    assert annotation.fill_color == '#fff9ba'
-    assert annotation.fill_alpha == 0.4
+def check_fill(annotation, fill_color='#fff9ba', fill_alpha=0.4):
+    assert annotation.fill_color == fill_color
+    assert annotation.fill_alpha == fill_alpha
 
 def check_background(annotation):
     assert annotation.background_fill_color == '#ffffff'
@@ -101,6 +101,7 @@ def test_BoxAnnotation():
     assert box.bottom_units == 'data'
     assert box.top == None
     assert box.top_units == 'data'
+    assert box.source == None
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
     assert box.level == 'annotation'
@@ -117,6 +118,32 @@ def test_BoxAnnotation():
         "bottom_units",
         "top",
         "top_units",
+        "source",
+        "x_range_name",
+        "y_range_name",
+        "level",
+    ], LINE, FILL)
+
+def test_PolyAnnotation():
+    poly = PolyAnnotation()
+    assert poly.plot is None
+    assert poly.xs is None
+    assert poly.xs_units == 'data'
+    assert poly.ys is None
+    assert poly.ys_units == 'data'
+    assert poly.source is None
+    assert poly.x_range_name == 'default'
+    assert poly.y_range_name == 'default'
+    assert poly.level == 'annotation'
+    yield check_line, poly, "#cccccc", 1.0, 0.3
+    yield check_fill, poly, "#fff9ba", 0.4
+    yield (check_props, poly, [
+        "plot",
+        "xs",
+        "xs_units",
+        "ys",
+        "ys_units",
+        "source",
         "x_range_name",
         "y_range_name",
         "level",
@@ -128,6 +155,7 @@ def test_Span():
     assert line.location is None
     assert line.location_units == 'data'
     assert line.dimension == 'width'
+    assert line.source == None
     assert line.x_range_name == 'default'
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
@@ -138,6 +166,7 @@ def test_Span():
         "location",
         "location_units",
         "dimension",
+        "source",
         "x_range_name",
         "y_range_name",
         "level",

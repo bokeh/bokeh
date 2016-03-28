@@ -14,6 +14,7 @@ from ..core.properties import (
     Include, NumberSpec, Either, Auto, Float, Override, Seq
 )
 from ..util.deprecate import deprecated
+from .sources import DataSource
 from .renderers import Renderer, GlyphRenderer
 
 @abstract
@@ -111,8 +112,9 @@ class BoxAnnotation(Annotation):
 
     """
 
-    left = Either(Auto, NumberSpec(), default=None, help="""
-    The x-coordinates of the left edge of the box annotation.
+    left = NumberSpec(default=None, help="""
+    The x-coordinates of the left edge of the box annotation. If value is set
+    to `None`, the box annotation will continue to the edge of the plot area.
     """)
 
     left_units = Enum(SpatialUnits, default='data', help="""
@@ -120,8 +122,9 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    right = Either(Auto, NumberSpec(), default=None, help="""
-    The x-coordinates of the right edge of the box annotation.
+    right = NumberSpec(default=None, help="""
+    The x-coordinates of the right edge of the box annotation. If value is set
+    to `None`, the box annotation will continue to the edge of the plot area.
     """)
 
     right_units = Enum(SpatialUnits, default='data', help="""
@@ -129,8 +132,9 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    bottom = Either(Auto, NumberSpec(), default=None, help="""
-    The y-coordinates of the bottom edge of the box annotation.
+    bottom = NumberSpec(default=None, help="""
+    The y-coordinates of the bottom edge of the box annotation. If value is set
+    to `None`, the box annotation will continue to the edge of the plot area.
     """)
 
     bottom_units = Enum(SpatialUnits, default='data', help="""
@@ -138,13 +142,18 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    top = Either(Auto, NumberSpec(), default=None, help="""
-    The y-coordinates of the top edge of the box annotation.
+    top = NumberSpec(default=None, help="""
+    The y-coordinates of the top edge of the box annotation. If value is set
+    to `None`, the box annotation will continue to the edge of the plot area.
     """)
 
     top_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as "data space" units
     by default.
+    """)
+
+    source = Instance(DataSource, default=None, help="""
+    Local data source to use when rendering annotations on the plot.
     """)
 
     x_range_name = String('default', help="""
@@ -188,8 +197,8 @@ class PolyAnnotation(Annotation):
 
     """
 
-    xs = Seq(Float, default=[], help="""
-    The x-coordinates of the region to draw.
+    xs = NumberSpec(help="""
+    The x-coordinates for all the patches, given as a "list of lists".
     """)
 
     xs_units = Enum(SpatialUnits, default='data', help="""
@@ -197,13 +206,17 @@ class PolyAnnotation(Annotation):
     by default.
     """)
 
-    ys = Seq(Float, default=[], help="""
-    The y-coordinates of the region to draw.
+    ys = NumberSpec(help="""
+    The y-coordinates for all the poly annotations, given as a "list of lists".
     """)
 
     ys_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the ys attribute. Interpreted as "data space" units
     by default.
+    """)
+
+    source = Instance(DataSource, default=None, help="""
+    Local data source to use when rendering annotations on the plot.
     """)
 
     x_range_name = String('default', help="""
@@ -237,7 +250,7 @@ class Span(Annotation):
 
     """
 
-    location = Float(help="""
+    location = NumberSpec(help="""
     The location of the span, along ``dimension``.
     """)
 
@@ -248,6 +261,10 @@ class Span(Annotation):
 
     dimension = Enum(Dimension, default='width', help="""
     The direction of the span.
+    """)
+
+    source = Instance(DataSource, default=None, help="""
+    Local data source to use when rendering annotations on the plot.
     """)
 
     x_range_name = String('default', help="""

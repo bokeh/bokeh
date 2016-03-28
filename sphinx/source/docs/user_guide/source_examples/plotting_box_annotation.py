@@ -14,11 +14,9 @@ p = figure(x_axis_type="datetime", tools=TOOLS)
 p.line(data.index.to_series(), data['glucose'],
        line_color="gray", line_width=1, legend="glucose")
 
-low_box = BoxAnnotation(plot=p, top=80, fill_alpha=0.1, fill_color='red')
-mid_box = BoxAnnotation(plot=p, bottom=80, top=180, fill_alpha=0.1, fill_color='green')
-high_box = BoxAnnotation(plot=p, bottom=180, fill_alpha=0.1, fill_color='red')
-
-p.renderers.extend([low_box, mid_box, high_box])
+p.add_annotation(BoxAnnotation(top=80, fill_alpha=0.1, fill_color='red'))
+p.add_annotation(BoxAnnotation(top=180, bottom=80, fill_alpha=0.1, fill_color='green'))
+p.add_annotation(BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red'))
 
 p.title = "Glucose Range"
 p.xgrid[0].grid_line_color=None

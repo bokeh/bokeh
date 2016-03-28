@@ -1,49 +1,88 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
 class PolyAnnotationView extends Renderer.View
+  initialize: (options) ->
+    super(options)
+    if not @mget('source')?
+      this.mset('source', new ColumnDataSource.Model())
+    @canvas = @plot_model.get('canvas')
+    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
+    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @set_data()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'data_update', @plot_view.request_render)
+    @listenTo(@model, 'coords_update', () ->
+      @_reset_coords()
+      @plot_view.request_render())
 
-  render: (ctx) ->
-    xs = @mget('xs')
-    ys = @mget('ys')
+    @listenTo(@model, 'change', () ->
+      @set_data()
+      @plot_view.request_render())
 
-    if xs.length != ys.length
-      return null
+    @listenTo(@mget('source'), 'change', () ->
+      @set_data()
+      @plot_view.request_render())
 
-    if xs.length < 3 or ys.length < 3
-      return null
+  set_data: () ->
+    super(@mget('source'))
+    @set_visuals(@mget('source'))
+    # handle case where single poly annotation is passed in
+    if not _.isArray(@xs[0])
+      @xs = [@xs]
+      @ys = [@ys]
 
-    canvas = @plot_view.canvas
+  _reset_coords: () ->
+    if _.isArray(this.mget('source').get_column('xs')[0])
+      @xs = this.mget('source').get_column('xs')
+      @ys = this.mget('source').get_column('ys')
+    else
+      @xs = [this.mget('source').get_column('xs')]
+      @ys = [this.mget('source').get_column('ys')]
+
+  render: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    for i in [0...xs.length]
-      if @mget('xs_units') == 'screen'
-        vx = xs[i]
-      if @mget('ys_units') == 'screen'
-        vy = ys[i]
-      sx = canvas.vx_to_sx(vx)
-      sy = canvas.vy_to_sy(vy)
-      if i == 0
-        ctx.beginPath()
-        ctx.moveTo(sx, sy)
+    for i in [0...@xs.length]
+
+      if @xs[i].length != @ys[i].length
+        return null
+
+      if @xs[i].length < 3 or @ys[i].length < 3
+        return null
+
+      sx = @canvas.v_vx_to_sx(@_calc_dim(@xs[i], @mget('xs_units'), @xmapper))
+      sy = @canvas.v_vy_to_sy(@_calc_dim(@ys[i], @mget('ys_units'), @ymapper))
+
+      ctx.beginPath()
+      ctx.moveTo(sx[0], sy[0])
+
+      for j in [1...sx.length]
+        ctx.lineTo(sx[j], sy[j])
+
+      ctx.closePath()
+
+      if @visuals.line.doit
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
+
+      if @visuals.fill.doit
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+
+  _calc_dim: (dim, dim_units, mapper) ->
+    vdim = []
+    for value in dim
+      if dim_units == 'data'
+        vdim.push(mapper.map_to_target(value))
       else
-        ctx.lineTo(sx, sy)
+        vdim.push(value)
+    return vdim
 
-    ctx.closePath()
-
-    if @visuals.line.doit
-      @visuals.line.set_value(ctx)
-      ctx.stroke()
-
-    if @visuals.fill.doit
-      @visuals.fill.set_value(ctx)
-      ctx.fill()
 
 class PolyAnnotation extends Annotation.Model
   default_view: PolyAnnotationView
@@ -54,12 +93,13 @@ class PolyAnnotation extends Annotation.Model
 
   props: ->
     return _.extend {}, super(), {
-      xs:           [ p.Array,        []        ]
+      xs:           [ p.NumberSpec,   null      ]
       xs_units:     [ p.SpatialUnits, 'data'    ]
-      ys:           [ p.Array,        []        ]
+      ys:           [ p.NumberSpec,   null      ]
       ys_units:     [ p.SpatialUnits, 'data'    ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]
+      source:       [ p.Instance                ]
     }
 
   defaults: () ->
@@ -79,12 +119,10 @@ class PolyAnnotation extends Annotation.Model
     super().concat(['silent_update'])
 
   update:({xs, ys}) ->
+    #need to set values on data_source not model to avoid validation error
+    @get('source').set('data', {xs: xs, ys: ys}, {silent: @get('silent_update')})
     if @get('silent_update')
-      @attributes['xs'] = xs
-      @attributes['ys'] = ys
-    else
-      @set({xs: xs, ys: ys})
-    @trigger('data_update')
+      @trigger('coords_update')
 
 module.exports =
   Model: PolyAnnotation
