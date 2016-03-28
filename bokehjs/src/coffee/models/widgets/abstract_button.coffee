@@ -9,7 +9,7 @@ class AbstractButton extends Widget.Model
   @define {
       callback:    [ p.Instance          ]
       label:       [ p.String, "Button"  ]
-      icon:        [ p.String            ]
+      icon:        [ p.Instance          ]
       button_type: [ p.String, "default" ] # TODO (bev)
     }
 
