@@ -1,0 +1,7 @@
+Building off a direct copy from havoc, take the learnings from scratch_new_layout_7 about having the axes 
+get the space they need
+
+Things basically working:
+* axes all line up
+* works even when plots are small
+

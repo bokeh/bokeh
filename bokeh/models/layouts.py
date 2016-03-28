@@ -71,12 +71,20 @@ class HBox(BaseBox):
     """
 
 
+class Row(HBox):
+    pass
+
+
 class VBox(BaseBox):
     """ Lay out child components in a single vertical row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
     """
+
+
+class Column(VBox):
+    pass
 
 
 # parent class only, you need to set the fields you want
