@@ -368,10 +368,16 @@ class HasProps extends Backbone.Model
     _.values(result)
 
   attach_document: (doc) ->
-    if @document != null and @document != doc
-      throw new Error("Models must be owned by only a single document")
+    if @document != null
+      if @document != doc
+        throw new Error("models must be owned by only a single document")
+      else
+        @document._notify_attach(@)
+        return
+
     first_attach = @document == null
     @document = doc
+
     if doc != null
       doc._notify_attach(@)
       if first_attach
