@@ -54,14 +54,17 @@ class LabelView extends Renderer.View
     if @mget('x_units') == "data"
       vx = @xmapper.v_map_to_target(@x)
     else
-      vx = @x
-    @sx = @canvas.v_vx_to_sx(vx)
+      vx = @x.slice(0) # make deep copy to not mutate
+    sx = @canvas.v_vx_to_sx(vx)
 
     if @mget('y_units') == "data"
       vy = @ymapper.v_map_to_target(@y)
     else
-      vy = @y
-    @sy = @canvas.v_vy_to_sy(vy)
+      vy = @y.slice(0) # make deep copy to not mutate
+
+    sy = @canvas.v_vy_to_sy(vy)
+
+    return [sx, sy]
 
   _calculate_offset: (ctx, height, width) ->
     if ctx.textAlign == 'left'
@@ -85,8 +88,7 @@ class LabelView extends Renderer.View
     return [x_shift, y_shift]
 
   render: () ->
-    @_map_data()
-
+    [@sx, @sy] = @_map_data()
     if @mget('render_mode') == 'canvas'
       @_canvas_text()
     else
@@ -137,12 +139,12 @@ class LabelView extends Renderer.View
           'left': "#{@sx[i] + @x_offset[i] + @x_shift[i]}px"
           'color': "#{@text_color[i]}"
           'opacity': "#{@text_alpha[i]}"
+          'font-size': "#{@text_font_size[i]}"
+          'font-family': "#{@mget('text_font')}"
           'background-color': "#{@visuals.background_fill.color_value()}"
           'border-style': "#{@line_dash}"
           'border-width': "#{@border_line_width[i]}"
           'border-color': "#{@visuals.border_line.color_value()}"
-          'font-size': "#{@text_font_size[i]}"
-          'font-family': "#{@mget('text_font')}"
           })
         .show()
 
