@@ -146,10 +146,9 @@ class Legend extends Annotation.Model
 
   type: 'Legend'
 
-  mixins: ['text:label_', 'line:border_', 'fill:background_']
+  @mixins ['text:label_', 'line:border_', 'fill:background_']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       legends:        [ p.Array,          []          ]
       orientation:    [ p.Orientation,    'vertical'  ]
       location:       [ p.Any,            'top_right' ] # TODO (bev)

@@ -9,8 +9,7 @@ class TableColumn extends Model
   type: 'TableColumn'
   default_view: null
 
-  props:  ->
-    return _.extend {}, super(), {
+  @define {
       field:        [ p.String                                      ]
       title:        [ p.String                                      ]
       width:        [ p.Number,   300                               ]

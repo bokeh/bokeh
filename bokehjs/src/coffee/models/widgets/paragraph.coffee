@@ -24,8 +24,7 @@ class Paragraph extends Markup.Model
   type: "Paragraph"
   default_view: ParagraphView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       text: [ p.String, '' ]
     }
 

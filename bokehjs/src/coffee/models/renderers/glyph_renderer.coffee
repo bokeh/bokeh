@@ -224,8 +224,7 @@ class GlyphRenderer extends Renderer.Model
 
   type: 'GlyphRenderer'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       level:              [ p.RenderLevel, 'glyph'   ]
       x_range_name:       [ p.String,      'default' ]
       y_range_name:       [ p.String,      'default' ]

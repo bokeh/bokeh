@@ -40,10 +40,9 @@ class TapTool extends SelectTool.Model
   event_type: "tap"
   default_order: 10
 
-  props: ->
-    return _.extend({}, super(), {
+  @define {
       callback: [ p.Instance ]
-    })
+    }
 
 module.exports =
   Model: TapTool

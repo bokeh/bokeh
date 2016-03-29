@@ -7,8 +7,7 @@ p = require "../../core/properties"
 class ColumnData extends DataSource.Model
   type: 'ColumnData'
   
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       data:              [ p.Any,      {} ]
       column_names:      [ p.Array,    [] ]
     }
@@ -23,7 +22,6 @@ class ColumnData extends DataSource.Model
 
   nonserializable_attribute_names: () ->
     super().concat(['selection_manager', 'inspected'])
-
 
   get_column: (colname) ->
     return @get('data')[colname] ? null
