@@ -11,6 +11,8 @@ source = ColumnDataSource(data=dict(height=[66, 71, 72, 68, 58, 62],
 p = figure(title='Dist. of 10th Grade Students at Lee High',
            x_range=Range1d(140, 275))
 p.scatter(x='weight', y='height', size=8, source=source)
+p.xaxis[0].axis_label = 'Weight (lbs)'
+p.yaxis[0].axis_label = 'Height (in)'
 
 label = Label(x='weight', y='height', text='names', level='glyph',
               x_offset=5, y_offset=-5, source=source)
