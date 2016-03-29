@@ -4,17 +4,7 @@ utils = require "./utils"
 
 Model = utils.require "model"
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
-base = utils.require "base"
-Collection = utils.require "common/collection"
-
-make_collection = (model) ->
-  class C extends Collection
-    model: model
-  return new C()
-
-register_test_collection = (name, model) ->
-  C = make_collection(model)
-  base.collection_overrides[name] = C
+{Models} = utils.require "base"
 
 class AnotherModel extends Model
   type: 'AnotherModel'
@@ -23,7 +13,7 @@ class AnotherModel extends Model
       bar: 1
     }
 
-register_test_collection('AnotherModel', AnotherModel)
+Models.register('AnotherModel', AnotherModel)
 
 class SomeModel extends Model
   type: 'SomeModel'
@@ -33,7 +23,7 @@ class SomeModel extends Model
       child: null
     }
 
-register_test_collection('SomeModel', SomeModel)
+Models.register('SomeModel', SomeModel)
 
 class SomeModelWithChildren extends Model
   type: 'SomeModelWithChildren'
@@ -42,7 +32,7 @@ class SomeModelWithChildren extends Model
       children: []
     }
 
-register_test_collection('SomeModelWithChildren', SomeModelWithChildren)
+Models.register('SomeModelWithChildren', SomeModelWithChildren)
 
 class ModelWithConstructTimeChanges extends Model
   type: 'ModelWithConstructTimeChanges'
@@ -58,7 +48,7 @@ class ModelWithConstructTimeChanges extends Model
       child: null
     }
 
-register_test_collection('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
+Models.register('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
 
 class ComplicatedModelWithConstructTimeChanges extends Model
   type: 'ComplicatedModelWithConstructTimeChanges'
@@ -75,7 +65,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model
       # test the case where we have none of the attributes to begin with
     }
 
-register_test_collection('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
+Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 describe "Document", ->
 
