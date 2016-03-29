@@ -25,7 +25,6 @@ Bokeh.index             = require("./base").index
 Bokeh.embed             = require("./embed")
 
 Bokeh.Models            = require("./base").Models
-Bokeh.Config            = require("./base").Config
 
 _.extend(Bokeh, require("./api"))
 

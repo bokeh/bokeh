@@ -1,18 +1,9 @@
 _ = require "underscore"
-window = {location: {href: "local"}} unless window?
 
 {logger} = require "./core/logging"
 
 # add some useful functions to underscore
 require("./core/util/underscore").patch()
-
-Config = {}
-url = window.location.href
-if url.indexOf('/bokeh') > 0
-  Config.prefix = url.slice(0, url.lastIndexOf('/bokeh')) + "/" #keep trailing slash
-else
-  Config.prefix = '/'
-console.log('Bokeh: setting prefix to', Config.prefix)
 
 locations = require("./common/models")
 
@@ -80,4 +71,3 @@ module.exports =
   overrides: overrides # for testing only
   index: index
   Models: Models
-  Config: Config
