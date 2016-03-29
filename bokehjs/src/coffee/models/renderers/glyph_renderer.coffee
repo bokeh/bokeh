@@ -102,7 +102,7 @@ class GlyphRendererView extends Renderer.View
     if request_render
       @request_render()
 
-  render: () ->
+  _do_render: () ->
     t0 = Date.now()
 
     glsupport = @glyph.glglyph

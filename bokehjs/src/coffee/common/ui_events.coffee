@@ -89,9 +89,27 @@ class UIEvents extends Backbone.Model
       tool_view.listenTo(@, "doubletap", tool_view._doubletap)
 
   _trigger: (event_type, e) ->
-    tm = @get('tool_manager')
-    base_event_type = event_type.split(":")[0]
+    pv = @get('plot_view')
+    tm = pv.mget('tool_manager')
+
+    switch event_type
+      when 'tap'
+        for view in pv.renderer_views()
+          if view.bbox?().contains(e.bokeh.sx, e.bokeh.sy)
+              view.onHit?(e.bokeh.sx, e.bokeh.sy)
+      when 'scroll'
+        HoverTool = require("../models/tools/inspectors/hover_tool")
+        hovers = (tool for tool in tm.get('tools') when tool instanceof HoverTool.Model)
+
+        for hover in hovers
+          for rid, tt of hover.get("ttmodels")
+            if tt.get("active")
+              e.preventDefault()
+              e.stopPropagation()
+              tt.trigger("scroll", e.bokeh.delta)
+
     gestures = tm.get('gestures')
+    base_event_type = event_type.split(":")[0]
     active_tool = gestures[base_event_type].active
     if active_tool?
       @_trigger_event(event_type, active_tool, e)

@@ -19,6 +19,15 @@ class DataSource(Model):
 
     """
 
+    # TODO: `selected' is NOT a dictionary. A better (but impossible right now)
+    # approximation is this:
+    #
+    # selected = NamedTuple(
+    #     _0d=NamedTuple(indices=List(Int), glyph=Option(Glyph)),
+    #     _1d=NamedTuple(indices=List(Int)),
+    #     _2d=NamedTuple(indices=List(List(Int))),
+    # )
+
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},

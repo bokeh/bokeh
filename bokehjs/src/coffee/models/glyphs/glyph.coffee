@@ -24,16 +24,13 @@ class GlyphView extends Renderer.View
         @_init_gl(ctx.glcanvas.gl)
 
   render: (ctx, indices, data) ->
+    ctx.beginPath()
 
-    if @mget("visible")
-      ctx.beginPath();
+    if @glglyph?
+      if @_render_gl(ctx, indices, data)
+        return
 
-      if @glglyph?
-        if @_render_gl(ctx, indices, data)
-          return
-
-      @_render(ctx, indices, data)
-
+    @_render(ctx, indices, data)
     return
 
   _render_gl: (ctx, indices, mainglyph) ->
@@ -174,7 +171,6 @@ class Glyph extends Renderer.Model
 
   props: ->
     return _.extend {}, super(), {
-      visible: [ p.Bool, true ]
     }
 
 module.exports =

@@ -1,5 +1,6 @@
 _ = require "underscore"
 
+{BBox} = require "../../core/util/bbox"
 Annotation = require "./annotation"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
@@ -11,7 +12,7 @@ class LegendView extends Renderer.View
     @need_calc_dims = true
     @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
-  calc_dims: (options) ->
+  calc_dims: () ->
     legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
 
     glyph_height = @mget('glyph_height')
@@ -89,6 +90,32 @@ class LegendView extends Renderer.View
     y = @plot_view.canvas.vy_to_sy(y)
     @box_coords = [x,y]
 
+  bbox: () ->
+    [x, y] = @box_coords
+    w = @legend_width
+    h = @legend_height
+    return new BBox(x, y, x+w, y+h)
+
+  _bboxes: () ->
+    [x0, y0] = @box_coords
+    w = @legend_width
+    h = @legend_height
+    n = @mget("legends").length
+
+    if @mget("orientation") == "vertical"
+      ( new BBox(x0, y0 + k*h/n, x0+w, y0 + (k+1)*h/n) for k in [0...n] )
+    else
+      ( new BBox(x0 + k*w/n, y0, x0 + (k+1)*w/n, y0+h) for k in [0...n] )
+
+  onHit: (x, y) ->
+    for bbox, i in @_bboxes()
+      if bbox.contains(x, y)
+        renderers = @mget("legends")[i][1]
+        for renderer in renderers
+          renderer.set("visible", not renderer.get("visible"))
+
+    return
+
   render: () ->
     if @need_calc_dims
       @calc_dims()
@@ -102,9 +129,7 @@ class LegendView extends Renderer.View
     ctx.save()
 
     ctx.beginPath()
-    ctx.rect(@box_coords[0], @box_coords[1],
-      @legend_width, @legend_height
-    )
+    ctx.rect(@box_coords[0], @box_coords[1], @legend_width, @legend_height)
 
     @visuals.background_fill.set_value(ctx)
     ctx.fill()
@@ -117,6 +142,8 @@ class LegendView extends Renderer.View
 
     xoffset = 0
     for [legend_name, glyphs], idx in @mget("legends")
+      visible = _.every(glyphs, (r) -> r.get("visible"))
+
       if orientation == "vertical"
         yoffset = idx * @legend_height / N
         x1 = @box_coords[0] + legend_spacing
@@ -138,6 +165,16 @@ class LegendView extends Renderer.View
       for renderer in glyphs
         view = @plot_view.renderers[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
+
+      if not visible
+        @visuals.border_line.set_value(ctx)
+        bbox = @_bboxes()[idx]
+        ctx.beginPath()
+        ctx.moveTo(bbox.x0, bbox.y0)
+        ctx.lineTo(bbox.x1, bbox.y1)
+        ctx.moveTo(bbox.x0, bbox.y1)
+        ctx.lineTo(bbox.x1, bbox.y0)
+        ctx.stroke()
 
     ctx.restore()
 

@@ -9,8 +9,17 @@ class TapToolView extends SelectTool.View
     canvas = @plot_view.canvas
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    append = e.srcEvent.shiftKey ? false
-    @_select(vx, vy, true, append)
+
+    hits_legend = () =>
+      Legend = require("../../annotations/legend")
+      for view in @plot_view.renderer_views()
+        if view instanceof Legend.View and view.bbox().contains(vx, vy)
+          return true
+      return false
+
+    if @plot_view.frame.contains(vx, vy) and not hits_legend()
+      append = e.srcEvent.shiftKey ? false
+      @_select(vx, vy, true, append)
 
   _select: (vx, vy, final, append) ->
     geometry = {

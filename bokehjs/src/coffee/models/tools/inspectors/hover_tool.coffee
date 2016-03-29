@@ -31,16 +31,24 @@ class HoverToolView extends InspectTool.View
   _move: (e) ->
     if not @mget('active')
       return
+
     canvas = @plot_view.canvas
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    if not @plot_view.frame.contains(vx, vy)
-      for rid, tt of @mget('ttmodels')
-        tt.clear()
-      return
-    @_inspect(vx, vy)
 
-  _move_exit: ()->
+    hits_legend = () =>
+      Legend = require("../../annotations/legend")
+      for view in @plot_view.renderer_views()
+        if view instanceof Legend.View and view.bbox().contains(vx, vy)
+          return true
+      return false
+
+    if @plot_view.frame.contains(vx, vy) and not hits_legend()
+      @_inspect(vx, vy)
+    else
+      @_move_exit()
+
+  _move_exit: () ->
     for rid, tt of @mget('ttmodels')
       tt.clear()
 
@@ -72,15 +80,14 @@ class HoverToolView extends InspectTool.View
 
     return
 
-  _update: (indices, tool, renderer, ds, {geometry}) ->
+  _update: (inspected, tool, renderer, ds, {geometry}) ->
     tooltip = @mget('ttmodels')[renderer.model.id] ? null
     if not tooltip?
       return
 
-    tooltip.clear()
-
-    [i1d, i2d] = [indices['1d'].indices, indices['2d'].indices]
-    if indices['0d'].glyph == null and i1d.length == 0 and i2d.length == 0
+    [i1d, i2d] = [inspected['1d'].indices, inspected['2d'].indices]
+    if inspected['0d'].glyph == null and i1d.length == 0 and i2d.length == 0
+      tooltip.clear()
       return
 
     vx = geometry.vx
@@ -97,7 +104,9 @@ class HoverToolView extends InspectTool.View
     x = xmapper.map_from_target(vx)
     y = ymapper.map_from_target(vy)
 
-    for i in indices['0d'].indices
+    tooltips = []
+
+    for i in inspected['0d'].indices
       data_x = renderer.glyph.x[i+1]
       data_y = renderer.glyph.y[i+1]
 
@@ -133,14 +142,13 @@ class HoverToolView extends InspectTool.View
         data_y = renderer.glyph.y[i]
         rx = canvas.sx_to_vx(sdatax)
         ry = canvas.sy_to_vy(sdatay)
-
       else
-          [rx, ry] = [vx, vy]
+        [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
-      tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+      tooltips.push([rx, ry, @_render_tooltips(ds, i, vars)])
 
-    for i in indices['1d'].indices
+    for i in inspected['1d'].indices
       # patches will not have .x, .y attributes, for instance
       data_x = renderer.glyph.x?[i]
       data_y = renderer.glyph.y?[i]
@@ -154,8 +162,9 @@ class HoverToolView extends InspectTool.View
         [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+      tooltips.push([rx, ry, @_render_tooltips(ds, i, vars)])
 
-      tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+    tooltip.set('data', tooltips)
 
     return null
 

@@ -21,8 +21,11 @@ from .tiles import TileSource, WMTSTileSource
 
 @abstract
 class Renderer(Model):
-    """An abstract base class for renderer types.
-    """
+    """An abstract base class for renderer types.  """
+
+    visible = Bool(True, help="""
+    Whether this renderer should be drawn to the canvas.
+    """)
 
 @abstract
 class DataRenderer(Renderer):

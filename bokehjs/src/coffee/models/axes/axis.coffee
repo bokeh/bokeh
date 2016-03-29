@@ -154,10 +154,7 @@ class AxisView extends Renderer.View
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 
-  render: () ->
-    if not @mget('visible')
-      return
-
+  _do_render: () ->
     ctx = @plot_view.canvas_view.ctx
 
     ctx.save()
@@ -307,7 +304,6 @@ class Axis extends GuideRenderer.Model
 
   props: ->
     return _.extend {}, super(), {
-      visible:        [ p.Bool,     true      ]
       location:       [ p.String,   'auto'    ] # TODO (bev) enum
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)
       ticker:         [ p.Instance, null      ]

@@ -174,9 +174,17 @@ class RendererView extends BokehView
       @visuals[prefix+name] = new VISUALS[name]({obj: @model, prefix: prefix})
 
   bind_bokeh_events: () ->
+    @listenTo(@model, "visible:change", () => @request_render())
 
   request_render: () ->
     @plot_view.request_render()
+
+  # final
+  render: () ->
+    if @mget("visible")
+      @_do_render()
+
+  _do_render: () ->
 
   map_data: () ->
     # todo: if using gl, skip this (when is this called?)
@@ -275,7 +283,9 @@ class Renderer extends Model
   coords: []
 
   props: ->
-    return _.extend {}, super(), @_coords()
+    return _.extend {}, super(), @_coords(), {
+      visible: [ p.Bool, true]
+    }
 
   _coords: ->
     result = {}
