@@ -103,11 +103,10 @@ class BoxZoomTool extends GestureTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions: [ p.Array,    ["width", "height"] ]
       overlay:    [ p.Instance, DEFAULT_BOX_OVERLAY ]
-    })
+    }
 
 module.exports =
   Model: BoxZoomTool

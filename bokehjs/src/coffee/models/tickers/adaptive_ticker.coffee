@@ -19,8 +19,7 @@ log = (x, base=Math.E) ->
 class AdaptiveTicker extends ContinuousTicker.Model
   type: 'AdaptiveTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       base:         [ p.Number, 10.0      ]
       mantissas:    [ p.Array,  [1, 2, 5] ]
       min_interval: [ p.Number, 0.0       ]

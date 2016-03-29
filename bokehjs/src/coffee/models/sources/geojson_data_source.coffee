@@ -7,11 +7,9 @@ p = require "../../core/properties"
 class GeoJSONDataSource extends ColumnDataSource.Model
   type: 'GeoJSONDataSource'
 
-  props: ->
-    return _.extend({}, super(), {
+  @define {
       geojson: [ p.Any     ] # TODO (bev)
-      data:    [ p.Any, {} ]
-    })
+    }
 
   # TODO (bev) investigate, exists on python side
   # nonserializable_attribute_names: () ->

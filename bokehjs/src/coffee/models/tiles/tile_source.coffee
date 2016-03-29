@@ -9,8 +9,7 @@ Model = require "../../model"
 class TileSource extends Model
   type: 'TileSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       url:            [ p.String, ''  ]
       tile_size:      [ p.Number, 256 ]
       max_zoom:       [ p.Number, 30  ]

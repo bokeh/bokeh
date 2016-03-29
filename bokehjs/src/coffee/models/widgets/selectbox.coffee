@@ -33,8 +33,7 @@ class Select extends InputWidget.Model
   type: "Select"
   default_view: SelectView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       value:   [ p.String, '' ]
       options: [ p.Any,    [] ] # TODO (bev) is this used?
     }

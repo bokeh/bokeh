@@ -1,3 +1,5 @@
+_ = require("underscore")
+
 Bokeh = {}
 Bokeh.require = require
 Bokeh.version = '0.11.1'
@@ -24,6 +26,8 @@ Bokeh.embed             = require("./embed")
 
 Bokeh.Collections       = require("./base").Collections
 Bokeh.Config            = require("./base").Config
+
+_.extend(Bokeh, require("./api"))
 
 # Here for backwards capability?
 Bokeh.Bokeh = Bokeh

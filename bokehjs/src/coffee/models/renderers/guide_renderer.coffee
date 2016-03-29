@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class GuideRenderer extends Renderer.Model
   type: 'GuideRenderer'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       level: [ p.RenderLevel, 'overlay' ]
       plot:  [ p.Instance               ]
     }
