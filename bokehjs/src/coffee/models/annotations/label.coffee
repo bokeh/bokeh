@@ -177,16 +177,16 @@ class Label extends Annotation.Model
       source:       [ p.Instance                        ]
       x_range_name: [ p.String,      'default'          ]
       y_range_name: [ p.String,      'default'          ]
-      render_mode:  [ p.RenderMode,  'canvas'           ]
+      render_mode:  [ p.TextRenderMode,  'canvas'       ]
     }
 
   defaults: ->
     return _.extend {}, super(), {
       #overrides
       background_fill_color: "#ffffff"
-      background_fill_alpha: 0.0
-      border_line_color: 'black'
-      border_line_alpha: 0.0
+      background_fill_alpha: 1.0
+      border_line_color: '#ffffff'
+      border_line_alpha: 1.0
     }
 
 module.exports =
