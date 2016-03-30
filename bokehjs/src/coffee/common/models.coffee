@@ -35,6 +35,7 @@ module.exports = {
   Arc:                      require '../models/glyphs/arc'
   Bezier:                   require '../models/glyphs/bezier'
   Circle:                   require '../models/glyphs/circle'
+  Ellipse:                  require '../models/glyphs/ellipse'
   Gear:                     require '../models/glyphs/gear'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
