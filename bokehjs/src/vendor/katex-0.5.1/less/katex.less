@@ -1,0 +1,524 @@
+@import "path.less";
+
+// The mu unit is defined as 1/18 em
+@mu: 1.0/18.0em;
+
+.katex-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+
+    > .katex {
+        display: inline-block;
+    }
+}
+
+.katex {
+    font: normal 1.21em KaTeX_Main;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    // Protect elements inside .katex from inheriting text-indent.
+    text-indent: 0;
+
+    .katex-html {
+        // Making .katex inline-block allows line breaks before and after,
+        // which is undesireable ("to $x$,"). Instead, adjust the .katex-html
+        // style and put nowrap on the inline .katex element.
+        display: inline-block;
+    }
+
+    .katex-mathml {
+        // Accessibility hack to only show to screen readers
+        // Found at: http://a11yproject.com/posts/how-to-hide-content/
+        position: absolute;
+        clip: rect(1px, 1px, 1px, 1px);
+        padding: 0;
+        border: 0;
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+    }
+
+    .base {
+        display: inline-block;
+    }
+
+    .strut {
+        display: inline-block;
+    }
+
+    .mathit {
+        font-family: KaTeX_Math;
+        font-style: italic;
+    }
+
+    .mathbf {
+        font-family: KaTeX_Main;
+        font-weight: bold;
+    }
+
+    .amsrm {
+        font-family: KaTeX_AMS;
+    }
+
+    .mathbb {
+        font-family: KaTeX_AMS;
+    }
+
+    .mathcal {
+        font-family: KaTeX_Caligraphic;
+    }
+
+    .mathfrak {
+        font-family: KaTeX_Fraktur;
+    }
+
+    .mathtt {
+        font-family: KaTeX_Typewriter;
+    }
+
+    .mathscr {
+        font-family: KaTeX_Script;
+    }
+
+    .mathsf {
+        font-family: KaTeX_SansSerif;
+    }
+
+    .mainit {
+        font-family: KaTeX_Main;
+        font-style: italic;
+    }
+
+    // This value is also used in fontMetrics.js, if you change it make sure the
+    // values match.
+    @ptperem: 10.0;
+    @nulldelimiterspace: 1.2em / @ptperem;
+
+    @thinspace: 0.16667em;
+    @mediumspace: 0.22222em;
+    @thickspace: 0.27778em;
+
+    .textstyle {
+        > .mord {
+            & + .mord {}
+            & + .mop { margin-left: @thinspace; }
+            & + .mbin { margin-left: @mediumspace; }
+            & + .mrel { margin-left: @thickspace; }
+            & + .mopen {}
+            & + .mclose {}
+            & + .mpunct {}
+            & + .minner { margin-left: @thinspace; }
+        }
+
+        > .mop {
+            & + .mord { margin-left: @thinspace; }
+            & + .mop { margin-left: @thinspace; }
+            & + .mbin {}
+            & + .mrel { margin-left: @thickspace; }
+            & + .mopen {}
+            & + .mclose {}
+            & + .mpunct {}
+            & + .minner { margin-left: @thinspace; }
+        }
+
+        > .mbin {
+            & + .mord { margin-left: @mediumspace; }
+            & + .mop { margin-left: @mediumspace; }
+            & + .mbin {}
+            & + .mrel {}
+            & + .mopen { margin-left: @mediumspace; }
+            & + .mclose {}
+            & + .mpunct {}
+            & + .minner { margin-left: @mediumspace; }
+        }
+
+        > .mrel {
+            & + .mord { margin-left: @thickspace; }
+            & + .mop { margin-left: @thickspace; }
+            & + .mbin {}
+            & + .mrel {}
+            & + .mopen { margin-left: @thickspace; }
+            & + .mclose {}
+            & + .mpunct {}
+            & + .minner { margin-left: @thickspace; }
+        }
+
+        > .mopen {
+            & + .mord {}
+            & + .mop {}
+            & + .mbin {}
+            & + .mrel {}
+            & + .mopen {}
+            & + .mclose {}
+            & + .mpunct {}
+            & + .minner {}
+        }
+
+        > .mclose {
+            & + .mord {}
+            & + .mop { margin-left: @thinspace; }
+            & + .mbin { margin-left: @mediumspace; }
+            & + .mrel { margin-left: @thickspace; }
+            & + .mopen {}
+            & + .mclose {}
+            & + .mpunct {}
+            & + .minner { margin-left: @thinspace; }
+        }
+
+        > .mpunct {
+            & + .mord { margin-left: @thinspace; }
+            & + .mop { margin-left: @thinspace; }
+            & + .mbin {}
+            & + .mrel { margin-left: @thinspace; }
+            & + .mopen { margin-left: @thinspace; }
+            & + .mclose { margin-left: @thinspace; }
+            & + .mpunct { margin-left: @thinspace; }
+            & + .minner { margin-left: @thinspace; }
+        }
+
+        > .minner {
+            & + .mord { margin-left: @thinspace; }
+            & + .mop { margin-left: @thinspace; }
+            & + .mbin { margin-left: @mediumspace; }
+            & + .mrel { margin-left: @thickspace; }
+            & + .mopen { margin-left: @thinspace; }
+            & + .mclose {}
+            & + .mpunct { margin-left: @thinspace; }
+            & + .minner { margin-left: @thinspace; }
+        }
+    }
+
+    .mord {
+        & + .mop { margin-left: @thinspace; }
+    }
+
+    .mop {
+        & + .mord { margin-left: @thinspace; }
+        & + .mop { margin-left: @thinspace; }
+    }
+
+    .mclose {
+        & + .mop { margin-left: @thinspace; }
+    }
+
+    .minner {
+        & + .mop { margin-left: @thinspace; }
+    }
+
+    .reset-textstyle.textstyle { font-size: 1em; }
+    .reset-textstyle.scriptstyle { font-size: 0.7em; }
+    .reset-textstyle.scriptscriptstyle { font-size: 0.5em; }
+
+    .reset-scriptstyle.textstyle { font-size: 1.42857em; }
+    .reset-scriptstyle.scriptstyle { font-size: 1em; }
+    .reset-scriptstyle.scriptscriptstyle { font-size: 0.71429em; }
+
+    .reset-scriptscriptstyle.textstyle { font-size: 2em; }
+    .reset-scriptscriptstyle.scriptstyle { font-size: 1.4em; }
+    .reset-scriptscriptstyle.scriptscriptstyle { font-size: 1em; }
+
+    .style-wrap {
+        position: relative;
+    }
+
+    .vlist {
+        display: inline-block;
+
+        > span {
+            display: block;
+            height: 0;
+            position: relative;
+
+            > span {
+                display: inline-block;
+            }
+        }
+
+        .baseline-fix {
+            display: inline-table;
+            table-layout: fixed;
+        }
+    }
+
+    .msupsub {
+        text-align: left;
+    }
+
+    .mfrac {
+        > span > span {
+            text-align: center;
+        }
+
+       .frac-line {
+            width: 100%;
+
+            &:before {
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+                content: "";
+                display: block;
+            }
+
+            &:after {
+                border-bottom-style: solid;
+                border-bottom-width: 0.04em;
+                content: "";
+                display: block;
+                margin-top: -1px;
+            }
+        }
+    }
+
+    .mspace {
+        display: inline-block;
+
+        &.negativethinspace {
+            margin-left: -@thinspace;
+        }
+
+        &.thinspace {
+            width: @thinspace;
+        }
+
+        &.mediumspace {
+            width: @mediumspace;
+        }
+
+        &.thickspace {
+            width: @thickspace;
+        }
+
+        &.enspace {
+            width: 0.5em;
+        }
+
+        &.quad {
+            width: 1em;
+        }
+
+        &.qquad {
+            width: 2em;
+        }
+    }
+
+    .llap,
+    .rlap {
+        width: 0;
+        position: relative;
+
+        > .inner {
+            position: absolute;
+        }
+
+        > .fix {
+            display: inline-block;
+        }
+    }
+
+    .llap > .inner {
+        right: 0;
+    }
+
+    .rlap > .inner {
+        left: 0;
+    }
+
+    .katex-logo {
+        .a {
+            font-size: 0.75em;
+            margin-left: -0.32em;
+            position: relative;
+            top: -0.2em;
+        }
+        .t {
+            margin-left: -0.23em;
+        }
+        .e {
+            margin-left: -0.1667em;
+            position: relative;
+            top: 0.2155em;
+        }
+        .x {
+            margin-left: -0.125em;
+        }
+    }
+
+    .rule {
+        display: inline-block;
+        border-style: solid;
+        position: relative;
+    }
+
+    .overline {
+
+        .overline-line {
+            width: 100%;
+
+            &:before {
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+                content: "";
+                display: block;
+            }
+
+            &:after {
+                border-bottom-style: solid;
+                border-bottom-width: 0.04em;
+                content: "";
+                display: block;
+                margin-top: -1px;
+            }
+        }
+    }
+
+    .sqrt {
+        > .sqrt-sign {
+            position: relative;
+        }
+
+        .sqrt-line {
+            width: 100%;
+
+            &:before {
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+                content: "";
+                display: block;
+            }
+
+            &:after {
+                border-bottom-style: solid;
+                border-bottom-width: 0.04em;
+                content: "";
+                display: block;
+                margin-top: -1px;
+            }
+        }
+
+        > .root {
+            // These values are taken from the definition of `\r@@t`,
+            // `\mkern 5mu` and `\mkern -10mu`.
+            margin-left: 5*@mu;
+            margin-right: -10*@mu;
+        }
+    }
+
+    .sizing, .fontsize-ensurer {
+        display: inline-block;
+
+        @size1: 0.5;
+        @size2: 0.7;
+        @size3: 0.8;
+        @size4: 0.9;
+        @size5: 1.0;
+        @size6: 1.2;
+        @size7: 1.44;
+        @size8: 1.73;
+        @size9: 2.07;
+        @size10: 2.49;
+
+        .generate-size-change(@from, @to) {
+            &.reset-size@{from}.size@{to} {
+                @sizeFromVariable: ~"size@{from}";
+                @sizeToVariable: ~"size@{to}";
+                font-size: (@@sizeToVariable / @@sizeFromVariable) * 1em;
+            }
+        }
+
+        .generate-to-size-change(@from, @currTo) when (@currTo =< 10) {
+            .generate-size-change(@from, @currTo);
+
+            .generate-to-size-change(@from, (@currTo + 1));
+        }
+
+        .generate-from-size-change(@currFrom) when (@currFrom =< 10) {
+            .generate-to-size-change(@currFrom, 1);
+
+            .generate-from-size-change((@currFrom + 1));
+        }
+
+        .generate-from-size-change(1);
+    }
+
+    .delimsizing {
+        &.size1 { font-family: KaTeX_Size1; }
+        &.size2 { font-family: KaTeX_Size2; }
+        &.size3 { font-family: KaTeX_Size3; }
+        &.size4 { font-family: KaTeX_Size4; }
+
+        &.mult {
+            .delim-size1 > span {
+                font-family: KaTeX_Size1;
+            }
+            .delim-size4 > span {
+                font-family: KaTeX_Size4;
+            }
+        }
+    }
+
+    .nulldelimiter {
+        display: inline-block;
+        width: @nulldelimiterspace;
+    }
+
+    .op-symbol {
+        position: relative;
+
+        &.small-op {
+            font-family: KaTeX_Size1;
+        }
+        &.large-op {
+            font-family: KaTeX_Size2;
+        }
+    }
+
+    .op-limits {
+        > .vlist > span {
+            text-align: center;
+        }
+    }
+
+    .accent {
+        > .vlist > span {
+            text-align: center;
+        }
+
+        .accent-body > span {
+            width: 0;
+        }
+
+        .accent-body.accent-vec > span {
+            position: relative;
+            // This value is half of the value that the MathJax's makeFF shifts
+            // it left. We center it by shifting it half way right again.
+            left: 0.326em;
+        }
+    }
+
+    .mtable {
+        .vertical-separator {
+            display: inline-block;
+            margin: 0 -0.025em;
+            border-right: 0.05em solid black;
+        }
+
+        .arraycolsep {
+            display: inline-block;
+        }
+
+        .col-align-c > .vlist {
+            text-align: center;
+        }
+
+        .col-align-l > .vlist {
+            text-align: left;
+        }
+
+        .col-align-r > .vlist {
+            text-align: right;
+        }
+    }
+
+}
