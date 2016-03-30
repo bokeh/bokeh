@@ -5,7 +5,8 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode, Side
+    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension,
+    RenderMode, TextRenderMode, Side
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
@@ -268,9 +269,10 @@ class Label(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    render_mode = Enum(RenderMode, default="canvas", help="""
+    render_mode = Enum(TextRenderMode, default="canvas", help="""
     Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
+    css element overlaid on the canvas (including as LaTeX). The default mode
+    is "canvas".
 
     .. warning::
         Not all visual styling properties are supported if the render_mode is
@@ -279,6 +281,7 @@ class Label(Annotation):
         modify the opacity of the entire background box and border in addition
         to the text. Finally, clipping Label annotations inside of the plot
         area isn't supported in "css" mode.
+
     """)
 
 

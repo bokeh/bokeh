@@ -158,6 +158,9 @@ RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay",
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
 
+#: Specify a render mode for renderers that additionally support latex rendering
+TextRenderMode = enumeration("canvas", "css", "latex")
+
 #: Specify an aggregation type for different charts
 Aggregation = enumeration("sum", "mean", "count", "nunique", "median", "min", "max")
 
