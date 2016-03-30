@@ -1,24 +1,24 @@
-@font-folder: "fonts";
+// @font-folder: "fonts";
 @use-eot: false;
 @use-ttf: false;
 @use-woff: true;
 @use-woff2: false;
 
 .use-eot(@family, @family-suffix) when (@use-eot = true) {
-    src: url('@{font-folder}/KaTeX_@{family}-@{family-suffix}.eot');
-    src+: url('@{font-folder}/KaTeX_@{family}-@{family-suffix}.eot#iefix') format('embedded-opentype')
+    src: data-uri('font/eot;base64', '@{font-folder}/KaTeX_@{family}-@{family-suffix}.eot');
+    src+: data-uri('font/eot;base64', '@{font-folder}/KaTeX_@{family}-@{family-suffix}.eot#iefix') format('embedded-opentype')
 }
 
 .use-woff2(@family, @family-suffix) when (@use-woff2 = true) {
-    src+: url('@{font-folder}/KaTeX_@{family}-@{family-suffix}.woff2') format('woff2')
+    src+: data-uri('font/woff2;base64', '@{font-folder}/KaTeX_@{family}-@{family-suffix}.woff2') format('woff2')
 }
 
 .use-woff(@family, @family-suffix) when (@use-woff = true) {
-    src+: url('@{font-folder}/KaTeX_@{family}-@{family-suffix}.woff') format('woff')
+    src+: data-uri('font/woff;base64', '@{font-folder}/KaTeX_@{family}-@{family-suffix}.woff') format('woff');
 }
 
 .use-ttf(@family, @family-suffix) when (@use-ttf = true) {
-    src+: url('@{font-folder}/KaTeX_@{family}-@{family-suffix}.ttf') format('ttf')
+    src+: data-uri('font/tff;base64', '@{font-folder}/KaTeX_@{family}-@{family-suffix}.ttf') format('ttf')
 }
 
 .generate-suffix(@weight, @style) when (@weight = normal) and (@style = normal) {
@@ -47,11 +47,11 @@
     }
 }
 
-.font-face('AMS', normal, normal);
-.font-face('Caligraphic', bold, normal);
-.font-face('Caligraphic', normal, normal);
-.font-face('Fraktur', bold, normal);
-.font-face('Fraktur', normal, normal);
+// .font-face('AMS', normal, normal);
+// .font-face('Caligraphic', bold, normal);
+// .font-face('Caligraphic', normal, normal);
+// .font-face('Fraktur', bold, normal);
+// .font-face('Fraktur', normal, normal);
 .font-face('Main', bold, normal);
 .font-face('Main', normal, italic);
 .font-face('Main', normal, normal);
@@ -60,10 +60,10 @@
 // .font-face('Math', normal, normal);
 // .font-face('SansSerif', bold, normal);
 // .font-face('SansSerif', normal, italic);
-.font-face('SansSerif', normal, normal);
-.font-face('Script', normal, normal);
-.font-face('Size1', normal, normal);
-.font-face('Size2', normal, normal);
-.font-face('Size3', normal, normal);
-.font-face('Size4', normal, normal);
-.font-face('Typewriter', normal, normal);
+// .font-face('SansSerif', normal, normal);
+// .font-face('Script', normal, normal);
+// .font-face('Size1', normal, normal);
+// .font-face('Size2', normal, normal);
+// .font-face('Size3', normal, normal);
+// .font-face('Size4', normal, normal);
+// .font-face('Typewriter', normal, normal);
