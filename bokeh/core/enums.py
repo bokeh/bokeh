@@ -169,3 +169,6 @@ ScriptingLanguage = enumeration("javascript", "coffeescript")
 
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")
+
+#: Specify different callback policies for the slider widget
+SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")

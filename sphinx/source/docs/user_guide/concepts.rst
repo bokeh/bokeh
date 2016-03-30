@@ -106,7 +106,7 @@ functions. Scripts that output with these typically look something like:
 If this script is called ``foo.py`` then executing ``python foo.py`` will
 result in an HTML file ``output.html`` being generated with the line plot.
 These functions are often useful in interactive settings, or for creating
-standalone Bokeh documents to server from (Flask, Django, etc.) web
+standalone Bokeh documents to serve from (Flask, Django, etc.) web
 applications.
 
 However, Bokeh also comes with a powerful command line tool ``bokeh`` that
@@ -144,11 +144,12 @@ For more information on the command line tool see :ref:`userguide_cli`.
 Interfaces
 ----------
 
-Bokeh is intended to be useful to data-scientists and domain experts, working
-at a very high level, as well as to application developers and software
-engineers, who may want more control or access to more sophisticated
-features. Because of this, Bokeh takes a layered approach and offers
-programming interfaces appropriate to different levels, as well as some
+Bokeh is intended to provide a quick and simple interface to data scientists 
+and domain experts who do not want to be distracted by the details of the 
+software, and also provide a richly detailed interface to application 
+developers and software engineers who may want more control or access to more 
+sophisticated features. Because of this, Bokeh takes a layered approach and 
+offers programming interfaces appropriate to different levels, as well as some
 compatibility interfaces to make use of existing code from other
 libraries. This section provides an overview of the different interfaces
 that are available to Bokeh users, as well as more context about the most

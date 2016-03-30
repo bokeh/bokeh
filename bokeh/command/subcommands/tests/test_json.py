@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import argparse
 import pytest
 import os
 import sys
@@ -49,6 +50,13 @@ def test_args():
                 type=str,
                 help="Name of the output file or - for standard output."
         )),
+
+        ('--args', dict(
+            metavar='COMMAND-LINE-ARGS',
+            nargs=argparse.REMAINDER,
+            help="Any command line arguments remaining are passed on to the application handler",
+        )),
+
     )
 
 def test_no_script(capsys):
@@ -61,7 +69,7 @@ def test_no_script(capsys):
             too_few = "too few arguments"
         else:
             too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
-        assert err == """usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME]
+        assert err == """usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME] [--args ...]
                   DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
 bokeh json: error: %s
 """ % (too_few)

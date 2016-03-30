@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class BasicTickFormatter extends TickFormatter.Model
   type: 'BasicTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       precision:        [ p.Any,    'auto' ] # TODO (bev) better
       use_scientific:   [ p.Bool,   true   ]
       power_limit_high: [ p.Number, 5      ]
@@ -28,7 +27,7 @@ class BasicTickFormatter extends TickFormatter.Model
 
     @last_precision = 3
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     if ticks.length == 0
       return []
 

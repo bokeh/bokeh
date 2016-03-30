@@ -8,9 +8,9 @@ class SegmentView extends Glyph.View
   _index_data: () ->
     index = rbush()
     pts = []
-    for i in [0...@x0.length]
-      if not isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i])
-        pts.push([@x0[i], @y0[i], @x1[i], @y1[i], {'i': i}])
+    for i in [0...@_x0.length]
+      if not isNaN(@_x0[i] + @_x1[i] + @_y0[i] + @_y1[i])
+        pts.push([@_x0[i], @_y0[i], @_x1[i], @_y1[i], {'i': i}])
     index.load(pts)
     return index
 
@@ -35,8 +35,8 @@ class Segment extends Glyph.Model
 
   type: 'Segment'
 
-  mixins: ['line']
-  coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
+  @coords [['x0', 'y0'], ['x1', 'y1']]
+  @mixins ['line']
 
 module.exports =
   Model: Segment

@@ -18,8 +18,7 @@ p = require "../../core/properties"
 class ContinuousTicker extends Ticker.Model
   type: 'ContinuousTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       num_minor_ticks:   [ p.Number, 5 ]
       desired_num_ticks: [ p.Number, 6 ]
     }

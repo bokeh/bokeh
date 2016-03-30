@@ -14,12 +14,11 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git://github.com/bokeh/bokeh.git"
+    "url": "https://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
     "browserify": "^11.1.0",
     "resolve": "^1.1.6",
-    "Canteen": "git+https://github.com/platfora/Canteen.git#f1182e3396e76e0acb32849823ac4b4f404d6a72",
     "chai": "^2.2.0",
     "chai-as-promised" : "^5.1.0",
     "cheerio": "^0.19.0",
@@ -38,6 +37,7 @@
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
     "gulp-coffee": "^2.3.1",
+    "gulp-typescript": "^2.12.1",
     "gulp-newer": "^1.1.0",
     "gulp-if": "^2.0.0",
     "hammerjs": "^2.0.4",
@@ -45,6 +45,7 @@
     "merge": "^1.2.0",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
+    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs": "1.9.7-15",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
@@ -60,7 +61,9 @@
     "root-require": "^0.3.1",
     "event-stream": "^3.3.1",
     "jsdom": "^5.6.1",
-    "websocket":"^1.0.22"
+    "websocket":"^1.0.22",
+    "typings": "^0.7.9",
+    "typings-core": "^0.2.11"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -76,10 +79,8 @@
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
-    "numeral": "./src/vendor/numeral.js-1.5.3/numeral.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
-    "gloo2": "./src/vendor/gloo/gloo2.js",
-    "Canteen": "./node_modules/Canteen/build/canteen.js"
+    "gloo2": "./src/vendor/gloo/gloo2.js"
   },
   "dependencies": {
     "underscore": "^1.5.2",
