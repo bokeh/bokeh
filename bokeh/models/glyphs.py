@@ -594,8 +594,6 @@ class Oval(Glyph):
     The %s values for the ovals.
     """)
 
-
-
 class Patch(Glyph):
     """ Render a single patch.
 

@@ -42,31 +42,6 @@ class EllipseView extends Glyph.View
          @visuals.line.set_vectorize(ctx, i)
          ctx.stroke()
 
-
-    # for i in indices
-    #   if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+@_angle[i])
-    #     continue
-    #
-    #   ctx.translate(sx[i], sy[i])
-    #   ctx.rotate(@_angle[i])
-    #
-    #   ctx.beginPath()
-    #   ctx.moveTo(0, -sh[i]/2)
-    #   ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2)
-    #   ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2)
-    #   ctx.closePath()
-    #
-    #   if @visuals.fill.doit
-    #     @visuals.fill.set_vectorize(ctx, i)
-    #     ctx.fill()
-    #
-    #   if @visuals.line.doit
-    #     @visuals.line.set_vectorize(ctx, i)
-    #     ctx.stroke()
-    #
-    #   ctx.rotate(-@_angle[i])
-    #   ctx.translate(-sx[i], -sy[i])
-
   draw_legend: (ctx, x0, x1, y0, y1) ->
     reference_point = @get_reference_point() ? 0
 
