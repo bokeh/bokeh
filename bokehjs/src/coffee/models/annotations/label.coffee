@@ -1,5 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
+katex = require "katex"
 
 Annotation = require "./annotation"
 ColumnDataSource = require "../sources/column_data_source"
@@ -34,14 +35,21 @@ class LabelView extends Renderer.View
     @x_shift = (null for i in @text)
     @y_shift = (null for i in @text)
 
+    if @mget('render_mode') == 'latex'
+      @computed_text = _.map(@text, (item) ->
+        return katex.renderToString(item, {displayMode: true}))
+    else
+      @computed_text = @text.slice(0) # make deep copy to not mutate
+
+    # Try to partially support line-dashing
     ld = @mget("border_line_dash")
     if _.isArray(ld)
       if ld.length < 2
-        @line_dash = "solid"
+        @computed_line_dash = "solid"
       else
-        @line_dash = "dashed"
+        @computed_line_dash = "dashed"
     if _.isString(ld)
-        @line_dash = ld
+        @computed_line_dash = ld
 
     ctx = @plot_view.canvas_view.ctx
     for i in [0...@text.length]
@@ -89,10 +97,11 @@ class LabelView extends Renderer.View
 
   render: () ->
     [@sx, @sy] = @_map_data()
-    if @mget('render_mode') == 'canvas'
-      @_canvas_text()
-    else
-      @_css_text()
+    switch @mget('render_mode')
+      when "canvas"
+        @_canvas_text()
+      when "css", "latex"
+        @_css_text()
 
   _canvas_text: () ->
     ctx = @plot_view.canvas_view.ctx
@@ -128,11 +137,10 @@ class LabelView extends Renderer.View
 
       if not @label_div[i].style?
         @label_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-
       @label_div[i].hide()
 
       @label_div[i]
-        .html(@text[i])
+        .html(@computed_text[i])
         .css({
           'position': 'absolute'
           'top': "#{@sy[i] + @y_offset[i] + @y_shift[i]}px"
@@ -142,7 +150,7 @@ class LabelView extends Renderer.View
           'font-size': "#{@text_font_size[i]}"
           'font-family': "#{@mget('text_font')}"
           'background-color': "#{@visuals.background_fill.color_value()}"
-          'border-style': "#{@line_dash}"
+          'border-style': "#{@computed_line_dash}"
           'border-width': "#{@border_line_width[i]}"
           'border-color': "#{@visuals.border_line.color_value()}"
           })
