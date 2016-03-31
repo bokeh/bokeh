@@ -747,6 +747,9 @@ class Plot extends Component.Model
 
   add_tools: (tools...) ->
     new_tools = for tool in tools
+      if tool.overlay?
+        @add_renderers(tool.overlay)
+
       if tool.plot?
         tool
       else
