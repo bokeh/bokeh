@@ -1,4 +1,4 @@
-module Burtin {
+namespace Burtin {
     import _ = Bokeh._;
     import plt = Bokeh.Plotting;
     import arange = Bokeh.LinAlg.arange;

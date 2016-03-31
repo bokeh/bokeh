@@ -1,4 +1,4 @@
-module TappyScatter {
+namespace TappyScatter {
     import plt = Bokeh.Plotting;
     import _ = Bokeh._;
 

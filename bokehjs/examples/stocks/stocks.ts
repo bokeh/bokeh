@@ -1,4 +1,4 @@
-module Stocks {
+namespace Stocks {
     import plt = Bokeh.Plotting;
 
     console.log(`Bokeh ${Bokeh.version}`);

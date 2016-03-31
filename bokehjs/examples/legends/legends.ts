@@ -1,4 +1,4 @@
-module Legends {
+namespace Legends {
     import plt = Bokeh.Plotting
     import linspace = Bokeh.LinAlg.linspace
 
@@ -26,7 +26,7 @@ module Legends {
     p2.square(x, y3, {legend: "3*sin(x)", fill_color: null, line_color: "green"})
     p2.line(x, y3, {legend: "3*sin(x)", line_color: "green"})
 
-    // Tweaks to work around bootstrap problems 
+    // Tweaks to work around bootstrap problems
     xr.renderers = p1.renderers;
     yr.renderers = p1.renderers;
 
