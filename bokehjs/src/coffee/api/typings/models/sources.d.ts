@@ -15,7 +15,7 @@ declare namespace Bokeh {
     }
 
     export interface RemoteSource extends DataSource {
-        data_url: String;
+        data_url: string;
         polling_interval: Int;
     }
 
