@@ -10,7 +10,13 @@ declare namespace Bokeh {
         add_glyph(glyph: Glyph, source?: DataSource, attrs?: ModelOpts): GlyphRenderer;
         add_tools(...tools: Array<Tool>): void;
     }
-    export interface IPlot extends IComponent {
+    export interface IPlot extends IBasePlot {
+        x_range?: Range;
+        y_range?: Range;
+
+        tools?: Array<Tool>;
+    }
+    export interface IBasePlot extends IComponent {
         title?: string;
 
         // {{{ title = include[TextProps]
@@ -33,9 +39,6 @@ declare namespace Bokeh {
         outline_line_dash_offset?: Int;
         // }}}
 
-        x_range?: Range;
-        y_range?: Range;
-
         extra_x_ranges?: Map<Range>;
         extra_y_ranges?: Map<Range>;
 
@@ -43,7 +46,6 @@ declare namespace Bokeh {
         y_mapper_type?: Auto | "log";
 
         renderers?: Array<Renderer>;
-        tools?: Array<Tool>;
 
         tool_events?: ToolEvents;
 

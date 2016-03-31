@@ -46,8 +46,8 @@ _with_default = (value, default_value) ->
 
 class Figure extends models.Plot
 
-  constructor: (attrs={}) ->
-    attrs = _.clone(attrs)
+  constructor: (attributes={}, options={}) ->
+    attrs = _.clone(attributes)
 
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
@@ -75,7 +75,7 @@ class Figure extends models.Plot
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
-    super(attrs)
+    super(attrs, options)
 
     @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
     @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
@@ -333,7 +333,8 @@ class Figure extends models.Plot
     legends.push([legend_name, [glyph_renderer]])
     legend.legends = legends
 
-figure = (attrs={}) -> new Figure(attrs)
+figure = (attributes={}, options={}) ->
+  new Figure(attributes, options)
 
 show = (obj, target) ->
   doc = new Document()

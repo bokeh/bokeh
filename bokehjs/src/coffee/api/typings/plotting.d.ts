@@ -23,7 +23,11 @@ declare namespace Bokeh.Plotting {
         "reset" |
         "help";
 
-    export interface FigureAttrs {
+
+    function figure(attributes?: IFigure, options?: ModelOpts): Figure;
+
+    var Figure: { new(attributes?: IFigure, options?: ModelOpts): Figure };
+    export interface IFigure extends IBasePlot {
         tools?: Array<Tool | ToolType> | string;
 
         x_range?: Range | [number, number] | Array<string>;
@@ -40,21 +44,7 @@ declare namespace Bokeh.Plotting {
 
         x_axis_label?: string;
         y_axis_label?: string;
-
-        title?: string;
-
-        plot_width?: Int;
-        plot_height?: Int;
-
-        min_border?: Int;
-        outline_line_color?: Color;
-        background_fill_color?: Color;
-        border_fill_color?: Color;
     }
-
-    function figure(attrs?: FigureAttrs): Figure;
-
-    var Figure: { new(attrs?: FigureAttrs): Figure };
     export interface Figure extends Plot {
         xgrid: Grid;
         ygrid: Grid;
