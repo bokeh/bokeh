@@ -5,19 +5,20 @@ namespace TappyScatter {
     Bokeh.set_log_level("info");
     Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
 
-    const N = 100
+    const M = 100
     const xx: Array<number> = []
     const yy: Array<number> = []
 
-    for (let y = 0; y <= N; y += 4) {
-        for (let x = 0; x <= N; x += 4) {
+    for (let y = 0; y <= M; y += 4) {
+        for (let x = 0; x <= M; x += 4) {
             xx.push(x)
             yy.push(y)
         }
     }
 
+    const N = xx.length
     const indices = _.range(N).map((i) => i.toString())
-    const radii = _.range(N).map((i) => i*0.4 + 1.7)
+    const radii = _.range(N).map((i) => Math.random()*0.4 + 1.7)
 
     const colors: Array<string> = []
     for (let [r, g] of _.zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
@@ -27,7 +28,7 @@ namespace TappyScatter {
         data: {x: xx, y: yy, radius: radii, colors: colors }
     })
 
-    const tools = "pan,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
+    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,previewsave"
 
     const p = plt.figure({title: "Tappy Scatter", tools: tools})
 
