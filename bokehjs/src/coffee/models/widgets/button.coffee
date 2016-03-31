@@ -26,7 +26,7 @@ class ButtonView extends BokehView
     @$el.empty()
     @$el.attr("type","button")
     @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("type"))
+    @$el.addClass("bk-bs-btn-" + @mget("button_type"))
     if @mget("disabled") then @$el.attr("disabled", "disabled")
 
     label = @mget("label")
@@ -45,8 +45,7 @@ class Button extends AbstractButton.Model
   type: "Button"
   default_view: ButtonView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       clicks: [ p.Number, 0        ]
     }
 

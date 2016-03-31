@@ -87,11 +87,10 @@ class LassoSelectTool extends SelectTool.Model
   event_type: "pan"
   default_order: 12
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       select_every_mousemove: [ p.Bool,    true                  ]
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
-    })
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)

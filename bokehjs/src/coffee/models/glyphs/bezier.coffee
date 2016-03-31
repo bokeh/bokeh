@@ -69,11 +69,11 @@ class BezierView extends Glyph.View
   _index_data: () ->
     index = rbush()
     pts = []
-    for i in [0...@x0.length]
-      if isNaN(@x0[i]+@x1[i]+@y0[i]+@y1[i]+@cx0[i]+@cy0[i]+@cx1[i]+@cy1[i])
+    for i in [0...@_x0.length]
+      if isNaN(@_x0[i]+@_x1[i]+@_y0[i]+@_y1[i]+@_cx0[i]+@_cy0[i]+@_cx1[i]+@_cy1[i])
         continue
 
-      [x0, y0, x1, y1] = _cbb(@x0[i], @y0[i], @x1[i], @y1[i], @cx0[i], @cy0[i], @cx1[i], @cy1[i])
+      [x0, y0, x1, y1] = _cbb(@_x0[i], @_y0[i], @_x1[i], @_y1[i], @_cx0[i], @_cy0[i], @_cx1[i], @_cy1[i])
 
       pts.push([x0, y0, x1, y1, {'i': i}])
 
@@ -101,8 +101,8 @@ class Bezier extends Glyph.Model
 
   type: 'Bezier'
 
-  mixins: ['line']
-  coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
+  @coords [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
+  @mixins ['line']
 
 module.exports =
   Model: Bezier

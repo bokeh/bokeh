@@ -33,8 +33,7 @@ class Icon extends AbstractIcon.Model
   type: "Icon"
   default_view: IconView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       icon_name: [ p.String, "check" ] # TODO (bev) enum?
       size:      [ p.Number          ]
       flip:      [ p.Any             ] # TODO (bev)

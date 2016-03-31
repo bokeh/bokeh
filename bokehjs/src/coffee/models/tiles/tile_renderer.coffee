@@ -275,8 +275,7 @@ class TileRenderer extends Renderer.Model
   default_view: TileRendererView
   type: 'TileRenderer'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       alpha:          [ p.Number,   1.0              ]
       x_range_name:   [ p.String,   "default"        ]
       y_range_name:   [ p.String,   "default"        ]

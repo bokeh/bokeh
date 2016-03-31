@@ -84,10 +84,9 @@ class PolySelectTool extends SelectTool.Model
   event_type: "tap"
   default_order: 11
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
-    })
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)

@@ -55,8 +55,7 @@ _strftime = (t, format) ->
 class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       formats: [ p.Any, {} ] # TODO (bev)
     }
 
@@ -134,7 +133,7 @@ class DatetimeTickFormatter extends TickFormatter.Model
       str = "years"
     return str
 
-  format: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
+  doFormat: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
 
     # In order to pick the right set of labels, we need to determine
     # the resolution of the ticks.  We can do this using a ticker if

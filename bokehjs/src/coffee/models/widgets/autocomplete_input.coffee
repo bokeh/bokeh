@@ -17,8 +17,7 @@ class AutocompleteInput extends TextInput.Model
   type: "AutocompleteInput"
   default_view: AutocompleteInputView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       completions: [ p.Array, [] ]
     }
 

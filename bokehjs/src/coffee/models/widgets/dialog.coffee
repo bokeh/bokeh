@@ -64,8 +64,7 @@ class Dialog extends Widget.Model
   type: "Dialog"
   default_view: DialogView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       visible:     [ p.Bool,    false ]
       closable:    [ p.Bool,    true  ]
       title:       [ p.String,  ""    ]

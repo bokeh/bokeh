@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class FactorRange extends Range.Model
   type: 'FactorRange'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       offset:  [ p.Number, 0  ]
       factors: [ p.Array,  [] ]
       bounds:  [ p.Any        ] # TODO (bev)

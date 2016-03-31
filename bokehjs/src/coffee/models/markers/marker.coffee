@@ -21,7 +21,7 @@ class MarkerView extends Glyph.View
     angle = { }
     angle[reference_point] = 0
 
-    data = {sx:sx, sy:sy, size: size, angle: angle}
+    data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
 
   _index_data: () ->
@@ -61,7 +61,7 @@ class MarkerView extends Glyph.View
 
     hits = []
     for i in candidates
-      s2 = @size[i]/2
+      s2 = @_size[i]/2
       dist = Math.abs(@sx[i]-sx) + Math.abs(@sy[i]-sy)
       if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
         hits.push([i, dist])
@@ -99,7 +99,9 @@ class MarkerView extends Glyph.View
 
 class Marker extends Glyph.Model
 
-  props: -> _.extend super(), {
+  @coords [ ['x', 'y'] ]
+  @mixins ['line', 'fill']
+  @define {
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
     angle: [ p.AngleSpec,    0                             ]
   }
