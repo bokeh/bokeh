@@ -231,8 +231,10 @@ class Figure extends models.Plot
       @_update_legend(legend, glyph_renderer)
 
     @add_renderers(glyph_renderer)
+    return glyph_renderer
 
-  _marker: (cls, args) -> @_glyph(cls, "x,y", args)
+  _marker: (cls, args) ->
+    return @_glyph(cls, "x,y", args)
 
   _get_range: (range) ->
     if not range?
