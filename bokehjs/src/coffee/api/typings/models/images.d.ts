@@ -3,6 +3,6 @@ declare namespace Bokeh {
     export interface ImageSource extends Model, IImageSource {}
     export interface IImageSource extends IModel {
         url?: string;
-        extra_url_vars?: {[key: string]: string};
+        extra_url_vars?: Map<string>;
     }
 }

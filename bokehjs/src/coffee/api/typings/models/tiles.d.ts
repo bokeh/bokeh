@@ -7,7 +7,7 @@ declare namespace Bokeh {
         min_zoom?: Int;
         max_zoom?: Int;
 
-        extra_url_vars?: {[key: string]: string};
+        extra_url_vars?: Map<string>;
         attribution?: string;
     }
 

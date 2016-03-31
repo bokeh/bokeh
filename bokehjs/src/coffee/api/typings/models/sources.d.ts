@@ -6,7 +6,7 @@ declare namespace Bokeh {
         callback?: Callback;
     }
 
-    type Data = {[key: string]: ArrayLike<any>};
+    type Data = Map<ArrayLike<any>>;
 
     export var ColumnDataSource: { new(attributes?: IColumnDataSource, options?: ModelOpts): ColumnDataSource };
     export interface ColumnDataSource extends DataSource, IColumnDataSource {

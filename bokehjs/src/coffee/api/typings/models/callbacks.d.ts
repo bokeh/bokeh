@@ -11,7 +11,7 @@ declare namespace Bokeh {
     export var CustomJS: { new(attributes?: ICustomJS, options?: ModelOpts): CustomJS };
     export interface CustomJS extends Callback, ICustomJS {}
     export interface ICustomJS extends ICallback {
-        args?: {[key: string]: Model};
+        args?: Map<Model>;
         code?: string;
         lang?: ScriptingLanguage;
     }

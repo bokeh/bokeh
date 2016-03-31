@@ -22,7 +22,7 @@ declare namespace Bokeh {
     export var DatetimeTickFormatter: { new(attributes?: IDatetimeTickFormatter, options?: ModelOpts): DatetimeTickFormatter };
     export interface DatetimeTickFormatter extends TickFormatter, IDatetimeTickFormatter {}
     export interface IDatetimeTickFormatter extends ITickFormatter {
-        formats?: {[key: string /*DatetimeUnits*/]: Array<string>};
+        formats?: Map<Array<string>>; // XXX: key: DatetimeUnits
     }
 
     export var NumeralTickFormatter: { new(attributes?: INumeralTickFormatter, options?: ModelOpts): NumeralTickFormatter };
