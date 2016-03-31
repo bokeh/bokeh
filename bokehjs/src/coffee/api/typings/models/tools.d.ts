@@ -1,5 +1,5 @@
 declare namespace Bokeh {
-    export var ToolEvents: { new(attributes?: IToolEvents, options?: KeyVal): ToolEvents };
+    export var ToolEvents: { new(attributes?: IToolEvents, options?: ModelOpts): ToolEvents };
     export interface ToolEvents extends Model, IToolEvents {}
     export interface IToolEvents extends IModel {
         geometries?: Array<any>;
@@ -21,39 +21,39 @@ declare namespace Bokeh {
         renderers?: Array<Renderer>;
     }
 
-    export var PanTool: { new(attributes?: IPanTool, options?: KeyVal): PanTool };
+    export var PanTool: { new(attributes?: IPanTool, options?: ModelOpts): PanTool };
     export interface PanTool extends Tool, IPanTool {}
     export interface IPanTool extends ITool {
         dimensions?: Array<Dimension>;
     }
 
-    export var WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: KeyVal): WheelZoomTool };
+    export var WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: ModelOpts): WheelZoomTool };
     export interface WheelZoomTool extends Tool, IWheelZoomTool {}
     export interface IWheelZoomTool extends ITool {
         dimensions?: Array<Dimension>;
     }
 
-    export var PreviewSaveTool: { new(attributes?: IPreviewSaveTool, options?: KeyVal): PreviewSaveTool };
+    export var PreviewSaveTool: { new(attributes?: IPreviewSaveTool, options?: ModelOpts): PreviewSaveTool };
     export interface PreviewSaveTool extends Tool, IPreviewSaveTool {}
     export interface IPreviewSaveTool extends ITool {}
 
-    export var UndoTool: { new(attributes?: IUndoTool, options?: KeyVal): UndoTool };
+    export var UndoTool: { new(attributes?: IUndoTool, options?: ModelOpts): UndoTool };
     export interface UndoTool extends Tool, IUndoTool {}
     export interface IUndoTool extends ITool {}
 
-    export var RedoTool: { new(attributes?: IRedoTool, options?: KeyVal): RedoTool };
+    export var RedoTool: { new(attributes?: IRedoTool, options?: ModelOpts): RedoTool };
     export interface RedoTool extends Tool, IRedoTool {}
     export interface IRedoTool extends ITool {}
 
-    export var ResetTool: { new(attributes?: IResetTool, options?: KeyVal): ResetTool };
+    export var ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
     export interface ResetTool extends Tool, IResetTool {}
     export interface IResetTool extends ITool {}
 
-    export var ResizeTool: { new(attributes?: IResizeTool, options?: KeyVal): ResizeTool };
+    export var ResizeTool: { new(attributes?: IResizeTool, options?: ModelOpts): ResizeTool };
     export interface ResizeTool extends Tool, IResizeTool {}
     export interface IResizeTool extends ITool {}
 
-    export var CrosshairTool: { new(attributes?: ICrosshairTool, options?: KeyVal): CrosshairTool };
+    export var CrosshairTool: { new(attributes?: ICrosshairTool, options?: ModelOpts): CrosshairTool };
     export interface CrosshairTool extends InspectTool, ICrosshairTool {}
     export interface ICrosshairTool extends IInspectTool {
         dimensions?: Array<Dimension>;
@@ -63,34 +63,34 @@ declare namespace Bokeh {
         line_alpha?: number;
     }
 
-    export var BoxZoomTool: { new(attributes?: IBoxZoomTool, options?: KeyVal): BoxZoomTool };
+    export var BoxZoomTool: { new(attributes?: IBoxZoomTool, options?: ModelOpts): BoxZoomTool };
     export interface BoxZoomTool extends Tool, IBoxZoomTool {}
     export interface IBoxZoomTool extends ITool {}
 
-    export var BoxSelectTool: { new(attributes?: IBoxSelectTool, options?: KeyVal): BoxSelectTool };
+    export var BoxSelectTool: { new(attributes?: IBoxSelectTool, options?: ModelOpts): BoxSelectTool };
     export interface BoxSelectTool extends SelectTool, IBoxSelectTool {}
     export interface IBoxSelectTool extends ISelectTool {
         select_every_mousemove?: boolean;
         dimensions?: Array<Dimension>;
     }
 
-    export var LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: KeyVal): LassoSelectTool };
+    export var LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: ModelOpts): LassoSelectTool };
     export interface LassoSelectTool extends SelectTool, ILassoSelectTool {}
     export interface ILassoSelectTool extends ISelectTool {
         select_every_mousemove?: boolean;
     }
 
-    export var PolySelectTool: { new(attributes?: IPolySelectTool, options?: KeyVal): PolySelectTool };
+    export var PolySelectTool: { new(attributes?: IPolySelectTool, options?: ModelOpts): PolySelectTool };
     export interface PolySelectTool extends SelectTool, IPolySelectTool {}
     export interface IPolySelectTool extends ISelectTool {}
 
-    export var TapTool: { new(attributes?: ITapTool, options?: KeyVal): TapTool };
+    export var TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
     export interface TapTool extends SelectTool, ITapTool {}
     export interface ITapTool extends ISelectTool {
         callback?: Callback;
     }
 
-    export var HoverTool: { new(attributes?: IHoverTool, options?: KeyVal): HoverTool };
+    export var HoverTool: { new(attributes?: IHoverTool, options?: ModelOpts): HoverTool };
     export interface HoverTool extends InspectTool, IHoverTool {}
     export interface IHoverTool extends IInspectTool, IHitTest {
         tooltips?: Tooltip;
@@ -100,7 +100,7 @@ declare namespace Bokeh {
         line_policy?: LinePolicy;
     }
 
-    export var HelpTool: { new(attributes?: IHelpTool, options?: KeyVal): HelpTool };
+    export var HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };
     export interface HelpTool extends Tool, IHelpTool {}
     export interface IHelpTool extends ITool {
         help_tooltip?: string;

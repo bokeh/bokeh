@@ -2,7 +2,7 @@ declare namespace Bokeh {
     type JsObj = {[key: string]: any};
 
     export var Document: {
-        new(attributes?: IDocument, options?: KeyVal): Document
+        new(attributes?: IDocument): Document
 
         from_json_string(s: string): Document;
         from_json(json: JsObj): Document;

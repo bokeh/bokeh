@@ -8,7 +8,7 @@ declare namespace Bokeh {
 
     type Data = {[key: string]: ArrayLike<any>};
 
-    export var ColumnDataSource: { new(attributes?: IColumnDataSource, options?: KeyVal): ColumnDataSource };
+    export var ColumnDataSource: { new(attributes?: IColumnDataSource, options?: ModelOpts): ColumnDataSource };
     export interface ColumnDataSource extends DataSource, IColumnDataSource {
         stream(new_data: Data, rollover: number): void;
     }
@@ -22,7 +22,7 @@ declare namespace Bokeh {
         polling_interval?: Int;
     }
 
-    export var AjaxDataSource: { new(attributes?: IAjaxDataSource, options?: KeyVal): AjaxDataSource };
+    export var AjaxDataSource: { new(attributes?: IAjaxDataSource, options?: ModelOpts): AjaxDataSource };
     export interface AjaxDataSource extends RemoteSource, IAjaxDataSource {}
     export interface IAjaxDataSource extends IRemoteSource {
         method?: HTTPMethod;

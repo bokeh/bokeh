@@ -4,7 +4,7 @@ declare namespace Bokeh {
         level?: RenderLevel;
     }
 
-    export var Legend: { new(attributes?: ILegend, options?: KeyVal): Legend };
+    export var Legend: { new(attributes?: ILegend, options?: ModelOpts): Legend };
     export interface Legend extends Annotation, ILegend {}
     export interface ILegend extends IAnnotation {
         location?: LegendLocation;
@@ -53,7 +53,7 @@ declare namespace Bokeh {
         legends?: Array<[string, Array<GlyphRenderer>]>;
     }
 
-    export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: KeyVal): BoxAnnotation };
+    export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: ModelOpts): BoxAnnotation };
     export interface BoxAnnotation extends Annotation, IBoxAnnotation {}
     export interface IBoxAnnotation extends IAnnotation, LineProps, FillProps {
         left?: Auto | Numerical;
@@ -74,7 +74,7 @@ declare namespace Bokeh {
         render_mode?: RenderMode;
     }
 
-    export var PolyAnnotation: { new(attributes?: IPolyAnnotation, options?: KeyVal): PolyAnnotation };
+    export var PolyAnnotation: { new(attributes?: IPolyAnnotation, options?: ModelOpts): PolyAnnotation };
     export interface PolyAnnotation extends Annotation, IPolyAnnotation {}
     export interface IPolyAnnotation extends IAnnotation, LineProps, FillProps {
         xs?: Array<number>;
@@ -87,7 +87,7 @@ declare namespace Bokeh {
         y_range_name?: string;
     }
 
-    export var Span: { new(attributes?: ISpan, options?: KeyVal): Span };
+    export var Span: { new(attributes?: ISpan, options?: ModelOpts): Span };
     export interface Span extends Annotation, ISpan {}
     export interface ISpan extends IAnnotation, LineProps {
         location?: number;
@@ -101,11 +101,11 @@ declare namespace Bokeh {
         render_mode?: RenderMode;
     }
 
-    export var Overlay: { new(attributes?: IOverlay, options?: KeyVal): Overlay };
+    export var Overlay: { new(attributes?: IOverlay, options?: ModelOpts): Overlay };
     export interface Overlay extends Annotation, IOverlay {}
     export interface IOverlay extends IAnnotation {}
 
-    export var Tooltip: { new(attributes?: ITooltip, options?: KeyVal): Tooltip };
+    export var Tooltip: { new(attributes?: ITooltip, options?: ModelOpts): Tooltip };
     export interface Tooltip extends Overlay, ITooltip {}
     export interface ITooltip extends IOverlay {
         side?: Auto | Side;

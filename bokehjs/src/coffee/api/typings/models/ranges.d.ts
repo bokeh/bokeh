@@ -5,7 +5,7 @@ declare namespace Bokeh {
     }
 
     export var Range1d: {
-        new(attributes?: IRange1d, options?: KeyVal): Range1d;
+        new(attributes?: IRange1d, options?: ModelOpts): Range1d;
         (start: number, end: number): Range1d;
     }
     export interface Range1d extends Range {}
@@ -21,7 +21,7 @@ declare namespace Bokeh {
         renderers?: Array<Renderer>;
     }
 
-    export var DataRange1d: { new(attributes?: IDataRange1d, options?: KeyVal): DataRange1d };
+    export var DataRange1d: { new(attributes?: IDataRange1d, options?: ModelOpts): DataRange1d };
     export interface DataRange1d extends DataRange, IDataRange1d {}
     export interface IDataRange1d extends IDataRange {
         range_padding?: number;
@@ -37,7 +37,7 @@ declare namespace Bokeh {
         default_span?: number;
     }
 
-    export var FactorRange: { new(attributes?: IFactorRange, options?: KeyVal): FactorRange };
+    export var FactorRange: { new(attributes?: IFactorRange, options?: ModelOpts): FactorRange };
     export interface FactorRange extends Range, IFactorRange {}
     export interface IFactorRange extends IRange {
         offset?: number;

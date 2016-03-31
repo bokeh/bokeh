@@ -4,4 +4,9 @@ declare namespace Bokeh {
         tags?: Array<any>;
     }
     export interface Model extends IModel {}
+
+    export interface ModelOpts {
+        silent?: boolean;
+        defer_initialization?: boolean;
+    }
 }

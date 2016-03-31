@@ -3,11 +3,11 @@ declare namespace Bokeh {
         plot?: Plot;
     }
 
-    export var Plot: { new(attributes?: IPlot, options?: KeyVal): Plot };
+    export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
     export interface Plot extends Component, IPlot {
         add_renderers(...Renderer: Array<Renderer>): void;
         add_layout(obj: Model, place?: Place): void;
-        add_glyph(glyph: Glyph, source?: DataSource, attrs?: KeyVal): GlyphRenderer;
+        add_glyph(glyph: Glyph, source?: DataSource, attrs?: ModelOpts): GlyphRenderer;
         add_tools(...tools: Array<Tool>): void;
     }
     export interface IPlot extends IComponent {
@@ -80,7 +80,7 @@ declare namespace Bokeh {
         responsive?: boolean;
     }
 
-    export var GridPlot: { new(attributes?: IGridPlot, options?: KeyVal): GridPlot };
+    export var GridPlot: { new(attributes?: IGridPlot, options?: ModelOpts): GridPlot };
     export interface GridPlot extends Component, IGridPlot {}
     export interface IGridPlot extends IComponent {
         children?: Array<Array<Plot>>;
