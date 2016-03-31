@@ -1,9 +1,9 @@
 declare namespace Bokeh {
     export interface Marker extends Glyph, FillProps, LineProps {
-        x: Numerical | Categorical;
-        y: Numerical | Categorical;
-        size: Spatial;
-        angle: Angular;
+        x?: Numerical | Categorical;
+        y?: Numerical | Categorical;
+        size?: Spatial;
+        angle?: Angular;
     }
 
     export var Asterisk: { new(attributes?: KeyVal, options?: KeyVal): Asterisk };
@@ -11,8 +11,8 @@ declare namespace Bokeh {
 
     export var Circle: { new(attributes?: KeyVal, options?: KeyVal): Circle };
     export interface Circle extends Marker {
-        radius: Spatial;
-        radius_dimension: Dimension;
+        radius?: Spatial;
+        radius_dimension?: Dimension;
     }
 
     export var CircleCross: { new(attributes?: KeyVal, options?: KeyVal): CircleCross };

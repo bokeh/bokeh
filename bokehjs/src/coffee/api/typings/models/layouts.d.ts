@@ -1,11 +1,11 @@
 declare namespace Bokeh {
     export interface Layout extends Component {
-        width: Int;
-        height: Int;
+        width?: Int;
+        height?: Int;
     }
 
     export interface BaseBox extends Layout {
-        children: Array<Component>;
+        children?: Array<Component>;
     }
 
     export var HBox: { new(attributes?: KeyVal, options?: KeyVal): HBox };

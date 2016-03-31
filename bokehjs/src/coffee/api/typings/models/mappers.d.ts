@@ -3,12 +3,12 @@ declare namespace Bokeh {
 
     export var LinearColorMapper: { new(attributes?: KeyVal, options?: KeyVal): LinearColorMapper };
     export interface LinearColorMapper extends ColorMapper {
-        palette: Palette | Array<Color>;
+        palette?: Palette | Array<Color>;
 
-        low: number;
-        high: number;
+        low?: number;
+        high?: number;
 
-        reserve_color: Color;
-        reserve_val: number;
+        reserve_color?: Color;
+        reserve_val?: number;
     }
 }
