@@ -6,12 +6,8 @@ namespace Stocks {
 
     function make_plot(title: string, source: Bokeh.ColumnDataSource) {
         // Create plot
-        const xr = new Bokeh.DataRange1d();
-        const yr = new Bokeh.DataRange1d();
         const plot = plt.figure({
             tools: "pan,wheel_zoom,save,reset",
-            x_range: xr,
-            y_range: yr,
             title: title,
             plot_width: 400,
             plot_height: 400,
@@ -36,10 +32,6 @@ namespace Stocks {
                           {source: source, legend: key, line_color: colors[i%6], line_width: 2});
             }
         }
-
-        // Tweaks to work around bootstrap problems
-        xr.renderers = plot.renderers;
-        yr.renderers = plot.renderers;
 
         return plot;
     }
