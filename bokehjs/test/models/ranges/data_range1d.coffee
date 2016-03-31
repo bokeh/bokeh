@@ -40,7 +40,7 @@ describe "datarange1d module", ->
       expect(r.get('default_span')).to.be.equal 2
 
     it "should have no computed_renderers", ->
-      expect(r.get('computed_renderers')).to.be.deep.equal []
+      expect(r.computed_renderers()).to.be.deep.equal []
 
   describe "explicit bounds=(10,20) creation", ->
     r = Collections('DataRange1d').create({start: 10, end:20})
@@ -89,14 +89,14 @@ describe "datarange1d module", ->
       g.type = "GlyphRenderer"
       p.set('renderers', [g])
       r.set('plots', [p])
-      expect(r.get('computed_renderers')).to.be.deep.equal [g]
+      expect(r.computed_renderers()).to.be.deep.equal [g]
 
       r = Collections('DataRange1d').create()
       g2 = new TestObject()
       g2.type = "GlyphRenderer"
       p.set('renderers', [g, g2])
       r.set('plots', [p])
-      expect(r.get('computed_renderers')).to.be.deep.equal [g, g2]
+      expect(r.computed_renderers()).to.be.deep.equal [g, g2]
 
 
     it "should add renderers from multiple plot", ->
@@ -112,7 +112,7 @@ describe "datarange1d module", ->
       p2.set('renderers', [g2])
 
       r.set('plots', [p, p2])
-      expect(r.get('computed_renderers')).to.be.deep.equal [g, g2]
+      expect(r.computed_renderers()).to.be.deep.equal [g, g2]
 
     it "should respect user-set renderers", ->
       r = Collections('DataRange1d').create()
@@ -128,7 +128,7 @@ describe "datarange1d module", ->
 
       r.set('plots', [p, p2])
       r.set('renderers', [g2])
-      expect(r.get('computed_renderers')).to.be.deep.equal [g2]
+      expect(r.computed_renderers()).to.be.deep.equal [g2]
 
   describe "_compute_range", ->
 
