@@ -60,8 +60,7 @@ function conda_info {
 }
 
 CONDA_ENV=$(conda_info root_prefix)
-PLATFORM=$(conda_info platform)
-BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
+BUILD_PATH=$CONDA_ENV/conda-bld/noarch
 
 # create an empty __travis_build_number__.txt file if you are building locally
 if [ $local == true ]; then
@@ -101,7 +100,7 @@ conda build conda.recipe --quiet
 
 # upload conda pkgs to anaconda.org
 echo Uploading noarch pkg
-anaconda -t $bintoken upload -u bokeh noarch/bokeh*.tar.bz2 -c $channel --force --no-progress
+anaconda -t $bintoken upload -u bokeh $BUILD_PATH/bokeh*.tar.bz2 -c $channel --force --no-progress
 
 # create, register and upload pypi pkgs to pypi and anaconda.org
 # zip is currently not working on anaconda.org
