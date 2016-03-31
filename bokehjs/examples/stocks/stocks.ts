@@ -59,6 +59,8 @@ namespace Stocks {
     const period = 0.5;  // seconds
     function new_data() {
         t += period;
+        // XXX: explicit type annotation required due to TypeScript#6041.
+        // Remove when TypeScript 2.0 is available.
         const d: Bokeh.Data = {
             t:      [t*1000],
             corp_a: [Math.sin(t*0.3 + 0)*2 + Math.random() + 3.0],
