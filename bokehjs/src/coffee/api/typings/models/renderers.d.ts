@@ -1,10 +1,13 @@
 declare namespace Bokeh {
-    export interface Renderer extends Model {}
+    export interface Renderer extends Model, IRenderer {}
+    export interface IRenderer extends IModel {}
 
-    export interface DataRenderer extends Renderer {}
+    export interface DataRenderer extends Renderer, IDataRenderer {}
+    export interface IDataRenderer extends IRenderer {}
 
-    export var TileRenderer: { new(attributes?: KeyVal, options?: KeyVal): TileRenderer };
-    export interface TileRenderer extends DataRenderer {
+    export var TileRenderer: { new(attributes?: ITileRenderer, options?: KeyVal): TileRenderer };
+    export interface TileRenderer extends DataRenderer, ITileRenderer {}
+    export interface ITileRenderer extends IDataRenderer {
         tile_source?: TileSource;
 
         alpha?: Percent;
@@ -17,8 +20,9 @@ declare namespace Bokeh {
         render_parents?: boolean;
     }
 
-    export var DynamicImageRenderer: { new(attributes?: KeyVal, options?: KeyVal): DynamicImageRenderer };
-    export interface DynamicImageRenderer extends DataRenderer {
+    export var DynamicImageRenderer: { new(attributes?: IDynamicImageRenderer, options?: KeyVal): DynamicImageRenderer };
+    export interface DynamicImageRenderer extends DataRenderer, IDynamicImageRenderer {}
+    export interface IDynamicImageRenderer extends IDataRenderer {
         image_source?: ImageSource;
 
         alpha?: Percent;
@@ -27,8 +31,9 @@ declare namespace Bokeh {
         render_parents?: boolean;
     }
 
-    export var GlyphRenderer: { new(attributes?: KeyVal, options?: KeyVal): GlyphRenderer };
-    export interface GlyphRenderer extends Renderer {
+    export var GlyphRenderer: { new(attributes?: IGlyphRenderer, options?: KeyVal): GlyphRenderer };
+    export interface GlyphRenderer extends Renderer, IGlyphRenderer {}
+    export interface IGlyphRenderer extends IRenderer {
         data_source?: DataSource;
 
         glyph?: Glyph;
@@ -42,7 +47,8 @@ declare namespace Bokeh {
         level?: RenderLevel;
     }
 
-    export interface GuideRenderer extends Renderer {
+    export interface GuideRenderer extends Renderer, IGuideRenderer {}
+    export interface IGuideRenderer extends IRenderer, IBackRef {
         bounds?: Auto | [number, number];
 
         x_range_name?: string;

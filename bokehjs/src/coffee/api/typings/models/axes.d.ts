@@ -1,5 +1,6 @@
 declare namespace Bokeh {
-    export interface Axis extends GuideRenderer {
+    export interface Axis extends GuideRenderer, IAxis {}
+    export interface IAxis extends IGuideRenderer {
         visible?: boolean;
         location?: Location;
 
@@ -62,22 +63,27 @@ declare namespace Bokeh {
         minor_tick_line_cap?: LineCap;
         minor_tick_line_dash?: DashPattern;
         minor_tick_line_dash_offset?: Int;
-        // }}}
+        // }}
     }
 
-    export interface ContinuousAxis extends Axis {}
+    export interface ContinuousAxis extends Axis, IContinuousAxis {}
+    export interface IContinuousAxis extends IAxis {}
 
-    export var LinearAxis: { new(attributes?: KeyVal, options?: KeyVal): LinearAxis };
-    export interface LinearAxis extends ContinuousAxis {}
+    export var LinearAxis: { new(attributes?: ILinearAxis, options?: KeyVal): LinearAxis };
+    export interface LinearAxis extends ContinuousAxis, ILinearAxis {}
+    export interface ILinearAxis extends IContinuousAxis {}
 
-    export var LogAxis: { new(attributes?: KeyVal, options?: KeyVal): LogAxis };
-    export interface LogAxis extends ContinuousAxis {}
+    export var LogAxis: { new(attributes?: ILogAxis, options?: KeyVal): LogAxis };
+    export interface LogAxis extends ContinuousAxis, ILogAxis {}
+    export interface ILogAxis extends IContinuousAxis {}
 
-    export var CategoricalAxis: { new(attributes?: KeyVal, options?: KeyVal): CategoricalAxis };
-    export interface CategoricalAxis extends Axis {}
+    export var CategoricalAxis: { new(attributes?: ICategoricalAxis, options?: KeyVal): CategoricalAxis };
+    export interface CategoricalAxis extends Axis, ICategoricalAxis {}
+    export interface ICategoricalAxis extends IAxis {}
 
-    export var DatetimeAxis: { new(attributes?: KeyVal, options?: KeyVal): DatetimeAxis };
-    export interface DatetimeAxis extends LinearAxis {
+    export var DatetimeAxis: { new(attributes?: IDatetimeAxis, options?: KeyVal): DatetimeAxis };
+    export interface DatetimeAxis extends LinearAxis, IDatetimeAxis {}
+    export interface IDatetimeAxis extends ILinearAxis {
         scale?: string;
         num_labels?: Int;
         char_width?: Int;

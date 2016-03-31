@@ -1,6 +1,7 @@
 declare namespace Bokeh {
-    export var Grid: { new(attributes?: KeyVal, options?: KeyVal): Grid };
-    export interface Grid extends GuideRenderer {
+    export var Grid: { new(attributes?: IGrid, options?: KeyVal): Grid };
+    export interface Grid extends GuideRenderer, IGrid {}
+    export interface IGrid extends IGuideRenderer {
         dimension?: Int;
         ticker?: Ticker;
 

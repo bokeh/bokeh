@@ -1,6 +1,16 @@
 declare namespace Bokeh {
-    export var Plot: { new(attributes?: KeyVal, options?: KeyVal): Plot };
-    export interface Plot extends Component {
+    export interface IBackRef {
+        plot?: Plot;
+    }
+
+    export var Plot: { new(attributes?: IPlot, options?: KeyVal): Plot };
+    export interface Plot extends Component, IPlot {
+        add_renderers(...Renderer: Array<Renderer>): void;
+        add_layout(obj: Model, place?: Place): void;
+        add_glyph(glyph: Glyph, source?: DataSource, attrs?: KeyVal): GlyphRenderer;
+        add_tools(...tools: Array<Tool>): void;
+    }
+    export interface IPlot extends IComponent {
         title?: string;
 
         // {{{ title = include[TextProps]
@@ -68,19 +78,11 @@ declare namespace Bokeh {
         webgl?: boolean;
 
         responsive?: boolean;
-
-        add_renderers(...Renderer: Array<Renderer>): void;
-        add_layout(obj: Model, place?: Place): void;
-        add_glyph(glyph: Glyph, source?: DataSource, attrs?: KeyVal): GlyphRenderer;
-        add_tools(...tools: Array<Tool>): void;
     }
 
-    export interface BackRef {
-        plot?: Plot;
-    }
-
-    export var GridPlot: { new(attributes?: KeyVal, options?: KeyVal): GridPlot };
-    export interface GridPlot extends Component {
+    export var GridPlot: { new(attributes?: IGridPlot, options?: KeyVal): GridPlot };
+    export interface GridPlot extends Component, IGridPlot {}
+    export interface IGridPlot extends IComponent {
         children?: Array<Array<Plot>>;
         border_space?: Int;
         toolbar_location?: Location;

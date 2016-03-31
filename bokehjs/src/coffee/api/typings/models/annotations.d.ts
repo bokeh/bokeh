@@ -1,10 +1,12 @@
 declare namespace Bokeh {
-    export interface Annotation extends Renderer, BackRef {
+    export interface Annotation extends Renderer, IAnnotation {}
+    export interface IAnnotation extends IRenderer, IBackRef {
         level?: RenderLevel;
     }
 
-    export var Legend: { new(attributes?: KeyVal, options?: KeyVal): Legend };
-    export interface Legend extends Annotation {
+    export var Legend: { new(attributes?: ILegend, options?: KeyVal): Legend };
+    export interface Legend extends Annotation, ILegend {}
+    export interface ILegend extends IAnnotation {
         location?: LegendLocation;
         orientation?: Orientation;
 
@@ -51,8 +53,9 @@ declare namespace Bokeh {
         legends?: Array<[string, Array<GlyphRenderer>]>;
     }
 
-    export var BoxAnnotation: { new(attributes?: KeyVal, options?: KeyVal): BoxAnnotation };
-    export interface BoxAnnotation extends Annotation, LineProps, FillProps {
+    export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: KeyVal): BoxAnnotation };
+    export interface BoxAnnotation extends Annotation, IBoxAnnotation {}
+    export interface IBoxAnnotation extends IAnnotation, LineProps, FillProps {
         left?: Auto | Numerical;
         left_units?: SpatialUnits;
 
@@ -71,8 +74,9 @@ declare namespace Bokeh {
         render_mode?: RenderMode;
     }
 
-    export var PolyAnnotation: { new(attributes?: KeyVal, options?: KeyVal): PolyAnnotation };
-    export interface PolyAnnotation extends Annotation, LineProps, FillProps {
+    export var PolyAnnotation: { new(attributes?: IPolyAnnotation, options?: KeyVal): PolyAnnotation };
+    export interface PolyAnnotation extends Annotation, IPolyAnnotation {}
+    export interface IPolyAnnotation extends IAnnotation, LineProps, FillProps {
         xs?: Array<number>;
         xs_units?: SpatialUnits;
 
@@ -83,8 +87,9 @@ declare namespace Bokeh {
         y_range_name?: string;
     }
 
-    export var Span: { new(attributes?: KeyVal, options?: KeyVal): Span };
-    export interface Span extends Annotation, LineProps {
+    export var Span: { new(attributes?: ISpan, options?: KeyVal): Span };
+    export interface Span extends Annotation, ISpan {}
+    export interface ISpan extends IAnnotation, LineProps {
         location?: number;
         location_units?: SpatialUnits;
 
@@ -96,11 +101,13 @@ declare namespace Bokeh {
         render_mode?: RenderMode;
     }
 
-    export var Overlay: { new(attributes?: KeyVal, options?: KeyVal): Overlay };
-    export interface Overlay extends Annotation {}
+    export var Overlay: { new(attributes?: IOverlay, options?: KeyVal): Overlay };
+    export interface Overlay extends Annotation, IOverlay {}
+    export interface IOverlay extends IAnnotation {}
 
-    export var Tooltip: { new(attributes?: KeyVal, options?: KeyVal): Tooltip };
-    export interface Tooltip extends Overlay {
+    export var Tooltip: { new(attributes?: ITooltip, options?: KeyVal): Tooltip };
+    export interface Tooltip extends Overlay, ITooltip {}
+    export interface ITooltip extends IOverlay {
         side?: Auto | Side;
         inner_only?: boolean;
     }
