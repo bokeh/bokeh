@@ -8,7 +8,7 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @mget('renderers')
+      for r in @mget('computed_renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.clear()
@@ -64,20 +64,23 @@ class SelectTool extends GestureTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    names = @get('names')
-    renderers = @get('renderers')
+    @register_property('computed_renderers',
+      () ->
+        renderers = @get('renderers')
+        names = @get('names')
 
-    if renderers.length == 0
-      all_renderers = @get('plot').get('renderers')
-      renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
+        if renderers.length == 0
+          all_renderers = @get('plot').get('renderers')
+          renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
 
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+        if names.length > 0
+          renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
 
-    @set('renderers', renderers)
-    logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
-    for r in renderers
-      logger.debug(" - #{r.type} #{r.id}")
+        return renderers
+      , true)
+    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
+    @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
+
     return null
 
 module.exports =

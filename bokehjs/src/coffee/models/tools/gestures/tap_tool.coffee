@@ -21,7 +21,7 @@ class TapToolView extends SelectTool.View
 
     callback = @mget("callback")
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
