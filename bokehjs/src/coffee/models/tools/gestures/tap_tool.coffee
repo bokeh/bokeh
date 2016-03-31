@@ -25,7 +25,11 @@ class TapToolView extends SelectTool.View
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
-      if callback? then callback.execute(ds)
+      if callback?
+        if _.isFunction(callback)
+          callback(ds)
+        else
+          callback.execute(ds)
 
     @_save_geometry(geometry, final, append)
     @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
@@ -41,8 +45,8 @@ class TapTool extends SelectTool.Model
   default_order: 10
 
   @define {
-      callback: [ p.Instance ]
-    }
+    callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
+  }
 
 module.exports =
   Model: TapTool

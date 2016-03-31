@@ -40,6 +40,15 @@ namespace TappyScatter {
 
     const tap = p.select_one(Bokeh.TapTool)
     tap.renderers = [circles]
+    tap.callback = (ds) => {
+        const indices = ds.selected['1d'].indices
+        if (indices.length == 1)
+            console.log(`Selected index: ${indices[0]}`)
+        else if (indices.length > 1)
+            console.log(`Selected indices: ${indices.join(', ')}`)
+        else
+            console.log("Nothing selected")
+    }
 
     plt.show(p)
 }
