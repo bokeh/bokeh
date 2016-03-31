@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 GestureTool = require "./gesture_tool"
+GlyphRenderer = require "../../renderers/glyph_renderer"
 {logger} = require "../../../core/logging"
 p = require "../../../core/properties"
 
@@ -71,7 +72,7 @@ class SelectTool extends GestureTool.Model
 
         if renderers.length == 0
           all_renderers = @get('plot').get('renderers')
-          renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
 
         if names.length > 0
           renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
