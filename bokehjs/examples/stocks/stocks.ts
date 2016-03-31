@@ -71,6 +71,5 @@ namespace Stocks {
 
     // Create plot and attach to DOM
     const plot = make_plot('Simple stocks demo', source);
-    const div = document.getElementById("plot");
-    plt.show(plot, div);
+    plt.show(plot, "#plot");
 }
