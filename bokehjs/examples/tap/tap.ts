@@ -37,7 +37,7 @@ namespace TappyScatter {
     p.text({field: "x"}, {field: "y"}, indices, {source: source, alpha: 0.5,
            text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
-    const tap = p.tools.filter((t) => t instanceof Bokeh.TapTool)[0] as Bokeh.TapTool
+    const tap = p.select_one(Bokeh.TapTool)
     tap.renderers = [circles]
 
     plt.show(p)

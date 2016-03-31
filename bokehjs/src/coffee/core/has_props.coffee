@@ -412,6 +412,11 @@ class HasProps extends Backbone.Model
 
     _.values(result)
 
+  references: () ->
+    references = {}
+    HasProps._value_record_references(this, references, true)
+    return _.values(references)
+
   attach_document: (doc) ->
     if @document != null and @document != doc
       throw new Error("Models must be owned by only a single document")
