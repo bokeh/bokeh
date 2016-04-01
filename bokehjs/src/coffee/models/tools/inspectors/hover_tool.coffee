@@ -190,6 +190,8 @@ class HoverToolView extends InspectTool.View
 
     if _.isString(tooltips)
       return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
+    else if _.isFunction(tooltips)
+      return tooltips(ds, vars)
     else
       table = $('<table></table>')
 

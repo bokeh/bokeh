@@ -90,7 +90,21 @@ declare namespace Bokeh {
         callback?: Callback | ((source: DataSource) => void);
     }
 
-    type HoverCallbackData = {
+    export interface HoverTooltipInfo {
+        index:  Int;
+        x:      ArrayLike<number>;
+        y:      ArrayLike<number>;
+        vx:     ArrayLike<number>;
+        vy:     ArrayLike<number>;
+        sx:     ArrayLike<number>;
+        sy:     ArrayLike<number>;
+        data_x: ArrayLike<number>;
+        data_y: ArrayLike<number>;
+        rx:     ArrayLike<number>;
+        ry:     ArrayLike<number>;
+    }
+
+    export interface HoverCallbackData {
         index: Array<Int> | Array<Array<Int>>;
         geometry: {
             type: "point" | "span";
@@ -102,12 +116,12 @@ declare namespace Bokeh {
             sx: ArrayLike<number>;
             sy: ArrayLike<number>;
         };
-    };
+    }
 
     export var HoverTool: { new(attributes?: IHoverTool, options?: ModelOpts): HoverTool };
     export interface HoverTool extends InspectTool, IHoverTool {}
     export interface IHoverTool extends IInspectTool, IHitTest {
-        tooltips?: Tooltip;
+        tooltips?: HTMLElement | Array<[string, string]> | ((source: DataSource, info: HoverTooltipInfo) => HTMLElement);
         callback?: Callback | ((tool: HoverTool, data: HoverCallbackData) => void);
         mode?: HoverMode;
         point_policy?: PointPolicy;
