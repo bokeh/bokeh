@@ -3,6 +3,7 @@ $ = require "jquery"
 
 InspectTool = require "./inspect_tool"
 Tooltip = require "../../annotations/tooltip"
+GlyphRenderer = require "../../renderers/glyph_renderer"
 hittest = require "../../../common/hittest"
 {logger} = require "../../../core/logging"
 p = require "../../../core/properties"
@@ -256,33 +257,40 @@ class HoverTool extends InspectTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    names = @get('names')
-    renderers = @get('renderers')
+    @register_property('computed_renderers',
+      () ->
+        renderers = @get('renderers')
+        names = @get('names')
 
-    if renderers.length == 0
-      all_renderers = @get('plot').get('renderers')
-      renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
+        if renderers.length == 0
+          all_renderers = @get('plot').get('renderers')
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
 
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+        if names.length > 0
+          renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
 
-    @set('computed_renderers', renderers)
-    logger.debug("setting #{renderers.length} computed renderers for #{@type} #{@id}")
-    for r in renderers
-      logger.debug("  - #{r.type} #{r.id}")
+        return renderers
+      , true)
+    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
+    @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
-    ttmodels = {}
-    renderers = @get('plot').get('renderers')
-    tooltips = @get("tooltips")
-    if tooltips?
-      for r in @get('computed_renderers')
-        tooltip = new Tooltip.Model()
-        tooltip.set("custom", _.isString(tooltips))
-        ttmodels[r.id] = tooltip
-        renderers.push(tooltip)
-    @set('ttmodels', ttmodels)
-    @get('plot').set('renderers', renderers)
-    return
+    @register_property('ttmodels',
+      () ->
+        ttmodels = {}
+        tooltips = @get("tooltips")
+
+        if tooltips?
+          for r in @get('computed_renderers')
+            tooltip = new Tooltip.Model()
+            tooltip.set("custom", _.isString(tooltips) or _.isFunction(tooltips))
+            ttmodels[r.id] = tooltip
+
+        return ttmodels
+      , true)
+    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
+
+    @register_property('synthetic_renderers', (() -> _.values(@get("ttmodels"))), true)
+    @add_dependencies('synthetic_renderers', this, ['ttmodels'])
 
 module.exports =
   Model: HoverTool

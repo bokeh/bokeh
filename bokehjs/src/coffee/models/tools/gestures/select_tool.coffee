@@ -54,7 +54,7 @@ class SelectTool extends GestureTool.Model
     }
 
   nonserializable_attribute_names: () ->
-    super().concat(['multi_select_modifier'])
+    super().concat(['multi_select_modifier', 'computed_renderers'])
 
   defaults: () ->
     return _.extend({}, super(), {
