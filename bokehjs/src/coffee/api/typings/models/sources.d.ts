@@ -3,7 +3,7 @@ declare namespace Bokeh {
     export interface IDataSource extends IModel {
         column_names?: Array<string>;
         selected?: Selected;
-        callback?: Callback;
+        callback?: Callback | ((source: this) => void);
     }
 
     type Data = Map<ArrayLike<any>>;

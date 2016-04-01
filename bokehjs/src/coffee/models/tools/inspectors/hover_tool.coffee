@@ -174,7 +174,13 @@ class HoverToolView extends InspectTool.View
     geometry['x'] = xmapper.map_from_target(geometry.vx)
     geometry['y'] = ymapper.map_from_target(geometry.vy)
 
-    @mget('callback').execute(@model, {index: indices, geometry: geometry})
+    callback = @mget('callback')
+    [obj, data] = [@model, {index: indices, geometry: geometry}]
+
+    if _.isFunction(callback)
+      callback(obj, data)
+    else
+      callback.execute(obj, data)
 
     return
 
@@ -241,7 +247,7 @@ class HoverTool extends InspectTool.Model
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
       line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
-      callback:     [ p.Instance               ]
+      callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
   nonserializable_attribute_names: () ->
