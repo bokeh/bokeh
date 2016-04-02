@@ -1,5 +1,6 @@
 declare namespace Bokeh.Plotting {
-    function show(obj: Component, target?: string | HTMLElement): void;
+    function show(objs: Array<Component>, target?: string | HTMLElement): Map<View<Model>>;
+    function show<T extends Component>(obj: T, target?: string | HTMLElement): View<T>;
 
     function color(r: number, g: number, b: number): string;
 

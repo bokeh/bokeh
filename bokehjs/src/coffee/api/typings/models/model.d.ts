@@ -1,5 +1,6 @@
 declare namespace Bokeh {
     export interface IModel {
+        id?: string;
         name?: string;
         tags?: Array<any>;
     }

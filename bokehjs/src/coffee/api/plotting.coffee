@@ -339,13 +339,25 @@ figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
 
 show = (obj, target) ->
+  multiple = _.isArray(obj)
+
   doc = new Document()
-  doc.add_root(obj)
+
+  if not multiple
+    doc.add_root(obj)
+  else
+    for _obj in obj
+      doc.add_root(_obj)
 
   div = $("<div class='bk-root'>")
   $(target ? "body").append(div)
 
-  embed.add_document_static(div, doc)
+  views = embed.add_document_standalone(doc, div)
+
+  if not multiple
+    return views[obj.id]
+  else
+    return views
 
 color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
