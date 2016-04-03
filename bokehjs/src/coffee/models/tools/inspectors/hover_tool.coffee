@@ -80,7 +80,7 @@ class HoverToolView extends InspectTool.View
     tooltip.clear()
 
     [i1d, i2d] = [indices['1d'].indices, indices['2d'].indices]
-    if indices['0d'].glyph == null and i1d.length == 0 and i2d.length == 0
+    if indices['0d'].length == 0 and i1d.length == 0 and i2d.length == 0
       return
 
     vx = geometry.vx
