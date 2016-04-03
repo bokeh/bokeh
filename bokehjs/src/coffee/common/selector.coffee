@@ -13,6 +13,7 @@ class Selector extends HasProps
       if @get('indices').get_model()
         indices.get_model = @get('indices').get_model
         indices.get_view = @get('indices').get_view
+      indices['0d'].indices =  _.union(@get('indices')['0d'].indices, indices['0d'].indices)
       indices['1d'].indices =  _.union(@get('indices')['1d'].indices, indices['1d'].indices)
       indices['2d'].indices =  _.union(@get('indices')['2d'].indices, indices['2d'].indices)
     @set('indices', indices, {silent: silent})
