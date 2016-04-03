@@ -26,11 +26,11 @@ def get_data(f, name):
 
 def select_data():
     data_val = data_select.value
-    with h5py.File('myfile.hdf5', 'r') as f:
+    with h5py.File('demo_data.hdf5', 'r') as f:
         return get_data(f, data_val)
 
 
-def update(attrname, old, new):
+def update_data(attrname, old, new):
     # hardcoded length of 100
     x = list(range(1, 101))
     y = select_data()
@@ -38,10 +38,10 @@ def update(attrname, old, new):
     source.data = dict(x=x, y=y)
 
 
-data_select.on_change('value', update)
+data_select.on_change('value', update_data)
 
-inputs = HBox(VBoxForm(data_select), width=300)
+inputs = VBoxForm(data_select, width=300)
 
-update(None, None, None)
+update_data(None, None, None)
 
 curdoc().add_root(HBox(inputs, p, width=1100))
