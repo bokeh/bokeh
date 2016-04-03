@@ -14,9 +14,9 @@ from bokeh.plotting import output_file, show, figure
 t = np.linspace(0, 0.1, 100)
 
 code = """
-d0 = cb_obj.get("selected")["0d"];
-if (d0.glyph) {
-    var color = d0.glyph.glyph_view.visuals.line.color.value();
+glyph_view = cb_obj.get("selected").get_view();
+if (glyph_view) {
+    var color = glyph_view.visuals.line.line_color.value();
     var data = source.get('data');
     data['text'] = ['Selected the ' + color + ' line'];
     source.trigger('change');

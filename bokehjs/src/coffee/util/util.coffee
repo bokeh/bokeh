@@ -42,7 +42,7 @@ replace_placeholders = (string, data_source, i, special_vars={}) ->
 get_indices = (data_source) ->
   selected = data_source.get("selected")
 
-  if selected['0d'].glyph
+  if selected['0d'].indices.length > 0
     selected['0d'].indices
   else if selected['1d'].indices.length > 0
     selected['1d'].indices

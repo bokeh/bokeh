@@ -125,8 +125,8 @@ class GlyphRendererView extends Renderer.View
     if !selected or selected.length == 0
       selected = []
     else
-      if selected['0d'].glyph
-        selected = indices
+      if selected['0d'].indices.length > 0
+        selected = indices  # for lines and patches use all
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
       else if selected['2d'].indices.length > 0
@@ -138,8 +138,8 @@ class GlyphRendererView extends Renderer.View
     if !inspected or inspected.length == 0
       inspected = []
     else
-      if inspected['0d'].glyph
-        inspected = indices
+      if inspected['0d'].indices.length > 0
+        inspected = indices  # for lines and patches use all
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
       else if inspected['2d'].indices.length > 0

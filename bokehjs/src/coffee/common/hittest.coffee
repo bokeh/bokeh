@@ -17,10 +17,11 @@ point_in_poly = (x, y, px, py) ->
 
 create_hit_test_result = ->
   result = {
+    # the glyph that was picked
+    get_view: () -> null,  # function, to avoid infinite recursion
+    get_model: () -> null,  # also a function, for consistency
     # 0d is only valid for line and patch glyphs
     '0d': {
-      # the glyph that was picked
-      glyph: null,
       # array with the [smallest] index of the segment of the line that was hit
       indices: []
     }
