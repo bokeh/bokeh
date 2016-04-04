@@ -22,7 +22,7 @@ class StyleableBoxView extends BokehView
     if @model.get('orientation') == 'horizontal' and @attributes.class != 'horizontal'
       $(@el).addClass('bk-hbox').removeClass('bk-vbox')
 
-    children = @model.children()
+    children = @model.children
     build_views(@views, children)
     for own key, val of @views
       val.$el.detach()
