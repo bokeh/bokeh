@@ -1,4 +1,4 @@
-module Anscombe {
+namespace Anscombe {
     console.log(`Bokeh ${Bokeh.version}`);
     Bokeh.set_log_level("debug");
 

@@ -352,11 +352,16 @@ class PlotView extends Renderer.View
     @update_range(null)
 
   build_levels: () ->
+    renderer_models = @mget("renderers")
+    for tool_model in @mget("tools")
+      synthetic = tool_model.get("synthetic_renderers") ? []
+      renderer_models = renderer_models.concat(synthetic)
+
     # should only bind events on NEW views and tools
     old_renderers = _.keys(@renderers)
-    views = build_views(@renderers, @mget('renderers'), @view_options())
-    renderers_to_remove = _.difference(old_renderers,
-                                       _.pluck(@mget('renderers'), 'id'))
+    views = build_views(@renderers, renderer_models, @view_options())
+    renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
+
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
     tools = build_views(@tools, @mget('tools'), @view_options())
@@ -747,6 +752,9 @@ class Plot extends Component.Model
 
   add_tools: (tools...) ->
     new_tools = for tool in tools
+      if tool.overlay?
+        @add_renderers(tool.overlay)
+
       if tool.plot?
         tool
       else

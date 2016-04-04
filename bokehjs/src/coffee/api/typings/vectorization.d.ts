@@ -7,7 +7,7 @@ declare namespace Bokeh {
         field: string;
     }
 
-    export type Vectorized<T> = Value<T> | Field;
+    export type Vectorized<T> = T | Value<T> | Field;
 
     export type Spatial = Vectorized<number> & {
         units?: SpatialUnits;

@@ -1,7 +1,7 @@
 declare namespace Bokeh {
     var version: string;
 
-    var index: {[key: string]: Model};
+    var index: Map<Model>;
 
     var _: UnderscoreStatic;
 
