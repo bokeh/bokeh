@@ -11,9 +11,7 @@ class StyleableBoxView extends BokehView
     class: "bk-vbox"
 
   initialize: (options) ->
-    debugger
     super(options)
-
 
     @views = {}
     @render()
