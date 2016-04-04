@@ -137,7 +137,7 @@ def test_BoxAnnotation():
 def test_Label():
     label = Label()
     assert label.plot is None
-    assert label.level == 'overlay'
+    assert label.level == 'annotation'
     assert label.x is None
     assert label.y is None
     assert label.x_units == 'data'

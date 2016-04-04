@@ -10,9 +10,10 @@ from __future__ import absolute_import
 
 from mock import patch
 import unittest
+import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer
+from bokeh.models import GlyphRenderer, Label, Range1d
 from bokeh.models.tools import PanTool
 
 
@@ -65,6 +66,19 @@ class TestPlotSelect(unittest.TestCase):
             str(cm.exception)
         )
 
+
+def test_plot_add_annotation_method():
+    plot = figure()
+
+    with pytest.raises(ValueError):
+        plot.add_annotation(Range1d())
+
+    with pytest.raises(ValueError):
+        plot.add_annotation(Label(plot=figure()))
+
+    label = Label()
+    plot.add_annotation(label)
+    assert label.source.data == {} ## creates empty ColumnDataSource if None
 
 def test_responsive_property_is_false_by_default():
     plot = figure()
