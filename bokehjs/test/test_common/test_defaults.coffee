@@ -5,13 +5,12 @@ utils = require "../utils"
 core_defaults = require "./defaults/models_defaults"
 widget_defaults = require "./defaults/widgets_defaults"
 
-{Collections} = utils.require "base"
+{Models} = utils.require "base"
 mixins = utils.require "core/property_mixins"
 HasProps = utils.require "core/has_props"
-Models = utils.require "api/models"
 
 widget_locations = utils.require "models/widgets/main"
-Collections.register_locations(widget_locations)
+Models.register_locations(widget_locations)
 
 all_view_model_names = []
 all_view_model_names = all_view_model_names.concat(core_defaults.all_view_model_names())
@@ -141,7 +140,7 @@ describe "Defaults", ->
   it.skip "have all non-Widget view models from Python in the Models object", ->
     missing = []
     for name in core_defaults.all_view_model_names()
-      if name not of Models
+      if name not of Models.registered_names()
         missing.push(name)
     for m in missing
       console.log("'Models.#{m}' not found but there's a Python model '#{m}'")
@@ -158,7 +157,7 @@ describe "Defaults", ->
 
   it "have all view models from Python in registered locations", ->
     registered = {}
-    for name in Collections.registered_names()
+    for name in Models.registered_names()
       registered[name] = true
     missing = []
     for name in all_view_model_names
@@ -171,8 +170,8 @@ describe "Defaults", ->
   it "match between Python and CoffeeScript", ->
     fail_count = 0
     for name in all_view_model_names
-      coll = Collections(name)
-      instance = new coll.model({}, {'silent' : true, 'defer_initialization' : true})
+      model = Models(name)
+      instance = new model({}, {silent: true, defer_initialization: true})
       attrs = instance.attributes_as_json(true, deep_value_to_json)
       strip_ids(attrs)
 
