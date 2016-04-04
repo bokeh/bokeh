@@ -62,7 +62,7 @@ class StatsBox extends BaseBox.Model
 
   @define {
     styles:         [ p.String, null]
-    display_items: {}
+    display_items:  [ p.Dict, null ]
   }
 
 module.exports =
