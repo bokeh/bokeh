@@ -28,11 +28,11 @@ class LabelView extends Renderer.View
     @set_visuals(@mget('source'))
 
   _set_data: () ->
-    @label_div = ($("<div>").addClass('label').hide() for i in @text)
-    @width = (null for i in @text)
-    @height = (null for i in @text)
-    @x_shift = (null for i in @text)
-    @y_shift = (null for i in @text)
+    @label_div = ($("<div>").addClass('label').hide() for i in @_text)
+    @width = (null for i in @_text)
+    @height = (null for i in @_text)
+    @x_shift = (null for i in @_text)
+    @y_shift = (null for i in @_text)
 
     ld = @mget("border_line_dash")
     if _.isArray(ld)
@@ -44,23 +44,23 @@ class LabelView extends Renderer.View
         @line_dash = ld
 
     ctx = @plot_view.canvas_view.ctx
-    for i in [0...@text.length]
+    for i in [0...@_text.length]
       @visuals.text.set_vectorize(ctx, i)
-      @width[i] = ctx.measureText(@text[i]).width
-      @height[i] = ctx.measureText(@text[i]).ascent / 1.175
+      @width[i] = ctx.measureText(@_text[i]).width
+      @height[i] = ctx.measureText(@_text[i]).ascent / 1.175
       [ @x_shift[i], @y_shift[i] ] = @_calculate_offset(ctx, @height[i], @width[i])
 
   _map_data: () ->
     if @mget('x_units') == "data"
-      vx = @xmapper.v_map_to_target(@x)
+      vx = @xmapper.v_map_to_target(@_x)
     else
-      vx = @x.slice(0) # make deep copy to not mutate
+      vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
     if @mget('y_units') == "data"
-      vy = @ymapper.v_map_to_target(@y)
+      vy = @ymapper.v_map_to_target(@_y)
     else
-      vy = @y.slice(0) # make deep copy to not mutate
+      vy = @_y.slice(0) # make deep copy to not mutate
 
     sy = @canvas.v_vy_to_sy(vy)
 
@@ -96,11 +96,11 @@ class LabelView extends Renderer.View
 
   _canvas_text: () ->
     ctx = @plot_view.canvas_view.ctx
-    for i in [0...@text.length]
+    for i in [0...@_text.length]
       ctx.save()
 
       ctx.rotate(@mget('angle'))
-      ctx.translate(@sx[i] + @x_offset[i], @sy[i] + @y_offset[i])
+      ctx.translate(@sx[i] + @_x_offset[i], @sy[i] + @_y_offset[i])
 
       ctx.beginPath()
       ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
@@ -115,13 +115,13 @@ class LabelView extends Renderer.View
 
       if @visuals.text.doit
         @visuals.text.set_vectorize(ctx, i)
-        ctx.fillText(@text[i], 0, 0)
+        ctx.fillText(@_text[i], 0, 0)
       ctx.restore()
 
   _css_text: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    for i in [0...@text.length]
+    for i in [0...@_text.length]
       @visuals.text.set_vectorize(ctx, i)
       @visuals.border_line.set_vectorize(ctx, i)
       @visuals.background_fill.set_vectorize(ctx, i)
@@ -132,18 +132,18 @@ class LabelView extends Renderer.View
       @label_div[i].hide()
 
       @label_div[i]
-        .html(@text[i])
+        .html(@_text[i])
         .css({
           'position': 'absolute'
-          'top': "#{@sy[i] + @y_offset[i] + @y_shift[i]}px"
-          'left': "#{@sx[i] + @x_offset[i] + @x_shift[i]}px"
-          'color': "#{@text_color[i]}"
-          'opacity': "#{@text_alpha[i]}"
-          'font-size': "#{@text_font_size[i]}"
+          'top': "#{@sy[i] + @_y_offset[i] + @y_shift[i]}px"
+          'left': "#{@sx[i] + @_x_offset[i] + @x_shift[i]}px"
+          'color': "#{@_text_color[i]}"
+          'opacity': "#{@_text_alpha[i]}"
+          'font-size': "#{@_text_font_size[i]}"
           'font-family': "#{@mget('text_font')}"
           'background-color': "#{@visuals.background_fill.color_value()}"
           'border-style': "#{@line_dash}"
-          'border-width': "#{@border_line_width[i]}"
+          'border-width': "#{@_border_line_width[i]}"
           'border-color': "#{@visuals.border_line.color_value()}"
           })
         .show()
@@ -157,8 +157,8 @@ class Label extends Annotation.Model
 
   @define {
       x:            [ p.NumberSpec,                     ]
-      y:            [ p.NumberSpec,                     ]
       x_units:      [ p.SpatialUnits, 'data'            ]
+      y:            [ p.NumberSpec,                     ]
       y_units:      [ p.SpatialUnits, 'data'            ]
       text:         [ p.StringSpec,   { field :"text" } ]
       angle:        [ p.AngleSpec,    0                 ]
