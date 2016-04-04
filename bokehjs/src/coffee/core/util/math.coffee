@@ -34,9 +34,14 @@ angle_between = (mid, lhs, rhs, direction) ->
   else
     return not (angle_dist(lhs, mid) <= d and angle_dist(mid, rhs) <= d)
 
+atan2 = (start, end) ->
+  return Math.atan2(end[1]-start[1], end[0]-start[0])
+
+
 module.exports =
   array_min: array_min
   array_max: array_max
   angle_norm: angle_norm
   angle_dist: angle_dist
   angle_between: angle_between
+  atan2: atan2
