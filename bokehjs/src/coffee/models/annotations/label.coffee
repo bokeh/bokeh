@@ -161,10 +161,9 @@ class Label extends Annotation.Model
 
   type: 'Label'
 
-  mixins: ['text', 'line:border_', 'fill:background_']
+  @mixins ['text', 'line:border_', 'fill:background_']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       x:            [ p.NumberSpec,                     ]
       y:            [ p.NumberSpec,                     ]
       x_units:      [ p.SpatialUnits, 'data'            ]
@@ -173,7 +172,6 @@ class Label extends Annotation.Model
       angle:        [ p.AngleSpec,    0                 ]
       x_offset:     [ p.NumberSpec,   { value: 0 }      ]
       y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      level:        [ p.RenderLevel, 'overlay'          ]
       source:       [ p.Instance                        ]
       x_range_name: [ p.String,      'default'          ]
       y_range_name: [ p.String,      'default'          ]
