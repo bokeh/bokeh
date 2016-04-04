@@ -26,6 +26,8 @@ module.exports =
 
   RenderMode: ["canvas", "css"]
 
+  TextRenderMode: ["canvas", "css", "latex"]
+
   Side: ["left", "right"]
 
   SpatialUnits: ["screen", "data"]

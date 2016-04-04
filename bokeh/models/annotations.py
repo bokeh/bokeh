@@ -5,16 +5,20 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode, Side
+    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension,
+    RenderMode, TextRenderMode, Side
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
-    Include, NumberSpec, Either, Auto, Float, Override, Seq
+    Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
+    AngleSpec
 )
 from ..util.deprecate import deprecated
+
 from .renderers import Renderer, GlyphRenderer
+from .sources import DataSource
 
 @abstract
 class Annotation(Renderer):
@@ -182,6 +186,102 @@ class BoxAnnotation(Annotation):
         the render_mode is set to "css"
 
     """)
+
+
+class Label(Annotation):
+    """ Render a text box as an annotation.
+
+    """
+
+    x = NumberSpec(help="""
+    The x-coordinates to locate the text anchors.
+    """)
+
+    x_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the xs attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    y = NumberSpec(help="""
+    The y-coordinates to locate the text anchors.
+    """)
+
+    y_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the ys attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    text = StringSpec("text", help="""
+    The text values to render.
+    """)
+
+    angle = AngleSpec(default=0, help="""
+    The angles to rotate the text, as measured from the horizontal.
+    """)
+
+    x_offset = NumberSpec(default=0, help="""
+    Offset values to apply to the x-coordinates.
+
+    This is useful, for instance, if it is desired to "float" text a fixed
+    distance in screen units from a given data position.
+    """)
+
+    y_offset = NumberSpec(default=0, help="""
+    Offset values to apply to the y-coordinates.
+
+    This is useful, for instance, if it is desired to "float" text a fixed
+    distance in screen units from a given data position.
+    """)
+
+    text_props = Include(TextProps, use_prefix=False, help="""
+    The %s values for the text.
+    """)
+
+    background_props = Include(FillProps, use_prefix=True, help="""
+    The %s values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=1.0)
+
+    border_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the text bounding box.
+    """)
+
+    border_line_color = Override(default="#ffffff")
+
+    border_line_alpha = Override(default=1.0)
+
+    source = Instance(DataSource, help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    render_mode = Enum(TextRenderMode, default="canvas", help="""
+    Specifies whether the text is rendered as a canvas element or as an
+    css element overlaid on the canvas (including as LaTeX). The default mode
+    is "canvas".
+
+    .. warning::
+        Not all visual styling properties are supported if the render_mode is
+        set to "css". The border_line_dash property isn't fully supported and
+        border_line_dash_offset isn't supported at all. Setting text_alpha will
+        modify the opacity of the entire background box and border in addition
+        to the text. Finally, clipping Label annotations inside of the plot
+        area isn't supported in "css" mode.
+
+    """)
+
 
 class PolyAnnotation(Annotation):
     """ Render a shaded polygonal region as an annotation.

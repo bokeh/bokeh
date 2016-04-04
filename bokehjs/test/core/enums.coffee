@@ -25,6 +25,9 @@ describe "enums module", ->
   it "should have RenderMode", ->
     expect(enums.RenderMode).to.be.deep.equal ["canvas", "css"]
 
+  it "should have TextRenderMode", ->
+    expect(enums.TextRenderMode).to.be.deep.equal ["canvas", "css", "latex"]
+
   it "should have RenderLevel", ->
     expect(enums.RenderLevel).to.be.deep.equal ["image", "underlay", "glyph", "annotation", "overlay", "tool"]
 
@@ -42,4 +45,3 @@ describe "enums module", ->
 
   it "should have TextBaseline", ->
     expect(enums.TextBaseline).to.be.deep.equal ["top", "middle", "bottom", "alphabetic", "hanging"]
-

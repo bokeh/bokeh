@@ -741,6 +741,7 @@ describe "properties module", ->
       expect("Number" of properties).to.be.true
       expect("RenderLevel" of properties).to.be.true
       expect("RenderMode" of properties).to.be.true
+      expect("TextRenderMode" of properties).to.be.true
       expect("SpatialUnits" of properties).to.be.true
       expect("String" of properties).to.be.true
       expect("TextAlign" of properties).to.be.true
@@ -754,4 +755,3 @@ describe "properties module", ->
       expect("FontSizeSpec" of properties).to.be.true
       expect("NumberSpec" of properties).to.be.true
       expect("StringSpec" of properties).to.be.true
-

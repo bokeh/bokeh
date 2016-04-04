@@ -191,6 +191,8 @@ class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
 
 class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
+class TextRenderMode extends enum_prop("TextRenderMode", enums.TextRenderMode)
+
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
 #
@@ -272,6 +274,7 @@ module.exports =
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode
+  TextRenderMode: TextRenderMode
   SpatialUnits: SpatialUnits
   String: String
   TextAlign: TextAlign
@@ -284,4 +287,3 @@ module.exports =
   FontSizeSpec: FontSizeSpec
   NumberSpec: NumberSpec
   StringSpec: StringSpec
-

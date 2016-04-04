@@ -14,7 +14,7 @@ gulp.task "styles:build", ->
   gulp.src paths.less.sources
     .pipe sourcemaps.init
       loadMaps: true
-    .pipe less()
+    .pipe less({ ieCompat: false })
     .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.css
 
