@@ -13,7 +13,7 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d
+from bokeh.models import GlyphRenderer, Label, Range1d, PolyAnnotation
 from bokeh.models.tools import PanTool
 
 

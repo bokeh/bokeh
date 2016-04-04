@@ -257,7 +257,7 @@ class Plot(Component):
             raise ValueError("annotation %s to be added already has 'plot' \
                              attribute set" % annotation)
 
-        if annotation.source is None:
+        if hasattr(annotation, 'source') and annotation.source is None:
             annotation.source = ColumnDataSource()
 
         annotation.plot = self
