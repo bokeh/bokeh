@@ -186,7 +186,7 @@ class ApplicationContext(object):
     def _discard_session(self, session, should_discard):
         if session.connection_count > 0:
             raise RuntimeError("Should not be discarding a session with open connections")
-        log.debug("Discarding session %r last in use %r seconds ago", session.id, session.seconds_since_last_unsubscribe)
+        log.debug("Discarding session %r last in use %r milliseconds ago", session.id, session.milliseconds_since_last_unsubscribe)
 
         session_context = self._session_contexts[session.id]
 
@@ -218,10 +218,10 @@ class ApplicationContext(object):
         raise gen.Return(None)
 
     @gen.coroutine
-    def cleanup_sessions(self, unused_session_linger_seconds):
+    def cleanup_sessions(self, unused_session_linger_milliseconds):
         def should_discard_ignoring_block(session):
             return session.connection_count == 0 and \
-                (session.seconds_since_last_unsubscribe > unused_session_linger_seconds or \
+                (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \
                  session.expiration_requested)
         # build a temp list to avoid trouble from self._sessions changes
         to_discard = []
