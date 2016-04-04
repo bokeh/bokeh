@@ -416,22 +416,24 @@ class HasProps extends Backbone.Model
     return _.values(references)
 
   attach_document: (doc) ->
-    if @document != null and @document != doc
-      throw new Error("Models must be owned by only a single document")
-    first_attach = @document == null
-    @document = doc
-    if doc != null
-      doc._notify_attach(@)
-      if first_attach
-        for c in @_immediate_references()
-          c.attach_document(doc)
+    if @document != null
+      if @document != doc
+        throw new Error("models must be owned by only a single document")
+      else
+        @document._notify_attach(@)
+    else
+      @document = doc
+      @document._notify_attach(@)
 
-    # TODO (bev) is there are way to get rid of this?
-    for name, prop of @properties
-      prop.update()
+      for ref in @_immediate_references()
+        ref.attach_document(@document)
 
-    if @_doc_attached?
-      @_doc_attached()
+      # TODO (bev) is there are way to get rid of this?
+      for name, prop of @properties
+        prop.update()
+
+      if @_doc_attached?
+        @_doc_attached()
 
   detach_document: () ->
     if @document != null
