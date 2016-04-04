@@ -1,12 +1,12 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
+OpenURL = utils.require("models/callbacks/open_url").Model
 
 describe "openurl module", ->
 
   describe "default creation", ->
-    r = Collections('OpenURL').create()
+    r = new OpenURL()
 
     it "should have default url", ->
       expect(r.get('url')).to.be.deep.equal 'http://'

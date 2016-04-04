@@ -1,4 +1,4 @@
-namespace TappyScatter {
+namespace HoverfulScatter {
     import plt = Bokeh.Plotting;
     import _ = Bokeh._;
 
@@ -28,9 +28,9 @@ namespace TappyScatter {
         data: {x: xx, y: yy, radius: radii, colors: colors }
     })
 
-    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,previewsave"
+    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,hover,previewsave"
 
-    const p = plt.figure({title: "Tappy Scatter", tools: tools})
+    const p = plt.figure({title: "Hoverful Scatter", tools: tools})
 
     const circles = p.circle({field: "x"}, {field: "y"}, {source: source, radius: radii,
                              fill_color: colors, fill_alpha: 0.6, line_color: null})
@@ -38,16 +38,14 @@ namespace TappyScatter {
     p.text({field: "x"}, {field: "y"}, indices, {source: source, alpha: 0.5,
            text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
-    const tap = p.select_one(Bokeh.TapTool)
-    tap.renderers = [circles]
-    tap.callback = (ds) => {
-        const indices = ds.selected['1d'].indices
-        if (indices.length == 1)
-            console.log(`Selected index: ${indices[0]}`)
-        else if (indices.length > 1)
-            console.log(`Selected indices: ${indices.join(', ')}`)
-        else
-            console.log("Nothing selected")
+    const hover = p.select_one(Bokeh.HoverTool)
+    hover.tooltips = (source, info) => {
+        const ds = source as Bokeh.ColumnDataSource
+        const div = document.createElement("div")
+        div.style.width = "200px"
+        div.style.height = "75px"
+        div.style.backgroundColor = ds.data["colors"][info.index]
+        return div
     }
 
     plt.show(p)

@@ -62,7 +62,7 @@ class BoxSelectToolView extends SelectTool.View
       vy1: vy1
     }
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
@@ -75,7 +75,7 @@ class BoxSelectToolView extends SelectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('renderers')[0]
+    r = @mget('computed_renderers')[0]
     canvas = @plot_model.get('canvas')
     frame = @plot_model.get('frame')
 

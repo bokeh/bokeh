@@ -2,7 +2,9 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
+CategoricalMapper = utils.require("models/mappers/categorical_mapper").Model
+FactorRange = utils.require("models/ranges/factor_range").Model
+Range1d = utils.require("models/ranges/range1d").Model
 
 close = (a, b) -> Math.abs(a-b)<10e-7
 
@@ -12,9 +14,10 @@ describe "categorical mapper module", ->
   end = 80
 
   generate_mapper = (offset=0) ->
-    Collections("CategoricalMapper").create
-      source_range: Collections("FactorRange").create factors: factors, offset: offset
-      target_range: Collections("Range1d").create start: start, end: end
+    new CategoricalMapper({
+      source_range: new FactorRange({factors: factors, offset: offset})
+      target_range: new Range1d({start: start, end: end})
+    })
 
   describe "mapping", ->
     mapper = generate_mapper()
