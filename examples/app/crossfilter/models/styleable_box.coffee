@@ -1,6 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
+p = require 'core/properties'
 BokehView = require "core/bokeh_view"
 BaseBox = require "models/layouts/basebox"
 
@@ -10,6 +11,7 @@ class StyleableBoxView extends BokehView
     class: "bk-vbox"
 
   initialize: (options) ->
+    debugger
     super(options)
 
 
@@ -39,15 +41,10 @@ class StyleableBox extends BaseBox.Model
   type: "StyleableBox"
   default_view: StyleableBoxView
 
-  defaults: ->
-    return _.extend {}, super(), {
-      children: []
-      css_properties: {}
-      orientation: 'vertical'
-    }
-
-  children: () ->
-    return @get('children')
+  @define {
+    css_properties: [p.Dict, null]
+    orientation:    [p.String, 'vertical']
+  }
 
 module.exports =
   Model: StyleableBox

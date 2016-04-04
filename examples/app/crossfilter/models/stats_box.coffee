@@ -1,6 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
+p = require 'core/properties'
 
 BokehView = require "core/bokeh_view"
 BaseBox = require "models/layouts/basebox"
@@ -59,15 +60,10 @@ class StatsBox extends BaseBox.Model
   type: "StatsBox"
   default_view: StatsBoxView
 
-  defaults: ->
-    return _.extend {}, super(), {
-      children: []
-      display_items: {}
-      styles: null
-    }
-
-  children: () ->
-    return @get('children')
+  @define {
+    styles:         [ p.String, null]
+    display_items: {}
+  }
 
 module.exports =
   Model: StatsBox
