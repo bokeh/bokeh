@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation, Span, Label
+from bokeh.models.annotations import Legend, Arrow, BoxAnnotation, Label, Span
 from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -46,9 +46,9 @@ def check_props(annotation, *props):
     assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
     assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
-def check_fill(annotation):
-    assert annotation.fill_color == '#fff9ba'
-    assert annotation.fill_alpha == 0.4
+def check_fill(annotation, fill_color='#fff9ba', fill_alpha=0.4):
+    assert annotation.fill_color == fill_color
+    assert annotation.fill_alpha == fill_alpha
 
 def check_background(annotation, fill_color='#ffffff', fill_alpha=1.0):
     assert annotation.background_fill_color == fill_color
@@ -101,6 +101,24 @@ def test_Legend():
         "legends",
         "level"
     ], LABEL, BORDER, BACKGROUND)
+
+def test_Arrow():
+    arrow = Arrow()
+    assert arrow.plot is None
+    assert arrow.x0 is None
+    assert arrow.x1 is None
+    assert arrow.y0 is None
+    assert arrow.y1 is None
+    yield check_line, arrow, "black", 1.0
+    yield check_fill, arrow, "gray", 1.0
+    yield (check_props, arrow, [
+        "plot",
+        "level",
+        "x0",
+        "x1",
+        "y0",
+        "y1",
+    ], FILL, LINE)
 
 def test_BoxAnnotation():
     box = BoxAnnotation()

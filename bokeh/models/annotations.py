@@ -109,6 +109,35 @@ class Legend(Annotation):
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
+class Arrow(Annotation):
+    """ Render an arrow as an annotation.
+
+    """
+
+    x0 = NumberSpec(help="""
+    The x-coordinates to locate the arrow tails.
+    """)
+
+    x1 = NumberSpec(help="""
+    The x-coordinates to locate the arrow heads.
+    """)
+
+    y0 = NumberSpec(help="""
+    The y-coordinates to locate the arrow tails.
+    """)
+
+    y1 = NumberSpec(help="""
+    The y-coordinates to locate the arrow heads.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the box.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the box.
+    """)
+
 class BoxAnnotation(Annotation):
     """ Render a shaded rectangular region as an annotation.
 
