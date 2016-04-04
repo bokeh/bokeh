@@ -88,8 +88,6 @@ class HasProps extends Backbone.Model
     for name, [type, default_value] of props
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
-    if options.collection
-      this.collection = options.collection
     if options.parse
       attrs = this.parse(attrs, options) || {}
     defaults = _.result(this, 'defaults')

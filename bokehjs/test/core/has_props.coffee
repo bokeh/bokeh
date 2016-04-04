@@ -3,8 +3,7 @@ _ = require "underscore"
 utils = require "../utils"
 fixtures = require "./fixtures/object"
 
-base = utils.require "base"
-{Collections} = base
+{Models} = utils.require "base"
 HasProps = utils.require "core/has_props"
 p = utils.require "core/properties"
 mixins = utils.require "core/property_mixins"
@@ -33,10 +32,9 @@ class SubclassWithMultipleMixins extends HasProps
 describe "has_properties module", ->
 
   before ->
-    fixtures.Collection.reset()
-    base.collection_overrides['TestObject'] = fixtures.Collection
+    Models.register('TestObject', fixtures.Model)
   after ->
-    base.collection_overrides['TestObject'] = undefined
+    Models.unregister('TestObject')
 
   describe "creation", ->
 
@@ -65,7 +63,7 @@ describe "has_properties module", ->
       expect(_.keys(obj.properties)).to.be.deep.equal _.keys(_.extend mixins.line(""), mixins.text("bar_"))
 
   # it "should support computed properties", ->
-  #   model = Collections('TestObject').create({'a': 1, 'b': 1})
+  #   model = new TestObject({'a': 1, 'b': 1})
   #   model.register_property 'c', ->
   #   @get('a') + @get('b')
   #   model.add_dependencies('c', model, ['a', 'b'])
@@ -75,7 +73,7 @@ describe "has_properties module", ->
   # describe "cached properties", ->
   #   model = null
   #   before ->
-  #     model = Collections('TestObject').create({a: 1, b: 1})
+  #     model = new TestObject({a: 1, b: 1})
   #     model.register_property 'c', ->
   #         @get('a') + @get('b')
   #       , true
@@ -95,14 +93,14 @@ describe "has_properties module", ->
   # describe "arrays of references", ->
   #   [model1, model2, model3, model4, doc] = [null, null, null, null, null]
   #   before ->
-  #     model1 = Collections('TestObject').create({a: 1, b: 1})
-  #     model2 = Collections('TestObject').create({a: 2, b: 2})
-  #     model3 = Collections('TestObject').create(
+  #     model1 = new TestObject({a: 1, b: 1})
+  #     model2 = new TestObject({a: 2, b: 2})
+  #     model3 = new TestObject(
   #       a: 1
   #       b: 1
   #       vectordata: [model1.ref(), model2.ref()]
   #     )
-  #     model4 = Collections('TestObject').create(
+  #     model4 = new TestObject(
   #       a: 1
   #       b: 1
   #       vectordata: [[model1.ref(), model2.ref()]]

@@ -24,8 +24,7 @@ if not window.Float64Array
 Bokeh.index             = require("./base").index
 Bokeh.embed             = require("./embed")
 
-Bokeh.Collections       = require("./base").Collections
-Bokeh.Config            = require("./base").Config
+Bokeh.Models            = require("./base").Models
 
 _.extend(Bokeh, require("./api"))
 
