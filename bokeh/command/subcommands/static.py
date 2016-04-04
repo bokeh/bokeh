@@ -19,7 +19,7 @@ class Static(Subcommand):
 
     def invoke(self, args):
         log_level = getattr(logging, args.log_level.upper())
-        logging.basicConfig(level=log_level)
+        logging.basicConfig(level=log_level, format=args.log_format)
 
         applications = {}
 

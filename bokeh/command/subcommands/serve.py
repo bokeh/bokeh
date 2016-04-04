@@ -310,25 +310,32 @@ __doc__ = __doc__.format(
 
 base_serve_args = (
     ('--port', dict(
-        metavar='PORT',
-        type=int,
-        help="Port to listen on",
-        default=None
+        metavar = 'PORT',
+        type    = int,
+        help    = "Port to listen on",
+        default = None
     )),
 
     ('--address', dict(
-        metavar='ADDRESS',
-        type=str,
-        help="Address to listen on",
-        default=None,
+        metavar = 'ADDRESS',
+        type    = str,
+        help    = "Address to listen on",
+        default = None,
     )),
 
     ('--log-level', dict(
-        metavar='LOG-LEVEL',
+        metavar = 'LOG-LEVEL',
         action  = 'store',
         default = 'info',
         choices = LOGLEVELS,
         help    = "One of: %s" % nice_join(LOGLEVELS),
+    )),
+
+    ('--log-format', dict(
+        metavar ='LOG-FORMAT',
+        action  = 'store',
+        default = DEFAULT_LOG_FORMAT,
+        help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
     )),
 )
 
