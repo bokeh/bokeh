@@ -1,9 +1,10 @@
 _ = require "underscore"
-kiwi = require "kiwi"
 
+LayoutBox = require "../canvas/layout_box"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
-LayoutBox = require "../../common/layout_box"
+
+{EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -150,8 +151,8 @@ _apply_location_heuristics = (ctx, side, orient) ->
 class AxisView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @x_range_name = @mget('x_range_name')
-    @y_range_name = @mget('y_range_name')
+    @_x_range_name = @mget('x_range_name')
+    @_y_range_name = @mget('y_range_name')
 
   render: () ->
     if not @mget('visible')
@@ -176,7 +177,7 @@ class AxisView extends Renderer.View
     if not @visuals.axis_line.doit
       return
     [x, y] = coords = @mget('rule_coords')
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
@@ -192,7 +193,7 @@ class AxisView extends Renderer.View
       return
     coords = @mget('tick_coords')
     [x, y] = coords.major
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
@@ -212,7 +213,7 @@ class AxisView extends Renderer.View
       return
     coords = @mget('tick_coords')
     [x, y] = coords.minor
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
@@ -230,7 +231,7 @@ class AxisView extends Renderer.View
   _draw_major_labels: (ctx) ->
     coords = @mget('tick_coords')
     [x, y] = coords.major
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     dim = @mget('dimension')
@@ -243,7 +244,7 @@ class AxisView extends Renderer.View
       angle = -orient
     standoff = @model._tick_extent(@) + @mget('major_label_standoff')
 
-    labels = @mget('formatter').format(coords.major[dim])
+    labels = @mget('formatter').doFormat(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
@@ -266,7 +267,7 @@ class AxisView extends Renderer.View
       return
 
     [x, y] = @mget('rule_coords')
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     side = @mget('layout_location')
@@ -296,7 +297,7 @@ class Axis extends GuideRenderer.Model
 
   type: 'Axis'
 
-  mixins: [
+  @mixins [
     'line:axis_',
     'line:major_tick_',
     'line:minor_tick_',
@@ -304,8 +305,7 @@ class Axis extends GuideRenderer.Model
     'text:axis_label_'
   ]
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       visible:        [ p.Bool,     true      ]
       location:       [ p.String,   'auto'    ] # TODO (bev) enum
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)
@@ -363,40 +363,32 @@ class Axis extends GuideRenderer.Model
     @register_property('dimension', (() -> @_dim), true)
     @register_property('offsets', @_offsets, true)
 
+  _doc_attached: () ->
+    @panel = new LayoutBox.Model()
+    @panel.attach_document(@document)
+
   initialize_layout: (solver) ->
-    panel = new LayoutBox.Model({solver: solver})
-    @panel = panel
-
-    # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
-    # should be (no multiple inheritnce in CoffeeScript)
-    @_top = panel._top
-    @_bottom = panel._bottom
-    @_left = panel._left
-    @_right = panel._right
-    @_width = panel._width
-    @_height = panel._height
-
     side = @get('layout_location')
     if side == "above"
       @_dim = 0
       @_normals = [0, -1]
-      @_size = panel._height
-      @_anchor = panel._bottom
+      @_size = @panel._height
+      @_anchor = @panel._bottom
     else if side == "below"
       @_dim = 0
       @_normals = [0, 1]
-      @_size = panel._height
-      @_anchor = panel._top
+      @_size = @panel._height
+      @_anchor = @panel._top
     else if side == "left"
       @_dim = 1
       @_normals = [-1, 0]
-      @_size = panel._width
-      @_anchor = panel._right
+      @_size = @panel._width
+      @_anchor = @panel._right
     else if side == "right"
       @_dim = 1
       @_normals = [1, 0]
-      @_size = panel._width
-      @_anchor = panel._left
+      @_size = @panel._width
+      @_anchor = @panel._left
     else
       logger.error("unrecognized side: '#{ side }'")
 
@@ -416,7 +408,7 @@ class Axis extends GuideRenderer.Model
 
     if @_size_constraint?
       solver.remove_constraint(@_size_constraint)
-    @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.Eq)
+    @_size_constraint = EQ(@_size, -size)
     solver.add_constraint(@_size_constraint)
 
   _offsets: () ->
@@ -562,7 +554,7 @@ class Axis extends GuideRenderer.Model
     side = @get('layout_location')
     orient = @get('major_label_orientation')
 
-    labels = @get('formatter').format(coords[dim])
+    labels = @get('formatter').doFormat(coords[dim])
 
     view.visuals.major_label_text.set_value(ctx)
 

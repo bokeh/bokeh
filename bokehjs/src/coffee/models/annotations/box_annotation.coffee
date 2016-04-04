@@ -91,10 +91,9 @@ class BoxAnnotation extends Annotation.Model
 
   type: 'BoxAnnotation'
 
-  mixins: ['line', 'fill']
+  @mixins ['line', 'fill']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       render_mode:  [ p.RenderMode,   'canvas'  ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]

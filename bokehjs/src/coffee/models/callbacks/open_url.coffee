@@ -7,8 +7,7 @@ Util = require "../../util/util"
 class OpenURL extends Model
   type: 'OpenURL'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       url: [ p.String, 'http://' ] # TODO (bev) better type
     }
 

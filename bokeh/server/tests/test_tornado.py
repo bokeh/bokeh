@@ -40,6 +40,12 @@ def test_check_whitelist_accepts_name_port_match():
 def test_check_whitelist_accepts_implicit_port_80():
     assert True == tornado.check_whitelist("foo", ["foo:80"])
 
+def test_check_whitelist_accepts_all_on_star():
+    assert True == tornado.check_whitelist("192.168.0.1", ['*'])
+    assert True == tornado.check_whitelist("192.168.0.1", ['192.168.0.*'])
+    assert False == tornado.check_whitelist("192.168.1.1", ['192.168.0.*'])
+    assert True == tornado.check_whitelist("foobarbaz", ['*'])
+
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios

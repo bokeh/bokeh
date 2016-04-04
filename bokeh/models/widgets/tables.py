@@ -117,6 +117,8 @@ class NumberFormatter(StringFormatter):
     238          '00:00:00'     0:03:58
     63846        '00:00:00'     17:44:06
     ============ ============== ============
+
+    For the complete specification, see http://numbrojs.com/format.html
     """)
 
     language = Enum(NumeralLanguage, default="en", help="""

@@ -47,8 +47,7 @@ class SelectToolView extends GestureTool.View
 
 class SelectTool extends GestureTool.Model
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       renderers: [ p.Array, [] ]
       names:     [ p.Array, [] ]
     }

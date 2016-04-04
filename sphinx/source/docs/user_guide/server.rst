@@ -494,6 +494,46 @@ scaling, and uptime. In these cases more sophisticated deployment
 configurations are needed. In the following sections we discuss some of
 these considerations.
 
+Tunnels
+'''''''
+
+It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
+
+In the simplest scenario, the Bokeh server will run on one host and will be accessed from another location, e.g., a laptop, with no intermediary machines.
+
+Run the server as usual on the **remote host**:
+
+.. code-block:: sh
+
+    bokeh server
+
+Next, issue the following command on the **local machine** to establish an ssh tunnel to the remote host:
+
+.. code-block:: sh
+
+    ssh -NfL localhost:5006:localhost:5006  user@remote.host
+    
+Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
+
+The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
+
+Issue the following commands on the **remote host** where the Bokeh server will run:
+
+.. code-block:: sh
+
+    nohup bokeh server &
+    ssh -NfR 5006:localhost:5006 user@gateway.host
+    
+Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
+
+Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
+
+.. code-block:: sh
+
+    ssh -NfL localhost:5006:localhost:5006 user@gateway.host
+    
+Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
+
 .. note::
     We intend to expand this section with more guidance for other tools and
     configurations. If have experience with other web deployment scenarios
@@ -767,19 +807,19 @@ to start the Supervisor process. Then to control processes execute
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf start all
+    supervisorctl -c /path/to/supervisord.conf start all
 
 To stop all processes run:
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf start all
+    supervisorctl -c /path/to/supervisord.conf start all
 
 And to update the process control after editing the config file, run:
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf update
+    supervisorctl -c /path/to/supervisord.conf update
 
 
 .. _userguide_server_deployment_automation:

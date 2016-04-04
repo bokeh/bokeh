@@ -13,8 +13,7 @@ class HelpTool extends ActionTool.Model
   tool_name: "Help"
   icon: "bk-tool-icon-help"
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       help_tooltip: [
         p.String,
         'Click the question mark to learn more about Bokeh plot tools.'

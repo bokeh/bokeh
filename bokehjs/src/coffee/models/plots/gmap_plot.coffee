@@ -3,7 +3,6 @@ proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
 
 Plot = require "./plot"
-Solver = require "../../common/solver"
 p = require "../../core/properties"
 
 class GMapPlotView extends Plot.View
@@ -165,10 +164,8 @@ class GMapPlot extends Plot.Model
 
   default_view: GMapPlotView
 
-  props: ->
-    return _.extend {}, super(), {
-      map_options: [ p.Any         ]
-      disabled:    [ p.Bool, false ]
+  @define {
+      map_options: [ p.Any ]
     }
 
   initialize: (attrs, options) ->

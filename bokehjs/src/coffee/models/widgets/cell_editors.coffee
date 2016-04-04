@@ -8,10 +8,6 @@ p = require "../../core/properties"
 Model = require "../../model"
 
 class CellEditor extends Model
-  editorProps: {}
-
-  props: () ->
-    return _.extend {}, super(), @editorProps
 
 class CellEditorView extends BokehView
 
@@ -108,8 +104,9 @@ class StringEditorView extends CellEditorView
 class StringEditor extends CellEditor
   type: 'StringEditor'
   default_view: StringEditorView
-  editorProps:
+  @define {
     completions: [ p.Array, [] ]
+  }
 
 class TextEditorView extends CellEditorView
 
@@ -133,8 +130,9 @@ class SelectEditorView extends CellEditorView
 class SelectEditor extends CellEditor
   type: 'SelectEditor'
   default_view: SelectEditorView
-  editorProps:
+  @define {
     options: [ p.Array, [] ]
+  }
 
 class PercentEditorView extends CellEditorView
 
@@ -188,8 +186,9 @@ class IntEditorView extends CellEditorView
 class IntEditor extends CellEditor
   type: 'IntEditor'
   default_view: IntEditorView
-  editorProps:
+  @define {
     step: [ p.Number, 1 ]
+  }
 
 class NumberEditorView extends CellEditorView
 
@@ -220,8 +219,9 @@ class NumberEditorView extends CellEditorView
 class NumberEditor extends CellEditor
   type: 'NumberEditor'
   default_view: NumberEditorView
-  editorProps:
+  @define {
     step: [ p.Number, 0.01 ]
+  }
 
 class TimeEditorView extends CellEditorView
 

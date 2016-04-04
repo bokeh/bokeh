@@ -33,13 +33,12 @@ class CrosshairTool extends InspectTool.Model
   type: "CrosshairTool"
   tool_name: "Crosshair"
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions: [ p.Array, ["width", "height"] ]
       line_color: [ p.Color, 'black'             ]
       line_width: [ p.Number, 1                  ]
       line_alpha: [ p.Number, 1.0                ]
-    })
+    }
 
   nonserializable_attribute_names: () ->
     super().concat(['location_units', 'render_mode', 'spans'])

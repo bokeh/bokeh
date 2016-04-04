@@ -19,28 +19,28 @@ class RectView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @x, @width, 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @mget('dilate'))
     else
-      @sw = @width
+      @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @y, @height, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @mget('dilate'))
     else
-      @sh = @height
+      @sh = @_height
 
-  _render: (ctx, indices, {sx, sy, sw, sh, angle}) ->
+  _render: (ctx, indices, {sx, sy, sw, sh, _angle}) ->
     if @visuals.fill.doit
       for i in indices
-        if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+angle[i])
+        if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+_angle[i])
           continue
 
         #no need to test the return value, we call fillRect for every glyph anyway
         @visuals.fill.set_vectorize(ctx, i)
 
-        if angle[i]
+        if _angle[i]
           ctx.translate(sx[i], sy[i])
-          ctx.rotate(angle[i])
+          ctx.rotate(_angle[i])
           ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-angle[i])
+          ctx.rotate(-_angle[i])
           ctx.translate(-sx[i], -sy[i])
         else
           ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
@@ -50,7 +50,7 @@ class RectView extends Glyph.View
 
       for i in indices
 
-        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
+        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i])
           continue
 
         # fillRect does not fill zero-height or -width rects, but rect(...)
@@ -59,11 +59,11 @@ class RectView extends Glyph.View
         if sw[i]==0 or sh[i]==0
           continue
 
-        if angle[i]
+        if _angle[i]
           ctx.translate(sx[i], sy[i])
-          ctx.rotate(angle[i])
+          ctx.rotate(_angle[i])
           ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-angle[i])
+          ctx.rotate(-_angle[i])
           ctx.translate(-sx[i], -sy[i])
         else
           ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
@@ -110,10 +110,10 @@ class RectView extends Glyph.View
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-      if @angle[i]
+      if @_angle[i]
         d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
-        s = Math.sin(-@angle[i])
-        c = Math.cos(-@angle[i])
+        s = Math.sin(-@_angle[i])
+        c = Math.cos(-@_angle[i])
         px = c * (sx-@sx[i]) - s * (sy-@sy[i]) + @sx[i]
         py = s * (sx-@sx[i]) + c * (sy-@sy[i]) + @sy[i]
         sx = px
@@ -142,8 +142,9 @@ class Rect extends Glyph.Model
 
   type: 'Rect'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       angle:  [ p.AngleSpec,   0     ]
       width:  [ p.DistanceSpec       ]
       height: [ p.DistanceSpec       ]

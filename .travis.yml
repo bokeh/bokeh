@@ -67,8 +67,8 @@ script:
     # Eventually, we need to get rid of the generated stuff before packaging
     #
     # Run (JS and Python) unit tests on all python versions
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -s -m js; fi  # Run just the JS first so we see the output
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc; fi  # Run the not examples or js tests (we can eat stdout for this one)
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi
@@ -81,7 +81,7 @@ script:
     #
     # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n2 -x; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n2 -x -s; fi; fi # Run the examples
     #
     - echo "***** POOR MAN LOGGER ******"; echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST; if [[ "$GROUP" == integration ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html"; fi; if [[ "$GROUP" == examples ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html"; fi; echo "********** END POOR MAN LOGGER ************"
 

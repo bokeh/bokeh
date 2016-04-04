@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import argparse
+
 import bokeh.command.subcommands.serve as scserve
 
 def test_create():
@@ -28,6 +30,12 @@ def test_args():
             nargs='*',
             help="The app directories or scripts to serve (serve empty document if not specified)",
             default=None,
+        )),
+
+        ('--args', dict(
+            metavar='COMMAND-LINE-ARGS',
+            nargs=argparse.REMAINDER,
+            help="Any command line arguments remaining are passed on to the application handler",
         )),
 
         ('--develop', dict(
