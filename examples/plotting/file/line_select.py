@@ -10,7 +10,9 @@ from bokeh.plotting import output_file, show, figure
 # The data is setup to have very different scales in x and y, to verify
 # that picking happens in pixels. Different widths are used to test that
 # you can click anywhere on the visible line.
-
+#
+# Note that the get_view() function used here is not documented and
+# might change in future versions of Bokeh.
 t = np.linspace(0, 0.1, 100)
 
 code = """
