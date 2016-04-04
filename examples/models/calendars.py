@@ -49,7 +49,12 @@ def make_calendar(year, month, firstweekday="Mon"):
     ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
 
     plot = Plot(title=month_names[month], x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
+    plot.title_text_align = "left"
+    plot.title_text_font_size = "12pt"
     plot.title_text_color = "darkolivegreen"
+    plot.title_standoff = 25
+    plot.min_border_left = 0
+    plot.min_border_bottom = 5
 
     rect = Rect(x="days", y="weeks", width=0.9, height=0.9, fill_color="day_backgrounds", line_color="silver")
     plot.add_glyph(source, rect)
