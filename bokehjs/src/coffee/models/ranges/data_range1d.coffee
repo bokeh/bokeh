@@ -8,8 +8,7 @@ bbox = require "../../core/util/bbox"
 class DataRange1d extends DataRange.Model
   type: 'DataRange1d'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       start:           [ p.Number        ]
       end:             [ p.Number        ]
       range_padding:   [ p.Number, 0.1   ]

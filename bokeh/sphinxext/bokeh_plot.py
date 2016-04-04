@@ -103,7 +103,7 @@ SOURCE_TEMPLATE = jinja2.Template(u"""
 
 
 SCRIPT_TEMPLATE = jinja2.Template(u"""
-<table>
+<table class="bk-root">
   <tr>
     <td>
     {{ script|indent(4) }}

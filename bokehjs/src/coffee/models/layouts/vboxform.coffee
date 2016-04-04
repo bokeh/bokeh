@@ -16,7 +16,7 @@ class VBoxFormView extends BokehView
     @render()
 
   render: () ->
-    children = @model.children()
+    children = @model.get("children")
     build_views(@views, children)
     for own key, val of @views
       val.$el.detach()
@@ -29,14 +29,6 @@ class VBoxFormView extends BokehView
 class VBoxForm extends VBox.Model
   type: "VBoxForm"
   default_view: VBoxFormView
-
-  props: ->
-    return _.extend {}, super(), {
-      children: [ p.Array, [] ]
-    }
-
-  children: () ->
-    return @get('children')
 
 module.exports =
   Model: VBoxForm

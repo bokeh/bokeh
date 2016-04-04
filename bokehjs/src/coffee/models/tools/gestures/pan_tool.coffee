@@ -98,10 +98,9 @@ class PanTool extends GestureTool.Model
   event_type: "pan"
   default_order: 10
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions: [ p.Array, ["width", "height"] ]
-    })
+    }
 
   nonserializable_attribute_names: () ->
     super().concat(['level', 'default_order', 'event_type'])

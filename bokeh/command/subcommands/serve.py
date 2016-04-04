@@ -50,6 +50,23 @@ page(s), you can pass the ``--show`` option on the command line:
 This will open two pages, for ``/app_script`` and ``/app_dir``,
 respectively.
 
+If you would like to pass command line arguments to Bokeh applications,
+you can pass the ``--args`` option as the LAST option on the command
+line:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py myapp.py --args foo bar --baz
+
+Everything that follows ``--args`` will be included in ``sys.argv`` when
+the application runs. In this case, when ``myapp.py`` executes, the
+contents of ``sys.argv`` will be ``['myapp.py', 'foo', 'bar', '--baz']``,
+consistent with standard Python expectations for ``sys.argv``.
+
+Note that if multiple scripts or directories are provided, they
+all receive the same set of command line arguments (if any) given by
+``--args``.
+
 Network Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -84,6 +101,11 @@ and ``bar.com:80``.
 If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
 that the server is configured to listen on (by default: {DEFAULT_PORT}).
+
+If an asterix ``*`` is used in the host value (for example ``--host *``) then
+it will be treated as a wildcard.  As a warning, using permissive host values
+like ``*`` may be insecure and open your application to HTTP host header
+attacks.
 
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
@@ -264,6 +286,8 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
+import argparse
+
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
@@ -323,6 +347,12 @@ class Serve(Subcommand):
             nargs='*',
             help="The app directories or scripts to serve (serve empty document if not specified)",
             default=None,
+        )),
+
+        ('--args', dict(
+            metavar='COMMAND-LINE-ARGS',
+            nargs=argparse.REMAINDER,
+            help="Any command line arguments remaining are passed on to the application handler",
         )),
 
         ('--develop', dict(
@@ -399,7 +429,8 @@ class Serve(Subcommand):
     )
 
     def invoke(self, args):
-        applications = build_single_handler_applications(args.files)
+        argvs = { f : args.args for f in args.files}
+        applications = build_single_handler_applications(args.files, argvs)
 
         log_level = getattr(logging, args.log_level.upper())
         logging.basicConfig(level=log_level, format=args.log_format)

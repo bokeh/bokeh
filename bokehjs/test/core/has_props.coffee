@@ -11,24 +11,24 @@ mixins = utils.require "core/property_mixins"
 {Document} = utils.require "document"
 
 class SubclassWithProps extends HasProps
-  props: () -> _.extend super(), {
+  @define {
     foo: [ p.Number, 0    ]
     bar: [ p.Bool,   true ]
   }
 
 class SubSubclassWithProps extends SubclassWithProps
-  props: () -> _.extend super(), {
+  @define {
     baz: [ p.String, '' ]
   }
 
 class SubclassWithMixins extends HasProps
-  mixins: ['line']
+  @mixin('line')
 
 class SubSubclassWithMixins extends SubclassWithMixins
-  mixins: ['fill:foo_']
+  @mixin('fill:foo_')
 
 class SubclassWithMultipleMixins extends HasProps
-  mixins: ['line', 'text:bar_']
+  @mixin('line', 'text:bar_')
 
 describe "has_properties module", ->
 
@@ -52,19 +52,17 @@ describe "has_properties module", ->
       obj = new SubSubclassWithProps()
       expect(_.keys(obj.properties)).to.be.deep.equal ['foo', 'bar', 'baz']
 
-    it "should override mixins from subclasses", ->
+    it "should combine mixins from subclasses", ->
       obj = new SubclassWithMixins()
       expect(_.keys(obj.properties)).to.be.deep.equal _.keys(mixins.line(""))
 
-    it "should override mixins from sub-subclasses", ->
+    it "should combine mixins from sub-subclasses", ->
       obj = new SubSubclassWithMixins()
-      expect(_.keys(obj.properties)).to.be.deep.equal _.keys(mixins.fill("foo_"))
+      expect(_.keys(obj.properties)).to.be.deep.equal _.keys(_.extend mixins.line(""), mixins.fill("foo_"))
 
-    it "should override multiple mixins from subclasses", ->
+    it "should combine multiple mixins from subclasses", ->
       obj = new SubclassWithMultipleMixins()
       expect(_.keys(obj.properties)).to.be.deep.equal _.keys(_.extend mixins.line(""), mixins.text("bar_"))
-
-
 
   # it "should support computed properties", ->
   #   model = Collections('TestObject').create({'a': 1, 'b': 1})

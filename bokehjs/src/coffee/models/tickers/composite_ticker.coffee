@@ -9,8 +9,7 @@ p = require "../../core/properties"
 class CompositeTicker extends ContinuousTicker.Model
   type: 'CompositeTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       tickers: [p.Array, [] ]
     }
 

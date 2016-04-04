@@ -26,7 +26,7 @@ class HoverToolView extends InspectTool.View
     for r in @mget('computed_renderers')
       @listenTo(r.get('data_source'), 'inspect', @_update)
 
-    @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
+    @plot_view.canvas_view.$el.css('cursor', 'crosshair')
 
   _move: (e) ->
     if not @mget('active')
@@ -229,8 +229,7 @@ class HoverTool extends InspectTool.Model
   tool_name: "Hover Tool"
   icon: "bk-tool-icon-hover"
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       tooltips: [ p.Any,
         [
           ["index",         "$index"]
@@ -243,7 +242,7 @@ class HoverTool extends InspectTool.Model
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
       line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
       callback:     [ p.Instance               ]
-    })
+    }
 
   nonserializable_attribute_names: () ->
     super().concat(['ttmodels', 'computed_renderers'])

@@ -7,7 +7,8 @@ Component = require "../component"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
 ToolManager = require "../../common/tool_manager"
-plot_template = require "../../common/plot_template"
+plot_template = require "../plots/plot_template"
+p = require "../../core/properties"
 
 class ToolProxy extends Backbone.Model
 
@@ -182,7 +183,6 @@ class GridViewState extends HasProps
     }
 
 class GridPlotView extends BokehView
-  className: ""
   template: plot_template
 
   initialize: (options) ->
@@ -201,6 +201,7 @@ class GridPlotView extends BokehView
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
     @render()
     return this
@@ -253,6 +254,7 @@ class GridPlotView extends BokehView
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
+        location: toolbar_location
       })
       @tm_view.render()
 
@@ -319,6 +321,8 @@ class GridPlot extends Component.Model
         num_plots: children.length
       })
     , true)
+
+  @define("children", p.Array, [[]])
 
   defaults: () ->
     return _.extend {}, super(), {

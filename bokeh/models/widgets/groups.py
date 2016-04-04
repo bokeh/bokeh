@@ -39,7 +39,7 @@ class ButtonGroup(AbstractGroup):
 
      """
 
-    type = Enum(ButtonType, help="""
+    button_type = Enum(ButtonType, help="""
     A style for the button, signifying it's role.
     """)
 

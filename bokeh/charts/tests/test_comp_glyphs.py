@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 from bokeh.charts.models import CompositeGlyph
 from bokeh.charts.glyphs import (AreaGlyph, LineGlyph, PointGlyph, StepGlyph,
-                                 BarGlyph, BoxGlyph)
+                                 BarGlyph, BoxGlyph, BarGlyph)
 from bokeh.charts.operations import stack
+from bokeh.charts.stats import stats
 
 from bokeh.models import ColumnDataSource
 
@@ -104,6 +105,19 @@ def test_boxplot():
     assert box.q3 == 113.5
     assert box.iqr == 7.5
 
-    # test Interquartile range do not exceed data limits 
+    # test Interquartile range do not exceed data limits
     assert box.w0 == 102
     assert box.w1 == 118
+
+
+def test_bar_single_value():
+    data=[500]
+
+    for stat in stats.keys():
+        bar = BarGlyph(label={'cat': 'a'}, values=data, color='red', agg='sum')
+
+        assert bar.get_start() == 0
+        if stats != 'count':
+            assert bar.get_end() == 500
+        else:
+            assert bar.get_end() == 1

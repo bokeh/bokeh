@@ -1,0 +1,16 @@
+- path: "models"
+  skip: ["choropleth.py", "maps_cities.py", "data_tables_server.py"]
+- path: "compat"
+- path: "charts/file"
+  type: file
+- path: "howto/charts"
+  type: notebook
+- path: "plotting/file"
+  type: file
+  skip: ["image.py", "image_rgba.py", "choropleth.py", "iris_blend.py",
+         "scatter10k.py", "clustering.py", "line10k.py"]
+- path: "plotting/server"
+  type: server
+- path: "plotting/notebook"
+  type: notebook
+  skip_travis: ['color_scatterplot.ipynb', 'glyphs.ipynb']

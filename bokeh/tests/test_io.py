@@ -13,6 +13,7 @@ import unittest
 import bokeh.io as io
 from bokeh.resources import Resources, _SessionCoordinates
 from bokeh.document import Document
+from bokeh.models.plots import Plot
 
 class TestDefaultState(unittest.TestCase):
 
@@ -390,6 +391,41 @@ class TestResetOutput(DefaultStateTester):
     def test(self):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
+
+class LayoutGeneratorTester(unittest.TestCase):
+
+    def _test_layout_added_to_root(self, layout_generator, children=None):
+        layout = layout_generator(self.component if children is None else children)
+        self.assertIn(layout, io.curdoc().roots)
+        io.curdoc().clear()
+
+    def _test_children_removed_from_root(self, layout_generator, children=None):
+        io.curdoc().add_root(self.component if children is None else children[0][0])
+        layout = layout_generator(self.component if children is None else children)
+        self.assertNotIn(self.component, io.curdoc().roots)
+        io.curdoc().clear()
+
+    def setUp(self):
+        self.component = Plot() #must be Plot to test gridplot
+
+class testLayoutGeneration(LayoutGeneratorTester):
+
+    def test_gridplot(self):
+        children = [[self.component]]
+        self._test_layout_added_to_root(io.gridplot, children)
+        self._test_children_removed_from_root(io.gridplot, children)
+
+    def test_hplot(self):
+        self._test_layout_added_to_root(io.hplot)
+        self._test_children_removed_from_root(io.hplot)
+
+    def test_vplot(self):
+        self._test_layout_added_to_root(io.vplot)
+        self._test_children_removed_from_root(io.vplot)
+
+    def test_vform(self):
+        self._test_layout_added_to_root(io.vform)
+        self._test_children_removed_from_root(io.vform)
 
 if __name__ == "__main__":
     unittest.main()

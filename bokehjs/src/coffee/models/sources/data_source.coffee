@@ -7,8 +7,7 @@ p = require "../../core/properties"
 class DataSource extends Model
   type: 'DataSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       selected: [ p.Any, hittest.create_hit_test_result() ] # TODO (bev)
       callback: [ p.Instance ]
     }
