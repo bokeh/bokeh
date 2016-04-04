@@ -40,7 +40,7 @@ class StyleableBox extends BaseBox.Model
   default_view: StyleableBoxView
 
   @define {
-    css_properties: [p.Dict, null]
+    css_properties: [p.Any, null]          # XXX: shoulde be p.Dict or p.Map
     orientation:    [p.String, 'vertical']
   }
 
