@@ -26,12 +26,12 @@ class QuadraticView extends Glyph.View
   _index_data: () ->
     index = rbush()
     pts = []
-    for i in [0...@x0.length]
-      if isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i] + @cx[i] + @cy[i])
+    for i in [0...@_x0.length]
+      if isNaN(@_x0[i] + @_x1[i] + @_y0[i] + @_y1[i] + @_cx[i] + @_cy[i])
         continue
 
-      [x0, x1] = _qbb(@x0[i], @cx[i], @x1[i])
-      [y0, y1] = _qbb(@y0[i], @cy[i], @y1[i])
+      [x0, x1] = _qbb(@_x0[i], @_cx[i], @_x1[i])
+      [y0, y1] = _qbb(@_y0[i], @_cy[i], @_y1[i])
 
       pts.push([x0, y0, x1, y1, {'i': i}])
 
@@ -59,8 +59,8 @@ class Quadratic extends Glyph.Model
 
   type: 'Quadratic'
 
-  mixins: ['line']
-  coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
+  @coords [['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']]
+  @mixins ['line']
 
 module.exports =
   Model: Quadratic

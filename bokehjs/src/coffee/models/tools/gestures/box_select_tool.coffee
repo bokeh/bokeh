@@ -118,13 +118,12 @@ class BoxSelectTool extends SelectTool.Model
   event_type: "pan"
   default_order: 30
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions:             [ p.Array,    ["width", "height"] ]
       select_every_mousemove: [ p. Bool,    false               ]
       callback:               [ p.Instance                      ]
       overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
-    })
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)

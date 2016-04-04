@@ -32,8 +32,7 @@ class DatePicker extends InputWidget.Model
   type: "DatePicker"
   default_view: DatePickerView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       # TODO (bev) types
       value:    [ p.Any, Date.now() ]
       min_date: [ p.Any             ]

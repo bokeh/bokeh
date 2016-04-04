@@ -57,8 +57,7 @@ class Tabs extends Widget.Model
   type: "Tabs"
   default_view: TabsView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       tabs:     [ p.Array,   [] ]
       active:   [ p.Number,  0  ]
       callback: [ p.Instance    ]

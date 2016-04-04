@@ -7,12 +7,11 @@ p = require "../../core/properties"
 class PrintfTickFormatter extends TickFormatter.Model
   type: 'PrintfTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       format: [ p.String, '%s' ]
     }
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     format = @get("format")
     labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
     return labels

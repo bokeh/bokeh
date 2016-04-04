@@ -192,6 +192,7 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
 
 module.exports = {
   embed_items: embed_items
+  add_document_static: add_document_static
   inject_css: inject_css
   inject_raw_css: inject_raw_css
 }

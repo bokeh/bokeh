@@ -252,12 +252,11 @@ As a convenience these can also typically be spelled as 2-tuples or lists::
 Resources
 ---------
 
-To generate plots, the client library BokehJS JavaScript and CSS code must
-be loaded into the browser. By default, the |output_file| function will
-configure Bokeh to generate static HTML files with BokehJS resources embedded
-directly inside. All the examples so far do this. However, you can also
-generate output that loads BokehJS from a Content Delivery Network (CDN), by 
-passing the argument ``mode="cdn"`` to the |output_file| function.
+To generate plots, the client library BokehJS JavaScript and CSS code must 
+be loaded into the browser. By default, the |output_file| function will 
+load BokehJS from http://cdn.pydata.org . However, you can also configure Bokeh 
+to generate static HTML files with BokehJS resources embedded directly inside, 
+by passing the argument ``mode="inline"`` to the |output_file| function.
 
 More examples
 =============

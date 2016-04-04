@@ -19,8 +19,7 @@ class Panel extends Widget.Model
   type: "Panel"
   default_view: PanelView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       title:    [ p.String,  ""    ]
       child:    [ p.Instance       ]
       closable: [ p.Bool,    false ]

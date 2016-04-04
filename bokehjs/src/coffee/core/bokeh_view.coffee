@@ -2,7 +2,6 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 class BokehView extends Backbone.View
-
   initialize: (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')

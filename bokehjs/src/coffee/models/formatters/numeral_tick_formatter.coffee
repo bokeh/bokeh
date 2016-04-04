@@ -1,5 +1,5 @@
 _ = require "underscore"
-Numeral = require "numeral"
+Numbro = require "numbro"
 
 TickFormatter = require "./tick_formatter"
 p = require "../../core/properties"
@@ -7,15 +7,14 @@ p = require "../../core/properties"
 class NumeralTickFormatter extends TickFormatter.Model
   type: 'NumeralTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       # TODO (bev) all of these could be tightened up
       format:   [ p.String, '0,0'   ]
       language: [ p.String, 'en'    ]
       rounding: [ p.String, 'round' ]
     }
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     format = @get("format")
     language = @get("language")
     rounding = switch @get("rounding")
@@ -23,7 +22,7 @@ class NumeralTickFormatter extends TickFormatter.Model
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
 
-    labels = ( Numeral.format(tick, format, language, rounding) for tick in ticks )
+    labels = ( Numbro.format(tick, format, language, rounding) for tick in ticks )
     return labels
 
 

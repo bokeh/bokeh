@@ -26,7 +26,7 @@ class DateGapTickFormatter(TickFormatter):
         class DateGapTickFormatter extends Model
           type: 'DateGapTickFormatter'
 
-          format: (ticks) ->
+          doFormat: (ticks) ->
             date_labels = @get("date_labels")
             return (date_labels[tick] ? "" for tick in ticks)
 

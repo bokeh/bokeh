@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Test report for Bokeh {{ version }} {% if diff %}(against {{ diff }}){% endif %}</title>
+    </head>
+    <style>
+      .header > .ok {
+          color: green;
+      }
+      .header > .fail {
+          color: red;
+      }
+      .header > .skip {
+          color: yellow;
+      }
+      .thumbnail {
+          width: 200px;
+          height: auto;
+          display: inline-block;
+          vertical-align: top;
+          margin-bottom: 2em;
+      }
+    </style>
+    <body>
+      <h2><a name="top">Examples test report <small>(comparing against {{ diff }})</small></a></h2>
+        <p><strong>Table of contents</strong></p>
+        <p>Failures</p>
+        <ul>
+        {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
+            {% if fail %}
+            <li> <a href="#{{ example }}">{{ example }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <p>Successes</p>
+        <ul>
+        {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
+            {% if not fail %}
+            <li> <a href="#{{ example }}">{{ example }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <h3>Results</h3>
+          {% for (example, diff, fail, skip, png_url, diff_url, ref_url, images_differ) in entries %}
+          <h5><a name="{{ example }}">{{ example }}</a>
+            <span class="header">
+                [{% if fail %}
+                <span class="fail">example failed to run</span>
+                {% elif skip %}
+                <span class="skip">example skipped</span>
+                {% else %}
+                <span class="ok">example ran</span>
+                {% endif %}]
+            </span>
+            <a href="#top">Top</a>
+          </h5>
+            <div>
+              {% if not skip %}
+                <a href="{{ png_url }}"><img class="thumbnail" src="{{ png_url }}"></img></a>
+                {% if diff %}
+                  {% if images_differ %}
+                  <a href="{{ diff_url }}"><img class="thumbnail" src="{{ diff_url }}"></img></a>
+                  {% else %}
+                  <div class="thumbnail">No diff</div>
+                  {% endif %}
+                  <a href="{{ ref_url }}"><img class="thumbnail" src="{{ ref_url }}"></img></a>
+                {% endif %}
+              {% endif %}
+            </div>
+          {% endfor %}
+    </body>
+</html>

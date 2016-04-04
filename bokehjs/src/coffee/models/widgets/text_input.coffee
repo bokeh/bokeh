@@ -34,8 +34,7 @@ class TextInput extends InputWidget.Model
   type: "TextInput"
   default_view: TextInputView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       value: [ p.String, "" ]
     }
 

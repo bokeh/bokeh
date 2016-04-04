@@ -25,21 +25,51 @@ from .connection import ServerConnection
 from .application_context import ApplicationContext
 from .views.static_handler import StaticHandler
 
+
+def match_host(host, pattern):
+    """ Match host against pattern
+
+    >>> match_host('192.168.0.1', '192.168.0.1')
+    True
+    >>> match_host('192.168.0.1', '192.168.0.2')
+    False
+    >>> match_host('192.168.0.1', '192.168.*.*')
+    True
+    >>> match_host('alice', 'alice')
+    True
+    >>> match_host('alice', 'bob')
+    False
+    >>> match_host('foo.example.com', 'foo.example.com.net')
+    False
+    >>> match_host('alice', '*')
+    True
+    """
+    host = host.split('.')
+    pattern = pattern.split('.')
+
+    if len(pattern) > len(host):
+        return False
+
+    for h, p in zip(host, pattern):
+        if h == p or p == '*':
+            continue
+        else:
+            return False
+    return True
+
+
 # factored out to be easier to test
 def check_whitelist(request_host, whitelist):
     ''' Check a given request host against a whitelist.
 
     '''
-    if request_host not in whitelist:
+    if ':' not in request_host:
+        request_host = request_host + ':80'
 
-        # see if the request came with no port, assume port 80 in that case
-        if len(request_host.split(':')) == 1:
-            host = request_host + ":80"
-            return host in whitelist
-        else:
-            return False
+    if request_host in whitelist:
+        return True
 
-    return True
+    return any(match_host(request_host, host) for host in whitelist)
 
 
 def _whitelist(handler_class):

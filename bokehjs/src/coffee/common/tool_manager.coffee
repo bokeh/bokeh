@@ -15,14 +15,17 @@ class ToolManagerView extends Backbone.View
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change', @render)
+    @location = options.location
+    @listenTo(@model.get('plot'), 'change:tools change:logo', () => @render())
+    @listenTo(@model, 'change', () => @render())
     @have_rendered = false
 
   render: () ->
     if @have_rendered
       return
     @have_rendered = true
-    @$el.html(@template(@model.attributes))
+    @$el.html(@template({logo: @model.get("plot")?.get("logo")}))
+    @$el.addClass("bk-toolbar-#{@location}")
     @$el.addClass("bk-sidebar")
     @$el.addClass("bk-toolbar-active")
     button_bar_list = @$('.bk-button-bar-list')
@@ -70,6 +73,7 @@ class ToolManager extends HasProps
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @listenTo(@get('plot'), 'change:tools', () => @_init_tools())
     @_init_tools()
 
   serializable_in_document: () -> false
@@ -77,7 +81,7 @@ class ToolManager extends HasProps
   _init_tools: () ->
     gestures = @get('gestures')
 
-    for tool in @get('tools')
+    for tool in @get('plot').get('tools')
       if tool instanceof InspectTool.Model
         inspectors = @get('inspectors')
         inspectors.push(tool)
