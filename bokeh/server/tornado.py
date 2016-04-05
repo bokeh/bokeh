@@ -125,7 +125,7 @@ class BokehTornado(TornadoApplication):
                  # how often to check for unused sessions
                  check_unused_sessions_milliseconds=17000,
                  # how long unused sessions last
-                 unused_session_lifetime_milliseconds=60*30*1000,
+                 unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
                  develop=False):
