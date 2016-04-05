@@ -73,6 +73,7 @@ class LabelView extends Renderer.View
       when 'center' then x_shift = -width / 2
       when 'right' then x_shift = -width
 
+    # guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
     switch ctx.textBaseline
       when 'top' then y_shift = 0.0
       when 'middle' then y_shift = -0.5 * height
