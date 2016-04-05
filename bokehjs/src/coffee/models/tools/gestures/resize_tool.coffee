@@ -75,12 +75,11 @@ class ResizeTool extends GestureTool.Model
   nonserializable_attribute_names: () ->
     super().concat(['data'])
 
-  @override {
-    level: 'overlay'
-  }
-
   defaults: () ->
     return _.extend({}, super(), {
+      # overrides
+      level: 'overlay'
+
       # internal
       data: {}
     })

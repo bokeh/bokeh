@@ -285,6 +285,10 @@ class Renderer extends Model
 
     @define(result)
 
+  @define {
+    level: [ p.RenderLevel, null ]
+  }
+
 module.exports =
   Model: Renderer
   View: RendererView

@@ -221,7 +221,6 @@ class GlyphRenderer extends Renderer.Model
   type: 'GlyphRenderer'
 
   @define {
-      level:              [ p.RenderLevel, 'glyph'   ]
       x_range_name:       [ p.String,      'default' ]
       y_range_name:       [ p.String,      'default' ]
       data_source:        [ p.Instance               ]
@@ -230,6 +229,10 @@ class GlyphRenderer extends Renderer.Model
       nonselection_glyph: [ p.Instance               ]
       selection_glyph:    [ p.Instance               ]
     }
+
+  @override {
+    level: 'glyph'
+  }
 
   selection_defaults: {}
   decimated_defaults: {fill_alpha: 0.3, line_alpha: 0.3, fill_color: "grey", line_color: "grey"}

@@ -283,10 +283,9 @@ class TileRenderer extends Renderer.Model
       render_parents: [ p.Bool,     true             ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      level: 'underlay'
-    }
+  @override {
+    level: 'underlay'
+  }
 
 module.exports =
   Model: TileRenderer
