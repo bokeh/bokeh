@@ -269,6 +269,7 @@ module.exports =
   LineJoin: LineJoin
   Location: Location
   Number: Number
+  Int: Number                     # TODO
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode

@@ -314,6 +314,9 @@ class Axis extends GuideRenderer.Model
       x_range_name:   [ p.String,   'default' ]
       y_range_name:   [ p.String,   'default' ]
       axis_label:     [ p.String,   ''        ]
+      axis_label_standoff:     [ p.Int,         5 ]
+      major_label_standoff:    [ p.Int,         5 ]
+      major_label_orientation: [ p.Orientation, "horizontal" ]
       major_tick_in:  [ p.Number,   2         ]
       major_tick_out: [ p.Number,   6         ]
       minor_tick_in:  [ p.Number,   0         ]
@@ -326,13 +329,10 @@ class Axis extends GuideRenderer.Model
     major_tick_line_color: 'black'
     minor_tick_line_color: 'black'
 
-    major_label_standoff: 5
-    major_label_orientation: "horizontal"
     major_label_text_font_size: "10pt"
     major_label_text_align: "center"
     major_label_text_baseline: "alphabetic"
 
-    axis_label_standoff: 5
     axis_label_text_font_size: "16pt"
     axis_label_text_align: "center"
     axis_label_text_baseline: "alphabetic"
