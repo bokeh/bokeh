@@ -41,7 +41,7 @@ class StyleableBox extends BaseBox.Model
 
   @define {
     css_properties: [p.Dict, null]
-    orientation:    [p.String, 'vertical']
+    orientation:    [p.Orientation, 'vertical']
   }
 
 module.exports =
