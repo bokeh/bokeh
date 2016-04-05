@@ -94,6 +94,8 @@ class HasProps extends Backbone.Model
     @properties = {}
     props = _.result(this, 'props')
     for name, [type, default_value] of props
+      if not type?
+        throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
     if options.parse
