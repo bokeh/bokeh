@@ -250,15 +250,10 @@ class Plot(Component):
 
         '''
         if not isinstance(annotation, Annotation):
-            raise ValueError("'annotation' argument to add_annotation must be \
-                             Annotation subclass")
+            raise ValueError("'annotation' argument to add_annotation must be Annotation subclass")
 
         if annotation.plot is not None:
-            raise ValueError("annotation %s to be added already has 'plot' \
-                             attribute set" % annotation)
-
-        if hasattr(annotation, 'source') and annotation.source is None:
-            annotation.source = ColumnDataSource()
+            raise ValueError("annotation %s to be added already has 'plot' attribute set" % annotation)
 
         annotation.plot = self
 

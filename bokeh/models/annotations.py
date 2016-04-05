@@ -17,7 +17,7 @@ from ..core.properties import (
 from ..util.deprecate import deprecated
 
 from .renderers import Renderer, GlyphRenderer
-from .sources import DataSource
+from .sources import DataSource, ColumnDataSource
 
 @abstract
 class Annotation(Renderer):
@@ -252,7 +252,7 @@ class Label(Annotation):
 
     border_line_alpha = Override(default=0.0)
 
-    source = Instance(DataSource, help="""
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 
