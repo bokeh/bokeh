@@ -48,14 +48,22 @@ class HasProps extends Backbone.Model
 
   @mixins: (names) -> @mixin(names...)
 
-  @override: (name, default_value) ->
-    value = this.prototype.props[name]
-    if not value?
-      throw new Error("attempted to override property '#{this.name}.#{name}' (which wasn't defined)")
-    [type, insignificant_stuff_at_this_point] = value
-    props = _.clone(this.prototype.props)
-    props[name] = [type, default_value]
-    this.prototype.props = props
+  @override: (name_or_object, default_value) ->
+    if _.isString(name_or_object)
+      object = {}
+      object[name] = default_value
+    else
+      object = name_or_object
+
+    for name, default_value of object
+      do (name, default_value) =>
+        value = this.prototype.props[name]
+        if not value?
+          throw new Error("attempted to override property '#{this.name}.#{name}' (which wasn't defined)")
+        [type, _1, rest...] = value
+        props = _.clone(this.prototype.props)
+        props[name] = [type, default_value, rest...]
+        this.prototype.props = props
 
   toString: () -> "#{@type}(#{@id})"
 
