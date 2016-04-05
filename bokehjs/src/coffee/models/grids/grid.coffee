@@ -73,17 +73,13 @@ class Grid extends GuideRenderer.Model
       y_range_name: [ p.String,  'default' ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      level: "underlay"
-      band_fill_color: null
-      band_fill_alpha: 0
-      grid_line_color: '#cccccc'
-      minor_grid_line_color: null
-
-      # internal
-    }
+  @override {
+    level: "underlay"
+    band_fill_color: null
+    band_fill_alpha: 0
+    grid_line_color: '#cccccc'
+    minor_grid_line_color: null
+  }
 
   initialize: (attrs, options)->
     super(attrs, options)

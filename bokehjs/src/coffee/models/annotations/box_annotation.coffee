@@ -106,16 +106,17 @@ class BoxAnnotation extends Annotation.Model
       left_units:   [ p.SpatialUnits, 'data'    ]
       right:        [ p.Number,       null      ]
       right_units:  [ p.SpatialUnits, 'data'    ]
-    }
+  }
+
+  @override {
+    fill_color: '#fff9ba'
+    fill_alpha: 0.4
+    line_color: '#cccccc'
+    line_alpha: 0.3
+  }
 
   defaults: ->
     return _.extend {}, super(), {
-      # overrides
-      fill_color: '#fff9ba'
-      fill_alpha: 0.4
-      line_color: '#cccccc'
-      line_alpha: 0.3
-
       # internal
       silent_update: false
     }

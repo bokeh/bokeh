@@ -95,13 +95,14 @@ class Span extends Annotation.Model
       location:       [ p.Number,       null      ]
       location_units: [ p.SpatialUnits, 'data'    ]
       dimension:      [ p.Dimension,    'width'   ]
-    }
+  }
+
+  @override {
+    line_color: 'black'
+  }
 
   defaults: ->
     return _.extend {}, super(), {
-      # overrides
-      line_color: 'black'
-
       # internal
       for_hover: false
     }

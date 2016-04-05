@@ -813,16 +813,17 @@ class Plot extends Component.Model
       min_border_right:  [ p.Number,   MIN_BORDER             ]
     }
 
+  @override {
+    title_text_font_size: "20pt"
+    title_text_align: "center"
+    title_text_baseline: "alphabetic"
+    outline_line_color: '#aaaaaa'
+    border_fill_color: "#ffffff"
+    background_fill_color: "#ffffff"
+  }
+
   defaults: ->
     return _.extend {}, super(), {
-      # overrides
-      title_text_font_size: "20pt",
-      title_text_align: "center"
-      title_text_baseline: "alphabetic"
-      outline_line_color: '#aaaaaa'
-      border_fill_color: "#ffffff",
-      background_fill_color: "#ffffff",
-
       # internal
       min_size: 120
     }

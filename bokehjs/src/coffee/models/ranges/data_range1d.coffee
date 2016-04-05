@@ -21,8 +21,6 @@ class DataRange1d extends DataRange.Model
 
   defaults: ->
     return _.extend {}, super(), {
-      # overrides
-
       # internal
       plots: []
     }

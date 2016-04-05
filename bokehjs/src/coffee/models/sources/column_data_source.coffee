@@ -19,8 +19,6 @@ class ColumnDataSource extends DataSource.Model
 
   defaults: ->
     return _.extend {}, super(), {
-      # overrides
-
       # internal
       selection_manager: new SelectionManager({'source':@})
     }
