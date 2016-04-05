@@ -11,11 +11,6 @@ from .widget import Widget
 class Markup(Widget):
     """ Base class for HTML markup widget models. """
 
-class Paragraph(Markup):
-    """ A block (paragraph) of text.
-
-    """
-
     text = String(default="", help="""
     The contents of the widget.
     """)
@@ -28,22 +23,16 @@ class Paragraph(Markup):
     The height of the block in pixels.
     """)
 
+
+class Paragraph(Markup):
+    """ A block (paragraph) of text.
+
+    """
+
 class Div(Markup):
     """ A block (div) of text.
 
     """
-
-    text = String(default="", help="""
-    The contents of the widget (blank default).
-    """)
-
-    width = Int(600, help="""
-    The width of the block in pixels (600px default).
-    """)
-
-    height = Int(400, help="""
-    The height of the block in pixels (400px default).
-    """)
 
     render_as_text = Bool(False, help="""
     Should the text be rendered as raw text (False, default), or should the text be interprited as an HTML string (True)
