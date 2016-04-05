@@ -17,22 +17,22 @@ class CircleView extends Glyph.View
   _map_data: () ->
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
-    if @radius?
+    if @_radius?
       if @model.properties.radius.spec.units == "data"
         rd = @model.properties.radius_dimension.spec.value
-        @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
+        @sradius = @sdist(@renderer["#{rd}mapper"], @["_"+rd], @_radius)
       else
-        @sradius = @radius
+        @sradius = @_radius
         @max_size = 2 * @max_radius
     else
-      @sradius = (s/2 for s in @size)
+      @sradius = (s/2 for s in @_size)
 
   _mask_data: (all_indices) ->
     hr = @renderer.plot_view.frame.get('h_range')
     vr = @renderer.plot_view.frame.get('v_range')
 
     # check for radius first
-    if @radius? and @model.properties.radius.units == "data"
+    if @_radius? and @model.properties.radius.units == "data"
       sx0 = hr.get('start')
       sx1 = hr.get('end')
       [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
@@ -83,7 +83,7 @@ class CircleView extends Glyph.View
     y = @renderer.ymapper.map_from_target(vy, true)
 
     # check radius first
-    if @radius? and @model.properties.radius.units == "data"
+    if @_radius? and @model.properties.radius.units == "data"
       x0 = x - @max_radius
       x1 = x + @max_radius
 
@@ -104,13 +104,13 @@ class CircleView extends Glyph.View
     candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
     hits = []
-    if @radius? and @model.properties.radius.units == "data"
+    if @_radius? and @model.properties.radius.units == "data"
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
         sx0 = @renderer.xmapper.map_to_target(x, true)
-        sx1 = @renderer.xmapper.map_to_target(@x[i], true)
+        sx1 = @renderer.xmapper.map_to_target(@_x[i], true)
         sy0 = @renderer.ymapper.map_to_target(y, true)
-        sy1 = @renderer.ymapper.map_to_target(@y[i], true)
+        sy1 = @renderer.ymapper.map_to_target(@_y[i], true)
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         if dist <= r2
           hits.push([i, dist])
@@ -140,7 +140,7 @@ class CircleView extends Glyph.View
         # use circle bounds instead of current pointer y coordinates
         y0 = yb[0]
         y1 = yb[1]
-        if @radius? and @model.properties.radius.units == "data"
+        if @_radius? and @model.properties.radius.units == "data"
           vx0 = vx - @max_radius
           vx1 = vx + @max_radius
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
@@ -153,7 +153,7 @@ class CircleView extends Glyph.View
         # use circle bounds instead of current pointer x coordinates
         x0 = xb[0]
         x1 = xb[1]
-        if @radius? and @model.properties.radius.units == "data"
+        if @_radius? and @model.properties.radius.units == "data"
           vy0 = vy - @max_radius
           vy1 = vy + @max_radius
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
@@ -211,13 +211,14 @@ class CircleView extends Glyph.View
     data = {sx: sx, sy: sy, sradius: sradius}
     @_render(ctx, indices, data)
 
-class Circle extends Glyph.Model
+class Circle extends Glyph.Model # XXX: Marker.Model
   default_view: CircleView
 
   type: 'Circle'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       angle:            [ p.AngleSpec,    0                             ]
       size:             [ p.DistanceSpec, { units: "screen", value: 4 } ]
       radius:           [ p.DistanceSpec, null                          ]

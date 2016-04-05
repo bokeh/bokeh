@@ -60,8 +60,7 @@ function conda_info {
 }
 
 CONDA_ENV=$(conda_info root_prefix)
-PLATFORM=$(conda_info platform)
-BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
+BUILD_PATH=$CONDA_ENV/conda-bld/noarch
 
 # create an empty __travis_build_number__.txt file if you are building locally
 if [ $local == true ]; then
@@ -96,23 +95,12 @@ echo "Removing first bokeh build at $first_build_loc"
 #########################
 
 # build for each python version
-for py in 27 34 35;
-do
-    echo "Building py$py pkg"
-    CONDA_PY=$py conda build conda.recipe --quiet
-done
-
-# convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*.tar.bz2 --quiet
-echo "pkgs converted"
+echo "Building noarch pkg"
+conda build conda.recipe --quiet
 
 # upload conda pkgs to anaconda.org
-platforms=(osx-64 linux-64 win-64 linux-32 win-32)
-for plat in "${platforms[@]}"
-do
-    echo Uploading: $plat
-    anaconda -t $bintoken upload -u bokeh $plat/bokeh*.tar.bz2 -c $channel --force --no-progress
-done
+echo Uploading noarch pkg
+anaconda -t $bintoken upload -u bokeh $BUILD_PATH/bokeh*.tar.bz2 -c $channel --force --no-progress
 
 # create, register and upload pypi pkgs to pypi and anaconda.org
 # zip is currently not working on anaconda.org

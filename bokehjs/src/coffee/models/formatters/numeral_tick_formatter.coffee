@@ -7,15 +7,14 @@ p = require "../../core/properties"
 class NumeralTickFormatter extends TickFormatter.Model
   type: 'NumeralTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       # TODO (bev) all of these could be tightened up
       format:   [ p.String, '0,0'   ]
       language: [ p.String, 'en'    ]
       rounding: [ p.String, 'round' ]
     }
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     format = @get("format")
     language = @get("language")
     rounding = switch @get("rounding")

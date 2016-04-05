@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class Range extends Model
   type: 'Range'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       callback: [ p.Instance ]
     }
 

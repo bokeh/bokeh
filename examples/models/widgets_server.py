@@ -62,7 +62,7 @@ def make_layout():
         TableColumn(field="downloads", title="Downloads", editor=IntEditor()),
     ]
     data_table = DataTable(source=source, columns=columns, width=400, height=400, editable=True)
-    button = Button(label="Randomize data", type="success")
+    button = Button(label="Randomize data", button_type="success")
     button.on_click(click_handler)
     buttons = VBox(children=[button])
     vbox = VBox(children=[buttons, plot, data_table])

@@ -46,8 +46,7 @@ class DateRangeSlider extends InputWidget.Model
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       # TODO (bev) types
       value:        [ p.Any            ]
       range:        [ p.Any            ]

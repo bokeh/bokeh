@@ -3,14 +3,59 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 {logger} = require "./logging"
-mixins = require "./property_mixins"
+property_mixins = require "./property_mixins"
 refs = require "./util/refs"
 
 class HasProps extends Backbone.Model
 
+  props: {}
   mixins: []
 
-  props: () -> mixins.create(@mixins)
+  @define: (name_or_object, type, default_value) ->
+    if _.isString(name_or_object)
+      name = name_or_object
+      prop = if _.isUndefined(default_value) then [type] else [type, default_value]
+      object = {}
+      object[name] = prop
+    else
+      object = name_or_object
+
+    for name, prop of object
+      do (name, prop) =>
+        if this.prototype.props[name]?
+          throw new Error("attempted to redefine property '#{this.name}.#{name}'")
+
+        if this.prototype[name]?
+          # XXX: should be an error, but Backbone.Model.url must be removed first
+          console.log("attempted to redefine attribute '#{this.name}.#{name}'")
+
+        Object.defineProperty(this.prototype, name, {
+          get: ()      -> this.get(name)
+          set: (value) -> this.set(name, value)
+        }, {
+          configurable: false
+          enumerable: true
+        })
+
+        props = _.clone(this.prototype.props)
+        props[name] = prop
+        this.prototype.props = props
+
+  @mixin: (names...) ->
+    @define(property_mixins.create(names))
+    mixins = this.prototype.mixins.concat(names)
+    this.prototype.mixins = mixins
+
+  @mixins: (names) -> @mixin(names...)
+
+  @override: (name, default_value) ->
+    value = this.prototype.props[name]
+    if not value?
+      throw new Error("attempted to override property '#{this.name}.#{name}' (which wasn't defined)")
+    [type, insignificant_stuff_at_this_point] = value
+    props = _.clone(this.prototype.props)
+    props[name] = [type, default_value]
+    this.prototype.props = props
 
   toString: () -> "#{@type}(#{@id})"
 
@@ -43,8 +88,6 @@ class HasProps extends Backbone.Model
     for name, [type, default_value] of props
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
-    if options.collection
-      this.collection = options.collection
     if options.parse
       attrs = this.parse(attrs, options) || {}
     defaults = _.result(this, 'defaults')
@@ -367,23 +410,30 @@ class HasProps extends Backbone.Model
 
     _.values(result)
 
+  references: () ->
+    references = {}
+    HasProps._value_record_references(this, references, true)
+    return _.values(references)
+
   attach_document: (doc) ->
-    if @document != null and @document != doc
-      throw new Error("Models must be owned by only a single document")
-    first_attach = @document == null
-    @document = doc
-    if doc != null
-      doc._notify_attach(@)
-      if first_attach
-        for c in @_immediate_references()
-          c.attach_document(doc)
+    if @document != null
+      if @document != doc
+        throw new Error("models must be owned by only a single document")
+      else
+        @document._notify_attach(@)
+    else
+      @document = doc
+      @document._notify_attach(@)
 
-    # TODO (bev) is there are way to get rid of this?
-    for name, prop of @properties
-      prop.update()
+      for ref in @_immediate_references()
+        ref.attach_document(@document)
 
-    if @_doc_attached?
-      @_doc_attached()
+      # TODO (bev) is there are way to get rid of this?
+      for name, prop of @properties
+        prop.update()
+
+      if @_doc_attached?
+        @_doc_attached()
 
   detach_document: () ->
     if @document != null

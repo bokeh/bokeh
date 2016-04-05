@@ -66,8 +66,7 @@ class Slider extends InputWidget.Model
   type: "Slider"
   default_view: SliderView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       value:             [ p.Number,      0.5          ]
       start:             [ p.Number,      0            ]
       end:               [ p.Number,      1            ]

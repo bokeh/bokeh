@@ -4,6 +4,9 @@ package:
 
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
+  noarch_python: True
+  entry_points:
+    - bokeh = bokeh.__main__:main
 
 extra:
   channels:
@@ -15,7 +18,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - nodejs >=4.1
+    - nodejs >=4.1  [unix]
     - six
     - python-dateutil
     - numpy
@@ -36,7 +39,8 @@ requirements:
 
     # server
     - tornado >=4.3
-    - futures        [py27]
+    # meta-package installs futures for py 2.7 but not for py 3.x
+    - futures-compat
 
 test:
   requires:
@@ -54,15 +58,15 @@ test:
     - mock
     - pandas
     - pytest >=2.9.0
-    - pytest-cov ==1.8.1
-    - pytest-selenium >=1.2.1
+    - pytest-cov ==1.8.1       [unix]
+    - pytest-selenium >=1.2.1  [unix]
     - pytest-xdist
     - pytest-rerunfailures
-    - beautiful-soup
+    - beautiful-soup        [unix]
     - scipy
     - pillow
     - boto
-    - pdiff
+    - pdiff                 [unix]
 
     # examples
     - jupyter
@@ -70,12 +74,12 @@ test:
     - sympy
     - ggplot
     - seaborn
-    - icalendar
+    - icalendar          [unix]
     - flask
     - flexx
 
   commands:
-    - bokeh -h        [linux64 or osx]
+    - bokeh -h
 
   imports:
     - bokeh

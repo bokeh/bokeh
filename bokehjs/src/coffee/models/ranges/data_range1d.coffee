@@ -8,8 +8,7 @@ bbox = require "../../core/util/bbox"
 class DataRange1d extends DataRange.Model
   type: 'DataRange1d'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       start:           [ p.Number        ]
       end:             [ p.Number        ]
       range_padding:   [ p.Number, 0.1   ]
@@ -44,11 +43,6 @@ class DataRange1d extends DataRange.Model
       , true)
     @add_dependencies('max', this, ['start', 'end'])
 
-    @register_property('computed_renderers',
-        () -> @_compute_renderers()
-      , true)
-    @add_dependencies('computed_renderers', this, ['plots', 'renderers', 'names'])
-
     @plot_bounds = {}
 
     @have_updated_interactively = false
@@ -59,7 +53,7 @@ class DataRange1d extends DataRange.Model
     @_initial_follow_interval = @get('follow_interval')
     @_initial_default_span = @get('default_span')
 
-  _compute_renderers: () ->
+  computed_renderers: () ->
     # TODO (bev) check that renderers actually configured with this range
     names = @get('names')
     renderers = @get('renderers')
@@ -130,7 +124,7 @@ class DataRange1d extends DataRange.Model
     if @have_updated_interactively
       return
 
-    renderers = @get('computed_renderers')
+    renderers = @computed_renderers()
 
     # update the raw data bounds for all renderers we care about
     @plot_bounds[bounds_id] = @_compute_plot_bounds(renderers, bounds)

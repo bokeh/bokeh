@@ -8,6 +8,7 @@ LayoutBox = require "../canvas/layout_box"
 Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
+ColumnDataSource = require "../sources/column_data_source"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
@@ -131,6 +132,11 @@ class PlotView extends Renderer.View
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
+    @ui_event_bus = new UIEvents({
+      tool_manager: @mget('tool_manager')
+      hit_area: @canvas_view.$el
+    })
+
     @renderers = {}
     @tools = {}
 
@@ -141,13 +147,6 @@ class PlotView extends Renderer.View
     @bind_bokeh_events()
 
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
-
-    @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
-      hit_area: @canvas_view.$el
-    })
-    for id, tool_view of @tools
-      @ui_event_bus.register_tool(tool_view)
 
     toolbar_location = @mget('toolbar_location')
     if toolbar_location?
@@ -353,11 +352,16 @@ class PlotView extends Renderer.View
     @update_range(null)
 
   build_levels: () ->
+    renderer_models = @mget("renderers")
+    for tool_model in @mget("tools")
+      synthetic = tool_model.get("synthetic_renderers") ? []
+      renderer_models = renderer_models.concat(synthetic)
+
     # should only bind events on NEW views and tools
     old_renderers = _.keys(@renderers)
-    views = build_views(@renderers, @mget('renderers'), @view_options())
-    renderers_to_remove = _.difference(old_renderers,
-                                       _.pluck(@mget('renderers'), 'id'))
+    views = build_views(@renderers, renderer_models, @view_options())
+    renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
+
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
     tools = build_views(@tools, @mget('tools'), @view_options())
@@ -365,10 +369,11 @@ class PlotView extends Renderer.View
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-    for t in tools
-      level = t.mget('level')
-      @levels[level][t.model.id] = t
-      t.bind_bokeh_events()
+    for tool_view in tools
+      level = tool_view.mget('level')
+      @levels[level][tool_view.model.id] = tool_view
+      tool_view.bind_bokeh_events()
+      @ui_event_bus.register_tool(tool_view)
     return this
 
   bind_bokeh_events: () ->
@@ -377,7 +382,7 @@ class PlotView extends Renderer.View
     for name, rng of @mget('frame').get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tool', @build_levels)
+    @listenTo(@model, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
 
@@ -618,8 +623,6 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
-  mixins: ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -646,11 +649,7 @@ class Plot extends Component.Model
 
     @solver = canvas.get('solver')
 
-    @set('tool_manager', new ToolManager.Model({
-      tools: @get('tools')
-      toolbar_location: @get('toolbar_location')
-      logo: @get('logo')
-    }))
+    @set('tool_manager', new ToolManager.Model({ plot: this }))
 
     logger.debug("Plot initialized")
 
@@ -717,11 +716,6 @@ class Plot extends Component.Model
     @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
     @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
 
-  add_renderers: (new_renderers) ->
-    renderers = @get('renderers')
-    renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
-
   nonserializable_attribute_names: () ->
     super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
 
@@ -731,15 +725,50 @@ class Plot extends Component.Model
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
     attrs
 
-  mixins: [
-    'text:title_',
-    'line:outline_',
-    'fill:border_',
-    'fill:background_'
-  ]
+  add_renderers: (new_renderers...) ->
+    renderers = @get('renderers')
+    renderers = renderers.concat(new_renderers)
+    @set('renderers', renderers)
 
-  props: ->
-    return _.extend {}, super(), {
+  add_layout: (renderer, place="center") ->
+    if renderer.props.plot?
+      renderer.plot = this
+
+    @add_renderers(renderer)
+
+    if place != 'center'
+      @set(place, @get(place).concat([renderer]))
+
+  add_glyph: (glyph, source, attrs={}) ->
+    if not source?
+      source = new ColumnDataSource.Model()
+
+    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    renderer = new GlyphRenderer.Model(attrs)
+
+    @add_renderers(renderer)
+
+    return renderer
+
+  add_tools: (tools...) ->
+    new_tools = for tool in tools
+      if tool.overlay?
+        @add_renderers(tool.overlay)
+
+      if tool.plot?
+        tool
+      else
+        # XXX: this part should be unnecessary, but you can't configure tool.plot
+        # after construting a tool. When this limitation is lifted, remove this code.
+        attrs = _.clone(tool.attributes)
+        attrs.plot = this
+        new tool.constructor(attrs)
+
+    @set("tools", @get("tools").concat(new_tools))
+
+  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+
+  @define {
       title:             [ p.String,   ''                     ]
       title_standoff:    [ p.Number,   8                      ]
 

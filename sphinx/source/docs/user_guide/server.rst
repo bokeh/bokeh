@@ -117,6 +117,12 @@ First, we must have a Bokeh Server running. To do that, execute the command:
 
     bokeh serve
 
+or, alternatively:
+
+.. code-block:: sh
+
+    python -m bokeh serve
+
 When the server starts you should see output similar to the following on your
 console:
 

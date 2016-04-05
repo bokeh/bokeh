@@ -9,9 +9,9 @@ class QuadView extends Glyph.View
   _index_data: () ->
     index = rbush()
     pts = []
-    for i in [0...@left.length]
-      if not isNaN(@left[i] + @right[i] + @top[i] + @bottom[i])
-        pts.push([@left[i], @bottom[i], @right[i], @top[i], {'i': i}])
+    for i in [0...@_left.length]
+      if not isNaN(@_left[i] + @_right[i] + @_top[i] + @_bottom[i])
+        pts.push([@_left[i], @_bottom[i], @_right[i], @_top[i], {'i': i}])
     index.load(pts)
     return index
 
@@ -55,7 +55,8 @@ class Quad extends Glyph.Model
 
   type: 'Quad'
 
-  coords: [ ['right', 'bottom'], ['left', 'top'] ]
+  @coords [['right', 'bottom'], ['left', 'top']]
+  @mixins ['line', 'fill']
 
 module.exports =
   Model: Quad

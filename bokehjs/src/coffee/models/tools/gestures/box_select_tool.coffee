@@ -62,7 +62,7 @@ class BoxSelectToolView extends SelectTool.View
       vy1: vy1
     }
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
@@ -75,7 +75,7 @@ class BoxSelectToolView extends SelectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('renderers')[0]
+    r = @mget('computed_renderers')[0]
     canvas = @plot_model.get('canvas')
     frame = @plot_model.get('frame')
 
@@ -118,13 +118,12 @@ class BoxSelectTool extends SelectTool.Model
   event_type: "pan"
   default_order: 30
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions:             [ p.Array,    ["width", "height"] ]
       select_every_mousemove: [ p. Bool,    false               ]
       callback:               [ p.Instance                      ]
       overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
-    })
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)

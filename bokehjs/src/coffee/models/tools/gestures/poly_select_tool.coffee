@@ -54,7 +54,7 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
@@ -84,10 +84,9 @@ class PolySelectTool extends SelectTool.Model
   event_type: "tap"
   default_order: 11
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
-    })
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)

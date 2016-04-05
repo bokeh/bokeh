@@ -42,8 +42,7 @@ class RadioGroup extends Widget.Model
   type: "RadioGroup"
   default_view: RadioGroupView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       active:   [ p.Any,   null  ] # TODO (bev) better type?
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]

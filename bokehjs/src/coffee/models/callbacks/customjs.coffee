@@ -6,8 +6,7 @@ Model = require "../../model"
 class CustomJS extends Model
   type: 'CustomJS'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       args: [ p.Any,     {}           ] # TODO (bev) better type
       code: [ p.String,  ''           ]
       lang: [ p.String , 'javascript' ] # TODO (bev) enum
