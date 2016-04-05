@@ -37,6 +37,12 @@ create_hit_test_result = ->
 
   return result
 
+validate_bbox_coords = ([x0, x1], [y0, y1]) ->
+  # rbush expects x0, y0 to be min, x1, y1 max
+  if x0 > x1 then [x0, x1] = [x1, x0]
+  if y0 > y1 then [y0, y1] = [y1, y0]
+  return [x0, y0, x1, y1]
+
 sqr = (x) -> x * x
 dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)
 
@@ -88,3 +94,4 @@ module.exports =
   dist_2_pts: dist_2_pts
   dist_to_segment: dist_to_segment
   check_2_segments_intersect: check_2_segments_intersect
+  validate_bbox_coords: validate_bbox_coords
