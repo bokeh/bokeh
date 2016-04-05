@@ -85,7 +85,6 @@ class LabelView extends Renderer.View
 
   render: () ->
     [@sx, @sy] = @_map_data()
-    debugger;
     if @mget('render_mode') == 'canvas'
       @_canvas_text()
     else
