@@ -20,8 +20,14 @@ class LabelView extends Renderer.View
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @render())
     else
       @listenTo(@model, 'change', @plot_view.request_render)
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @plot_view.request_render())
 
   set_data: () ->
     super(@mget('source'))
