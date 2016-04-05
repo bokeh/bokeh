@@ -556,19 +556,32 @@ class PlotView extends Renderer.View
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
 
-    # We need the parent node, because the el node itself collapses to zero
-    # height. It might not be available though, if the initial resize
+    # Try to find bk-root. We will query the parent of that node for its size
+    node = @.el
+    for i in [0..2]  # Use for-loop; if we ever change DOM structure, it should still work
+      if node is null or node.classList.contains('bk-root')
+         break
+      node = node.parentNode
+
+    # The plot node might be an orphan if the initial resize
     # happened before the plot was added to the DOM. If that happens, we
     # try again in increasingly larger intervals (the first try should just
     # work, but lets play it safe).
     @_re_resized = @_re_resized or 0
-    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
+    if not (node? and node.parentNode?) and @_re_resized < 14  # 2**14 ~ 16s
       setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
       @_re_resized += 1
       return
 
-    avail_width = @.el.clientWidth
-    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
+    # Check that what we found is a bk-root. If not, this is probably a subplot, which we 
+    # can not currently make responsive in a good way
+    if not node.classList.contains('bk-root')
+       Bokeh.logger.warn('subplots cannot be responsive')
+       return
+
+    # Get the available width
+    avail_width = node.parentNode.clientWidth
+    avail_height = node.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
 
     if maintain_ar is false
