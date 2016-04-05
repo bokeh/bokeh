@@ -270,6 +270,9 @@ class Label(Annotation):
     Specifies whether the text is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
 
+    .. note::
+        The CSS labels won't be present in the output using the "save" tool.
+
     .. warning::
         Not all visual styling properties are supported if the render_mode is
         set to "css". The border_line_dash property isn't fully supported and
@@ -277,6 +280,7 @@ class Label(Annotation):
         modify the opacity of the entire background box and border in addition
         to the text. Finally, clipping Label annotations inside of the plot
         area isn't supported in "css" mode.
+
     """)
 
 
