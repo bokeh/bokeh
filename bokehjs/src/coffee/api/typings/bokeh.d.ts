@@ -11,7 +11,7 @@ declare namespace Bokeh {
     function set_log_level(level: LogLevel): void;
 
     namespace embed {
-        export function add_document_static(element: HTMLElement, doc: Document, use_for_title?: boolean): void;
+        export function add_document_standalone(doc: Document, element: HTMLElement, use_for_title?: boolean): void;
     }
 
     namespace LinAlg {
