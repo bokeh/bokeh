@@ -548,9 +548,13 @@ class PlotView extends Renderer.View
   resize: () =>
     @resize_width_height(true, false)
 
-  resize_width_height: (use_width, use_height, maintain_ar=true) =>
+  resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
     # Resize plot based on available width and/or height
-
+    
+    # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
+    if typeof width is 'number' and typeof height is 'number'
+      return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
+    
     # the solver falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
@@ -578,12 +582,13 @@ class PlotView extends Renderer.View
     if not node.classList.contains('bk-root')
        Bokeh.logger.warn('subplots cannot be responsive')
        return
+    
+    # Apply (-50 height for the ticks)
+    @_resize_width_height(use_width, use_height, maintain_ar, 
+                          node.parentNode.clientWidth, node.parentNode.clientHeight - 50)
 
-    # Get the available width
-    avail_width = node.parentNode.clientWidth
-    avail_height = node.parentNode.clientHeight - 50  # -50 for x ticks
+  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     min_size = @mget('min_size')
-
     if maintain_ar is false
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height

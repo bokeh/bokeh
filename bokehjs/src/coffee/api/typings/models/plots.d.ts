@@ -9,6 +9,7 @@ declare namespace Bokeh {
         add_layout(obj: Model, place?: Place): void;
         add_glyph(glyph: Glyph, source?: DataSource, attrs?: ModelOpts): GlyphRenderer;
         add_tools(...tools: Array<Tool>): void;
+        resize_width_height(use_width:boolean, use_height:boolean, maintain_ar?:boolean, width?:number, height?:number): void;
     }
     export interface IPlot extends IBasePlot {
         x_range?: Range;
