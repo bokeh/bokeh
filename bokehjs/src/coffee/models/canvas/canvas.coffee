@@ -6,6 +6,7 @@ LayoutBox = require "./layout_box"
 BokehView = require "../../core/bokeh_view"
 {EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
+p = require "../../core/properties"
 {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio} = require "../../core/util/canvas"
 
 class CanvasView extends BokehView
@@ -70,11 +71,10 @@ class Canvas extends LayoutBox.Model
   type: 'Canvas'
   default_view: CanvasView
 
-  defaults: ->
-    return _.extend {}, super(), {
-      map: false
-      use_hidpi: true
-    }
+  @internal {
+    map: [ p.Boolean, false ]
+    use_hidpi: [ p.Boolean, true ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)

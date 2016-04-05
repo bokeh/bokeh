@@ -115,14 +115,9 @@ class BoxAnnotation extends Annotation.Model
     line_alpha: 0.3
   }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # internal
-      silent_update: false
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['silent_update'])
+  @internal {
+    silent_update: [ p.Boolean, false ]
+  }
 
   update:({left, right, top, bottom}) ->
     if @get('silent_update')

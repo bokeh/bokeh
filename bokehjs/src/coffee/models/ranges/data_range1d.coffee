@@ -19,11 +19,9 @@ class DataRange1d extends DataRange.Model
       bounds:          [ p.Any           ] # TODO (bev)
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # internal
-      plots: []
-    }
+  @internal {
+    plots: [ p.Array, [] ]
+  }
 
   nonserializable_attribute_names: () ->
     super().concat(['plots'])

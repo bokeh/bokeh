@@ -5,6 +5,7 @@ GridMapper = require "../mappers/grid_mapper"
 LinearMapper = require "../mappers/linear_mapper"
 LogMapper = require "../mappers/log_mapper"
 {logging} = require "../../core/logging"
+p = require "../../core/properties"
 LayoutBox = require "./layout_box"
 
 class CartesianFrame extends LayoutBox.Model
@@ -92,11 +93,10 @@ class CartesianFrame extends LayoutBox.Model
     for name, mapper of @get('y_mappers')
       mapper.set('target_range', @get('v_range'))
 
-  defaults: ->
-    return _.extend {}, super(), {
-      extra_x_ranges: {}
-      extra_y_ranges: {}
-    }
+  @internal {
+    extra_x_ranges: [ p.Any, {} ]
+    extra_y_ranges: [ p.Any, {} ]
+  }
 
 module.exports =
   Model: CartesianFrame

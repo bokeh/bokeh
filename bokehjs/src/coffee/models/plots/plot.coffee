@@ -822,11 +822,9 @@ class Plot extends Component.Model
     background_fill_color: "#ffffff"
   }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # internal
-      min_size: 120
-    }
+  @internal {
+    min_size: [ p.Number, 120 ]
+  }
 
 module.exports =
   get_size_for_available_space: get_size_for_available_space

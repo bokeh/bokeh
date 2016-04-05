@@ -121,10 +121,9 @@ class GridToolManager extends ToolManager.Model
     logger.debug("GridToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      tool_manangers: []
-    }
+  @internal {
+    tool_manangers: [ p.Array, [] ]
+  }
 
 class GridViewState extends HasProps
 

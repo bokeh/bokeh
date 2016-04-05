@@ -69,14 +69,9 @@ class PolyAnnotation extends Annotation.Model
     line_alpha: 0.3
   }
 
-  defaults: () ->
-    return _.extend({}, super(), {
-      # internal
-      silent_update: false
-    })
-
-  nonserializable_attribute_names: () ->
-    super().concat(['silent_update'])
+  @inernal {
+    silent_update: [ p.Boolean, false ]
+  }
 
   update:({xs, ys}) ->
     if @get('silent_update')

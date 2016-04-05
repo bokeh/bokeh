@@ -101,14 +101,12 @@ class Span extends Annotation.Model
     line_color: 'black'
   }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # internal
-      for_hover: false
-    }
+  @inernal {
+    for_hover: [ p.Boolean, false ]
+  }
 
   nonserializable_attribute_names: () ->
-    super().concat(['for_hover', 'computed_location'])
+    super().concat(['computed_location'])
 
 module.exports =
   Model: Span
