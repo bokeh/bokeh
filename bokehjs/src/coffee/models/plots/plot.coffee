@@ -583,9 +583,11 @@ class PlotView extends Renderer.View
        Bokeh.logger.warn('subplots cannot be responsive')
        return
     
-    # Apply (-50 height for the ticks)
-    @_resize_width_height(use_width, use_height, maintain_ar, 
-                          node.parentNode.clientWidth, node.parentNode.clientHeight - 50)
+    # Apply size, we need some extra space at the bottom. The sides are fine.
+    bottom_offset = if @model.below[0] then @model.below[0]._last_size else null
+    bottom_offset = Math.round(bottom_offset or 30) + 10
+    @_resize_width_height(use_width, use_height, maintain_ar,
+                          node.parentNode.clientWidth, node.parentNode.clientHeight - bottom_offset)
 
   _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     min_size = @mget('min_size')
