@@ -67,28 +67,25 @@ class LabelView extends Renderer.View
     return [sx, sy]
 
   _calculate_offset: (ctx, height, width) ->
-    if ctx.textAlign == 'left'
-      x_shift = 0
-    if ctx.textAlign == 'center'
-      x_shift = -width / 2
-    if ctx.textAlign == 'right'
-      x_shift = -width
 
-    if ctx.textBaseline == 'top'
-      y_shift = 0.0
-    if ctx.textBaseline == 'middle'
-      y_shift = -0.5 * height
-    if ctx.textBaseline == 'bottom'
-      y_shift = -1.0 * height
-    if ctx.textBaseline == 'alphabetic'
-      y_shift = -0.8 * height
-    if ctx.textBaseline == 'hanging'
-      y_shift = -0.17 * height
+    switch ctx.textAlign
+      when 'left' then x_shift = 0
+      when 'center' then x_shift = -width / 2
+      when 'right' then x_shift = -width
+
+    switch ctx.textBaseline
+      when 'top' then y_shift = 0.0
+      when 'middle' then y_shift = -0.5 * height
+      when 'bottom' then y_shift = -1.0 * height
+      when 'alphabetic' then y_shift = -0.8 * height
+      when 'hanging' then y_shift = -0.17 * height
+      when 'ideographic' then y_shift = -0.83 * height
 
     return [x_shift, y_shift]
 
   render: () ->
     [@sx, @sy] = @_map_data()
+    debugger;
     if @mget('render_mode') == 'canvas'
       @_canvas_text()
     else
