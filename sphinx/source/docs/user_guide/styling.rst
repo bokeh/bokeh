@@ -110,10 +110,10 @@ the inputs for line and fill alphas:
 Screen Units and Data-space Units
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Screen units use raw numbers of pixels to specify height or width, while 
-data-space units are relative to the data and the axes of the chart. For 
-example, in a 400 pixel by 400 pixel graph with x and y axes ranging from 0 
-through 10, a glyph one fifth as wide and tall as the graph would be 80 screen 
+Screen units use raw numbers of pixels to specify height or width, while
+data-space units are relative to the data and the axes of the chart. For
+example, in a 400 pixel by 400 pixel graph with x and y axes ranging from 0
+through 10, a glyph one fifth as wide and tall as the graph would be 80 screen
 units or 2 data-space units.
 
 .. _userguide_styling_selecting:
@@ -354,10 +354,10 @@ below demonstrates the latter method:
     Only the *visual* properties of ``hover_glyph`` are considered when
     rendering. Changing positions, sizes, etc. will have no effect.
 
-.. _userguide_styling_tools:
+.. _userguide_styling_tool_overlays:
 
-Tools
------
+Tool Overlays
+-------------
 
 Some Bokeh tools also have configurable visual attributes. For instance the
 various region selection tools and box zoom tool all have an ``overlay``
