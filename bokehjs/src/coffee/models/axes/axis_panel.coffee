@@ -1,5 +1,5 @@
 {EQ, GE} = require "../../core/layout/solver"
-LayoutBox = require "../canvas/layout_box"
+LayoutBox = require "../layouts/layout_box"
 
 class AxisPanel extends LayoutBox.Model
 

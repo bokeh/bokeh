@@ -19,7 +19,6 @@ module.exports = {
   OpenURL:                  require '../models/callbacks/open_url'
 
   Canvas:                   require '../models/canvas/canvas'
-  LayoutBox:                require '../models/canvas/layout_box'
   CartesianFrame:           require '../models/canvas/cartesian_frame'
 
   BasicTickFormatter:       require '../models/formatters/basic_tick_formatter'
@@ -53,6 +52,7 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
+  LayoutBox:                require '../models/layouts/layout_box'
   Row:                      require '../models/layouts/row'
   Column:                   require '../models/layouts/column'
 

@@ -2,7 +2,7 @@ _ = require "underscore"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-LayoutBox = require "../canvas/layout_box"
+LayoutBox = require "../layouts/layout_box"
 Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"

@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 canvas_template = require "./canvas_template"
-LayoutBox = require "./layout_box"
+LayoutBox = require "../layouts/layout_box"
 
 BokehView = require "../../core/bokeh_view"
 {GE, EQ} = require "../../core/layout/solver"
