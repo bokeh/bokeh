@@ -3,13 +3,17 @@ declare namespace Bokeh {
         plot?: Plot;
     }
 
+    export interface PlotView extends View<Plot> {
+        model: Plot;
+        resize_width_height(use_width:boolean, use_height:boolean, maintain_ar?:boolean, width?:number, height?:number): void;
+    }
+
     export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
     export interface Plot extends Component, IPlot {
         add_renderers(...Renderer: Array<Renderer>): void;
         add_layout(obj: Model, place?: Place): void;
         add_glyph(glyph: Glyph, source?: DataSource, attrs?: ModelOpts): GlyphRenderer;
         add_tools(...tools: Array<Tool>): void;
-        resize_width_height(use_width:boolean, use_height:boolean, maintain_ar?:boolean, width?:number, height?:number): void;
     }
     export interface IPlot extends IBasePlot {
         x_range?: Range;
