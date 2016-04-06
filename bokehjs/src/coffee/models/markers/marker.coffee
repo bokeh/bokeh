@@ -56,7 +56,8 @@ class MarkerView extends Glyph.View
     vy1 = vy + @max_size
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
-    candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    candidates = (x[4].i for x in @index.search(bbox))
 
     hits = []
     for i in candidates

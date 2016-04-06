@@ -106,7 +106,9 @@ class RectView extends Glyph.View
       y1 = y + 2*@max_height
 
     hits = []
-    for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    for i in (pt[4].i for pt in @index.search(bbox))
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 

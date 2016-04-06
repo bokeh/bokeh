@@ -98,7 +98,8 @@ class CircleView extends Glyph.View
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
-    candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    candidates = (pt[4].i for pt in @index.search(bbox))
 
     hits = []
     if @_radius? and @model.properties.radius.units == "data"
@@ -160,7 +161,8 @@ class CircleView extends Glyph.View
           vy1 = vy + ms
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
-      hits = (xx[4].i for xx in @index.search([x0, y0, x1, y1]))
+      bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+      hits = (xx[4].i for xx in @index.search(bbox))
 
       result['1d'].indices = hits
       return result

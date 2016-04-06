@@ -69,7 +69,8 @@ class PatchesView extends Glyph.View
     yr = @renderer.plot_view.y_range
     [y0, y1] = [yr.get('min'), yr.get('max')]
 
-    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    return (x[4].i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
