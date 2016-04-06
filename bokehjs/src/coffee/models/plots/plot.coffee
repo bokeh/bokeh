@@ -578,14 +578,14 @@ class PlotView extends Renderer.View
     # if people set a large border on their plots, for example.
     min_size = @mget('min_size')
 
-    # We need some extra space to account for padding and toolbar. Otherwise we get scrollbars.
-    # Note that during resizing, the canvas may be too large, causing scrollbars to briefly show.
-    width_offset = height_offset = 20
-    if @model.toolbar_location == 'above' then height_offset += 30
-    if @model.toolbar_location == 'below' then height_offset += 80  # bug in layout?
-    if @model.toolbar_location in ['left', 'right'] then width_offset += 30    
-    avail_width -= width_offset
-    avail_height -= height_offset
+    above = @$el.find('.bk-plot-above')
+    left = @$el.find('.bk-plot-left')
+    right = @$el.find('.bk-plot-right')
+    below = @$el.find('.bk-plot-below')
+    avail_height -= above.outerHeight()
+    avail_width  -= left .outerWidth()
+    avail_width  -= right.outerWidth()
+    avail_height -= below.outerHeight()
 
     if not maintain_ar
       # Just change width and/or height; aspect ratio will change
