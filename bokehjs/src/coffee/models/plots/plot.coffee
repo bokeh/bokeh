@@ -629,6 +629,16 @@ class Plot extends LayoutDom.Model
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
 
+  get_constrained_variables: () ->
+    return _.extend {}, super(), {
+      # when this widget is in a box, make these the same distance
+      # apart in every widget. Right/bottom are inset from the edge.
+      'box-equal-size-top' : @_top
+      'box-equal-size-bottom' : @_height_minus_bottom
+      'box-equal-size-left' : @_left
+      'box-equal-size-right' : @_width_minus_right
+    }
+
   get_constraints: () ->
     constraints = super()
 

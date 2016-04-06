@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 
 AbstractButton = require "./abstract_button"
 build_views = require "../../common/build_views"
@@ -6,30 +7,22 @@ BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
 class ButtonView extends AbstractButton.View
-  tagName: "button"
   events:
     "click": "change_input"
 
   render: () ->
-    icon = @mget('icon')
-    if icon?
-      build_views(@views, [icon])
-      for own key, val of @views
-        val.$el.detach()
-
     @$el.empty()
-    @$el.attr("type","button")
-    @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("type"))
-    if @mget("disabled") then @$el.attr("disabled", "disabled")
 
-    label = @mget("label")
-    if icon?
-      @$el.append(@views[icon.id].$el)
-      label = " #{label}"
-    @$el.append(document.createTextNode(label))
+    $button = $('<button></button>')
+    $button.attr("type","button")
+    $button.addClass("bk-bs-btn")
+    $button.addClass("bk-bs-btn-" + @mget("type"))
+    $button.text(@mget("label"))
+    if @mget("disabled") 
+      $button.attr("disabled", "disabled")
+
+    @$el.append($button)
     super()
-
 
   change_input: () ->
     @mset('clicks', @mget('clicks') + 1)

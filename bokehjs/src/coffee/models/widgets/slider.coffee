@@ -14,7 +14,7 @@ class SliderView extends InputWidget.View
   initialize: (options) ->
     super(options)
     html = @template(@model.attributes)
-    @$el.html(html)
+    @$el.append(html)
     @callbackWrapper = null
     if @mget('callback_policy') == 'continuous'
       @callbackWrapper = () ->
@@ -74,6 +74,12 @@ class Slider extends InputWidget.Model
       callback_throttle: [ p.Number,      200          ]
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
+
+  get_constraints: () ->
+    constraints = super()
+    constraints.push(EQ(@_bottom_minus_top, -50))
+    constraints.push(GE(@_right_minus_left, -200))
+    return constraints
 
 module.exports =
   Model: Slider

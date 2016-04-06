@@ -70,7 +70,6 @@ class LayoutDom extends Model
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
 
-    # These are slider specific but are here for now
     return constraints
 
   get_constrained_variables: () ->
@@ -84,12 +83,6 @@ class LayoutDom extends Model
       'on-bottom-edge-align' : @_height_minus_bottom
       'on-left-edge-align' : @_left
       'on-right-edge-align' : @_width_minus_right
-      # when this widget is in a box, make these the same distance
-      # apart in every widget. Right/bottom are inset from the edge.
-      'box-equal-size-top' : @_top
-      'box-equal-size-bottom' : @_height_minus_bottom
-      'box-equal-size-left' : @_left
-      'box-equal-size-right' : @_width_minus_right
       # when this widget is in a box cell with the same "arity
       # path" as a widget in another cell, align these variables
       # between the two box cells. Right/bottom are an inset from

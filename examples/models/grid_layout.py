@@ -87,12 +87,16 @@ cat_plot.add_layout(CategoricalAxis(), 'left')
 
 slider = Slider(start=0, end=10, value=1, step=1, title="Stuff")
 menu = [("Item 1", "item_1"), ("Item 2", "item_2"), None, ("Item 3", "item_3")]
-dropdown = Dropdown(label="Dropdown button", type="warning", menu=menu)
-button = Button(label="Foo")
+dropdown = Dropdown(label="Dropdown button", menu=menu)
+msg = """ Returns a tuple (plot, [obj1...objN]); the former can be added
+    to a GridPlot, and the latter is added to the plotcontext.
+    """
+button = Button(label=msg)
 row1 = Row(children=[plot1, plot2])
-row2col1 = Column(children=[plot3, button])
-row2 = Row(children=[row2col1, cat_plot])
-row3 = Row(children=[plot3, plot4])
+row2col1 = Column(children=[plot3, plot4])
+#row2col1 = Column(children=[plot3, slider])
+widgetcol = Column(children=[slider, dropdown, button])
+row2 = Row(children=[row2col1, widgetcol])
 
 
 doc = Document()

@@ -1,5 +1,6 @@
 _ = require "underscore"
 
+{GE} = require "../../core/layout/solver"
 Widget = require "./widget"
 p = require "../../core/properties"
 
@@ -16,6 +17,11 @@ class AbstractButton extends Widget.Model
       icon:     [ p.String            ]
       type:     [ p.String, "default" ] # TODO (bev)
     }
+
+  get_constraints: () ->
+    constraints = super()
+    constraints.push(GE(@_bottom_minus_top, -30))
+    return constraints
 
 module.exports =
   Model: AbstractButton
