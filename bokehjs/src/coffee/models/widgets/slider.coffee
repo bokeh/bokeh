@@ -9,13 +9,10 @@ p = require "../../core/properties"
 
 
 class SliderView extends InputWidget.View
-  tagName: "div"
   template: slidertemplate
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change', @render)
-    @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
     @callbackWrapper = null
@@ -47,7 +44,6 @@ class SliderView extends InputWidget.View
     }
     @$('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
-    return @
 
   slidestart: (event, ui) =>
     @$( "##{ @mget('id') }" ).css('color', '#ffceab')

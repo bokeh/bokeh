@@ -2,12 +2,9 @@ _ = require "underscore"
 $ = require "jquery"
 
 AbstractButton = require "./abstract_button"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class DropdownView extends BokehView
-  tagName: "div"
-
+class DropdownView extends AbstractButton.View
   initialize: (options) ->
     super(options)
     @render()
@@ -55,7 +52,7 @@ class DropdownView extends BokehView
 
     @$el.addClass("bk-bs-btn-group")
     @$el.append([$button, $toggle, $menu])
-    return @
+    super()
 
   change_input: (value) ->
     @mset('value', value)

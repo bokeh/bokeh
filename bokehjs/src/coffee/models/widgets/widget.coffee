@@ -1,9 +1,9 @@
-LayoutComponent = require "../layouts/layout_component"
+LayoutDom = require "../layouts/layout_dom"
 
-class WidgetView extends LayoutComponent.View
+class WidgetView extends LayoutDom.View
   className: "bk-widget"
 
-class Widget extends LayoutComponent.Model
+class Widget extends LayoutDom.Model
   type: "Widget"
   default_view: WidgetView
 

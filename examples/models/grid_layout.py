@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Line
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource, Row, Column,
-    ResizeTool, PanTool, FactorRange, CategoricalAxis, Rect, Slider
+    ResizeTool, PanTool, FactorRange, CategoricalAxis, Rect, Slider, Dropdown, Button,
 )
 from bokeh.resources import INLINE
 
@@ -86,17 +86,21 @@ cat_plot.add_layout(xaxis, 'below')
 cat_plot.add_layout(CategoricalAxis(), 'left')
 
 slider = Slider(start=0, end=10, value=1, step=1, title="Stuff")
+menu = [("Item 1", "item_1"), ("Item 2", "item_2"), None, ("Item 3", "item_3")]
+dropdown = Dropdown(label="Dropdown button", type="warning", menu=menu)
+button = Button(label="Foo")
 row1 = Row(children=[plot1, plot2])
-row2col1 = Column(children=[plot3, slider])
+row2col1 = Column(children=[plot3, button])
 row2 = Row(children=[row2col1, cat_plot])
 row3 = Row(children=[plot3, plot4])
 
 
 doc = Document()
-doc.add_root(Column(children=[plot1, slider]))
-#doc.add_root(Column(children=[Row(children=[plot1, plot2, plot3, plot4]), slider]))
+#doc.add_root(Column(children=[Row(children=[slider]), Row(children=[plot1])]))
+#doc.add_root(Column(children=[slider, Row(children=[plot1, plot2, plot3, plot4])]))
 #doc.add_root(row1)
-#doc.add_root(Column(children=[row1, row2]))
+#doc.add_root(row2col1)
+doc.add_root(Column(children=[row1, row2]))
 
 if __name__ == "__main__":
     filename = "grid_layout.html"

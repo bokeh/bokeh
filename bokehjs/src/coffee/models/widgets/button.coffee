@@ -5,16 +5,10 @@ build_views = require "../../common/build_views"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class ButtonView extends BokehView
+class ButtonView extends AbstractButton.View
   tagName: "button"
   events:
     "click": "change_input"
-
-  initialize: (options) ->
-    super(options)
-    @views = {}
-    @render()
-    @listenTo(@model, 'change', @render)
 
   render: () ->
     icon = @mget('icon')
@@ -34,8 +28,8 @@ class ButtonView extends BokehView
       @$el.append(@views[icon.id].$el)
       label = " #{label}"
     @$el.append(document.createTextNode(label))
+    super()
 
-    return @
 
   change_input: () ->
     @mset('clicks', @mget('clicks') + 1)

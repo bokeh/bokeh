@@ -3,8 +3,11 @@ _ = require "underscore"
 Widget = require "./widget"
 p = require "../../core/properties"
 
+class AbstractButtonView extends Widget.View
+
 class AbstractButton extends Widget.Model
   type: "AbstractButton"
+  default_view: AbstractButtonView
 
   props: ->
     return _.extend {}, super(), {
@@ -16,3 +19,4 @@ class AbstractButton extends Widget.Model
 
 module.exports =
   Model: AbstractButton
+  View: AbstractButtonView

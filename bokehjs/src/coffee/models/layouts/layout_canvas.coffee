@@ -1,8 +1,8 @@
-{Variable, Strength}  = require "../../core/layout/solver"
+{Variable, Strength, EQ, GE}  = require "../../core/layout/solver"
 Model = require "../../model"
 
-class LayoutBox extends Model
-  type: 'LayoutBox'
+class LayoutCanvas extends Model
+  type: 'LayoutCanvas'
 
   nonserializable_attribute_names: () ->
     super().concat(['layout_location'])
@@ -17,6 +17,7 @@ class LayoutBox extends Model
 
   get_constraints: () ->
     constraints = []
+    # Models must provide their own constraints
     return constraints
 
   _doc_attached: () ->
@@ -38,4 +39,4 @@ class LayoutBox extends Model
     return @['_' + prop_name].value()
 
 module.exports =
-  Model: LayoutBox
+  Model: LayoutCanvas

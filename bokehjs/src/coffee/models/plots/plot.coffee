@@ -2,7 +2,7 @@ _ = require "underscore"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-LayoutBox = require "../layouts/layout_box"
+LayoutCanvas = require "../layouts/layout_canvas"
 Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
@@ -615,13 +615,13 @@ class Plot extends Component.Model
     @set('frame', frame)
     
     # Add the panels that make up the layout
-    @above_panel = new LayoutBox.Model()
+    @above_panel = new LayoutCanvas.Model()
     @above_panel.attach_document(@document)
-    @below_panel = new LayoutBox.Model()
+    @below_panel = new LayoutCanvas.Model()
     @below_panel.attach_document(@document)
-    @left_panel = new LayoutBox.Model()
+    @left_panel = new LayoutCanvas.Model()
     @left_panel.attach_document(@document)
-    @right_panel = new LayoutBox.Model()
+    @right_panel = new LayoutCanvas.Model()
     @right_panel.attach_document(@document)
 
     @_width = new Variable("plot_width")

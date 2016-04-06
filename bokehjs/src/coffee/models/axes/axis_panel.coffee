@@ -1,7 +1,7 @@
 {EQ, GE} = require "../../core/layout/solver"
-LayoutBox = require "../layouts/layout_box"
+LayoutCanvas = require "../layouts/layout_box"
 
-class AxisPanel extends LayoutBox.Model
+class AxisPanel extends LayoutCanvas.Model
 
   get_constraints: () ->
     constraints = []

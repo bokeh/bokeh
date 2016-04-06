@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 canvas_template = require "./canvas_template"
-LayoutBox = require "../layouts/layout_box"
+LayoutCanvas = require "../layouts/layout_canvas"
 
 BokehView = require "../../core/bokeh_view"
 {GE, EQ} = require "../../core/layout/solver"
@@ -91,7 +91,7 @@ class CanvasView extends BokehView
 
     solver.update_variables(trigger)
 
-class Canvas extends LayoutBox.Model
+class Canvas extends LayoutCanvas.Model
   type: 'Canvas'
   default_view: CanvasView
 

@@ -52,7 +52,8 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
-  LayoutBox:                require '../models/layouts/layout_box'
+  LayoutDom:                require '../models/layouts/layout_dom'
+  LayoutCanvas:             require '../models/layouts/layout_canvas'
   Row:                      require '../models/layouts/row'
   Column:                   require '../models/layouts/column'
 

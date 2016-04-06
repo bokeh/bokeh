@@ -1,11 +1,11 @@
 _ = require "underscore"
 
 p = require "../../core/properties"
-LayoutBox = require "./layout_box"
 BokehView = require "../../core/bokeh_view"
 {EQ, GE, Variable} = require "../../core/layout/solver"
+Model = require "../../model"
 
-class LayoutComponentView extends BokehView
+class LayoutDomView extends BokehView
   initialize: (options) ->
     super(options)
     @bind_bokeh_events()
@@ -13,9 +13,9 @@ class LayoutComponentView extends BokehView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
+    @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
-    super()
     @$el.css({
       position: 'absolute'
       left: @mget('dom_left')
@@ -24,9 +24,9 @@ class LayoutComponentView extends BokehView
       height: @model._height._value
     })
 
-class LayoutComponent extends LayoutBox.Model
-  type: 'LayoutComponent'
-  default_view: LayoutComponentView
+class LayoutDom extends Model
+  type: 'LayoutDom'
+  default_view: LayoutDomView
 
   constructor: (attrs, options) ->
     super(attrs, options)
@@ -39,10 +39,19 @@ class LayoutComponent extends LayoutBox.Model
     @_right = new Variable()
     @_top = new Variable()
     @_bottom = new Variable()
-    @_height_minus_bottom = new Variable()
+    # this is the DISTANCE FROM THE SIDE of the right and bottom,
+    # since that isn't the same as the coordinate
     @_width_minus_right = new Variable()
+    @_height_minus_bottom = new Variable()
+    # these are the plot width and height, but written
+    # as a function of the coordinates because we compute
+    # them that way
     @_right_minus_left = new Variable()
     @_bottom_minus_top = new Variable()
+
+  get_edit_variables: () ->
+    editables = []
+    return editables
 
   get_constraints: () ->
     constraints = []
@@ -62,8 +71,6 @@ class LayoutComponent extends LayoutBox.Model
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
 
     # These are slider specific but are here for now
-    constraints.push(EQ(@_bottom_minus_top, -50))
-    constraints.push(GE(@_right_minus_left, -200))
     return constraints
 
   get_constrained_variables: () ->
@@ -79,8 +86,8 @@ class LayoutComponent extends LayoutBox.Model
       'on-right-edge-align' : @_width_minus_right
       # when this widget is in a box, make these the same distance
       # apart in every widget. Right/bottom are inset from the edge.
-      #'box-equal-size-top' : @_top
-      #'box-equal-size-bottom' : @_height_minus_bottom
+      'box-equal-size-top' : @_top
+      'box-equal-size-bottom' : @_height_minus_bottom
       'box-equal-size-left' : @_left
       'box-equal-size-right' : @_width_minus_right
       # when this widget is in a box cell with the same "arity
@@ -105,5 +112,5 @@ class LayoutComponent extends LayoutBox.Model
     @trigger('change')
 
 module.exports =
-  Model: LayoutComponent
-  View: LayoutComponentView
+  Model: LayoutDom
+  View: LayoutDomView

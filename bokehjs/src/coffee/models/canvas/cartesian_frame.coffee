@@ -3,13 +3,13 @@ _ = require "underscore"
 CategoricalMapper = require "../mappers/categorical_mapper"
 {EQ, GE} = require "../../core/layout/solver"
 GridMapper = require "../mappers/grid_mapper"
-LayoutBox = require "../layouts/layout_box"
+LayoutCanvas = require "../layouts/layout_box"
 LinearMapper = require "../mappers/linear_mapper"
 LogMapper = require "../mappers/log_mapper"
 {logging} = require "../../core/logging"
 Range1d = require "../ranges/range1d"
 
-class CartesianFrame extends LayoutBox.Model
+class CartesianFrame extends LayoutCanvas.Model
   type: 'CartesianFrame'
 
   _doc_attached: () ->
