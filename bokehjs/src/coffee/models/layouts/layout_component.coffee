@@ -47,15 +47,9 @@ class LayoutComponent extends LayoutBox.Model
   get_constraints: () ->
     constraints = []
 
-    # Do the layout constraints
-
     # plot width and height are a function of plot sides...
     constraints.push(EQ([-1, @_right], @_left, @_right_minus_left))
     constraints.push(EQ([-1, @_bottom], @_top, @_bottom_minus_top))
-
-    # min size, weak in case it doesn't fit
-    constraints.push(WEAK_GE(@_right_minus_left, -10))
-    constraints.push(WEAK_GE(@_bottom_minus_top, -10))
 
     # plot has to be inside the width/height
     constraints.push(GE(@_left))

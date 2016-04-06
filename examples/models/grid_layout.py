@@ -93,8 +93,8 @@ row3 = Row(children=[plot3, plot4])
 
 
 doc = Document()
-#doc.add_root(Column(children=[slider]))
-doc.add_root(Column(children=[Row(children=[plot1, plot2, plot3, plot4]), slider]))
+doc.add_root(Column(children=[plot1, slider]))
+#doc.add_root(Column(children=[Row(children=[plot1, plot2, plot3, plot4]), slider]))
 #doc.add_root(row1)
 #doc.add_root(Column(children=[row1, row2]))
 
