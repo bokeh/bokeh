@@ -12,7 +12,7 @@ env:
         - MINICONDA_VERSION="latest"
         - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
         - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
-        - secure: "AMKPTVrc2g8j5T40hQhdEGoiod+KCkbiseVSQRDPeeX1TvQoVjbrZenrWHyHEHKc1x3LavDuCBJ3sW9cLy+QF9sdudK/cc9+aG2Hax5dyapI0iaHlzvqYDO3aguQsZcu+pVEIVatoOSv25/282aPNtNXn403jmJvd0Qt8ch1jOw="
+        - secure: "Nyfo1sKNXJPEbR0QF+S/Sbr1OnDl6kRfjKAXVupD83QeLJ2e6gj7R1TpucngUhDluqp2iJ/1DZDXnA9AP+xl8kordIXjEv2FYdijxKAUk3G5BVPm9n6GudsIKYNUpDOiZupZrcKoJtfpIiWOOOgn4uftI7X/ATazudUKeMNjOvQ="
         - secure: "nqoKfXZTHhJ0ieffqS+5mi5crivUeFeIgohqUaeTCnaOGI5XFMLR8rZPjhMHyFx5vNTp08pbg3Mg4i7iaQn+3dqu25HBwnfhar3TFXfOCQQLJBZstoWSGEDkJKDPwwqZrdFzw+EDxlA0tlLXvV8X0DlArYKhRcAOJF01cCJ7L1c="
         - secure: "ii7ssdfEDYtc4Ph24mVzyq7JVTkjrn/h36HZn1oZak+HuiYtVbcCjqomKj2n1kPuKJWajOwHGu7d7ymCvK4tQ37keiMRvku/Yz4HELT5IUU1hD+w7mKomc2taKKvddGnbR4I4oZe+SBfwfeQCq5/Ha+koadSQI05Aco/nLNZP3M="
     matrix:
@@ -81,7 +81,7 @@ script:
     #
     # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n2 -x; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -n1 -x -s; fi; fi # Run the examples
     #
     - echo "***** POOR MAN LOGGER ******"; echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST; if [[ "$GROUP" == integration ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html"; fi; if [[ "$GROUP" == examples ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html"; fi; echo "********** END POOR MAN LOGGER ************"
 
@@ -109,7 +109,7 @@ after_success:
           #we signal the release with an the "release" string into the __travis_build_number__.txt file
           echo "release" > __travis_build_number__.txt
         fi
-        bash scripts/build_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
+        bash scripts/build_upload.sh -b $ANACONDA_TOKEN -u $RSUSER -k $RSAPIKEY
     else
         echo "Not building because there is no tag."
     fi

@@ -110,8 +110,7 @@ class DynamicImageRenderer extends Renderer.Model
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       alpha:          [ p.Number, 1.0 ]
       image_source:   [ p.Instance    ]
       render_parents: [ p.Bool, true ]

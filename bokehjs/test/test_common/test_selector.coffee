@@ -3,7 +3,6 @@ utils = require "../utils"
 fixtures = require "./fixtures/object"
 
 base = utils.require "base"
-{Collections} = base
 Selector = utils.require "common/selector"
 hittest = utils.require "common/hittest"
 

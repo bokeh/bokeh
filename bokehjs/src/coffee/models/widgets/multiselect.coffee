@@ -44,8 +44,7 @@ class MultiSelect extends InputWidget.Model
   type: "MultiSelect"
   default_view: MultiSelectView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       value:   [ p.Array, [] ]
       options: [ p.Array, [] ]
     }

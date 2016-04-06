@@ -1,16 +1,18 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
+LogMapper = utils.require("models/mappers/log_mapper").Model
+Range1d = utils.require("models/ranges/range1d").Model
 
 describe "log_mapper module", ->
   source = {start: 0, end: 10000}
   target = {start: 10, end: 110}
 
   generate_mapper = ->
-    Collections("LogMapper").create
-      source_range: Collections("Range1d").create source
-      target_range: Collections("Range1d").create target
+    new LogMapper({
+      source_range: new Range1d(source)
+      target_range: new Range1d(target)
+    })
 
   describe "creation with Range1d ranges", ->
     mapper = generate_mapper()
@@ -53,7 +55,7 @@ describe "log_mapper module", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
-        mapper.set('source_range', Collections("Range1d").create {start: -10, end: 20})
+        mapper.set('source_range', new Range1d({start: -10, end: 20}))
         expect(mapper.get('mapper_state')).to.be.deep.equal [ 100, 10, 2.995732273553991, 0 ]
 
       it "should update on range start update", ->
@@ -70,7 +72,7 @@ describe "log_mapper module", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
-        mapper.set('target_range', Collections("Range1d").create {start: 0, end: 100})
+        mapper.set('target_range', new Range1d({start: 0, end: 100}))
         expect(mapper.get('mapper_state')).to.be.deep.equal [ 100, 0, 9.210340371976184, 0 ]
 
       it "should update on range start update", ->

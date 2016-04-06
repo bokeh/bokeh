@@ -164,10 +164,8 @@ class GMapPlot extends Plot.Model
 
   default_view: GMapPlotView
 
-  props: ->
-    return _.extend {}, super(), {
-      map_options: [ p.Any         ]
-      disabled:    [ p.Bool, false ]
+  @define {
+      map_options: [ p.Any ]
     }
 
   initialize: (attrs, options) ->

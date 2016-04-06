@@ -71,10 +71,10 @@ class LineView extends Glyph.View
 
     if geometry.direction == 'v'
       val = @renderer.ymapper.map_from_target(vy)
-      values = @y
+      values = @_y
     else
       val = @renderer.xmapper.map_from_target(vx)
-      values = @x
+      values = @_x
 
     for i in [0...values.length-1]
       if values[i]<=val<=values[i+1]
@@ -86,7 +86,7 @@ class LineView extends Glyph.View
 
   get_interpolation_hit: (i, geometry)->
     [vx, vy] = [geometry.vx, geometry.vy]
-    [x2, y2, x3, y3] = [@x[i], @y[i], @x[i+1], @y[i+1]]
+    [x2, y2, x3, y3] = [@_x[i], @_y[i], @_x[i+1], @_y[i+1]]
 
     if geometry.type == 'point'
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy-1, vy+1])
@@ -110,7 +110,8 @@ class Line extends Glyph.Model
 
   type: 'Line'
 
-  mixins: ['line']
+  @coords [['x', 'y']]
+  @mixins ['line']
 
 module.exports =
   Model: Line

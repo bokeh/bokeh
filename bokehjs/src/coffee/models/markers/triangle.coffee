@@ -3,26 +3,26 @@ Marker = require "./marker"
 
 class TriangleView extends Marker.View
 
-  _render: (ctx, indices, {sx, sy, size, angle}) ->
+  _render: (ctx, indices, {sx, sy, _size, _angle}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+      if isNaN(sx[i]+sy[i]+_size[i]+_angle[i])
         continue
 
-      a = size[i] * Math.sqrt(3)/6
-      r = size[i]/2
-      h = size[i] * Math.sqrt(3)/2
+      a = _size[i] * Math.sqrt(3)/6
+      r = _size[i]/2
+      h = _size[i] * Math.sqrt(3)/2
 
       ctx.beginPath()
       ctx.translate(sx[i], sy[i])
 
       # TODO (bev) use viewstate to take y-axis inversion into account
-      if angle[i]
-        ctx.rotate(angle[i])
+      if _angle[i]
+        ctx.rotate(_angle[i])
       ctx.moveTo(-r, a)
       ctx.lineTo(r, a)
       ctx.lineTo(0, a-h)
-      if angle[i]
-        ctx.rotate(-angle[i])
+      if _angle[i]
+        ctx.rotate(-_angle[i])
 
       ctx.translate(-sx[i], -sy[i])
       ctx.closePath()

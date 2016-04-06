@@ -251,13 +251,13 @@ If you build Bokeh on a Windows machine in a Conda environment with either
 ``setup.py install`` or ``setup.py develop``, running ``bokeh serve`` will
 not work correctly. The .exe will not be available within the Conda
 environment, which means you will use the version available in the base
-install, if it is available. Instead, you can make sure you use the version
-within the environment by explicitly running the ``bokeh serve`` python script
-in the root of the bokeh repository, similar to the following example:
+install, if it is available. Instead, you can make sure you use the Python
+version within the environment by making use of Python's ``-m`` flag,
+as in the following example:
 
 .. code-block:: sh
 
-    python bokeh serve path\to\<yourapp>.py
+    python -m bokeh serve path\to\<yourapp>.py
 
 Developing Examples
 -------------------

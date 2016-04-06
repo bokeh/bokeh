@@ -25,21 +25,51 @@ from .connection import ServerConnection
 from .application_context import ApplicationContext
 from .views.static_handler import StaticHandler
 
+
+def match_host(host, pattern):
+    """ Match host against pattern
+
+    >>> match_host('192.168.0.1', '192.168.0.1')
+    True
+    >>> match_host('192.168.0.1', '192.168.0.2')
+    False
+    >>> match_host('192.168.0.1', '192.168.*.*')
+    True
+    >>> match_host('alice', 'alice')
+    True
+    >>> match_host('alice', 'bob')
+    False
+    >>> match_host('foo.example.com', 'foo.example.com.net')
+    False
+    >>> match_host('alice', '*')
+    True
+    """
+    host = host.split('.')
+    pattern = pattern.split('.')
+
+    if len(pattern) > len(host):
+        return False
+
+    for h, p in zip(host, pattern):
+        if h == p or p == '*':
+            continue
+        else:
+            return False
+    return True
+
+
 # factored out to be easier to test
 def check_whitelist(request_host, whitelist):
     ''' Check a given request host against a whitelist.
 
     '''
-    if request_host not in whitelist:
+    if ':' not in request_host:
+        request_host = request_host + ':80'
 
-        # see if the request came with no port, assume port 80 in that case
-        if len(request_host.split(':')) == 1:
-            host = request_host + ":80"
-            return host in whitelist
-        else:
-            return False
+    if request_host in whitelist:
+        return True
 
-    return True
+    return any(match_host(request_host, host) for host in whitelist)
 
 
 def _whitelist(handler_class):
@@ -95,7 +125,7 @@ class BokehTornado(TornadoApplication):
                  # how often to check for unused sessions
                  check_unused_sessions_milliseconds=17000,
                  # how long unused sessions last
-                 unused_session_lifetime_milliseconds=60*30*1000,
+                 unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
                  develop=False):
@@ -175,7 +205,7 @@ class BokehTornado(TornadoApplication):
         self._stats_job = PeriodicCallback(self.log_stats,
                                            stats_log_frequency_milliseconds,
                                            io_loop=self._loop)
-        self._unused_session_linger_seconds = unused_session_lifetime_milliseconds
+        self._unused_session_linger_milliseconds = unused_session_lifetime_milliseconds
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions,
                                              check_unused_sessions_milliseconds,
                                              io_loop=self._loop)
@@ -299,7 +329,7 @@ class BokehTornado(TornadoApplication):
     @gen.coroutine
     def cleanup_sessions(self):
         for app in self._applications.values():
-            yield app.cleanup_sessions(self._unused_session_linger_seconds)
+            yield app.cleanup_sessions(self._unused_session_linger_milliseconds)
         raise gen.Return(None)
 
     def log_stats(self):

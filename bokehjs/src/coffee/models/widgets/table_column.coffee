@@ -9,8 +9,7 @@ class TableColumn extends Model
   type: 'TableColumn'
   default_view: null
 
-  props:  ->
-    return _.extend {}, super(), {
+  @define {
       field:        [ p.String                                      ]
       title:        [ p.String                                      ]
       width:        [ p.Number,   300                               ]
@@ -26,7 +25,7 @@ class TableColumn extends Model
       field: @get("field")
       name: @get("title")
       width: @get("width")
-      formatter: @get("formatter")
+      formatter: @get("formatter").doFormat.bind(this)
       editor: @get("editor")
       sortable: @get("sortable")
       defaultSortAsc: @get("default_sort") == "ascending"

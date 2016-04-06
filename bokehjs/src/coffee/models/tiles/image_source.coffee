@@ -7,8 +7,7 @@ Model = require "../../model"
 class ImageSource extends Model
   type: 'ImageSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       url:            [ p.String, '' ]
       extra_url_vars: [ p.Any,    {} ]
     }

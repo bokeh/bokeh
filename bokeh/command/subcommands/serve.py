@@ -102,6 +102,11 @@ If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
 that the server is configured to listen on (by default: {DEFAULT_PORT}).
 
+If an asterix ``*`` is used in the host value (for example ``--host *``) then
+it will be treated as a wildcard.  As a warning, using permissive host values
+like ``*`` may be insecure and open your application to HTTP host header
+attacks.
+
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
 
@@ -253,7 +258,7 @@ To configure how often unused sessions last. set the
     bokeh serve app_script.py --unused-session-lifetime 60000
 
 The value is specified in milliseconds. The default lifetime interval
-for unused sessions is 30 minutes. Only positive integer values are
+for unused sessions is 15 seconds. Only positive integer values are
 accepted.
 
 Logging Options
@@ -303,6 +308,37 @@ __doc__ = __doc__.format(
     DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
 
+base_serve_args = (
+    ('--port', dict(
+        metavar = 'PORT',
+        type    = int,
+        help    = "Port to listen on",
+        default = None
+    )),
+
+    ('--address', dict(
+        metavar = 'ADDRESS',
+        type    = str,
+        help    = "Address to listen on",
+        default = None,
+    )),
+
+    ('--log-level', dict(
+        metavar = 'LOG-LEVEL',
+        action  = 'store',
+        default = 'info',
+        choices = LOGLEVELS,
+        help    = "One of: %s" % nice_join(LOGLEVELS),
+    )),
+
+    ('--log-format', dict(
+        metavar ='LOG-FORMAT',
+        action  = 'store',
+        default = DEFAULT_LOG_FORMAT,
+        help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+    )),
+)
+
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.
 
@@ -312,8 +348,7 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    args = (
-
+    args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
@@ -335,20 +370,6 @@ class Serve(Subcommand):
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",
-        )),
-
-        ('--port', dict(
-            metavar='PORT',
-            type=int,
-            help="Port to listen on",
-            default=None
-        )),
-
-        ('--address', dict(
-            metavar='ADDRESS',
-            type=str,
-            help="Address to listen on",
-            default=None,
         )),
 
         ('--allow-websocket-origin', dict(
@@ -405,21 +426,6 @@ class Serve(Subcommand):
             help="Prefer X-headers for IP/protocol information",
         )),
 
-        ('--log-level', dict(
-            metavar='LOG-LEVEL',
-            action  = 'store',
-            default = 'debug',
-            choices = LOGLEVELS,
-            help    = "One of: %s" % nice_join(LOGLEVELS),
-        )),
-
-        ('--log-format', dict(
-            metavar='LOG-FORMAT',
-            action  = 'store',
-            default = DEFAULT_LOG_FORMAT,
-            help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
-        )),
-
         ('--session-ids', dict(
             metavar='MODE',
             action  = 'store',
@@ -427,7 +433,6 @@ class Serve(Subcommand):
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
-
     )
 
     def invoke(self, args):

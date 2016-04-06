@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class BBoxTileSource extends MercatorTileSource
   type: 'BBoxTileSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       use_latlon : [ p.Bool, false ]
     }
 
