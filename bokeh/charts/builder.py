@@ -523,6 +523,10 @@ class Builder(HasProps):
         chart.add_ranges('x', self.x_range)
         chart.add_ranges('y', self.y_range)
 
+        # sort the legend if we are told to
+        self._legends = self._sort_legend(
+                self.sort_legend, self._legends, self.attributes)
+
         # always contribute legends, let Chart sort it out
         chart.add_legend(self._legends)
 
@@ -546,6 +550,23 @@ class Builder(HasProps):
             help_str += str(comp_glyph.glyph_properties())
 
         return help_str
+
+    @staticmethod
+    def _sort_legend(sort_legend, legends, attributes):
+        """Sort legends sorted by looping though sort_legend items (
+        see :attr:`Builder.sort_legend` for more details)
+        """
+        if len(sort_legend) > 0:
+            for attr, asc in sort_legend:
+                if len(attributes[attr].columns) > 0:
+                    item_order = [x[0] for x in attributes[attr].items]
+
+                    def foo(leg):
+                        return item_order.index(leg[0])
+
+                    return list(sorted(legends, key=foo, reverse=(not asc)))
+
+        return legends
 
 
 class XYBuilder(Builder):

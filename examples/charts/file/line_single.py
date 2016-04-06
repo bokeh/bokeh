@@ -12,6 +12,7 @@ data = dict(python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120, 111],
 line = Line(data, y=['python', 'pypy', 'jython'],
             dash=['python', 'pypy', 'jython'],
             color=['python', 'pypy', 'jython'],
+            sort_legend=[("color", True)],
             title="Interpreter Sample Data", ylabel='Duration', legend=True)
 
 output_file("line_single.html", title="line_single.py example")
