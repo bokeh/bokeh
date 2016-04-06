@@ -546,48 +546,37 @@ class PlotView extends Renderer.View
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
-  resize: () =>
-    @resize_width_height(true, false)
+  resize: () => @resize_width_height(true, false)
 
   resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
-    # Resize plot based on available width and/or height
-    
     # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
-    if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
+    if width? and height? and width >= 0 and height >= 0
       return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
-    
+
+    # The plot node might be an orphan if the initial resize happened before the plot
+    # was added to the DOM. If that happens, we try again in increasingly larger
+    # intervals (the first try should just work, but lets play it safe).
+    @_re_resized = @_re_resized ? 0
+    if not $.contains(document.body, @el) and @_re_resized < 14  # 2**14 ~ 16s
+      fn = () => @resize_width_height(use_width, use_height, maintain_ar)
+      setTimeout(fn, 2**@_re_resized)
+      @_re_resized += 1
+      return
+
+    # Can not currently make responsive in a good way
+    root = @$el.parent(".bk-root")
+    if root.length == 0
+       logger.warn('subplots cannot be responsive')
+       return
+
+    parent = root.parent()
+    @_resize_width_height(use_width, use_height, maintain_ar, parent.width(), parent.height())
+
+  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     # the solver falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
-
-    # Try to find bk-root. We will query the parent of that node for its size
-    node = @.el
-    for i in [0..2]  # Use for-loop; if we ever change DOM structure, it should still work
-      if node is null or node.classList.contains('bk-root')
-         break
-      node = node.parentNode
-
-    # The plot node might be an orphan if the initial resize
-    # happened before the plot was added to the DOM. If that happens, we
-    # try again in increasingly larger intervals (the first try should just
-    # work, but lets play it safe).
-    @_re_resized = @_re_resized or 0
-    if not (node? and node.parentNode?) and @_re_resized < 14  # 2**14 ~ 16s
-      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
-      @_re_resized += 1
-      return
-
-    # Check that what we found is a bk-root. If not, this is probably a subplot, which we 
-    # can not currently make responsive in a good way
-    if not node.classList.contains('bk-root')
-       logger.warn('subplots cannot be responsive')
-       return
-
-    @_resize_width_height(use_width, use_height, maintain_ar,
-                          node.parentNode.clientWidth, node.parentNode.clientHeight)
-
-  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     min_size = @mget('min_size')
 
     # We need some extra space to account for padding and toolbar. Otherwise we get scrollbars.
@@ -599,7 +588,7 @@ class PlotView extends Renderer.View
     avail_width -= width_offset
     avail_height -= height_offset
 
-    if maintain_ar is false
+    if not maintain_ar
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
         @canvas.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
