@@ -85,17 +85,18 @@ xaxis = CategoricalAxis(major_label_orientation=pi/4)
 cat_plot.add_layout(xaxis, 'below')
 cat_plot.add_layout(CategoricalAxis(), 'left')
 
+slider = Slider(start=0, end=10, value=1, step=1, title="Stuff")
 row1 = Row(children=[plot1, plot2])
-row2col1 = Column(children=[plot3, plot4])
+row2col1 = Column(children=[plot3, slider])
 row2 = Row(children=[row2col1, cat_plot])
 row3 = Row(children=[plot3, plot4])
 
-slider = Slider(start=0, end=10, value=1, step=1, title="Stuff")
 
 doc = Document()
 #doc.add_root(Column(children=[slider]))
 doc.add_root(Column(children=[Row(children=[plot1, plot2, plot3, plot4]), slider]))
 #doc.add_root(row1)
+#doc.add_root(Column(children=[row1, row2]))
 
 if __name__ == "__main__":
     filename = "grid_layout.html"

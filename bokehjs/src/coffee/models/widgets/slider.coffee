@@ -70,7 +70,8 @@ class Slider extends InputWidget.Model
 
   get_constraints: () ->
     constraints = super()
-    constraints.push(EQ(@_height, -50))
+    constraints.push(EQ(@_bottom_minus_top, -50))
+    constraints.push(GE(@_right_minus_left, -200))
     return constraints
 
   props: ->
