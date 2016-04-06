@@ -24,6 +24,34 @@ def test_args():
     from bokeh.util.string import nice_join
 
     assert scserve.Serve.args == (
+        ('--port', dict(
+            metavar = 'PORT',
+            type    = int,
+            help    = "Port to listen on",
+            default = None
+        )),
+
+        ('--address', dict(
+            metavar = 'ADDRESS',
+            type    = str,
+            help    = "Address to listen on",
+            default = None,
+        )),
+
+        ('--log-level', dict(
+            metavar = 'LOG-LEVEL',
+            action  = 'store',
+            default = 'info',
+            choices = scserve.LOGLEVELS,
+            help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
+        )),
+
+        ('--log-format', dict(
+            metavar ='LOG-FORMAT',
+            action  = 'store',
+            default = scserve.DEFAULT_LOG_FORMAT,
+            help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
+        )),
 
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
@@ -46,20 +74,6 @@ def test_args():
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",
-        )),
-
-        ('--port', dict(
-            metavar='PORT',
-            type=int,
-            help="Port to listen on",
-            default=None
-        )),
-
-        ('--address', dict(
-            metavar='ADDRESS',
-            type=str,
-            help="Address to listen on",
-            default=None,
         )),
 
         ('--allow-websocket-origin', dict(
@@ -114,21 +128,6 @@ def test_args():
         ('--use-xheaders', dict(
             action='store_true',
             help="Prefer X-headers for IP/protocol information",
-        )),
-
-        ('--log-level', dict(
-            metavar='LOG-LEVEL',
-            action  = 'store',
-            default = 'debug',
-            choices = scserve.LOGLEVELS,
-            help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
-        )),
-
-        ('--log-format', dict(
-            metavar='LOG-FORMAT',
-            action  = 'store',
-            default = scserve.DEFAULT_LOG_FORMAT,
-            help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
         )),
 
         ('--session-ids', dict(

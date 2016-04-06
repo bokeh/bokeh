@@ -4,9 +4,9 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, String, Enum, List
-from ...core.enums import ButtonType
+from ...core.properties import Bool, Int, String, List
 from .widget import Widget
+from .buttons import ButtonLike
 
 @abstract
 class AbstractGroup(Widget):
@@ -33,15 +33,11 @@ class AbstractGroup(Widget):
         self.on_change('active', lambda attr, old, new: handler(new))
 
 @abstract
-class ButtonGroup(AbstractGroup):
+class ButtonGroup(AbstractGroup, ButtonLike):
     """ Abstract base class for groups with items rendered as buttons.
     ``ButtonGroup`` is not generally useful to instantiate on its own.
 
-     """
-
-    button_type = Enum(ButtonType, help="""
-    A style for the button, signifying it's role.
-    """)
+    """
 
 @abstract
 class Group(AbstractGroup):

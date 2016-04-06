@@ -1,11 +1,11 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
+ImageURL = utils.require("models/glyphs/image_url").Model
 
 describe "image_url renderer", ->
   describe "default creation", ->
-    r = Collections('ImageURL').create()
+    r = new ImageURL()
 
     it "should have global_alpha=1.0", ->
       expect(r.get('global_alpha')).to.be.equal 1.0
