@@ -12,11 +12,6 @@ class PreText extends Paragraph.Model
   type: "PreText"
   default_view: PreTextView
 
-  @define {
-      height: [ p.Number, 400 ]
-      width:  [ p.Number, 500 ]
-    }
-
 module.exports =
   Model: PreText
   View: PreTextView

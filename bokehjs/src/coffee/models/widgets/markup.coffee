@@ -22,12 +22,11 @@ class Markup extends Widget.Model
   initialize: (options) ->
     super(options)
 
-  props: () ->
-    return _.extend {}, super(), {
-      text: [ p.String, '' ]
-      width: [ p.Number, 500]
-      height: [ p.Number, 400]
-    }
+  @define {
+    text: [ p.String, '' ]
+    width: [ p.Number, 500]
+    height: [ p.Number, 400]
+  }
 
 module.exports =
   Model: Markup

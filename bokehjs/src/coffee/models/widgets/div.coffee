@@ -18,10 +18,9 @@ class Div extends Markup.Model
   type: "Div"
   default_view: DivView
 
-  props: () ->
-    return _.extend {}, super(), {
-      render_as_text: [ p.Bool,   false]
-    }
+  @define {
+    render_as_text: [ p.Bool,   false]
+  }
 
 module.exports =
   Model: Div
