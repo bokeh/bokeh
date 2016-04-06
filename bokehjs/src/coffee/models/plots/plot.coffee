@@ -3,7 +3,7 @@ _ = require "underscore"
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
 LayoutCanvas = require "../layouts/layout_canvas"
-Component = require "../component"
+LayoutDom = require "../layouts/layout_dom"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 
@@ -531,36 +531,12 @@ class PlotView extends Renderer.View
     @visuals.background_fill.set_value(ctx)
     ctx.fillRect(frame_box...)
 
-class Plot extends Component.Model
+class Plot extends LayoutDom.Model
   default_view: PlotView
   type: 'Plot'
 
-  constructor: (attrs, options) ->
-    super(attrs, options)
-    @set('dom_left', 0)
-    @set('dom_top', 0)
-    @_width = new Variable()
-    @_height = new Variable()
-    # these are the COORDINATES of the four plot sides
-    @_plot_left = new Variable()
-    @_plot_right = new Variable()
-    @_plot_top = new Variable()
-    @_plot_bottom = new Variable()
-    # this is the DISTANCE FROM THE SIDE of the right and bottom,
-    # since that isn't the same as the coordinate
-    @_width_minus_plot_right = new Variable()
-    @_height_minus_plot_bottom = new Variable()
-    # these are the plot width and height, but written
-    # as a function of the coordinates because we compute
-    # them that way
-    @_plot_right_minus_plot_left = new Variable()
-    @_plot_bottom_minus_plot_top = new Variable()
-
   initialize: (attrs, options) ->
     super(attrs, options)
-
-    @set('dom_left', 0)
-    @set('dom_top', 0)
 
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
       xr = @resolve_ref(xr)
@@ -654,7 +630,7 @@ class Plot extends Component.Model
     return edit_variables
 
   get_constraints: () ->
-    constraints = []
+    constraints = super()
 
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
@@ -712,65 +688,24 @@ class Plot extends Component.Model
 
     # Do the layout constraints
 
-    # plot width and height are a function of plot sides...
-    constraints.push(EQ([-1, @_plot_right], @_plot_left, @_plot_right_minus_plot_left))
-    constraints.push(EQ([-1, @_plot_bottom], @_plot_top, @_plot_bottom_minus_plot_top))
-
     # min size, weak in case it doesn't fit
-    constraints.push(WEAK_GE(@_plot_right_minus_plot_left, -150))
-    constraints.push(WEAK_GE(@_plot_bottom_minus_plot_top, -150))
-
-    # plot has to be inside the width/height
-    constraints.push(GE(@_plot_left))
-    constraints.push(GE(@_width, [-1, @_plot_right]))
-    constraints.push(GE(@_plot_top))
-    constraints.push(GE(@_height, [-1, @_plot_bottom]))
-
-    # compute plot bottom/right indent
-    constraints.push(EQ(@_height_minus_plot_bottom, [-1, @_height], @_plot_bottom))
-    constraints.push(EQ(@_width_minus_plot_right, [-1, @_width], @_plot_right))
+    constraints.push(WEAK_GE(@_right_minus_left, -150))
+    constraints.push(WEAK_GE(@_bottom_minus_top, -150))
 
     # plot sides align
-    constraints.push(EQ(@below_panel._height, [-1, @_height], @_plot_bottom))
+    constraints.push(EQ(@below_panel._height, [-1, @_height], @_bottom))
     constraints.push(EQ(@below_panel._height, [-1, frame._bottom]))
 
-    constraints.push(EQ(@left_panel._width, [-1, @_plot_left]))
+    constraints.push(EQ(@left_panel._width, [-1, @_left]))
     constraints.push(EQ(@left_panel._width, [-1, frame._left]))
     
-    constraints.push(EQ(@above_panel._height, [-1, @_plot_top]))
+    constraints.push(EQ(@above_panel._height, [-1, @_top]))
     constraints.push(EQ(@above_panel._height, [-1, canvas._top], frame._top))
 
-    constraints.push(EQ(@right_panel._width, [-1, @_width], @_plot_right))
+    constraints.push(EQ(@right_panel._width, [-1, @_width], @_right))
     constraints.push(EQ(@right_panel._width, [-1, canvas._right], frame._right))
 
     return constraints
-
-  get_constrained_variables: () ->
-    {
-      'width' : @_width,
-      'height' : @_height
-      # when this widget is on the edge of a box visually,
-      # align these variables down that edge. Right/bottom
-      # are an inset from the edge.
-      'on-top-edge-align' : @_plot_top
-      'on-bottom-edge-align' : @_height_minus_plot_bottom
-      'on-left-edge-align' : @_plot_left
-      'on-right-edge-align' : @_width_minus_plot_right
-      # when this widget is in a box, make these the same distance
-      # apart in every widget. Right/bottom are inset from the edge.
-      'box-equal-size-top' : @_plot_top
-      'box-equal-size-bottom' : @_height_minus_plot_bottom
-      'box-equal-size-left' : @_plot_left
-      'box-equal-size-right' : @_width_minus_plot_right
-      # when this widget is in a box cell with the same "arity
-      # path" as a widget in another cell, align these variables
-      # between the two box cells. Right/bottom are an inset from
-      # the edge.
-      'box-cell-align-top' : @_plot_top
-      'box-cell-align-bottom' : @_height_minus_plot_bottom
-      'box-cell-align-left' : @_plot_left
-      'box-cell-align-right' : @_width_minus_plot_right
-    }
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
@@ -845,13 +780,6 @@ class Plot extends Component.Model
       # internal
       min_size: 120
     }
-
-  set_dom_origin: (left, top) ->
-    @set({ dom_left: left, dom_top: top })
-
-  variables_updated: () ->
-    # hack to force re-render
-    @trigger('change')
 
 module.exports =
   Model: Plot
