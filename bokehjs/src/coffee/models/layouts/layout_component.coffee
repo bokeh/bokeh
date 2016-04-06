@@ -3,7 +3,7 @@ _ = require "underscore"
 p = require "../../core/properties"
 LayoutBox = require "./layout_box"
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Strength, WEAK_EQ, WEAK_GE, Variable} = require "../../core/layout/solver"
+{EQ, GE, Variable} = require "../../core/layout/solver"
 
 class LayoutComponentView extends BokehView
   initialize: (options) ->
@@ -61,6 +61,9 @@ class LayoutComponent extends LayoutBox.Model
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
 
+    # These are slider specific but are here for now
+    constraints.push(EQ(@_bottom_minus_top, -50))
+    constraints.push(GE(@_right_minus_left, -200))
     return constraints
 
   get_constrained_variables: () ->

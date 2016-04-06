@@ -68,12 +68,6 @@ class Slider extends InputWidget.Model
   type: "Slider"
   default_view: SliderView
 
-  get_constraints: () ->
-    constraints = super()
-    constraints.push(EQ(@_bottom_minus_top, -50))
-    constraints.push(GE(@_right_minus_left, -200))
-    return constraints
-
   props: ->
     return _.extend {}, super(), {
       value:             [ p.Number,      0.5          ]
