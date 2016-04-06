@@ -216,6 +216,9 @@ class Label(Annotation):
 
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
+
+    .. warning::
+        The `angle` property is not supported for `render_mode="css"`
     """)
 
     x_offset = NumberSpec(default=0, help="""
