@@ -582,15 +582,22 @@ class PlotView extends Renderer.View
     if not node.classList.contains('bk-root')
        Bokeh.logger.warn('subplots cannot be responsive')
        return
-    
-    # Apply size, we need some extra space at the bottom. The sides are fine.
-    bottom_offset = if @model.below[0] then @model.below[0]._last_size else null
-    bottom_offset = Math.round(bottom_offset or 30) + 10
+
     @_resize_width_height(use_width, use_height, maintain_ar,
-                          node.parentNode.clientWidth, node.parentNode.clientHeight - bottom_offset)
+                          node.parentNode.clientWidth, node.parentNode.clientHeight)
 
   _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     min_size = @mget('min_size')
+
+    # We need some extra space in height to account for padding and toolbar.
+    # This seems not to be needed in width.
+    height_offset = 20  # What we need to avoid scrolling, accounts for padding around canvas
+    if @model.toolbar_location == 'above'
+      height_offset += 30
+    if @model.toolbar_location == 'below'
+      height_offset += 80  # need this space to avoid scrolling, this could be a layout bug
+    avail_height -= height_offset
+
     if maintain_ar is false
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
