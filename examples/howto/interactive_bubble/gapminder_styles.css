@@ -1,4 +1,4 @@
-/* 
+/*
  * General Theme
  *
  */
@@ -8,7 +8,7 @@
   line-height: 1.42857143;
   color: #333333;
   background-color: #ffffff;
-  width: 800px; 
+  width: 800px;
   margin: auto;
 }
 
@@ -23,10 +23,10 @@
  *
  * MAIN BOKEH SETUP
  *
- */ 
-.bk-plot-wrapper table,
-.bk-plot-wrapper tr,
-.bk-plot-wrapper td {
+ */
+.bk-plot table,
+.bk-plot tr,
+.bk-plot td {
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -46,7 +46,7 @@
  *
  * HOVER
  *
- */ 
+ */
 
 
 /* Bokeh - plain styling */
@@ -134,7 +134,7 @@
  *
  * SLIDER
  *
-*/  
+*/
 
 .plotdiv input,
 .plotdiv label {
