@@ -14,10 +14,13 @@ plot = figure(width=400, height=400, title='Select and Zoom',
 
 plot.circle(x, y, size=5)
 
-plot.select_one(BoxSelectTool).overlay.fill_color = "firebrick"
-plot.select_one(BoxSelectTool).overlay.line_color = None
+select_overlay = plot.select_one(BoxSelectTool).overlay
+
+select_overlay.fill_color = "firebrick"
+select_overlay.line_color = None
 
 zoom_overlay = plot.select_one(BoxZoomTool).overlay
+
 zoom_overlay.line_color = "olive"
 zoom_overlay.line_width = 8
 zoom_overlay.line_dash = "solid"

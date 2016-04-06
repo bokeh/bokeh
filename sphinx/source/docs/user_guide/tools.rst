@@ -357,7 +357,9 @@ substitutions are desired. An example is shown below:
 Selection Overlays
 ~~~~~~~~~~~~~~~~~~
 
-See the :ref:`userguide_styling_tools` section.
+Section Overlays can also be configured.  See the :ref:`userguide_styling_tool_overlays` section
+for more information.
+
 
 .. _userguide_tools_lod:
 

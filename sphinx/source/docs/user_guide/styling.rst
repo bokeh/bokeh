@@ -354,7 +354,7 @@ below demonstrates the latter method:
     Only the *visual* properties of ``hover_glyph`` are considered when
     rendering. Changing positions, sizes, etc. will have no effect.
 
-.. _userguide_styling_tools:
+.. _userguide_styling_tool_overlays:
 
 Tool Overlays
 -------------
