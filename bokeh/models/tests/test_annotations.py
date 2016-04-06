@@ -153,8 +153,8 @@ def test_Label():
     assert isinstance(label.source, ColumnDataSource)
     assert label.source.data == {}
     yield check_text, label
-    yield check_background, label, "#ffffff", 0.0
-    yield check_border, label, "black", 1.0, 0.0
+    yield check_background, label, None, 1.0
+    yield check_border, label, None, 1.0, 0.0
     yield (check_props, label, [
         "plot",
         "level",

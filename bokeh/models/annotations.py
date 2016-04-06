@@ -243,17 +243,13 @@ class Label(Annotation):
     The %s values for the text bounding box.
     """)
 
-    background_fill_color = Override(default="#ffffff")
-
-    background_fill_alpha = Override(default=0.0)
+    background_fill_color = Override(default=None)
 
     border_props = Include(LineProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
-    border_line_color = Override(default="black")
-
-    border_line_alpha = Override(default=0.0)
+    border_line_color = Override(default=None)
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
