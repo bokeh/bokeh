@@ -9,9 +9,9 @@ class DivView extends Markup.View
   render: () ->
     super()
     if @mget('render_as_text') == true
-        @$el.text(@mget('text'))
+      @$el.text(@mget('text'))
     else
-        @$el.html(@mget('text'))
+      @$el.html(@mget('text'))
     return @
 
 class Div extends Markup.Model
