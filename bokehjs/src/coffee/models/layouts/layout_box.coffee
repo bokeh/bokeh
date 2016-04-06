@@ -1,8 +1,5 @@
-_ = require "underscore"
-
-{Variable, EQ, GE, Strength}  = require "../../core/layout/solver"
+{Variable, Strength}  = require "../../core/layout/solver"
 Model = require "../../model"
-Range1d = require "../ranges/range1d"
 
 class LayoutBox extends Model
   type: 'LayoutBox'

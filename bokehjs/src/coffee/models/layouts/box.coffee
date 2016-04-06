@@ -1,4 +1,5 @@
 _ = require "underscore"
+build_views = require "../../common/build_views"
 p = require "../../core/properties"
 BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
@@ -12,8 +13,10 @@ class BoxView extends BokehView
     super(options)
 
     children = @model.get_layoutable_children()
-    for child in children
-      child_view = new child.default_view({ model: child })
+    @views = {}
+    build_views(@views, children)
+  
+    for own key, child_view of @views
       child_view.render()
       @$el.append(child_view.$el)
 

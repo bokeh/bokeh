@@ -2,6 +2,7 @@ _ = require "underscore"
 $2 = require "jquery-ui/slider"
 
 InputWidget = require "./input_widget"
+{EQ, GE} = require "../../core/layout/solver"
 slidertemplate = require "./slidertemplate"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
@@ -28,6 +29,7 @@ class SliderView extends InputWidget.View
     @render()
 
   render: () ->
+    super()
     max = @mget('end')
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)
@@ -65,6 +67,11 @@ class SliderView extends InputWidget.View
 class Slider extends InputWidget.Model
   type: "Slider"
   default_view: SliderView
+
+  get_constraints: () ->
+    constraints = super()
+    constraints.push(EQ(@_height, -50))
+    return constraints
 
   props: ->
     return _.extend {}, super(), {
