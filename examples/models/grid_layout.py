@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Line
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource, Row, Column,
-    ResizeTool, PanTool, FactorRange, CategoricalAxis, Rect,
+    ResizeTool, PanTool, FactorRange, CategoricalAxis, Rect, Slider
 )
 from bokeh.resources import INLINE
 
@@ -90,8 +90,11 @@ row2col1 = Column(children=[plot3, plot4])
 row2 = Row(children=[row2col1, cat_plot])
 row3 = Row(children=[plot3, plot4])
 
+slider = Slider(start=0, end=10, value=1, step=1, title="Stuff")
+
 doc = Document()
-doc.add_root(Column(children=[row1, row2]))
+#doc.add_root(Column(children=[slider])) #, slider]))
+doc.add_root(slider)
 
 if __name__ == "__main__":
     filename = "grid_layout.html"

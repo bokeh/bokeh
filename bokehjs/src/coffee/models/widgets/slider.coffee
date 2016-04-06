@@ -3,11 +3,11 @@ $2 = require "jquery-ui/slider"
 
 InputWidget = require "./input_widget"
 slidertemplate = require "./slidertemplate"
-BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class SliderView extends BokehView
+
+class SliderView extends InputWidget.View
   tagName: "div"
   template: slidertemplate
 
