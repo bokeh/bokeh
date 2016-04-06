@@ -580,7 +580,7 @@ class PlotView extends Renderer.View
     # Check that what we found is a bk-root. If not, this is probably a subplot, which we 
     # can not currently make responsive in a good way
     if not node.classList.contains('bk-root')
-       Bokeh.logger.warn('subplots cannot be responsive')
+       logger.warn('subplots cannot be responsive')
        return
 
     @_resize_width_height(use_width, use_height, maintain_ar,
