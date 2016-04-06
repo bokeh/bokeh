@@ -559,8 +559,12 @@ class Builder(HasProps):
         if len(sort_legend) > 0:
             for attr, asc in sort_legend:
                 if len(attributes[attr].columns) > 0:
-                    item_order = [x[0] for x in attributes[attr].items]
-
+                    # TODO(fpliger): attributes should be consistent but for
+                    #               the moment it is not, specially when going
+                    #               though a process like binning or when data
+                    #               is built for HeatMap.
+                    item_order = [x[0] if isinstance(x, tuple) else x
+                        for x in attributes[attr].items]
                     def foo(leg):
                         return item_order.index(leg[0])
 
@@ -612,16 +616,6 @@ class XYBuilder(Builder):
             else:
                 select = ['']
             self.ylabel = ', '.join(select)
-
-        # sort the legend if we are told to
-        if len(self.sort_legend) > 0:
-            for attr, asc in self.sort_legend:
-                if len(self.attributes[attr].columns) > 0:
-                    item_order = [x[0] for x in self.attributes[attr].items]
-
-                    self._legends = list(sorted(self._legends, key=lambda leg:
-                                                item_order.index(leg[0]),
-                                                reverse=not asc))
 
     def _get_range(self, dim, start, end):
         """Create a :class:`Range` for the :class:`Chart`.
