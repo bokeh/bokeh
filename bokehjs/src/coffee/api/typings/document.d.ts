@@ -1,8 +1,13 @@
 declare namespace Bokeh {
-    type JsObj = {[key: string]: any};
+    type JsObj = Map<any>;
 
-    export var Document: { new(attributes?: KeyVal, options?: KeyVal): Document } & DocumentStatic;
-    export interface Document {
+    export var Document: {
+        new(attributes?: IDocument): Document
+
+        from_json_string(s: string): Document;
+        from_json(json: JsObj): Document;
+    }
+    export interface Document extends IDocument {
         clear(): void;
         roots(): Array<Model>;
         add_root(model: Model): void;
@@ -19,11 +24,7 @@ declare namespace Bokeh {
         to_json_string(include_defaults?: boolean): string;
         to_json(include_defaults?: boolean): JsObj;
     }
-
-    interface DocumentStatic {
-        from_json_string(s: string): Document;
-        from_json(json: JsObj): Document;
-    }
+    export interface IDocument {}
 
     export interface DocumentChangedEvent {
         document: Document;

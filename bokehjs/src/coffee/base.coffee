@@ -1,28 +1,13 @@
 _ = require "underscore"
-Collection = require "./common/collection"
-window = {location: {href: "local"}} unless window?
 
 {logger} = require "./core/logging"
 
 # add some useful functions to underscore
 require("./core/util/underscore").patch()
 
-Config = {}
-url = window.location.href
-if url.indexOf('/bokeh') > 0
-  Config.prefix = url.slice(0, url.lastIndexOf('/bokeh')) + "/" #keep trailing slash
-else
-  Config.prefix = '/'
-console.log('Bokeh: setting prefix to', Config.prefix)
-
 locations = require("./common/models")
 
-collection_overrides = {}
-
-make_collection = (model) ->
-  class C extends Collection
-    model: model
-  return new C()
+overrides = {}
 
 make_cache = (locations) ->
   result = {}
@@ -44,13 +29,13 @@ _get_mod_cache = () ->
     _mod_cache = make_cache(locations)
   _mod_cache
 
-Collections = (typename) ->
+Models = (typename) ->
   mod_cache = _get_mod_cache()
 
-  if collection_overrides[typename]
-    return collection_overrides[typename]
+  if overrides[typename]
+    return overrides[typename]
 
-  mod = mod_cache[typename]
+  mod = mod_cache[typename] # mod == module
 
   if not mod?
     throw new Error("Module `#{typename}' does not exists. The problem may be two fold. Either
@@ -58,15 +43,12 @@ Collections = (typename) ->
                      or a custom model was requested, but it wasn't registered before first
                      usage.")
 
-  if not mod.Collection?
-    mod.Collection = make_collection(mod.Model)
+  return mod.Model
 
-  return mod.Collection
+Models.register = (name, model) -> overrides[name] = model
+Models.unregister = (name) -> delete overrides[name]
 
-Collections.register = (name, collection) ->
-  collection_overrides[name] = collection
-
-Collections.register_locations = (locations, force=false, errorFn=null) ->
+Models.register_locations = (locations, force=false, errorFn=null) ->
   mod_cache = _get_mod_cache()
   cache = make_cache(locations)
 
@@ -76,7 +58,7 @@ Collections.register_locations = (locations, force=false, errorFn=null) ->
     else
       errorFn?(name)
 
-Collections.registered_names = () ->
+Models.registered_names = () ->
   Object.keys(_get_mod_cache())
 
 # "index" is a map from the toplevel model IDs rendered by
@@ -86,8 +68,6 @@ Collections.registered_names = () ->
 index = {}
 
 module.exports =
-  collection_overrides: collection_overrides # for testing only
-  locations: locations #
+  overrides: overrides # for testing only
   index: index
-  Collections: Collections
-  Config: Config
+  Models: Models

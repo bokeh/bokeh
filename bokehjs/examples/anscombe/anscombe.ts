@@ -1,4 +1,4 @@
-module Anscombe {
+namespace Anscombe {
     console.log(`Bokeh ${Bokeh.version}`);
     Bokeh.set_log_level("debug");
 
@@ -73,5 +73,5 @@ module Anscombe {
     doc.add_root(grid);
 
     const div = document.getElementById("plot");
-    Bokeh.embed.add_document_static(div, doc);
+    Bokeh.embed.add_document_standalone(doc, div);
 }

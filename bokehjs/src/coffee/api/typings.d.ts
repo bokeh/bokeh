@@ -9,7 +9,9 @@
 /// <reference path="./typings/plotting.d.ts" />
 /// <reference path="./typings/selected.d.ts" />
 /// <reference path="./typings/types.d.ts" />
+/// <reference path="./typings/utils.d.ts" />
 /// <reference path="./typings/vectorization.d.ts" />
+/// <reference path="./typings/views.d.ts" />
 
 /// <reference path="./typings/models/annotations.d.ts" />
 /// <reference path="./typings/models/axes.d.ts" />

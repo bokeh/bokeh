@@ -14,31 +14,31 @@ _default_tooltips = [
 _default_tools = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 
 _known_tools = {
-  pan:          () -> new models.PanTool(dimensions: ["width", "height"])
-  xpan:         () -> new models.PanTool(dimensions: ["width"])
-  ypan:         () -> new models.PanTool(dimensions: ["height"])
-  wheel_zoom:   () -> new models.WheelZoomTool(dimensions: ["width", "height"])
-  xwheel_zoom:  () -> new models.WheelZoomTool(dimensions: ["width"])
-  ywheel_zoom:  () -> new models.WheelZoomTool(dimensions: ["height"])
-  save:         () -> new models.PreviewSaveTool()
-  resize:       () -> new models.ResizeTool()
-  click:        () -> new models.TapTool()
-  tap:          () -> new models.TapTool()
-  crosshair:    () -> new models.CrosshairTool()
-  box_select:   () -> new models.BoxSelectTool()
-  xbox_select:  () -> new models.BoxSelectTool(dimensions: ['width'])
-  ybox_select:  () -> new models.BoxSelectTool(dimensions: ['height'])
-  poly_select:  () -> new models.PolySelectTool()
-  lasso_select: () -> new models.LassoSelectTool()
-  box_zoom:     () -> new models.BoxZoomTool(dimensions: ['width', 'height'])
-  xbox_zoom:    () -> new models.BoxZoomTool(dimensions: ['width'])
-  ybox_zoom:    () -> new models.BoxZoomTool(dimensions: ['height'])
-  hover:        () -> new models.HoverTool(tooltips: _default_tooltips)
-  previewsave:  () -> new models.PreviewSaveTool()
-  undo:         () -> new models.UndoTool()
-  redo:         () -> new models.RedoTool()
-  reset:        () -> new models.ResetTool()
-  help:         () -> new models.HelpTool()
+  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: ["width", "height"])
+  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: ["width"])
+  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: ["height"])
+  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width", "height"])
+  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width"])
+  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["height"])
+  save:         (plot) -> new models.PreviewSaveTool(plot: plot)
+  resize:       (plot) -> new models.ResizeTool(plot: plot)
+  click:        (plot) -> new models.TapTool(plot: plot)
+  tap:          (plot) -> new models.TapTool(plot: plot)
+  crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
+  box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
+  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: ['width'])
+  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: ['height'])
+  poly_select:  (plot) -> new models.PolySelectTool(plot: plot)
+  lasso_select: (plot) -> new models.LassoSelectTool(plot: plot)
+  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width', 'height'])
+  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width'])
+  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['height'])
+  hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
+  previewsave:  (plot) -> new models.PreviewSaveTool(plot: plot)
+  undo:         (plot) -> new models.UndoTool(plot: plot)
+  redo:         (plot) -> new models.RedoTool(plot: plot)
+  reset:        (plot) -> new models.ResetTool(plot: plot)
+  help:         (plot) -> new models.HelpTool(plot: plot)
 }
 
 _with_default = (value, default_value) ->
@@ -46,8 +46,8 @@ _with_default = (value, default_value) ->
 
 class Figure extends models.Plot
 
-  constructor: (attrs={}) ->
-    attrs = _.clone(attrs)
+  constructor: (attributes={}, options={}) ->
+    attrs = _.clone(attributes)
 
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
@@ -75,7 +75,7 @@ class Figure extends models.Plot
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
-    super(attrs)
+    super(attrs, options)
 
     @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
     @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
@@ -231,8 +231,10 @@ class Figure extends models.Plot
       @_update_legend(legend, glyph_renderer)
 
     @add_renderers(glyph_renderer)
+    return glyph_renderer
 
-  _marker: (cls, args) -> @_glyph(cls, "x,y", args)
+  _marker: (cls, args) ->
+    return @_glyph(cls, "x,y", args)
 
   _get_range: (range) ->
     if not range?
@@ -304,7 +306,7 @@ class Figure extends models.Plot
 
     objs = for tool in tools
       if _.isString(tool)
-        _known_tools[tool]()
+        _known_tools[tool](this)
       else
         tool
 
@@ -333,16 +335,29 @@ class Figure extends models.Plot
     legends.push([legend_name, [glyph_renderer]])
     legend.legends = legends
 
-figure = (attrs={}) -> new Figure(attrs)
+figure = (attributes={}, options={}) ->
+  new Figure(attributes, options)
 
 show = (obj, target) ->
+  multiple = _.isArray(obj)
+
   doc = new Document()
-  doc.add_root(obj)
+
+  if not multiple
+    doc.add_root(obj)
+  else
+    for _obj in obj
+      doc.add_root(_obj)
 
   div = $("<div class='bk-root'>")
   $(target ? "body").append(div)
 
-  embed.add_document_static(div, doc)
+  views = embed.add_document_standalone(doc, div)
+
+  if not multiple
+    return views[obj.id]
+  else
+    return views
 
 color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
