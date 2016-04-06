@@ -164,8 +164,7 @@ class PlotView extends Renderer.View
     if @mget('responsive')
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
-      # Just need to wait a small delay so container has a width
-      _.delay(@resize, 10)
+      @resize()
 
     @unpause()
 
