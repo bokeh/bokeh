@@ -552,7 +552,7 @@ class PlotView extends Renderer.View
     # Resize plot based on available width and/or height
     
     # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
-    if typeof width is 'number' and typeof height is 'number'
+    if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
       return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
     
     # the solver falls over if we try and resize too small.
