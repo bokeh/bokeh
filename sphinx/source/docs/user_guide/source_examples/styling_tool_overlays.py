@@ -17,10 +17,11 @@ plot.circle(x, y, size=5)
 plot.select_one(BoxSelectTool).overlay.fill_color = "firebrick"
 plot.select_one(BoxSelectTool).overlay.line_color = None
 
-plot.select_one(BoxZoomTool).overlay.line_color = "olive"
-plot.select_one(BoxZoomTool).overlay.line_width = 8
-plot.select_one(BoxZoomTool).overlay.line_dash = "solid"
-plot.select_one(BoxZoomTool).overlay.fill_color = None
+zoom_overlay = plot.select_one(BoxZoomTool).overlay
+zoom_overlay.line_color = "olive"
+zoom_overlay.line_width = 8
+zoom_overlay.line_dash = "solid"
+zoom_overlay.fill_color = None
 
 plot.select_one(LassoSelectTool).overlay.line_dash = [10, 10]
 
