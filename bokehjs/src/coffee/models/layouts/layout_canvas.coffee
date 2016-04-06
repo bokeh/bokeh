@@ -1,11 +1,8 @@
-{Variable, Strength, EQ, GE}  = require "../../core/layout/solver"
+{Variable, Strength}  = require "../../core/layout/solver"
 Model = require "../../model"
 
 class LayoutCanvas extends Model
   type: 'LayoutCanvas'
-
-  nonserializable_attribute_names: () ->
-    super().concat(['layout_location'])
 
   get_edit_variables: () ->
     editables = []
@@ -17,7 +14,8 @@ class LayoutCanvas extends Model
 
   get_constraints: () ->
     constraints = []
-    # Models must provide their own constraints
+    # Models must provide their own constraints.
+    # Can't seem to factor out although it looks like it should be possible.
     return constraints
 
   _doc_attached: () ->
