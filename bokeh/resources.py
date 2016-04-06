@@ -202,8 +202,6 @@ class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
-    logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
-
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None,
                  path_versioner=None, components=None):
@@ -348,7 +346,6 @@ class JSResources(BaseResources):
     Once configured, a Resource object exposes the following public attributes:
 
     Attributes:
-        logo_url : location of the BokehJS logo image
         css_raw : any raw CSS that needs to be places inside ``<style>`` tags
         css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
         messages : any informational messages concerning this configuration
@@ -505,7 +502,6 @@ class CSSResources(BaseResources):
     Once configured, a Resource object exposes the following public attributes:
 
     Attributes:
-        logo_url : location of the BokehJS logo image
         css_raw : any raw CSS that needs to be places inside ``<style>`` tags
         css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
         messages : any informational messages concerning this configuration
@@ -568,7 +564,6 @@ class Resources(JSResources, CSSResources):
     Once configured, a Resource object exposes the following public attributes:
 
     Attributes:
-        logo_url : location of the BokehJS logo image
         js_raw : any raw JS that needs to be placed inside ``<script>`` tags
         css_raw : any raw CSS that needs to be places inside ``<style>`` tags
         js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
