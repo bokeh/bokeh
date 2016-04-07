@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-{GE} = require "../../core/layout/solver"
+{WEAK_EQ} = require "../../core/layout/solver"
 Widget = require "./widget"
 p = require "../../core/properties"
 
@@ -20,7 +20,7 @@ class AbstractButton extends Widget.Model
 
   get_constraints: () ->
     constraints = super()
-    constraints.push(GE(@_bottom_minus_top, -30))
+    constraints.push(WEAK_EQ(@_bottom_minus_top, -40))
     return constraints
 
 module.exports =

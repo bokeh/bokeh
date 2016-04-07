@@ -2,7 +2,7 @@ _ = require "underscore"
 $2 = require "jquery-ui/slider"
 
 InputWidget = require "./input_widget"
-{EQ, GE} = require "../../core/layout/solver"
+{WEAK_EQ, GE} = require "../../core/layout/solver"
 slidertemplate = require "./slidertemplate"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
@@ -77,7 +77,7 @@ class Slider extends InputWidget.Model
 
   get_constraints: () ->
     constraints = super()
-    constraints.push(EQ(@_bottom_minus_top, -50))
+    constraints.push(WEAK_EQ(@_bottom_minus_top, -50))
     constraints.push(GE(@_right_minus_left, -200))
     return constraints
 
