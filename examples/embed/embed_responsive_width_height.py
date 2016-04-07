@@ -37,9 +37,31 @@ template = Template('''<!DOCTYPE html>
         <title>Responsive plots</title>
         {{ js_resources }}
         {{ css_resources }}
+        <style>
+        body {
+            background-color: lightgray;
+        }
+        .wrapper {
+            position: absolute;
+            overflow: auto;
+            left: 10%;
+            top: 15%;
+            width: 50%;
+            height: 50%;
+            margin: 10px;
+            padding: 15px;
+            border: 5px solid black;
+            background-color: gray;
+        }
+        .bk-plot {
+            background-color: white;
+        }
+        </style>
     </head>
     <body>
-    {{ plot_div.red }}
+    <div class="wrapper">
+        {{ plot_div.red }}
+    </div>
     {{ plot_script }}
     <script>
     // Set things up to resize the plot on a window resize. You can play with
@@ -58,7 +80,7 @@ template = Template('''<!DOCTYPE html>
     </script>
     <style>
     /* Need this to get the page in "desktop mode"; not having an infinite height.*/
-    html, body {height: 100%;}
+    html, body {height: 100%; margin:0px;}
     </style>
     </body>
 </html>

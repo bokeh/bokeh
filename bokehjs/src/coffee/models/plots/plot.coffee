@@ -70,6 +70,7 @@ get_size_for_available_space = (use_width, use_height, client_width, client_heig
 # TODO (bev) PlotView should not be a RendererView
 class PlotView extends Renderer.View
   template: plot_template
+  className: 'bk-plot'
 
   state: { history: [], index: -1 }
 
@@ -120,6 +121,7 @@ class PlotView extends Renderer.View
 
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
+    @update_min_dims()
 
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
@@ -163,14 +165,20 @@ class PlotView extends Renderer.View
     if @mget('responsive')
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
-      # Just need to wait a small delay so container has a width
-      _.delay(@resize, 10)
+      @resize()
 
     @unpause()
 
     logger.debug("PlotView initialized")
 
     return this
+
+  update_min_dims: () ->
+    # miminum dims are canvas' dims and then rely on CSS
+    @$el.css {
+      minWidth: @canvas.get("width")
+      minHeight: @canvas.get("height")
+    }
 
   init_webgl: () ->
 
@@ -438,6 +446,7 @@ class PlotView extends Renderer.View
       @canvas.set_dims([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
+    @update_min_dims()
 
     if @tm_view?
       @tm_view.render()
@@ -545,33 +554,50 @@ class PlotView extends Renderer.View
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
-  resize: () =>
-    @resize_width_height(true, false)
+  resize: () => @resize_width_height(true, false)
 
-  resize_width_height: (use_width, use_height, maintain_ar=true) =>
-    # Resize plot based on available width and/or height
+  resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
+    # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
+    if width? and height? and width >= 0 and height >= 0
+      return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
 
+    # The plot node might be an orphan if the initial resize happened before the plot
+    # was added to the DOM. If that happens, we try again in increasingly larger
+    # intervals (the first try should just work, but lets play it safe).
+    @_re_resized = @_re_resized ? 0
+    if not $.contains(document.body, @el) and @_re_resized < 14  # 2**14 ~ 16s
+      fn = () => @resize_width_height(use_width, use_height, maintain_ar)
+      setTimeout(fn, 2**@_re_resized)
+      @_re_resized += 1
+      return
+
+    # Can not currently make responsive in a good way
+    #if not @$el.parent().hasClass("bk-root")
+    #   logger.warn('subplots cannot be responsive')
+    #   return
+
+    parent = @$el.parent()
+    @_resize_width_height(use_width, use_height, maintain_ar, parent.width(), parent.height())
+
+  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     # the solver falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
-
-    # We need the parent node, because the el node itself collapses to zero
-    # height. It might not be available though, if the initial resize
-    # happened before the plot was added to the DOM. If that happens, we
-    # try again in increasingly larger intervals (the first try should just
-    # work, but lets play it safe).
-    @_re_resized = @_re_resized or 0
-    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
-      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
-      @_re_resized += 1
-      return
-
-    avail_width = @.el.clientWidth
-    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
 
-    if maintain_ar is false
+    above = @$el.find('.bk-plot-above')
+    left = @$el.find('.bk-plot-left')
+    right = @$el.find('.bk-plot-right')
+    below = @$el.find('.bk-plot-below')
+    avail_height -= above.outerHeight()
+    avail_width  -= left .outerWidth()
+    avail_width  -= right.outerWidth()
+    avail_height -= below.outerHeight()
+
+    avail_height -= 1
+
+    if not maintain_ar
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
         @canvas.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
