@@ -34,4 +34,4 @@ module.exports =
 
   TextAlign: ["left", "right", "center"]
 
-  TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging"]
+  TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
