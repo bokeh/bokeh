@@ -4,18 +4,6 @@
 @buttonWidth: 30px;
 @buttonColor: lightgray;
 
-
-/* table element cleanup */
-
-.tableelem {
-  padding: 2px 10px;
-  border: 2px white;
-  background-color: #E0E0E0;
-}
-
-.tableheader {
-  background-color: #C0C0C0;
-}
 .bk-plot table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -34,22 +22,8 @@
     }
   }
 }
-.bk-table table tr td {
-  padding: 2px;
-}
 
-.bk-table form table tr td {
-  padding: 2px;
-}
-
-.bk-table form table tr td input {
-  padding: 0;
-}
-
-
-/* freestanding bokeh plot */
-
-.jsp:after, .bk-plot:after, .bk-canvas-wrapper:after, .bk-sidebar:after, .bk-box:after {
+.bk-plot:after, .bk-canvas-wrapper:after, .bk-sidebar:after, .bk-box:after {
   content: " ";
   height: 0;
   display: block;

@@ -34,15 +34,7 @@ _create_view = (model) ->
   base.index[model.id] = view
   view
 
-# Replace element with a view of model_id from document
-add_model_static = (element, model_id, doc) ->
-  model = doc.get_model_by_id(model_id)
-  if not model?
-    throw new Error("Model #{model_id} was not in document #{doc}")
-  view = _create_view(model)
-  _.delay(-> $(element).replaceWith(view.$el))
-
-add_document_standalone = (document, element, use_for_title=false) ->
+_render_document_to_element = (element, document, use_for_title) ->
   # this is a LOCAL index of views used only by this
   # particular rendering call, so we can remove
   # the views we create.
@@ -74,9 +66,20 @@ add_document_standalone = (document, element, use_for_title=false) ->
 
   return views
 
+# Replace element with a view of model_id from document
+add_model_static = (element, model_id, doc) ->
+  model = doc.get_model_by_id(model_id)
+  if not model?
+    throw new Error("Model #{model_id} was not in document #{doc}")
+  view = _create_view(model)
+  _.delay(-> $(element).replaceWith(view.$el))
+
 # Fill element with the roots from doc
 add_document_static = (element, doc, use_for_title) ->
-  _.delay(-> add_document_standalone(doc, $(element), use_for_title))
+  _.delay(-> _render_document_to_element($(element), doc, use_for_title))
+
+add_document_standalone = (document, element, use_for_title=false) ->
+  return _render_document_to_element($(element), document, use_for_title)
 
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}

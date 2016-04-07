@@ -59,7 +59,6 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
 
     html = NOTEBOOK_LOAD.render(
         element_id    = element_id,
-        logo_url      = resources.logo_url,
         verbose       = verbose,
         js_info       = js_info,
         css_info      = css_info,
