@@ -2,7 +2,7 @@ _ = require "underscore"
 
 p = require "../../core/properties"
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Variable} = require "../../core/layout/solver"
+{EQ, WEAK_EQ, GE, Variable} = require "../../core/layout/solver"
 Model = require "../../model"
 
 class LayoutDomView extends BokehView
@@ -48,6 +48,12 @@ class LayoutDom extends Model
     # them that way
     @_right_minus_left = new Variable()
     @_bottom_minus_top = new Variable()
+    # these are passed up to our parent after basing
+    # them on the child whitespace
+    @_whitespace_top = new Variable()
+    @_whitespace_bottom = new Variable()
+    @_whitespace_left = new Variable()
+    @_whitespace_right = new Variable()
 
   get_edit_variables: () ->
     editables = []
@@ -64,6 +70,26 @@ class LayoutDom extends Model
 
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
+    
+    # whitespace is weakly zero because we prefer to expand the
+    # plot not the whitespace. When kiwi can't satisfy a weak
+    # constraint, it still tries to get as close as possible.
+    constraints.push(WEAK_EQ(@_whitespace_left))
+    constraints.push(WEAK_EQ(@_whitespace_right))
+    constraints.push(WEAK_EQ(@_whitespace_top))
+    constraints.push(WEAK_EQ(@_whitespace_bottom))
+
+    # whitespace has to be positive
+    constraints.push(GE(@_whitespace_left))
+    constraints.push(GE(@_whitespace_right))
+    constraints.push(GE(@_whitespace_top))
+    constraints.push(GE(@_whitespace_bottom))
+
+    # plot sides align with the sum of the stuff outside the plot
+    constraints.push(EQ(@_whitespace_left, [-1, @_left]))
+    constraints.push(EQ(@_right, @_whitespace_right, [-1, @_width]))
+    constraints.push(EQ(@_whitespace_top, [-1, @_top]))
+    constraints.push(EQ(@_bottom, @_whitespace_bottom, [-1, @_height]))
 
     return constraints
 
@@ -92,6 +118,12 @@ class LayoutDom extends Model
       'box-cell-align-bottom' : @_height_minus_bottom
       'box-cell-align-left' : @_left
       'box-cell-align-right' : @_width_minus_right
+      # insets from the edge that are whitespace (contain no pixels),
+      # this is used for spacing within a box.
+      'whitespace-top' : @_whitespace_top
+      'whitespace-bottom' : @_whitespace_bottom
+      'whitespace-left' : @_whitespace_left
+      'whitespace-right' : @_whitespace_right
     }
 
   set_dom_origin: (left, top) ->

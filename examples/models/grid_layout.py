@@ -48,7 +48,7 @@ def make_plot(yname, line_color, below_axis=True, left_axis=True, right_axis=Fal
     plot = Plot(
         x_range=DataRange1d(),
         y_range=DataRange1d(),
-        min_border=15,
+        min_border=1,
         border_fill_color=border_fill_color,
         border_fill_alpha=0.1,
         toolbar_location=None,
@@ -66,6 +66,7 @@ def make_plot(yname, line_color, below_axis=True, left_axis=True, right_axis=Fal
     return plot
 
 plot1 = make_plot("y1", "blue", below_axis=False, border_fill_color="Thistle")
+plot1.min_border = 8
 plot2 = make_plot("y2", "red", right_axis=True)
 plot3 = make_plot("y3", "green", left_axis=False)
 plot4 = make_plot("y4", "black", left_axis=False, below_axis=False)
@@ -95,7 +96,7 @@ button = Button(label=msg)
 row1 = Row(children=[plot1, plot2])
 row2col1 = Column(children=[plot3, plot4])
 #row2col1 = Column(children=[plot3, slider])
-widgetcol = Column(children=[slider, dropdown, button], grow=False)
+widgetcol = Column(children=[slider, button, dropdown], grow=False)
 row2 = Row(children=[row2col1, widgetcol])
 
 
@@ -115,6 +116,7 @@ doc = Document()
 #))
 #doc.add_root(row1)
 #doc.add_root(row2col1)
+#doc.add_root(Row(children=[plot1, Column(children=[plot2, plot3, plot4])]))
 doc.add_root(Column(children=[row1, row2]))
 
 if __name__ == "__main__":

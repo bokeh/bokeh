@@ -67,6 +67,13 @@ class Box extends Model
     @_box_cell_align_left = new Variable()
     @_box_cell_align_right = new Variable()
 
+    # these are passed up to our parent after basing
+    # them on the child whitespace
+    @_whitespace_top = new Variable()
+    @_whitespace_bottom = new Variable()
+    @_whitespace_left = new Variable()
+    @_whitespace_right = new Variable()
+
   props: ->
     return _.extend {}, super(), {
       children: [ p.Array, [] ]
@@ -100,6 +107,13 @@ class Box extends Model
         else
           [rect[1], rect[3]]
 
+      whitespace = (child) =>
+        vars = child.get_constrained_variables()
+        if @_horizontal
+          [vars['whitespace-left'], vars['whitespace-right']]
+        else
+          [vars['whitespace-top'], vars['whitespace-bottom']]
+
       add_equal_size_constraints = (child, constraints) =>
         # child's "interesting area" (like the plot area) is the
         # same size as the previous child (a child can opt out of
@@ -118,6 +132,7 @@ class Box extends Model
       info = (child) =>
         {
           span: span(child_rect(child))
+          whitespace: whitespace(child)
         }
 
       result = []
@@ -145,6 +160,15 @@ class Box extends Model
         next = info(children[i])
         # each child's start equals the previous child's end
         result.push(EQ(last.span[0], last.span[1], [-1, next.span[0]]))
+        # the whitespace at end of one child + start of next must equal
+        # the box spacing. This must be a weak constraint because it can
+        # conflict with aligning the alignable edges in each child.
+        # Alignment is generally more important visually than spacing.
+        result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
+        # if we can't satisfy the whitespace being equal to box spacing,
+        # we should fix it (align things) by increasing rather than decreasing
+        # the whitespace.
+        result.push(GE(last.whitespace[1], next.whitespace[0], 0 - spacing))
         last = next
 
       if @get('grow') is true
@@ -170,6 +194,10 @@ class Box extends Model
       result = result.concat(@_box_cell_align_bounds(true)) # horizontal=true
       result = result.concat(@_box_cell_align_bounds(false))
 
+      # build our whitespace from the child ones
+      result = result.concat(@_box_whitespace(true)) # horizontal=true
+      result = result.concat(@_box_whitespace(false))
+
     result
 
   get_constrained_variables: () ->
@@ -184,6 +212,10 @@ class Box extends Model
       'box-cell-align-bottom' : @_box_cell_align_bottom
       'box-cell-align-left' : @_box_cell_align_left
       'box-cell-align-right' : @_box_cell_align_right
+      'whitespace-top' : @_whitespace_top
+      'whitespace-bottom' : @_whitespace_bottom
+      'whitespace-left' : @_whitespace_left
+      'whitespace-right' : @_whitespace_right
     }
 
   get_layoutable_children: () ->
@@ -447,6 +479,12 @@ class Box extends Model
   _box_cell_align_bounds: (horizontal) ->
     # false = box bounds equal all outer child bounds exactly
     @_box_insets_from_child_insets(horizontal, 'box-cell-align', '_box_cell_align', false)
+
+  _box_whitespace: (horizontal) ->
+    # true = box whitespace must be the minimum of child
+    # whitespaces (i.e. distance from box edge to the outermost
+    # child pixels)
+    @_box_insets_from_child_insets(horizontal, 'whitespace', '_whitespace', true)
 
   set_dom_origin: (left, top) ->
     @set({ dom_left: left, dom_top: top })
