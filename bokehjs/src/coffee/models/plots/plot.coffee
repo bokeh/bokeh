@@ -569,12 +569,11 @@ class PlotView extends Renderer.View
       return
 
     # Can not currently make responsive in a good way
-    root = @$el.parent(".bk-root")
-    if root.length == 0
-       logger.warn('subplots cannot be responsive')
-       return
+    #if not @$el.parent().hasClass("bk-root")
+    #   logger.warn('subplots cannot be responsive')
+    #   return
 
-    parent = root.parent()
+    parent = @$el.parent()
     @_resize_width_height(use_width, use_height, maintain_ar, parent.width(), parent.height())
 
   _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
