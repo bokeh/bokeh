@@ -96,5 +96,9 @@
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",
     "coffee-script": "^1.9.3"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "dev-build": "gulp dev-build"
   }
 }
