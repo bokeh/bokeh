@@ -121,6 +121,7 @@ class PlotView extends Renderer.View
 
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
+    @update_min_dims()
 
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
@@ -171,6 +172,13 @@ class PlotView extends Renderer.View
     logger.debug("PlotView initialized")
 
     return this
+
+  update_min_dims: () ->
+    # miminum dims are canvas' dims and then rely on CSS
+    @$el.css {
+      minWidth: @canvas.get("width")
+      minHeight: @canvas.get("height")
+    }
 
   init_webgl: () ->
 
@@ -438,12 +446,7 @@ class PlotView extends Renderer.View
       @canvas.set_dims([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
-
-    # miminum dims are canvas' dims and then rely on CSS
-    @$el.css {
-      minWidth: @canvas.get("width")
-      minHeight: @canvas.get("height")
-    }
+    @update_min_dims()
 
     if @tm_view?
       @tm_view.render()
