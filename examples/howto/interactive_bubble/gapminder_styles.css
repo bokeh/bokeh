@@ -136,8 +136,8 @@
  *
 */
 
-.plotdiv input,
-.plotdiv label {
+.bk-root input,
+.bk-root label {
     display: none;
 }
 

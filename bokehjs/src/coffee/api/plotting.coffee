@@ -349,10 +349,7 @@ show = (obj, target) ->
     for _obj in obj
       doc.add_root(_obj)
 
-  div = $("<div class='bk-root'>")
-  $(target ? "body").append(div)
-
-  views = embed.add_document_standalone(doc, div)
+  views = embed.add_document_standalone(doc, target ? "body")
 
   if not multiple
     return views[obj.id]

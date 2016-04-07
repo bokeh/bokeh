@@ -94,7 +94,7 @@ something like:
 
 .. code-block:: html
 
-    <div class="plotdiv" id="8ed68feb-d258-4953-9dfb-fb1c13326509"></div>
+    <div id="8ed68feb-d258-4953-9dfb-fb1c13326509"></div>
 
 These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
@@ -210,7 +210,7 @@ Running ``python scatter.py`` will print out:
         });
     </script>
 
-    {'Blue': '<div class="plotdiv" id="5fb494f2-e2cb-4eb8-8ec7-11b38143ea30"></div>', 'Green': '<div class="plotdiv" id="f37808b2-e1cc-494e-a126-32f979e2a60d"></div>', 'Red': '<div class="plotdiv" id="a30e4c01-290a-4a19-9b36-c242c53cba8b"></div>'}
+    {'Blue': '<div id="5fb494f2-e2cb-4eb8-8ec7-11b38143ea30"></div>', 'Green': '<div id="f37808b2-e1cc-494e-a126-32f979e2a60d"></div>', 'Red': '<div id="a30e4c01-290a-4a19-9b36-c242c53cba8b"></div>'}
 
 Then inserting the script and div elements into this boilerplate:
 
