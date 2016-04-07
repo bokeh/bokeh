@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 from ..core import validation
 from ..core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
 from ..core.properties import abstract
-from ..core.properties import Int, Instance, List
+from ..core.properties import Int, Instance, List, Bool
 
 from .component import Component
 
@@ -72,7 +72,9 @@ class HBox(BaseBox):
 
 
 class Row(HBox):
-    pass
+    grow = Bool(default=True, help="""
+        Contents of Row grow to fit the container. Default value is True.
+    """)
 
 
 class VBox(BaseBox):
@@ -84,7 +86,9 @@ class VBox(BaseBox):
 
 
 class Column(VBox):
-    pass
+    grow = Bool(default=True, help="""
+        Contents of Row grow to fit the container. Default value is True.
+    """)
 
 
 # parent class only, you need to set the fields you want

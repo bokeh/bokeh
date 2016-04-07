@@ -95,13 +95,24 @@ button = Button(label=msg)
 row1 = Row(children=[plot1, plot2])
 row2col1 = Column(children=[plot3, plot4])
 #row2col1 = Column(children=[plot3, slider])
-widgetcol = Column(children=[slider, dropdown, button])
+widgetcol = Column(children=[slider, dropdown, button], grow=False)
 row2 = Row(children=[row2col1, widgetcol])
 
 
 doc = Document()
 #doc.add_root(Column(children=[Row(children=[slider]), Row(children=[plot1])]))
-#doc.add_root(Column(children=[slider, Row(children=[plot1, plot2, plot3, plot4])]))
+#doc.add_root(Column(
+#    children=[
+#        button,
+##         slider,
+#        Column(
+#            children=[
+#                Row(children=[plot1, plot2]),
+#                Row(children=[plot3, plot4])
+#            ]
+#        )
+#    ]
+#))
 #doc.add_root(row1)
 #doc.add_root(row2col1)
 doc.add_root(Column(children=[row1, row2]))

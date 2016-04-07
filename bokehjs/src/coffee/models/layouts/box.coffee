@@ -47,6 +47,7 @@ class Box extends Model
     @set('dom_top', 0)
     @_width = new Variable()
     @_height = new Variable()
+
     # for children that want to be the same size
     # as other children, make them all equal to these
     @_child_equal_size_width = new Variable()
@@ -68,8 +69,9 @@ class Box extends Model
 
   props: ->
     return _.extend {}, super(), {
-      children: [ p.Array, [] ],
+      children: [ p.Array, [] ]
       spacing:  [ p.Number, 6 ]
+      grow:     [ p.Bool, true]
     }
 
   _ensure_origin_variables: (child) ->
@@ -123,6 +125,10 @@ class Box extends Model
       spacing = @get('spacing')
 
       for child in children
+
+        # pull child constraints up recursively
+        result = result.concat(child.get_constraints())
+
         # make total widget sizes fill the orthogonal direction
         rect = child_rect(child)
         if @_horizontal
@@ -130,10 +136,8 @@ class Box extends Model
         else
           result.push(EQ(rect[2], [ -1, @_width ]))
 
+        # add equal size constraint
         add_equal_size_constraints(child, result)
-
-        # pull child constraints up recursively
-        result = result.concat(child.get_constraints())
 
       last = info(children[0])
       result.push(EQ(last.span[0], 0))
@@ -143,12 +147,13 @@ class Box extends Model
         result.push(EQ(last.span[0], last.span[1], [-1, next.span[0]]))
         last = next
 
-      # last child's right side has to stick to the right side of the box
-      if @_horizontal
-        total = @_width
-      else
-        total = @_height
-      result.push(EQ(last.span[0], last.span[1], [-1, total]))
+      if @get('grow') is true
+        # If grow is true, last child's side has to stick to the end of the box.
+        if @_horizontal
+          total = @_width
+        else
+          total = @_height
+        result.push(EQ(last.span[0], last.span[1], [-1, total]))
 
       # align outermost edges in both dimensions
       result = result.concat(@_align_outer_edges_constraints(true)) # horizontal=true
