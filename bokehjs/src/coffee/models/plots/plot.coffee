@@ -592,6 +592,8 @@ class PlotView extends Renderer.View
     avail_width  -= right.outerWidth()
     avail_height -= below.outerHeight()
 
+    avail_height -= 1
+
     if not maintain_ar
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
