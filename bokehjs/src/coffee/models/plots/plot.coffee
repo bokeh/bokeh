@@ -439,6 +439,12 @@ class PlotView extends Renderer.View
 
     @canvas_view.render(force_canvas)
 
+    # miminum dims are canvas' dims and then rely on CSS
+    @$el.css {
+      minWidth: @canvas.get("width")
+      minHeight: @canvas.get("height")
+    }
+
     if @tm_view?
       @tm_view.render()
 
