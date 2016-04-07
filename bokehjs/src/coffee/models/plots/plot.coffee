@@ -568,7 +568,7 @@ class PlotView extends Renderer.View
       return
 
     avail_width = @.el.clientWidth
-    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
+    avail_height = @.el.parentNode.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
 
     if maintain_ar is false
