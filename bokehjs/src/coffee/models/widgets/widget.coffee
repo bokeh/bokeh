@@ -23,11 +23,7 @@ class WidgetView extends LayoutDom.View
 
   update_constraints: () ->
     s = @model.document.solver()
-    height = 0
-    height += parseFloat(@$el.css('margin-top').replace("px", ""))
-    height += parseFloat(@$el.css('margin-bottom').replace("px", ""))
-    for child in @$el.children()
-      height += child.clientHeight
+    height = @widget_extent()
     if not @_last_height?
       @_last_height = -1
     if height == @_last_height
@@ -39,6 +35,14 @@ class WidgetView extends LayoutDom.View
     s.add_constraint(@_height_constraint)
     s.update_variables()
     s.trigger('resize')
+
+  widget_extent: () ->
+    height = 0
+    height += parseFloat(@$el.css('margin-top').replace("px", ""))
+    height += parseFloat(@$el.css('margin-bottom').replace("px", ""))
+    for child in @$el.children()
+      height += child.offsetHeight
+    return height
 
 class Widget extends LayoutDom.Model
   type: "Widget"

@@ -52,7 +52,8 @@ plot2 = make_plot("y2", "red", right_axis=True)
 plot3 = make_plot("y3", "green", left_axis=False)
 plot4 = make_plot("y4", "black", left_axis=False, below_axis=False)
 
-slider = Slider(start=0, end=10, value=1, step=1, title="Stuff")
+slider = Slider(start=0, end=10, value=1, step=1, title="Stuff1")
+slider_2 = Slider(start=0, end=10, value=1, step=1, title="Stuff2")
 menu = [("Item 1", "item_1"), ("Item 2", "item_2"), None, ("Item 3", "item_3")]
 dropdown = Dropdown(label="Dropdown button", menu=menu)
 msg = """ Returns a tuple (plot, [obj1...objN]); the former can be added
@@ -84,14 +85,18 @@ doc = Document()
 #doc.add_root(Column(children=[row1, row2]))  # works (with spacer)
 #doc.add_root(Column(children=[slider, button, plot1, plot2])) # works
 #doc.add_root(Row(children=[Column(children=[slider, button]), plot1]))  # works
+#doc.add_root(Column(children=[plot1, plot2, slider, button]))  # works
 
-#doc.add_root(Column(children=[plot1, plot2, slider, button])) # Doesn't work (but next 3 lines are workaround)
+#doc.add_root(Column(children=[plot1, slider, plot2, button, plot3, slider_2]))  # works
 
 #row1 = Row(children=[Column(children=[slider, plot1])])
 #row2 = Row(children=[Column(children=[button, plot2])])
 #doc.add_root(Column(children=[row1, row2]))  # works
 
-#doc.add_root(Column(children=[plot1, slider, plot2, button])) # Doesn't work - can't split widgets (things spill out)
+#row1 = Row(children=[Column(children=[slider, plot1])])
+#row2 = Row(children=[Column(children=[button, plot2, plot4, slider_2])])
+#doc.add_root(Column(children=[row1, row2]))  # works
+
 
 if __name__ == "__main__":
     filename = "grid_layout_4.html"
