@@ -81,16 +81,16 @@ doc = Document()
 #doc.add_root(row1) # works
 #doc.add_root(row2col1) # works
 #doc.add_root(Row(children=[plot1, Column(children=[plot2, plot3, plot4])])) # works
-#doc.add_root(Column(children=[row1, row2])) @ works (with spacer)
+#doc.add_root(Column(children=[row1, row2]))  # works (with spacer)
 #doc.add_root(Column(children=[slider, button, plot1, plot2])) # works
+
+#row1 = Row(children=[Column(children=[slider, plot1])])
+#row2 = Row(children=[Column(children=[button, plot2])]
+#doc.add_root(Column(children=[row1, row2]))  # works
 
 #doc.add_root(Column(children=[plot1, plot2, slider, button])) # Doesn't work (things spill out)
 #doc.add_root(Column(children=[plot1, slider, plot2, button])) # Doesn't work - can't split widgets (things spill out)
 #doc.add_root(Row(children=[Column(children=[slider, button]), plot1]))  # Doesn't work - widgets ontop of each other
-
-#row1 = Row(children=[Column(children=[slider, plot1])])
-#row2 = Row(children=[Column(children=[button, plot2])]
-#doc.add_root(Column(children=[row1, row2]))  # Doesn't work
 
 if __name__ == "__main__":
     filename = "grid_layout_4.html"

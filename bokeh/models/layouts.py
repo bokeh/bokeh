@@ -72,7 +72,9 @@ class HBox(BaseBox):
 
 
 class Row(HBox):
-    pass
+    grow = Bool(default=True, help="""
+        Row grows to fit the container. Default value is True.
+    """)
 
 
 class VBox(BaseBox):
@@ -84,7 +86,9 @@ class VBox(BaseBox):
 
 
 class Column(VBox):
-    pass
+    grow = Bool(default=True, help="""
+        Column grows to fit the container. Default value is True.
+    """)
 
 
 # parent class only, you need to set the fields you want
@@ -93,6 +97,7 @@ class VBoxForm(VBox):
     Basically, a VBox, where all components (generally form stuff)
     is wrapped in a <form> tag - important for bootstrap css
     """
+
 
 class Spacer(Layout):
     """

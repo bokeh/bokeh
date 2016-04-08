@@ -78,6 +78,7 @@ class Box extends Model
     return _.extend {}, super(), {
       children: [ p.Array, [] ]
       spacing:  [ p.Number, 6 ]
+      grow:     [ p.Bool, true ]
     }
 
   _ensure_origin_variables: (child) ->
@@ -124,8 +125,9 @@ class Box extends Model
           if 'box-equal-size-left' of vars
             constraints.push(EQ([-1, vars['box-equal-size-left']], [-1, vars['box-equal-size-right']], vars['width'], @_child_equal_size_width))
         else
-          if 'box-equal-size-top' of vars
-            constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
+          if child.get('grow') == true
+            if 'box-equal-size-top' of vars
+              constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
 
 
       info = (child) =>

@@ -153,6 +153,8 @@ class LayoutDom extends Model
         # Also, doesn't work in lots of circumstances - like stacked columns
         'box-equal-size-left' : @_left
         'box-equal-size-right' : @_width_minus_right
+        'box-equal-size-top' : @_top
+        'box-equal-size-bottom' : @_height_minus_bottom
       }
     return vars
 
