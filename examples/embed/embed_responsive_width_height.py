@@ -58,7 +58,7 @@ template = Template('''<!DOCTYPE html>
     </script>
     <style>
     /* Need this to get the page in "desktop mode"; not having an infinite height.*/
-    html, body {height: 100%;}
+    html, body {height: 100%; margin:0px;}
     </style>
     </body>
 </html>
