@@ -1,4 +1,5 @@
 Model = require "../../model"
+p = require "../../core/properties"
 
 class LinearMapper extends Model
   initialize: (attrs, options) ->
@@ -46,6 +47,11 @@ class LinearMapper extends Model
     scale = (target_end - target_start)/(source_end - source_start)
     offset = -(scale * source_start) + target_start
     return [scale, offset]
+
+  @internal {
+    source_range: [ p.Any ]
+    target_range: [ p.Any ]
+  }
 
 module.exports =
   Model: LinearMapper

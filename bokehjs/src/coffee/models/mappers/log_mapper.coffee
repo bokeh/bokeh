@@ -1,4 +1,5 @@
 Model = require "../../model"
+p = require "../../core/properties"
 
 class LogMapper extends Model
   initialize: (attrs, options) ->
@@ -106,6 +107,11 @@ class LogMapper extends Model
     offset = target_start
 
     return [scale, offset, inter_scale, inter_offset]
+
+  @internal {
+    source_range: [ p.Any ]
+    target_range: [ p.Any ]
+  }
 
 module.exports =
   Model: LogMapper
