@@ -72,18 +72,6 @@ class ResizeTool extends GestureTool.Model
   event_type: "pan"
   default_order: 40
 
-  nonserializable_attribute_names: () ->
-    super().concat(['data'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      # overrides
-      level: 'overlay'
-
-      # internal
-      data: {}
-    })
-
 module.exports =
   Model: ResizeTool
   View: ResizeToolView

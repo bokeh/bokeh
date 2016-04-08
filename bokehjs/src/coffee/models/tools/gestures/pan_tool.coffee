@@ -102,9 +102,6 @@ class PanTool extends GestureTool.Model
       dimensions: [ p.Array, ["width", "height"] ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['level', 'default_order', 'event_type'])
-
   initialize: (attrs, options) ->
     super(attrs, options)
 

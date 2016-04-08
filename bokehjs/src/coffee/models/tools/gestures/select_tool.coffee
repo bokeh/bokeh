@@ -53,9 +53,6 @@ class SelectTool extends GestureTool.Model
       names:     [ p.Array, [] ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['computed_renderers'])
-
   @internal {
     multi_select_modifier: [ p.String, "shift" ]
   }

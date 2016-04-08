@@ -98,7 +98,7 @@ class ToolManager extends HasProps
         @set('actions', actions)
 
       else if tool instanceof GestureTool.Model
-        et = tool.get('event_type')
+        et = tool.event_type
 
         if et not of gestures
           logger.warn("ToolManager: unknown event type '#{et}' for tool:
@@ -117,7 +117,7 @@ class ToolManager extends HasProps
         gestures[et].tools[0].set('active', true)
 
   _active_change: (tool) =>
-    event_type = tool.get('event_type')
+    event_type = tool.event_type
     gestures = @get('gestures')
 
     # Toggle between tools of the same type by deactivating any active ones
