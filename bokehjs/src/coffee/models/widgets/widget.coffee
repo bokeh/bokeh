@@ -23,18 +23,20 @@ class WidgetView extends LayoutDom.View
 
   update_constraints: () ->
     s = @model.document.solver()
-    size = 0
+    height = 0
+    height += parseFloat(@$el.css('margin-top').replace("px", ""))
+    height += parseFloat(@$el.css('margin-bottom').replace("px", ""))
     for child in @$el.children()
-      size += child.clientHeight
-    if not @_last_size?
-      @_last_size = -1
-    if size == @_last_size
+      height += child.clientHeight
+    if not @_last_height?
+      @_last_height = -1
+    if height == @_last_height
       return
-    @_last_size = size
-    if @_size_constraint?
-      s.remove_constraint(@_size_constraint)
-    @_size_constraint = WEAK_EQ(@model._height, -size)
-    s.add_constraint(@_size_constraint)
+    @_last_height = height
+    if @_height_constraint?
+      s.remove_constraint(@_height_constraint)
+    @_height_constraint = WEAK_EQ(@model._height, -height)
+    s.add_constraint(@_height_constraint)
     s.update_variables()
     s.trigger('resize')
 
