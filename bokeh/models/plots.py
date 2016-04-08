@@ -447,6 +447,11 @@ class Plot(Component):
 
     """)
 
+    grow = Bool(default=True, help="""
+        Plot grows to fit the container. Default value is True.
+    """)
+
+
     @property
     def background_fill(self):
         warnings.warn(

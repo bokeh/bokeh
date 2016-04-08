@@ -154,22 +154,25 @@ class Box extends Model
         # add equal size constraint
         add_equal_size_constraints(child, result)
 
-      last = info(children[0])
-      result.push(EQ(last.span[0], 0))
+      last = children[0]
+      last_info = info(last)
+      result.push(EQ(last_info.span[0], 0))
       for i in [1...children.length]
-        next = info(children[i])
+        next = children[i]
+        next_info = info(next)
         # each child's start equals the previous child's end
-        result.push(EQ(last.span[0], last.span[1], [-1, next.span[0]]))
+        result.push(EQ(last_info.span[0], last_info.span[1], [-1, next_info.span[0]]))
         # the whitespace at end of one child + start of next must equal
         # the box spacing. This must be a weak constraint because it can
         # conflict with aligning the alignable edges in each child.
         # Alignment is generally more important visually than spacing.
-        result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
+        result.push(WEAK_EQ(last_info.whitespace[1], next_info.whitespace[0], 0 - spacing))
         # if we can't satisfy the whitespace being equal to box spacing,
         # we should fix it (align things) by increasing rather than decreasing
         # the whitespace.
-        result.push(GE(last.whitespace[1], next.whitespace[0], 0 - spacing))
+        result.push(GE(last_info.whitespace[1], next_info.whitespace[0], 0 - spacing))
         last = next
+        last_info = next_info
 
       if @get('grow') is true
         # If grow is true, last child's side has to stick to the end of the box.
@@ -177,7 +180,7 @@ class Box extends Model
           total = @_width
         else
           total = @_height
-        result.push(EQ(last.span[0], last.span[1], [-1, total]))
+        result.push(EQ(last_info.span[0], last_info.span[1], [-1, total]))
 
       # align outermost edges in both dimensions
       result = result.concat(@_align_outer_edges_constraints(true)) # horizontal=true

@@ -18,11 +18,6 @@ class AbstractButton extends Widget.Model
       type:     [ p.String, "default" ] # TODO (bev)
     }
 
-  get_constraints: () ->
-    constraints = super()
-    constraints.push(WEAK_EQ(@_bottom_minus_top, -40))
-    return constraints
-
 module.exports =
   Model: AbstractButton
   View: AbstractButtonView

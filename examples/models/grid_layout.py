@@ -101,7 +101,7 @@ row2 = Row(children=[row2col1, widgetcol])
 
 
 doc = Document()
-#doc.add_root(Column(children=[Row(children=[slider]), Row(children=[plot1])]))
+#doc.add_root(Row(children=[Column(children=[slider, button], grow=False), plot1]))
 #doc.add_root(Column(
 #    children=[
 #        button,
@@ -117,7 +117,14 @@ doc = Document()
 #doc.add_root(row1)
 #doc.add_root(row2col1)
 #doc.add_root(Row(children=[plot1, Column(children=[plot2, plot3, plot4])]))
-doc.add_root(Column(children=[row1, row2]))
+#doc.add_root(Column(children=[row1, row2]))
+doc.add_root(Column(children=[slider, button, plot1, plot2]))
+#doc.add_root(Column(children=[plot1, plot2, slider, button]))
+#doc.add_root(Column(children=[plot1, slider, plot2, button])) # Doesn't work - can't split widgets
+
+#row1 = Row(children=[Column(children=[slider, plot1])])
+#row2 = Row(children=[Column(children=[button, plot2])])
+#doc.add_root(Column(children=[row1, row2]))
 
 if __name__ == "__main__":
     filename = "grid_layout.html"

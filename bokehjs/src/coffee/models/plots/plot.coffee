@@ -764,10 +764,12 @@ class Plot extends LayoutDom.Model
       responsive:        [ p.Bool,     false                  ]
 
       min_border:        [ p.Number,   50                     ]
-      min_border_top:    [ p.Number,   null                     ]
-      min_border_left:   [ p.Number,   null                     ]
-      min_border_bottom: [ p.Number,   null                     ]
-      min_border_right:  [ p.Number,   null                     ]
+      min_border_top:    [ p.Number,   null                   ]
+      min_border_left:   [ p.Number,   null                   ]
+      min_border_bottom: [ p.Number,   null                   ]
+      min_border_right:  [ p.Number,   null                   ]
+
+      grow:              [ p.Bool,     true                  ]
     }
 
   defaults: ->
