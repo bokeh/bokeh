@@ -78,7 +78,6 @@ class Box extends Model
     return _.extend {}, super(), {
       children: [ p.Array, [] ]
       spacing:  [ p.Number, 6 ]
-      grow:     [ p.Bool, true]
     }
 
   _ensure_origin_variables: (child) ->
@@ -174,13 +173,11 @@ class Box extends Model
         last = next
         last_info = next_info
 
-      if @get('grow') is true
-        # If grow is true, last child's side has to stick to the end of the box.
-        if @_horizontal
-          total = @_width
-        else
-          total = @_height
-        result.push(EQ(last_info.span[0], last_info.span[1], [-1, total]))
+      if @_horizontal
+        total = @_width
+      else
+        total = @_height
+      result.push(EQ(last_info.span[0], last_info.span[1], [-1, total]))
 
       # align outermost edges in both dimensions
       result = result.concat(@_align_outer_edges_constraints(true)) # horizontal=true

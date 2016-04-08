@@ -56,6 +56,7 @@ module.exports = {
   LayoutCanvas:             require '../models/layouts/layout_canvas'
   Row:                      require '../models/layouts/row'
   Column:                   require '../models/layouts/column'
+  Spacer:                   require '../models/layouts/spacer'
 
   GridPlot:                 require '../models/layouts_legacy/grid_plot'
   HBox:                     require '../models/layouts_legacy/hbox'
