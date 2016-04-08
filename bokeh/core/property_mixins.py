@@ -188,5 +188,6 @@ class TextProps(HasProps):
     - ``'bottom'``
     - ``'alphabetic'``
     - ``'hanging'``
+    - ``'ideographic'``
 
     """)

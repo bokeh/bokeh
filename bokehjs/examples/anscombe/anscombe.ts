@@ -73,5 +73,5 @@ namespace Anscombe {
     doc.add_root(grid);
 
     const div = document.getElementById("plot");
-    Bokeh.embed.add_document_static(div, doc);
+    Bokeh.embed.add_document_standalone(doc, div);
 }

@@ -392,6 +392,17 @@ left or top) default will extend the annotation to the edge of the plot area.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
     :source-position: above
 
+.. _userguide_plotting_labels:
+
+Labels
+~~~~~~
+
+Labels are text elements that can be used to annotate either glyphs or plot
+regions.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_label.py
+    :source-position: above
+
 .. _userguide_plotting_spans:
 
 Spans
