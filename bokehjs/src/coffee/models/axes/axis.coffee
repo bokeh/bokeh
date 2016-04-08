@@ -338,8 +338,9 @@ class Axis extends GuideRenderer.Model
     axis_label_text_baseline: "alphabetic"
   }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['layout_location'])
+  @internal {
+    layout_location: [ p.Any ]
+  }
 
   initialize: (attrs, options)->
     super(attrs, options)

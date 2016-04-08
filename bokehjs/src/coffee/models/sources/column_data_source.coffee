@@ -19,10 +19,8 @@ class ColumnDataSource extends DataSource.Model
 
   @internal {
     selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
+    inspected:         [ p.Any ]
   }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['inspected'])
 
   get_column: (colname) ->
     return @get('data')[colname] ? null

@@ -253,9 +253,6 @@ class HoverTool extends InspectTool.Model
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['ttmodels', 'computed_renderers'])
-
   initialize: (attrs, options) ->
     super(attrs, options)
 

@@ -103,10 +103,8 @@ class Span extends Annotation.Model
 
   @internal {
     for_hover: [ p.Boolean, false ]
+    computed_location: [ p.Number, null ]
   }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['computed_location'])
 
 module.exports =
   Model: Span

@@ -84,8 +84,10 @@ class Tooltip extends Annotation.Model
     level: 'overlay'
   }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['data', 'custom'])
+  @internal {
+    data: [ p.Any ]
+    custom: [ p.Any ]
+  }
 
   clear: () ->
     @set('data', [])

@@ -3,12 +3,14 @@ _ = require "underscore"
 {Variable, EQ, GE, Strength}  = require "../../core/layout/solver"
 Model = require "../../model"
 Range1d = require "../ranges/range1d"
+p = require "../../core/properties"
 
 class LayoutBox extends Model
   type: 'LayoutBox'
 
-  nonserializable_attribute_names: () ->
-    super().concat(['layout_location'])
+  @internal {
+    layout_location: [ p.Any ]
+  }
 
   _doc_attached: () ->
     solver = @document.solver()

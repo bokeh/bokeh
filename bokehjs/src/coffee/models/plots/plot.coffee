@@ -716,9 +716,6 @@ class Plot extends Component.Model
     @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
     @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
 
-  nonserializable_attribute_names: () ->
-    super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
-
   serializable_attributes: () ->
     attrs = super()
     if 'renderers' of attrs
@@ -823,7 +820,10 @@ class Plot extends Component.Model
   }
 
   @internal {
-    min_size: [ p.Number, 120 ]
+    min_size:     [ p.Number, 120 ]
+    canvas:       [ p.Instance ]
+    tool_manager: [ p.Instance ]
+    frame:        [ p.Instance ]
   }
 
 module.exports =

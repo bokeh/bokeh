@@ -23,9 +23,6 @@ class DataRange1d extends DataRange.Model
     plots: [ p.Array, [] ]
   }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['plots'])
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
