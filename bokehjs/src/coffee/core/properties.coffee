@@ -89,7 +89,7 @@ class Property extends Backbone.Model
       attr_value = switch
         when _.isUndefined(default_value) then null
         when _.isArray(default_value)     then _.clone(default_value)
-        when _.isFunction(default_value)  then default_value()
+        when _.isFunction(default_value)  then default_value(obj)
         else                                   default_value
 
       obj.set(attr, attr_value, {silent: true, defaults: true})
