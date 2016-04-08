@@ -69,7 +69,7 @@ class PolyAnnotation extends Annotation.Model
     line_alpha: 0.3
   }
 
-  @inernal {
+  @internal {
     silent_update: [ p.Boolean, false ]
   }
 

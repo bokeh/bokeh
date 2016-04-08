@@ -260,6 +260,7 @@ module.exports =
   Angle: Angle
   Array: Array
   Bool: Bool
+  Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
   Direction: Direction

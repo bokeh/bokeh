@@ -321,11 +321,12 @@ class GridPlot extends Component.Model
       })
     , true)
 
-  @define("children", p.Array, [[]])
+  @define {
+    children: [ p.Array, [[]] ]
+  }
 
   defaults: () ->
     return _.extend {}, super(), {
-      children: [[]]
       border_space: 0
       toolbar_location: "left"
       disabled: false

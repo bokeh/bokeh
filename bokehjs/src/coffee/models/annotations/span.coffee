@@ -101,7 +101,7 @@ class Span extends Annotation.Model
     line_color: 'black'
   }
 
-  @inernal {
+  @internal {
     for_hover: [ p.Boolean, false ]
   }
 

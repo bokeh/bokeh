@@ -11,15 +11,7 @@ class HasProps extends Backbone.Model
   props: {}
   mixins: []
 
-  @define: (name_or_object, type, default_value) ->
-    if _.isString(name_or_object)
-      name = name_or_object
-      prop = if _.isUndefined(default_value) then [type] else [type, default_value]
-      object = {}
-      object[name] = prop
-    else
-      object = name_or_object
-
+  @define: (object) ->
     for name, prop of object
       do (name, prop) =>
         if this.prototype.props[name]?
@@ -37,9 +29,23 @@ class HasProps extends Backbone.Model
           enumerable: true
         })
 
+        [type, default_value, internal] = prop
+        refined_prop = {
+          type: type
+          default_value: default_value
+          internal: internal ? false
+        }
+
         props = _.clone(this.prototype.props)
-        props[name] = prop
+        props[name] = refined_prop
         this.prototype.props = props
+
+  @internal: (object) ->
+    _object = {}
+    for name, prop of object
+      do (name, prop) =>
+        _object[name] = prop.concat([true])
+    @define(_object)
 
   @mixin: (names...) ->
     @define(property_mixins.create(names))
@@ -60,9 +66,8 @@ class HasProps extends Backbone.Model
         value = this.prototype.props[name]
         if not value?
           throw new Error("attempted to override property '#{this.name}.#{name}' (which wasn't defined)")
-        [type, _1, rest...] = value
         props = _.clone(this.prototype.props)
-        props[name] = [type, default_value, rest...]
+        props[name] = _.extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
   toString: () -> "#{@type}(#{@id})"
@@ -92,8 +97,7 @@ class HasProps extends Backbone.Model
     this.attributes = {}
 
     @properties = {}
-    props = _.result(this, 'props')
-    for name, [type, default_value] of props
+    for name, {type, default_value} of @props
       if not type?
         throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
@@ -291,8 +295,10 @@ class HasProps extends Backbone.Model
   _get_nonserializable_dict: () ->
     if not @constructor._nonserializable_names_cache?
       names = {}
-      for n in @nonserializable_attribute_names()
-        names[n] = true
+      for name in @nonserializable_attribute_names()
+        names[name] = true
+      for name, {internal} of @props
+        if internal then names[name] = true
       @constructor._nonserializable_names_cache = names
     @constructor._nonserializable_names_cache
 
