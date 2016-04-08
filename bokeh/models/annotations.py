@@ -114,28 +114,59 @@ class Arrow(Annotation):
 
     """
 
-    x0 = NumberSpec(help="""
+    tail_x = NumberSpec(help="""
     The x-coordinates to locate the arrow tails.
     """)
 
-    x1 = NumberSpec(help="""
-    The x-coordinates to locate the arrow heads.
-    """)
-
-    y0 = NumberSpec(help="""
+    tail_y = NumberSpec(help="""
     The y-coordinates to locate the arrow tails.
     """)
 
-    y1 = NumberSpec(help="""
+    head_x = NumberSpec(help="""
+    The x-coordinates to locate the arrow heads.
+    """)
+
+    head_y = NumberSpec(help="""
     The y-coordinates to locate the arrow heads.
     """)
 
+    head_size = Float(default=25, help="""
+    The size, in pixels, of the arrow head.
+    """)
+
+    head_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the head_x and head_y attributes. Interpreted as "data
+    space" units by default.
+    """)
+
+    tail_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the head_x and head_y attributes. Interpreted as "data
+    space" units by default.
+    """)
+
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the box.
+    The %s values for the arrow body and arrow head outline.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the box.
+    The %s values for the arrow head. If `fill_color` is set to None, the arrow
+    head will be an open-backed wedge.
+    """)
+
+    fill_color = Override(default=None)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
     """)
 
 class BoxAnnotation(Annotation):

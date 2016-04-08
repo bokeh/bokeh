@@ -106,19 +106,32 @@ def test_Legend():
 def test_Arrow():
     arrow = Arrow()
     assert arrow.plot is None
-    assert arrow.x0 is None
-    assert arrow.x1 is None
-    assert arrow.y0 is None
-    assert arrow.y1 is None
+    assert arrow.tail_x is None
+    assert arrow.tail_y is None
+    assert arrow.head_x is None
+    assert arrow.head_y is None
+    assert arrow.head_size == 25
+    assert arrow.tail_units == 'data'
+    assert arrow.head_units == 'data'
+    assert isinstance(arrow.source, ColumnDataSource)
+    assert arrow.source.data == {}
+    assert arrow.x_range_name == "default"
+    assert arrow.y_range_name == "default"
     yield check_line, arrow, "black", 1.0
-    yield check_fill, arrow, "gray", 1.0
+    yield check_fill, arrow, None, 1.0
     yield (check_props, arrow, [
         "plot",
         "level",
-        "x0",
-        "x1",
-        "y0",
-        "y1",
+        "tail_x",
+        "tail_y",
+        "head_x",
+        "head_y",
+        "head_size",
+        "tail_units",
+        "head_units",
+        "source",
+        "x_range_name",
+        "y_range_name",
     ], FILL, LINE)
 
 def test_BoxAnnotation():

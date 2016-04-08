@@ -18,20 +18,32 @@ class ArrowView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
+    @listenTo(@mget('source'), 'change', () ->
+      set_data()
+      @plot_view.request_render())
 
   set_data: () ->
     super(@mget('source'))
     @set_visuals(@mget('source'))
 
   _map_data: () ->
-    start = @plot_view.map_to_screen(@_x0, @_y0,
+    if @mget('tail_units') == 'data'
+      start = @plot_view.map_to_screen(@_tail_x, @_tail_y,
+                                       x_name=@mget('x_range_name')
+                                       y_name=@mget('y_range_name')
+                                       )
+    else
+      start = [@canvas.v_vx_to_sx(@_tail_x.slice(0)),
+               @canvas.v_vy_to_sy(@_tail_y.slice(0))]
+
+    if @mget('head_units') == 'data'
+      end = @plot_view.map_to_screen(@_head_x, @_head_y,
                                      x_name=@mget('x_range_name')
                                      y_name=@mget('y_range_name')
                                      )
-    end = @plot_view.map_to_screen(@_x1, @_y1,
-                                   x_name=@mget('x_range_name')
-                                   y_name=@mget('y_range_name')
-                                   )
+    else
+      end = [@canvas.v_vx_to_sx(@_head_x.slice(0)),
+             @canvas.v_vy_to_sy(@_head_y.slice(0))]
 
     return [start, end]
 
@@ -44,7 +56,7 @@ class ArrowView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
 
     ctx.save()
-    for i in [0...@_x0.length]
+    for i in [0...@_tail_x.length]
         @visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
         ctx.moveTo(@start[0][i], @start[1][i])
@@ -57,37 +69,35 @@ class ArrowView extends Renderer.View
   _draw_arrow_head: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    for i in [0...@_x0.length]
+    for i in [0...@_tail_x.length]
 
-      angle = atan2([@start[0][i], @start[1][i]], [@end[0][i], @end[1][i]])
+      # arrow head runs orthogonal to arrow body
+      _angle = Math.PI/2 + atan2([@start[0][i], @start[1][i]], [@end[0][i], @end[1][i]])
+
+      ctx.save()
+      ctx.translate(@end[0][i], @end[1][i])
+      ctx.rotate(_angle)
 
       if @visuals.fill.doit
-
         @visuals.fill.set_vectorize(ctx, i)
-        ctx.save()
-        ctx.translate(@end[0][i], @end[1][i])
-        ctx.rotate(-Math.PI/2 + angle)
         ctx.beginPath()
-        ctx.moveTo(0,0)
-        ctx.lineTo(100, -100)
-        ctx.lineTo(-100, -100)
+        ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+        ctx.lineTo(0, 0)
+        ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
         ctx.closePath()
         ctx.fill()
-        ctx.restore()
 
       if @visuals.line.doit
-
         @visuals.line.set_vectorize(ctx, i)
-        ctx.save()
-        ctx.translate(@end[0][i], @end[1][i])
-        ctx.rotate(-Math.PI/2 + angle)
         ctx.beginPath()
-        ctx.moveTo(0,0)
-        ctx.lineTo(100, -100)
-        ctx.lineTo(-100, -100)
-        ctx.closePath()
+        ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+        ctx.lineTo(0, 0)
+        ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+        if @visuals.fill.doit # need to close back of arrow if filled
+          ctx.closePath()
         ctx.stroke()
-        ctx.restore()
+
+      ctx.restore()
 
 class Arrow extends Annotation.Model
   default_view: ArrowView
@@ -97,21 +107,23 @@ class Arrow extends Annotation.Model
   @mixins ['line', 'fill']
 
   @define {
-      x0:           [ p.NumberSpec,                     ]
-      x1:           [ p.NumberSpec,                     ]
-      # x_units:      [ p.SpatialUnits, 'data'            ]
-      y0:           [ p.NumberSpec,                     ]
-      y1:           [ p.NumberSpec,                     ]
-      # y_units:      [ p.SpatialUnits, 'data'            ]
-      source:       [ p.Instance                        ]
-      x_range_name: [ p.String,      'default'          ]
-      y_range_name: [ p.String,      'default'          ]
+      tail_x:           [ p.NumberSpec,                     ]
+      tail_y:           [ p.NumberSpec,                     ]
+      head_x:           [ p.NumberSpec,                     ]
+      head_y:           [ p.NumberSpec,                     ]
+      head_size:        [ p.Number,      25                 ]
+      tail_units:       [ p.String,      'data'             ]
+      head_units:       [ p.String,      'data'             ]
+      source:           [ p.Instance                        ]
+      x_range_name:     [ p.String,      'default'          ]
+      y_range_name:     [ p.String,      'default'          ]
     }
 
-  # defaults: ->
-  #   return _.extend {}, super(), {
-  #     #overrides
-  #   }
+  defaults: ->
+    return _.extend {}, super(), {
+      #overrides
+      fill_color: null
+    }
 
 module.exports =
   Model: Arrow
