@@ -169,6 +169,7 @@ class Box extends Model
         result.push(GE(last.whitespace[1], next.whitespace[0], 0 - spacing))
         last = next
 
+      # Child's side has to stick to the end of the box
       if @_horizontal
         total = @_width
       else
