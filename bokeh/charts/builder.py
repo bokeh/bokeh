@@ -18,6 +18,7 @@ types on top of it.
 
 from __future__ import absolute_import
 
+from six import string_types
 from .attributes import AttrSpec, ColorAttr, CatAttr
 from .chart import Chart
 from .data_source import ChartDataSource
@@ -559,12 +560,18 @@ class Builder(HasProps):
         if len(sort_legend) > 0:
             for attr, asc in sort_legend:
                 if len(attributes[attr].columns) > 0:
-                    # TODO(fpliger): attributes should be consistent but for
+
+                    # TODO(fpliger): attributes should be consistent and not
+                    #               need any type checking but for
                     #               the moment it is not, specially when going
                     #               though a process like binning or when data
-                    #               is built for HeatMap.
+                    #               is built for HeatMap, Scatter, etc...
                     item_order = [x[0] if isinstance(x, tuple) else x
                         for x in attributes[attr].items]
+
+                    item_order = [str(x) if not isinstance(x, string_types)
+                        else x for x in item_order]
+
                     def foo(leg):
                         return item_order.index(leg[0])
 
