@@ -14,8 +14,15 @@ p.scatter(x='weight', y='height', size=8, source=source)
 p.xaxis[0].axis_label = 'Weight (lbs)'
 p.yaxis[0].axis_label = 'Height (in)'
 
-label = Label(x='weight', y='height', text='names', level='glyph',
-              x_offset=5, y_offset=-5, source=source)
-p.add_annotation(label)
+labels = Label(x='weight', y='height', text='names', level='glyph',
+              x_offset=5, y_offset=5, source=source, render_mode='canvas')
+
+citation = Label(x=70, y=70, x_units='screen', y_units='screen',
+                 text=['Collected by Luke C. 2016-04-01'], render_mode='css',
+                 border_line_color='black', border_line_alpha=1.0,
+                 background_fill_color='white', background_fill_alpha=1.0)
+
+p.add_annotation(labels)
+p.add_annotation(citation)
 
 show(p)

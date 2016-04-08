@@ -13,7 +13,7 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d, PolyAnnotation
+from bokeh.models import GlyphRenderer, Label, Range1d
 from bokeh.models.tools import PanTool
 
 
@@ -78,7 +78,8 @@ def test_plot_add_annotation_method():
 
     label = Label()
     plot.add_annotation(label)
-    assert label.source.data == {} ## creates empty ColumnDataSource if None
+
+    assert label in plot.renderers
 
 def test_responsive_property_is_false_by_default():
     plot = figure()

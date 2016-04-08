@@ -20,8 +20,14 @@ class LabelView extends Renderer.View
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @render())
     else
       @listenTo(@model, 'change', @plot_view.request_render)
+      @listenTo(@mget('source'), 'change', () ->
+        @set_data()
+        @plot_view.request_render())
 
   set_data: () ->
     super(@mget('source'))
@@ -67,23 +73,20 @@ class LabelView extends Renderer.View
     return [sx, sy]
 
   _calculate_offset: (ctx, height, width) ->
-    if ctx.textAlign == 'left'
-      x_shift = 0
-    if ctx.textAlign == 'center'
-      x_shift = -width / 2
-    if ctx.textAlign == 'right'
-      x_shift = -width
 
-    if ctx.textBaseline == 'top'
-      y_shift = 0.0
-    if ctx.textBaseline == 'middle'
-      y_shift = -0.5 * height
-    if ctx.textBaseline == 'bottom'
-      y_shift = -1.0 * height
-    if ctx.textBaseline == 'alphabetic'
-      y_shift = -0.8 * height
-    if ctx.textBaseline == 'hanging'
-      y_shift = -0.17 * height
+    switch ctx.textAlign
+      when 'left' then x_shift = 0
+      when 'center' then x_shift = -width / 2
+      when 'right' then x_shift = -width
+
+    # guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
+    switch ctx.textBaseline
+      when 'top' then y_shift = 0.0
+      when 'middle' then y_shift = -0.5 * height
+      when 'bottom' then y_shift = -1.0 * height
+      when 'alphabetic' then y_shift = -0.8 * height
+      when 'hanging' then y_shift = -0.17 * height
+      when 'ideographic' then y_shift = -0.83 * height
 
     return [x_shift, y_shift]
 
@@ -100,7 +103,7 @@ class LabelView extends Renderer.View
       ctx.save()
 
       ctx.rotate(@mget('angle'))
-      ctx.translate(@sx[i] + @_x_offset[i], @sy[i] + @_y_offset[i])
+      ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])
 
       ctx.beginPath()
       ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
@@ -131,21 +134,32 @@ class LabelView extends Renderer.View
 
       @label_div[i].hide()
 
-      @label_div[i]
-        .html(@_text[i])
-        .css({
-          'position': 'absolute'
-          'top': "#{@sy[i] + @_y_offset[i] + @y_shift[i]}px"
-          'left': "#{@sx[i] + @_x_offset[i] + @x_shift[i]}px"
-          'color': "#{@_text_color[i]}"
-          'opacity': "#{@_text_alpha[i]}"
-          'font-size': "#{@_text_font_size[i]}"
-          'font-family': "#{@mget('text_font')}"
+      div_style = {
+        'position': 'absolute'
+        'top': "#{@sy[i] - @_y_offset[i] + @y_shift[i]}px"
+        'left': "#{@sx[i] + @_x_offset[i] + @x_shift[i]}px"
+        'color': "#{@_text_color[i]}"
+        'opacity': "#{@_text_alpha[i]}"
+        'font-size': "#{@_text_font_size[i]}"
+        'font-family': "#{@mget('text_font')}"
+        'background-color': "#{@visuals.background_fill.color_value()}"
+        }
+
+      if @visuals.background_fill.doit
+        _.extend(div_style, {
           'background-color': "#{@visuals.background_fill.color_value()}"
+        })
+
+      if @visuals.border_line.doit
+        _.extend(div_style, {
           'border-style': "#{@line_dash}"
           'border-width': "#{@_border_line_width[i]}"
           'border-color': "#{@visuals.border_line.color_value()}"
-          })
+        })
+
+      @label_div[i]
+        .html(@_text[i])
+        .css(div_style)
         .show()
 
 class Label extends Annotation.Model
@@ -173,10 +187,8 @@ class Label extends Annotation.Model
   defaults: ->
     return _.extend {}, super(), {
       #overrides
-      background_fill_color: "#ffffff"
-      background_fill_alpha: 0.0
-      border_line_color: 'black'
-      border_line_alpha: 0.0
+      background_fill_color: null
+      border_line_color: null
     }
 
 module.exports =

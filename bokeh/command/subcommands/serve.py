@@ -258,7 +258,7 @@ To configure how often unused sessions last. set the
     bokeh serve app_script.py --unused-session-lifetime 60000
 
 The value is specified in milliseconds. The default lifetime interval
-for unused sessions is 30 minutes. Only positive integer values are
+for unused sessions is 15 seconds. Only positive integer values are
 accepted.
 
 Logging Options

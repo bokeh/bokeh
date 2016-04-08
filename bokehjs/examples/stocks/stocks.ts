@@ -1,4 +1,4 @@
-module Stocks {
+namespace Stocks {
     import plt = Bokeh.Plotting;
 
     console.log(`Bokeh ${Bokeh.version}`);
@@ -6,12 +6,8 @@ module Stocks {
 
     function make_plot(title: string, source: Bokeh.ColumnDataSource) {
         // Create plot
-        const xr = new Bokeh.DataRange1d();
-        const yr = new Bokeh.DataRange1d();
         const plot = plt.figure({
             tools: "pan,wheel_zoom,save,reset",
-            x_range: xr,
-            y_range: yr,
             title: title,
             plot_width: 400,
             plot_height: 400,
@@ -37,10 +33,6 @@ module Stocks {
             }
         }
 
-        // Tweaks to work around bootstrap problems
-        xr.renderers = plot.renderers;
-        yr.renderers = plot.renderers;
-
         return plot;
     }
 
@@ -59,6 +51,8 @@ module Stocks {
     const period = 0.5;  // seconds
     function new_data() {
         t += period;
+        // XXX: explicit type annotation required due to TypeScript#6041.
+        // Remove when TypeScript 2.0 is available.
         const d: Bokeh.Data = {
             t:      [t*1000],
             corp_a: [Math.sin(t*0.3 + 0)*2 + Math.random() + 3.0],
@@ -71,6 +65,5 @@ module Stocks {
 
     // Create plot and attach to DOM
     const plot = make_plot('Simple stocks demo', source);
-    const div = document.getElementById("plot");
-    plt.show(plot, div);
+    plt.show(plot, "#plot");
 }

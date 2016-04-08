@@ -17,7 +17,7 @@ from ..core.properties import (
 from ..util.deprecate import deprecated
 
 from .renderers import Renderer, GlyphRenderer
-from .sources import DataSource
+from .sources import DataSource, ColumnDataSource
 
 @abstract
 class Annotation(Renderer):
@@ -245,6 +245,9 @@ class Label(Annotation):
 
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
+
+    .. warning::
+        The `angle` property is not supported for `render_mode="css"`
     """)
 
     x_offset = NumberSpec(default=0, help="""
@@ -269,19 +272,15 @@ class Label(Annotation):
     The %s values for the text bounding box.
     """)
 
-    background_fill_color = Override(default="#ffffff")
-
-    background_fill_alpha = Override(default=0.0)
+    background_fill_color = Override(default=None)
 
     border_props = Include(LineProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
-    border_line_color = Override(default="black")
+    border_line_color = Override(default=None)
 
-    border_line_alpha = Override(default=0.0)
-
-    source = Instance(DataSource, help="""
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 
@@ -299,6 +298,9 @@ class Label(Annotation):
     Specifies whether the text is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
 
+    .. note::
+        The CSS labels won't be present in the output using the "save" tool.
+
     .. warning::
         Not all visual styling properties are supported if the render_mode is
         set to "css". The border_line_dash property isn't fully supported and
@@ -306,6 +308,7 @@ class Label(Annotation):
         modify the opacity of the entire background box and border in addition
         to the text. Finally, clipping Label annotations inside of the plot
         area isn't supported in "css" mode.
+
     """)
 
 
