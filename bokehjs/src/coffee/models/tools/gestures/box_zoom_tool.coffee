@@ -69,7 +69,7 @@ class BoxZoomToolView extends GestureTool.View
     @plot_view.push_state('box_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info)
 
-DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"

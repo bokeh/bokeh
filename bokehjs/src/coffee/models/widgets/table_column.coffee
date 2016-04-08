@@ -13,8 +13,8 @@ class TableColumn extends Model
       field:        [ p.String                                      ]
       title:        [ p.String                                      ]
       width:        [ p.Number,   300                               ]
-      formatter:    [ p.Instance, new CellFormatters.String.Model() ]
-      editor:       [ p.Instance, new CellEditors.String.Model()    ]
+      formatter:    [ p.Instance, () -> new CellFormatters.String.Model() ]
+      editor:       [ p.Instance, () -> new CellEditors.String.Model()    ]
       sortable:     [ p.Bool,     true                              ]
       default_sort: [ p.String,   "ascending"                       ]
     }

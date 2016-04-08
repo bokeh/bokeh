@@ -23,7 +23,7 @@ class DatetimeTicker extends CompositeTicker.Model
 
   @override {
       num_minor_ticks: 0
-      tickers: [
+      tickers: () -> [
         # Sub-second.
         new AdaptiveTicker.Model({
           mantissas: [1, 2, 5],

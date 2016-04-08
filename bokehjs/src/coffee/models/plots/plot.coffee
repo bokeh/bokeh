@@ -793,7 +793,7 @@ class Plot extends Component.Model
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
       tools:             [ p.Array,    []                     ]
-      tool_events:       [ p.Instance, new ToolEvents.Model() ]
+      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
       toolbar_location:  [ p.Location, 'above'                ]
       logo:              [ p.String,   'normal'               ] # TODO (bev)
 

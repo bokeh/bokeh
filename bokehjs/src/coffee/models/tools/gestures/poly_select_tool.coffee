@@ -64,7 +64,7 @@ class PolySelectToolView extends SelectTool.View
 
     return null
 
-DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"

@@ -95,7 +95,7 @@ class BoxSelectToolView extends SelectTool.View
 
     return
 
-DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"
