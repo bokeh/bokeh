@@ -44,7 +44,8 @@ class HasProps extends Backbone.Model
     _object = {}
     for name, prop of object
       do (name, prop) =>
-        _object[name] = prop.concat([true])
+        [type, default_value] = prop
+        _object[name] = [type, default_value, true]
     @define(_object)
 
   @mixin: (names...) ->
