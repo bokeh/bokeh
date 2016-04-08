@@ -117,14 +117,9 @@ class WheelZoomTool extends GestureTool.Model
       dimensions: [ p.Array, ["width", "height"] ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['speed'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      # internal
-      speed: 1/600
-    })
+  @internal {
+    speed: [ p.Number, 1/600 ]
+  }
 
 module.exports =
   Model: WheelZoomTool

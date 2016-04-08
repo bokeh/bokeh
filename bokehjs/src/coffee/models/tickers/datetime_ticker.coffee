@@ -21,8 +21,7 @@ ONE_MONTH = util.ONE_MONTH
 class DatetimeTicker extends CompositeTicker.Model
   type: 'DatetimeTicker'
 
-  defaults: () ->
-    return _.extend {}, super(), {
+  @override {
       num_minor_ticks: 0
       tickers: [
         # Sub-second.

@@ -17,14 +17,12 @@ class ColumnDataSource extends DataSource.Model
       column_names:      [ p.Array,    [] ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # internal
-      selection_manager: new SelectionManager({'source':@})
-    }
+  @internal {
+    selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
+  }
 
   nonserializable_attribute_names: () ->
-    super().concat(['selection_manager', 'inspected'])
+    super().concat(['inspected'])
 
   get_column: (colname) ->
     return @get('data')[colname] ? null
