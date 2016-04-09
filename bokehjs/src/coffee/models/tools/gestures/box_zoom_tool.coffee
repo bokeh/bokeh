@@ -6,6 +6,87 @@ p = require "../../../core/properties"
 
 class BoxZoomToolView extends GestureTool.View
 
+  _match_aspect: (basepoint, curpoint, frame) ->
+
+    # aspect ratio of plot frame
+    hend = frame.get('h_range').get('end')
+    hstart = frame.get('h_range').get('start')
+    vend = frame.get('v_range').get('end')
+    vstart = frame.get('v_range').get('start')
+    w = hend - hstart
+    h = vend - vstart
+    a = w/h
+
+    # if curpoint[0] > hend
+    #   curpoint[0] = hend
+    # if curpoint[0] < hstart
+    #   curpoint[0] = hstart
+    #
+    # if curpoint[1] > vend
+    #   curpoint[1] = vend
+    # if curpoint[1] < vstart
+    #   curpoint[1] = vstart
+
+    # current aspect of cursor-defined box
+    vw = Math.abs(basepoint[0]-curpoint[0])
+    vh = Math.abs(basepoint[1]-curpoint[1])
+    if vh == 0
+      va = 0
+    else
+      va = vw/vh
+
+    if va >= a
+      [xmod, ymod] = [1, va/a]
+    else
+      [xmod, ymod] = [a/va, 1]
+
+    # OK the code blocks below merit some explanation. They do:
+    #
+    # compute left/right, pin to frame if necessary
+    # compute top/bottom (based on new left/right), pin to frame if necessary
+    # recompute left/right (based on top/bottom), in case top/bottom were pinned
+
+    # basepoint[0] is left
+    if ( basepoint[0] <= curpoint[0] )
+      left = basepoint[0]
+      right = basepoint[0] + vw * xmod
+      if right > hend
+        right = hend
+    # basepoint[0] is right
+    else
+      right = basepoint[0]
+      left = basepoint[0] - vw * xmod
+      if left < hstart
+        left = hstart
+
+    vw = Math.abs(right - left)
+
+    # basepoint[1] is bottom
+    if ( basepoint[1] <= curpoint[1] )
+      bottom = basepoint[1]
+      top = basepoint[1] + vw/a
+      if top > vend
+        top = vend
+
+    # basepoint[1] is top
+    else
+      top = basepoint[1]
+      bottom = basepoint[1] - vw/a
+      if bottom < vstart
+        bottom = vstart
+
+    vh = Math.abs(top - bottom)
+
+    # basepoint[0] is left
+    if ( basepoint[0] <= curpoint[0] )
+      right = basepoint[0] + a*vh
+
+    # basepoint[0] is right
+    else
+      left = basepoint[0] - a*vh
+
+    return [[left, right], [bottom, top]]
+
   _pan_start: (e) ->
     canvas = @plot_view.canvas
     @_baseboint = [
@@ -23,8 +104,12 @@ class BoxZoomToolView extends GestureTool.View
     frame = @plot_model.get('frame')
     dims = @mget('dimensions')
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-    @mget('overlay').update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
+    if @mget('match_aspect') and dims.length == 2
+      [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
+    else
+      [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+
+    @mget('overlay').update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
 
     return null
 
@@ -37,28 +122,32 @@ class BoxZoomToolView extends GestureTool.View
     frame = @plot_model.get('frame')
     dims = @mget('dimensions')
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-    @_update(vxlim, vylim)
+    if @mget('match_aspect') and dims.length == 2
+      [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
+    else
+      [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+
+    @_update(vx, vy)
 
     @mget('overlay').update({left: null, right: null, top: null, bottom: null})
     @_baseboint = null
     return null
 
-  _update: (vxlim, vylim) ->
+  _update: (vx, vy) ->
     # If the viewing window is too small, no-op: it is likely that the user did
     # not intend to make this box zoom and instead was trying to cancel out of the
     # zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
-    if Math.abs(vxlim[1] - vxlim[0]) <= 5 or Math.abs(vylim[1] - vylim[0]) <= 5
+    if Math.abs(vx[1] - vx[0]) <= 5 or Math.abs(vy[1] - vy[0]) <= 5
       return
 
     xrs = {}
     for name, mapper of @plot_view.frame.get('x_mappers')
-      [start, end] = mapper.v_map_from_target(vxlim, true)
+      [start, end] = mapper.v_map_from_target(vx, true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
     for name, mapper of @plot_view.frame.get('y_mappers')
-      [start, end] = mapper.v_map_from_target(vylim, true)
+      [start, end] = mapper.v_map_from_target(vy, true)
       yrs[name] = {start: start, end: end}
 
     zoom_info = {
@@ -104,8 +193,9 @@ class BoxZoomTool extends GestureTool.Model
     @add_dependencies('tooltip', this, ['dimensions'])
 
   @define {
-      dimensions: [ p.Array,    ["width", "height"] ]
-      overlay:    [ p.Instance, DEFAULT_BOX_OVERLAY ]
+      dimensions:   [ p.Array,    ["width", "height"] ]
+      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
+      match_aspect: [ p.Bool,     false               ]
     }
 
 module.exports =
