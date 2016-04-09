@@ -156,7 +156,7 @@ class GMapPlotView extends Plot.View
     ctx.lineTo(left,    top)
     ctx.closePath()
 
-    ctx.fillStyle = @mget('border_fill')
+    ctx.fillStyle = @mget('border_fill_color')
     ctx.fill()
 
 class GMapPlot extends Plot.Model
