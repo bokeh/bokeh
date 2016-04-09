@@ -12,6 +12,12 @@ class FactorRange extends Range.Model
       bounds:  [ p.Any        ] # TODO (bev)
     }
 
+  @internal {
+    _bounds_as_factors: [ p.Any ]
+    start: [ p.Number ]
+    end: [ p.Number ]
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
 

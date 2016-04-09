@@ -175,11 +175,10 @@ class GridViewState extends HasProps
     col_widths = (@maxdim('width', col) for col in columns)
     return col_widths
 
-  defaults: ->
-    return _.extend {}, super(), {
-      viewstates: [[]]
-      border_space: 0
-    }
+  @internal {
+    viewstates: [ p.Array, [[]] ]
+    border_space: [ p.Number, 0 ]
+  }
 
 class GridPlotView extends BokehView
   template: plot_template
@@ -322,15 +321,10 @@ class GridPlot extends Component.Model
     , true)
 
   @define {
-    children: [ p.Array, [[]] ]
+    children:          [ p.Array, [[]]      ]
+    border_space:      [ p.Number, 0        ]
+    toolbar_location:  [ p.Location, 'left' ]
   }
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      border_space: 0
-      toolbar_location: "left"
-      disabled: false
-    }
 
 module.exports =
   Model: GridPlot

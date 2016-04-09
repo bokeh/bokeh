@@ -9,6 +9,7 @@ InspectTool = require "../models/tools/inspectors/inspect_tool"
 {logger} = require "../core/logging"
 toolbar_template = require "./toolbar_template"
 HasProps = require "../core/has_props"
+p = require "../core/properties"
 
 class ToolManagerView extends Backbone.View
   template: toolbar_template
@@ -132,21 +133,20 @@ class ToolManager extends HasProps
     logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
-  defaults: () ->
-    return {
-      gestures: {
-        pan: {tools: [], active: null}
-        tap: {tools: [], active: null}
-        doubletap: {tools: [], active: null}
-        scroll: {tools: [], active: null}
-        pinch: {tools: [], active: null}
-        press: {tools: [], active: null}
-        rotate: {tools: [], active: null}
-      }
-      actions: []
-      inspectors: []
-      help: []
-    }
+  @internal {
+    gestures: [ p.Any, () -> {
+      pan: {tools: [], active: null}
+      tap: {tools: [], active: null}
+      doubletap: {tools: [], active: null}
+      scroll: {tools: [], active: null}
+      pinch: {tools: [], active: null}
+      press: {tools: [], active: null}
+      rotate: {tools: [], active: null}
+    } ]
+    actions: [ p.Array, [] ]
+    inspectors: [ p.Array, [] ]
+    help: [ p.Array, [] ]
+  }
 
 module.exports =
   Model: ToolManager

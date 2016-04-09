@@ -169,6 +169,11 @@ class Glyph extends Renderer.Model
       visible: [ p.Bool, true ]
     }
 
+  @internal {
+    x_range_name: [ p.String,      'default' ]
+    y_range_name: [ p.String,      'default' ]
+  }
+
 module.exports =
   Model: Glyph
   View: GlyphView
