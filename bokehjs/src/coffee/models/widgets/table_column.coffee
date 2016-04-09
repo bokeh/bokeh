@@ -25,7 +25,7 @@ class TableColumn extends Model
       field: @get("field")
       name: @get("title")
       width: @get("width")
-      formatter: @get("formatter").doFormat.bind(this)
+      formatter: @get("formatter")?.doFormat.bind(@get("formatter"))
       editor: @get("editor")
       sortable: @get("sortable")
       defaultSortAsc: @get("default_sort") == "ascending"
