@@ -19,10 +19,6 @@ class DataRange1d extends DataRange.Model
       bounds:          [ p.Any           ] # TODO (bev)
     }
 
-  @internal {
-    plots: [ p.Array, [] ]
-  }
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
