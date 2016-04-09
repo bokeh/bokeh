@@ -265,7 +265,6 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
             attrs = {}
             for attr, value in all_attrs.items():
                 if attr in self.__class__.__dict__:
-                    print("skip %s.%s" % (self.__class__.__name__, attr))
                     continue
                 else:
                     attrs[attr] = value
