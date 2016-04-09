@@ -145,6 +145,10 @@ class HasProps extends Backbone.Model
       attrs = {}
       attrs[key] = value
     for own key, val of attrs
+      prop_name = key
+      if not (prop_name == "id" or @props[prop_name])
+        throw new Error("#{@type}.set('#{prop_name}'): #{prop_name} wasn't declared")
+
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
     if not _.isEmpty(attrs)
@@ -228,6 +232,9 @@ class HasProps extends Backbone.Model
     if _.has(@_computed, prop_name)
       return @_get_prop(prop_name)
     else
+      if not (prop_name == "id" or @props[prop_name])
+        throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
+
       ref_or_val = super(prop_name)
       if not resolve_refs
         return ref_or_val
