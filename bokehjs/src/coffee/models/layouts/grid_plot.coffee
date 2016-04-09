@@ -31,9 +31,6 @@ class ToolProxy extends Backbone.Model
       tool.set('active', @attributes.active)
     return null
 
-  attrs_and_props: () ->
-    return @attributes.tools[0].attrs_and_props()
-
   get: (attr) ->
     return @attributes.tools[0].get(attr)
 

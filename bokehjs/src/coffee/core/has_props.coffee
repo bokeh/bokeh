@@ -80,12 +80,6 @@ class HasProps extends Backbone.Model
   isNew: () ->
     return false
 
-  attrs_and_props : () ->
-    data = _.clone(@attributes)
-    for prop_name in _.keys(@_computed)
-      data[prop_name] = @get(prop_name)
-    return data
-
   constructor : (attributes, options) ->
     @document = null
 
