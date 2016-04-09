@@ -167,17 +167,20 @@ class HasProps extends Backbone.Model
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
 
-  register_property:  (prop_name, getter, use_cache) ->
+  define_computed_property: (prop_name, getter, use_cache=true) ->
     # #### Parameters
     # * prop_name: name of property
     # * getter: function, calculates computed value, takes no arguments
     # * use_cache: whether to cache or not
     # #### Returns
     # * prop_spec: specification of the property, with the getter,
-    if _.isUndefined(use_cache)
-      use_cache = true
+
+    if @props[prop_name]?
+      #throw new Error(
+      console.log("attempted to redefine existing property #{@type}.#{prop_name}")
+
     if _.has(@_computed, prop_name)
-      @remove_property(prop_name)
+      throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
 
     changedep = () =>
       @trigger('changedep:' + prop_name)
@@ -208,7 +211,12 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
-  remove_property: (prop_name) ->
+  override_computed_property: (prop_name, getter, use_cache=true) ->
+    if _.has(@_computed, prop_name)
+      @_remove_computed_property(prop_name)
+    @define_computed_property(prop_name, getter, use_cache)
+
+  _remove_computed_property: (prop_name) ->
     # removes the property, unbinding all callbacks that implemented it
     prop_spec = @_computed[prop_name]
     dependencies = prop_spec.dependencies
