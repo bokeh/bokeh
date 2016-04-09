@@ -16,22 +16,22 @@ class GlyphRendererView extends Renderer.View
 
     selection_glyph = @mget("selection_glyph")
     if not selection_glyph?
-      attrs = _.extend {}, glyph_attrs, @model.selection_defaults
-      selection_glyph = new (@mget("glyph")).constructor(attrs)
+      #attrs = _.extend {}, glyph_attrs, @model.selection_defaults
+      selection_glyph = new (@mget("glyph")).constructor(glyph_attrs)
     @selection_glyph = @build_glyph_view(selection_glyph)
 
     nonselection_glyph = @mget("nonselection_glyph")
     if not nonselection_glyph?
-      attrs = _.extend {}, glyph_attrs, @model.nonselection_defaults
-      nonselection_glyph = new (@mget("glyph")).constructor(attrs)
+      #attrs = _.extend {}, glyph_attrs, @model.nonselection_defaults
+      nonselection_glyph = new (@mget("glyph")).constructor(glyph_attrs)
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
     hover_glyph = @mget("hover_glyph")
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
 
-    attrs = _.extend {}, glyph_attrs, @model.decimated_defaults
-    decimated_glyph = new (@mget("glyph")).constructor(attrs)
+    #attrs = _.extend {}, glyph_attrs, @model.decimated_defaults
+    decimated_glyph = new (@mget("glyph")).constructor(glyph_attrs)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
