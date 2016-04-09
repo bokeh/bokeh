@@ -26,12 +26,12 @@ class DataRange1d extends DataRange.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('min',
+    @define_computed_property('min',
         () -> Math.min(@get('start'), @get('end'))
       , true)
     @add_dependencies('min', this, ['start', 'end'])
 
-    @register_property('max',
+    @define_computed_property('max',
         () -> Math.max(@get('start'), @get('end'))
       , true)
     @add_dependencies('max', this, ['start', 'end'])

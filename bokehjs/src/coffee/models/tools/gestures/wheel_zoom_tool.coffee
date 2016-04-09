@@ -105,7 +105,7 @@ class WheelZoomTool extends GestureTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           @tool_name,
           @_check_dims(@get('dimensions'), "wheel zoom tool")

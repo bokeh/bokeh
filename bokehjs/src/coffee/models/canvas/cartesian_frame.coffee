@@ -18,27 +18,27 @@ class CartesianFrame extends LayoutBox.Model
   _doc_attached: () ->
     super()
 
-    @register_property('x_ranges',
+    @define_computed_property('x_ranges',
         () -> @_get_ranges('x')
       , true)
     @add_dependencies('x_ranges', this, ['x_range', 'extra_x_ranges'])
 
-    @register_property('y_ranges',
+    @define_computed_property('y_ranges',
         () -> @_get_ranges('y')
       , true)
     @add_dependencies('y_ranges', this, ['y_range', 'extra_y_ranges'])
 
-    @register_property('x_mappers',
+    @define_computed_property('x_mappers',
         () -> @_get_mappers('x', @get('x_ranges'), @get('h_range'))
       , true)
     @add_dependencies('x_ranges', this, ['x_ranges', 'h_range'])
 
-    @register_property('y_mappers',
+    @define_computed_property('y_mappers',
         () -> @_get_mappers('y', @get('y_ranges'), @get('v_range'))
       , true)
     @add_dependencies('y_ranges', this, ['y_ranges', 'v_range'])
 
-    @register_property('mapper',
+    @define_computed_property('mapper',
       () ->
         new GridMapper.Model({
           domain_mapper: @get('x_mapper')

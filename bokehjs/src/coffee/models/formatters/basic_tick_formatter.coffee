@@ -15,12 +15,12 @@ class BasicTickFormatter extends TickFormatter.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('scientific_limit_low',
+    @define_computed_property('scientific_limit_low',
         () -> Math.pow(10.0, @get('power_limit_low'))
       , true)
     @add_dependencies('scientific_limit_low', this, ['power_limit_low'])
 
-    @register_property('scientific_limit_high',
+    @define_computed_property('scientific_limit_high',
         () -> Math.pow(10.0, @get('power_limit_high'))
       , true)
     @add_dependencies('scientific_limit_high', this, ['power_limit_high'])

@@ -15,12 +15,12 @@ class SingleIntervalTicker extends ContinuousTicker.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('min_interval',
+    @define_computed_property('min_interval',
         () -> @get('interval')
       , true)
     @add_dependencies('min_interval', this, ['interval'])
 
-    @register_property('max_interval',
+    @define_computed_property('max_interval',
         () -> @get('interval')
       , true)
     @add_dependencies('max_interval', this, ['interval'])

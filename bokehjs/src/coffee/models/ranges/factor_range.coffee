@@ -30,11 +30,11 @@ class FactorRange extends Range.Model
 
     @_init()
 
-    @register_property('min',
+    @define_computed_property('min',
         () -> @get('start')
       , false)
     @add_dependencies('min', this, ['factors', 'offset'])
-    @register_property('max',
+    @define_computed_property('max',
         () -> @get('end')
       , false)
     @add_dependencies('max', this, ['factors', 'offset'])

@@ -26,7 +26,7 @@ class HelpTool extends ActionTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('tooltip', () ->@get('help_tooltip'))
+    @define_computed_property('tooltip', () ->@get('help_tooltip'))
 
 module.exports =
   Model: HelpTool,

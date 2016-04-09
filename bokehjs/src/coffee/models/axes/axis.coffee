@@ -345,20 +345,20 @@ class Axis extends GuideRenderer.Model
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('computed_bounds', @_computed_bounds, false)
+    @define_computed_property('computed_bounds', @_computed_bounds, false)
     @add_dependencies('computed_bounds', this, ['bounds'])
     @add_dependencies('computed_bounds', @get('plot'), ['x_range', 'y_range'])
 
-    @register_property('rule_coords', @_rule_coords, false)
+    @define_computed_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
 
-    @register_property('tick_coords', @_tick_coords, false)
+    @define_computed_property('tick_coords', @_tick_coords, false)
     @add_dependencies('tick_coords', this, ['computed_bounds', 'layout_location'])
 
-    @register_property('ranges', @_ranges, true)
-    @register_property('normals', (() -> @_normals), true)
-    @register_property('dimension', (() -> @_dim), true)
-    @register_property('offsets', @_offsets, true)
+    @define_computed_property('ranges', @_ranges, true)
+    @define_computed_property('normals', (() -> @_normals), true)
+    @define_computed_property('dimension', (() -> @_dim), true)
+    @define_computed_property('offsets', @_offsets, true)
 
   _doc_attached: () ->
     @panel = new LayoutBox.Model()

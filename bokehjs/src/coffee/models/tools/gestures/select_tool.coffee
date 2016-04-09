@@ -60,7 +60,7 @@ class SelectTool extends GestureTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('computed_renderers',
+    @define_computed_property('computed_renderers',
       () ->
         renderers = @get('renderers')
         names = @get('names')

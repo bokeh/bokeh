@@ -38,7 +38,7 @@ class ButtonTool extends Tool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('tooltip', () -> @tool_name)
+    @define_computed_property('tooltip', () -> @tool_name)
 
   @internal {
     disabled: [ p.Boolean, false ]

@@ -25,7 +25,7 @@ class Tool extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('synthetic_renderers', (() -> []), true)
+    @define_computed_property('synthetic_renderers', (() -> []), true)
 
   @define {
       plot: [ p.Instance ]

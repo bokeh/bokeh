@@ -20,13 +20,13 @@ class LayoutBox extends Model
     for v in ['top', 'left', 'width', 'height']
       name = '_'+v
       @[name] = new Variable(v)
-      @register_property(v, @_get_var, false)
+      @define_computed_property(v, @_get_var, false)
       solver.add_edit_variable(@[name], Strength.strong)
 
     for v in ['right', 'bottom']
       name = '_'+v
       @[name] = new Variable(v)
-      @register_property(v, @_get_var, false)
+      @define_computed_property(v, @_get_var, false)
 
     solver.add_constraint(GE(@_top))
     solver.add_constraint(GE(@_bottom))
@@ -41,7 +41,7 @@ class LayoutBox extends Model
       start: @get('left'),
       end:   @get('left') + @get('width')
     })
-    @register_property('h_range',
+    @define_computed_property('h_range',
         () =>
           @_h_range.set('start', @get('left'))
           @_h_range.set('end',   @get('left') + @get('width'))
@@ -53,7 +53,7 @@ class LayoutBox extends Model
       start: @get('bottom'),
       end:   @get('bottom') + @get('height')
     })
-    @register_property('v_range',
+    @define_computed_property('v_range',
         () =>
           @_v_range.set('start', @get('bottom'))
           @_v_range.set('end',   @get('bottom') + @get('height'))
@@ -62,7 +62,7 @@ class LayoutBox extends Model
     @add_dependencies('v_range', this, ['bottom', 'height'])
 
     @_aspect_constraint = null
-    @register_property('aspect',
+    @define_computed_property('aspect',
         () => return @get('width') / @get('height')
       , true)
     @add_dependencies('aspect', this, ['width', 'height'])

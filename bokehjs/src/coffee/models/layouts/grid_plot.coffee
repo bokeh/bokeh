@@ -125,8 +125,8 @@ class GridToolManager extends ToolManager.Model
 class GridViewState extends HasProps
 
   setup_layout_properties: () =>
-    @register_property('layout_heights', @layout_heights, false)
-    @register_property('layout_widths', @layout_widths, false)
+    @define_computed_property('layout_heights', @layout_heights, false)
+    @define_computed_property('layout_widths', @layout_widths, false)
     for row in @get('viewstates')
       for viewstate in row
         @add_dependencies('layout_heights', viewstate, 'height')
@@ -138,12 +138,12 @@ class GridViewState extends HasProps
     @listenTo(this, 'change:viewstates', @setup_layout_properties)
     calculateHeight = =>
       _.reduce @get("layout_heights"), ((x, y) -> x + y), 0
-    @register_property('height', calculateHeight, false)
+    @define_computed_property('height', calculateHeight, false)
     @add_dependencies('height', @, 'layout_heights')
 
     calculateWidth = =>
       _.reduce @get("layout_widths"), ((x, y) -> x + y), 0
-    @register_property('width', calculateWidth, false)
+    @define_computed_property('width', calculateWidth, false)
     @add_dependencies('width', @, 'layout_widths')
 
   position_child_x: (offset, childsize) ->
@@ -305,7 +305,7 @@ class GridPlot extends Component.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('tool_manager', () ->
+    @define_computed_property('tool_manager', () ->
       children = []
       for plot in _.flatten(@get('children'))
         if plot?

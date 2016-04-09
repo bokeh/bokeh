@@ -128,7 +128,7 @@ class BoxSelectTool extends SelectTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @get('overlay').set('silent_update', true, {silent: true})
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           @tool_name,
           @_check_dims(@get('dimensions'), "box select tool")

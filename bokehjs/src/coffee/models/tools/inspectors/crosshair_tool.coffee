@@ -49,7 +49,7 @@ class CrosshairTool extends InspectTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           "Crosshair",
           @_check_dims(@get('dimensions'), "crosshair tool")
