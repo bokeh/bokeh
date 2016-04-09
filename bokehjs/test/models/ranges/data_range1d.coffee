@@ -2,10 +2,15 @@
 utils = require "../../utils"
 
 HasProps = utils.require "core/has_props"
+p = utils.require "core/properties"
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 
 class TestObject extends HasProps
   type: 'TestObject'
+
+  @define {
+    renderers: [ p.Array, [] ]
+  }
 
 describe "datarange1d module", ->
 

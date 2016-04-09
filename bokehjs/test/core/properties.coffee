@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-properties = utils.require "core/properties"
+p = properties = utils.require "core/properties"
 
 HasProps = utils.require "core/has_props"
 enums = utils.require "core/enums"
@@ -10,6 +10,11 @@ svg_colors = utils.require "core/util/svg_colors"
 
 class SomeHasProps extends HasProps
   type: 'SomeHasProps'
+
+  @define {
+    a: [ p.Any ]
+    b: [ p.Any ]
+  }
 
 describe "properties module", ->
 
