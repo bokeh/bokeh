@@ -40,8 +40,8 @@ class StyleableBox extends BaseBox.Model
   default_view: StyleableBoxView
 
   @define {
-    css_properties: [p.Dict, null]
-    orientation:    [p.Orientation, 'vertical']
+    css_properties: [ p.Any                     ]
+    orientation:    [ p.Orientation, 'vertical' ]
   }
 
 module.exports =

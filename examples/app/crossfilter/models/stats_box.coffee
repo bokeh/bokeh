@@ -2,14 +2,11 @@ _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
 p = require 'core/properties'
-
 BokehView = require "core/bokeh_view"
 BaseBox = require "models/layouts/basebox"
 
 class StatsBoxView extends BokehView
-
   tag: "div"
-
   attributes:
     class: "bk-vbox"
 
@@ -61,8 +58,8 @@ class StatsBox extends BaseBox.Model
   default_view: StatsBoxView
 
   @define {
-    styles:         [ p.String, null]
-    display_items:  [ p.Any, null ]   # XXX: shoulde be p.Dict or p.Map
+    styles:         [ p.String ]
+    display_items:  [ p.Any    ]   # XXX: shoulde be p.Dict or p.Map
   }
 
 module.exports =
