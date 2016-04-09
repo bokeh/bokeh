@@ -316,7 +316,7 @@ class Axis extends GuideRenderer.Model
       axis_label:     [ p.String,   ''        ]
       axis_label_standoff:     [ p.Int,         5 ]
       major_label_standoff:    [ p.Int,         5 ]
-      major_label_orientation: [ p.Orientation, "horizontal" ]
+      major_label_orientation: [ p.Any, "horizontal" ] # TODO: p.Orientation | p.Number
       major_tick_in:  [ p.Number,   2         ]
       major_tick_out: [ p.Number,   6         ]
       minor_tick_in:  [ p.Number,   0         ]
