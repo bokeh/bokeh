@@ -12,6 +12,10 @@ class Handler(object):
         """Returns a default URL path if the spelling specified one."""
         return None
 
+    def static_path(self):
+        """Returns a path to app-specific static resources, if applicaple."""
+        return None
+
     def modify_document(self, doc):
         """Modifies the application document however the spelling specifies."""
         pass

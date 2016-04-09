@@ -49,12 +49,23 @@ class DirectoryHandler(Handler):
             from bokeh.themes import Theme
             self._theme = Theme(filename=themeyaml)
 
+        self._static = None
+        appstatic = join(src_path, 'static')
+        if exists(appstatic):
+            self._static = appstatic
+
     def url_path(self):
         if self.failed:
             return None
         else:
             # TODO should fix invalid URL characters
             return '/' + basename(self._path)
+
+    def static_path(self):
+        if self.failed:
+            return None
+        else:
+            return self._static
 
     def modify_document(self, doc):
         if self.failed:

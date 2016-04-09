@@ -10,12 +10,14 @@ import atexit
 # NOTE: needs PyPI backport on Python 2 (https://pypi.python.org/pypi/futures)
 from concurrent.futures import ProcessPoolExecutor
 import os
+from pprint import pformat
 import signal
 
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import HTTPError
+from tornado.web import StaticFileHandler
 
 from bokeh.resources import Resources
 from bokeh.settings import settings
@@ -167,7 +169,7 @@ class BokehTornado(TornadoApplication):
 
         extra_patterns = extra_patterns or []
         all_patterns = []
-        for key in applications:
+        for key, app in applications.items():
             app_patterns = []
             for p in per_app_patterns:
                 if key == "/":
@@ -188,6 +190,20 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
+            # add a per-app static path if requested by any app handler
+            # (there should be at most one that requests a static path)
+            static_paths = set(h.static_path() for h in app.handlers)
+            static_paths.discard(None)
+            if len(static_paths) > 1:
+                raise RuntimeError("More than one static path requested for app %r: %r" % (key, list(static_paths)))
+            if static_paths:
+                if key == "/":
+                    route = "/static/(.*)"
+                else:
+                    route = key + "/static/(.*)"
+                route = self._prefix + route
+                all_patterns.append((route, StaticFileHandler, { "path" : static_paths.pop() }))
+
         for p in extra_patterns + toplevel_patterns:
             prefixed_pat = (self._prefix+p[0],) + p[1:]
             all_patterns.append(prefixed_pat)
@@ -195,7 +211,9 @@ class BokehTornado(TornadoApplication):
         for pat in all_patterns:
             _whitelist(pat[1])
 
-        log.debug("Patterns are: %r", all_patterns)
+        log.debug("Patterns are:")
+        for line in pformat(all_patterns, width=60).split("\n"):
+            log.debug("  " + line)
 
         super(BokehTornado, self).__init__(all_patterns)
 
