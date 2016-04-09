@@ -142,7 +142,7 @@ describe "tile sources", ->
 
   describe "tms tile source", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    source = new TMSTileSource.Model(url)
+    source = new TMSTileSource.Model({url: url})
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)

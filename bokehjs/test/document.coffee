@@ -608,7 +608,7 @@ describe "Document", ->
       'list_prop' : [new AnotherModel({ 'bar' : 42 })],
       'dict_prop' : { foo: new AnotherModel({ 'bar' : 43 }) },
       'obj_prop' : new ModelWithConstructTimeChanges(),
-      'dist_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
+      'dict_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
       }
     root1.set(serialized_values)
 
