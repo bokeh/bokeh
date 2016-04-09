@@ -8,6 +8,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
+from functools import wraps
 from json import loads
 
 from six import string_types
@@ -24,6 +25,22 @@ from .util.version import __version__
 from .util.serialization import make_id
 
 DEFAULT_TITLE = "Bokeh Application"
+
+def without_document_lock(f):
+    ''' Mark a callback function to execute without first obtaining
+    the document lock.
+
+    .. warning::
+        The value of curdoc() inside the callback will be None. Any
+        attempt to modify the document inside the callback can result
+        in data or protocol corruption. 
+
+    '''
+    @wraps(f)
+    def wrapper(*args, **kw):
+        return f(*args, **kw)
+    wrapper.nolock = True
+    return wrapper
 
 class DocumentChangedEvent(object):
     def __init__(self, document):
@@ -487,14 +504,19 @@ class Document(object):
         from bokeh.io import set_curdoc, curdoc
         old_doc = curdoc()
         try:
-            set_curdoc(self)
+            if getattr(f, "nolock", False):
+                set_curdoc(None)
+            else:
+                set_curdoc(self)
             return f()
         finally:
             set_curdoc(old_doc)
 
     def _wrap_with_self_as_curdoc(self, f):
         doc = self
+        @wraps(f)
         def wrapper(*args, **kwargs):
+            @wraps(f)
             def invoke():
                 return f(*args, **kwargs)
             return doc._with_self_as_curdoc(invoke)
@@ -900,6 +922,7 @@ class Document(object):
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
         if one_shot:
+            @wraps(callback)
             def remove_then_invoke(*args, **kwargs):
                 if callback in self._session_callbacks:
                     obj = self._session_callbacks[callback]
@@ -996,4 +1019,3 @@ class Document(object):
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
         self._trigger_on_change(SessionCallbackRemoved(self, cb))
-
