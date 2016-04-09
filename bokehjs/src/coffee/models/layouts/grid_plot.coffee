@@ -119,14 +119,16 @@ class GridToolManager extends ToolManager.Model
     return null
 
   @internal {
-    tool_manangers: [ p.Array, [] ]
+    tool_managers: [ p.Array, [] ]
+    toolbar_location: [ p.Location ]
+    num_plots: [ p.Int ]
   }
 
 class GridViewState extends HasProps
 
   setup_layout_properties: () =>
-    @define_computed_property('layout_heights', @layout_heights, false)
-    @define_computed_property('layout_widths', @layout_widths, false)
+    @override_computed_property('layout_heights', @layout_heights, false)
+    @override_computed_property('layout_widths', @layout_widths, false)
     for row in @get('viewstates')
       for viewstate in row
         @add_dependencies('layout_heights', viewstate, 'height')
