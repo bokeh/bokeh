@@ -120,11 +120,13 @@ class GlyphView extends Renderer.View
       return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
   get_reference_point: () ->
-    reference_point = @mget('reference_point')
-    if _.isNumber(reference_point)
-      return @data[reference_point]
-    else
-      return reference_point
+    return undefined
+    #reference_point = @mget('reference_point')
+    #ret = if _.isNumber(reference_point)
+    #  @data[reference_point]
+    #else
+    #  reference_point
+    #return ret
 
   draw_legend: (ctx, x0, x1, y0, y1) -> null
 
