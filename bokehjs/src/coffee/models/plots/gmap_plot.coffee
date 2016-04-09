@@ -30,8 +30,8 @@ class GMapPlotView extends Plot.View
 
   setRanges: () =>
     [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
-    @x_range.set({start: proj_xstart, end: proj_xend, silent:true})
-    @y_range.set({start: proj_ystart, end: proj_yend, silent:true})
+    @x_range.set({start: proj_xstart, end: proj_xend})
+    @y_range.set({start: proj_ystart, end: proj_yend})
 
   update_range: (range_info) ->
     @pause()
