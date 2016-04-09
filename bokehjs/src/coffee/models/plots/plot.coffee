@@ -9,6 +9,7 @@ Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
+DataRange1d = require "../ranges/data_range1d"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
@@ -201,13 +202,19 @@ class PlotView extends Renderer.View
 
     follow_enabled = false
     has_bounds = false
+
     for xr in _.values(frame.get('x_ranges'))
-      xr.update?(bounds, 0, @model.id)
-      follow_enabled = true if xr.get('follow')?
+      if xr instanceof DataRange1d.Model
+        xr.update(bounds, 0, @model.id)
+        if xr.get('follow')
+          follow_enabled = true
       has_bounds = true if xr.get('bounds')?
+
     for yr in _.values(frame.get('y_ranges'))
-      yr.update?(bounds, 1, @model.id)
-      follow_enabled = true if yr.get('follow')?
+      if yr instanceof DataRange1d.Model
+        yr.update(bounds, 1, @model.id)
+        if yr.get('follow')
+          follow_enabled = true
       has_bounds = true if yr.get('bounds')?
 
     if follow_enabled and has_bounds
