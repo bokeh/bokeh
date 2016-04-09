@@ -294,36 +294,24 @@ class HasProps extends Backbone.Model
   # need to add.
   serializable_in_document: () -> true
 
-  # returns a list of those names which should not be included
-  # in the Document and should not go to the server. Subtypes
-  # should override this. The result will be cached on the class,
-  # so this only gets called one time on one instance.
-  nonserializable_attribute_names: () -> []
-
-  _get_nonserializable_dict: () ->
-    if not @constructor._nonserializable_names_cache?
-      names = {}
-      for name in @nonserializable_attribute_names()
-        names[name] = true
-      for name, {internal} of @props
-        if internal then names[name] = true
-      @constructor._nonserializable_names_cache = names
-    @constructor._nonserializable_names_cache
-
   attribute_is_serializable: (attr) ->
-    (attr not of @_get_nonserializable_dict()) and (attr of @attributes)
+    if attr == "id"
+      return true
+    prop = @props[attr]
+    if not prop?
+      throw new Error("#{@type}.attribute_is_serializable('#{attr}'): #{attr} wasn't declared")
+    return not prop.internal
 
   # dict of attributes that should be serialized to the server. We
   # sometimes stick things in attributes that aren't part of the
   # Document's models, subtypes that do that have to remove their
   # extra attributes here.
   serializable_attributes: () ->
-    nonserializable = @_get_nonserializable_dict()
     attrs = {}
-    for k, v of @attributes
-      if k not of nonserializable
-        attrs[k] = v
-    attrs
+    for name, value of @attributes
+      if @attribute_is_serializable(name)
+        attrs[name] = value
+    return attrs
 
   # JSON serialization requires special measures to deal with cycles,
   # which means objects can't be serialized independently but only
