@@ -23,6 +23,10 @@ class ToolView extends Renderer.View
 
 class Tool extends Model
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @register_property('synthetic_renderers', (() -> []), true)
+
   @define {
       plot: [ p.Instance ]
     }

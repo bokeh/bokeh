@@ -73,6 +73,8 @@ class Canvas extends LayoutBox.Model
 
   @internal {
     map: [ p.Boolean, false ]
+    canvas_width: [ p.Number ]
+    canvas_height: [ p.Number ]
     use_hidpi: [ p.Boolean, true ]
   }
 

@@ -96,6 +96,10 @@ class CartesianFrame extends LayoutBox.Model
   @internal {
     extra_x_ranges: [ p.Any, {} ]
     extra_y_ranges: [ p.Any, {} ]
+    x_range: [ p.Instance ]
+    y_range: [ p.Instance ]
+    x_mapper_type: [ p.Any ]
+    y_mapper_type: [ p.Any ]
   }
 
 module.exports =

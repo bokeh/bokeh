@@ -113,7 +113,7 @@ class ToolManager extends HasProps
       tools = gestures[et].tools
       if tools.length == 0
         continue
-      gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+      gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         gestures[et].tools[0].set('active', true)
 
@@ -146,6 +146,7 @@ class ToolManager extends HasProps
     actions: [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
     help: [ p.Array, [] ]
+    plot: [ p.Instance ]
   }
 
 module.exports =

@@ -354,7 +354,7 @@ class PlotView extends Renderer.View
   build_levels: () ->
     renderer_models = @mget("renderers")
     for tool_model in @mget("tools")
-      synthetic = tool_model.get("synthetic_renderers") ? []
+      synthetic = tool_model.get("synthetic_renderers")
       renderer_models = renderer_models.concat(synthetic)
 
     # should only bind events on NEW views and tools
@@ -643,11 +643,9 @@ class Plot extends Component.Model
       map: @use_map ? false
       canvas_width: @get('plot_width'),
       canvas_height: @get('plot_height'),
-      hidpi: @get('hidpi')
+      use_hidpi: @get('hidpi')
     })
     @set('canvas', canvas)
-
-    @solver = canvas.get('solver')
 
     @set('tool_manager', new ToolManager.Model({ plot: this }))
 

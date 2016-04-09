@@ -107,7 +107,7 @@ class WheelZoomTool extends GestureTool.Model
 
     @register_property('tooltip', () ->
         @_get_dim_tooltip(
-          @get("tool_name"),
+          @tool_name,
           @_check_dims(@get('dimensions'), "wheel zoom tool")
         )
       , false)

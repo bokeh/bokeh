@@ -101,7 +101,7 @@ class GridToolManager extends ToolManager.Model
       tools = info.tools
       if tools.length == 0
         continue
-      info.tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+      info.tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         info.tools[0].set('active', true)
 
