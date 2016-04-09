@@ -31,6 +31,10 @@ class ToolProxy extends Backbone.Model
       tool.set('active', @attributes.active)
     return null
 
+  Object.defineProperty this.prototype, "event_type", {
+    get: () -> @attributes.tools[0].event_type
+  }
+
   get: (attr) ->
     return @attributes.tools[0].get(attr)
 
