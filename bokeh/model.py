@@ -255,7 +255,22 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 that haven't been changed from the default.
 
         """
-        attrs = self.properties_with_values(include_defaults=include_defaults)
+        all_attrs = self.properties_with_values(include_defaults=include_defaults)
+
+        # If __subtype__ is defined, then this model may introduce properties
+        # that don't exist on __view_model__ in bokehjs. Don't serialize such
+        # properties.
+        subtype = getattr(self.__class__, "__subtype__", None)
+        if subtype is not None and subtype != self.__class__.__view_model__:
+            attrs = {}
+            for attr, value in all_attrs.items():
+                if attr in self.__class__.__dict__:
+                    print("skip %s.%s" % (self.__class__.__name__, attr))
+                    continue
+                else:
+                    attrs[attr] = value
+        else:
+            attrs = all_attrs
 
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and
