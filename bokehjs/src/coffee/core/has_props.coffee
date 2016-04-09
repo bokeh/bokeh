@@ -66,7 +66,7 @@ class HasProps extends Backbone.Model
       do (name, default_value) =>
         value = this.prototype.props[name]
         if not value?
-          throw new Error("attempted to override property '#{this.name}.#{name}' (which wasn't defined)")
+          throw new Error("attempted to override nonexistent '#{this.name}.#{name}'")
         props = _.clone(this.prototype.props)
         props[name] = _.extend({}, value, { default_value: default_value })
         this.prototype.props = props
@@ -105,8 +105,6 @@ class HasProps extends Backbone.Model
 
     if options.parse
       attrs = this.parse(attrs, options) || {}
-    defaults = _.result(this, 'defaults')
-    this.set(defaults, { defaults: true })
 
     # Bokeh specific
     this._set_after_defaults = {}
@@ -288,7 +286,7 @@ class HasProps extends Backbone.Model
     # make this a no-op, we sync the whole document never individual models
     return options.success(model.attributes, null, {})
 
-  defaults: -> { }
+  defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   # TODO remove this, for now it's just to help find nonserializable_attribute_names we
   # need to add.
