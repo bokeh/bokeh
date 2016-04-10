@@ -17,16 +17,6 @@ class BoxZoomToolView extends GestureTool.View
     h = vend - vstart
     a = w/h
 
-    # if curpoint[0] > hend
-    #   curpoint[0] = hend
-    # if curpoint[0] < hstart
-    #   curpoint[0] = hstart
-    #
-    # if curpoint[1] > vend
-    #   curpoint[1] = vend
-    # if curpoint[1] < vstart
-    #   curpoint[1] = vstart
-
     # current aspect of cursor-defined box
     vw = Math.abs(basepoint[0]-curpoint[0])
     vh = Math.abs(basepoint[1]-curpoint[1])
