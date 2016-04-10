@@ -58,7 +58,9 @@ class WedgeView extends Glyph.View
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     candidates = []
-    for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    for i in (pt[4].i for pt in @index.search(bbox))
       r2 = Math.pow(@sradius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)
       sx1 = @renderer.xmapper.map_to_target(@_x[i], true)

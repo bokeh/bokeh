@@ -3,7 +3,9 @@
 """
 from __future__ import absolute_import
 
-from ...core.properties import abstract
+import warnings
+
+from ...core.properties import abstract, HasProps
 from ...core.properties import Bool, Int, String, Enum, Instance, List, Tuple, Override
 from ...core.enums import ButtonType
 from ..callbacks import Callback
@@ -11,7 +13,35 @@ from .widget import Widget
 from .icons import AbstractIcon
 
 @abstract
-class AbstractButton(Widget):
+class ButtonLike(HasProps):
+    """ Shared properties for button-like widgets. """
+
+    button_type = Enum(ButtonType, help="""
+    A style for the button, signifying it's role.
+    """)
+
+    @property
+    def type(self):
+        warnings.warn(
+            """
+            Property 'type' was deprecated in Bokeh 0.12.0
+            and will be removed. Use 'button_type' instead.
+            """)
+        return self.button_type
+
+    @type.setter
+    def type(self, type):
+        warnings.warn(
+            """
+            Property 'type' was deprecated in Bokeh 0.12.0
+            and will be removed. Use 'button_type' instead.
+            """)
+        self.button_type = type
+
+    __deprecated_attributes__ = ('type',)
+
+@abstract
+class AbstractButton(Widget, ButtonLike):
     """ A base class that defines common properties for all
     button types. ``AbstractButton`` is not generally useful to
     instantiate on its own.
@@ -24,10 +54,6 @@ class AbstractButton(Widget):
 
     icon = Instance(AbstractIcon, help="""
     An optional image appearing to the left of button's text.
-    """)
-
-    button_type = Enum(ButtonType, help="""
-    A style for the button, signifying it's role.
     """)
 
     callback = Instance(Callback, help="""

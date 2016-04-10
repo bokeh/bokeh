@@ -357,9 +357,9 @@ substitutions are desired. An example is shown below:
 Selection Overlays
 ~~~~~~~~~~~~~~~~~~
 
-The capability to style the selection overlays is not yet exposed to the
-python interface. See :bokeh-issue:`2239` for information about plans to
-add this feature.
+Selection Overlays can also be configured.  See the :ref:`userguide_styling_tool_overlays` section
+for more information.
+
 
 .. _userguide_tools_lod:
 

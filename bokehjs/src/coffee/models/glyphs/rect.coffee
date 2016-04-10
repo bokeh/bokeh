@@ -77,9 +77,9 @@ class RectView extends Glyph.View
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
-
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    result['1d'].indices = (x[4].i for x in @index.search(bbox))
     return result
 
   _hit_point: (geometry) ->
@@ -106,7 +106,9 @@ class RectView extends Glyph.View
       y1 = y + 2*@max_height
 
     hits = []
-    for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    for i in (pt[4].i for pt in @index.search(bbox))
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 

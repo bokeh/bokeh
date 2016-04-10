@@ -1,9 +1,15 @@
 from __future__ import absolute_import
 
+import random
+
+from jinja2 import Template
+
 from bokeh.charts import Area, Histogram
 from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg as df
+from bokeh.resources import INLINE
+from bokeh.embed import components
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
@@ -156,3 +162,132 @@ def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     # Canvas width should be just under 1000
     assert canvas.size['width'] > 900
     assert canvas.size['width'] < 1000
+
+
+def test_responsive_resizes_width_and_height(output_file_url, selenium):
+    # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
+    # a Phosphor widget) behaves well w.r.t. resizing.
+    
+    # We want the aspect ratio of the initial plot to be maintained, but we
+    # can't measure it perfectly so we test against bounds.
+    aspect_ratio = 2
+    plot_height = 400
+    plot_width = 400 * aspect_ratio
+    lower_bound = aspect_ratio * 0.95
+    upper_bound = aspect_ratio * 1.05
+
+    # Define our html template for out plots
+    template = Template('''<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            {{ js_resources }}
+            {{ css_resources }}
+        </head>
+        <body>
+        {{ plot_div.red }}
+        {{ plot_script }}
+        <script>
+        // Set things up to resize the plot on a window resize. You can play with
+        // the arguments of resize_width_height() to change the plot's behavior.
+        var plot_resize_setup = function () {
+            var plotid = Object.keys(Bokeh.index)[0]; // assume we have just one plot
+            var plot = Bokeh.index[plotid];
+            var plotresizer = function() {
+                // arguments: use width, use height, maintain aspect ratio
+                plot.resize_width_height(true, true, true);
+            };
+            window.addEventListener('resize', plotresizer);
+            plotresizer();
+        };
+        window.addEventListener('load', plot_resize_setup);
+        </script>
+        <style>
+        /* Need this to get the page in "desktop mode"; not having an infinite height.*/
+        html, body {height: 100%;}
+        </style>
+        </body>
+    </html>
+    ''')
+    
+    PLOT_OPTIONS = dict(plot_width=plot_width, plot_height=plot_height)
+    SCATTER_OPTIONS = dict(size=12, alpha=0.5)
+    
+    data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
+    
+    red = figure(responsive=False, tools='pan', **PLOT_OPTIONS)
+    red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
+    
+    resources = INLINE
+    
+    js_resources = resources.render_js()
+    css_resources = resources.render_css()
+    
+    script, div = components({'red': red})
+    
+    html = template.render(js_resources=js_resources,
+                        css_resources=css_resources,
+                        plot_script=script,
+                        plot_div=div)
+    
+    filename = output_file_url.split('/', 3)[-1]  # strip "http://xxxx:yyyy/"
+    with open(filename, 'w') as f:
+        f.write(html)
+    
+    # Open the browser with the plot and resize the window to get an initial measure
+    selenium.set_window_size(width=1200, height=600)
+
+    selenium.get(output_file_url)
+    canvas = selenium.find_element_by_tag_name('canvas')
+    
+    # Check initial size
+    wait_for_canvas_resize(canvas, selenium)
+    #
+    height1 = canvas.size['height']
+    width1 = canvas.size['width']
+    aspect_ratio1 = width1 / height1
+    assert aspect_ratio1 > lower_bound
+    assert aspect_ratio1 < upper_bound
+    
+    # Now resize to a smaller width and check again
+    selenium.set_window_size(width=800, height=600)
+    wait_for_canvas_resize(canvas, selenium)
+    #
+    height2 = canvas.size['height']
+    width2 = canvas.size['width']
+    aspect_ratio2 = width2 / height2
+    assert aspect_ratio2 > lower_bound
+    assert aspect_ratio2 < upper_bound
+    assert width2 < width1 - 20
+    assert height2 < height1 - 20
+    
+    # Now resize back and check again
+    selenium.set_window_size(width=1200, height=600)
+    wait_for_canvas_resize(canvas, selenium)
+    #
+    height3 = canvas.size['height']
+    width3 = canvas.size['width']
+    assert width3 == width1
+    assert height3 == height1
+    
+    # Now resize to a smaller height and check again
+    selenium.set_window_size(width=1200, height=400)
+    wait_for_canvas_resize(canvas, selenium)
+    #
+    height4 = canvas.size['height']
+    width4 = canvas.size['width']
+    aspect_ratio4 = width4 / height4
+    assert aspect_ratio4 > lower_bound
+    assert aspect_ratio4 < upper_bound
+    assert width4 < width1 - 20
+    assert height4 < height1 - 20
+    
+    # Now resize back and check again
+    selenium.set_window_size(width=1200, height=600)
+    wait_for_canvas_resize(canvas, selenium)
+    #
+    height5 = canvas.size['height']
+    width5 = canvas.size['width']
+    assert width5 == width1
+    assert height5 == height1
+

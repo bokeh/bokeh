@@ -8,7 +8,7 @@ class BoxAnnotationView extends Renderer.View
   initialize: (options) ->
     super(options)
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.addClass('shading')
+    @$el.addClass('bk-shading')
     @$el.hide()
 
   bind_bokeh_events: () ->
@@ -68,7 +68,6 @@ class BoxAnnotationView extends Renderer.View
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    debugger
     @visuals.fill.set_value(ctx)
     ctx.fill()
 

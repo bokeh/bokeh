@@ -30,6 +30,7 @@ def output_file_url(request, file_server):
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
+    url = file_path.replace('\\', '/')  # Windows-proof
 
     output_file(file_path, mode='inline')
 
@@ -38,7 +39,7 @@ def output_file_url(request, file_server):
             file_obj.remove()
     request.addfinalizer(tearDown)
 
-    return file_server.where_is(file_path)
+    return file_server.where_is(url)
 
 
 def pytest_generate_tests(metafunc):
