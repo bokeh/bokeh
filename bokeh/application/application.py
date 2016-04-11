@@ -131,9 +131,21 @@ class Application(object):
         '''
         self._handlers.append(handler)
 
+        static_paths = set(h.static_path() for h in self.handlers)
+        static_paths.discard(None)
+        if len(static_paths) > 1:
+            raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))
+
     @property
     def handlers(self):
         return tuple(self._handlers)
+
+    @property
+    def static_path(self):
+        # guaranteed to be at most one
+        for h in self.handlers:
+            if h.static_path() is not None: return h.static_path()
+        return None
 
     def on_server_loaded(self, server_context):
         """ Invoked after server startup but before any sessions are created."""
