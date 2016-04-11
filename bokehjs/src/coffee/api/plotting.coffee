@@ -314,7 +314,7 @@ class Figure extends models.Plot
     if axis_type == "auto"
       if range instanceof models.FactorRange
         return models.CategoricalAxis
-      if range instanceof models.Range1d
+      else
         # TODO: return models.DatetimeAxis (Date type)
         return models.LinearAxis
 
