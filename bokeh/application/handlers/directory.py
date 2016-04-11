@@ -61,12 +61,6 @@ class DirectoryHandler(Handler):
             # TODO should fix invalid URL characters
             return '/' + basename(self._path)
 
-    def static_path(self):
-        if self.failed:
-            return None
-        else:
-            return self._static
-
     def modify_document(self, doc):
         if self.failed:
             return

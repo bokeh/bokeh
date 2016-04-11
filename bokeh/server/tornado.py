@@ -190,19 +190,14 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
-            # add a per-app static path if requested by any app handler
-            # (there should be at most one that requests a static path)
-            static_paths = set(h.static_path() for h in app.handlers)
-            static_paths.discard(None)
-            if len(static_paths) > 1:
-                raise RuntimeError("More than one static path requested for app %r: %r" % (key, list(static_paths)))
-            if static_paths:
+            # add a per-app static path if requested by the application
+            if app.static_path is not None:
                 if key == "/":
                     route = "/static/(.*)"
                 else:
                     route = key + "/static/(.*)"
                 route = self._prefix + route
-                all_patterns.append((route, StaticFileHandler, { "path" : static_paths.pop() }))
+                all_patterns.append((route, StaticFileHandler, { "path" : app.static_path }))
 
         for p in extra_patterns + toplevel_patterns:
             prefixed_pat = (self._prefix+p[0],) + p[1:]
