@@ -75,6 +75,20 @@ class Figure extends models.Plot
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
+    if not _.isUndefined(attrs.width)
+      if _.isUndefined(attrs.plot_width)
+        attrs.plot_width = attrs.width
+      else
+        throw new Error("both 'width' and 'plot_width' can't be given at the same time")
+      delete attrs.width
+
+    if not _.isUndefined(attrs.height)
+      if _.isUndefined(attrs.plot_height)
+        attrs.plot_height = attrs.height
+      else
+        throw new Error("both 'height' and 'plot_height' can't be given at the same time")
+      delete attrs.height
+
     super(attrs, options)
 
     @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
@@ -158,17 +172,35 @@ class Figure extends models.Plot
 
       return result
 
+  _find_uniq_name: (data, name) ->
+    i = 1
+    while true
+      new_name = "#{name}__#{i}"
+      if data[new_name]?
+        i += 1
+      else
+        return new_name
+
   _fixup_values: (cls, data, attrs) ->
     for name, value of attrs
-      do (name, value) ->
+      do (name, value) =>
         prop = cls.prototype.props[name]
 
         if prop?
           if prop.type.prototype.dataspec
             if value?
               if _.isArray(value)
-                data[name] = value
-                attrs[name] = { field: name }
+                if data[name]?
+                  if data[name] != value
+                    field = @_find_uniq_name(data, name)
+                    data[field] = value
+                  else
+                    field = name
+                else
+                  field = name
+                  data[field] = value
+
+                attrs[name] = { field: field }
               else if _.isNumber(value) or _.isString(value) # or Date?
                 attrs[name] = { value: value }
 
@@ -196,7 +228,9 @@ class Figure extends models.Plot
     sglyph_ca  = if has_sglyph then @_pop_colors_and_alpha(cls, attrs, "selection_") else {}
     hglyph_ca  = if has_hglyph then @_pop_colors_and_alpha(cls, attrs, "hover_") else {}
 
-    data = {}
+    source = attrs.source ? new models.ColumnDataSource()
+    data = _.clone(source.data)
+    delete attrs.source
 
     @_fixup_values(cls, data,   glyph_ca)
     @_fixup_values(cls, data, nsglyph_ca)
@@ -205,9 +239,7 @@ class Figure extends models.Plot
 
     @_fixup_values(cls, data, attrs)
 
-    source = attrs.source ? new models.ColumnDataSource()
-    source.data = _.extend({}, source.data, data)
-    delete attrs.source
+    source.data = data
 
     _make_glyph = (cls, attrs, extra_attrs) =>
       new cls(_.extend({}, attrs, extra_attrs))
@@ -282,7 +314,7 @@ class Figure extends models.Plot
     if axis_type == "auto"
       if range instanceof models.FactorRange
         return models.CategoricalAxis
-      if range instanceof models.Range1d
+      else
         # TODO: return models.DatetimeAxis (Date type)
         return models.LinearAxis
 
