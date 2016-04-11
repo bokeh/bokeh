@@ -94,7 +94,6 @@ class BoxZoomTool extends GestureTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
     @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           @tool_name,

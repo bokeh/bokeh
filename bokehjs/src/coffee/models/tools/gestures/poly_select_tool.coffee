@@ -88,10 +88,6 @@ class PolySelectTool extends SelectTool.Model
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
-
 module.exports =
   Model: PolySelectTool
   View: PolySelectToolView
