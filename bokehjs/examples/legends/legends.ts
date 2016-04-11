@@ -2,6 +2,9 @@ namespace Legends {
     import plt = Bokeh.Plotting
     import linspace = Bokeh.LinAlg.linspace
 
+    console.log(`Bokeh ${Bokeh.version}`);
+    Bokeh.set_log_level("info");
+
     const x = linspace(0, 4*Math.PI, 100)
     const y = x.map((v) => Math.sin(v))
 
