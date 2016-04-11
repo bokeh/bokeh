@@ -16,7 +16,10 @@ class SpanView extends Renderer.View
     if @mget('for_hover')
       @listenTo(@model, 'change:computed_location', @_draw_span)
     else
-      @listenTo(@model, 'change:location', @_draw_span)
+      if @mget('render_mode') == 'canvas'
+        @listenTo(@model, 'change:location', @plot_view.request_render)
+      else
+        @listenTo(@model, 'change:location', @_draw_span)
 
   render: () ->
     @_draw_span()
