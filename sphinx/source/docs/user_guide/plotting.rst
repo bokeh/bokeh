@@ -49,8 +49,8 @@ example plots for all of them by clicking on entries in the list below:
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by 
-default). Additionally, |circle| has a ``radius`` property that can be used to 
+:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by
+default). Additionally, |circle| has a ``radius`` property that can be used to
 specify :ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
@@ -190,9 +190,9 @@ The |segment| function accepts start points ``x0``, ``y0`` and end points
     :source-position: above
 
 The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default 
-``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an 
-"infinite" ray, that always extends to the edge of the plot, specify ``0`` for 
+(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default
+``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an
+"infinite" ray, that always extends to the edge of the plot, specify ``0`` for
 the length:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ray.py
@@ -378,6 +378,20 @@ glyph methods, when creating a plot.
     easily generate better data suitable for demonstrating legends.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
+    :source-position: above
+
+.. _userguide_plotting_arrows:
+
+Arrows
+~~~~~~
+
+Arrows can be used to connect glyphs and label annotations or to simply
+highlight plot regions. By default, the arrow `head_style` is `"open"`
+(an open-backed wedge type) and the `tail_style` is `None`. Double-sided arrows
+can be created by changing the `tail_style` property to an appropriate
+enum in `enums.ArrowStyle`.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arrow.py
     :source-position: above
 
 .. _userguide_plotting_box_annotations:
