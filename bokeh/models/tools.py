@@ -285,6 +285,16 @@ class BoxZoomTool(Tool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
+    match_aspect = Bool(default=False, help="""
+    Whether the box zoom region should be restricted to have the same
+    aspect ratio as the plot region.
+
+    .. note::
+        If the tool is restricted to one dimension, this value has
+        no effect. 
+
+    """)
+
 
 class BoxSelectTool(Tool):
     """ *toolbar icon*: |box_select_icon|
