@@ -1,10 +1,11 @@
 Model = require "../../model"
+p = require "../../core/properties"
 
 class LinearMapper extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('mapper_state', @_mapper_state, true)
+    @define_computed_property('mapper_state', @_mapper_state, true)
     @add_dependencies('mapper_state', this, ['source_range', 'target_range'])
     @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
     @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
@@ -46,6 +47,11 @@ class LinearMapper extends Model
     scale = (target_end - target_start)/(source_end - source_start)
     offset = -(scale * source_start) + target_start
     return [scale, offset]
+
+  @internal {
+    source_range: [ p.Any ]
+    target_range: [ p.Any ]
+  }
 
 module.exports =
   Model: LinearMapper

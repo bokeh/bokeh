@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-properties = utils.require "core/properties"
+p = properties = utils.require "core/properties"
 
 HasProps = utils.require "core/has_props"
 enums = utils.require "core/enums"
@@ -10,6 +10,11 @@ svg_colors = utils.require "core/util/svg_colors"
 
 class SomeHasProps extends HasProps
   type: 'SomeHasProps'
+
+  @define {
+    a: [ p.Any ]
+    b: [ p.Any ]
+  }
 
 describe "properties module", ->
 
@@ -59,10 +64,10 @@ describe "properties module", ->
         p = new properties.Property({obj: obj, attr: 'b'})
         expect(obj.get('b')).to.be.equal null
 
-      it "should set undefined property attr value if a default is given", ->
-        obj = new SomeHasProps(a: {})
-        p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
-        expect(obj.get('b')).to.be.equal 10
+      #it "should set undefined property attr value if a default is given", ->
+      #  obj = new SomeHasProps(a: {})
+      #  p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
+      #  expect(obj.get('b')).to.be.equal 10
 
       # it "should throw an Error for missing specifications", ->
       #   fn = ->

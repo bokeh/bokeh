@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from ..model import Model
 
-from ..core.properties import (Any, Dict, Float, String, Int, Bool)
+from ..core.properties import Any, Dict, Float, String, Int, Bool, Override
 
 class TileSource(Model):
     """ A base class for all tile source types. ``TileSource`` is
@@ -40,23 +40,29 @@ class TileSource(Model):
     Data provider attribution content. This can include HTML content.
     """)
 
+    x_origin_offset = Float(help="""
+    x offset in plot coordinates
+    """)
+
+    y_origin_offset = Float(help="""
+    y offset in plot coordinates
+    """)
+
+    initial_resolution = Float(help="""
+    resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
+    """)
+
 class MercatorTileSource(TileSource):
     """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
     """
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
-    x_origin_offset = Float(default=20037508.34, help="""
-    x offset in plot coordinates
-    """)
+    x_origin_offset = Override(default=20037508.34)
 
-    y_origin_offset = Float(default=20037508.34, help="""
-    y offset in plot coordinates
-    """)
+    y_origin_offset = Override(default=20037508.34)
 
-    initial_resolution = Float(default=156543.03392804097, help="""
-    resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
-    """)
+    initial_resolution = Override(default=156543.03392804097)
 
     wrap_around = Bool(default=True, help="""
     Enables continuous horizontal panning by wrapping the x-axis based on bounds of map.

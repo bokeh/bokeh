@@ -5,32 +5,33 @@ utils = require "./utils"
 Model = utils.require "model"
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {Models} = utils.require "base"
+p = utils.require "core/properties"
 
 class AnotherModel extends Model
   type: 'AnotherModel'
-  defaults: () ->
-    return _.extend {}, super(), {
-      bar: 1
-    }
+
+  @define {
+    bar: [ p.Number, 1 ]
+  }
 
 Models.register('AnotherModel', AnotherModel)
 
 class SomeModel extends Model
   type: 'SomeModel'
-  defaults: () ->
-    return _.extend {}, super(), {
-      foo: 2
-      child: null
-    }
+
+  @define {
+    foo:   [ p.Number, 2 ]
+    child: [ p.Instance, null ]
+  }
 
 Models.register('SomeModel', SomeModel)
 
 class SomeModelWithChildren extends Model
   type: 'SomeModelWithChildren'
-  defaults: () ->
-    return _.extend {}, super(), {
-      children: []
-    }
+
+  @define {
+    children: [ p.Array, [] ]
+  }
 
 Models.register('SomeModelWithChildren', SomeModelWithChildren)
 
@@ -42,11 +43,10 @@ class ModelWithConstructTimeChanges extends Model
     @set('foo', 4)
     @set('child', new AnotherModel())
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      foo: 2
-      child: null
-    }
+  @define {
+    foo:   [ p.Number, 2 ]
+    child: [ p.Instance, null ]
+  }
 
 Models.register('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
 
@@ -60,10 +60,12 @@ class ComplicatedModelWithConstructTimeChanges extends Model
     @set('obj_prop', new ModelWithConstructTimeChanges())
     @set('dict_of_list_prop', { foo: [new AnotherModel()] })
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      # test the case where we have none of the attributes to begin with
-    }
+  @define {
+    list_prop:         [ p.Array ]
+    dict_prop:         [ p.Any ]
+    obj_prop:          [ p.Instance ]
+    dict_of_list_prop: [ p.Any ]
+  }
 
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
@@ -606,7 +608,7 @@ describe "Document", ->
       'list_prop' : [new AnotherModel({ 'bar' : 42 })],
       'dict_prop' : { foo: new AnotherModel({ 'bar' : 43 }) },
       'obj_prop' : new ModelWithConstructTimeChanges(),
-      'dist_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
+      'dict_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
       }
     root1.set(serialized_values)
 

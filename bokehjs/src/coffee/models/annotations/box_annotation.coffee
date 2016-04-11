@@ -12,10 +12,14 @@ class BoxAnnotationView extends Renderer.View
     @$el.hide()
 
   bind_bokeh_events: () ->
+    # need to respond to either normal BB change events or silent
+    # "data only updates" that tools might want to use
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
+      @listenTo(@model, 'change', @render)
       @listenTo(@model, 'data_update', @render)
     else
+      @listenTo(@model, 'change', @plot_view.request_render)
       @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: () ->
@@ -105,31 +109,17 @@ class BoxAnnotation extends Annotation.Model
       left_units:   [ p.SpatialUnits, 'data'    ]
       right:        [ p.Number,       null      ]
       right_units:  [ p.SpatialUnits, 'data'    ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      fill_color: '#fff9ba'
-      fill_alpha: 0.4
-      line_color: '#cccccc'
-      line_alpha: 0.3
-
-      # internal
-      silent_update: false
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['silent_update'])
+  @override {
+    fill_color: '#fff9ba'
+    fill_alpha: 0.4
+    line_color: '#cccccc'
+    line_alpha: 0.3
+  }
 
   update:({left, right, top, bottom}) ->
-    if @get('silent_update')
-      @attributes['left'] = left
-      @attributes['right'] = right
-      @attributes['top'] = top
-      @attributes['bottom'] = bottom
-    else
-      @set({left: left, right: right, top: top, bottom: bottom})
+    @set({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
 
 module.exports =

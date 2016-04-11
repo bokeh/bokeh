@@ -5,8 +5,8 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension,
-    RenderMode, Side, ArrowStyle
+    Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side,
+    ArrowStyle
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
@@ -30,9 +30,7 @@ class Annotation(Renderer):
     The plot to which this annotation is attached.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the annotation.
-    """)
+    level = Override(default="annotation")
 
 class Legend(Annotation):
     """ Render informational legends for a plot.

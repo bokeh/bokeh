@@ -12,14 +12,10 @@ class CategoricalAxis extends Axis.Model
 
   type: 'CategoricalAxis'
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      ticker: new CategoricalTicker.Model()
-      formatter: new CategoricalTickFormatter.Model()
-
-      # internal
-    }
+  @override {
+    ticker:    () -> new CategoricalTicker.Model()
+    formatter: () -> new CategoricalTickFormatter.Model()
+  }
 
   _computed_bounds: () ->
     [range, cross_range] = @get('ranges')

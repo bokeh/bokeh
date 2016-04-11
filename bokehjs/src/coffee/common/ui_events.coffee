@@ -48,8 +48,8 @@ class UIEvents extends Backbone.Model
 
 
   register_tool: (tool_view) ->
-    et = tool_view.mget('event_type')
-    id = tool_view.mget('id')
+    et = tool_view.model.event_type
+    id = tool_view.model.id
     type = tool_view.model.type
 
     # tool_viewbar button events handled by tool_view manager

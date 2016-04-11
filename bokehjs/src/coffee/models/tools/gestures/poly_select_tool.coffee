@@ -64,7 +64,7 @@ class PolySelectToolView extends SelectTool.View
 
     return null
 
-DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
@@ -87,10 +87,6 @@ class PolySelectTool extends SelectTool.Model
   @define {
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
 
 module.exports =
   Model: PolySelectTool

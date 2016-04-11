@@ -11,14 +11,10 @@ class DatetimeAxis extends LinearAxis.Model
 
   type: 'DatetimeAxis'
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      ticker: new DatetimeTicker.Model()
-      formatter: new DatetimeTickFormatter.Model()
-
-      # internal
-    }
+  @override {
+    ticker:    () -> new DatetimeTicker.Model()
+    formatter: () -> new DatetimeTickFormatter.Model()
+  }
 
 module.exports =
   Model: DatetimeAxis

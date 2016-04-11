@@ -162,9 +162,7 @@ class Arrow extends Annotation.Model
       y_range_name:     [ p.String,      'default'          ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      #overrides
+  @override {
       tail_body_fill_color: "black"
       head_body_fill_color: "black"
     }
