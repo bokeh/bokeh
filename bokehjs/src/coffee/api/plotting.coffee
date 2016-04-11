@@ -75,6 +75,20 @@ class Figure extends models.Plot
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
+    if not _.isUndefined(attrs.width)
+      if _.isUndefined(attrs.plot_width)
+        attrs.plot_width = attrs.width
+      else
+        throw new Error("both 'width' and 'plot_width' can't be given at the same time")
+      delete attrs.width
+
+    if not _.isUndefined(attrs.height)
+      if _.isUndefined(attrs.plot_height)
+        attrs.plot_height = attrs.height
+      else
+        throw new Error("both 'height' and 'plot_height' can't be given at the same time")
+      delete attrs.height
+
     super(attrs, options)
 
     @_process_guides(0, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label)
