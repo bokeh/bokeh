@@ -95,19 +95,16 @@ class Span extends Annotation.Model
       location:       [ p.Number,       null      ]
       location_units: [ p.SpatialUnits, 'data'    ]
       dimension:      [ p.Dimension,    'width'   ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      line_color: 'black'
+  @override {
+    line_color: 'black'
+  }
 
-      # internal
-      for_hover: false
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['for_hover', 'computed_location'])
+  @internal {
+    for_hover: [ p.Boolean, false ]
+    computed_location: [ p.Number, null ]
+  }
 
 module.exports =
   Model: Span

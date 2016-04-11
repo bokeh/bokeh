@@ -62,20 +62,16 @@ class PolyAnnotation extends Annotation.Model
       ys_units:     [ p.SpatialUnits, 'data'    ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]
-    }
+  }
 
-  defaults: () ->
-    return _.extend({}, super(), {
-      # overrides
-      fill_color: "#fff9ba"
-      fill_alpha: 0.4
-      line_color: "#cccccc"
-      line_alpha: 0.3
-      line_alpha: 0.3
-    })
-    
-  # The purpose of this function is so that overlays can update visually
-  # without triggering Backbone change events
+  @override {
+    fill_color: "#fff9ba"
+    fill_alpha: 0.4
+    line_color: "#cccccc"
+    line_alpha: 0.3
+    line_alpha: 0.3
+  }
+
   update:({xs, ys}) ->
     @set({xs: xs, ys: ys}, {silent: true})
     @trigger('data_update')

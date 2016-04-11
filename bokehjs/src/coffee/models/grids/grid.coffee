@@ -73,33 +73,29 @@ class Grid extends GuideRenderer.Model
       y_range_name: [ p.String,  'default' ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      level: "underlay"
-      band_fill_color: null
-      band_fill_alpha: 0
-      grid_line_color: '#cccccc'
-      minor_grid_line_color: null
-
-      # internal
-    }
+  @override {
+    level: "underlay"
+    band_fill_color: null
+    band_fill_alpha: 0
+    grid_line_color: '#cccccc'
+    minor_grid_line_color: null
+  }
 
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('computed_bounds', @_bounds, false)
+    @define_computed_property('computed_bounds', @_bounds, false)
     @add_dependencies('computed_bounds', this, ['bounds'])
 
-    @register_property('grid_coords', @_grid_coords, false)
+    @define_computed_property('grid_coords', @_grid_coords, false)
     @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension',
                                             'ticker'])
 
-    @register_property('minor_grid_coords', @_minor_grid_coords, false)
+    @define_computed_property('minor_grid_coords', @_minor_grid_coords, false)
     @add_dependencies('minor_grid_coords', this, ['computed_bounds', 'dimension',
                                             'ticker'])
 
-    @register_property('ranges', @_ranges, true)
+    @define_computed_property('ranges', @_ranges, true)
 
   _ranges: () ->
     i = @get('dimension')

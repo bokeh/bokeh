@@ -184,12 +184,10 @@ class Label extends Annotation.Model
       render_mode:  [ p.RenderMode,  'canvas'           ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      #overrides
-      background_fill_color: null
-      border_line_color: null
-    }
+  @override {
+    background_fill_color: null
+    border_line_color: null
+  }
 
 module.exports =
   Model: Label

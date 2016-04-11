@@ -186,11 +186,12 @@ class TapTool(Tool):
 
 @abstract
 class InspectTool(Tool):
+    pass
 
-    active = Bool(True, help="""
-    Whether the tool is intially active or not. If set to ``False``, the user
-    will have to click tool's button to active it.
-    """)
+    #active = Bool(True, help="""
+    #Whether the tool is intially active or not. If set to ``False``, the user
+    #will have to click tool's button to active it.
+    #""")
 
 class CrosshairTool(InspectTool):
     """ *toolbar icon*: |inspector_icon|

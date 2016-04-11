@@ -159,18 +159,14 @@ class Legend extends Annotation.Model
       label_width:    [ p.Number,         50          ]
       legend_padding: [ p.Number,         10          ]
       legend_spacing: [ p.Number,         3           ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      border_line_color: 'black'
-      background_fill_color: "#ffffff"
-      label_text_font_size: "10pt"
-      label_text_baseline: "middle"
-
-      # internal
-    }
+  @override {
+    border_line_color: 'black'
+    background_fill_color: "#ffffff"
+    label_text_font_size: "10pt"
+    label_text_baseline: "middle"
+  }
 
 module.exports =
   Model: Legend

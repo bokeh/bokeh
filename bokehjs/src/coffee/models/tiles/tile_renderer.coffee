@@ -279,14 +279,13 @@ class TileRenderer extends Renderer.Model
       alpha:          [ p.Number,   1.0              ]
       x_range_name:   [ p.String,   "default"        ]
       y_range_name:   [ p.String,   "default"        ]
-      tile_source:    [ p.Instance, new wmts.Model() ]
+      tile_source:    [ p.Instance, () -> new wmts.Model() ]
       render_parents: [ p.Bool,     true             ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      level: 'underlay'
-    }
+  @override {
+    level: 'underlay'
+  }
 
 module.exports =
   Model: TileRenderer

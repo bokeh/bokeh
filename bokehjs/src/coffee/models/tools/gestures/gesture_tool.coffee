@@ -11,15 +11,8 @@ class GestureToolView extends ButtonTool.View
 
 class GestureTool extends ButtonTool.Model
 
-  defaults: () ->
-    return _.extend({}, super(), {
-      # internal
-      event_type: @event_type
-      default_order: @default_order
-    })
-
-  nonserializable_attribute_names: () ->
-    super().concat(['event_type', 'default_order'])
+  event_type: null
+  default_order: null
 
 module.exports =
   Model: GestureTool

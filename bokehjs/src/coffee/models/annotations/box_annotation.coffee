@@ -109,19 +109,15 @@ class BoxAnnotation extends Annotation.Model
       left_units:   [ p.SpatialUnits, 'data'    ]
       right:        [ p.Number,       null      ]
       right_units:  [ p.SpatialUnits, 'data'    ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      fill_color: '#fff9ba'
-      fill_alpha: 0.4
-      line_color: '#cccccc'
-      line_alpha: 0.3
-    }
+  @override {
+    fill_color: '#fff9ba'
+    fill_alpha: 0.4
+    line_color: '#cccccc'
+    line_alpha: 0.3
+  }
 
-  # The purpose of this function is so that overlays can update visually
-  # without triggering Backbone change events
   update:({left, right, top, bottom}) ->
     @set({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
