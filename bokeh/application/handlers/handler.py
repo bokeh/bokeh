@@ -13,7 +13,7 @@ class Handler(object):
         return None
 
     def static_path(self):
-        """Returns a path to app-specific static resources, if applicaple."""
+        """Returns a path to app-specific static resources, if applicable."""
         return None
 
     def modify_document(self, doc):
