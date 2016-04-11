@@ -161,12 +161,10 @@ class Figure extends models.Plot
   _fixup_values: (cls, data, attrs) ->
     for name, value of attrs
       do (name, value) ->
-        descriptor = cls.prototype.props[name]
+        prop = cls.prototype.props[name]
 
-        if descriptor?
-          [prop, ...] = descriptor
-
-          if prop.prototype.dataspec
+        if prop?
+          if prop.type.prototype.dataspec
             if value?
               if _.isArray(value)
                 data[name] = value
