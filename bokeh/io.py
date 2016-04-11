@@ -376,25 +376,21 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
     _save_helper(obj, filename, resources, title, validate)
 
 def _detect_filename(ext):
+    """ Detect filename from the name of the script being run. Returns
+    None if the script could not be found (e.g. interactive mode).
+    """
     import inspect
-    from os.path import exists, dirname, basename, splitext, join
-    from inspect import getouterframes, currentframe, getframeinfo
-
-    frames = [ getframeinfo(frame) for frame, _, _, _, _, _ in getouterframes(inspect.currentframe()) ]
-
-    while frames and frames[-1].function == "<module>" and frames[-1].filename == "<string>":
-        frames.pop()
-
-    if not frames:
-        return None
-    else:
-        frame_info = frames[-1]
-
-        if frame_info.function == "<module>" and exists(frame_info.filename):
-            name, _ = splitext(basename(frame_info.filename))
-            return join(dirname(frame_info.filename), name + "." + ext)
-        else:
-            return None
+    from os.path import isfile, dirname, basename, splitext, join
+    from inspect import currentframe
+    
+    frame = inspect.currentframe()
+    while frame.f_back and frame.f_globals.get('name') != '__main__':
+        frame = frame.f_back
+    
+    filename = frame.f_globals.get('__file__')
+    if filename and isfile(filename):
+        name, _ = splitext(basename(filename))
+        return join(dirname(filename), name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
@@ -407,7 +403,7 @@ def _get_save_args(state, filename, resources, title):
         filename = _detect_filename("html")
 
     if filename is None:
-        raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
+        raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
 
     if resources is None and state.file:
         resources = state.file['resources']
