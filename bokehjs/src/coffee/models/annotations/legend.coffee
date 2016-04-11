@@ -9,7 +9,7 @@ class LegendView extends Renderer.View
   initialize: (options) ->
     super(options)
     @need_calc_dims = true
-    @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
+    @listenTo(@model.document.solver(), 'layout_update', () -> @need_calc_dims = true)
 
   calc_dims: (options) ->
     legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))

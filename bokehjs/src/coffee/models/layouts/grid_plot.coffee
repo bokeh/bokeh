@@ -237,7 +237,7 @@ class GridPlotView extends BokehView
       for plot in row
         if not plot?
           continue
-        @listenTo(plot.solver, 'layout_update', @render)
+        @listenTo(@model.document.solver(), 'layout_update', @render)
 
   render: () ->
     super()
