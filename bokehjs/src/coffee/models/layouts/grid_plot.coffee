@@ -309,6 +309,14 @@ class GridPlot extends Component.Model
   type: 'GridPlot'
   default_view: GridPlotView
 
+  constructor: () ->
+    # new GridPlot({children: [...]}) or GridPlot([...])
+    if this instanceof GridPlot
+      return super(arguments...)
+    else
+      [children] = arguments
+      return new GridPlot({children: children})
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @define_computed_property('tool_manager', () ->

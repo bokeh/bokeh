@@ -87,7 +87,10 @@ declare namespace Bokeh {
         responsive?: boolean;
     }
 
-    export var GridPlot: { new(attributes?: IGridPlot, options?: ModelOpts): GridPlot };
+    export var GridPlot: {
+        new(attributes?: IGridPlot, options?: ModelOpts): GridPlot;
+        (children: Array<Array<Plot>>): GridPlot;
+    };
     export interface GridPlot extends Component, IGridPlot {}
     export interface IGridPlot extends IComponent {
         children?: Array<Array<Plot>>;
