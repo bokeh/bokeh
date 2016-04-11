@@ -64,4 +64,4 @@ p.select_one(HoverTool).tooltips = [
 
 output_file("les_mis.html", title="les_mis.py example")
 
-show(p) # show the plot
+show(p, 'xul') # show the plot
