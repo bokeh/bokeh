@@ -105,7 +105,7 @@ SpatialUnits = Units
 AngleUnits = enumeration("deg", "rad")
 
 #: Specify the style for an arrow head
-ArrowStyle = enumeration("open", "closed")
+ArrowStyle = enumeration("open", "normal", "vee")
 
 #: Specify a date/time scale
 DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",

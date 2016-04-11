@@ -82,8 +82,10 @@ class ArrowView extends Renderer.View
       switch @mget("#{prefix}style")
         when 'open'
           @_draw_head_open(prefix, ctx, i)
-        when 'closed'
+        when 'normal'
           @_draw_head_closed(prefix, ctx, i)
+        when 'vee'
+          @_draw_head_vee(prefix, ctx, i)
         else null
 
       ctx.restore()
@@ -113,6 +115,27 @@ class ArrowView extends Renderer.View
       ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
       ctx.lineTo(0, 0)
       ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+      ctx.closePath()
+      ctx.stroke()
+
+  _draw_head_vee: (prefix, ctx, i) ->
+    if @visuals["#{prefix}body_fill"].doit
+      @visuals["#{prefix}body_fill"].set_vectorize(ctx, i)
+      ctx.beginPath()
+      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(0, 0)
+      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(0, 0.5*@mget('head_size'))
+      ctx.closePath()
+      ctx.fill()
+
+    if @visuals["#{prefix}border_line"].doit
+      @visuals["#{prefix}border_line"].set_vectorize(ctx, i)
+      ctx.beginPath()
+      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(0, 0)
+      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(0, 0.5*@mget('head_size'))
       ctx.closePath()
       ctx.stroke()
 

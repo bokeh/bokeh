@@ -8,7 +8,7 @@ describe "enums module", ->
     expect(enums.AngleUnits).to.be.deep.equal ["deg", "rad"]
 
   it "should have ArrowStyle", ->
-    expect(enums.ArrowStyle).to.be.deep.equal ["open", "closed"]
+    expect(enums.ArrowStyle).to.be.deep.equal ["open", "normal", "vee"]
 
   it "should have Direction", ->
     expect(enums.Direction).to.be.deep.equal ["clock", "anticlock"]

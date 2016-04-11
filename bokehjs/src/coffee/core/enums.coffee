@@ -2,7 +2,7 @@
 module.exports =
   AngleUnits: ["deg", "rad"]
 
-  ArrowStyle: ["open", "closed"]
+  ArrowStyle: ["open", "normal", "vee"]
 
   Dimension: ["width", "height"]
 
