@@ -161,12 +161,10 @@ class Figure extends models.Plot
   _fixup_values: (cls, data, attrs) ->
     for name, value of attrs
       do (name, value) ->
-        descriptor = cls.prototype.props[name]
+        prop = cls.prototype.props[name]
 
-        if descriptor?
-          [prop, ...] = descriptor
-
-          if prop.prototype.dataspec
+        if prop?
+          if prop.type.prototype.dataspec
             if value?
               if _.isArray(value)
                 data[name] = value
@@ -207,6 +205,10 @@ class Figure extends models.Plot
 
     @_fixup_values(cls, data, attrs)
 
+    source = attrs.source ? new models.ColumnDataSource()
+    source.data = _.extend({}, source.data, data)
+    delete attrs.source
+
     _make_glyph = (cls, attrs, extra_attrs) =>
       new cls(_.extend({}, attrs, extra_attrs))
 
@@ -214,10 +216,6 @@ class Figure extends models.Plot
     nsglyph = _make_glyph(cls, attrs, nsglyph_ca)
     sglyph  = if has_sglyph then _make_glyph(cls, attrs,  sglyph_ca) else null
     hglyph  = if has_hglyph then _make_glyph(cls, attrs,  hglyph_ca) else null
-
-    source = attrs.source ? new models.ColumnDataSource()
-    source.data = _.extend({}, source.data, data)
-    delete attrs.source
 
     glyph_renderer = new models.GlyphRenderer({
       data_source:        source
