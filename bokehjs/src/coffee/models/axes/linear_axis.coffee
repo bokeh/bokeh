@@ -12,14 +12,10 @@ class LinearAxis extends ContinuousAxis.Model
 
   type: 'LinearAxis'
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      ticker: new BasicTicker.Model()
-      formatter: new BasicTickFormatter.Model()
-
-      # internal
-    }
+  @override {
+    ticker:    () -> new BasicTicker.Model()
+    formatter: () -> new BasicTickFormatter.Model()
+  }
 
 module.exports =
   Model: LinearAxis

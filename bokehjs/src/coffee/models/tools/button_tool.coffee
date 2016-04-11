@@ -3,6 +3,7 @@ Backbone = require "backbone"
 
 Tool = require "./tool"
 button_tool_template = require "./button_tool_template"
+p = require "../../core/properties"
 
 class ButtonToolButtonView extends Backbone.View
   tagName: "li"
@@ -17,7 +18,7 @@ class ButtonToolButtonView extends Backbone.View
 
   initialize: (options) ->
     super(options)
-    @$el.html(@template(@model.attrs_and_props()))
+    @$el.html(@template({model: @model}))
     @listenTo(@model, 'change:active', () => @render())
     @listenTo(@model, 'change:disabled', () => @render())
     @render()
@@ -33,22 +34,15 @@ class ButtonToolButtonView extends Backbone.View
 class ButtonToolView extends Tool.View
 
 class ButtonTool extends Tool.Model
+  icon: null
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('tooltip', () ->@get('tool_name'))
+    @define_computed_property('tooltip', () -> @tool_name)
 
-  nonserializable_attribute_names: () ->
-    super().concat(['icon', 'disabled'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      # internal
-      active: false
-      disabled: if @disabled? then @disabled else false
-      tool_name: @tool_name
-      icon: @icon
-    })
+  @internal {
+    disabled: [ p.Boolean, false ]
+  }
 
 module.exports =
   Model: ButtonTool

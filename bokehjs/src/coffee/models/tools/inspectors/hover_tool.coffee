@@ -253,13 +253,10 @@ class HoverTool extends InspectTool.Model
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['ttmodels', 'computed_renderers'])
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('computed_renderers',
+    @define_computed_property('computed_renderers',
       () ->
         renderers = @get('renderers')
         names = @get('names')
@@ -276,7 +273,7 @@ class HoverTool extends InspectTool.Model
     @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
     @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
-    @register_property('ttmodels',
+    @define_computed_property('ttmodels',
       () ->
         ttmodels = {}
         tooltips = @get("tooltips")
@@ -291,7 +288,7 @@ class HoverTool extends InspectTool.Model
       , true)
     @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
 
-    @register_property('synthetic_renderers', (() -> _.values(@get("ttmodels"))), true)
+    @override_computed_property('synthetic_renderers', (() -> _.values(@get("ttmodels"))), true)
     @add_dependencies('synthetic_renderers', this, ['ttmodels'])
 
 module.exports =

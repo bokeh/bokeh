@@ -59,23 +59,19 @@ class PolyAnnotation extends Annotation.Model
       ys_units:     [ p.SpatialUnits, 'data'    ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]
-    }
+  }
 
-  defaults: () ->
-    return _.extend({}, super(), {
-      # overrides
-      fill_color: "#fff9ba"
-      fill_alpha: 0.4
-      line_color: "#cccccc"
-      line_alpha: 0.3
-      line_alpha: 0.3
+  @override {
+    fill_color: "#fff9ba"
+    fill_alpha: 0.4
+    line_color: "#cccccc"
+    line_alpha: 0.3
+    line_alpha: 0.3
+  }
 
-      # internal
-      silent_update: false
-    })
-
-  nonserializable_attribute_names: () ->
-    super().concat(['silent_update'])
+  @internal {
+    silent_update: [ p.Boolean, false ]
+  }
 
   update:({xs, ys}) ->
     if @get('silent_update')

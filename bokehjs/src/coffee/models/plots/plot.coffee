@@ -9,6 +9,7 @@ Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
+DataRange1d = require "../ranges/data_range1d"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
@@ -201,13 +202,19 @@ class PlotView extends Renderer.View
 
     follow_enabled = false
     has_bounds = false
+
     for xr in _.values(frame.get('x_ranges'))
-      xr.update?(bounds, 0, @model.id)
-      follow_enabled = true if xr.get('follow')?
+      if xr instanceof DataRange1d.Model
+        xr.update(bounds, 0, @model.id)
+        if xr.get('follow')
+          follow_enabled = true
       has_bounds = true if xr.get('bounds')?
+
     for yr in _.values(frame.get('y_ranges'))
-      yr.update?(bounds, 1, @model.id)
-      follow_enabled = true if yr.get('follow')?
+      if yr instanceof DataRange1d.Model
+        yr.update(bounds, 1, @model.id)
+        if yr.get('follow')
+          follow_enabled = true
       has_bounds = true if yr.get('bounds')?
 
     if follow_enabled and has_bounds
@@ -354,7 +361,7 @@ class PlotView extends Renderer.View
   build_levels: () ->
     renderer_models = @mget("renderers")
     for tool_model in @mget("tools")
-      synthetic = tool_model.get("synthetic_renderers") ? []
+      synthetic = tool_model.get("synthetic_renderers")
       renderer_models = renderer_models.concat(synthetic)
 
     # should only bind events on NEW views and tools
@@ -670,11 +677,9 @@ class Plot extends Component.Model
       map: @use_map ? false
       canvas_width: @get('plot_width'),
       canvas_height: @get('plot_height'),
-      hidpi: @get('hidpi')
+      use_hidpi: @get('hidpi')
     })
     @set('canvas', canvas)
-
-    @solver = canvas.get('solver')
 
     @set('tool_manager', new ToolManager.Model({ plot: this }))
 
@@ -742,9 +747,6 @@ class Plot extends Component.Model
     @_below_panel = do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
     @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
     @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
-
-  nonserializable_attribute_names: () ->
-    super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
 
   serializable_attributes: () ->
     attrs = super()
@@ -820,7 +822,7 @@ class Plot extends Component.Model
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
       tools:             [ p.Array,    []                     ]
-      tool_events:       [ p.Instance, new ToolEvents.Model() ]
+      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
       toolbar_location:  [ p.Location, 'above'                ]
       logo:              [ p.String,   'normal'               ] # TODO (bev)
 
@@ -840,19 +842,21 @@ class Plot extends Component.Model
       min_border_right:  [ p.Number,   MIN_BORDER             ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      title_text_font_size: "20pt",
-      title_text_align: "center"
-      title_text_baseline: "alphabetic"
-      outline_line_color: '#aaaaaa'
-      border_fill_color: "#ffffff",
-      background_fill_color: "#ffffff",
+  @override {
+    title_text_font_size: "20pt"
+    title_text_align: "center"
+    title_text_baseline: "alphabetic"
+    outline_line_color: '#aaaaaa'
+    border_fill_color: "#ffffff"
+    background_fill_color: "#ffffff"
+  }
 
-      # internal
-      min_size: 120
-    }
+  @internal {
+    min_size:     [ p.Number, 120 ]
+    canvas:       [ p.Instance ]
+    tool_manager: [ p.Instance ]
+    frame:        [ p.Instance ]
+  }
 
 module.exports =
   get_size_for_available_space: get_size_for_available_space

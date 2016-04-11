@@ -69,7 +69,7 @@ class BoxZoomToolView extends GestureTool.View
     @plot_view.push_state('box_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info)
 
-DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"
@@ -95,9 +95,9 @@ class BoxZoomTool extends GestureTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @get('overlay').set('silent_update', true, {silent: true})
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
-          @get("tool_name"),
+          @tool_name,
           @_check_dims(@get('dimensions'), "box zoom tool")
         )
       , false)
