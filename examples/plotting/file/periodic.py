@@ -1,5 +1,5 @@
 from bokeh.models import HoverTool, ColumnDataSource
-from bokeh.plotting import figure, save
+from bokeh.plotting import figure, save, show
 from bokeh.sampledata.periodic_table import elements
 
 romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
@@ -81,4 +81,4 @@ p.select_one(HoverTool).tooltips = [
     ("electronic configuration", "@electronic"),
 ]
 
-save(p, title="periodic.py example")
+show(p)  # Change to save(p) to save but not show the HTML file

@@ -1,4 +1,4 @@
-from bokeh.plotting import figure, save
+from bokeh.plotting import figure, save, show
 from bokeh.sampledata.us_counties import data as counties
 from bokeh.sampledata.us_states import data as states
 from bokeh.sampledata.unemployment import data as unemployment
@@ -37,4 +37,4 @@ p.patches(county_xs, county_ys,
 p.patches(state_xs, state_ys, fill_alpha=0.0,
           line_color="#884444", line_width=2, line_alpha=0.3)
 
-save(p, title="choropleth.py example")
+show(p)  # Change to save(p) to save but not show the HTML file

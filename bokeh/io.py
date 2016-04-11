@@ -311,14 +311,14 @@ def _show_with_state(obj, state, browser, new):
     elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
 
-    if state.file:
+    else:
         _show_file_with_state(obj, state, new, controller)
 
     return comms_handle
 
 def _show_file_with_state(obj, state, new, controller):
-    save(obj, state=state)
-    controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
+    filename = save(obj, state=state)
+    controller.open("file://" + filename, new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
@@ -342,7 +342,9 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
     Will fall back to the default output state (or an explicitly provided
     :class:`State` object) for ``filename``, ``resources``, or ``title`` if they
-    are not provided.
+    are not provided. If the filename is not given and not provided via output state,
+    it is derived from the script name (e.g. ``/foo/myplot.py`` will create
+    ``/foo/myplot.html``)
 
     Args:
         obj (Document or model object) : a plot object to save
@@ -362,7 +364,7 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         validate (bool, optional) : True to check integrity of the models
 
     Returns:
-        None
+        filename (str) : the filename where the HTML file is saved.
 
     Raises:
         RuntimeError
@@ -372,8 +374,8 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         state = _state
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-
     _save_helper(obj, filename, resources, title, validate)
+    return filename
 
 def _detect_filename(ext):
     """ Detect filename from the name of the script being run. Returns
@@ -391,6 +393,7 @@ def _detect_filename(ext):
     if filename and isfile(filename):
         name, _ = splitext(basename(filename))
         return join(dirname(filename), name + "." + ext)
+
 
 def _get_save_args(state, filename, resources, title):
     warn = True
