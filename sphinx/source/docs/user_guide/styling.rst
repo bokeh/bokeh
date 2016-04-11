@@ -105,6 +105,19 @@ the inputs for line and fill alphas:
     provide ``fill|line_alpha`` or ``fill|line_color`` in combination with
     the ``color``/``alpha`` keywords, and the former will take precedence.
 
+.. _userguide_styling_arrow_annotations:
+
+Styling Arrow Annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are several supported arrow styles that can be applied to Arrow
+annotations. Setting `head_style` or `tail_style` to None will cause no arrow
+head to be applied at the specified arrow end. Double-sided arrows can be
+created by setting both head and tail styles.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_arrow_annotations.py
+    :source-position: none
+
 .. _userguide_styling_units:
 
 Screen Units and Data-space Units
