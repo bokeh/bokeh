@@ -5,7 +5,8 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode, Side
+    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension,
+    RenderMode, Side, ArrowStyle
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
@@ -134,26 +135,49 @@ class Arrow(Annotation):
     The size, in pixels, of the arrow head.
     """)
 
-    head_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the head_x and head_y attributes. Interpreted as "data
-    space" units by default.
-    """)
-
     tail_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the head_x and head_y attributes. Interpreted as "data
     space" units by default.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the arrow body and arrow head outline.
+    head_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the head_x and head_y attributes. Interpreted as "data
+    space" units by default.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    tail_style = Enum(ArrowStyle, default=None, help="""
+    The style of the head's arrow tail.
+    """)
+
+    head_style = Enum(ArrowStyle, default='open', help="""
+    The style of the head's arrow head.
+    """)
+
+    body_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the arrow body.
+    """)
+
+    tail_border_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the arrow tail outline.
+    """)
+
+    tail_body_props = Include(FillProps, use_prefix=True, help="""
+    The %s values for the arrow tail. If `fill_color` is set to None, the arrow
+    tail will be an open-backed wedge.
+    """)
+
+    tail_body_fill_color = Override(default="black")
+
+    head_border_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the arrow head outline.
+    """)
+
+    head_body_props = Include(FillProps, use_prefix=True, help="""
     The %s values for the arrow head. If `fill_color` is set to None, the arrow
     head will be an open-backed wedge.
     """)
 
-    fill_color = Override(default=None)
+    head_body_fill_color = Override(default="black")
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
