@@ -10,28 +10,34 @@ class GlyphRendererView extends Renderer.View
   initialize: (options) ->
     super(options)
 
-    @glyph = @build_glyph_view(@mget("glyph"))
+    base_glyph = @mget("glyph")
+    has_fill = _.contains(base_glyph.mixins, "fill")
+    has_line = _.contains(base_glyph.mixins, "line")
+    glyph_attrs = _.omit(_.clone(base_glyph.attributes), 'id')
 
-    glyph_attrs =  _.omit(_.clone(@mget("glyph").attributes), 'id')
+    mk_glyph = (defaults) ->
+      attrs = _.clone(glyph_attrs)
+      if has_fill then _.extend(attrs, defaults.fill)
+      if has_line then _.extend(attrs, defaults.line)
+      return new (base_glyph.constructor)(attrs)
+
+    @glyph = @build_glyph_view(base_glyph)
 
     selection_glyph = @mget("selection_glyph")
     if not selection_glyph?
-      #attrs = _.extend {}, glyph_attrs, @model.selection_defaults
-      selection_glyph = new (@mget("glyph")).constructor(glyph_attrs)
+      selection_glyph = mk_glyph(@model.selection_defaults)
     @selection_glyph = @build_glyph_view(selection_glyph)
 
     nonselection_glyph = @mget("nonselection_glyph")
     if not nonselection_glyph?
-      #attrs = _.extend {}, glyph_attrs, @model.nonselection_defaults
-      nonselection_glyph = new (@mget("glyph")).constructor(glyph_attrs)
+      nonselection_glyph = mk_glyph(@model.nonselection_defaults)
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
     hover_glyph = @mget("hover_glyph")
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
 
-    #attrs = _.extend {}, glyph_attrs, @model.decimated_defaults
-    decimated_glyph = new (@mget("glyph")).constructor(glyph_attrs)
+    decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
@@ -234,9 +240,9 @@ class GlyphRenderer extends Renderer.Model
     level: 'glyph'
   }
 
-  selection_defaults: {}
-  decimated_defaults: {fill_alpha: 0.3, line_alpha: 0.3, fill_color: "grey", line_color: "grey"}
-  nonselection_defaults: {fill_alpha: 0.2, line_alpha: 0.2}
+  selection_defaults: {fill: {}, line: {}}
+  decimated_defaults: {fill: {fill_alpha: 0.3, fill_color: "grey"}, line: {line_alpha: 0.3, line_color: "grey"}}
+  nonselection_defaults: {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}}
 
 module.exports =
   Model: GlyphRenderer
