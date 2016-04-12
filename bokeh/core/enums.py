@@ -169,3 +169,6 @@ StartEnd = enumeration("start", "end")
 
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
+
+#: Specify sorting directions
+SortDirection = enumeration("ascending", "descending")
