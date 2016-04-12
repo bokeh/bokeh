@@ -77,10 +77,16 @@ def test_legend_sort(test_data):
     }
 
     # assert we don't change anything if sort_legend is not specified
-    assert Builder._sort_legend([], legends, attributes) == legends
+    assert Builder._sort_legend(None, None, legends, attributes) == legends
     # assert we sort asc if specified so
-    assert Builder._sort_legend([('color', True)], legends, attributes) == \
+    assert Builder._sort_legend('color', 'ascending', legends, attributes) == \
         [('col1', col1), ('col2', col2), ('col3', col3)]
     # assert we sort desc if specified so
-    assert Builder._sort_legend([('color', False)], legends, attributes) == \
+    assert Builder._sort_legend('color', 'descending', legends, attributes) == \
         [('col3', col3), ('col2', col2), ('col1', col1)]
+
+def test_sort_legend(test_builder, test_data):
+    test_builder = test_builder(test_data.pd_data, sort_legend=[('color', 'ascending')])
+
+    assert test_builder.legend_sort_field == 'color'
+    assert test_builder.legend_sort_direction == 'ascending'
