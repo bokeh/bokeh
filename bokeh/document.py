@@ -26,6 +26,22 @@ from .util.serialization import make_id
 
 DEFAULT_TITLE = "Bokeh Application"
 
+class DocumentProxy(object):
+    ''' Wrap a Document object so that only methods that can safely be used
+    from unlocked callbacks or threads are exposed. Attempts to otherwise
+    access or change the Document results in an exception.
+
+    '''
+
+    def __init__(self, doc):
+        self._doc = doc
+
+    def __getattr__(self, attr):
+        raise RuntimeError("Only add_next_tick_callback may be used safely from DocumentProxy")
+
+    def add_next_tick_callback(self, callback):
+        return self._doc.add_next_tick_callback(callback)
+
 def without_document_lock(f):
     ''' Mark a callback function to execute without first obtaining
     the document lock.
@@ -33,7 +49,7 @@ def without_document_lock(f):
     .. warning::
         The value of curdoc() inside the callback will be None. Any
         attempt to modify the document inside the callback can result
-        in data or protocol corruption. 
+        in data or protocol corruption.
 
     '''
     @wraps(f)
@@ -505,7 +521,7 @@ class Document(object):
         old_doc = curdoc()
         try:
             if getattr(f, "nolock", False):
-                set_curdoc(None)
+                set_curdoc(DocumentProxy(self))
             else:
                 set_curdoc(self)
             return f()
