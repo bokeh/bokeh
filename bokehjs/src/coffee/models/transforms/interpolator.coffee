@@ -11,7 +11,6 @@ class Interpolator extends Transform.Model
     @_sorted_dirty = true
 
     @bind 'change', () ->
-      console.log 'Changed the configuration'
       @_sorted_dirty = true
 
   props: ->
