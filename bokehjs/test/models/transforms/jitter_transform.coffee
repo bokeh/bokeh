@@ -18,7 +18,8 @@ describe "step_interpolator_transform module", ->
     transform.set('distribution', 'uniform')
 
     it "should average the fixed values", ->
-      vals =  Array.apply(null, Array(10)).map ->
+      N = 1000
+      vals =  Array.apply(null, Array(N)).map ->
                 5
       rets = transform.v_compute(vals)
 
@@ -26,7 +27,7 @@ describe "step_interpolator_transform module", ->
         return a+b
 
       thesum = rets.reduce(add, 0)
-      thediff = (thesum/1000) - 5
+      thediff = (thesum/N) - 5
       expect(thediff).to.be.below 0.01
 
 
@@ -35,7 +36,8 @@ describe "step_interpolator_transform module", ->
     transform.set('distribution', 'normal')
 
     it "should average the fixed values", ->
-      vals =  Array.apply(null, Array(10)).map ->
+      N = 1000
+      vals =  Array.apply(null, Array(N)).map ->
                 5
       rets = transform.v_compute(vals)
 
@@ -43,5 +45,5 @@ describe "step_interpolator_transform module", ->
         return a+b
 
       thesum = rets.reduce(add, 0)
-      thediff = (thesum/1000) - 5
+      thediff = (thesum/N) - 5
       expect(thediff).to.be.below 0.01
