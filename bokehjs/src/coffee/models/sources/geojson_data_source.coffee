@@ -150,7 +150,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
         if item.type == 'Feature'
           @_add_properties(item, data, arr_index, item_count)
 
-      arr_index += 1
+        arr_index += 1
 
     return data
 
