@@ -397,12 +397,6 @@ def _detect_filename(ext):
     if filename and isfile(filename):
         name, _ = splitext(basename(filename))
         return join(dirname(filename), name + "." + ext)
-    elif os.getenv('Travis') == 'true':
-        # Travis runs examples not as script, so our examples that demonstrate
-        # not-specifying-a-filename would fail unless we perform this trick.
-        global travis_filename_counter
-        travis_filename_counter += 1
-        return 'travis_plot_%i.%s' % (travis_filename_counter, ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
