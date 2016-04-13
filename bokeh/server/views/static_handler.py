@@ -11,7 +11,8 @@ from tornado.web import StaticFileHandler
 from bokeh.settings import settings
 
 class StaticHandler(StaticFileHandler):
-    ''' Implements a custom Tornado static file handler
+    ''' Implements a custom Tornado static file handler for BokehJS
+    JavaScript and CSS resources.
 
     '''
     def __init__(self, tornado_app, *args, **kw):

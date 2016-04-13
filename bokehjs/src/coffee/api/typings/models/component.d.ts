@@ -1,5 +1,6 @@
 declare namespace Bokeh {
-    export interface Component extends Model {
-        disabled: boolean;
+    export interface IComponent extends IModel {
+        disabled?: boolean;
     }
+    export interface Component extends Model, IComponent {}
 }

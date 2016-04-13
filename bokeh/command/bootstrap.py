@@ -42,4 +42,4 @@ def main(argv):
     try:
         args.invoke(args)
     except Exception as e:
-        die(str(e))
+        die("ERROR:" + str(e))

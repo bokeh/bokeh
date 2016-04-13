@@ -258,7 +258,7 @@ To configure how often unused sessions last. set the
     bokeh serve app_script.py --unused-session-lifetime 60000
 
 The value is specified in milliseconds. The default lifetime interval
-for unused sessions is 30 minutes. Only positive integer values are
+for unused sessions is 15 seconds. Only positive integer values are
 accepted.
 
 Logging Options
@@ -294,6 +294,8 @@ from bokeh.server.server import Server
 from bokeh.util.string import nice_join
 from bokeh.settings import settings
 
+from os import getpid
+
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
 
@@ -308,6 +310,37 @@ __doc__ = __doc__.format(
     DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
 
+base_serve_args = (
+    ('--port', dict(
+        metavar = 'PORT',
+        type    = int,
+        help    = "Port to listen on",
+        default = None
+    )),
+
+    ('--address', dict(
+        metavar = 'ADDRESS',
+        type    = str,
+        help    = "Address to listen on",
+        default = None,
+    )),
+
+    ('--log-level', dict(
+        metavar = 'LOG-LEVEL',
+        action  = 'store',
+        default = 'info',
+        choices = LOGLEVELS,
+        help    = "One of: %s" % nice_join(LOGLEVELS),
+    )),
+
+    ('--log-format', dict(
+        metavar ='LOG-FORMAT',
+        action  = 'store',
+        default = DEFAULT_LOG_FORMAT,
+        help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+    )),
+)
+
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.
 
@@ -317,8 +350,7 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    args = (
-
+    args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
@@ -340,20 +372,6 @@ class Serve(Subcommand):
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",
-        )),
-
-        ('--port', dict(
-            metavar='PORT',
-            type=int,
-            help="Port to listen on",
-            default=None
-        )),
-
-        ('--address', dict(
-            metavar='ADDRESS',
-            type=str,
-            help="Address to listen on",
-            default=None,
         )),
 
         ('--allow-websocket-origin', dict(
@@ -410,21 +428,6 @@ class Serve(Subcommand):
             help="Prefer X-headers for IP/protocol information",
         )),
 
-        ('--log-level', dict(
-            metavar='LOG-LEVEL',
-            action  = 'store',
-            default = 'debug',
-            choices = LOGLEVELS,
-            help    = "One of: %s" % nice_join(LOGLEVELS),
-        )),
-
-        ('--log-format', dict(
-            metavar='LOG-FORMAT',
-            action  = 'store',
-            default = DEFAULT_LOG_FORMAT,
-            help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
-        )),
-
         ('--session-ids', dict(
             metavar='MODE',
             action  = 'store',
@@ -432,7 +435,6 @@ class Serve(Subcommand):
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
-
     )
 
     def invoke(self, args):
@@ -524,5 +526,7 @@ class Serve(Subcommand):
                  server.port,
                  address_string,
                  sorted(applications.keys()))
+
+        log.info("Staring Bokeh server with process id: %d" % getpid())
 
         server.start()

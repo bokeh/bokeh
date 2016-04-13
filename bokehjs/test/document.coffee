@@ -4,45 +4,36 @@ utils = require "./utils"
 
 Model = utils.require "model"
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
-base = utils.require "base"
-Collection = utils.require "common/collection"
-
-make_collection = (model) ->
-  class C extends Collection
-    model: model
-  return new C()
-
-register_test_collection = (name, model) ->
-  C = make_collection(model)
-  base.collection_overrides[name] = C
+{Models} = utils.require "base"
+p = utils.require "core/properties"
 
 class AnotherModel extends Model
   type: 'AnotherModel'
-  defaults: () ->
-    return _.extend {}, super(), {
-      bar: 1
-    }
 
-register_test_collection('AnotherModel', AnotherModel)
+  @define {
+    bar: [ p.Number, 1 ]
+  }
+
+Models.register('AnotherModel', AnotherModel)
 
 class SomeModel extends Model
   type: 'SomeModel'
-  defaults: () ->
-    return _.extend {}, super(), {
-      foo: 2
-      child: null
-    }
 
-register_test_collection('SomeModel', SomeModel)
+  @define {
+    foo:   [ p.Number, 2 ]
+    child: [ p.Instance, null ]
+  }
+
+Models.register('SomeModel', SomeModel)
 
 class SomeModelWithChildren extends Model
   type: 'SomeModelWithChildren'
-  defaults: () ->
-    return _.extend {}, super(), {
-      children: []
-    }
 
-register_test_collection('SomeModelWithChildren', SomeModelWithChildren)
+  @define {
+    children: [ p.Array, [] ]
+  }
+
+Models.register('SomeModelWithChildren', SomeModelWithChildren)
 
 class ModelWithConstructTimeChanges extends Model
   type: 'ModelWithConstructTimeChanges'
@@ -52,13 +43,12 @@ class ModelWithConstructTimeChanges extends Model
     @set('foo', 4)
     @set('child', new AnotherModel())
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      foo: 2
-      child: null
-    }
+  @define {
+    foo:   [ p.Number, 2 ]
+    child: [ p.Instance, null ]
+  }
 
-register_test_collection('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
+Models.register('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
 
 class ComplicatedModelWithConstructTimeChanges extends Model
   type: 'ComplicatedModelWithConstructTimeChanges'
@@ -70,12 +60,14 @@ class ComplicatedModelWithConstructTimeChanges extends Model
     @set('obj_prop', new ModelWithConstructTimeChanges())
     @set('dict_of_list_prop', { foo: [new AnotherModel()] })
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      # test the case where we have none of the attributes to begin with
-    }
+  @define {
+    list_prop:         [ p.Array ]
+    dict_prop:         [ p.Any ]
+    obj_prop:          [ p.Instance ]
+    dict_of_list_prop: [ p.Any ]
+  }
 
-register_test_collection('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
+Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 describe "Document", ->
 
@@ -616,7 +608,7 @@ describe "Document", ->
       'list_prop' : [new AnotherModel({ 'bar' : 42 })],
       'dict_prop' : { foo: new AnotherModel({ 'bar' : 43 }) },
       'obj_prop' : new ModelWithConstructTimeChanges(),
-      'dist_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
+      'dict_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
       }
     root1.set(serialized_values)
 

@@ -12,12 +12,15 @@ from bokeh.util.tornado import _DocumentCallbackGroup, yield_for_all_futures
 import time
 
 def current_time():
+    '''Return the time in milliseconds since the epoch as a floating
+       point number.
+    '''
     try:
         # python >=3.3 only
-        return time.monotonic()
+        return time.monotonic() * 1000
     except:
         # if your python is old, don't set your clock backward!
-        return time.time()
+        return time.time() * 1000
 
 def _needs_document_lock(func):
     '''Decorator that adds the necessary locking and post-processing
@@ -136,7 +139,7 @@ class ServerSession(object):
         return len(self._subscribed_connections)
 
     @property
-    def seconds_since_last_unsubscribe(self):
+    def milliseconds_since_last_unsubscribe(self):
         return current_time() - self._last_unsubscribe_time
 
     @_needs_document_lock
@@ -145,6 +148,8 @@ class ServerSession(object):
         return func(*args, **kwargs)
 
     def _wrap_document_callback(self, callback):
+        if getattr(callback, "nolock", False):
+            return callback
         def wrapped_callback(*args, **kwargs):
             return self.with_document_locked(callback, *args, **kwargs)
         return wrapped_callback

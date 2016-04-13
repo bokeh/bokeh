@@ -420,7 +420,9 @@ class BasicProperty(Property):
         return default
 
     def _real_set(self, obj, old, value, hint=None):
-        unchanged = self.descriptor.matches(value, old)
+        # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may 
+        # need refining later if this assumption changes. 
+        unchanged = self.descriptor.matches(value, old) and (hint is None)
         if unchanged:
             return
 

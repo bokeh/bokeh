@@ -41,5 +41,4 @@ describe "enums module", ->
     expect(enums.TextAlign).to.be.deep.equal ["left", "right", "center"]
 
   it "should have TextBaseline", ->
-    expect(enums.TextBaseline).to.be.deep.equal ["top", "middle", "bottom", "alphabetic", "hanging"]
-
+    expect(enums.TextBaseline).to.be.deep.equal ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]

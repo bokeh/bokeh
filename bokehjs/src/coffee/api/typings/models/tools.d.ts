@@ -1,90 +1,137 @@
 declare namespace Bokeh {
-    export var ToolEvents: { new(attributes?: KeyVal, options?: KeyVal): ToolEvents };
-    export interface ToolEvents extends Model {
-        geometries: Array<any>;
+    export var ToolEvents: { new(attributes?: IToolEvents, options?: ModelOpts): ToolEvents };
+    export interface ToolEvents extends Model, IToolEvents {}
+    export interface IToolEvents extends IModel {
+        geometries?: Array<any>;
     }
 
-    export interface Tool extends Model, BackRef {}
+    export interface Tool extends Model, ITool {}
+    export interface ITool extends IModel, IBackRef {}
 
-    export var PanTool: { new(attributes?: KeyVal, options?: KeyVal): PanTool };
-    export interface PanTool extends Tool {
-        dimensions: Array<Dimension>;
+    export interface InspectTool extends Tool, IInspectTool {}
+    export interface IInspectTool extends ITool {
+        active?: boolean;
     }
 
-    export var WheelZoomTool: { new(attributes?: KeyVal, options?: KeyVal): WheelZoomTool };
-    export interface WheelZoomTool extends Tool {
-        dimensions: Array<Dimension>;
+    export interface SelectTool extends Tool, ISelectTool {}
+    export interface ISelectTool extends ITool, IHitTest {}
+
+    export interface IHitTest {
+        names?: Array<string>;
+        renderers?: Array<Renderer>;
     }
 
-    export var PreviewSaveTool: { new(attributes?: KeyVal, options?: KeyVal): PreviewSaveTool };
-    export interface PreviewSaveTool extends Tool {}
-
-    export var UndoTool: { new(attributes?: KeyVal, options?: KeyVal): UndoTool };
-    export interface UndoTool extends Tool {}
-
-    export var RedoTool: { new(attributes?: KeyVal, options?: KeyVal): RedoTool };
-    export interface RedoTool extends Tool {}
-
-    export var ResetTool: { new(attributes?: KeyVal, options?: KeyVal): ResetTool };
-    export interface ResetTool extends Tool {}
-
-    export var ResizeTool: { new(attributes?: KeyVal, options?: KeyVal): ResizeTool };
-    export interface ResizeTool extends Tool {}
-
-    export interface InspectTool {
-        active: boolean;
+    export var PanTool: { new(attributes?: IPanTool, options?: ModelOpts): PanTool };
+    export interface PanTool extends Tool, IPanTool {}
+    export interface IPanTool extends ITool {
+        dimensions?: Array<Dimension>;
     }
 
-    export var CrosshairTool: { new(attributes?: KeyVal, options?: KeyVal): CrosshairTool };
-    export interface CrosshairTool extends Tool, InspectTool {
-        dimensions: Array<Dimension>;
-
-        line_color: Color;
-        line_width: number;
-        line_alpha: number;
+    export var WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: ModelOpts): WheelZoomTool };
+    export interface WheelZoomTool extends Tool, IWheelZoomTool {}
+    export interface IWheelZoomTool extends ITool {
+        dimensions?: Array<Dimension>;
     }
 
-    export var BoxZoomTool: { new(attributes?: KeyVal, options?: KeyVal): BoxZoomTool };
-    export interface BoxZoomTool extends Tool {}
+    export var PreviewSaveTool: { new(attributes?: IPreviewSaveTool, options?: ModelOpts): PreviewSaveTool };
+    export interface PreviewSaveTool extends Tool, IPreviewSaveTool {}
+    export interface IPreviewSaveTool extends ITool {}
 
-    export interface TransientSelectTool extends Tool {
-        names: Array<string>;
-        renderers: Array<Renderer>;
+    export var UndoTool: { new(attributes?: IUndoTool, options?: ModelOpts): UndoTool };
+    export interface UndoTool extends Tool, IUndoTool {}
+    export interface IUndoTool extends ITool {}
+
+    export var RedoTool: { new(attributes?: IRedoTool, options?: ModelOpts): RedoTool };
+    export interface RedoTool extends Tool, IRedoTool {}
+    export interface IRedoTool extends ITool {}
+
+    export var ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
+    export interface ResetTool extends Tool, IResetTool {}
+    export interface IResetTool extends ITool {}
+
+    export var ResizeTool: { new(attributes?: IResizeTool, options?: ModelOpts): ResizeTool };
+    export interface ResizeTool extends Tool, IResizeTool {}
+    export interface IResizeTool extends ITool {}
+
+    export var CrosshairTool: { new(attributes?: ICrosshairTool, options?: ModelOpts): CrosshairTool };
+    export interface CrosshairTool extends InspectTool, ICrosshairTool {}
+    export interface ICrosshairTool extends IInspectTool {
+        dimensions?: Array<Dimension>;
+
+        line_color?: Color;
+        line_width?: number;
+        line_alpha?: number;
     }
 
-    export interface SelectTool extends TransientSelectTool {}
+    export var BoxZoomTool: { new(attributes?: IBoxZoomTool, options?: ModelOpts): BoxZoomTool };
+    export interface BoxZoomTool extends Tool, IBoxZoomTool {}
+    export interface IBoxZoomTool extends ITool {}
 
-    export var BoxSelectTool: { new(attributes?: KeyVal, options?: KeyVal): BoxSelectTool };
-    export interface BoxSelectTool extends SelectTool {
-        select_every_mousemove: boolean;
-        dimensions: Array<Dimension>;
+    export var BoxSelectTool: { new(attributes?: IBoxSelectTool, options?: ModelOpts): BoxSelectTool };
+    export interface BoxSelectTool extends SelectTool, IBoxSelectTool {}
+    export interface IBoxSelectTool extends ISelectTool {
+        select_every_mousemove?: boolean;
+        dimensions?: Array<Dimension>;
     }
 
-    export var LassoSelectTool: { new(attributes?: KeyVal, options?: KeyVal): LassoSelectTool };
-    export interface LassoSelectTool extends SelectTool {
-        select_every_mousemove: boolean;
+    export var LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: ModelOpts): LassoSelectTool };
+    export interface LassoSelectTool extends SelectTool, ILassoSelectTool {}
+    export interface ILassoSelectTool extends ISelectTool {
+        select_every_mousemove?: boolean;
     }
 
-    export var PolySelectTool: { new(attributes?: KeyVal, options?: KeyVal): PolySelectTool };
-    export interface PolySelectTool extends SelectTool {}
+    export var PolySelectTool: { new(attributes?: IPolySelectTool, options?: ModelOpts): PolySelectTool };
+    export interface PolySelectTool extends SelectTool, IPolySelectTool {}
+    export interface IPolySelectTool extends ISelectTool {}
 
-    export var TapTool: { new(attributes?: KeyVal, options?: KeyVal): TapTool };
-    export interface TapTool extends SelectTool {
-        callback: Callback;
+    export var TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
+    export interface TapTool extends SelectTool, ITapTool {}
+    export interface ITapTool extends ISelectTool {
+        callback?: Callback | ((source: DataSource) => void);
     }
 
-    export var HoverTool: { new(attributes?: KeyVal, options?: KeyVal): HoverTool };
-    export interface HoverTool extends TransientSelectTool, InspectTool {
-        tooltips: Tooltip;
-        callback: Callback;
-        mode: HoverMode;
-        point_policy: PointPolicy;
-        line_policy: LinePolicy;
+    export interface HoverTooltipInfo {
+        index:  Int;
+        x:      ArrayLike<number>;
+        y:      ArrayLike<number>;
+        vx:     ArrayLike<number>;
+        vy:     ArrayLike<number>;
+        sx:     ArrayLike<number>;
+        sy:     ArrayLike<number>;
+        data_x: ArrayLike<number>;
+        data_y: ArrayLike<number>;
+        rx:     ArrayLike<number>;
+        ry:     ArrayLike<number>;
     }
 
-    export var HelpTool: { new(attributes?: KeyVal, options?: KeyVal): HelpTool };
-    export interface HelpTool extends Tool {
-        help_tooltip: string;
-        redirect: string;
+    export interface HoverCallbackData {
+        index: Array<Int> | Array<Array<Int>>;
+        geometry: {
+            type: "point" | "span";
+            direction?: "h" | "v";
+            x: ArrayLike<number>;
+            y: ArrayLike<number>;
+            vx: ArrayLike<number>;
+            vy: ArrayLike<number>;
+            sx: ArrayLike<number>;
+            sy: ArrayLike<number>;
+        };
+    }
+
+    export var HoverTool: { new(attributes?: IHoverTool, options?: ModelOpts): HoverTool };
+    export interface HoverTool extends InspectTool, IHoverTool {}
+    export interface IHoverTool extends IInspectTool, IHitTest {
+        tooltips?: HTMLElement | Array<[string, string]> | ((source: DataSource, info: HoverTooltipInfo) => HTMLElement);
+        callback?: Callback | ((tool: HoverTool, data: HoverCallbackData) => void);
+        mode?: HoverMode;
+        point_policy?: PointPolicy;
+        line_policy?: LinePolicy;
+    }
+
+    export var HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };
+    export interface HelpTool extends Tool, IHelpTool {}
+    export interface IHelpTool extends ITool {
+        help_tooltip?: string;
+        redirect?: string;
     }
 }

@@ -186,11 +186,12 @@ class TapTool(Tool):
 
 @abstract
 class InspectTool(Tool):
+    pass
 
-    active = Bool(True, help="""
-    Whether the tool is intially active or not. If set to ``False``, the user
-    will have to click tool's button to active it.
-    """)
+    #active = Bool(True, help="""
+    #Whether the tool is intially active or not. If set to ``False``, the user
+    #will have to click tool's button to active it.
+    #""")
 
 class CrosshairTool(InspectTool):
     """ *toolbar icon*: |inspector_icon|
@@ -282,6 +283,16 @@ class BoxZoomTool(Tool):
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
+    """)
+
+    match_aspect = Bool(default=False, help="""
+    Whether the box zoom region should be restricted to have the same
+    aspect ratio as the plot region.
+
+    .. note::
+        If the tool is restricted to one dimension, this value has
+        no effect. 
+
     """)
 
 

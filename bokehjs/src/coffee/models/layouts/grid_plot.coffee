@@ -31,8 +31,9 @@ class ToolProxy extends Backbone.Model
       tool.set('active', @attributes.active)
     return null
 
-  attrs_and_props: () ->
-    return @attributes.tools[0].attrs_and_props()
+  Object.defineProperty this.prototype, "event_type", {
+    get: () -> @attributes.tools[0].event_type
+  }
 
   get: (attr) ->
     return @attributes.tools[0].get(attr)
@@ -101,12 +102,12 @@ class GridToolManager extends ToolManager.Model
       tools = info.tools
       if tools.length == 0
         continue
-      info.tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+      info.tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         info.tools[0].set('active', true)
 
   _active_change: (tool) =>
-    event_type = tool.get('event_type')
+    event_type = tool.event_type
     gestures = @get('gestures')
 
     # Toggle between tools of the same type by deactivating any active ones
@@ -121,16 +122,17 @@ class GridToolManager extends ToolManager.Model
     logger.debug("GridToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      tool_manangers: []
-    }
+  @internal {
+    tool_managers: [ p.Array, [] ]
+    toolbar_location: [ p.Location ]
+    num_plots: [ p.Int ]
+  }
 
 class GridViewState extends HasProps
 
   setup_layout_properties: () =>
-    @register_property('layout_heights', @layout_heights, false)
-    @register_property('layout_widths', @layout_widths, false)
+    @override_computed_property('layout_heights', @layout_heights, false)
+    @override_computed_property('layout_widths', @layout_widths, false)
     for row in @get('viewstates')
       for viewstate in row
         @add_dependencies('layout_heights', viewstate, 'height')
@@ -142,12 +144,12 @@ class GridViewState extends HasProps
     @listenTo(this, 'change:viewstates', @setup_layout_properties)
     calculateHeight = =>
       _.reduce @get("layout_heights"), ((x, y) -> x + y), 0
-    @register_property('height', calculateHeight, false)
+    @define_computed_property('height', calculateHeight, false)
     @add_dependencies('height', @, 'layout_heights')
 
     calculateWidth = =>
       _.reduce @get("layout_widths"), ((x, y) -> x + y), 0
-    @register_property('width', calculateWidth, false)
+    @define_computed_property('width', calculateWidth, false)
     @add_dependencies('width', @, 'layout_widths')
 
   position_child_x: (offset, childsize) ->
@@ -176,11 +178,10 @@ class GridViewState extends HasProps
     col_widths = (@maxdim('width', col) for col in columns)
     return col_widths
 
-  defaults: ->
-    return _.extend {}, super(), {
-      viewstates: [[]]
-      border_space: 0
-    }
+  @internal {
+    viewstates: [ p.Array, [[]] ]
+    border_space: [ p.Number, 0 ]
+  }
 
 class GridPlotView extends BokehView
   template: plot_template
@@ -236,7 +237,7 @@ class GridPlotView extends BokehView
       for plot in row
         if not plot?
           continue
-        @listenTo(plot.solver, 'layout_update', @render)
+        @listenTo(@model.document.solver(), 'layout_update', @render)
 
   render: () ->
     super()
@@ -308,9 +309,17 @@ class GridPlot extends Component.Model
   type: 'GridPlot'
   default_view: GridPlotView
 
+  constructor: () ->
+    # new GridPlot({children: [...]}) or GridPlot([...])
+    if this instanceof GridPlot
+      return super(arguments...)
+    else
+      [children] = arguments
+      return new GridPlot({children: children})
+
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('tool_manager', () ->
+    @define_computed_property('tool_manager', () ->
       children = []
       for plot in _.flatten(@get('children'))
         if plot?
@@ -322,15 +331,11 @@ class GridPlot extends Component.Model
       })
     , true)
 
-  @define("children", p.Array, [[]])
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      children: [[]]
-      border_space: 0
-      toolbar_location: "left"
-      disabled: false
-    }
+  @define {
+    children:          [ p.Array, [[]]      ]
+    border_space:      [ p.Number, 0        ]
+    toolbar_location:  [ p.Location, 'left' ]
+  }
 
 module.exports =
   Model: GridPlot

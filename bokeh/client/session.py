@@ -7,7 +7,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from .connection import ClientConnection
+from ._connection import ClientConnection
 
 from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
                               server_url_for_websocket_url,

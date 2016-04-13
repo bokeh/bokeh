@@ -21,22 +21,22 @@ class CompositeTicker extends ContinuousTicker.Model
     super(attrs, options)
 
     tickers = @get('tickers')
-    @register_property('min_intervals',
+    @define_computed_property('min_intervals',
         () -> _.invoke(tickers, 'get_min_interval')
       , true)
     @add_dependencies('min_intervals', this, ['tickers'])
 
-    @register_property('max_intervals',
+    @define_computed_property('max_intervals',
         () -> _.invoke(tickers, 'get_max_interval')
       , true)
     @add_dependencies('max_intervals', this, ['tickers'])
 
-    @register_property('min_interval',
+    @define_computed_property('min_interval',
         () -> _.first(@get('min_intervals'))
       , true)
     @add_dependencies('min_interval', this, ['min_intervals'])
 
-    @register_property('max_interval',
+    @define_computed_property('max_interval',
         () -> _.first(@get('max_intervals'))
       , true)
     @add_dependencies('max_interval', this, ['max_interval'])
