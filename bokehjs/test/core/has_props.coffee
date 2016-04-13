@@ -64,7 +64,7 @@ describe "has_properties module", ->
 
   # it "should support computed properties", ->
   #   model = new TestObject({'a': 1, 'b': 1})
-  #   model.register_property 'c', ->
+  #   model.define_computed_property 'c', ->
   #   @get('a') + @get('b')
   #   model.add_dependencies('c', model, ['a', 'b'])
 
@@ -74,7 +74,7 @@ describe "has_properties module", ->
   #   model = null
   #   before ->
   #     model = new TestObject({a: 1, b: 1})
-  #     model.register_property 'c', ->
+  #     model.define_computed_property 'c', ->
   #         @get('a') + @get('b')
   #       , true
   #     model.add_dependencies('c', model, ['a', 'b'])

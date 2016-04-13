@@ -95,7 +95,7 @@ class BoxSelectToolView extends SelectTool.View
 
     return
 
-DEFAULT_BOX_OVERLAY = new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"
@@ -127,10 +127,9 @@ class BoxSelectTool extends SelectTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
-          @get("tool_name"),
+          @tool_name,
           @_check_dims(@get('dimensions'), "box select tool")
         )
       , false)

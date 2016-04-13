@@ -16,6 +16,9 @@ class TileSource extends Model
       min_zoom:       [ p.Number, 0   ]
       extra_url_vars: [ p.Any,    {}  ]
       attribution:    [ p.String, ''  ]
+      x_origin_offset:    [ p.Number ]
+      y_origin_offset:    [ p.Number ]
+      initial_resolution: [ p.Number ]
   }
 
   initialize: (options) ->

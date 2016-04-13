@@ -321,7 +321,8 @@ class TestDocument(unittest.TestCase):
         assert event.hint.data == dict(a=[11, 12], b=[21, 22])
         assert event.hint.rollover == 200
         assert event.attr == 'data'
-        assert event.old == dict(a=[10], b=[20])
+        # old == new because stream events update in-place
+        assert event.old == dict(a=[10, 11, 12], b=[20, 21, 22])
         assert event.new == dict(a=[10, 11, 12], b=[20, 21, 22])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d

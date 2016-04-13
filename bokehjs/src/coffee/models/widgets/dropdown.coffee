@@ -71,11 +71,9 @@ class Dropdown extends AbstractButton.Model
       menu:          [ p.Array, [] ]
     }
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      # overrides
-      label: "Dropdown"
-    }
+  @override {
+    label: "Dropdown"
+  }
 
 module.exports =
   Model: Dropdown

@@ -12,6 +12,12 @@ class FactorRange extends Range.Model
       bounds:  [ p.Any        ] # TODO (bev)
     }
 
+  @internal {
+    _bounds_as_factors: [ p.Any ]
+    start: [ p.Number ]
+    end: [ p.Number ]
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -24,11 +30,11 @@ class FactorRange extends Range.Model
 
     @_init()
 
-    @register_property('min',
+    @define_computed_property('min',
         () -> @get('start')
       , false)
     @add_dependencies('min', this, ['factors', 'offset'])
-    @register_property('max',
+    @define_computed_property('max',
         () -> @get('end')
       , false)
     @add_dependencies('max', this, ['factors', 'offset'])

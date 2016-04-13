@@ -83,12 +83,15 @@ class Property extends Backbone.Model
 
     attr_value = obj.get(attr)
 
-    default_value = @get('default_value')
     if _.isUndefined(attr_value)
-      if _.isUndefined(default_value)
-        attr_value = null
-      else
-        attr_value = default_value
+      default_value = @get('default_value')
+
+      attr_value = switch
+        when _.isUndefined(default_value) then null
+        when _.isArray(default_value)     then _.clone(default_value)
+        when _.isFunction(default_value)  then default_value(obj)
+        else                                   default_value
+
       obj.set(attr, attr_value, {silent: true, defaults: true})
 
     # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
@@ -257,6 +260,7 @@ module.exports =
   Angle: Angle
   Array: Array
   Bool: Bool
+  Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
   Direction: Direction
@@ -269,6 +273,7 @@ module.exports =
   LineJoin: LineJoin
   Location: Location
   Number: Number
+  Int: Number                     # TODO
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode

@@ -1,9 +1,10 @@
 declare namespace Bokeh {
     var version: string;
 
-    var index: Map<Model>;
+    var index: Map<View<Component>>;
 
     var _: UnderscoreStatic;
+    var $: JQueryStatic;
 
     var logger: JSNLog.JSNLogLogger;
 
