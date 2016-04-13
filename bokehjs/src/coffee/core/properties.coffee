@@ -196,6 +196,8 @@ class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
+class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
+
 #
 # Units Properties
 #

@@ -35,3 +35,5 @@ module.exports =
   TextAlign: ["left", "right", "center"]
 
   TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+
+  DistributionTypes: ["uniform", "normal"]

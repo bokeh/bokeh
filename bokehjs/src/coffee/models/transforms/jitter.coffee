@@ -8,9 +8,9 @@ class Jitter extends Transform.Model
     super(attrs, options)
 
   @define {
-      mean:         [ p.Number, 0        ]
-      width:        [ p.Number, 1        ]
-      distribution: [ p.String, 'uniform']
+      mean:         [ p.Number      , 0        ]
+      width:        [ p.Number      , 1        ]
+      distribution: [ p.Distribition, 'uniform']
     }
 
   compute: (x) ->
