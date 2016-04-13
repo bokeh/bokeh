@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+import pytest
 import unittest
 
 from copy import copy
@@ -891,3 +892,47 @@ class TestDocument(unittest.TestCase):
         self.assertEqual(2, len(d2.roots))
         self.assertEqual(42, d2.roots[0].foo)
         self.assertEqual(57, d2.roots[1].foo)
+
+
+class TestUnlockedDocumentProxy(unittest.TestCase):
+
+    def test_next_tick_callback_works(self):
+        d = document.UnlockedDocumentProxy(document.Document())
+        assert curdoc() is not d
+        curdoc_from_cb = []
+        def cb():
+            curdoc_from_cb.append(curdoc())
+        callback = d.add_next_tick_callback(cb)
+        callback.callback()
+        assert len(curdoc_from_cb) == 1
+        assert curdoc_from_cb[0] is d._doc
+        def cb2(): pass
+        callback = d.add_next_tick_callback(cb2)
+        d.remove_next_tick_callback(cb2)
+
+    def test_other_attrs_raise(self):
+        d = document.UnlockedDocumentProxy(document.Document())
+        assert curdoc() is not d
+        with pytest.raises(RuntimeError) as e:
+            d.foo
+            assert str(e) == "Only add_next_tick_callback may be used safely without taking the document lock; "
+            "to make other changes to the document, add a next tick callback and make your changes "
+            "from that callback."
+        for attr in dir(d._doc):
+            if attr in ["add_next_tick_callback", "remove_next_tick_callback"]: continue
+            with pytest.raises(RuntimeError) as e:
+                getattr(d, "foo")
+
+    def test_without_document_lock(self):
+        d = document.Document()
+        assert curdoc() is not d
+        curdoc_from_cb = []
+        @document.without_document_lock
+        def cb():
+            curdoc_from_cb.append(curdoc())
+        callback = d.add_next_tick_callback(cb)
+        callback._callback()
+        assert callback.callback.nolock == True
+        assert len(curdoc_from_cb) == 1
+        assert curdoc_from_cb[0]._doc is d
+        assert isinstance(curdoc_from_cb[0], document.UnlockedDocumentProxy)

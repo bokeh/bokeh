@@ -175,7 +175,8 @@ class PropertyValueDict(PropertyValueContainer, dict):
             else:
                 L = self[k]
                 L.extend(new_data[k])
-                del L[:-rollover]
+                if rollover is not None:
+                    del L[:-rollover]
 
         from ..document import ColumnsStreamedEvent
 
