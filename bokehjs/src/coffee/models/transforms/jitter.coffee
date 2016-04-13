@@ -1,7 +1,7 @@
 _ = require "underscore"
 Transform = require "./transform"
 p = require "../../core/properties"
-math = require "../../core/util/math"
+bokeh_math = require "../../core/util/math"
 
 class Jitter extends Transform.Model
   initialize: (attrs, options) ->
@@ -19,7 +19,7 @@ class Jitter extends Transform.Model
         return(x + @get('mean') + ((Math.random() - 0.5) * @get('width')))
 
     if @get('distribution') == 'normal'
-        return(x + math.rnorm(@get('mean'), @get('width')))
+        return(x + bokeh_math.rnorm(@get('mean'), @get('width')))
 
   v_compute: (xs) ->
     # Apply the tranform to a vector of values
