@@ -548,7 +548,7 @@ decorator that can suppress the normal locking behavior.
 As with the thread example above, all actions that update document state
 **must go through a next-tick callback**.
 
-The following example shows demonstrates an application that drives a blocking
+The following example demonstrates an application that drives a blocking
 computation from one unlocked Bokeh session callback, by yielding to a
 blocking function that runs on the thread pool executor and updates by using
 a next-tick callback, and also updates the state simply from a standard
