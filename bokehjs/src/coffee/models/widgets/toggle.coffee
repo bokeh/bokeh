@@ -50,11 +50,9 @@ class Toggle extends AbstractButton.Model
       active: [ p. Bool, false ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      label: "Toggle"
-    }
+  @override {
+    label: "Toggle"
+  }
 
 module.exports =
   Model: Toggle

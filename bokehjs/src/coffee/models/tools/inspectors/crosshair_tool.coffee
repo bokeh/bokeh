@@ -40,19 +40,16 @@ class CrosshairTool extends InspectTool.Model
       line_alpha: [ p.Number, 1.0                ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['location_units', 'render_mode', 'spans'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      location_units: "screen"
-      render_mode: "css",
-    })
+  @internal {
+    location_units: [ p.SpatialUnits, "screen" ]
+    render_mode:    [ p.RenderMode, "css" ]
+    spans:          [ p.Any ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           "Crosshair",
           @_check_dims(@get('dimensions'), "crosshair tool")

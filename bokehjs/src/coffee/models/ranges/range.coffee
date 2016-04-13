@@ -10,6 +10,10 @@ class Range extends Model
       callback: [ p.Instance ]
     }
 
+  @internal {
+    plots: [ p.Array, [] ]
+  }
+
   reset: () ->
 
 module.exports =

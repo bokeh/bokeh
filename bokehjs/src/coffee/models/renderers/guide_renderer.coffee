@@ -7,9 +7,12 @@ class GuideRenderer extends Renderer.Model
   type: 'GuideRenderer'
 
   @define {
-      level: [ p.RenderLevel, 'overlay' ]
       plot:  [ p.Instance               ]
     }
+
+  @override {
+    level: 'overlay'
+  }
 
 module.exports =
   Model: GuideRenderer

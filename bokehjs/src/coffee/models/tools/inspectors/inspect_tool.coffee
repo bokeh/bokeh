@@ -15,7 +15,7 @@ class InspectToolListItemView extends Backbone.View
     @render()
 
   render: () ->
-    @$el.html(@template(@model.attrs_and_props()))
+    @$el.html(@template({model: @model}))
     return @
 
   _clicked: (e) ->
@@ -27,17 +27,9 @@ class InspectToolView extends Tool.View
 class InspectTool extends Tool.Model
   event_type: "move"
 
-  nonserializable_attribute_names: () ->
-    attrs = _.without(super(), 'active')
-    return attrs.concat(['event_type', 'inner_only'])
-
-  defaults: ->
-    return _.extend {}, super(), {
-      # internal
-      active: true
-      inner_only: true
-      event_type: 'move'
-    }
+  @override {
+    active: true
+  }
 
   bind_bokeh_events: () ->
     super()
