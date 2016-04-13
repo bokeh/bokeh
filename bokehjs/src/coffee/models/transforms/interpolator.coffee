@@ -26,17 +26,7 @@ class Interpolator extends Transform.Model
       throw Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length')
       return
 
-    if typeof(@get('x')) == 'object'
-      if @get('x').length != @get('y').length
-        throw Error('The arrays for x and y must be the same length')
-        return
     else
-      if @get('x').length == 0
-        return
-
-      if @get('y').length == 0
-        return
-
       if @get('data') == null
         throw Error('If the x and y parameters are not specified as an array, the data parameter is reqired.')
         return
@@ -65,6 +55,12 @@ class Interpolator extends Transform.Model
     else
       tsx = @get('x')
       tsy = @get('y')
+
+    if tsx.length != tsy.length
+      throw Error('The length for x and y do not match')
+
+    if tsx.length < 2
+      throw Error('x and y must have at least two elements to support interpolation')
 
     # The following sorting code is referenced from:
     # http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
