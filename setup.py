@@ -44,6 +44,7 @@ except ImportError:
 
 if 'nightly' in sys.argv:
     from setuptools import setup
+
     sys.argv.remove('nightly')
 
     with open('__conda_version__.txt', 'r') as f:
@@ -406,6 +407,16 @@ def parse_jsargs():
 
     return jsbuild
 
+
+def package_tree(pkgroot):
+    """ Get list of packages by walking the directory structure and
+    including all dirs that have an __init__.py or are named test.
+    """
+    subdirs = [os.path.relpath(i[0], ROOT).replace(os.path.sep, '.')
+               for i in os.walk(os.path.join(ROOT, pkgroot))
+               if '__init__.py' in i[2] or os.path.split(i[0])[1] == 'tests']
+    return subdirs
+
 # -----------------------------------------------------------------------------
 # Main script
 # -----------------------------------------------------------------------------
@@ -477,6 +488,8 @@ path = abspath(dirname(__file__))
 
 print()
 if 'develop' in sys.argv:
+    # Note that setuptools supports 'develop' too, but we roll our own implementation
+    # that removes any existing Bokeh installation, and works in virtualenv
     if exists('bokeh/__conda_version__.py'):
         print(bright(red("ERROR:")) + " Detected a __conda_version__.py file, exiting")
         sys.exit(1)
@@ -532,7 +545,7 @@ if sys.version_info[:2] == (2, 7):
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
-# Horrible hack: workaround to allow creation of bdist_whell on pip installation
+# Horrible hack: workaround to allow creation of bdist_wheel on pip installation
 # Why, for God's sake, is pip forcing the generation of wheels when installing a package?
 
 try:
@@ -544,50 +557,12 @@ except ImportError as e:
 if bdist_wheel is not None:
     _cmdclass["bdist_wheel"] = bdist_wheel
 
+
 setup(
     name='bokeh',
     version=_version,
     cmdclass=_cmdclass,
-    packages=[
-        'bokeh',
-        'bokeh.application',
-        'bokeh.application.tests',
-        'bokeh.application.handlers',
-        'bokeh.application.handlers.tests',
-        'bokeh.models',
-        'bokeh.models.tests',
-        'bokeh.models.widgets',
-        'bokeh.charts',
-        'bokeh.charts.builders',
-        'bokeh.charts.builders.tests',
-        'bokeh.charts.tests',
-        'bokeh.client',
-        'bokeh.command',
-        'bokeh.command.tests',
-        'bokeh.command.subcommands',
-        'bokeh.command.subcommands.tests',
-        'bokeh.core',
-        'bokeh.core.compat',
-        'bokeh.core.compat.mplexporter',
-        'bokeh.core.compat.mplexporter.renderers',
-        'bokeh.core.tests',
-        'bokeh.core.validation',
-        'bokeh.plotting',
-        'bokeh.plotting.tests',
-        'bokeh.sampledata',
-        'bokeh.server',
-        'bokeh.server.protocol',
-        'bokeh.server.protocol.messages',
-        'bokeh.server.protocol.messages.tests',
-        'bokeh.server.protocol.tests',
-        'bokeh.server.tests',
-        'bokeh.server.views',
-        'bokeh.sphinxext',
-        'bokeh.themes',
-        'bokeh.tests',
-        'bokeh.util',
-        'bokeh.util.tests',
-    ],
+    packages=package_tree('bokeh'),
     package_data={'bokeh': package_data},
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     author='Continuum Analytics',
