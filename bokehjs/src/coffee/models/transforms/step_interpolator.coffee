@@ -7,7 +7,7 @@ p = require "../../core/properties"
 class StepInterpolator extends Interpolator.Model
 
   @define {
-      mode: [ p.String, "after"]
+      mode: [ p.TransformStepMode, "after"]
     }
 
   compute: (x) ->

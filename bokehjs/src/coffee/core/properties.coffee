@@ -198,6 +198,8 @@ class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
 class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
 
+class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
+
 #
 # Units Properties
 #
