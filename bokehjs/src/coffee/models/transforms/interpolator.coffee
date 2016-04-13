@@ -1,6 +1,7 @@
 _ = require "underscore"
 Transform = require "./transform"
 p = require "../../core/properties"
+{logger} = require "../../core/logging"
 
 class Interpolator extends Transform.Model
 
@@ -22,12 +23,12 @@ class Interpolator extends Transform.Model
   sort: (descending = false) ->
     # Verify that all necessary objects exist...
     if typeof(@get('x')) != typeof(@get('y'))
-      # ToDo: Throw a resonable error here
+      throw Error('The parameters for x and y must be of the same type, either both strings which define a column in the data source or both arrays of the same length')
       return
 
     if typeof(@get('x')) == 'object'
       if @get('x').length != @get('y').length
-        # ToDo: Throw a resonable error here
+        throw Error('The arrays for x and y must be the same length')
         return
     else
       if @get('x').length == 0
@@ -37,7 +38,7 @@ class Interpolator extends Transform.Model
         return
 
       if @get('data') == null
-        # ToDo: Throw a resonable error here.
+        throw Error('If the x and y parameters are not specified as an array, the data parameter is reqired.')
         return
 
     # Stop processing this if the dirty flag is not set
