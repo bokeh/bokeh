@@ -10,7 +10,7 @@ class ArcView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.radius.units == "data"
-      @sradius = @sdist(@renderer.xmapper, this.x, @_radius)
+      @sradius = @sdist(@renderer.xmapper, @_x, @_radius)
     else
       @sradius = @_radius
 

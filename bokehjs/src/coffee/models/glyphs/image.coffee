@@ -96,7 +96,7 @@ class Image extends Glyph.Model
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]
       dilate:       [ p.Bool,      false ]
-      color_mapper: [ p.Instance,  new LinearColorMapper.Model(palette: Greys9) ]
+      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys9) ]
   }
 
 module.exports =

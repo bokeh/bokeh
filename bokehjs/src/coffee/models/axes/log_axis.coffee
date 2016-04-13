@@ -12,14 +12,10 @@ class LogAxis extends ContinuousAxis.Model
 
   type: 'LogAxis'
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      ticker: new LogTicker.Model()
-      formatter: new LogTickFormatter.Model()
-
-      # internal
-    }
+  @override {
+    ticker:    () -> new LogTicker.Model()
+    formatter: () -> new LogTickFormatter.Model()
+  }
 
 module.exports =
   Model: LogAxis

@@ -1,14 +1,16 @@
 declare namespace Bokeh {
-    export interface ColorMapper extends Model {}
+    export interface ColorMapper extends Model, IColorMapper {}
+    export interface IColorMapper extends IModel {}
 
-    export var LinearColorMapper: { new(attributes?: KeyVal, options?: KeyVal): LinearColorMapper };
-    export interface LinearColorMapper extends ColorMapper {
-        palette: Palette | Array<Color>;
+    export var LinearColorMapper: { new(attributes?: ILinearColorMapper, options?: ModelOpts): LinearColorMapper };
+    export interface LinearColorMapper extends ColorMapper, ILinearColorMapper {}
+    export interface ILinearColorMapper extends IColorMapper {
+        palette?: Palette | Array<Color>;
 
-        low: number;
-        high: number;
+        low?: number;
+        high?: number;
 
-        reserve_color: Color;
-        reserve_val: number;
+        reserve_color?: Color;
+        reserve_val?: number;
     }
 }
