@@ -20,6 +20,11 @@ from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
 from shutil import copy
 
 try:
+    import setuptools
+except ImportError:
+    pass  # setuptools allows for "develop" and entry_points, but it's not essential
+
+try:
     import colorama
     def bright(text): return "%s%s%s" % (colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
     def dim(text): return "%s%s%s" % (colorama.Style.DIM, text, colorama.Style.RESET_ALL)
