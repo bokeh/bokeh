@@ -3,20 +3,27 @@ utils = require "../../utils"
 
 {Collections} = utils.require "base"
 
+StepInterpolator = utils.require('models/transforms/step_interpolator').Model
+ColumnDataSource = utils.require('models/sources/column_data_source').Model
+
 describe "step_interpolator_transform module", ->
   source = {start: 0, end: 10}
   target = {start: 20, end: 80}
 
   generate_interpolator_ColumnDataSource = ->
-    Collections("StepInterpolator").create
+    new StepInterpolator({
       x: 'var1'
       y: 'var2'
-      data: Collections("ColumnDataSource").create({data: {var1: [0, 5, 15], var2: [10, 20, 30]}})
+      data: new ColumnDataSource({
+        data: {var1: [0, 5, 15], var2: [10, 20, 30]}
+        })
+      })
 
   generate_interpolator_inline = ->
-    Collections("StepInterpolator").create
+    new StepInterpolator({
       x: [0, 5, 15]
       y: [10, 20, 30]
+      })
 
   describe "creation with ColumnDataSource ranges", ->
     transform = generate_interpolator_ColumnDataSource()
