@@ -4,9 +4,6 @@ p = require "../../core/properties"
 bokeh_math = require "../../core/util/math"
 
 class Jitter extends Transform.Model
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
   @define {
       mean:         [ p.Number      , 0        ]
       width:        [ p.Number      , 1        ]

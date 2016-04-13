@@ -4,9 +4,6 @@ Interpolator = require "./interpolator"
 
 class LinearInterpolator extends Interpolator.Model
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
   defaults: ->
     return _.extend({}, super())
 

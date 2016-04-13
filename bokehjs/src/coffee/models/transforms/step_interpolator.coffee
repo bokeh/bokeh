@@ -6,9 +6,6 @@ p = require "../../core/properties"
 
 class StepInterpolator extends Interpolator.Model
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
   @define {
       mode: [ p.String, "after"]
     }
