@@ -100,7 +100,9 @@ class Application(object):
     '''
 
     def __init__(self, *handlers):
-        self._handlers = list(handlers)
+        self._handlers = []
+        for h in handlers:
+            self.add(h)
 
     def create_document(self):
         ''' Creates and initializes a document using the Application's handlers.'''
@@ -118,6 +120,9 @@ class Application(object):
             if h.failed:
                 log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
 
+        if self._template is not None:
+            doc.template = self._template
+
         # A future server setting could make it configurable whether to do this,
         # since it has some performance impact probably. Let's see if we need to.
         doc.validate()
@@ -131,10 +136,25 @@ class Application(object):
         '''
         self._handlers.append(handler)
 
+        # make sure there is at most one static path
         static_paths = set(h.static_path() for h in self.handlers)
         static_paths.discard(None)
         if len(static_paths) > 1:
             raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))
+        elif len(static_paths) == 1:
+            self._static_path = static_paths.pop()
+        else:
+            self._static_path = None
+
+        # make sure there is at most one custom template
+        templates = set(h.template() for h in self.handlers)
+        templates.discard(None)
+        if len(templates) > 1:
+            raise RuntimeError("More than one custom template requested for app: %r" % list(templates))
+        elif len(templates) == 1:
+            self._template = templates.pop()
+        else:
+            self._template = None
 
     @property
     def handlers(self):
@@ -142,10 +162,7 @@ class Application(object):
 
     @property
     def static_path(self):
-        # guaranteed to be at most one
-        for h in self.handlers:
-            if h.static_path() is not None: return h.static_path()
-        return None
+        return self._static_path
 
     def on_server_loaded(self, server_context):
         """ Invoked after server startup but before any sessions are created."""

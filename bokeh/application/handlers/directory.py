@@ -3,7 +3,9 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
-from os.path import basename, exists, join
+from os.path import basename, dirname, exists, join
+
+from jinja2 import Environment, FileSystemLoader
 
 from .handler import Handler
 from .script import ScriptHandler
@@ -53,6 +55,11 @@ class DirectoryHandler(Handler):
         if exists(appstatic):
             self._static = appstatic
 
+        appindex = join(src_path, 'templates', 'index.html')
+        if exists(appindex):
+            env = Environment(loader=FileSystemLoader(dirname(appindex)))
+            self._template = env.get_template('index.html')
+
     def url_path(self):
         if self.failed:
             return None
@@ -67,6 +74,8 @@ class DirectoryHandler(Handler):
         # class is immutable (has no setters)
         if self._theme is not None:
             doc.theme = self._theme
+
+        # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 
     @property

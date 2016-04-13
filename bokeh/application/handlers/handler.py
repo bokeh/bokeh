@@ -8,6 +8,7 @@ class Handler(object):
         self._error = None
         self._error_detail = None
         self._static = None
+        self._template = None
 
     def url_path(self):
         """Returns a default URL path if the spelling specified one."""
@@ -19,6 +20,13 @@ class Handler(object):
             return None
         else:
             return self._static
+
+    def template(self):
+        """Returns an app-specific custom Jinja template, if applicable."""
+        if self.failed:
+            return None
+        else:
+            return self._template
 
     def modify_document(self, doc):
         """Modifies the application document however the spelling specifies."""

@@ -7,6 +7,8 @@ import shutil
 import os
 import os.path
 
+import jinja2
+
 from bokeh.application.handlers import DirectoryHandler
 from bokeh.document import Document
 
@@ -198,3 +200,42 @@ some.foo = 57
 
         handler = result['handler']
         assert handler.static_path() is None
+
+    def test_directory_with_template(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+            'templates/index.html' : "<div>some HTML</div>"
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert isinstance(handler.template(), jinja2.Template)
+
+    def test_directory_without_template(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert handler.template() is None
