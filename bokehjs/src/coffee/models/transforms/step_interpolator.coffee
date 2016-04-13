@@ -9,8 +9,7 @@ class StepInterpolator extends Interpolator.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       mode: [ p.String, "after"]
     }
 

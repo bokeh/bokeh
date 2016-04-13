@@ -13,11 +13,10 @@ class Interpolator extends Transform.Model
     @bind 'change', () ->
       @_sorted_dirty = true
 
-  props: ->
-    return _.extend {}, super(), {
-      x: [ p.Any, '']
-      y: [ p.Any, '']
-      data: [ p.Any, null]
+  @define {
+      x:    [ p.Any]
+      y:    [ p.Any]
+      data: [ p.Any]
     }
 
   sort: (descending = false) ->

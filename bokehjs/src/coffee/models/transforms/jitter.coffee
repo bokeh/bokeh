@@ -6,8 +6,7 @@ class Jitter extends Transform.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       mean:         [ p.Number, 0        ]
       width:        [ p.Number, 1        ]
       distribution: [ p.String, 'uniform']
