@@ -378,8 +378,9 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
     _save_helper(obj, filename, resources, title, validate)
-    return filename
+    return os.path.abspath(filename)
 
+travis_filename_counter = 0
 def _detect_filename(ext):
     """ Detect filename from the name of the script being run. Returns
     None if the script could not be found (e.g. interactive mode).
@@ -396,7 +397,12 @@ def _detect_filename(ext):
     if filename and isfile(filename):
         name, _ = splitext(basename(filename))
         return join(dirname(filename), name + "." + ext)
-
+    elif os.getenv('Travis') == 'true':
+        # Travis runs examples not as script, so our examples that demonstrate
+        # not-specifying-a-filename would fail unless we perform this trick.
+        global travis_filename_counter
+        travis_filename_counter += 1
+        return 'travis_plot_%i.%s' % (travis_filename_counter, ext)
 
 def _get_save_args(state, filename, resources, title):
     warn = True
