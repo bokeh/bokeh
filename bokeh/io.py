@@ -304,14 +304,17 @@ def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
+    shown = False
 
     if state.notebook:
         comms_handle = _show_notebook_with_state(obj, state)
+        shown = True
 
     elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
+        shown = True
 
-    else:
+    if state.file or not shown:
         _show_file_with_state(obj, state, new, controller)
 
     return comms_handle
