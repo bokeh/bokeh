@@ -50,7 +50,8 @@ def create_and_build(builder_class, *data, **kws):
     if getattr(builder_class, 'default_attributes') is None:
         raise NotImplementedError('Each builder must specify its default_attributes, %s does not.' % builder_class.__name__)
 
-    builder_props = set(builder_class.properties())
+    builder_props = set(builder_class.properties()) | \
+        set(getattr(builder_class, "__deprecated_attributes__", []))
 
     # append dimensions to the builder props
     for dim in builder_class.dimensions:
@@ -608,8 +609,11 @@ class Builder(HasProps):
     def sort_legend(self, value):
         warnings.warn("Chart property 'sort_legend' was deprecated in 0.12 \
             and will be removed in the future.")
-        self.legend_sort_field, self.legend_sort_direction = value[0]
-
+        self.legend_sort_field, direction = value[0]
+        if direction:
+            self.legend_sort_direction = "ascending"
+        else:
+            self.legend_sort_direction = "descending"
 
 class XYBuilder(Builder):
     """Implements common functionality for XY Builders."""
