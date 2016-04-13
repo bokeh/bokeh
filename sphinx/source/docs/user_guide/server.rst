@@ -458,6 +458,154 @@ detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
     capability for two-way Python<-->JS synchronization through Jupyter comms
     is a planned future addition.
 
+Updating From Threads
+'''''''''''''''''''''
+
+If the app needs to perform blocking computation, it can be possible to have
+a separate thread perform that work, and then add a callback to update the
+document with the results. It is important to emphasize that the interface
+to update the document must pass through a "next tick callback". A callback
+added this way will execute as soon as possible on the next iteration of the
+Tornado event loop, and automatically acquire necessary locks to update the
+document state safely.
+
+Any usage that updates the document state from another thread, either by
+calling other methods on the document, or by setting properties directly
+on Bokeh models, risks data and protocol corruption.
+
+.. warning::
+    The ONLY safe operations to perform on a document from a different thread
+    is :func:`~bokeh.document.Document.add_next_tick_callback` and
+    :func:`~bokeh.document.Document.remove_next_tick_callback`
+
+It is also important to save a local copy of ``curdoc()`` off so that all
+threads have access to the same document. This is illustrated in the example
+below:
+
+.. code-block:: python
+
+    from functools import partial
+    from random import random
+    from threading import Thread
+    import time
+
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import curdoc, figure
+
+    from tornado import gen
+
+    # this must only be modified from a Bokeh session allback
+    source = ColumnDataSource(data=dict(x=[0], y=[0]))
+
+    # This is important! Save curdoc() to make sure all threads
+    # see then same document.
+    doc = curdoc()
+
+    @gen.coroutine
+    def update(x, y):
+        source.stream(dict(x=[x], y=[y]))
+
+    def blocking_task():
+        while True:
+            # do some blocking computation
+            time.sleep(0.1)
+            x, y = random(), random()
+
+            # but update the document from callback
+            doc.add_next_tick_callback(partial(update, x=x, y=y))
+
+    p = figure(x_range=[0, 1], y_range=[0,1])
+    l = p.circle(x='x', y='y', source=source)
+
+    doc.add_root(p)
+
+    thread = Thread(target=blocking_task)
+    thread.start()
+
+To see this example in action, save it to a python file, e.g. ``testapp.py`` and
+then execute
+
+.. code-block:: sh
+
+    bokeh serve --show testapp.py
+
+.. warning::
+    There is currently no locking around adding next tick callbacks to
+    documents. It is recommended that at most one thread add callbacks to
+    the document. It is planned to add more fine grained locking to
+    callback methods in the future.
+
+Updating from Unlocked Callbacks
+''''''''''''''''''''''''''''''''
+
+You may also want to drive blocking computations from callbacks using, e.g.
+Tornado's ``ThreadPoolExecutor`` in an asynchronous callback. This can work,
+however, normally Bokeh session callbacks recursively lock the document until
+all future work they initiate is completed. To make this scenario work as
+desired, Bokeh provides a :func:`~bokeh.document.without_document_lock`
+decorator that can suppress the normal locking behavior.
+
+As with the thread example above, all actions that update document state
+**must go through a next-tick callback**.
+
+The following example shows demonstrates an application that drives a blocking
+computation from one unlocked Bokeh session callback, by yielding to a
+blocking function that runs on the thread pool executor and updates by using
+a next-tick callback, and also updates the state simply from a standard
+locked session callback on a different update rate.
+
+.. code-block:: python
+
+    from functools import partial
+    import time
+
+    from concurrent.futures import ThreadPoolExecutor
+    from tornado import gen
+
+    from bokeh.document import without_document_lock
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import curdoc, figure
+
+    source = ColumnDataSource(data=dict(x=[0], y=[0], color=["blue"]))
+
+    i = 0
+
+    doc = curdoc()
+
+    executor = ThreadPoolExecutor(max_workers=2)
+
+    def blocking_task(i):
+        time.sleep(1)
+        return i
+
+    # the unlocked callback uses this locked callback to safely update
+    @gen.coroutine
+    def locked_update(i):
+        source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["blue"]))
+
+    # this unclocked callback will not prevent other session callbacks from
+    # executing while it is in flight
+    @gen.coroutine
+    @without_document_lock
+    def unlocked_task():
+        global i
+        i += 1
+        res = yield executor.submit(blocking_task, i)
+        doc.add_next_tick_callback(partial(locked_update, i=res))
+
+    @gen.coroutine
+    def update():
+        source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["red"]))
+
+    p = figure(x_range=[0, 100], y_range=[0,20])
+    l = p.circle(x='x', y='y', color='color', source=source)
+
+    doc.add_periodic_callback(unlocked_task, 1000)
+    doc.add_periodic_callback(update, 200)
+    doc.add_root(p)
+
+As before, you can run this example by saving to a python file and running
+``bokeh serve`` on it.
 
 .. _userguide_server_applications_lifecycle:
 
