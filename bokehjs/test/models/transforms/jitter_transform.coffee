@@ -2,16 +2,18 @@
 utils = require "../../utils"
 
 {Collections} = utils.require "base"
+Jitter = utils.require("models/transforms/jitter_transform").Model
 
 describe "step_interpolator_transform module", ->
   source = {start: 0, end: 10}
   target = {start: 20, end: 80}
 
   generate_jitter = ->
-    Collections("Jitter").create
-      width: 1
-      center: 0
+    new Jitter({
+      width: 1,
+      center: 0,
       distribution: 'uniform'
+    })
 
   describe "Jitter with uniform", ->
     transform = generate_jitter()
