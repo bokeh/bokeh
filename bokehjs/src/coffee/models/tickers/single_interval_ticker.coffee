@@ -9,19 +9,18 @@ p = require "../../core/properties"
 class SingleIntervalTicker extends ContinuousTicker.Model
   type: 'SingleIntervalTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       interval: [ p.Number ]
     }
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('min_interval',
+    @define_computed_property('min_interval',
         () -> @get('interval')
       , true)
     @add_dependencies('min_interval', this, ['interval'])
 
-    @register_property('max_interval',
+    @define_computed_property('max_interval',
         () -> @get('interval')
       , true)
     @add_dependencies('max_interval', this, ['interval'])

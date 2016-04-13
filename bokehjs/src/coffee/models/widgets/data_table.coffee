@@ -187,8 +187,7 @@ class DataTable extends TableWidget.Model
   type: 'DataTable'
   default_view: DataTableView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       columns:             [ p.Array,  []    ]
       width:               [ p.Number        ]
       height:              [ p.Number, 400   ]

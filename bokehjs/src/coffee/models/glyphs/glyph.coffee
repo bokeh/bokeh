@@ -79,13 +79,13 @@ class GlyphView extends Renderer.View
 
     # if the range is categorical, map to synthetic coordinates first
     if @renderer.xmapper instanceof CategoricalMapper.Model
-      xx = @renderer.xmapper.v_map_to_target(@x, true)
+      xx = @renderer.xmapper.v_map_to_target(@_x, true)
     else
-      xx = @x
+      xx = @_x
     if @renderer.ymapper instanceof CategoricalMapper.Model
-      yy = @renderer.ymapper.v_map_to_target(@y, true)
+      yy = @renderer.ymapper.v_map_to_target(@_y, true)
     else
-      yy = @y
+      yy = @_y
 
     for i in [0...xx.length]
       x = xx[i]
@@ -120,11 +120,13 @@ class GlyphView extends Renderer.View
       return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
   get_reference_point: () ->
-    reference_point = @mget('reference_point')
-    if _.isNumber(reference_point)
-      return @data[reference_point]
-    else
-      return reference_point
+    return undefined
+    #reference_point = @mget('reference_point')
+    #ret = if _.isNumber(reference_point)
+    #  @data[reference_point]
+    #else
+    #  reference_point
+    #return ret
 
   draw_legend: (ctx, x0, x1, y0, y1) -> null
 
@@ -165,17 +167,14 @@ class GlyphView extends Renderer.View
       ctx.stroke()
 
 class Glyph extends Renderer.Model
-
-  # Many glyphs have simple x and y coordinates. Override this in
-  # subclasses that use other coordinates
-  coords: [ ['x', 'y'] ]
-
-  mixins: ['line', 'fill']
-
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       visible: [ p.Bool, true ]
     }
+
+  @internal {
+    x_range_name: [ p.String,      'default' ]
+    y_range_name: [ p.String,      'default' ]
+  }
 
 module.exports =
   Model: Glyph

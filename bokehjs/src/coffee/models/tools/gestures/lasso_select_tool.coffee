@@ -58,7 +58,7 @@ class LassoSelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
@@ -67,7 +67,7 @@ class LassoSelectToolView extends SelectTool.View
 
     return null
 
-DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
@@ -87,15 +87,10 @@ class LassoSelectTool extends SelectTool.Model
   event_type: "pan"
   default_order: 12
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       select_every_mousemove: [ p.Bool,    true                  ]
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
-    })
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
+    }
 
 module.exports =
   Model: LassoSelectTool

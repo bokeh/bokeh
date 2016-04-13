@@ -6,13 +6,15 @@ p = require "../../core/properties"
 class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'
 
-  props: ->
-    return _.extend {}, super(), {
-      x_origin_offset:    [ p.Number, 20037508.34        ]
-      y_origin_offset:    [ p.Number, 20037508.34        ]
-      initial_resolution: [ p.Number, 156543.03392804097 ]
-      wrap_around:        [ p.Bool,   true               ]
-    }
+  @define {
+    wrap_around:        [ p.Bool,   true               ]
+  }
+
+  @override {
+    x_origin_offset:    20037508.34
+    y_origin_offset:    20037508.34
+    initial_resolution: 156543.03392804097
+  }
 
   initialize: (options) ->
     super(options)

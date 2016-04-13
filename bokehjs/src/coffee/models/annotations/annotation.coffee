@@ -6,11 +6,13 @@ p = require "../../core/properties"
 class Annotation extends Renderer.Model
   type: 'Annotation'
 
-  props: ->
-    return _.extend {}, super(), {
-      level: [ p.RenderLevel, 'annotation' ]
+  @define {
       plot:  [ p.Instance                  ]
     }
+
+  @override {
+    level: 'annotation'
+  }
 
 module.exports =
   Model: Annotation

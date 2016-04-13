@@ -100,14 +100,21 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         return self._document
 
     def trigger(self, attr, old, new, hint=None):
-        dirty = { 'count' : 0 }
-        def mark_dirty(obj):
-            dirty['count'] += 1
-        if self._document is not None:
-            self._visit_value_and_its_immediate_references(new, mark_dirty)
-            self._visit_value_and_its_immediate_references(old, mark_dirty)
-            if dirty['count'] > 0:
-                self._document._invalidate_all_models()
+        # The explicit assumption here is that hinted events do not
+        # need to go through all the same invalidation steps. Currently
+        # as of Bokeh 0.11.1 the only hinted event is ColumnsStreamedEvent.
+        # This may need to be further refined in the future, if the
+        # assumption does not hold for future hinted events (e.g. the hint
+        # could specify explicitly whether to do normal invalidation or not)
+        if not hint:
+            dirty = { 'count' : 0 }
+            def mark_dirty(obj):
+                dirty['count'] += 1
+            if self._document is not None:
+                self._visit_value_and_its_immediate_references(new, mark_dirty)
+                self._visit_value_and_its_immediate_references(old, mark_dirty)
+                if dirty['count'] > 0:
+                    self._document._invalidate_all_models()
         # chain up to invoke callbacks
         super(Model, self).trigger(attr, old, new, hint)
 
@@ -255,7 +262,21 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 that haven't been changed from the default.
 
         """
-        attrs = self.properties_with_values(include_defaults=include_defaults)
+        all_attrs = self.properties_with_values(include_defaults=include_defaults)
+
+        # If __subtype__ is defined, then this model may introduce properties
+        # that don't exist on __view_model__ in bokehjs. Don't serialize such
+        # properties.
+        subtype = getattr(self.__class__, "__subtype__", None)
+        if subtype is not None and subtype != self.__class__.__view_model__:
+            attrs = {}
+            for attr, value in all_attrs.items():
+                if attr in self.__class__.__dict__:
+                    continue
+                else:
+                    attrs[attr] = value
+        else:
+            attrs = all_attrs
 
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and

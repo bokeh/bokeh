@@ -169,18 +169,15 @@ class PropertyValueDict(PropertyValueContainer, dict):
         for k, v in new_data.items():
             if isinstance(self[k], np.ndarray):
                 data = np.append(self[k], new_data[k])
+                if rollover and len(data) > rollover:
+                    data = data[-rollover:]
+                super(PropertyValueDict, self).__setitem__(k, data)
             else:
-                data = self[k] + new_data[k]
-            if rollover and len(data) > rollover:
-                data = data[-rollover:]
-
-            super(PropertyValueDict, self).__setitem__(k, data)
+                L = self[k]
+                L.extend(new_data[k])
+                del L[:-rollover]
 
         from ..document import ColumnsStreamedEvent
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover))
-
-
-
-

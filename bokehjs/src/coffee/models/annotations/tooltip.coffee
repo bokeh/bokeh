@@ -75,22 +75,19 @@ class Tooltip extends Annotation.Model
 
   type: 'Tooltip'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       side:       [ p.String, 'auto' ] # TODO (bev) enum?
       inner_only: [ p.Bool,   true   ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      level: 'overlay'
+  @override {
+    level: 'overlay'
+  }
 
-      # internal
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['data', 'custom'])
+  @internal {
+    data: [ p.Any ]
+    custom: [ p.Any ]
+  }
 
   clear: () ->
     @set('data', [])

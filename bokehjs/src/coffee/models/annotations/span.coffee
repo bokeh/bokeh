@@ -16,7 +16,10 @@ class SpanView extends Renderer.View
     if @mget('for_hover')
       @listenTo(@model, 'change:computed_location', @_draw_span)
     else
-      @listenTo(@model, 'change:location', @_draw_span)
+      if @mget('render_mode') == 'canvas'
+        @listenTo(@model, 'change:location', @plot_view.request_render)
+      else
+        @listenTo(@model, 'change:location', @_draw_span)
 
   render: () ->
     @_draw_span()
@@ -86,29 +89,25 @@ class Span extends Annotation.Model
 
   type: 'Span'
 
-  mixins: ['line']
+  @mixins ['line']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       render_mode:    [ p.RenderMode,   'canvas'  ]
       x_range_name:   [ p.String,       'default' ]
       y_range_name:   [ p.String,       'default' ]
       location:       [ p.Number,       null      ]
       location_units: [ p.SpatialUnits, 'data'    ]
       dimension:      [ p.Dimension,    'width'   ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      line_color: 'black'
+  @override {
+    line_color: 'black'
+  }
 
-      # internal
-      for_hover: false
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['for_hover', 'computed_location'])
+  @internal {
+    for_hover: [ p.Boolean, false ]
+    computed_location: [ p.Number, null ]
+  }
 
 module.exports =
   Model: Span

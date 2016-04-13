@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class BasicTickFormatter extends TickFormatter.Model
   type: 'BasicTickFormatter'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       precision:        [ p.Any,    'auto' ] # TODO (bev) better
       use_scientific:   [ p.Bool,   true   ]
       power_limit_high: [ p.Number, 5      ]
@@ -16,19 +15,19 @@ class BasicTickFormatter extends TickFormatter.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('scientific_limit_low',
+    @define_computed_property('scientific_limit_low',
         () -> Math.pow(10.0, @get('power_limit_low'))
       , true)
     @add_dependencies('scientific_limit_low', this, ['power_limit_low'])
 
-    @register_property('scientific_limit_high',
+    @define_computed_property('scientific_limit_high',
         () -> Math.pow(10.0, @get('power_limit_high'))
       , true)
     @add_dependencies('scientific_limit_high', this, ['power_limit_high'])
 
     @last_precision = 3
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     if ticks.length == 0
       return []
 

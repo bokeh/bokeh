@@ -31,10 +31,10 @@ def stop_handler():
         curdoc().remove_periodic_callback(update)
         playing = False
 
-button_start = Button(label="Start", type="success")
+button_start = Button(label="Start", button_type="success")
 button_start.on_click(start_handler)
 
-button_stop = Button(label="Stop", type="danger")
+button_stop = Button(label="Stop", button_type="danger")
 button_stop.on_click(stop_handler)
 
 controls = hplot(button_start, button_stop)

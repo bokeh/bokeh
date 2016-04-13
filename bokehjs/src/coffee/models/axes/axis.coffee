@@ -151,8 +151,8 @@ _apply_location_heuristics = (ctx, side, orient) ->
 class AxisView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @x_range_name = @mget('x_range_name')
-    @y_range_name = @mget('y_range_name')
+    @_x_range_name = @mget('x_range_name')
+    @_y_range_name = @mget('y_range_name')
 
   render: () ->
     if not @mget('visible')
@@ -177,7 +177,7 @@ class AxisView extends Renderer.View
     if not @visuals.axis_line.doit
       return
     [x, y] = coords = @mget('rule_coords')
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
@@ -193,7 +193,7 @@ class AxisView extends Renderer.View
       return
     coords = @mget('tick_coords')
     [x, y] = coords.major
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
@@ -213,7 +213,7 @@ class AxisView extends Renderer.View
       return
     coords = @mget('tick_coords')
     [x, y] = coords.minor
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
@@ -231,7 +231,7 @@ class AxisView extends Renderer.View
   _draw_major_labels: (ctx) ->
     coords = @mget('tick_coords')
     [x, y] = coords.major
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     dim = @mget('dimension')
@@ -244,7 +244,7 @@ class AxisView extends Renderer.View
       angle = -orient
     standoff = @model._tick_extent(@) + @mget('major_label_standoff')
 
-    labels = @mget('formatter').format(coords.major[dim])
+    labels = @mget('formatter').doFormat(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
@@ -267,7 +267,7 @@ class AxisView extends Renderer.View
       return
 
     [x, y] = @mget('rule_coords')
-    [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
+    [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     side = @mget('layout_location')
@@ -297,7 +297,7 @@ class Axis extends GuideRenderer.Model
 
   type: 'Axis'
 
-  mixins: [
+  @mixins [
     'line:axis_',
     'line:major_tick_',
     'line:minor_tick_',
@@ -305,8 +305,7 @@ class Axis extends GuideRenderer.Model
     'text:axis_label_'
   ]
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       visible:        [ p.Bool,     true      ]
       location:       [ p.String,   'auto'    ] # TODO (bev) enum
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)
@@ -315,54 +314,51 @@ class Axis extends GuideRenderer.Model
       x_range_name:   [ p.String,   'default' ]
       y_range_name:   [ p.String,   'default' ]
       axis_label:     [ p.String,   ''        ]
+      axis_label_standoff:     [ p.Int,         5 ]
+      major_label_standoff:    [ p.Int,         5 ]
+      major_label_orientation: [ p.Any, "horizontal" ] # TODO: p.Orientation | p.Number
       major_tick_in:  [ p.Number,   2         ]
       major_tick_out: [ p.Number,   6         ]
       minor_tick_in:  [ p.Number,   0         ]
       minor_tick_out: [ p.Number,   4         ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      axis_line_color: 'black'
+  @override {
+    axis_line_color: 'black'
 
-      major_tick_line_color: 'black'
-      minor_tick_line_color: 'black'
+    major_tick_line_color: 'black'
+    minor_tick_line_color: 'black'
 
-      major_label_standoff: 5
-      major_label_orientation: "horizontal"
-      major_label_text_font_size: "10pt"
-      major_label_text_align: "center"
-      major_label_text_baseline: "alphabetic"
+    major_label_text_font_size: "10pt"
+    major_label_text_align: "center"
+    major_label_text_baseline: "alphabetic"
 
-      axis_label_standoff: 5
-      axis_label_text_font_size: "16pt"
-      axis_label_text_align: "center"
-      axis_label_text_baseline: "alphabetic"
+    axis_label_text_font_size: "16pt"
+    axis_label_text_align: "center"
+    axis_label_text_baseline: "alphabetic"
+  }
 
-      # internal
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['layout_location'])
+  @internal {
+    layout_location: [ p.Any ]
+  }
 
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('computed_bounds', @_computed_bounds, false)
+    @define_computed_property('computed_bounds', @_computed_bounds, false)
     @add_dependencies('computed_bounds', this, ['bounds'])
     @add_dependencies('computed_bounds', @get('plot'), ['x_range', 'y_range'])
 
-    @register_property('rule_coords', @_rule_coords, false)
+    @define_computed_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
 
-    @register_property('tick_coords', @_tick_coords, false)
+    @define_computed_property('tick_coords', @_tick_coords, false)
     @add_dependencies('tick_coords', this, ['computed_bounds', 'layout_location'])
 
-    @register_property('ranges', @_ranges, true)
-    @register_property('normals', (() -> @_normals), true)
-    @register_property('dimension', (() -> @_dim), true)
-    @register_property('offsets', @_offsets, true)
+    @define_computed_property('ranges', @_ranges, true)
+    @define_computed_property('normals', (() -> @_normals), true)
+    @define_computed_property('dimension', (() -> @_dim), true)
+    @define_computed_property('offsets', @_offsets, true)
 
   _doc_attached: () ->
     @panel = new LayoutBox.Model()
@@ -555,7 +551,7 @@ class Axis extends GuideRenderer.Model
     side = @get('layout_location')
     orient = @get('major_label_orientation')
 
-    labels = @get('formatter').format(coords[dim])
+    labels = @get('formatter').doFormat(coords[dim])
 
     view.visuals.major_label_text.set_value(ctx)
 

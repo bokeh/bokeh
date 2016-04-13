@@ -97,7 +97,7 @@ Another possibility is to have a single centrally created app (perhaps by an
 organization), that can access data or other artifacts published by many
 different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
-server with other web application frameworks. See a complete example at 
+server with other web application frameworks. See a complete example at
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
 
@@ -116,6 +116,12 @@ First, we must have a Bokeh Server running. To do that, execute the command:
 .. code-block:: sh
 
     bokeh serve
+
+or, alternatively:
+
+.. code-block:: sh
+
+    python -m bokeh serve
 
 When the server starts you should see output similar to the following on your
 console:
@@ -354,41 +360,62 @@ The full set of files that Bokeh server knows about is:
        +---main.py
        +---server_lifecycle.py
        +---theme.yaml
+       +---static
+
+The optional components are
+
+* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
+
+* A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
+
+* a ``static`` subdirectory that can be used to serve static resources associated with this application.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
 to include data files or custom user defined models in your directory
-however you like. An example might be:
+however you like. Additionally, the application directory is also added
+to ``sys.path`` so that python modules in the application directory may
+be easily imported.
+
+An example might be:
 
 .. code-block:: none
 
     myapp
        |
        +---data
-       |      +---things.csv
+       |    +---things.csv
        |
+       +---helpers.py
        +---main.py
        |---models
-       |      +---custom.js
+       |    +---custom.js
        |
        +---server_lifecycle.py
        +---theme.yaml
+       +---static
+            +---css
+            |    +---special.css
+            |
+            +---images
+            |    +---foo.png
+            |    +---bar.png
+            |
+            +---js
+                 +---special.js
 
 In this case you might have code similar to:
 
 .. code-block:: python
 
     from os.path import dirname, join
-    import pandas
+    from helpers import load_data
 
-    pandas.read_csv(join(dirname(__file__), 'data', 'things.csv')
+    load_data(join(dirname(__file__), 'data', 'things.csv')
 
 And similar code to load the JavaScript implementation for a custom model
-from ``custom.js``
+from ``models/custom.js``
 
-.. note::
-    Currently only absolute imports are supported in ``main.py``. We hope to
-    lift this limitation in future releases.
 
 .. _userguide_server_applications_callbacks:
 
@@ -512,7 +539,7 @@ Next, issue the following command on the **local machine** to establish an ssh t
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006  user@remote.host
-    
+
 Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
 
 The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
@@ -523,7 +550,7 @@ Issue the following commands on the **remote host** where the Bokeh server will 
 
     nohup bokeh server &
     ssh -NfR 5006:localhost:5006 user@gateway.host
-    
+
 Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
 
 Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
@@ -531,7 +558,7 @@ Now set up the other half of the tunnel, from the local machine to the gateway. 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006 user@gateway.host
-    
+
 Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
 
 .. note::

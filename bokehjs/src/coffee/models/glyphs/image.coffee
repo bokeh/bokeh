@@ -11,32 +11,32 @@ class ImageView extends Glyph.View
     @_xy_index()
 
   _set_data: () ->
-    if not @image_data? or @image_data.length != @image.length
-      @image_data = new Array(@image.length)
+    if not @image_data? or @image_data.length != @_image.length
+      @image_data = new Array(@_image.length)
 
-    if not @width? or @width.length != @image.length
-      @width = new Array(@image.length)
+    if not @_width? or @_width.length != @_image.length
+      @_width = new Array(@_image.length)
 
-    if not @height? or @height.length != @image.length
-      @height = new Array(@image.length)
+    if not @_height? or @_height.length != @_image.length
+      @_height = new Array(@_image.length)
 
-    for i in [0...@image.length]
-      if @rows?
-        @height[i] = @rows[i]
-        @width[i] = @cols[i]
+    for i in [0...@_image.length]
+      if @_rows?
+        @_height[i] = @_rows[i]
+        @_width[i] = @_cols[i]
       else
-        @height[i] = @image[i].length
-        @width[i] = @image[i][0].length
+        @_height[i] = @_image[i].length
+        @_width[i] = @_image[i][0].length
       canvas = document.createElement('canvas')
-      canvas.width = @width[i]
-      canvas.height = @height[i]
+      canvas.width = @_width[i]
+      canvas.height = @_height[i]
       ctx = canvas.getContext('2d')
-      image_data = ctx.getImageData(0, 0, @width[i], @height[i])
+      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
       cmap = @mget('color_mapper')
-      if @rows?
-        img = @image[i]
+      if @_rows?
+        img = @_image[i]
       else
-        img = _.flatten(@image[i])
+        img = _.flatten(@_image[i])
       buf = cmap.v_map_screen(img)
       buf8 = new Uint8ClampedArray(buf)
       image_data.data.set(buf8)
@@ -44,16 +44,16 @@ class ImageView extends Glyph.View
       @image_data[i] = canvas
 
       @max_dw = 0
-      if @dw.units == "data"
-        @max_dw = _.max(@dw)
+      if @_dw.units == "data"
+        @max_dw = _.max(@_dw)
       @max_dh = 0
-      if @dh.units == "data"
-        @max_dh = _.max(@dh)
+      if @_dh.units == "data"
+        @max_dh = _.max(@_dh)
       @_xy_index()
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, @dh, 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
@@ -89,22 +89,15 @@ class Image extends Glyph.Model
 
   type: 'Image'
 
-  mixins: []
-
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins []
+  @define {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]
       dilate:       [ p.Bool,      false ]
-      color_mapper: [ p.Instance,  new LinearColorMapper.Model(palette: Greys9) ]
+      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys9) ]
   }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @properties.rows.optional = true
-    @properties.cols.optional = true
-
 
 module.exports =
   Model: Image

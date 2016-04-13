@@ -7,11 +7,9 @@ p = require "../../core/properties"
 class GeoJSONDataSource extends ColumnDataSource.Model
   type: 'GeoJSONDataSource'
 
-  props: ->
-    return _.extend({}, super(), {
+  @define {
       geojson: [ p.Any     ] # TODO (bev)
-      data:    [ p.Any, {} ]
-    })
+    }
 
   # TODO (bev) investigate, exists on python side
   # nonserializable_attribute_names: () ->
@@ -20,7 +18,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
   initialize: (options) ->
     super(options)
     @geojson_to_column_data() # this just validates the initial geojson value
-    @register_property('data', @geojson_to_column_data, true)
+    @define_computed_property('data', @geojson_to_column_data, true)
     @add_dependencies('data', this, ['geojson'])
 
   _get_new_list_array: (length) ->

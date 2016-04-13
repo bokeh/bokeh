@@ -37,6 +37,7 @@
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
     "gulp-coffee": "^2.3.1",
+    "gulp-typescript": "^2.12.1",
     "gulp-newer": "^1.1.0",
     "gulp-if": "^2.0.0",
     "merge": "^1.2.0",
@@ -45,7 +46,7 @@
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
-    "phantomjs": "1.9.7-15",
+    "phantomjs-prebuilt": "2.1.7",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "sinon": "^1.15.4",
@@ -60,7 +61,9 @@
     "root-require": "^0.3.1",
     "event-stream": "^3.3.1",
     "jsdom": "^5.6.1",
-    "websocket":"^1.0.22"
+    "websocket":"^1.0.22",
+    "typings": "^0.7.9",
+    "typings-core": "^0.2.11"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -93,5 +96,9 @@
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",
     "coffee-script": "^1.9.3"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "dev-build": "gulp dev-build"
   }
 }

@@ -11,13 +11,13 @@ class AnnulusView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.inner_radius.units == "data"
-      @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
+      @sinner_radius = @sdist(@renderer.xmapper, @_x, @_inner_radius)
     else
-      @sinner_radius = @inner_radius
+      @sinner_radius = @_inner_radius
     if @model.properties.outer_radius.units == "data"
-      @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
+      @souter_radius = @sdist(@renderer.xmapper, @_x, @_outer_radius)
     else
-      @souter_radius = @outer_radius
+      @souter_radius = @_outer_radius
 
   _render: (ctx, indices, {sx, sy, sinner_radius, souter_radius}) ->
     for i in indices
@@ -69,13 +69,15 @@ class AnnulusView extends Glyph.View
     y1 = y + @max_radius
 
     hits = []
-    for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    for i in (pt[4].i for pt in @index.search(bbox))
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x)
-      sx1 = @renderer.xmapper.map_to_target(@x[i])
+      sx1 = @renderer.xmapper.map_to_target(@_x[i])
       sy0 = @renderer.ymapper.map_to_target(y)
-      sy1 = @renderer.ymapper.map_to_target(@y[i])
+      sy1 = @renderer.ymapper.map_to_target(@_y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])
@@ -111,8 +113,9 @@ class Annulus extends Glyph.Model
 
   type: 'Annulus'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       inner_radius: [ p.DistanceSpec ]
       outer_radius: [ p.DistanceSpec ]
     }

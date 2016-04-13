@@ -87,7 +87,7 @@ FontStyle = enumeration("normal", "italic", "bold")
 TextAlign = enumeration("left", "right", "center")
 
 #: Specify the baseline location for rendering text
-TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging")
+TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
 #: Specify a stroke direction for circles, wedges, etc.
 Direction = enumeration("clock", "anticlock")
@@ -175,3 +175,4 @@ SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
 
 #: Specify a distribution to use for the Jitter class
 JitterRandomDistribution = enumeration("uniform", "normal")
+

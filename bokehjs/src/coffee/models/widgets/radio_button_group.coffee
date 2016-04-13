@@ -29,7 +29,7 @@ class RadioButtonGroupView extends BokehView
       if i == active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("type"))
+      $label.addClass("bk-bs-btn-" + @mget("button_type"))
       if i == active then $label.addClass("bk-bs-active")
       @$el.append($label)
     return @
@@ -43,11 +43,10 @@ class RadioButtonGroup extends Widget.Model
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
-  props: ->
-    return _.extend {}, super(), {
-      active:   [ p.Any,    null      ] # TODO (bev) better type?
-      labels:   [ p.Array,  []        ]
-      type:     [ p.String, "default" ]
+  @define {
+      active:      [ p.Any,    null      ] # TODO (bev) better type?
+      labels:      [ p.Array,  []        ]
+      button_type: [ p.String, "default" ]
     }
 
 module.exports =

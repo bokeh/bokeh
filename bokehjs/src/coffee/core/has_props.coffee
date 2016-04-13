@@ -3,14 +3,72 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 {logger} = require "./logging"
-mixins = require "./property_mixins"
+property_mixins = require "./property_mixins"
 refs = require "./util/refs"
 
 class HasProps extends Backbone.Model
 
+  props: {}
   mixins: []
 
-  props: () -> mixins.create(@mixins)
+  @define: (object) ->
+    for name, prop of object
+      do (name, prop) =>
+        if this.prototype.props[name]?
+          throw new Error("attempted to redefine property '#{this.name}.#{name}'")
+
+        if this.prototype[name]? and name != "url" # TODO: remove when we drop backbone
+          throw new Error("attempted to redefine attribute '#{this.name}.#{name}'")
+
+        Object.defineProperty(this.prototype, name, {
+          get: ()      -> this.get(name)
+          set: (value) -> this.set(name, value)
+        }, {
+          configurable: false
+          enumerable: true
+        })
+
+        [type, default_value, internal] = prop
+        refined_prop = {
+          type: type
+          default_value: default_value
+          internal: internal ? false
+        }
+
+        props = _.clone(this.prototype.props)
+        props[name] = refined_prop
+        this.prototype.props = props
+
+  @internal: (object) ->
+    _object = {}
+    for name, prop of object
+      do (name, prop) =>
+        [type, default_value] = prop
+        _object[name] = [type, default_value, true]
+    @define(_object)
+
+  @mixin: (names...) ->
+    @define(property_mixins.create(names))
+    mixins = this.prototype.mixins.concat(names)
+    this.prototype.mixins = mixins
+
+  @mixins: (names) -> @mixin(names...)
+
+  @override: (name_or_object, default_value) ->
+    if _.isString(name_or_object)
+      object = {}
+      object[name] = default_value
+    else
+      object = name_or_object
+
+    for name, default_value of object
+      do (name, default_value) =>
+        value = this.prototype.props[name]
+        if not value?
+          throw new Error("attempted to override nonexistent '#{this.name}.#{name}'")
+        props = _.clone(this.prototype.props)
+        props[name] = _.extend({}, value, { default_value: default_value })
+        this.prototype.props = props
 
   toString: () -> "#{@type}(#{@id})"
 
@@ -21,12 +79,6 @@ class HasProps extends Backbone.Model
 
   isNew: () ->
     return false
-
-  attrs_and_props : () ->
-    data = _.clone(@attributes)
-    for prop_name in _.keys(@_computed)
-      data[prop_name] = @get(prop_name)
-    return data
 
   constructor : (attributes, options) ->
     @document = null
@@ -39,16 +91,13 @@ class HasProps extends Backbone.Model
     this.attributes = {}
 
     @properties = {}
-    props = _.result(this, 'props')
-    for name, [type, default_value] of props
+    for name, {type, default_value} of @props
+      if not type?
+        throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
-    if options.collection
-      this.collection = options.collection
     if options.parse
       attrs = this.parse(attrs, options) || {}
-    defaults = _.result(this, 'defaults')
-    this.set(defaults, { defaults: true })
 
     # Bokeh specific
     this._set_after_defaults = {}
@@ -87,6 +136,10 @@ class HasProps extends Backbone.Model
       attrs = {}
       attrs[key] = value
     for own key, val of attrs
+      prop_name = key
+      if not (prop_name == "id" or @props[prop_name])
+        throw new Error("#{@type}.set('#{prop_name}'): #{prop_name} wasn't declared")
+
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
     if not _.isEmpty(attrs)
@@ -114,17 +167,20 @@ class HasProps extends Backbone.Model
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
 
-  register_property:  (prop_name, getter, use_cache) ->
+  define_computed_property: (prop_name, getter, use_cache=true) ->
     # #### Parameters
     # * prop_name: name of property
     # * getter: function, calculates computed value, takes no arguments
     # * use_cache: whether to cache or not
     # #### Returns
     # * prop_spec: specification of the property, with the getter,
-    if _.isUndefined(use_cache)
-      use_cache = true
+
+    if @props[prop_name]?
+      #throw new Error(
+      console.log("attempted to redefine existing property #{@type}.#{prop_name}")
+
     if _.has(@_computed, prop_name)
-      @remove_property(prop_name)
+      throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
 
     changedep = () =>
       @trigger('changedep:' + prop_name)
@@ -155,7 +211,12 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
-  remove_property: (prop_name) ->
+  override_computed_property: (prop_name, getter, use_cache=true) ->
+    if _.has(@_computed, prop_name)
+      @_remove_computed_property(prop_name)
+    @define_computed_property(prop_name, getter, use_cache)
+
+  _remove_computed_property: (prop_name) ->
     # removes the property, unbinding all callbacks that implemented it
     prop_spec = @_computed[prop_name]
     dependencies = prop_spec.dependencies
@@ -170,6 +231,9 @@ class HasProps extends Backbone.Model
     if _.has(@_computed, prop_name)
       return @_get_prop(prop_name)
     else
+      if not (prop_name == "id" or @props[prop_name])
+        throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
+
       ref_or_val = super(prop_name)
       if not resolve_refs
         return ref_or_val
@@ -223,40 +287,30 @@ class HasProps extends Backbone.Model
     # make this a no-op, we sync the whole document never individual models
     return options.success(model.attributes, null, {})
 
-  defaults: -> { }
+  defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   # TODO remove this, for now it's just to help find nonserializable_attribute_names we
   # need to add.
   serializable_in_document: () -> true
 
-  # returns a list of those names which should not be included
-  # in the Document and should not go to the server. Subtypes
-  # should override this. The result will be cached on the class,
-  # so this only gets called one time on one instance.
-  nonserializable_attribute_names: () -> []
-
-  _get_nonserializable_dict: () ->
-    if not @constructor._nonserializable_names_cache?
-      names = {}
-      for n in @nonserializable_attribute_names()
-        names[n] = true
-      @constructor._nonserializable_names_cache = names
-    @constructor._nonserializable_names_cache
-
   attribute_is_serializable: (attr) ->
-    (attr not of @_get_nonserializable_dict()) and (attr of @attributes)
+    if attr == "id"
+      return true
+    prop = @props[attr]
+    if not prop?
+      throw new Error("#{@type}.attribute_is_serializable('#{attr}'): #{attr} wasn't declared")
+    return not prop.internal
 
   # dict of attributes that should be serialized to the server. We
   # sometimes stick things in attributes that aren't part of the
   # Document's models, subtypes that do that have to remove their
   # extra attributes here.
   serializable_attributes: () ->
-    nonserializable = @_get_nonserializable_dict()
     attrs = {}
-    for k, v of @attributes
-      if k not of nonserializable
-        attrs[k] = v
-    attrs
+    for name, value of @attributes
+      if @attribute_is_serializable(name)
+        attrs[name] = value
+    return attrs
 
   # JSON serialization requires special measures to deal with cycles,
   # which means objects can't be serialized independently but only
@@ -367,23 +421,30 @@ class HasProps extends Backbone.Model
 
     _.values(result)
 
+  references: () ->
+    references = {}
+    HasProps._value_record_references(this, references, true)
+    return _.values(references)
+
   attach_document: (doc) ->
-    if @document != null and @document != doc
-      throw new Error("Models must be owned by only a single document")
-    first_attach = @document == null
-    @document = doc
-    if doc != null
-      doc._notify_attach(@)
-      if first_attach
-        for c in @_immediate_references()
-          c.attach_document(doc)
+    if @document != null
+      if @document != doc
+        throw new Error("models must be owned by only a single document")
+      else
+        @document._notify_attach(@)
+    else
+      @document = doc
+      @document._notify_attach(@)
 
-    # TODO (bev) is there are way to get rid of this?
-    for name, prop of @properties
-      prop.update()
+      for ref in @_immediate_references()
+        ref.attach_document(@document)
 
-    if @_doc_attached?
-      @_doc_attached()
+      # TODO (bev) is there are way to get rid of this?
+      for name, prop of @properties
+        prop.update()
+
+      if @_doc_attached?
+        @_doc_attached()
 
   detach_document: () ->
     if @document != null

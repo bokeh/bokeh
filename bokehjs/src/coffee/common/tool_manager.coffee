@@ -9,6 +9,7 @@ InspectTool = require "../models/tools/inspectors/inspect_tool"
 {logger} = require "../core/logging"
 toolbar_template = require "./toolbar_template"
 HasProps = require "../core/has_props"
+p = require "../core/properties"
 
 class ToolManagerView extends Backbone.View
   template: toolbar_template
@@ -16,14 +17,15 @@ class ToolManagerView extends Backbone.View
   initialize: (options) ->
     super(options)
     @location = options.location
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model.get('plot'), 'change:tools change:logo', () => @render())
+    @listenTo(@model, 'change', () => @render())
     @have_rendered = false
 
   render: () ->
     if @have_rendered
       return
     @have_rendered = true
-    @$el.html(@template(@model.attributes))
+    @$el.html(@template({logo: @model.get("plot")?.get("logo")}))
     @$el.addClass("bk-toolbar-#{@location}")
     @$el.addClass("bk-sidebar")
     @$el.addClass("bk-toolbar-active")
@@ -72,6 +74,7 @@ class ToolManager extends HasProps
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @listenTo(@get('plot'), 'change:tools', () => @_init_tools())
     @_init_tools()
 
   serializable_in_document: () -> false
@@ -79,7 +82,7 @@ class ToolManager extends HasProps
   _init_tools: () ->
     gestures = @get('gestures')
 
-    for tool in @get('tools')
+    for tool in @get('plot').get('tools')
       if tool instanceof InspectTool.Model
         inspectors = @get('inspectors')
         inspectors.push(tool)
@@ -96,7 +99,7 @@ class ToolManager extends HasProps
         @set('actions', actions)
 
       else if tool instanceof GestureTool.Model
-        et = tool.get('event_type')
+        et = tool.event_type
 
         if et not of gestures
           logger.warn("ToolManager: unknown event type '#{et}' for tool:
@@ -110,12 +113,12 @@ class ToolManager extends HasProps
       tools = gestures[et].tools
       if tools.length == 0
         continue
-      gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+      gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         gestures[et].tools[0].set('active', true)
 
   _active_change: (tool) =>
-    event_type = tool.get('event_type')
+    event_type = tool.event_type
     gestures = @get('gestures')
 
     # Toggle between tools of the same type by deactivating any active ones
@@ -130,21 +133,21 @@ class ToolManager extends HasProps
     logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
-  defaults: () ->
-    return {
-      gestures: {
-        pan: {tools: [], active: null}
-        tap: {tools: [], active: null}
-        doubletap: {tools: [], active: null}
-        scroll: {tools: [], active: null}
-        pinch: {tools: [], active: null}
-        press: {tools: [], active: null}
-        rotate: {tools: [], active: null}
-      }
-      actions: []
-      inspectors: []
-      help: []
-    }
+  @internal {
+    gestures: [ p.Any, () -> {
+      pan: {tools: [], active: null}
+      tap: {tools: [], active: null}
+      doubletap: {tools: [], active: null}
+      scroll: {tools: [], active: null}
+      pinch: {tools: [], active: null}
+      press: {tools: [], active: null}
+      rotate: {tools: [], active: null}
+    } ]
+    actions: [ p.Array, [] ]
+    inspectors: [ p.Array, [] ]
+    help: [ p.Array, [] ]
+    plot: [ p.Instance ]
+  }
 
 module.exports =
   Model: ToolManager

@@ -3,10 +3,9 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
+GeoJSONDataSource = utils.require("models/sources/geojson_data_source").Model
 
 describe "geojson_data_source module", ->
-
 
   describe "geojson is not a GeometryCollection or FeatureCollection", ->
     geojson = """{
@@ -15,8 +14,7 @@ describe "geojson_data_source module", ->
     }"""
 
     it "should throw an error", ->
-      fn = ->
-        new Collections('GeoJSONDataSource').create({geojson: geojson})
+      fn = -> new GeoJSONDataSource({geojson: geojson})
       expect(fn).to.throw Error
 
 
@@ -27,8 +25,7 @@ describe "geojson_data_source module", ->
     }"""
 
     it "should throw an error", ->
-      fn = ->
-        new Collections('GeoJSONDataSource').create({geojson: geojson})
+      fn = -> new GeoJSONDataSource({geojson: geojson})
       expect(fn).to.throw Error
 
   describe "geojson is an empty GeometryCollection", ->
@@ -38,8 +35,7 @@ describe "geojson_data_source module", ->
     }"""
 
     it "should throw an error", ->
-      fn = ->
-        new Collections('GeoJSONDataSource').create({geojson: geojson})
+      fn = -> new GeoJSONDataSource({geojson: geojson})
       expect(fn).to.throw Error
 
   describe "single xy Point ", ->
@@ -51,7 +47,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "add x,y,NaN to data", ->
       expected_data = {'x': [125.6], 'y': [10.1], 'z': [NaN], 'xs': [[]], 'ys': [[]], 'zs': [[]]}
@@ -79,7 +75,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add x,y,z to data", ->
       expected_data = {'x': [125.6], 'y': [10.1], 'z': [22], 'xs': [[]], 'ys': [[]], 'zs': [[]]}
@@ -94,7 +90,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add xs,ys to data", ->
       expected_data = {'x': [NaN], 'y': [NaN], 'z': [NaN], 'xs':[[125.6, 100.1]], 'ys':[[10.1, 9.2]], 'zs': [[NaN, NaN]]}
@@ -111,7 +107,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add xs,ys to data", ->
       expected_data = {'x': [NaN], 'y': [NaN], 'z': [NaN], 'xs':[[125.6, 100.1]], 'ys':[[10.1, 9.2]], 'zs': [[NaN, NaN]]}
@@ -129,7 +125,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add xs,ys to data", ->
       # Also puts a warning about only using exterior ring
@@ -145,7 +141,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should not add anything to data", ->
       # MultiPoint is not supported. There should also be a console warning (not tested)
@@ -164,7 +160,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add xs,ys to datai with NaN in between", ->
       expected_data = {'x': [NaN], 'y': [NaN], 'z': [NaN], 'xs':[[125.6, 100.1, NaN, 125.4, 100.2]], 'ys':[[10.1, 9.2, NaN, 10.2, 9.1]], 'zs': [[NaN, NaN, NaN, NaN, NaN]]}
@@ -186,7 +182,7 @@ describe "geojson_data_source module", ->
         }
       ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add xs,ys to datai with NaN in between", ->
       expected_data = {'x': [NaN], 'y': [NaN], 'z': [NaN], 'xs':[[102.0, 103.0, NaN, 100.0, 101.0]], 'ys':[[2.0, 2.1, NaN, 0, 0.1]], 'zs': [[NaN, NaN, NaN, NaN, NaN]]}
@@ -202,7 +198,7 @@ describe "geojson_data_source module", ->
           }
        ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add the properties to the data", ->
       expected_data = {
@@ -226,7 +222,7 @@ describe "geojson_data_source module", ->
           }
        ]
     }"""
-    geo = Collections('GeoJSONDataSource').create({geojson: geojson})
+    geo = new GeoJSONDataSource({geojson: geojson})
 
     it "should add the properties to the data with NaN's when they're missing", ->
       expected_data = {

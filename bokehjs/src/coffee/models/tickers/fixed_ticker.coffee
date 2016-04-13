@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class FixedTicker extends ContinuousTicker.Model
   type: 'FixedTicker'
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       ticks: [ p.Array, [] ]
     }
 

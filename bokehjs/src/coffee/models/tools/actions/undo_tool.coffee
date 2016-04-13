@@ -14,7 +14,10 @@ class UndoTool extends ActionTool.Model
   type: "UndoTool"
   tool_name: "Undo"
   icon: "bk-tool-icon-undo"
-  disabled: true
+
+  @override {
+    disabled: true
+  }
 
 module.exports = {
   Model: UndoTool

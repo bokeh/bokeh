@@ -25,6 +25,7 @@ gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
 eco = require '../eco'
+ts = require 'gulp-typescript'
 
 {namedLabeler} = require "../labeler"
 
@@ -40,7 +41,21 @@ gulp.task "scripts:eco", () ->
       .pipe(eco().on('error', gutil.log))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
-gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco"]
+tsOpts = {
+  noImplicitAny: true
+  noEmitOnError: true
+  module: "commonjs"
+  moduleResolution: "node"
+  target: "ES5"
+}
+
+gulp.task "scripts:ts", () ->
+  gulp.src("./src/coffee/**/*.ts")
+      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
+      .pipe(ts(tsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
+      .pipe(gulp.dest(paths.buildDir.jsTree))
+
+gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco", "scripts:ts"]
 
 gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")

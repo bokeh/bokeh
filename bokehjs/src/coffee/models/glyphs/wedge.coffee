@@ -12,18 +12,18 @@ class WedgeView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.radius.units == "data"
-      @sradius = @sdist(@renderer.xmapper, @x, @radius)
+      @sradius = @sdist(@renderer.xmapper, @_x, @_radius)
     else
-      @sradius = @radius
+      @sradius = @_radius
 
-  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle}) ->
+  _render: (ctx, indices, {sx, sy, sradius, _start_angle, _end_angle}) ->
     direction = @model.properties.direction.value()
     for i in indices
-      if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i])
+      if isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction)
+      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
@@ -58,12 +58,14 @@ class WedgeView extends Glyph.View
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     candidates = []
-    for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    for i in (pt[4].i for pt in @index.search(bbox))
       r2 = Math.pow(@sradius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)
-      sx1 = @renderer.xmapper.map_to_target(@x[i], true)
+      sx1 = @renderer.xmapper.map_to_target(@_x[i], true)
       sy0 = @renderer.ymapper.map_to_target(y, true)
-      sy1 = @renderer.ymapper.map_to_target(@y[i], true)
+      sy1 = @renderer.ymapper.map_to_target(@_y[i], true)
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= r2
         candidates.push([i, dist])
@@ -75,7 +77,7 @@ class WedgeView extends Glyph.View
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
-      if angle_between(-angle, -@start_angle[i], -@end_angle[i], direction)
+      if angle_between(-angle, -@_start_angle[i], -@_end_angle[i], direction)
         hits.push([i, dist])
 
     result = hittest.create_hit_test_result()
@@ -93,8 +95,9 @@ class Wedge extends Glyph.Model
 
   type: 'Wedge'
 
-  props: ->
-    return _.extend {}, super(), {
+  @coords [['x', 'y']]
+  @mixins ['line', 'fill']
+  @define {
       direction:    [ p.Direction,   'anticlock' ]
       radius:       [ p.DistanceSpec             ]
       start_angle:  [ p.AngleSpec                ]

@@ -23,19 +23,18 @@ class ToolView extends Renderer.View
 
 class Tool extends Model
 
-  props: () ->
-    return _.extend {}, super(), {
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @define_computed_property('synthetic_renderers', (() -> []), true)
+
+  @define {
       plot: [ p.Instance ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['active', 'level', 'tool_name'])
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      tool_name: @tool_name
-      level: 'overlay'
-    }
+  @internal {
+    level: [ p.RenderLevel, 'overlay' ]
+    active: [ p.Boolean, false ]
+  }
 
   # TODO (bev) The following "dim" functions should probably
   # go in a helper util module, or something. Would be best

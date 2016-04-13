@@ -6,8 +6,7 @@ p = require "../../core/properties"
 class InputWidget extends Widget.Model
   type: "InputWidget"
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       callback: [ p.Instance   ]
       title:    [ p.String, '' ]
     }

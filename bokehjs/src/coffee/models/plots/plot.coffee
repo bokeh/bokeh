@@ -8,6 +8,8 @@ LayoutBox = require "../canvas/layout_box"
 Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
+ColumnDataSource = require "../sources/column_data_source"
+DataRange1d = require "../ranges/data_range1d"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
@@ -131,6 +133,11 @@ class PlotView extends Renderer.View
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
+    @ui_event_bus = new UIEvents({
+      tool_manager: @mget('tool_manager')
+      hit_area: @canvas_view.$el
+    })
+
     @renderers = {}
     @tools = {}
 
@@ -141,13 +148,6 @@ class PlotView extends Renderer.View
     @bind_bokeh_events()
 
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
-
-    @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
-      hit_area: @canvas_view.$el
-    })
-    for id, tool_view of @tools
-      @ui_event_bus.register_tool(tool_view)
 
     toolbar_location = @mget('toolbar_location')
     if toolbar_location?
@@ -202,13 +202,19 @@ class PlotView extends Renderer.View
 
     follow_enabled = false
     has_bounds = false
+
     for xr in _.values(frame.get('x_ranges'))
-      xr.update?(bounds, 0, @model.id)
-      follow_enabled = true if xr.get('follow')?
+      if xr instanceof DataRange1d.Model
+        xr.update(bounds, 0, @model.id)
+        if xr.get('follow')
+          follow_enabled = true
       has_bounds = true if xr.get('bounds')?
+
     for yr in _.values(frame.get('y_ranges'))
-      yr.update?(bounds, 1, @model.id)
-      follow_enabled = true if yr.get('follow')?
+      if yr instanceof DataRange1d.Model
+        yr.update(bounds, 1, @model.id)
+        if yr.get('follow')
+          follow_enabled = true
       has_bounds = true if yr.get('bounds')?
 
     if follow_enabled and has_bounds
@@ -353,11 +359,16 @@ class PlotView extends Renderer.View
     @update_range(null)
 
   build_levels: () ->
+    renderer_models = @mget("renderers")
+    for tool_model in @mget("tools")
+      synthetic = tool_model.get("synthetic_renderers")
+      renderer_models = renderer_models.concat(synthetic)
+
     # should only bind events on NEW views and tools
     old_renderers = _.keys(@renderers)
-    views = build_views(@renderers, @mget('renderers'), @view_options())
-    renderers_to_remove = _.difference(old_renderers,
-                                       _.pluck(@mget('renderers'), 'id'))
+    views = build_views(@renderers, renderer_models, @view_options())
+    renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
+
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
     tools = build_views(@tools, @mget('tools'), @view_options())
@@ -365,10 +376,11 @@ class PlotView extends Renderer.View
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-    for t in tools
-      level = t.mget('level')
-      @levels[level][t.model.id] = t
-      t.bind_bokeh_events()
+    for tool_view in tools
+      level = tool_view.mget('level')
+      @levels[level][tool_view.model.id] = tool_view
+      tool_view.bind_bokeh_events()
+      @ui_event_bus.register_tool(tool_view)
     return this
 
   bind_bokeh_events: () ->
@@ -377,7 +389,7 @@ class PlotView extends Renderer.View
     for name, rng of @mget('frame').get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tool', @build_levels)
+    @listenTo(@model, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
 
@@ -543,28 +555,55 @@ class PlotView extends Renderer.View
   resize: () =>
     @resize_width_height(true, false)
 
-  resize_width_height: (use_width, use_height, maintain_ar=true) =>
+  resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
     # Resize plot based on available width and/or height
-
+    
+    # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
+    if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
+      return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
+    
     # the solver falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
 
-    # We need the parent node, because the el node itself collapses to zero
-    # height. It might not be available though, if the initial resize
+    # Try to find bk-root. We will query the parent of that node for its size
+    node = @.el
+    for i in [0..2]  # Use for-loop; if we ever change DOM structure, it should still work
+      if node is null or node.classList.contains('bk-root')
+         break
+      node = node.parentNode
+
+    # The plot node might be an orphan if the initial resize
     # happened before the plot was added to the DOM. If that happens, we
     # try again in increasingly larger intervals (the first try should just
     # work, but lets play it safe).
     @_re_resized = @_re_resized or 0
-    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
+    if not (node? and node.parentNode?) and @_re_resized < 14  # 2**14 ~ 16s
       setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
       @_re_resized += 1
       return
 
-    avail_width = @.el.clientWidth
-    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
+    # Check that what we found is a bk-root. If not, this is probably a subplot, which we 
+    # can not currently make responsive in a good way
+    if not node.classList.contains('bk-root')
+       logger.warn('subplots cannot be responsive')
+       return
+
+    @_resize_width_height(use_width, use_height, maintain_ar,
+                          node.parentNode.clientWidth, node.parentNode.clientHeight)
+
+  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
     min_size = @mget('min_size')
+
+    # We need some extra space to account for padding and toolbar. Otherwise we get scrollbars.
+    # Note that during resizing, the canvas may be too large, causing scrollbars to briefly show.
+    width_offset = height_offset = 20
+    if @model.toolbar_location == 'above' then height_offset += 30
+    if @model.toolbar_location == 'below' then height_offset += 80  # bug in layout?
+    if @model.toolbar_location in ['left', 'right'] then width_offset += 30    
+    avail_width -= width_offset
+    avail_height -= height_offset
 
     if maintain_ar is false
       # Just change width and/or height; aspect ratio will change
@@ -618,8 +657,6 @@ class Plot extends Component.Model
   default_view: PlotView
   type: 'Plot'
 
-  mixins: ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
-
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -640,17 +677,11 @@ class Plot extends Component.Model
       map: @use_map ? false
       canvas_width: @get('plot_width'),
       canvas_height: @get('plot_height'),
-      hidpi: @get('hidpi')
+      use_hidpi: @get('hidpi')
     })
     @set('canvas', canvas)
 
-    @solver = canvas.get('solver')
-
-    @set('tool_manager', new ToolManager.Model({
-      tools: @get('tools')
-      toolbar_location: @get('toolbar_location')
-      logo: @get('logo')
-    }))
+    @set('tool_manager', new ToolManager.Model({ plot: this }))
 
     logger.debug("Plot initialized")
 
@@ -717,29 +748,56 @@ class Plot extends Component.Model
     @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
     @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
 
-  add_renderers: (new_renderers) ->
-    renderers = @get('renderers')
-    renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
-
-  nonserializable_attribute_names: () ->
-    super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
-
   serializable_attributes: () ->
     attrs = super()
     if 'renderers' of attrs
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
     attrs
 
-  mixins: [
-    'text:title_',
-    'line:outline_',
-    'fill:border_',
-    'fill:background_'
-  ]
+  add_renderers: (new_renderers...) ->
+    renderers = @get('renderers')
+    renderers = renderers.concat(new_renderers)
+    @set('renderers', renderers)
 
-  props: ->
-    return _.extend {}, super(), {
+  add_layout: (renderer, place="center") ->
+    if renderer.props.plot?
+      renderer.plot = this
+
+    @add_renderers(renderer)
+
+    if place != 'center'
+      @set(place, @get(place).concat([renderer]))
+
+  add_glyph: (glyph, source, attrs={}) ->
+    if not source?
+      source = new ColumnDataSource.Model()
+
+    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    renderer = new GlyphRenderer.Model(attrs)
+
+    @add_renderers(renderer)
+
+    return renderer
+
+  add_tools: (tools...) ->
+    new_tools = for tool in tools
+      if tool.overlay?
+        @add_renderers(tool.overlay)
+
+      if tool.plot?
+        tool
+      else
+        # XXX: this part should be unnecessary, but you can't configure tool.plot
+        # after construting a tool. When this limitation is lifted, remove this code.
+        attrs = _.clone(tool.attributes)
+        attrs.plot = this
+        new tool.constructor(attrs)
+
+    @set("tools", @get("tools").concat(new_tools))
+
+  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+
+  @define {
       title:             [ p.String,   ''                     ]
       title_standoff:    [ p.Number,   8                      ]
 
@@ -764,7 +822,7 @@ class Plot extends Component.Model
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
       tools:             [ p.Array,    []                     ]
-      tool_events:       [ p.Instance, new ToolEvents.Model() ]
+      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
       toolbar_location:  [ p.Location, 'above'                ]
       logo:              [ p.String,   'normal'               ] # TODO (bev)
 
@@ -784,19 +842,21 @@ class Plot extends Component.Model
       min_border_right:  [ p.Number,   MIN_BORDER             ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      title_text_font_size: "20pt",
-      title_text_align: "center"
-      title_text_baseline: "alphabetic"
-      outline_line_color: '#aaaaaa'
-      border_fill_color: "#ffffff",
-      background_fill_color: "#ffffff",
+  @override {
+    title_text_font_size: "20pt"
+    title_text_align: "center"
+    title_text_baseline: "alphabetic"
+    outline_line_color: '#aaaaaa'
+    border_fill_color: "#ffffff"
+    background_fill_color: "#ffffff"
+  }
 
-      # internal
-      min_size: 120
-    }
+  @internal {
+    min_size:     [ p.Number, 120 ]
+    canvas:       [ p.Instance ]
+    tool_manager: [ p.Instance ]
+    frame:        [ p.Instance ]
+  }
 
 module.exports =
   get_size_for_available_space: get_size_for_available_space

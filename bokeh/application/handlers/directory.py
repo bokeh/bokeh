@@ -49,6 +49,10 @@ class DirectoryHandler(Handler):
             from bokeh.themes import Theme
             self._theme = Theme(filename=themeyaml)
 
+        appstatic = join(src_path, 'static')
+        if exists(appstatic):
+            self._static = appstatic
+
     def url_path(self):
         if self.failed:
             return None

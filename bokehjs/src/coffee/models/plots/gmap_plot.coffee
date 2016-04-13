@@ -30,8 +30,8 @@ class GMapPlotView extends Plot.View
 
   setRanges: () =>
     [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
-    @x_range.set({start: proj_xstart, end: proj_xend, silent:true})
-    @y_range.set({start: proj_ystart, end: proj_yend, silent:true})
+    @x_range.set({start: proj_xstart, end: proj_xend})
+    @y_range.set({start: proj_ystart, end: proj_yend})
 
   update_range: (range_info) ->
     @pause()
@@ -156,7 +156,7 @@ class GMapPlotView extends Plot.View
     ctx.lineTo(left,    top)
     ctx.closePath()
 
-    ctx.fillStyle = @mget('border_fill')
+    ctx.fillStyle = @mget('border_fill_color')
     ctx.fill()
 
 class GMapPlot extends Plot.Model
@@ -164,10 +164,8 @@ class GMapPlot extends Plot.Model
 
   default_view: GMapPlotView
 
-  props: ->
-    return _.extend {}, super(), {
-      map_options: [ p.Any         ]
-      disabled:    [ p.Bool, false ]
+  @define {
+      map_options: [ p.Any ]
     }
 
   initialize: (attrs, options) ->

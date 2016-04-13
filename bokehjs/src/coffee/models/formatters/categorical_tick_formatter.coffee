@@ -3,7 +3,7 @@ TickFormatter = require "../formatters/tick_formatter"
 class CategoricalTickFormatter extends TickFormatter.Model
   type: 'CategoricalTickFormatter'
 
-  format: (ticks) ->
+  doFormat: (ticks) ->
     return ticks
 
 module.exports =
