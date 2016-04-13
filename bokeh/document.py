@@ -45,6 +45,9 @@ class UnlockedDocumentProxy(object):
     def add_next_tick_callback(self, callback):
         return self._doc.add_next_tick_callback(callback)
 
+    def remove_next_tick_callback(self, callback):
+        return self._doc.remove_next_tick_callback(callback)
+
 def without_document_lock(f):
     ''' Mark a callback function to execute without first obtaining
     the document lock.
