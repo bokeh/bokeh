@@ -215,7 +215,7 @@ The toggle button holds an on/off state:
 Div
 ~~~~~~~~~
 
-A widget for displaying text:
+A widget for displaying text that can support HTML:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_div.py
     :source-position: below
