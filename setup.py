@@ -177,7 +177,8 @@ def getsitepackages():
                                              "dist-packages"))
             sitedirs.append(os.path.join(prefix, "lib", "dist-python"))
         else:
-            sitedirs = [prefix, os.path.join(prefix, "lib", "site-packages")]
+            sitedirs = [os.path.join(prefix, "lib", "site-packages"), prefix]
+
         if sys.platform == 'darwin':
             # for framework builds *only* we add the standard Apple
             # locations. Currently only per-user, but /Library and
@@ -199,22 +200,23 @@ def getsitepackages():
 
 
 def check_remove_bokeh_install(site_packages):
-    bokeh_path = join(site_packages, "bokeh")
-    if not (exists(bokeh_path) and isdir(bokeh_path)):
-        return
-    prompt = "Found existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
-    val = input(prompt)
-    if val == "y":
-        print("Removing old bokeh install...", end=" ")
-        try:
-            shutil.rmtree(bokeh_path)
-            print("Done")
-        except (IOError, OSError):
-            print("Unable to remove old bokeh at %s, exiting" % bokeh_path)
-            sys.exit(-1)
-    else:
-        print("Not removing old bokeh install")
-        sys.exit(1)
+    for d in os.listdir(site_packages):
+        bokeh_path = join(site_packages, d)
+        if not (d == 'bokeh' or d.startswith('bokeh-')):
+            continue
+        prompt = "Found existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
+        val = input(prompt)
+        if val == "y":
+            print("Removing old bokeh install...", end=" ")
+            try:
+                shutil.rmtree(bokeh_path)
+                print("Done")
+            except (IOError, OSError):
+                print("Unable to remove old bokeh at %s, exiting" % bokeh_path)
+                sys.exit(-1)
+        else:
+            print("Not removing old bokeh install")
+            sys.exit(1)
 
 
 def remove_bokeh_pth(path_file):
