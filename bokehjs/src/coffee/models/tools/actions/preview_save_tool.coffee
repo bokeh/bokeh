@@ -26,6 +26,10 @@ class PreviewSaveToolView extends ActionTool.View
     canvas = @plot_view.canvas_view.canvas[0]
     @$('.bk-bs-modal-body img').attr("src", canvas.toDataURL());
     @$el.modal('show')
+    # Bootstrap creates backdrop DOM element in the body, we move it to
+    # somwhere inder bk-root so that css works it should.
+    bd = document.getElementsByClassName('bk-bs-modal-backdrop')[0]
+    @plot_view.el.appendChild(bd)
 
 class PreviewSaveTool extends ActionTool.Model
   default_view: PreviewSaveToolView
