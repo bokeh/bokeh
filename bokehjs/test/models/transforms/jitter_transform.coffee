@@ -11,7 +11,7 @@ describe "step_interpolator_transform module", ->
   generate_jitter = ->
     new Jitter({
       width: 1,
-      center: 0,
+      mean: 0,
       distribution: 'uniform'
     })
 
