@@ -25,7 +25,7 @@ describe "step_interpolator_transform module", ->
                 5
       rets = transform.v_compute(vals)
 
-      add(a, b) ->
+      add: (a, b) ->
         return a+b
 
       thesum = rets.reduce(add, 0)
@@ -43,7 +43,7 @@ describe "step_interpolator_transform module", ->
                 5
       rets = transform.v_compute(vals)
 
-      add(a, b) ->
+      add: (a, b) ->
         return a+b
 
       thesum = rets.reduce(add, 0)
