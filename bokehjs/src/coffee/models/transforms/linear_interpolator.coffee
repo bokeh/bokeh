@@ -12,7 +12,7 @@ class LinearInterpolator extends Interpolator.Model
     @sort(descending = false)
 
     ind = _.findLastIndex(@_x_sorted, (num) ->
-        return x >= num
+      return x >= num
     )
 
     x1 = @_x_sorted[ind]

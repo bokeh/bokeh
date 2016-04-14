@@ -15,9 +15,9 @@ class Interpolator extends Transform.Model
       @_sorted_dirty = true
 
   @define {
-      x:    [ p.Any]
-      y:    [ p.Any]
-      data: [ p.Any]
+    x:    [ p.Any]
+    y:    [ p.Any]
+    data: [ p.Any]
     }
 
   sort: (descending = false) ->
@@ -45,10 +45,10 @@ class Interpolator extends Transform.Model
 
       column_names = data.columns()
       if @get('x') not in column_names
-        throw Error('The x parameter does not correspond to a valid column name defined in the data parameter'
+        throw Error('The x parameter does not correspond to a valid column name defined in the data parameter')
 
       if @get('y') not in column_names
-        throw Error('The x parameter does not correspond to a valid column name defined in the data parameter'
+        throw Error('The x parameter does not correspond to a valid column name defined in the data parameter')
 
       tsx = data.get_column(@get('x'))
       tsy = data.get_column(@get('y'))
