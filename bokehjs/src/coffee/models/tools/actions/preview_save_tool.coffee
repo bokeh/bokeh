@@ -11,6 +11,8 @@ class PreviewSaveToolView extends ActionTool.View
 
   initialize: (options) ->
     super(options)
+    # Attach to DOM (should be somewhere under bk-root to make css work)
+    @plot_view.el.appendChild(@el)
     @render()
 
   render: () ->
