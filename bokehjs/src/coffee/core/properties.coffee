@@ -285,6 +285,8 @@ module.exports =
   String: String
   TextAlign: TextAlign
   TextBaseline: TextBaseline
+  Distribution: Distribution
+  TransformStepMode: TransformStepMode
 
   AngleSpec: AngleSpec
   ColorSpec: ColorSpec
