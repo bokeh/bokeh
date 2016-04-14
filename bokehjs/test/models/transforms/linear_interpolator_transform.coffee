@@ -3,7 +3,7 @@ utils = require "../../utils"
 
 {Collections} = utils.require "base"
 
-LinearInterpoaltor = utils.require("models/transforms/linear_interpolator_transform").Model
+LinearInterpolator = utils.require("models/transforms/linear_interpolator").Model
 ColumnDataSource = utils.require("models/sources/column_data_source").Model
 
 describe "linear_interpolator_transform module", ->
