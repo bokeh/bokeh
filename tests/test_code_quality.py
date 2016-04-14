@@ -1,0 +1,97 @@
+# This is based on sympy's sympy/utilities/tests/test_code_quality.py
+
+from os import walk, sep, pardir
+from os.path import split, join, isabs, abspath, relpath, exists, isfile
+from glob import glob
+
+TOP_PATH = abspath(join(split(__file__)[0], pardir))
+
+MAX_LINE_LENGTH = 160
+
+message_space     = "File contains trailing whitespace: %s, line %s."
+message_tabs      = "File contains tabs instead of spaces: %s, line %s."
+message_carriage  = "File contains carriage returns at end of line: %s, line %s"
+message_eof       = "File does not end with a newline: %s, line %s"
+message_multi_eof = "File ends with more than 1 newline: %s, line %s"
+message_too_long  = "File contains a line with over %(n)s characters: %%s, line %%s" % dict(n=MAX_LINE_LENGTH)
+
+def tab_in_leading(s):
+    """ Returns True if there are tabs in the leading whitespace of a line,
+        including the whitespace of docstring code samples.
+    """
+    n = len(s) - len(s.lstrip())
+    if not s[n:n + 3] in ['...', '>>>']:
+        check = s[:n]
+    else:
+        smore = s[n + 3:]
+        check = s[:n] + smore[:len(smore) - len(smore.lstrip())]
+    return check.expandtabs() != check
+
+def test_files():
+    errors = []
+
+    def format_message(msg, fname, line_no):
+        return msg % (relpath(fname, TOP_PATH), line_no)
+
+    def test_this_file(fname, test_file):
+        line = None
+
+        for idx, line in enumerate(test_file):
+            line_no = idx + 1
+
+            if line.endswith(" \n") or line.endswith("\t\n"):
+                errors.append(format_message(message_space, fname, line_no))
+            if line.endswith("\r\n"):
+                errors.append(format_message(message_carriage, fname, line_no))
+            if tab_in_leading(line):
+                errors.append(format_message(message_tabs, fname, line_no))
+            if len(line) > MAX_LINE_LENGTH:
+                errors.append(format_message(message_too_long, fname, line_no))
+
+        if line is not None:
+            if line == '\n' and idx > 0:
+                errors.append(format_message(message_multi_eof, fname, line_no))
+            elif not line.endswith('\n'):
+                errors.append(format_message(message_eof, fname, line_no))
+
+    def test(fname):
+        with open(fname, "rt") as test_file:
+            test_this_file(fname, test_file)
+
+    def canonicalize(path):
+        return path.replace('/', sep)
+
+    def check_tree(base_path, patterns, exclusions=[]):
+        base_path = join(TOP_PATH, canonicalize(base_path))
+        exclusions = set([ join(base_path, canonicalize(path)) for path in exclusions ])
+
+        for root, dirs, _ in walk(base_path):
+            if root in exclusions:
+                del dirs[:]
+                continue
+
+            for pattern in patterns:
+                files = glob(join(root, pattern))
+                check_files(files)
+
+    def check_files(files):
+        for fname in files:
+            if not isabs(fname):
+                fname = join(TOP_PATH, fname)
+
+            if not exists(fname) or not isfile(fname):
+                continue
+
+            test(fname)
+
+    check_files(["setup.py"])
+    check_tree('bin',          ['*'])
+    check_tree('bokeh',        ['*.py', '*.html', '*.js'])
+    check_tree('bokehjs',      ['*.coffee', '*.js', '*.ts', '*.less', '*.css', '*.json'], ['build', 'node_modules', 'src/vendor', 'typings'])
+    check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
+    check_tree('examples',     ['*.py', '*.ipynb'])
+    check_tree('scripts',      ['*.py', '*.sh'])
+    check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'])
+    check_tree('tests',        ['*.py', '*.js'])
+
+    assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
