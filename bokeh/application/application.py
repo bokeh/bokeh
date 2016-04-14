@@ -100,6 +100,8 @@ class Application(object):
     '''
 
     def __init__(self, *handlers):
+        self._static_path = None
+        self._template = None
         self._handlers = []
         for h in handlers:
             self.add(h)
