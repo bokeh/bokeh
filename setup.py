@@ -419,7 +419,7 @@ def package_tree(pkgroot):
     """
     subdirs = [os.path.relpath(i[0], ROOT).replace(os.path.sep, '.')
                for i in os.walk(os.path.join(ROOT, pkgroot))
-               if '__init__.py' in i[2] or os.path.split(i[0])[1] == 'tests']
+               if '__init__.py' in i[2]]
     return subdirs
 
 # -----------------------------------------------------------------------------
