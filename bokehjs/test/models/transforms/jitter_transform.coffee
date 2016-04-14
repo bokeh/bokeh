@@ -4,7 +4,7 @@ utils = require "../../utils"
 {Collections} = utils.require "base"
 Jitter = utils.require("models/transforms/jitter").Model
 
-describe "step_interpolator_transform module", ->
+describe "Jitter transform module", ->
   source = {start: 0, end: 10}
   target = {start: 20, end: 80}
 
