@@ -18,11 +18,14 @@ from __future__ import print_function
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
 from shutil import copy
+import sys
 
-try:
-    import setuptools
-except ImportError:
-    pass  # setuptools allows for "develop" and entry_points, but it's not essential
+if 'install' in sys.argv and sys.platform.startswith('win'):
+    # Try use setuptools, so that entry_points is handled, creating a bokeh.exe
+    try:
+        import setuptools
+    except ImportError:
+        pass
 
 try:
     import colorama
@@ -557,6 +560,11 @@ except ImportError as e:
 if bdist_wheel is not None:
     _cmdclass["bdist_wheel"] = bdist_wheel
 
+# Note on scripts and entry points. The 'scripts' value is handled by
+# distutils but does not provide an .exe, making it not very useful on
+# Windows. The 'entry_points' value is handled only if setuptools is
+# used, and does make an .exe. Note that in our conda recipe, we
+# seperately define an entry point.
 
 setup(
     name='bokeh',
@@ -564,13 +572,13 @@ setup(
     cmdclass=_cmdclass,
     packages=package_tree('bokeh'),
     package_data={'bokeh': package_data},
-    entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
     scripts=['bin/bokeh', 'bin/bokeh-server'],
+    entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     zip_safe=False,
     install_requires=REQUIRES
 )
