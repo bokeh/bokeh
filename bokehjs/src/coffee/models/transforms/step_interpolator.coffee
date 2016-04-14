@@ -35,7 +35,7 @@ class StepInterpolator extends Interpolator.Model
     if ind != -1
       ret = @_y_sorted[ind]
     else
-      ret = NULL
+      ret = null
 
     return(ret)
 
