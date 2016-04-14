@@ -7,7 +7,7 @@ class Jitter extends Transform.Model
   @define {
     mean:         [ p.Number      , 0        ]
     width:        [ p.Number      , 1        ]
-    distribution: [ p.Distribition, 'uniform']
+    distribution: [ p.Distribution, 'uniform']
     }
 
   compute: (x) ->
