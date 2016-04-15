@@ -27,7 +27,7 @@ class Interpolator extends Transform.Model
       return
 
     else
-      if @get('data') == null
+      if typeof(@get('x')) == 'string' and @get('data') == null
         throw Error('If the x and y parameters are not specified as an array, the data parameter is reqired.')
         return
 
