@@ -25,10 +25,9 @@ describe "Jitter transform module", ->
                 5
       rets = transform.v_compute(vals)
 
-      add: (a, b) ->
+      thesum = rets.reduce((a,b) ->
         return a+b
-
-      thesum = rets.reduce(add, 0)
+      , 0)
       thediff = (thesum/N) - 5
       expect(thediff).to.be.below 0.01
 
@@ -43,9 +42,8 @@ describe "Jitter transform module", ->
                 5
       rets = transform.v_compute(vals)
 
-      add: (a, b) ->
+      thesum = rets.reduce((a,b) ->
         return a+b
-
-      thesum = rets.reduce(add, 0)
+      , 0)
       thediff = (thesum/N) - 5
       expect(thediff).to.be.below 0.01
