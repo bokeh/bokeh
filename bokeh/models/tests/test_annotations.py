@@ -84,44 +84,46 @@ def test_Legend():
 def test_Arrow():
     arrow = Arrow()
     assert arrow.plot is None
-    assert arrow.tail_x is None
-    assert arrow.tail_y is None
-    assert arrow.head_x is None
-    assert arrow.head_y is None
-    assert arrow.head_size == 25
-    assert arrow.tail_units == 'data'
-    assert arrow.head_units == 'data'
-    assert arrow.tail_style is None
-    assert arrow.head_style == 'open'
+    assert arrow.x_start is None
+    assert arrow.y_start is None
+    assert arrow.start_units == 'data'
+    assert arrow.start_size == 25
+    assert arrow.start_style == None
+    assert arrow.x_end is None
+    assert arrow.y_end is None
+    assert arrow.end_units == 'data'
+    assert arrow.end_size == 25
+    assert arrow.end_style is 'open'
     assert isinstance(arrow.source, ColumnDataSource)
     assert arrow.source.data == {}
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
-    yield check_line, arrow, "body_"
-    yield check_line, arrow, "tail_border_"
-    yield check_line, arrow, "head_border_"
-    yield check_fill, arrow, "tail_body_", "black"
-    yield check_fill, arrow, "head_body_", "black"
+    yield check_line, arrow
+    yield check_line, arrow, "start_"
+    yield check_fill, arrow, "start_", "black"
+    yield check_line, arrow, "end_"
+    yield check_fill, arrow, "end_", None
     yield (check_props, arrow, [
         "plot",
         "level",
-        "tail_x",
-        "tail_y",
-        "head_x",
-        "head_y",
-        "head_size",
-        "tail_units",
-        "head_units",
-        "tail_style",
-        "head_style",
+        "x_start",
+        "y_start",
+        "start_units",
+        "start_size",
+        "start_style",
+        "x_end",
+        "y_end",
+        "end_units",
+        "end_size",
+        "end_style",
         "source",
         "x_range_name",
         "y_range_name"],
-        prefix('body_', LINE),
-        prefix('tail_border_', LINE),
-        prefix('head_border_', LINE),
-        prefix('tail_body_', FILL),
-        prefix('head_body_', FILL))
+        LINE,
+        prefix('start_', LINE),
+        prefix('start_', FILL),
+        prefix('end_', LINE),
+        prefix('end_', FILL))
 
 def test_BoxAnnotation():
     box = BoxAnnotation()

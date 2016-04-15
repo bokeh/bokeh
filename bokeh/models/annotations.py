@@ -13,7 +13,7 @@ from ..core.properties import abstract
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
-    AngleSpec
+    AngleSpec, ColorSpec, NumberSpec
 )
 from ..util.deprecate import deprecated
 
@@ -113,69 +113,75 @@ class Arrow(Annotation):
 
     """
 
-    tail_x = NumberSpec(help="""
-    The x-coordinates to locate the arrow tails.
+    x_start = NumberSpec(help="""
+    The x-coordinates to locate the start of the arrows.
     """)
 
-    tail_y = NumberSpec(help="""
-    The y-coordinates to locate the arrow tails.
+    y_start = NumberSpec(help="""
+    The y-coordinates to locate the start of the arrows.
     """)
 
-    head_x = NumberSpec(help="""
-    The x-coordinates to locate the arrow heads.
-    """)
-
-    head_y = NumberSpec(help="""
-    The y-coordinates to locate the arrow heads.
-    """)
-
-    head_size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
-
-    tail_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the head_x and head_y attributes. Interpreted as "data
+    start_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the start_x and start_y attributes. Interpreted as "data
     space" units by default.
     """)
 
-    head_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the head_x and head_y attributes. Interpreted as "data
+    start_style = Enum(ArrowStyle, default=None, help="""
+    A style for the arrow head at the start of the arrow. Defaults to `None`.
+    """)
+
+    start_size = Float(default=25, help="""
+    The size, in pixels, of the arrow head at the start coordinates.
+    """)
+
+    x_end = NumberSpec(help="""
+    The x-coordinates to locate the end of the arrows.
+    """)
+
+    y_end = NumberSpec(help="""
+    The y-coordinates to locate the end of the arrows.
+    """)
+
+    end_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the end_x and end_y attributes. Interpreted as "data
     space" units by default.
     """)
 
-    tail_style = Enum(ArrowStyle, default=None, help="""
-    The style of the head's arrow tail.
+    end_style = Enum(ArrowStyle, default='open', help="""
+    A style for the arrow head at the end of the arrow. Defaults to `open`.
     """)
 
-    head_style = Enum(ArrowStyle, default='open', help="""
-    The style of the head's arrow head.
+    end_size = Float(default=25, help="""
+    The size, in pixels, of the arrow head at the end coordinates.
     """)
 
-    body_props = Include(LineProps, use_prefix=True, help="""
+    body_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow body.
     """)
 
-    tail_border_props = Include(LineProps, use_prefix=True, help="""
-    The %s values for the arrow tail outline.
+    start_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the arrow head outline at the start coordinates.
     """)
 
-    tail_body_props = Include(FillProps, use_prefix=True, help="""
-    The %s values for the arrow tail. If `fill_color` is set to None, the arrow
-    tail will be an open-backed wedge.
+    start_fill_color = ColorSpec(default="black", help="""
+    The fill_color values for the arrow head at the start coordinates.
     """)
 
-    tail_body_fill_color = Override(default="black")
-
-    head_border_props = Include(LineProps, use_prefix=True, help="""
-    The %s values for the arrow head outline.
+    start_fill_alpha = NumberSpec(default=1.0, help="""
+    The fill_alpha values for the arrow head at the start coordinates.
     """)
 
-    head_body_props = Include(FillProps, use_prefix=True, help="""
-    The %s values for the arrow head. If `fill_color` is set to None, the arrow
-    head will be an open-backed wedge.
+    end_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the arrow head outline at the end coordinates.
     """)
 
-    head_body_fill_color = Override(default="black")
+    end_fill_color = ColorSpec(default=None, help="""
+    The fill_color values for the arrow head at the end coordinates.
+    """)
+
+    end_fill_alpha = NumberSpec(default=1.0, help="""
+    The fill_alpha values for the arrow head at the end coordinates.
+    """)
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.

@@ -27,50 +27,50 @@ class ArrowView extends Renderer.View
     @set_visuals(@mget('source'))
 
   _map_data: () ->
-    if @mget('tail_units') == 'data'
-      start = @plot_view.map_to_screen(@_tail_x, @_tail_y,
+    if @mget('start_units') == 'data'
+      start = @plot_view.map_to_screen(@_x_start, @_y_start,
                                        x_name=@mget('x_range_name')
                                        y_name=@mget('y_range_name')
                                        )
     else
-      start = [@canvas.v_vx_to_sx(@_tail_x.slice(0)),
-               @canvas.v_vy_to_sy(@_tail_y.slice(0))]
+      start = [@canvas.v_vx_to_sx(@_x_start.slice(0)),
+               @canvas.v_vy_to_sy(@_y_start.slice(0))]
 
-    if @mget('head_units') == 'data'
-      end = @plot_view.map_to_screen(@_head_x, @_head_y,
+    if @mget('end_units') == 'data'
+      end = @plot_view.map_to_screen(@_x_end, @_y_end,
                                      x_name=@mget('x_range_name')
                                      y_name=@mget('y_range_name')
                                      )
     else
-      end = [@canvas.v_vx_to_sx(@_head_x.slice(0)),
-             @canvas.v_vy_to_sy(@_head_y.slice(0))]
+      end = [@canvas.v_vx_to_sx(@_x_end.slice(0)),
+             @canvas.v_vy_to_sy(@_y_end.slice(0))]
 
     return [start, end]
 
   render: () ->
     [@start, @end] = @_map_data()
     @_draw_arrow_body()
-    @_draw_arrow_head('head_', @start, @end)
-    @_draw_arrow_head('tail_', @end, @start)
+    @_draw_arrow_head('end', @start, @end)
+    @_draw_arrow_head('start', @end, @start)
 
   _draw_arrow_body: () ->
     ctx = @plot_view.canvas_view.ctx
 
     ctx.save()
-    for i in [0...@_tail_x.length]
-        @visuals.body_line.set_vectorize(ctx, i)
+    for i in [0...@_x_start.length]
+        @visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
         ctx.moveTo(@start[0][i], @start[1][i])
         ctx.lineTo(@end[0][i], @end[1][i])
 
-        if @visuals.body_line.doit
+        if @visuals.line.doit
           ctx.stroke()
     ctx.restore()
 
   _draw_arrow_head: (prefix, start, end) ->
     ctx = @plot_view.canvas_view.ctx
 
-    for i in [0...@_tail_x.length]
+    for i in [0...@_x_start.length]
 
       # arrow head runs orthogonal to arrow body
       angle = Math.PI/2 + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]])
@@ -79,7 +79,7 @@ class ArrowView extends Renderer.View
       ctx.translate(end[0][i], end[1][i])
       ctx.rotate(angle)
 
-      switch @mget("#{prefix}style")
+      switch @mget("#{prefix}_style")
         when 'open'
           @_draw_head_open(prefix, ctx, i)
         when 'normal'
@@ -91,51 +91,51 @@ class ArrowView extends Renderer.View
       ctx.restore()
 
   _draw_head_open: (prefix, ctx, i) ->
-    if @visuals["#{prefix}border_line"].doit
-      @visuals["#{prefix}border_line"].set_vectorize(ctx, i)
+    if @visuals["#{prefix}_line"].doit
+      @visuals["#{prefix}_line"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.stroke()
 
   _draw_head_closed: (prefix, ctx, i) ->
-    if @visuals["#{prefix}body_fill"].doit
-      @visuals["#{prefix}body_fill"].set_vectorize(ctx, i)
+    if @visuals["#{prefix}_fill"].doit
+      @visuals["#{prefix}_fill"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.closePath()
       ctx.fill()
 
-    if @visuals["#{prefix}border_line"].doit
-      @visuals["#{prefix}border_line"].set_vectorize(ctx, i)
+    if @visuals["#{prefix}_line"].doit
+      @visuals["#{prefix}_line"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
+      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.closePath()
       ctx.stroke()
 
   _draw_head_vee: (prefix, ctx, i) ->
-    if @visuals["#{prefix}body_fill"].doit
-      @visuals["#{prefix}body_fill"].set_vectorize(ctx, i)
+    if @visuals["#{prefix}_fill"].doit
+      @visuals["#{prefix}_fill"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
-      ctx.lineTo(0, 0.5*@mget('head_size'))
+      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
+      ctx.lineTo(0, 0.5*@mget("#{prefix}_size"))
       ctx.closePath()
       ctx.fill()
 
-    if @visuals["#{prefix}border_line"].doit
-      @visuals["#{prefix}border_line"].set_vectorize(ctx, i)
+    if @visuals["#{prefix}_line"].doit
+      @visuals["#{prefix}_line"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@mget('head_size'), @mget('head_size'))
+      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget('head_size'), @mget('head_size'))
-      ctx.lineTo(0, 0.5*@mget('head_size'))
+      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
+      ctx.lineTo(0, 0.5*@mget("#{prefix}_size"))
       ctx.closePath()
       ctx.stroke()
 
@@ -144,27 +144,28 @@ class Arrow extends Annotation.Model
 
   type: 'Arrow'
 
-  @mixins ['line:body_', 'line:tail_border_', 'fill:tail_body_',
-           'line:head_border_', 'fill:head_body_']
+  @mixins ['line', 'line:start_', 'fill:start_',
+           'line:end_', 'fill:end_']
 
   @define {
-      tail_x:           [ p.NumberSpec,                     ]
-      tail_y:           [ p.NumberSpec,                     ]
-      head_x:           [ p.NumberSpec,                     ]
-      head_y:           [ p.NumberSpec,                     ]
-      head_size:        [ p.Number,      25                 ]
-      tail_units:       [ p.String,      'data'             ]
-      head_units:       [ p.String,      'data'             ]
-      head_style:       [ p.ArrowStyle,  'open'             ]
-      tail_style:       [ p.ArrowStyle,  null               ]
+      x_start:          [ p.NumberSpec,                     ]
+      y_start:          [ p.NumberSpec,                     ]
+      start_units:      [ p.String,      'data'             ]
+      start_style:      [ p.ArrowStyle,  null               ]
+      start_size:       [ p.Number,      25                 ]
+      x_end:            [ p.NumberSpec,                     ]
+      y_end:            [ p.NumberSpec,                     ]
+      end_units:        [ p.String,      'data'             ]
+      end_style:        [ p.ArrowStyle,  'open'             ]
+      end_size:         [ p.Number,      25                 ]
       source:           [ p.Instance                        ]
       x_range_name:     [ p.String,      'default'          ]
       y_range_name:     [ p.String,      'default'          ]
     }
 
   @override {
-      tail_body_fill_color: "black"
-      head_body_fill_color: "black"
+      start_fill_color: "black"
+      end_fill_color: "black"
     }
 
 module.exports =
