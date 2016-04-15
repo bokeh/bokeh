@@ -20,7 +20,7 @@ describe "Jitter transform module", ->
     transform.set('distribution', 'uniform')
 
     it "should average the fixed values", ->
-      N = 1000
+      N = 10000
       vals =  Array.apply(null, Array(N)).map ->
                 5
       rets = transform.v_compute(vals)
@@ -37,7 +37,7 @@ describe "Jitter transform module", ->
     transform.set('distribution', 'normal')
 
     it "should average the fixed values", ->
-      N = 1000
+      N = 10000
       vals =  Array.apply(null, Array(N)).map ->
                 5
       rets = transform.v_compute(vals)
