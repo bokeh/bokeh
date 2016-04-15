@@ -32,20 +32,20 @@ describe "step_interpolator_transform module", ->
       expect(transform.compute(0)).to.be.equal 10
       expect(transform.compute(5)).to.be.equal 20
 
-    it "should step interpolate below", ->
-      transform.set('mode', 'below')
+    it "should step interpolate before", ->
+      transform.set('mode', 'before')
 
       it "should linearly interpolate between control points", ->
         expect(transform.compute(2)).to.be.equal 20
 
       it "should linearly interpolate a vector of points", ->
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal new Float64Array [10, 20, 30]
+        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal new Float64Array [20, 20, 30]
 
       it "should map to a Float64Array", ->
         expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
 
-    it "should step interpolate below", ->
-      transform.set('mode', 'above')
+    it "should step interpolate after", ->
+      transform.set('mode', 'after')
 
       it "should linearly interpolate between control points", ->
         expect(transform.compute(2)).to.be.equal 10
@@ -57,7 +57,7 @@ describe "step_interpolator_transform module", ->
         expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
 
     it "should step interpolate center", ->
-      transform.set('mode', 'above')
+      transform.set('mode', 'center')
 
       it "should linearly interpolate between control points", ->
         expect(transform.compute(2)).to.be.equal 10
@@ -75,20 +75,20 @@ describe "step_interpolator_transform module", ->
       expect(transform.compute(0)).to.be.equal 10
       expect(transform.compute(5)).to.be.equal 20
 
-    it "should step interpolate below", ->
-      transform.set('mode', 'below')
+    it "should step interpolate before", ->
+      transform.set('mode', 'before')
 
       it "should linearly interpolate between control points", ->
         expect(transform.compute(2)).to.be.equal 20
 
       it "should linearly interpolate a vector of points", ->
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal new Float64Array [10, 20, 30]
+        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal new Float64Array [20, 20, 30]
 
       it "should map to a Float64Array", ->
         expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
 
-    it "should step interpolate below", ->
-      transform.set('mode', 'above')
+    it "should step interpolate after", ->
+      transform.set('mode', 'after')
 
       it "should linearly interpolate between control points", ->
         expect(transform.compute(2)).to.be.equal 10
@@ -100,7 +100,7 @@ describe "step_interpolator_transform module", ->
         expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof Float64Array
 
     it "should step interpolate center", ->
-      transform.set('mode', 'above')
+      transform.set('mode', 'center')
 
       it "should linearly interpolate between control points", ->
         expect(transform.compute(2)).to.be.equal 10
