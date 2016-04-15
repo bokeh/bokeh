@@ -209,10 +209,12 @@ def check_remove_bokeh_install(site_packages):
         if val == "y":
             print("Removing old bokeh install...", end=" ")
             try:
-                shutil.rmtree(bokeh_path)
+                if isdir(bokeh_path): shutil.rmtree(bokeh_path)
+                else: os.remove(bokeh_path)
                 print("Done")
-            except (IOError, OSError):
-                print("Unable to remove old bokeh at %s, exiting" % bokeh_path)
+            except (IOError, OSError) as e:
+                print(e)
+                print("\nUnable to remove old bokeh at %s, exiting" % bokeh_path)
                 sys.exit(-1)
         else:
             print("Not removing old bokeh install")
