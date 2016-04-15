@@ -15,11 +15,11 @@ class Markup(Widget):
     The contents of the widget.
     """)
 
-    width = Int(500, help="""
+    width = Int(None, help="""
     The width of the block in pixels.
     """)
 
-    height = Int(400, help="""
+    height = Int(None, help="""
     The height of the block in pixels.
     """)
 
