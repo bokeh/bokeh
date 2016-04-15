@@ -4,7 +4,7 @@ from bokeh.io import vplot, hplot
 from bokeh.core.properties import NumberSpec
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, Paragraph, TextInput, Select
+from bokeh.models import CustomJS, TextInput, Select, Div
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
 
 N = 1000
@@ -37,7 +37,6 @@ interpolation_settings_callback=CustomJS(args=dict(interp_source=interp_source, 
     interp_source.trigger('change')
     linterp.trigger('change')
     sinterp.trigger('change')
-
 
     interp = 0
 
@@ -86,9 +85,8 @@ interpolation_settings_callback.args['yvals_entry'] = yvals
 interpolation_settings_callback.args['interp_select'] = interp_select
 interpolation_settings_callback.args['stepmode_select'] = stepmode_select
 
-title = Paragraph(text='Interpolation Parameters')
-spacer = Paragraph(text=' ')
+title = Div(text='<H1>Interpolation Parameters</H1>', height=None)
 
 output_file("transform_interpolator.html", title="Example Transforms")
 
-show(hplot(p, vplot(title, spacer, interp_select, xvals, yvals, stepmode_select)))
+show(hplot(p, vplot(title, interp_select, xvals, yvals, stepmode_select)))
