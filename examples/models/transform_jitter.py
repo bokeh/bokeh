@@ -3,10 +3,10 @@ import numpy as np
 from bokeh.io import vplot, hplot
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import Slider, CustomJS, Dropdown, Toggle, Paragraph, Select
+from bokeh.models import Slider, CustomJS, Toggle, Paragraph, Select, Div
 from bokeh.models.transforms import Jitter
 
-N = 50
+N = 100
 source = ColumnDataSource(data=dict(x=[1]*N + [2]*N, xp=[1]*N + [2]*N, xplot=[1]*N + [2]*N, col=['#ab324b']*N + ['#0022aa']*N, y=np.random.random(2*N)*10))
 
 jitter = Jitter(mean=0, width=0)
@@ -76,7 +76,7 @@ distribution_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p)
     source.trigger('change')
 """)
 
-enable_paragraph = Paragraph(text='Disabled')
+enable_paragraph = Paragraph(text='Disabled', height=None)
 
 enable_button = Toggle(label='Enable Jitter', type='default', callback=enable_callback)
 enable_callback.args['button'] = enable_button
@@ -94,9 +94,8 @@ distribution_select = Select(title='Distribition', value='Uniform', options=['Un
 distribution_callback.args['menu'] = distribution_select
 distribution_callback.args['button'] = enable_button
 
-title = Paragraph(text='Jitter Parameters')
-spacer = Paragraph(text=' ')
+title = Div(text='<H1>Jitter Parameters</H1>', height=None)
 
 output_file("transform_jitter.html", title="Example Jitter Transform")
 
-show(hplot(p, vplot(hplot(enable_button, enable_paragraph), spacer, title, spacer, center_slider, width_slider, distribution_select)))
+show(hplot(p, vplot(hplot(enable_button, enable_paragraph), title, center_slider, width_slider, distribution_select)))
