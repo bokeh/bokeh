@@ -200,25 +200,33 @@ def getsitepackages():
 
 
 def check_remove_bokeh_install(site_packages):
+    old_bokeh_files = []
     for d in os.listdir(site_packages):
         bokeh_path = join(site_packages, d)
         if not (d == 'bokeh' or d.startswith('bokeh-')):
             continue
-        prompt = "Found existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
-        val = input(prompt)
-        if val == "y":
-            print("Removing old bokeh install...", end=" ")
+        old_bokeh_files.append(bokeh_path)
+
+    if len(old_bokeh_files) == 0:
+        return
+
+    print("Found old bokeh files:")
+    for path in old_bokeh_files:
+        print(" - %s" % path)
+    val = input("Remove %s? [y|N] " % ("it" if len(old_bokeh_files)==1 else "them",))
+    if val == "y":
+        print("Removing old bokeh files...", end=" ")
+        for path in old_bokeh_files:
             try:
-                if isdir(bokeh_path): shutil.rmtree(bokeh_path)
-                else: os.remove(bokeh_path)
-                print("Done")
+                if isdir(path): shutil.rmtree(path)
+                else: os.remove(path)
             except (IOError, OSError) as e:
-                print(e)
-                print("\nUnable to remove old bokeh at %s, exiting" % bokeh_path)
+                print("\nUnable to remove old bokeh file at %s, exiting (reason: %s)" % (path, e))
                 sys.exit(-1)
-        else:
-            print("Not removing old bokeh install")
-            sys.exit(1)
+        print("Done")
+    else:
+        print("Not removing old bokeh install")
+        sys.exit(1)
 
 
 def remove_bokeh_pth(path_file):
