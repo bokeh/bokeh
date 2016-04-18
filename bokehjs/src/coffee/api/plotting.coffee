@@ -104,6 +104,14 @@ class Figure extends models.Plot
     get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 1)[0] # TODO
   }
 
+  Object.defineProperty this.prototype, "xaxis", {
+    get: () -> @below.concat(@above).filter((r) -> r instanceof models.Axis)[0] # TODO
+  }
+
+  Object.defineProperty this.prototype, "yaxis", {
+    get: () -> @left.concat(@right).filter((r) -> r instanceof models.Axis)[0] # TODO
+  }
+
   annular_wedge:     (args...) -> @_glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
   annulus:           (args...) -> @_glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args)
   arc:               (args...) -> @_glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args)
