@@ -116,11 +116,9 @@ class DynamicImageRenderer extends Renderer.Model
       render_parents: [ p.Bool, true ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      level: 'underlay'
-    }
+  @override {
+    level: 'underlay'
+  }
 
 module.exports =
   Model: DynamicImageRenderer

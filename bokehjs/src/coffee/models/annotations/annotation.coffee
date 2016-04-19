@@ -7,9 +7,12 @@ class Annotation extends Renderer.Model
   type: 'Annotation'
 
   @define {
-      level: [ p.RenderLevel, 'annotation' ]
       plot:  [ p.Instance                  ]
     }
+
+  @override {
+    level: 'annotation'
+  }
 
 module.exports =
   Model: Annotation

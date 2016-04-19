@@ -97,7 +97,7 @@ Another possibility is to have a single centrally created app (perhaps by an
 organization), that can access data or other artifacts published by many
 different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
-server with other web application frameworks. See a complete example at 
+server with other web application frameworks. See a complete example at
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
 
@@ -360,41 +360,62 @@ The full set of files that Bokeh server knows about is:
        +---main.py
        +---server_lifecycle.py
        +---theme.yaml
+       +---static
+
+The optional components are
+
+* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
+
+* A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
+
+* a ``static`` subdirectory that can be used to serve static resources associated with this application.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
 to include data files or custom user defined models in your directory
-however you like. An example might be:
+however you like. Additionally, the application directory is also added
+to ``sys.path`` so that python modules in the application directory may
+be easily imported.
+
+An example might be:
 
 .. code-block:: none
 
     myapp
        |
        +---data
-       |      +---things.csv
+       |    +---things.csv
        |
+       +---helpers.py
        +---main.py
        |---models
-       |      +---custom.js
+       |    +---custom.js
        |
        +---server_lifecycle.py
        +---theme.yaml
+       +---static
+            +---css
+            |    +---special.css
+            |
+            +---images
+            |    +---foo.png
+            |    +---bar.png
+            |
+            +---js
+                 +---special.js
 
 In this case you might have code similar to:
 
 .. code-block:: python
 
     from os.path import dirname, join
-    import pandas
+    from helpers import load_data
 
-    pandas.read_csv(join(dirname(__file__), 'data', 'things.csv')
+    load_data(join(dirname(__file__), 'data', 'things.csv')
 
 And similar code to load the JavaScript implementation for a custom model
-from ``custom.js``
+from ``models/custom.js``
 
-.. note::
-    Currently only absolute imports are supported in ``main.py``. We hope to
-    lift this limitation in future releases.
 
 .. _userguide_server_applications_callbacks:
 
@@ -437,6 +458,154 @@ detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
     capability for two-way Python<-->JS synchronization through Jupyter comms
     is a planned future addition.
 
+Updating From Threads
+'''''''''''''''''''''
+
+If the app needs to perform blocking computation, it can be possible to have
+a separate thread perform that work, and then add a callback to update the
+document with the results. It is important to emphasize that the interface
+to update the document must pass through a "next tick callback". A callback
+added this way will execute as soon as possible on the next iteration of the
+Tornado event loop, and automatically acquire necessary locks to update the
+document state safely.
+
+Any usage that updates the document state from another thread, either by
+calling other methods on the document, or by setting properties directly
+on Bokeh models, risks data and protocol corruption.
+
+.. warning::
+    The ONLY safe operations to perform on a document from a different thread
+    is :func:`~bokeh.document.Document.add_next_tick_callback` and
+    :func:`~bokeh.document.Document.remove_next_tick_callback`
+
+It is also important to save a local copy of ``curdoc()`` off so that all
+threads have access to the same document. This is illustrated in the example
+below:
+
+.. code-block:: python
+
+    from functools import partial
+    from random import random
+    from threading import Thread
+    import time
+
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import curdoc, figure
+
+    from tornado import gen
+
+    # this must only be modified from a Bokeh session allback
+    source = ColumnDataSource(data=dict(x=[0], y=[0]))
+
+    # This is important! Save curdoc() to make sure all threads
+    # see then same document.
+    doc = curdoc()
+
+    @gen.coroutine
+    def update(x, y):
+        source.stream(dict(x=[x], y=[y]))
+
+    def blocking_task():
+        while True:
+            # do some blocking computation
+            time.sleep(0.1)
+            x, y = random(), random()
+
+            # but update the document from callback
+            doc.add_next_tick_callback(partial(update, x=x, y=y))
+
+    p = figure(x_range=[0, 1], y_range=[0,1])
+    l = p.circle(x='x', y='y', source=source)
+
+    doc.add_root(p)
+
+    thread = Thread(target=blocking_task)
+    thread.start()
+
+To see this example in action, save it to a python file, e.g. ``testapp.py`` and
+then execute
+
+.. code-block:: sh
+
+    bokeh serve --show testapp.py
+
+.. warning::
+    There is currently no locking around adding next tick callbacks to
+    documents. It is recommended that at most one thread add callbacks to
+    the document. It is planned to add more fine grained locking to
+    callback methods in the future.
+
+Updating from Unlocked Callbacks
+''''''''''''''''''''''''''''''''
+
+You may also want to drive blocking computations from callbacks using, e.g.
+Tornado's ``ThreadPoolExecutor`` in an asynchronous callback. This can work,
+however, normally Bokeh session callbacks recursively lock the document until
+all future work they initiate is completed. To make this scenario work as
+desired, Bokeh provides a :func:`~bokeh.document.without_document_lock`
+decorator that can suppress the normal locking behavior.
+
+As with the thread example above, all actions that update document state
+**must go through a next-tick callback**.
+
+The following example demonstrates an application that drives a blocking
+computation from one unlocked Bokeh session callback, by yielding to a
+blocking function that runs on the thread pool executor and updates by using
+a next-tick callback, and also updates the state simply from a standard
+locked session callback on a different update rate.
+
+.. code-block:: python
+
+    from functools import partial
+    import time
+
+    from concurrent.futures import ThreadPoolExecutor
+    from tornado import gen
+
+    from bokeh.document import without_document_lock
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import curdoc, figure
+
+    source = ColumnDataSource(data=dict(x=[0], y=[0], color=["blue"]))
+
+    i = 0
+
+    doc = curdoc()
+
+    executor = ThreadPoolExecutor(max_workers=2)
+
+    def blocking_task(i):
+        time.sleep(1)
+        return i
+
+    # the unlocked callback uses this locked callback to safely update
+    @gen.coroutine
+    def locked_update(i):
+        source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["blue"]))
+
+    # this unclocked callback will not prevent other session callbacks from
+    # executing while it is in flight
+    @gen.coroutine
+    @without_document_lock
+    def unlocked_task():
+        global i
+        i += 1
+        res = yield executor.submit(blocking_task, i)
+        doc.add_next_tick_callback(partial(locked_update, i=res))
+
+    @gen.coroutine
+    def update():
+        source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["red"]))
+
+    p = figure(x_range=[0, 100], y_range=[0,20])
+    l = p.circle(x='x', y='y', color='color', source=source)
+
+    doc.add_periodic_callback(unlocked_task, 1000)
+    doc.add_periodic_callback(update, 200)
+    doc.add_root(p)
+
+As before, you can run this example by saving to a python file and running
+``bokeh serve`` on it.
 
 .. _userguide_server_applications_lifecycle:
 
@@ -518,7 +687,7 @@ Next, issue the following command on the **local machine** to establish an ssh t
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006  user@remote.host
-    
+
 Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
 
 The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
@@ -529,7 +698,7 @@ Issue the following commands on the **remote host** where the Bokeh server will 
 
     nohup bokeh server &
     ssh -NfR 5006:localhost:5006 user@gateway.host
-    
+
 Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
 
 Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
@@ -537,7 +706,7 @@ Now set up the other half of the tunnel, from the local machine to the gateway. 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006 user@gateway.host
-    
+
 Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
 
 .. note::

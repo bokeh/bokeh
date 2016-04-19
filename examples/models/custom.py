@@ -16,6 +16,7 @@ class Popup(Callback):
 _ = require "underscore"
 Util = require "util/util"
 Model = require "model"
+p = require "core/properties"
 
 class Popup extends Model
   type: "Popup"
@@ -26,10 +27,9 @@ class Popup extends Model
       window.alert(message)
     null
 
-  defaults: ->
-    return _.extend {}, super(), {
-      message: ""
-    }
+  @define {
+    message: [ p.String, "" ]
+  }
 
 module.exports =
   Model: Popup

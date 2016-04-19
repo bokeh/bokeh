@@ -105,9 +105,9 @@ class WheelZoomTool extends GestureTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
-          @get("tool_name"),
+          @tool_name,
           @_check_dims(@get('dimensions'), "wheel zoom tool")
         )
       , false)
@@ -117,14 +117,9 @@ class WheelZoomTool extends GestureTool.Model
       dimensions: [ p.Array, ["width", "height"] ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['speed'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      # internal
-      speed: 1/600
-    })
+  @internal {
+    speed: [ p.Number, 1/600 ]
+  }
 
 module.exports =
   Model: WheelZoomTool

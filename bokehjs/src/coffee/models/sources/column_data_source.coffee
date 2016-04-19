@@ -19,16 +19,17 @@ class ColumnDataSource extends DataSource.Model
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('selection_manager',
+    @define_computed_property('selection_manager',
         () -> @.get('column_data').get('selection_manager')
       , true)
 
-    @register_property('data', 
+    @define_computed_property('data', 
         () -> @.get('column_data').get('data')
       , true)
 
-  nonserializable_attribute_names: () ->
-    super().concat(['selection_manager', 'inspected'])
+  @internal {
+    inspected:         [ p.Any ]
+  }
 
   convert_selection: (selection) ->
     indices = @.get('indices')

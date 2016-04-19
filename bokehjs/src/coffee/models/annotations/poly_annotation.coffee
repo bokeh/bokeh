@@ -7,6 +7,9 @@ p = require "../../core/properties"
 class PolyAnnotationView extends Renderer.View
 
   bind_bokeh_events: () ->
+    # need to respond to either normal BB change events or silent
+    # "data only updates" that tools might want to use
+    @listenTo(@model, 'change', @plot_view.request_render)
     @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: (ctx) ->
@@ -59,30 +62,18 @@ class PolyAnnotation extends Annotation.Model
       ys_units:     [ p.SpatialUnits, 'data'    ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]
-    }
+  }
 
-  defaults: () ->
-    return _.extend({}, super(), {
-      # overrides
-      fill_color: "#fff9ba"
-      fill_alpha: 0.4
-      line_color: "#cccccc"
-      line_alpha: 0.3
-      line_alpha: 0.3
-
-      # internal
-      silent_update: false
-    })
-
-  nonserializable_attribute_names: () ->
-    super().concat(['silent_update'])
+  @override {
+    fill_color: "#fff9ba"
+    fill_alpha: 0.4
+    line_color: "#cccccc"
+    line_alpha: 0.3
+    line_alpha: 0.3
+  }
 
   update:({xs, ys}) ->
-    if @get('silent_update')
-      @attributes['xs'] = xs
-      @attributes['ys'] = ys
-    else
-      @set({xs: xs, ys: ys})
+    @set({xs: xs, ys: ys}, {silent: true})
     @trigger('data_update')
 
 module.exports =

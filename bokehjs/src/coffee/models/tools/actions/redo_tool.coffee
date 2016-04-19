@@ -14,7 +14,10 @@ class RedoTool extends ActionTool.Model
   type: "RedoTool"
   tool_name: "Redo"
   icon: "bk-tool-icon-redo"
-  disabled: true
+
+  @override {
+    disabled: true
+  }
 
 module.exports = {
   Model: RedoTool

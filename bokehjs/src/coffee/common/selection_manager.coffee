@@ -3,9 +3,14 @@ HasProps = require "../core/has_props"
 {logger} = require "../core/logging"
 Selector = require "./selector"
 hittest = require "./hittest"
+p = require "../core/properties"
 
 class SelectionManager extends HasProps
   type: 'SelectionManager'
+
+  @internal {
+    source: [ p.Any ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)

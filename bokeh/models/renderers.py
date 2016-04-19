@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from ..model import Model
 from ..core.enums import RenderLevel
 from ..core.properties import abstract
-from ..core.properties import String, Enum, Instance, Float, Bool
+from ..core.properties import String, Enum, Instance, Float, Bool, Override
 from ..core import validation
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 
@@ -23,6 +23,10 @@ from .tiles import TileSource, WMTSTileSource
 class Renderer(Model):
     """An abstract base class for renderer types.
     """
+
+    level = Enum(RenderLevel, help="""
+    Specifies the level in which to paint this renderer.
+    """)
 
 @abstract
 class DataRenderer(Renderer):
@@ -51,9 +55,7 @@ class TileRenderer(DataRenderer):
     default y-range.
     """)
 
-    level = Enum(RenderLevel, default="underlay", help="""
-    Specifies the level in which to render the tiles.
-    """)
+    level = Override(default="underlay")
 
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
@@ -69,9 +71,7 @@ class DynamicImageRenderer(DataRenderer):
     tile opacity 0.0 - 1.0
     """)
 
-    level = Enum(RenderLevel, default="underlay", help="""
-    Specifies the level in which to render the glyph.
-    """)
+    level = Override(default="underlay")
 
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
@@ -141,9 +141,7 @@ class GlyphRenderer(DataRenderer):
     being hovered over by a HoverTool.
     """)
 
-    level = Enum(RenderLevel, default="glyph", help="""
-    Specifies the level in which to render the glyph.
-    """)
+    level = Override(default="glyph")
 
 @abstract
 class GuideRenderer(Renderer):
@@ -163,6 +161,4 @@ class GuideRenderer(Renderer):
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
 
-    level = Enum(RenderLevel, default="overlay", help="""
-    Specifies the level in which to render the guide.
-    """)
+    level = Override(default="overlay")

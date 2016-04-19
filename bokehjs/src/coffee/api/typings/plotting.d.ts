@@ -45,10 +45,16 @@ declare namespace Bokeh.Plotting {
 
         x_axis_label?: string;
         y_axis_label?: string;
+
+        width?: Int;
+        height?: Int;
     }
     export interface Figure extends Plot {
         xgrid: Grid;
         ygrid: Grid;
+
+        xaxis: Axis;
+        yaxis: Axis;
 
         annular_wedge     (attrs: AnnularWedgeAttrs):     GlyphRenderer;
         annulus           (attrs: AnnulusAttrs):          GlyphRenderer;
