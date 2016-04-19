@@ -25,7 +25,7 @@ calls it with the rendered model.
 
 
 #}
-(function(global) {
+window.onload = (function(global) {
   function now() {
     return new Date();
   }
