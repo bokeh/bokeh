@@ -334,7 +334,18 @@ class Bins(Stat):
         self.bin_column = self.column + bin_str
         bin_models = []
 
-        binned, bin_bounds = pd.cut(self.bin_stat.get_data(), self.bin_stat.bin_count,
+        data = self.bin_stat.get_data()
+        bins = self.bin_stat.bin_count
+
+        # Choose bin bounds when data range is ill-defined; pd.cut()
+        # does not handle this well for values that are <= 0
+        if data.size < 2:
+            raise ValueError('Histogram data must have at least two elements.')
+        if data.ndim == 1 and not data.std():
+            margin = 0.01 * abs(float(data[0])) or 0.01
+            bins = np.linspace(data[0] - margin, data[0] + margin, bins+1)
+
+        binned, bin_bounds = pd.cut(data, bins,
                                     retbins=True, include_lowest=True, precision=0)
 
         self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
