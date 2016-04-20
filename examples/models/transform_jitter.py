@@ -1,101 +1,44 @@
 import numpy as np
 
-from bokeh.io import vplot, hplot
+from bokeh.io import vplot
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import Slider, CustomJS, Toggle, Paragraph, Select, Div
+from bokeh.models import CustomJS, Button, Label, TextProps
 from bokeh.models.transforms import Jitter
 
-N = 100
-source = ColumnDataSource(data=dict(x=[1]*N + [2]*N, xp=[1]*N + [2]*N, xplot=[1]*N + [2]*N, col=['#ab324b']*N + ['#0022aa']*N, y=np.random.random(2*N)*10))
+N = 1000
 
-jitter = Jitter(mean=0, width=0)
+source = ColumnDataSource(data=dict(
+    x=np.ones(N), xn=2*np.ones(N), xu=3*np.ones(N), y=np.random.random(N)*10
+))
 
-p = figure(x_range=(0, 3), y_range=(0,10))
-scatter_obj = p.scatter(x='xplot', y='y', color='col', source=source, size = 10, alpha=0.5)
+normal = Jitter(width=0.2, distribution="normal")
+uniform = Jitter(width=0.2, distribution="uniform")
 
-enable_callback=CustomJS(args=dict(scatter_obj=scatter_obj, source=source, figure=p, jitter=jitter), code="""
-    if(button.get('active') == true) {
-        var data=source.get('data')
-        for (i=0; i < data['y'].length; i++) {
-            data['xplot'][i] = data['xp'][i]
-        }
-        para.set('text', 'Enabled')
-    } else {
-        var data=source.get('data')
-        for (i=0; i < data['y'].length; i++) {
-            data['xplot'][i] = data['x'][i]
-        }
-        para.set('text', 'Disabled')
-    }
-    source.trigger('change')
-""")
+p = figure(x_range=(0, 4), y_range=(0,10))
+p.circle(x='x',  y='y', color='firebrick', source=source, size=5, alpha=0.5)
+p.circle(x='xn', y='y', color='olive',     source=source, size=5, alpha=0.5)
+p.circle(x='xu', y='y', color='navy',      source=source, size=5, alpha=0.5)
 
-width_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
-    jitter.set('width', slider.get('value'))
+label_data = ColumnDataSource(data=dict(
+    x=[1,2,3], y=[10, 10, 10], t=['Original', 'Normal', 'Uniform']
+))
+labels = Label(x='x', y='y', text='t', y_offset=2, source=label_data, render_mode='css')
+p.add_annotation(labels)
+
+callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
     data=source.get('data')
     for (i=0; i < data['y'].length; i++) {
-        data['xp'][i] = jitter.compute(data['x'][i])
+        data['xn'][i] = normal.compute(data['x'][i]+1)
     }
-    if(button.get('active') == true) {
-        var data=source.get('data')
-        for (i=0; i < data['y'].length; i++) {
-            data['xplot'][i] = data['xp'][i]
-        }
-    }
-    source.trigger('change')
-""")
-
-center_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
-    jitter.set('mean', slider.get('value'))
-    data=source.get('data')
     for (i=0; i < data['y'].length; i++) {
-        data['xp'][i] = jitter.compute(data['x'][i])
-    }
-    if(button.get('active') == true) {
-        var data=source.get('data')
-        for (i=0; i < data['y'].length; i++) {
-            data['xplot'][i] = data['xp'][i]
-        }
+        data['xu'][i] = uniform.compute(data['x'][i]+2)
     }
     source.trigger('change')
 """)
 
-distribution_callback=CustomJS(args=dict(jitter=jitter, source=source, figure=p), code="""
-    jitter.set('distribution', menu.get('value').toLowerCase())
-    data=source.get('data')
-    for (i=0; i < data['y'].length; i++) {
-        data['xp'][i] = jitter.compute(data['x'][i])
-    }
-    if(button.get('active') == true) {
-        var data=source.get('data')
-        for (i=0; i < data['y'].length; i++) {
-            data['xplot'][i] = data['xp'][i]
-        }
-    }
-    source.trigger('change')
-""")
-
-enable_paragraph = Paragraph(text='Disabled', height=None)
-
-enable_button = Toggle(label='Enable Jitter', type='default', callback=enable_callback)
-enable_callback.args['button'] = enable_button
-enable_callback.args['para'] = enable_paragraph
-
-width_slider = Slider(start=0, end=2, value=0, step=0.01, title='Width', callback=width_callback, callback_policy='continuous')
-width_callback.args['slider'] = width_slider
-width_callback.args['button'] = enable_button
-
-center_slider = Slider(start=-1, end=1, value=0, step=0.01, title='Center', callback=center_callback, callback_policy='continuous')
-center_callback.args['slider'] = center_slider
-center_callback.args['button'] = enable_button
-
-distribution_select = Select(title='Distribition', value='Uniform', options=['Uniform', 'Normal'], callback=distribution_callback)
-distribution_callback.args['menu'] = distribution_select
-distribution_callback.args['button'] = enable_button
-
-title = Div(text='<H1>Jitter Parameters</H1>', height=None)
+button = Button(label='Press to apply Jitter!', callback=callback)
 
 output_file("transform_jitter.html", title="Example Jitter Transform")
 
-show(hplot(p, vplot(hplot(enable_button, enable_paragraph), title, center_slider, width_slider, distribution_select)))
+show(vplot(button, p))
