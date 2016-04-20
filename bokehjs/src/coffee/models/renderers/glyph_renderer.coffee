@@ -2,6 +2,7 @@ _ = require "underscore"
 
 Renderer = require "./renderer"
 RemoteDataSource = require "../sources/remote_data_source"
+ColumnDataSource = require "../sources/column_data_source"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -55,7 +56,7 @@ class GlyphRendererView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'stream', @set_data)
-    @listenTo(@mget('data_source'), 'select', @request_render)
+    @listenTo(@mget('data_source').get('column_data'), 'select', @request_render)
     if @hover_glyph?
       @listenTo(@mget('data_source'), 'inspect', @request_render)
 
@@ -91,13 +92,16 @@ class GlyphRendererView extends Renderer.View
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
 
-    length = source.get_length()
-    length = 1 if not length?
-    @all_indices = [0...length]
+    if source instanceof ColumnDataSource.Model
+      @all_indices = source.get('indices')
+    else
+      length = source.get_length()
+      length = 1 if not length?
+      @all_indices = [0...length]
 
     lod_factor = @plot_model.get('lod_factor')
     @decimated = []
-    for i in [0...Math.floor(@all_indices.length/lod_factor)]
+    for i in [0...Math.floor(@all_indices.length / lod_factor)]
       @decimated.push(@all_indices[i*lod_factor])
 
     dt = Date.now() - t0
@@ -127,7 +131,7 @@ class GlyphRendererView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    selected = @mget('data_source').get('selected')
+    selected = @mget('data_source').get('column_data').get('selected')
     if !selected or selected.length == 0
       selected = []
     else
@@ -186,7 +190,7 @@ class GlyphRendererView extends Renderer.View
       selected = new Array()
       nonselected = new Array()
       for i in indices
-        if selected_mask[i]?
+        if selected_mask[@all_indices[i]]?
           selected.push(i)
         else
           nonselected.push(i)

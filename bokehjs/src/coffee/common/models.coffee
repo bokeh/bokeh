@@ -89,6 +89,7 @@ module.exports = {
 
   AjaxDataSource:           require '../models/sources/ajax_data_source'
   ColumnDataSource:         require '../models/sources/column_data_source'
+  ColumnData:               require '../models/sources/column_data'
   GeoJSONDataSource:        require '../models/sources/geojson_data_source'
 
   AdaptiveTicker:           require '../models/tickers/adaptive_ticker'

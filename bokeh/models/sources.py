@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecate import deprecated
@@ -47,31 +47,13 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnDataSource(DataSource):
-    """ Maps names of columns to sequences or arrays.
+class ColumnData(DataSource):
 
-    If the ColumnDataSource initializer is called with a single argument that
-    is a dict or pandas.DataFrame, that argument is used as the value for the
-    "data" attribute. For example::
-
-        ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
-        ColumnDataSource(df) # same as ColumnDataSource(data=df)
-
-    .. note::
-        There is an implicit assumption that all the columns in a
-        a given ColumnDataSource have the same length.
-
-    """
-
-    data = Dict(String, Any, help="""
-    Mapping of column names to sequences of data. The data can be, e.g,
-    Python lists or tuples, NumPy arrays, etc.
-    """)
-
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
-
+    data = Dict(String, Any, help=" ")
+    
+    column_names = List(String, help=" ")
+    
+    
     def __init__(self, *args, **kw):
         """ If called with a single argument that is a dict or
         pandas.DataFrame, treat that implicitly as the "data" attribute.
@@ -85,14 +67,14 @@ class ColumnDataSource(DataSource):
                 raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
-        super(ColumnDataSource, self).__init__(**kw)
+        super(ColumnData, self).__init__(**kw)
         for name, data in raw_data.items():
-            self.add(data, name)
-
+            self.add(data, name)        
+    
     @staticmethod
     def _data_from_df(df):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
-        suitable for creating a ColumnDataSource.
+        suitable for creating a ColumnData.
 
         Args:
             df (DataFrame) : data to convert
@@ -112,6 +94,99 @@ class ColumnDataSource(DataSource):
         else:
             new_data["index"] = index.tolist()
         return new_data
+    
+    def add(self, data, name=None):
+        """ Appends a new column of data to the data source.
+
+        Args:
+            data (seq) : new data to add
+            name (str, optional) : column name to use.
+                If not supplied, generate a name go the form "Series ####"
+
+        Returns:
+            str:  the column name used
+
+        """
+        if name is None:
+            n = len(self.data)
+            while "Series %d"%n in self.data:
+                n += 1
+            name = "Series %d"%n
+        self.column_names.append(name)
+        self.data[name] = data
+        return name
+
+    def _to_json_like(self, include_defaults):
+        attrs = super(ColumnData, self)._to_json_like(include_defaults=include_defaults)
+        if 'data' in attrs:
+            attrs['data'] = transform_column_source_data(attrs['data'])
+        return attrs
+
+    def remove(self, name):
+        """ Remove a column of data.
+
+        Args:
+            name (str) : name of the column to remove
+
+        Returns:
+            None
+
+        .. note::
+            If the column name does not exist, a warning is issued.
+
+        """
+        try:
+            self.column_names.remove(name)
+            del self.data[name]
+        except (ValueError, KeyError):
+            import warnings
+            warnings.warn("Unable to find column '%s' in data source" % name)
+
+    def _get_column_length(self):
+        return len(list(self.data.values())[0])
+
+    @validation.error(COLUMN_LENGTHS)
+    def _check_column_lengths(self):
+        lengths = set(len(x) for x in self.data.values())
+        if len(lengths) > 1:
+            return str(self)
+
+class ColumnDataSource(DataSource):
+    """ Maps names of columns to sequences or arrays.
+
+    If the ColumnDataSource initializer is called with a single argument that
+    is a dict or pandas.DataFrame, that argument is used as the value for the
+    "data" attribute. For example::
+
+        ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
+        ColumnDataSource(df) # same as ColumnDataSource(data=df)
+
+    .. note::
+        There is an implicit assumption that all the columns in a
+        a given ColumnDataSource have the same length.
+
+    """
+
+    column_data = Instance(ColumnData)
+
+    indices = Seq(Int, help="""
+        
+    """)
+    
+    def __init__(self, *args, **kw):
+        column_data = kw.pop('column_data', None)
+        indices = kw.pop('indices', None)
+        super(ColumnDataSource, self).__init__(**kw)
+        
+        if column_data:
+            self.column_data = column_data
+        else:
+            self.column_data = ColumnData(*args, **kw)
+
+        if indices:
+            self.indices = indices
+        else:
+            self.indices = list(range(self._get_column_length()))
 
     @classmethod
     @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
@@ -160,19 +235,10 @@ class ColumnDataSource(DataSource):
             str:  the column name used
 
         """
-        if name is None:
-            n = len(self.data)
-            while "Series %d"%n in self.data:
-                n += 1
-            name = "Series %d"%n
-        self.column_names.append(name)
-        self.data[name] = data
-        return name
+        return self.column_data.add(data, name)
 
     def _to_json_like(self, include_defaults):
         attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
-        if 'data' in attrs:
-            attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs
 
     def remove(self, name):
@@ -188,12 +254,13 @@ class ColumnDataSource(DataSource):
             If the column name does not exist, a warning is issued.
 
         """
-        try:
-            self.column_names.remove(name)
-            del self.data[name]
-        except (ValueError, KeyError):
-            import warnings
-            warnings.warn("Unable to find column '%s' in data source" % name)
+        self.column_data.remove(name)
+
+    def _get_column_length(self):
+        if len(self.column_data.data) > 0:
+            return len(list(self.column_data.data.values())[0])
+        else:
+            return 0
 
     @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
     def push_notebook(self):
@@ -214,12 +281,6 @@ class ColumnDataSource(DataSource):
         """
         from bokeh.io import push_notebook
         push_notebook()
-
-    @validation.error(COLUMN_LENGTHS)
-    def _check_column_lengths(self):
-        lengths = set(len(x) for x in self.data.values())
-        if len(lengths) > 1:
-            return str(self)
 
 
     def stream(self, new_data, rollover=None):

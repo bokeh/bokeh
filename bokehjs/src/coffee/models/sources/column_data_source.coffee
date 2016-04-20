@@ -2,7 +2,6 @@ _ = require "underscore"
 
 DataSource = require './data_source'
 hittest = require "../../common/hittest"
-SelectionManager = require "../../common/selection_manager"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -13,20 +12,37 @@ class ColumnDataSource extends DataSource.Model
   type: 'ColumnDataSource'
 
   @define {
-      data:              [ p.Any,      {} ]
-      column_names:      [ p.Array,    [] ]
+      column_data:      [ p.Any,    {} ]
+      indices:          [ p.Array,  [] ]
     }
 
+  initialize: (attrs, options)->
+    super(attrs, options)
+
+    @define_computed_property('selection_manager',
+        () -> @.get('column_data').get('selection_manager')
+      , true)
+
+    @define_computed_property('data', 
+        () -> @.get('column_data').get('data')
+      , true)
+
   @internal {
-    selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
     inspected:         [ p.Any ]
   }
 
+  convert_selection: (selection) ->
+    indices = @.get('indices')
+    indices_1d = (indices[i] for i in selection['1d']['indices'])
+    selection['1d']['indices'] = indices_1d
+    return selection
+
   get_column: (colname) ->
-    return @get('data')[colname] ? null
+    full_column = @get('column_data').get('data')[colname]
+    return (full_column[i] for i in @get('indices'))
 
   get_length: () ->
-    data = @get('data')
+    data = @get('column_data').get('data')
     if _.keys(data).length == 0
       return null # XXX: don't guess, treat on case-by-case basis
     else
