@@ -4,7 +4,7 @@ from bokeh.io import vplot, hplot
 from bokeh.core.properties import NumberSpec
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, TextInput, Select, Div
+from bokeh.models import CustomJS, Select
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
 
 N = 300
