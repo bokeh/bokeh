@@ -17,7 +17,7 @@ step = StepInterpolator(x='x', y='y', data=controls)
 
 p = figure(x_range=(0, 6), y_range=(0, 10))
 p.circle(x='x', y='y', source=controls, size=15, alpha=0.5, color="firebrick")
-p.circle(x='x', y='y', source=source, size=2, alpha=0.2, color="navy")
+p.circle(x='x', y='y', source=source, size=1, alpha=0.2, color="navy")
 
 callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
     var mode = cb_obj.get('value');
