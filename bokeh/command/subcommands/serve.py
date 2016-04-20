@@ -527,6 +527,6 @@ class Serve(Subcommand):
                  address_string,
                  sorted(applications.keys()))
 
-        log.info("Staring Bokeh server with process id: %d" % getpid())
+        log.info("Starting Bokeh server with process id: %d" % getpid())
 
         server.start()
