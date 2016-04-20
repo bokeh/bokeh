@@ -192,7 +192,6 @@ class PlotView extends Renderer.View
 
   update_dataranges: () ->
     # Update any DataRange1ds here
-    frame = @model.get('frame')
     bounds = {}
     for k, v of @renderers
       bds = v.glyph?.bounds?()
@@ -202,14 +201,14 @@ class PlotView extends Renderer.View
     follow_enabled = false
     has_bounds = false
 
-    for xr in _.values(frame.get('x_ranges'))
+    for xr in _.values(@frame.get('x_ranges'))
       if xr instanceof DataRange1d.Model
         xr.update(bounds, 0, @model.id)
         if xr.get('follow')
           follow_enabled = true
       has_bounds = true if xr.get('bounds')?
 
-    for yr in _.values(frame.get('y_ranges'))
+    for yr in _.values(@frame.get('y_ranges'))
       if yr instanceof DataRange1d.Model
         yr.update(bounds, 1, @model.id)
         if yr.get('follow')
@@ -218,9 +217,9 @@ class PlotView extends Renderer.View
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.get('x_ranges'))
+      for xr in _.values(@frame.get('x_ranges'))
         xr.set('bounds', null)
-      for yr in _.values(frame.get('y_ranges'))
+      for yr in _.values(@frame.get('y_ranges'))
         yr.set('bounds', null)
 
     @range_update_timestamp = Date.now()
@@ -383,9 +382,9 @@ class PlotView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @mget('frame').get('x_ranges')
+    for name, rng of @frame.get('x_ranges')
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @mget('frame').get('y_ranges')
+    for name, rng of @frame.get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
     @listenTo(@model, 'change:tools', @build_levels)
@@ -451,7 +450,6 @@ class PlotView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    frame = @model.get('frame')
     canvas = @model.get('canvas')
 
     for k, v of @renderers
@@ -464,14 +462,14 @@ class PlotView extends Renderer.View
         break
 
     # Note: -1 to effectively dilate the canvas by 1px
-    @model.get('frame').set_var('width', canvas.get('width')-1)
-    @model.get('frame').set_var('height', canvas.get('height')-1)
+    @frame.set_var('width', canvas.get('width')-1)
+    @frame.set_var('height', canvas.get('height')-1)
 
     @model.document.solver().update_variables(false)
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
-    @model.get('frame')._update_mappers()
+    @frame._update_mappers()
 
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
