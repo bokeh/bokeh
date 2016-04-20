@@ -1,14 +1,12 @@
 _ = require "underscore"
-Layout = require "./layout"
+LayoutDOM = require "./layout_dom"
 p = require "../../core/properties"
 
-class BaseBox extends Layout.Model
+class BaseBox extends LayoutDOM.Model
   type: "BaseBox"
 
   @define {
       children: [ p.Array, [] ]
-      height:   [ p.Number, null ]
-      width:    [ p.Number, null ]
     }
 
 module.exports =

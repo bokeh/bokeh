@@ -3,7 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 build_views = require "../../common/build_views"
 BokehView = require "../../core/bokeh_view"
-Component = require "../component"
+LayoutDOM = require "./layout_dom"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
 ToolManager = require "../../common/tool_manager"
@@ -305,7 +305,7 @@ class GridPlotView extends BokehView
     width = _.reduce(col_widths, add, 0)
     div.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
-class GridPlot extends Component.Model
+class GridPlot extends LayoutDOM.Model
   type: 'GridPlot'
   default_view: GridPlotView
 

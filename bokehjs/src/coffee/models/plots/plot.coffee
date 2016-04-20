@@ -5,7 +5,7 @@ Backbone = require "backbone"
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
 LayoutBox = require "../canvas/layout_box"
-Component = require "../component"
+LayoutDOM = require "../layouts/layout_dom"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
@@ -653,7 +653,7 @@ class PlotView extends Renderer.View
     @visuals.background_fill.set_value(ctx)
     ctx.fillRect(frame_box...)
 
-class Plot extends Component.Model
+class Plot extends LayoutDOM.Model
   default_view: PlotView
   type: 'Plot'
 
