@@ -6,7 +6,7 @@ BokehView = require "../../core/bokeh_view"
 Component = require "../component"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
-ToolManager = require "../../common/tool_manager"
+ToolBar = require "../tools/toolbar"
 plot_template = require "../plots/plot_template"
 p = require "../../core/properties"
 
@@ -45,7 +45,7 @@ class ToolProxy extends Backbone.Model
       tool.set(attr, value)
     return null
 
-class GridToolManager extends ToolManager.Model
+class GridToolManager extends ToolBar.Model
 
   _init_tools: () ->
     # Note: no call to super(), intentionally
@@ -199,7 +199,7 @@ class GridPlotView extends BokehView
       logger.debug(
         "attaching toolbar to #{toolbar_selector} for plot #{@model.id}"
       )
-      @tm_view = new ToolManager.View({
+      @tm_view = new ToolBar.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
         location: toolbar_location
@@ -252,7 +252,7 @@ class GridPlotView extends BokehView
     toolbar_location = @mget('toolbar_location')
     if toolbar_location?
       toolbar_selector = '.bk-plot-' + toolbar_location
-      @tm_view = new ToolManager.View({
+      @tm_view = new ToolBar.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
         location: toolbar_location

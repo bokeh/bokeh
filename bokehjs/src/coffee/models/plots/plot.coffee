@@ -10,10 +10,10 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
 DataRange1d = require "../ranges/data_range1d"
+ToolBar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
-ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
 BokehView = require "../../core/bokeh_view"
@@ -125,7 +125,7 @@ class PlotView extends Renderer.View
     if toolbar_location?
       toolbar_selector = '.bk-plot-' + toolbar_location
       logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-      @tm_view = new ToolManager.View({
+      @tm_view = new ToolBar.View({
         model: @mget('tool_manager')
         el: @$(toolbar_selector)
         location: toolbar_location
@@ -556,7 +556,7 @@ class Plot extends Component.Model
     })
     @set('canvas', canvas)
 
-    @set('tool_manager', new ToolManager.Model({ plot: this }))
+    @set('tool_manager', new ToolBar.Model({ plot: this }))
 
     logger.debug("Plot initialized")
 
