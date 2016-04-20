@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.io import vplot
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, Button, Label, TextProps
+from bokeh.models import CustomJS, Button, Label
 from bokeh.models.transforms import Jitter
 
 N = 1000
@@ -23,7 +23,7 @@ p.circle(x='xu', y='y', color='navy',      source=source, size=5, alpha=0.5)
 label_data = ColumnDataSource(data=dict(
     x=[1,2,3], y=[10, 10, 10], t=['Original', 'Normal', 'Uniform']
 ))
-labels = Label(x='x', y='y', text='t', y_offset=2, source=label_data, render_mode='css')
+labels = Label(x='x', y='y', text='t', y_offset=2, source=label_data, render_mode='css', text_align='center')
 p.add_annotation(labels)
 
 callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
