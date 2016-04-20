@@ -80,12 +80,5 @@ class LayoutBox extends Model
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
 
-  set_aspect: (aspect) ->
-    if @_aspect_constraint?
-      solver.remove_constraint(@aspect_constraint)
-      c = EQ([aspect, @_height], [-1, @_width])
-      @_aspect_constraint = c
-      @document.solver().add_constraint(c)
-
 module.exports =
   Model: LayoutBox
