@@ -34,8 +34,8 @@ class ToggleView extends BokehView
 
     if @mget("active")
       @$el.addClass("bk-bs-active")
-
-    @$el.attr("data-bk-bs-toggle", "button")
+    else
+      @$el.removeClass("bk-bs-active")
     return @
 
   change_input: () ->
