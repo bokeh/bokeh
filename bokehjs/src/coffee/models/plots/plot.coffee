@@ -704,29 +704,29 @@ class Plot extends Component.Model
     above_box = new LayoutBox.Model()
     above_box.attach_document(@document)
     solver.add_constraint(GE(above_box._height, -min_border_top))
-    solver.add_constraint(EQ(frame.panel._top, [-1, above_box._bottom]))
-    solver.add_constraint(EQ(above_box._top, [-1, canvas.panel._top]))
+    solver.add_constraint(EQ(frame._top, [-1, above_box._bottom]))
+    solver.add_constraint(EQ(above_box._top, [-1, canvas._top]))
     @above_panel = above_box
 
     below_box = new LayoutBox.Model()
     below_box.attach_document(@document)
     solver.add_constraint(GE(below_box._height, -min_border_bottom))
-    solver.add_constraint(EQ(frame.panel._bottom, [-1, below_box._top]))
-    solver.add_constraint(EQ(below_box._bottom, [-1, canvas.panel._bottom]))
+    solver.add_constraint(EQ(frame._bottom, [-1, below_box._top]))
+    solver.add_constraint(EQ(below_box._bottom, [-1, canvas._bottom]))
     @below_panel = below_box
 
     left_box = new LayoutBox.Model()
     left_box.attach_document(@document)
     solver.add_constraint(GE(left_box._width, -min_border_left))
-    solver.add_constraint(EQ(frame.panel._left, [-1, left_box._right]))
-    solver.add_constraint(EQ(left_box._left, [-1, canvas.panel._left]))
+    solver.add_constraint(EQ(frame._left, [-1, left_box._right]))
+    solver.add_constraint(EQ(left_box._left, [-1, canvas._left]))
     @left_panel = left_box
 
     right_box = new LayoutBox.Model()
     right_box.attach_document(@document)
     solver.add_constraint(GE(right_box._width, -min_border_right))
-    solver.add_constraint(EQ(frame.panel._right, [-1, right_box._left]))
-    solver.add_constraint(EQ(right_box._right, [-1, canvas.panel._right]))
+    solver.add_constraint(EQ(frame._right, [-1, right_box._left]))
+    solver.add_constraint(EQ(right_box._right, [-1, canvas._right]))
     @right_panel = right_box
 
     for side in ['above', 'below', 'left', 'right']

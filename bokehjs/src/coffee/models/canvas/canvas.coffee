@@ -78,10 +78,6 @@ class Canvas extends LayoutBox.Model
     use_hidpi: [ p.Boolean, true ]
   }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @panel = @
-
   set_dims: (dims, trigger=true) ->
     @_set_width(dims[0])
     @_set_height(dims[1])
