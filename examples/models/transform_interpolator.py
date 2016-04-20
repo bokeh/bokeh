@@ -7,7 +7,7 @@ from bokeh.models.sources import ColumnDataSource
 from bokeh.models import CustomJS, Select
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
 
-N = 300
+N = 600
 
 controls = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[2, 8, 7, 3, 5]))
 source = ColumnDataSource(data=dict(x=[], y=[]))
