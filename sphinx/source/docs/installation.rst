@@ -73,18 +73,19 @@ Sample Data
 Some of the Bokeh examples rely on sample data that is not included in the
 Bokeh GitHub repository or released packages, due to their size. Once Bokeh
 is installed, the sample data can be obtained by executing the following
-commands at a python prompt:
+command at a Bash or Windows prompt:
+
+.. code-block:: sh
+
+    bokeh sampledata
+
+Alternatively, the following statements can be executed in a Python
+interpreter:
 
 .. code-block:: python
 
     >>> import bokeh.sampledata
     >>> bokeh.sampledata.download()
-
-Or directly from a Bash or Windows command prompt:
-
-.. code-block:: sh
-
-    python -c "import bokeh.sampledata; bokeh.sampledata.download()"
 
 Finally, the location that the sample data is stored can be configured.
 By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``.
