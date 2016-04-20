@@ -108,7 +108,7 @@ class PlotView extends Renderer.View
       }
     }
 
-    @model.initialize_layout(@model.solver)
+    @model.initialize_layout()
 
     # compat, to be removed
     @frame = @mget('frame')
@@ -665,7 +665,7 @@ class Plot extends Component.Model
 
     logger.debug("Plot initialized")
 
-  initialize_layout: (solver) ->
+  initialize_layout: () ->
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
       for r in layout_renderers
@@ -673,8 +673,8 @@ class Plot extends Component.Model
           r.set('layout_location', side, { silent: true })
         else
           r.set('layout_location', r.get('location'), { silent: true })
-        r.initialize_layout(solver)
-    @add_constraints(solver)
+        r.initialize_layout()
+    @add_constraints()
 
   _doc_attached: () ->
     @get('canvas').attach_document(@document)
@@ -691,7 +691,7 @@ class Plot extends Component.Model
     frame.attach_document(@document)
     @set('frame', frame)
 
-  add_constraints: (solver) ->
+  add_constraints: () ->
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
