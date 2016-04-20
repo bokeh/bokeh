@@ -14,6 +14,9 @@ class StepInterpolator extends Interpolator.Model
     # Apply the transform to a single value
     @sort(descending = false)
 
+    if x < @_x_sorted[0] or x > @_x_sorted[@_x_sorted.length-1]
+      return(null)
+
     ind = -1
     if @get('mode') == "after"
       ind = _.findLastIndex(@_x_sorted, (num) ->
