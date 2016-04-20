@@ -8,9 +8,6 @@ from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
 from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
-from bokeh.models import Range1d, FactorRange
-from bokeh.plotting import figure, show
-
 
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
@@ -641,43 +638,6 @@ class TestDictMutation(TestContainerMutation):
         self._check_mutation(obj, 'foo', mutate,
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=7, c=8))
-
-
-class BaseTwinAxis(object):
-    """Base class for testing extra ranges"""
-
-    def verify_axis(self, axis_name):
-        plot = figure()  # no need for setUp()
-        range_obj = getattr(plot, 'extra_{}_ranges'.format(axis_name))
-        range_obj['foo_range'] = self.get_range_instance()
-        self.assertIsNone(show(plot))
-
-    def test_x_range(self):
-        self.verify_axis('x')
-
-    def test_y_range(self):
-        self.verify_axis('y')
-
-    @staticmethod
-    def get_range_instance():
-        raise NotImplementedError
-
-
-class TestCategoricalTwinAxis(BaseTwinAxis, unittest.TestCase):
-    """Test whether extra x and y ranges can be categorical"""
-
-    @staticmethod
-    def get_range_instance():
-        return FactorRange('foo', 'bar')
-
-
-class TestLinearTwinAxis(BaseTwinAxis, unittest.TestCase):
-    """Test whether extra x and y ranges can be Range1d"""
-
-    @staticmethod
-    def get_range_instance():
-        return Range1d(0, 42)
-
 
 if __name__ == "__main__":
     unittest.main()
