@@ -147,7 +147,6 @@ class PlotView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     toolbar_location = @mget('toolbar_location')
     if toolbar_location?
@@ -392,6 +391,7 @@ class PlotView extends Renderer.View
     @listenTo(@model, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
+    @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
