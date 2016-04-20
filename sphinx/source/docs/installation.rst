@@ -150,24 +150,27 @@ First, released versions of BokehJS is available for download from CDN at
 pydata.org, under the following naming scheme::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
+    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
 
-for the BokehJS JavaScript, and::
+for the BokehJS JavaScript files, and::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
+    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
 
-for the BokehJS CSS.
+for the BokehJS CSS files.
 
-As a concrete example, the links for version ``0.11.0`` are:
+The ``"-widgets"`` files are only necessary if you are using any of the widgets
+built into Bokeh in ``bokeh.models.widgets`` in your documents.
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css
+As a concrete example, the links for version ``0.12`` are:
 
-Alternatively, BokehJS is available from `npmjs`_ through the Node Package
-Manager. From a Bash or Windows command prompt, execute:
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.js
 
-.. code-block:: sh
+and
 
-    npm install bokehjs
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css
 
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _anaconda.org: http://anaconda.org
