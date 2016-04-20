@@ -53,6 +53,9 @@ declare namespace Bokeh.Plotting {
         xgrid: Grid;
         ygrid: Grid;
 
+        xaxis: Axis;
+        yaxis: Axis;
+
         annular_wedge     (attrs: AnnularWedgeAttrs):     GlyphRenderer;
         annulus           (attrs: AnnulusAttrs):          GlyphRenderer;
         arc               (attrs: ArcAttrs):              GlyphRenderer;
