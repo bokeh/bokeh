@@ -450,8 +450,6 @@ class PlotView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    canvas = @model.get('canvas')
-
     for k, v of @renderers
       if v.model.update_layout?
         v.model.update_layout(v, @model.document.solver())
@@ -462,8 +460,8 @@ class PlotView extends Renderer.View
         break
 
     # Note: -1 to effectively dilate the canvas by 1px
-    @frame.set_var('width', canvas.get('width')-1)
-    @frame.set_var('height', canvas.get('height')-1)
+    @frame.set_var('width', @canvas.get('width')-1)
+    @frame.set_var('height', @canvas.get('height')-1)
 
     @model.document.solver().update_variables(false)
 
