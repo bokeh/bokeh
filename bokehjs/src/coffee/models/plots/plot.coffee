@@ -155,7 +155,7 @@ class PlotView extends Renderer.View
       logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
-        el: @$(toolbar_selector)
+        el: $("<div>").appendTo(@$(toolbar_selector))
         location: toolbar_location
       })
 
