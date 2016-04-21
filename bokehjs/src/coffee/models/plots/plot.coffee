@@ -158,6 +158,7 @@ class PlotView extends Renderer.View
         el: $("<div>").appendTo(@$(toolbar_selector))
         location: toolbar_location
       })
+      @tm_view.render()
 
     @update_dataranges()
 
@@ -445,9 +446,6 @@ class PlotView extends Renderer.View
       @canvas.set_dims([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
-
-    if @tm_view?
-      @tm_view.render()
 
     ctx = @canvas_view.ctx
 
