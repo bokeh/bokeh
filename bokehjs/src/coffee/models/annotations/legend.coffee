@@ -94,6 +94,9 @@ class LegendView extends Renderer.View
       @calc_dims()
       @need_calc_dims = false
 
+    if @model.legends.length == 0
+      return
+
     glyph_height = @mget('glyph_height')
     glyph_width = @mget('glyph_width')
     orientation = @mget('orientation')
