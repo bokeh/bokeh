@@ -18,6 +18,7 @@ class Interpolator extends Transform.Model
     x:    [ p.Any]
     y:    [ p.Any]
     data: [ p.Any]
+    clip: [ p.Bool, true]
     }
 
   sort: (descending = false) ->

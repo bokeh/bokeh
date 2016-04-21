@@ -14,8 +14,14 @@ class StepInterpolator extends Interpolator.Model
     # Apply the transform to a single value
     @sort(descending = false)
 
-    if x < @_x_sorted[0] or x > @_x_sorted[@_x_sorted.length-1]
-      return(null)
+    if @clip == true
+      if x < @_x_sorted[0] or x > @_x_sorted[@_x_sorted.length-1]
+        return(null)
+    else
+      if x < @_x_sorted[0]
+        return @_y_sorted[0]
+      if x > @_x_sorted[@_x_sorted.length-1]
+        return @_y_sorted[@_y_sorted.length-1]
 
     ind = -1
     if @get('mode') == "after"

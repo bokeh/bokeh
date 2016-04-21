@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.properties import abstract
-from ..core.properties import Either, Enum, Float, Instance, Seq, String, Tuple
+from ..core.properties import Either, Enum, Float, Instance, Seq, String, Bool
 from ..model import Model
 from .sources import ColumnDataSource
 
@@ -79,6 +79,11 @@ class Interpolator(Transform):
 
     data = Instance(ColumnDataSource, help="""
     Data which defines the source for the named columns if a string is passed to either the ``x`` or ``y`` parameters.
+    """)
+
+    clip = Bool(True, help="""
+    Determine if the interpolation should clip the result to include only values inside its predefined range.
+    If this is set to False, it will return the most value of the closest point.
     """)
 
     # Define an initialization routine to do some cross checking of input values
