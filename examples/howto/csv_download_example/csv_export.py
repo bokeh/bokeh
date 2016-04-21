@@ -30,12 +30,12 @@ def update(attr, old, new):
 salary_range.on_change('value', update)
 
 js_callback = """
-var csv = source.get('data');
+var data = source.get('data');
 var filetext = 'name,income,years_experience\\n';
-for (i=0; i < csv['name'].length; i++) {
-    var currRow = [csv['name'][i].toString(),
-                   csv['salary'][i].toString(),
-                   csv['years_experience'][i].toString().concat('\\n')];
+for (i=0; i < data['name'].length; i++) {
+    var currRow = [data['name'][i].toString(),
+                   data['salary'][i].toString(),
+                   data['years_experience'][i].toString().concat('\\n')];
 
     var joined = currRow.join();
     filetext = filetext.concat(joined);
@@ -44,19 +44,22 @@ for (i=0; i < csv['name'].length; i++) {
 var filename = 'data_result.csv';
 var blob = new Blob([filetext], { type: 'text/csv;charset=utf-8;' });
 
+//addresses IE
 if (navigator.msSaveBlob) {
-navigator.msSaveBlob(blob, filename);
-} else {
-var link = document.createElement("a");
-if (link.download !== undefined) {
-    var url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    navigator.msSaveBlob(blob, filename);
 }
+
+else {
+    var link = document.createElement("a");
+    if (link.download !== undefined) {
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }       
 }"""
 
 button.callback = CustomJS(args=dict(source=source), code=js_callback)
