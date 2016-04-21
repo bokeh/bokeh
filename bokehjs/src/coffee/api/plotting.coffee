@@ -96,6 +96,9 @@ class Figure extends models.Plot
 
     @add_tools(@_process_tools(tools)...)
 
+    @_legend = new models.Legend({plot: this})
+    @add_renderers(@_legend)
+
   Object.defineProperty this.prototype, "xgrid", {
     get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 0)[0] # TODO
   }
@@ -351,27 +354,16 @@ class Figure extends models.Plot
     return objs
 
   _update_legend: (legend_name, glyph_renderer) ->
-    legends = @renderers.filter((r) -> r instanceof models.Legend)
-
-    switch legends.length
-      when 0
-        legend = new models.Legend({plot: this})
-        @add_renderers(legend)
-      when 1
-        legend = legends[0]
-      else
-        throw new Error("plot configured with more than one legend")
-
-    legends = _.clone(legend.legends)
+    legends = _.clone(@_legend.legends)
 
     for [name, renderers] in legends
       if name == legend_name
         renderers.push(glyph_renderer)
-        legend.legends = legends
+        @_legend.legends = legends
         return
 
     legends.push([legend_name, [glyph_renderer]])
-    legend.legends = legends
+    @_legend.legends = legends
 
 figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
