@@ -361,8 +361,9 @@ by the ``legend`` parameter:
     :source-position: above
 
 Legends are not sorted by default but this behavior can be changed by using the
-:attr:`~bokeh.charts.builder.Builder.sort_legend` attribute to specify the
-attributes to sort by and the order (`ascending` or `descending`).
+:attr:`~bokeh.charts.builder.Builder.legend_sort_field` attribute to specify the
+attributes to sort by and :attr:`~bokeh.charts.builder.Builder.legend_sort_direction`
+to set the order (`ascending` or `descending`).
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_legend_sorted.py
     :source-position: above
