@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-LayoutCanvas = require "../../core/layout/layout_canvas"
+SidePanel = require "../../core/layout/side_panel"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
 
@@ -361,7 +361,7 @@ class Axis extends GuideRenderer.Model
     @define_computed_property('offsets', @_offsets, true)
 
   _doc_attached: () ->
-    @panel = new LayoutCanvas.Model()
+    @panel = new SidePanel.Model()
     @panel.attach_document(@document)
 
   initialize_layout: (solver) ->

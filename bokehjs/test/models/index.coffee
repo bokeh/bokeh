@@ -1,6 +1,7 @@
 require "./callbacks"
 require "./formatters"
 require "./glyphs"
+require "./layouts"
 require "./mappers"
 require "./ranges"
 require "./sources"
