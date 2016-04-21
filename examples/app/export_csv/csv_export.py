@@ -12,7 +12,7 @@ df = pd.read_csv('salary_data.csv')
 salary_range = Slider(title="Max Salary", start=10000, end=250000, value=150000, step=1000)
 button = Button(label="Download", type="success")
 
-source = ColumnDataSource(data=df)
+source = ColumnDataSource(data=dict())
 
 columns = [TableColumn(field="name", title="Employee Name"),
            TableColumn(field="salary", title="Income"),
@@ -59,7 +59,7 @@ else {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    }       
+    }
 }"""
 
 button.callback = CustomJS(args=dict(source=source), code=js_callback)
