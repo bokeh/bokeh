@@ -601,14 +601,16 @@ class Builder(HasProps):
 
     @property
     def sort_legend(self):
-        warnings.warn("Chart property 'sort_legend' was deprecated in 0.12 \
-            and will be removed in the future.")
+        warnings.warn("Chart property `sort_legend` was deprecated in 0.12 \
+            and will be removed in the future. Use `legend_sort_field` and \
+            `legend_sort_direction` instead.")
         return [(self.legend_sort_field, self.legend_sort_direction)]
 
     @sort_legend.setter
     def sort_legend(self, value):
         warnings.warn("Chart property 'sort_legend' was deprecated in 0.12 \
-            and will be removed in the future.")
+            and will be removed in the future. Use `legend_sort_field` and \
+            `legend_sort_direction` instead.")
         self.legend_sort_field, direction = value[0]
         if direction:
             self.legend_sort_direction = "ascending"
