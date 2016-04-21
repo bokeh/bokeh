@@ -4,7 +4,9 @@ from bokeh.sampledata.autompg import autompg as df
 
 p = Scatter(df, x='displ', y='hp', color='cyl',
             title="HP vs DISPL (shaded by CYL)", legend="top_left",
-            sort_legend=[("color", False)], xlabel="Displacement", 
+            legend_sort_field = 'color',
+            legend_sort_direction = 'ascending',
+            xlabel="Displacement",
             ylabel="Horsepower")
 
 output_file("scatter.html")
