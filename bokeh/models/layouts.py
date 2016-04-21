@@ -15,7 +15,7 @@ from ..model import Model
 
 @abstract
 class LayoutDOM(Model):
-    """ An abstract base class for layout components. ``Layout`` is not
+    """ An abstract base class for layout components. ``LayoutDOM`` is not
     generally useful to instantiate on its own.
 
     """

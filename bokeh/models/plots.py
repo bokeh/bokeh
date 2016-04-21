@@ -58,12 +58,6 @@ def _select_helper(args, kwargs):
     return selector
 
 
-class LayoutBox(Model):
-    ''' Represents an **on-canvas** layout.
-
-    '''
-
-
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
@@ -423,7 +417,7 @@ class Plot(LayoutDOM):
     A ToolEvents object to share and report tool events.
     """)
 
-    left  = List(Instance(Renderer), help="""
+    left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)
 
@@ -431,9 +425,7 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
-    # plot titles are not proper renderers
-    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
+    above = List(Instance(Renderer), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 

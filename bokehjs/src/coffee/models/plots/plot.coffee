@@ -4,7 +4,6 @@ Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-LayoutBox = require "../canvas/layout_box"
 LayoutDOM = require "../layouts/layout_dom"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
@@ -18,6 +17,7 @@ UIEvents = require "../../common/ui_events"
 
 BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
+LayoutCanvas = require "../../core/layout/layout_canvas"
 {EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
@@ -721,7 +721,7 @@ class Plot extends LayoutDOM.Model
     do_side = (solver, min_size, side, cnames, dim) =>
       canvas = @get('canvas')
       frame = @get('frame')
-      box = new LayoutBox.Model()
+      box = new LayoutCanvas.Model()
       box.attach_document(@document)
       c0 = '_'+cnames[0]
       c1 = '_'+cnames[1]
@@ -737,7 +737,7 @@ class Plot extends LayoutDOM.Model
           r.set('layout_location', r.get('location'), { silent: true })
         solver.add_constraint( EQ(last.panel[c0], [-1, r.panel[c1]]) )
         last = r
-      padding = new LayoutBox.Model()
+      padding = new LayoutCanvas.Model()
       padding.attach_document(@document)
       solver.add_constraint( EQ(last.panel[c0], [-1, padding[c1]]) )
       solver.add_constraint( EQ(padding[c0], [-1, canvas.panel[c0]]) )
