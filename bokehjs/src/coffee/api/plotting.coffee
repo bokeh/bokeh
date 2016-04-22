@@ -55,8 +55,8 @@ class Figure extends models.Plot
     attrs.x_range = @_get_range(attrs.x_range)
     attrs.y_range = @_get_range(attrs.y_range)
 
-    x_axis_type = attrs.x_axis_type ? "auto"
-    y_axis_type = attrs.y_axis_type ? "auto"
+    x_axis_type = if _.isUndefined(attrs.x_axis_type) then "auto" else attrs.x_axis_type
+    y_axis_type = if _.isUndefined(attrs.y_axis_type) then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
