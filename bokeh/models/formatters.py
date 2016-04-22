@@ -407,6 +407,9 @@ class DatetimeTickFormatter(TickFormatter):
         The preferred time representation for the current locale
         without the date.
 
+    %y
+        The year as a decimal number without a century (range 00 to 99).
+
     %Y
         The year as a decimal number including the century.
 
