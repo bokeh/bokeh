@@ -101,7 +101,6 @@ class Application(object):
 
     def __init__(self, *handlers):
         self._static_path = None
-        self._template = None
         self._handlers = []
         for h in handlers:
             self.add(h)
@@ -121,9 +120,6 @@ class Application(object):
             h.modify_document(doc)
             if h.failed:
                 log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
-
-        if self._template is not None:
-            doc.template = self._template
 
         # A future server setting could make it configurable whether to do this,
         # since it has some performance impact probably. Let's see if we need to.
@@ -147,16 +143,6 @@ class Application(object):
             self._static_path = static_paths.pop()
         else:
             self._static_path = None
-
-        # make sure there is at most one custom template
-        templates = set(h.template() for h in self.handlers)
-        templates.discard(None)
-        if len(templates) > 1:
-            raise RuntimeError("More than one custom template requested for app: %r" % list(templates))
-        elif len(templates) == 1:
-            self._template = templates.pop()
-        else:
-            self._template = None
 
     @property
     def handlers(self):

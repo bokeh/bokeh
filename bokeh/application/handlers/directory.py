@@ -75,6 +75,9 @@ class DirectoryHandler(Handler):
         if self._theme is not None:
             doc.theme = self._theme
 
+        if self._template is not None:
+            doc.template = self._template
+
         # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 

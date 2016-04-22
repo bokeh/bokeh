@@ -367,7 +367,6 @@ class Document(object):
         if not isinstance(template, jinja2.Template):
             raise ValueError("Document templates must be Jinja2 Templates")
         self._template = template
-        # TODO (bev) template change eventing?
 
     @property
     def theme(self):
