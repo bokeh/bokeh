@@ -36,11 +36,24 @@ _strftime = (t, format) ->
       return format
     return tz(t, format)
 
+DEFAULT_DATETIME_FORMATS = {
+  'microseconds': ['%fus']
+  'milliseconds': ['%3Nms', '%S.%3Ns']
+  'seconds':      ['%Ss']
+  'minsec':       [':%M:%S']
+  'minutes':      [':%M', '%Mm']
+  'hourmin':      ['%H:%M']
+  'hours':        ['%Hh', '%H:%M']
+  'days':         ['%m/%d', '%a%d']
+  'months':       ['%m/%Y', '%b%y']
+  'years':        ['%Y']
+}
+
 class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
 
   @define {
-    formats: [ p.Any, {} ] # TODO (bev)
+    formats: [ p.Any, DEFAULT_DATETIME_FORMATS ] # TODO (bev)
   }
 
   # Labels of time units, from finest to coarsest.
@@ -48,30 +61,13 @@ class DatetimeTickFormatter extends TickFormatter.Model
     'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
   ]
 
-  # This table of formats is convert into the 'formats' dict.
-  # TODO: please add to documentation, especially as to why
-  # there are multiple formatters per time scale.
-  _formats: {
-    'microseconds': ['%fus']
-    'milliseconds': ['%3Nms', '%S.%3Ns']
-    'seconds':      ['%Ss']
-    'minsec':       [':%M:%S']
-    'minutes':      [':%M', '%Mm']
-    'hourmin':      ['%H:%M']
-    'hours':        ['%Hh', '%H:%M']
-    'days':         ['%m/%d', '%a%d']
-    'months':       ['%m/%Y', '%b%y']
-    'years':        ['%Y']
-  }
-
   # Whether or not to strip the leading zeros on tick labels.
   strip_leading_zeros: true
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @formats = _.extend({}, @_formats, @get("formats"))
-    @_update_width_formats()
     # TODO (bev) trigger update on format change
+    @_update_width_formats()
 
   _update_width_formats: () ->
     now = tz(new Date())
