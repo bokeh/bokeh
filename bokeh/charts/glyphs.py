@@ -8,10 +8,10 @@ from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.core.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line, Patches
+from bokeh.models.glyphs import Rect, Segment, Line, Patches, Arc
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
-                                   List, Either, Int, Enum, Color, Override, Any)
+                                   List, Either, Int, Enum, Color, Override, Any, Angle)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
@@ -1031,3 +1031,21 @@ class BinGlyph(XyGlyph):
             return min(data), max(data)
         else:
             return 1, len(data.drop_duplicates())
+
+
+class ArcGlyph(LineGlyph):
+    """Represents a group of data as an arc."""
+    start_angle = Angle()
+    end_angle = Angle()
+
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)
+        self.setup()
+
+    def build_renderers(self):
+        """Yield a `GlyphRenderer` for the group of data."""
+        glyph = Arc(x='x', y='y', radius=1,
+                    start_angle='_end_angle',
+                    end_angle='_start_angle',
+                    line_color='line_color')
+        yield GlyphRenderer(glyph=glyph)

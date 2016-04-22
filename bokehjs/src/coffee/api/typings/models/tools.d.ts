@@ -47,7 +47,9 @@ declare namespace Bokeh {
 
     export var ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
     export interface ResetTool extends Tool, IResetTool {}
-    export interface IResetTool extends ITool {}
+    export interface IResetTool extends ITool {
+        reset_size?: Boolean;
+    }
 
     export var ResizeTool: { new(attributes?: IResizeTool, options?: ModelOpts): ResizeTool };
     export interface ResizeTool extends Tool, IResizeTool {}
