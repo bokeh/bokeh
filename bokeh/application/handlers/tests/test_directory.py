@@ -11,6 +11,7 @@ import jinja2
 
 from bokeh.application.handlers import DirectoryHandler
 from bokeh.document import Document
+from bokeh.core.templates import FILE
 
 class TmpDir(object):
     def __init__(self, prefix):
@@ -219,7 +220,7 @@ some.foo = 57
         assert not doc.roots
 
         handler = result['handler']
-        assert isinstance(handler.template(), jinja2.Template)
+        assert isinstance(doc.template, jinja2.Template)
 
     def test_directory_without_template(self):
         doc = Document()
@@ -238,4 +239,4 @@ some.foo = 57
         assert not doc.roots
 
         handler = result['handler']
-        assert handler.template() is None
+        assert doc.template is FILE

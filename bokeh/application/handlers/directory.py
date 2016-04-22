@@ -55,6 +55,7 @@ class DirectoryHandler(Handler):
         if exists(appstatic):
             self._static = appstatic
 
+        self._template = None
         appindex = join(src_path, 'templates', 'index.html')
         if exists(appindex):
             env = Environment(loader=FileSystemLoader(dirname(appindex)))
