@@ -14,22 +14,6 @@ _us = (t) ->
   # microsecond / millisecond tick.
   return Math.round(((t / 1000) % 1) * 1000000)
 
-_two_digit_year = (t) ->
-  # Round to the nearest Jan 1, roughly.
-  dt = new Date(t)
-  year = dt.getFullYear()
-  if dt.getMonth() >= 7
-      year += 1
-  return SPrintf.sprintf("'%02d", (year % 100))
-
-_four_digit_year = (t) ->
-  # Round to the nearest Jan 1, roughly.
-  dt = new Date(t)
-  year = dt.getFullYear()
-  if dt.getMonth() >= 7
-      year += 1
-  return SPrintf.sprintf("%d", year)
-
 _array = (t) ->
   return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
 
@@ -56,8 +40,8 @@ class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
 
   @define {
-      formats: [ p.Any, {} ] # TODO (bev)
-    }
+    formats: [ p.Any, {} ] # TODO (bev)
+  }
 
   # Labels of time units, from finest to coarsest.
   format_order: [
@@ -77,10 +61,7 @@ class DatetimeTickFormatter extends TickFormatter.Model
     'hours':        ['%Hh', '%H:%M']
     'days':         ['%m/%d', '%a%d']
     'months':       ['%m/%Y', '%b%y']
-    # TODO: the functions here currently aren't serializable
-    # and so can't be set from the python client. Although,
-    # I'm not at all sure what purpose these functions have.
-    'years':        ['%Y', _two_digit_year, _four_digit_year]
+    'years':        ['%Y']
   }
 
   # Whether or not to strip the leading zeros on tick labels.
@@ -88,15 +69,18 @@ class DatetimeTickFormatter extends TickFormatter.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @formats = _.extend({}, @_formats, @get("formats"))
+    @_update_width_formats()
+    # TODO (bev) trigger update on format change
 
-    fmt = _.extend({}, @_formats, @get("formats"))
+  _update_width_formats: () ->
     now = tz(new Date())
-    @formats = {}
+    @_width_formats = {}
 
-    for fmt_name, fmt_strings of fmt
+    for fmt_name, fmt_strings of @formats
       sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
       sorted = _.sortBy(_.zip(sizes, fmt_strings), ([size, fmt]) -> size)
-      @formats[fmt_name] = _.zip.apply(_, sorted)
+      @_width_formats[fmt_name] = _.zip.apply(_, sorted)
 
   # FIXME There is some unfortunate flicker when panning/zooming near the
   # span boundaries.
@@ -149,7 +133,7 @@ class DatetimeTickFormatter extends TickFormatter.Model
       r = span / (ticks.length - 1)
     resol = @_get_resolution_str(r, span)
 
-    [widths, formats] = @formats[resol]
+    [widths, formats] = @_width_formats[resol]
     format = formats[0]
     # FIXME I'm pretty sure this code won't work; luckily it doesn't seem to
     # be used.
@@ -159,9 +143,7 @@ class DatetimeTickFormatter extends TickFormatter.Model
       good_formats = []
       for i in [0...widths.length]
         if widths[i] * ticks.length < fill_ratio * char_width
-          # FIXME I think "@formats" should be "formats".  (Perhaps they
-          # should have more distinct names.)
-          good_formats.push(@formats[i])
+          good_formats.push(@_width_formats[i])
       if good_formats.length > 0
         format = _.last(good_formats)
 
@@ -211,13 +193,13 @@ class DatetimeTickFormatter extends TickFormatter.Model
           break
         if resol in ["minsec", "hourmin"] and not hybrid_handled
           if (resol == "minsec" and tm[4] == 0 and tm[5] != 0) or (resol == "hourmin" and tm[3] == 0 and tm[4] != 0)
-            next_format = @formats[@format_order[resol_ndx-1]][1][0]
+            next_format = @_width_formats[@format_order[resol_ndx-1]][1][0]
             s = _strftime(t, next_format)
             break
           else
             hybrid_handled = true
 
-        next_format = @formats[@format_order[next_ndx]][1][0]
+        next_format = @_width_formats[@format_order[next_ndx]][1][0]
         s = _strftime(t, next_format)
 
       # TODO: should expose this in api. %H, %d, etc use leading zeros and
