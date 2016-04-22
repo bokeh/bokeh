@@ -2,15 +2,15 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-core_defaults = utils.require "common/defaults"
-widget_defaults = utils.require "widget/defaults"
+core_defaults = require "./defaults/models_defaults"
+widget_defaults = require "./defaults/widgets_defaults"
 
-{Collections} = utils.require "common/base"
-HasProperties = utils.require "common/has_properties"
-properties = utils.require "common/properties"
-Bokeh = utils.require "main"
-# for side-effect of loading widgets into locations, as well as to get 'widget_locations'
-widget_locations = (utils.require "widget/main").locations
+{Models} = utils.require "base"
+mixins = utils.require "core/property_mixins"
+HasProps = utils.require "core/has_props"
+
+widget_locations = utils.require "models/widgets/main"
+Models.register_locations(widget_locations)
 
 all_view_model_names = []
 all_view_model_names = all_view_model_names.concat(core_defaults.all_view_model_names())
@@ -28,6 +28,29 @@ safe_stringify = (v) ->
     catch e
       "#{v}"
 
+
+deep_value_to_json = (key, value, optional_parent_object) ->
+  if value instanceof HasProps
+    {type: value.type, attributes: value.attributes_as_json() }
+  else if _.isArray(value)
+    ref_array = []
+    for v, i in value
+      if v instanceof HasProps and not v.serializable_in_document()
+        console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
+      else
+        ref_array.push(deep_value_to_json(i, v, value))
+    ref_array
+  else if _.isObject(value)
+    ref_obj = {}
+    for own subkey of value
+      if value[subkey] instanceof HasProps and not value[subkey].serializable_in_document()
+        console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
+      else
+        ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
+    ref_obj
+  else
+    value
+
 check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   different = []
   python_missing = []
@@ -38,11 +61,17 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
     if name == 'DatePicker' and k == 'value'
       continue
 
+    # special case for date time tickers, class hierarchy and attributes are handled differently
+    if name = "DatetimeTicker" and k = "tickers"
+      continue
+
     if k == 'id'
       continue
 
     if k of python_defaults
       py_v = python_defaults[k]
+      strip_ids(py_v)
+
       if not _.isEqual(py_v, v)
 
         # these two conditionals compare 'foo' and {value: 'foo'}
@@ -51,9 +80,18 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
         if _.isObject(py_v) and 'value' of py_v and _.isEqual(py_v['value'], v)
           continue
 
+        if _.isObject(v) and 'attributes' of v and _.isObject(py_v) and 'attributes' of py_v
+          if v['type'] == py_v['type']
+            check_matching_defaults("#{name}.#{k}", py_v['attributes'], v['attributes'])
+            continue
+
         # compare arrays of objects
         if _.isArray(v) and _.isArray(py_v)
           equal = true
+
+          # palettes in JS are stored as int color values
+          if k == 'palette'
+            py_v = (parseInt(x, 16) for x in py_v)
 
           if v.length != py_v.length
             equal = false
@@ -89,8 +127,9 @@ strip_ids = (value) ->
   if _.isArray(value)
     for v in value
       strip_ids(v)
-  else if _.isObject(value) and ('id' of value)
-    delete value['id']
+  else if _.isObject(value)
+    if ('id' of value)
+      delete value['id']
     for k, v of value
       strip_ids(v)
 
@@ -98,13 +137,13 @@ describe "Defaults", ->
 
   # this is skipped while we decide whether to automate putting them all
   # in Bokeh or just leave it as a curated (or ad hoc?) subset
-  it.skip "have all non-Widget view models from Python in the Bokeh object", ->
+  it.skip "have all non-Widget view models from Python in the Models object", ->
     missing = []
     for name in core_defaults.all_view_model_names()
-      if name not of Bokeh
+      if name not of Models.registered_names()
         missing.push(name)
     for m in missing
-      console.log("'Bokeh.#{m}' not found but there's a Python model '#{m}'")
+      console.log("'Models.#{m}' not found but there's a Python model '#{m}'")
     expect(missing.length).to.equal 0
 
   it "have all Widget view models from Python in widget locations registry", ->
@@ -118,7 +157,7 @@ describe "Defaults", ->
 
   it "have all view models from Python in registered locations", ->
     registered = {}
-    for name in Collections.registered_names()
+    for name in Models.registered_names()
       registered[name] = true
     missing = []
     for name in all_view_model_names
@@ -131,78 +170,13 @@ describe "Defaults", ->
   it "match between Python and CoffeeScript", ->
     fail_count = 0
     for name in all_view_model_names
-      coll = Collections(name)
-      instance = new coll.model({}, {'silent' : true, 'defer_initialization' : true})
-      attrs = instance.attributes_as_json()
+      model = Models(name)
+      instance = new model({}, {silent: true, defer_initialization: true})
+      attrs = instance.attributes_as_json(true, deep_value_to_json)
       strip_ids(attrs)
-      # merge in display_defaults() which aren't in the main
-      # attributes, the overall setup here is sketchy right now
-      # because python never leaves these things unset. We need an
-      # "inherit" value, like in CSS, perhaps.
-      # But at least we can check that display_defaults() matches
-      # what Python sends.
-      display_specs = [ 'line_color', 'line_width', 'line_alpha', 'fill_color', 'fill_alpha',
-                        'text_font_size', 'text_color', 'text_alpha' ]
-      display_attr_is_spec = (name) ->
-        for s in display_specs
-          if name.endsWith(s) # gratuitous ES6
-            return true
-        return false
-      if 'display_defaults' of instance
-        display = instance.display_defaults()
-        for k in Object.keys(display)
-          if k of attrs
-            console.error("#{name}.#{k}: property present in both CoffeeScript attrs and display_defaults()")
-
-          if display_attr_is_spec(k)
-            orig = display[k]
-            if not (_.isObject(orig) and ('field' of orig or 'value' of orig))
-              # convert to 'spec dict' format
-              display[k] = { 'value' : display[k] }
-
-        attrs = _.extend({}, display, attrs)
-
-      # Merge in "factory" attrs, which don't go in attributes
-      # in the actual code, but for our current purpose
-      # let's pretend they do because they do "in effect"
-      # and we probably want to put them there eventually
-      for prop_kind, func of properties.factories
-        if prop_kind == 'visuals' # visuals is the display_defaults() case above
-          continue
-        if prop_kind of instance
-          props_of_this_kind = func(instance)
-          prop_values = {}
-          for p, v of props_of_this_kind
-            if v.field?
-              prop_values[p] = { 'field' : v.field }
-            else if v.fixed_value?
-              prop_values[p] = { 'value' : v.fixed_value }
-            else
-              n = v.value()
-              if isNaN(n) or n == null
-                prop_values[p] = null
-              else
-                prop_values[p] = { 'value' : n }
-
-            dict = prop_values[p]
-            if dict?
-              if v.units?
-                prop_values[p]['units'] = v.units
-              else
-                # properties.coffee hardcodes these units defaults
-                if prop_kind == 'distances' and 'units' not of dict
-                  dict['units'] = "data"
-                if prop_kind == 'angles' and 'units' not of dict
-                  dict['units'] = "rad"
-
-          _.extend(attrs, prop_values)
 
       if not check_matching_defaults(name, get_defaults(name), attrs)
         fail_count = fail_count + 1
 
     console.error("Python/Coffee matching defaults problems: #{fail_count}")
-    # If this is failing because the problem count is now lower,
-    # then edit this number to be lower. If it's failing because
-    # it's higher, fix the newly-introduced errors. Eventually we
-    # will get to zero.
-    expect(fail_count).to.equal 12
+    expect(fail_count).to.equal 0

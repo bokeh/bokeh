@@ -1,6 +1,6 @@
 _  = require "underscore"
 SPrintf = require "sprintf"
-Numeral = require "numeral"
+Numbro = require "numbro"
 
 _format_number = (number) ->
   if _.isNumber(number)
@@ -32,7 +32,7 @@ replace_placeholders = (string, data_source, i, special_vars={}) ->
       if not value? then "???"
       else
         if format?
-          Numeral.format(value, format)
+          Numbro.format(value, format)
         else
           _format_number(value)
     "#{prefix}#{_.escape(replacement)}"

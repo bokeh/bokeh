@@ -62,7 +62,7 @@ def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
         if i==len(foos)-1:
             # if it's the last foo let's draw a circle on the head of the curve
             sources['floating_point'] = CDS({'x':[shift], 'y': [cy]})
-            p.line('line_x', 'line_y', color="palette[i]", line_width=2, source=sources['lines'])
+            p.line('line_x', 'line_y', color=palette[i], line_width=2, source=sources['lines'])
             p.circle('x', 'y', size=10, line_color=palette[i], color=palette[i], source=sources['floating_point'])
 
         # draw the circle, radius and circle point realted to foo domain

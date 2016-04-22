@@ -8,6 +8,9 @@
 """
 Supporting objects and functions to convert Matplotlib objects into Bokeh.
 
+.. autofunction:: bokeh.core.compat.mpl.to_bokeh
+
+
 """
 
 from .core.compat.mpl import  to_bokeh; to_bokeh

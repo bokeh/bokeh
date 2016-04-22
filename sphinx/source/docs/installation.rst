@@ -5,7 +5,7 @@ Installation
 
 This section gives more details about the installation process of Bokeh,
 for those who were unable to complete the process detailed in the
-:ref:`quickstart`, or who want more information about the process.
+:ref:`userguide_quickstart`, or who want more information about the process.
 
 .. _install_dependencies:
 
@@ -73,18 +73,19 @@ Sample Data
 Some of the Bokeh examples rely on sample data that is not included in the
 Bokeh GitHub repository or released packages, due to their size. Once Bokeh
 is installed, the sample data can be obtained by executing the following
-commands at a python prompt:
+command at a Bash or Windows prompt:
+
+.. code-block:: sh
+
+    bokeh sampledata
+
+Alternatively, the following statements can be executed in a Python
+interpreter:
 
 .. code-block:: python
 
     >>> import bokeh.sampledata
     >>> bokeh.sampledata.download()
-
-Or directly from a Bash or Windows command prompt:
-
-.. code-block:: sh
-
-    python -c "import bokeh.sampledata; bokeh.sampledata.download()"
 
 Finally, the location that the sample data is stored can be configured.
 By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``.
@@ -150,24 +151,27 @@ First, released versions of BokehJS is available for download from CDN at
 pydata.org, under the following naming scheme::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
+    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
 
-for the BokehJS JavaScript, and::
+for the BokehJS JavaScript files, and::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
+    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
 
-for the BokehJS CSS.
+for the BokehJS CSS files.
 
-As a concrete example, the links for version ``0.11.0`` are:
+The ``"-widgets"`` files are only necessary if you are using any of the widgets
+built into Bokeh in ``bokeh.models.widgets`` in your documents.
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css
+As a concrete example, the links for version ``0.12`` are:
 
-Alternatively, BokehJS is available from `npmjs`_ through the Node Package
-Manager. From a Bash or Windows command prompt, execute:
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.js
 
-.. code-block:: sh
+and
 
-    npm install bokehjs
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.css
 
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _anaconda.org: http://anaconda.org

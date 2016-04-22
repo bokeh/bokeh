@@ -18,6 +18,6 @@ scatter = Scatter(data,
                   title='x=petal_length+sepal_length, y=petal_width+sepal_width, color=species',
                   legend='top_right')
 
-output_file("iris_blend.html")
+output_file("iris_blend.html", title="iris_blend.py example")
 
 show(scatter)

@@ -131,6 +131,6 @@ layout = hplot(
     vform(p1, p2)
 )
 
-output_file("color_sliders.html")
+output_file("color_sliders.html", title="color_sliders.py example")
 
 show(layout)

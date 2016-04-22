@@ -21,7 +21,7 @@ do
         d) dtag=${OPTARG};;
         p) ptag=${OPTARG};;
         r) rtag=${OPTARG};;
-    esac 
+    esac
 done
 
 # main
@@ -32,10 +32,11 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
     git checkout -b release_$rtag
 
     # version number updates
-    python version_update.py $rtag
+    python version_update.py $rtag $ptag
     git add ../bokehjs/src/coffee/main.coffee
     git add ../bokehjs/package.json
-    git commit -m "Updating bokehjs version to $rtag."
+    git add ../sphinx/source/conf.py
+    git commit -m "Updating version to $rtag."
 
     # CHANGELOG generation
     python issues.py -p $ptag -r $rtag
@@ -43,7 +44,6 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
     if [ $ret -ne 0 ]; then
         echo "Exiting because CHANGELOG generation failed."
         echo "Check you actually have a ../sphinx/source/docs/releases/<tag>/.rst file."
-        echo "And you actually updated ../sphinx/source/docs/release_notes.rst with the latest releases/<tag>."
         exit 1
     fi
     git add ../CHANGELOG

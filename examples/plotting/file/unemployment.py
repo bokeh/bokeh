@@ -56,6 +56,6 @@ p.select_one(HoverTool).tooltips = [
     ('rate', '@rate'),
 ]
 
-output_file('unemployment.html')
+output_file('unemployment.html', title="unemployment.py example")
 
 show(p)      # show the plot

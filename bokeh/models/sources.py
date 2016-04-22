@@ -2,9 +2,9 @@ from __future__ import absolute_import
 
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
-from ..model import Model
 from ..core.properties import abstract
 from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecate import deprecated
 from ..util.serialization import transform_column_source_data
@@ -195,34 +195,25 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    # def push_notebook(self):
-    #     """ Update date for a plot in the IPython notebook in place.
+    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
+    def push_notebook(self):
+        """ Update a data source for a plot in a Jupyter notebook.
 
-    #     This function can be be used to update data in plot data sources
-    #     in the IPython notebook, without having to use the Bokeh server.
+        This function can be be used to update data in plot data sources
+        in the Jupyter notebook, without having to use the Bokeh server.
 
-    #     Returns:
-    #         None
+        .. warning::
+            This function has been deprecated. Please use
+            ``bokeh.io.push_notebook()`` which will push all changes
+            (not just data sources) to the last shown plot in a Jupyter
+            notebook.
 
-    #     .. warning::
-    #         The current implementation leaks memory in the IPython notebook,
-    #         due to accumulating JS code. This function typically works well
-    #         with light UI interactions, but should not be used for continuously
-    #         updating data. See :bokeh-issue:`1732` for more details and to
-    #         track progress on potential fixes.
+        Returns:
+            None
 
-    #     """
-    #     from IPython.core import display
-    #     from bokeh.protocol import serialize_json
-    #     id = self.ref['id']
-    #     model = self.ref['type']
-    #     json = serialize_json(self.vm_serialize())
-    #     js = """
-    #         var ds = Bokeh.Collections('{model}').get('{id}');
-    #         var data = {json};
-    #         ds.set(data);
-    #     """.format(model=model, id=id, json=json)
-    #     display.display_javascript(js, raw=True)
+        """
+        from bokeh.io import push_notebook
+        push_notebook()
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):
@@ -230,6 +221,35 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             return str(self)
 
+
+    def stream(self, new_data, rollover=None):
+        import numpy as np
+
+        newkeys = set(new_data.keys())
+        oldkeys = set(self.data.keys())
+        if newkeys != oldkeys:
+            missing = oldkeys - newkeys
+            extra = newkeys - oldkeys
+            if missing and extra:
+                raise ValueError("Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra))))
+            elif missing:
+                raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
+            else:
+                raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
+
+        lengths = set()
+        for x in new_data.values():
+            if isinstance(x, np.ndarray):
+                if len(x.shape) != 1:
+                    raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
+                lengths.add(x.shape[0])
+            else:
+                lengths.add(len(x))
+
+        if len(lengths) > 1:
+            raise ValueError("All streaming column updates must be the same length")
+
+        self.data._stream(self.document, self, new_data, rollover)
 
 class GeoJSONDataSource(ColumnDataSource):
 
@@ -269,40 +289,9 @@ class AjaxDataSource(RemoteSource):
     to the server. If this header is supported by the server, then only
     new data since the last request will be returned.
     """)
-
-class BlazeDataSource(RemoteSource):
-    #blaze parts
-    expr = Dict(String, Any(), help="""
-    blaze expression graph in json form
+    content_type = String(default='application/json', help="""
+    Set the "contentType" parameter for the Ajax request.
     """)
-
-    namespace = Dict(String, Any(), help="""
-    namespace in json form for evaluating blaze expression graph
+    http_headers = Dict(String, String, help="""
+    HTTP headers to set for the Ajax request.
     """)
-
-    local = Bool(help="""
-    Whether this data source is hosted by the bokeh server or not.
-    """)
-
-    def from_blaze(self, remote_blaze_obj, local=True):
-        from blaze.server import to_tree
-        # only one Client object, can hold many datasets
-        assert len(remote_blaze_obj._leaves()) == 1
-        leaf = remote_blaze_obj._leaves()[0]
-        blaze_client = leaf.data
-        json_expr = to_tree(remote_blaze_obj, {leaf : ':leaf'})
-        self.data_url = blaze_client.url + "/compute.json"
-        self.local = local
-        self.expr = json_expr
-
-    def to_blaze(self):
-        from blaze.server.client import Client
-        from blaze.server import from_tree
-        from blaze import Data
-        # hacky - blaze urls have `compute.json` in it, but we need to strip it off
-        # to feed it into the blaze client lib
-        c = Client(self.data_url.rsplit('compute.json', 1)[0])
-        d = Data(c)
-        return from_tree(self.expr, {':leaf' : d})
-
-

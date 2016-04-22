@@ -6,25 +6,27 @@ selectors.
 
 Examples::
 
-    # find all objects with type "grid"
-    find(p, {'type': 'grid'})
+    .. code-block:: python
 
-    # find all objects with type "grid" or "axis"
-    find(p, {OR: [
-        {'type': 'grid'}, {'type': 'axis'}
-    ]})
+        # find all objects with type "grid"
+        find(p, {'type': 'grid'})
 
-    # same query, using IN operator
-    find(p, {'type': {IN: ['grid', 'axis']})
+        # find all objects with type "grid" or "axis"
+        find(p, {OR: [
+            {'type': 'grid'}, {'type': 'axis'}
+        ]})
 
-    # find all plot objects on the 'left' layout of the Plot
-    list(find(p, {'layout': 'left'}, {'plot': p}))
+        # same query, using IN operator
+        find(p, {'type': {IN: ['grid', 'axis']})
 
-    # find all subplots in column 0
-    find(p, {type: 'plot', 'column: 0}, {'gridplot': p})
+        # find all plot objects on the 'left' layout of the Plot
+        list(find(p, {'layout': 'left'}, {'plot': p}))
 
-    # find all subplots the last row
-    find(p, {type: 'plot', 'row': -1}, {'gridplot': p})
+        # find all subplots in column 0
+        find(p, {type: 'plot', 'column: 0}, {'gridplot': p})
+
+        # find all subplots the last row
+        find(p, {type: 'plot', 'row': -1}, {'gridplot': p})
 
 '''
 

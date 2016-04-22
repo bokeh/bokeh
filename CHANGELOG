@@ -1,3 +1,570 @@
+2016-02-04   0.11.1:
+--------------------
+  * settings and documentation for Bokeh server behind an SSL terminated proxy
+  * bugfixes:
+    - MultiSelect works
+    - Oval legend renders correctly
+    - Plot title orientation setting works
+    - Annulus glyph works on IE/Edge
+  * features:
+    - preview of new streaming API in OHLC demo
+    - undo/redo tool add, reset tool now resets plot size
+    - "bokeh static" and "bokeh sampledata" commands
+    - can now create Bokeh apps directly from Jupyter Notebooks
+    - headers and content type now configurable on AjaxDataSource
+  * Range update callbacks now return the range object as cb_obj (not the plot)
+  * Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to
+    bokeh.models.layouts, but continue to be importable from bokeh.models
+  * BlazeDataSource has been removed; it will be maintained by the Blaze team
+    in the future.
+  * The broken BokehJS API has been removed. We are actively seeking a
+    champion/maintainer for a new BokehJS API.
+  * bugfixes:
+    - #2495 [widgets] Multiselect appears broken
+    - #3055 [docs] Search isn't working correctly on docs - bokeh.pydata.org
+    - #3069 [docs] Table of contents is not scrolling properly on bokeh website
+    - #3173 Cb_obj for range callback is plot not range
+    - #3257 Confusing deprecation message in bokeh/models/plots.py
+    - #3304 [examples] Stocks app example is not py2 compatible
+    - #3468 [bokehjs] Embed_responsive_with_height.py starts out wrong size
+    - #3530 _make_io_complainer method of scripthandler uses not-imported sys module
+    - #3543 [bokehjs] Annulus glyph does not render correctly in ie and edge
+    - #3552 Use self.mode instead of mode in baseresources.__init__()
+    - #3562 [docs] Python callback example in user guide not rendering
+    - #3569 [docs] Imageurl example in reference guide is broken
+    - #3578 [charts] [docs] Sizing plots, charts: inconsistency between doc an api
+    - #3591 [docs] Correct links to be demo.bokehplots.com links
+    - #3604 [bokehjs] Hovertool.always_active is not implemented
+    - #3605 [bokehjs] Webgl aa is broken on firefox on windows
+    - #3626 [bokehjs] [server] Support swapping of axes/ranges without re-creating entire plot
+    - #3636 [tests] Travisci failing every py27 examples test 
+    - #3646 Fix bad path to bokeh logo static
+    - #3658 Hplot spacing too large
+    - #3680 [bokehjs] Notebook comms only update last plot
+    - #3683 Movies app razzies file path
+    - #3690 Add `bind_bokeh_event` methods to `tilerenderer` and `dynamicimagerenderer`
+    - #3692 [server] Fix error about blocked websocket to list allowed origins
+    - #3695 [docs] Server example out of date
+    - #3698 [docs] Doc: data_source is not an expected attribute to text
+    - #3699 [charts] Boxplot 1st and 4th whiskers are just of equal length
+    - #3705 Inline css from embed_multiple.py jinja template overrides bokeh plot icon css
+    - #3709 [bokehjs] Issue with legend when 'oval shape' is used
+    - #3710 [bokehjs] [build] Restore support for --build-dir argument to gulp
+    - #3711 [bokehjs] Allow to align plot title to left and right (center worked before)
+    - #3712 [regression] Use make_id() instead of str(uuid.uuid4())
+    - #3714 [regression] Restore pretty json formatting and make sort_keys=true the default
+    - #3726 [server] Pandas required to use the server!
+    - #3727 [examples] Update elements.csv 
+    - #3753 [bokehjs] Should not set parent on anything anymore
+    - #3758 Fix bad layouts imports in examples
+    - #3769 [bokehjs] Reset tool resets selection incorrectly
+    - #3778 Fix issue with bar chart grouping/stacking order
+    - #3803 [bokehjs] Publish bokehjs separately in a notebook to avoid parsing issues in jquery
+    - #3807 [docs] Sync mpl.to_bokeh docstrings with current available parameters
+    - #3811 [bokehjs] Hot fix for selection reset code
+    - #3812 Use import_required for nbformat and nbconvert
+  * features:
+    - #1683 Reset orignal plot's size
+    - #2346 [bokehjs] Extend jscallback support
+    - #3254 Add support for undo and redo tools
+    - #3505 "bokeh sampledata" command
+    - #3506 [starter] "bokeh static" command
+    - #3541 [server] Add session expiration time options to `bokeh serve`
+    - #3542 Log more detailed stats information from the server
+    - #3553 [server] Add __main__.py so we can do "python -m bokeh"
+    - #3592 [docs] Add a sitemap builder
+    - #3593 [server] Add option to parse jupyter notebooks as input to bokeh command
+    - #3638 [server] Provide method for turning server autoadd off
+    - #3682 Add headers and contenttype configuration to ajax data source
+    - #3768 Initial commit of streaming api
+  * tasks:
+    - #2159 [docs] [server] Bokeh server documentation is incomplete
+    - #3243 [tests] Build new pytest-selenium package
+    - #3305 [server] Evaluate bokeh server on windows
+    - #3404 [docs] Todos for new docs
+    - #3417 [charts] [examples] Add detailed tutorial on individual charts components
+    - #3508 Remove remotedata directory
+    - #3548 [tests] Latest versions of firefox have a heavy to load startpage that we don't need
+    - #3566 Remove bokeh/styling_tool_overlays.html
+    - #3568 Use split not contains for browser compatibility
+    - #3583 [docs] Remove some example notebooks that are superfluous
+    - #3587 Add plotting of razzies
+    - #3588 [docs] Quick add of demo apps to gallery
+    - #3599 [examples] Update periodic table example to reflect recent changes
+    - #3607 [build] Add javascript channel to meta.yaml and improve scripts/dev_environment
+    - #3633 [docs] User guide server
+    - #3637 [docs] 0.11.0 documentation fixes and flake8
+    - #3662 [bokehjs] Remove hasparent (involves moving glyph display_defaults into defaults)
+    - #3663 Remove abstractrendering cruft
+    - #3664 [docs] Examples reorg
+    - #3672 [bokehjs] Fix base of bokehjs class hierarchy 
+    - #3676 [build] Minified files should not try to load .map files
+    - #3677 Server should optionally enable xheader support 
+    - #3686 [docs] Auto-update the "releases" link in conf.py
+    - #3687 [docs] Docs updates/0.11.0
+    - #3694 Remove not filled out portions of docs
+    - #3697 Add renderer base class to *_renderer models
+    - #3703 Task/add component base class
+    - #3721 [docs] Hotfix small doc addition to select
+    - #3728 Removed rogue debugger statement
+    - #3735 [bokehjs] [models] Task/3651 unify directory structure
+    - #3739 [build] [tests] Remove version pin from pytest-selenium
+    - #3742 [docs] Reference docs have bad path to layouts.py (autodocs fail for layouts)
+    - #3749 [bokehjs] Move defaults.coffee (for models and widgets) into test/ directory
+    - #3751 [bokehjs] Remove unused close_wrapper module and coffee/api directory
+    - #3752 [bokehjs] [build] Generate defaults for test task, not scripts:coffee
+    - #3755 [docs] Quickstart edits
+    - #3766 [bokehjs] Task/rename hasproperties to hasprops
+    - #3775 Removing blazedatasource
+    - #3790 Don't use spaces in json separators to reduce data size
+    - #3802 [bokehjs] Move vbox and hbox to top since they are layouts on coffee layer
+    - #3805 [build] Add new creds for rackspace
+    - #3808 [docs] Fix quotes around links to examples notebooks
+    - #3815 Hotfix/apps examples
+
+2016-02-04   0.11.1:
+--------------------
+  * settings and documentation for Bokeh server behind an SSL terminated proxy
+  * bugfixes:
+    - MultiSelect works
+    - Oval legend renders correctly
+    - Plot title orientation setting works
+    - Annulus glyph works on IE/Edge
+  * features:
+    - preview of new streaming API in OHLC demo
+    - undo/redo tool add, reset tool now resets plot size
+    - "bokeh static" and "bokeh sampledata" commands
+    - can now create Bokeh apps directly from Jupyter Notebooks
+    - headers and content type now configurable on AjaxDataSource
+  * Range update callbacks now return the range object as cb_obj (not the plot)
+  * Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to
+    bokeh.models.layouts, but continue to be importable from bokeh.models
+  * BlazeDataSource has been removed; it will be maintained by the Blaze team
+    in the future.
+  * The broken BokehJS API has been removed. We are actively seeking a
+    champion/maintainer for a new BokehJS API.
+  * bugfixes:
+    - #2495 [widgets] Multiselect appears broken
+    - #3055 [docs] Search isn't working correctly on docs - bokeh.pydata.org
+    - #3069 [docs] Table of contents is not scrolling properly on bokeh website
+    - #3173 Cb_obj for range callback is plot not range
+    - #3257 Confusing deprecation message in bokeh/models/plots.py
+    - #3304 [examples] Stocks app example is not py2 compatible
+    - #3468 [bokehjs] Embed_responsive_with_height.py starts out wrong size
+    - #3530 _make_io_complainer method of scripthandler uses not-imported sys module
+    - #3543 [bokehjs] Annulus glyph does not render correctly in ie and edge
+    - #3552 Use self.mode instead of mode in baseresources.__init__()
+    - #3562 [docs] Python callback example in user guide not rendering
+    - #3569 [docs] Imageurl example in reference guide is broken
+    - #3578 [charts] [docs] Sizing plots, charts: inconsistency between doc an api
+    - #3591 [docs] Correct links to be demo.bokehplots.com links
+    - #3604 [bokehjs] Hovertool.always_active is not implemented
+    - #3605 [bokehjs] Webgl aa is broken on firefox on windows
+    - #3626 [bokehjs] [server] Support swapping of axes/ranges without re-creating entire plot
+    - #3636 [tests] Travisci failing every py27 examples test 
+    - #3646 Fix bad path to bokeh logo static
+    - #3658 Hplot spacing too large
+    - #3680 [bokehjs] Notebook comms only update last plot
+    - #3683 Movies app razzies file path
+    - #3690 Add `bind_bokeh_event` methods to `tilerenderer` and `dynamicimagerenderer`
+    - #3692 [server] Fix error about blocked websocket to list allowed origins
+    - #3695 [docs] Server example out of date
+    - #3698 [docs] Doc: data_source is not an expected attribute to text
+    - #3699 [charts] Boxplot 1st and 4th whiskers are just of equal length
+    - #3705 Inline css from embed_multiple.py jinja template overrides bokeh plot icon css
+    - #3709 [bokehjs] Issue with legend when 'oval shape' is used
+    - #3710 [bokehjs] [build] Restore support for --build-dir argument to gulp
+    - #3711 [bokehjs] Allow to align plot title to left and right (center worked before)
+    - #3712 [regression] Use make_id() instead of str(uuid.uuid4())
+    - #3714 [regression] Restore pretty json formatting and make sort_keys=true the default
+    - #3726 [server] Pandas required to use the server!
+    - #3727 [examples] Update elements.csv 
+    - #3753 [bokehjs] Should not set parent on anything anymore
+    - #3758 Fix bad layouts imports in examples
+    - #3769 [bokehjs] Reset tool resets selection incorrectly
+    - #3778 Fix issue with bar chart grouping/stacking order
+    - #3803 [bokehjs] Publish bokehjs separately in a notebook to avoid parsing issues in jquery
+    - #3807 [docs] Sync mpl.to_bokeh docstrings with current available parameters
+    - #3811 [bokehjs] Hot fix for selection reset code
+    - #3812 Use import_required for nbformat and nbconvert
+  * features:
+    - #1683 Reset orignal plot's size
+    - #2346 [bokehjs] Extend jscallback support
+    - #3254 Add support for undo and redo tools
+    - #3505 "bokeh sampledata" command
+    - #3506 [starter] "bokeh static" command
+    - #3541 [server] Add session expiration time options to `bokeh serve`
+    - #3542 Log more detailed stats information from the server
+    - #3553 [server] Add __main__.py so we can do "python -m bokeh"
+    - #3592 [docs] Add a sitemap builder
+    - #3593 [server] Add option to parse jupyter notebooks as input to bokeh command
+    - #3638 [server] Provide method for turning server autoadd off
+    - #3682 Add headers and contenttype configuration to ajax data source
+    - #3768 Initial commit of streaming api
+  * tasks:
+    - #2159 [docs] [server] Bokeh server documentation is incomplete
+    - #3243 [tests] Build new pytest-selenium package
+    - #3305 [server] Evaluate bokeh server on windows
+    - #3404 [docs] Todos for new docs
+    - #3417 [charts] [examples] Add detailed tutorial on individual charts components
+    - #3508 Remove remotedata directory
+    - #3548 [tests] Latest versions of firefox have a heavy to load startpage that we don't need
+    - #3566 Remove bokeh/styling_tool_overlays.html
+    - #3568 Use split not contains for browser compatibility
+    - #3583 [docs] Remove some example notebooks that are superfluous
+    - #3587 Add plotting of razzies
+    - #3588 [docs] Quick add of demo apps to gallery
+    - #3599 [examples] Update periodic table example to reflect recent changes
+    - #3607 [build] Add javascript channel to meta.yaml and improve scripts/dev_environment
+    - #3633 [docs] User guide server
+    - #3637 [docs] 0.11.0 documentation fixes and flake8
+    - #3662 [bokehjs] Remove hasparent (involves moving glyph display_defaults into defaults)
+    - #3663 Remove abstractrendering cruft
+    - #3664 [docs] Examples reorg
+    - #3672 [bokehjs] Fix base of bokehjs class hierarchy 
+    - #3676 [build] Minified files should not try to load .map files
+    - #3677 Server should optionally enable xheader support 
+    - #3686 [docs] Auto-update the "releases" link in conf.py
+    - #3687 [docs] Docs updates/0.11.0
+    - #3694 Remove not filled out portions of docs
+    - #3697 Add renderer base class to *_renderer models
+    - #3703 Task/add component base class
+    - #3721 [docs] Hotfix small doc addition to select
+    - #3728 Removed rogue debugger statement
+    - #3735 [bokehjs] [models] Task/3651 unify directory structure
+    - #3739 [build] [tests] Remove version pin from pytest-selenium
+    - #3742 [docs] Reference docs have bad path to layouts.py (autodocs fail for layouts)
+    - #3749 [bokehjs] Move defaults.coffee (for models and widgets) into test/ directory
+    - #3751 [bokehjs] Remove unused close_wrapper module and coffee/api directory
+    - #3752 [bokehjs] [build] Generate defaults for test task, not scripts:coffee
+    - #3755 [docs] Quickstart edits
+    - #3766 [bokehjs] Task/rename hasproperties to hasprops
+    - #3775 Removing blazedatasource
+    - #3790 Don't use spaces in json separators to reduce data size
+    - #3802 [bokehjs] Move vbox and hbox to top since they are layouts on coffee layer
+    - #3805 [build] Add new creds for rackspace
+    - #3808 [docs] Fix quotes around links to examples notebooks
+    - #3815 Hotfix/apps examples
+
+2016-01-06   0.11.0:
+--------------------
+  * New Tornado and websocket-based Bokeh Server
+  * User-Defined Models allowing anyone to extend Bokeh
+  * GeoJSON data source and map tiles renderer
+  * WebGL support for rendering lines
+  * Python -> JS compilation for CustomJS callbacks (Py3 only for now)
+  * New general push_notebook() based on Jupyter comms
+  * Updates to charts
+  * UX improvements
+  * Known issues
+  * many small bug fixes
+  * bugfixes:
+    - #1349 Image component + circle
+    - #1732 [bokehjs] Push_notebook memory leaks
+    - #2059 [regression] Running server example twice duplicates layout
+    - #2319 Imageurl not extending as expected (until after zoom / pan)
+    - #2560 Support css colornames in value()
+    - #2621 Convert from mpl breaks if mpl axis object has no xticks 
+    - #2643 Error with mpl (showing in violin plot)
+    - #2679 [docs] Weird artifact on file_html generate docs
+    - #2700 [build] 0.9.0 build on anaconda has wrong md5
+    - #2730 Donut chart emits validation error
+    - #2731 Histogram emits a validation error
+    - #2776 Spurious error message in plotting/file/ajax_source.py and ajax_source_realtime.py
+    - #2780 Bokeh timeseries chokes on nan values
+    - #2893 Ranges using numpy types, when creating a new figure, fail
+    - #2904 Editable fields in a sorted datatable do not update correctly
+    - #2910 [docs] Testing addopts are note recognized with listed dependencies installed
+    - #2918 [charts] Support for irregular observation intervals for area charts
+    - #2928 [bokehjs] [build] Watch.coffee has bad path for bokehjs watchsources (gulp watch is broken)
+    - #2932 [bokehjs] Use custom function to compute the maximum value of a large array
+    - #2945 [bokehjs] Plotting "large numbers" with webgl=true causes point coordinates to be miscalculated
+    - #2951 Border_fill and background_fill don't accept rgb tuples or rgba values
+    - #2953 [bokehjs] Bokehjs 0.10 very verbose in the console using cdn
+    - #2965 [charts] Custom bar chart hover tooltips
+    - #2978 [tests] ../tests/travis/nbexecuter.py tests not compatible w/ ipython=4.0
+    - #2980 [tests] Move location of license copy in setup.py
+    - #2998 Fix pinch zoom
+    - #3001 Hotfix/box selection for mobile
+    - #3015 Hotfix/broken charts
+    - #3017 Stocks example bug with numpy v1.10.1
+    - #3022 [bokehjs] Logmapper can overwrite inputs, also falls over with one bad value
+    - #3023 [docs] Wrong variable names  in file_html() for jinja2 template in documentation
+    - #3036 Gulp build script creates incorrect source map and gulp watch has bad path to license.txt
+    - #3048 Small fix to hover.py example
+    - #3057 [charts] Bar chart broken on update
+    - #3059 Fixes/tile renderer enhancements
+    - #3066 [examples] [server] Glyphs.py server issue - plots appearing twice
+    - #3071 [regression] Hotfix/image_rgba
+    - #3076 Hot fix: fixed default settings for tile sources
+    - #3085 Y_axis_type='log' collapses values
+    - #3089 Hotfix/fix flake8
+    - #3092 [charts] [docs] Bar plot example seems to be broken
+    - #3094 Text_font_size props in default.yaml raise deprecated warn
+    - #3100 [tests] Ipython notebook cells not being executed in examples tests
+    - #3102 [server] Do not open up server to all cross-origin connections
+    - #3108 [server] Fix `curdoc()` inside of callbacks
+    - #3124 Histogram gives valueerror or overflowerror with automatic binning on a  nearly homogenous dataset
+    - #3162 [server] Set correct websocket_path on each app pattern in the server
+    - #3165 [server] Avoid using host header from the http request
+    - #3167 [bokehjs] [TP] Wheel zoom tool on chrome
+    - #3169 Slider ignores changes to the model
+    - #3172 Fix autoload.js from server to include all js_urls
+    - #3192 Unit of period in add_periodic_callback() changed to seconds
+    - #3195 [docs] Example-breaking typo in the documentation
+    - #3213 [build] Conda list returns too much without -f
+    - #3216 [docs] Add missing call to output_file in quickstart.rst
+    - #3218 [build] [regression] Try forcing inline resources for notebooks
+    - #3240 Support for functools.partial functions as callbacks
+    - #3249 [server] The example https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/line_animate_widget.py does not work in the developer build??
+    - #3253 [regression] Document does not maintain object insertion order
+    - #3259 [tests] Shrink test_objects.py::testcollectmodels::test_references_large
+    - #3275 [server] Bokeh prod issues
+    - #3283 Fix broken docstring automation
+    - #3291 [server] Websocket connections timing out despite keep-alive
+    - #3296 [charts] [regression] Charts defaults are broken
+    - #3299 [server] Data not always bytes
+    - #3300 Border shading area not resizing correctly
+    - #3307 [examples] Use add_root not add in sliders.py and fourier_animated.py examples
+    - #3310 Support asynchronous coroutines in `add_timeout_callback`
+    - #3313 [examples] [regression] Selections are broken on app/stocks 
+    - #3318 Timeout callbacks should remove themselves after they run
+    - #3320 [charts] [server] Bokeh server not working with charts and client sessions
+    - #3327 Fix erroneous dispatch method
+    - #3334 [bokehjs] Hotfix to only render toolbar once
+    - #3335 [examples] Line_animate_widget.py is broken
+    - #3338 [bokehjs] [server] Fix problem where replacing children did not update document
+    - #3339 [bokehjs] [examples] [widgets] Adding user defined layouts
+    - #3341 When we customize property serialization, also customize deserialization
+    - #3350 --host eats the script names
+    - #3356 Dataspecproperty.set_from_json: check whether json is a dict before assuming
+    - #3361 [bokehjs] [server] Opening same session of sliders example in two tabs breaks
+    - #3368 No_{glyph->data}_renderer warning
+    - #3376 [bokehjs] Inspected is a non-serializable attr at least for now
+    - #3379 [server] Add connection write_lock
+    - #3385 Fix change suppression on units-spec values
+    - #3392 Geojson_points example cannot set initial bounds
+    - #3402 Add in bokeh_theme layout
+    - #3403 Add in remaining html templates
+    - #3408 [bokehjs] [server] Improve datarange updating policies re: server usage
+    - #3418 [bokehjs] [widgets] Update toggle.coffee
+    - #3425 [server] Server breaks with tornado versions < 4.3
+    - #3427 Fixed json encoder import error
+    - #3428 [bokehjs] Fix refefences clobbering
+    - #3429 Periodic callbacks are invoked once when added
+    - #3430 Refactor document callbacks
+    - #3431 [bokehjs] Add missing logical connective
+    - #3445 Add control over cross-origin websocket
+    - #3446 Removed .value when retrieving outline_line_width for tile attribution
+    - #3449 Fix unclosed file in resources _inline()
+    - #3452 [models] Fix fontsizespec deprecationwarning
+    - #3453 [bokehjs] Possible solution to store model instead of view on 0d selections
+    - #3460 Fix error in snap_back. now will not request tiles outside of min/max zoom
+    - #3462 [charts] Boxplot whisker, marker styles ignored
+    - #3465 Esc does not clear selections
+    - #3467 [bokehjs] Hover tool performance seems degraded
+    - #3469 [bokehjs] Can't turn wheel zoom tool back on 
+    - #3472 [bokehjs] [server] Make plot use the title_panel from the server if one is provided
+    - #3473 Dynamic map example: fixed issue with dynamic image becoming unhinged from basemap
+    - #3474 [examples] Airports example: fixed panning/zooming and refactored to use figure
+    - #3479 Lots of extra events on document load
+    - #3490 Fix a leftover log message and broken log message in has_properties.coffee
+    - #3500 [bokehjs] Bokeh.js must load first, before widgets, compiler
+    - #3512 Make bokeh.js set window.bokeh not only bokeh in current scope
+    - #3513 [server] Accept implicit port 80 on whitelist
+    - #3525 Random tiles example: temporary fix for bounds issue on map
+    - #3532 [bokehjs] Add support for inline autoload and restore support for inline resources in notebook
+    - #3540 Graphs are not displayed when using runipy
+    - #3547 Hotfix: don't exec bokeh embed until dom ready
+    - #3550 [examples] Small fix in scatter.ipynb - allow making selection
+    - #3560 Fix interactive excel example
+  * features:
+    - #578 [docs] Put plotting commands at the top of gallery pages
+    - #718 Make it possible to add tools to bokehjs without modifying bokeh source
+    - #900 Configurable ports for demos
+    - #1450 [bokehjs] [starter] Wheel zoom interaction improvements
+    - #1476 Glyphrenderer should have hover_glyph property
+    - #2021 Transparent background
+    - #2659 [bokehjs] Bokeh cdn doesn't support https
+    - #2681 [bokehjs] Webgl line glyph
+    - #2788 Opportunities for pyscript to efface js for bokeh users? 
+    - #2794 Server rewrite based on tornado
+    - #2800 Implementation of user-defined models
+    - #2805 [bokehjs] Add max_retry_attempts and retry_interval_ms for imageurlview
+    - #2824 [bokehjs] Line annotation
+    - #2900 [geo] Feature/add tile layer renderer
+    - #2923 [bokehjs] Add support for htmlformatter in datatable
+    - #2934 Exploration on splitting our tests
+    - #2942 Feature request: constrain zoom out to fixed range/domain
+    - #2949 [bokehjs] [widgets] Allow plots to be responsive also for available height
+    - #2970 [charts] Bar chart : would be amazing to be able to use dataframe index as label
+    - #2975 Support negative bar lengths
+    - #3050 Feature/dynamic image renderer
+    - #3080 [server] Add support for periodic callbacks on a session/server app
+    - #3090 Add document.title and titlechangedevent
+    - #3104 [server] Include version information in document.to_json json
+    - #3112 Add document.get_model_by_name
+    - #3119 [server] Add server timeout callbacks
+    - #3129 Allow for configuring the ip address of the bokeh server
+    - #3133 Improve locking and async for tornado server side
+    - #3147 [server] Improve document changed events chain (multipledispatching)
+    - #3171 `pull_session` should let you provide app_path, host, port
+    - #3184 [bokehjs] [build] Add gulp dev-build task for faster development
+    - #3189 Adding attribution for tile renderer
+    - #3194 Better error reporting
+    - #3202 Clean up bokeh command and add json subcommand
+    - #3211 Rename propertygenerator to propertyfactory
+    - #3219 Basic theming
+    - #3261 Rename legend.{orientation->location} and implement more locations
+    - #3273 [docs] [server] Production bokeh
+    - #3344 Bokeh subcommand to generate secret key
+    - #3345 [server] Support --prefix for server
+    - #3355 Enable autoload_server from a static page
+    - #3360 Add ?v=contenthash to static paths served by the server
+    - #3364 Tile wrap around
+    - #3370 [bokehjs] Better approach to notebook comms:
+    - #3387 [examples] Movies example
+    - #3409 Server lifecycle hooks feature
+    - #3437 [build] [examples] [models] [server] [widgets] Allow use custom models on the server
+    - #3450 Some fixes to notebook patching
+    - #3459 Add controls over who can create sessions; test session creation much better
+    - #3507 [examples] Add examples with excel files
+  * tasks:
+    - #908 Remove columnref, etc
+    - #945 [docs] Update examples to current bokeh status for clarity and simplification
+    - #1246 Remove arraymanagement dependency
+    - #1289 [geo] Remove geojsplot
+    - #1726 Interactive tester improvements
+    - #1773 Misc charts codebase improvements
+    - #1814 Better variable names throughout bokeh.charts
+    - #1917 Remove _glyphfunctions 
+    - #2194 [server] Distribute bokeh server separately. 
+    - #2448 [docs] Document when the callback occurs on the  textinput widget. 
+    - #2491 [examples] Several plots throwing column length error (0.9.1)
+    - #2572 Output_notebook resources
+    - #2901 [docs] Update test dependencies listed on bokeh developer guide
+    - #2911 [docs] Faq code block needs wrap
+    - #2924 Turn off bar plot sorting by category axis labels
+    - #2947 [docs] Automate examples generation in glyph model docs
+    - #2952 Make widgets optional and refactor bokeh.resources
+    - #2954 [docs] Line_dash attr in styling visual attributes doc incomplete
+    - #2958 [docs] Make license obligations easier and clearer to understand
+    - #2973 To_bokeh renders datetime ticks as integers
+    - #2983 [branches] [server] Document and provide all defaults in python bindings
+    - #2985 Refine coverage reports
+    - #3005 [tests] Problems installing pytest-selenium
+    - #3010 [tests] Add `.cache` to `.gitignore`
+    - #3019 [tests] Restore examples tests on travisci as default action
+    - #3024 [charts] Replace legacy charts with new ones
+    - #3028 Remove leftover debugger statement from render loop
+    - #3031 [examples] Bug: stocks.app does not work with pandas .17 because read_csv doesn't accept headers=false in .17
+    - #3035 Make .clone private
+    - #3042 [examples] Plotting/file/ajax_*.py examples are "interactive" (require server) 
+    - #3052 [docs] Documentation/python only tests
+    - #3053 Bye bye cli
+    - #3058 Remove superfluous server examples
+    - #3063 New server docs fixes
+    - #3065 Update numfocus contact email in docs
+    - #3068 [docs] Document need to install futures on py27
+    - #3079 Tests (and fixes) for plot resizing
+    - #3088 Add plotobject.to_json and to_json_string
+    - #3096 Lengthen timeout on test_client.coffee to 7500 from 2000 millis
+    - #3103 [server] Mark document.add deprecated or remove todo comment above it
+    - #3105 [server] Rename bokeh.application.spellings and spellinghandler
+    - #3106 Rename `plotobject` to `model`
+    - #3107 [server] Remove global `set_websocket_url` in embed.coffee
+    - #3109 Property cache cleanups
+    - #3111 Misc server examples
+    - #3113 Keep-alive ping on server websocket
+    - #3118 Add server.show() and `bokeh serve --show`
+    - #3122 Py35 in travisci
+    - #3132 [charts] Restore `chart(server=true)`
+    - #3140 [bokehjs] Remove cruft related to old ar implementation
+    - #3141 [branches] More work to sync coffee and python for tilerenderer / tilesource
+    - #3144 [docs] [server] Change tone of docstring on server show() slightly
+    - #3145 Hasparent: share one instance of display_defaults per class, not per instance
+    - #3149 Fix commented out `push_notebook` method from columndatasource
+    - #3150 Move columns out of datasource into columndatasource
+    - #3152 Add a new geojsondatasource
+    - #3160 Add checking for optional and required dependencies
+    - #3181 [server] Rename spellinghandler to handler
+    - #3185 [bokehjs] Selection of lines need improvements
+    - #3190 Tweaks to the property system
+    - #3193 [examples] Desired_num_ticks not working when using custom x_range
+    - #3205 Warnings cleanup
+    - #3208 [charts] Replace legacy donut chart
+    - #3214 Checking for extra_patterns kwarg and forwarding to bokehtornado
+    - #3223 Relax no_glyph_renderers validation
+    - #3225 [examples] Add bokeh logo and a link to the gapminder demo
+    - #3227 [charts] Remove legacy charts
+    - #3228 [docs] Typos in documentation, comments, and strings
+    - #3230 [docs] Add more missing calls to output_file in plotting
+    - #3234 [bokehjs] Coffee units handling
+    - #3236 [build] [tests] Ci build breakdown
+    - #3242 Add tags default in coffeescript
+    - #3248 Do not default numberspec/anglespec/distancespec to field name
+    - #3251 [docs] [server] Bokeh command docs
+    - #3255 [bokehjs] Correct lots of defaults to match between python and coffeescript
+    - #3256 [bokehjs] Properties.coffee: remove dead code in distance._init angle._init
+    - #3258 [bokehjs] Add skipped test to compare python and coffee defaults
+    - #3262 [build] Check dependencies list for release
+    - #3263 [docs] Add sphinx directive to create versioned links into the repo
+    - #3264 Clean up developer guide
+    - #3268 [charts] Remove pandas deprecation
+    - #3278 [examples] Keep the output_file the same name as the example file
+    - #3282 [server] Remove broken ws_url property from server
+    - #3285 Remove unnecessary paren in error message
+    - #3301 Plotting/file/burtin.py has validation warnings
+    - #3311 [tests] Add charts/plotting and charts/file to testing locations, warning
+    - #3326 [bokehjs] [tests] Finishes remaining js test_document todos
+    - #3337 [bokehjs] [tests] Test that coffee/python sync issues are not increasing
+    - #3351 Make `bokeh json` and `bokeh html` work in a similar way
+    - #3354 [examples] [server] Add chdoig's scikit-learn clustering demo
+    - #3367 [docs] Reduce the number of top-level items in the docs
+    - #3374 Reorganize top level package 
+    - #3375 [examples] Cleanup embed examples
+    - #3377 [examples] Cleanup interactions examples
+    - #3382 [server] Periodic callback refactor
+    - #3388 [docs] Bring documentation styling in line with bokehplots.com
+    - #3391 [charts] Cleanup charts
+    - #3400 [build] Remove caching mechanism
+    - #3401 Server annotations
+    - #3406 [examples] Plotting/file cleanup
+    - #3407 [examples] [server] Plotting server cleanup
+    - #3415 Revert "server annotations"
+    - #3419 [bokehjs] Default sync
+    - #3422 [examples] Add streaming ohlc and macd indicator example
+    - #3424 Remove crossfilter example and associated bokeh code
+    - #3438 Hotfix: add file omitted by gitignore
+    - #3439 Attempt to make widgets look a bit better
+    - #3443 Turn off sending defaults to bokehjs
+    - #3444 Add cast to sql query results
+    - #3451 Remove for-now-unused "working" message
+    - #3457 Add warning for bokeh-server
+    - #3471 Examples tweaks and tasks
+    - #3475 Pr for docs/examples tweaks for 0.11
+    - #3477 [charts] [docs] Update charts docstrings and sphinx documentation
+    - #3485 Remove legacy charts from example notebooks
+    - #3488 Bokeh.resources.inline.render_js() unnecessarily exposes minor info about server in html (0.11.0.dev7)
+    - #3491 [build] Bokeh-compiler.js not uploaded to cdn
+    - #3497 Docs/examples tweaks for 0.11 (3)
+    - #3498 Update readme.md
+    - #3504 [examples] Fix selection histogram layout
+    - #3516 Docs/examples 011 4
+    - #3521 Add some more host and origin tests
+    - #3522 Start cleaning up docs
+    - #3524 Left justify hbox
+    - #3527 [examples] Remove notebooks using server
+    - #3536 [docs] Small tweaks to a couple of bits of markup
+    - #3537 [docs] An initial "server architecture" chapter for the developer guide
+    - #3544 [docs] Report that annulus is broken in release notes (+ typo fixes)
+    - #3545 Hotfix set range defaults to ``none``
+    - #3549 Revert "hotfix: don't exec bokeh embed until dom ready"
+    - #3554 Clean up numerous inconsistencies
+    - #3557 Fix more examples
+    - #3559 Fix geojson user guide plot
+    - #3561 [docs] Docs updates
+
 2015-09-25   0.10.0:
 --------------------
   * Initial webgl support (check our new examples: maps city, iris blend, scatter 10K, clustering.py)

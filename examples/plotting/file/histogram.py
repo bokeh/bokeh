@@ -119,6 +119,6 @@ p5.yaxis.axis_label = 'Pr(x)'
 
 
 
-output_file('histogram.html')
+output_file('histogram.html', title="histogram.py example")
 
 show(vplot(p1,p2,p3,p4,p5))

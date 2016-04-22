@@ -3,7 +3,9 @@ attributes on Bokeh models, to provide automatic serialization
 and validation.
 
 For example, the following defines a model that has integer,
-string, and list[float] properties::
+string, and list[float] properties:
+
+.. code-block:: python
 
     class Model(HasProps):
         foo = Int
@@ -11,16 +13,22 @@ string, and list[float] properties::
         baz = List(Float)
 
 The properties of this class can be initialized by specifying
-keyword arguments to the initializer::
+keyword arguments to the initializer:
+
+.. code-block:: python
 
     m = Model(foo=10, bar="a str", baz=[1,2,3,4])
 
-But also by setting the attributes on an instance::
+But also by setting the attributes on an instance:
+
+.. code-block:: python
 
     m.foo = 20
 
 Attempts to set a property to a value of the wrong type will
-result in a ``ValueError`` exception::
+result in a ``ValueError`` exception:
+
+.. code-block:: python
 
     >>> m.foo = 2.3
     Traceback (most recent call last):
@@ -35,8 +43,8 @@ result in a ``ValueError`` exception::
         (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
     ValueError: expected a value of type int8, int16, int32, int64 or int, got 2.3 of type float
 
-Additionally, properties know how to serialize themselves,
-to be understood by BokehJS.
+Additionally, properties know how to serialize themselves, to be understood
+by BokehJS.
 
 """
 from __future__ import absolute_import, print_function
@@ -384,9 +392,9 @@ class BasicProperty(Property):
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def _trigger(self, obj, old, value):
+    def _trigger(self, obj, old, value, hint=None):
         if hasattr(obj, 'trigger'):
-            obj.trigger(self.name, old, value)
+            obj.trigger(self.name, old, value, hint)
 
     def _get_default(self, obj):
         if self.name in obj._property_values:
@@ -411,8 +419,10 @@ class BasicProperty(Property):
 
         return default
 
-    def _real_set(self, obj, old, value):
-        unchanged = self.descriptor.matches(value, old)
+    def _real_set(self, obj, old, value, hint=None):
+        # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may 
+        # need refining later if this assumption changes. 
+        unchanged = self.descriptor.matches(value, old) and (hint is None)
         if unchanged:
             return
 
@@ -435,7 +445,7 @@ class BasicProperty(Property):
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._trigger(obj, old, value)
+        self._trigger(obj, old, value, hint)
 
     def __set__(self, obj, value):
         if not hasattr(obj, '_property_values'):
@@ -452,14 +462,14 @@ class BasicProperty(Property):
     # somewhat weirdly, "old" is a copy and the new "value"
     # should already be set unless we change it due to
     # validation.
-    def _notify_mutated(self, obj, old):
+    def _notify_mutated(self, obj, old, hint=None):
         value = self.__get__(obj)
 
         # re-validate because the contents of 'old' have changed,
         # in some cases this could give us a new object for the value
         value = self.descriptor.prepare_value(obj.__class__, self.name, value)
 
-        self._real_set(obj, old, value)
+        self._real_set(obj, old, value, hint)
 
     def __delete__(self, obj):
         if self.name in obj._property_values:
@@ -682,7 +692,9 @@ def abstract(cls):
     return cls
 
 class HasProps(with_metaclass(MetaHasProps, object)):
+    ''' Base class for all class types that have Bokeh properties.
 
+    '''
     def __init__(self, **properties):
         super(HasProps, self).__init__()
         self._property_values = dict()
@@ -712,8 +724,10 @@ class HasProps(with_metaclass(MetaHasProps, object)):
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
     def set_from_json(self, name, json, models=None):
-        """Sets a property of the object using JSON and a dictionary from model ids to model instances.
-        The model instances are necessary if the JSON contains references to models.
+        """ Sets a property of the object using JSON and a dictionary mapping
+        model ids to model instances. The model instances are necessary if the
+        JSON contains references to models.
+
         """
         if name in self.properties():
             #logger.debug("Patching attribute %s of %r", attr, patched_obj)
@@ -723,12 +737,12 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def update(self, **kwargs):
-        """ Updates the object's properties from the given keyword args."""
+        """ Updates the object's properties from the given keyword args. """
         for k,v in kwargs.items():
             setattr(self, k, v)
 
     def update_from_json(self, json_attributes, models=None):
-        """ Updates the object's properties from a JSON attributes dictionary."""
+        """ Updates the object's properties from a JSON attributes dictionary. """
         for k, v in json_attributes.items():
             self.set_from_json(k, v, models)
 
@@ -744,7 +758,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     @classmethod
     def properties_with_refs(cls):
-        """ Returns a set of the names of this object's properties that
+        """ Return a set of the names of this object's properties that
         have references. We traverse the class hierarchy and
         pull together the full list of properties.
         """
@@ -758,15 +772,15 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     @classmethod
     def properties(cls, with_bases=True):
-        """Returns a set of the names of this object's properties. If
+        """Return a set of the names of this object's properties. If
         ``with_bases`` is True, we traverse the class hierarchy
         and pull together the full list of properties; if False,
         we only return the properties introduced in the class
         itself.
 
         Args:
-           with_bases (bool, optional) : True to include properties that haven't been set.
-              (default: True)
+           with_bases (bool, optional) :
+            Whether to include properties that haven't been set. (default: True)
 
         Returns:
            a set of property names
@@ -795,23 +809,30 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
     def properties_with_values(self, include_defaults=True):
-        ''' Get a dict from property names to the current values of those properties.
-        Non-serializable properties are skipped and property values are in "serialized"
-        format which may be slightly different from the values you would normally
-        read from the properties; the intent of this method is to return the information
-        needed to losslessly reconstitute the object instance.
+        ''' Return a dict from property names to the current values of those
+        properties.
+
+        Non-serializable properties are skipped and property values are in
+        "serialized" format which may be slightly different from the values
+        you would normally read from the properties; the intent of this method
+        is to return the information needed to losslessly reconstitute the
+        object instance.
 
         Args:
-           include_defaults (bool) : True to include properties that haven't been set.
+            include_defaults (bool, optional) :
+                Whether to include properties that haven't been set. (default: True)
 
         Returns:
-           dict : from property names to their values
+           dict : mapping from property names to their values
+
         '''
         result = dict()
         if include_defaults:
             keys = self.properties()
         else:
-            keys = self._property_values.keys()
+            keys = set(self._property_values.keys())
+            if self.themed_values():
+                keys |= set(self.themed_values().keys())
 
         for key in keys:
             prop = self.lookup(key)
@@ -832,8 +853,10 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             setattr(self, kw, kwargs[kw])
 
     def themed_values(self):
-        """ Get any theme-provided overrides as a dict from property name to value,
-        or None if no theme overrides any values for this instance. """
+        """ Get any theme-provided overrides as a dict from property name
+        to value, or None if no theme overrides any values for this instance.
+
+        """
         if hasattr(self, '__themed_values__'):
             return getattr(self, '__themed_values__')
         else:
@@ -841,10 +864,13 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     def apply_theme(self, property_values):
         """ Apply a set of theme values which will be used rather than
-        defaults, but will not override application-set
-        values. The passed-in dictionary may be kept around as-is
-        and shared with other instances to save memory (so neither
-        the caller nor the HasProps instance should modify it).
+        defaults, but will not override application-set values.
+
+        The passed-in dictionary may be kept around as-is and shared with
+        other instances to save memory (so neither the caller nor the
+        |HasProps| instance should modify it).
+
+        .. |HasProps| replace:: :class:`~bokeh.properties.HasProps`
 
         """
         old_dict = None
@@ -885,9 +911,10 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             print("%s%s: %r" % ("  "*indent, key, value))
 
 class PrimitiveProperty(PropertyDescriptor):
-    """ A base class for simple property types. Subclasses should
-    define a class attribute ``_underlying_type`` that is a tuple
-    of acceptable type values for the property.
+    """ A base class for simple property types.
+
+    Subclasses should define a class attribute ``_underlying_type`` that is
+    a tuple of acceptable type values for the property.
 
     """
 
@@ -1359,8 +1386,49 @@ class Color(Either):
         return self.__class__.__name__
 
 
+class MinMaxBounds(Either):
+    """ Accepts min and max bounds for use with Ranges.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
+
+    def __init__(self, accept_datetime=False, default='auto', help=None):
+        if accept_datetime:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+                Tuple(Datetime, Datetime),
+            )
+        else:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+            )
+        super(MinMaxBounds, self).__init__(*types, default=default, help=help)
+
+    def validate(self, value):
+        super(MinMaxBounds, self).validate(value)
+
+        if value is None:
+            pass
+
+        elif value[0] is None or value[1] is None:
+            pass
+
+        elif value[0] >= value[1]:
+            raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
+
+        return True
+
+
 class Align(PropertyDescriptor):
     pass
+
 
 class DashPattern(Either):
     """ Dash type property.
@@ -1559,10 +1627,26 @@ class DataSpec(Either):
         return val
 
 class NumberSpec(DataSpec):
+    ''' A DataSpec property that can be set to a numeric fixed value,
+    or a data source column name referring to column of numeric data.
+
+    '''
     def __init__(self, default=None, help=None):
         super(NumberSpec, self).__init__(Float, default=default, help=help)
 
 class StringSpec(DataSpec):
+    ''' A DataSpec property that can be set to a string fixed value,
+    or a data source column name referring to column of string data.
+
+    .. note::
+        Because acceptable fixed values and field names are both strings,
+        it is often necessary to use the |field| and |value| functions
+        explicitly to disambiguate.
+
+    .. |field| replace:: :func:`~bokeh.core.properties.field`
+    .. |value| replace:: :func:`~bokeh.core.properties.value`
+
+    '''
     def __init__(self, default, help=None):
         super(StringSpec, self).__init__(List(String), default=default, help=help)
 
@@ -1574,6 +1658,10 @@ class StringSpec(DataSpec):
         return super(StringSpec, self).prepare_value(cls, name, value)
 
 class FontSizeSpec(DataSpec):
+    ''' A DataSpec property that can be set to a font size fixed value,
+    or a data source column name referring to column of font size data.
+
+    '''
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
 
@@ -1587,7 +1675,7 @@ class FontSizeSpec(DataSpec):
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
 
 class UnitsSpecProperty(DataSpecProperty):
-    """ A Property that sets a matching `_units` property as a side effect."""
+    ''' A Property that sets a matching `_units` property as a side effect. '''
 
     def __init__(self, descriptor, name, units_prop):
         super(UnitsSpecProperty, self).__init__(descriptor, name)
@@ -1611,6 +1699,9 @@ class UnitsSpecProperty(DataSpecProperty):
         super(UnitsSpecProperty, self).set_from_json(obj, json, models)
 
 class UnitsSpec(NumberSpec):
+    ''' A numeric DataSpec property with units.
+
+    '''
     def __init__(self, default, units_type, units_default, help=None):
         super(UnitsSpec, self).__init__(default=default, help=help)
         self._units_type = self._validate_type_param(units_type)
@@ -1636,10 +1727,20 @@ class UnitsSpec(NumberSpec):
         return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
 
 class AngleSpec(UnitsSpec):
+    ''' A numeric DataSpec property to represent angles.
+
+    Acceptable values for units are ``"rad"`` and ``"deg"``.
+
+    '''
     def __init__(self, default=None, units_default="rad", help=None):
         super(AngleSpec, self).__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(UnitsSpec):
+    ''' A numeric DataSpec property to represent screen or data space distances.
+
+    Acceptable values for units are ``"screen"`` and ``"data"``.
+
+    '''
     def __init__(self, default=None, units_default="data", help=None):
         super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
@@ -1652,6 +1753,12 @@ class DistanceSpec(UnitsSpec):
         return super(DistanceSpec, self).prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(NumberSpec):
+    ''' A numeric DataSpec property to represent screen distances.
+
+    .. note::
+        Units are always ``"screen"``.
+
+    '''
     def to_serializable(self, obj, name, val):
         d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "screen"
@@ -1666,6 +1773,12 @@ class ScreenDistanceSpec(NumberSpec):
         return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
 class DataDistanceSpec(NumberSpec):
+    ''' A numeric DataSpec property to represent data space distances.
+
+    .. note::
+        Units are always ``"data"``.
+
+    '''
     def to_serializable(self, obj, name, val):
         d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "data"
@@ -1680,6 +1793,10 @@ class DataDistanceSpec(NumberSpec):
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
 class ColorSpec(DataSpec):
+    ''' A DataSpec property that can be set to a Color fixed value,
+    or a data source column name referring to column of color data.
+
+    '''
     def __init__(self, default, help=None):
         super(ColorSpec, self).__init__(Color, default=default, help=help)
 

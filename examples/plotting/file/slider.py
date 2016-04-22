@@ -29,7 +29,7 @@ callback = CustomJS(args=dict(source=source), code="""
 """)
 
 amp_slider = Slider(start=0.1, end=10, value=1, step=.1,
-                    title="Amplitude", callback=callback)
+                    title="Amplitude", callback=callback, callback_policy='mouseup')
 callback.args["amp"] = amp_slider
 
 freq_slider = Slider(start=0.1, end=10, value=1, step=.1,
@@ -49,6 +49,6 @@ layout = hplot(
     vform(amp_slider, freq_slider, phase_slider, offset_slider),
 )
 
-output_file("slider.html")
+output_file("slider.html", title="slider.py example")
 
 show(layout)

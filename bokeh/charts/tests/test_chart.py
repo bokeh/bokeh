@@ -150,13 +150,17 @@ def test_chart_id():
 
 def test_defaults():
     c1 = Chart()
-    defaults.height = 1000
+    defaults.plot_height = 1000
+    defaults.plot_width = 1000
     defaults.tools = False
     c2 = Chart()
     c3 = Chart()
 
-    assert c1.height == 400
-    assert c2.height == c3.height == 1000
+    assert c1.plot_height == 600
+    assert c2.plot_height == c3.plot_height == 1000
+
+    assert c1.plot_width == 600
+    assert c2.plot_width == c3.plot_width == 1000
 
     assert c1.tools
     assert c2.tools == c3.tools == []
@@ -167,3 +171,24 @@ def test_charts_theme_validation():
 
     with pytest.raises(ValueError):
         defaults.apply(p)
+
+
+def test_bar_chart_below_visibility():
+    from bokeh.charts import Bar
+    
+    # Visible because we have multiple bars
+    df = dict(types=['foo', 'bar'], counts=[3, 2])
+    p = Bar(df, values='counts')
+    p.below[0].visible
+    
+    # Visible because we excplicitly specify labels
+    df = dict(types=['foo'], counts=[3])
+    p = Bar(df, values='counts', label='types')
+    assert p.below[0].visible
+    
+    # Not visible because only one item and no labels
+    df = dict(types=['foo'], counts=[3])
+    p = Bar(df, values='counts')
+    assert not p.below[0].visible
+    
+    

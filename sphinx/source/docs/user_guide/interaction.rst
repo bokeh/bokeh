@@ -48,16 +48,58 @@ Now you have learned how to link brushing between plots.
 Adding Widgets
 --------------
 
+Widgets are interactive controls that can be added to Bokeh applications to
+provide a front end user interface to a visualization. They can drive new computations,
+update plots, and connect to other programmatic functionality. When used with the
+Bokeh server, widgets can run arbitrary Python code, enabling complex applications.
+Widgets can also be used without the Bokeh server in standalone HTML documents through the
+browser's Javascript runtime.
+
+To use widgets, you must add them to your document and define their functionality.
+Widgets can be added directly to the document root or nested inside a layout. There
+are two ways to program a widget's functionality:
+
+    * Use the ``CustomJS`` callback (see :ref:`userguide_interaction_actions_widget_callbacks`). This will work in standalone HTML documents.
+    * Use ``bokeh serve`` to start the Bokeh server and set up event handlers with ``.on_change`` (or for some widgets, ``.on_click``).
+
+Event handlers are user-defined Python functions that can be attached to widgets. These functions are
+then called when certain attributes on the widget are changed. The necessary function
+signature of event handlers is determined by how they are attached to widgets (whether they
+are passed through ``.on_change`` or ``.on_click``).
+
+All widgets have an ``.on_change`` method that takes an attribute name and one or more event handlers as
+parameters. These handlers are expected to have the function signature, ``(attr, old, new)``,
+where ``attr`` refers to the changed attribute's name, and ``old`` and ``new`` refer to the previous and
+updated values of the attribute. ``.on_change`` must be used when you need the previous value of an attribute.
+
+.. code-block:: python
+
+    def my_text_input_handler(attr, old, new):
+        print("Previous label: " + old)
+        print("Updated label: " + new)
+
+    text_input = TextInput(value="default", title="Label:")
+    text_input.on_change("value", my_text_input_handler)
+
+Additionally, some widgets, including the button, dropdown, and checkbox, have an ``.on_click`` method that
+takes an event handler as its only parameter. For the Button, this handler is called without parameters.
+For the other widgets with ``.on_click``, the handler is passed the new attribute value.
+
+.. code-block:: python
+
+    def my_radio_handler(new):
+        print 'Radio button option ' + str(new) + ' selected.'
+
+    radio_group = RadioGroup(
+        labels=["Option 1", "Option 2", "Option 3"], active=0)
+    radio_group.on_click(my_radio_handler)
+
 Bokeh provides a simple default set of widgets, largely based off the Bootstrap
 JavaScript library. In the future, it will be possible for users to wrap and use
-other widget libararies, or their own custom widgets. By themselves, most widgets
-are not useful. There are two ways to use widgets to drive interactions:
+other widget libraries, or their own custom widgets.
 
-* Use the ``CustomJS`` callback (see below). This will work in static HTML documents.
-* Use the ``bokeh-server`` and set up event handlers with ``.on_change``.
-
-The current value of interactive widgets is available from the ``.value``
-attribute.
+For more information about the attributes to watch using ``.on_change`` or whether ``.on_click`` is
+available, go to the :ref:`refguide`. Widgets can be found under :ref:`bokeh.models`.
 
 Button
 ~~~~~~
@@ -107,9 +149,6 @@ MultiSelect
 ~~~~~~~~~~~
 
 A multi-select widget to present multiple available options:
-
-.. warning::
-    MultiSelect is currently broken. See :bokeh-issue:`2495`
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_multiselect.py
     :source-position: below
@@ -173,12 +212,38 @@ The toggle button holds an on/off state:
 
 .. _userguide_interaction_actions:
 
-Defining Callbacks
-------------------
+Div
+~~~
 
-Bokeh exposes an increasing number of callbacks that can be specified
-from the ``Python`` layer that results in an action on the ``javascript`` level without
-the need of ``bokeh-server``.
+A widget for displaying text that can support HTML in a <div> tag:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_div.py
+    :source-position: below
+
+Paragraph
+~~~~~~~~~
+
+A widget for displaying a block of text in an HTML <p> tag:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_paragraph.py
+    :source-position: below
+
+PreText
+~~~~~~~
+
+A widget for displaying a block of pre-formatted text in an HTML <pre> tag:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_pretext.py
+    :source-position: below
+
+JavaScript Callbacks
+--------------------
+
+Bokeh exposes various callbacks that can be specified from Python that trigger
+actions inside the browser's JavaScript runtime. This kind of JavaScript
+callback can be used to add interesting interactions to Bokeh documents without
+the need to use a Bokeh server (but can also be used in conjuction with a
+Bokeh server).
 
 .. _userguide_interaction_actions_openurl:
 
@@ -191,7 +256,7 @@ OpenURL callback object that can be passed to a Tap tool in order to have that
 action called whenever the users clicks on the glyph.
 
 The following code shows how to use the OpenURL action combined with a TapTool
-to open an url whenever the user clicks on a circle.
+to open an URL whenever the user clicks on a circle.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_open_url.py
     :source-position: above
@@ -291,17 +356,54 @@ for users to define client-side interactions without having to learn
 JavaScript. To use this functionality you need the Flexx library
 (install with ``conda install -c bokeh flexx`` or ``pip install flexx``).
 
-.. note::
-    This functionality is currently only supported on Python 3.x.
+.. warning::
+    It is critical to note that **no python code is ever executed when
+    a CustomJS callback is used**. This is true even when the callback is
+    supplied as python code to be translated to JavaScript as described in
+    this section. A ``CustomJS`` callback is only executed inside a browser
+    JavaScript interpreter, and can only directly interact JavaScript data
+    and functions (e.g., BokehJS Backbone models).
 
 For more information about the subset of Python that is supported in
-callbacks, see the `<PyScript documentation_>`_. 
+callbacks, see the `<PyScript documentation_>`_.
 
-The code below demonstrates this. Unfortunately, the way that the docs
-are generated prevents PyScript from obtaining the Python source code,
-which is why the resulting plot is not shown on this page.
+We recommend using ``window.x`` for variables specific to JavaScript
+to avoid confusion and help static code analysis tools. You can add
+``window`` as an argument to the callback function to help readability
+(and pyflakes), as in the example below.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_in_python.py
-    :source-position: above
+.. code-block:: python
 
-.. _PyScript documentation: http://flexx.readthedocs.org/en/latest/pyscript/index.html
+    from bokeh.io import vform
+    from bokeh.models import CustomJS, ColumnDataSource, Slider
+    from bokeh.plotting import Figure, output_file, show
+
+    output_file("callback.html")
+
+    x = [x*0.005 for x in range(0, 200)]
+    y = x
+
+    source = ColumnDataSource(data=dict(x=x, y=y))
+
+    plot = Figure(plot_width=400, plot_height=400)
+    plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
+
+    def callback(source=source, window=None):
+        data = source.get('data')
+        f = cb_obj.get('value')
+        x, y = data['x'], data['y']
+        for i in range(len(x)):
+            y[i] = window.Math.pow(x[i], f)
+        source.trigger('change')
+
+    slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
+                    callback=CustomJS.from_py_func(callback))
+
+    layout = vform(slider, plot)
+
+    show(layout)
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
+    :source-position: none
+
+.. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript

@@ -1,12 +1,10 @@
-
-
 .. role:: raw-html(raw)
    :format: html
 
 .. raw:: html
 
     <p>
-    <table cellspacing="20">
+    <table cellspacing="0" class="mosaic docs-home">
     <tr>
 
 :raw-html:`<td>`  |image|         :raw-html:`</td>`

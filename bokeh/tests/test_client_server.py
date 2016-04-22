@@ -8,13 +8,12 @@ from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.document import ModelChangedEvent, TitleChangedEvent
-from bokeh.server.server import Server
-from bokeh.server.session import ServerSession
 from bokeh.model import Model
-from bokeh.resources import websocket_url_for_server_url
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
-from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
+from tornado.httpclient import HTTPError
+
+from bokeh.server.tests.utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -32,30 +31,6 @@ class UnitsSpecModel(Model):
     angle = AngleSpec(0)
 
 logging.basicConfig(level=logging.DEBUG)
-
-# just for testing
-def url(server, prefix=""):
-    return "http://localhost:" + str(server._port) + prefix + "/"
-
-def ws_url(server, prefix=""):
-    return "ws://localhost:" + str(server._port) + prefix + "/ws"
-
-# lets us use a current IOLoop with "with"
-# and ensures the server unlistens
-class ManagedServerLoop(object):
-    def __init__(self, application, **server_kwargs):
-        loop = IOLoop()
-        loop.make_current()
-        server_kwargs['io_loop'] = loop
-        self._server = Server(application, **server_kwargs)
-    def __exit__(self, type, value, traceback):
-        self._server.unlisten()
-        self._server.io_loop.close()
-    def __enter__(self):
-        return self._server
-    @property
-    def io_loop(self):
-        return self.s_server.io_loop
 
 class TestClientServer(unittest.TestCase):
 
@@ -109,82 +84,148 @@ class TestClientServer(unittest.TestCase):
             session.close()
             session.loop_until_closed()
 
+    def check_http_gets_fail(self, server, host=None):
+        with (self.assertRaises(HTTPError)) as manager:
+            http_get(server.io_loop, url(server), host)
+        with (self.assertRaises(HTTPError)) as manager:
+            http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo", host)
+
+    def check_connect_session_fails(self, server, origin, host=None):
+        with (self.assertRaises(HTTPError)) as manager:
+            websocket_open(server.io_loop,
+                           ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
+                           origin=origin,
+                           host=host)
+
+    def check_http_gets(self, server, host=None):
+        http_get(server.io_loop, url(server), host)
+        http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo", host)
+
+    def check_connect_session(self, server, origin, host=None):
+        websocket_open(server.io_loop,
+                       ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
+                       origin=origin,
+                       host=host)
+
+    def check_http_ok_socket_ok(self, server, origin=None, host=None):
+        self.check_http_gets(server, host=host)
+        self.check_connect_session(server, origin=origin, host=host)
+
+    def check_http_ok_socket_blocked(self, server, origin=None, host=None):
+        self.check_http_gets(server, host=host)
+        self.check_connect_session_fails(server, origin=origin, host=host)
+
+    def check_http_blocked_socket_blocked(self, server, origin=None, host=None):
+        self.check_http_gets_fail(server, host=host)
+        self.check_connect_session_fails(server, origin=origin, host=host)
+
     def test_host_whitelist_success(self):
         application = Application()
 
         # succeed no host value with defaults
         with ManagedServerLoop(application, host=None) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
 
         # succeed no host value with port
         with ManagedServerLoop(application, port=8080, host=None) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
 
-        # succeed matching host value
+        # succeed matching host value (localhost)
         with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
+
+        # succeed matching host value (not localhost)
+        with ManagedServerLoop(application, port=8080, host=["example.com:8080"]) as server:
+            self.check_http_ok_socket_ok(server, host="example.com:8080")
 
         # succeed matching host value one of multiple
         with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
+
+        # succeed matching host value with implicit port 80 (note
+        # that the server is in fact on 8080, as if we were behind
+        # a reverse proxy)
+        with ManagedServerLoop(application, port=8080, host=["example.com:80"]) as server:
+            self.check_http_ok_socket_ok(server, host="example.com")
 
     def test_host_whitelist_failure(self):
         application = Application()
 
-        # failure bad host
+        # failure bad host with localhost provided as Host
         with ManagedServerLoop(application, host=["bad_host"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
+
+        # failure bad host with localhost expected and bad_host provided
+        with ManagedServerLoop(application, port=5006) as server:
+            self.check_http_blocked_socket_blocked(server, host="bad_host")
+
+        with ManagedServerLoop(application, port=5006) as server:
+            self.check_http_blocked_socket_blocked(server, host="bad_host:5006")
 
         # failure good host, bad port
         with ManagedServerLoop(application, host=["localhost:80"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         # failure good host, bad default port
         with ManagedServerLoop(application, host=["localhost"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         # failure with custom port
         with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
+
+        # failure with implicit port 80 in Host when server is on another port
+        with ManagedServerLoop(application, port=5006, host=["example.com:5007"]) as server:
+            self.check_http_blocked_socket_blocked(server, host="example.com")
+
+    def test_allow_websocket_origin(self):
+        application = Application()
+
+        # allow an origin that's an allowed host but not an extra origin
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_ok(server, origin=url(server))
+
+        # allow good host and good origin
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_ok(server, origin="http://example.com:80")
+
+        # allow good host and good origin with port
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com:8080"]) as server:
+            self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
+
+        # allow good host and origin header with an implicit 80
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_ok(server, origin="http://example.com")
+
+        # block non-Host origins by default even if no extra origins specified
+        with ManagedServerLoop(application, host=None) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
+
+        # block on a garbage Origin header
+        with ManagedServerLoop(application, host=None) as server:
+            self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
+
+        # block good host and bad origin
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
+
+        # block good host and bad origin port
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com:8080"]) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+
+        # block on bad host even though the bad host is an allowed origin
+        with ManagedServerLoop(application, host=["bad_host"],
+                               allow_websocket_origin=["bad_host"]) as server:
+            self.check_http_blocked_socket_blocked(server, origin="http://bad_host:80")
 
     def test_push_document(self):
         application = Application()
@@ -447,99 +488,6 @@ class TestClientServer(unittest.TestCase):
             # Clean up global IO state
             reset_output()
 
-    def test_session_periodic_callback(self):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-
-            client_session = ClientSession(session_id='test_client_session_callback',
-                                          websocket_url=ws_url(server),
-                                          io_loop=server.io_loop)
-            server_session = ServerSession(session_id='test_server_session_callback',
-                                           document=doc, io_loop=server.io_loop)
-            client_session._attach_document(doc)
-
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-
-            def cb(): pass
-            callback = doc.add_periodic_callback(cb, 1, 'abc')
-            server_session2 = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
-
-            assert server_session2._callbacks
-            assert len(server_session._callbacks) == 1
-            assert len(client_session._callbacks) == 1
-
-            started_callbacks = []
-            for ss in [server_session, server_session2]:
-                iocb = ss._callbacks[callback.id]
-                assert iocb._period == 1
-                assert iocb._loop == server.io_loop
-                assert iocb._started
-                assert not iocb._stopped
-                started_callbacks.append(iocb)
-
-            for ss in [client_session]:
-                iocb = ss._callbacks[callback.id]
-                assert iocb._period == 1
-                assert iocb._loop == server.io_loop
-                assert iocb._started
-                assert not iocb._stopped
-                started_callbacks.append(iocb)
-
-            callback = doc.remove_periodic_callback(cb)
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-            assert len(server_session._callbacks) == 0
-
-            for iocb in started_callbacks:
-                assert iocb._stopped # server
-
-    def test_session_timeout_callback(self):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-
-            client_session = ClientSession(session_id='test_client_session_callback',
-                                          websocket_url=ws_url(server),
-                                          io_loop=server.io_loop)
-            server_session = ServerSession(session_id='test_server_session_callback',
-                                           document=doc, io_loop=server.io_loop)
-            client_session._attach_document(doc)
-
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-
-            def cb(): pass
-
-            x = server.io_loop.time()
-            callback = doc.add_timeout_callback(cb, 10, 'abc')
-            server_session2 = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
-
-            assert server_session2._callbacks
-            assert len(server_session._callbacks) == 1
-            assert len(client_session._callbacks) == 1
-
-            started_callbacks = []
-            for ss in [server_session, client_session, server_session2]:
-                iocb = ss._callbacks[callback.id]
-                assert isinstance(iocb, _Timeout)
-
-                # check that the callback deadline is 10
-                # milliseconds later from when we called
-                # add_timeout_callback (using int to avoid ms
-                # differences between the x definition and the
-                # call)
-                assert abs(int(iocb.deadline) - int(x + 10/1000.0)) < 1e6
-                started_callbacks.append(iocb)
-
-            callback = doc.remove_timeout_callback(cb)
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-            assert len(server_session._callbacks) == 0
-
     @gen.coroutine
     def async_value(self, value):
         yield gen.moment # this ensures we actually return to the loop
@@ -572,7 +520,42 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed()
 
-            doc.remove_timeout_callback(cb)
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_timeout_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_timeout_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_timeout_callback(cb, 10)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_timeout_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_timeout_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -606,7 +589,111 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed()
 
-            server_session.document.remove_timeout_callback(cb)
+            with (self.assertRaises(ValueError)) as manager:
+                server_session.document.remove_timeout_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_next_tick_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_next_tick_callback(cb)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_next_tick_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_next_tick_callback(cb)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_server_session_next_tick_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+            doc.add_root(DictModel())
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = next(iter(server_session.document.roots))
+
+            @gen.coroutine
+            def cb():
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_next_tick_callback(cb)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                server_session.document.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -634,6 +721,37 @@ class TestClientServer(unittest.TestCase):
                 raise gen.Return(5)
 
             callback = doc.add_periodic_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            doc.remove_periodic_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_periodic_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_periodic_callback(cb, 10)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_periodic_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
 
             client_session.loop_until_closed()
 

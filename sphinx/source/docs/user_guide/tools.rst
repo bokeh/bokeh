@@ -34,18 +34,15 @@ The toolbar location can be specified by passing the ``toolbar_location``
 parameter to the |figure| function or to any |bokeh.charts| Chart function.
 Valid values are:
 
-``"above"``
-
-``"below"``
-
-``"left"``
-
-``"right"``
+* ``"above"``
+* ``"below"``
+* ``"left"``
+* ``"right"``
 
 If you would like to hide the toolbar entirely, pass ``None``.
 
 Below is some code that positions the toolbar below the plot. Try
-running the code and changing the ``toolbar_position`` value.
+running the code and changing the ``toolbar_location`` value.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
     :source-position: above
@@ -85,7 +82,8 @@ Pan/Drag Tools
 ~~~~~~~~~~~~~~
 
 These tools are employed by panning (on touch devices) or left-dragging (on
-mouse devices). Only one pan/drag tool may be active at a time.
+mouse devices). Only one pan/drag tool may be active at a time. Where
+applicable, Pan/Drag tools will respect any max and min values set on ranges.
 
 BoxSelectTool
 '''''''''''''
@@ -200,7 +198,8 @@ WheelZoomTool
 * icon: |wheel_zoom_icon|
 
 The wheel zoom tool will zoom the plot in and out, centered on the current
-mouse location.
+mouse location. It will respect any min and max values and ranges preventing
+zooming in and out beyond these.
 
 It is also possible to constraint the wheel zoom tool to only act on either
 just the x-axis or just the y-axis by setting the ``dimensions`` property to
@@ -214,6 +213,22 @@ Actions
 
 Actions are operations that are activated only when their button in the toolbar
 is tapped or clicked. They are typically modal or immediate-acting.
+
+UndoTool
+'''''''''
+
+* name: ``'undo'``
+* icon: |undo_icon|
+
+The undo tool allows to restore previous state of the plot.
+
+RedoTool
+'''''''''
+
+* name: ``'redo'``
+* icon: |redo_icon|
+
+The redo tool reverses the last action performed by undo tool.
 
 ResetTool
 '''''''''
@@ -239,7 +254,7 @@ Inspectors
 
 * menu icon: |inspector_icon|
 
-Inpectors are passive tools that annotate or otherwise report information about
+Inspectors are passive tools that annotate or otherwise report information about
 the plot, based on the current cursor position. Any number of inspectors may be
 active at any given time. The inspectors menu in the toolbar allows users to
 toggle the active state of any inspector.
@@ -251,7 +266,7 @@ CrosshairTool
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. The crosshair tool may be configured to draw
-accross only one dimension by setting the ``dimensions`` property to a
+across only one dimension by setting the ``dimensions`` property to a
 list containing ``width`` or ``height``.
 
 HoverTool
@@ -342,9 +357,9 @@ substitutions are desired. An example is shown below:
 Selection Overlays
 ~~~~~~~~~~~~~~~~~~
 
-The capability to style the selection overlays is not yet exposed to the
-python interface. See :bokeh-issue:`2239` for information about plans to
-add this feature.
+Selection Overlays can also be configured.  See the :ref:`userguide_styling_tool_overlays` section
+for more information.
+
 
 .. _userguide_tools_lod:
 
@@ -398,6 +413,8 @@ LOD behavior:
     :height: 14pt
 .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
     :height: 14pt
+.. |redo_icon| image:: /_images/icons/Redo.png
+    :height: 14pt
 .. |reset_icon| image:: /_images/icons/Reset.png
     :height: 14pt
 .. |resize_icon| image:: /_images/icons/Resize.png
@@ -405,6 +422,8 @@ LOD behavior:
 .. |save_icon| image:: /_images/icons/Save.png
     :height: 14pt
 .. |tap_select_icon| image:: /_images/icons/TapSelect.png
+    :height: 14pt
+.. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
     :height: 14pt

@@ -15,7 +15,9 @@
 
 from __future__ import absolute_import
 from bokeh.charts.utils import (build_wedge_source, build_wedge_text_source,
-                                label_from_index_dict)
+                                label_from_index_dict, comp_glyphs_to_df)
+
+from bokeh.charts.glyphs import BarGlyph
 
 import pytest
 from bokeh.models.sources import ColumnDataSource
@@ -87,6 +89,15 @@ def test_chart_index_label():
     assert label == 'None'
 
 
+def test_comp_glyph_to_df():
+    bar1 = BarGlyph('foo', 1)
+    bar2 = BarGlyph('bar', 5)
+
+    # one row per bar
+    df = comp_glyphs_to_df(bar1, bar2)
+
+    assert len(df.index) == 2
+    assert 'chart_index' in df.columns
 
 
 

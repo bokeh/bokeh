@@ -1,14 +1,11 @@
-
 from bokeh.models import ImageSource, Range1d
 from bokeh.plotting import figure, output_file, show
 from bokeh.tile_providers import STAMEN_TONER, STAMEN_TONER_LABELS
 
 title = 'Dynamic Map: National Land Cover Dataset'
-
 p = figure(tools='wheel_zoom,pan', title=title)
-
-p.x_range = Range1d(start=-15473429, end=2108550)
-p.y_range = Range1d(start=-6315661, end=7264686)
+p.x_range = Range1d(start=-15473429, end=2108550, bounds=None)
+p.y_range = Range1d(start=-6315661, end=7264686, bounds=None)
 p.background_fill_color = "black"
 p.axis.visible = False
 
@@ -30,6 +27,6 @@ p.add_tile(STAMEN_TONER)
 p.add_dynamic_image(image_source)
 p.add_tile(STAMEN_TONER_LABELS, render_parents=False)
 
-output_file('dynamic_map.html')
+output_file('dynamic_map.html', title="dynamic_map.py example")
 
 show(p)

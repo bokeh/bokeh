@@ -25,6 +25,6 @@ data = dict([
 hp = Horizon(data, x='Date', width=800, height=300,
              title="horizon plot using stock inputs")
 
-output_file("horizon.html")
+output_file("horizon.html", title="horizon.py example")
 
 show(hp)

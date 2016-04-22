@@ -31,11 +31,3 @@ for own key, val of global.window
   if blacklist.indexOf(key) == -1
     global[key] = val
 
-require "./test_action"
-require "./test_common"
-require "./test_mapper"
-require "./test_range"
-require "./test_ticking"
-require "./test_tool"
-require "./test_source"
-require "./test_renderer"

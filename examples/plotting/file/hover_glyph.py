@@ -19,6 +19,6 @@ cr = p.circle(x, y, size=20,
 
 p.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
 
-output_file("hover_glyph.html")
+output_file("hover_glyph.html", title="hover_glyph.py example")
 
 show(p)

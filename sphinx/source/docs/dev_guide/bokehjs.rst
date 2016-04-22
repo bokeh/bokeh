@@ -78,7 +78,7 @@ vendor libraries that BokehJS includes are:
 * jquery-ui-1.11.2
 * jsnlog.js-2.7.5
 * kiwi
-* numeral.js-1.5.3
+* numbro.js-1.6.2
 * qunit
 * rbush
 * requirejs
@@ -95,7 +95,7 @@ Examples
 
 .. warning::
     These examples currently use an old, deprecated engineering JS interface
-    that has since been remvoed.  Work is ongoing to create a new interface
+    that has since been removed.  Work is ongoing to create a new interface
     and update these examples.
 
 Several live examples that demonstrate the BokehJS interface are available on

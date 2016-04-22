@@ -76,7 +76,7 @@ tphover.tooltips = iphover.tooltips = TOOLTIPS
 shover.tooltips = shoverp.tooltips = TOOLTIPS
 vhover.tooltips = hhover.tooltips = TOOLTIPS
 
-output_file("hover_span.html", title="line.py example")
+output_file("hover_span.html", title="hover_span.py example")
 
 show(vplot(
     hplot(hline, vline),

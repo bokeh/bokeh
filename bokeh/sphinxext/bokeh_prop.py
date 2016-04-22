@@ -5,9 +5,6 @@ for the property attribute, including cross links to the relevant
 property types. Additionally, any per-attribute docstrings are
 also displayed.
 
-Usage
------
-
 This directive takes the path to an attribute on a Bokeh
 model class as an argument::
 
@@ -23,8 +20,6 @@ For the following definition of ``bokeh.sphinxext.sample.Bar``::
         thing = List(Int, help="doc for thing")
 
 the above usage yields the output:
-
-----
 
     .. bokeh-prop:: bokeh.sphinxext.sample.Bar.thing
 

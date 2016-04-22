@@ -1,23 +1,25 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
-{logger} = require "./logging"
+HasProps = require "../core/has_props"
+{logger} = require "../core/logging"
 Selector = require "./selector"
 hittest = require "./hittest"
+p = require "../core/properties"
 
-class SelectionManager extends HasProperties
+class SelectionManager extends HasProps
   type: 'SelectionManager'
+
+  @internal {
+    source: [ p.Any ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @selectors = {}
     @inspectors = {}
+    @empty = hittest.create_hit_test_result()
+    @last_inspection_was_empty = {}
 
   serializable_in_document: () -> false
-
-  set_selection: (indices) ->
-    @_save_indices(indices)
-    source = @get('source')
-    source.trigger('select')
 
   select: (tool, renderer_view, geometry, final, append=false) ->
     source = @get('source')
@@ -43,6 +45,18 @@ class SelectionManager extends HasProperties
     indices = renderer_view.hit_test(geometry)
 
     if indices?
+
+      r_id = renderer_view.model.id
+      if _.isEqual(indices, @empty)
+        if not @last_inspection_was_empty[r_id]?
+          @last_inspection_was_empty[r_id] = false
+        if @last_inspection_was_empty[r_id]
+          return
+        else
+          @last_inspection_was_empty[r_id] = true
+      else
+        @last_inspection_was_empty[r_id] = false
+
       inspector = @_get_inspector(renderer_view)
       inspector.update(indices, true, false, true)
 
@@ -63,7 +77,7 @@ class SelectionManager extends HasProperties
     else
       for k, s of @selectors
         s.clear()
-    @_save_indices(hittest.create_hit_test_result())
+    @get('source').set({ "selected": hittest.create_hit_test_result()})
 
   _get_selector: (rview) ->
     _.setdefault(@selectors, rview.model.id, new Selector())

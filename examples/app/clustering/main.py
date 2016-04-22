@@ -182,4 +182,4 @@ selects = HBox(dataset_select, algorithm_select)
 inputs = VBox(samples_slider, clusters_slider, selects)
 
 # add to document
-curdoc().add_root(HBox(inputs, plot))
+curdoc().add_root(HBox(inputs, plot, width=800))

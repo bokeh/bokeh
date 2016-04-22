@@ -14,10 +14,10 @@ IBM = pd.read_csv(
     parse_dates=['Date'])
 
 data = dict(
-    AAPL=AAPL['Adj Close'],
-    Date=AAPL['Date'],
-    MSFT=MSFT['Adj Close'],
-    IBM=IBM['Adj Close'],
+    AAPL=AAPL['Adj Close'][:1000],
+    Date=AAPL['Date'][:1000],
+    MSFT=MSFT['Adj Close'][:1000],
+    IBM=IBM['Adj Close'][:1000],
 )
 
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
@@ -44,6 +44,6 @@ tspoint = TimeSeries(
     marker=['IBM', 'MSFT', 'AAPL'], color=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
 
-output_file("timeseries.html")
+output_file("timeseries.html", title="timeseries.py example")
 
 show(vplot(tsline, tsline2, tsstep, tspoint))

@@ -32,19 +32,20 @@ from . import sampledata; sampledata
 
 
 def test(args=None):
-    ''' Run the Bokeh tests under the bokeh python directory using pytest.
+    ''' Run the Bokeh unit tests under the bokeh python directory using ``py.test``.
 
-    Does not run tests from bokehjs or examples.
+    .. note::
+        Does not run any BokehJS, examples, or integration tests.
 
     Args:
-        args(list, optional): command line arguments accepted by py.test
+        args(list, optional): command line arguments accepted by ``py.test``
 
-            e.g. args=['-s', '-k charts'] prevents capture of standard out
-            and only runs tests that match charts. For more py.test options
-            see http://pytest.org/latest/usage.html#usage.
+            For example, ``args=['-s', '-k charts']`` prevents capture of standard out
+            and only runs tests that match ``"charts"``. For more ``py.test`` options
+            see http://pytest.org/latest/usage.html.
 
     Returns:
-        int: pytest exitcode
+        int: ``py.test`` exitcode
 
     '''
     from .util.testing import runtests

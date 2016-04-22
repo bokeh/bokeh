@@ -1,14 +1,14 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
-{logger} = require "./logging"
+Model = require "../model"
+{logger} = require "../core/logging"
+p = require "../core/properties"
 
-class ToolEvents extends HasProperties
+class ToolEvents extends Model
   type: 'ToolEvents'
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      geometries: []
-    }
+  @define {
+    geometries: [ p.Array, [] ]
+  }
 
 module.exports =
   Model: ToolEvents

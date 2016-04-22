@@ -13,7 +13,7 @@ colormap and be can set as the ``palette`` attribute of all chart types from
 ``bokeh.charts`` and as the ``color`` attribute of many plot objects from
 ``bokeh.plotting``. Bokeh offers many of the standard Brewer palettes, which
 can be imported from the ``bokeh.palettes`` module. For example, importing
-“Spectral6” gives a six element list of RBG(A) hex strings from the Brewer
+“Spectral6” gives a six element list of RGB(A) hex strings from the Brewer
 “Spectral” colormap.
 
 .. code-block:: python
@@ -23,7 +23,7 @@ can be imported from the ``bokeh.palettes`` module. For example, importing
     ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
 
 All of the standard palettes included in bokeh can be found at
-:ref:`bokeh_dot_palettes`. Custom palettes can be made by creating sequences of
+:ref:`bokeh.palettes`. Custom palettes can be made by creating sequences of
 RGB(A) hex strings.
 
 .. _userguide_styling_visual_properties:
@@ -74,6 +74,18 @@ following ways:
 
 .. include:: ../includes/colors.txt
 
+.. warning::
+    Supplying lists of RGB or RGBA color tuples as color arguments (either
+    directly or as a DataSource column reference) doesn't work. You may read a
+    discussion of the issue on our project `GitHub`_ page. Suggested
+    work-arounds include using lists of:
+
+    * RGB hexadecimal values
+    * `bokeh.colors.RGB` objects (i.e. ``[RGB(255, 0, 0), RGB(0, 255, 0)"]``)
+    * CSS-format RGB/RGBA strings (i.e. ``["rgb(255, 0, 0)", "rgb(0, 255, 0)"]``)
+
+.. _GitHub: https://github.com/bokeh/bokeh/issues/2622
+
 Color alpha can be specified in multiple ways for the visual properties. This
 can be by specifying the alpha directly with ``line|fill_alpha``, or by
 providing the alpha through the RGBA 4-tuple for the ``line|fill_color``.
@@ -92,6 +104,17 @@ the inputs for line and fill alphas:
     corresponding ``line`` and ``fill`` properties. However, you can still
     provide ``fill|line_alpha`` or ``fill|line_color`` in combination with
     the ``color``/``alpha`` keywords, and the former will take precedence.
+
+.. _userguide_styling_units:
+
+Screen Units and Data-space Units
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Screen units use raw numbers of pixels to specify height or width, while
+data-space units are relative to the data and the axes of the chart. For
+example, in a 400 pixel by 400 pixel graph with x and y axes ranging from 0
+through 10, a glyph one fifth as wide and tall as the graph would be 80 screen
+units or 2 data-space units.
 
 .. _userguide_styling_selecting:
 
@@ -331,10 +354,10 @@ below demonstrates the latter method:
     Only the *visual* properties of ``hover_glyph`` are considered when
     rendering. Changing positions, sizes, etc. will have no effect.
 
-.. _userguide_styling_tools:
+.. _userguide_styling_tool_overlays:
 
-Tools
------
+Tool Overlays
+-------------
 
 Some Bokeh tools also have configurable visual attributes. For instance the
 various region selection tools and box zoom tool all have an ``overlay``
@@ -411,7 +434,7 @@ Tick Locations
 
 Bokeh has several "ticker" models that can choose nice locations for ticks.
 These are configured on the ``.ticker`` property of an axis. With the
-|bokeh.plotting| and |bokeh.charts| interfaces, choosing an approriate ticker
+|bokeh.plotting| and |bokeh.charts| interfaces, choosing an appropriate ticker
 type (categorical, datetime, linear or log scale) normally happens
 automatically. However, there are cases when more explicit control is
 useful.
@@ -660,6 +683,21 @@ or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
     It is currently not possible to position a legend outside the plot area,
     or in an optimal, automatically computed location within the canvas.
     These and other improvements are planned.
+
+Orientation
+~~~~~~~~~~~
+
+The orientation of the legend is controlled by the ``orientation`` property.
+Valid values for this property are:
+
+``"vertical"``
+
+``"horizontal"``
+
+The default orientation is ``"vertical"``.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_orientation.py
+    :source-position: above
 
 Label Text
 ~~~~~~~~~~

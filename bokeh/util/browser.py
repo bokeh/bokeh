@@ -23,24 +23,26 @@ def get_browser_controller(browser=None):
     return controller
 
 def view(location, browser=None, new="same", autoraise=True):
-        """ Opens a browser to view the specified location.
+        ''' Opens a browser to view the specified location.
 
         Args:
-            location (str) : location to open
+            location (str) : Location to open
                 If location does not begin with "http:" it is assumed
                 to be a file path on the local filesystem.
             browser (str) : what browser to use
-            new (str) : how to open the location
-                Valid values are:
-                    * "same" - open in the current tab
-                    * "tab" - open a new tab in the current window
-                    * "window" - open in a new window
-            autoraise (bool) : whether to raise the new location
+            new (str) : How to open the location. Valid values are:
+
+                ``"same"`` - open in the current tab
+
+                ``"tab"`` - open a new tab in the current window
+
+                ``"window"`` - open in a new window
+            autoraise (bool) : Whether to raise the new location
 
         Returns:
             None
 
-        """
+        '''
         new_map = { "same": 0, "window": 1, "tab": 2 }
         if location.startswith("http"):
             url = location

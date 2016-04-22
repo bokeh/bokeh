@@ -19,22 +19,18 @@ import json
 from collections import OrderedDict, defaultdict
 from copy import copy
 from math import cos, sin
+from colorsys import hsv_to_rgb
 
 from pandas.io.json import json_normalize
 import pandas as pd
 import numpy as np
 from six import iteritems
 
-from ..document import Document
-from ..embed import file_html
 from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..models.sources import ColumnDataSource
 from ..plotting.helpers import DEFAULT_PALETTE
-from ..resources import INLINE
-from ..util.browser import view
-from ..util.notebook import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -634,3 +630,25 @@ def label_from_index_dict(chart_index, include_cols=False):
     else:
         raise ValueError('chart_index type is not recognized, \
                           received %s' % type(chart_index))
+
+
+def comp_glyphs_to_df(*comp_glyphs):
+    dfs = [glyph.df for glyph in comp_glyphs]
+    return pd.concat(dfs)
+
+
+
+def color_in_equal_space(hue, saturation=0.55, value=2.3):
+    """
+
+    Args:
+        hue (int or double): a numerical value that you want to assign a color
+
+    Returns:
+        str: hexadecimal color value to a given number
+
+    """
+    golden_ratio = (1 + 5 ** 0.5) / 2
+    hue += golden_ratio
+    hue %= 1
+    return '#{:02X}{:02X}{:02X}'.format(*tuple(int(a*100) for a in hsv_to_rgb(hue, saturation, value)))

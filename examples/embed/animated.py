@@ -1,6 +1,6 @@
 """ To view this example, first start a Bokeh server:
 
-    bokeh serve
+    bokeh serve --allow-websocket-origin=localhost:8000
 
 And then load the example into the Bokeh server by
 running the script:
@@ -69,6 +69,6 @@ def update():
     rmax = roll(ds.data["outer_radius"], -1)
     ds.data.update(inner_radius=rmin, outer_radius=rmax)
 
-curdoc().add_periodic_callback(update, 300)
+curdoc().add_periodic_callback(update, 30)
 
 session.loop_until_closed() # run forever

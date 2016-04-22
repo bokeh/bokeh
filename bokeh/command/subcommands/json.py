@@ -30,8 +30,6 @@ indentation level with the ``--indent`` argument:
 '''
 from __future__ import print_function
 
-from ..util import build_single_handler_application
-
 from .file_output import FileOutputSubcommand
 
 class JSON(FileOutputSubcommand):

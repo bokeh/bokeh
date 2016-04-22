@@ -41,13 +41,18 @@ def test_array(test_data):
 
 def test_pandas(test_data):
     """Test creating chart data source from existing dataframe."""
-    ds = ChartDataSource.from_data(test_data.pd_data)
+    pd_data = test_data.pd_data.copy()
+    ds = ChartDataSource.from_data(pd_data)
     assert len(ds.columns) == 2
     assert len(ds.index) == 4
 
-    ds = ChartDataSource(test_data.pd_data)
+    ds = ChartDataSource(pd_data)
     assert len(ds.columns) == 2
     assert len(ds.index) == 4
+
+    # Test for issue #3899
+    # ChartDataSource shouldn't modify the input DataFrame
+    assert pd_data.equals(test_data.pd_data)
 
 
 def test_dict(test_data):

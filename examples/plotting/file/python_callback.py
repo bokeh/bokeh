@@ -2,9 +2,7 @@
 which is transpiled to JavaScript using PyScript. Read more on PyScript
 here:
 
-    http://flexx.readthedocs.org/en/latest/pyscript/index.html
-
-NOTE: This feature is currently only supported in Python 3
+    http://flexx.readthedocs.org/en/stable/pyscript
 
 """
 
@@ -23,13 +21,13 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-def callback(source=source):
+def callback(source=source, window=None):
     data = source.get('data')
     A, B = amp.get('value'), offset.get('value')
     k, phi = freq.get('value'), phase.get('value')
     x, y = data['x'], data['y']
     for i in range(len(x)):
-        y[i] = B + A * Math.sin(k * x[i] + phi)
+        y[i] = B + A * window.Math.sin(k * x[i] + phi)
     source.trigger('change')
 
 # turn our function into a CustomJS object.
@@ -57,6 +55,6 @@ layout = hplot(
     vform(amp_slider, freq_slider, phase_slider, offset_slider),
 )
 
-output_file("python_callback.html")
+output_file("python_callback.html", title="python_callback.py example")
 
 show(layout)

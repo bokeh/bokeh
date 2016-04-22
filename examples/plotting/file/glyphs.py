@@ -18,7 +18,7 @@ p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee",
                 inner_radius_units="screen", outer_radius_units="screen")
 children.append(p)
 
-p = figure(title="annular_wedge")
+p = figure(title="annulus")
 p.annulus(x, y, 10, 20, color="#7FC97F",
           inner_radius_units="screen", outer_radius_units = "screen")
 children.append(p)

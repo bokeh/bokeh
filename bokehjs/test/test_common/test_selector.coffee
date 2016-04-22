@@ -2,8 +2,7 @@
 utils = require "../utils"
 fixtures = require "./fixtures/object"
 
-base = utils.require "common/base"
-{Collections} = base
+base = utils.require "base"
 Selector = utils.require "common/selector"
 hittest = utils.require "common/hittest"
 

@@ -1,11 +1,17 @@
-""" These are special versions of list, dict, and set which are used for
-    property values. Mutations are detected and the properties owning
-    the collection are notified.
+''' Provide special versions of list, dict, that can be used for property
+values.
 
-"""
+Mutations to these values are detected, and the properties owning the
+collection is notified of the changes.
+
+'''
 from __future__ import absolute_import, print_function
 
 def notify_owner(func):
+    ''' A decorator for mutating methods of property container classes, to
+    notify a the owner that a mutating change has occurred.
+
+    '''
     def wrapper(*args, **kwargs):
         self = args[0]
         old = self._saved_copy()
@@ -15,6 +21,10 @@ def notify_owner(func):
     return wrapper
 
 class PropertyValueContainer(object):
+    ''' A base class for property container classes that support change
+    notifications on mutating operations.
+
+    '''
     def __init__(self, *args, **kwargs):
         self._owners = set()
         # this flag is set to True by HasProps when it wraps
@@ -28,10 +38,10 @@ class PropertyValueContainer(object):
     def _unregister_owner(self, owner, prop):
         self._owners.discard((owner, prop))
 
-    def _notify_owners(self, old):
+    def _notify_owners(self, old, hint=None):
         self._unmodified_default_value = False
         for (owner, prop) in self._owners:
-            prop._notify_mutated(owner, old)
+            prop._notify_mutated(owner, old, hint)
 
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")
@@ -40,7 +50,10 @@ class PropertyValueContainer(object):
 # on list and send change notification to the
 # properties it's a value of.
 class PropertyValueList(PropertyValueContainer, list):
-    """A list that is the value of a property, and has change notification"""
+    ''' A list property value that supports change notifications on mutating
+    operations.
+
+    '''
 
     def __init__(self, *args, **kwargs):
         return super(PropertyValueList, self).__init__(*args, **kwargs)
@@ -107,8 +120,10 @@ class PropertyValueList(PropertyValueContainer, list):
         return super(PropertyValueList, self).sort(**kwargs)
 
 class PropertyValueDict(PropertyValueContainer, dict):
-    """A list that is the value of a property, and has change notification"""
+    ''' A dict property value that supports change notifications on mutating
+    opertations.
 
+    '''
     def __init__(self, *args, **kwargs):
         return super(PropertyValueDict, self).__init__(*args, **kwargs)
 
@@ -145,3 +160,25 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
+    # notifies owners explicitly
+    def _stream(self, doc, source, new_data, rollover=None):
+        old = self._saved_copy()
+
+        import numpy as np
+
+        for k, v in new_data.items():
+            if isinstance(self[k], np.ndarray):
+                data = np.append(self[k], new_data[k])
+                if rollover and len(data) > rollover:
+                    data = data[-rollover:]
+                super(PropertyValueDict, self).__setitem__(k, data)
+            else:
+                L = self[k]
+                L.extend(new_data[k])
+                if rollover is not None:
+                    del L[:-rollover]
+
+        from ..document import ColumnsStreamedEvent
+
+        self._notify_owners(old,
+                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover))

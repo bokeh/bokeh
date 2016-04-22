@@ -36,7 +36,7 @@ class LinearColorMapper(ColorMapper):
     A sequence of colors to use as the target palette for mapping.
 
     This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh_dot_palettes`.
+    any of the palettes shown in :ref:`bokeh.palettes`.
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     low = Float(help="""

@@ -58,7 +58,15 @@ pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", 
 vh1 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.5, **LINE_ARGS)
 vh2 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.1, **LINE_ARGS)
 
-layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
+# NOTE: Version 0.11 has introduced auto spacing by default on VBox/HBox/vplot/hplot
+#       so for now we must tweak some spacing and borders to have it closely
+#       aligned. 
+pv.min_border_top = 80
+pv.min_border_left = 0
+ph.min_border_top = 10
+ph.min_border_right = 10
+p.min_border_right = 10
+layout = vplot(hplot(p, pv), hplot(ph, Paragraph(width=200)), width=800, height=800)
 
 # open a session to keep our local document in sync with server
 session = push_session(curdoc())

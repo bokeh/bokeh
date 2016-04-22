@@ -7,51 +7,53 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.document import PeriodicCallback, TimeoutCallback
-from bokeh.util.tornado import _AsyncPeriodic
+from bokeh.util.tornado import _DocumentCallbackGroup, yield_for_all_futures
 
 import time
 
 def current_time():
+    '''Return the time in milliseconds since the epoch as a floating
+       point number.
+    '''
     try:
         # python >=3.3 only
-        return time.monotonic()
+        return time.monotonic() * 1000
     except:
         # if your python is old, don't set your clock backward!
-        return time.time()
+        return time.time() * 1000
 
 def _needs_document_lock(func):
     '''Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
-       non-coroutine method on ServerSession and transforms it
-       into a coroutine.
+       method on ServerSession and transforms it into a coroutine
+       if it wasn't already.
     '''
     @gen.coroutine
     def _needs_document_lock_wrapper(self, *args, **kwargs):
-        with (yield self._lock.acquire()):
-            if self._pending_writes is not None:
-                raise RuntimeError("internal class invariant violated: _pending_writes " + \
-                                   "should be None if lock is not held")
-            self._pending_writes = []
-            try:
-                result = func(self, *args, **kwargs)
-                while True:
-                    try:
-                        future = gen.convert_yielded(result)
-                    except gen.BadYieldError:
-                        # result is not a yieldable thing, we are done
-                        break
-                    else:
-                        result = yield future
-            finally:
-                # we want to be very sure we reset this or we'll
-                # keep hitting the RuntimeError above as soon as
-                # any callback goes wrong
-                pending_writes = self._pending_writes
-                self._pending_writes = None
-            for p in pending_writes:
-                yield p
-        raise gen.Return(result)
+        # while we wait for and hold the lock, prevent the session
+        # from being discarded. This avoids potential weirdness
+        # with the session vanishing in the middle of some async
+        # task.
+        self.block_expiration()
+        try:
+            with (yield self._lock.acquire()):
+                if self._pending_writes is not None:
+                    raise RuntimeError("internal class invariant violated: _pending_writes " + \
+                                       "should be None if lock is not held")
+                self._pending_writes = []
+                try:
+                    result = yield yield_for_all_futures(func(self, *args, **kwargs))
+                finally:
+                    # we want to be very sure we reset this or we'll
+                    # keep hitting the RuntimeError above as soon as
+                    # any callback goes wrong
+                    pending_writes = self._pending_writes
+                    self._pending_writes = None
+                for p in pending_writes:
+                    yield p
+            raise gen.Return(result)
+        finally:
+            self.unblock_expiration()
     return _needs_document_lock_wrapper
 
 class ServerSession(object):
@@ -73,14 +75,14 @@ class ServerSession(object):
         self._current_patch = None
         self._current_patch_connection = None
         self._document.on_change_dispatch_to(self)
-        self._callbacks = {}
+        self._callbacks = _DocumentCallbackGroup(io_loop)
         self._pending_writes = None
+        self._destroyed = False
+        self._expiration_requested = False
+        self._expiration_blocked_count = 0
 
-        for cb in self._document.session_callbacks:
-            if isinstance(cb, PeriodicCallback):
-                self._add_periodic_callback(cb)
-            elif isinstance(cb, TimeoutCallback):
-                self._add_timeout_callback(cb)
+        wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
+        self._callbacks.add_session_callbacks(wrapped_callbacks)
 
     @property
     def document(self):
@@ -89,6 +91,39 @@ class ServerSession(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def destroyed(self):
+        return self._destroyed
+
+    @property
+    def expiration_requested(self):
+        return self._expiration_requested
+
+    @property
+    def expiration_blocked(self):
+        return self._expiration_blocked_count > 0
+
+    @property
+    def expiration_blocked_count(self):
+        return self._expiration_blocked_count
+
+    def destroy(self):
+        self._destroyed = True
+        self._document.remove_on_change(self)
+        self._callbacks.remove_all_callbacks()
+
+    def request_expiration(self):
+        """ Used in test suite for now. Forces immediate expiration if no connections."""
+        self._expiration_requested = True
+
+    def block_expiration(self):
+        self._expiration_blocked_count += 1
+
+    def unblock_expiration(self):
+        if self._expiration_blocked_count <= 0:
+            raise RuntimeError("mismatched block_expiration / unblock_expiration")
+        self._expiration_blocked_count -= 1
 
     def subscribe(self, connection):
         """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""
@@ -104,7 +139,7 @@ class ServerSession(object):
         return len(self._subscribed_connections)
 
     @property
-    def seconds_since_last_unsubscribe(self):
+    def milliseconds_since_last_unsubscribe(self):
         return current_time() - self._last_unsubscribe_time
 
     @_needs_document_lock
@@ -113,47 +148,21 @@ class ServerSession(object):
         return func(*args, **kwargs)
 
     def _wrap_document_callback(self, callback):
+        if getattr(callback, "nolock", False):
+            return callback
         def wrapped_callback(*args, **kwargs):
             return self.with_document_locked(callback, *args, **kwargs)
         return wrapped_callback
 
-    def _add_periodic_callback(self, callback):
-        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+    def _wrap_session_callback(self, callback):
+        wrapped = self._wrap_document_callback(callback.callback)
+        return callback._copy_with_changed_callback(wrapped)
 
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        cb = self._callbacks[callback.id] = _AsyncPeriodic(
-            self._wrap_document_callback(callback.callback), callback.period, io_loop=self._loop
-        )
-        cb.start()
-
-    def _remove_periodic_callback(self, callback):
-        ''' Remove a callback added earlier with add_periodic_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        self._callbacks.pop(callback.id).stop()
-
-    def _add_timeout_callback(self, callback):
-        ''' Add callback so it can be invoked on a session after timeout
-
-        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        # IOLoop.call_later takes a delay in seconds
-        cb = self._loop.call_later(callback.timeout/1000.0, self._wrap_document_callback(callback.callback))
-        self._callbacks[callback.id] = cb
-
-    def _remove_timeout_callback(self, callback):
-        ''' Remove a callback added earlier with _add_timeout_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        cb = self._callbacks.pop(callback.id)
-        self._loop.remove_timeout(cb)
+    def _wrap_session_callbacks(self, callbacks):
+        wrapped = []
+        for cb in callbacks:
+            wrapped.append(self._wrap_session_callback(cb))
+        return wrapped
 
     def _document_patched(self, event):
         may_suppress = self._current_patch is not None and \
@@ -178,21 +187,11 @@ class ServerSession(object):
         return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
 
     def _session_callback_added(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._add_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._add_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+        wrapped = self._wrap_session_callback(event.callback)
+        self._callbacks.add_session_callback(wrapped)
 
     def _session_callback_removed(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._remove_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._remove_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
-
+        self._callbacks.remove_session_callback(event.callback)
 
     @classmethod
     def pull(cls, message, connection):

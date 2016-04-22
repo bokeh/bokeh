@@ -18,7 +18,7 @@ Generating output for Bokeh plots requires coordinating several things:
     included and used in the generated output.
 
 It is certainly possible to handle the configuration of these objects
-manually, and several examples of this can be found in ``examples/glyphs``.
+manually, and several examples of this can be found in ``examples/models``.
 When developing sophisticated applications, it may be necessary or
 desirable to work at this level. However, for general use this would
 quickly become burdensome. The ``bokeh.state`` module provides a ``State``
@@ -87,6 +87,7 @@ class State(object):
     def __init__(self):
         # TODO (havocp) right now there's no way to turn off autoadd
         self._autoadd = True
+        self.last_comms_handle = None
         self.reset()
 
     @property
@@ -134,6 +135,10 @@ class State(object):
     @property
     def autoadd(self):
         return self._autoadd
+
+    @autoadd.setter
+    def autoadd(self, val):
+        self._autoadd = val
 
     @property
     def autosave(self):
@@ -190,9 +195,9 @@ class State(object):
                 One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
                 ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
 
-            root_dir (str, optional) :  root directory to use for 'absolute' resources. (default: None)
-            This value is ignored for other resource types, e.g. ``INLINE`` or
-            ``CDN``.
+            root_dir (str, optional) :  root directory to use for 'absolute' resources.
+                (default: None) This value is ignored for other resource types, e.g. ``INLINE`` or
+                ``CDN``.
 
         .. warning::
             This output file will be overwritten on every save, e.g., each time

@@ -7,15 +7,14 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from .connection import ClientConnection
+from ._connection import ClientConnection
 
 from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
-                              DEFAULT_SERVER_HTTP_URL,
                               server_url_for_websocket_url,
                               _SessionCoordinates )
-from bokeh.document import Document, PeriodicCallback, TimeoutCallback
+from bokeh.document import Document
 from bokeh.util.session_id import generate_session_id
-from bokeh.util.tornado import _AsyncPeriodic
+from bokeh.util.tornado import _DocumentCallbackGroup
 
 DEFAULT_SESSION_ID = "default"
 
@@ -67,45 +66,45 @@ def push_session(document, session_id=None, url='default', app_path='/', io_loop
 def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
     """ Create a session by loading the current server-side document.
 
-       ``session.document`` will be a fresh document loaded from
-       the server. While the connection to the server is open,
-       changes made on the server side will be applied to this
-       document, and changes made on the client side will be
-       synced to the server.
+    ``session.document`` will be a fresh document loaded from
+    the server. While the connection to the server is open,
+    changes made on the server side will be applied to this
+    document, and changes made on the client side will be
+    synced to the server.
 
-       If you don't plan to modify ``session.document`` you probably
-       don't need to use this function; instead you can directly
-       ``show_session()`` or ``autoload_server()`` without downloading
-       the session's document into your process first. It's much
-       more efficient to avoid downloading the session if you don't need
-       to.
+    If you don't plan to modify ``session.document`` you probably
+    don't need to use this function; instead you can directly
+    ``show_session()`` or ``autoload_server()`` without downloading
+    the session's document into your process first. It's much
+    more efficient to avoid downloading the session if you don't need
+    to.
 
-       In a production scenario, the ``session_id`` should be
-       unique for each browser tab, which keeps users from
-       stomping on each other. It's neither scalable nor secure to
-       use predictable session IDs or to share session IDs across
-       users.
+    In a production scenario, the ``session_id`` should be
+    unique for each browser tab, which keeps users from
+    stomping on each other. It's neither scalable nor secure to
+    use predictable session IDs or to share session IDs across
+    users.
 
-       For a notebook running on a single machine, ``session_id``
-       could be something human-readable such as ``"default"`` for
-       convenience.
+    For a notebook running on a single machine, ``session_id``
+    could be something human-readable such as ``"default"`` for
+    convenience.
 
-       If you allow ``push_session()`` to generate a unique
-       ``session_id``, you can obtain the generated ID with the
-       ``id`` property on the returned ``ClientSession``.
+    If you allow ``pull_session()`` to generate a unique
+    ``session_id``, you can obtain the generated ID with the
+    ``id`` property on the returned ``ClientSession``.
 
-       Args:
-            session_id : string, optional
-                The name of the session, None to autogenerate a random one (default: None)
-            url : str, optional
-                The base server URL to connect to (default: 'default')
-            app_path : str, optional
-                Relative path to the app on the server (defualt: '/')
-            io_loop : tornado.ioloop.IOLoop, optional
-                The IOLoop to use for the websocket
-       Returns:
-            session : ClientSession
-                A new ClientSession connected to the server
+    Args:
+        session_id (string, optional) :
+            The name of the session, None to autogenerate a random one (default: None)
+        url (str, optional) :
+            The base server URL to connect to (default: 'default')
+        app_path (str, optional) :
+            Relative path to the app on the server (default: '/')
+        io_loop (``tornado.ioloop.IOLoop``, optional) :
+            The IOLoop to use for the websocket
+    Returns:
+        session (ClientSession) :
+            A new ClientSession connected to the server
 
     """
     coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
@@ -126,7 +125,7 @@ _new_param = {'tab': 2, 'window': 1}
 
 def show_session(session_id=None, url='default', app_path='/',
                  session=None, browser=None, new="tab", controller=None):
-        """Open a browser displaying a session document.
+        """ Open a browser displaying a session document.
 
         If you have a session from ``pull_session()`` or
         ``push_session`` you can ``show_session(session=mysession)``.
@@ -135,29 +134,28 @@ def show_session(session_id=None, url='default', app_path='/',
         ``url`` and ``app_path``.
 
         Args:
+            session_id (string, optional) :
+               The name of the session, None to autogenerate a random one (default: None)
 
-        session_id : string, optional
-             The name of the session, None to autogenerate a random one (default: None)
+            url (str, optional) :
+                The base server URL to connect to (default: 'default')
 
-        url : str, optional
-             The base server URL to connect to (default: 'default')
+            app_path (str, optional) :
+               Relative path to the app on the server (defualt: '/')
 
-        app_path : str, optional
-             Relative path to the app on the server (defualt: '/')
+            session (ClientSession, optional) : session to get session ID and server URL from
+                If you specify this, you don't need to specify session_id and url
 
-        session (ClientSession, optional) : session to get session ID and server URL from
-            If you specify this, you don't need to specify session_id and url
+            browser (str, optional) : browser to show with (default: None)
+                For systems that support it, the **browser** argument allows
+                specifying which browser to display in, e.g. "safari", "firefox",
+                "opera", "windows-default" (see the ``webbrowser`` module
+                documentation in the standard lib for more details).
 
-        browser (str, optional) : browser to show with (default: None)
-            For systems that support it, the **browser** argument allows
-            specifying which browser to display in, e.g. "safari", "firefox",
-            "opera", "windows-default" (see the ``webbrowser`` module
-            documentation in the standard lib for more details).
-
-        new (str, optional) : new file output mode (default: "tab")
-            For file-based output, opens or raises the browser window
-            showing the current output file.  If **new** is 'tab', then
-            opens a new tab. If **new** is 'window', then opens a new window.
+            new (str, optional) : new file output mode (default: "tab")
+                For file-based output, opens or raises the browser window
+                showing the current output file.  If **new** is 'tab', then
+                opens a new tab. If **new** is 'window', then opens a new window.
 
         """
 
@@ -177,7 +175,7 @@ def show_session(session_id=None, url='default', app_path='/',
                         new=_new_param[new])
 
 class ClientSession(object):
-    """Represents a websocket connection to a server-side session.
+    """ Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync
     with the document in this ClientSession instance.
@@ -188,21 +186,21 @@ class ClientSession(object):
 
     def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None):
         '''
-          A connection which attaches to a particular named session on the server.
+        A connection which attaches to a particular named session on the server.
 
-          Always call either pull() or push() immediately after creating the session
-          (until these are called session.document will be None).
+        Always call either pull() or push() immediately after creating the session
+        (until these are called session.document will be None).
 
-          The bokeh.client.push_session() and bokeh.client.pull_session() functions
-          will construct a ClientSession and push or pull in one step, so they are
-          a good way to obtain a ClientSession.
+        The bokeh.client.push_session() and bokeh.client.pull_session() functions
+        will construct a ClientSession and push or pull in one step, so they are
+        a good way to obtain a ClientSession.
 
-          Args:
-            session_id : str
+        Args:
+            session_id (str) :
                 The name of the session or None to generate one
-            websocket_url : str
+            websocket_url (str) :
                 Websocket URL to connect to
-            io_loop : tornado.ioloop.IOLoop, optional
+            io_loop (``tornado.ioloop.IOLoop``, optional) :
                 The IOLoop to use for the websocket
         '''
         self._document = None
@@ -211,59 +209,22 @@ class ClientSession(object):
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         self._current_patch = None
-        self._callbacks = {}
+        self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
 
     def _attach_document(self, document):
         self._document = document
         self._document.on_change_dispatch_to(self)
 
-        for cb in self._document.session_callbacks:
-            self._add_periodic_callback(cb)
-
-    def _add_periodic_callback(self, callback):
-        ''' Add callback so it can be invoked on a session periodically accordingly to period.
-
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        cb = self._callbacks[callback.id] = _AsyncPeriodic(
-            callback.callback, callback.period, io_loop=self._connection._loop
-        )
-        cb.start()
-
-    def _remove_periodic_callback(self, callback):
-        ''' Remove a callback added earlier with add_periodic_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        self._callbacks.pop(callback.id).stop()
-
-    def _add_timeout_callback(self, callback):
-        ''' Add callback so it can be invoked on a session after timeout
-
-        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        # IOLoop.call_later takes a delay in seconds
-        cb = self._connection._loop.call_later(callback.timeout/1000.0, callback.callback)
-        self._callbacks[callback.id] = cb
-
-    def _remove_timeout_callback(self, callback):
-        ''' Remove a callback added earlier with _add_timeout_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        cb = self._callbacks.pop(callback.id)
-        self._connection._loop.remove_timeout(cb)
+        self._callbacks.add_session_callbacks(self._document.session_callbacks)
 
     def pull(self):
         """ Pull the server's state and set it as session.document.
 
             If this is called more than once, session.document will
             be the same object instance but its contents will be overwritten.
-            Automatically calls connect() before pulling.
+
+            Automatically calls :func:`connect` before pulling.
+
         """
         self.connect()
         if not self._connection.connected:
@@ -280,14 +241,17 @@ class ClientSession(object):
     def push(self, document=None):
         """ Push the given document to the server and record it as session.document.
 
-            If this is called more than once, the Document has to be the same (or None
-            to mean "session.document").
-            Automatically calls connect() before pushing.
+        If this is called more than once, the Document has to be the same (or None
+        to mean "session.document").
+
+        .. note::
+            Automatically calls :func:`~connect` before pushing.
 
         Args:
-            document : bokeh.document.Document, optional
+            document (:class:`~bokeh.document.Document`, optional) :
                 The document which will be kept in sync with the server document.
                 None to use session.document or create a new document.
+
         """
         if self._document is None:
             if document is None:
@@ -312,18 +276,18 @@ class ClientSession(object):
         """ Open a browser displaying this session.
 
         Args:
+            browser (str, optional) : browser to show with (default: None)
+                For systems that support it, the **browser** argument allows
+                specifying which browser to display in, e.g. "safari", "firefox",
+                "opera", "windows-default" (see the ``webbrowser`` module
+                documentation in the standard lib for more details).
 
-        browser (str, optional) : browser to show with (default: None)
-            For systems that support it, the **browser** argument allows
-            specifying which browser to display in, e.g. "safari", "firefox",
-            "opera", "windows-default" (see the ``webbrowser`` module
-            documentation in the standard lib for more details).
+            new (str, optional) : new file output mode (default: "tab")
+                For file-based output, opens or raises the browser window
+                showing the current output file.  If **new** is 'tab', then
+                opens a new tab. If **new** is 'window', then opens a new window.
 
-        new (str, optional) : new file output mode (default: "tab")
-            For file-based output, opens or raises the browser window
-            showing the current output file.  If **new** is 'tab', then
-            opens a new tab. If **new** is 'window', then opens a new window.
-"""
+        """
         show_session(session=self)
 
     @classmethod
@@ -334,9 +298,10 @@ class ClientSession(object):
 
     @property
     def document(self):
-        """bokeh.document.Document which will be kept in sync with the server document
+        """ :class:`~bokeh.document.Document` which will be kept in sync with the server document
 
-        This is initialized when pull() or push() succeeds. It will be None until then.
+        This is initialized when :func:`pull` or :func:`push` succeeds. It will be None until then.
+
         """
         return self._document
 
@@ -358,22 +323,27 @@ class ClientSession(object):
         self._connection.loop_until_closed()
 
     def request_server_info(self):
-        '''
-        Ask for information about the server.
+        ''' Ask for information about the server.
 
         Returns:
             A dictionary of server attributes.
+
         '''
         return self._connection.request_server_info()
 
     def force_roundtrip(self):
-        ''' Used in unit testing to force a request/reply pair in order to avoid races '''
+        ''' Used in unit testing to force a request/reply pair in order to avoid races
+
+        '''
         self._connection.force_roundtrip()
 
     def _notify_disconnected(self):
-        '''Called by the ClientConnection we are using to notify us of disconnect'''
+        ''' Called by the ClientConnection we are using to notify us of disconnect.
+
+        '''
         if self._document is not None:
             self._document.remove_on_change(self)
+            self._callbacks.remove_all_callbacks()
 
     def _document_patched(self, event):
 
@@ -395,17 +365,7 @@ class ClientSession(object):
             self._current_patch = None
 
     def _session_callback_added(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._add_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._add_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+        self._callbacks.add_session_callback(event.callback)
 
     def _session_callback_removed(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._remove_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._remove_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+        self._callbacks.remove_session_callback(event.callback)

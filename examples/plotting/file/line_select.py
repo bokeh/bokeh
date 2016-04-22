@@ -10,13 +10,15 @@ from bokeh.plotting import output_file, show, figure
 # The data is setup to have very different scales in x and y, to verify
 # that picking happens in pixels. Different widths are used to test that
 # you can click anywhere on the visible line.
-
+#
+# Note that the get_view() function used here is not documented and
+# might change in future versions of Bokeh.
 t = np.linspace(0, 0.1, 100)
 
 code = """
 d0 = cb_obj.get("selected")["0d"];
 if (d0.glyph) {
-    var color = d0.glyph.visuals.line.color.value();
+    var color = d0.get_view().visuals.line.line_color.value();
     var data = source.get('data');
     data['text'] = ['Selected the ' + color + ' line'];
     source.trigger('change');
@@ -36,6 +38,6 @@ p.text(0, -100, source=source)
 
 p.add_tools(TapTool(callback=CustomJS(code=code, args=dict(source=source))))
 
-output_file("line_select.html")
+output_file("line_select.html", title="line_select.py example")
 
 show(p)

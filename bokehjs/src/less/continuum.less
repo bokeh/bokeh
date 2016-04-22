@@ -4,57 +4,17 @@
 @buttonWidth: 30px;
 @buttonColor: lightgray;
 
-
-/* table element cleanup */
-
-.tableelem {
-  padding: 2px 10px;
-  border: 2px white;
-  background-color: #E0E0E0;
-}
-
-.tableheader {
-  background-color: #C0C0C0;
-}
-#notebook .bk-plot-wrapper table {
-  border: none !important;
+.bk-plot-wrapper table {
+  border: none;
   tr {
-    border: none !important;
+    border: none;
     td {
-      border: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      &.bk-plot-above {
-        border-bottom: 2px solid #efefef !important;
-      }
-      &.bk-plot-below {
-        border-top: 2px solid #efefef !important;
-      }
-      &.bk-plot-left, {
-        border-right: 2px solid #efefef !important;
-      }
-      &.bk-plot-right {
-        border-left: 2px solid #efefef !important;
-      }
+      border: none;
     }
   }
 }
-.bk-table table tr td {
-  padding: 2px;
-}
 
-.bk-table form table tr td {
-  padding: 2px;
-}
-
-.bk-table form table tr td input {
-  padding: 0;
-}
-
-
-/* freestanding bokeh plot */
-
-.jsp:after, .bk-plot:after, .bk-canvas-wrapper:after, .bk-sidebar:after, .bk-box:after {
+.bk-plot:after, .bk-canvas-wrapper:after, .bk-sidebar:after, .bk-box:after {
   content: " ";
   height: 0;
   display: block;
@@ -94,7 +54,14 @@
 }
 
 .bk-logo-notebook {
-  margin-right: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.bk-banner > span {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .bk-logo-small {
@@ -217,13 +184,15 @@
 }
 
 .bk-button-bar-list .bk-toolbar-button .bk-btn-icon {
-  height: 16px;
-  margin: 0 !important;
-  border: none !important;
-  background: transparent !important;
   display: block;
   position: relative;
-  z-index: 10;
+  height: 16px;
+  margin: 0;
+  border: none;
+  background-size: contain;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .bk-button-bar-list .bk-toolbar-button span.tip {
@@ -368,13 +337,13 @@
 }
 
 /* css specific to toolbar orientation (left, right)*/
-.bk-plot-left.bk-toolbar-active{
+.bk-toolbar-left.bk-toolbar-active{
   border-right: 2px solid #e5e5e5;
 }
-.bk-plot-right.bk-toolbar-active {
+.bk-toolbar-right.bk-toolbar-active {
   border-left: 2px solid #e5e5e5;
 }
-.bk-plot-left.bk-toolbar-active, .bk-plot-right.bk-toolbar-active {
+.bk-toolbar-left.bk-toolbar-active, .bk-toolbar-right.bk-toolbar-active {
   display: block;
   margin: 45px 0 0 0;
   .bk-logo  {
@@ -461,19 +430,6 @@
     }
   }
 }
-
-.bk-crossfilter-selector {
-  list-style-type: none;
-  -webkit-padding-start: 0
-}
-
-.bk-crossfilter-selector li {
-  display: inline;
-  margin-bottom: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
 
 .bk-bs-caret {
   color: @buttonColor;

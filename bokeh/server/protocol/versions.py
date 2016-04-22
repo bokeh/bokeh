@@ -53,7 +53,6 @@ spec = {
         ("ERROR", 1),
         ('SERVER-INFO-REPLY', 1),
         ('SERVER-INFO-REQ', 1),
-        ("WORKING", 1),
         ('PULL-DOC-REQ', 1),
         ('PULL-DOC-REPLY', 1),
         ('PUSH-DOC', 1),

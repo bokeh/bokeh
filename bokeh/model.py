@@ -51,8 +51,13 @@ class Viewable(MetaHasProps):
     @classmethod
     def _preload_models(cls):
         from . import models; models
-        from .crossfilter import models as crossfilter_models; crossfilter_models
-        from .charts import Chart; Chart
+        from .plotting import Figure; Figure
+        try:
+            from .charts import Chart; Chart
+        except RuntimeError:
+            # this would occur if pandas is not installed but then we can't
+            # use the bokeh.charts interface anyway
+            pass
 
     @classmethod
     def get_class(cls, view_model_name):
@@ -94,17 +99,24 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     def document(self):
         return self._document
 
-    def trigger(self, attr, old, new):
-        dirty = { 'count' : 0 }
-        def mark_dirty(obj):
-            dirty['count'] += 1
-        if self._document is not None:
-            self._visit_value_and_its_immediate_references(new, mark_dirty)
-            self._visit_value_and_its_immediate_references(old, mark_dirty)
-            if dirty['count'] > 0:
-                self._document._invalidate_all_models()
+    def trigger(self, attr, old, new, hint=None):
+        # The explicit assumption here is that hinted events do not
+        # need to go through all the same invalidation steps. Currently
+        # as of Bokeh 0.11.1 the only hinted event is ColumnsStreamedEvent.
+        # This may need to be further refined in the future, if the
+        # assumption does not hold for future hinted events (e.g. the hint
+        # could specify explicitly whether to do normal invalidation or not)
+        if not hint:
+            dirty = { 'count' : 0 }
+            def mark_dirty(obj):
+                dirty['count'] += 1
+            if self._document is not None:
+                self._visit_value_and_its_immediate_references(new, mark_dirty)
+                self._visit_value_and_its_immediate_references(old, mark_dirty)
+                if dirty['count'] > 0:
+                    self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new)
+        super(Model, self).trigger(attr, old, new, hint)
 
     @property
     def ref(self):
@@ -250,7 +262,21 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 that haven't been changed from the default.
 
         """
-        attrs = self.properties_with_values(include_defaults=include_defaults)
+        all_attrs = self.properties_with_values(include_defaults=include_defaults)
+
+        # If __subtype__ is defined, then this model may introduce properties
+        # that don't exist on __view_model__ in bokehjs. Don't serialize such
+        # properties.
+        subtype = getattr(self.__class__, "__subtype__", None)
+        if subtype is not None and subtype != self.__class__.__view_model__:
+            attrs = {}
+            for attr, value in all_attrs.items():
+                if attr in self.__class__.__dict__:
+                    continue
+                else:
+                    attrs[attr] = value
+        else:
+            attrs = all_attrs
 
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and
@@ -309,11 +335,10 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         """
         json_like = self._to_json_like(include_defaults=include_defaults)
         json_like['id'] = self._id
-        # we sort_keys to simplify the test suite by making the returned
-        # string deterministic. serialize_json "fixes" the JSON from
-        # _to_json_like by converting all types into plain JSON types
-        # (it converts Model into refs, for example).
-        return serialize_json(json_like, sort_keys=True)
+        # serialize_json "fixes" the JSON from _to_json_like by converting
+        # all types into plain JSON types # (it converts Model into refs,
+        # for example).
+        return serialize_json(json_like)
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,

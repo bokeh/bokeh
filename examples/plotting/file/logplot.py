@@ -29,6 +29,6 @@ p.line(x, 10**(x**2), legend="y=10^(x^2)",
 
 p.legend.location = "top_left"
 
-output_file("logplot.html", title="log axis example")
+output_file("logplot.html", title="log plot example")
 
 show(p)  # open a browser

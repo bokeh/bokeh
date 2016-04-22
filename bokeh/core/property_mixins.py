@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .properties import (
-    HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
+    value, HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
 
 class FillProps(HasProps):
     """ Properties to use when performing fill operations while rendering.
@@ -79,11 +79,11 @@ class LineProps(HasProps):
     - ``'bevel'`` |bevel_join|
 
     .. |miter_join| image:: /_images/miter_join.png
-       :height: 20
+       :height: 15
     .. |round_join| image:: /_images/round_join.png
-       :height: 20
+       :height: 15
     .. |bevel_join| image:: /_images/bevel_join.png
-       :height: 20
+       :height: 15
 
     """)
 
@@ -97,11 +97,11 @@ class LineProps(HasProps):
     - ``'square'`` |square_cap|
 
     .. |butt_cap| image:: /_images/butt_cap.png
-       :height: 20
+       :height: 12
     .. |round_cap| image:: /_images/round_cap.png
-       :height: 20
+       :height: 12
     .. |square_cap| image:: /_images/square_cap.png
-       :height: 20
+       :height: 12
 
     """)
 
@@ -132,7 +132,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_font_size = FontSizeSpec("12pt")
+    text_font_size = FontSizeSpec(value("12pt"))
 
     text_font_style = Enum(FontStyle, help="""
     A style to use for rendering text.
@@ -188,5 +188,6 @@ class TextProps(HasProps):
     - ``'bottom'``
     - ``'alphabetic'``
     - ``'hanging'``
+    - ``'ideographic'``
 
     """)

@@ -19,12 +19,12 @@ def _callback_argspec(callback):
     else:
         return getargspec(callback.__call__)
 
-def _check_callback(callback, fargs):
+def _check_callback(callback, fargs, what="Callback functions"):
     '''Bokeh-internal function to check callback signature'''
     argspec = _callback_argspec(callback)
     formatted_args = formatargspec(*argspec)
     margs = ('self',) + fargs
-    error_msg = "Callbacks functions must have signature func(%s), got func%s"
+    error_msg = what + " must have signature func(%s), got func%s"
     defaults_length = len(argspec.defaults) if argspec.defaults else 0
 
     if isinstance(callback, FunctionType):
@@ -83,7 +83,7 @@ class CallbackManager(object):
         for callback in callbacks:
             _callbacks.remove(callback)
 
-    def trigger(self, attr, old, new):
+    def trigger(self, attr, old, new, hint=None):
         ''' Trigger callbacks for ``attr`` on this object.
 
         Args:
@@ -101,7 +101,7 @@ class CallbackManager(object):
                 for callback in callbacks:
                     callback(attr, old, new)
         if hasattr(self, '_document') and self._document is not None:
-            self._document._notify_change(self, attr, old, new)
+            self._document._notify_change(self, attr, old, new, hint)
             self._document._with_self_as_curdoc(invoke)
         else:
             invoke()

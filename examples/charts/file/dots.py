@@ -13,6 +13,6 @@ dots = Dot(data, values='timing', label='interpreter',
            title="Python Interpreter Sampling",
            legend='top_right', width=600)
 
-output_file("dots.html")
+output_file("dots.html", title="dots.py example")
 
 show(dots)

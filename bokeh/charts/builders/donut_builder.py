@@ -1,9 +1,8 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the BoxPlot class which lets you build your BoxPlot plots just passing
+This is the Donut builder which lets you build your Donut plots just passing
 the arguments to the Chart class and calling the proper functions.
-It also add a new chained stacked method.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
@@ -35,9 +34,9 @@ from ...core.properties import String, Instance, Float, Color, Either, List
 #-----------------------------------------------------------------------------
 
 
-def Donut(data, label='index', values=None, xgrid=False,
-          ygrid=False, color=None, agg=None, height=400, width=400,
-          hover_tool=True, hover_text=None, **kw):
+def Donut(data, label='index', values=None,  color=None, agg=None,
+          hover_tool=True, hover_text=None, plot_height=400, plot_width=400,
+          xgrid=False, ygrid=False, **kw):
     """ Create a Donut chart containing one or more layers from table-like data.
 
     Create a donut chart using :class:`DonutBuilder
@@ -48,33 +47,57 @@ def Donut(data, label='index', values=None, xgrid=False,
     array of values.
 
     Args:
-      data (:ref:`userguide_charts_data_types`): the data source for the chart
-      values (str, optional): the values to use for producing the boxplot using
-        table-like input data
-      label (str or list(str), optional): the categorical variable to use for creating
-        separate boxes
-      color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
-        categorical variable or color attribute specification to use for coloring the
-        boxes.
-      **kw:
+        data (:ref:`userguide_charts_data_types`): the data source for the chart
+            label (str or list(str), optional): the categorical variable to use for
+            creating separate boxes
+        values (str, optional): the values to use for producing the boxplot using
+            table-like input data
+        color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+            categorical variable or color attribute specification to use for coloring
+            the wedges
+        agg (str, optional): how the values associated with a wedge should be
+            aggregated hover_tool (bool, optional): whether to show the value of the
+            wedge when hovering
+        hover_text (str, optional): provide an alternative string to use label the
+            value shown with the hover tool
+        **kw:
+
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        :class:`Chart`: includes glyph renderers that generate Boxes and Whiskers
+        :class:`Chart`: includes glyph renderers that generate the wedges the make up
+        the donut(s)
 
     Examples:
 
     .. bokeh-plot::
         :source-position: above
 
-        from bokeh.sampledata.autompg import autompg as df
-        from bokeh.charts import BoxPlot, output_file, show, hplot
+        from bokeh.charts import Donut, show, output_file
+        from bokeh.charts.utils import df_from_json
+        from bokeh.sampledata.olympics2014 import data
 
-        box = BoxPlot(df, values='mpg', label='cyl', title="Auto MPG Box Plot", width=400)
-        box2 = BoxPlot(df, values='mpg', label='cyl', color='cyl',
-                          title="MPG Box Plot by Cylinder Count", width=400)
+        import pandas as pd
 
-        output_file('box.html')
-        show(hplot(box, box2))
+        # utilize utility to make it easy to get json/dict data converted to a dataframe
+        df = df_from_json(data)
+
+        # filter by countries with at least one medal and sort by total medals
+        df = df[df['total'] > 8]
+        df = df.sort_values(by="total", ascending=False)
+        df = pd.melt(df, id_vars=['abbr'],
+                     value_vars=['bronze', 'silver', 'gold'],
+                     value_name='medal_count', var_name='medal')
+
+        # original example
+        d = Donut(df, label=['abbr', 'medal'], values='medal_count',
+                  text_font_size='8pt', hover_text='medal_count')
+
+        output_file("donut.html")
+
+        show(d)
+
     """
 
     kw['label'] = label
@@ -82,8 +105,8 @@ def Donut(data, label='index', values=None, xgrid=False,
     kw['color'] = color
     kw['xgrid'] = xgrid
     kw['ygrid'] = ygrid
-    kw['height'] = height
-    kw['width'] = width
+    kw['plot_height'] = plot_height
+    kw['plot_width'] = plot_width
 
     if agg is not None:
         kw['agg'] = agg

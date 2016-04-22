@@ -1,8 +1,8 @@
 
 .. _bokeh.models:
 
-``bokeh.models`` Interface
-==========================
+``bokeh.models``
+================
 
 One of the central design principals of Bokeh is that, regardless of
 how the plot creation code is spelled in Python (or other languages),
@@ -25,6 +25,7 @@ a serialized version of the model looks like.
    models/formatters
    models/glyphs
    models/grids
+   models/layouts
    models/map_plots
    models/mappers
    models/markers
@@ -41,7 +42,6 @@ a serialized version of the model looks like.
    models/widgets.groups
    models/widgets.icons
    models/widgets.inputs
-   models/widgets.layouts
    models/widgets.markups
    models/widgets.panels
    models/widgets.tables

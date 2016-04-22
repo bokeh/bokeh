@@ -13,8 +13,8 @@ from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
-    LogAxis, PanTool, Plot, PolySelectTool,
-    PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
+    LogAxis, PanTool, PolySelectTool, ContinuousTicker,
+    PreviewSaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime
@@ -216,12 +216,14 @@ _known_tools = {
     "box_zoom": lambda: BoxZoomTool(dimensions=['width', 'height']),
     "xbox_zoom": lambda: BoxZoomTool(dimensions=['width']),
     "ybox_zoom": lambda: BoxZoomTool(dimensions=['height']),
-    "hover": lambda: HoverTool(always_active=True, tooltips=[
+    "hover": lambda: HoverTool(tooltips=[
         ("index", "$index"),
         ("data (x, y)", "($x, $y)"),
         ("canvas (x, y)", "($sx, $sy)"),
     ]),
     "previewsave": lambda: PreviewSaveTool(),
+    "undo": lambda: UndoTool(),
+    "redo": lambda: RedoTool(),
     "reset": lambda: ResetTool(),
     "help": lambda: HelpTool(),
 }
@@ -244,6 +246,36 @@ def _tool_from_string(name):
             matches, text = known_tools, "possible"
 
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
+
+
+def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
+    axiscls = _get_axis_class(axis_type, rng)
+    if axiscls:
+
+        if axiscls is LogAxis:
+            # TODO (bev) this mapper type hinting is ugly
+            if dim == 0:
+                plot.x_mapper_type = 'log'
+            elif dim == 1:
+                plot.y_mapper_type = 'log'
+            else:
+                raise ValueError("received invalid dimension value: %r" % dim)
+
+        # this is so we can get a ticker off the axis, even if we discard it
+        axis = axiscls(plot=plot if axis_location else None)
+
+        if isinstance(axis.ticker, ContinuousTicker):
+            axis.ticker.num_minor_ticks = _get_num_minor_ticks(axiscls, minor_ticks)
+
+        axis_label = axis_label
+        if axis_label:
+            axis.axis_label = axis_label
+
+        grid = Grid(plot=plot, dimension=dim, ticker=axis.ticker); grid
+
+        if axis_location is not None:
+            getattr(plot, axis_location).append(axis)
+
 
 def _process_tools_arg(plot, tools):
     """ Adds tools to the plot object
@@ -289,110 +321,6 @@ def _process_tools_arg(plot, tools):
 
     return tool_objs
 
-def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
-                 x_axis_type="auto", y_axis_type="auto",
-                 x_axis_location="below", y_axis_location="left",
-                 x_minor_ticks='auto', y_minor_ticks='auto',
-                 tools="pan,wheel_zoom,box_zoom,save,resize,reset", **kw):
-    # Accept **kw to absorb other arguments which the actual factory functions
-    # might pass in, but that we don't care about
-
-    plot = Plot()
-    plot.title = kw.pop("title", "Plot")
-
-    plot.toolbar_location = kw.pop("toolbar_location", "above")
-
-    plot.x_range = _get_range(x_range)
-    plot.y_range = _get_range(y_range)
-
-    if plot_width: plot.plot_width = plot_width
-    if plot_height: plot.plot_height = plot_height
-
-    x_axiscls = _get_axis_class(x_axis_type, plot.x_range)
-    if x_axiscls:
-        if x_axiscls is LogAxis:
-            plot.x_mapper_type = 'log'
-        xaxis = x_axiscls(plot=plot)
-        xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
-        axis_label = kw.pop('x_axis_label', None)
-        if axis_label:
-            xaxis.axis_label = axis_label
-        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker); xgrid
-        if x_axis_location == "above":
-            plot.above.append(xaxis)
-        elif x_axis_location == "below":
-            plot.below.append(xaxis)
-
-    y_axiscls = _get_axis_class(y_axis_type, plot.y_range)
-    if y_axiscls:
-        if y_axiscls is LogAxis:
-            plot.y_mapper_type = 'log'
-        yaxis = y_axiscls(plot=plot)
-        yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
-        axis_label = kw.pop('y_axis_label', None)
-        if axis_label:
-            yaxis.axis_label = axis_label
-        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker); ygrid
-        if y_axis_location == "left":
-            plot.left.append(yaxis)
-        elif y_axis_location == "right":
-            plot.right.append(yaxis)
-
-    border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
-    for arg in border_args:
-        if arg in kw:
-            setattr(plot, arg, kw.pop(arg))
-
-    fill_args = ["background_fill_color", "border_fill_color"]
-    for arg in fill_args:
-        if arg in kw:
-            setattr(plot, arg, kw.pop(arg))
-
-    style_arg_prefix = ["title", "outline"]
-    for prefix in style_arg_prefix:
-        for k in list(kw):
-            if k.startswith(prefix):
-                setattr(plot, k, kw.pop(k))
-
-    if 'toolbar_location' in list(kw):
-        plot.toolbar_location = kw.pop('toolbar_location')
-
-    tool_objs = []
-    temp_tool_str = str()
-
-    if isinstance(tools, list):
-        for tool in tools:
-            if isinstance(tool, Tool):
-                tool_objs.append(tool)
-            elif isinstance(tool, string_types):
-                temp_tool_str+=tool + ','
-            else:
-                raise ValueError("tool should be a string or an instance of Tool class")
-        tools = temp_tool_str
-
-    repeated_tools = []
-
-    for tool in re.split(r"\s*,\s*", tools.strip()):
-        # re.split will return empty strings; ignore them.
-        if tool == "":
-            continue
-
-        tool_obj = _tool_from_string(tool)
-        tool_obj.plot = plot
-
-        tool_objs.append(tool_obj)
-
-    plot.tools.extend(tool_objs)
-
-    for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in plot.tools ])):
-        if len(list(group)) > 1:
-            repeated_tools.append(typename)
-
-    if repeated_tools:
-        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
-
-    return plot
-
 class _list_attr_splat(list):
     def __setattr__(self, attr, value):
         for x in self:
@@ -416,7 +344,7 @@ Keyword Args:
 Other Parameters:
     alpha (float) : an alias to set all alpha keyword args at once
     color (Color) : an alias to set all color keyword args at once
-    data_source (ColumnDataSource) : a user supplied data source
+    source (ColumnDataSource) : a user supplied data source
     legend (str) : a legend tag for this glyph
     x_range_name (str) : name an extra range to use for mapping x-coordinates
     y_range_name (str) : name an extra range to use for mapping y-coordinates

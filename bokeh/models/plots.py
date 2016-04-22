@@ -18,6 +18,7 @@ from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
 from ..util.string import nice_join
 from ..core.validation.errors import REQUIRED_RANGE
 
+from .annotations import Annotation
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
@@ -56,7 +57,7 @@ def _select_helper(args, kwargs):
     return selector
 
 class LayoutBox(Model):
-    ''' Represents an **on-cavas** layout.
+    ''' Represents an **on-canvas** layout.
 
     '''
 
@@ -238,6 +239,26 @@ class Plot(Component):
         g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
+
+    def add_annotation(self, annotation, **kwargs):
+        '''Adds new Annotation into the Plot.renderers
+
+        Args:
+            annotation (Annotation) : instance of annotation to add to plot
+        Returns:
+            Annotation
+
+        '''
+        if not isinstance(annotation, Annotation):
+            raise ValueError("'annotation' argument to add_annotation must be Annotation subclass")
+
+        if annotation.plot is not None:
+            raise ValueError("annotation %s to be added already has 'plot' attribute set" % annotation)
+
+        annotation.plot = self
+
+        self.renderers.append(annotation)
+        return annotation
 
     def add_tile(self, tile_source, **kw):
         '''Adds new TileRenderer into the Plot.renderers
@@ -451,8 +472,8 @@ class Plot(Component):
     def background_fill(self):
         warnings.warn(
             """
-            Glyph property 'background_fill' will be deprecated in Bokeh
-            0.12.0. Use 'background_fill_color' instead.
+            Plot property 'background_fill' was deprecated in Bokeh
+            0.11.0 and will be removed. Use 'background_fill_color' instead.
             """)
         return self.background_fill_color
 
@@ -460,8 +481,8 @@ class Plot(Component):
     def background_fill(self, color):
         warnings.warn(
             """
-            Glyph property 'background_fill' will be deprecated in Bokeh
-            0.12.0. Use 'background_fill_color' instead.
+            Plot property 'background_fill' was deprecated in Bokeh
+            0.11.0 and will be removed. Use 'background_fill_color' instead.
             """)
         self.background_fill_color = color
 
@@ -469,8 +490,8 @@ class Plot(Component):
     def border_fill(self):
         warnings.warn(
             """
-            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
-            Use 'border_fill_color' instead.
+            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
+            will be removed. Use 'border_fill_color' instead.
             """)
         return self.border_fill_color
 
@@ -478,8 +499,8 @@ class Plot(Component):
     def border_fill(self, color):
         warnings.warn(
             """
-            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
-            Use 'border_fill_color' instead.
+            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
+            will be removed. Use 'border_fill_color' instead.
             """)
         self.border_fill_color = color
 
@@ -536,7 +557,7 @@ class Plot(Component):
     """)
 
     min_border = Int(50, help="""
-    A convenience property to set all all the ``min_X_border`` properties
+    A convenience property to set all all the ``min_border_X`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
     """)

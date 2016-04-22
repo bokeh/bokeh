@@ -18,14 +18,26 @@ at your command prompt. Then navigate to the URL
 .. _README: https://github.com/bokeh/bokeh/blob/master/examples/app/stocks/README.md
 
 '''
-from functools import lru_cache
+try:
+    from functools import lru_cache
+except ImportError:
+    # Python 2 does stdlib does not have lru_cache so let's just
+    # create a dummy decorator to avoid crashing
+    print ("WARNING: Cache for this example is available on Python 3 only.")
+    def lru_cache():
+        def dec(f):
+            def _(*args, **kws):
+                return f(*args, **kws)
+            return _
+        return dec
+
 from os.path import dirname, join
 
 import pandas as pd
 
 from bokeh.charts import Histogram
-from bokeh.models import ColumnDataSource, GridPlot
-from bokeh.models.widgets import HBox, VBox, PreText, Select
+from bokeh.models import ColumnDataSource, GridPlot, HBox, VBox
+from bokeh.models.widgets import PreText, Select
 from bokeh.plotting import Figure
 
 from bokeh.io import curdoc
@@ -130,7 +142,7 @@ source.on_change('selected', selection_change)
 # set up layout
 stats_box = VBox(stats)
 input_box = VBox(ticker1, ticker2)
-main_row = HBox(input_box, corr, stats_box)
+main_row = HBox(input_box, corr, stats_box, width=1100)
 layout = VBox(main_row, GridPlot(children=[[ts1], [ts2]]))
 
 # initialize

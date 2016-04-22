@@ -12,8 +12,8 @@ from bokeh.util.future import with_metaclass
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool, BoxAnnotation)
-    from bokeh.models.widgets.layouts import VBox
+        BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool)
+    from bokeh.models.layouts import VBox
     from bokeh.models.glyphs import Line
 
     vbox = VBox()
@@ -194,9 +194,9 @@ class TestModel(unittest.TestCase):
                            "foo" : 42,
                            "bar" : "world" },
                          json)
-        self.assertEqual(('{"bar": "world", ' +
-                          '"child": {"id": "%s", "type": "SomeModelToJson"}, ' +
-                          '"foo": 42, "id": "%s", "name": null, "tags": []}') %
+        self.assertEqual(('{"bar":"world",' +
+                          '"child":{"id":"%s","type":"SomeModelToJson"},' +
+                          '"foo":42,"id":"%s","name":null,"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
 

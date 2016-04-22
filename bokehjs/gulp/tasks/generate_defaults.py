@@ -54,7 +54,7 @@ for leaf in leaves(all_tree, model_class):
         if isinstance(default, Model):
             ref = default.ref
             raw_attrs = default._to_json_like(include_defaults=True)
-            attrs = loads(serialize_json(raw_attrs, sort_keys=True))
+            attrs = loads(serialize_json(raw_attrs))
             ref['attributes'] = attrs
             del ref['id'] # there's no way the ID will match coffee
             default = ref
@@ -72,10 +72,9 @@ for leaf_widget in leaves(all_tree, widget_class):
         del all_json[vm_name]
 
 def output_defaults_module(filename, defaults):
-    output = serialize_json(defaults, sort_keys=True, indent=4, separators=[',', ':'])
-    coffee_template = \
-    """
-all_defaults = %s;
+    output = serialize_json(defaults, indent=2)
+    coffee_template = """\
+all_defaults = %s
 
 get_defaults = (name) ->
   if name of all_defaults
@@ -102,10 +101,7 @@ module.exports = {
     print("Wrote %s with %d model classes" % (filename, len(defaults)))
 
 
-output_defaults_module(filename = os.path.join(dest_dir, 'common/defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, 'test_common/defaults/models_defaults.coffee'),
                        defaults = all_json)
-output_defaults_module(filename = os.path.join(dest_dir, 'widget/defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, 'test_common/defaults/widgets_defaults.coffee'),
                        defaults = widgets_json)
-
-
-

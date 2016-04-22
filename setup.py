@@ -18,6 +18,14 @@ from __future__ import print_function
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
 from shutil import copy
+import sys
+
+if 'install' in sys.argv and sys.platform.startswith('win'):
+    # Try use setuptools, so that entry_points is handled, creating a bokeh.exe
+    try:
+        import setuptools
+    except ImportError:
+        pass
 
 try:
     import colorama
@@ -39,6 +47,7 @@ except ImportError:
 
 if 'nightly' in sys.argv:
     from setuptools import setup
+
     sys.argv.remove('nightly')
 
     with open('__conda_version__.txt', 'r') as f:
@@ -168,7 +177,8 @@ def getsitepackages():
                                              "dist-packages"))
             sitedirs.append(os.path.join(prefix, "lib", "dist-python"))
         else:
-            sitedirs = [prefix, os.path.join(prefix, "lib", "site-packages")]
+            sitedirs = [os.path.join(prefix, "lib", "site-packages"), prefix]
+
         if sys.platform == 'darwin':
             # for framework builds *only* we add the standard Apple
             # locations. Currently only per-user, but /Library and
@@ -190,21 +200,32 @@ def getsitepackages():
 
 
 def check_remove_bokeh_install(site_packages):
-    bokeh_path = join(site_packages, "bokeh")
-    if not (exists(bokeh_path) and isdir(bokeh_path)):
+    old_bokeh_files = []
+    for d in os.listdir(site_packages):
+        bokeh_path = join(site_packages, d)
+        if not (d == 'bokeh' or d.startswith('bokeh-')):
+            continue
+        old_bokeh_files.append(bokeh_path)
+
+    if len(old_bokeh_files) == 0:
         return
-    prompt = "Found existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
-    val = input(prompt)
+
+    print("Found old Bokeh files:")
+    for path in old_bokeh_files:
+        print(" - %s" % path)
+    val = input("Remove %s? [y|N] " % ("it" if len(old_bokeh_files)==1 else "them",))
     if val == "y":
-        print("Removing old bokeh install...", end=" ")
-        try:
-            shutil.rmtree(bokeh_path)
-            print("Done")
-        except (IOError, OSError):
-            print("Unable to remove old bokeh at %s, exiting" % bokeh_path)
-            sys.exit(-1)
+        print("Removing old Bokeh files...", end=" ")
+        for path in old_bokeh_files:
+            try:
+                if isdir(path): shutil.rmtree(path)
+                else: os.remove(path)
+            except (IOError, OSError) as e:
+                print(bright(red("\nUnable to remove old Bokeh file at %s, exiting" % path)) + " [reason: %s]" % e)
+                sys.exit(-1)
+        print("Done")
     else:
-        print("Not removing old bokeh install")
+        print(bright(red("Old Bokeh files not removed, exiting.")))
         sys.exit(1)
 
 
@@ -213,7 +234,7 @@ def remove_bokeh_pth(path_file):
         try:
             os.remove(path_file)
         except (IOError, OSError):
-            print("Unable to remove old path file at %s, exiting" % path_file)
+            print(bright(red("Unable to remove old path file at %s, exiting" % path_file)))
             sys.exit(-1)
         return True
     return False
@@ -310,6 +331,9 @@ def build_js():
         print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
         print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
         print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
+
+        print("  - bokeh-compiler.js     : %6.1f KB" % size("js", "bokeh-compiler.js"))
+        print("  - bokeh-compiler.min.js : %6.1f KB" % size("js", "bokeh-compiler.min.js"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -398,6 +422,16 @@ def parse_jsargs():
 
     return jsbuild
 
+
+def package_tree(pkgroot):
+    """ Get list of packages by walking the directory structure and
+    including all dirs that have an __init__.py or are named test.
+    """
+    subdirs = [os.path.relpath(i[0], ROOT).replace(os.path.sep, '.')
+               for i in os.walk(os.path.join(ROOT, pkgroot))
+               if '__init__.py' in i[2]]
+    return subdirs
+
 # -----------------------------------------------------------------------------
 # Main script
 # -----------------------------------------------------------------------------
@@ -469,6 +503,11 @@ path = abspath(dirname(__file__))
 
 print()
 if 'develop' in sys.argv:
+    # Note that setuptools supports 'develop' too, but we roll our own implementation
+    # that removes any existing Bokeh installation, and works in virtualenv
+    if exists('bokeh/__conda_version__.py'):
+        print(bright(red("ERROR:")) + " Detected a __conda_version__.py file, exiting")
+        sys.exit(1)
     check_remove_bokeh_install(site_packages)
     with open(path_file, "w+") as f:
         f.write(path)
@@ -521,7 +560,7 @@ if sys.version_info[:2] == (2, 7):
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
-# Horrible hack: workaround to allow creation of bdist_whell on pip installation
+# Horrible hack: workaround to allow creation of bdist_wheel on pip installation
 # Why, for God's sake, is pip forcing the generation of wheels when installing a package?
 
 try:
@@ -533,58 +572,25 @@ except ImportError as e:
 if bdist_wheel is not None:
     _cmdclass["bdist_wheel"] = bdist_wheel
 
+# Note on scripts and entry points. The 'scripts' value is handled by
+# distutils but does not provide an .exe, making it not very useful on
+# Windows. The 'entry_points' value is handled only if setuptools is
+# used, and does make an .exe. Note that in our conda recipe, we
+# seperately define an entry point.
+
 setup(
     name='bokeh',
     version=_version,
     cmdclass=_cmdclass,
-    packages=[
-        'bokeh',
-        'bokeh.application',
-        'bokeh.application.tests',
-        'bokeh.application.handlers',
-        'bokeh.application.handlers.tests',
-        'bokeh.models',
-        'bokeh.models.tests',
-        'bokeh.models.widgets',
-        'bokeh.charts',
-        'bokeh.charts.builders',
-        'bokeh.charts.builders.tests',
-        'bokeh.charts.tests',
-        'bokeh.client',
-        'bokeh.command',
-        'bokeh.command.tests',
-        'bokeh.command.subcommands',
-        'bokeh.command.subcommands.tests',
-        'bokeh.core',
-        'bokeh.core.compat',
-        'bokeh.core.compat.mplexporter',
-        'bokeh.core.compat.mplexporter.renderers',
-        'bokeh.core.tests',
-        'bokeh.core.validation',
-        'bokeh.crossfilter',
-        'bokeh.plotting',
-        'bokeh.plotting.tests',
-        'bokeh.sampledata',
-        'bokeh.server',
-        'bokeh.server.protocol',
-        'bokeh.server.protocol.messages',
-        'bokeh.server.protocol.messages.tests',
-        'bokeh.server.protocol.tests',
-        'bokeh.server.tests',
-        'bokeh.server.views',
-        'bokeh.sphinxext',
-        'bokeh.themes',
-        'bokeh.tests',
-        'bokeh.util',
-        'bokeh.util.tests',
-    ],
+    packages=package_tree('bokeh'),
     package_data={'bokeh': package_data},
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=['bin/bokeh'],
+    scripts=['bin/bokeh', 'bin/bokeh-server'],
+    entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     zip_safe=False,
     install_requires=REQUIRES
 )

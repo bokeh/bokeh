@@ -47,6 +47,6 @@ for comb in combinations:
 
     p.circle(x, y, line_width=7, size=50, **options)
 
-output_file('properties_alpha.html')
+output_file('properties_alpha.html', title="properties_alpha.py example")
 
 show(p)

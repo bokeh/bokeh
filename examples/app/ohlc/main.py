@@ -1,8 +1,8 @@
-from numpy import asarray, cumprod, convolve, exp, ones, nan
+from numpy import asarray, cumprod, convolve, exp, ones
 from numpy.random import lognormal, gamma, uniform
 
 from bokeh.models import ColumnDataSource, Slider, VBox, HBox, Select, GridPlot
-from bokeh.plotting import ColumnDataSource, curdoc, Figure
+from bokeh.plotting import curdoc, Figure
 from bokeh.driving import count
 
 BUFSIZE = 200
@@ -16,6 +16,7 @@ source = ColumnDataSource(dict(
 p = Figure(plot_height=600, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None)
 p.x_range.follow = "end"
 p.x_range.follow_interval = 100
+p.x_range.range_padding = 0
 
 p.line(x='time', y='average', alpha=0.2, line_width=3, color='navy', source=source)
 p.line(x='time', y='ma', alpha=0.8, line_width=2, color='orange', source=source)
@@ -31,7 +32,7 @@ mean = Slider(title="mean", value=0, start=-0.01, end=0.01, step=0.001)
 stddev = Slider(title="stddev", value=0.04, start=0.01, end=0.1, step=0.01)
 mavg = Select(value=MA12, options=[MA12, MA26, EMA12, EMA26])
 
-curdoc().add_root(VBox(HBox(mean, stddev, mavg), GridPlot(children=[[p], [p2]])))
+curdoc().add_root(VBox(HBox(mean, stddev, mavg, width=800), GridPlot(children=[[p], [p2]])))
 
 def _create_prices(t):
     last_average = 100 if t==0 else source.data['average'][-1]
@@ -57,38 +58,41 @@ def _ema(prices, days=10):
     # The 0.8647 normalizes out that we stop the EMA after a finite number of terms
     return convolve(prices[-days:], kernel, mode="valid") / (0.8647)
 
-def _buf(name):
-    return source.data[name][-BUFSIZE:]
 @count()
 def update(t):
     open, high, low, close, average = _create_prices(t)
     color = "green" if open < close else "red"
 
-    data = dict()
-    data['time']    = _buf('time') + [t]
-    data['open']    = _buf('open') + [open]
-    data['high']    = _buf('high') + [high]
-    data['low']     = _buf('low') + [low]
-    data['close']   = _buf('close') + [close]
-    data['average'] = _buf('average') + [average]
-    data['color']   = _buf('color') + [color]
+    new_data = dict(
+        time=[t],
+        open=[open],
+        high=[high],
+        low=[low],
+        close=[close],
+        average=[average],
+        color=[color],
+    )
 
-    ma12 = _moving_avg(data['close'][-12:], 12)[0]
-    ma26 = _moving_avg(data['close'][-26:], 26)[0]
-    ema12 = _ema(data['close'][-12:], 12)[0]
-    ema26 = _ema(data['close'][-26:], 26)[0]
-    if   mavg.value == MA12:  data['ma'] = _buf('ma') + [ma12]
-    elif mavg.value == MA26:  data['ma'] = _buf('ma') + [ma26]
-    elif mavg.value == EMA12: data['ma'] = _buf('ma') + [ema12]
-    elif mavg.value == EMA26: data['ma'] = _buf('ma') + [ema26]
+    close = source.data['close'] + [close]
+    ma12 = _moving_avg(close[-12:], 12)[0]
+    ma26 = _moving_avg(close[-26:], 26)[0]
+    ema12 = _ema(close[-12:], 12)[0]
+    ema26 = _ema(close[-26:], 26)[0]
+
+    if   mavg.value == MA12:  new_data['ma'] = [ma12]
+    elif mavg.value == MA26:  new_data['ma'] = [ma26]
+    elif mavg.value == EMA12: new_data['ma'] = [ema12]
+    elif mavg.value == EMA26: new_data['ma'] = [ema26]
 
     macd = ema12 - ema26
-    data['macd'] = _buf('macd') + [macd]
-    macd9 = _ema(data['macd'][-26:], 9)[0]
-    data['macd9'] = _buf('macd9') + [macd9]
-    macdh = macd - macd9
-    data['macdh'] = _buf('macdh') + [macdh]
+    new_data['macd'] = [macd]
 
-    source.data = data
+    macd_series = source.data['macd'] + [macd]
+    macd9 = _ema(macd_series[-26:], 9)[0]
+    new_data['macd9'] = [macd9]
 
-curdoc().add_periodic_callback(update, 100)
+    new_data['macdh'] = [macd - macd9]
+
+    source.stream(new_data, 300)
+
+curdoc().add_periodic_callback(update, 50)

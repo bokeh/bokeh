@@ -16,6 +16,7 @@ module.exports = {
   buildDir:
     all: BUILD_DIR
     js: JS_BUILD_DIR
+    jsTree: path.join(JS_BUILD_DIR, "tree")
     coffee: COFFEE_BUILD_DIR
     css: CSS_BUILD_DIR
   serverDir:
@@ -34,6 +35,11 @@ module.exports = {
         full: "bokeh-widgets.js"
         fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js")
         minified: "bokeh-widgets.min.js"
+    compiler:
+      destination:
+        full: "bokeh-compiler.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-compiler.js")
+        minified: "bokeh-compiler.min.js"
     sources: [
         "./src/coffee/main.coffee"
         "./src/coffee/widget/main.coffee"

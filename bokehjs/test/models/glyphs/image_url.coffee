@@ -1,0 +1,17 @@
+{expect} = require "chai"
+utils = require "../../utils"
+
+ImageURL = utils.require("models/glyphs/image_url").Model
+
+describe "image_url renderer", ->
+  describe "default creation", ->
+    r = new ImageURL()
+
+    it "should have global_alpha=1.0", ->
+      expect(r.get('global_alpha')).to.be.equal 1.0
+
+    it "should have retry_attempts=0", ->
+      expect(r.get('retry_attempts')).to.be.equal 0
+
+    it "should have retry_timeout=0", ->
+      expect(r.get('retry_timeout')).to.be.equal 0

@@ -21,14 +21,19 @@ class DateGapTickFormatter(TickFormatter):
 
     __implementation__ = """
         _ = require "underscore"
-        HasProperties = require "common/has_properties"
+        Model = require "model"
+        p = require "core/properties"
 
-        class DateGapTickFormatter extends HasProperties
+        class DateGapTickFormatter extends Model
           type: 'DateGapTickFormatter'
 
-          format: (ticks) ->
+          doFormat: (ticks) ->
             date_labels = @get("date_labels")
             return (date_labels[tick] ? "" for tick in ticks)
+
+          @define {
+            date_labels: [ p.Any ]
+          }
 
         module.exports =
           Model: DateGapTickFormatter

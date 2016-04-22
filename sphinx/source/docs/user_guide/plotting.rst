@@ -49,8 +49,9 @@ example plots for all of them by clicking on entries in the list below:
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-screen units), and ``angle`` (radians by default). Additionally, |circle| has
-a ``radius`` property that can be used to specify data-space units.
+:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by 
+default). Additionally, |circle| has a ``radius`` property that can be used to 
+specify :ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
 
@@ -161,7 +162,7 @@ oval shapes:
 Images
 ~~~~~~
 
-You can dipslay images on Bokeh plots using the |image|, |image_rgba|, and
+You can display images on Bokeh plots using the |image|, |image_rgba|, and
 |image_url| glyph methods.
 
 The first example here shows how to display images in Bokeh plots from
@@ -189,9 +190,10 @@ The |segment| function accepts start points ``x0``, ``y0`` and end points
     :source-position: above
 
 The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in screen units) and an ``angle``. The default ``angle_units`` are ``"rad"``
-but can also be changed to ``"deg"``. To have an "infinite" ray, that always
-extends to the edge of the plot, specify ``0`` for the length:
+(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default 
+``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an 
+"infinite" ray, that always extends to the edge of the plot, specify ``0`` for 
+the length:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ray.py
     :source-position: above
@@ -204,7 +206,7 @@ Wedges and Arcs
 To draw a simple line arc, Bokeh provides the |arc| glyph method, which
 accepts ``radius``, ``start_angle``, and ``end_angle`` to determine position.
 Additionally, the ``direction`` property determines whether to render
-clockwise (``"clocl"``) or anti-clockwise (``"anticlock"``) between the start
+clockwise (``"clock"``) or anti-clockwise (``"anticlock"``) between the start
 and end angles.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arcs.py
@@ -234,8 +236,8 @@ Specialized Curves
 ~~~~~~~~~~~~~~~~~~
 
 Bokeh also provides |quadratic| and |bezier| glyph methods for drawing
-parameterized quardratic and cubic curves. These are somewhat uncommon,
-please refer to the reference documentation linked above for details.
+parameterized quadratic and cubic curves. These are somewhat uncommon;
+please refer to the :ref:`reference documentation <bokeh.plotting>` for details.
 
 .. _userguide_plotting_multiple_glyphs:
 
@@ -273,6 +275,9 @@ Below is a an example that shows both methods of setting the range:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_figure_range.py
     :source-position: above
+
+Ranges can also accept a min and max property that allow you to specify the
+edges of the plot that you do not want the user to be able to pan/zoom beyond.
 
 .. _userguide_plotting_axis_types:
 
@@ -324,7 +329,7 @@ for the value of either of these parameters.
 Log Scale Axes
 ~~~~~~~~~~~~~~
 
-When dealing with data that grows quicks (e.g., exponentially), it is often
+When dealing with data that grows quick (e.g., exponentially), it is often
 desired to plot one axis on a log scale. Another use-scenario involves
 fitting data to a power law, in which case is it desired to plot with both
 axes on a log scale.
@@ -387,6 +392,17 @@ left or top) default will extend the annotation to the edge of the plot area.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
     :source-position: above
 
+.. _userguide_plotting_labels:
+
+Labels
+~~~~~~
+
+Labels are text elements that can be used to annotate either glyphs or plot
+regions.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_label.py
+    :source-position: above
+
 .. _userguide_plotting_spans:
 
 Spans
@@ -402,38 +418,38 @@ extend to the edge of the plot area.
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
-.. |annular_wedge|     replace:: :func:`~bokeh.plotting.Figure.annular_wedge`
-.. |annulus|           replace:: :func:`~bokeh.plotting.Figure.annulus`
-.. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
-.. |asterisk|          replace:: :func:`~bokeh.plotting.Figure.asterisk`
-.. |bezier|            replace:: :func:`~bokeh.plotting.Figure.bezier`
-.. |circle|            replace:: :func:`~bokeh.plotting.Figure.circle`
-.. |circle_cross|      replace:: :func:`~bokeh.plotting.Figure.circle_cross`
-.. |circle_x|          replace:: :func:`~bokeh.plotting.Figure.circle_x`
-.. |cross|             replace:: :func:`~bokeh.plotting.Figure.cross`
-.. |diamond|           replace:: :func:`~bokeh.plotting.Figure.diamond`
-.. |diamond_cross|     replace:: :func:`~bokeh.plotting.Figure.diamond_cross`
-.. |inverted_triangle| replace:: :func:`~bokeh.plotting.Figure.inverted_triangle`
-.. |image|             replace:: :func:`~bokeh.plotting.Figure.image`
-.. |image_rgba|        replace:: :func:`~bokeh.plotting.Figure.image_rgba`
-.. |image_url|         replace:: :func:`~bokeh.plotting.Figure.image_url`
-.. |line|              replace:: :func:`~bokeh.plotting.Figure.line`
-.. |multi_line|        replace:: :func:`~bokeh.plotting.Figure.multi_line`
-.. |oval|              replace:: :func:`~bokeh.plotting.Figure.oval`
-.. |patch|             replace:: :func:`~bokeh.plotting.Figure.patch`
-.. |patches|           replace:: :func:`~bokeh.plotting.Figure.patches`
-.. |quad|              replace:: :func:`~bokeh.plotting.Figure.quad`
-.. |quadratic|         replace:: :func:`~bokeh.plotting.Figure.quadratic`
-.. |ray|               replace:: :func:`~bokeh.plotting.Figure.ray`
-.. |rect|              replace:: :func:`~bokeh.plotting.Figure.rect`
-.. |segment|           replace:: :func:`~bokeh.plotting.Figure.segment`
-.. |square|            replace:: :func:`~bokeh.plotting.Figure.square`
-.. |square_cross|      replace:: :func:`~bokeh.plotting.Figure.square_cross`
-.. |square_x|          replace:: :func:`~bokeh.plotting.Figure.square_x`
-.. |triangle|          replace:: :func:`~bokeh.plotting.Figure.triangle`
-.. |wedge|             replace:: :func:`~bokeh.plotting.Figure.wedge`
-.. |x|                 replace:: :func:`~bokeh.plotting.Figure.x`
+.. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.Figure.annular_wedge`
+.. |annulus|           replace:: :func:`~bokeh.plotting.figure.Figure.annulus`
+.. |arc|               replace:: :func:`~bokeh.plotting.figure.Figure.arc`
+.. |asterisk|          replace:: :func:`~bokeh.plotting.figure.Figure.asterisk`
+.. |bezier|            replace:: :func:`~bokeh.plotting.figure.Figure.bezier`
+.. |circle|            replace:: :func:`~bokeh.plotting.figure.Figure.circle`
+.. |circle_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.circle_cross`
+.. |circle_x|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_x`
+.. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
+.. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
+.. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+.. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
+.. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
+.. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`
+.. |image_url|         replace:: :func:`~bokeh.plotting.figure.Figure.image_url`
+.. |line|              replace:: :func:`~bokeh.plotting.figure.Figure.line`
+.. |multi_line|        replace:: :func:`~bokeh.plotting.figure.Figure.multi_line`
+.. |oval|              replace:: :func:`~bokeh.plotting.figure.Figure.oval`
+.. |patch|             replace:: :func:`~bokeh.plotting.figure.Figure.patch`
+.. |patches|           replace:: :func:`~bokeh.plotting.figure.Figure.patches`
+.. |quad|              replace:: :func:`~bokeh.plotting.figure.Figure.quad`
+.. |quadratic|         replace:: :func:`~bokeh.plotting.figure.Figure.quadratic`
+.. |ray|               replace:: :func:`~bokeh.plotting.figure.Figure.ray`
+.. |rect|              replace:: :func:`~bokeh.plotting.figure.Figure.rect`
+.. |segment|           replace:: :func:`~bokeh.plotting.figure.Figure.segment`
+.. |square|            replace:: :func:`~bokeh.plotting.figure.Figure.square`
+.. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
+.. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
+.. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
+.. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
+.. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`

@@ -8,14 +8,20 @@
             }
 
             var m = cache[name] = {exports: {}};
-            modules[name][0].call(m.exports, function(x) {
+
+            function moduleRequire(x) {
                 var id = modules[name][1][x];
                 return newRequire(id ? id : x);
-            }, m, m.exports, outer, modules, cache, entry);
+            }
+            moduleRequire.modules = newRequire.modules;
+
+            modules[name][0].call(m.exports, moduleRequire, m, m.exports, outer, modules, cache, entry);
         }
 
         return cache[name].exports;
     }
+
+    newRequire.modules = modules;
 
     var lastEntryResult = null;
 

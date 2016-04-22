@@ -56,6 +56,11 @@ class patch_doc_1(Message):
                     else:
                         if patch_new == event.serializable_new:
                             return True
+                elif event_json['kind'] == 'ColumnsStreamed' and \
+                   event_json['column_source']['id'] == event.hint.column_source._id and \
+                   event_json['data'] == event.hint.data and \
+                   event_json['rollover'] == event.hint.rollover:
+                    return True
         elif isinstance(event, RootAddedEvent):
             for event_json in self.content['events']:
                 if event_json['kind'] == 'RootAdded' and \

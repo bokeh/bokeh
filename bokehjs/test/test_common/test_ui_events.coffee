@@ -4,7 +4,7 @@ cheerio = require 'cheerio'
 sinon = require 'sinon'
 
 ui_events = utils.require "common/ui_events"
-scroll = utils.require "tool/gestures/wheel_zoom_tool"
+scroll = utils.require "models/tools/gestures/wheel_zoom_tool"
 # Stub out _hammer_element as not used in testing
 sinon.stub(ui_events.prototype, "_hammer_element")
 

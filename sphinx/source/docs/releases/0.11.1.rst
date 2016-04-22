@@ -1,0 +1,36 @@
+0.11.1 (Feb 2016)
+=================
+
+This release was focused on providing bug fixes, small features, and
+documentation improvements from the Jan 2016 0.11.0 release. Highlights
+include:
+
+* settings and documentation for Bokeh server behind an SSL terminated proxy
+* bugfixes:
+
+  - MultiSelect works
+  - Oval legend renders correctly
+  - Plot title orientation setting works
+  - Annulus glyph works on IE/Edge
+
+* features:
+
+  - preview of new streaming API in OHLC demo
+  - undo/redo tool add, reset tool now resets plot size
+  - "bokeh static" and "bokeh sampledata" commands
+  - can now create Bokeh apps directly from Jupyter Notebooks
+  - headers and content type now configurable on AjaxDataSource
+
+Additionally some internal work has started to refactor and clean up BokehJS
+to bring the class and file structure into closer alignment with the Bokeh
+python library.
+
+Migration notes:
+
+* Range update callbacks now return the range object as cb_obj (not the plot)
+* Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to
+  bokeh.models.layouts, but continue to be importable from bokeh.models
+* BlazeDataSource has been removed; it will be maintained by the Blaze team
+  in the future.
+* The broken BokehJS API has been removed. We are actively seeking a
+  champion/maintainer for a new BokehJS API.

@@ -6,7 +6,7 @@ from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import ImageURL
 from bokeh.plotting import show
 
-url = "http://bokeh.pydata.org/en/latest/_static/bokeh-transparent.png"
+url = "http://bokeh.pydata.org/en/latest/_static/images/logo.png"
 N = 5
 
 source = ColumnDataSource(dict(

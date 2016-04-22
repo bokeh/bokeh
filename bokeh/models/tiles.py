@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from ..model import Model
 
-from ..core.properties import (Any, Dict, Float, String, Int, Bool)
+from ..core.properties import Any, Dict, Float, String, Int, Bool, Override
 
 class TileSource(Model):
     """ A base class for all tile source types. ``TileSource`` is
@@ -40,27 +40,38 @@ class TileSource(Model):
     Data provider attribution content. This can include HTML content.
     """)
 
+    x_origin_offset = Float(help="""
+    x offset in plot coordinates
+    """)
+
+    y_origin_offset = Float(help="""
+    y offset in plot coordinates
+    """)
+
+    initial_resolution = Float(help="""
+    resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
+    """)
+
 class MercatorTileSource(TileSource):
     """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
     """
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
-    x_origin_offset = Float(default=20037508.34, help="""
-    x offset in plot coordinates
-    """)
+    x_origin_offset = Override(default=20037508.34)
 
-    y_origin_offset = Float(default=20037508.34, help="""
-    y offset in plot coordinates
-    """)
+    y_origin_offset = Override(default=20037508.34)
 
-    initial_resolution = Float(default=156543.03392804097, help="""
-    resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
+    initial_resolution = Override(default=156543.03392804097)
+
+    wrap_around = Bool(default=True, help="""
+    Enables continuous horizontal panning by wrapping the x-axis based on bounds of map.
+    Note that axis coordinates are not wrapped. To toggle axis label visibility, use ``plot.axis.visible = False``.
     """)
 
 class TMSTileSource(MercatorTileSource):
     """
-    The TMSTileSource contains tile config info and provides urls for tiles based on a templated url (ex. http://your.tms.server.host/{Z}/{X}/{Y}.png).
+    The TMSTileSource contains tile config info and provides urls for tiles based on a templated url e.g. ``http://your.tms.server.host/{Z}/{X}/{Y}.png``.
     The defining feature of TMS is the tile-origin in located at the bottom-left.
 
     The TMSTileSource can also be helpful in implementing tile renderers for custom tile sets, including non-spatial datasets.
@@ -71,25 +82,22 @@ class WMTSTileSource(MercatorTileSource):
     """
     The ``WMTSTileSource`` behaves much like ``TMSTileSource`` but has its tile-origin in the top-left.
     This is the most common used tile source for web mapping applications.
-    Such companies as Google, MapQuest, Stamen, Esri, and OpenStreetMap provide service which use the WMTS specification.
-
-    Example url: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png
+    Such companies as Google, MapQuest, Stamen, Esri, and OpenStreetMap provide service which use the WMTS specification
+    e.g. ``http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png``.
     """
     pass
 
 class QUADKEYTileSource(MercatorTileSource):
     """
-    The QUADKEYTileSource has the same tile origin as the WMTSTileSource but requests tiles using a `quadkey` argument instead of X,Y,Z.
-
-    Example url: http://your.quadkey.tile.host/{Q}.png
+    The QUADKEYTileSource has the same tile origin as the WMTSTileSource but requests tiles using a `quadkey` argument instead of X, Y, Z
+    e.g. ``http://your.quadkey.tile.host/{Q}.png``
     """
     pass
 
 class BBoxTileSource(MercatorTileSource):
     """
-    The BBoxTileSource has the same default tile origin as the WMTSTileSource but requested tiles use a {XMIN}, {YMIN}, {XMAX}, {YMAX}.
-
-    Example url: http://your.custom.tile.serivce?bbox={XMIN},{YMIN},{XMAX},{YMAX}
+    The BBoxTileSource has the same default tile origin as the WMTSTileSource but requested tiles use a ``{XMIN}``, ``{YMIN}``,
+    ``{XMAX}``, ``{YMAX}`` e.g. ``http://your.custom.tile.service?bbox={XMIN},{YMIN},{XMAX},{YMAX}``.
     """
     use_latlon = Bool(default=False, help="""
     Flag which indicates option to output {XMIN},{YMIN},{XMAX},{YMAX} in meters or latitude and longitude.

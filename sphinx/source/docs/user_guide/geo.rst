@@ -30,9 +30,10 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
     geo_source = GeoJSONDataSource(geojson=geojson)
 
     p = figure()
-    p.circle(alpha=0.9, source=geo_source)
+    p.circle(x='x', y='y', alpha=0.9, source=geo_source)
     output_file("geojson.html")
     show(p)
+
 
 The important thing to know is that behind the scenes, Bokeh converts the
 GeoJSON coordinates into columns called `x` and `y` (`z` where appropriate)
@@ -53,7 +54,7 @@ behave as expected.
 
     ``p.circle(x='x', y='y', size='x', alpha=0.9, source=geo_source)``
 
-    and the x value from your properties will be overriden with the longitude
+    and the x value from your properties will be overridden with the longitude
     values from your geometry coordinates.
 
 
@@ -103,3 +104,21 @@ With the GMapPlot, you can plot any bokeh glyphs over a Google Map.
 .. _github: https://github.com/bokeh/bokeh
 .. _GeoJSON: http://geojson.org
 .. _open issue: https://github.com/bokeh/bokeh/issues/2964
+
+Tile Providers
+------------------
+Bokeh plots can also consume XYZ tile services which use the Web Mercator projection. The module ``bokeh.tile_providers`` contains several pre-configured tile sources with appropriate attribution which can be added to a plot using the `.add_tile()` method.
+
+.. bokeh-plot::
+    :source-position: below
+
+    from bokeh.io import output_file, show
+    from bokeh.plotting import figure
+    from bokeh.tile_providers import STAMEN_TONER
+
+    bound = 20000000 # meters
+    fig = figure(tools='pan, wheel_zoom', x_range=(-bound, bound), y_range=(-bound, bound))
+    fig.axis.visible = False
+    fig.add_tile(STAMEN_TONER)
+    output_file("stamen_toner_plot.html")
+    show(fig)

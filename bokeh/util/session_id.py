@@ -76,18 +76,27 @@ def _signature(base_id, secret_key):
     signer = hmac.new(secret_key, base_id, hashlib.sha256)
     return _base64_encode(signer.digest())
 
-def _get_random_string(length=36,
+def _get_random_string(length=44,
                        allowed_chars='abcdefghijklmnopqrstuvwxyz'
                        'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
                        secret_key=settings.secret_key_bytes()):
     """
     Return a securely generated random string.
-    The default length of 12 with the a-z, A-Z, 0-9 character set returns
-    a 71-bit value. log_2((26+26+10)^12) =~ 71 bits
+    With the a-z, A-Z, 0-9 character set:
+    Length 12 is a 71-bit value. log_2((26+26+10)^12) =~ 71
+    Length 44 is a 261-bit value. log_2((26+26+10)^44) = 261
     """
     secret_key = _ensure_bytes(secret_key)
     _reseed_if_needed(using_sysrandom, secret_key)
     return ''.join(random.choice(allowed_chars) for i in range(length))
+
+def generate_secret_key():
+    """
+    Generate a new securely-generated secret key appropriate
+    for SHA-256 HMAC signatures. This key could be used to
+    sign Bokeh server session IDs for example.
+    """
+    return _get_random_string()
 
 def generate_session_id(secret_key=settings.secret_key_bytes(), signed=settings.sign_sessions()):
     """Generate a random session ID.

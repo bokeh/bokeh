@@ -32,15 +32,19 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
 
+  <!-- Canonical
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="canonical" href="http://bokeh.pydata.org/en/latest/{{ pagename }}{{ file_suffix }}" />
+
 </head>
 <body class="">
 
   <header class="navigation">
     <div class="wrapper">
-      <a href="{{ SITEURL }}/" class="logo">
+      <a href="{{ SITE_URL }}" class="logo">
         <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
       </a>
-      <a href="{{ SITEURL }}/" class="navigation-menu logo-text">Bokeh</a>
+      <a href="{{ SITE_URL }}" class="navigation-menu logo-text">Bokeh</a>
       <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
       <nav>
         <ul id="js-navigation-menu" class="navigation-menu show">
@@ -92,13 +96,13 @@
       {% endfor %}
     </ul>
     <ul>
-      <li><span class="footer-title">Community</span></li>
-      {% for name, link in COMMUNITY %}
+      <li><span class="footer-title">Links</span></li>
+      {% for name, link in LINKS %}
           <li><a href="{{ link }}">{{ name }}</a></li>
       {% endfor %}
     </ul>
     <ul>
-      <li><span class="footer-title">Find Us</span></li>
+      <li><span class="footer-title">Join Us</span></li>
       {% for name, link in SOCIAL %}
           <li><a href="{{ link }}">{{ name }}</a></li>
       {% endfor %}
@@ -117,4 +121,3 @@
 </body>
 
 </html>
-

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import datetime
 import unittest
 import numpy as np
 from copy import copy
@@ -7,7 +8,7 @@ from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override, Include)
+    DistanceSpec, Override, Include, MinMaxBounds)
 
 class Basictest(unittest.TestCase):
 
@@ -1414,6 +1415,35 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
+
+    def test_MinMaxBounds_with_no_datetime(self):
+        prop = MinMaxBounds(accept_datetime=False)
+
+        # Valid values
+        self.assertTrue(prop.is_valid('auto'))
+        self.assertTrue(prop.is_valid(None))
+        self.assertTrue(prop.is_valid((12, 13)))
+        self.assertTrue(prop.is_valid((-32, -13)))
+        self.assertTrue(prop.is_valid((12.1, 13.1)))
+        self.assertTrue(prop.is_valid((None, 13.1)))
+        self.assertTrue(prop.is_valid((-22, None)))
+
+        # Invalid values
+        self.assertFalse(prop.is_valid('string'))
+        self.assertFalse(prop.is_valid(12))
+        self.assertFalse(prop.is_valid(('a', 'b')))
+        self.assertFalse(prop.is_valid((13, 12)))
+        self.assertFalse(prop.is_valid((13.1, 12.2)))
+        self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), datetime.date(2012, 12, 2))))
+
+    def test_MinMaxBounds_with_datetime(self):
+        prop = MinMaxBounds(accept_datetime=True)
+
+        # Valid values
+        self.assertTrue(prop.is_valid((datetime.date(2012, 10, 1), datetime.date(2012, 12, 2))))
+
+        # Invalid values
+        self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), 22)))
 
 def test_HasProps_clone():
     from bokeh.models import Plot

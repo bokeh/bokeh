@@ -96,7 +96,6 @@ classes should alter those!
 
 .bk-slick-row.loading {
   opacity: 0.5;
-  filter: alpha(opacity = 50);
 }
 
 .bk-slick-cell.invalid {

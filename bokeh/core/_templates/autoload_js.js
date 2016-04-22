@@ -20,78 +20,101 @@ calls it with the rendered model.
 :param js_urls: URLs of JS files making up Bokeh library
 :type js_urls: list
 
-:param css_files: CSS files to inject
-:type css_files: list
+:param css_urls: CSS urls to inject
+:type css_urls: list
 
 
 #}
-(function(global) {
-  if (typeof (window._bokeh_onload_callbacks) === "undefined"){
-    window._bokeh_onload_callbacks = [];
-  }
-  function load_libs(js_urls, callback) {
-    window._bokeh_onload_callbacks.push(callback);
-    if (window._bokeh_is_loading > 0) {
-      console.log("Bokeh: BokehJS is being loaded, scheduling callback at", new Date());
-      return null;
+document.addEventListener("DOMContentLoaded", function(event) { 
+  (function(global) {
+    function now() {
+      return new Date();
     }
-    console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", new Date());
-    window._bokeh_is_loading = js_urls.length;
-    for (i = 0; i < js_urls.length; i++) {
-      var url = js_urls[i];
-      var s = document.createElement('script');
-      s.src = url;
-      s.async = false;
-      s.onreadystatechange = s.onload = function() {
-        window._bokeh_is_loading--;
-        if (window._bokeh_is_loading === 0) {
-          console.log("Bokeh: all BokehJS libraries loaded");
-          {%- for file in css_files %}
-          console.log("Bokeh: injecting CSS: {{ file }}");
-          Bokeh.embed.inject_css("{{ file }}");
-          {%- endfor %}
-          window._bokeh_onload_callbacks.forEach(function(callback){callback()});
-          delete window._bokeh_onload_callbacks
-        }
-      };
-      s.onerror = function() {
-        console.warn("failed to load library " + url);
-      };
-      console.log("Bokeh: injecting script tag for BokehJS library: ", url);
-      document.getElementsByTagName("head")[0].appendChild(s);
+
+    if (typeof (window._bokeh_onload_callbacks) === "undefined") {
+      window._bokeh_onload_callbacks = [];
     }
-  };
 
-  var elt = document.getElementById("{{ elementid }}");
-  if(elt==null) {
-    console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
-    return false;
-  }
+    function run_callbacks() {
+      window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
+      delete window._bokeh_onload_callbacks
+      console.info("Bokeh: all callbacks have finished");
+    }
 
-  {% if websocket_url -%}
-  var websocket_url = "{{ websocket_url }}";
-  {%- else %}
-  var websocket_url = null;
-  {%- endif %}
+    function load_libs(js_urls, callback) {
+      window._bokeh_onload_callbacks.push(callback);
+      if (window._bokeh_is_loading > 0) {
+        console.log("Bokeh: BokehJS is being loaded, scheduling callback at", now());
+        return null;
+      }
+      if (js_urls == null || js_urls.length === 0) {
+        run_callbacks();
+        return null;
+      }
+      console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
+      window._bokeh_is_loading = js_urls.length;
+      for (var i = 0; i < js_urls.length; i++) {
+        var url = js_urls[i];
+        var s = document.createElement('script');
+        s.src = url;
+        s.async = false;
+        s.onreadystatechange = s.onload = function() {
+          window._bokeh_is_loading--;
+          if (window._bokeh_is_loading === 0) {
+            console.log("Bokeh: all BokehJS libraries loaded");
+            run_callbacks()
+          }
+        };
+        s.onerror = function() {
+          console.warn("failed to load library " + url);
+        };
+        console.log("Bokeh: injecting script tag for BokehJS library: ", url);
+        document.getElementsByTagName("head")[0].appendChild(s);
+      }
+    };
 
-  // Docs will be set for the static case
-  {%- if docs_json %}
-  var docs_json = {{ docs_json }};
-  {%- else %}
-  var docs_json = {};
-  {%- endif %}
+    {%- if elementid -%}
+    var element = document.getElementById("{{ elementid }}");
+    if (element == null) {
+      console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
+      return false;
+    }
+    {%- endif %}
 
-  var render_items = [{ 'elementid' : "{{ elementid }}",
-                        'sessionid' : "{{ sessionid }}" }];
+    var js_urls = {{ js_urls }};
 
-  if (typeof(window._bokeh_is_loading) !== undefined && window._bokeh_is_loading == 0) {
-    console.log("Bokeh: BokehJS loaded, going straight to plotting");
-    Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
-  } else {
-    load_libs({{ js_urls }}, function() {
-      console.log("Bokeh: BokehJS plotting callback run at", new Date());
-      Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
-    });
-  }
+    var inline_js = [
+      {%- for js in js_raw %}
+      function(Bokeh) {
+        {{ js|indent(6) }}
+      },
+      {% endfor -%}
+      function(Bokeh) {
+        {%- for url in css_urls %}
+        console.log("Bokeh: injecting CSS: {{ url }}");
+        Bokeh.embed.inject_css("{{ url }}");
+        {%- endfor %}
+        {%- for css in css_raw %}
+        console.log("Bokeh: injecting raw CSS");
+        Bokeh.embed.inject_raw_css({{ css }});
+        {%- endfor %}
+      }
+    ];
 
-}(this));
+    function run_inline_js() {
+      for (var i = 0; i < inline_js.length; i++) {
+        inline_js[i](window.Bokeh);
+      }
+    }
+
+    if (window._bokeh_is_loading === 0) {
+      console.log("Bokeh: BokehJS loaded, going straight to plotting");
+      run_inline_js();
+    } else {
+      load_libs(js_urls, function() {
+        console.log("Bokeh: BokehJS plotting callback run at", now());
+        run_inline_js();
+      });
+    }
+  }(this));
+});

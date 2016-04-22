@@ -4,10 +4,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..io import curdoc, curstate
-from ..models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
+from ..models import Axis, Grid, Legend, Plot
 from ..models import glyphs, markers
 from .helpers import (
-    _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks,
+    _list_attr_splat, _get_range, _process_axis_and_grid,
     _process_tools_arg, _glyph_function
 )
 
@@ -46,37 +46,8 @@ class Figure(Plot):
         self.x_range = _get_range(x_range)
         self.y_range = _get_range(y_range)
 
-        x_axiscls = _get_axis_class(x_axis_type, self.x_range)
-        if x_axiscls:
-            if x_axiscls is LogAxis:
-                self.x_mapper_type = 'log'
-            xaxis = x_axiscls(plot=self)
-            if hasattr(xaxis.ticker, 'num_minor_ticks'):
-                xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
-            axis_label = x_axis_label
-            if axis_label:
-                xaxis.axis_label = axis_label
-            xgrid = Grid(plot=self, dimension=0, ticker=xaxis.ticker); xgrid
-            if x_axis_location == "above":
-                self.above.append(xaxis)
-            elif x_axis_location == "below":
-                self.below.append(xaxis)
-
-        y_axiscls = _get_axis_class(y_axis_type, self.y_range)
-        if y_axiscls:
-            if y_axiscls is LogAxis:
-                self.y_mapper_type = 'log'
-            yaxis = y_axiscls(plot=self)
-            if hasattr(yaxis.ticker, 'num_minor_ticks'):
-                yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
-            axis_label = y_axis_label
-            if axis_label:
-                yaxis.axis_label = axis_label
-            ygrid = Grid(plot=self, dimension=1, ticker=yaxis.ticker); ygrid
-            if y_axis_location == "left":
-                self.left.append(yaxis)
-            elif y_axis_location == "right":
-                self.right.append(yaxis)
+        _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range, 0)
+        _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range, 1)
 
         tool_objs = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)

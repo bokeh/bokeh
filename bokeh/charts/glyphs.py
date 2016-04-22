@@ -8,13 +8,13 @@ from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.core.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line, Patches
+from bokeh.models.glyphs import Rect, Segment, Line, Patches, Arc
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color, Override, Any)
+                                   List, Either, Int, Enum, Color, Override, Any, Angle)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import Stat, Quantile, Sum, Min, Max, Bins
+from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
 from .data_source import ChartDataSource
 from .utils import marker_types, generate_patch_base, label_from_index_dict
 
@@ -69,24 +69,39 @@ class XyGlyph(CompositeGlyph):
             if getattr(self, prop) is not None:
                 return [value] * len(getattr(self, prop))
 
-        if self.data is not None:
-            return [None] * len(self.data.index)
-
     @property
     def x_max(self):
-        return max(self.source.data['x_values'])
+        # TODO(fpliger): since CompositeGlyphs are not exposed in general we
+        #                should expect to always have a Series but in case
+        #                it's not we just use the default min/max instead
+        #                of just failing. When/If we end up exposing
+        #                CompositeGlyphs we should consider making this
+        #                more robust (either enforcing data or checking)
+        try:
+            return self.source.data['x_values'].max()
+        except AttributeError:
+            return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return min(self.source.data['x_values'])
+        try:
+            return self.source.data['x_values'].min()
+        except AttributeError:
+            return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return max(self.source.data['y_values'])
+        try:
+            return self.source.data['y_values'].max()
+        except AttributeError:
+            return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return min(self.source.data['y_values'])
+        try:
+            return self.source.data['y_values'].min()
+        except AttributeError:
+            return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
@@ -101,6 +116,8 @@ class PointGlyph(XyGlyph):
                  marker=None, size=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
+        if marker is not None: kwargs['marker'] = marker
+        if size is not None: kwargs['size'] = size
 
         if color:
             line_color = color
@@ -201,7 +218,8 @@ class AreaGlyph(LineGlyph):
     def build_source(self):
         data = super(AreaGlyph, self).build_source()
 
-        x0, y0 = generate_patch_base(data['x_values'], data['y_values'])
+        x0, y0 = generate_patch_base(pd.Series(list(data['x_values'])),
+                                     pd.Series(list(data['y_values'])))
 
         data['x_values'] = [x0]
         data['y_values'] = [y0]
@@ -224,33 +242,32 @@ class AreaGlyph(LineGlyph):
 
         # ToDo: need to handle case of non-aligned indices, see pandas concat
         # ToDo: need to address how to aggregate on an index when required
-        if self.stack:
 
-            # build a list of series
-            areas = []
-            for glyph in glyphs:
-                areas.append(pd.Series(glyph.source.data['y_values'][0],
-                                       index=glyph.source.data['x_values'][0]))
+        # build a list of series
+        areas = []
+        for glyph in glyphs:
+            areas.append(pd.Series(glyph.source.data['y_values'][0],
+                                   index=glyph.source.data['x_values'][0]))
 
-            # concat the list of indexed y values into dataframe
-            df = pd.concat(areas, axis=1)
+        # concat the list of indexed y values into dataframe
+        df = pd.concat(areas, axis=1)
 
-            # calculate stacked values along the rows
-            stacked_df = df.cumsum(axis=1)
+        # calculate stacked values along the rows
+        stacked_df = df.cumsum(axis=1)
 
-            # lower bounds of each area series are diff between stacked and orig values
-            lower_bounds = stacked_df - df
+        # lower bounds of each area series are diff between stacked and orig values
+        lower_bounds = stacked_df - df
 
-            # reverse the df so the patch is drawn in correct order
-            lower_bounds = lower_bounds.iloc[::-1]
+        # reverse the df so the patch is drawn in correct order
+        lower_bounds = lower_bounds.iloc[::-1]
 
-            # concat the upper and lower bounds together
-            stacked_df = pd.concat([stacked_df, lower_bounds])
+        # concat the upper and lower bounds together
+        stacked_df = pd.concat([stacked_df, lower_bounds])
 
-            # update the data in the glyphs
-            for i, glyph in enumerate(glyphs):
-                glyph.source.data['x_values'] = [stacked_df.index.values]
-                glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
+        # update the data in the glyphs
+        for i, glyph in enumerate(glyphs):
+            glyph.source.data['x_values'] = [stacked_df.index.values]
+            glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
 
     def get_nested_extent(self, col, func):
         return [getattr(arr, func)() for arr in self.source.data[col]]
@@ -456,6 +473,7 @@ class AggregateGlyph(NestedCompositeGlyph):
 
     def __init__(self, x_label=None, **kwargs):
 
+        label = kwargs.get('label')
         if x_label is not None:
             kwargs['x_label_value'] = x_label
 
@@ -463,6 +481,8 @@ class AggregateGlyph(NestedCompositeGlyph):
                 x_label = str(x_label)
 
             kwargs['x_label'] = x_label
+        elif label is not None:
+            kwargs['x_label'] = str(label)
 
         super(AggregateGlyph, self).__init__(**kwargs)
 
@@ -494,42 +514,44 @@ class AggregateGlyph(NestedCompositeGlyph):
         labels = [tuple(label.values()) if isinstance(label, dict) else label for label
                   in labels]
         [grouped[label].append(glyph) for label, glyph in zip(labels, glyphs)]
-        return grouped
+        labels = pd.Series(labels).drop_duplicates().values
+        return labels, grouped
 
     def __stack__(self, glyphs):
         """Apply relative shifts to the composite glyphs for stacking."""
-        if self.stack_label is not None:
-            filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'x_label')
+        filtered_glyphs = self.filter_glyphs(glyphs)
+        labels, grouped = self.groupby(filtered_glyphs, 'x_label')
 
-            for index, group in iteritems(grouped):
+        for label in labels:
+            group = grouped[label]
 
-                # separate the negative and positive aggregates into separate groups
-                neg_group = [glyph for glyph in group if glyph.span < 0]
-                pos_group = [glyph for glyph in group if glyph.span >= 0]
+            # separate the negative and positive aggregates into separate groups
+            neg_group = [glyph for glyph in group if glyph.span < 0]
+            pos_group = [glyph for glyph in group if glyph.span >= 0]
 
-                # apply stacking to each group separately
-                for group in [neg_group, pos_group]:
-                    shift = []
-                    for i, glyph in enumerate(group):
-                        # save off the top of each rect's height
-                        shift.append(glyph.span)
-                        if i > 0:
-                            glyph.stack_shift = sum(shift[0:i])
-                            glyph.refresh()
+            # apply stacking to each group separately
+            for group in [neg_group, pos_group]:
+                shift = []
+                for i, glyph in enumerate(group):
+                    # save off the top of each rect's height
+                    shift.append(glyph.span)
+                    if i > 0:
+                        glyph.stack_shift = sum(shift[0:i])
+                        glyph.refresh()
 
     def __dodge__(self, glyphs):
         """Apply relative shifts to the composite glyphs for dodging."""
         if self.dodge_label is not None:
             filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'dodge_label')
+            labels, grouped = self.groupby(filtered_glyphs, 'dodge_label')
 
             # calculate transformations
             step = np.linspace(0, 1.0, len(grouped.keys()) + 1, endpoint=False)
             width = min(0.2, (1. / len(grouped.keys())) ** 1.1)
 
             # set bar attributes and re-aggregate
-            for i, (index, group) in enumerate(iteritems(grouped)):
+            for i, label in enumerate(labels):
+                group = grouped[label]
                 for glyph in group:
                     glyph.dodge_shift = step[i + 1]
                     glyph.width = width
@@ -549,10 +571,10 @@ class Interval(AggregateGlyph):
     """
 
     width = Float(default=0.8)
-    start_agg = Instance(Stat, default=Min(), help="""The stat used to derive the
-        starting point of the composite glyph.""")
-    end_agg = Instance(Stat, default=Max(), help="""The stat used to derive the end
-        point of the composite glyph.""")
+    start_agg = Either(Instance(Stat), Enum(*list(stats.keys())), default=Min(), help="""
+        The stat used to derive the starting point of the composite glyph.""")
+    end_agg = Either(Instance(Stat), Enum(*list(stats.keys())), default=Max(), help="""
+        The stat used to derive the end point of the composite glyph.""")
 
     start = Float(default=0.0)
     end = Float()
@@ -567,11 +589,20 @@ class Interval(AggregateGlyph):
 
     def get_start(self):
         """Get the value for the start of the glyph."""
+        if len(self.values.index) == 1:
+            self.start_agg = None
+            return self.values[0]
+        elif isinstance(self.start_agg, str):
+            self.start_agg = stats[self.start_agg]()
+
         self.start_agg.set_data(self.values)
         return self.start_agg.value
 
     def get_end(self):
         """Get the value for the end of the glyph."""
+        if isinstance(self.end_agg, str):
+            self.end_agg = stats[self.end_agg]()
+
         self.end_agg.set_data(self.values)
         return self.end_agg.value
 
@@ -666,6 +697,7 @@ class BarGlyph(Interval):
 
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
+        kwargs['start_agg'] = None
         super(BarGlyph, self).__init__(label, values, **kwargs)
         self.setup()
 
@@ -814,8 +846,15 @@ class BoxGlyph(AggregateGlyph):
         self.q2 = self.q2_glyph.end
         self.q3 = self.q3_glyph.end
         self.iqr = self.q3 - self.q1
-        self.w0 = self.q1 - (1.5 * self.iqr)
-        self.w1 = self.q3 + (1.5 * self.iqr)
+
+        mx = Max()
+        mx.set_data(self.values)
+
+        mn = Min()
+        mn.set_data(self.values)
+
+        self.w0 = max(self.q1 - (1.5 * self.iqr), mn.value)
+        self.w1 = min(self.q3 + (1.5 * self.iqr), mx.value)
 
     def build_source(self):
         """Calculate stats and builds and returns source for whiskers."""
@@ -992,3 +1031,21 @@ class BinGlyph(XyGlyph):
             return min(data), max(data)
         else:
             return 1, len(data.drop_duplicates())
+
+
+class ArcGlyph(LineGlyph):
+    """Represents a group of data as an arc."""
+    start_angle = Angle()
+    end_angle = Angle()
+
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)
+        self.setup()
+
+    def build_renderers(self):
+        """Yield a `GlyphRenderer` for the group of data."""
+        glyph = Arc(x='x', y='y', radius=1,
+                    start_angle='_end_angle',
+                    end_angle='_start_angle',
+                    line_color='line_color')
+        yield GlyphRenderer(glyph=glyph)

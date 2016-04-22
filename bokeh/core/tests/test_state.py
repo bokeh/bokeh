@@ -15,7 +15,7 @@ from bokeh.resources import DEFAULT_SERVER_HTTP_URL
 
 import bokeh.core.state as state
 
-GENERATED_SESSION_ID_LEN = 36
+GENERATED_SESSION_ID_LEN = 44
 
 class TestState(unittest.TestCase):
 

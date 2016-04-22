@@ -10,6 +10,15 @@ line:
 The generated HTML will be saved in the current working directory with
 the name ``app_script.html``.
 
+It is also possible to run the same commmand with jupyter notebooks:
+
+.. code-block:: sh
+
+    bokeh html app_notebook.ipynb
+
+This will generate an HTML file named ``app_notebook.html`` just like
+with a python script.
+
 Applications can also be created from directories. The directory should
 contain a ``main.py`` (and any other helper modules that are required) as
 well as any additional assets (e.g., theme files). Pass the directory name
@@ -46,8 +55,6 @@ from __future__ import absolute_import
 
 from bokeh.resources import Resources
 from bokeh.embed import standalone_html_page_for_models
-
-from ..util import build_single_handler_applications
 
 from .file_output import FileOutputSubcommand
 

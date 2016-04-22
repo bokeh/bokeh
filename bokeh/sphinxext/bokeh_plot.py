@@ -3,38 +3,32 @@
 For other output types, the placeholder text ``[graph]`` will
 be generated.
 
-Usage
------
-
 The ``bokeh-plot`` directive can be used by either supplying:
 
-1. **A path to a source file** as the argument to the directive::
+**A path to a source file** as the argument to the directive::
 
     .. bokeh-plot:: path/to/plot.py
 
 
-2. **Inline code** as the content of the directive::
+**Inline code** as the content of the directive::
 
-    .. bokeh-plot::
+ .. bokeh-plot::
 
-        from bokeh.plotting import figure, output_file, show
+     from bokeh.plotting import figure, output_file, show
 
-        output_file("example.html")
+     output_file("example.html")
 
-        x = [1, 2, 3, 4, 5]
-        y = [6, 7, 6, 4, 5]
+     x = [1, 2, 3, 4, 5]
+     y = [6, 7, 6, 4, 5]
 
-        p = figure(title="example", plot_width=300, plot_height=300)
-        p.line(x, y, line_width=2)
-        p.circle(x, y, size=10, fill_color="white")
+     p = figure(title="example", plot_width=300, plot_height=300)
+     p.line(x, y, line_width=2)
+     p.circle(x, y, size=10, fill_color="white")
 
-        show(p)
+     show(p)
 
 This directive also works in conjunction with Sphinx autodoc, when
 used in docstrings.
-
-Options
--------
 
 The ``bokeh-plot`` directive accepts the following options:
 
@@ -52,8 +46,6 @@ Examples
 --------
 
 The inline example code above produces the following output:
-
-----
 
 .. bokeh-plot::
 
@@ -111,7 +103,7 @@ SOURCE_TEMPLATE = jinja2.Template(u"""
 
 
 SCRIPT_TEMPLATE = jinja2.Template(u"""
-<table>
+<table class="bk-root">
   <tr>
     <td>
     {{ script|indent(4) }}

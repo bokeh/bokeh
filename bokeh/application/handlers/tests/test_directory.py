@@ -4,6 +4,7 @@ import unittest
 
 import tempfile
 import shutil
+import os
 import os.path
 
 from bokeh.application.handlers import DirectoryHandler
@@ -22,7 +23,11 @@ class TmpDir(object):
 def _with_directory_contents(contents, func):
     with (TmpDir(prefix="bokeh-directory-handler-test")) as dirname:
         for filename, file_content in contents.items():
-            f = open(os.path.join(dirname, filename), 'w')
+            filepath = os.path.join(dirname, filename)
+            filedir = os.path.dirname(filepath)
+            if not os.path.exists(filedir):
+                os.makedirs(filedir)
+            f = open(filepath, 'w')
             f.write(file_content)
             f.flush()
         func(dirname)
@@ -46,6 +51,17 @@ curdoc().add_root(%s())
 def script_adds_two_roots(some_model_name, another_model_name):
     return script_adds_two_roots_template % (another_model_name, some_model_name,
                                              another_model_name, some_model_name)
+
+script_has_lifecycle_handlers = """
+def on_server_loaded(server_context):
+    return "on_server_loaded"
+def on_server_unloaded(server_context):
+    return "on_server_unloaded"
+def on_session_created(session_context):
+    return "on_session_created"
+def on_session_destroyed(session_context):
+    return "on_session_destroyed"
+"""
 
 class TestDirectoryHandler(unittest.TestCase):
 
@@ -117,3 +133,68 @@ some.foo = 57
         doc.theme = None
         self.assertEqual(2, some_model.foo)
         self.assertEqual(1, another_model.bar)
+
+    def test_directory_with_server_lifecycle(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
+                                              'AnotherModelInTestDirectoryWithLifecycle'),
+            'server_lifecycle.py' : script_has_lifecycle_handlers
+        }, load)
+
+        assert len(doc.roots) == 2
+
+        handler = result['handler']
+
+        assert "on_server_loaded" == handler.on_server_loaded(None)
+        assert "on_server_unloaded" == handler.on_server_unloaded(None)
+        assert "on_session_created" == handler.on_session_created(None)
+        assert "on_session_destroyed" == handler.on_session_destroyed(None)
+
+    def test_directory_with_static(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+            'static/js/foo.js' : "# some JS"
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert handler.static_path() is not None
+        assert handler.static_path().endswith("static")
+
+    def test_directory_without_static(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert handler.static_path() is None

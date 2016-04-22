@@ -28,40 +28,59 @@ from ..glyphs import StepGlyph
 
 
 def Step(data=None, x=None, y=None, **kws):
-    """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
-    render the geometry from values and index.
+    """ Create a step chart using :class:`StepBuilder
+    <bokeh.charts.builder.step_builder.StepBuilder>` to render the geometry
+    from the inputs.
+
+    .. note::
+        Only the x or y axis can display multiple variables, while the other is used
+        as an index.
 
     Args:
-        values (iterable): iterable 2d representing the data series
-            values matrix.
-        index (str|1d iterable, optional): can be used to specify a common custom
-            index for all data series as an **1d iterable** of any sort that will be used as
-            series common index or a **string** that corresponds to the key of the
-            mapping to be used as index (and not as data series) if
-            area.values is a mapping (like a dict, an OrderedDict
-            or a pandas DataFrame)
+        data (list(list), numpy.ndarray, pandas.DataFrame, list(pd.Series)): a 2d data
+            source with columns of data for each stepped line.
+        x (str or list(str), optional): specifies variable(s) to use for x axis
+        y (str or list(str), optional): specifies variable(s) to use for y axis
 
-    In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
+    .. note::
+        This chart type differs on input types as compared to other charts,
+        due to the way that series-type charts typically are plotting labeled series.
+        For example, a column for AAPL stock prices over time. Another way this could be
+        plotted is to have a DataFrame with a column of `stock_label` and columns of
+        `price`, which is the stacked format. Both should be supported, but the former
+        is the expected one. Internally, the latter format is being derived.
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate the stepped lines
 
     Examples:
 
     .. bokeh-plot::
         :source-position: above
 
-        import numpy as np
-        from bokeh.charts import Line, output_file, show
+        from bokeh.charts import Step, show, output_file
 
-        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
-        xyvalues = np.array([[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]])
+        # build a dataset where multiple columns measure the same thing
+        data = dict(
+                   stamp=[.33, .33, .34, .37, .37, .37, .37, .39, .41, .42,
+                          .44, .44, .44, .45, .46, .49, .49],
+                   postcard=[.20, .20, .21, .23, .23, .23, .23, .24, .26, .27,
+                             .28, .28, .29, .32, .33, .34, .35]
+               )
 
-        line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages')
+        # create a step chart where each column of measures receives a unique color and dash style
+        step = Step(data, y=['stamp', 'postcard'],
+                    dash=['stamp', 'postcard'],
+                    color=['stamp', 'postcard'],
+                    title="U.S. Postage Rates (1999-2015)",
+                    ylabel='Rate per ounce', legend=True)
 
-        output_file('line.html')
-        show(line)
+        output_file("steps.html")
+
+        show(step)
 
     """
     kws['x'] = x
@@ -70,12 +89,15 @@ def Step(data=None, x=None, y=None, **kws):
 
 
 class StepBuilder(LineBuilder):
-    """This is the Line class and it is in charge of plotting
-    Line charts in an easy and intuitive way.
+    """This is the Step builder and it is in charge of plotting
+    Step charts in an easy and intuitive way.
+
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.
-    We additionally make calculations for the ranges.
-    And finally add the needed lines taking the references from the source.
+
+    We additionally make calculations for the ranges, and finally add the
+    needed stepped lines taking the references from the source.
+
     """
 
     def yield_renderers(self):

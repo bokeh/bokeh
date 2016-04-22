@@ -1,3 +1,6 @@
+''' Provide a custom JSON encoder for serializing Bokeh models.
+
+'''
 from __future__ import absolute_import
 
 import logging
@@ -10,6 +13,7 @@ import json
 
 import numpy as np
 
+from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.serialization import transform_series, transform_array
 
@@ -17,9 +21,14 @@ pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
 
 class BokehJSONEncoder(json.JSONEncoder):
+    ''' Encode values to be used in Bokeh documents or communicated to
+    a Bokeh server.
+
+    '''
     def transform_python_types(self, obj):
-        """handle special scalars, default to default json encoder
-        """
+        ''' Handle special scalars, use default json encoder otherwise
+
+        '''
         # Pandas Timestamp
         if pd and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / 10**6.0  #nanosecond to millisecond
@@ -71,5 +80,18 @@ class BokehJSONEncoder(json.JSONEncoder):
         else:
             return self.transform_python_types(obj)
 
-def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
-    return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)
+def serialize_json(obj, encoder=BokehJSONEncoder, indent=None, **kwargs):
+    ''' Return a serialized JSON representation of a Bokeh model.
+
+    '''
+    pretty = settings.pretty(False)
+
+    if pretty:
+        separators=(",", ": ")
+    else:
+        separators=(",", ":")
+
+    if pretty and indent is None:
+        indent = 2
+
+    return json.dumps(obj, cls=encoder, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)

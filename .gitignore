@@ -14,6 +14,8 @@
 .sw[nop]
 *.tmp
 *.coverage.*
+**/screenshots/current*
+**/screenshots/diff*
 
 # Compiled source #
 ###################
@@ -108,5 +110,5 @@ win-64
 .cache/
 
 # generated coffeescript
-/bokehjs/src/coffee/widget/defaults.coffee
-/bokehjs/src/coffee/common/defaults.coffee
+/bokehjs/test/test_common/defaults/models_defaults.coffee
+/bokehjs/test/test_common/defaults/widgets_defaults.coffee

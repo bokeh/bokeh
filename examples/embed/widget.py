@@ -1,6 +1,6 @@
 """ To view this example, first start a Bokeh server:
 
-    bokeh serve
+    bokeh serve --allow-websocket-origin=localhost:8000
 
 And then load the example into the Bokeh server by
 running the script:

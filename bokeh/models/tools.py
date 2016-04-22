@@ -128,14 +128,16 @@ class ResetTool(Tool):
     resets the data bounds of the plot to their values when the plot was
     initially created.
 
-    .. note::
-        This tool does not also reset the plot canvas size, if the plot
-        has been resized using the ``ResizeTool``. That feature may be
-        added in a future release.
+    Optionally, the reset tool also resets the plat canvas dimensions to
+    their original size
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 18pt
     """
+    reset_size = Bool(default=True, help="""
+    Whether activating the Reset tool should also reset the plot's canvas
+    dimensions to their original size.
+    """)
 
 
 class ResizeTool(Tool):
@@ -184,8 +186,16 @@ class TapTool(Tool):
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
 
+@abstract
+class InspectTool(Tool):
+    pass
 
-class CrosshairTool(Tool):
+    #active = Bool(True, help="""
+    #Whether the tool is intially active or not. If set to ``False``, the user
+    #will have to click tool's button to active it.
+    #""")
+
+class CrosshairTool(InspectTool):
     """ *toolbar icon*: |inspector_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
@@ -275,6 +285,16 @@ class BoxZoomTool(Tool):
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
+    """)
+
+    match_aspect = Bool(default=False, help="""
+    Whether the box zoom region should be restricted to have the same
+    aspect ratio as the plot region.
+
+    .. note::
+        If the tool is restricted to one dimension, this value has
+        no effect.
+
     """)
 
 
@@ -421,7 +441,7 @@ class PolySelectTool(Tool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class HoverTool(Tool):
+class HoverTool(InspectTool):
     """ *toolbar icon*: |inspector_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
@@ -532,10 +552,6 @@ class HoverTool(Tool):
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
-    always_active = Bool(True, help="""
-    Whether the hover tool must be explicitly activated.
-    """)
-
     mode = Enum("mouse", "hline", "vline", help="""
     Whether to consider hover pointer as a point (x/y values), or a
     span on h or v directions.
@@ -571,3 +587,21 @@ class HelpTool(Tool):
     redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
     """)
+
+class UndoTool(Tool):
+    """ *toolbar icon*: |undo_icon|
+
+    Undo tool allows to restore previous state of the plot.
+
+    .. |undo_icon| image:: /_images/icons/Undo.png
+        :height: 18pt
+    """
+
+class RedoTool(Tool):
+    """ *toolbar icon*: |redo_icon|
+
+    Redo tool reverses the last action performed by undo tool.
+
+    .. |redo_icon| image:: /_images/icons/Redo.png
+        :height: 18pt
+    """

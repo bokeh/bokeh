@@ -109,3 +109,21 @@ class TestPatchDocument(unittest.TestCase):
         assert msg6.should_suppress_on_change(event6)
         assert not msg6.should_suppress_on_change(document.RootRemovedEvent(sample, other_root))
         assert not msg6.should_suppress_on_change(document.RootAddedEvent(sample, root))
+
+        # ColumnsStreamed
+        event7 = document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                            hint=document.ColumnsStreamedEvent(sample, root, {}, None))
+        msg7 = Protocol("1.0").create("PATCH-DOC", [event7])
+        assert msg7.should_suppress_on_change(event7)
+        assert not msg7.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsStreamedEvent(sample, root, {}, 10))
+        )
+        assert not msg7.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsStreamedEvent(sample, root, {"a": [10]}, None))
+        )
+        assert not msg7.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsStreamedEvent(sample, other_root, {}, None))
+        )

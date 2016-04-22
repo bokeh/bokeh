@@ -15,7 +15,7 @@ in your browser.
 import numpy as np
 
 from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
-from bokeh.plotting import curdoc, figure, hplot, vplot
+from bokeh.plotting import figure, hplot, vplot
 
 # create three normal population samples with different parameters
 x1 = np.random.normal(loc=5.0, size=400) * 100
@@ -69,7 +69,12 @@ pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", 
 vh1 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.5, **LINE_ARGS)
 vh2 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.1, **LINE_ARGS)
 
-layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
+pv.min_border_top = 80
+pv.min_border_left = 0
+ph.min_border_top = 10
+ph.min_border_right = 10
+p.min_border_right = 10
+layout = vplot(hplot(p, pv), hplot(ph, Paragraph(width=200)), width=800, height=800)
 
 def update(attr, old, new):
     inds = np.array(new['1d']['indices'])

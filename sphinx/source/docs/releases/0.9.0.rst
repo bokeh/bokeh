@@ -3,7 +3,7 @@
 
 This release was focused into allow sophisticated interactions in static plots
 using a new Callback Action, a complete rewrite of the User guide and big
-BokehJS refactoring switching to use broswerify.
+BokehJS refactoring switching to use browserify.
 
 * Callback Action, serverless interactivity in static plots
 * Hover inspection along lines

@@ -51,7 +51,7 @@ def Line(data=None, x=None, y=None, **kws):
         x (str or list(str), optional): specifies variable(s) to use for x axis
         y (str or list(str), optional): specifies variable(s) to use for y axis
 
-    In addition the the parameters specific to this chart,
+    In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     .. note::
@@ -239,7 +239,8 @@ class LineBuilder(XYBuilder):
             for renderer in glyph.renderers:
                 yield renderer
 
-        Stack().apply(self.comp_glyphs)
+        if self.stack:
+            Stack().apply(self.comp_glyphs)
         Dodge().apply(self.comp_glyphs)
 
 

@@ -13,8 +13,6 @@
 
 from __future__ import absolute_import
 
-from warnings import warn
-
 import matplotlib.pyplot as plt
 
 from .bokeh_exporter import BokehExporter
@@ -37,19 +35,6 @@ def to_bokeh(fig=None, use_pandas=True, xkcd=False):
     fig: matplotlib.figure.Figure
         The figure to display. If None or not specified, then the current figure
         will be used.
-
-    name: str (default=None)
-        If this option is provided, then the Bokeh figure will be saved into
-        this HTML file, and then a web browser will be used to display it.
-
-    server: str (default=None)
-        Fully specified URL of bokeh plot server. Default bokeh plot server
-        URL is "http://localhost:5006" or simply "default"
-
-    notebook: bool (default=False)
-        Return an output value from this function which represents an HTML
-        object that the IPython notebook can display. You can also use it with
-        a bokeh plot server just specifying the URL.
 
     use_pandas: bool (default=True)
         The implementation should try to use Pandas for processing datetime

@@ -18,7 +18,11 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-import io, itertools, os, warnings
+import io
+import itertools
+import json
+import os
+import warnings
 
 # Third-party imports
 
@@ -28,13 +32,13 @@ from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models import Component
 from .models.plots import GridPlot
-from .models.widgets.layouts import HBox, VBox, VBoxForm
+from .models.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
-from .util.notebook import load_notebook, publish_display_data
+from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
+from .util.serialization import make_id
 import bokeh.util.browser as browserlib # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
-from bokeh.resources import websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,6 +55,47 @@ _state = State()
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
+
+class _CommsHandle(object):
+
+    _json = {}
+
+    def __init__(self, comms, doc, json):
+        self._cellno = None
+        try:
+            from IPython import get_ipython
+            ip = get_ipython()
+            hm = ip.history_manager
+            p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
+            self._cellno = p_prompt
+        except Exception as e:
+            logger.debug("Could not get Notebook cell number, reason: %s", e)
+
+        self._comms = comms
+        self._doc = doc
+        self._json[doc] = json
+
+    def _repr_html_(self):
+        if self._cellno is not None:
+            return "<p><code>&lt;Bokeh Notebook handle for <strong>In[%s]</strong>&gt;</code></p>" % str(self._cellno)
+        else:
+            return "<p><code>&lt;Bokeh Notebook handle&gt;</code></p>"
+
+    @property
+    def comms(self):
+        return self._comms
+
+    @property
+    def doc(self):
+        return self._doc
+
+    @property
+    def json(self):
+        return self._json[self._doc]
+
+    def update(self, doc, json):
+        self._doc = doc
+        self._json[doc] = json
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -72,7 +117,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
             command). If False, then the file is only saved upon calling
             :func:`show` or :func:`save`.
 
-        mode (str, optional) : how to include BokehJS (default: ``'inline'``)
+        mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
             One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
             ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
 
@@ -111,7 +156,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
 
     Args:
         resources (Resource, optional) :
-            How and where to load BokehJS from (default: INLINE)
+            How and where to load BokehJS from (default: CDN)
 
         verbose (bool, optional) :
             whether to display detailed BokehJS banner (default: False)
@@ -245,26 +290,31 @@ def show(obj, browser=None, new="tab"):
             opens a new tab. If **new** is 'window', then opens a new window.
 
     Returns:
-        None
+        when in a a jupyter notebook (with ``output_notebook`` enabled), returns
+        a handle that can be used by ``push_notebook``, None otherwise.
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
         an IPython/Jupyter notebook.
 
     '''
-    _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new)
 
 def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
+    comms_handle = None
+
     if state.notebook:
-        _show_notebook_with_state(obj, state)
+        comms_handle = _show_notebook_with_state(obj, state)
 
     elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
 
     if state.file:
         _show_file_with_state(obj, state, new, controller)
+
+    return comms_handle
 
 def _show_file_with_state(obj, state, new, controller):
     save(obj, state=state)
@@ -276,7 +326,11 @@ def _show_notebook_with_state(obj, state):
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        publish_display_data({'text/html': notebook_div(obj)})
+        comms_target = make_id()
+        publish_display_data({'text/html': notebook_div(obj, comms_target)})
+        handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
+        state.last_comms_handle = handle
+        return handle
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
@@ -424,6 +478,68 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
     _push_to_server(session_id=session_id, url=url, app_path=app_path,
                     document=document, io_loop=io_loop)
 
+def push_notebook(document=None, state=None, handle=None):
+    ''' Update the last-shown plot in a Jupyter notebook with the new data
+    or property values.
+
+    Args:
+
+        document (Document, optional) :
+            A :class:`~bokeh.document.Document` to push from. If None,
+            uses ``curdoc()``.
+
+        state (State, optional) :
+            A Bokeh State object
+
+    Returns:
+        None
+
+    Examples:
+
+        Typical usage is typically similar to this:
+
+        .. code-block:: python
+
+            from bokeh.io import push_notebook
+
+            # code to create a plot
+
+            show(plot)
+
+            plot.title = "New Title"
+
+            # This will cause the title to update
+            push_notebook()
+
+    '''
+    if state is None:
+        state = _state
+
+    if state.server_enabled:
+        raise RuntimeError("output_server() has been called, use push() to push to server")
+
+    if not document:
+        document = state.document
+
+    if not document:
+        warnings.warn("No document to push")
+        return
+
+    if handle is None:
+        handle = state.last_comms_handle
+
+    if not handle:
+        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
+        return
+
+    to_json = document.to_json()
+    if handle.doc is not document:
+        msg = dict(doc=to_json)
+    else:
+        msg = Document._compute_patch_between_json(handle.json, to_json)
+    handle.comms.send(json.dumps(msg))
+    handle.update(document, to_json)
+
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
 
@@ -489,6 +605,7 @@ def vform(*children, **kwargs):
     ''' Generate a layout that arranges several subplots vertically.
 
     '''
+    _remove_roots(children)
     layout = VBoxForm(children=list(children), **kwargs)
     curdoc().add_root(layout)
     _push_or_save(layout)
