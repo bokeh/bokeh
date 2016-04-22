@@ -8,10 +8,8 @@ p = require "../../core/properties"
 class LegendView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @need_calc_dims = true
-    @listenTo(@model.document.solver(), 'layout_update', () -> @need_calc_dims = true)
 
-  calc_dims: (options) ->
+  compute_legend_bbox: () ->
     legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
 
     glyph_height = @mget('glyph_height')
@@ -38,15 +36,13 @@ class LegendView extends Renderer.View
     max_label_width = _.max(_.values(@text_widths))
 
     if @mget("orientation") == "vertical"
-      @legend_height = (
-        legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing
-      )
-      @legend_width = max_label_width + glyph_width + 3 * legend_spacing
+      legend_height = legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing
+      legend_width = max_label_width + glyph_width + 3 * legend_spacing
     else
-      @legend_width = 0
+      legend_width = 0
       for name, width of @text_widths
-        @legend_width += (_.max([width, label_width]) + glyph_width + 3 * legend_spacing)
-      @legend_height = @max_label_height + 2 * legend_spacing
+        legend_width += (_.max([width, label_width]) + glyph_width + 3 * legend_spacing)
+      legend_height = @max_label_height + 2 * legend_spacing
 
     location = @mget('location')
     legend_padding = @mget('legend_padding')
@@ -59,43 +55,42 @@ class LegendView extends Renderer.View
           x = h_range.get('start') + legend_padding
           y = v_range.get('end') - legend_padding
         when 'top_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
           y = v_range.get('end') - legend_padding
         when 'top_right'
-          x = h_range.get('end') - legend_padding - @legend_width
+          x = h_range.get('end') - legend_padding - legend_width
           y = v_range.get('end') - legend_padding
         when 'right_center'
-          x = h_range.get('end') - legend_padding - @legend_width
-          y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+          x = h_range.get('end') - legend_padding - legend_width
+          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
         when 'bottom_right'
-          x = h_range.get('end') - legend_padding - @legend_width
-          y = v_range.get('start') + legend_padding + @legend_height
+          x = h_range.get('end') - legend_padding - legend_width
+          y = v_range.get('start') + legend_padding + legend_height
         when 'bottom_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
-          y = v_range.get('start') + legend_padding + @legend_height
+          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
+          y = v_range.get('start') + legend_padding + legend_height
         when 'bottom_left'
           x = h_range.get('start') + legend_padding
-          y = v_range.get('start') + legend_padding + @legend_height
+          y = v_range.get('start') + legend_padding + legend_height
         when 'left_center'
           x = h_range.get('start') + legend_padding
-          y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
         when 'center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
-          y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
+          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
     else if _.isArray(location) and location.length == 2
       [x, y] = location
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
-    @box_coords = [x,y]
+
+    return {x: x, y: y, w: legend_width, h: legend_height}
 
   render: () ->
-    if @need_calc_dims
-      @calc_dims()
-      @need_calc_dims = false
-
     if @model.legends.length == 0
       return
+
+    bbox = @compute_legend_bbox()
 
     glyph_height = @mget('glyph_height')
     glyph_width = @mget('glyph_width')
@@ -105,9 +100,7 @@ class LegendView extends Renderer.View
     ctx.save()
 
     ctx.beginPath()
-    ctx.rect(@box_coords[0], @box_coords[1],
-      @legend_width, @legend_height
-    )
+    ctx.rect(bbox.x, bbox.y, bbox.w, bbox.h)
 
     @visuals.background_fill.set_value(ctx)
     ctx.fill()
@@ -121,15 +114,15 @@ class LegendView extends Renderer.View
     xoffset = 0
     for [legend_name, glyphs], idx in @mget("legends")
       if orientation == "vertical"
-        yoffset = idx * @legend_height / N
-        x1 = @box_coords[0] + legend_spacing
+        yoffset = idx * bbox.h / N
+        x1 = bbox.x + legend_spacing
         x2 = x1 + glyph_width
-        y1 = @box_coords[1] + yoffset + legend_spacing
+        y1 = bbox.y + yoffset + legend_spacing
         y2 = y1 + glyph_height
       else
-        x1 = @box_coords[0] + xoffset + legend_spacing
+        x1 = bbox.x + xoffset + legend_spacing
         x2 = x1 + glyph_width
-        y1 = @box_coords[1] + legend_spacing
+        y1 = bbox.y + legend_spacing
         y2 = y1 + glyph_height
         xoffset += @text_widths[legend_name] + 3*legend_spacing + glyph_width
 
