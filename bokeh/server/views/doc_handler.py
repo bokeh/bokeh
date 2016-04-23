@@ -29,6 +29,7 @@ class DocHandler(SessionHandler):
         websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
         page = server_html_page_for_session(session.id, self.application.resources(self.request),
                                             title=session.document.title,
+                                            template=session.document.template,
                                             websocket_url=websocket_url)
 
         self.set_header("Content-Type", 'text/html')
