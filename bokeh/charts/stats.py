@@ -341,7 +341,7 @@ class Bins(Stat):
         # does not handle this well for values that are <= 0
         if data.size < 2:
             raise ValueError('Histogram data must have at least two elements.')
-        if data.ndim == 1 and not data.std():
+        if data.ndim == 1 and data.std() == 0:
             margin = 0.01 * abs(float(data[0])) or 0.01
             bins = np.linspace(data[0] - margin, data[0] + margin, bins+1)
 
