@@ -116,6 +116,7 @@ module.exports = {
 
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'
+  SaveTool:                 require '../models/tools/actions/save_tool'
   PreviewSaveTool:          require '../models/tools/actions/preview_save_tool'
   UndoTool:                 require '../models/tools/actions/undo_tool'
   RedoTool:                 require '../models/tools/actions/redo_tool'

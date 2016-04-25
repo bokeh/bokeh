@@ -33,6 +33,10 @@ declare namespace Bokeh {
         dimensions?: Array<Dimension>;
     }
 
+    export var SaveTool: { new(attributes?: ISaveTool, options?: ModelOpts): SaveTool };
+    export interface SaveTool extends Tool, ISaveTool {}
+    export interface ISaveTool extends ITool {}
+
     export var PreviewSaveTool: { new(attributes?: IPreviewSaveTool, options?: ModelOpts): PreviewSaveTool };
     export interface PreviewSaveTool extends Tool, IPreviewSaveTool {}
     export interface IPreviewSaveTool extends ITool {}

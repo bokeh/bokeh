@@ -103,6 +103,19 @@ class WheelZoomTool(Tool):
     """)
 
 
+class SaveTool(Tool):
+    """ *toolbar icon*: |save_icon|
+
+    The preview/save tool is an action. When clicked in the toolbar, the
+    tool opens a download dialog which allows to save an image reproduction
+    of the plot in PNG format.
+
+    .. |save_icon| image:: /_images/icons/Save.png
+        :height: 18pt
+
+    """
+
+
 class PreviewSaveTool(Tool):
     """ *toolbar icon*: |save_icon|
 
