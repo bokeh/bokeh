@@ -3,6 +3,9 @@ from __future__ import absolute_import
 import unittest
 from unittest import skipIf
 
+import datetime as dt
+import time
+
 import numpy as np
 
 try:
@@ -91,7 +94,7 @@ class TestSerializeJson(unittest.TestCase):
         assert deserialized[3] == 0
 
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
-    def test_datetime_types(self):
+    def test_pandas_datetime_types(self):
         """should convert to millis
         """
         idx = pd.date_range('2001-1-1', '2001-1-5')
@@ -112,5 +115,22 @@ class TestSerializeJson(unittest.TestCase):
         }
         assert deserialized == baseline
 
+    def test_builtin_datetime_types(self):
+        """ should convert to millis as-is
+        """
+
+        serialized = self.serialize({'date' : [dt.date(2016, 4, 28)],
+                                     'datetime' : [dt.datetime(2016, 4, 28, 2, 20, 50)]})
+        deserialized = self.deserialize(serialized)
+
+        # In [5]: time.mktime(dt.date(2016, 4, 28).timetuple())
+        # Out[5]: 1461819600.0
+        #
+        # In [6]: time.mktime(dt.datetime(2016, 4, 28, 2, 20, 50).timetuple())
+        # Out[6]: 1461828050.0
+        baseline = {u'date': [1461819600000],
+                    u'datetime': [1461828050000],
+        }
+        assert deserialized == baseline
 if __name__ == "__main__":
     unittest.main()
