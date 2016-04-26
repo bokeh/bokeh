@@ -79,7 +79,7 @@ work. Headings are used in the following way
 .. code-block:: sh
   
     Top level (makes a top-level entry in the side-bar)
-    ====================================================
+    ===================================================
 
     Next level
     ----------
@@ -89,6 +89,8 @@ work. Headings are used in the following way
 
     Finally
     '''''''
+
+Note that the length of the underline should match that of the heading text.
 
 
 .. _Google Style Docstrings: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html#example-google
