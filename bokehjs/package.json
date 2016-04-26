@@ -100,5 +100,6 @@
   "scripts": {
     "build": "gulp build",
     "dev-build": "gulp dev-build"
-  }
+  },
+  "main": "build/js/bokeh.js"
 }
