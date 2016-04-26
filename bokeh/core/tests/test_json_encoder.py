@@ -128,8 +128,8 @@ class TestSerializeJson(unittest.TestCase):
         #
         # In [6]: time.mktime(dt.datetime(2016, 4, 28, 2, 20, 50).timetuple())
         # Out[6]: 1461828050.0
-        baseline = {u'date': [1461819600000],
-                    u'datetime': [1461828050000],
+        baseline = {u'date': [1461819600000.0],
+                    u'datetime': [1461828050000.0],
         }
         assert deserialized == baseline
 if __name__ == "__main__":
