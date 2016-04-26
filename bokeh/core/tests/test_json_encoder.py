@@ -119,17 +119,14 @@ class TestSerializeJson(unittest.TestCase):
         """ should convert to millis as-is
         """
 
-        serialized = self.serialize({'date' : [dt.date(2016, 4, 28)],
-                                     'datetime' : [dt.datetime(2016, 4, 28, 2, 20, 50)]})
+        a = dt.date(2016, 4, 28)
+        b = dt.datetime(2016, 4, 28, 2, 20, 50)
+        serialized = self.serialize({'a' : [a],
+                                     'b' : [b]})
         deserialized = self.deserialize(serialized)
 
-        # In [5]: time.mktime(dt.date(2016, 4, 28).timetuple())
-        # Out[5]: 1461819600.0
-        #
-        # In [6]: time.mktime(dt.datetime(2016, 4, 28, 2, 20, 50).timetuple())
-        # Out[6]: 1461828050.0
-        baseline = {u'date': [1461819600000.0],
-                    u'datetime': [1461828050000.0],
+        baseline = {u'a': [time.mktime(a.timetuple())*1000],
+                    u'b': [time.mktime(b.timetuple())*1000],
         }
         assert deserialized == baseline
 if __name__ == "__main__":
