@@ -61,7 +61,7 @@ To run any of the tests without standard output captured use:
 See the py.test documentation at http://pytest.org/latest/ for further information on py.test and it's options.
 
 Examples tests
-==============
+--------------
 
 To run just the examples tests, run the command:
 
@@ -99,7 +99,7 @@ can view at ``examples.log`` in the same level you ran the tests from.
       test report.
 
 Integration tests
-=================
+-----------------
 
 The integration tests use selenium webdriver (http://docs.seleniumhq.org/docs/03_webdriver.jsp)
 to test bokeh in the browser.
@@ -119,7 +119,7 @@ use the selenium service [SauceLabs](http://saucelabs.com/) which provides free
 testing for open source projects.
 
 Screenshot tests
-----------------
+~~~~~~~~~~~~~~~~
 
 Some of the integration tests are screenshot tests that take a screenshot of
 the bokehplot and compare it against a reference image that is stored in the
@@ -145,7 +145,7 @@ For the ``SAUCELABS_USERNAME`` and ``SAUCELABS_API_KEY`` talk to the Bokeh Core
 Developers.
 
 Adding (or updating) a screenshot test
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you'd like to add a new screenshot test to the Bokeh repo, first make sure
 you can run the existing screenshot tests. Assuming this runs, then you'll be
@@ -161,7 +161,7 @@ future screenshot tests will be compared against this base.
 
 
 Testing on TravisCI
-===================
+-------------------
 
 There is a TravisCI project configured to execute on every GitHub push, it can
 be viewed at: https://travis-ci.org/bokeh/bokeh.
@@ -173,7 +173,7 @@ adding `[ci disable examples]` to your commit message before pushing.
 
 The reports from the examples tests and the integration tests are uploaded to
 s3 for viewing after a TravisCI run. To find the link to the test reports,
-scroll to the bottom of the TravisCI test log and find the "POOR MAN LOGGER".
+scroll to the bottom of the TravisCI test log and find the **POOR MAN LOGGER**.
 
 The test results always take the same format
 "https://s3.amazonaws.com/bokeh-travis/<travis job_id>/<report name>" The
