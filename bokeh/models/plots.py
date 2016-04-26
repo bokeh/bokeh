@@ -362,7 +362,7 @@ class Plot(Component):
     "seconds since epoch" instead of formatted dates
     """)
 
-    extra_x_ranges = Dict(String, Instance(Range1d), help="""
+    extra_x_ranges = Dict(String, Instance(Range), help="""
     Additional named ranges to make available for mapping x-coordinates.
 
     This is useful for adding additional axes.
