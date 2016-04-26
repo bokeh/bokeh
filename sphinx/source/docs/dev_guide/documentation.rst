@@ -44,6 +44,9 @@ browser, execute the command::
 Conventions
 -----------
 
+Docstrings
+~~~~~~~~~~
+
 We use `Sphinx Napoleon`_ to process docstrings for our reference
 documentation. All docstrings are `Google Style Docstrings`_.
 
@@ -66,6 +69,27 @@ inserting an implicit "IS" makes a complete sentence. For example::
     title_font (str, optional) : a font used for the plot title (default: Sans)
 
 can be reasonably read as "title_font IS a font used for the plot title".
+
+Headings in pages
+~~~~~~~~~~~~~~~~~
+
+When working on narrative documentation, you may use headings to split up your
+work. Headings are used in the following way
+
+.. code-block:: sh
+  
+    Top level (makes a top-level entry in the side-bar)
+    ====================================================
+
+    Next level
+    ----------
+
+    Third level
+    ~~~~~~~~~~~
+
+    Finally
+    '''''''
+
 
 .. _Google Style Docstrings: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html#example-google
 .. _Sphinx: http://sphinx-doc.org
