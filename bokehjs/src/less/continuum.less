@@ -264,10 +264,10 @@
 
 /* css specific to toolbar orientation (above, below)*/
 
-.bk-plot-above.bk-toolbar-active {
+.bk-toolbar-above.bk-toolbar-active {
   border-bottom: 2px solid #e5e5e5;
 }
-.bk-plot-below.bk-toolbar-active {
+.bk-toolbar-below.bk-toolbar-active {
   border-top: 2px solid #e5e5e5;
   padding-bottom: 45px;
 }
@@ -275,13 +275,13 @@
   height: 30px;
   .bk-logo {
     float: left;
-    top: 5px;
     margin: 5px 0;
   }
   .bk-button-bar {
+    padding: 0;
+    top: 2px;
     float: right;
     position: relative;
-    top: 5px;
     .bk-button-bar-list {
       float: left;
       &.bk-bs-dropdown {
@@ -443,10 +443,4 @@
   border-top: 4px solid;
   border-right: 4px solid transparent;
   border-left: 4px solid transparent;
-}
-.bk-plot-left, .bk-plot-right {
-
-}
-.bk-plot-above, .bk-plot-below {
-
 }
