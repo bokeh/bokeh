@@ -357,3 +357,69 @@ class Chart(Plot):
     @height.setter
     def height(self, height):
         self.plot_height = height
+
+    annular_wedge = _glyph_function(glyphs.AnnularWedge)
+
+    annulus = _glyph_function(glyphs.Annulus)
+
+    arc = _glyph_function(glyphs.Arc)
+
+    asterisk = _glyph_function(markers.Asterisk)
+
+    bezier = _glyph_function(glyphs.Bezier)
+
+    circle = _glyph_function(markers.Circle)
+
+    circle_cross = _glyph_function(markers.CircleCross)
+
+    circle_x = _glyph_function(markers.CircleX)
+
+    cross = _glyph_function(markers.Cross)
+
+    diamond = _glyph_function(markers.Diamond)
+
+    diamond_cross = _glyph_function(markers.DiamondCross)
+
+    ellipse = _glyph_function(glyphs.Ellipse)
+
+    image = _glyph_function(glyphs.Image)
+
+    image_rgba = _glyph_function(glyphs.ImageRGBA)
+
+    image_url = _glyph_function(glyphs.ImageURL)
+
+    inverted_triangle = _glyph_function(markers.InvertedTriangle)
+
+    line = _glyph_function(glyphs.Line)
+
+    multi_line = _glyph_function(glyphs.MultiLine)
+
+    oval = _glyph_function(glyphs.Oval)
+
+    patch = _glyph_function(glyphs.Patch)
+
+    patches = _glyph_function(glyphs.Patches)
+
+    quad = _glyph_function(glyphs.Quad)
+
+    quadratic = _glyph_function(glyphs.Quadratic)
+
+    ray = _glyph_function(glyphs.Ray)
+
+    rect = _glyph_function(glyphs.Rect)
+
+    segment = _glyph_function(glyphs.Segment)
+
+    square = _glyph_function(markers.Square)
+
+    square_cross = _glyph_function(markers.SquareCross)
+
+    square_x = _glyph_function(markers.SquareX)
+
+    text = _glyph_function(glyphs.Text)
+
+    triangle = _glyph_function(markers.Triangle)
+
+    wedge = _glyph_function(glyphs.Wedge)
+
+    x = _glyph_function(markers.X)
