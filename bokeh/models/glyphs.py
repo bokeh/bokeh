@@ -11,7 +11,7 @@ from ..model import Model
 from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, Int, NumberSpec, StringSpec)
 
-from .mappers import LinearColorMapper
+from .mappers import ColorMapper, LinearColorMapper
 
 @abstract
 class Glyph(Model):
