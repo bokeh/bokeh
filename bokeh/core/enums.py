@@ -176,3 +176,6 @@ SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
 #: Specify a distribution to use for the Jitter class
 JitterRandomDistribution = enumeration("uniform", "normal")
 
+#: Specify sorting directions
+SortDirection = enumeration("ascending", "descending")
+

@@ -360,6 +360,14 @@ by the ``legend`` parameter:
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_legend.py
     :source-position: above
 
+Legends are not sorted by default but this behavior can be changed by using the
+:attr:`~bokeh.charts.builder.Builder.legend_sort_field` attribute to specify the
+attribute to sort by and :attr:`~bokeh.charts.builder.Builder.legend_sort_direction`
+to set the order (`ascending` or `descending`).
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_legend_sorted.py
+    :source-position: above
+
 .. _userguide_charts_scatter_marker:
 
 Markers

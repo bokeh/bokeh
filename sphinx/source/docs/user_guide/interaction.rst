@@ -213,11 +213,27 @@ The toggle button holds an on/off state:
 .. _userguide_interaction_actions:
 
 Div
-~~~~~~~~~
+~~~
 
-A widget for displaying text that can support HTML:
+A widget for displaying text that can support HTML in a <div> tag:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_div.py
+    :source-position: below
+
+Paragraph
+~~~~~~~~~
+
+A widget for displaying a block of text in an HTML <p> tag:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_paragraph.py
+    :source-position: below
+
+PreText
+~~~~~~~
+
+A widget for displaying a block of pre-formatted text in an HTML <pre> tag:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_pretext.py
     :source-position: below
 
 JavaScript Callbacks
