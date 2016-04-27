@@ -294,7 +294,7 @@ together with a crossbar (+) at the given coordinates.
 .. _bokehjs_ellipse:
 
 ``ellipse``
-~~~~~~~~
+~~~~~~~~~~~
 
 The ellipse glyph displays ellipses centered on the given coordinates with the
 given dimensions and angle.
@@ -308,11 +308,6 @@ given dimensions and angle.
 
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
-
-.. image:: ../../_images/bokehjs_glyphs/ellipse.png
-    :height: 300px
-    :alt: Click to view JSFiddle
-    :target: http://jsfiddle.net/bokeh/h6eXz/
 
 .. _bokehjs_image:
 

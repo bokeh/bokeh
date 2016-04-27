@@ -441,6 +441,7 @@ extend to the edge of the plot area.
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+.. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`
