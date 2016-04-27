@@ -23,7 +23,7 @@ $(document).ready(function() {
     }
     else if (v != window._BOKEH_CURRENT_VERSION) {
       content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="http://bokeh.pydata.org/en/latest/">http://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
-      $('html:first').prepend(content);
+      $('body').prepend(content);
     }
   })
 
