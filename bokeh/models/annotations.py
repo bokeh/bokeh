@@ -17,6 +17,7 @@ from ..core.properties import (
 )
 from ..util.deprecate import deprecated
 
+from .arrow_heads import ArrowHead, Open
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
@@ -126,12 +127,8 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    start_style = Enum(ArrowStyle, default=None, help="""
-    A style for the arrow head at the start of the arrow. Defaults to `None`.
-    """)
-
-    start_size = Float(default=25, help="""
-    The size, in pixels, of the arrow head at the start coordinates.
+    start = Instance(ArrowHead, default=None, help="""
+    Instance of ArrowHead.
     """)
 
     x_end = NumberSpec(help="""
@@ -147,40 +144,12 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end_style = Enum(ArrowStyle, default='open', help="""
-    A style for the arrow head at the end of the arrow. Defaults to `open`.
-    """)
-
-    end_size = Float(default=25, help="""
-    The size, in pixels, of the arrow head at the end coordinates.
+    end = Instance(ArrowHead, default=lambda: Open(), help="""
+    Instance of ArrowHead.
     """)
 
     body_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow body.
-    """)
-
-    start_props = Include(LineProps, use_prefix=True, help="""
-    The %s values for the arrow head outline at the start coordinates.
-    """)
-
-    start_fill_color = ColorSpec(default="black", help="""
-    The fill_color values for the arrow head at the start coordinates.
-    """)
-
-    start_fill_alpha = NumberSpec(default=1.0, help="""
-    The fill_alpha values for the arrow head at the start coordinates.
-    """)
-
-    end_props = Include(LineProps, use_prefix=True, help="""
-    The %s values for the arrow head outline at the end coordinates.
-    """)
-
-    end_fill_color = ColorSpec(default=None, help="""
-    The fill_color values for the arrow head at the end coordinates.
-    """)
-
-    end_fill_alpha = NumberSpec(default=1.0, help="""
-    The fill_alpha values for the arrow head at the end coordinates.
     """)
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""

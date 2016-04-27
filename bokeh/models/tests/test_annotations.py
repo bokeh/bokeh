@@ -3,7 +3,7 @@ from __future__ import  absolute_import
 from itertools import chain
 
 from bokeh.models.annotations import Legend, Arrow, BoxAnnotation, Span, Label
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, ArrowHead
 from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -87,43 +87,31 @@ def test_Arrow():
     assert arrow.x_start is None
     assert arrow.y_start is None
     assert arrow.start_units == 'data'
-    assert arrow.start_size == 25
-    assert arrow.start_style == None
+    assert arrow.start is None
     assert arrow.x_end is None
     assert arrow.y_end is None
     assert arrow.end_units == 'data'
-    assert arrow.end_size == 25
-    assert arrow.end_style is 'open'
+    assert isinstance(arrow.end, ArrowHead)
     assert isinstance(arrow.source, ColumnDataSource)
     assert arrow.source.data == {}
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     yield check_line, arrow
-    yield check_line, arrow, "start_"
-    yield check_fill, arrow, "start_", "black"
-    yield check_line, arrow, "end_"
-    yield check_fill, arrow, "end_", None
     yield (check_props, arrow, [
         "plot",
         "level",
         "x_start",
         "y_start",
         "start_units",
-        "start_size",
-        "start_style",
+        "start",
         "x_end",
         "y_end",
         "end_units",
-        "end_size",
-        "end_style",
+        "end",
         "source",
         "x_range_name",
         "y_range_name"],
-        LINE,
-        prefix('start_', LINE),
-        prefix('start_', FILL),
-        prefix('end_', LINE),
-        prefix('end_', FILL))
+        LINE)
 
 def test_BoxAnnotation():
     box = BoxAnnotation()
