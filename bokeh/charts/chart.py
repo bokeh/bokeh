@@ -26,11 +26,11 @@ import numpy as np
 
 from ..core.enums import enumeration, LegendLocation
 from ..models import (
-    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
-    HoverTool, FactorRange
+    CategoricalAxis, DatetimeAxis, glyphs, Grid, Legend, LinearAxis, markers,
+    Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg
+from ..plotting.helpers import _process_tools_arg, _glyph_function
 from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
                           String, Tuple, Override)
 from ..util.deprecate import deprecated
