@@ -387,6 +387,53 @@ class Bins(Stat):
                                     reverse=~ascending))
 
 
+class Histogram(Bins):
+    """Bins and aggregates dimensions for plotting.
+
+    Takes the inputs and produces a list of bins that can be iterated over and
+    inspected for their metadata. The bins provide easy access to consistent labeling,
+    bounds, and values.
+    """
+
+    density = Bool(default=False)
+
+
+    def calculate(self):
+        bin_str = '_bin'
+        self.bin_column = self.column + bin_str
+
+        data = self.bin_stat.get_data()
+        bins = self.bin_stat.bin_count
+
+        # Choose bin bounds when data range is ill-defined; pd.cut()
+        # does not handle this well for values that are <= 0
+        if data.size < 2:
+            raise ValueError('Histogram data must have at least two elements.')
+        if data.ndim == 1 and data.std() == 0:
+            margin = 0.01 * abs(float(data[0])) or 0.01
+            bins = np.linspace(data[0] - margin, data[0] + margin, bins+1)
+
+
+        # binned, bin_bounds = pd.cut(data, bins,
+        #                             retbins=True, include_lowest=True, precision=0)
+        binned, bin_bounds = np.histogram(
+                        np.array(data), density=False, bins=bins
+                    )
+
+        self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
+        self.bins = []
+
+        for i, b in enumerate(binned):
+            if i == 0:
+                lbl = "[%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
+            else:
+                lbl = "(%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
+
+            self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max()))
+
+
+
+
 def bins(data, values=None, column=None, bin_count=None, labels=None,
          **kwargs):
     """Specify binning or bins to be used for column or values."""

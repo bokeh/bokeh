@@ -14,7 +14,7 @@ from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
                                    List, Either, Int, Enum, Color, Override, Any, Angle)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
+from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats, Histogram
 from .data_source import ChartDataSource
 from .utils import marker_types, generate_patch_base, label_from_index_dict
 
@@ -944,7 +944,7 @@ class HistogramGlyph(AggregateGlyph):
 
     def build_renderers(self):
         """Yield a bar glyph for each bin."""
-        self.bins = Bins(values=self.values, bin_count=self.bin_count)
+        self.bins = Histogram(values=self.values, bin_count=self.bin_count)
         centers = [bin.center for bin in self.bins.bins]
         self.bin_width = centers[1] - centers[0]
 
