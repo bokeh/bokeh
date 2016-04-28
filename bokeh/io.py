@@ -561,6 +561,64 @@ def _push_or_save(obj):
     if _state.file and _state.autosave:
         save(obj)
 
+class GridSpec(object):
+    """ Simplifies grid layout specification. """
+
+    def __init__(self, nrows, ncols):
+        self.nrows = nrows
+        self.ncols = ncols
+        self._arrangement = {}
+
+    def __setitem__(self, key, obj):
+        k1, k2 = key
+
+        if isinstance(k1, slice):
+            row1, row2, _ = k1.indices(self.nrows)
+        else:
+            if k1 < 0:
+                k1 += self.nrows
+            if k1 >= self.nrows or k1 < 0:
+                raise IndexError("index out of range")
+            row1, row2 = k1, None
+
+        if isinstance(k2, slice):
+            col1, col2, _ = k2.indices(self.ncols)
+        else:
+            if k2 < 0:
+                k2 += self.ncols
+            if k2 >= self.ncols or k2 < 0:
+                raise IndexError("index out of range")
+            col1, col2 = k2, None
+
+        # gs[row, col]             = obj
+        # gs[row1:row2, col]       = [...]
+        # gs[row, col1:col2]       = [...]
+        # gs[row1:row2, col1:col2] = [[...], ...]
+
+        def get_or_else(fn, default):
+            try:
+                return fn()
+            except IndexError:
+                return default
+
+        if row2 is None and col2 is None:
+            self._arrangement[row1, col1] = obj
+        elif row2 is None:
+            for col in range(col1, col2):
+                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None)
+        elif col2 is None:
+            for row in range(row1, row2):
+                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None)
+        else:
+            for row, col in zip(range(row1, row2), range(col1, col2)):
+                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None)
+
+    def __iter__(self):
+        array = [ [ None ]*self.ncols for _ in range(0, self.nrows) ]
+        for (row, col), obj in self._arrangement.items():
+            array[row][col] = obj
+        return iter(array)
+
 def gridplot(plot_arrangement, **kwargs):
     ''' Generate a plot that arranges several subplots into a grid.
 
@@ -574,6 +632,8 @@ def gridplot(plot_arrangement, **kwargs):
         grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
 
     '''
+    if isinstance(plot_arrangement, GridSpec):
+        plot_arrangement = list(plot_arrangement)
     subplots = itertools.chain.from_iterable(plot_arrangement)
     _remove_roots(subplots)
     grid = GridPlot(children=plot_arrangement, **kwargs)
