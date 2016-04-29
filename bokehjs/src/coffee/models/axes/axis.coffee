@@ -157,17 +157,13 @@ class AxisView extends Renderer.View
   render: () ->
     if not @mget('visible')
       return
-
     ctx = @plot_view.canvas_view.ctx
-
     ctx.save()
-
     @_draw_rule(ctx)
     @_draw_major_ticks(ctx)
     @_draw_minor_ticks(ctx)
     @_draw_major_labels(ctx)
     @_draw_axis_label(ctx)
-
     ctx.restore()
 
   bind_bokeh_events: () ->
@@ -177,15 +173,12 @@ class AxisView extends Renderer.View
     if not @mget('visible')
       # if not visible, avoid applying constraints until visible again
       return
-
     size = @_get_size()
-
     if not @_last_size?
       @_last_size = -1
     if size == @_last_size
       return
     @_last_size = size
-
     s = @model.document.solver()
     if @_size_constraint?
       s.remove_constraint(@_size_constraint)
@@ -202,7 +195,6 @@ class AxisView extends Renderer.View
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
-
     @visuals.axis_line.set_value(ctx)
     ctx.beginPath()
     ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
@@ -224,10 +216,8 @@ class AxisView extends Renderer.View
     @visuals.major_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff),
-                 Math.round(sy[i]+ny*tout+ny*yoff))
-      ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff),
-                 Math.round(sy[i]-ny*tin+ny*yoff))
+      ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
+      ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
       ctx.stroke()
 
   _draw_minor_ticks: (ctx) ->
@@ -238,16 +228,13 @@ class AxisView extends Renderer.View
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
-
     tin = @mget('minor_tick_in')
     tout = @mget('minor_tick_out')
     @visuals.minor_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff),
-                 Math.round(sy[i]+ny*tout+ny*yoff))
-      ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff),
-                 Math.round(sy[i]-ny*tin+ny*yoff))
+      ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
+      ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff), Math.round(sy[i]-ny*tin+ny*yoff))
       ctx.stroke()
 
   _draw_major_labels: (ctx) ->
@@ -259,18 +246,15 @@ class AxisView extends Renderer.View
     dim = @mget('dimension')
     side = @mget('layout_location')
     orient = @mget('major_label_orientation')
-
     if _.isString(orient)
       angle = _angle_lookup[side][orient]
     else
       angle = -orient
     standoff = @_tick_extent() + @mget('major_label_standoff')
-
     labels = @mget('formatter').doFormat(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
-
     for i in [0...sx.length]
       if angle
         ctx.translate(sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
@@ -279,31 +263,24 @@ class AxisView extends Renderer.View
         ctx.rotate(-angle)
         ctx.translate(-sx[i]-nx*standoff+nx*xoff, -sy[i]-ny*standoff+ny*yoff)
       else
-        ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff),
-                     Math.round(sy[i]+ny*standoff+ny*yoff))
+        ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff), Math.round(sy[i]+ny*standoff+ny*yoff))
 
   _draw_axis_label: (ctx) ->
     label = @mget('axis_label')
-
     if not label?
       return
-
     [x, y] = @mget('rule_coords')
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     side = @mget('layout_location')
     orient = 'parallel'
-
     angle = _angle_lookup[side][orient]
     standoff = (@_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff'))
-
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
-
     @visuals.axis_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
-
     if angle
       ctx.translate(sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
       ctx.rotate(angle)
@@ -325,7 +302,6 @@ class AxisView extends Renderer.View
     side = @mget('layout_location')
     orient = @mget('major_label_orientation')
     labels = @mget('formatter').doFormat(coords[dim])
-
     @visuals.major_label_text.set_value(ctx)
 
     if _.isString(orient)
@@ -337,14 +313,12 @@ class AxisView extends Renderer.View
     angle = Math.abs(angle)
     c = Math.cos(angle)
     s = Math.sin(angle)
-
     if side == "above" or side == "below"
       wfactor = s
       hfactor = c
     else
       wfactor = c
       hfactor = s
-
     for i in [0...labels.length]
       if not labels[i]?
         continue
@@ -353,10 +327,8 @@ class AxisView extends Renderer.View
       val = w*wfactor + (h/hscale)*hfactor
       if val > extent
         extent = val
-
     if extent > 0
       extent += @mget('major_label_standoff')
-
     return extent
 
   _axis_label_extent: () ->
@@ -366,13 +338,10 @@ class AxisView extends Renderer.View
     axis_label = @mget('axis_label')
     orient = 'parallel'
     ctx = @plot_view.canvas_view.ctx
-
     @visuals.axis_label_text.set_value(ctx)
-
     angle = Math.abs(_angle_lookup[side][orient])
     c = Math.cos(angle)
     s = Math.sin(angle)
-
     if axis_label
       extent += @mget('axis_label_standoff')
       @visuals.axis_label_text.set_value(ctx)
@@ -382,8 +351,8 @@ class AxisView extends Renderer.View
         extent += w*s + h*c
       else
         extent += w*c + h*s
-
     return extent
+
 
 class Axis extends GuideRenderer.Model
   default_view: AxisView
