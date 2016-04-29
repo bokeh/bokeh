@@ -2,8 +2,6 @@
 module.exports =
   AngleUnits: ["deg", "rad"]
 
-  ArrowStyle: ["open", "normal", "vee"]
-
   Dimension: ["width", "height"]
 
   Direction: ["clock", "anticlock"]

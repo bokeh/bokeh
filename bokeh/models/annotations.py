@@ -6,16 +6,14 @@ from __future__ import absolute_import
 
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side,
-    ArrowStyle
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
-    AngleSpec, ColorSpec, NumberSpec
+    AngleSpec
 )
-from ..util.deprecate import deprecated
 
 from .arrow_heads import ArrowHead, Open
 from .renderers import Renderer, GlyphRenderer

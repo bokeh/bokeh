@@ -5,8 +5,8 @@ from itertools import chain
 from bokeh.models.annotations import Legend, Arrow, BoxAnnotation, Span, Label
 from bokeh.models import ColumnDataSource, ArrowHead
 from bokeh.core.enums import (
-    NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
-    TextBaseline)
+    NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign
+)
 
 FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
