@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.models import Arrow
+from bokeh.models import Arrow, Open, Normal, Vee
 from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -18,13 +18,16 @@ def test_arrow(output_file_url, selenium, screenshot):
 
     arrow1 = Arrow(x_start=1, y_start=3, x_end=6, y_end=8,
                    line_color='green', line_alpha=0.7,
-                   line_dash='8 4', line_width=5,
-                   end_line_width=8)
+                   line_dash='8 4', line_width=5
+                   )
+    arrow1.end.line_width=8
 
     arrow2 = Arrow(x_start=2, y_start=2, x_end=7, y_end=7,
-                   start_style='normal', end_style='vee',
-                   start_fill_color='indigo', end_fill_color='orange',
-                   end_size=50)
+                   start=Normal(), end=Vee()
+                   )
+    arrow2.start.fill_color = 'indigo'
+    arrow2.end.fill_color = 'orange'
+    arrow2.end.size = 50
 
     plot.add_annotation(arrow1)
     plot.add_annotation(arrow2)
