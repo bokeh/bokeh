@@ -395,7 +395,16 @@ class Histogram(Bins):
     bounds, and values.
     """
 
-    density = Bool(default=False)
+    density = Bool(False, help="""
+    Whether to normalize the histogram. (default: True)
+
+    If True, the result is the value of the probability *density* function
+    at the bin, normalized such that the *integral* over the range is 1. If
+    False, the result will contain the number of samples in each bin.
+
+    For more info check ``numpy.histogram`` function documentation.
+
+    """)
 
 
     def calculate(self):
@@ -413,11 +422,8 @@ class Histogram(Bins):
             margin = 0.01 * abs(float(data[0])) or 0.01
             bins = np.linspace(data[0] - margin, data[0] + margin, bins+1)
 
-
-        # binned, bin_bounds = pd.cut(data, bins,
-        #                             retbins=True, include_lowest=True, precision=0)
         binned, bin_bounds = np.histogram(
-                        np.array(data), density=False, bins=bins
+                        np.array(data), density=self.density, bins=bins
                     )
 
         self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
