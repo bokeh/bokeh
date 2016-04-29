@@ -13,7 +13,7 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d
+from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot
 from bokeh.models.tools import PanTool
 
 
@@ -84,6 +84,42 @@ def test_plot_add_annotation_method():
 def test_responsive_property_is_false_by_default():
     plot = figure()
     assert plot.responsive is False
+
+
+class BaseTwinAxis(object):
+    """Base class for testing extra ranges"""
+
+    def verify_axis(self, axis_name):
+        plot = Plot()  # no need for setUp()
+        range_obj = getattr(plot, 'extra_{}_ranges'.format(axis_name))
+        range_obj['foo_range'] = self.get_range_instance()
+        self.assertTrue(range_obj['foo_range'])
+
+    def test_x_range(self):
+        self.verify_axis('x')
+
+    def test_y_range(self):
+        self.verify_axis('y')
+
+    @staticmethod
+    def get_range_instance():
+        raise NotImplementedError
+
+
+class TestCategoricalTwinAxis(BaseTwinAxis, unittest.TestCase):
+    """Test whether extra x and y ranges can be categorical"""
+
+    @staticmethod
+    def get_range_instance():
+        return FactorRange('foo', 'bar')
+
+
+class TestLinearTwinAxis(BaseTwinAxis, unittest.TestCase):
+    """Test whether extra x and y ranges can be Range1d"""
+
+    @staticmethod
+    def get_range_instance():
+        return Range1d(0, 42)
 
 
 if __name__ == '__main__':

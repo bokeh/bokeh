@@ -251,6 +251,22 @@ Examples:
 
 """)
 
+    ellipse = _glyph_function(glyphs.Ellipse, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
+                     color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
     image = _glyph_function(glyphs.Image)
 
     image_rgba = _glyph_function(glyphs.ImageRGBA, """

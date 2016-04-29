@@ -1,6 +1,6 @@
-Component = require "../component"
+LayoutDOM = require "../layouts/layout_dom"
 
-class Widget extends Component.Model
+class Widget extends LayoutDOM.Model
   type: "Widget"
 
 module.exports =

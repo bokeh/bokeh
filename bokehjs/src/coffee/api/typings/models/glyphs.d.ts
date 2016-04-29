@@ -49,6 +49,16 @@ declare namespace Bokeh {
         cy1?: Numerical | Categorical;
     }
 
+    export var Ellipse: { new(attributes?: IEllipse, options?: ModelOpts): Ellipse };
+    export interface Ellipse extends Glyph, IEllipse {}
+    export interface IEllipse extends IGlyph, FillProps, LineProps {
+        x?: Numerical | Categorical;
+        y?: Numerical | Categorical;
+        width?: Spatial;
+        height?: Spatial;
+        angle?: Angular;
+    }
+
     export var ImageRGBA: { new(attributes?: IImageRGBA, options?: ModelOpts): ImageRGBA };
     export interface ImageRGBA extends Glyph, IImageRGBA {}
     export interface IImageRGBA extends IGlyph {

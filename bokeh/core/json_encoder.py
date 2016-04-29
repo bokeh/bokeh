@@ -6,10 +6,10 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-import calendar
 import datetime as dt
 import decimal
 import json
+import time
 
 import numpy as np
 
@@ -41,10 +41,10 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Datetime
         # datetime is a subclass of date.
         elif isinstance(obj, dt.datetime):
-            return calendar.timegm(obj.timetuple()) * 1000. + obj.microsecond / 1000.
+            return time.mktime(obj.timetuple()) * 1000. + obj.microsecond / 1000.
         # Date
         elif isinstance(obj, dt.date):
-            return calendar.timegm(obj.timetuple()) * 1000.
+            return time.mktime(obj.timetuple()) * 1000.
         # Numpy datetime64
         elif isinstance(obj, np.datetime64):
             epoch_delta = obj - np.datetime64('1970-01-01T00:00:00Z')

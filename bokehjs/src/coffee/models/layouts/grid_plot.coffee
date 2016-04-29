@@ -3,7 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 build_views = require "../../common/build_views"
 BokehView = require "../../core/bokeh_view"
-Component = require "../component"
+LayoutDOM = require "./layout_dom"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
 ToolBar = require "../tools/toolbar"
@@ -305,7 +305,7 @@ class GridPlotView extends BokehView
     width = _.reduce(col_widths, add, 0)
     div.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
-class GridPlot extends Component.Model
+class GridPlot extends LayoutDOM.Model
   type: 'GridPlot'
   default_view: GridPlotView
 
@@ -319,15 +319,16 @@ class GridPlot extends Component.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    children = []
+    for plot in _.flatten(@get('children'))
+      if plot?
+        children.push(plot)
+    @set('flat_children', children)
     @define_computed_property('tool_manager', () ->
-      children = []
-      for plot in _.flatten(@get('children'))
-        if plot?
-          children.push(plot)
       new GridToolManager({
-        tool_managers: (plot.get('tool_manager') for plot in children)
+        tool_managers: (plot.get('tool_manager') for plot in @get('flat_children'))
         toolbar_location: @get('toolbar_location')
-        num_plots: children.length
+        num_plots: @get('flat_children').length
       })
     , true)
 
@@ -336,6 +337,27 @@ class GridPlot extends Component.Model
     border_space:      [ p.Number, 0        ]
     toolbar_location:  [ p.Location, 'left' ]
   }
+
+  @internal {
+    flat_children:     [ p.Array, [] ]
+  }
+
+  get_layoutable_children: () ->
+    return @get('flat_children')
+
+  get_edit_variables: () ->
+    edit_variables = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
 
 module.exports =
   Model: GridPlot

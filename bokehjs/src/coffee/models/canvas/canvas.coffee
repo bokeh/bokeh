@@ -1,13 +1,13 @@
 _ = require "underscore"
 
 canvas_template = require "./canvas_template"
-LayoutBox = require "./layout_box"
+LayoutCanvas = require "../../core/layout/layout_canvas"
 
 BokehView = require "../../core/bokeh_view"
-{EQ} = require "../../core/layout/solver"
+{GE, EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
-{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio} = require "../../core/util/canvas"
+{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} = require "../../core/util/canvas"
 
 class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
@@ -33,6 +33,7 @@ class CanvasView extends BokehView
     fixup_line_dash_offset(@ctx)
     fixup_image_smoothing(@ctx)
     fixup_measure_text(@ctx)
+    fixup_ellipse(@ctx)
 
     # map plots reference this attribute
     @map_div = @$('div.bk-canvas-map') ? null
@@ -67,7 +68,7 @@ class CanvasView extends BokehView
 
     return
 
-class Canvas extends LayoutBox.Model
+class Canvas extends LayoutCanvas.Model
   type: 'Canvas'
   default_view: CanvasView
 
@@ -78,19 +79,39 @@ class Canvas extends LayoutBox.Model
     use_hidpi: [ p.Boolean, true ]
   }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @panel = @
+
+  # TODO (bird) This all moves to update_constraints
+  _doc_attached: () ->
+    super()
+    @set_dims([@get('canvas_width'), @get('canvas_height')])
+    logger.debug("Canvas attached to document")
+
   set_dims: (dims, trigger=true) ->
     @_set_width(dims[0])
     @_set_height(dims[1])
     @document.solver().update_variables(trigger)
     return
 
-  _doc_attached: () ->
-    super()
+  _set_width: (width) ->
     solver = @document.solver()
-    solver.add_constraint(EQ(@_left))
-    solver.add_constraint(EQ(@_bottom))
-    @set_dims([@get('canvas_width'), @get('canvas_height')])
-    logger.debug("Canvas attached to document")
+    if @_width_constraint?
+      solver.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@_width, -width)
+    solver.add_constraint(@_width_constraint)
+    solver.update_variables()
+    return
+
+  _set_height: (height) ->
+    solver = @document.solver()
+    if @_height_constraint?
+      solver.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@_height, -height)
+    solver.add_constraint(@_height_constraint)
+    solver.update_variables()
+    return
 
   # transform view coordinates to underlying screen coordinates
   vx_to_sx: (x) -> x
@@ -132,28 +153,17 @@ class Canvas extends LayoutBox.Model
       yy[idx] = canvas_height - (y + 1)
     return yy
 
-  _set_width: (width) ->
-    solver = @document.solver()
-    if @_width_constraint?
-      solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@_width, -width)
-    solver.add_constraint(@_width_constraint)
-    solver.update_variables()
-    return
-
-  _set_height: (height) ->
-    solver = @document.solver()
-    if @_height_constraint?
-      solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@_height, -height)
-    solver.add_constraint(@_height_constraint)
-    solver.update_variables()
-    return
-
-  _set_dims: (dims, trigger=true) ->
-    logger.warn("_set_dims is deprecated, use set_dims")
-    @set_dims(dims, trigger)
-    return
+  get_constraints: () ->
+    constraints = super()
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_bottom))
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_right))
+    constraints.push(GE(@_width))
+    constraints.push(GE(@_height))
+    constraints.push(EQ(@_width, [-1, @_right]))
+    constraints.push(EQ(@_height, [-1, @_top]))
+    return constraints
 
 module.exports =
   Model: Canvas

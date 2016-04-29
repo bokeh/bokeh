@@ -108,6 +108,10 @@ class Document
       return
     @_roots.push(model)
     model.attach_document(@)
+    for {edit_variable, strength} in model.get_edit_variables()
+      @_solver.add_edit_variable(edit_variable, strength)
+    for constraint in model.get_constraints()
+      @_solver.add_constraint(constraint)
     @_trigger_on_change(new RootAddedEvent(@, model))
 
   remove_root : (model) ->

@@ -20,7 +20,6 @@ module.exports = {
   OpenURL:                  require '../models/callbacks/open_url'
 
   Canvas:                   require '../models/canvas/canvas'
-  LayoutBox:                require '../models/canvas/layout_box'
   CartesianFrame:           require '../models/canvas/cartesian_frame'
 
   BasicTickFormatter:       require '../models/formatters/basic_tick_formatter'
@@ -35,6 +34,7 @@ module.exports = {
   Arc:                      require '../models/glyphs/arc'
   Bezier:                   require '../models/glyphs/bezier'
   Circle:                   require '../models/glyphs/circle'
+  Ellipse:                  require '../models/glyphs/ellipse'
   Gear:                     require '../models/glyphs/gear'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
@@ -64,6 +64,12 @@ module.exports = {
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'
   LogMapper:                require '../models/mappers/log_mapper'
+
+  Transform:                require '../models/transforms/transform'
+  Jitter:                   require '../models/transforms/jitter'
+  Interpolator:             require '../models/transforms/interpolator'
+  LinearInterpolator:       require '../models/transforms/linear_interpolator'
+  StepInterpolator:       require '../models/transforms/step_interpolator'
 
   Asterisk:                 require '../models/markers/asterisk'
   CircleCross:              require '../models/markers/circle_cross'

@@ -4,8 +4,7 @@ Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-LayoutBox = require "../canvas/layout_box"
-Component = require "../component"
+LayoutDOM = require "../layouts/layout_dom"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
@@ -18,7 +17,8 @@ UIEvents = require "../../common/ui_events"
 
 BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
-{EQ, GE, Strength} = require "../../core/layout/solver"
+LayoutCanvas = require "../../core/layout/layout_canvas"
+{EQ, GE, Strength, Variable} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
@@ -81,7 +81,15 @@ class PlotView extends Renderer.View
       }
     }
 
-    @model.initialize_layout()
+    # Formerly in initialize_layout
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @mget(side)
+      for r in layout_renderers
+        if r.get('location') ? 'auto' == 'auto'
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
+        r.initialize_layout()
 
     # compat, to be removed
     @frame = @mget('frame')
@@ -96,7 +104,7 @@ class PlotView extends Renderer.View
     @canvas_view = new @canvas.default_view({'model': @canvas})
 
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
-
+    
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -427,8 +435,8 @@ class PlotView extends Renderer.View
         break
 
     # Note: -1 to effectively dilate the canvas by 1px
-    @frame.set_var('width', @canvas.get('width')-1)
-    @frame.set_var('height', @canvas.get('height')-1)
+    frame.set_var('width', canvas.get('width')-1)
+    frame.set_var('height', canvas.get('height')-1)
 
     @model.document.solver().update_variables(false)
 
@@ -528,7 +536,7 @@ class PlotView extends Renderer.View
     @visuals.background_fill.set_value(ctx)
     ctx.fillRect(frame_box...)
 
-class Plot extends Component.Model
+class Plot extends LayoutDOM.Model
   default_view: PlotView
   type: 'Plot'
 
@@ -560,17 +568,6 @@ class Plot extends Component.Model
 
     logger.debug("Plot initialized")
 
-  initialize_layout: () ->
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
-      for r in layout_renderers
-        if r.get('location') ? 'auto' == 'auto'
-          r.set('layout_location', side, { silent: true })
-        else
-          r.set('layout_location', r.get('location'), { silent: true })
-        r.initialize_layout()
-    @add_constraints()
-
   _doc_attached: () ->
     @get('canvas').attach_document(@document)
 
@@ -586,57 +583,20 @@ class Plot extends Component.Model
     frame.attach_document(@document)
     @set('frame', frame)
 
-  add_constraints: () ->
-    min_border_top    = @get('min_border_top')
-    min_border_bottom = @get('min_border_bottom')
-    min_border_left   = @get('min_border_left')
-    min_border_right  = @get('min_border_right')
+    # Add the panels that make up the layout
+    @above_panel = new LayoutCanvas.Model()
+    @above_panel.attach_document(@document)
+    @below_panel = new LayoutCanvas.Model()
+    @below_panel.attach_document(@document)
+    @left_panel = new LayoutCanvas.Model()
+    @left_panel.attach_document(@document)
+    @right_panel = new LayoutCanvas.Model()
+    @right_panel.attach_document(@document)
+    
+    @_width = new Variable("plot_width")
+    @_height = new Variable("plot_height")
 
-    solver = @document.solver()
-    canvas = @get('canvas')
-    frame = @get('frame')
-
-    above_box = new LayoutBox.Model()
-    above_box.attach_document(@document)
-    solver.add_constraint(GE(above_box._height, -min_border_top))
-    solver.add_constraint(EQ(frame._top, [-1, above_box._bottom]))
-    solver.add_constraint(EQ(above_box._top, [-1, canvas._top]))
-    @above_panel = above_box
-
-    below_box = new LayoutBox.Model()
-    below_box.attach_document(@document)
-    solver.add_constraint(GE(below_box._height, -min_border_bottom))
-    solver.add_constraint(EQ(frame._bottom, [-1, below_box._top]))
-    solver.add_constraint(EQ(below_box._bottom, [-1, canvas._bottom]))
-    @below_panel = below_box
-
-    left_box = new LayoutBox.Model()
-    left_box.attach_document(@document)
-    solver.add_constraint(GE(left_box._width, -min_border_left))
-    solver.add_constraint(EQ(frame._left, [-1, left_box._right]))
-    solver.add_constraint(EQ(left_box._left, [-1, canvas._left]))
-    @left_panel = left_box
-
-    right_box = new LayoutBox.Model()
-    right_box.attach_document(@document)
-    solver.add_constraint(GE(right_box._width, -min_border_right))
-    solver.add_constraint(EQ(frame._right, [-1, right_box._left]))
-    solver.add_constraint(EQ(right_box._right, [-1, canvas._right]))
-    @right_panel = right_box
-
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
-      last = frame
-      for r in layout_renderers
-        if side == "above"
-          solver.add_constraint(EQ(last.panel._top, [-1, r.panel._bottom]))
-        if side == "below"
-          solver.add_constraint(EQ(last.panel._bottom, [-1, r.panel._top]))
-        if side == "left"
-          solver.add_constraint(EQ(last.panel._left, [-1, r.panel._right]))
-        if side == "right"
-          solver.add_constraint(EQ(last.panel._right, [-1, r.panel._left]))
-        last = r
+    logger.debug("Plot attached to document")
 
   serializable_attributes: () ->
     attrs = super()
@@ -744,6 +704,111 @@ class Plot extends Component.Model
     tool_manager: [ p.Instance ]
     frame:        [ p.Instance ]
   }
+
+  get_layoutable_children: () ->
+    children = [
+      @above_panel,
+      @below_panel,
+      @left_panel,
+      @right_panel,
+      @get('canvas'),
+      @get('frame')
+    ]
+    # Add the layout panels for each of the axes
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        if r.panel?
+          children.push(r.panel)
+    return children
+
+  get_edit_variables: () ->
+    edit_variables = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    constraints = constraints.concat(@_get_constant_constraints())
+    constraints = constraints.concat(@_get_side_constraints())
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
+
+  _get_constant_constraints: () ->
+    constraints = []
+
+    # Add the constraints that always apply for a plot
+    min_border_top    = @get('min_border_top')
+    min_border_bottom = @get('min_border_bottom')
+    min_border_left   = @get('min_border_left')
+    min_border_right  = @get('min_border_right')
+    min_size          = @get('min_size')
+    frame             = @get('frame')
+    canvas            = @get('canvas')
+
+    # Min-size
+    constraints.push(GE(@_width, -min_size))
+    constraints.push(GE(@_height, -min_size))
+
+    # Set the border constraints
+    constraints.push(GE(@above_panel._height, -min_border_top))
+    constraints.push(GE(@below_panel._height, -min_border_bottom))
+    constraints.push(GE(@left_panel._width, -min_border_left))
+    constraints.push(GE(@right_panel._width, -min_border_right))
+
+    # Set panel top and bottom related to canvas and frame
+    constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
+    constraints.push(EQ(@above_panel._bottom, [-1, frame._top]))
+    constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
+    constraints.push(EQ(@below_panel._top, [-1, frame._bottom]))
+    constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
+    constraints.push(EQ(@left_panel._right, [-1, frame._left]))
+    constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
+    constraints.push(EQ(@right_panel._left, [-1, frame._right]))
+
+    # Plot sides align
+    constraints.push(EQ(@above_panel._height, [-1, @_top]))
+    constraints.push(EQ(@above_panel._height, [-1, canvas._top], frame._top))
+    constraints.push(EQ(@below_panel._height, [-1, @_height], @_bottom))
+    constraints.push(EQ(@below_panel._height, [-1, frame._bottom]))
+    constraints.push(EQ(@left_panel._width, [-1, @_left]))
+    constraints.push(EQ(@left_panel._width, [-1, frame._left]))
+    constraints.push(EQ(@right_panel._width, [-1, @_width], @_right))
+    constraints.push(EQ(@right_panel._width, [-1, canvas._right], frame._right))
+
+    return constraints
+
+  _get_side_constraints: () ->
+    constraints = []
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      last = @get('frame')
+      for r in layout_renderers
+        # Stack together the renderers
+        if side == "above"
+          constraints.push(EQ(last.panel._top, [-1, r.panel._bottom]))
+        if side == "below"
+          constraints.push(EQ(last.panel._bottom, [-1, r.panel._top]))
+        if side == "left"
+          constraints.push(EQ(last.panel._left, [-1, r.panel._right]))
+        if side == "right"
+          constraints.push(EQ(last.panel._right, [-1, r.panel._left]))
+        last = r
+      if layout_renderers.length != 0
+        # Set panel extent to match the side renderers (e.g. axes)
+        if side == "above"
+          constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
+        if side == "below"
+          constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
+        if side == "left"
+          constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
+        if side == "right"
+          constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
+    return constraints
 
 module.exports =
   Model: Plot

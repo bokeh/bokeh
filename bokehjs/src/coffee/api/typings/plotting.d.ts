@@ -1,6 +1,6 @@
 declare namespace Bokeh.Plotting {
-    function show(objs: Array<Component>, target?: string | HTMLElement): Map<View<Model>>;
-    function show<T extends Component>(obj: T, target?: string | HTMLElement): View<T>;
+    function show(objs: Array<LayoutDOM>, target?: string | HTMLElement): Map<View<Model>>;
+    function show<T extends LayoutDOM>(obj: T, target?: string | HTMLElement): View<T>;
 
     function color(r: number, g: number, b: number): string;
 
@@ -60,6 +60,7 @@ declare namespace Bokeh.Plotting {
         annulus           (attrs: AnnulusAttrs):          GlyphRenderer;
         arc               (attrs: ArcAttrs):              GlyphRenderer;
         bezier            (attrs: BezierAttrs):           GlyphRenderer;
+        ellipse           (attrs: EllipseAttrs):          GlyphRenderer;
         gear              (attrs: GearAttrs):             GlyphRenderer;
         image             (attrs: ImageAttrs):            GlyphRenderer;
         image_rgba        (attrs: ImageRGBAAttrs):        GlyphRenderer;
@@ -122,6 +123,12 @@ declare namespace Bokeh.Plotting {
             cx1: DataAttr,
             cy1: DataAttr,
             opts?: BezierOpts):           GlyphRenderer;
+        ellipse(
+            x: DataAttr,
+            y: DataAttr,
+            width: SpatialAttr,
+            height: SpatialAttr,
+            opts?: EllipseOpts):             GlyphRenderer;
         gear(
             x: DataAttr,
             y: DataAttr,
@@ -364,6 +371,16 @@ declare namespace Bokeh.Plotting {
         cy0: DataAttr;
         cx1: DataAttr;
         cy1: DataAttr;
+    }
+
+    export interface EllipseOpts extends GlyphOpts, FillPropsOpts, LinePropsOpts {
+        angle?: AngularAttr;
+    }
+    export interface EllipseAttrs extends EllipseOpts {
+        x: DataAttr;
+        y: DataAttr;
+        width: SpatialAttr;
+        height: SpatialAttr;
     }
 
     export interface GearOpts extends GlyphOpts, LinePropsOpts, FillPropsOpts {

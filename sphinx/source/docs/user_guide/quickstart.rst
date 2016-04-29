@@ -7,18 +7,18 @@ Introduction
 ============
 
 Bokeh is a Python interactive visualization library that targets modern web
-browsers for presentation. Bokeh provides elegant, concise construction of 
-novel graphics with high-performance interactivity over very large or streaming 
+browsers for presentation. Bokeh provides elegant, concise construction of
+novel graphics with high-performance interactivity over very large or streaming
 datasets in a quick and easy way.
 
-To offer both simplicity and the powerful and flexible features needed for 
+To offer both simplicity and the powerful and flexible features needed for
 advanced customizations, Bokeh exposes three interface levels to users:
 
-* a *low-level* |bokeh.models| interface that provides the most flexibility to 
+* a *low-level* |bokeh.models| interface that provides the most flexibility to
   application developers.
-* an *intermediate-level* |bokeh.plotting| interface centered around composing 
+* an *intermediate-level* |bokeh.plotting| interface centered around composing
   visual glyphs.
-* a *high-level* |bokeh.charts| interface to build complex statistical plots 
+* a *high-level* |bokeh.charts| interface to build complex statistical plots
   quickly and simply.
 
 This Quickstart focuses on the |bokeh.plotting| interface.
@@ -26,20 +26,20 @@ This Quickstart focuses on the |bokeh.plotting| interface.
 Quick Installation
 ==================
 
-There are multiple ways to install Bokeh, and we recommend the easiest one, 
-which is to use the `Anaconda Python distribution`_ and enter this command at 
+There are multiple ways to install Bokeh, and we recommend the easiest one,
+which is to use the `Anaconda Python distribution`_ and enter this command at
 a Bash or Windows command prompt:
 
 .. code-block:: sh
 
     conda install bokeh
 
-This installs all the dependencies that Bokeh needs. Anaconda minimizes 
-installation effort on all platforms and configurations, including Windows, 
-and also installs the examples into the ``examples/`` subdirectory of your 
+This installs all the dependencies that Bokeh needs. Anaconda minimizes
+installation effort on all platforms and configurations, including Windows,
+and also installs the examples into the ``examples/`` subdirectory of your
 Anaconda or Miniconda installation directory.
 
-If you are confident that you have installed all needed dependencies such as 
+If you are confident that you have installed all needed dependencies such as
 NumPy you may instead use ``pip`` at the command line:
 
 .. code-block:: sh
@@ -99,7 +99,7 @@ The basic steps to creating plots with the |bokeh.plotting| interface are:
    customizations like colors, legends and widths to the plot.
 5. Ask Bokeh to |show| or |save| the results.
 
-Steps three and four can be repeated to create more than one plot, as shown in 
+Steps three and four can be repeated to create more than one plot, as shown in
 some of the examples below.
 
 The |bokeh.plotting| interface is also quite handy if we need to customize
@@ -144,9 +144,9 @@ Jupyter Notebooks
 
 At this point we should mention Jupyter (formerly IPython) notebooks.
 
-Jupyter notebooks are a fantastic tool for exploratory data analysis, widely 
-used across the "PyData" community. Bokeh integrates seamlessly with Jupyter 
-notebooks. To view the above examples in a notebook, you would only 
+Jupyter notebooks are a fantastic tool for exploratory data analysis, widely
+used across the "PyData" community. Bokeh integrates seamlessly with Jupyter
+notebooks. To view the above examples in a notebook, you would only
 change |output_file| to a call to |output_notebook| instead.
 
 Many static examples may be viewed directly online at the
@@ -190,7 +190,7 @@ commands at a Bash or Windows command prompt:
 
 .. code-block:: sh
 
-    python -c "import bokeh.sampledata; bokeh.sampledata.download()"
+    bokeh sampledata
 
 Concepts
 ========
@@ -252,10 +252,10 @@ As a convenience these can also typically be spelled as 2-tuples or lists::
 Resources
 ---------
 
-To generate plots, the client library BokehJS JavaScript and CSS code must 
-be loaded into the browser. By default, the |output_file| function will 
-load BokehJS from http://cdn.pydata.org . However, you can also configure Bokeh 
-to generate static HTML files with BokehJS resources embedded directly inside, 
+To generate plots, the client library BokehJS JavaScript and CSS code must
+be loaded into the browser. By default, the |output_file| function will
+load BokehJS from http://cdn.pydata.org . However, you can also configure Bokeh
+to generate static HTML files with BokehJS resources embedded directly inside,
 by passing the argument ``mode="inline"`` to the |output_file| function.
 
 More examples

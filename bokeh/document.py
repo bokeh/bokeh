@@ -11,10 +11,12 @@ logger = logging.getLogger(__file__)
 from functools import wraps
 from json import loads
 
+import jinja2
 from six import string_types
 
 from .core.json_encoder import serialize_json
 from .core.query import find
+from .core.templates import FILE
 from .core.validation import check_integrity
 from .model import Model
 from .themes import default as default_theme
@@ -259,6 +261,7 @@ class Document(object):
         self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
+        self._template = FILE
 
         # TODO (bev) add vars, stores
 
@@ -356,6 +359,16 @@ class Document(object):
             self._trigger_on_change(TitleChangedEvent(self, title))
 
     @property
+    def template(self):
+        return self._template
+
+    @template.setter
+    def template(self, template):
+        if not isinstance(template, jinja2.Template):
+            raise ValueError("Document templates must be Jinja2 Templates")
+        self._template = template
+
+    @property
     def theme(self):
         """ Get the current Theme instance affecting models in this Document. Never returns None."""
         return self._theme
@@ -448,7 +461,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             seq[Model]
@@ -467,7 +480,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             Model
@@ -486,8 +499,8 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) :
+                name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                updates (dict) :
 
         Returns:
             None
