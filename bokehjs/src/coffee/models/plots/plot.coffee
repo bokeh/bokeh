@@ -724,16 +724,6 @@ class Plot extends LayoutDOM.Model
     @right_panel = new LayoutCanvas.Model()
     @right_panel.attach_document(@document)
     
-    # Add the padding
-    @above_padding = new LayoutCanvas.Model()
-    @above_padding.attach_document(@document)
-    @below_padding = new LayoutCanvas.Model()
-    @below_padding.attach_document(@document)
-    @left_padding = new LayoutCanvas.Model()
-    @left_padding.attach_document(@document)
-    @right_padding = new LayoutCanvas.Model()
-    @right_padding.attach_document(@document)
-
     @_width = new Variable("plot_width")
     @_height = new Variable("plot_height")
 
@@ -875,14 +865,30 @@ class Plot extends LayoutDOM.Model
 
   get_constraints: () ->
     constraints = super()
+    constraints = constraints.concat(@_get_constant_constraints())
+    constraints = constraints.concat(@_get_side_constraints())
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
 
+  _get_constant_constraints: () ->
+    constraints = []
+
+    # Add the constraints that always apply for a plot
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
+    min_size          = @get('min_size')
     frame             = @get('frame')
     canvas            = @get('canvas')
 
+    # Min-size
+    constraints.push(GE(@_width, -min_size))
+    constraints.push(GE(@_height, -min_size))
+
+    # Set the border constraints
     constraints.push(GE(@above_panel._height, -min_border_top))
     constraints.push(GE(@below_panel._height, -min_border_bottom))
     constraints.push(GE(@left_panel._width, -min_border_left))
@@ -890,27 +896,35 @@ class Plot extends LayoutDOM.Model
 
     # Set panel top and bottom related to canvas and frame
     constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
-    constraints.push(EQ(@above_padding._top, [-1, canvas._top]))
     constraints.push(EQ(@above_panel._bottom, [-1, frame._top]))
-
     constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
-    constraints.push(EQ(@below_padding._top, [-1, canvas._top]))
     constraints.push(EQ(@below_panel._top, [-1, frame._bottom]))
-
     constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
-    constraints.push(EQ(@left_padding._left, [-1, canvas._left]))
     constraints.push(EQ(@left_panel._right, [-1, frame._left]))
-
     constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
     constraints.push(EQ(@right_panel._left, [-1, frame._right]))
 
+    # Plot sides align
+    constraints.push(EQ(@above_panel._height, [-1, @_top]))
+    constraints.push(EQ(@above_panel._height, [-1, canvas._top], frame._top))
+    constraints.push(EQ(@below_panel._height, [-1, @_height], @_bottom))
+    constraints.push(EQ(@below_panel._height, [-1, frame._bottom]))
+    constraints.push(EQ(@left_panel._width, [-1, @_left]))
+    constraints.push(EQ(@left_panel._width, [-1, frame._left]))
+    constraints.push(EQ(@right_panel._width, [-1, @_width], @_right))
+    constraints.push(EQ(@right_panel._width, [-1, canvas._right], frame._right))
+
+    return constraints
+
+  _get_side_constraints: () ->
+    constraints = []
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
-      last = frame
+      last = @get('frame')
       for r in layout_renderers
         # Stack together the renderers
         if side == "above"
-          constraints.push(EQ(last.panel_top, [-1, r.panel._bottom]))
+          constraints.push(EQ(last.panel._top, [-1, r.panel._bottom]))
         if side == "below"
           constraints.push(EQ(last.panel._bottom, [-1, r.panel._top]))
         if side == "left"
@@ -928,11 +942,6 @@ class Plot extends LayoutDOM.Model
           constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
         if side == "right"
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
-
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      constraints = constraints.concat(child.get_constraints())
-
     return constraints
 
 module.exports =
