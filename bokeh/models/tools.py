@@ -128,14 +128,16 @@ class ResetTool(Tool):
     resets the data bounds of the plot to their values when the plot was
     initially created.
 
-    .. note::
-        This tool does not also reset the plot canvas size, if the plot
-        has been resized using the ``ResizeTool``. That feature may be
-        added in a future release.
+    Optionally, the reset tool also resets the plat canvas dimensions to
+    their original size
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 18pt
     """
+    reset_size = Bool(default=True, help="""
+    Whether activating the Reset tool should also reset the plot's canvas
+    dimensions to their original size.
+    """)
 
 
 class ResizeTool(Tool):
@@ -291,7 +293,7 @@ class BoxZoomTool(Tool):
 
     .. note::
         If the tool is restricted to one dimension, this value has
-        no effect. 
+        no effect.
 
     """)
 

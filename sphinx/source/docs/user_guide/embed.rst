@@ -203,26 +203,26 @@ Running ``python scatter.py`` will print out:
 
 .. code-block:: shell
 
-script type="text/javascript">
-    Bokeh.$(function() {
-    var docs_json = { DOCUMENT DATA HERE }
-    var render_items = [
-      {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-       "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
-       "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"},
-      {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-       "elementid":"eeb9a417-02a1-47e3-ab82-221abe8a1644",
-       "modelid":"0e5ccbaf-62af-42cc-98de-7c597d83747a"},
-      {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
-       "elementid":"c311f123-368f-43ba-88b6-4e3ecd9aed94",
-       "modelid":"57f18497-9598-4c70-a251-6072baf223ff"}
-    ];
+    script type="text/javascript">
+        Bokeh.$(function() {
+        var docs_json = { DOCUMENT DATA HERE }
+        var render_items = [
+          {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
+           "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
+           "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"},
+          {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
+           "elementid":"eeb9a417-02a1-47e3-ab82-221abe8a1644",
+           "modelid":"0e5ccbaf-62af-42cc-98de-7c597d83747a"},
+          {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
+           "elementid":"c311f123-368f-43ba-88b6-4e3ecd9aed94",
+           "modelid":"57f18497-9598-4c70-a251-6072baf223ff"}
+        ];
 
-    Bokeh.embed.embed_items(docs_json, render_items);
-});
-</script>
+        Bokeh.embed.embed_items(docs_json, render_items);
+    });
+    </script>
 
-    {'Green': '\n<div class="bk-root">\n    <div class="plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>', 'Blue': '\n<div class="bk-root">\n    <div class="plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>', 'Red': '\n<div class="bk-root">\n    <div class="plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'}
+        {'Green': '\n<div class="bk-root">\n    <div class="plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>', 'Blue': '\n<div class="bk-root">\n    <div class="plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>', 'Red': '\n<div class="bk-root">\n    <div class="plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'}
 
 Then inserting the script and div elements into this boilerplate:
 

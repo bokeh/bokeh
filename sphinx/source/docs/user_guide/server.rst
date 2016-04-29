@@ -359,16 +359,20 @@ The full set of files that Bokeh server knows about is:
        |
        +---main.py
        +---server_lifecycle.py
-       +---theme.yaml
        +---static
+       +---theme.yaml
+       +---templates
+            +---index.html
 
 The optional components are
 
 * A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
 
+* A ``static`` subdirectory that can be used to serve static resources associated with this application.
+
 * A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
 
-* a ``static`` subdirectory that can be used to serve static resources associated with this application.
+* A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
@@ -392,17 +396,21 @@ An example might be:
        |    +---custom.js
        |
        +---server_lifecycle.py
-       +---theme.yaml
        +---static
-            +---css
-            |    +---special.css
-            |
-            +---images
-            |    +---foo.png
-            |    +---bar.png
-            |
-            +---js
-                 +---special.js
+       |    +---css
+       |    |    +---special.css
+       |    |
+       |    +---images
+       |    |    +---foo.png
+       |    |    +---bar.png
+       |    |
+       |    +---js
+       |        +---special.js
+       |
+       |---templates
+       |    +---index.html
+       |
+       +---theme.yaml
 
 In this case you might have code similar to:
 
