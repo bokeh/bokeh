@@ -33,7 +33,7 @@ def test_bin_labeling(ds):
 
 
 def test_histogram_wo_density():
-    values = range(10)
+    values = list(range(10))
     h = Histogram(values=values, bin_count=3)
 
     assert len(h.bins) == 3
@@ -42,7 +42,7 @@ def test_histogram_wo_density():
 
 
 def test_histogram_w_density():
-    values = range(10)
+    values = list(range(10))
     h = Histogram(values=values, bin_count=3, density=True)
 
     assert len(h.bins) == 3
