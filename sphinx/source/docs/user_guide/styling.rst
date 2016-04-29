@@ -110,10 +110,10 @@ the inputs for line and fill alphas:
 Styling Arrow Annotations
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are several supported arrow styles that can be applied to Arrow
-annotations. Setting the `head_style` or `tail_style` property to None will
+There are several `ArrowHead` subtypes that can be applied to Arrow
+annotations. Setting the `start` or `end` property to None will
 cause no arrow head to be applied at the specified arrow end. Double-sided
-arrows can be created by setting both head and tail styles.
+arrows can be created by setting both `start` and `end` styles.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_arrow_annotations.py
     :source-position: none
