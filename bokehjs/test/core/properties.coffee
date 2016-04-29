@@ -309,20 +309,6 @@ describe "properties module", ->
       it "should be Property.transform", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
-  describe "ArrowStyle", ->
-    prop = new properties.ArrowStyle({obj: new SomeHasProps(a: {value: "open"}), attr: 'a'})
-
-    it "should be an instance of Property", ->
-      expect(prop).to.be.instanceof properties.Property
-
-    describe "validate", ->
-      it "should return undefined on arrow style input", ->
-        for x in enums.ArrowStyle
-          expect(prop.validate x).to.equal undefined
-
-      it "should throw an Error on other input", ->
-        enum_validation_errors prop
-
   describe "Bool", ->
     prop = new properties.Bool({obj: new SomeHasProps(a: {value: true}), attr: 'a'})
 
@@ -743,7 +729,6 @@ describe "properties module", ->
       expect("Anchor" of properties).to.be.true
       expect("Angle" of properties).to.be.true
       expect("Array" of properties).to.be.true
-      expect("ArrowStyle" of properties).to.be.true
       expect("Bool" of properties).to.be.true
       expect("Color" of properties).to.be.true
       expect("Dimension" of properties).to.be.true

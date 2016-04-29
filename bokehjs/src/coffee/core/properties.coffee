@@ -163,8 +163,6 @@ enum_prop = (name, enum_values) ->
 
 class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
-class ArrowStyle extends enum_prop("ArrowStyle", enums.ArrowStyle)
-
 class Direction extends enum_prop("Direction", enums.Direction)
   transform: (values) ->
     result = new Uint8Array(values.length)
@@ -261,7 +259,6 @@ module.exports =
   Any: Any
   Angle: Angle
   Array: Array
-  ArrowStyle: ArrowStyle
   Bool: Bool
   Boolean: Bool                   # alias
   Color: Color
