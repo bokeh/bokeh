@@ -1,3 +1,4 @@
+### NOTE: The csv export will not work on Safari
 import bokeh
 import pandas as pd
 
@@ -29,6 +30,7 @@ def update(attr, old, new):
 
 salary_range.on_change('value', update)
 
+###NOTE: This Callback will not run on Safari :(
 js_callback = """
 var data = source.get('data');
 var filetext = 'name,income,years_experience\\n';
