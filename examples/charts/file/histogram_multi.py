@@ -8,7 +8,7 @@ defaults.plot_height = 350
 # input options
 hist  = Histogram(df['mpg'], title="df['mpg']")
 hist2 = Histogram(df, 'displ', title="df, 'displ'")
-hist3 = Histogram(df, values='hp', title="df, values='hp'")
+hist3 = Histogram(df, values='hp', title="df, values='hp'", density=True)
 
 hist4 = Histogram(df, values='hp', color='cyl',
                   title="df, values='hp', color='cyl'", legend='top_right')
