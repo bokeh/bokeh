@@ -481,8 +481,8 @@ class PlotView extends Renderer.View
         @title_panel.set_var('height', th)
 
     # Note: -1 to effectively dilate the canvas by 1px
-    @frame.set_var('width', canvas.get('width')-1)
-    @frame.set_var('height', canvas.get('height')-1)
+    @frame.set_var('width', @canvas.get('width')-1)
+    @frame.set_var('height', @canvas.get('height')-1)
 
     @model.document.solver().update_variables(false)
 

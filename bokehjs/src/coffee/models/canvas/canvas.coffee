@@ -19,11 +19,8 @@ class CanvasView extends BokehView
     html = @template({ map: @mget('map') })
     @$el.html(html)
 
-    # create the canvas DOM element, various renderers reference this attribute
-    @canvas = @$('canvas.bk-canvas')
-
     # create the canvas context that gets passed around for drawing
-    @ctx = @canvas[0].getContext('2d')
+    @ctx = @get_ctx()
 
     # init without webgl support (can be overriden in plot.coffee)
     @ctx.glcanvas = null
@@ -40,6 +37,11 @@ class CanvasView extends BokehView
 
     logger.debug("CanvasView initialized")
 
+  get_ctx: () ->
+    canvas_el = @$('canvas.bk-canvas')
+    ctx = canvas_el[0].getContext('2d')
+    return ctx
+
   render: (force=false) ->
 
     width = @mget('width')
@@ -52,8 +54,9 @@ class CanvasView extends BokehView
 
       logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
 
-      @canvas.attr('style', "width:#{width}px; height:#{height}px")
-      @canvas.attr('width', width*ratio).attr('height', height*ratio)
+      canvas_el = @$('canvas.bk-canvas')
+      canvas_el.attr('style', "width:#{width}px; height:#{height}px")
+      canvas_el.attr('width', width*ratio).attr('height', height*ratio)
 
       @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
       @$el.attr("width", width).attr('height', height)
@@ -167,3 +170,4 @@ class Canvas extends LayoutCanvas.Model
 
 module.exports =
   Model: Canvas
+  View: CanvasView
