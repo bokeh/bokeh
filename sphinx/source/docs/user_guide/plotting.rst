@@ -386,10 +386,12 @@ Arrows
 ~~~~~~
 
 Arrows can be used to connect glyphs and label annotations or to simply
-highlight plot regions. By default, the arrow `head_style` is `"open"`
-(an open-backed wedge type) and the `tail_style` is `None`. Double-sided arrows
-can be created by changing the `tail_style` property to an appropriate
-enum in `enums.ArrowStyle`.
+highlight plot regions. Arrows are compound annotations, meaning that their
+`start` and `end` attributes are `ArrowHead` annotations themselves. By
+default, the Arrow annotation is one-sided with the `end` set as an `Open`-type
+arrow head (an open-backed wedge style) and the `start` property set to `None`.
+Double-sided arrows can be created by setting both the `start` and `end`
+properties as appropriate `ArrowHead` subclass instances.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arrow.py
     :source-position: above
