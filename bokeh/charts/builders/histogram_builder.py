@@ -60,6 +60,8 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
         histogram, or explicit color as a string.
       agg (str, optional): how to aggregate the bins. Defaults to "count".
       bins (int, optional): the number of bins to use. Defaults to None to auto select.
+      density (bool, optional): whether to normalize the histogram. Defaults to False.
+      
       **kw:
 
     In addition to the parameters specific to this chart,
