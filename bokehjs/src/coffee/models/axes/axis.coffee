@@ -292,6 +292,9 @@ class AxisView extends Renderer.View
     else
       ctx.fillText(label, sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
 
+  _tick_extent: () ->
+    return @mget('major_tick_out')
+
 class Axis extends GuideRenderer.Model
   default_view: AxisView
 
@@ -394,8 +397,7 @@ class Axis extends GuideRenderer.Model
       # if not visible, avoid applying constraints until visible again
       return
 
-    size = (@_tick_extent(view) + @_tick_label_extent(view) +
-      @_axis_label_extent(view))
+    size = (@_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view))
 
     if not @_last_size?
       @_last_size = -1
@@ -538,9 +540,6 @@ class Axis extends GuideRenderer.Model
       loc = 'end'
 
     return cross_range.get(loc)
-
-  _tick_extent: (view) ->
-    return @get('major_tick_out')
 
   _tick_label_extent: (view) ->
     extent = 0
