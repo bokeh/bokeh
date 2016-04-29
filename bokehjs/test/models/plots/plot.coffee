@@ -78,6 +78,32 @@ describe "Plot.Model", ->
     for child in children
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
+  it "should set min_border_x to value of min_border if min_border_x is not specified", ->
+    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
+    p.document = new Document()
+    p._doc_attached()
+    expect(p.min_border_top).to.be.equal 33.33
+    expect(p.min_border_bottom).to.be.equal 33.33
+    expect(p.min_border_left).to.be.equal 33.33
+    expect(p.min_border_right).to.be.equal 33.33
+
+  it "should set min_border_x to value of specified, and others to value of min_border", ->
+    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
+    p.document = new Document()
+    p._doc_attached()
+    expect(p.min_border_top).to.be.equal 33.33
+    expect(p.min_border_bottom).to.be.equal 33.33
+    expect(p.min_border_left).to.be.equal 66.66
+    expect(p.min_border_right).to.be.equal 33.33
+
+  it "should set min_border_x to value of specified, and others to default min_border", ->
+    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
+    p.document = new Document()
+    p._doc_attached()
+    expect(p.min_border_top).to.be.equal 50
+    expect(p.min_border_bottom).to.be.equal 50
+    expect(p.min_border_left).to.be.equal 4
+    expect(p.min_border_right).to.be.equal 50
 
 describe "Plot.Model constraints", ->
 

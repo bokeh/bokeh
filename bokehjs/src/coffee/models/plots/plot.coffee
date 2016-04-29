@@ -696,6 +696,17 @@ class Plot extends LayoutDOM.Model
 
     @set('tool_manager', new ToolManager.Model({ plot: this }))
 
+    min_border = @get('min_border')
+    if min_border?
+      if not @get('min_border_top')?
+        @set('min_border_top', min_border)
+      if not @get('min_border_bottom')?
+        @set('min_border_bottom', min_border)
+      if not @get('min_border_left')?
+        @set('min_border_left', min_border)
+      if not @get('min_border_right')?
+        @set('min_border_right', min_border)
+
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
@@ -816,10 +827,10 @@ class Plot extends LayoutDOM.Model
       responsive:        [ p.Bool,     false                  ]
 
       min_border:        [ p.Number,   MIN_BORDER             ]
-      min_border_top:    [ p.Number,   MIN_BORDER             ]
-      min_border_left:   [ p.Number,   MIN_BORDER             ]
-      min_border_bottom: [ p.Number,   MIN_BORDER             ]
-      min_border_right:  [ p.Number,   MIN_BORDER             ]
+      min_border_top:    [ p.Number,   null                   ]
+      min_border_left:   [ p.Number,   null                   ]
+      min_border_bottom: [ p.Number,   null                   ]
+      min_border_right:  [ p.Number,   null                   ]
     }
 
   @override {
