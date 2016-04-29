@@ -12,6 +12,10 @@ module.exports = {
   Span:                     require '../models/annotations/span'
   Tooltip:                  require '../models/annotations/tooltip'
 
+  Open:                     require('../models/annotations/arrow_head').Open
+  Normal:                   require('../models/annotations/arrow_head').Normal
+  Vee:                      require('../models/annotations/arrow_head').Vee
+
   CategoricalAxis:          require '../models/axes/categorical_axis'
   DatetimeAxis:             require '../models/axes/datetime_axis'
   LinearAxis:               require '../models/axes/linear_axis'

@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+Open = require("./arrow_head").Open
 ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
@@ -50,8 +51,8 @@ class ArrowView extends Renderer.View
   render: () ->
     [@start, @end] = @_map_data()
     @_draw_arrow_body()
-    @_draw_arrow_head('end', @start, @end)
-    @_draw_arrow_head('start', @end, @start)
+    if @mget('end')? then @_draw_arrow_head(@mget('end'), @start, @end)
+    if @mget('start')? then @_draw_arrow_head(@mget('start'), @end, @start)
 
   _draw_arrow_body: () ->
     ctx = @plot_view.canvas_view.ctx
@@ -67,7 +68,7 @@ class ArrowView extends Renderer.View
           ctx.stroke()
     ctx.restore()
 
-  _draw_arrow_head: (prefix, start, end) ->
+  _draw_arrow_head: (head, start, end) ->
     ctx = @plot_view.canvas_view.ctx
 
     for i in [0...@_x_start.length]
@@ -79,94 +80,30 @@ class ArrowView extends Renderer.View
       ctx.translate(end[0][i], end[1][i])
       ctx.rotate(angle)
 
-      switch @mget("#{prefix}_style")
-        when 'open'
-          @_draw_head_open(prefix, ctx, i)
-        when 'normal'
-          @_draw_head_closed(prefix, ctx, i)
-        when 'vee'
-          @_draw_head_vee(prefix, ctx, i)
-        else null
+      head.render(ctx, i)
 
       ctx.restore()
-
-  _draw_head_open: (prefix, ctx, i) ->
-    if @visuals["#{prefix}_line"].doit
-      @visuals["#{prefix}_line"].set_vectorize(ctx, i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.stroke()
-
-  _draw_head_closed: (prefix, ctx, i) ->
-    if @visuals["#{prefix}_fill"].doit
-      @visuals["#{prefix}_fill"].set_vectorize(ctx, i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.closePath()
-      ctx.fill()
-
-    if @visuals["#{prefix}_line"].doit
-      @visuals["#{prefix}_line"].set_vectorize(ctx, i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.closePath()
-      ctx.stroke()
-
-  _draw_head_vee: (prefix, ctx, i) ->
-    if @visuals["#{prefix}_fill"].doit
-      @visuals["#{prefix}_fill"].set_vectorize(ctx, i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0.5*@mget("#{prefix}_size"))
-      ctx.closePath()
-      ctx.fill()
-
-    if @visuals["#{prefix}_line"].doit
-      @visuals["#{prefix}_line"].set_vectorize(ctx, i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@mget("#{prefix}_size"), @mget("#{prefix}_size"))
-      ctx.lineTo(0, 0.5*@mget("#{prefix}_size"))
-      ctx.closePath()
-      ctx.stroke()
 
 class Arrow extends Annotation.Model
   default_view: ArrowView
 
   type: 'Arrow'
 
-  @mixins ['line', 'line:start_', 'fill:start_',
-           'line:end_', 'fill:end_']
+  @mixins ['line']
 
   @define {
       x_start:          [ p.NumberSpec,                     ]
       y_start:          [ p.NumberSpec,                     ]
       start_units:      [ p.String,      'data'             ]
-      start_style:      [ p.ArrowStyle,  null               ]
-      start_size:       [ p.Number,      25                 ]
+      start:            [ p.Instance,    null               ]
       x_end:            [ p.NumberSpec,                     ]
       y_end:            [ p.NumberSpec,                     ]
       end_units:        [ p.String,      'data'             ]
-      end_style:        [ p.ArrowStyle,  'open'             ]
-      end_size:         [ p.Number,      25                 ]
+      end:              [ p.Instance,    new Open.Model({}) ]
       source:           [ p.Instance                        ]
       x_range_name:     [ p.String,      'default'          ]
       y_range_name:     [ p.String,      'default'          ]
-    }
-
-  @override {
-      start_fill_color: "black"
-      end_fill_color: "black"
-    }
+  }
 
 module.exports =
   Model: Arrow
