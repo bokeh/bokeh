@@ -40,6 +40,13 @@ BoxPlot
 
     .. autofunction:: BoxPlot
 
+.. _bokeh_charts_charts_chord:
+
+Chord
+~~~~~
+
+    .. autofunction:: Chord
+
 .. _bokeh_charts_charts_donut:
 
 Donut
@@ -131,6 +138,10 @@ Builders
     :undoc-members:
 
 .. autoclass:: bokeh.charts.builders.boxplot_builder.BoxPlotBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.chord_builder.ChordBuilder
     :members:
     :undoc-members:
 

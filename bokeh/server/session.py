@@ -148,6 +148,8 @@ class ServerSession(object):
         return func(*args, **kwargs)
 
     def _wrap_document_callback(self, callback):
+        if getattr(callback, "nolock", False):
+            return callback
         def wrapped_callback(*args, **kwargs):
             return self.with_document_locked(callback, *args, **kwargs)
         return wrapped_callback

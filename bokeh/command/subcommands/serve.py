@@ -294,6 +294,8 @@ from bokeh.server.server import Server
 from bokeh.util.string import nice_join
 from bokeh.settings import settings
 
+from os import getpid
+
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
 
@@ -524,5 +526,7 @@ class Serve(Subcommand):
                  server.port,
                  address_string,
                  sorted(applications.keys()))
+
+        log.info("Starting Bokeh server with process id: %d" % getpid())
 
         server.start()

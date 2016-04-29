@@ -1,6 +1,7 @@
 - path: "models"
   skip: ["choropleth.py", "maps_cities.py", "data_tables_server.py"]
 - path: "compat"
+  skip: ["pandas_dataframe"]
 - path: "charts/file"
   type: file
 - path: "howto/charts"

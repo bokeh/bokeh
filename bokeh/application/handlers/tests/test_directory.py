@@ -4,10 +4,14 @@ import unittest
 
 import tempfile
 import shutil
+import os
 import os.path
+
+import jinja2
 
 from bokeh.application.handlers import DirectoryHandler
 from bokeh.document import Document
+from bokeh.core.templates import FILE
 
 class TmpDir(object):
     def __init__(self, prefix):
@@ -22,7 +26,11 @@ class TmpDir(object):
 def _with_directory_contents(contents, func):
     with (TmpDir(prefix="bokeh-directory-handler-test")) as dirname:
         for filename, file_content in contents.items():
-            f = open(os.path.join(dirname, filename), 'w')
+            filepath = os.path.join(dirname, filename)
+            filedir = os.path.dirname(filepath)
+            if not os.path.exists(filedir):
+                os.makedirs(filedir)
+            f = open(filepath, 'w')
             f.write(file_content)
             f.flush()
         func(dirname)
@@ -148,7 +156,87 @@ some.foo = 57
         assert len(doc.roots) == 2
 
         handler = result['handler']
+
         assert "on_server_loaded" == handler.on_server_loaded(None)
         assert "on_server_unloaded" == handler.on_server_unloaded(None)
         assert "on_session_created" == handler.on_session_created(None)
         assert "on_session_destroyed" == handler.on_session_destroyed(None)
+
+    def test_directory_with_static(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+            'static/js/foo.js' : "# some JS"
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert handler.static_path() is not None
+        assert handler.static_path().endswith("static")
+
+    def test_directory_without_static(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert handler.static_path() is None
+
+    def test_directory_with_template(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+            'templates/index.html' : "<div>some HTML</div>"
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert isinstance(doc.template, jinja2.Template)
+
+    def test_directory_without_template(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)
+
+        assert not doc.roots
+
+        handler = result['handler']
+        assert doc.template is FILE

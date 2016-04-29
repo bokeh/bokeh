@@ -5,9 +5,10 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Float, Color, Enum, Seq
+from ..core.properties import Float, Color, Enum, Seq, Instance
 from ..core.enums import Palette
 from .. import palettes
+from .transforms import Jitter
 
 @abstract
 class ColorMapper(Model):

@@ -16,6 +16,7 @@ source = ColumnDataSource(dict(
 p = Figure(plot_height=600, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None)
 p.x_range.follow = "end"
 p.x_range.follow_interval = 100
+p.x_range.range_padding = 0
 
 p.line(x='time', y='average', alpha=0.2, line_width=3, color='navy', source=source)
 p.line(x='time', y='ma', alpha=0.8, line_width=2, color='orange', source=source)

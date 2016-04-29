@@ -135,8 +135,8 @@ patch objects, that have multiple disjoint components when rendered:
 
 .. _userguide_plotting_quads_rects:
 
-Rectangles and Ovals
-~~~~~~~~~~~~~~~~~~~~
+Rectangles, Ovals and Ellipses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To draw *axis aligned* rectangles ("quads"), use the |quad| glyph function,
 which accepts ``left``, ``right``, ``top``, and ``bottom`` values to specify
@@ -155,6 +155,14 @@ The |oval| glyph method accepts the same properties as |rect|, but renders
 oval shapes:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ovals.py
+    :source-position: above
+
+The |ellipse| glyph accepts the same properties as |oval| and |rect| but
+renders ellipse shapes, which are different from oval ones. In particular,
+the same value for width and height will render a circle using the |ellipse|
+glyph but not the |oval| one:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ellipses.py
     :source-position: above
 
 .. _userguide_plotting_images:
@@ -449,6 +457,7 @@ extend to the edge of the plot area.
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+.. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`

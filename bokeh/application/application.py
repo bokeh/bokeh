@@ -100,7 +100,10 @@ class Application(object):
     '''
 
     def __init__(self, *handlers):
-        self._handlers = list(handlers)
+        self._static_path = None
+        self._handlers = []
+        for h in handlers:
+            self.add(h)
 
     def create_document(self):
         ''' Creates and initializes a document using the Application's handlers.'''
@@ -131,9 +134,23 @@ class Application(object):
         '''
         self._handlers.append(handler)
 
+        # make sure there is at most one static path
+        static_paths = set(h.static_path() for h in self.handlers)
+        static_paths.discard(None)
+        if len(static_paths) > 1:
+            raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))
+        elif len(static_paths) == 1:
+            self._static_path = static_paths.pop()
+        else:
+            self._static_path = None
+
     @property
     def handlers(self):
         return tuple(self._handlers)
+
+    @property
+    def static_path(self):
+        return self._static_path
 
     def on_server_loaded(self, server_context):
         """ Invoked after server startup but before any sessions are created."""

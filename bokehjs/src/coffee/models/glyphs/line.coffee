@@ -60,6 +60,7 @@ class LineView extends Glyph.View
       if dist < threshold && dist < shortest
         shortest = dist
         result['0d'].glyph = this.model
+        result['0d'].get_view = (() -> this).bind(this);
         result['0d'].flag = true  # backward compat
         result['0d'].indices = [i]
 
@@ -79,6 +80,7 @@ class LineView extends Glyph.View
     for i in [0...values.length-1]
       if values[i]<=val<=values[i+1]
         result['0d'].glyph = this.model
+        result['0d'].get_view = (() -> this).bind(this);
         result['0d'].flag = true  # backward compat
         result['0d'].indices.push(i)
 
