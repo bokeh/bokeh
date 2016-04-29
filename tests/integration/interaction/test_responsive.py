@@ -19,7 +19,7 @@ import pytest
 from ..utils import element_to_start_resizing, element_to_finish_resizing
 
 pytestmark = pytest.mark.integration
-pytestmark = pytest.mark.xfail(reason="Re-implementing resize")
+
 
 def wait_for_canvas_resize(canvas, test_driver):
     try:
@@ -33,6 +33,7 @@ def wait_for_canvas_resize(canvas, test_driver):
         pass
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
 
     # We want the aspect ratio of the initial plot to be maintained, but we
@@ -79,6 +80,7 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     assert final_height <= initial_height / window_ratio
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
     # The aspect ratio is portrait but should not allow a width less than 100
     plot = figure(plot_width=600, plot_height=1200, responsive=True)
@@ -96,6 +98,7 @@ def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
     assert canvas.size['width'] >= 100
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
     # The aspect ratio is landscape but should not allow a height less than 100
     plot = figure(plot_width=1200, plot_height=600, responsive=True)
@@ -113,6 +116,7 @@ def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
     assert canvas.size['height'] >= 100
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
     hist = Histogram(df['mpg'], title="MPG Distribution", responsive=True)
     save(hist)
@@ -128,6 +132,7 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
     assert canvas.size['width'] < 1000
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_legacy_chart_starts_at_correct_size(output_file_url, selenium):
     values = dict(
         apples=[2, 3, 7, 5, 26, 221, 44, 233, 254, 25, 2, 67, 10, 11],
@@ -148,6 +153,7 @@ def test_responsive_legacy_chart_starts_at_correct_size(output_file_url, seleniu
     assert canvas.size['width'] < 1000
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     plot = figure(responsive=True, title="Test Me")
     plot.scatter([1, 2, 3], [3, 2, 3])
@@ -164,6 +170,7 @@ def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     assert canvas.size['width'] < 1000
 
 
+@pytest.mark.xfail(reason="Re-implementing resize")
 def test_responsive_resizes_width_and_height(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.
@@ -290,4 +297,3 @@ def test_responsive_resizes_width_and_height(output_file_url, selenium):
     width5 = canvas.size['width']
     assert width5 == width1
     assert height5 == height1
-
