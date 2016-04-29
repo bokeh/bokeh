@@ -1,8 +1,10 @@
 {expect} = require "chai"
 utils = require "../../utils"
+sinon = require "sinon"
 
 {Collections} = utils.require "base"
 Jitter = utils.require("models/transforms/jitter").Model
+{random}  = utils.require("core/util/math")
 
 describe "Jitter transform module", ->
   source = {start: 0, end: 10}
@@ -20,6 +22,9 @@ describe "Jitter transform module", ->
     transform.set('distribution', 'uniform')
 
     it "should average the fixed values", ->
+      random_stub = sinon.stub().returns(1)
+      sinon.mock(random, random_stub)
+
       N = 10000
       vals =  Array.apply(null, Array(N)).map ->
                 5
@@ -30,8 +35,7 @@ describe "Jitter transform module", ->
       , 0)
       thediff = (thesum/N) - 5
       expect(thediff).to.be.below 0.01
-
-
+      
   describe "Jitter with normal", ->
     transform = generate_jitter()
     transform.set('distribution', 'normal')
