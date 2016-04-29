@@ -36,6 +36,7 @@ module.exports = {
   Annulus:                                require("../models/glyphs/annulus").Model
   Arc:                                    require("../models/glyphs/arc").Model
   Bezier:                                 require("../models/glyphs/bezier").Model
+  Ellipse:                                require("../models/glyphs/ellipse").Model
   ImageRGBA:                              require("../models/glyphs/image_rgba").Model
   Image:                                  require("../models/glyphs/image").Model
   ImageURL:                               require("../models/glyphs/image_url").Model

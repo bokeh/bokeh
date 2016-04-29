@@ -7,7 +7,7 @@ BokehView = require "../../core/bokeh_view"
 {GE, EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
-{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio} = require "../../core/util/canvas"
+{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} = require "../../core/util/canvas"
 
 class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
@@ -33,6 +33,7 @@ class CanvasView extends BokehView
     fixup_line_dash_offset(@ctx)
     fixup_image_smoothing(@ctx)
     fixup_measure_text(@ctx)
+    fixup_ellipse(@ctx)
 
     # map plots reference this attribute
     @map_div = @$('div.bk-canvas-map') ? null

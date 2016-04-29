@@ -593,7 +593,7 @@ def standalone_html_page_for_models(models, resources, title):
     '''
     return file_html(models, resources, title)
 
-def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url):
+def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url, template=FILE):
     render_items = []
     for modelid in model_ids:
         if modelid is None:
@@ -608,9 +608,9 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
             })
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
 
-def server_html_page_for_session(session_id, resources, title, websocket_url):
+def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE):
     elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
@@ -620,4 +620,4 @@ def server_html_page_for_session(session_id, resources, title, websocket_url):
     }]
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)

@@ -46,9 +46,11 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     This chart implements functionality to provide convenience in optimal
     selection of bin count, but also for segmenting and comparing segments of
     the variable by a categorical variable.
-
+    
     Args:
-      data (:ref:`userguide_charts_data_types`): the data source for the chart
+      data (:ref:`userguide_charts_data_types`): the data source for the chart.
+        Must consist of at least 2 values. If all values are equal, the result
+        is a single bin with arbitrary width.
       values (str, optional): the values to use for producing the histogram using
         table-like input data
       label (str or list(str), optional): the categorical variable to use for creating
@@ -110,8 +112,8 @@ class HistogramBuilder(BarBuilder):
     """
 
     bins = Int(default=None, help="""
-    Number of bins to use for the histogram. (default: None
-    (use Freedman-Diaconis rule)
+    Number of bins to use for the histogram. (default: None,
+    use Freedman-Diaconis rule)
     """)
 
     density = Bool(True, help="""
