@@ -1,14 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
-
+p = require 'core/properties'
 BokehView = require "core/bokeh_view"
 BaseBox = require "models/layouts/basebox"
 
 class StatsBoxView extends BokehView
-
   tag: "div"
-
   attributes:
     class: "bk-vbox"
 
@@ -24,7 +22,7 @@ class StatsBoxView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
-    children = @model.children()
+    children = @model.children
     build_views(@views, children)
     for own key, val of @views
       val.$el.detach()
@@ -59,15 +57,10 @@ class StatsBox extends BaseBox.Model
   type: "StatsBox"
   default_view: StatsBoxView
 
-  defaults: ->
-    return _.extend {}, super(), {
-      children: []
-      display_items: {}
-      styles: null
-    }
-
-  children: () ->
-    return @get('children')
+  @define {
+    styles:         [ p.String ]
+    display_items:  [ p.Any    ]   # XXX: shoulde be p.Dict or p.Map
+  }
 
 module.exports =
   Model: StatsBox
