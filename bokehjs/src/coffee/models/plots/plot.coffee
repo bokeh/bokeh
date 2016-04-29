@@ -151,7 +151,7 @@ class PlotView extends Renderer.View
       hit_area: @canvas_view.$el
     })
 
-    @renderers = {}
+    @renderer_views = {}
     @tools = {}
 
     @levels = {}
@@ -206,7 +206,7 @@ class PlotView extends Renderer.View
     # Update any DataRange1ds here
     frame = @model.get('frame')
     bounds = {}
-    for k, v of @renderers
+    for k, v of @renderer_views
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
@@ -376,8 +376,8 @@ class PlotView extends Renderer.View
       renderer_models = renderer_models.concat(synthetic)
 
     # should only bind events on NEW views and tools
-    old_renderers = _.keys(@renderers)
-    views = build_views(@renderers, renderer_models, @view_options())
+    old_renderers = _.keys(@renderer_views)
+    views = build_views(@renderer_views, renderer_models, @view_options())
     renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
 
     for id_ in renderers_to_remove
@@ -463,14 +463,11 @@ class PlotView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    frame = @model.get('frame')
-    canvas = @model.get('canvas')
-
-    for k, v of @renderers
+    for k, v of @renderer_views
       if v.model.update_layout?
         v.model.update_layout(v, @model.document.solver())
 
-    for k, v of @renderers
+    for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
@@ -484,8 +481,8 @@ class PlotView extends Renderer.View
         @title_panel.set_var('height', th)
 
     # Note: -1 to effectively dilate the canvas by 1px
-    frame.set_var('width', canvas.get('width')-1)
-    frame.set_var('height', canvas.get('height')-1)
+    @frame.set_var('width', canvas.get('width')-1)
+    @frame.set_var('height', canvas.get('height')-1)
 
     @model.document.solver().update_variables(false)
 
