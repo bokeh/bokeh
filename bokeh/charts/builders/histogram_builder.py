@@ -46,7 +46,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     This chart implements functionality to provide convenience in optimal
     selection of bin count, but also for segmenting and comparing segments of
     the variable by a categorical variable.
-    
+
     Args:
       data (:ref:`userguide_charts_data_types`): the data source for the chart.
         Must consist of at least 2 values. If all values are equal, the result
@@ -116,14 +116,15 @@ class HistogramBuilder(BarBuilder):
     use Freedman-Diaconis rule)
     """)
 
-    density = Bool(True, help="""
+    density = Bool(False, help="""
     Whether to normalize the histogram. (default: True)
 
     If True, the result is the value of the probability *density* function
     at the bin, normalized such that the *integral* over the range is 1. If
     False, the result will contain the number of samples in each bin.
 
-    For more info check ``numpy.histogram`` function documentation.
+    For more info check :class:`~bokeh.charts.glyphs.HistogramGlyph`
+    documentation.
 
     """)
 
@@ -138,7 +139,8 @@ class HistogramBuilder(BarBuilder):
 
     def get_extra_args(self):
         """Build kwargs that are unique to the histogram builder."""
-        return dict(bin_count=self.bins)
+
+        return dict(bin_count=self.bins, density=self.density)
 
     def _apply_inferred_index(self):
         # ignore this for now, unless histogram later adds handling of indexed data
