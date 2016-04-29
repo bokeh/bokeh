@@ -26,11 +26,12 @@ describe "Axis.Model", ->
 describe "Axis.View", ->
 
   before ->
+    # Stub the canvas context
     sinon.stub(CanvasView.prototype, 'get_ctx', () -> utils.MockCanvasContext)
+    # Stub solver methods
     sinon.stub(Solver.prototype, 'suggest_value')
     @solver_add_constraint = sinon.stub(Solver.prototype, 'add_constraint')
     @solver_remove_constraint = sinon.stub(Solver.prototype, 'remove_constraint')
-    sinon.stub(PlotView.prototype, '_paint_empty')
 
   beforeEach ->
     @test_doc = new Document()

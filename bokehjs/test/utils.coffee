@@ -3,6 +3,7 @@ moduleRequire = (name) ->
 
 MockCanvasContext = {
   beginPath: () -> null
+  clearRect: () -> null
   clip: () -> null
   fillRect: () -> null
   fillText: () -> null
