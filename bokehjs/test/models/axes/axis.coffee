@@ -5,12 +5,10 @@ sinon = require 'sinon'
 Axis = utils.require("models/axes/axis").Model
 BasicTicker = utils.require("models/tickers/basic_ticker").Model
 BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Model
-CanvasView = utils.require("models/canvas/canvas").View
 Plot = utils.require("models/plots/plot").Model
 PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
 SidePanel = utils.require("core/layout/side_panel").Model
-{Solver} = utils.require("core/layout/solver")
 {Document} = utils.require "document"
 {Variable}  = utils.require("core/layout/solver")
 
@@ -25,15 +23,16 @@ describe "Axis.Model", ->
 
 describe "Axis.View", ->
 
-  before ->
-    # Stub the canvas context
-    sinon.stub(CanvasView.prototype, 'get_ctx', () -> utils.MockCanvasContext)
-    # Stub solver methods
-    sinon.stub(Solver.prototype, 'suggest_value')
-    @solver_add_constraint = sinon.stub(Solver.prototype, 'add_constraint')
-    @solver_remove_constraint = sinon.stub(Solver.prototype, 'remove_constraint')
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
 
   beforeEach ->
+    utils.stub_canvas()
+    solver_stubs = utils.stub_solver()
+    @solver_add_constraint = solver_stubs['add']
+    @solver_remove_constraint = solver_stubs['remove']
+
     @test_doc = new Document()
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})

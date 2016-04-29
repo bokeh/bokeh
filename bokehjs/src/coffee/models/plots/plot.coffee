@@ -463,9 +463,9 @@ class PlotView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    for k, v of @renderer_views
-      if v.model.update_layout?
-        v.model.update_layout(v, @model.document.solver())
+    for model_id, view of @renderer_views
+      if view.update_constraints?
+        view.update_constraints()
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp

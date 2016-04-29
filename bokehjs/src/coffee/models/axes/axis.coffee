@@ -427,7 +427,6 @@ class Axis extends GuideRenderer.Model
     @panel.attach_document(@document)
 
   initialize_layout: (solver) ->
-    console.log('initializing layout')
     side = @get('layout_location')
     if side == "above"
       @_dim = 0
