@@ -173,6 +173,28 @@ class AxisView extends Renderer.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
 
+  update_constraints: () ->
+    if not @mget('visible')
+      # if not visible, avoid applying constraints until visible again
+      return
+
+    size = @_get_size()
+
+    if not @_last_size?
+      @_last_size = -1
+    if size == @_last_size
+      return
+    @_last_size = size
+
+    s = @model.document.solver()
+    if @_size_constraint?
+      s.remove_constraint(@_size_constraint)
+    @_size_constraint = EQ(@model._size, -size)
+    s.add_constraint(@_size_constraint)
+
+  _get_size: () ->
+    return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
+
   _draw_rule: (ctx) ->
     if not @visuals.axis_line.doit
       return
@@ -242,7 +264,7 @@ class AxisView extends Renderer.View
       angle = _angle_lookup[side][orient]
     else
       angle = -orient
-    standoff = @model._tick_extent(@) + @mget('major_label_standoff')
+    standoff = @_tick_extent() + @mget('major_label_standoff')
 
     labels = @mget('formatter').doFormat(coords.major[dim])
 
@@ -274,8 +296,7 @@ class AxisView extends Renderer.View
     orient = 'parallel'
 
     angle = _angle_lookup[side][orient]
-    standoff = (@model._tick_extent(@) + @model._tick_label_extent(@) +
-                @mget('axis_label_standoff'))
+    standoff = (@_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff'))
 
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
@@ -294,6 +315,75 @@ class AxisView extends Renderer.View
 
   _tick_extent: () ->
     return @mget('major_tick_out')
+
+  _tick_label_extent: () ->
+    extent = 0
+    ctx = @plot_view.canvas_view.ctx
+
+    dim = @mget('dimension')
+    coords = @mget('tick_coords').major
+    side = @mget('layout_location')
+    orient = @mget('major_label_orientation')
+    labels = @mget('formatter').doFormat(coords[dim])
+
+    @visuals.major_label_text.set_value(ctx)
+
+    if _.isString(orient)
+      hscale = 1
+      angle = _angle_lookup[side][orient]
+    else
+      hscale = 2
+      angle = -orient
+    angle = Math.abs(angle)
+    c = Math.cos(angle)
+    s = Math.sin(angle)
+
+    if side == "above" or side == "below"
+      wfactor = s
+      hfactor = c
+    else
+      wfactor = c
+      hfactor = s
+
+    for i in [0...labels.length]
+      if not labels[i]?
+        continue
+      w = ctx.measureText(labels[i]).width * 1.1
+      h = ctx.measureText(labels[i]).ascent * 0.9
+      val = w*wfactor + (h/hscale)*hfactor
+      if val > extent
+        extent = val
+
+    if extent > 0
+      extent += @mget('major_label_standoff')
+
+    return extent
+
+  _axis_label_extent: () ->
+    extent = 0
+
+    side = @mget('layout_location')
+    axis_label = @mget('axis_label')
+    orient = 'parallel'
+    ctx = @plot_view.canvas_view.ctx
+
+    @visuals.axis_label_text.set_value(ctx)
+
+    angle = Math.abs(_angle_lookup[side][orient])
+    c = Math.cos(angle)
+    s = Math.sin(angle)
+
+    if axis_label
+      extent += @mget('axis_label_standoff')
+      @visuals.axis_label_text.set_value(ctx)
+      w = ctx.measureText(axis_label).width * 1.1
+      h = ctx.measureText(axis_label).ascent * 0.9
+      if side == "above" or side == "below"
+        extent += w*s + h*c
+      else
+        extent += w*c + h*s
+
+    return extent
 
 class Axis extends GuideRenderer.Model
   default_view: AxisView
@@ -368,6 +458,7 @@ class Axis extends GuideRenderer.Model
     @panel.attach_document(@document)
 
   initialize_layout: (solver) ->
+    console.log('initializing layout')
     side = @get('layout_location')
     if side == "above"
       @_dim = 0
@@ -391,24 +482,6 @@ class Axis extends GuideRenderer.Model
       @_anchor = @panel._left
     else
       logger.error("unrecognized side: '#{ side }'")
-
-  update_layout: (view, solver) ->
-    if not @get('visible')
-      # if not visible, avoid applying constraints until visible again
-      return
-
-    size = (@_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view))
-
-    if not @_last_size?
-      @_last_size = -1
-    if size == @_last_size
-      return
-    @_last_size = size
-
-    if @_size_constraint?
-      solver.remove_constraint(@_size_constraint)
-    @_size_constraint = EQ(@_size, -size)
-    solver.add_constraint(@_size_constraint)
 
   _offsets: () ->
     side = @get('layout_location')
@@ -540,75 +613,6 @@ class Axis extends GuideRenderer.Model
       loc = 'end'
 
     return cross_range.get(loc)
-
-  _tick_label_extent: (view) ->
-    extent = 0
-    dim = @get('dimension')
-    ctx = view.plot_view.canvas_view.ctx
-
-    coords = @get('tick_coords').major
-    side = @get('layout_location')
-    orient = @get('major_label_orientation')
-
-    labels = @get('formatter').doFormat(coords[dim])
-
-    view.visuals.major_label_text.set_value(ctx)
-
-    if _.isString(orient)
-      hscale = 1
-      angle = _angle_lookup[side][orient]
-    else
-      hscale = 2
-      angle = -orient
-    angle = Math.abs(angle)
-    c = Math.cos(angle)
-    s = Math.sin(angle)
-
-    if side == "above" or side == "below"
-      wfactor = s
-      hfactor = c
-    else
-      wfactor = c
-      hfactor = s
-
-    for i in [0...labels.length]
-      if not labels[i]?
-        continue
-      w = ctx.measureText(labels[i]).width * 1.1
-      h = ctx.measureText(labels[i]).ascent * 0.9
-      val = w*wfactor + (h/hscale)*hfactor
-      if val > extent
-        extent = val
-
-    if extent > 0
-      extent += @get('major_label_standoff')
-
-    return extent
-
-  _axis_label_extent: (view) ->
-    extent = 0
-
-    side = @get('layout_location')
-    orient = 'parallel'
-    ctx = view.plot_view.canvas_view.ctx
-
-    view.visuals.axis_label_text.set_value(ctx)
-
-    angle = Math.abs(_angle_lookup[side][orient])
-    c = Math.cos(angle)
-    s = Math.sin(angle)
-
-    if @get('axis_label')
-      extent += @get('axis_label_standoff')
-      view.visuals.axis_label_text.set_value(ctx)
-      w = ctx.measureText(@get('axis_label')).width * 1.1
-      h = ctx.measureText(@get('axis_label')).ascent * 0.9
-      if side == "above" or side == "below"
-        extent += w*s + h*c
-      else
-        extent += w*c + h*s
-
-    return extent
 
 module.exports =
   Model: Axis
