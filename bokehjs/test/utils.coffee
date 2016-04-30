@@ -33,7 +33,8 @@ stub_solver = () ->
   suggest_stub = sinon.stub(Solver.prototype, 'suggest_value')
   add_stub = sinon.stub(Solver.prototype, 'add_constraint')
   remove_stub = sinon.stub(Solver.prototype, 'remove_constraint')
-  return {'add': add_stub, 'remove': remove_stub, 'suggest': suggest_stub}
+  update_stub = sinon.stub(Solver.prototype, 'update_variables')
+  return {'add': add_stub, 'remove': remove_stub, 'suggest': suggest_stub, 'update': update_stub}
 
 unstub_canvas = () ->
     CanvasView.prototype.get_ctx.restore()
@@ -42,6 +43,7 @@ unstub_solver = () ->
     Solver.prototype.suggest_value.restore()
     Solver.prototype.add_constraint.restore()
     Solver.prototype.remove_constraint.restore()
+    Solver.prototype.update_variables.restore()
 
 module.exports = {
   require: moduleRequire

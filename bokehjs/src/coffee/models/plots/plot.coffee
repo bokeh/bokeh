@@ -463,10 +463,6 @@ class PlotView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    for model_id, view of @renderer_views
-      if view.update_constraints?
-        view.update_constraints()
-
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
@@ -480,11 +476,7 @@ class PlotView extends Renderer.View
       if th != @title_panel.get('height')
         @title_panel.set_var('height', th)
 
-    # Note: -1 to effectively dilate the canvas by 1px
-    @frame.set_var('width', @canvas.get('width')-1)
-    @frame.set_var('height', @canvas.get('height')-1)
-
-    @model.document.solver().update_variables(false)
+    @update_constraints()
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
@@ -559,8 +551,18 @@ class PlotView extends Renderer.View
     if not @initial_range_info?
       @set_initial_range()
 
-    # TODO - This should only be on in testing
-    # @$el.find('canvas').attr('data-hash', ctx.hash());
+  update_constraints: () ->
+    s = @model.document.solver()
+    
+    # Note: -1 to effectively dilate the canvas by 1px
+    s.suggest_value(@frame._width, @canvas.get('width') - 1)
+    s.suggest_value(@frame._height, @canvas.get('height') - 1)
+
+    for model_id, view of @renderer_views
+      if view.update_constraints?
+        view.update_constraints()
+
+    s.update_variables(false)
 
   resize: () =>
     @resize_width_height(true, false)

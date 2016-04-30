@@ -12,6 +12,7 @@ DataRange1d = utils.require("models/ranges/data_range1d").Model
 LayoutCanvas = utils.require("core/layout/layout_canvas").Model
 LinearAxis = utils.require("models/axes/linear_axis").Model
 Plot = utils.require("models/plots/plot").Model
+PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
 {Document} = utils.require "document"
 {Solver, Variable} = utils.require("core/layout/solver")
@@ -194,16 +195,57 @@ describe "Plot.View render", ->
     })
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
-    @ticker = new BasicTicker()
-    @formatter = new BasicTickFormatter()
-    @axis = new Axis({ ticker: @ticker, formatter: @formatter })
-    @test_plot.add_layout(@axis, 'below')
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
-    @axis_view = new @axis.default_view({ model: @axis, plot_model: @test_plot, plot_view: @test_plot_view })
 
-  it "should call update_constraints on renderer_views if available", ->
-    stub = sinon.stub(AxisView.prototype, 'update_constraints')
-    expect(stub.callCount).to.be.equal 0
+  it "should call own :update_constraints method", ->
+    spy = sinon.spy(PlotView.prototype, 'update_constraints')  # Setup
     @test_plot_view.render()
-    expect(stub.callCount).to.be.equal 1
-    AxisView.prototype.update_constraints.restore()
+    expect(spy.calledOnce).to.be.true
+
+
+describe "Plot.View update_constraints", ->
+
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    solver_stubs = utils.stub_solver()
+    @solver_suggest_stub = solver_stubs['suggest']
+    @solver_update_stub = solver_stubs['update']
+
+    @test_doc = new Document()
+    @test_plot = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+    })
+    @test_plot.document = @test_doc
+    @test_plot._doc_attached()
+
+  it "should call update_constraints on the axis view", ->
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({ ticker: ticker, formatter: formatter })
+    @test_plot.add_layout(axis, 'below')
+    test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
+    axis_view = new axis.default_view({ model: axis, plot_model: @test_plot, plot_view: test_plot_view })
+
+    spy = sinon.spy(AxisView.prototype, 'update_constraints')
+    test_plot_view.update_constraints()
+    expect(spy.calledOnce).to.be.true
+
+  it "should call solver suggest twice for frame size", ->
+    test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
+
+    initial_count = @solver_suggest_stub.callCount
+    test_plot_view.update_constraints()
+    expect(@solver_suggest_stub.callCount).to.be.equal initial_count + 2
+
+  it "should call solver update_variables with false for trigger", ->
+    test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
+
+    initial_count = @solver_update_stub.callCount
+    test_plot_view.update_constraints()
+    expect(@solver_update_stub.calledWith(false)).to.be.true
+    expect(@solver_update_stub.callCount).to.be.equal initial_count + 1
