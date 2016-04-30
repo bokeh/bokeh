@@ -25,7 +25,7 @@ class GridView extends Renderer.View
   _draw_regions: (ctx) ->
     if not @visuals.band_fill.doit
       return
-    [xs, ys] = @mget('grid_coords')
+    [xs, ys] = @model.grid_coords('major', false)
     @visuals.band_fill.set_value(ctx)
     for i in [0...xs.length-1]
       if i % 2 == 1
@@ -38,13 +38,13 @@ class GridView extends Renderer.View
   _draw_grids: (ctx) ->
     if not @visuals.grid_line.doit
       return
-    [xs, ys] = @mget('grid_coords')
+    [xs, ys] = @model.grid_coords('major')
     @_draw_grid_helper(ctx, @visuals.grid_line, xs, ys)
 
   _draw_minor_grids: (ctx) ->
     if not @visuals.minor_grid_line.doit
       return
-    [xs, ys] = @mget('minor_grid_coords')
+    [xs, ys] = @model.grid_coords('minor')
     @_draw_grid_helper(ctx, @visuals.minor_grid_line, xs, ys)
 
   _draw_grid_helper: (ctx, props, xs, ys) ->
@@ -81,23 +81,7 @@ class Grid extends GuideRenderer.Model
     minor_grid_line_color: null
   }
 
-  initialize: (attrs, options)->
-    super(attrs, options)
-
-    @define_computed_property('computed_bounds', @_bounds, false)
-    @add_dependencies('computed_bounds', this, ['bounds'])
-
-    @define_computed_property('grid_coords', @_grid_coords, false)
-    @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension',
-                                            'ticker'])
-
-    @define_computed_property('minor_grid_coords', @_minor_grid_coords, false)
-    @add_dependencies('minor_grid_coords', this, ['computed_bounds', 'dimension',
-                                            'ticker'])
-
-    @define_computed_property('ranges', @_ranges, true)
-
-  _ranges: () ->
+  ranges: () ->
     i = @get('dimension')
     j = (i + 1) % 2
     frame = @get('plot').get('frame')
@@ -107,8 +91,8 @@ class Grid extends GuideRenderer.Model
     ]
     return [ranges[i], ranges[j]]
 
-   _bounds: () ->
-    [range, cross_range] = @get('ranges')
+   computed_bounds: () ->
+    [range, cross_range] = @ranges()
 
     user_bounds = @get('bounds')
     range_bounds = [range.get('min'), range.get('max')]
@@ -129,18 +113,12 @@ class Grid extends GuideRenderer.Model
 
     return [start, end]
 
-  _grid_coords: () ->
-    return @_grid_coords_helper('major')
-
-  _minor_grid_coords: () ->
-    return @_grid_coords_helper('minor')
-
-  _grid_coords_helper: (location) ->
+  grid_coords: (location, exclude_ends=true) ->
     i = @get('dimension')
     j = (i + 1) % 2
-    [range, cross_range] = @get('ranges')
+    [range, cross_range] = @ranges()
 
-    [start, end] = @get('computed_bounds')
+    [start, end] = @computed_bounds()
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)
@@ -156,7 +134,7 @@ class Grid extends GuideRenderer.Model
 
     coords = [[], []]
     for ii in [0...ticks.length]
-      if ticks[ii] == min or ticks[ii] == max
+      if (ticks[ii] == min or ticks[ii] == max) and exclude_ends
         continue
       dim_i = []
       dim_j = []
