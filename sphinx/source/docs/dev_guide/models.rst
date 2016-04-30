@@ -1,13 +1,13 @@
 
 
 
-.. _devguide_objects:
+.. _devguide_models:
 
-Bokeh Objects
+Bokeh Models
 =============
 
-Low-level Object Interface
---------------------------
+Low-level Interface
+-------------------
 
 Below is a notional diagram that shows many of the most common kinds
 of models that comprise the Bokeh object system. To create Bokeh plots, these
@@ -21,7 +21,7 @@ objects are shown below; see the :ref:`refguide` for full details.
 .. image:: /_images/objects.png
     :align: center
 
-Models and properties
+Models and Properties
 ---------------------
 
 The primary components of the low-level API are models, which are objects

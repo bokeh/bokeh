@@ -1,7 +1,7 @@
 .. _devguide_server:
 
-Bokeh Server Architecture
-=========================
+Server Architecture
+===================
 
 This chapter is a "deep dive" into Bokeh server's internals... it
 assumes you're already familiar with the information on Bokeh
