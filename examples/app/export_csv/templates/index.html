@@ -7,8 +7,13 @@
         {{ bokeh_js }}
     </head>
     <body>
-        <div>
-            <b>NOTE: Download feature will currently not work on Safari </b>
+      <div>
+        <h3>This demo shows how to use a customJS callback for exporting data to csv</h3>
+        <b>NOTE: Download feature will currently not work on Safari </b>
+        <ul style="list-style-type:circle">
+            <li>Alter the max salary sliders and watch the DataTable change</li>
+            <li>Click the Download button to export data to a csv</li>
+        </ul>
         </div>
         {{ plot_div|indent(8) }}
         {{ plot_script|indent(8) }}

@@ -11,7 +11,8 @@ from bokeh.io import curdoc, vform
 df = pd.read_csv('salary_data.csv')
 
 salary_range = Slider(title="Max Salary", start=10000, end=250000, value=150000, step=1000)
-button = Button(label="Download", type="success")
+button = Button(label="Download")
+button.button_type = "success"
 
 source = ColumnDataSource(data=dict())
 
