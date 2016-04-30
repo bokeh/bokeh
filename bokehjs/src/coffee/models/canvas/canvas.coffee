@@ -35,6 +35,8 @@ class CanvasView extends BokehView
     # map plots reference this attribute
     @map_div = @$('div.bk-canvas-map') ? null
 
+    @set_dims([@mget('canvas_width'), @mget('canvas_height')])
+
     logger.debug("CanvasView initialized")
 
   get_ctx: () ->
@@ -71,6 +73,30 @@ class CanvasView extends BokehView
 
     return
 
+  set_dims: (dims, trigger=true) ->
+    @_set_width(dims[0])
+    @_set_height(dims[1])
+    @model.document.solver().update_variables(trigger)
+    return
+
+  _set_width: (width) ->
+    solver = @model.document.solver()
+    if @_width_constraint?
+      solver.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@model._width, -width)
+    solver.add_constraint(@_width_constraint)
+    solver.update_variables()
+    return
+
+  _set_height: (height) ->
+    solver = @model.document.solver()
+    if @_height_constraint?
+      solver.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@model._height, -height)
+    solver.add_constraint(@_height_constraint)
+    solver.update_variables()
+    return
+
 class Canvas extends LayoutCanvas.Model
   type: 'Canvas'
   default_view: CanvasView
@@ -85,36 +111,6 @@ class Canvas extends LayoutCanvas.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @panel = @
-
-  # TODO (bird) This all moves to update_constraints
-  _doc_attached: () ->
-    super()
-    @set_dims([@get('canvas_width'), @get('canvas_height')])
-    logger.debug("Canvas attached to document")
-
-  set_dims: (dims, trigger=true) ->
-    @_set_width(dims[0])
-    @_set_height(dims[1])
-    @document.solver().update_variables(trigger)
-    return
-
-  _set_width: (width) ->
-    solver = @document.solver()
-    if @_width_constraint?
-      solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@_width, -width)
-    solver.add_constraint(@_width_constraint)
-    solver.update_variables()
-    return
-
-  _set_height: (height) ->
-    solver = @document.solver()
-    if @_height_constraint?
-      solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@_height, -height)
-    solver.add_constraint(@_height_constraint)
-    solver.update_variables()
-    return
 
   # transform view coordinates to underlying screen coordinates
   vx_to_sx: (x) -> x
