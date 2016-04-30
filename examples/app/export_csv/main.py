@@ -54,15 +54,12 @@ if (navigator.msSaveBlob) {
 
 else {
     var link = document.createElement("a");
-    if (link.download !== undefined) {
-        var url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+    link = document.createElement('a')
+    link.href = URL.createObjectURL(blob);
+    link.download = filename
+    link.target = "_blank";
+    link.style.visibility = 'hidden';
+    link.dispatchEvent(new MouseEvent('click'))
 }"""
 
 button.callback = CustomJS(args=dict(source=source), code=js_callback)
