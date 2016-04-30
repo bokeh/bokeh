@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Open = require("./arrow_head").Open
+OpenHead = require("./arrow_head").OpenHead
 ColumnDataSource = require "../sources/column_data_source"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
@@ -92,17 +92,17 @@ class Arrow extends Annotation.Model
   @mixins ['line']
 
   @define {
-      x_start:          [ p.NumberSpec,                     ]
-      y_start:          [ p.NumberSpec,                     ]
-      start_units:      [ p.String,      'data'             ]
-      start:            [ p.Instance,    null               ]
-      x_end:            [ p.NumberSpec,                     ]
-      y_end:            [ p.NumberSpec,                     ]
-      end_units:        [ p.String,      'data'             ]
-      end:              [ p.Instance,    new Open.Model({}) ]
-      source:           [ p.Instance                        ]
-      x_range_name:     [ p.String,      'default'          ]
-      y_range_name:     [ p.String,      'default'          ]
+      x_start:          [ p.NumberSpec,                         ]
+      y_start:          [ p.NumberSpec,                         ]
+      start_units:      [ p.String,      'data'                 ]
+      start:            [ p.Instance,    null                   ]
+      x_end:            [ p.NumberSpec,                         ]
+      y_end:            [ p.NumberSpec,                         ]
+      end_units:        [ p.String,      'data'                 ]
+      end:              [ p.Instance,    new OpenHead.Model({}) ]
+      source:           [ p.Instance                            ]
+      x_range_name:     [ p.String,      'default'              ]
+      y_range_name:     [ p.String,      'default'              ]
   }
 
 module.exports =

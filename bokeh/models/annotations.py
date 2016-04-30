@@ -15,7 +15,7 @@ from ..core.properties import (
     AngleSpec
 )
 
-from .arrow_heads import ArrowHead, Open
+from .arrow_heads import ArrowHead, OpenHead
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
@@ -142,7 +142,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end = Instance(ArrowHead, default=lambda: Open(), help="""
+    end = Instance(ArrowHead, default=lambda: OpenHead(), help="""
     Instance of ArrowHead.
     """)
 

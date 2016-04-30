@@ -16,8 +16,8 @@ class ArrowHead extends Annotation.Model
   render: (ctx, i) ->
     null
 
-class Open extends ArrowHead
-  type: 'Open'
+class OpenHead extends ArrowHead
+  type: 'OpenHead'
 
   render: (ctx, i) ->
     if @visuals["line"].doit
@@ -34,8 +34,8 @@ class Open extends ArrowHead
       size:  [ p.Number,   25            ]
     }
 
-class Normal extends ArrowHead
-  type: 'Normal'
+class NormalHead extends ArrowHead
+  type: 'NormalHead'
 
   render: (ctx, i) ->
     if @visuals["fill"].doit
@@ -66,8 +66,8 @@ class Normal extends ArrowHead
     fill_color: 'black'
   }
 
-class Vee extends ArrowHead
-  type: 'Vee'
+class VeeHead extends ArrowHead
+  type: 'VeeHead'
 
   render: (ctx, i) ->
     if @visuals["fill"].doit
@@ -101,7 +101,7 @@ class Vee extends ArrowHead
   }
 
 module.exports = {
-  Open: {Model: Open}
-  Normal: {Model: Normal}
-  Vee: {Model: Vee}
+  OpenHead: {Model: OpenHead}
+  NormalHead: {Model: NormalHead}
+  VeeHead: {Model: VeeHead}
 }

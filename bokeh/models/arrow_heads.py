@@ -15,7 +15,7 @@ class ArrowHead(Renderer):
 
     """
 
-class Open(ArrowHead):
+class OpenHead(ArrowHead):
     """ Render an open-body arrow head.
 
     """
@@ -28,7 +28,7 @@ class Open(ArrowHead):
     The %s values for the arrow head outline.
     """)
 
-class Normal(ArrowHead):
+class NormalHead(ArrowHead):
     """ Render a closed-body arrow head.
 
     """
@@ -47,7 +47,7 @@ class Normal(ArrowHead):
 
     fill_color = Override(default="black")
 
-class Vee(ArrowHead):
+class VeeHead(ArrowHead):
     """ Render an vee-style arrow head.
 
     """
