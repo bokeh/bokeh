@@ -461,20 +461,15 @@ class PlotView extends Renderer.View
     if @tm_view?
       @tm_view.render()
 
-    ctx = @canvas_view.ctx
-
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
+    ctx = @canvas_view.ctx
     title = @mget('title')
-    
     if title
-      @visuals.title_text.set_value(@canvas_view.ctx)
-      th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
-      if th != @title_panel.get('height')
-        @title_panel.set_var('height', th)
+      @visuals.title_text.set_value(ctx)
 
     @update_constraints()
 
@@ -561,6 +556,13 @@ class PlotView extends Renderer.View
     for model_id, view of @renderer_views
       if view.update_constraints?
         view.update_constraints()
+
+    ctx = @canvas_view.ctx
+    title = @mget('title')
+    if title
+      th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
+      if th != @title_panel.get('height')
+        s.suggest_value(@title_panel._height, th)
 
     s.update_variables(false)
 
