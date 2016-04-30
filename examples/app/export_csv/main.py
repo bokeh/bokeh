@@ -31,7 +31,6 @@ def update(attr, old, new):
 
 salary_range.on_change('value', update)
 
-###NOTE: This Callback will not run on Safari :(
 js_callback = """
 var data = source.get('data');
 var filetext = 'name,income,years_experience\\n';
