@@ -81,8 +81,8 @@ script:
     #
     # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html -s; fi; fi # Run the examples
-    #
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples
+    # Poor man logger
     - echo "***** POOR MAN LOGGER ******"; echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST; if [[ "$GROUP" == integration ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html"; fi; if [[ "$GROUP" == examples ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html"; fi; echo "********** END POOR MAN LOGGER ************"
 
 after_success:

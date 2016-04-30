@@ -38,32 +38,6 @@ class ResizeToolView extends GestureTool.View
       @$el.hide()
     return @
 
-  _pan_start: (e) ->
-    canvas = @plot_view.canvas
-    @ch = canvas.get('height')
-    @cw = canvas.get('width')
-    @plot_view.interactive_timestamp = Date.now()
-    return null
-
-  _pan: (e) ->
-    @_update(e.deltaX, e.deltaY)
-    @plot_view.interactive_timestamp = Date.now()
-    return null
-
-  _pan_end: (e) ->
-    @plot_view.push_state("resize", {
-      dimensions: {
-        width: @plot_view.canvas.get("width")
-        height: @plot_view.canvas.get("height")
-      }
-    })
-
-  _update: (dx, dy) ->
-    @plot_view.pause()
-    @plot_view.canvas.set_dims([@cw+dx, @ch+dy])
-    @plot_view.unpause()
-    return
-
 class ResizeTool extends GestureTool.Model
   default_view: ResizeToolView
   type: "ResizeTool"

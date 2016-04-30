@@ -2,16 +2,19 @@ _ = require "underscore"
 $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
 Backbone = require "backbone"
-ActionTool = require "../models/tools/actions/action_tool"
-HelpTool = require "../models/tools/actions/help_tool"
-GestureTool = require "../models/tools/gestures/gesture_tool"
-InspectTool = require "../models/tools/inspectors/inspect_tool"
-{logger} = require "../core/logging"
-toolbar_template = require "./toolbar_template"
-HasProps = require "../core/has_props"
-p = require "../core/properties"
 
-class ToolManagerView extends Backbone.View
+{logger} = require "../../core/logging"
+HasProps = require "../../core/has_props"
+p = require "../../core/properties"
+
+ActionTool = require "./actions/action_tool"
+GestureTool = require "./gestures/gesture_tool"
+HelpTool = require "./actions/help_tool"
+InspectTool = require "./inspectors/inspect_tool"
+toolbar_template = require "./toolbar_template"
+
+
+class ToolBarView extends Backbone.View
   template: toolbar_template
 
   initialize: (options) ->
@@ -69,8 +72,9 @@ class ToolManagerView extends Backbone.View
 
     return @
 
-class ToolManager extends HasProps
-  type: 'ToolManager'
+class ToolBar extends HasProps
+  type: 'ToolBar'
+  default_view: ToolBarView
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -102,7 +106,7 @@ class ToolManager extends HasProps
         et = tool.event_type
 
         if et not of gestures
-          logger.warn("ToolManager: unknown event type '#{et}' for tool:
+          logger.warn("ToolBar: unknown event type '#{et}' for tool:
                       #{tool.type} (#{tool.id})")
           continue
 
@@ -124,13 +128,13 @@ class ToolManager extends HasProps
     # Toggle between tools of the same type by deactivating any active ones
     currently_active_tool = gestures[event_type].active
     if currently_active_tool? and currently_active_tool != tool
-      logger.debug("ToolManager: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+      logger.debug("ToolBar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
       currently_active_tool.set('active', false)
 
     # Update the gestures with the new active tool
     gestures[event_type].active = tool
     @set('gestures', gestures)
-    logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
+    logger.debug("ToolBar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   @internal {
@@ -150,5 +154,5 @@ class ToolManager extends HasProps
   }
 
 module.exports =
-  Model: ToolManager
-  View: ToolManagerView
+  Model: ToolBar
+  View: ToolBarView

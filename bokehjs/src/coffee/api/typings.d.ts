@@ -16,7 +16,6 @@
 /// <reference path="./typings/models/annotations.d.ts" />
 /// <reference path="./typings/models/axes.d.ts" />
 /// <reference path="./typings/models/callbacks.d.ts" />
-/// <reference path="./typings/models/component.d.ts" />
 /// <reference path="./typings/models/formatters.d.ts" />
 /// <reference path="./typings/models/glyphs.d.ts" />
 /// <reference path="./typings/models/grids.d.ts" />

@@ -1,6 +1,5 @@
 require "./test_build_views"
 require "./test_defaults"
-require "./test_resizing"
 require "./test_selection_manager"
 require "./test_selector"
 require "./test_ui_events"

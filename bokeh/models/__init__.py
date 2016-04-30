@@ -5,7 +5,6 @@ from __future__ import absolute_import
 from .annotations import *
 from .axes import *
 from .callbacks import *
-from .component import *
 from .formatters import *
 from .glyphs import *
 from .grids import *
@@ -23,7 +22,7 @@ from .tiles import *
 from .tools import *
 
 ### Deprecation note:
-### bokeh.models.widgets.layouts was deprecated in 0.11.1 in favor of 
+### bokeh.models.widgets.layouts was deprecated in 0.11.1 in favor of
 ### bokeh.models.layouts and is awaiting removal. The following imports will
 ### load all widgets modules except layouts, in order to prevent raising a
 ### deprecation warning.

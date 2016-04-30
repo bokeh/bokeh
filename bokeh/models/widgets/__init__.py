@@ -22,7 +22,7 @@ from .widget import *
 
 from bokeh.models.layouts import *
 
-for layout in [BaseBox, Layout, HBox, VBox, VBoxForm]:
+for layout in [BaseBox, HBox, VBox, VBoxForm]:
     deprecatedModuleAttribute(
         "0.11.1",
         "use 'bokeh.models.%s' or 'bokeh.models.layouts.%s'" % (layout.__name__, layout.__name__),
