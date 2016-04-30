@@ -41,6 +41,9 @@ describe "Jitter transform module", ->
     transform.set('distribution', 'normal')
 
     it "should average the fixed values", ->
+      random_stub = sinon.stub().returns(1)
+      sinon.mock(random, random_stub)
+
       N = 10000
       vals =  Array.apply(null, Array(N)).map ->
                 5

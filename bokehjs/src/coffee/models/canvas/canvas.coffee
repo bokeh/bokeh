@@ -79,6 +79,9 @@ class CanvasView extends BokehView
     @model.document.solver().update_variables(trigger)
     return
 
+  update_constraints: () ->
+    return 
+
   _set_width: (width) ->
     solver = @model.document.solver()
     if @_width_constraint?
