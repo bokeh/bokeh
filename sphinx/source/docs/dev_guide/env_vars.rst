@@ -124,12 +124,5 @@ counting up from 1000.
 What version of BokehJS to use with ``cdn`` resources
 See the :class:`~bokeh.resources.Resources` class reference for full details.
 
-.. _anaconda.org: https://anaconda.org
-.. _conda: http://conda.pydata.org/
-.. _contact the developers: http://bokehplots.com/pages/contact.html
-.. _GitHub: https://github.com
-.. _Gulp: http://gulpjs.com/
-.. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
-.. _NodeJS: http://nodejs.org/
 .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
 

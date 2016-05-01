@@ -77,7 +77,7 @@ When working on narrative documentation, you may use headings to split up your
 work. Headings are used in the following way
 
 .. code-block:: sh
-  
+
     Top level (makes a top-level entry in the side-bar)
     ===================================================
 
