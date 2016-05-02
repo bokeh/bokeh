@@ -65,7 +65,7 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     m = 4
     colorname = prefix + '_color'
     alphaname = prefix + '_alpha'
-    
+
     if not visual.doit
       # Don't draw (draw transparent)
       vbo.used = false
@@ -514,7 +514,7 @@ class LineGLGlyph extends BaseGLGlyph
                   d = max(d, min(abs(x.x),abs(x.y)));
               */
           }
-          
+
           return d;
       }
 
@@ -524,7 +524,7 @@ class LineGLGlyph extends BaseGLGlyph
           if( v_color.a <= 0.0 ) {
               discard;
           }
-          
+
           // Test if dash pattern is the solid one (0)
           bool solid =  (u_dash_index == 0.0);
 
@@ -542,14 +542,14 @@ class LineGLGlyph extends BaseGLGlyph
           vec2 dash_caps = u_dash_caps;
           float line_start = 0.0;
           float line_stop = v_length;
-          
+
           // Apply miter limit; fragments too far into the miter are simply discarded
           if( (dx < v_segment.x) || (dx > v_segment.y) ) {
               float into_miter = max(v_segment.x - dx, dx - v_segment.y);
               if (into_miter > u_miter_limit*v_linewidth/2.0)
                 discard;
           }
-          
+
           // Solid line --------------------------------------------------------------
           if( solid ) {
               d = abs(dy);
@@ -775,7 +775,7 @@ class LineGLGlyph extends BaseGLGlyph
 
     draw: (indices, mainGlyph, trans) ->
       mainGlGlyph = mainGlyph.glglyph
-      
+
       if mainGlGlyph.data_changed
         mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _bake() and below
         mainGlGlyph._set_data()
@@ -811,7 +811,7 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
-      
+
       if @I_triangles.length < 65535
         # Data is small enough to draw in one pass
         @index_buffer.set_size(@I_triangles.length*2)
@@ -863,7 +863,7 @@ class LineGLGlyph extends BaseGLGlyph
       @vbo_texcoord.set_data(0, @V_texcoord)
 
     _set_visuals: () ->
-      
+
       color = color2rgba(@glyph.visuals.line.line_color.value(), @glyph.visuals.line.line_alpha.value())
       cap = @CAPS[@glyph.visuals.line.line_cap.value()]
       join = @JOINS[@glyph.visuals.line.line_join.value()]
@@ -902,8 +902,8 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Init array of implicit shape nx2
       n = @nvertices
-      _x = new Float64Array(@glyph.x)
-      _y = new Float64Array(@glyph.y)
+      _x = new Float64Array(@glyph._x)
+      _y = new Float64Array(@glyph._y)
 
       # Init vertex data
       V_position = Vp = new Float32Array(n*2)
@@ -1158,13 +1158,13 @@ class MarkerGLGlyph extends BaseGLGlyph
     # The main glyph has the data, *this* glyph has the visuals.
     mainGlGlyph = mainGlyph.glglyph
     nvertices = mainGlGlyph.nvertices
-   
+
     # Upload data if we must. Only happens for main glyph.
     if mainGlGlyph.data_changed
       mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _set_data() and below
       mainGlGlyph._set_data(nvertices)
       mainGlGlyph.data_changed = false
-    else if @glyph.radius? and (trans.sx != @last_trans.sx or trans.sy != @last_trans.sy)
+    else if @glyph._radius? and (trans.sx != @last_trans.sx or trans.sy != @last_trans.sy)
       # Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
       @last_trans = trans
       @vbo_s.set_data(0, new Float32Array((s*2 for s in @glyph.sradius)))
@@ -1180,7 +1180,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
     @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
-    
+
     # Select buffers from main glyph
     # (which may be this glyph but maybe not if this is a (non)selection glyph)
     @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, 0])
@@ -1240,22 +1240,22 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_s.set_size(n)
     # Upload data for x and y, apply a baked-in offset for float32 precision (issue #3795)
     # The exact value for the baked_offset does not matter, as long as it brings the data to less extreme values
-    xx = new Float64Array(@glyph.x)
-    yy = new Float64Array(@glyph.y)
+    xx = new Float64Array(@glyph._x)
+    yy = new Float64Array(@glyph._y)
     for i in [0...nvertices]
        xx[i] += @_baked_offset[0]
        yy[i] += @_baked_offset[1]
     @vbo_x.set_data(0, new Float32Array(xx))
     @vbo_y.set_data(0, new Float32Array(yy))
     # Angle if available; circle does not have angle. If we don't set data, angle is default 0 in glsl
-    if @glyph.angle?
-      @vbo_a.set_data(0, new Float32Array(@glyph.angle))
+    if @glyph._angle?
+      @vbo_a.set_data(0, new Float32Array(@glyph._angle))
     # Radius is special; some markes allow radius in data-coords instead of screen coords
     # @radius tells us that radius is in units, sradius is the pre-calculated screen radius
-    if @glyph.radius?
+    if @glyph._radius?
       @vbo_s.set_data(0, new Float32Array((s*2 for s in @glyph.sradius)))
     else
-      @vbo_s.set_data(0, new Float32Array(@glyph.size))
+      @vbo_s.set_data(0, new Float32Array(@glyph._size))
 
   _set_visuals: (nvertices) ->
     attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'line_width')
