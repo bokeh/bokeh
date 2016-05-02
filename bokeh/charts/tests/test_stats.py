@@ -48,3 +48,14 @@ def test_histogram_w_density():
     assert len(h.bins) == 3
     assert [b.label[0] for b in h.bins] == ['[0.0, 3.0]', '(3.0, 6.0]', '(6.0, 9.0]']
     assert [b.values[0] for b in h.bins] == [0.1, 0.1, 0.13333333333333333]
+
+
+def test_histogram_ill_defined_data():
+    # See e.g. #3660
+    for x in (-21, -0.001, 0, 0.001, 21):
+        values  = [x, x]
+        h = Histogram(values=values)
+
+        assert len(h.bins) <= 3
+        assert len(h.bins) >= 1
+        assert sum([b.value for b in h.bins]) == 2
