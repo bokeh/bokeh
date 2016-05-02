@@ -34,6 +34,11 @@ def _wrap_in_function(code):
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
+def _wrap_in_onload(code):
+    # indent and wrap Bokeh function def around
+    code = "\n".join(["    " + line for line in code.split("\n")])
+    return 'document.addEventListener("DOMContentLoaded", function(event) {\n%s\n});' % code
+
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -309,7 +314,7 @@ def file_html(models,
                                            template=template, template_variables=template_variables)
 
 # TODO rename this "standalone"?
-def autoload_static(model, resources, script_path):
+def autoload_static(model, resources, script_path, onload=True):
     ''' Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
@@ -341,13 +346,13 @@ def autoload_static(model, resources, script_path):
     script = _script_for_render_items(docs_json, render_items, wrap_script=False)
     item = render_items[0]
 
-    js = AUTOLOAD_JS.render(
+    js = _wrap_in_onload(AUTOLOAD_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
         elementid = item['elementid'],
-    )
+    ))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
