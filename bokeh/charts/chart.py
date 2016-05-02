@@ -71,17 +71,17 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
-    legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
-    A location where the legend should draw itself.
-    """)
-
-    xgrid = Bool(True, help="""
-    Whether to draw an x-grid.
-    """)
-
-    ygrid = Bool(True, help="""
-    Whether to draw an y-grid.
-    """)
+    # _legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
+    # A location where the legend should draw itself.
+    # """)
+    #
+    # _xgrid = Bool(True, help="""
+    # Whether to draw an x-grid.
+    # """)
+    #
+    # _ygrid = Bool(True, help="""
+    # Whether to draw an y-grid.
+    # """)
 
     xlabel = String(None, help="""
     A label for the x-axis. (default: None)
@@ -111,6 +111,11 @@ class Chart(Plot):
         # pop tools as it is also a property that doesn't match the argument
         # supported types
         tools = kwargs.pop('tools', None)
+        for name in ['xgrid', 'ygrid', 'legend']:
+            if name in kwargs:
+                kwargs["_" + name] = kwargs[name]
+                del kwargs[name]
+
         super(Chart, self).__init__(*args, **kwargs)
 
         defaults.apply(self)
@@ -139,6 +144,46 @@ class Chart(Plot):
         self._tooltips = []
 
         self.create_tools(self._tools)
+
+    @property
+    def legend(self):
+        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+
+        """
+        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        return _list_attr_splat(legends)
+
+    @property
+    def xgrid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+
+        """
+        return self._grid(0)
+
+    @property
+    def ygrid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+
+        """
+        return self._grid(1)
+
+    @xgrid.setter
+    def xgrid(self, value):
+        warnings.warn("Chart property setter 'xgrid' was deprecated in 0.12 \
+            and will be removed in the future.")
+        self._xgrid = value
+
+    @ygrid.setter
+    def ygrid(self, value):
+        warnings.warn("Chart property setter 'ygrid' was deprecated in 0.12 \
+            and will be removed in the future.")
+        self._ygrid = value
+
+    @legend.setter
+    def legend(self, value):
+        warnings.warn("Chart property setter 'legend' was deprecated in 0.12 \
+            and will be removed in the future.")
+        self._legend = value
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -198,7 +243,7 @@ class Chart(Plot):
         """Add the axis, grids and tools
         """
         self.create_axes()
-        self.create_grids(self.xgrid, self.ygrid)
+        self.create_grids(self._xgrid, self._ygrid)
 
         # Add tools if supposed to
         if self.tools:
@@ -219,10 +264,10 @@ class Chart(Plot):
                 labels.
         """
         location = None
-        if self.legend is True:
+        if self._legend is True:
             location = "top_left"
         else:
-            location = self.legend
+            location = self._legend
 
         if location:
             legend = Legend(location=location, legends=legends)

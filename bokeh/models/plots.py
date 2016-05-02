@@ -26,6 +26,17 @@ from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
 
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
+
+    def __dir__(self):
+        if len(set(type(x) for x in self)) == 1:
+            return dir(self[0])
+        else:
+            return dir(self)
+
 def _select_helper(args, kwargs):
     """
     Allow flexible selector syntax.
@@ -128,7 +139,6 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -156,6 +166,67 @@ class Plot(Component):
 
         '''
         return self in gridplot.column(col)
+
+    def _axis(self, *sides):
+        objs = []
+        for s in sides:
+            objs.extend(getattr(self, s, []))
+        axis = [obj for obj in objs if isinstance(obj, Axis)]
+        return _list_attr_splat(axis)
+
+    @property
+    def xaxis(self):
+        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+
+        """
+        return self._axis("above", "below")
+
+    @property
+    def yaxis(self):
+        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+
+        """
+        return self._axis("left", "right")
+
+    @property
+    def axis(self):
+        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+
+        """
+        return _list_attr_splat(self.xaxis + self.yaxis)
+
+    @property
+    def legend(self):
+        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+
+        """
+        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        return _list_attr_splat(legends)
+
+    def _grid(self, dimension):
+        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+        return _list_attr_splat(grid)
+
+    @property
+    def xgrid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+
+        """
+        return self._grid(0)
+
+    @property
+    def ygrid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+
+        """
+        return self._grid(1)
+
+    @property
+    def grid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+
+        """
+        return _list_attr_splat(self.xgrid + self.ygrid)
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
@@ -660,7 +731,6 @@ class GridPlot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):
