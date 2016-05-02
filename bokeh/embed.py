@@ -314,7 +314,7 @@ def file_html(models,
                                            template=template, template_variables=template_variables)
 
 # TODO rename this "standalone"?
-def autoload_static(model, resources, script_path, onload=True):
+def autoload_static(model, resources, script_path):
     ''' Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
