@@ -449,8 +449,6 @@ class Histogram(BinnedStat):
             self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max()))
 
 
-
-
 def bins(data, values=None, column=None, bin_count=None, labels=None,
          **kwargs):
     """Specify binning or bins to be used for column or values."""

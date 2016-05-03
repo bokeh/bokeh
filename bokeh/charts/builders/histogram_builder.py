@@ -145,7 +145,6 @@ class HistogramBuilder(BarBuilder):
 
     def get_extra_args(self):
         """Build kwargs that are unique to the histogram builder."""
-
         return dict(bin_count=self.bins, density=self.density)
 
     def _apply_inferred_index(self):
