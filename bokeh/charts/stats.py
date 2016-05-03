@@ -433,12 +433,6 @@ class Histogram(BinnedStat):
         data = self.bin_stat.get_data()
         bins = self.bin_stat.bin_count
 
-        if data.size < 2:
-            raise ValueError('Histogram data must have at least two elements.')
-        if data.ndim == 1 and data.std() == 0:
-            margin = 0.01 * abs(float(data[0])) or 0.01
-            bins = np.linspace(data[0] - margin, data[0] + margin, bins+1)
-
         binned, bin_bounds = np.histogram(
                         np.array(data), density=self.density, bins=bins
                     )
