@@ -466,7 +466,7 @@ class LineGLGlyph extends BaseGLGlyph
       varying float v_linewidth;
 
       // Compute distance to cap ----------------------------------------------------
-      float cap( int type, float dx, float dy, float t, float miter_limit, float linewidth )
+      float cap( int type, float dx, float dy, float t, float linewidth )
       {
           float d = 0.0;
           dx = abs(dx);
@@ -482,7 +482,7 @@ class LineGLGlyph extends BaseGLGlyph
 
       // Compute distance to join -------------------------------------------------
       float join( in int type, in float d, in vec2 segment, in vec2 texcoord, in vec2 miter,
-            in float miter_limit, in float linewidth )
+                 in float linewidth )
       {
           // texcoord.x is distance from start
           // texcoord.y is distance from centerline
@@ -555,13 +555,13 @@ class LineGLGlyph extends BaseGLGlyph
           if( solid ) {
               d = abs(dy);
               if( (!closed) && (dx < line_start) ) {
-                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t, u_miter_limit, v_linewidth );
+                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t, v_linewidth );
               }
               else if( (!closed) &&  (dx > line_stop) ) {
-                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t, u_miter_limit, v_linewidth );
+                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t, v_linewidth );
               }
               else {
-                  d = join( int(u_linejoin), abs(dy), v_segment, v_texcoord, v_miter, u_miter_limit, v_linewidth );
+                  d = join( int(u_linejoin), abs(dy), v_segment, v_texcoord, v_miter, v_linewidth );
               }
 
           // Dash line --------------------------------------------------------------
@@ -612,7 +612,7 @@ class LineGLGlyph extends BaseGLGlyph
               //if( dx > line_stop)  discontinuous = false;
 
               float d_join = join( int(u_linejoin), abs(dy),
-                                  v_segment, v_texcoord, v_miter, u_miter_limit, v_linewidth );
+                                  v_segment, v_texcoord, v_miter, v_linewidth );
 
               // When path is closed, we do not have room for linecaps, so we make room
               // by shortening the total length
@@ -690,21 +690,21 @@ class LineGLGlyph extends BaseGLGlyph
 
               // Line cap at start
               if( (dx < line_start) && (dash_start < line_start) && (dash_stop > line_start) ) {
-                  d = cap( int(linecaps.x), dx-line_start, dy, t, u_miter_limit, v_linewidth);
+                  d = cap( int(linecaps.x), dx-line_start, dy, t, v_linewidth);
               }
               // Line cap at stop
               else if( (dx > line_stop) && (dash_stop > line_stop) && (dash_start < line_stop) ) {
-                  d = cap( int(linecaps.y), dx-line_stop, dy, t, u_miter_limit, v_linewidth);
+                  d = cap( int(linecaps.y), dx-line_stop, dy, t, v_linewidth);
               }
               // Dash cap left - dash_type = -1, 0 or 1, but there may be roundoff errors
               else if( dash_type < -0.5 ) {
-                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t, u_miter_limit, v_linewidth);
+                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t, v_linewidth);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
               // Dash cap right
               else if( dash_type > 0.5 ) {
-                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t, u_miter_limit, v_linewidth);
+                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t, v_linewidth);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
@@ -875,7 +875,7 @@ class LineGLGlyph extends BaseGLGlyph
 
       @prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
       @prog.set_uniform('u_linejoin', 'float', [join])
-      @prog.set_uniform('u_miter_limit', 'float', [10.0])  # Should be a good value
+      @prog.set_uniform('u_miter_limit', 'float', [10.0])  # 10 should be a good value
       # https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
       dash_pattern = @glyph.visuals.line.line_dash.value()
