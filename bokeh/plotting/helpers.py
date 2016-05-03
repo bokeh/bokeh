@@ -205,7 +205,7 @@ _known_tools = {
     "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
     "save": lambda: PreviewSaveTool(),
     "resize": lambda: ResizeTool(),
-    "click": "tap",
+    "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),

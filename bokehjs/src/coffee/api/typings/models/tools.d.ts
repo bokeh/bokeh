@@ -89,6 +89,7 @@ declare namespace Bokeh {
     export var TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
     export interface TapTool extends SelectTool, ITapTool {}
     export interface ITapTool extends ISelectTool {
+        behavior?: "select" | "inspect";
         callback?: Callback | ((source: DataSource) => void);
     }
 
