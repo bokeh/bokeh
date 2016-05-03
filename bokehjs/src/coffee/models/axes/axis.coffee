@@ -9,7 +9,7 @@ Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
-# axis title text, based on it's location and orientation
+# axis label text, based on it's location and orientation
 #
 # side    orient        baseline   align     angle   normal-dist
 # ------------------------------------------------------------------------------

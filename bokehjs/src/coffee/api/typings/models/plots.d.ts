@@ -22,17 +22,6 @@ declare namespace Bokeh {
         tools?: Array<Tool>;
     }
     export interface IBasePlot extends ILayoutDOM {
-        title?: string;
-
-        // {{{ title = include[TextProps]
-        title_text_font?: string;
-        title_text_font_size?: FontSize;
-        title_text_font_style?: FontStyle;
-        title_text_color?: Color;
-        title_text_alpha?: Percent;
-        title_text_align?: TextAlign;
-        title_text_baseline?: TextBaseline;
-        // }}}
 
         // {{{ outline = include[LineProps]
         outline_line_color?: Color;
