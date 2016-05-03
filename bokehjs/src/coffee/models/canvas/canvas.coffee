@@ -74,31 +74,36 @@ class CanvasView extends BokehView
     return
 
   set_dims: (dims, trigger=true) ->
-    @_set_width(dims[0])
-    @_set_height(dims[1])
-    @model.document.solver().update_variables(trigger)
+    @requested_width = dims[0]
+    @requested_height = dims[1]
+    @update_constraints(trigger)
     return
 
-  update_constraints: () ->
-    return 
+  update_constraints: (trigger=true) ->
+    requested_width = @requested_width
+    requested_height = @requested_height
 
-  _set_width: (width) ->
-    solver = @model.document.solver()
+    if not requested_width? or not requested_height?
+      return
+
+    if _.isEqual(@last_requested_dims, [requested_width, requested_height])
+      return
+
+    s = @model.document.solver()
+
     if @_width_constraint?
-      solver.remove_constraint(@_width_constraint)
-    @_width_constraint = EQ(@model._width, -width)
-    solver.add_constraint(@_width_constraint)
-    solver.update_variables()
-    return
+      s.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@model._width, -requested_width)
+    s.add_constraint(@_width_constraint)
 
-  _set_height: (height) ->
-    solver = @model.document.solver()
     if @_height_constraint?
-      solver.remove_constraint(@_height_constraint)
-    @_height_constraint = EQ(@model._height, -height)
-    solver.add_constraint(@_height_constraint)
-    solver.update_variables()
-    return
+      s.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@model._height, -requested_height)
+    s.add_constraint(@_height_constraint)
+
+    @last_requested_dims = [requested_width, requested_height]
+
+    s.update_variables(trigger)
 
 class Canvas extends LayoutCanvas.Model
   type: 'Canvas'

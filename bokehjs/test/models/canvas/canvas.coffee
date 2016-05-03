@@ -35,7 +35,10 @@ describe "Canvas.View", ->
 
   beforeEach ->
     utils.stub_canvas()
-    utils.stub_solver()
+    solver_stubs = utils.stub_solver()
+    @solver_add_stub = solver_stubs['add']
+    @solver_remove_stub = solver_stubs['remove']
+
     @c = new Canvas()
     @c.document = new Document()
     @c._doc_attached()
@@ -52,13 +55,52 @@ describe "Canvas.View", ->
     expect(spy.calledOnce).to.be.true
 
   it "set_dims should set requested_width and requested_height on canvas_view", ->
-    expect(true).to.be.false
+    c_view = new @c.default_view({'model': @c})
+    c_view.set_dims([1, 2])
+    expect(c_view.requested_width).to.be.equal 1
+    expect(c_view.requested_height).to.be.equal 2
 
-  it "update_constraints should add and remove two constraints from solver", ->
-    expect(true).to.be.false
+  it "update_constraints should add two constraints to solver", ->
+    c_view = new @c.default_view({'model': @c})
+    initial_add_count = @solver_add_stub.callCount
+    initial_remove_count = @solver_remove_stub.callCount
+    c_view.requested_width = 4
+    c_view.requested_height = 4
+    c_view.update_constraints()
+    expect(@solver_add_stub.callCount).to.be.equal initial_add_count + 2
+    expect(@solver_remove_stub.callCount).to.be.equal initial_remove_count + 0 # No constraint removal on first update
 
-  it "update_constraints should not alter solver if requested_width and requested_height are undefined", ->
-    expect(true).to.be.false
+  it "update_constraints should remove two constraints from solver if update_constraints has already been called once", ->
+    c_view = new @c.default_view({'model': @c})
+    c_view.requested_width = 4
+    c_view.requested_height = 4
+    c_view.update_constraints()
+    c_view.requested_width = 2
+    c_view.requested_height = 2
+    initial_add_count = @solver_add_stub.callCount
+    initial_remove_count = @solver_remove_stub.callCount
+    c_view.update_constraints()
+    expect(@solver_add_stub.callCount).to.be.equal initial_add_count + 2
+    expect(@solver_remove_stub.callCount).to.be.equal initial_remove_count + 2
+
+  it "update_constraints should not alter solver if requested_width and requested_height are null", ->
+    c_view = new @c.default_view({'model': @c})
+    initial_add_count = @solver_add_stub.callCount
+    initial_remove_count = @solver_remove_stub.callCount
+    c_view.update_constraints()
+    expect(c_view.requested_width).is.null
+    expect(c_view.requested_height).is.null
+    expect(@solver_add_stub.callCount).to.be.equal initial_add_count
+    expect(@solver_remove_stub.callCount).to.be.equal initial_remove_count
 
   it "update_constraints should not alter solver if requested_width and requested_height haven't changed", ->
-    expect(true).to.be.false
+    c_view = new @c.default_view({'model': @c})
+    c_view.requested_width = 4
+    c_view.requested_height = 4
+    # Call once to get _width_constraint and _height_constraint set on solver
+    c_view.update_constraints()
+    initial_add_count = @solver_add_stub.callCount
+    initial_remove_count = @solver_remove_stub.callCount
+    c_view.update_constraints()
+    expect(@solver_add_stub.callCount).to.be.equal initial_add_count
+    expect(@solver_remove_stub.callCount).to.be.equal initial_remove_count
