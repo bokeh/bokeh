@@ -4,7 +4,7 @@ SidePanel = require "../../core/layout/side_panel"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
 
-{EQ} = require "../../core/layout/solver"
+{GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -181,8 +181,8 @@ class AxisView extends Renderer.View
     @_last_size = size
     s = @model.document.solver()
     if @_size_constraint?
-      s.remove_constraint(@_size_constraint)
-    @_size_constraint = EQ(@model._size, -size)
+        s.remove_constraint(@_size_constraint)
+    @_size_constraint = GE(@model._size, -size)
     s.add_constraint(@_size_constraint)
 
   _get_size: () ->
