@@ -11,6 +11,8 @@ declare namespace Bokeh {
     type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
     function set_log_level(level: LogLevel): void;
 
+    function sprintf(fmt: string, ...args: any[]): string;
+
     namespace embed {
         export function add_document_standalone(doc: Document, element: HTMLElement, use_for_title?: boolean): void;
     }
