@@ -22,6 +22,9 @@ class ImageURLView extends Glyph.View
     @retries = (retry_attempts for img in @_url)
 
     for i in [0...@_url.length]
+      if not @_url[i]?
+        continue
+
       img = new Image()
       img.onerror = do (i, img) =>
         return () =>
