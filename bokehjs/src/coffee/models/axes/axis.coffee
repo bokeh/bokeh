@@ -426,7 +426,7 @@ class Axis extends GuideRenderer.Model
     @panel = new SidePanel.Model()
     @panel.attach_document(@document)
 
-  initialize_layout: (solver) ->
+  initialize_layout: () ->
     side = @get('layout_location')
     if side == "above"
       @_dim = 0
