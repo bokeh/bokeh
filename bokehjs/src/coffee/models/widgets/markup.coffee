@@ -24,8 +24,8 @@ class Markup extends Widget.Model
 
   @define {
     text: [ p.String, '' ]
-    width: [ p.Number, 500]
-    height: [ p.Number, 400]
+    width: [ p.Number, none]
+    height: [ p.Number, none]
   }
 
 module.exports =
