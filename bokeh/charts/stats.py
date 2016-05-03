@@ -220,7 +220,14 @@ class BinStats(Stat):
 
     Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
-    bin_count = Either(Int, Float)
+    bin_count = Either(Int, Float, List(Float), default=None, help="""
+    If bins is an int, it defines the number of equal-width bins in the
+    given range (10, by default). If bins is a sequence, it defines the
+    bin edges, including the rightmost edge, allowing for non-uniform
+    bin widths.
+
+    (default: None, use Freedman-Diaconis rule)
+    """)
     bin_width = Float(default=None, help='Use Freedman-Diaconis rule if None.')
     q1 = Quantile(interval=0.25)
     q3 = Quantile(interval=0.75)
@@ -229,6 +236,7 @@ class BinStats(Stat):
     def __init__(self, values=None, column=None, **properties):
         properties['values'] = values
         properties['column'] = column or 'values'
+
         super(BinStats, self).__init__(**properties)
 
     def update(self):
@@ -260,14 +268,11 @@ class BinStats(Stat):
         pass
 
 
-class Bins(Stat):
-    """Bins and aggregates dimensions for plotting.
+class BinnedStat(Stat):
+    """ Base class for shared functionality accross bins and aggregates
+    dimensions for plotting.
 
-    Takes the inputs and produces a list of bins that can be iterated over and
-    inspected for their metadata. The bins provide easy access to consistent labeling,
-    bounds, and values.
     """
-
     bin_stat = Instance(BinStats, help="""
         A mapping between each dimension and associated binning calculations.
         """)
@@ -280,11 +285,6 @@ class Bins(Stat):
 
     stat = Instance(Stat, default=Count(), help="""
         The statistical operation to be used on the values in each bin.
-        """)
-
-    bin_count = Int(help="""
-        An optional list of the number of bins to use for each dimension. If a single
-        value is provided, then the same number of bins will be used for each.
         """)
 
     bin_column = String()
@@ -308,7 +308,7 @@ class Bins(Stat):
         properties['values'] = values
         properties['source'] = source
 
-        super(Bins, self).__init__(**properties)
+        super(BinnedStat, self).__init__(**properties)
 
     def _get_stat(self):
         stat_kwargs = {}
@@ -327,6 +327,16 @@ class Bins(Stat):
     def update(self):
         self.bin_stat = self._get_stat()
         self.bin_stat.update()
+
+class Bins(BinnedStat):
+    """Bins and aggregates dimensions for plotting.
+
+    Takes the inputs and produces a list of bins that can be iterated over and
+    inspected for their metadata. The bins provide easy access to consistent labeling,
+    bounds, and values.
+    """
+
+    bin_count = Int(help="""Number of equal-width bins in the given dataset range.""")
 
     def calculate(self):
 
@@ -387,7 +397,7 @@ class Bins(Stat):
                                     reverse=~ascending))
 
 
-class Histogram(Bins):
+class Histogram(BinnedStat):
     """Bins and aggregates dimensions for plotting.
 
     Takes the inputs and produces a list of bins that can be iterated over and
@@ -406,6 +416,15 @@ class Histogram(Bins):
 
     """)
 
+    bin_count = Either(List(Float), Int, default=None, help="""
+    If bins is an int, it defines the number of equal-width bins in the
+    given range (10, by default). If bins is a sequence, it defines the
+    bin edges, including the rightmost edge, allowing for non-uniform
+    bin widths.
+
+    (default: None, use Freedman-Diaconis rule)
+    """)
+
 
     def calculate(self):
         bin_str = '_bin'
@@ -414,8 +433,6 @@ class Histogram(Bins):
         data = self.bin_stat.get_data()
         bins = self.bin_stat.bin_count
 
-        # Choose bin bounds when data range is ill-defined; pd.cut()
-        # does not handle this well for values that are <= 0
         if data.size < 2:
             raise ValueError('Histogram data must have at least two elements.')
         if data.ndim == 1 and data.std() == 0:

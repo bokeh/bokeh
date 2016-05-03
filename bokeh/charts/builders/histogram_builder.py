@@ -21,7 +21,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 from ...models import Range1d
-from ...core.properties import Bool, Int
+from ...core.properties import Bool, Int, Either, Float, List
 
 from ..builder import create_and_build
 from .bar_builder import BarBuilder
@@ -61,7 +61,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
       agg (str, optional): how to aggregate the bins. Defaults to "count".
       bins (int, optional): the number of bins to use. Defaults to None to auto select.
       density (bool, optional): whether to normalize the histogram. Defaults to False.
-      
+
       **kw:
 
     In addition to the parameters specific to this chart,
@@ -113,9 +113,13 @@ class HistogramBuilder(BarBuilder):
 
     """
 
-    bins = Int(default=None, help="""
-    Number of bins to use for the histogram. (default: None,
-    use Freedman-Diaconis rule)
+    bins = Either(List(Float), Int, default=None, help="""
+    If bins is an int, it defines the number of equal-width bins in the
+    given range (10, by default). If bins is a sequence, it defines the
+    bin edges, including the rightmost edge, allowing for non-uniform
+    bin widths.
+
+    (default: None, use Freedman-Diaconis rule)
     """)
 
     density = Bool(False, help="""

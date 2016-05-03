@@ -14,7 +14,8 @@ from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
                                    List, Either, Int, Enum, Color, Override, Any, Angle)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats, Histogram
+from .stats import (Stat, Quantile, Sum, Min, Max, Bins, stats, Histogram,
+                    BinnedStat)
 from .data_source import ChartDataSource
 from .utils import marker_types, generate_patch_base, label_from_index_dict
 
@@ -912,14 +913,20 @@ class HistogramGlyph(AggregateGlyph):
 
     # input properties
     bin_width = Float()
-    bin_count = Float(help="""Provide a manually specified number of bins to use.""")
+    bin_count = Either(List(Float), Int, default=None, help="""
+    If bins is an int, it defines the number of equal-width bins in the
+    given range (10, by default). If bins is a sequence, it defines the
+    bin edges, including the rightmost edge, allowing for non-uniform
+    bin widths.
+
+    (default: None, use Freedman-Diaconis rule)
+    """)
 
     # derived models
-    bins = Instance(Bins, help="""A stat used to calculate the bins. The bins stat
+    bins = Instance(BinnedStat, help="""A stat used to calculate the bins. The bins stat
         includes attributes about each composite bin.""")
     bars = List(Instance(BarGlyph), help="""The histogram is comprised of many
         BarGlyphs that are derived from the values.""")
-
     density = Bool(False, help="""
         Whether to normalize the histogram. (default: True)
 
@@ -954,6 +961,8 @@ class HistogramGlyph(AggregateGlyph):
 
     def build_renderers(self):
         """Yield a bar glyph for each bin."""
+        # TODO(fpliger): We should expose the bin stat class so we could let
+        #               users specify other bins other the Histogram Stat
         self.bins = Histogram(values=self.values, bin_count=self.bin_count,
             density=self.density)
         centers = [bin.center for bin in self.bins.bins]
