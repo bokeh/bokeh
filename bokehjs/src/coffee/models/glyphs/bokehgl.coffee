@@ -1,5 +1,6 @@
 _ = require "underscore"
 gloo2 = require "gloo2"
+{logger} = require "../../core/logging"
 color = require "../../core/util/color"
 color2rgba = color.color2rgba
 
@@ -1195,6 +1196,13 @@ class MarkerGLGlyph extends BaseGLGlyph
     else if indices.length == nvertices
       @prog.draw(@gl.POINTS, [0, nvertices])
     else if nvertices < 65535
+      # On IE the marker size is reduced to 1 px when using an index buffer
+      # A MS Edge dev on Twitter said on 24-04-2014: "gl_PointSize > 1.0 works
+      # in DrawArrays; gl_PointSize > 1.0 in DrawElements is coming soon in the
+      # next renderer update.
+      ua = window.navigator.userAgent
+      if ua.indexOf("MSIE ") + ua.indexOf("Trident/") + ua.indexOf("Edge/") > 0
+         logger.warn('WebGL warning: IE is known to produce 1px sprites whith selections.')
       @index_buffer.set_size(indices.length*2)
       @index_buffer.set_data(0, new Uint16Array(indices))
       @prog.draw(@gl.POINTS, @index_buffer)
