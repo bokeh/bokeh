@@ -5,7 +5,7 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side
+    Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side,
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
@@ -14,8 +14,8 @@ from ..core.properties import (
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
     AngleSpec
 )
-from ..util.deprecate import deprecated
 
+from .arrow_heads import ArrowHead, OpenHead
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
@@ -106,6 +106,63 @@ class Legend(Annotation):
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
+
+class Arrow(Annotation):
+    """ Render an arrow as an annotation.
+
+    """
+
+    x_start = NumberSpec(help="""
+    The x-coordinates to locate the start of the arrows.
+    """)
+
+    y_start = NumberSpec(help="""
+    The y-coordinates to locate the start of the arrows.
+    """)
+
+    start_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the start_x and start_y attributes. Interpreted as "data
+    space" units by default.
+    """)
+
+    start = Instance(ArrowHead, default=None, help="""
+    Instance of ArrowHead.
+    """)
+
+    x_end = NumberSpec(help="""
+    The x-coordinates to locate the end of the arrows.
+    """)
+
+    y_end = NumberSpec(help="""
+    The y-coordinates to locate the end of the arrows.
+    """)
+
+    end_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the end_x and end_y attributes. Interpreted as "data
+    space" units by default.
+    """)
+
+    end = Instance(ArrowHead, default=lambda: OpenHead(), help="""
+    Instance of ArrowHead.
+    """)
+
+    body_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the arrow body.
+    """)
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
 
 class BoxAnnotation(Annotation):
     """ Render a shaded rectangular region as an annotation.
