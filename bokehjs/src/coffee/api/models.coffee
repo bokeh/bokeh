@@ -21,9 +21,6 @@ module.exports = {
   OpenURL:                                require("../models/callbacks/open_url").Model
   CustomJS:                               require("../models/callbacks/customjs").Model
 
-  ## api/typings/models/component.d.ts
-  Component:                              require("../models/component").Model
-
   ## api/typings/models/formatters.d.ts
   TickFormatter:                          require("../models/formatters/tick_formatter").Model
   BasicTickFormatter:                     require("../models/formatters/basic_tick_formatter").Model
@@ -64,7 +61,7 @@ module.exports = {
   ImageSource:                            require("../models/tiles/image_source").Model
 
   ## api/typings/models/layouts.d.ts
-  Layout:                                 require("../models/layouts/layout").Model
+  LayoutDOM:                              require("../models/layouts/layout_dom").Model
   #BaseBox:                               require("../models/layouts/base_box").Model
   HBox:                                   require("../models/layouts/hbox").Model
   VBox:                                   require("../models/layouts/vbox").Model

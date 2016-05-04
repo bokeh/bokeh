@@ -8,14 +8,14 @@ logger = logging.getLogger(__name__)
 
 from ..core import validation
 from ..core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ..core.properties import abstract
-from ..core.properties import Int, Instance, List
+from ..core.properties import abstract, Bool, Int, Instance, List
+from ..embed import notebook_div
+from ..model import Model
 
-from .component import Component
 
 @abstract
-class Layout(Component):
-    """ An abstract base class for layout components. ``Layout`` is not
+class LayoutDOM(Model):
+    """ An abstract base class for layout components. ``LayoutDOM`` is not
     generally useful to instantiate on its own.
 
     """
@@ -28,8 +28,24 @@ class Layout(Component):
     An optional height for the component (in pixels).
     """)
 
+    disabled = Bool(False, help="""
+    Whether the widget will be disabled when rendered. If ``True``,
+    the widget will be greyed-out, and not respond to UI events.
+    """)
+
+    # TODO: (mp) Not yet, because it breaks plotting/notebook examples.
+    # Rename to _repr_html_ if we decide to enable this by default.
+    def __repr_html__(self):
+        return notebook_div(self)
+
+    @property
+    def html(self):
+        from IPython.core.display import HTML
+        return HTML(self.__repr_html__())
+
+
 @abstract
-class BaseBox(Layout):
+class BaseBox(LayoutDOM):
     """ Abstract base class for HBox and VBox. Do not use directly.
     """
 
@@ -57,9 +73,8 @@ class BaseBox(Layout):
         else:
             return None
 
-    children = List(Instance(Component), help="""
-    The list of children, which can be other components including layouts,
-    widgets and plots.
+    children = List(Instance(LayoutDOM), help="""
+        The list of children, which can be other components including layouts, widgets and plots.
     """)
 
 

@@ -28,4 +28,11 @@ class Model extends HasProps
       else
         throw new Error("found more than one object matching given selector")
 
+  get_edit_variables: () ->
+    []
+
+  get_constraints: () ->
+    []
+
+
 module.exports = Model

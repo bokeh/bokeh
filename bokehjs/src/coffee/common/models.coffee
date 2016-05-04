@@ -25,7 +25,6 @@ module.exports = {
   OpenURL:                  require '../models/callbacks/open_url'
 
   Canvas:                   require '../models/canvas/canvas'
-  LayoutBox:                require '../models/canvas/layout_box'
   CartesianFrame:           require '../models/canvas/cartesian_frame'
 
   BasicTickFormatter:       require '../models/formatters/basic_tick_formatter'

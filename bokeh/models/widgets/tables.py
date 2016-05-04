@@ -338,17 +338,6 @@ class DataTable(TableWidget):
     The list of child column widgets.
     """)
 
-    width = Int(None, help="""
-    Optional width in pixels of the table widget. By default, uses all
-    horizontal space available.
-    """)
-
-    height = Either(Int(400), Auto, help="""
-    Height in pixels of the table widget. Use ``Auto`` to make the widget
-    adjust its height automatically. Note that ``Auto`` is inefficient for
-    large amounts of data, so should be used with care.
-    """)
-
     fit_columns = Bool(True, help="""
     Whether columns should be fit to the available width. This results in no
     horizontal scrollbar showing up, but data can get unreadable if there is
