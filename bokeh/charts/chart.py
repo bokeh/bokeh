@@ -24,15 +24,14 @@ import warnings
 from collections import defaultdict
 import numpy as np
 
-from ..core.enums import enumeration, LegendLocation
+from ..core.enums import enumeration
 from ..models import (
     CategoricalAxis, DatetimeAxis, glyphs, Grid, Legend, LinearAxis, markers,
     Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
 from ..plotting.helpers import _process_tools_arg, _glyph_function
-from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
-                          String, Tuple, Override)
+from ..core.properties import Auto, Either, Enum, String, Override
 from ..util.deprecate import deprecated
 
 #-----------------------------------------------------------------------------
@@ -71,18 +70,6 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
-    # _legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
-    # A location where the legend should draw itself.
-    # """)
-    #
-    # _xgrid = Bool(True, help="""
-    # Whether to draw an x-grid.
-    # """)
-    #
-    # _ygrid = Bool(True, help="""
-    # Whether to draw an y-grid.
-    # """)
-
     xlabel = String(None, help="""
     A label for the x-axis. (default: None)
     """)
@@ -105,7 +92,11 @@ class Chart(Plot):
 
     _defaults = defaults
 
-    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height')
+    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend')
+
+    _xgrid = True
+    _ygrid = True
+    _legend = True
 
     def __init__(self, *args, **kwargs):
         # pop tools as it is also a property that doesn't match the argument
@@ -144,46 +135,6 @@ class Chart(Plot):
         self._tooltips = []
 
         self.create_tools(self._tools)
-
-    @property
-    def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
-
-        """
-        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
-        return _list_attr_splat(legends)
-
-    @property
-    def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
-
-        """
-        return self._grid(0)
-
-    @property
-    def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
-
-        """
-        return self._grid(1)
-
-    @xgrid.setter
-    def xgrid(self, value):
-        warnings.warn("Chart property setter 'xgrid' was deprecated in 0.12 \
-            and will be removed in the future.")
-        self._xgrid = value
-
-    @ygrid.setter
-    def ygrid(self, value):
-        warnings.warn("Chart property setter 'ygrid' was deprecated in 0.12 \
-            and will be removed in the future.")
-        self._ygrid = value
-
-    @legend.setter
-    def legend(self, value):
-        warnings.warn("Chart property setter 'legend' was deprecated in 0.12 \
-            and will be removed in the future.")
-        self._legend = value
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers

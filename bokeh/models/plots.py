@@ -18,9 +18,11 @@ from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
 from ..util.string import nice_join
 from ..core.validation.errors import REQUIRED_RANGE
 
-from .annotations import Annotation
+from .annotations import Annotation, Legend
+from .axes import Axis
 from .glyphs import Glyph
-from .ranges import Range, Range1d, FactorRange
+from .grids import Grid
+from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents

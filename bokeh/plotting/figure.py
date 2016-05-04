@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..io import curdoc, curstate
-from ..models import Axis, Grid, Legend, Plot
+from ..models import Plot
 from ..models import glyphs, markers
 from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function
 
