@@ -1,7 +1,7 @@
 declare namespace Bokeh {
     var version: string;
 
-    var index: Map<View<Component>>;
+    var index: Map<View<LayoutDOM>>;
 
     var _: UnderscoreStatic;
     var $: JQueryStatic;

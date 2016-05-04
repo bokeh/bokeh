@@ -383,26 +383,6 @@ class Chart(Plot):
         import bokeh.io
         bokeh.io.show(self)
 
-    @property
-    def width(self):
-        warnings.warn("Chart property 'width' was deprecated in 0.11 \
-            and will be removed in the future.")
-        return self.plot_width
-
-    @width.setter
-    def width(self, width):
-        self.plot_width = width
-
-    @property
-    def height(self):
-        warnings.warn("Chart property 'height' was deprecated in 0.11 \
-            and will be removed in the future.")
-        return self.plot_height
-
-    @height.setter
-    def height(self, height):
-        self.plot_height = height
-
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
     annulus = _glyph_function(glyphs.Annulus)

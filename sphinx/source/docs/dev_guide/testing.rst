@@ -118,6 +118,10 @@ and close on your machine as you run them. When we run the tests on TravisCI we
 use the selenium service [SauceLabs](http://saucelabs.com/) which provides free
 testing for open source projects.
 
+It is strongly recommended to run ``python setup.py develop`` before running
+the integration tests to make sure that the latest version of bokehjs, which you are
+developing, is available for the integration tests.
+
 Screenshot tests
 ~~~~~~~~~~~~~~~~
 

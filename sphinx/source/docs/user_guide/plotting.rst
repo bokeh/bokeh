@@ -388,6 +388,22 @@ glyph methods, when creating a plot.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
     :source-position: above
 
+.. _userguide_plotting_arrows:
+
+Arrows
+~~~~~~
+
+Arrows can be used to connect glyphs and label annotations or to simply
+highlight plot regions. Arrows are compound annotations, meaning that their
+`start` and `end` attributes are `ArrowHead` annotations themselves. By
+default, the Arrow annotation is one-sided with the `end` set as an
+`OpenHead`-type arrow head (an open-backed wedge style) and the `start`
+property set to `None`. Double-sided arrows can be created by setting both the
+`start` and `end` properties as appropriate `ArrowHead` subclass instances.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arrow.py
+    :source-position: above
+
 .. _userguide_plotting_box_annotations:
 
 Box Annotations
@@ -441,6 +457,7 @@ extend to the edge of the plot area.
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+.. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`

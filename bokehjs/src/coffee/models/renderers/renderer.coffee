@@ -306,3 +306,4 @@ class Renderer extends Model
 module.exports =
   Model: Renderer
   View: RendererView
+  Visuals: VISUALS

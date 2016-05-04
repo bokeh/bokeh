@@ -2,9 +2,10 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "./utils"
 
-Model = utils.require "model"
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
+{GE, Strength, Variable}  = utils.require "core/layout/solver"
 {Models} = utils.require "base"
+Model = utils.require "model"
 p = utils.require "core/properties"
 
 class AnotherModel extends Model
@@ -68,6 +69,57 @@ class ComplicatedModelWithConstructTimeChanges extends Model
   }
 
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
+
+
+class ModelWithConstraint extends Model
+  type: 'ModelWithConstraint'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_left = new Variable('ModelWithConstraint._left')
+
+  get_constraints: () ->
+    constraints = []
+    constraints.push(GE(@_left))
+    return constraints
+
+Models.register('ModelWithConstraint', ModelWithConstraint)
+
+
+class ModelWithEditVariable extends Model
+  type: 'ModelWithEditVariable'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_left = new Variable('ModelWithEditVariable._left')
+
+  get_edit_variables: () ->
+    editables = []
+    editables.push({edit_variable: @_left, strength: Strength.strong})
+    return editables
+
+Models.register('ModelWithEditVariable', ModelWithEditVariable)
+
+
+class ModelWithEditVariableAndConstraint extends Model
+  type: 'ModelWithEditVariableAndConstraint'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_left = new Variable('ModelWithEditVariableAndConstraint._left')
+
+  get_edit_variables: () ->
+    editables = []
+    editables.push({edit_variable: @_left, strength: Strength.strong})
+    return editables
+
+  get_constraints: () ->
+    constraints = []
+    constraints.push(GE(@_left))
+    return constraints
+
+Models.register('ModelWithEditVariableAndConstraint', ModelWithEditVariableAndConstraint)
+
 
 describe "Document", ->
 
@@ -645,3 +697,45 @@ describe "Document", ->
     expect(root1.get('obj_prop').get('child')).to.be.an.instanceof(AnotherModel)
     expect(Object.keys(root1.get('dict_of_list_prop')).length).to.equal 1
     expect(_.values(root1.get('dict_of_list_prop'))[0].length).to.equal 1
+
+  it "adds edit_variables of root to solver", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+    expect(s.num_constraints()).to.equal 0
+
+    d.add_root(new ModelWithEditVariable())
+    expect(d.roots().length).to.equal 1
+
+    # Check state of solver
+    expect(s.num_edit_variables()).to.equal 1
+    expect(s.num_constraints()).to.equal 1
+    expect(s.solver._editMap._array['0'].first._name).to.equal 'ModelWithEditVariable._left'
+    expect(s.solver._editMap._array['0'].second.constraint._strength).to.equal Strength.strong
+
+  it "adds constraints of root to solver", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+    expect(s.num_constraints()).to.equal 0
+
+    d.add_root(new ModelWithConstraint())
+    expect(d.roots().length).to.equal 1
+
+    # Check state of solver
+    expect(s.num_edit_variables()).to.equal 0
+    expect(s.num_constraints()).to.equal 1
+    expect(s.solver._cnMap._array['0'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
+
+  it "adds constraints and edit variable of root to solver", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+    expect(s.num_constraints()).to.equal 0
+
+    d.add_root(new ModelWithEditVariableAndConstraint())
+    expect(d.roots().length).to.equal 1
+
+    # Check state of solver
+    expect(s.num_edit_variables()).to.equal 1
+    expect(s.num_constraints()).to.equal 2
