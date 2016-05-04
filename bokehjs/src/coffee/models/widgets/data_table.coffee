@@ -197,6 +197,10 @@ class DataTable extends TableWidget.Model
       scroll_to_selection: [ p.Bool,   true  ]
     }
 
+  @override {
+    height: 400
+  }
+
 module.exports =
   Model: DataTable
   View: DataTableView
