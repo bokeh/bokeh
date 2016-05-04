@@ -81,16 +81,13 @@ class TestChart(unittest.TestCase):
         self.chart.add_ranges('x', Range1d())
 
         axis = self.chart.make_axis("x", "left", "datetime", "foo")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foo")
 
         axis = self.chart.make_axis("x", "left", "categorical", "bar")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "bar")
         self.assertEqual(axis.major_label_orientation, np.pi/4)
 
         axis = self.chart.make_axis("x", "left", "linear", "foobar")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foobar")
 
     def test_make_grid(self):
@@ -175,20 +172,20 @@ def test_charts_theme_validation():
 
 def test_bar_chart_below_visibility():
     from bokeh.charts import Bar
-    
+
     # Visible because we have multiple bars
     df = dict(types=['foo', 'bar'], counts=[3, 2])
     p = Bar(df, values='counts')
     p.below[0].visible
-    
+
     # Visible because we excplicitly specify labels
     df = dict(types=['foo'], counts=[3])
     p = Bar(df, values='counts', label='types')
     assert p.below[0].visible
-    
+
     # Not visible because only one item and no labels
     df = dict(types=['foo'], counts=[3])
     p = Bar(df, values='counts')
     assert not p.below[0].visible
-    
-    
+
+

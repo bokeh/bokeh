@@ -112,10 +112,7 @@ class PlotView extends Renderer.View
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @mget(side)
       for r in layout_renderers
-        if r.get('location') ? 'auto' == 'auto'
-          r.set('layout_location', side, { silent: true })
-        else
-          r.set('layout_location', r.get('location'), { silent: true })
+        r.set('layout_location', side, { silent: true })
         r.initialize_layout()
 
     # TODO (bev) titles should probably be a proper guide, then they could go

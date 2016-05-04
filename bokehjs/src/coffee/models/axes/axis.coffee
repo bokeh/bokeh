@@ -369,7 +369,6 @@ class Axis extends GuideRenderer.Model
 
   @define {
       visible:        [ p.Bool,     true      ]
-      location:       [ p.String,   'auto'    ] # TODO (bev) enum
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)
       ticker:         [ p.Instance, null      ]
       formatter:      [ p.Instance, null      ]

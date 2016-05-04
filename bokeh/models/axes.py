@@ -26,10 +26,6 @@ class Axis(GuideRenderer):
     Ability to hide the entire axis from the plot.
     """)
 
-    location = Either(Auto, Enum(Location), help="""
-    Where should labels and ticks be located in relation to the axis rule.
-    """)
-
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
     entire plot in the given dimension.
