@@ -3,6 +3,7 @@ from __future__ import absolute_import
 # This file is excluded from flake8 checking in setup.cfg
 
 from .annotations import *
+from .arrow_heads import *
 from .axes import *
 from .callbacks import *
 from .component import *
@@ -23,7 +24,7 @@ from .tiles import *
 from .tools import *
 
 ### Deprecation note:
-### bokeh.models.widgets.layouts was deprecated in 0.11.1 in favor of 
+### bokeh.models.widgets.layouts was deprecated in 0.11.1 in favor of
 ### bokeh.models.layouts and is awaiting removal. The following imports will
 ### load all widgets modules except layouts, in order to prevent raising a
 ### deprecation warning.

@@ -759,4 +759,3 @@ describe "properties module", ->
       expect("FontSizeSpec" of properties).to.be.true
       expect("NumberSpec" of properties).to.be.true
       expect("StringSpec" of properties).to.be.true
-

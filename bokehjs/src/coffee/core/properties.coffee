@@ -295,4 +295,3 @@ module.exports =
   FontSizeSpec: FontSizeSpec
   NumberSpec: NumberSpec
   StringSpec: StringSpec
-

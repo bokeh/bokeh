@@ -34,6 +34,13 @@ angle_between = (mid, lhs, rhs, direction) ->
   else
     return not (angle_dist(lhs, mid) <= d and angle_dist(mid, rhs) <= d)
 
+atan2 = (start, end) ->
+  """
+  Calculate the angle between a line containing start and end points (composed
+  of [x, y] arrays) and the positive x-axis.
+  """
+  return Math.atan2(end[1]-start[1], end[0]-start[0])
+
 # http://www2.econ.osaka-u.ac.jp/~tanizaki/class/2013/econome3/13.pdf (Page 432)
 rnorm = (mu, sigma) ->
   # Generate a random normal with a mean of 0 and a sigma of 1
@@ -57,4 +64,5 @@ module.exports =
   angle_norm: angle_norm
   angle_dist: angle_dist
   angle_between: angle_between
+  atan2: atan2
   rnorm: rnorm
