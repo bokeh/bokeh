@@ -44,6 +44,9 @@ atan2 = (start, end) ->
   """
   return Math.atan2(end[1]-start[1], end[0]-start[0])
 
+rad_to_deg = (rad) ->
+  """Convert an angle in radians to degrees."""
+  return rad * 180.0 / Math.PI
 
 # http://www2.econ.osaka-u.ac.jp/~tanizaki/class/2013/econome3/13.pdf (Page 432)
 rnorm = (mu, sigma) ->
@@ -69,5 +72,6 @@ module.exports =
   angle_dist: angle_dist
   angle_between: angle_between
   atan2: atan2
+  rad_to_deg: rad_to_deg
   rnorm: rnorm
   random: random
