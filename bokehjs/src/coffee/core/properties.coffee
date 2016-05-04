@@ -196,6 +196,10 @@ class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
+class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
+
+class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
+
 #
 # Units Properties
 #
@@ -281,6 +285,8 @@ module.exports =
   String: String
   TextAlign: TextAlign
   TextBaseline: TextBaseline
+  Distribution: Distribution
+  TransformStepMode: TransformStepMode
 
   AngleSpec: AngleSpec
   ColorSpec: ColorSpec
@@ -289,4 +295,3 @@ module.exports =
   FontSizeSpec: FontSizeSpec
   NumberSpec: NumberSpec
   StringSpec: StringSpec
-

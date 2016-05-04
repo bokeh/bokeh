@@ -128,6 +128,7 @@ html_context = {
     'SITENAME': 'Bokeh Docs',
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
+    'VERSION': version,
     # Nav
     'NAV': (
         ('About', MAIN_SITE + '/pages/about-bokeh.html'),
@@ -165,7 +166,7 @@ html_context = {
         ('Releases', 'releases/%s' % version),
         ('Developer Guide', 'dev_guide'),
     ),
-    'ALL_VERSIONS': ['0.11.0', '0.11.0', '0.10.0', '0.9.3', '0.8.2'],
+    'ALL_VERSIONS': ['0.11.1', '0.11.0', '0.10.0', '0.9.3', '0.8.2'],
     'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 

@@ -43,5 +43,6 @@ def latest(v=None):
         # switch the current symlink to new docs
         run("rm /www/bokeh/en/latest")
         run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
+        run("echo %s > /www/bokeh/en/latest/version.txt" % v)
     else:
         raise RuntimeError("We did not detect a %s docs version, please use fab deploy:%s first." % (v, v))

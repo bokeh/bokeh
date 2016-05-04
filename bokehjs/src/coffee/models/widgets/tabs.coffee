@@ -22,9 +22,9 @@ class TabsView extends BokehView
     @$el.empty()
 
     tabs = @mget('tabs')
-    active = @mget("active")
+    active = @mget('active')
+    children = @mget('children')
 
-    children = (tab.get("child") for tab in tabs)
     build_views(@views, children)
 
     html = $(tabs_template({
@@ -57,11 +57,36 @@ class Tabs extends Widget.Model
   type: "Tabs"
   default_view: TabsView
 
+  initialize: (options) ->
+    super(options)
+    @children = (tab.get("child") for tab in @tabs)
+
   @define {
       tabs:     [ p.Array,   [] ]
       active:   [ p.Number,  0  ]
       callback: [ p.Instance    ]
     }
+
+  @internal {
+      children: [ p.Array,   [] ]
+  }
+
+  get_layoutable_children: () ->
+    return @get('children')
+
+  get_edit_variables: () ->
+    edit_variables = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
 
 module.exports =
   Model: Tabs

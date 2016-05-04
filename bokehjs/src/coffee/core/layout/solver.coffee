@@ -13,30 +13,31 @@ _constrainer = (op) ->
 class Solver
 
   constructor: () ->
-    @num_constraints = 0
     @solver = new kiwi.Solver()
 
-  toString: () -> "Solver[num_constraints=#{@num_constraints}]"
+  toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
 
+  num_constraints: () ->
+    @solver._cnMap._array.length
+
+  num_edit_variables: () ->
+    @solver._editMap._array.length
+    
   update_variables: (trigger=true) ->
     @solver.updateVariables()
     if trigger
       @trigger('layout_update')
 
   add_constraint: (constraint) ->
-    @num_constraints += 1
     @solver.addConstraint(constraint)
 
   remove_constraint: (constraint) ->
-    @num_constraints -= 1
     @solver.removeConstraint(constraint)
 
-  add_edit_variable: (variable, strength=Strength.strong) ->
-    @num_constraints += 1
+  add_edit_variable: (variable, strength) ->
     @solver.addEditVariable(variable, strength)
 
   remove_edit_variable: (variable) ->
-    @num_constraints -= 1
     @solver.removeEditVariable(variable, strength)
 
   suggest_value: (variable, value) ->

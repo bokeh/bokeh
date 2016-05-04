@@ -132,7 +132,7 @@ class LegendView extends Renderer.View
       @visuals.label_text.set_value(ctx)
       ctx.fillText(legend_name, tx, ty)
       for renderer in glyphs
-        view = @plot_view.renderers[renderer.id]
+        view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
 
     ctx.restore()

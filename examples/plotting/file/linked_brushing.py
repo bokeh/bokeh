@@ -13,7 +13,7 @@ source = ColumnDataSource(data=dict(x=x, y1=y1, y2=y2))
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select,lasso_select"
 
-s1 = figure(tools=TOOLS)
+s1 = figure(tools=TOOLS, title="Figure 1", min_border=5)
 
 s1.circle('x', 'y1', source=source)
 

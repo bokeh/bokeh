@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ...core.properties import Bool, Int, String, Instance, List
 from .widget import Widget
-from ..component import Component
+from ..layouts import LayoutDOM
 from ..callbacks import Callback
 
 class Panel(Widget):
@@ -17,7 +17,7 @@ class Panel(Widget):
     An optional text title of the panel.
     """)
 
-    child = Instance(Component, help="""
+    child = Instance(LayoutDOM, help="""
     The child widget. If you need more children, use a layout widget,
     e.g. ``HBox`` or ``VBox``.
     """)

@@ -30,7 +30,7 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models import Component
+from .models.layouts import LayoutDOM
 from .models.plots import GridPlot
 from .models.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
@@ -402,7 +402,7 @@ def _get_save_args(state, filename, resources, title):
 
 def _save_helper(obj, filename, resources, title, validate):
     with _ModelInDocument(obj):
-        if isinstance(obj, Component):
+        if isinstance(obj, LayoutDOM):
             doc = obj.document
         elif isinstance(obj, Document):
             doc = obj
