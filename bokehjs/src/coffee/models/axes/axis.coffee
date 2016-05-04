@@ -126,7 +126,7 @@ _align_lookup_positive = {
   below  : RIGHT
   left   : RIGHT
   right  : LEFT
-
+}
 
 _apply_location_heuristics = (ctx, side, orient) ->
   if _.isString(orient)
