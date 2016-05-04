@@ -22,8 +22,7 @@ data = dict([
     ('IBM', IBM['Adj Close'])]
 )
 
-hp = Horizon(data, x='Date', width=800, height=300,
-             title="horizon plot using stock inputs")
+hp = Horizon(data, x='Date', plot_width=800, plot_height=300, title="horizon plot using stock inputs")
 
 output_file("horizon.html", title="horizon.py example")
 
