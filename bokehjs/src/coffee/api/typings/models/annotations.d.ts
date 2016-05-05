@@ -10,14 +10,14 @@ declare namespace Bokeh {
         location?: LegendLocation;
         orientation?: Orientation;
 
-        // {{{ background = include[LineProps]
-        background_line_color?: Color;
-        background_line_width?: number;
-        background_line_alpha?: Percent;
-        background_line_join?: LineJoin;
-        background_line_cap?: LineCap;
-        background_line_dash?: DashPattern;
-        background_line_dash_offset?: Int;
+        // {{{ background = include[FillProps]
+        background_fill_color?: Color;
+        background_fill_width?: number;
+        background_fill_alpha?: Percent;
+        background_fill_join?: LineJoin;
+        background_fill_cap?: LineCap;
+        background_fill_dash?: DashPattern;
+        background_fill_dash_offset?: Int;
         // }}}
 
         // {{{ border = include[LineProps]

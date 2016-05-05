@@ -281,14 +281,21 @@ class AxisView extends Renderer.View
     sy = (sy[0] + sy[sy.length-1])/2
     @visuals.axis_label_text.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
+
+    x = sx+nx*standoff+nx*xoff
+    y = sy+ny*standoff+ny*yoff
+
+    if isNaN(x) or isNaN(y)
+      return
+
     if angle
-      ctx.translate(sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
+      ctx.translate(x, y)
       ctx.rotate(angle)
       ctx.fillText(label, 0, 0)
       ctx.rotate(-angle)
-      ctx.translate(-sx-nx*standoff+nx*xoff, -sy-ny*standoff+ny*yoff)
+      ctx.translate(-x, -y)
     else
-      ctx.fillText(label, sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
+      ctx.fillText(label, x, y)
 
   _tick_extent: () ->
     return @mget('major_tick_out')
