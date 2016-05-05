@@ -6,7 +6,7 @@ import bokeh.core.query as query
 
 from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
-    LogAxis, PanTool, Plot, PreviewSaveTool, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
+    LogAxis, PanTool, Plot, SaveTool, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
 from bokeh.models.glyphs import Glyph, Circle, Line, Rect
 
@@ -42,7 +42,7 @@ def large_plot():
     plot.add_layout(Grid(dimension=1), 'left')
 
     plot.add_tools(
-        BoxZoomTool(), PanTool(), PreviewSaveTool(), ResetTool(), ResizeTool(), WheelZoomTool(),
+        BoxZoomTool(), PanTool(), SaveTool(), ResetTool(), ResizeTool(), WheelZoomTool(),
     )
 
     return plot
@@ -68,7 +68,7 @@ typcases = {
     Tool: 6,
     BoxZoomTool: 1,
     PanTool: 1,
-    PreviewSaveTool: 1,
+    SaveTool: 1,
     ResetTool: 1,
     ResizeTool: 1,
     WheelZoomTool: 1,

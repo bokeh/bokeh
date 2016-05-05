@@ -7,7 +7,7 @@ import numpy as np
 from bokeh.models import HoverTool
 from bokeh.plotting import ColumnDataSource, figure, show, output_server
 
-TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,save"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
