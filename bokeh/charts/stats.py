@@ -166,6 +166,7 @@ class Bin(Stat):
     center = Either(Float, List(Float))
 
     stat = Instance(Stat, default=Count())
+    width = Float()
 
     def __init__(self, bin_label, values=None, source=None, **properties):
         if isinstance(bin_label, tuple):
@@ -441,12 +442,13 @@ class Histogram(BinnedStat):
         self.bins = []
 
         for i, b in enumerate(binned):
+            width = bin_bounds[i+1] - bin_bounds[i]
             if i == 0:
                 lbl = "[%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
             else:
                 lbl = "(%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
-
-            self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max()))
+            self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max(),
+                width=width))
 
 
 def bins(data, values=None, column=None, bin_count=None, labels=None,
