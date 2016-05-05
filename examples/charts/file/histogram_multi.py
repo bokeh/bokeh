@@ -15,8 +15,8 @@ hist4 = Histogram(df, values='hp', color='cyl',
 
 hist5 = Histogram(df, values='mpg', bins=50,
                   title="df, values='mpg', bins=50")
-hist6 = Histogram(df, values='mpg', bins=[10, 20, 30, 40],
-                  title="df, values='mpg', bins=[10, 20, 30, 40")
+hist6 = Histogram(df, values='mpg', bins=[10, 15, 25, 100], tooltips=[('Bin', "@label")],
+                  title="df, values='mpg', bins=[10, 15, 25, 100]")
 
 output_file("histogram_multi.html", title="histogram_multi.py example")
 
