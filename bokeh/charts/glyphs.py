@@ -919,13 +919,15 @@ class HistogramGlyph(AggregateGlyph):
     bars = List(Instance(BarGlyph), help="""The histogram is comprised of many
         BarGlyphs that are derived from the values.""")
     density = Bool(False, help="""
-        Whether to normalize the histogram. (default: True)
+        Whether to normalize the histogram.
 
         If True, the result is the value of the probability *density* function
         at the bin, normalized such that the *integral* over the range is 1. If
         False, the result will contain the number of samples in each bin.
 
         For more info check :class:`~bokeh.charts.stats.Histogram` documentation.
+
+        (default: False)
     """)
 
     def __init__(self, values, label=None, color=None, bins=None, **kwargs):

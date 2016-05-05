@@ -223,7 +223,7 @@ class BinStats(Stat):
     """
     bins = Either(Int, Float, List(Float), default=None, help="""
     If bins is an int, it defines the number of equal-width bins in the
-    given range (10, by default). If bins is a sequence, it defines the
+    given range. If bins is a sequence, it defines the
     bin edges, including the rightmost edge, allowing for non-uniform
     bin widths.
 
@@ -406,7 +406,7 @@ class Histogram(BinnedStat):
     """
 
     density = Bool(False, help="""
-    Whether to normalize the histogram. (default: True)
+    Whether to normalize the histogram.
 
     If True, the result is the value of the probability *density* function
     at the bin, normalized such that the *integral* over the range is 1. If
@@ -414,6 +414,7 @@ class Histogram(BinnedStat):
 
     For more info check ``numpy.histogram`` function documentation.
 
+    (default: False)
     """)
 
     def calculate(self):
