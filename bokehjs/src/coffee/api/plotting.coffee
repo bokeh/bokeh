@@ -11,7 +11,7 @@ _default_tooltips = [
   ["canvas (x, y)", "($sx, $sy)"],
 ]
 
-_default_tools = "pan,wheel_zoom,box_zoom,previewsave,resize,reset,help"
+_default_tools = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 
 _known_tools = {
   pan:          (plot) -> new models.PanTool(plot: plot, dimensions: ["width", "height"])
@@ -34,7 +34,7 @@ _known_tools = {
   ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['height'])
   hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
   save:         (plot) -> new models.SaveTool(plot: plot)
-  previewsave:  (plot) -> new models.PreviewSaveTool(plot: plot)
+  previewsave:  (plot) -> new models.SaveTool(plot: plot)
   undo:         (plot) -> new models.UndoTool(plot: plot)
   redo:         (plot) -> new models.RedoTool(plot: plot)
   reset:        (plot) -> new models.ResetTool(plot: plot)

@@ -106,27 +106,12 @@ class WheelZoomTool(Tool):
 class SaveTool(Tool):
     """ *toolbar icon*: |save_icon|
 
-    The preview/save tool is an action. When clicked in the toolbar, the
-    tool opens a download dialog which allows to save an image reproduction
-    of the plot in PNG format.
-
-    .. |save_icon| image:: /_images/icons/Save.png
-        :height: 18pt
-
-    """
-
-
-class PreviewSaveTool(Tool):
-    """ *toolbar icon*: |save_icon|
-
-    The preview/save tool is an action. When activated in the toolbar, the
-    tool presents a modal dialog with an image reproduction of the Plot, which
-    may be saved as a png image by right clicking on the image.
-
-    .. note::
-        Work is ongoing to support headless (svg, png) image creation without
-        requiring user interaction. See  :bokeh-issue:`538` to track progress
-        or contribute.
+    The save tool is an action. When activated, the tool opens a download dialog
+    which allows to save an image reproduction of the plot in PNG format. If
+    automatic download is not support by a web browser, the tool falls back to
+    opening the generated image in a new tab or window. User then can manually
+    save it by right clicking on the image and choosing "Save As" (or similar)
+    menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
         :height: 18pt

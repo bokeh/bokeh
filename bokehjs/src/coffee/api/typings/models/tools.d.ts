@@ -37,10 +37,6 @@ declare namespace Bokeh {
     export interface SaveTool extends Tool, ISaveTool {}
     export interface ISaveTool extends ITool {}
 
-    export var PreviewSaveTool: { new(attributes?: IPreviewSaveTool, options?: ModelOpts): PreviewSaveTool };
-    export interface PreviewSaveTool extends Tool, IPreviewSaveTool {}
-    export interface IPreviewSaveTool extends ITool {}
-
     export var UndoTool: { new(attributes?: IUndoTool, options?: ModelOpts): UndoTool };
     export interface UndoTool extends Tool, IUndoTool {}
     export interface IUndoTool extends ITool {}

@@ -148,7 +148,6 @@ module.exports = {
   PanTool:                                require("../models/tools/gestures/pan_tool").Model
   WheelZoomTool:                          require("../models/tools/gestures/wheel_zoom_tool").Model
   SaveTool:                               require("../models/tools/actions/save_tool").Model
-  PreviewSaveTool:                        require("../models/tools/actions/preview_save_tool").Model
   UndoTool:                               require("../models/tools/actions/undo_tool").Model
   RedoTool:                               require("../models/tools/actions/redo_tool").Model
   ResetTool:                              require("../models/tools/actions/reset_tool").Model

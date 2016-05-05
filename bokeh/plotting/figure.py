@@ -11,7 +11,7 @@ from .helpers import (
     _process_tools_arg, _glyph_function
 )
 
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,previewsave,resize,reset,help"
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
