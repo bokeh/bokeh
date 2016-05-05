@@ -14,12 +14,41 @@ SidePanel = utils.require("core/layout/side_panel").Model
 
 describe "Axis.Model", ->
 
-  it "should have a SidePanel after _doc_attached is called", ->
-    a = new Axis()
-    a.document = new Document()
-    expect(a.panel).to.be.undefined
-    a._doc_attached()
-    expect(a.panel).to.be.an.instanceOf(SidePanel)
+  it "should have a SidePanel after add_panel is called", ->
+    p = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+    })
+    p.attach_document(new Document())
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+    })
+    axis.attach_document(p.document)
+    expect(axis.panel).to.be.undefined
+    axis.add_panel('left')
+    expect(axis.panel).to.be.an.instanceOf(SidePanel)
+
+  it "should have a SidePanel after plot.add_layout is called", ->
+    p = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+    })
+    p.attach_document(new Document())
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+    })
+    axis.attach_document(p.document)
+    expect(axis.panel).to.be.undefined
+    p.add_layout(axis, 'left')
+    expect(axis.panel).to.be.an.instanceOf(SidePanel)
 
 describe "Axis.View", ->
 
@@ -30,23 +59,19 @@ describe "Axis.View", ->
   beforeEach ->
     utils.stub_canvas()
     solver_stubs = utils.stub_solver()
-    @solver_add_constraint = solver_stubs['add']
-    @solver_remove_constraint = solver_stubs['remove']
 
-    @test_doc = new Document()
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
-    @test_plot.document = @test_doc
-    @test_plot._doc_attached()
-    @ticker = new BasicTicker()
-    @formatter = new BasicTickFormatter()
+    @test_plot.attach_document(new Document())
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
     @axis = new Axis({
       major_label_standoff: 11
       major_tick_out: 12
-      ticker: @ticker
-      formatter: @formatter
+      ticker: ticker
+      formatter: formatter
     })
     @test_plot.add_layout(@axis, 'below')
     # Must create the test_plot_view after adding the axis to the plot
@@ -80,46 +105,3 @@ describe "Axis.View", ->
     sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
     sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
     expect(@axis_view._get_size()).to.be.equal 0.33
-
-  it "_update_constraints should not set _size_constraint if visible is false", ->
-    @axis.set('visible', false)
-    expect(@axis_view._size_constraint).to.be.undefined
-    @axis_view.update_constraints()
-    # Should still be undefined because visible is false
-    expect(@axis_view._size_constraint).to.be.undefined
-
-  it "_update_constraints should set last_size", ->
-    sinon.stub(@axis_view, '_tick_extent', () -> 0.11)
-    sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
-    sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
-    expect(@axis_view._size_constraint).to.be.undefined
-    @axis_view.update_constraints()
-    expect(@axis_view._last_size).to.be.equal 0.33
-
-  it "_update_constraints should add a constraint", ->
-    add_constraint_call_count = @solver_add_constraint.callCount
-    @axis_view.update_constraints()
-    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
-
-  it "_update_constraints should add and remove a constraint if the size changes", ->
-    @axis_view._tick_extent = sinon.stub()
-    @axis_view._tick_extent.onCall(0).returns(0.11)
-    @axis_view._tick_extent.onCall(1).returns(0.22)
-
-    @axis_view.update_constraints()
-    add_constraint_call_count = @solver_add_constraint.callCount
-    remove_constraint_call_count = @solver_remove_constraint.callCount
-    @axis_view.update_constraints()
-    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
-    expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count + 1
-
-  it "_update_constraints should not add and remove a constraint if the size is the same", ->
-    @axis_view._tick_extent = sinon.stub()
-    @axis_view._tick_extent.returns(0.11)
-
-    @axis_view.update_constraints()
-    add_constraint_call_count = @solver_add_constraint.callCount
-    remove_constraint_call_count = @solver_remove_constraint.callCount
-    @axis_view.update_constraints()
-    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count
-    expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count

@@ -11,13 +11,8 @@ describe "LayoutCanvas.Model", ->
     c = new LayoutCanvas()
     expect(c.get_constraints().length).to.be.equal 0
 
-  it "should get new variables on doc_attached", ->
+  it "should get new variables on initialize", ->
     c = new LayoutCanvas()
-    expect(_.has(c, '_top')).to.be.false
-    expect(_.has(c, '_left')).to.be.false
-    expect(_.has(c, '_width')).to.be.false
-    expect(_.has(c, '_height')).to.be.false
-    c._doc_attached()
     expect(_.has(c, '_top')).to.be.true
     expect(_.has(c, '_left')).to.be.true
     expect(_.has(c, '_width')).to.be.true
@@ -29,7 +24,6 @@ describe "LayoutCanvas.Model", ->
 
   it "should should return four strong edit variables", ->
     c = new LayoutCanvas()
-    c._doc_attached()  # Need to run this so variables actually exist
     ev = c.get_edit_variables()
     expect(ev.length).to.be.equal 4
     variables = []

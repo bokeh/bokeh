@@ -169,22 +169,6 @@ class AxisView extends Renderer.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
 
-  update_constraints: () ->
-    if not @mget('visible')
-      # if not visible, avoid applying constraints until visible again
-      return
-    size = @_get_size()
-    if not @_last_size?
-      @_last_size = -1
-    if size == @_last_size
-      return
-    @_last_size = size
-    s = @model.document.solver()
-    if @_size_constraint?
-        s.remove_constraint(@_size_constraint)
-    @_size_constraint = GE(@model._size, -size)
-    s.add_constraint(@_size_constraint)
-
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
 
@@ -417,38 +401,14 @@ class Axis extends GuideRenderer.Model
     @add_dependencies('tick_coords', this, ['computed_bounds', 'layout_location'])
 
     @define_computed_property('ranges', @_ranges, true)
-    @define_computed_property('normals', (() -> @_normals), true)
-    @define_computed_property('dimension', (() -> @_dim), true)
+    @define_computed_property('normals', (() -> @panel._normals), true)
+    @define_computed_property('dimension', (() -> @panel._dim), true)
     @define_computed_property('offsets', @_offsets, true)
 
-  _doc_attached: () ->
-    @panel = new SidePanel.Model()
+  add_panel: (side) ->
+    @panel = new SidePanel.Model({side: side})
     @panel.attach_document(@document)
-
-  initialize_layout: () ->
-    side = @get('layout_location')
-    if side == "above"
-      @_dim = 0
-      @_normals = [0, -1]
-      @_size = @panel._height
-      @_anchor = @panel._bottom
-    else if side == "below"
-      @_dim = 0
-      @_normals = [0, 1]
-      @_size = @panel._height
-      @_anchor = @panel._top
-    else if side == "left"
-      @_dim = 1
-      @_normals = [-1, 0]
-      @_size = @panel._width
-      @_anchor = @panel._right
-    else if side == "right"
-      @_dim = 1
-      @_normals = [1, 0]
-      @_size = @panel._width
-      @_anchor = @panel._left
-    else
-      logger.error("unrecognized side: '#{ side }'")
+    @set('layout_location', side)
 
   _offsets: () ->
     side = @get('layout_location')
