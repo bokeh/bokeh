@@ -628,9 +628,11 @@ class Interval(AggregateGlyph):
         fill_alpha = [self.fill_alpha]
         line_color = [self.line_color]
         line_alpha = [self.line_alpha]
+        label = [self.label]
+        
         return dict(x=x, y=y, width=width, height=height, color=color,
                     fill_alpha=fill_alpha, line_color=line_color,
-                    line_alpha=line_alpha)
+                    line_alpha=line_alpha, label=label)
 
     @property
     def x_max(self):
@@ -912,7 +914,6 @@ class HistogramGlyph(AggregateGlyph):
     """
 
     # input properties
-    bin_width = Float()
     bin_count = Either(List(Float), Int, default=None, help="""
     If bins is an int, it defines the number of equal-width bins in the
     given range (10, by default). If bins is a sequence, it defines the
@@ -965,19 +966,16 @@ class HistogramGlyph(AggregateGlyph):
         #               users specify other bins other the Histogram Stat
         self.bins = Histogram(values=self.values, bin_count=self.bin_count,
             density=self.density)
-        centers = [bin.center for bin in self.bins.bins]
-        self.bin_width = centers[1] - centers[0]
 
         bars = []
         for bin in self.bins.bins:
-            bars.append(BarGlyph(label=self.label, x_label=bin.center,
+            bars.append(BarGlyph(label=bin.label[0], x_label=bin.center,
                                  values=bin.values, color=self.color,
                                  fill_alpha=self.fill_alpha,
-                                 agg=bin.stat, width=self.bin_width))
+                                 agg=bin.stat, width=bin.width))
 
         # provide access to bars as children for bounds properties
-        self.bars = bars
-        self.children = self.bars
+        self.bars = self.children = bars
 
         for comp_glyph in self.bars:
             for renderer in comp_glyph.renderers:
