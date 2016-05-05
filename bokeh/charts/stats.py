@@ -221,7 +221,7 @@ class BinStats(Stat):
 
     Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
-    bin_count = Either(Int, Float, List(Float), default=None, help="""
+    bins = Either(Int, Float, List(Float), default=None, help="""
     If bins is an int, it defines the number of equal-width bins in the
     given range (10, by default). If bins is a sequence, it defines the
     bin edges, including the rightmost edge, allowing for non-uniform
@@ -244,7 +244,7 @@ class BinStats(Stat):
         values = self.get_data()
         self.q1.set_data(values)
         self.q3.set_data(values)
-        if self.bin_count is None:
+        if self.bins is None:
             self.calc_num_bins(values)
 
     def calc_num_bins(self, values):
@@ -260,10 +260,10 @@ class BinStats(Stat):
         else:
             self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
 
-        self.bin_count = int(np.ceil((values.max() - values.min()) / self.bin_width))
+        self.bins = int(np.ceil((values.max() - values.min()) / self.bin_width))
 
-        if self.bin_count <= 1:
-            self.bin_count = 3
+        if self.bins <= 1:
+            self.bins = 3
 
     def calculate(self):
         pass
@@ -304,12 +304,12 @@ class BinnedStat(Stat):
             stat = stats[stat]()
 
         properties['column'] = column or 'vals'
-        properties['bins'] = bins
         properties['stat'] = stat
         properties['values'] = values
         properties['source'] = source
-
+        self._bins = bins
         super(BinnedStat, self).__init__(**properties)
+
 
     def _get_stat(self):
         stat_kwargs = {}
@@ -321,13 +321,14 @@ class BinnedStat(Stat):
         elif self.values is not None:
             stat_kwargs['values'] = self.values
 
-        stat_kwargs['bin_count'] = self.bin_count
+        stat_kwargs['bins'] = self._bins
 
         return BinStats(**stat_kwargs)
 
     def update(self):
         self.bin_stat = self._get_stat()
         self.bin_stat.update()
+
 
 class Bins(BinnedStat):
     """Bins and aggregates dimensions for plotting.
@@ -337,8 +338,6 @@ class Bins(BinnedStat):
     bounds, and values.
     """
 
-    bin_count = Int(help="""Number of equal-width bins in the given dataset range.""")
-
     def calculate(self):
 
         bin_str = '_bin'
@@ -346,7 +345,7 @@ class Bins(BinnedStat):
         bin_models = []
 
         data = self.bin_stat.get_data()
-        bins = self.bin_stat.bin_count
+        bins = self.bin_stat.bins
 
         # Choose bin bounds when data range is ill-defined; pd.cut()
         # does not handle this well for values that are <= 0
@@ -417,22 +416,12 @@ class Histogram(BinnedStat):
 
     """)
 
-    bin_count = Either(List(Float), Int, default=None, help="""
-    If bins is an int, it defines the number of equal-width bins in the
-    given range (10, by default). If bins is a sequence, it defines the
-    bin edges, including the rightmost edge, allowing for non-uniform
-    bin widths.
-
-    (default: None, use Freedman-Diaconis rule)
-    """)
-
-
     def calculate(self):
         bin_str = '_bin'
         self.bin_column = self.column + bin_str
 
         data = self.bin_stat.get_data()
-        bins = self.bin_stat.bin_count
+        bins = self.bin_stat.bins
 
         binned, bin_bounds = np.histogram(
                         np.array(data), density=self.density, bins=bins
@@ -451,7 +440,7 @@ class Histogram(BinnedStat):
                 width=width))
 
 
-def bins(data, values=None, column=None, bin_count=None, labels=None,
+def bins(data, values=None, column=None, bins=None, labels=None,
          **kwargs):
     """Specify binning or bins to be used for column or values."""
 
@@ -461,7 +450,7 @@ def bins(data, values=None, column=None, bin_count=None, labels=None,
     else:
         column = None
 
-    return Bins(values=values, column=column, bin_count=bin_count, **kwargs)
+    return Bins(values=values, column=column, bins=bins, **kwargs)
 
 
 stats = {

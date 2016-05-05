@@ -170,7 +170,7 @@ class AttrSpec(HasProps):
         iterable = self._setup_iterable()
 
         return {item: next(iterable) for item in self._item_tuples()}
-    
+
     def _item_tuples(self):
         return [self._ensure_tuple(item) for item in self.items]
 
@@ -246,7 +246,7 @@ class ColorAttr(AttrSpec):
             if len(columns) == 1 and ChartDataSource.is_number(df[columns[0]]):
 
                 self.bins = Bins(source=ColumnDataSource(df), column=columns[0],
-                                 bin_count=len(self.iterable), aggregate=False)
+                                 bins=len(self.iterable), aggregate=False)
 
                 if self.sort:
                     self.bins.sort(ascending=self.ascending)

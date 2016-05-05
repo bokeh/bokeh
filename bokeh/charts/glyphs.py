@@ -629,7 +629,7 @@ class Interval(AggregateGlyph):
         line_color = [self.line_color]
         line_alpha = [self.line_alpha]
         label = [self.label]
-        
+
         return dict(x=x, y=y, width=width, height=height, color=color,
                     fill_alpha=fill_alpha, line_color=line_color,
                     line_alpha=line_alpha, label=label)
@@ -913,16 +913,6 @@ class HistogramGlyph(AggregateGlyph):
     options for displaying it, such as KDE and cumulative density.
     """
 
-    # input properties
-    bin_count = Either(List(Float), Int, default=None, help="""
-    If bins is an int, it defines the number of equal-width bins in the
-    given range (10, by default). If bins is a sequence, it defines the
-    bin edges, including the rightmost edge, allowing for non-uniform
-    bin widths.
-
-    (default: None, use Freedman-Diaconis rule)
-    """)
-
     # derived models
     bins = Instance(BinnedStat, help="""A stat used to calculate the bins. The bins stat
         includes attributes about each composite bin.""")
@@ -938,16 +928,20 @@ class HistogramGlyph(AggregateGlyph):
         For more info check :class:`~bokeh.charts.stats.Histogram` documentation.
     """)
 
-    def __init__(self, values, label=None, color=None, bin_count=None, **kwargs):
+    def __init__(self, values, label=None, color=None, bins=None, **kwargs):
         if label is not None:
             kwargs['label'] = label
         kwargs['values'] = values
-        kwargs['bin_count'] = bin_count
+
         if color is not None:
             kwargs['color'] = color
 
         # remove width, since this is handled automatically
         kwargs.pop('width', None)
+
+        # keep original bins setting private since it just needs to be
+        # delegated to the Histogram stat
+        self._bins = bins
 
         super(HistogramGlyph, self).__init__(**kwargs)
         self.setup()
@@ -964,7 +958,7 @@ class HistogramGlyph(AggregateGlyph):
         """Yield a bar glyph for each bin."""
         # TODO(fpliger): We should expose the bin stat class so we could let
         #               users specify other bins other the Histogram Stat
-        self.bins = Histogram(values=self.values, bin_count=self.bin_count,
+        self.bins = Histogram(values=self.values, bins=self._bins,
             density=self.density)
 
         bars = []
