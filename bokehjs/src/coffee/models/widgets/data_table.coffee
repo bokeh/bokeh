@@ -189,8 +189,6 @@ class DataTable extends TableWidget.Model
 
   @define {
       columns:             [ p.Array,  []    ]
-      width:               [ p.Number        ]
-      height:              [ p.Number, 400   ]
       fit_columns:         [ p.Bool,   true  ]
       sortable:            [ p.Bool,   true  ]
       editable:            [ p.Bool,   false ]
@@ -198,6 +196,10 @@ class DataTable extends TableWidget.Model
       row_headers:         [ p.Bool,   true  ]
       scroll_to_selection: [ p.Bool,   true  ]
     }
+
+  @override {
+    height: 400
+  }
 
 module.exports =
   Model: DataTable

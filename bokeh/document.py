@@ -461,7 +461,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             seq[Model]
@@ -480,7 +480,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             Model
@@ -499,8 +499,8 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) :
+                name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                updates (dict) :
 
         Returns:
             None

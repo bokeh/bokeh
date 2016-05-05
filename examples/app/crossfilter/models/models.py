@@ -1,4 +1,4 @@
-from bokeh.properties import Dict, String, Any
+from bokeh.core.properties import Dict, String, Any
 from bokeh.models.layouts import BaseBox
 from bokeh.core import validation
 from bokeh.core.validation.warnings import EMPTY_LAYOUT

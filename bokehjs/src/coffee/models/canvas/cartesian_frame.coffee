@@ -4,11 +4,14 @@ CategoricalMapper = require "../mappers/categorical_mapper"
 GridMapper = require "../mappers/grid_mapper"
 LinearMapper = require "../mappers/linear_mapper"
 LogMapper = require "../mappers/log_mapper"
+Range1d = require "../ranges/range1d"
+
+{EQ, GE}  = require "../../core/layout/solver"
+LayoutCanvas = require "../../core/layout/layout_canvas"
 {logging} = require "../../core/logging"
 p = require "../../core/properties"
-LayoutBox = require "./layout_box"
 
-class CartesianFrame extends LayoutBox.Model
+class CartesianFrame extends LayoutCanvas.Model
   type: 'CartesianFrame'
 
   initialize: (attrs, options) ->
@@ -48,6 +51,36 @@ class CartesianFrame extends LayoutBox.Model
     @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
     @listenTo(@document.solver(), 'layout_update', @_update_mappers)
+
+    @_h_range = new Range1d.Model({
+      start: @get('left'),
+      end:   @get('left') + @get('width')
+    })
+    @define_computed_property('h_range',
+        () =>
+          @_h_range.set('start', @get('left'))
+          @_h_range.set('end',   @get('left') + @get('width'))
+          return @_h_range
+      , false)
+    @add_dependencies('h_range', this, ['left', 'width'])
+
+    @_v_range = new Range1d.Model({
+      start: @get('bottom'),
+      end:   @get('bottom') + @get('height')
+    })
+    @define_computed_property('v_range',
+        () =>
+          @_v_range.set('start', @get('bottom'))
+          @_v_range.set('end',   @get('bottom') + @get('height'))
+          return @_v_range
+      , false)
+    @add_dependencies('v_range', this, ['bottom', 'height'])
+
+  contains: (vx, vy) ->
+    return (
+      vx >= @get('left') and vx <= @get('right') and
+      vy >= @get('bottom') and vy <= @get('top')
+    )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
     vx = @get('x_mappers')[x_name].v_map_to_target(x)
@@ -101,6 +134,18 @@ class CartesianFrame extends LayoutBox.Model
     x_mapper_type: [ p.Any ]
     y_mapper_type: [ p.Any ]
   }
+
+  get_constraints: () ->
+    constraints = []
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_bottom))
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_right))
+    constraints.push(GE(@_width))
+    constraints.push(GE(@_height))
+    constraints.push(EQ(@_left, @_width, [-1, @_right]))
+    constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
+    return constraints
 
 module.exports =
   Model: CartesianFrame

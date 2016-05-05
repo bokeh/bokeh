@@ -24,7 +24,8 @@ from .ranges import Range, Range1d, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
-from .component import Component
+from .layouts import LayoutDOM
+
 
 def _select_helper(args, kwargs):
     """
@@ -56,12 +57,8 @@ def _select_helper(args, kwargs):
         selector = kwargs
     return selector
 
-class LayoutBox(Model):
-    ''' Represents an **on-canvas** layout.
 
-    '''
-
-class Plot(Component):
+class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
@@ -362,7 +359,7 @@ class Plot(Component):
     "seconds since epoch" instead of formatted dates
     """)
 
-    extra_x_ranges = Dict(String, Instance(Range1d), help="""
+    extra_x_ranges = Dict(String, Instance(Range), help="""
     Additional named ranges to make available for mapping x-coordinates.
 
     This is useful for adding additional axes.
@@ -420,7 +417,7 @@ class Plot(Component):
     A ToolEvents object to share and report tool events.
     """)
 
-    left  = List(Instance(Renderer), help="""
+    left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)
 
@@ -428,9 +425,7 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
-    # plot titles are not proper renderers
-    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
+    above = List(Instance(Renderer), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
@@ -611,15 +606,16 @@ class Plot(Component):
     """)
 
 
-class GridPlot(Component):
+
+class GridPlot(LayoutDOM):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
 
     """
 
-    # TODO (bev) really, GridPlot should be a layout, not a Plot subclass
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         pass
+
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass

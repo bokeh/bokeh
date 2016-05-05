@@ -4,8 +4,9 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import Int, String, Bool
+from ...core.properties import String, Bool, Override
 from .widget import Widget
+
 
 @abstract
 class Markup(Widget):
@@ -15,19 +16,16 @@ class Markup(Widget):
     The contents of the widget.
     """)
 
-    width = Int(500, help="""
-    The width of the block in pixels.
-    """)
+    width = Override(default=500)
 
-    height = Int(400, help="""
-    The height of the block in pixels.
-    """)
+    height = Override(default=400)
 
 
 class Paragraph(Markup):
     """ A block (paragraph) of text.
 
     """
+
 
 class Div(Markup):
     """ A block (div) of text.
@@ -37,6 +35,7 @@ class Div(Markup):
     render_as_text = Bool(False, help="""
     Should the text be rendered as raw text (False, default), or should the text be interprited as an HTML string (True)
     """)
+
 
 class PreText(Paragraph):
     """ A block (paragraph) of pre-formatted text.

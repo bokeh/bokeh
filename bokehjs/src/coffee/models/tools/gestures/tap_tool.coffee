@@ -30,7 +30,7 @@ class TapToolView extends SelectTool.View
       sm = ds.get('selection_manager')
 
       fn = if @model.behavior == "select" then sm.select else sm.inspect
-      did_hit = fn.bind(sm)(@, @plot_view.renderers[r.id], geometry, final, append)
+      did_hit = fn.bind(sm)(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
       if did_hit and callback?
         if _.isFunction(callback)

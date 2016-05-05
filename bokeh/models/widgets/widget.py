@@ -7,8 +7,8 @@ these widgets.
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ..component import Component
+from ..layouts import LayoutDOM
 
 @abstract
-class Widget(Component):
+class Widget(LayoutDOM):
     """ A base class for all interactive widget types. """
