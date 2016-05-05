@@ -15,6 +15,7 @@ class SaveToolView extends ActionTool.View
       link = document.createElement('a')
       link.href = canvas.toDataURL('image/png')
       link.download = name
+      link.target = "_blank"
       link.dispatchEvent(new MouseEvent('click'))
 
 class SaveTool extends ActionTool.Model
