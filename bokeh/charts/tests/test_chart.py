@@ -26,7 +26,7 @@ from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange
 from bokeh.models.tools import (
-    BoxZoomTool, HelpTool, LassoSelectTool, PanTool, PreviewSaveTool, ResetTool,
+    BoxZoomTool, HelpTool, LassoSelectTool, PanTool, SaveTool, ResetTool,
     ResizeTool, WheelZoomTool)
 
 #-----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ class TestChart(unittest.TestCase):
             width=800, height=600,
         )
         expected = [
-            [PanTool,  WheelZoomTool, BoxZoomTool, PreviewSaveTool, ResizeTool, ResetTool, HelpTool],
+            [PanTool,  WheelZoomTool, BoxZoomTool, SaveTool, ResizeTool, ResetTool, HelpTool],
             [],
             [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
         ]
@@ -175,20 +175,20 @@ def test_charts_theme_validation():
 
 def test_bar_chart_below_visibility():
     from bokeh.charts import Bar
-    
+
     # Visible because we have multiple bars
     df = dict(types=['foo', 'bar'], counts=[3, 2])
     p = Bar(df, values='counts')
     p.below[0].visible
-    
+
     # Visible because we excplicitly specify labels
     df = dict(types=['foo'], counts=[3])
     p = Bar(df, values='counts', label='types')
     assert p.below[0].visible
-    
+
     # Not visible because only one item and no labels
     df = dict(types=['foo'], counts=[3])
     p = Bar(df, values='counts')
     assert not p.below[0].visible
-    
-    
+
+

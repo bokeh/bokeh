@@ -18,7 +18,7 @@ declare namespace Bokeh.Plotting {
         "lasso_select" |
         "box_zoom" | "xbox_zoom" | "ybox_zoom" |
         "hover" |
-        "previewsave" |
+        "save" | "previewsave" |
         "undo" |
         "redo" |
         "reset" |
