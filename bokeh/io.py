@@ -380,7 +380,6 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
     _save_helper(obj, filename, resources, title, validate)
     return os.path.abspath(filename)
 
-travis_filename_counter = 0
 def _detect_filename(ext):
     """ Detect filename from the name of the script being run. Returns
     None if the script could not be found (e.g. interactive mode).
