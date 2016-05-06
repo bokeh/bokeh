@@ -109,11 +109,6 @@ class PlotView extends Renderer.View
       }
     }
 
-    # TODO (bev) titles should probably be a proper guide, then they could go
-    # on any side, this will do to get the PR merged
-    @title_panel = @model.above_panel
-    @title_panel._anchor = @title_panel._bottom
-
     # compat, to be removed
     @frame = @mget('frame')
     @x_range = @frame.get('x_ranges')['default']
@@ -456,9 +451,6 @@ class PlotView extends Renderer.View
         break
 
     ctx = @canvas_view.ctx
-    title = @mget('title')
-    if title
-      @visuals.title_text.set_value(ctx)
 
     @update_constraints()
 
@@ -519,22 +511,6 @@ class PlotView extends Renderer.View
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
-    if title
-      vx = switch @visuals.title_text.text_align.value()
-        when 'left'   then 0
-        when 'center' then @canvas.get('width')/2
-        when 'right'  then @canvas.get('width')
-      vy = @title_panel.get('bottom') + @model.get('title_standoff')
-
-      sx = @canvas.vx_to_sx(vx)
-      sy = @canvas.vy_to_sy(vy)
-
-      @visuals.title_text.set_value(ctx)
-      ctx.fillText(title, sx, sy)
-
-    if not @initial_range_info?
-      @set_initial_range()
-
   update_constraints: () ->
     s = @model.document.solver()
     
@@ -545,13 +521,6 @@ class PlotView extends Renderer.View
     for model_id, view of @renderer_views
       if view.model.panel?
         update_panel_constraints(view)
-
-    ctx = @canvas_view.ctx
-    title = @mget('title')
-    if title
-      th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
-      if th != @title_panel.get('height')
-        s.suggest_value(@title_panel._height, th)
 
     s.update_variables(false)
 
@@ -783,12 +752,9 @@ class Plot extends LayoutDOM.Model
 
     @set("tools", @get("tools").concat(new_tools))
 
-  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
-      title:             [ p.String,   ''                     ]
-      title_standoff:    [ p.Number,   8                      ]
-
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
       h_symmetry:        [ p.Bool,     true                   ]
@@ -831,9 +797,6 @@ class Plot extends LayoutDOM.Model
     }
 
   @override {
-    title_text_font_size: "20pt"
-    title_text_align: "center"
-    title_text_baseline: "alphabetic"
     outline_line_color: '#aaaaaa'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"

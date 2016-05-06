@@ -5,16 +5,13 @@ class TitleView extends Label.View
   _get_panel_offset: () ->
     side = @model.panel.side
     x = @model.panel._left._value
-    if side in ['left', 'right', 'below']
-      y = @model.panel._bottom._value
-    if side in ['above']
-      y = @model.panel._top._value
+    y = @model.panel._top._value
     return {x: x, y: -y}
 
   _get_size: () ->
     size = super()
     # Give the title a bit of space
-    return size * 1.2
+    return size * 1.1
 
 class Title extends Label.Model
   default_view: TitleView

@@ -3,15 +3,16 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
+from ..core.properties import value
 from ..io import curdoc, curstate
-from ..models import Axis, Grid, Legend, Plot
-from ..models import glyphs, markers
+from ..models import Axis, Grid, Legend, Plot, glyphs, markers, Title
 from .helpers import (
     _list_attr_splat, _get_range, _process_axis_and_grid,
     _process_tools_arg, _glyph_function
 )
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
@@ -41,6 +42,19 @@ class Figure(Plot):
         x_axis_label = kw.pop("x_axis_label", "")
         y_axis_label = kw.pop("y_axis_label", "")
 
+        self.__title = None
+        # Get all the possible title and title_text properties
+        title = kw.pop("title", None)
+        # TODO (bird) this has no effect - need to add padding to panels
+        title_standoff = kw.pop("title_standoff", 8)
+        title_text_font = kw.pop("title_text_font", "helvetica")
+        title_text_font_size = kw.pop("title_text_font_size", value("14pt"))
+        title_text_font_style = kw.pop("title_text_font_style", "bold")
+        title_text_color = kw.pop("title_text_color", "black")
+        title_text_alpha = kw.pop("title_text_alpha", 1.0)
+        title_text_align = kw.pop("title_text_align", "left")
+        title_text_baseline = kw.pop("title_text_baseline", "top")
+
         super(Figure, self).__init__(*arg, **kw)
 
         self.x_range = _get_range(x_range)
@@ -52,12 +66,36 @@ class Figure(Plot):
         tool_objs = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)
 
+        if title:
+            title = Title(
+                title,
+                text_font=title_text_font,
+                text_font_size=title_text_font_size,
+                text_font_style=title_text_font_style,
+                text_color=title_text_color,
+                text_alpha=title_text_alpha,
+                text_align=title_text_align,
+                text_baseline=title_text_baseline
+            )
+            self.add_layout(title, 'above')
+            self.__title = title
+
     def _axis(self, *sides):
         objs = []
         for s in sides:
             objs.extend(getattr(self, s, []))
         axis = [obj for obj in objs if isinstance(obj, Axis)]
         return _list_attr_splat(axis)
+
+    @property
+    def title(self):
+        return self._title.text[0]
+
+    @title.setter
+    def title(self, title_text):
+        title = Title(title_text)
+        self.add_layout(title, 'above')
+        self._title = title
 
     @property
     def xaxis(self):

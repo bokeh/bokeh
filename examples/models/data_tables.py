@@ -28,7 +28,7 @@ columns = [
 ]
 data_table = DataTable(source=source, columns=columns, editable=True)
 
-plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
+plot = Plot(x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
 # Set up x & y axis
 plot.add_layout(LinearAxis(), 'below')

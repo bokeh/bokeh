@@ -8,7 +8,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle, Line
 from bokeh.models import (
-    ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d
+    ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d, Title
 )
 from bokeh.resources import INLINE
 
@@ -52,9 +52,11 @@ ydr = Range1d(start=-0.5, end=20.5)
 def make_plot(title, xname, yname):
     plot = Plot(
         x_range=xdr, y_range=ydr,
-        title=title, plot_width=400, plot_height=400,
+        plot_width=400, plot_height=400,
         border_fill_color='white', background_fill_color='#e9e0db'
     )
+    title = Title(title)
+    plot.add_layout(title, 'above')
 
     xaxis = LinearAxis(axis_line_color=None)
     plot.add_layout(xaxis, 'below')

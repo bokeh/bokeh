@@ -6,7 +6,7 @@ import sympy as sy
 from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
-from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend
+from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend, Title
 from bokeh.models.widgets import Slider, TextInput, Dialog
 from bokeh.models.layouts import HBox, VBox
 
@@ -32,14 +32,16 @@ def taylor(fx, xs, order, x_range=(0, 1), n=200):
 
     return x, fy, ty
 
+
 def update_data():
     x, fy, ty = taylor(expr, xs, order, (-2*sy.pi, 2*sy.pi), 200)
 
-    plot.title = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
     legend.legends = [
         ("%s"         % expr, [line_f_glyph]),
         ("taylor(%s)" % expr, [line_t_glyph]),
     ]
+
+    plot.title = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
     source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
 
@@ -49,6 +51,8 @@ xdr = Range1d(-7, 7)
 ydr = Range1d(-20, 200)
 
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
+title = Title(text=[""])
+plot.add_layout(title, 'above')
 
 line_f = Line(x="x", y="fy", line_color="blue", line_width=2)
 line_f_glyph = plot.add_glyph(source, line_f)
