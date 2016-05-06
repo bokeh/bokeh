@@ -83,7 +83,7 @@ class LegendView extends Annotation.View
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
 
-    return {x: x, y: y, w: legend_width, h: legend_height}
+    return {x: x, y: y, width: legend_width, height: legend_height}
 
   render: () ->
     if @model.legends.length == 0
@@ -99,7 +99,7 @@ class LegendView extends Annotation.View
     ctx.save()
 
     ctx.beginPath()
-    ctx.rect(bbox.x, bbox.y, bbox.w, bbox.h)
+    ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
 
     @visuals.background_fill.set_value(ctx)
     ctx.fill()
@@ -113,7 +113,7 @@ class LegendView extends Annotation.View
     xoffset = 0
     for [legend_name, glyphs], idx in @mget("legends")
       if orientation == "vertical"
-        yoffset = idx * bbox.h / N
+        yoffset = idx * bbox.height / N
         x1 = bbox.x + legend_spacing
         x2 = x1 + glyph_width
         y1 = bbox.y + yoffset + legend_spacing
@@ -137,13 +137,12 @@ class LegendView extends Annotation.View
     ctx.restore()
 
   _get_size: () ->
-    if not @_bbox?
-      @_bbox = @compute_legend_bbox()
+    bbox = @compute_legend_bbox()
     side = @model.panel.side
     if side == 'above' or side == 'below'
-      return @_bbox['h']
+      return bbox.height
     if side == 'left' or side == 'right'
-      return @_bbox['w']
+      return bbox.width
 
 class Legend extends Annotation.Model
   default_view: LegendView
