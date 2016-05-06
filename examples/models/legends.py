@@ -22,7 +22,7 @@ source = ColumnDataSource(data=dict(x=x, y=y, y2=y2))
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=800)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=1000, plot_height=400)
 
 line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)
@@ -45,21 +45,21 @@ from bokeh.core.enums import LegendLocation
 
 # Add legends in names positions e.g. 'top_right', 'top_left' (see plot for all)
 for location in LegendLocation:
-    legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, orientation="horizontal")
+    legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, orientation="vertical")
     plot.add_layout(legend)
 
 # Add legend at fixed positions
-legend = Legend(legends=[("x=200px, y=250px", [line]), ("other", [circle])], location=(200, 250))
+legend = Legend(legends=[("x: 300px, y: 150px (horizontal)", [line]), ("other", [circle])], location=(300, 150), orientation="horizontal")
 plot.add_layout(legend)
 
 # Add legend in side panels
-legend = Legend(legends=[("above panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+legend = Legend(legends=[("x: 0px, y: 0px (horizontal | above panel)", [line]), ("other", [circle])], location=(0, 0), orientation="horizontal")
 plot.add_layout(legend, 'above')
-legend = Legend(legends=[("below panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+legend = Legend(legends=[("x: 0px, y: 0px (horizontal | below panel)", [line]), ("other", [circle])], location=(0, 0), orientation="horizontal")
 plot.add_layout(legend, 'below')
-legend = Legend(legends=[("left panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+legend = Legend(legends=[("x: 0px, y: 0px (vertical | left)", [line]), ("other", [circle])], location=(0, 0), orientation="vertical")
 plot.add_layout(legend, 'left')
-legend = Legend(legends=[("right panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+legend = Legend(legends=[("x: 0px, y: 0px (vertical | right)", [line]), ("other", [circle])], location=(0, 0), orientation="vertical")
 plot.add_layout(legend, 'right')
 
 doc = Document()

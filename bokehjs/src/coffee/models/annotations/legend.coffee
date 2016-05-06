@@ -136,6 +136,15 @@ class LegendView extends Annotation.View
 
     ctx.restore()
 
+  _get_size: () ->
+    if not @_bbox?
+      @_bbox = @compute_legend_bbox()
+    side = @model.panel.side
+    if side == 'above' or side == 'below'
+      return @_bbox['h']
+    if side == 'left' or side == 'right'
+      return @_bbox['w']
+
 class Legend extends Annotation.Model
   default_view: LegendView
 
