@@ -6,6 +6,7 @@ Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 bbox = require "../../core/util/bbox"
 Model = require "../../model"
+bokehgl = require "../glyphs/bokehgl"
 
 class GlyphView extends Renderer.View
 
@@ -21,7 +22,10 @@ class GlyphView extends Renderer.View
     if @renderer?.plot_view?
       ctx = @renderer.plot_view.canvas_view.ctx
       if ctx.glcanvas?
-        @_init_gl(ctx.glcanvas.gl)
+        window.ggg = this
+        Cls = bokehgl[@model.type + 'GLGlyph']
+        if Cls
+          @glglyph = new Cls(ctx.glcanvas.gl, this)
 
   render: (ctx, indices, data) ->
 
@@ -68,10 +72,6 @@ class GlyphView extends Renderer.View
   # snapping to a patch centroid, e.g, should override these
   scx: (i) -> return @sx[i]
   scy: (i) -> return @sy[i]
-
-  # any additional customization can happen here
-  _init_gl: () -> false
-
 
   _xy_index: () ->
     index = rbush()
