@@ -102,8 +102,8 @@ class LabelView extends Annotation.View
 
     side = @model.panel.side
     if side == "above" or side == "below"
-      height = ctx.measureText(@_text[0]).ascent / 1.175
-      return height
+      height = ctx.measureText(@_text[0]).ascent
+      return height 
     if side == 'left' or side == 'right'
       width = ctx.measureText(@_text[0]).width
       return width
