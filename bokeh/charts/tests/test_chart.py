@@ -26,7 +26,7 @@ from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange
 from bokeh.models.tools import (
-    BoxZoomTool, HelpTool, LassoSelectTool, PanTool, PreviewSaveTool, ResetTool,
+    BoxZoomTool, HelpTool, LassoSelectTool, PanTool, SaveTool, ResetTool,
     ResizeTool, WheelZoomTool)
 
 #-----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ class TestChart(unittest.TestCase):
             width=800, height=600,
         )
         expected = [
-            [PanTool,  WheelZoomTool, BoxZoomTool, PreviewSaveTool, ResizeTool, ResetTool, HelpTool],
+            [PanTool,  WheelZoomTool, BoxZoomTool, SaveTool, ResizeTool, ResetTool, HelpTool],
             [],
             [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
         ]

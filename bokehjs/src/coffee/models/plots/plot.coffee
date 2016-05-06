@@ -157,9 +157,10 @@ class PlotView extends Renderer.View
       logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
       @tm_view = new ToolManager.View({
         model: @mget('tool_manager')
-        el: @$(toolbar_selector)
+        el: $("<div>").appendTo(@$(toolbar_selector))
         location: toolbar_location
       })
+      @tm_view.render()
 
     @update_dataranges()
 
@@ -448,9 +449,6 @@ class PlotView extends Renderer.View
       @canvas_view.set_dims([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
-
-    if @tm_view?
-      @tm_view.render()
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp

@@ -88,7 +88,7 @@ invalid type or value.
 .. warning::
     There is an :class:`~bokeh.core.properties.Any` that is the super-type of all other
     types, and will accept any type of value. Since this circumvents all type validation,
-    make sure to use it sparingly, it at all.
+    make sure to use it sparingly, if at all.
 
 See :ref:`bokeh.core.properties` for full details.
 
