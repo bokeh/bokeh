@@ -8,6 +8,7 @@ update_constraints = utils.require("core/layout/side_panel").update_constraints
 
 {Document} = utils.require("document")
 
+Annotation = utils.require("models/annotations/annotation").Model
 Axis = utils.require("models/axes/axis").Model
 BasicTicker = utils.require("models/tickers/basic_ticker").Model
 BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Model
@@ -44,6 +45,14 @@ describe "SidePanel update_constraints", ->
     @test_plot.add_layout(@axis, 'below')
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
     @axis_view = new @axis.default_view({ model: @axis, plot_model: @test_plot, plot_view: @test_plot_view })
+
+  it "update_constraints should not fail if visible is not on model", ->
+    an = new Annotation()
+    an_view = new an.default_view({model: an, plot_model: @test_plot, plot_view: @test_plot_view})
+    expect(an_view._size_constraint).to.be.undefined
+    update_constraints(an_view)
+    # Should still be undefined because visible is false
+    expect(an_view._size_constraint).to.be.undefined
 
   it "update_constraints should not set _size_constraint if visible is false", ->
     @axis.set('visible', false)

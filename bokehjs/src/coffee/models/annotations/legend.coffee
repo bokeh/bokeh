@@ -1,11 +1,10 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 {get_text_height} = require "../../core/util/text"
 
-class LegendView extends Renderer.View
+class LegendView extends Annotation.View
   initialize: (options) ->
     super(options)
 

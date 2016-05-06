@@ -6,9 +6,10 @@ p = require "../../core/properties"
 
 
 update_constraints = (view) ->
-  if not view.mget('visible')
-    # if not visible, avoid applying constraints until visible again
-    return
+  if view.model.props.visible?
+    if view.mget('visible') is false
+      # if not visible, avoid applying constraints until visible again
+      return
   size = view._get_size()
   if not view._last_size?
     view._last_size = -1

@@ -3,10 +3,9 @@ $ = require "jquery"
 
 Annotation = require "./annotation"
 ColumnDataSource = require "../sources/column_data_source"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
-class LabelView extends Renderer.View
+class LabelView extends Annotation.View
   initialize: (options) ->
     super(options)
     if not @mget('source')?

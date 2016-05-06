@@ -29,25 +29,38 @@ line = plot.add_glyph(source, line_glyph)
 circle = Circle(x="x", y="y2", size=6, line_color="red", fill_color="orange", fill_alpha=0.6)
 circle = plot.add_glyph(source, circle)
 
-plot.add_layout(LinearAxis(), 'above')
-plot.add_layout(LinearAxis(), 'below')
-plot.add_layout(LinearAxis(), 'left')
-plot.add_layout(LinearAxis(), 'right')
-
 pan = PanTool()
 wheel_zoom = WheelZoomTool()
 preview_save = SaveTool()
 
 plot.add_tools(pan, wheel_zoom, preview_save)
 
+# Add axes (Note it's important to add these before adding legends in side panels)
+plot.add_layout(LinearAxis(), 'above')
+plot.add_layout(LinearAxis(), 'below')
+plot.add_layout(LinearAxis(), 'left')
+#plot.add_layout(LinearAxis(), 'right') - Due to a bug cannot have two things on the right side
+
 from bokeh.core.enums import LegendLocation
 
+# Add legends in names positions e.g. 'top_right', 'top_left' (see plot for all)
 for location in LegendLocation:
     legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, orientation="horizontal")
     plot.add_layout(legend)
 
-legend = Legend(legends=[("x=100px, y=150px", [line]), ("other", [circle])], location=(100, 150))
+# Add legend at fixed positions
+legend = Legend(legends=[("x=200px, y=250px", [line]), ("other", [circle])], location=(200, 250))
 plot.add_layout(legend)
+
+# Add legend in side panels
+legend = Legend(legends=[("above panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+plot.add_layout(legend, 'above')
+legend = Legend(legends=[("below panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+plot.add_layout(legend, 'below')
+legend = Legend(legends=[("left panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+plot.add_layout(legend, 'left')
+legend = Legend(legends=[("right panel: x=0px, y=0px", [line]), ("other", [circle])], location=(0, 0))
+plot.add_layout(legend, 'right')
 
 doc = Document()
 doc.add_root(plot)

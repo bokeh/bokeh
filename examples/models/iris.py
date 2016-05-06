@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Label
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -35,16 +35,22 @@ circle = Circle(
 )
 plot.add_glyph(source, circle)
 
-xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
+xaxis = LinearAxis(axis_label="petal length", bounds=(1, 7), major_tick_in=0)
 plot.add_layout(xaxis, 'below')
 
-yaxis = LinearAxis(axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
+yaxis = LinearAxis(axis_label="petal width", bounds=(0, 2.5), major_tick_in=0)
 plot.add_layout(yaxis, 'left')
 
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
+
+# Add a caption as a label placed in "below" layout panel.
+caption = """The Iris flower data set or Fisher's Iris data set is a multivariate
+    data set introduced by Ronald Fisher in his 1936 paper."""
+caption = Label(x=0, y=0, text=[caption], x_units='screen', y_units='screen')
+plot.add_layout(caption, 'below')
 
 doc = Document()
 doc.add_root(plot)
