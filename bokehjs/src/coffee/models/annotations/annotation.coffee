@@ -1,7 +1,9 @@
 _ = require "underscore"
 
-Renderer = require "../renderers/renderer"
+SidePanel = require "../../core/layout/side_panel"
 p = require "../../core/properties"
+
+Renderer = require "../renderers/renderer"
 
 class Annotation extends Renderer.Model
   type: 'Annotation'
@@ -13,6 +15,10 @@ class Annotation extends Renderer.Model
   @override {
     level: 'annotation'
   }
+
+  add_panel: (side) ->
+    @panel = new SidePanel.Model({side: side})
+    @panel.attach_document(@document)
 
 module.exports =
   Model: Annotation
