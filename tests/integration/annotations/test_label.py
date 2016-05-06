@@ -38,10 +38,10 @@ def test_label(output_file_url, selenium, screenshot):
                    border_line_color='black', border_line_width=2, border_line_dash='8 4',
                    render_mode='css')
 
-    plot.add_annotation(label1)
-    plot.add_annotation(label2)
-    plot.add_annotation(label3)
-    plot.add_annotation(label4)
+    plot.add_label(label1)
+    plot.add_label(label2)
+    plot.add_label(label3)
+    plot.add_label(label4)
 
     # Save the plot and start the test
     save(plot)
