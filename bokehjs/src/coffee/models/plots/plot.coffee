@@ -127,7 +127,7 @@ class PlotView extends Renderer.View
     @canvas_view = new @canvas.default_view({'model': @canvas})
 
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
-    
+
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -478,8 +478,9 @@ class PlotView extends Renderer.View
 
     if ctx.glcanvas
       # Sync canvas size
-      ctx.glcanvas.width = @canvas_view.canvas[0].width
-      ctx.glcanvas.height = @canvas_view.canvas[0].height
+      canvas = @canvas_view.get_canvas_element()
+      ctx.glcanvas.width = canvas.width
+      ctx.glcanvas.height = canvas.height
       # Prepare GL for drawing
       gl = ctx.glcanvas.gl
       gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
@@ -537,7 +538,7 @@ class PlotView extends Renderer.View
 
   update_constraints: () ->
     s = @model.document.solver()
-    
+
     # Note: -1 to effectively dilate the canvas by 1px
     s.suggest_value(@frame._width, @canvas.get('width') - 1)
     s.suggest_value(@frame._height, @canvas.get('height') - 1)
@@ -560,11 +561,11 @@ class PlotView extends Renderer.View
 
   resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
     # Resize plot based on available width and/or height
-    
+
     # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
     if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
       return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
-    
+
     # the solver falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
@@ -587,7 +588,7 @@ class PlotView extends Renderer.View
       @_re_resized += 1
       return
 
-    # Check that what we found is a bk-root. If not, this is probably a subplot, which we 
+    # Check that what we found is a bk-root. If not, this is probably a subplot, which we
     # can not currently make responsive in a good way
     if not node.classList.contains('bk-root')
        logger.warn('subplots cannot be responsive')
@@ -604,7 +605,7 @@ class PlotView extends Renderer.View
     width_offset = height_offset = 20
     if @model.toolbar_location == 'above' then height_offset += 30
     if @model.toolbar_location == 'below' then height_offset += 80  # bug in layout?
-    if @model.toolbar_location in ['left', 'right'] then width_offset += 30    
+    if @model.toolbar_location in ['left', 'right'] then width_offset += 30
     avail_width -= width_offset
     avail_height -= height_offset
 
@@ -695,7 +696,7 @@ class Plot extends LayoutDOM.Model
         @set('min_border_left', min_border)
       if not @get('min_border_right')?
         @set('min_border_right', min_border)
-    
+
     @_width = new Variable("plot_width")
     @_height = new Variable("plot_height")
 
