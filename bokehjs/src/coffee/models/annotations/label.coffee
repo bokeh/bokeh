@@ -96,6 +96,18 @@ class LabelView extends Annotation.View
     else
       @_css_text()
 
+  _get_size: () ->
+    ctx = @plot_view.canvas_view.ctx
+    @visuals.text.set_value(ctx)
+
+    side = @model.panel.side
+    if side == "above" or side == "below"
+      height = ctx.measureText(@_text[0]).ascent / 1.175
+      return height
+    if side == 'left' or side == 'right'
+      width = ctx.measureText(@_text[0]).width
+      return width
+
   _canvas_text: () ->
     ctx = @plot_view.canvas_view.ctx
     for i in [0...@_text.length]
