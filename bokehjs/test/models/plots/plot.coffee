@@ -185,8 +185,8 @@ describe "Plot.View render", ->
     @test_plot._doc_attached()
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
 
-  it "should call own :update_constraints method", ->
-    spy = sinon.spy(PlotView.prototype, 'update_constraints')  # Setup
+  it "should call own update_constraints method", ->
+    spy = sinon.spy(@test_plot_view, 'update_constraints')
     @test_plot_view.render()
     expect(spy.calledOnce).to.be.true
 
