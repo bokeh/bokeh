@@ -70,11 +70,9 @@ class Axis(GuideRenderer):
     The %s of the axis label.
     """)
 
-    axis_label_text_align = Override(default="center")
+    axis_label_text_font_size = Override(default={'value': "10pt"})
 
-    axis_label_text_baseline = Override(default="alphabetic")
-
-    axis_label_text_font_size = Override(default={ 'value' : "16pt" })
+    axis_label_text_font_style = Override(default="italic")
 
     major_label_standoff = Int(default=5, help="""
     The distance in pixels that the major tick labels should be
@@ -94,7 +92,7 @@ class Axis(GuideRenderer):
 
     major_label_text_baseline = Override(default="alphabetic")
 
-    major_label_text_font_size = Override(default={ 'value' : "10pt" })
+    major_label_text_font_size = Override(default={'value': "8pt"})
 
     axis_props = Include(LineProps, help="""
     The %s of the axis line.

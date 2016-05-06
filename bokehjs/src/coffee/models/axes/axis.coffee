@@ -381,13 +381,12 @@ class Axis extends GuideRenderer.Model
     major_tick_line_color: 'black'
     minor_tick_line_color: 'black'
 
-    major_label_text_font_size: "10pt"
+    major_label_text_font_size: "8pt"
     major_label_text_align: "center"
     major_label_text_baseline: "alphabetic"
-
-    axis_label_text_font_size: "16pt"
-    axis_label_text_align: "center"
-    axis_label_text_baseline: "alphabetic"
+    
+    axis_label_text_font_size: "10pt"
+    axis_label_text_font_style: "italic"
   }
 
   @internal {
