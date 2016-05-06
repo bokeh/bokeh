@@ -10,7 +10,6 @@ PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
 SidePanel = utils.require("core/layout/side_panel").Model
 {Document} = utils.require "document"
-{Variable}  = utils.require("core/layout/solver")
 
 describe "Axis.Model", ->
 
