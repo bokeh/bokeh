@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Label
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Label, Title
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -27,29 +27,33 @@ source = ColumnDataSource(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, title="Iris Data", plot_width=800, plot_height=400)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=5, plot_width=800, plot_height=400)
 
+# Add a title and sub-title (note we need to add the subtitle first as items
+# are added from the inside out)
+title = Title("Iris Data")
+subtitle_text = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
+subtitle = Title(subtitle_text, text_font_size='10pt', text_font_style='normal')
+plot.add_layout(subtitle, 'above')
+plot.add_layout(title, 'above')
+
+# Add the circles
 circle = Circle(
     x="petal_length", y="petal_width", size=10,
     fill_color="color", fill_alpha=0.2, line_color="color"
 )
 plot.add_glyph(source, circle)
 
-xaxis = LinearAxis(axis_label="petal length", major_tick_in=0)
+xaxis = LinearAxis(axis_label="Petal length", major_tick_in=0)
 plot.add_layout(xaxis, 'below')
 
-yaxis = LinearAxis(axis_label="petal width", major_tick_in=0)
+yaxis = LinearAxis(axis_label="Petal width", major_tick_in=0)
 plot.add_layout(yaxis, 'left')
 
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
-
-# Add a caption as a label placed in "below" layout panel.
-msg = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
-caption = Label(x=0, y=0, text=[msg], x_units='screen', y_units='screen', text_font_size='10pt')
-plot.add_layout(caption, 'below')
 
 doc = Document()
 doc.add_root(plot)
