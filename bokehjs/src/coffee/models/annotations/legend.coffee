@@ -98,6 +98,10 @@ class LegendView extends Annotation.View
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
+    if @model.panel?
+      panel_offset = @_get_panel_offset()
+      ctx.translate(panel_offset.x, panel_offset.y)
+
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
 
@@ -143,6 +147,12 @@ class LegendView extends Annotation.View
       return bbox.height
     if side == 'left' or side == 'right'
       return bbox.width
+
+  _get_panel_offset: () ->
+    # Legends draw from the top down, so set the y_panel_offset to _top
+    x = @model.panel._left._value
+    y = @model.panel._top._value
+    return {x: x, y: -y}
 
 class Legend extends Annotation.Model
   default_view: LegendView

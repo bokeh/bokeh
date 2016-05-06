@@ -113,6 +113,10 @@ class LabelView extends Annotation.View
     for i in [0...@_text.length]
       ctx.save()
 
+      if @model.panel?
+        panel_offset = @_get_panel_offset()
+        ctx.translate(panel_offset.x, panel_offset.y)
+
       ctx.rotate(@mget('angle'))
       ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])
 

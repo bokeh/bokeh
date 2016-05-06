@@ -22,7 +22,8 @@ source = ColumnDataSource(data=dict(x=x, y=y, y2=y2))
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=1000, plot_height=400)
+HEIGHT = 400
+plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=1000, plot_height=HEIGHT)
 
 line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)
@@ -57,9 +58,9 @@ legend = Legend(legends=[("x: 0px, y: 0px (horizontal | above panel)", [line]), 
 plot.add_layout(legend, 'above')
 legend = Legend(legends=[("x: 0px, y: 0px (horizontal | below panel)", [line]), ("other", [circle])], location=(0, 0), orientation="horizontal")
 plot.add_layout(legend, 'below')
-legend = Legend(legends=[("x: 0px, y: 0px (vertical | left)", [line]), ("other", [circle])], location=(0, 0), orientation="vertical")
+legend = Legend(legends=[("x: 0px, y: 0px (vertical | left)", [line]), ("other", [circle])], location=(0, -HEIGHT/2), orientation="vertical")
 plot.add_layout(legend, 'left')
-legend = Legend(legends=[("x: 0px, y: 0px (vertical | right)", [line]), ("other", [circle])], location=(0, 0), orientation="vertical")
+legend = Legend(legends=[("x: 0px, y: 0px (vertical | right)", [line]), ("other", [circle])], location=(0, -HEIGHT/2), orientation="vertical")
 plot.add_layout(legend, 'right')
 
 doc = Document()

@@ -27,7 +27,7 @@ source = ColumnDataSource(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=80, title="Iris Data", plot_width=800, plot_height=400)
+plot = Plot(x_range=xdr, y_range=ydr, title="Iris Data", plot_width=800, plot_height=400)
 
 circle = Circle(
     x="petal_length", y="petal_width", size=10,
@@ -47,8 +47,8 @@ plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 plot.add_tools(PanTool(), WheelZoomTool())
 
 # Add a caption as a label placed in "below" layout panel.
-caption = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
-caption = Label(x=0, y=0, text=[caption], x_units='screen', y_units='screen', text_font_size='10pt')
+msg = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
+caption = Label(x=0, y=0, text=[msg], x_units='screen', y_units='screen', text_font_size='10pt')
 plot.add_layout(caption, 'below')
 
 doc = Document()
