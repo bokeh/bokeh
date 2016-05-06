@@ -27,7 +27,7 @@ source = ColumnDataSource(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=80, title="Iris Data")
+plot = Plot(x_range=xdr, y_range=ydr, min_border=80, title="Iris Data", plot_width=800, plot_height=400)
 
 circle = Circle(
     x="petal_length", y="petal_width", size=10,
@@ -35,10 +35,10 @@ circle = Circle(
 )
 plot.add_glyph(source, circle)
 
-xaxis = LinearAxis(axis_label="petal length", bounds=(1, 7), major_tick_in=0)
+xaxis = LinearAxis(axis_label="petal length", major_tick_in=0)
 plot.add_layout(xaxis, 'below')
 
-yaxis = LinearAxis(axis_label="petal width", bounds=(0, 2.5), major_tick_in=0)
+yaxis = LinearAxis(axis_label="petal width", major_tick_in=0)
 plot.add_layout(yaxis, 'left')
 
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
@@ -47,9 +47,8 @@ plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 plot.add_tools(PanTool(), WheelZoomTool())
 
 # Add a caption as a label placed in "below" layout panel.
-caption = """The Iris flower data set or Fisher's Iris data set is a multivariate
-    data set introduced by Ronald Fisher in his 1936 paper."""
-caption = Label(x=0, y=0, text=[caption], x_units='screen', y_units='screen')
+caption = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
+caption = Label(x=0, y=0, text=[caption], x_units='screen', y_units='screen', text_font_size='10pt')
 plot.add_layout(caption, 'below')
 
 doc = Document()

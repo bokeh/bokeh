@@ -46,7 +46,7 @@ describe "SidePanel update_constraints", ->
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
     @axis_view = new @axis.default_view({ model: @axis, plot_model: @test_plot, plot_view: @test_plot_view })
 
-  it "update_constraints should not fail if visible is not on model", ->
+  it "should not fail if visible is not on model", ->
     an = new Annotation()
     an_view = new an.default_view({model: an, plot_model: @test_plot, plot_view: @test_plot_view})
     expect(an_view._size_constraint).to.be.undefined
@@ -54,14 +54,14 @@ describe "SidePanel update_constraints", ->
     # Should still be undefined because visible is false
     expect(an_view._size_constraint).to.be.undefined
 
-  it "update_constraints should not set _size_constraint if visible is false", ->
+  it "should not set _size_constraint if visible is false", ->
     @axis.set('visible', false)
     expect(@axis_view._size_constraint).to.be.undefined
     update_constraints(@axis_view)
     # Should still be undefined because visible is false
     expect(@axis_view._size_constraint).to.be.undefined
 
-  it "update_constraints should set last_size", ->
+  it "should set last_size", ->
     sinon.stub(@axis_view, '_tick_extent', () -> 0.11)
     sinon.stub(@axis_view, '_axis_label_extent', () -> 0.11)
     sinon.stub(@axis_view, '_tick_label_extent', () -> 0.11)
@@ -69,24 +69,36 @@ describe "SidePanel update_constraints", ->
     update_constraints(@axis_view)
     expect(@axis_view._last_size).to.be.equal 0.33
 
-  it "update_constraints should add a constraint", ->
+  it "should add two constraints on first call (one for size, one for full)", ->
     add_constraint_call_count = @solver_add_constraint.callCount
+    update_constraints(@axis_view)
+    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
+
+  it "should add one constraints on first call (for size) if manually set view._full_set to true", ->
+    add_constraint_call_count = @solver_add_constraint.callCount
+    @axis_view._full_set = true
     update_constraints(@axis_view)
     expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
 
-  it "update_constraints should add and remove a constraint if the size changes", ->
+  it "should add and remove a constraint if the size changes", ->
     @axis_view._tick_extent = sinon.stub()
     @axis_view._tick_extent.onCall(0).returns(0.11)
     @axis_view._tick_extent.onCall(1).returns(0.22)
 
-    update_constraints(@axis_view)
     add_constraint_call_count = @solver_add_constraint.callCount
     remove_constraint_call_count = @solver_remove_constraint.callCount
+
     update_constraints(@axis_view)
-    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
+
+    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 2
+    expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count + 0
+
+    update_constraints(@axis_view)
+
+    expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 3
     expect(@solver_remove_constraint.callCount).to.be.equal remove_constraint_call_count + 1
 
-  it "update_constraints should not add and remove a constraint if the size is the same", ->
+  it "should not add and remove a constraint if the size is the same", ->
     @axis_view._tick_extent = sinon.stub()
     @axis_view._tick_extent.returns(0.11)
 
