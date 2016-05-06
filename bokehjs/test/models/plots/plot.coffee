@@ -21,22 +21,15 @@ PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
 
 
-# Helper function
-_make_axis = (document) ->
-  axis = new LinearAxis()
-  return axis
-
-
 describe "Plot.Model", ->
 
-  it "should have a four LayoutCanvases after _doc_attached is called", ->
+  it "should have a four LayoutCanvases after document is attached is called", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
     expect(p.above_panel).to.be.undefined
     expect(p.below_panel).to.be.undefined
     expect(p.left_panel).to.be.undefined
     expect(p.right_panel).to.be.undefined
-    p.document = new Document()
-    p._doc_attached()
+    p.attach_document(new Document())
     expect(p.above_panel).to.be.an.instanceOf(LayoutCanvas)
     expect(p.below_panel).to.be.an.instanceOf(LayoutCanvas)
     expect(p.left_panel).to.be.an.instanceOf(LayoutCanvas)
@@ -44,8 +37,7 @@ describe "Plot.Model", ->
 
   it "should have panels, frame, and canvas returned in get_layoutable_children", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p.document = new Document()
-    p._doc_attached()
+    p.attach_document(new Document())
     layoutable_children = p.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 6
     expect(_.contains(layoutable_children, p.above_panel)).to.be.true
@@ -57,12 +49,11 @@ describe "Plot.Model", ->
 
   it "should have axis panels in get_layoutable_children if axes added", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p.document = new Document()
-    p._doc_attached()
-    above_axis = _make_axis(p.document)
-    below_axis = _make_axis(p.document)
-    left_axis = _make_axis(p.document)
-    right_axis = _make_axis(p.document)
+    p.attach_document(new Document())
+    above_axis = new LinearAxis()
+    below_axis = new LinearAxis()
+    left_axis = new LinearAxis()
+    right_axis = new LinearAxis()
     p.add_layout(above_axis, 'above')
     p.add_layout(below_axis, 'below')
     p.add_layout(left_axis, 'left')
@@ -76,8 +67,7 @@ describe "Plot.Model", ->
 
   it "should call get_edit_variables on layoutable children", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p.document = new Document()
-    p._doc_attached()
+    p.attach_document(new Document())
     children = p.get_layoutable_children()
     expect(children.length).to.be.equal 6
     for child in children
@@ -89,8 +79,7 @@ describe "Plot.Model", ->
 
   it "should set min_border_x to value of min_border if min_border_x is not specified", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
-    p.document = new Document()
-    p._doc_attached()
+    p.attach_document(new Document())
     expect(p.min_border_top).to.be.equal 33.33
     expect(p.min_border_bottom).to.be.equal 33.33
     expect(p.min_border_left).to.be.equal 33.33
@@ -98,8 +87,7 @@ describe "Plot.Model", ->
 
   it "should set min_border_x to value of specified, and others to value of min_border", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
-    p.document = new Document()
-    p._doc_attached()
+    p.attach_document(new Document())
     expect(p.min_border_top).to.be.equal 33.33
     expect(p.min_border_bottom).to.be.equal 33.33
     expect(p.min_border_left).to.be.equal 66.66
@@ -107,8 +95,7 @@ describe "Plot.Model", ->
 
   it "should set min_border_x to value of specified, and others to default min_border", ->
     p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
-    p.document = new Document()
-    p._doc_attached()
+    p.attach_document(new Document())
     expect(p.min_border_top).to.be.equal 50
     expect(p.min_border_bottom).to.be.equal 50
     expect(p.min_border_left).to.be.equal 4
@@ -119,8 +106,7 @@ describe "Plot.Model constraints", ->
   beforeEach ->
     @test_doc = new Document()
     @test_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    @test_plot.document = @test_doc
-    @test_plot._doc_attached()
+    @test_plot.attach_document(@test_doc)
 
   it "should return 22 constraints from _get_constant_constraints", ->
     expect(@test_plot._get_constant_constraints().length).to.be.equal 22
@@ -130,34 +116,34 @@ describe "Plot.Model constraints", ->
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on above", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(_make_axis(@test_doc), 'above')
+    @test_plot.add_layout(new LinearAxis(), 'above')
     expect(@test_plot._get_side_constraints().length).to.be.equal 2
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on below", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(_make_axis(@test_doc), 'below')
+    @test_plot.add_layout(new LinearAxis(), 'below')
     expect(@test_plot._get_side_constraints().length).to.be.equal 2
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on left", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(_make_axis(@test_doc), 'left')
+    @test_plot.add_layout(new LinearAxis(), 'left')
     expect(@test_plot._get_side_constraints().length).to.be.equal 2
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on right", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(_make_axis(@test_doc), 'right')
+    @test_plot.add_layout(new LinearAxis(), 'right')
     expect(@test_plot._get_side_constraints().length).to.be.equal 2
 
   it "should return 4 constraints from _get_side_constraints if there are two side renderers", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(_make_axis(@test_doc), 'left')
-    @test_plot.add_layout(_make_axis(@test_doc), 'right')
+    @test_plot.add_layout(new LinearAxis(), 'left')
+    @test_plot.add_layout(new LinearAxis(), 'right')
     expect(@test_plot._get_side_constraints().length).to.be.equal 4
 
   it "should return 3 constraints from _get_side_constraints if there are two side renderers on one side", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(_make_axis(@test_doc), 'left')
-    @test_plot.add_layout(_make_axis(@test_doc), 'left')
+    @test_plot.add_layout(new LinearAxis(), 'left')
+    @test_plot.add_layout(new LinearAxis(), 'left')
     expect(@test_plot._get_side_constraints().length).to.be.equal 3
 
   it "should call _get_side_constraints, _get_constant_constraints", ->
