@@ -228,7 +228,7 @@ class AxisView extends Renderer.View
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     dim = @mget('dimension')
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     if _.isString(orient)
       angle = _angle_lookup[side][orient]
@@ -257,7 +257,7 @@ class AxisView extends Renderer.View
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     orient = 'parallel'
     angle = _angle_lookup[side][orient]
     standoff = (@_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff'))
@@ -290,7 +290,7 @@ class AxisView extends Renderer.View
 
     dim = @mget('dimension')
     coords = @mget('tick_coords').major
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     labels = @mget('formatter').doFormat(coords[dim])
     @visuals.major_label_text.set_value(ctx)
@@ -325,7 +325,7 @@ class AxisView extends Renderer.View
   _axis_label_extent: () ->
     extent = 0
 
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     axis_label = @mget('axis_label')
     orient = 'parallel'
     ctx = @plot_view.canvas_view.ctx
@@ -391,7 +391,7 @@ class Axis extends GuideRenderer.Model
   }
 
   @internal {
-    layout_location: [ p.Any ]
+    panel_side: [ p.Any ]
   }
 
   initialize: (attrs, options)->
@@ -405,7 +405,7 @@ class Axis extends GuideRenderer.Model
     @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
 
     @define_computed_property('tick_coords', @_tick_coords, false)
-    @add_dependencies('tick_coords', this, ['computed_bounds', 'layout_location'])
+    @add_dependencies('tick_coords', this, ['computed_bounds', 'panel_side'])
 
     @define_computed_property('ranges', @_ranges, true)
     @define_computed_property('normals', (() -> @panel._normals), true)
@@ -415,10 +415,10 @@ class Axis extends GuideRenderer.Model
   add_panel: (side) ->
     @panel = new SidePanel.Model({side: side})
     @panel.attach_document(@document)
-    @set('layout_location', side)
+    @set('panel_side', side)
 
   _offsets: () ->
-    side = @get('layout_location')
+    side = @get('panel_side')
     [xoff, yoff] = [0, 0]
     frame = @get('plot').get('frame')
 
@@ -539,7 +539,7 @@ class Axis extends GuideRenderer.Model
   _get_loc: (cross_range) ->
     cstart = cross_range.get('start')
     cend = cross_range.get('end')
-    side = @get('layout_location')
+    side = @get('panel_side')
 
     if side == 'left' or side == 'below'
       loc = 'start'
