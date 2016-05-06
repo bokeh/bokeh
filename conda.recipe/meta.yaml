@@ -60,6 +60,7 @@ test:
     - pytest >=2.9.0
     - pytest-cov ==1.8.1       [unix]
     - pytest-selenium >=1.2.1  [unix]
+    - pytest-xdist
     - pytest-rerunfailures
     - beautiful-soup        [unix]
     - scipy

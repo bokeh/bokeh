@@ -72,7 +72,7 @@ script:
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html --upload; fi  # Run the integration tests on saucelabs
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 --upload; fi  # Run the integration tests on saucelabs
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_stop_sauce_connect; fi
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -z "${SAUCELABS}" ]]; then py.test -m integration --driver Firefox; fi
     #
