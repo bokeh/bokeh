@@ -1,7 +1,6 @@
-<% if @logo? && @logo=="grey": %>
-  <a href='http://bokeh.pydata.org/' target='_blank' class='bk-logo bk-logo-small grey'></a>
-<% else if @logo?: %>
-<a href='http://bokeh.pydata.org/' target='_blank' class='bk-logo bk-logo-small'></a>
+<% if @logo?: %>
+<a href='http://bokeh.pydata.org/' target='_blank'
+   class='bk-logo bk-logo-small <% if @logo == "grey": %>bk-grey<% end %>'></a>
 <% end %>
 <div class='bk-button-bar'>
   <ul class='bk-button-bar-list' type="pan" />
@@ -10,7 +9,7 @@
   <ul class='bk-button-bar-list' type="tap" />
   <ul class='bk-button-bar-list' type="press" />
   <ul class='bk-button-bar-list' type="rotate" />
+  <ul class='bk-button-bar-list' type="inspectors" />
   <ul class='bk-button-bar-list' type="actions" />
-  <div class='bk-button-bar-list bk-bs-dropdown' type="inspectors" />
   <ul class='bk-button-bar-list' type="help" />
 </div>

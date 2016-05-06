@@ -24,27 +24,40 @@ class ToolManagerView extends Backbone.View
     @$el.html(@template({logo: @model.get("plot")?.get("logo")}))
     @$el.addClass("bk-toolbar-#{@location}")
     @$el.addClass("bk-sidebar")
-    @$el.addClass("bk-toolbar-active")
-    button_bar_list = @$('.bk-button-bar-list')
 
     inspectors = @model.get('inspectors')
-    button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
+    button_bar_list = @$(".bk-button-bar-list[type='inspectors']")
     if inspectors.length == 0
       button_bar_list.hide()
     else
-      anchor = $('<a href="#" data-bk-bs-toggle="dropdown"
-                  class="bk-bs-dropdown-toggle">inspect
-                  <span class="bk-bs-caret"></a>')
-      anchor.appendTo(button_bar_list)
-      ul = $('<ul class="bk-bs-dropdown-menu" />')
+      dropdown = $('<li>')
+      dropdown.appendTo(button_bar_list)
+
+      if @location == "below"
+        dropdown.addClass("bk-bs-dropup")
+      else
+        dropdown.addClass("bk-bs-dropdown")
+
+      button = $('<button type="button" class="bk-toolbar-button bk-bs-dropdown-toggle" data-bk-bs-toggle="dropdown">
+        <div class="bk-btn-icon bk-tool-icon-inspector" />
+      </button>')
+      button.appendTo(dropdown)
+
+      menu = $('<ul class="bk-bs-dropdown-menu" />')
+
+      if @location == "right"
+        menu.addClass("bk-bs-dropdown-menu-right")
+      else
+        menu.addClass("bk-bs-dropdown-menu-left")
+
       _.each(inspectors, (tool) ->
         item = $('<li />')
         item.append(new InspectTool.ListItemView({model: tool}).el)
-        item.appendTo(ul)
+        item.appendTo(menu)
       )
-      ul.on('click', (e) -> e.stopPropagation())
-      ul.appendTo(button_bar_list)
-      anchor.dropdown()
+      menu.on('click', (e) -> e.stopPropagation())
+      menu.appendTo(dropdown)
+      button.dropdown()
 
     button_bar_list = @$(".bk-button-bar-list[type='help']")
     _.each(@model.get('help'), (item) ->
@@ -62,6 +75,11 @@ class ToolManagerView extends Backbone.View
       _.each(gestures[et].tools, (item) ->
         button_bar_list.append(new GestureTool.ButtonView({model: item}).el)
       )
+
+    for type in ["pan", "scroll", "pinch", "tap", "press", "rotate", "inspectors", "actions", "help"]
+       el = @$(".bk-button-bar-list[type='#{type}']")
+       if el.children().length == 0
+         el.remove()
 
     return @
 
