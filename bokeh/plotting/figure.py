@@ -151,8 +151,6 @@ class Figure(Plot):
         """
         return _list_attr_splat(self.xgrid + self.ygrid)
 
-
-
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
     annulus = _glyph_function(glyphs.Annulus, """
@@ -670,6 +668,7 @@ _marker_types = [
     "ox",
     "o+",
 ]
+
 
 def markers():
     """ Prints a list of valid marker types for scatter()
