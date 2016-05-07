@@ -45,8 +45,9 @@ class ChartDefaults(object):
         """Apply this defaults to a chart."""
 
         if not isinstance(chart, Chart):
-            raise ValueError("ChartsDefaults should be only used on Chart \
-            objects but it's being used on %s instead." % chart)
+            raise ValueError(
+                "ChartsDefaults should be only used on Chart objects but it's being used on %s instead." % chart
+            )
 
         all_props = set(chart.properties_with_values(include_defaults=True))
         dirty_props = set(chart.properties_with_values(include_defaults=False))
@@ -97,6 +98,18 @@ class Chart(Plot):
     _xgrid = True
     _ygrid = True
     _legend = True
+
+    @Plot.xgrid.setter
+    def xgrid(self, value):
+        warnings.warn("Non-functional 'xgrid' setter has been removed; use 'xgrid' keyword argument to Chart instead")
+
+    @Plot.ygrid.setter
+    def ygrid(self, value):
+        warnings.warn("Non-functional 'ygrid' setter has been removed; use 'ygrid' keyword argument to Chart instead")
+
+    @Plot.legend.setter
+    def legend(self, value):
+        warnings.warn("Non-functional 'legend' setter has been removed; use 'legend' keyword argument to Chart instead")
 
     def __init__(self, *args, **kwargs):
         # pop tools as it is also a property that doesn't match the argument
