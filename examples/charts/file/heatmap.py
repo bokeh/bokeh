@@ -22,7 +22,7 @@ hm1 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'))
 
 hm2 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl', stat='mean')
 
-hm3 = HeatMap(autompg, x=bins('mpg'), y=bins('displ', bin_count=15),
+hm3 = HeatMap(autompg, x=bins('mpg'), y=bins('displ', bins=15),
               values='cyl', stat='mean')
 
 hm4 = HeatMap(autompg, x=bins('mpg'), y='cyl', values='displ', stat='mean')
