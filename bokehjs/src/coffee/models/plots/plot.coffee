@@ -512,8 +512,8 @@ class PlotView extends Renderer.View
       #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
       #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
       #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      src_offset = 0.5
-      dst_offset = 0.0
+      src_offset = 0.0
+      dst_offset = 0.5
       ctx.drawImage(ctx.glcanvas, src_offset, src_offset, ctx.glcanvas.width, ctx.glcanvas.height,
                                   dst_offset, dst_offset, ctx.glcanvas.width, ctx.glcanvas.height)
       logger.debug('drawing with WebGL')
