@@ -9,8 +9,6 @@ p = require "../../core/properties"
 class LabelView extends Renderer.View
   initialize: (options) ->
     super(options)
-    if not @mget('source')?
-      this.mset('source', new ColumnDataSource.Model())
     @canvas = @plot_model.get('canvas')
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
     @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
@@ -19,12 +17,18 @@ class LabelView extends Renderer.View
   bind_bokeh_events: () ->
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
+      @listenTo(@model, 'change', () ->
+        _.map(@label_div, (div) -> div.remove())
+        @set_data()
+        @render())
       @listenTo(@mget('source'), 'change', () ->
+        _.map(@label_div, (div) -> div.remove())
         @set_data()
         @render())
     else
-      @listenTo(@model, 'change', @plot_view.request_render)
+      @listenTo(@model, 'change', () ->
+        @set_data()
+        @plot_view.request_render())
       @listenTo(@mget('source'), 'change', () ->
         @set_data()
         @plot_view.request_render())
@@ -34,7 +38,7 @@ class LabelView extends Renderer.View
     @set_visuals(@mget('source'))
 
   _set_data: () ->
-    @label_div = ($("<div>").addClass('label').hide() for i in @_text)
+    @label_div = ($("<div>").addClass('bk-label').hide() for i in @_text)
     @width = (null for i in @_text)
     @height = (null for i in @_text)
     @x_shift = (null for i in @_text)
@@ -143,6 +147,7 @@ class LabelView extends Renderer.View
         'font-size': "#{@_text_font_size[i]}"
         'font-family': "#{@mget('text_font')}"
         'background-color': "#{@visuals.background_fill.color_value()}"
+        'line-height': "normal" # needed to prevent ipynb css override
         }
 
       if @visuals.background_fill.doit
@@ -178,7 +183,7 @@ class Label extends Annotation.Model
       angle:        [ p.AngleSpec,    0                 ]
       x_offset:     [ p.NumberSpec,   { value: 0 }      ]
       y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      source:       [ p.Instance                        ]
+      source:       [ p.Instance,    new ColumnDataSource.Model()  ]
       x_range_name: [ p.String,      'default'          ]
       y_range_name: [ p.String,      'default'          ]
       render_mode:  [ p.RenderMode,  'canvas'           ]
