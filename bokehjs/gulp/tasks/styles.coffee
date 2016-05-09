@@ -12,20 +12,20 @@ utils = require "../utils"
 
 gulp.task "styles:build", ->
   gulp.src paths.less.sources
-    .pipe sourcemaps.init
-      loadMaps: true
+    # .pipe sourcemaps.init
+    #   loadMaps: true
     .pipe less()
-    .pipe sourcemaps.write './'
+    # .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.css
 
 gulp.task "styles:minify", ->
   gulp.src paths.css.sources
     .pipe rename (path) -> path.basename += ".min"
     .pipe gulp.dest paths.buildDir.css
-    .pipe sourcemaps.init
-      loadMaps: true
+    # .pipe sourcemaps.init
+    #   loadMaps: true
     .pipe uglifycss()
-    .pipe sourcemaps.write './'
+    # .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.css
 
 gulp.task "styles", (cb) ->
