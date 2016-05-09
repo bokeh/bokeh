@@ -3,6 +3,7 @@ declare namespace Bokeh {
     export interface IDataSource extends IModel {
         column_names?: Array<string>;
         selected?: Selected;
+        inspected?: Selected;
         callback?: Callback | ((source: this) => void);
     }
 
