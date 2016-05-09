@@ -102,8 +102,8 @@ class LabelView extends Renderer.View
     for i in [0...@_text.length]
       ctx.save()
 
-      ctx.rotate(@mget('angle'))
       ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])
+      ctx.rotate(@_angle[i])
 
       ctx.beginPath()
       ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
@@ -143,6 +143,7 @@ class LabelView extends Renderer.View
         'font-size': "#{@_text_font_size[i]}"
         'font-family': "#{@mget('text_font')}"
         'background-color': "#{@visuals.background_fill.color_value()}"
+        'transform': "rotate(#{@_angle[i]}rad)"
         }
 
       if @visuals.background_fill.doit
