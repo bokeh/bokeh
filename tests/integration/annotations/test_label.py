@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Label
+from bokeh.models import Plot, Range1d, Label, LinearAxis
 from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -43,6 +43,9 @@ def test_label(output_file_url, selenium, screenshot):
                    render_mode='css')
 
     plot.renderers.extend([label1, label2, label3, label4])
+
+    plot.add_layout(LinearAxis(), 'below')
+    plot.add_layout(LinearAxis(), 'left')
 
     # Save the plot and start the test
     save(plot)
