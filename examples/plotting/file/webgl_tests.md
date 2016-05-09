@@ -5,6 +5,7 @@ run successfully after significant changes in BokehJS.
 Examples usefull for testing:
 
 - line_compare.py - puts regular and webgl line glyphs side by side
+- marker_compare.py - to compare regular and webgl markers
 - line10k.py - uses the webgl line glyph
 - scatter10k - uses the webgl circle glyph and selections
 - iris_blend.py - to test color names and blending of semi-transparent glyphs
