@@ -1270,7 +1270,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line, 'line')
     attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill, 'fill')
     # Static value for antialias. Smaller aa-region to obtain crisper images
-    @prog.set_uniform('u_antialias', 'float', [0.9])
+    @prog.set_uniform('u_antialias', 'float', [0.4])
 
 
 class CircleGLGlyph extends MarkerGLGlyph
