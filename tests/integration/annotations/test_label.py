@@ -38,7 +38,7 @@ def test_label(output_file_url, selenium, screenshot):
                    angle=0.261, angle_units='rad',
                    render_mode='css')
 
-    label4 = Label(x=3, y=1.5, text=["(I'm CSS)"], text_font_size='20pt',
+    label4 = Label(x=3, y=1.0, text=["(I'm CSS)"], text_font_size='20pt',
                    border_line_color='black', border_line_width=2, border_line_dash='8 4',
                    render_mode='css')
 
