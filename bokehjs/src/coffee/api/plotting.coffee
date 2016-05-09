@@ -21,7 +21,7 @@ _known_tools = {
   xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width"])
   ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["height"])
   resize:       (plot) -> new models.ResizeTool(plot: plot)
-  click:        (plot) -> new models.TapTool(plot: plot)
+  click:        (plot) -> new models.TapTool(plot: plot, behavior: "inspect")
   tap:          (plot) -> new models.TapTool(plot: plot)
   crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
   box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
