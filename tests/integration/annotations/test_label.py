@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from bokeh.io import save
 from bokeh.models import Plot, Range1d, Label, LinearAxis
-from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
 
 import pytest
