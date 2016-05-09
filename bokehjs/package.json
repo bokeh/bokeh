@@ -41,6 +41,7 @@
     "gulp-newer": "^1.1.0",
     "gulp-if": "^2.0.0",
     "merge": "^1.2.0",
+    "less": "2.6.1",
     "logtrap": "^0.0.1",
     "hammerjs": "^2.0.4",
     "mocha": "^2.2.5",
