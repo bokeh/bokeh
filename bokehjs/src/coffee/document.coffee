@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 {Models} = require "./base"
-{Solver} = require "./core/layout/solver"
+{Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
@@ -83,7 +83,11 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
-
+    @_doc_width = new Variable()
+    @_doc_height = new Variable()
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+    
   solver: () ->
     @_solver
 
