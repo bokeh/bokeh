@@ -1,12 +1,15 @@
 _ = require "underscore"
 
-InputWidget = require "./input_widget"
-template = require "./selecttemplate"
-BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class SelectView extends BokehView
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+template = require "./selecttemplate"
+
+
+class SelectView extends Widget.View
   tagName: "div"
   template: template
   events:
@@ -24,6 +27,7 @@ class SelectView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)

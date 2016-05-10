@@ -1,7 +1,7 @@
-_ = require "underscore"
+p = require "../../core/properties"
 
 Widget = require "./widget"
-p = require "../../core/properties"
+
 
 class AbstractButton extends Widget.Model
   type: "AbstractButton"

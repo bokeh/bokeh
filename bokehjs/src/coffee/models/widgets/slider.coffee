@@ -1,13 +1,16 @@
 _ = require "underscore"
 $2 = require "jquery-ui/slider"
 
-InputWidget = require "./input_widget"
-slidertemplate = require "./slidertemplate"
-BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class SliderView extends BokehView
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+slidertemplate = require "./slidertemplate"
+
+
+class SliderView extends Widget.View
   tagName: "div"
   template: slidertemplate
 
@@ -28,6 +31,7 @@ class SliderView extends BokehView
     @render()
 
   render: () ->
+    super()
     max = @mget('end')
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)

@@ -1,11 +1,12 @@
 _ = require "underscore"
 
-AbstractButton = require "./abstract_button"
 build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class ButtonView extends BokehView
+AbstractButton = require "./abstract_button"
+Widget = require "./widget"
+
+class ButtonView extends Widget.View
   tagName: "button"
   events:
     "click": "change_input"
@@ -17,6 +18,7 @@ class ButtonView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     icon = @mget('icon')
     if icon?
       build_views(@views, [icon])

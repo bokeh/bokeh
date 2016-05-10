@@ -15,7 +15,7 @@ class Widget extends LayoutDom.Model
   type: "Widget"
   default_view: WidgetView
 
-  @define: {
+  @define {
     grow:     [ p.Bool, false]
   }
 
