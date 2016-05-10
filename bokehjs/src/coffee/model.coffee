@@ -34,5 +34,7 @@ class Model extends HasProps
   get_constraints: () ->
     []
 
+  get_constrained_variables: () ->
+    {}
 
 module.exports = Model
