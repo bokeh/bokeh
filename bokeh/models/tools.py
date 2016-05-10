@@ -179,6 +179,14 @@ class TapTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    behavior = Enum("select", "inspect", defult="select", help="""
+    This tool can be configured to either make selections or inspections
+    on associated data sources. The difference is that selection changes
+    propagate across bokeh and other components (e.g. selection glyph)
+    will be notified. Inspecions don't act like this, so it's useful to
+    configure `callback` when setting `behavior='inspect'`.
+    """)
+
     callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.

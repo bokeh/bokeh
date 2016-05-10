@@ -14,7 +14,8 @@ from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
                                    List, Either, Int, Enum, Color, Override, Any, Angle)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
+from .stats import (Stat, Quantile, Sum, Min, Max, Bins, stats, Histogram,
+                    BinnedStat)
 from .data_source import ChartDataSource
 from .utils import marker_types, generate_patch_base, label_from_index_dict
 
@@ -627,9 +628,11 @@ class Interval(AggregateGlyph):
         fill_alpha = [self.fill_alpha]
         line_color = [self.line_color]
         line_alpha = [self.line_alpha]
+        label = [self.label]
+
         return dict(x=x, y=y, width=width, height=height, color=color,
                     fill_alpha=fill_alpha, line_color=line_color,
-                    line_alpha=line_alpha)
+                    line_alpha=line_alpha, label=label)
 
     @property
     def x_max(self):
@@ -910,26 +913,37 @@ class HistogramGlyph(AggregateGlyph):
     options for displaying it, such as KDE and cumulative density.
     """
 
-    # input properties
-    bin_width = Float()
-    bin_count = Float(help="""Provide a manually specified number of bins to use.""")
-
     # derived models
-    bins = Instance(Bins, help="""A stat used to calculate the bins. The bins stat
+    bins = Instance(BinnedStat, help="""A stat used to calculate the bins. The bins stat
         includes attributes about each composite bin.""")
     bars = List(Instance(BarGlyph), help="""The histogram is comprised of many
         BarGlyphs that are derived from the values.""")
+    density = Bool(False, help="""
+        Whether to normalize the histogram.
 
-    def __init__(self, values, label=None, color=None, bin_count=None, **kwargs):
+        If True, the result is the value of the probability *density* function
+        at the bin, normalized such that the *integral* over the range is 1. If
+        False, the result will contain the number of samples in each bin.
+
+        For more info check :class:`~bokeh.charts.stats.Histogram` documentation.
+
+        (default: False)
+    """)
+
+    def __init__(self, values, label=None, color=None, bins=None, **kwargs):
         if label is not None:
             kwargs['label'] = label
         kwargs['values'] = values
-        kwargs['bin_count'] = bin_count
+
         if color is not None:
             kwargs['color'] = color
 
         # remove width, since this is handled automatically
         kwargs.pop('width', None)
+
+        # keep original bins setting private since it just needs to be
+        # delegated to the Histogram stat
+        self._bins = bins
 
         super(HistogramGlyph, self).__init__(**kwargs)
         self.setup()
@@ -944,20 +958,20 @@ class HistogramGlyph(AggregateGlyph):
 
     def build_renderers(self):
         """Yield a bar glyph for each bin."""
-        self.bins = Bins(values=self.values, bin_count=self.bin_count)
-        centers = [bin.center for bin in self.bins.bins]
-        self.bin_width = centers[1] - centers[0]
+        # TODO(fpliger): We should expose the bin stat class so we could let
+        #               users specify other bins other the Histogram Stat
+        self.bins = Histogram(values=self.values, bins=self._bins,
+            density=self.density)
 
         bars = []
         for bin in self.bins.bins:
-            bars.append(BarGlyph(label=self.label, x_label=bin.center,
+            bars.append(BarGlyph(label=bin.label[0], x_label=bin.center,
                                  values=bin.values, color=self.color,
                                  fill_alpha=self.fill_alpha,
-                                 agg=bin.stat, width=self.bin_width))
+                                 agg=bin.stat, width=bin.width))
 
         # provide access to bars as children for bounds properties
-        self.bars = bars
-        self.children = self.bars
+        self.bars = self.children = bars
 
         for comp_glyph in self.bars:
             for renderer in comp_glyph.renderers:

@@ -9,6 +9,9 @@ module.exports = {
 
   ## api/typings/models/document.d.ts
   Document:                               require("./document").Document
+
+  ## api/typings/bokeh.d.ts
+  sprintf:                                require("sprintf")
 }
 
 _.extend(module.exports, require("./api/models"))

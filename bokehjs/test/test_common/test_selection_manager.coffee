@@ -77,9 +77,6 @@ describe "SelectionManager", ->
 
   sm = new SelectionManager()
 
-  it "should have a reference to an empty selection", ->
-    expect(sm.empty).to.deep.equal empty_selection
-
   it "should start with no selectors", ->
     expect(sm.selectors).to.deep.equal {}
 
