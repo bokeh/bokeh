@@ -26,10 +26,15 @@ class LayoutDOM extends Model
     return constraints
 
   @define {
-      height:   [ p.Number, null ]
-      width:    [ p.Number, null ]
-      disabled: [ p.Bool, false ]
-    }
+    height:   [ p.Number, null ]
+    width:    [ p.Number, null ]
+    disabled: [ p.Bool, false ]
+  }
+
+  @internal {
+    dom_left: [ p.Number, 0 ]
+    dom_top:  [ p.Number, 0 ]
+  }
 
 module.exports =
   Model: LayoutDOM
