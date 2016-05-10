@@ -33,21 +33,6 @@ def polar_cats(test_data):
     return build_wedge_source(test_data.auto_data, cat_cols,
                               'displ', 'mean')
 
-def test_ordered_set():
-    pass
-
-
-def test_collect_attribute_columns():
-    pass
-
-
-def test_df_from_json():
-    pass
-
-
-def test_title_from_columns():
-    pass
-
 
 def test_cat_to_polor(test_data, polar_cats):
     """Check known example for how many rows should exist based on columns."""

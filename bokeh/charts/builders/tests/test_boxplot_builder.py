@@ -22,6 +22,5 @@ from bokeh.charts import BoxPlot
 
 
 def test_array_input(test_data):
-    box_plot = BoxPlot(test_data.auto_data.mpg.values,
-                       title="label='cyl', values='mpg'")
+    box_plot = BoxPlot(test_data.auto_data.mpg.values)
     assert len(box_plot.renderers) > 0
