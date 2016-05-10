@@ -2,8 +2,8 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-core_defaults = require "./defaults/models_defaults"
-widget_defaults = require "./defaults/widgets_defaults"
+core_defaults = require "./generated_defaults/models_defaults"
+widget_defaults = require "./generated_defaults/widgets_defaults"
 
 {Models} = utils.require "base"
 mixins = utils.require "core/property_mixins"
