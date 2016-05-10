@@ -21,3 +21,7 @@ describe "LayoutDOM.Model", ->
     p = new LayoutDOM()
     expect(p.get_constraints().length).to.be.equal 4
 
+  it "should should have default dom_left and dom_top", ->
+    p = new LayoutDOM()
+    expect(p.dom_left).to.be.equal 0
+    expect(p.dom_top).to.be.equal 0
