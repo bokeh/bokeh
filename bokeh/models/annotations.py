@@ -6,13 +6,14 @@ from __future__ import absolute_import
 
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side,
+    AngleUnits
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
-    AngleSpec
+    AngleSpec, Angle
 )
 
 from .arrow_heads import ArrowHead, OpenHead
@@ -241,7 +242,6 @@ class BoxAnnotation(Annotation):
 
     """)
 
-
 class Label(Annotation):
     """ Render a text box as an annotation.
 
@@ -271,7 +271,7 @@ class Label(Annotation):
 
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
-    
+
     .. warning::
         The center of rotation for canvas and css render_modes is different.
         For `render_mode="canvas"` the label is rotated from the top-left
@@ -339,7 +339,6 @@ class Label(Annotation):
         area isn't supported in "css" mode.
 
     """)
-
 
 class PolyAnnotation(Annotation):
     """ Render a shaded polygonal region as an annotation.
@@ -430,6 +429,74 @@ class Span(Annotation):
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the span.
+    """)
+
+class Title(Annotation):
+    """ Render a text box as an annotation.
+
+    """
+
+    x = Float(help="""
+    The x-coordinates to locate the text anchors.
+    """)
+
+    y = Float(help="""
+    The y-coordinates to locate the text anchors.
+    """)
+
+    text = String(help="""
+    The text values to render.
+    """)
+
+    angle = Angle(default=0, help="""
+    The angles to rotate the text, as measured from the horizontal.
+
+    .. warning::
+        The center of rotation for canvas and css render_modes is different.
+        For `render_mode="canvas"` the label is rotated from the top-left
+        corner of the annotation, while for `render_mode="css"` the annotation
+        is rotated around it's center.
+    """)
+
+    angle_units = Enum(AngleUnits, default='rad', help="""
+    Acceptable values for units are ``"rad"`` and ``"deg"``
+    """)
+
+    text_props = Include(TextProps, use_prefix=False, help="""
+    The %s values for the text.
+    """)
+
+    text_font_size = Override(default={"value": "14pt"})
+
+    text_font_style = Override(default="bold")
+
+    background_props = Include(FillProps, use_prefix=True, help="""
+    The %s values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default=None)
+
+    border_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the text bounding box.
+    """)
+
+    border_line_color = Override(default=None)
+
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the text is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    .. note::
+        The CSS labels won't be present in the output using the "save" tool.
+
+    .. warning::
+        Not all visual styling properties are supported if the render_mode is
+        set to "css". The border_line_dash property isn't fully supported and
+        border_line_dash_offset isn't supported at all. Setting text_alpha will
+        modify the opacity of the entire background box and border in addition
+        to the text. Finally, clipping Label annotations inside of the plot
+        area isn't supported in "css" mode.
+
     """)
 
 class Tooltip(Annotation):
