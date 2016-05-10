@@ -3,12 +3,15 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
+from ..core.properties import value
 from ..io import curdoc, curstate
 from ..models import Plot
 from ..models import glyphs, markers
 from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function
 
+
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
@@ -37,6 +40,19 @@ class Figure(Plot):
 
         x_axis_label = kw.pop("x_axis_label", "")
         y_axis_label = kw.pop("y_axis_label", "")
+
+        self.__title = None
+
+        # Pop all the possible title and title_text properties
+        kw.pop("title", None)
+        kw.pop("title_standoff", 8)
+        kw.pop("title_text_font", "helvetica")
+        kw.pop("title_text_font_size", value("14pt"))
+        kw.pop("title_text_font_style", "bold")
+        kw.pop("title_text_color", "black")
+        kw.pop("title_text_alpha", 1.0)
+        kw.pop("title_text_align", "left")
+        kw.pop("title_text_baseline", "top")
 
         super(Figure, self).__init__(*arg, **kw)
 
@@ -566,6 +582,7 @@ _marker_types = [
     "ox",
     "o+",
 ]
+
 
 def markers():
     """ Prints a list of valid marker types for scatter()

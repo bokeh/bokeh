@@ -5,7 +5,9 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions)
+    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions,
+    Title,
+)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
@@ -19,8 +21,8 @@ map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
-    title="Austin"
 )
+plot.add_layout(Title("Austin"), 'above')
 
 source = ColumnDataSource(
     data=dict(

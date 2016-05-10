@@ -3,10 +3,9 @@ $ = require "jquery"
 
 Annotation = require "./annotation"
 ColumnDataSource = require "../sources/column_data_source"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
-class LabelView extends Renderer.View
+class LabelView extends Annotation.View
   initialize: (options) ->
     super(options)
     if not @mget('source')?
@@ -97,10 +96,26 @@ class LabelView extends Renderer.View
     else
       @_css_text()
 
+  _get_size: () ->
+    ctx = @plot_view.canvas_view.ctx
+    @visuals.text.set_value(ctx)
+
+    side = @model.panel.side
+    if side == "above" or side == "below"
+      height = ctx.measureText(@_text[0]).ascent
+      return height 
+    if side == 'left' or side == 'right'
+      width = ctx.measureText(@_text[0]).width
+      return width
+
   _canvas_text: () ->
     ctx = @plot_view.canvas_view.ctx
     for i in [0...@_text.length]
       ctx.save()
+
+      if @model.panel?
+        panel_offset = @_get_panel_offset()
+        ctx.translate(panel_offset.x, panel_offset.y)
 
       ctx.rotate(@mget('angle'))
       ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])

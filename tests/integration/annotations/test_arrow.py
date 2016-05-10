@@ -29,8 +29,8 @@ def test_arrow(output_file_url, selenium, screenshot):
     arrow2.end.fill_color = 'orange'
     arrow2.end.size = 50
 
-    plot.add_annotation(arrow1)
-    plot.add_annotation(arrow2)
+    plot.add_layout(arrow1)
+    plot.add_layout(arrow2)
 
     # Save the plot and start the test
     save(plot)

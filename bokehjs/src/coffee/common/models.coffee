@@ -10,6 +10,7 @@ module.exports = {
   Legend:                   require '../models/annotations/legend'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
+  Title:                    require '../models/annotations/title'
   Tooltip:                  require '../models/annotations/tooltip'
 
   OpenHead:                 require('../models/annotations/arrow_head').OpenHead

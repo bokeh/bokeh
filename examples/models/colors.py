@@ -3,7 +3,9 @@ from __future__ import print_function
 from math import pi
 import pandas as pd
 
-from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, HoverTool, OpenURL
+from bokeh.models import (
+    Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, HoverTool, OpenURL, Title
+)
 from bokeh.models.glyphs import Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -162,13 +164,15 @@ source = ColumnDataSource(dict(
 xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
-plot = Plot(title="CSS3 Color Names", x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
+plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
 rect_renderer = plot.add_glyph(source, rect)
 
 xaxis_above = CategoricalAxis(major_label_orientation=pi/4)
 plot.add_layout(xaxis_above, 'above')
+
+plot.add_layout(Title("CSS3 Color Names"), 'above')
 
 xaxis_below = CategoricalAxis(major_label_orientation=pi/4)
 plot.add_layout(xaxis_below, 'below')

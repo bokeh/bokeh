@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Patch, Line, Text
 from bokeh.models import (
     ColumnDataSource, DataRange1d, DatetimeAxis,
-    DatetimeTickFormatter, Grid, Legend, Plot
+    DatetimeTickFormatter, Grid, Legend, Plot, Title
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
@@ -37,10 +37,10 @@ patch2_source = ColumnDataSource(dict(
 summer_start = df.Summer.tolist().index(1)
 summer_end = df.Summer.tolist().index(0, summer_start)
 
-calendar_start = df.Date.irow(0)
-summer_start = df.Date.irow(summer_start)
-summer_end = df.Date.irow(summer_end)
-calendar_end = df.Date.irow(-1)
+calendar_start = df.Date.iloc[0]
+summer_start = df.Date.iloc[summer_start]
+summer_end = df.Date.iloc[summer_end]
+calendar_end = df.Date.iloc[-1]
 
 d1 = calendar_start + (summer_start - calendar_start)/2
 d2 = summer_start + (summer_end - summer_start)/2
@@ -55,12 +55,11 @@ text_source = ColumnDataSource(dict(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-title = "Daylight Hours - Warsaw, Poland"
 plot = Plot(
-    title=title,
     x_range=xdr, y_range=ydr,
-    plot_width=800, plot_height=400
+    plot_width=800, plot_height=400, toolbar_location=None
 )
+plot.add_layout(Title("Daylight Hours - Warsaw, Poland"), 'above')
 
 patch1 = Patch(x="dates", y="times", fill_color="skyblue", fill_alpha=0.8)
 plot.add_glyph(patch1_source, patch1)

@@ -8,7 +8,7 @@ from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Wedge, AnnularWedge, ImageURL, Text
-from bokeh.models import ColumnDataSource, Plot, Range1d
+from bokeh.models import ColumnDataSource, Plot, Range1d, Title
 from bokeh.resources import INLINE
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
 
@@ -17,8 +17,8 @@ df = browsers_nov_2013
 xdr = Range1d(start=-2, end=2)
 ydr = Range1d(start=-2, end=2)
 
-title = "Web browser market share (November 2013)"
-plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
+plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
+plot.add_layout(Title("Web browser market share (November 2013)"), 'above')
 
 colors = {"Chrome": seagreen, "Firefox": tomato, "Safari": orchid, "Opera": firebrick, "IE": skyblue, "Other": lightgray}
 

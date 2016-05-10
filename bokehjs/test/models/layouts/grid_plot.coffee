@@ -12,11 +12,9 @@ describe "GridPlot.Model", ->
   beforeEach ->
     document = new Document()
     @p1 = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    @p1.document = document
-    @p1._doc_attached()
+    @p1.attach_document(document)
     @p2 = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    @p2.document = document
-    @p2._doc_attached()
+    @p2.attach_document(document)
     @grid = new GridPlot({children:[[@p1], [@p2]]})
 
   it "should have flattened list of children in flat_children", ->

@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
-from bokeh.models import GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
+from bokeh.models import GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool, Title
 from bokeh.models.glyphs import Text, Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -48,13 +48,8 @@ def make_calendar(year, month, firstweekday="Mon"):
     xdr = FactorRange(factors=list(day_names))
     ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
 
-    plot = Plot(title=month_names[month], x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
-    plot.title_text_align = "left"
-    plot.title_text_font_size = "12pt"
-    plot.title_text_color = "darkolivegreen"
-    plot.title_standoff = 25
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
     plot.min_border_left = 0
-    plot.min_border_bottom = 5
 
     rect = Rect(x="days", y="weeks", width=0.9, height=0.9, fill_color="day_backgrounds", line_color="silver")
     plot.add_glyph(source, rect)
@@ -71,6 +66,9 @@ def make_calendar(year, month, firstweekday="Mon"):
     xaxis.major_tick_line_color = None
     xaxis.axis_line_color = None
     plot.add_layout(xaxis, 'above')
+
+    title = Title(month_names[month], text_color="darkolivegreen", text_font_size='10pt')
+    plot.add_layout(title, 'above')
 
     hover_tool = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=[("Holiday", "@month_holidays")])
     plot.tools.append(hover_tool)

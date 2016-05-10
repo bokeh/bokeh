@@ -1,10 +1,9 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
-class PolyAnnotationView extends Renderer.View
+class PolyAnnotationView extends Annotation.View
 
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent

@@ -5,7 +5,7 @@ import numpy as np
 from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models import (
-    ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
+    ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool, Title
 )
 
 document = Document()
@@ -20,14 +20,16 @@ y = x**2
 source1 = ColumnDataSource(dict(x = x, y = y, size = [20]*N))
 xdr1 = DataRange1d()
 ydr1 = DataRange1d()
-plot1 = Plot(title="Plot1", x_range=xdr1, y_range=ydr1, plot_width=400, plot_height=400)
+plot1 = Plot(x_range=xdr1, y_range=ydr1, plot_width=400, plot_height=400)
+plot1.add_layout(Title("Plot1"), 'above')
 plot1.tools.append(TapTool(plot=plot1))
 plot1.add_glyph(source1, Circle(x="x", y="y", size="size", fill_color="red"))
 
 source2 = ColumnDataSource(dict(x = x, y = y, color = ["blue"]*N))
 xdr2 = DataRange1d()
 ydr2 = DataRange1d()
-plot2 = Plot(title="Plot2", x_range=xdr2, y_range=ydr2, plot_width=400, plot_height=400)
+plot2 = Plot(x_range=xdr2, y_range=ydr2, plot_width=400, plot_height=400)
+plot2.add_layout(Title("Plot2"), 'above')
 plot2.tools.append(TapTool(plot=plot2))
 plot2.add_glyph(source2, Circle(x="x", y="y", size=20, fill_color="color"))
 

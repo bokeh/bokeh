@@ -32,7 +32,7 @@ def pyramid():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
@@ -59,7 +59,7 @@ def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
 
     plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
