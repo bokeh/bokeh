@@ -5,7 +5,9 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
     GMapPlot, Range1d, ColumnDataSource,
-    PanTool, WheelZoomTool, GMapOptions)
+    PanTool, WheelZoomTool, GMapOptions,
+    Title,
+)
 from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
 
@@ -20,9 +22,9 @@ plot = GMapPlot(
     plot_width=1000,
     plot_height=500,
     map_options=map_options,
-    title="Cities of the world with a population over 5,000 people.",
     webgl=True,
 )
+plot.add_layout(Title("Cities of the world with a population over 5,000 people."), 'above')
 
 circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
 plot.add_glyph(ColumnDataSource(data), circle)

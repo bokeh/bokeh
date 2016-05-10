@@ -31,7 +31,8 @@ def make_plot():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot.add_layout(Title("Product downloads"), 'above')
 
     line = Line(x="dates", y="downloads", line_color="blue")
     plot.add_glyph(source, line)

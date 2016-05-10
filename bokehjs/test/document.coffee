@@ -1,6 +1,7 @@
 _ = require "underscore"
 {expect} = require "chai"
 utils = require "./utils"
+sinon = require "sinon"
 
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
@@ -100,6 +101,50 @@ class ModelWithEditVariable extends Model
 
 Models.register('ModelWithEditVariable', ModelWithEditVariable)
 
+class ModelWithConstrainedVariables extends Model
+  type: 'ModelWithConstrainedVariables'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_width = new Variable()
+    @_height = new Variable()
+
+  get_constrained_variables: () ->
+    return {
+      width: @_width
+      height: @_height
+    }
+
+Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
+
+class ModelWithConstrainedWidthVariable extends Model
+  type: 'ModelWithConstrainedWidthVariable'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_width = new Variable()
+
+  get_constrained_variables: () ->
+    return {
+      width: @_width
+    }
+
+Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
+
+
+class ModelWithConstrainedHeightVariable extends Model
+  type: 'ModelWithConstrainedHeightVariable'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_height = new Variable()
+
+  get_constrained_variables: () ->
+    return {
+      height: @_height
+    }
+
+Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
 
 class ModelWithEditVariableAndConstraint extends Model
   type: 'ModelWithEditVariableAndConstraint'
@@ -698,44 +743,99 @@ describe "Document", ->
     expect(Object.keys(root1.get('dict_of_list_prop')).length).to.equal 1
     expect(_.values(root1.get('dict_of_list_prop'))[0].length).to.equal 1
 
+  it "adds two constraints and two edit_variables on instantiation solver", ->
+    d = new Document()
+    s = d.solver()
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
+
   it "adds edit_variables of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 0
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
 
     d.add_root(new ModelWithEditVariable())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 1
-    expect(s.num_constraints()).to.equal 1
-    expect(s.solver._editMap._array['0'].first._name).to.equal 'ModelWithEditVariable._left'
-    expect(s.solver._editMap._array['0'].second.constraint._strength).to.equal Strength.strong
+    expect(s.num_edit_variables()).to.equal 3
+    expect(s.num_constraints()).to.equal 3
+    expect(s.solver._editMap._array['2'].first._name).to.equal 'ModelWithEditVariable._left'
+    expect(s.solver._editMap._array['2'].second.constraint._strength).to.equal Strength.strong
 
   it "adds constraints of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 0
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
 
     d.add_root(new ModelWithConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 0
-    expect(s.num_constraints()).to.equal 1
-    expect(s.solver._cnMap._array['0'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
+    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints()).to.equal 3
+    expect(s.solver._cnMap._array['2'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
 
   it "adds constraints and edit variable of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 0
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
 
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 1
-    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 3
+    expect(s.num_constraints()).to.equal 4
+
+  it "adds one constraint on add_root if model has get_constrained_variables width", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedWidthVariable())
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 1
+
+  it "adds one constraint on add_root if model has get_constrained_variables height", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedHeightVariable())
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 1
+
+  it "adds two constraints on add_root if model has get_constrained_variables width & height", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedVariables())
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 2
+
+  it "add_root calls update_variables on solver", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'update_variables')
+    d.add_root(new ModelWithEditVariableAndConstraint())
+    expect(spy.calledOnce).is.true

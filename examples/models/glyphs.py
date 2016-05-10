@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool, Title
 from bokeh.models.widgets import Tabs, Panel, Paragraph
 from bokeh.models.layouts import VBox
 from bokeh.models.glyphs import (
@@ -79,7 +79,8 @@ markers = [
 ]
 
 def make_tab(title, glyph):
-    plot = Plot(title=title, x_range=xdr, y_range=ydr)
+    plot = Plot(x_range=xdr, y_range=ydr)
+    plot.add_layout(Title(title), 'above')
 
     plot.add_glyph(source, glyph)
 

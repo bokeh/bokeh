@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 {Models} = require "./base"
-{Solver} = require "./core/layout/solver"
+{EQ, Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
@@ -83,7 +83,11 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
-
+    @_doc_width = new Variable()
+    @_doc_height = new Variable()
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+    
   solver: () ->
     @_solver
 
@@ -108,11 +112,29 @@ class Document
       return
     @_roots.push(model)
     model.attach_document(@)
-    for {edit_variable, strength} in model.get_edit_variables()
+
+    editables = model.get_edit_variables()
+    constraints = model.get_constraints()
+
+    for {edit_variable, strength} in editables
       @_solver.add_edit_variable(edit_variable, strength)
-    for constraint in model.get_constraints()
+    for constraint in constraints
       @_solver.add_constraint(constraint)
+
     @_trigger_on_change(new RootAddedEvent(@, model))
+
+    # Set the size of the root layoutable to the document size
+    # TODO This isn't going to work if there's more than one root
+    if model.get_constrained_variables?
+      root_vars = model.get_constrained_variables()
+      if root_vars.width?
+        @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
+        @_solver.suggest_value(@_doc_width, window.innerWidth)
+      if root_vars.height?
+        @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
+        @_solver.suggest_value(@_doc_height, window.innerHeight)
+
+    @_solver.update_variables()
 
   remove_root : (model) ->
     i = @_roots.indexOf(model)

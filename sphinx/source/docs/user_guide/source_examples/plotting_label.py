@@ -22,7 +22,7 @@ citation = Label(x=70, y=70, x_units='screen', y_units='screen',
                  border_line_color='black', border_line_alpha=1.0,
                  background_fill_color='white', background_fill_alpha=1.0)
 
-p.add_annotation(labels)
-p.add_annotation(citation)
+p.add_layout(labels)
+p.add_layout(citation)
 
 show(p)

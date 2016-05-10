@@ -2,11 +2,10 @@ $ = require "jquery"
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class TooltipView extends Renderer.View
+class TooltipView extends Annotation.View
   className: "bk-tooltip"
 
   initialize: (options) ->

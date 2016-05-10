@@ -19,6 +19,7 @@ from .arrow_heads import ArrowHead, OpenHead
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
+
 @abstract
 class Annotation(Renderer):
     """ Base class for annotation models.
@@ -336,6 +337,27 @@ class Label(Annotation):
         area isn't supported in "css" mode.
 
     """)
+
+
+class Title(Label):
+    x = Override(default=0)
+
+    y = Override(default=0)
+
+    x_units = Override(default='screen')
+
+    y_units = Override(default='screen')
+
+    text_font_size = Override(default={'value' : '14pt'})
+
+    text_font_style = Override(default='bold')
+
+    def __init__(self, *args, **kwargs):
+        if len(args) == 1:
+            kwargs['text'] = [args[0]]
+        elif len(args) > 1:
+            raise ValueError("Too many positional arguments, expecting title text only")
+        super(Title, self).__init__(**kwargs)
 
 
 class PolyAnnotation(Annotation):

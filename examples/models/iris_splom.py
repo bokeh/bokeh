@@ -34,7 +34,7 @@ def make_plot(xname, yname, xax=False, yax=False):
     mbb = 40 if xax else 0
     plot = Plot(
         x_range=xdr, y_range=ydr, background_fill_color="#efe8e2",
-        border_fill_color='white', title="", h_symmetry=False, v_symmetry=False,
+        border_fill_color='white', h_symmetry=False, v_symmetry=False,
         plot_width=200 + mbl, plot_height=200 + mbb, min_border_left=2+mbl, min_border_right=2,
         min_border_top=2, min_border_bottom=2+mbb)
 

@@ -18,7 +18,7 @@ from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
 from ..util.string import nice_join
 from ..core.validation.errors import REQUIRED_RANGE
 
-from .annotations import Annotation, Legend
+from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
@@ -310,26 +310,6 @@ class Plot(LayoutDOM):
         self.renderers.append(g)
         return g
 
-    def add_annotation(self, annotation, **kwargs):
-        '''Adds new Annotation into the Plot.renderers
-
-        Args:
-            annotation (Annotation) : instance of annotation to add to plot
-        Returns:
-            Annotation
-
-        '''
-        if not isinstance(annotation, Annotation):
-            raise ValueError("'annotation' argument to add_annotation must be Annotation subclass")
-
-        if annotation.plot is not None:
-            raise ValueError("annotation %s to be added already has 'plot' attribute set" % annotation)
-
-        annotation.plot = self
-
-        self.renderers.append(annotation)
-        return annotation
-
     def add_tile(self, tile_source, **kw):
         '''Adds new TileRenderer into the Plot.renderers
 
@@ -404,7 +384,7 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    __deprecated_attributes__ = ('background_fill', 'border_fill')
+    __deprecated_attributes__ = ('background_fill', 'border_fill', 'title', 'title_standoff', 'title_props:')
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -447,25 +427,6 @@ class Plot(LayoutDOM):
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.
     """)
-
-    title_standoff = Int(default=8, help="""
-    How far (in screen units) to place a title away from the central
-    plot region.
-    """)
-
-    title = String('', help="""
-    A title for the plot.
-    """)
-
-    title_props = Include(TextProps, help="""
-    The %s for the plot title.
-    """)
-
-    title_text_align = Override(default='center')
-
-    title_text_baseline = Override(default='alphabetic')
-
-    title_text_font_size = Override(default={ 'value' : '20pt' })
 
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
@@ -571,6 +532,16 @@ class Plot(LayoutDOM):
             will be removed. Use 'border_fill_color' instead.
             """)
         self.border_fill_color = color
+
+    @property
+    def title(self):
+        return self._title.text[0]
+
+    @title.setter
+    def title(self, title_text):
+        title = Title(title_text)
+        self.add_layout(title, 'above')
+        self._title = title
 
     background_props = Include(FillProps, help="""
     The %s for the plot background style.

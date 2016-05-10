@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
+from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool, Title
 from bokeh.models.layouts import HBox
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
@@ -79,11 +79,13 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
+plot.add_layout(Title("Click on a circle to reveal its color", text_font_style="normal", text_font_size="12pt"), 'below')
+
 tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected color: @color"))
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add_root(MyHBox(children=[plot]))
+doc.add_root(HBox(children=[plot]))
 
 if __name__ == "__main__":
     filename = "custom.html"

@@ -17,8 +17,9 @@ from bokeh.models.layouts import VBox
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     DataRange1d, ColumnDataSource,
-    LinearAxis, Grid,
-    PanTool, WheelZoomTool, ResetTool)
+    LinearAxis, Grid, Title,
+    PanTool, WheelZoomTool, ResetTool,
+)
 
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 
@@ -77,7 +78,8 @@ def trail_map(data):
     lat = (min(data.lat) + max(data.lat)) / 2
 
     map_options = GMapOptions(lng=lon, lat=lat, zoom=13)
-    plot = GMapPlot(title="%s - Trail Map" % title, map_options=map_options, plot_width=800, plot_height=800)
+    plot = GMapPlot(map_options=map_options, plot_width=800, plot_height=800)
+    plot.add_layout(Title("%s - Trail Map" % title), 'above')
     plot.x_range = DataRange1d()
     plot.y_range = DataRange1d()
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
@@ -90,9 +92,10 @@ def trail_map(data):
 
 
 def altitude_profile(data):
-    plot = Plot(title="%s - Altitude Profile" % title, plot_width=800, plot_height=400)
+    plot = Plot(plot_width=800, plot_height=400)
+    plot.add_layout(Title("%s - Altitude Profile" % title), 'above')
     plot.x_range = DataRange1d()
-    plot.y_range = DataRange1d()
+    plot.y_range = DataRange1d(range_padding=0)
 
     xaxis = LinearAxis(axis_label="Distance (km)")
     plot.add_layout(xaxis, 'below')
@@ -100,9 +103,8 @@ def altitude_profile(data):
     yaxis = LinearAxis(axis_label="Altitude (m)")
     plot.add_layout(yaxis, 'left')
 
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
-    plot.renderers.extend([xgrid, ygrid])
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))  # x grid
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))  # y grid
 
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
