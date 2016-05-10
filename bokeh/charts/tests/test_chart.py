@@ -29,6 +29,7 @@ from bokeh.models.tools import (
     BoxZoomTool, HelpTool, LassoSelectTool, PanTool, SaveTool, ResetTool,
     ResizeTool, WheelZoomTool)
 
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -41,13 +42,14 @@ class TestChart(unittest.TestCase):
         self.glyph = GlyphRenderer()
         self._groups = [self.glyph] * 3
         self.chart = Chart(
-            title="title", xlabel="xlabel", ylabel="ylabel",
+            xlabel="xlabel", ylabel="ylabel",
             legend="top_left", xscale="linear", yscale="linear",
             width=800, height=600, tools=True,
             responsive=True,
             xgrid=True, ygrid=False
         )
 
+    @pytest.mark.xfail
     def test_title(self):
         self.chart.title = "new_title"
         self.assertEqual(self.chart.title, "new_title")
@@ -111,7 +113,7 @@ class TestChart(unittest.TestCase):
     @patch('bokeh.plotting.helpers.warnings.warn')
     def test_chart_tools_linear(self, mock_warn):
         base_args = dict(
-            title="title", xlabel="xlabel", ylabel="ylabel",
+            xlabel="xlabel", ylabel="ylabel",
             legend="top_left", xscale="linear", yscale="linear", xgrid=True, ygrid=True,
             width=800, height=600,
         )
@@ -142,7 +144,7 @@ class TestChart(unittest.TestCase):
         mock_warn.assert_any_call(msg_repeat)
 
 def test_chart_id():
-    chart = Chart(id='1234', title="title")
+    chart = Chart(id='1234')
     assert chart._id == '1234'
 
 def test_defaults():
