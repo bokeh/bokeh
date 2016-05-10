@@ -271,9 +271,12 @@ class Label(Annotation):
 
     angle = AngleSpec(default=0, help="""
     The angles to rotate the text, as measured from the horizontal.
-
+    
     .. warning::
-        The `angle` property is not supported for `render_mode="css"`
+        The center of rotation for canvas and css render_modes is different.
+        For `render_mode="canvas"` the label is rotated from the top-left
+        corner of the annotation, while for `render_mode="css"` the annotation
+        is rotated around it's center.
     """)
 
     x_offset = NumberSpec(default=0, help="""
