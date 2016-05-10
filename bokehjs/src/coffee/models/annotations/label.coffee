@@ -117,8 +117,8 @@ class LabelView extends Annotation.View
         panel_offset = @_get_panel_offset()
         ctx.translate(panel_offset.x, panel_offset.y)
 
-      ctx.rotate(@mget('angle'))
       ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])
+      ctx.rotate(@_angle[i])
 
       ctx.beginPath()
       ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
@@ -158,6 +158,7 @@ class LabelView extends Annotation.View
         'font-size': "#{@_text_font_size[i]}"
         'font-family': "#{@mget('text_font')}"
         'background-color': "#{@visuals.background_fill.color_value()}"
+        'transform': "rotate(#{@_angle[i]}rad)"
         }
 
       if @visuals.background_fill.doit
