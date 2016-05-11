@@ -20,7 +20,8 @@ class BoxView extends LayoutDOM.View
       @$el.append(child_view.$el)
 
     @bind_bokeh_events()
-    @render()
+    @model.variables_updated()
+
 
   bind_bokeh_events: () ->
     @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
@@ -63,7 +64,6 @@ class Box extends LayoutDOM.Model
 
   @define {
     children: [ p.Array, [] ]
-    grow:     [ p.Bool, false  ]
   }
 
   @internal {
@@ -113,9 +113,8 @@ class Box extends LayoutDOM.Model
           if 'box-equal-size-left' of vars
             constraints.push(EQ([-1, vars['box-equal-size-left']], [-1, vars['box-equal-size-right']], vars['width'], @_child_equal_size_width))
         else
-          if child.get('grow') == true
-            if 'box-equal-size-top' of vars
-              constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
+          if 'box-equal-size-top' of vars
+            constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
 
       info = (child) =>
         {

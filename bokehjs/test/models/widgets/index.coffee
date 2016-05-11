@@ -1,2 +1,2 @@
 require "./tabs"
-
+require "./widget"

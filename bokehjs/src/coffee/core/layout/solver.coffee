@@ -12,9 +12,11 @@ _constrainer = (op) ->
 
 _weak_constrainer = (op) ->
   () ->
-    expr = Object.create(Expression.prototype)
-    Expression.apply(expr, arguments)
-    return new Constraint(expr, op, kiwi.Strength.weak)
+    args = [null]
+    for arg in arguments
+      args.push(arg)
+    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, kiwi.Strength.weak )
+
 
 class Solver
 
