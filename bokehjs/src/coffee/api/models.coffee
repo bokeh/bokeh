@@ -5,6 +5,7 @@ module.exports = {
   BoxAnnotation:                          require("../models/annotations/box_annotation").Model
   PolyAnnotation:                         require("../models/annotations/poly_annotation").Model
   Span:                                   require("../models/annotations/span").Model
+  Title:                                  require("../models/annotations/title").Model
   #Overlay:                               require("../models/annotations/overlay").Model
   Tooltip:                                require("../models/annotations/tooltip").Model
 

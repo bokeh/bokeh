@@ -728,6 +728,7 @@ describe "properties module", ->
       expect("Any" of properties).to.be.true
       expect("Anchor" of properties).to.be.true
       expect("Angle" of properties).to.be.true
+      expect("AngleUnits" of properties).to.be.true
       expect("Array" of properties).to.be.true
       expect("Bool" of properties).to.be.true
       expect("Color" of properties).to.be.true
