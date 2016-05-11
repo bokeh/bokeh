@@ -61,7 +61,42 @@ class LabelView extends Title.View
     return [sx, sy]
 
   render: () ->
+<<<<<<< HEAD
     ctx = @plot_view.canvas_view.ctx
+=======
+    [@sx, @sy] = @_map_data()
+    if @mget('render_mode') == 'canvas'
+      @_canvas_text()
+    else
+      @_css_text()
+
+  _get_size: () ->
+    ctx = @plot_view.canvas_view.ctx
+    @visuals.text.set_value(ctx)
+
+    side = @model.panel.side
+    if side == "above" or side == "below"
+      height = ctx.measureText(@_text[0]).ascent
+      return height
+    if side == 'left' or side == 'right'
+      width = ctx.measureText(@_text[0]).width
+      return width
+
+  _canvas_text: () ->
+    ctx = @plot_view.canvas_view.ctx
+    for i in [0...@_text.length]
+      ctx.save()
+
+      if @model.panel?
+        panel_offset = @_get_panel_offset()
+        ctx.translate(panel_offset.x, panel_offset.y)
+
+      ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])
+      ctx.rotate(@_angle[i])
+
+      ctx.beginPath()
+      ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
+>>>>>>> master
 
     [sx, sy] = @_map_data()
 

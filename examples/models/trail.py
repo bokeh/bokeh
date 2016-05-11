@@ -92,7 +92,7 @@ def trail_map(data):
 def altitude_profile(data):
     plot = Plot(title="%s - Altitude Profile" % title, plot_width=800, plot_height=400)
     plot.x_range = DataRange1d()
-    plot.y_range = DataRange1d()
+    plot.y_range = DataRange1d(range_padding=0)
 
     xaxis = LinearAxis(axis_label="Distance (km)")
     plot.add_layout(xaxis, 'below')
@@ -100,9 +100,8 @@ def altitude_profile(data):
     yaxis = LinearAxis(axis_label="Altitude (m)")
     plot.add_layout(yaxis, 'left')
 
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
-    plot.renderers.extend([xgrid, ygrid])
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))  # x grid
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))  # y grid
 
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 

@@ -332,15 +332,15 @@ class Test_ShowFileWithState(DefaultStateTester):
         s = io.State()
         s.output_file("foo.html")
         controller = Mock()
-        mock_abspath.return_value = "abspath"
+        mock_save.return_value = "savepath"
 
         io._show_file_with_state("obj", s, "window", controller)
         self._check_func_called(mock_save, ("obj",), {"state": s})
-        self._check_func_called(controller.open, ("file://abspath",), {"new": 1})
+        self._check_func_called(controller.open, ("file://savepath",), {"new": 1})
 
         io._show_file_with_state("obj", s, "tab", controller)
         self._check_func_called(mock_save, ("obj",), {"state": s})
-        self._check_func_called(controller.open, ("file://abspath",), {"new": 2})
+        self._check_func_called(controller.open, ("file://savepath",), {"new": 2})
 
 class Test_ShowNotebookWithState(DefaultStateTester):
 

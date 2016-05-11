@@ -18,9 +18,6 @@ class CartesianFrame extends LayoutCanvas.Model
     super(attrs, options)
     @panel = @
 
-  _doc_attached: () ->
-    super()
-
     @define_computed_property('x_ranges',
         () -> @_get_ranges('x')
       , true)
@@ -50,8 +47,6 @@ class CartesianFrame extends LayoutCanvas.Model
       , true)
     @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
-    @listenTo(@document.solver(), 'layout_update', @_update_mappers)
-
     @_h_range = new Range1d.Model({
       start: @get('left'),
       end:   @get('left') + @get('width')
@@ -75,6 +70,11 @@ class CartesianFrame extends LayoutCanvas.Model
           return @_v_range
       , false)
     @add_dependencies('v_range', this, ['bottom', 'height'])
+    return null
+
+  _doc_attached: () ->
+    @listenTo(@document.solver(), 'layout_update', @_update_mappers)
+    return null
 
   contains: (vx, vy) ->
     return (
@@ -88,7 +88,6 @@ class CartesianFrame extends LayoutCanvas.Model
 
     vy = @get('y_mappers')[y_name].v_map_to_target(y)
     sy = canvas.v_vy_to_sy(vy)
-
     return [sx, sy]
 
   _get_ranges: (dim) ->
@@ -125,6 +124,7 @@ class CartesianFrame extends LayoutCanvas.Model
       mapper.set('target_range', @get('h_range'))
     for name, mapper of @get('y_mappers')
       mapper.set('target_range', @get('v_range'))
+    return null
 
   @internal {
     extra_x_ranges: [ p.Any, {} ]

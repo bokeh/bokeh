@@ -3,11 +3,10 @@ _ = require "underscore"
 Annotation = require "./annotation"
 OpenHead = require("./arrow_head").OpenHead
 ColumnDataSource = require "../sources/column_data_source"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 {atan2} = require "../../core/util/math"
 
-class ArrowView extends Renderer.View
+class ArrowView extends Annotation.View
   initialize: (options) ->
     super(options)
     if not @mget('source')?
