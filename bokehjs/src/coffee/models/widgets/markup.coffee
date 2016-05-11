@@ -29,15 +29,6 @@ class Markup extends Widget.Model
     text: [ p.String, '' ]
   }
 
-  @override {
-    width: 500
-    height: 400
-  }
-
 module.exports =
   Model: Markup
   View: MarkupView
-
-
-
-
