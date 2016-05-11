@@ -39,6 +39,12 @@ class LayoutDOM extends Model
     constraints.push(GE(@_height, [-1, @_bottom]))
     return constraints
 
+  get_constrained_variables: () ->
+    {
+      width: @_width
+      height: @_height
+    }
+
   @define {
     height:   [ p.Number, null ]
     width:    [ p.Number, null ]
