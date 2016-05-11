@@ -8,14 +8,7 @@ p = require "../../core/properties"
 class TitleView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @canvas = @plot_model.get('canvas')
-
-    @_set_data()
-    @_set_visuals()
-
-    if @mget('render_mode') == 'css'
-      @$el.addClass('bk-title-parent')
-      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
+    @_initialize_properties()
 
   bind_bokeh_events: () ->
     if @mget('render_mode') == 'css'
@@ -24,12 +17,17 @@ class TitleView extends Renderer.View
     else
       @listenTo(@model, 'change', @plot_view.request_render)
 
-  _set_data: () ->
+  _initialize_properties: () ->
+    @canvas = @plot_model.get('canvas')
+
     if @mget('render_mode') == 'css'
+      @$el.addClass('bk-title-parent')
+
       @title_div = $("<div>").addClass('bk-title-child').hide()
       @title_div.appendTo(@$el)
 
-  _set_visuals: () ->
+      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
+
     for name, prop of @visuals
       prop.warm_cache(null)
 
