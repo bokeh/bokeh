@@ -11,8 +11,6 @@ describe "Widget.View render", ->
     #  position: 'absolute'
     #  left: @mget('dom_left')
     #  top: @mget('dom_top')
-    #  width: @model._width._value - @model._whitespace_right._value - @model._whitespace_left._value
-    #  height: @model._height._value - @model._whitespace_bottom._value - @model._whitespace_top._value
     #  'margin-left': @model._whitespace_left._value
     #  'margin-right': @model._whitespace_right._value
     #  'margin-top': @model._whitespace_top._value
@@ -39,5 +37,7 @@ describe "Widget.View render", ->
     widget_view = new widget.default_view({ model: widget })
     expect(widget_view.$el.attr('style')).to.be.undefined
     widget_view.render()
-    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width - wl - wr}px; height: #{height - wt - wb}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+    
+    # Note widget view does not set the width and height.
+    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(widget_view.$el.attr('style')).to.be.equal expected_style
