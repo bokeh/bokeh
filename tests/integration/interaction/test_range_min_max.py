@@ -1,8 +1,16 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.plotting import figure
-from bokeh.models import CustomJS, Range1d, DataRange1d
+from bokeh.models import (
+    BoxZoomTool,
+    ColumnDataSource,
+    CustomJS,
+    DataRange1d,
+    PanTool,
+    Plot,
+    Range1d,
+    Rect,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 from tests.integration.utils import has_no_console_errors
 
@@ -39,11 +47,10 @@ def make_pan_plot_with_callback(xr=None, yr=None):
     """)
     y_range.callback = y_callback
 
-    plot = figure(
-        height=400, width=400, tools='pan,box_zoom,reset', x_range=x_range, y_range=y_range
-    )
-    plot.min_border = 0
-    plot.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
+    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
+    plot = Plot(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, min_border=0)
+    plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
+    plot.add_tools(PanTool(), BoxZoomTool())
     return plot
 
 
