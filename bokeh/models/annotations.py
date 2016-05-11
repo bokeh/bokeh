@@ -437,19 +437,19 @@ class Title(Annotation):
     """
 
     x = Float(help="""
-    The x-coordinates to locate the text anchors.
+    The x-coordinate in screen coordinates to locate the text anchors.
     """)
 
     y = Float(help="""
-    The y-coordinates to locate the text anchors.
+    The y-coordinate in screen coordinates to locate the text anchors.
     """)
 
     text = String(help="""
-    The text values to render.
+    The text value to render.
     """)
 
     angle = Angle(default=0, help="""
-    The angles to rotate the text, as measured from the horizontal.
+    The angle to rotate the text, as measured from the horizontal.
 
     .. warning::
         The center of rotation for canvas and css render_modes is different.
