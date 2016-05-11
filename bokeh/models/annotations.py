@@ -242,8 +242,8 @@ class BoxAnnotation(Annotation):
 
     """)
 
-class Label(Annotation):
-    """ Render a text box as an annotation.
+class LabelSet(Annotation):
+    """ Render a group of text boxes as annotations.
 
     """
 

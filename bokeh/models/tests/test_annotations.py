@@ -3,7 +3,7 @@ from __future__ import  absolute_import
 from itertools import chain
 
 from bokeh.models.annotations import (
-    Legend, Arrow, BoxAnnotation, Span, Label, Title
+    Legend, Arrow, BoxAnnotation, Span, LabelSet, Title
 )
 from bokeh.models import ColumnDataSource, ArrowHead
 from bokeh.core.enums import (
@@ -147,27 +147,27 @@ def test_BoxAnnotation():
         "level",
     ], LINE, FILL)
 
-def test_Label():
-    label = Label()
-    assert label.plot is None
-    assert label.level == 'annotation'
-    assert label.x is None
-    assert label.y is None
-    assert label.x_units == 'data'
-    assert label.y_units == 'data'
-    assert label.text ==  'text'
-    assert label.angle == 0
-    assert label.x_offset == 0
-    assert label.y_offset == 0
-    assert label.render_mode == 'canvas'
-    assert label.x_range_name == 'default'
-    assert label.y_range_name == 'default'
-    assert isinstance(label.source, ColumnDataSource)
-    assert label.source.data == {}
-    yield check_text, label
-    yield check_fill, label, "background_", None, 1.0
-    yield check_line, label, "border_", None, 1.0, 1.0
-    yield (check_props, label, [
+def test_LabelSet():
+    label_set = LabelSet()
+    assert label_set.plot is None
+    assert label_set.level == 'annotation'
+    assert label_set.x is None
+    assert label_set.y is None
+    assert label_set.x_units == 'data'
+    assert label_set.y_units == 'data'
+    assert label_set.text ==  'text'
+    assert label_set.angle == 0
+    assert label_set.x_offset == 0
+    assert label_set.y_offset == 0
+    assert label_set.render_mode == 'canvas'
+    assert label_set.x_range_name == 'default'
+    assert label_set.y_range_name == 'default'
+    assert isinstance(label_set.source, ColumnDataSource)
+    assert label_set.source.data == {}
+    yield check_text, label_set
+    yield check_fill, label_set, "background_", None, 1.0
+    yield check_line, label_set, "border_", None, 1.0, 1.0
+    yield (check_props, label_set, [
         "plot",
         "level",
         "x",
