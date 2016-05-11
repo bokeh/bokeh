@@ -8,6 +8,7 @@ p = require "../../core/properties"
 class TitleView extends Renderer.View
   initialize: (options) ->
     super(options)
+    @canvas = @plot_model.get('canvas')
 
     @_set_data()
     @_set_visuals()
@@ -64,19 +65,22 @@ class TitleView extends Renderer.View
       when "rad" then angle = -1 * @mget('angle')
       when "deg" then angle = -1 * @mget('angle') * Math.PI/180.0
 
-    if @mget('render_mode') == 'canvas'
-      @_canvas_text(ctx, 0, @mget('text'), @mget('x'), @mget('y'), angle)
-    else
-      @_css_text(ctx, 0, @mget('text'), @mget('x'), @mget('y'), angle)
+    sx = @canvas.vx_to_sx(@mget('x'))
+    sy = @canvas.vy_to_sy(@mget('y'))
 
-  _canvas_text: (ctx, i, text, x, y, angle) ->
+    if @mget('render_mode') == 'canvas'
+      @_canvas_text(ctx, 0, @mget('text'), sx, sy, angle)
+    else
+      @_css_text(ctx, 0, @mget('text'), sx, sy, angle)
+
+  _canvas_text: (ctx, i, text, sx, sy, angle) ->
     [text_width, text_height] = @_calculate_text_dimensions(ctx, i, text)
     [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, i, text_width, text_height)
 
     ctx.save()
 
     ctx.beginPath()
-    ctx.translate(x, y)
+    ctx.translate(sx, sy)
     ctx.rotate(angle)
 
     ctx.rect(x_rect_offset, y_rect_offset, text_width, text_height)
@@ -95,7 +99,7 @@ class TitleView extends Renderer.View
 
     ctx.restore()
 
-  _css_text: (ctx, i, text, x, y, angle) ->
+  _css_text: (ctx, i, text, sx, sy, angle) ->
     [text_width, text_height] = @_calculate_text_dimensions(ctx, i, text)
     [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, i, text_width, text_height)
 
@@ -116,8 +120,8 @@ class TitleView extends Renderer.View
 
     div_style = {
       'position': 'absolute'
-      'left': "#{x + x_rect_offset}px"
-      'top': "#{y + y_rect_offset}px"
+      'left': "#{sx + x_rect_offset}px"
+      'top': "#{sy + y_rect_offset}px"
       'color': "#{@visuals.text.text_color.value()}"
       'opacity': "#{@visuals.text.text_alpha.value()}"
       'font-size': "#{@visuals.text.text_font_size.value()}"
