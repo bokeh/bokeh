@@ -3,7 +3,7 @@ from __future__ import  absolute_import
 from itertools import chain
 
 from bokeh.models.annotations import (
-    Legend, Arrow, BoxAnnotation, Span, LabelSet, Title
+    Legend, Arrow, BoxAnnotation, Span, LabelSet, Label
 )
 from bokeh.models import ColumnDataSource, ArrowHead
 from bokeh.core.enums import (
@@ -147,6 +147,44 @@ def test_BoxAnnotation():
         "level",
     ], LINE, FILL)
 
+def test_Label():
+    label = Label()
+    assert label.plot is None
+    assert label.level == 'annotation'
+    assert label.x is None
+    assert label.y is None
+    assert label.x_units == 'data'
+    assert label.y_units == 'data'
+    assert label.text is None
+    assert label.angle == 0
+    assert label.angle_units == 'rad'
+    assert label.x_offset == 0
+    assert label.y_offset == 0
+    assert label.render_mode == 'canvas'
+    assert label.x_range_name == 'default'
+    assert label.y_range_name == 'default'
+    yield check_text, label
+    yield check_fill, label, "background_", None, 1.0
+    yield check_line, label, "border_", None, 1.0, 1.0
+    yield (check_props, label, [
+        "plot",
+        "level",
+        "x",
+        "y",
+        "x_units",
+        "y_units",
+        "text",
+        "angle",
+        "angle_units",
+        "x_offset",
+        "y_offset",
+        "render_mode",
+        "x_range_name",
+        "y_range_name"],
+        TEXT,
+        prefix('border_', LINE),
+        prefix('background_', FILL))
+
 def test_LabelSet():
     label_set = LabelSet()
     assert label_set.plot is None
@@ -157,6 +195,7 @@ def test_LabelSet():
     assert label_set.y_units == 'data'
     assert label_set.text ==  'text'
     assert label_set.angle == 0
+    assert label_set.angle_units == 'rad'
     assert label_set.x_offset == 0
     assert label_set.y_offset == 0
     assert label_set.render_mode == 'canvas'
@@ -176,6 +215,7 @@ def test_LabelSet():
         "y_units",
         "text",
         "angle",
+        "angle_units",
         "x_offset",
         "y_offset",
         "render_mode",
@@ -208,28 +248,3 @@ def test_Span():
         "level",
         "render_mode"
     ], LINE)
-
-def test_Title():
-    title = Title()
-    assert title.plot is None
-    assert title.level == 'annotation'
-    assert title.x is None
-    assert title.y is None
-    assert title.text is None
-    assert title.angle == 0
-    assert title.angle_units == 'rad'
-    yield check_text, title, "", "14pt", "bottom", "bold"
-    yield check_fill, title, "background_", None, 1.0
-    yield check_line, title, "border_", None, 1.0, 1.0
-    yield (check_props, title, [
-        "plot",
-        "level",
-        "x",
-        "y",
-        "text",
-        "angle",
-        "angle_units",
-        "render_mode"],
-        TEXT,
-        prefix('border_', LINE),
-        prefix('background_', FILL))

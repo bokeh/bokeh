@@ -13,7 +13,7 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, LabelSet, Range1d, FactorRange, Plot, LinearAxis
+from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
 from bokeh.models.tools import PanTool
 
 
@@ -76,14 +76,14 @@ def test_plot_add_layout_raises_error_if_not_render():
 def test_plot_add_layout_raises_error_if_plot_already_on_annotation():
     plot = figure()
     with pytest.raises(ValueError):
-        plot.add_layout(LabelSet(plot=plot))
+        plot.add_layout(Label(plot=plot))
 
 
 def test_plot_add_layout_adds_label_to_plot_renderers():
     plot = figure()
-    label_set = LabelSet()
-    plot.add_layout(label_set)
-    assert label_set in plot.renderers
+    label = Label()
+    plot.add_layout(label)
+    assert label in plot.renderers
 
 
 def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
