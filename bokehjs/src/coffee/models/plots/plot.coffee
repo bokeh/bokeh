@@ -951,6 +951,9 @@ class Plot extends LayoutDOM.Model
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
 
+  get_constrained_variables: () ->
+    {}
+
 module.exports =
   get_size_for_available_space: get_size_for_available_space
   Model: Plot
