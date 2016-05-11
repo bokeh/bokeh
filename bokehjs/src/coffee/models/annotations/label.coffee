@@ -14,14 +14,18 @@ class LabelView extends Title.View
   bind_bokeh_events: () ->
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
+      @listenTo(@model, 'change', () ->
+        @set_data(@mget('source'))
+        @render())
       @listenTo(@mget('source'), 'change', () ->
-        @set_data()
+        @set_data(@mget('source'))
         @render())
     else
-      @listenTo(@model, 'change', @plot_view.request_render)
+      @listenTo(@model, 'change', () ->
+        @set_data(@mget('source'))
+        @plot_view.request_render())
       @listenTo(@mget('source'), 'change', () ->
-        @set_data()
+        @set_data(@mget('source'))
         @plot_view.request_render())
 
   _initialize_properties: () ->
@@ -60,8 +64,6 @@ class LabelView extends Title.View
     ctx = @plot_view.canvas_view.ctx
 
     [sx, sy] = @_map_data()
-
-    debugger;
 
     if @mget('render_mode') == 'canvas'
       for i in [0...@_text.length]
