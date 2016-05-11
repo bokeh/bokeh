@@ -1,7 +1,21 @@
-LayoutDOM = require "../layouts/layout_dom"
+_ = require "underscore"
+p = require "../../core/properties"
 
-class Widget extends LayoutDOM.Model
+LayoutDom = require "../layouts/layout_dom"
+
+
+class WidgetView extends LayoutDom.View
+  className: "bk-widget"
+
+
+class Widget extends LayoutDom.Model
   type: "Widget"
+  default_view: WidgetView
+
+  @define {
+    grow:     [ p.Bool, false  ]
+  }
 
 module.exports =
   Model: Widget
+  View: WidgetView

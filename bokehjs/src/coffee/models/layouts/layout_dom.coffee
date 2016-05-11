@@ -1,7 +1,21 @@
-_ = require "underscore"
-Model = require "../../model"
-p = require "../../core/properties"
+BokehView = require "../../core/bokeh_view"
 {GE, Variable}  = require "../../core/layout/solver"
+p = require "../../core/properties"
+
+Model = require "../../model"
+
+
+class LayoutDOMView extends BokehView
+
+  render: () ->
+    @$el.css({
+      position: 'absolute'
+      left: @mget('dom_left')
+      top: @mget('dom_top')
+      width: @model._width._value
+      height: @model._height._value
+    })
+
 
 class LayoutDOM extends Model
   type: "LayoutDOM"
@@ -28,7 +42,7 @@ class LayoutDOM extends Model
   @define {
     height:   [ p.Number, null ]
     width:    [ p.Number, null ]
-    disabled: [ p.Bool, false ]
+    disabled: [ p.Bool, false  ]
   }
 
   @internal {
@@ -38,3 +52,4 @@ class LayoutDOM extends Model
 
 module.exports =
   Model: LayoutDOM
+  View: LayoutDOMView
