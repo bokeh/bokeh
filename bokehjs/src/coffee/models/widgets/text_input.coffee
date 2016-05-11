@@ -1,13 +1,16 @@
 _ = require "underscore"
 
-InputWidget = require "./input_widget"
-template = require "./text_input_template"
 build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
+
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class TextInputView extends BokehView
+InputWidget = require "./input_widget"
+template = require "./text_input_template"
+Widget = require "./widget"
+
+
+class TextInputView extends Widget.View
   tagName: "div"
   attributes:
      class: "bk-widget-form-group"
@@ -21,6 +24,7 @@ class TextInputView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.html(@template(@model.attributes))
     return @
 

@@ -1,10 +1,11 @@
 _ = require "underscore"
 
-AbstractIcon = require "./abstract_icon"
-BokehView = require "../../core/bokeh_view"
 p  = require "../../core/properties"
 
-class IconView extends BokehView
+AbstractIcon = require "./abstract_icon"
+Widget = require "./widget"
+
+class IconView extends Widget.View
   tagName: "i"
 
   initialize: (options) ->
@@ -13,6 +14,7 @@ class IconView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     @$el.addClass("bk-fa")

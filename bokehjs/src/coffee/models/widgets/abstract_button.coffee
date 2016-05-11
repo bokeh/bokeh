@@ -1,5 +1,6 @@
-Widget = require "./widget"
 p = require "../../core/properties"
+
+Widget = require "./widget"
 
 
 class AbstractButton extends Widget.Model
