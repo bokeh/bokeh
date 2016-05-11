@@ -4,6 +4,7 @@ from bokeh.io import save
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -33,6 +34,7 @@ def test_hover_changes_color(output_file_url, selenium, screenshot):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Hover over plot and take screenshot
     canvas = selenium.find_element_by_tag_name('canvas')

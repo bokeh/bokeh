@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 from bokeh.io import save
 from bokeh.plotting import figure
 from selenium.common.exceptions import StaleElementReferenceException
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -39,6 +40,7 @@ def test_can_toggle_between_two_pan_tools(output_file_url, selenium):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Tap the plot and test for alert
     pan_buttons = get_non_stale_pan_buttons(selenium)

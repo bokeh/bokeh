@@ -5,6 +5,7 @@ from bokeh.plotting import figure
 from bokeh.models import TapTool, CustomJS
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
+from tests.integration.utils import has_no_console_errors
 
 from ..utils import value_to_be_present_in_datahash
 
@@ -36,6 +37,7 @@ def test_tap_with_callback_triggers_alert(output_file_url, selenium):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Tap the plot and test for alert
     canvas = selenium.find_element_by_tag_name('canvas')
