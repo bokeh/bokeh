@@ -304,21 +304,24 @@ def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
+    shown = False
 
     if state.notebook:
         comms_handle = _show_notebook_with_state(obj, state)
+        shown = True
 
     elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
+        shown = True
 
-    if state.file:
+    if state.file or not shown:
         _show_file_with_state(obj, state, new, controller)
 
     return comms_handle
 
 def _show_file_with_state(obj, state, new, controller):
-    save(obj, state=state)
-    controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
+    filename = save(obj, state=state)
+    controller.open("file://" + filename, new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
@@ -342,7 +345,9 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
     Will fall back to the default output state (or an explicitly provided
     :class:`State` object) for ``filename``, ``resources``, or ``title`` if they
-    are not provided.
+    are not provided. If the filename is not given and not provided via output state,
+    it is derived from the script name (e.g. ``/foo/myplot.py`` will create
+    ``/foo/myplot.html``)
 
     Args:
         obj (Document or model object) : a plot object to save
@@ -362,7 +367,7 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         validate (bool, optional) : True to check integrity of the models
 
     Returns:
-        None
+        filename (str) : the filename where the HTML file is saved.
 
     Raises:
         RuntimeError
@@ -372,30 +377,56 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         state = _state
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-
     _save_helper(obj, filename, resources, title, validate)
+    return os.path.abspath(filename)
+
+def _detect_filename(ext):
+    """ Detect filename from the name of the script being run. Returns
+    None if the script could not be found (e.g. interactive mode).
+    """
+    import inspect
+    from os.path import isfile, dirname, basename, splitext, join
+    from inspect import currentframe
+    
+    frame = inspect.currentframe()
+    while frame.f_back and frame.f_globals.get('name') != '__main__':
+        frame = frame.f_back
+    
+    filename = frame.f_globals.get('__file__')
+    if filename and isfile(filename):
+        name, _ = splitext(basename(filename))
+        return join(dirname(filename), name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
+    warn = True
 
     if filename is None and state.file:
         filename = state.file['filename']
 
+    if filename is None:
+        warn = False
+        filename = _detect_filename("html")
+
+    if filename is None:
+        raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
+
     if resources is None and state.file:
         resources = state.file['resources']
+
+    if resources is None:
+        if warn:
+            warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+
+        from .resources import CDN
+        resources = CDN
 
     if title is None and state.file:
         title = state.file['title']
 
-    if filename is None:
-        raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
-
-    if resources is None:
-        warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
-        from .resources import CDN
-        resources = CDN
-
     if title is None:
-        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+        if warn:
+            warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+
         title = "Bokeh Plot"
 
     return filename, resources, title
