@@ -2,13 +2,13 @@ from __future__ import absolute_import
 
 from bokeh.io import save
 from bokeh.models import Plot, Range1d, Label, LinearAxis
-from selenium.webdriver.common.action_chains import ActionChains
 
 import pytest
 pytestmark = pytest.mark.integration
 
 HEIGHT = 600
 WIDTH = 600
+
 
 def test_label(output_file_url, selenium, screenshot):
 
@@ -41,10 +41,27 @@ def test_label(output_file_url, selenium, screenshot):
                    border_line_color='black', border_line_width=2, border_line_dash='8 4',
                    render_mode='css')
 
-    plot.renderers.extend([label1, label2, label3, label4])
+    label_above = Label(
+        x=0, y=0, text=["Label in above panel"], x_units='screen', y_units='screen',
+        text_font_size='38pt', text_color='firebrick', text_alpha=0.9,
+    )
+
+    label_left = Label(
+        x=0, y=0, text=["Label in left panel"],
+        x_units='screen', y_units='screen', angle=90, angle_units='deg',
+        text_font_size='18pt', text_color='firebrick', text_alpha=0.9,
+        background_fill_color='aliceblue', text_baseline='top',
+    )
 
     plot.add_layout(LinearAxis(), 'below')
     plot.add_layout(LinearAxis(), 'left')
+
+    plot.add_layout(label1)
+    plot.add_layout(label2)
+    plot.add_layout(label3)
+    plot.add_layout(label4)
+    plot.add_layout(label_above, 'above')
+    plot.add_layout(label_left, 'left')
 
     # Save the plot and start the test
     save(plot)

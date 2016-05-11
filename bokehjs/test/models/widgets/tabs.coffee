@@ -13,8 +13,7 @@ describe "Tabs.Model", ->
 
   beforeEach ->
     @p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    @p.document = new Document()
-    @p._doc_attached()
+    @p.attach_document(new Document())
     @panel = new Panel({child: @p})
     @tabs = new Tabs({tabs: [@panel]})
 

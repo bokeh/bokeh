@@ -81,16 +81,13 @@ class TestChart(unittest.TestCase):
         self.chart.add_ranges('x', Range1d())
 
         axis = self.chart.make_axis("x", "left", "datetime", "foo")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foo")
 
         axis = self.chart.make_axis("x", "left", "categorical", "bar")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "bar")
         self.assertEqual(axis.major_label_orientation, np.pi/4)
 
         axis = self.chart.make_axis("x", "left", "linear", "foobar")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foobar")
 
     def test_make_grid(self):

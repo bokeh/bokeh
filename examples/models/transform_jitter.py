@@ -24,7 +24,7 @@ label_data = ColumnDataSource(data=dict(
     x=[1,2,3], y=[10, 10, 10], t=['Original', 'Normal', 'Uniform']
 ))
 labels = Label(x='x', y='y', text='t', y_offset=2, source=label_data, render_mode='css', text_align='center')
-p.add_annotation(labels)
+p.add_layout(labels)
 
 callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
     data=source.get('data')

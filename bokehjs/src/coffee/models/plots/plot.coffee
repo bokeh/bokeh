@@ -22,6 +22,7 @@ LayoutCanvas = require "../../core/layout/layout_canvas"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
+update_panel_constraints = require("../../core/layout/side_panel").update_constraints
 
 plot_template = require "./plot_template"
 
@@ -107,16 +108,6 @@ class PlotView extends Renderer.View
         height: @mget("canvas").get("height")
       }
     }
-
-    # Formerly in initialize_layout
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @mget(side)
-      for r in layout_renderers
-        if r.get('location') ? 'auto' == 'auto'
-          r.set('layout_location', side, { silent: true })
-        else
-          r.set('layout_location', r.get('location'), { silent: true })
-        r.initialize_layout()
 
     # TODO (bev) titles should probably be a proper guide, then they could go
     # on any side, this will do to get the PR merged
@@ -552,8 +543,8 @@ class PlotView extends Renderer.View
     s.suggest_value(@frame._height, @canvas.get('height') - 1)
 
     for model_id, view of @renderer_views
-      if view.update_constraints?
-        view.update_constraints()
+      if view.model.panel?
+        update_panel_constraints(view)
 
     ctx = @canvas_view.ctx
     title = @mget('title')
@@ -704,13 +695,16 @@ class Plot extends LayoutDOM.Model
         @set('min_border_left', min_border)
       if not @get('min_border_right')?
         @set('min_border_right', min_border)
+    
+    @_width = new Variable("plot_width")
+    @_height = new Variable("plot_height")
 
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
-    @get('canvas').attach_document(@document)
-
     canvas = @get('canvas')
+    canvas.attach_document(@document)
+
     frame = new CartesianFrame.Model({
       x_range: @get('x_range'),
       extra_x_ranges: @get('extra_x_ranges'),
@@ -731,9 +725,13 @@ class Plot extends LayoutDOM.Model
     @left_panel.attach_document(@document)
     @right_panel = new LayoutCanvas.Model()
     @right_panel.attach_document(@document)
-    
-    @_width = new Variable("plot_width")
-    @_height = new Variable("plot_height")
+
+    # Add panels for any side renderers
+    # (Needs to be called in _doc_attached, so that panels can attach to the document.)
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        r.add_panel(side)
 
     logger.debug("Plot attached to document")
 
@@ -748,14 +746,15 @@ class Plot extends LayoutDOM.Model
     renderers = renderers.concat(new_renderers)
     @set('renderers', renderers)
 
-  add_layout: (renderer, place="center") ->
+  add_layout: (renderer, side="center") ->
     if renderer.props.plot?
       renderer.plot = this
 
     @add_renderers(renderer)
 
-    if place != 'center'
-      @set(place, @get(place).concat([renderer]))
+    if side != 'center'
+      renderer.add_panel(side)
+      @set(side, @get(side).concat([renderer]))
 
   add_glyph: (glyph, source, attrs={}) ->
     if not source?

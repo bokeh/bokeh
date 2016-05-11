@@ -1,3 +1,4 @@
+require "./annotations"
 require "./axes"
 require "./callbacks"
 require "./canvas"

@@ -169,22 +169,6 @@ class AxisView extends Renderer.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
 
-  update_constraints: () ->
-    if not @mget('visible')
-      # if not visible, avoid applying constraints until visible again
-      return
-    size = @_get_size()
-    if not @_last_size?
-      @_last_size = -1
-    if size == @_last_size
-      return
-    @_last_size = size
-    s = @model.document.solver()
-    if @_size_constraint?
-        s.remove_constraint(@_size_constraint)
-    @_size_constraint = GE(@model._size, -size)
-    s.add_constraint(@_size_constraint)
-
   _get_size: () ->
     return @_tick_extent() + @_tick_label_extent() + @_axis_label_extent()
 
@@ -244,7 +228,7 @@ class AxisView extends Renderer.View
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     dim = @mget('dimension')
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     if _.isString(orient)
       angle = _angle_lookup[side][orient]
@@ -273,7 +257,7 @@ class AxisView extends Renderer.View
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     orient = 'parallel'
     angle = _angle_lookup[side][orient]
     standoff = (@_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff'))
@@ -306,7 +290,7 @@ class AxisView extends Renderer.View
 
     dim = @mget('dimension')
     coords = @mget('tick_coords').major
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     labels = @mget('formatter').doFormat(coords[dim])
     @visuals.major_label_text.set_value(ctx)
@@ -341,7 +325,7 @@ class AxisView extends Renderer.View
   _axis_label_extent: () ->
     extent = 0
 
-    side = @mget('layout_location')
+    side = @mget('panel_side')
     axis_label = @mget('axis_label')
     orient = 'parallel'
     ctx = @plot_view.canvas_view.ctx
@@ -376,7 +360,6 @@ class Axis extends GuideRenderer.Model
 
   @define {
       visible:        [ p.Bool,     true      ]
-      location:       [ p.String,   'auto'    ] # TODO (bev) enum
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)
       ticker:         [ p.Instance, null      ]
       formatter:      [ p.Instance, null      ]
@@ -398,17 +381,16 @@ class Axis extends GuideRenderer.Model
     major_tick_line_color: 'black'
     minor_tick_line_color: 'black'
 
-    major_label_text_font_size: "10pt"
+    major_label_text_font_size: "8pt"
     major_label_text_align: "center"
     major_label_text_baseline: "alphabetic"
-
-    axis_label_text_font_size: "16pt"
-    axis_label_text_align: "center"
-    axis_label_text_baseline: "alphabetic"
+    
+    axis_label_text_font_size: "10pt"
+    axis_label_text_font_style: "italic"
   }
 
   @internal {
-    layout_location: [ p.Any ]
+    panel_side: [ p.Any ]
   }
 
   initialize: (attrs, options)->
@@ -422,44 +404,20 @@ class Axis extends GuideRenderer.Model
     @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
 
     @define_computed_property('tick_coords', @_tick_coords, false)
-    @add_dependencies('tick_coords', this, ['computed_bounds', 'layout_location'])
+    @add_dependencies('tick_coords', this, ['computed_bounds', 'panel_side'])
 
     @define_computed_property('ranges', @_ranges, true)
-    @define_computed_property('normals', (() -> @_normals), true)
-    @define_computed_property('dimension', (() -> @_dim), true)
+    @define_computed_property('normals', (() -> @panel._normals), true)
+    @define_computed_property('dimension', (() -> @panel._dim), true)
     @define_computed_property('offsets', @_offsets, true)
 
-  _doc_attached: () ->
-    @panel = new SidePanel.Model()
+  add_panel: (side) ->
+    @panel = new SidePanel.Model({side: side})
     @panel.attach_document(@document)
-
-  initialize_layout: () ->
-    side = @get('layout_location')
-    if side == "above"
-      @_dim = 0
-      @_normals = [0, -1]
-      @_size = @panel._height
-      @_anchor = @panel._bottom
-    else if side == "below"
-      @_dim = 0
-      @_normals = [0, 1]
-      @_size = @panel._height
-      @_anchor = @panel._top
-    else if side == "left"
-      @_dim = 1
-      @_normals = [-1, 0]
-      @_size = @panel._width
-      @_anchor = @panel._right
-    else if side == "right"
-      @_dim = 1
-      @_normals = [1, 0]
-      @_size = @panel._width
-      @_anchor = @panel._left
-    else
-      logger.error("unrecognized side: '#{ side }'")
+    @set('panel_side', side)
 
   _offsets: () ->
-    side = @get('layout_location')
+    side = @get('panel_side')
     [xoff, yoff] = [0, 0]
     frame = @get('plot').get('frame')
 
@@ -580,7 +538,7 @@ class Axis extends GuideRenderer.Model
   _get_loc: (cross_range) ->
     cstart = cross_range.get('start')
     cend = cross_range.get('end')
-    side = @get('layout_location')
+    side = @get('panel_side')
 
     if side == 'left' or side == 'below'
       loc = 'start'
