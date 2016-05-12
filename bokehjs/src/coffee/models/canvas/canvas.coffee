@@ -39,6 +39,9 @@ class CanvasView extends BokehView
 
     logger.debug("CanvasView initialized")
 
+  get_canvas_element: () ->
+    return @$('canvas.bk-canvas')[0]
+
   get_ctx: () ->
     canvas_el = @$('canvas.bk-canvas')
     ctx = canvas_el[0].getContext('2d')

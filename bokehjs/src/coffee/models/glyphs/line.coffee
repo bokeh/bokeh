@@ -1,13 +1,9 @@
 _ = require "underscore"
 
-bokehgl = require "./bokehgl"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
 class LineView extends Glyph.View
-
-  _init_gl: (gl) ->
-    @glglyph = new bokehgl.LineGLGlyph(gl, this)
 
   _index_data: () ->
     @_xy_index()
