@@ -15,6 +15,15 @@ cumsum = (array) ->
   return result
 
 num2hexcolor = (num) -> sprintf("#%06x", num)
+hexcolor2rgb = (color) ->
+  r = parseInt(color.substr(1, 2), 16)
+  g = parseInt(color.substr(3, 2), 16)
+  b = parseInt(color.substr(5, 2), 16)
+  return [r, g, b]
+
+is_dark = ([r, g, b]) ->
+  l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
+  return l >= 0.6
 
 pie = (data, opts) ->
   labels = _.clone(data.labels)
@@ -61,6 +70,7 @@ pie = (data, opts) ->
     palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
 
   colors = ( palette[i % palette.length] for i in [0...normalized_values.length] )
+  text_colors = colors.map((c) -> if is_dark(hexcolor2rgb(c)) then "white" else "black")
 
   to_cartesian = (r, alpha) -> [r*Math.cos(alpha), r*Math.sin(alpha)]
 
@@ -84,6 +94,7 @@ pie = (data, opts) ->
       end_angles: end_angles,
       text_angles: text_angles,
       colors: colors,
+      text_colors: text_colors,
       text_cx: text_cx,
       text_cy: text_cy,
     }
@@ -111,7 +122,8 @@ pie = (data, opts) ->
     x: {field: "text_cx"}, y: {field: "text_cy"},
     text: {field: opts.slice_labels ? "labels"},
     angle: {field: "text_angles"},
-    text_align: "center", text_baseline: "middle", text_font_size: "9pt",
+    text_align: "center", text_baseline: "middle",
+    text_color: {field: "text_colors"}, text_font_size: "9pt",
   })
   r2 = new models.GlyphRenderer({
     data_source: source,
