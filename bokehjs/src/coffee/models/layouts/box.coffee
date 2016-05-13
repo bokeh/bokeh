@@ -1,3 +1,5 @@
+_ = require "underscore"
+$ = require "jquery"
 build_views = require "../../common/build_views"
 
 BokehView = require "../../core/bokeh_view"
@@ -21,6 +23,17 @@ class BoxView extends BokehView
       @$el.append(child_view.$el)
 
     @bind_bokeh_events()
+
+    if @model._is_root?
+      resize = () -> $(window).trigger('resize')
+      # I haven't found a way to not trigger this multiple times.
+      # The problem is that the widgets need to be rendererd before we can
+      # figure out what size we want them.
+      # The example plotting/file/slider_callback.py made me increase it from
+      # two to three times.
+      _.delay(resize, 5)
+      _.delay(resize, 10)
+      _.delay(resize, 20)
 
   bind_bokeh_events: () ->
     @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
