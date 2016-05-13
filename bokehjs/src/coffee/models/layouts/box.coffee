@@ -29,6 +29,7 @@ class BoxView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    @$el.addClass(@mget('responsive'))
     @$el.css({
       position: 'absolute'
       left: @mget('dom_left')
