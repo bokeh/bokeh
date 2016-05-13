@@ -1,29 +1,11 @@
-BokehView = require "../../core/bokeh_view"
 {EQ, GE, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 Model = require "../../model"
 
 
-class LayoutDOMView extends BokehView
-
-  render: () ->
-    @$el.css({
-      position: 'absolute'
-      left: @mget('dom_left')
-      top: @mget('dom_top')
-      width: @model._width._value
-      height: @model._height._value
-      'margin-left': @model._whitespace_left._value
-      'margin-right': @model._whitespace_right._value
-      'margin-top': @model._whitespace_top._value
-      'margin-bottom': @model._whitespace_bottom._value
-    })
-
-
 class LayoutDOM extends Model
   type: "LayoutDOM"
-  default_view: LayoutDOMView
 
   constructor: (attrs, options) ->
     super(attrs, options)
@@ -124,4 +106,3 @@ class LayoutDOM extends Model
 
 module.exports =
   Model: LayoutDOM
-  View: LayoutDOMView

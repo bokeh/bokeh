@@ -1,12 +1,13 @@
 build_views = require "../../common/build_views"
 
+BokehView = require "../../core/bokeh_view"
 {Variable, WEAK_EQ, EQ, GE}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "./layout_dom"
 
 
-class BoxView extends LayoutDOM.View
+class BoxView extends BokehView
   className: "bk-grid"
 
   initialize: (options) ->
@@ -27,6 +28,18 @@ class BoxView extends LayoutDOM.View
     @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
+  render: () ->
+    @$el.css({
+      position: 'absolute'
+      left: @mget('dom_left')
+      top: @mget('dom_top')
+      width: @model._width._value
+      height: @model._height._value
+      'margin-left': @model._whitespace_left._value
+      'margin-right': @model._whitespace_right._value
+      'margin-top': @model._whitespace_top._value
+      'margin-bottom': @model._whitespace_bottom._value
+    })
 
 class Box extends LayoutDOM.Model
   default_view: BoxView

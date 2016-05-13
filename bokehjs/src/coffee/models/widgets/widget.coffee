@@ -1,7 +1,9 @@
-LayoutDom = require "../layouts/layout_dom"
+BokehView = require "../../core/bokeh_view"
+
+LayoutDOM = require "../layouts/layout_dom"
 
 
-class WidgetView extends LayoutDom.View
+class WidgetView extends BokehView
   className: "bk-widget"
 
   render: () ->
@@ -16,7 +18,7 @@ class WidgetView extends LayoutDom.View
     })
 
 
-class Widget extends LayoutDom.Model
+class Widget extends LayoutDOM.Model
   type: "Widget"
   default_view: WidgetView
 
