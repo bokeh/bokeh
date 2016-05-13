@@ -55,7 +55,7 @@ describe "Box.View", ->
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
-  it "render should set the left to 25px greater if model _is_root", ->
+  it "render should set the left to 25px greater, and top 10px greater if model _is_root", ->
     @test_box.set('dom_left', dom_left)
     @test_box.set('dom_top', dom_top)
     @test_box._width = {_value: width}
@@ -68,7 +68,7 @@ describe "Box.View", ->
     @test_box._is_root = true
     box_view = new @test_box.default_view({ model: @test_box })
     box_view.render()
-    expected_style = "position: absolute; left: #{dom_left + 25}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+    expected_style = "position: absolute; left: #{dom_left + 25}px; top: #{dom_top + 15}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
   it "update_constraints should call suggest value with the elements scrollHeight", ->
