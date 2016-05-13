@@ -43,7 +43,6 @@ class SliderView extends Widget.View
       min: min,
       max: max,
       step: step,
-      start: @slidestart,
       stop: @slidestop,
       slide: @slide
     }
@@ -51,11 +50,7 @@ class SliderView extends Widget.View
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
 
-  slidestart: (event, ui) =>
-    @$( "##{ @mget('id') }" ).css('color', '#ffceab')
-
   slidestop: (event, ui) =>
-    @$( "##{ @mget('id') }" ).css('color', '#f6931f')
     if @mget('callback_policy') == 'mouseup' or @mget('callback_policy') == 'throttle'
       @mget('callback')?.execute(@model)
 
