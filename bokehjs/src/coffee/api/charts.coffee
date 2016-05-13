@@ -25,7 +25,7 @@ is_dark = ([r, g, b]) ->
   l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
   return l >= 0.6
 
-pie = (data, opts) ->
+pie = (data, opts={}) ->
   labels = _.clone(data.labels)
   values = _.clone(data.values)
 
@@ -140,11 +140,146 @@ pie = (data, opts) ->
   plot.add_renderers(r1, r2)
 
   tooltip = "<div>@labels</div><div><b>@values</b> (@percentages)</div>"
-  hover = new models.HoverTool({plot: plot, renderers: [r1], tooltips: tooltip})
+  hover = new models.HoverTool({renderers: [r1], tooltips: tooltip})
+  plot.add_tools(hover)
+
+  return plot
+
+bar = (data, opts={}) ->
+  column_names = data[0]
+  rows = data.slice(1)
+
+  columns = ([] for name in column_names)
+  for row in rows
+    for v, i in row
+      columns[i].push(v)
+
+  labels = _.map(columns[0], (v) -> v.toString())
+  columns = columns.slice(1)
+
+  yaxis = new models.CategoricalAxis()
+  ydr = new models.FactorRange({factors: labels})
+
+  xaxis = new models.LinearAxis({
+    formatter: new models.NumeralTickFormatter({format: "0.0a"})
+  })
+  xdr = new models.DataRange1d()
+
+  if _.isArray(opts.palette)
+    palette = opts.palette
+  else
+    palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
+
+  stacked = opts.stacked ? false
+  orientation = opts.orientation ? "horizontal"
+
+  renderers = []
+
+  if stacked
+    left = []
+    right = []
+
+    for i in [0...columns.length]
+      bottom = []
+      top = []
+      for label, j in labels
+        if i == 0
+          left.push(0)
+          right.push(columns[i][j])
+        else
+          left[j] += columns[i-1][j]
+          right[j] += columns[i][j]
+        bottom.push("#{label}:0")
+        top.push("#{label}:1")
+
+      source = new Bokeh.ColumnDataSource({
+        data: {
+          left: _.clone(left)
+          right: _.clone(right)
+          top: top
+          bottom: bottom
+          labels: labels
+          values: columns[i]
+          columns: ( column_names[i+1] for v in columns[i] )
+        }
+      })
+
+      g1 = new models.Quad({
+        left: {field: "left"}, bottom: {field: "bottom"},
+        right: {field: "right"}, top: {field: "top"},
+        line_color: null, fill_color: palette[i % palette.length],
+      })
+      r1 = new models.GlyphRenderer({ data_source: source, glyph: g1 })
+      renderers.push(r1)
+  else
+    dy = 1/columns.length
+
+    for i in [0...columns.length]
+      left = []
+      right = []
+      bottom = []
+      top = []
+      for label, j in labels
+        left.push(0)
+        right.push(columns[i][j])
+        bottom.push("#{label}:#{i*dy}")
+        top.push("#{label}:#{(i+1)*dy}")
+
+      source = new Bokeh.ColumnDataSource({
+        data: {
+          left: left
+          right: right
+          top: top
+          bottom: bottom
+          labels: labels
+          values: columns[i]
+          columns: ( column_names[i+1] for v in columns[i] )
+        }
+      })
+
+      g1 = new models.Quad({
+        left: {field: "left"}, bottom: {field: "bottom"},
+        right: {field: "right"}, top: {field: "top"},
+        line_color: null, fill_color: palette[i % palette.length],
+      })
+      r1 = new models.GlyphRenderer({ data_source: source, glyph: g1 })
+      renderers.push(r1)
+
+  if orientation == "vertical"
+    [xdr, ydr] = [ydr, xdr]
+    [xaxis, yaxis] = [yaxis, xaxis]
+
+    for r in renderers
+      data = r.data_source.data
+      [data.left, data.bottom] = [data.bottom, data.left]
+      [data.right, data.top] = [data.top, data.right]
+
+  plot = new models.Plot({
+    x_range: xdr, y_range: ydr,
+    plot_width: 600, plot_height: 300,
+    min_border_top: 10, min_border_right: 10, min_border_bottom: 10, min_border_left: 10,
+  })
+  plot.add_renderers(renderers...)
+  plot.add_layout(yaxis, "left")
+  plot.add_layout(xaxis, "below")
+
+  tooltip = "<div>@labels</div><div>@columns:&nbsp<b>@values</b></div>"
+  if orientation == "horizontal"
+    anchor = "right_center"
+    attachment = "horizontal"
+  else
+    anchor = "top_center"
+    attachment = "vertical"
+  hover = new models.HoverTool({
+    renderers: renderers,
+    tooltips: tooltip,
+    point_policy: "snap_to_data", anchor: anchor, attachment: attachment,
+  })
   plot.add_tools(hover)
 
   return plot
 
 module.exports = {
   pie: pie
+  bar: bar
 }
