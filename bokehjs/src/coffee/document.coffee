@@ -91,6 +91,19 @@ class Document
   solver: () ->
     @_solver
 
+  resize: () ->
+    logger.debug("resize: Document")
+    # The 50 is a hack for when the scroll bar kicks in
+    # when the page is allowed to extend - also see the 
+    # note in box.coffee
+    #
+    # TODO: We can't use window!
+    width = window.innerWidth - 50
+    height = window.innerHeight
+    @_solver.suggest_value(@_doc_width, width)
+    @_solver.suggest_value(@_doc_height, height)
+    @_solver.update_variables(true)
+
   clear : () ->
     while @_roots.length > 0
       @remove_root(@_roots[0])
@@ -124,15 +137,19 @@ class Document
     @_trigger_on_change(new RootAddedEvent(@, model))
 
     # Set the size of the root layoutable to the document size
-    # TODO This isn't going to work if there's more than one root
-    if model.get_constrained_variables?
+    # TODO What happens if there's more than one layoutable root - does that
+    # even make sense?
+    if model.responsive?
       root_vars = model.get_constrained_variables()
+      # We add a width constraint for all cases (even fixed because that sets
+      # the first layout although the layout is not subsequently resizable -
+      # TODO Consider changing the fixed case in the future so that it checks to see if
+      # the root has a specified width and set it to that.)
       if root_vars.width?
         @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
-        @_solver.suggest_value(@_doc_width, window.innerWidth)
-      if root_vars.height?
-        @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
-        @_solver.suggest_value(@_doc_height, window.innerHeight)
+      if model.responsive == 'box'
+        if root_vars.height?
+          @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
 
     @_solver.update_variables()
 

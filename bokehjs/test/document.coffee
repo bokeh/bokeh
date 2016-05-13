@@ -115,6 +115,10 @@ class ModelWithConstrainedVariables extends Model
       height: @_height
     }
 
+  @define {
+    responsive: [ p.String, 'width']
+  }
+
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
 
 class ModelWithConstrainedWidthVariable extends Model
@@ -128,6 +132,10 @@ class ModelWithConstrainedWidthVariable extends Model
     return {
       width: @_width
     }
+
+  @define {
+    responsive: [ p.String, 'width']
+  }
 
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
 
@@ -143,6 +151,10 @@ class ModelWithConstrainedHeightVariable extends Model
     return {
       height: @_height
     }
+
+  @define {
+    responsive: [ p.String, 'width']
+  }
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
 
@@ -807,7 +819,7 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 1
 
-  it "adds one constraint on add_root if model has get_constrained_variables height", ->
+  it "adds no constraints on add_root if model has get_constrained_variables height and responsive is width", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
@@ -818,9 +830,37 @@ describe "Document", ->
     d.add_root(new ModelWithConstrainedHeightVariable())
 
     expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints
+
+  it "adds one constraints on add_root if model has get_constrained_variables height and responsive is box", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedHeightVariable({responsive: 'box'}))
+
+    expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 1
 
-  it "adds two constraints on add_root if model has get_constrained_variables width & height", ->
+  it "adds no new constraints on add_root if model has no get_constrained_variables", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new SomeModel())
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints 
+
+  it "adds one constraints on add_root if responsive mode is width", ->
+    # Even if models has both width & height constrained variables to offer
+
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
@@ -831,7 +871,21 @@ describe "Document", ->
     d.add_root(new ModelWithConstrainedVariables())
 
     expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 1
+
+  it "adds two constraints on add_root if model has get_constrained_variables width & height and responsive is 'box'", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedVariables({responsive: 'box'}))
+
+    expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 2
+
 
   it "add_root calls update_variables on solver", ->
     d = new Document()
@@ -839,3 +893,20 @@ describe "Document", ->
     spy = sinon.spy(s, 'update_variables')
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(spy.calledOnce).is.true
+
+  it "resize suggests value for width and height of document", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'suggest_value')
+    d.resize()
+    expect(spy.calledTwice).is.true
+    expect(spy.calledWithExactly(d._doc_height, window.innerHeight), 'suggest_value was not called with window.innerHeight').is.true
+    expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
+
+  it "resize calls update_variables on solver", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'update_variables')
+    d.resize()
+    expect(spy.calledOnce).is.true
+    expect(spy.calledWith(true)).is.true
