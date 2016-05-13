@@ -6,15 +6,16 @@ WidgetView = utils.require("models/widgets/widget").View
 
 
 describe "Widget.View render", ->
-  it "should set the appropriate positions and margins on the element", ->
+  it "should set the appropriate positions and paddings on the element", ->
     #@$el.css({
     #  position: 'absolute'
     #  left: @mget('dom_left')
     #  top: @mget('dom_top')
-    #  'margin-left': @model._whitespace_left._value
-    #  'margin-right': @model._whitespace_right._value
-    #  'margin-top': @model._whitespace_top._value
-    #  'margin-bottom': @model._whitespace_bottom._value
+    #  'width': @model._width._value - @model._whitespace_left._value - @model._whitespace_right._value
+    #  'padding-left': @model._whitespace_left._value
+    #  'padding-right': @model._whitespace_right._value
+    #  'padding-top': @model._whitespace_top._value
+    #  'padding-bottom': @model._whitespace_bottom._value
     #})
     widget = new Widget()
     dom_left = 12
@@ -39,5 +40,5 @@ describe "Widget.View render", ->
     widget_view.render()
     
     # Note widget view does not set the width and height.
-    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width - wl - wr}px; padding: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(widget_view.$el.attr('style')).to.be.equal expected_style
