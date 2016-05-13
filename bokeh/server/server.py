@@ -24,6 +24,15 @@ def _create_hosts_whitelist(host_list, port):
 
     hosts = []
     for host in host_list:
+        if '*' in host:
+            log.warning('Host wildcard %r can expose the application to HTTP '
+                        'host header attacks. Host wildcard should only be '
+                        'used for testing purpose.', host)
+        if host == '*':
+            # do not append the :80 port suffix in that case: any port is
+            # accepted
+            hosts.append(host)
+            continue
         parts = host.split(':')
         if len(parts) == 1:
             if parts[0] == "":
@@ -53,7 +62,7 @@ class Server(object):
 
     def __init__(self, applications, **kwargs):
         log.info("Starting Bokeh server version %s" % __version__)
-        
+
         if isinstance(applications, Application):
             self._applications = { '/' : applications }
         else:
