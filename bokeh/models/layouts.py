@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 from ..core import validation
 from ..core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ..core.properties import abstract, Bool, Int, Instance, List
+from ..core.properties import abstract, Bool, Int, Instance, List, Responsive
 from ..embed import notebook_div
 from ..model import Model
 
@@ -31,6 +31,22 @@ class LayoutDOM(Model):
     disabled = Bool(False, help="""
     Whether the widget will be disabled when rendered. If ``True``,
     the widget will be greyed-out, and not respond to UI events.
+    """)
+
+    responsive = Responsive('width', help="""
+    The type of responsiveness for the item being displayed. Possible values are `box`,
+    `width` (or `True`), `fixed` (or `False`). Default is `width`.
+
+    `box` mode constrains both the height and width. The items being laid out
+    attempt to fit entirely within the window. Items will shrink and grow with both
+    the height and width of the browser window changing. This is sometimes called outside-in.
+    This is a typical behavior for desktop applications.
+
+    `width` mode constrains only the width. The items being laid out will resize to
+    fit the width and will take up whatever vertical space they may need. This is a
+    typical behavior for modern websites.
+
+    `fixed` mode prevents responsiveness. The items will have a fixed size.
     """)
 
     # TODO: (mp) Not yet, because it breaks plotting/notebook examples.
