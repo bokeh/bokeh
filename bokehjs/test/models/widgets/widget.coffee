@@ -90,3 +90,9 @@ describe "Widget.Model", ->
     widget = new Widget({responsive: 'fixed'})
     ev = widget.get_edit_variables()
     expect(ev.length).to.be.equal 0
+
+  it "should should return 8 constraints", ->
+    w = new Widget()
+    # This is two more than LayoutDOM - we moved some constraints out of
+    # LayoutDOM specifically onto Widget.
+    expect(w.get_constraints().length).to.be.equal 8
