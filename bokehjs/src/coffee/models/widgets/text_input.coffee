@@ -42,6 +42,10 @@ class TextInput extends InputWidget.Model
       value: [ p.String, "" ]
     }
 
+  @override {
+      height: 55
+    }
+
 module.exports =
   Model: TextInput
   View: TextInputView

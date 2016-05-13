@@ -29,7 +29,10 @@ class WidgetView extends BokehView
 
   update_constraints: () ->
     s = @model.document.solver()
-    s.suggest_value(@model._height, @el.scrollHeight)
+    if @mget('height')
+      s.suggest_value(@model._height, @mget('height'))
+    else
+      s.suggest_value(@model._height, @el.scrollHeight)
 
 
 class Widget extends LayoutDOM.Model

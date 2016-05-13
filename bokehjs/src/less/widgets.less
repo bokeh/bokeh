@@ -26,24 +26,31 @@
   .bk-bs-form-control;
 }
 
-.bk-slider-parent input {
+.bk-widget select,
+.bk-widget button {
+  min-width: 50%;
+}
+
+.bk-widget input[type="text"] {
+  min-width: 90%;
+}
+
+.bk-slider-parent input[type="text"] {
+  display: inline-block;
   border: 0; 
   font-weight: bold;
   margin-left: 1px;
   padding: 0;
+  min-width: 20%;
 }
 
-.bk-slider-horizontal {
-  /* make sure slider handle doesn't stick out the end with slightly shortened width and left margin*/
-  width: 97%;
-  height: 16px;
+.bk-widget .bk-slider-horizontal {
+  width: 93%;
   margin-left: 8px;
+  height: 16px;
 }
 
 .bk-slider-vertical {
   height: 100%;
   width: 16px;
-  /* make sure slider handle doesn't stick out the end */
-  margin-top: 8px;
-  margin-bottom: 8px;
 }

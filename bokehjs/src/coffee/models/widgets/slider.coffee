@@ -75,6 +75,10 @@ class Slider extends InputWidget.Model
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
 
+  @override {
+      height: 45
+    }
+
 module.exports =
   Model: Slider
   View: SliderView

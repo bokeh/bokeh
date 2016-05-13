@@ -25,6 +25,8 @@ class ButtonView extends Widget.View
       for own key, val of @views
         val.$el.detach()
 
+    # TODO Make this a template so it sits below the widget box like other
+    # widgets.
     @$el.empty()
     @$el.attr("type","button")
     @$el.addClass("bk-bs-btn")
@@ -49,6 +51,10 @@ class Button extends AbstractButton.Model
 
   @define {
       clicks: [ p.Number, 0        ]
+    }
+
+  @override {
+      height: 45
     }
 
 module.exports =

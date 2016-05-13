@@ -10,7 +10,6 @@ template = require "./selecttemplate"
 
 
 class SelectView extends Widget.View
-  tagName: "div"
   template: template
   events:
     "change select": "change_input"
@@ -33,6 +32,7 @@ class SelectView extends Widget.View
     @$el.html(html)
     return @
 
+
 class Select extends InputWidget.Model
   type: "Select"
   default_view: SelectView
@@ -40,6 +40,10 @@ class Select extends InputWidget.Model
   @define {
       value:   [ p.String, '' ]
       options: [ p.Any,    [] ] # TODO (bev) is this used?
+    }
+
+  @override {
+      height: 55
     }
 
 module.exports =
