@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 
 {Models} = require "./base"
 {EQ, Solver, Variable} = require "./core/layout/solver"
@@ -87,22 +88,25 @@ class Document
     @_doc_height = new Variable()
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
+    @_responsive = true
+    $(window).on("resize", $.proxy(@resize, @))
     
   solver: () ->
     @_solver
 
   resize: () ->
-    logger.debug("resize: Document")
-    # The 50 is a hack for when the scroll bar kicks in
-    # when the page is allowed to extend - also see the 
-    # note in box.coffee
-    #
-    # TODO: We can't use window!
-    width = window.innerWidth - 50
-    height = window.innerHeight
-    @_solver.suggest_value(@_doc_width, width)
-    @_solver.suggest_value(@_doc_height, height)
-    @_solver.update_variables(true)
+    if @_responsive
+      logger.debug("resize: Document")
+      # The 50 is a hack for when the scroll bar kicks in
+      # when the page is allowed to extend - also see the 
+      # note in box.coffee
+      #
+      # TODO: We can't use window in the future (bk-root?)
+      width = window.innerWidth - 50
+      height = window.innerHeight
+      @_solver.suggest_value(@_doc_width, width)
+      @_solver.suggest_value(@_doc_height, height)
+      @_solver.update_variables(true)
 
   clear : () ->
     while @_roots.length > 0
@@ -126,6 +130,8 @@ class Document
     @_roots.push(model)
     model.attach_document(@)
 
+    model._is_root = true
+
     editables = model.get_edit_variables()
     constraints = model.get_constraints()
 
@@ -140,6 +146,9 @@ class Document
     # TODO What happens if there's more than one layoutable root - does that
     # even make sense?
     if model.responsive?
+      if model.responsive == 'fixed'
+        @_responsive = false
+
       root_vars = model.get_constrained_variables()
       # We add a width constraint for all cases (even fixed because that sets
       # the first layout although the layout is not subsequently resizable -
@@ -151,6 +160,7 @@ class Document
         if root_vars.height?
           @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
 
+      
     @_solver.update_variables()
 
   remove_root : (model) ->
@@ -160,6 +170,11 @@ class Document
     else
       @_roots.splice(i, 1)
 
+    if model.responsive?
+      if model.responsive == 'fixed'
+        @_responsive = true
+
+    model._is_root = false
     model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
 
