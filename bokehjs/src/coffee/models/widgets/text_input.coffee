@@ -26,6 +26,7 @@ class TextInputView extends Widget.View
   render: () ->
     super()
     @$el.html(@template(@model.attributes))
+    @$el.find('input').height(@mget('height'))
     return @
 
   change_input: () ->
