@@ -64,6 +64,11 @@ class GlyphView extends Renderer.View
       [bb[1], bb[3]]
     ])
 
+  get_anchor_point: (anchor, i, [sx, sy]) ->
+    switch anchor
+      when "center" then {x: @scx(i, sx, sy), y: @scy(i, sx, sy)}
+      else               null
+
   # glyphs that need more sophisticated "snap to data" behaviour (like
   # snapping to a patch centroid, e.g, should override these
   scx: (i) -> return @sx[i]

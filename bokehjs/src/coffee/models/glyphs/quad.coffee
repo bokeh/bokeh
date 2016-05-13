@@ -41,6 +41,23 @@ class QuadView extends Glyph.View
     result['1d'].indices = hits
     return result
 
+  get_anchor_point: (anchor, i, spt) ->
+    left = Math.min(@sleft[i], @sright[i])
+    right = Math.max(@sright[i], @sleft[i])
+    top = Math.min(@stop[i], @sbottom[i])     # screen coordinates !!!
+    bottom = Math.max(@sbottom[i], @stop[i])  #
+
+    switch anchor
+      when "top_left"      then {x: left,             y: top              }
+      when "top_center"    then {x: (left + right)/2, y: top              }
+      when "top_right"     then {x: right,            y: top              }
+      when "right_center"  then {x: right,            y: (top + bottom)/2 }
+      when "bottom_right"  then {x: right,            y: bottom           }
+      when "bottom_center" then {x: (left + right)/2, y: bottom           }
+      when "bottom_left"   then {x: left,             y: bottom           }
+      when "left_center"   then {x: left,             y: (top + bottom)/2 }
+      when "center"        then {x: (left + right)/2, y: (top + bottom)/2 }
+
   scx: (i) ->
     return (@sleft[i] + @sright[i])/2
 

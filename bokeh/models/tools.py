@@ -564,8 +564,8 @@ class HoverTool(InspectTool):
     """)
 
     point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
-    Whether the tooltip position should snap to the "center" position of
-    the associated glyph, or always follow the current mouse cursor
+    Whether the tooltip position should snap to the "center" (or other anchor)
+    position of the associated glyph, or always follow the current mouse cursor
     position.
     """)
 
@@ -574,6 +574,11 @@ class HoverTool(InspectTool):
     the "previous" or "next" points on the line, the nearest point to the
     current mouse position, or interpolate along the line to the current
     mouse position.
+    """)
+
+    anchor = Enum(Anchor, default="center", help="""
+    If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
+    point of a tooltip. The default is to attach to the center of a glyph.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."

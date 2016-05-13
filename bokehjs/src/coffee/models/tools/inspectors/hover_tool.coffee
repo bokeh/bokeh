@@ -149,8 +149,15 @@ class HoverToolView extends InspectTool.View
         # Pass in our screen position so we can determine
         # which patch we're over if there are discontinuous
         # patches.
-        rx = canvas.sx_to_vx(renderer.glyph.scx(i, sx, sy))
-        ry = canvas.sy_to_vy(renderer.glyph.scy(i, sx, sy))
+        pt = renderer.glyph.get_anchor_point(@model.anchor, i, [sx, sy])
+
+        if pt?
+          {x, y} = pt
+        else
+          {x, y} = renderer.glyph.get_anchor_point("center", i, [sx, sy])
+
+        rx = canvas.sx_to_vx(x)
+        ry = canvas.sy_to_vy(y)
       else
         [rx, ry] = [vx, vy]
 
@@ -250,6 +257,7 @@ class HoverTool extends InspectTool.Model
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
       line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
+      anchor:       [ p.String, 'center'       ] # TODO: enum
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
