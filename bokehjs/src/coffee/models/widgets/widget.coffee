@@ -1,3 +1,4 @@
+{EQ, GE, Variable}  = require "../../core/layout/solver"
 BokehView = require "../../core/bokeh_view"
 {Strength}  = require "../../core/layout/solver"
 
@@ -38,6 +39,12 @@ class WidgetView extends BokehView
 class Widget extends LayoutDOM.Model
   type: "Widget"
   default_view: WidgetView
+
+  get_constraints: () ->
+    constraints = super()
+    constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
+    constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
+    return constraints
 
   get_edit_variables: () ->
     editables = []

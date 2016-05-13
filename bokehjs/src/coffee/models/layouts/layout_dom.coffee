@@ -43,8 +43,6 @@ class LayoutDOM extends Model
     # Add constraints for calculated variables
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
-    constraints.push(EQ([-1, @_right], @_left, @_right_minus_left))
-    constraints.push(EQ([-1, @_bottom], @_top, @_bottom_minus_top))
     
     if @responsive == 'box'
       # Whitespace has to be positive
