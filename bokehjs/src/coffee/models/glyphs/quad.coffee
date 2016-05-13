@@ -2,16 +2,42 @@ _ = require "underscore"
 rbush = require "rbush"
 
 Glyph = require "./glyph"
+CategoricalMapper = require "../mappers/categorical_mapper"
 hittest = require "../../common/hittest"
 
 class QuadView extends Glyph.View
 
   _index_data: () ->
+    map_to_synthetic = (mapper, array) ->
+      if mapper instanceof CategoricalMapper.Model
+        mapper.v_map_to_target(array, true)
+      else
+        array
+
+    left = map_to_synthetic(@renderer.xmapper, @_left)
+    right = map_to_synthetic(@renderer.xmapper, @_right)
+
+    top = map_to_synthetic(@renderer.ymapper, @_top)
+    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+
     index = rbush()
     pts = []
-    for i in [0...@_left.length]
-      if not isNaN(@_left[i] + @_right[i] + @_top[i] + @_bottom[i])
-        pts.push([@_left[i], @_bottom[i], @_right[i], @_top[i], {'i': i}])
+
+    for i in [0...left.length]
+      l = left[i]
+      if isNaN(l) or not isFinite(l)
+        continue
+      r = right[i]
+      if isNaN(r) or not isFinite(r)
+        continue
+      t = top[i]
+      if isNaN(t) or not isFinite(t)
+        continue
+      b = bottom[i]
+      if isNaN(b) or not isFinite(b)
+        continue
+      pts.push([l, b, r, t, {'i': i}])
+
     index.load(pts)
     return index
 
