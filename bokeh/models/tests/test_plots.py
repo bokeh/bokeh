@@ -96,7 +96,7 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
 
 def test_responsive_property_is_false_by_default():
     plot = figure()
-    assert plot.responsive is False
+    assert plot.responsive is 'fixed'
 
 
 class BaseTwinAxis(object):
