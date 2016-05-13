@@ -116,7 +116,7 @@ class ModelWithConstrainedVariables extends Model
     }
 
   @define {
-    responsive: [ p.String, 'width']
+    responsive: [ p.Responsive, 'width']
   }
 
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
@@ -134,7 +134,7 @@ class ModelWithConstrainedWidthVariable extends Model
     }
 
   @define {
-    responsive: [ p.String, 'width']
+    responsive: [ p.Responsive, 'width']
   }
 
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
@@ -153,7 +153,7 @@ class ModelWithConstrainedHeightVariable extends Model
     }
 
   @define {
-    responsive: [ p.String, 'width']
+    responsive: [ p.Responsive, 'width']
   }
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
