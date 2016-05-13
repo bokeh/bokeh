@@ -17,10 +17,10 @@ class WidgetView extends BokehView
       left: @mget('dom_left')
       top: @mget('dom_top')
       'width': @model._width._value - @model._whitespace_left._value - @model._whitespace_right._value
-      'margin-left': @model._whitespace_left._value
-      'margin-right': @model._whitespace_right._value
-      'margin-top': @model._whitespace_top._value
-      'margin-bottom': @model._whitespace_bottom._value
+      'padding-left': @model._whitespace_left._value
+      'padding-right': @model._whitespace_right._value
+      'padding-top': @model._whitespace_top._value
+      'padding-bottom': @model._whitespace_bottom._value
     })
 
 
