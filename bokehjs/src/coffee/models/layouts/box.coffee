@@ -54,7 +54,7 @@ class BoxView extends BokehView
     # kicks in.
     if @model._is_root?
       left = left + 25
-    top = top + 15
+      top = top + 15
 
     @$el.css({
       position: 'absolute'
