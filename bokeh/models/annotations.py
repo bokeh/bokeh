@@ -5,7 +5,7 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import (
-    Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side,
+    Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
@@ -439,9 +439,10 @@ class Tooltip(Annotation):
     """
     level = Override(default="overlay")
 
-    side = Either(Auto, Enum(Side), default="auto", help="""
+    attachment = Enum("horizontal", "vertical", "left", "right", "above", "below", help="""
     Whether the tooltip should display to the left or right off the cursor
-    position, or if it should be automatically placed.
+    position or above or below it, or if it should be automatically placed
+    in the horizontal or vertical dimension.
     """)
 
     inner_only = Bool(default=True, help="""

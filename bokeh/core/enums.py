@@ -92,9 +92,6 @@ TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "
 #: Specify a stroke direction for circles, wedges, etc.
 Direction = enumeration("clock", "anticlock")
 
-#: Specify a left/right side
-Side = enumeration("left", "right")
-
 #: Specify units for mapping values
 Units = enumeration("screen", "data")
 

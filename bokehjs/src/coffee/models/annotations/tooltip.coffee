@@ -40,28 +40,47 @@ class TooltipView extends Renderer.View
     sx = @plot_view.mget('canvas').vx_to_sx(vx)
     sy = @plot_view.mget('canvas').vy_to_sy(vy)
 
-    side = @mget('side')
-    if side == 'auto'
-      ow = @plot_view.frame.get('width')
-      if vx - @plot_view.frame.get('left') < ow/2
-        side = 'right'
+    attachment = @model.attachment
+
+    switch attachment
+      when "horizontal"
+        width = @plot_view.frame.get('width')
+        left = @plot_view.frame.get('left')
+        if vx - left < width/2
+          side = 'right'
+        else
+          side = 'left'
+      when "vertical"
+        height = @plot_view.frame.get('height')
+        bottom = @plot_view.frame.get('bottom')
+        if vy - bottom < height/2
+          side = 'below'
+        else
+          side = 'above'
       else
-        side = 'left'
+        side = attachment
 
-    @$el.removeClass('bk-right')
-    @$el.removeClass('bk-left')
+    @$el.removeClass('bk-right bk-left bk-above bk-below')
 
-    arrow_width = 10
+    arrow_size = 10 # XXX: keep in sync with less
 
     switch side
       when "right"
         @$el.addClass("bk-left")
-        left = sx + (@$el.outerWidth() - @$el.innerWidth()) + arrow_width
+        left = sx + (@$el.outerWidth() - @$el.innerWidth()) + arrow_size
+        top = sy - @$el.outerHeight()/2
       when "left"
         @$el.addClass("bk-right")
-        left = sx - @$el.outerWidth() - arrow_width
-
-    top = sy - @$el.outerHeight()/2
+        left = sx - @$el.outerWidth() - arrow_size
+        top = sy - @$el.outerHeight()/2
+      when "above"
+        @$el.addClass("bk-above")
+        top = sy + (@$el.outerHeight() - @$el.innerHeight()) + arrow_size
+        left = Math.round(sx - @$el.outerWidth()/2)
+      when "below"
+        @$el.addClass("bk-below")
+        top = sy - @$el.outerHeight() - arrow_size
+        left = Math.round(sx - @$el.outerWidth()/2)
 
     # TODO (bev) this is not currently bulletproof. If there are
     # two hits, not colocated and one is off the screen, that can
@@ -76,8 +95,8 @@ class Tooltip extends Annotation.Model
   type: 'Tooltip'
 
   @define {
-      side:       [ p.String, 'auto' ] # TODO (bev) enum?
-      inner_only: [ p.Bool,   true   ]
+    attachment: [ p.String, 'horizontal' ] # TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
+    inner_only: [ p.Bool,   true         ]
   }
 
   @override {

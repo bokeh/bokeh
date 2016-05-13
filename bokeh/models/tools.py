@@ -27,7 +27,7 @@ from ..core.properties import abstract, Float, Color
 from ..core.properties import (
     Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 )
-from ..core.enums import Dimension
+from ..core.enums import Dimension, Anchor
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .renderers import Renderer
@@ -579,6 +579,10 @@ class HoverTool(InspectTool):
     anchor = Enum(Anchor, default="center", help="""
     If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
     point of a tooltip. The default is to attach to the center of a glyph.
+    """)
+
+    attachment = Enum("horizontal", "vertical", help="""
+    Whether tooltip's arrow should appear in the horizontal or vertical dimension.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
