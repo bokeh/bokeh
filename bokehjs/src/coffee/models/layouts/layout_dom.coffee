@@ -46,17 +46,19 @@ class LayoutDOM extends Model
     constraints.push(EQ([-1, @_right], @_left, @_right_minus_left))
     constraints.push(EQ([-1, @_bottom], @_top, @_bottom_minus_top))
     
-    # Whitespace has to be positive
-    constraints.push(GE(@_whitespace_left))
-    constraints.push(GE(@_whitespace_right))
-    constraints.push(GE(@_whitespace_top))
-    constraints.push(GE(@_whitespace_bottom))
+    if @responsive == 'box'
+      # Whitespace has to be positive
+      constraints.push(GE(@_whitespace_left))
+      constraints.push(GE(@_whitespace_right))
+      constraints.push(GE(@_whitespace_top))
+      constraints.push(GE(@_whitespace_bottom))
 
-    # plot sides align with the sum of the stuff outside the plot
-    constraints.push(EQ(@_whitespace_left, [-1, @_left]))
-    constraints.push(EQ(@_right, @_whitespace_right, [-1, @_width]))
-    constraints.push(EQ(@_whitespace_top, [-1, @_top]))
-    constraints.push(EQ(@_bottom, @_whitespace_bottom, [-1, @_height]))
+      # plot sides align with the sum of the stuff outside the plot
+      constraints.push(EQ(@_whitespace_left, [-1, @_left]))
+      constraints.push(EQ(@_right, @_whitespace_right, [-1, @_width]))
+      constraints.push(EQ(@_whitespace_top, [-1, @_top]))
+      constraints.push(EQ(@_bottom, @_whitespace_bottom, [-1, @_height]))
+
     return constraints
 
   get_constrained_variables: () ->

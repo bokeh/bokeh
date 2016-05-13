@@ -1,3 +1,4 @@
+require "./box"
 require "./column"
 require "./layout_dom"
 require "./grid_plot"

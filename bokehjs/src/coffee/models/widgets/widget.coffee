@@ -1,4 +1,5 @@
 BokehView = require "../../core/bokeh_view"
+{Strength}  = require "../../core/layout/solver"
 
 LayoutDOM = require "../layouts/layout_dom"
 
@@ -12,6 +13,9 @@ class WidgetView extends BokehView
   className: "bk-widget"
 
   render: () ->
+    if @mget('responsive') == 'width'
+      @update_constraints()
+
     @$el.css({
       position: 'absolute'
       left: @mget('dom_left')
@@ -23,11 +27,20 @@ class WidgetView extends BokehView
       'padding-bottom': @model._whitespace_bottom._value
     })
 
+  update_constraints: () ->
+    s = @model.document.solver()
+    s.suggest_value(@model._height, @el.scrollHeight)
+
 
 class Widget extends LayoutDOM.Model
   type: "Widget"
   default_view: WidgetView
 
+  get_edit_variables: () ->
+    editables = []
+    if @get('responsive') == 'width'
+      editables.push({edit_variable: @_height, strength: Strength.strong})
+    return editables
 
 module.exports =
   Model: Widget
