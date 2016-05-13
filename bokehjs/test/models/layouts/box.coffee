@@ -51,7 +51,7 @@ describe "Box.View", ->
     @test_box._whitespace_bottom = {_value: wb}
 
     box_view = new @test_box.default_view({ model: @test_box })
-    # The act of instantiating seems to call render so don't need to call again
+    box_view.render()
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
@@ -67,18 +67,17 @@ describe "Box.View", ->
 
     @test_box._is_root = true
     box_view = new @test_box.default_view({ model: @test_box })
-    # The act of instantiating seems to call render so don't need to call again
+    box_view.render()
     expected_style = "position: absolute; left: #{dom_left + 25}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
   it "update_constraints should call suggest value with the elements scrollHeight", ->
     box_view = new @test_box.default_view({ model: @test_box })
-    # The act of instantiating seems to call render so call count is already 1
-    expect(@solver_suggest.callCount).is.equal 1
+    expect(@solver_suggest.callCount).is.equal 0
     box_view.update_constraints()
-    expect(@solver_suggest.callCount).is.equal 2
+    expect(@solver_suggest.callCount).is.equal 1
     # It is 0 becuase there are not children, so setting to the default
-    expect(@solver_suggest.args[1]).to.be.deep.equal [@test_box._height, 0]
+    expect(@solver_suggest.args[0]).to.be.deep.equal [@test_box._height, 0]
 
 
 describe "Box.Model get_edit_variables", ->
