@@ -164,7 +164,7 @@ class PlotView extends Renderer.View
 
     @update_dataranges()
 
-    if @mget('responsive')
+    if @mget('responsive') == 'width'
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
       # Just need to wait a small delay so container has a width
@@ -821,7 +821,6 @@ class Plot extends LayoutDOM.Model
 
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
-      responsive:        [ p.Bool,     false                  ]
 
       min_border:        [ p.Number,   MIN_BORDER             ]
       min_border_top:    [ p.Number,   null                   ]
@@ -837,6 +836,7 @@ class Plot extends LayoutDOM.Model
     outline_line_color: '#aaaaaa'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
+    responsive: 'fixed'
   }
 
   @internal {
