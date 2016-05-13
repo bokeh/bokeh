@@ -6,38 +6,38 @@ p = require "../../core/properties"
 AbstractButton = require "./abstract_button"
 Widget = require "./widget"
 
+template = require "./button_template"
+
 class ButtonView extends Widget.View
-  tagName: "button"
   events:
     "click": "change_input"
+  template: template
 
   initialize: (options) ->
     super(options)
-    @views = {}
-    @render()
+    @icon_views = {}
     @listenTo(@model, 'change', @render)
+    @render()
 
   render: () ->
     super()
+
     icon = @mget('icon')
     if icon?
-      build_views(@views, [icon])
-      for own key, val of @views
+      build_views(@icon_views, [icon])
+      for own key, val of @icon_views
         val.$el.detach()
 
-    # TODO Make this a template so it sits below the widget box like other
-    # widgets.
     @$el.empty()
-    @$el.attr("type","button")
-    @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("button_type"))
-    if @mget("disabled") then @$el.attr("disabled", "disabled")
+    html = @template(@model.attributes)
+    @$el.append(html)
 
     label = @mget("label")
     if icon?
-      @$el.append(@views[icon.id].$el)
+      @$el.find('button').append(@icon_views[icon.id].$el)
       label = " #{label}"
-    @$el.append(document.createTextNode(label))
+
+    @$el.find('button').append(label)
 
     return @
 
