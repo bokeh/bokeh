@@ -150,12 +150,10 @@ class Document
         @_responsive = false
 
       root_vars = model.get_constrained_variables()
-      # We add a width constraint for all cases (even fixed because that sets
-      # the first layout although the layout is not subsequently resizable -
-      # TODO Consider changing the fixed case in the future so that it checks to see if
-      # the root has a specified width and set it to that.)
-      if root_vars.width?
-        @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
+      # We add a width constraint for width and box
+      if model.responsive != 'fixed'
+        if root_vars.width?
+          @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
       if model.responsive == 'box'
         if root_vars.height?
           @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
