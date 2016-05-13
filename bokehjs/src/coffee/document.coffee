@@ -88,22 +88,25 @@ class Document
     @_doc_height = new Variable()
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
-    @_responsive = true
+    @_responsive = 'width'
     $(window).on("resize", $.proxy(@resize, @))
     
   solver: () ->
     @_solver
 
   resize: () ->
-    if @_responsive
+    if @_responsive != 'fixed'
       logger.debug("resize: Document")
-      # The 50 is a hack for when the scroll bar kicks in
-      # when the page is allowed to extend - also see the 
-      # note in box.coffee
-      #
+
       # TODO: We can't use window in the future (bk-root?)
-      width = window.innerWidth - 50
       height = window.innerHeight
+      if @_responsive == 'width'
+        # The 50 is a hack for when the scroll bar kicks in
+        # when the page is allowed to extend - also see the 
+        # note in box.coffee
+        width = window.innerWidth - 50
+      if @_responsive == 'box'
+        width = window.innerWidth
       @_solver.suggest_value(@_doc_width, width)
       @_solver.suggest_value(@_doc_height, height)
       @_solver.update_variables(true)
@@ -146,8 +149,7 @@ class Document
     # TODO What happens if there's more than one layoutable root - does that
     # even make sense?
     if model.responsive?
-      if model.responsive == 'fixed'
-        @_responsive = false
+      @_responsive = model.responsive
 
       root_vars = model.get_constrained_variables()
       # We add a width constraint for width and box
@@ -169,8 +171,8 @@ class Document
       @_roots.splice(i, 1)
 
     if model.responsive?
-      if model.responsive == 'fixed'
-        @_responsive = true
+      # reset to default
+      @_responsive = 'width'
 
     model._is_root = false
     model.detach_document()
