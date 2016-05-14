@@ -2,6 +2,7 @@ _ = require "underscore"
 
 ColumnDataSource = require "./column_data_source"
 {logger} = require "../../core/logging"
+{json_parse} = require "../../util/jsondecode"
 p = require "../../core/properties"
 
 class GeoJSONDataSource extends ColumnDataSource.Model
@@ -104,7 +105,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
     return count
 
   geojson_to_column_data: () ->
-    geojson = JSON.parse(@get('geojson'))
+    geojson = json_parse(@get('geojson'))
 
     if geojson.type not in ['GeometryCollection', 'FeatureCollection']
       throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level')

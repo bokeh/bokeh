@@ -4,6 +4,7 @@ _ = require "underscore"
 HasProps = require "./core/has_props"
 {logger} = require "./core/logging"
 {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
+{json_parse} = require "./util/jsondecode"
 
 DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 DEFAULT_SESSION_ID = "default"
@@ -14,9 +15,9 @@ class Message
 
   @assemble : (header_json, metadata_json, content_json) ->
     try
-      header = JSON.parse(header_json)
-      metadata = JSON.parse(metadata_json)
-      content = JSON.parse(content_json)
+      header = json_parse(header_json)
+      metadata = json_parse(metadata_json)
+      content = json_parse(content_json)
       new Message(header, metadata, content)
     catch e
       logger.error("Failure parsing json #{e} #{header_json} #{metadata_json} #{content_json}", e)

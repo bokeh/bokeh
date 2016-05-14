@@ -7,11 +7,12 @@ base = require "./base"
 {pull_session} = require "./client"
 {logger, set_log_level} = require "./core/logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
+{json_parse, revive_docs_json} = require "./util/jsondecode"
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
   # @ is bound to the doc
-  data = JSON.parse(msg.content.data)
+  data = json_parse(msg.content.data)
   if 'events' of data and 'references' of data
     @apply_json_patch(data)
   else if 'doc' of data
@@ -149,6 +150,7 @@ fill_render_item_from_script_tag = (script, item) ->
 
 embed_items = (docs_json, render_items, websocket_url=null) ->
   docs = {}
+  docs_json = revive_docs_json(docs_json)
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
 

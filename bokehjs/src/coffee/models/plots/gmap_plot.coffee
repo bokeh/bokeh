@@ -1,6 +1,7 @@
 _ = require "underscore"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
+{json_parse} = require "../../util/jsondecode"
 
 Plot = require "./plot"
 p = require "../../core/properties"
@@ -105,7 +106,7 @@ class GMapPlotView extends Plot.View
         mapTypeId: map_types[mo.map_type]
 
       if mo.styles?
-        map_options.styles = JSON.parse(mo.styles)
+        map_options.styles = json_parse(mo.styles)
 
       # Create the map with above options in div
       @map = new maps.Map(@canvas_view.map_div[0], map_options)

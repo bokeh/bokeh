@@ -4,6 +4,7 @@ Bokeh objects.
 """
 from __future__ import absolute_import
 
+from base64 import encodebytes
 from six import iterkeys
 
 from .dependencies import import_optional
@@ -76,14 +77,17 @@ def transform_numerical_array(obj):
     """
     if isinstance(obj, np.ma.MaskedArray):
         obj = obj.filled(np.nan)  # Set masked values to nan
-    if not np.isnan(obj).any() and not np.isinf(obj).any():
-        return obj.tolist()
-    else:
-        transformed = obj.astype('object')
-        transformed[np.isnan(obj)] = 'NaN'
-        transformed[np.isposinf(obj)] = 'Infinity'
-        transformed[np.isneginf(obj)] = '-Infinity'
-        return transformed.tolist()
+    bb = obj.tostring()  # alias for tobytes() but works pre numpy 1.9
+    text = encodebytes(bb).decode()
+    return dict(reviver_type='ArrayBuffer', dtype=str(obj.dtype), data=text)
+    # if not np.isnan(obj).any() and not np.isinf(obj).any():
+    #     return obj.tolist()
+    # else:
+    #     transformed = obj.astype('object')
+    #     transformed[np.isnan(obj)] = 'NaN'
+    #     transformed[np.isposinf(obj)] = 'Infinity'
+    #     transformed[np.isneginf(obj)] = '-Infinity'
+    #     return transformed.tolist()
 
 def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
     """recursively dig until a flat list is found
