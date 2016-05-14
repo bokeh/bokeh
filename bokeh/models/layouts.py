@@ -158,6 +158,10 @@ class Box(LayoutDOM):
         The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
 
+    grow = Bool(default=True, help="""
+        Box grows to fit its container. Default value is True.
+    """)
+
 
 class Row(Box):
     """ Lay out child components in a single horizontal row.

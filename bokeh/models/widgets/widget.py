@@ -13,3 +13,7 @@ from ..layouts import LayoutDOM
 @abstract
 class Widget(LayoutDOM):
     """ A base class for all interactive widget types. """
+
+    grow = Bool(default=False, help="""
+        Widget grows to fit its container. Default value is False.
+    """)

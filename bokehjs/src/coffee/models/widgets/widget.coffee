@@ -1,6 +1,6 @@
-{EQ, GE, Variable}  = require "../../core/layout/solver"
 BokehView = require "../../core/bokeh_view"
-{Strength}  = require "../../core/layout/solver"
+{EQ, GE, Strength, Variable}  = require "../../core/layout/solver"
+p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
 
@@ -52,6 +52,10 @@ class Widget extends LayoutDOM.Model
     if @get('responsive') == 'width'
       editables.push({edit_variable: @_height, strength: Strength.strong})
     return editables
+
+  @define {
+    grow:     [ p.Bool, false]
+  }
 
 module.exports =
   Model: Widget
