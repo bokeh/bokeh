@@ -1,13 +1,6 @@
 namespace Charts {
     import plt = Bokeh.Plotting;
 
-    /*
-    const data = [
-        ['Task', 'Hours per Day'],
-        [abc,     n],
-    ]
-    */
-
     const pie_data = {
         labels: ['Work', 'Eat', 'Commute', 'Sport', 'Watch TV', 'Sleep'],
         values: [8, 2, 2, 4, 0, 8],
@@ -27,15 +20,14 @@ namespace Charts {
         ['Philadelphia, PA'  , 1526000           , 1517000          ],
     ]
 
-    const p21 = Bokeh.Charts.bar(bar_data)
-    const p22 = Bokeh.Charts.bar(bar_data, {stacked: true})
-    const p23 = Bokeh.Charts.bar(bar_data, {orientation: "vertical"})
-    const p24 = Bokeh.Charts.bar(bar_data, {orientation: "vertical", stacked: true})
+    const p21 = Bokeh.Charts.bar(bar_data, {axis_number_format: "0.[00]a"})
+    const p22 = Bokeh.Charts.bar(bar_data, {axis_number_format: "0.[00]a", stacked: true})
+    const p23 = Bokeh.Charts.bar(bar_data, {axis_number_format: "0.[00]a", orientation: "vertical"})
+    const p24 = Bokeh.Charts.bar(bar_data, {axis_number_format: "0.[00]a", orientation: "vertical", stacked: true})
 
     const plots = [
         [p11, p12, p13, p14],
-        [p21, p22],
-        [p23, p24],
+        [p21, p22, p23, p24],
     ]
 
     plt.show(Bokeh.GridPlot(plots))

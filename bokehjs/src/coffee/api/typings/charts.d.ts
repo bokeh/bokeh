@@ -22,6 +22,7 @@ declare namespace Bokeh.Charts {
         orientation?: "horizontal" | "vertical";
         bar_width?: number;
         palette?: Palette | Array<Color>;
+        axis_number_format?: string;
     }
 
     function bar(data: Array<Array<string | number>>, opts?: IBarOpts): Plot;

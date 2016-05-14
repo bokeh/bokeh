@@ -160,10 +160,12 @@ bar = (data, opts={}) ->
   yaxis = new models.CategoricalAxis()
   ydr = new models.FactorRange({factors: labels})
 
-  xaxis = new models.LinearAxis({
-    formatter: new models.NumeralTickFormatter({format: "0.0a"})
-  })
-  xdr = new models.DataRange1d()
+  if opts.axis_number_format?
+    xformatter = new models.NumeralTickFormatter({format: opts.axis_number_format})
+  else
+    xformatter = new models.BasicTickFormatter()
+  xaxis = new models.LinearAxis({formatter: xformatter})
+  xdr = new models.DataRange1d({start: 0})
 
   if _.isArray(opts.palette)
     palette = opts.palette
