@@ -43,7 +43,7 @@ class Select extends InputWidget.Model
     }
 
   @override {
-      height: 55
+      height: 65
     }
 
 module.exports =

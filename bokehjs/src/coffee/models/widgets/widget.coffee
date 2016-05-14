@@ -30,6 +30,7 @@ class WidgetView extends BokehView
 
   update_constraints: () ->
     s = @model.document.solver()
+    # TODO We need to get better at measuring heights on widgets
     if @mget('height')
       s.suggest_value(@model._height, @mget('height'))
     else

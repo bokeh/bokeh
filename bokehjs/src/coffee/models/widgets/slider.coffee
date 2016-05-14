@@ -46,8 +46,9 @@ class SliderView extends Widget.View
       stop: @slidestop,
       slide: @slide
     }
-    @$('.slider').slider(opts)
+    @$el.find('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
+    @$el.find('.bk-slider-parent').height(@mget('height'))
     return @
 
   slidestop: (event, ui) =>

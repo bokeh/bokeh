@@ -1,6 +1,6 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import Row, Column, Slider, TextInput, Select, Div, Button
+from bokeh.models import Row, Column, Slider, TextInput, Select, Div, Button, Icon
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -31,13 +31,15 @@ def make_widgets():
 w1 = make_widgets()
 w2 = make_widgets()
 
+check = Icon(icon_name='check')
+
 layout = Column(
     Row(intro),
     Row(
         Column(w1['reviews'], w1['genre'], w1['oscars'], w1['director'], w1['x_axis'], w1['y_axis']),
         Column(w2['y_axis'], w2['reviews'], w2['genre'], w2['oscars'], w2['director'], w2['x_axis']),
     ),
-    Row(Column(Button(label="Left column")), Column(Button(label="Right column"))),
+    Row(Column(Button(label="Left column", icon=check)), Column(Button(label="Right column"))),
     Row(Slider(title="Full width slider", value=22, start=22, end=88, step=11)),
     Row(Column(Slider(title="Left slider", value=-1, start=-10, end=-1, step=1)), Column(Slider(title="Left slider", value=10, start=10, end=100, step=10))),
 )
