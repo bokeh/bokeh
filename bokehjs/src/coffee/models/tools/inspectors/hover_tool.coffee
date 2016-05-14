@@ -29,6 +29,12 @@ class HoverToolView extends InspectTool.View
 
     @plot_view.canvas_view.$el.css('cursor', 'crosshair')
 
+  _clear: () ->
+    @_inspect(Infinity, Infinity)
+
+    for rid, tt of @mget('ttmodels')
+      tt.clear()
+
   _move: (e) ->
     if not @mget('active')
       return
@@ -36,14 +42,11 @@ class HoverToolView extends InspectTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
     if not @plot_view.frame.contains(vx, vy)
-      for rid, tt of @mget('ttmodels')
-        tt.clear()
-      return
-    @_inspect(vx, vy)
+      @_clear()
+    else
+      @_inspect(vx, vy)
 
-  _move_exit: ()->
-    for rid, tt of @mget('ttmodels')
-      tt.clear()
+  _move_exit: () -> @_clear()
 
   _inspect: (vx, vy, e) ->
     geometry = {
