@@ -1,5 +1,10 @@
 declare namespace Bokeh.Charts {
-    interface IPieOpts {
+    interface IChartOpts {
+        width?: Int;
+        height?: Int;
+    }
+
+    interface IPieOpts extends IChartOpts {
         inner_radius?: number;
         outer_radius?: number;
         start_angle?: number;
@@ -12,10 +17,11 @@ declare namespace Bokeh.Charts {
 
     function pie(data: {labels: Array<string>, values: Array<number>}, opts?: IPieOpts): Plot;
 
-    interface IBarOpts {
+    interface IBarOpts extends IChartOpts {
         stacked?: boolean;
         orientation?: "horizontal" | "vertical";
         bar_width?: number;
+        palette?: Palette | Array<Color>;
     }
 
     function bar(data: Array<Array<string | number>>, opts?: IBarOpts): Plot;

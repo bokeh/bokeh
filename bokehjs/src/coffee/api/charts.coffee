@@ -132,11 +132,11 @@ pie = (data, opts={}) ->
 
   xdr = new models.DataRange1d({renderers: [r1], range_padding: 0.2})
   ydr = new models.DataRange1d({renderers: [r1], range_padding: 0.2})
-  plot = new models.Plot({
-    x_range: xdr, y_range: ydr,
-    plot_width: 300, plot_height: 300,
-    min_border_top: 10, min_border_right: 10, min_border_bottom: 10, min_border_left: 10,
-  })
+  plot = new models.Plot({x_range: xdr, y_range: ydr})
+
+  if opts.width? then plot.plot_width = opts.width
+  if opts.height? then plot.plot_height = opts.height
+
   plot.add_renderers(r1, r2)
 
   tooltip = "<div>@labels</div><div><b>@values</b> (@percentages)</div>"
@@ -254,11 +254,11 @@ bar = (data, opts={}) ->
       [data.left, data.bottom] = [data.bottom, data.left]
       [data.right, data.top] = [data.top, data.right]
 
-  plot = new models.Plot({
-    x_range: xdr, y_range: ydr,
-    plot_width: 600, plot_height: 300,
-    min_border_top: 10, min_border_right: 10, min_border_bottom: 10, min_border_left: 10,
-  })
+  plot = new models.Plot({x_range: xdr, y_range: ydr})
+
+  if opts.width? then plot.plot_width = opts.width
+  if opts.height? then plot.plot_height = opts.height
+
   plot.add_renderers(renderers...)
   plot.add_layout(yaxis, "left")
   plot.add_layout(xaxis, "below")
