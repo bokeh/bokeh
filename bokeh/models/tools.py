@@ -55,7 +55,7 @@ class Tool(Model):
     """)
 
 
-class ToolBar(Widget):
+class Toolbar(Widget):
     """ Widget that holds tools to display
     """
 

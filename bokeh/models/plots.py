@@ -25,7 +25,7 @@ from .grids import Grid
 from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents, ToolBar
+from .tools import Tool, ToolEvents, Toolbar
 from .layouts import LayoutDOM
 
 
@@ -81,7 +81,7 @@ class Plot(LayoutDOM):
             kwargs["tool_events"] = ToolEvents()
 
         if "toolbar" not in kwargs:
-            kwargs["toolbar"] = ToolBar(tools=[])
+            kwargs["toolbar"] = Toolbar(tools=[])
 
         if "border_fill" in kwargs and "border_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
@@ -465,7 +465,7 @@ class Plot(LayoutDOM):
     setup is performed.
     """)
 
-    toolbar = Instance(ToolBar, help="""
+    toolbar = Instance(Toolbar, help="""
         The toolbar associated with this plot which holds all the tools.
 
         The toolbar is automatically created with the plot.

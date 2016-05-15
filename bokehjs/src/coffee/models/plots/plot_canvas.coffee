@@ -9,13 +9,12 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
 DataRange1d = require "../ranges/data_range1d"
+Toolbar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
-ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
-BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
 {EQ, GE, Strength, Variable} = require "../../core/layout/solver"
@@ -93,7 +92,7 @@ class PlotCanvasView extends Renderer.View
   remove: () =>
     super()
     # When this view is removed, also remove all of the tools.
-    for id, tool_view of @tools
+    for id, tool_view of @tool_views
       tool_view.remove()
 
   initialize: (options) ->
@@ -138,12 +137,12 @@ class PlotCanvasView extends Renderer.View
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
     @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
+      toolbar: @mget('toolbar')
       hit_area: @canvas_view.$el
     })
 
     @renderer_views = {}
-    @tools = {}
+    @tool_views = {}
 
     @levels = {}
     for level in enums.RenderLevel
@@ -155,8 +154,8 @@ class PlotCanvasView extends Renderer.View
     if toolbar_location?
       toolbar_selector = '.bk-plot-' + toolbar_location
       logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-      @tm_view = new ToolManager.View({
-        model: @mget('tool_manager')
+      @tm_view = new Toolbar.View({
+        model: @mget('toolbar')
         el: $("<div>").appendTo(@$(toolbar_selector))
         location: toolbar_location
       })
@@ -363,7 +362,7 @@ class PlotCanvasView extends Renderer.View
 
   build_levels: () ->
     renderer_models = @mget("renderers")
-    for tool_model in @mget("tools")
+    for tool_model in @mget("toolbar").tools
       synthetic = tool_model.get("synthetic_renderers")
       renderer_models = renderer_models.concat(synthetic)
 
@@ -374,16 +373,20 @@ class PlotCanvasView extends Renderer.View
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
-    tools = build_views(@tools, @mget('tools'), @view_options())
+
+    tool_views = build_views(@tool_views, @mget('toolbar').tools, @view_options())
+
     for v in views
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-    for tool_view in tools
+      
+    for tool_view in tool_views
       level = tool_view.mget('level')
       @levels[level][tool_view.model.id] = tool_view
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
+
     return this
 
   bind_bokeh_events: () ->
@@ -392,7 +395,7 @@ class PlotCanvasView extends Renderer.View
     for name, rng of @mget('frame').get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tools', @build_levels)
+    @listenTo(@model.toolbar, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
@@ -684,8 +687,6 @@ class PlotCanvas extends LayoutDOM.Model
     })
     @set('canvas', canvas)
 
-    @set('tool_manager', new ToolManager.Model({ plot: this }))
-
     min_border = @get('min_border')
     if min_border?
       if not @get('min_border_top')?
@@ -782,7 +783,7 @@ class PlotCanvas extends LayoutDOM.Model
         attrs.plot = this
         new tool.constructor(attrs)
 
-    @set("tools", @get("tools").concat(new_tools))
+    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
 
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
@@ -810,10 +811,8 @@ class PlotCanvas extends LayoutDOM.Model
       x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
-      tools:             [ p.Array,    []                     ]
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
       toolbar_location:  [ p.Location, 'above'                ]
-      logo:              [ p.String,   'normal'               ] # TODO (bev)
 
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]
@@ -843,7 +842,7 @@ class PlotCanvas extends LayoutDOM.Model
   @internal {
     min_size:     [ p.Number, 120 ]
     canvas:       [ p.Instance ]
-    tool_manager: [ p.Instance ]
+    toolbar:      [ p.Instance ]
     frame:        [ p.Instance ]
   }
 
