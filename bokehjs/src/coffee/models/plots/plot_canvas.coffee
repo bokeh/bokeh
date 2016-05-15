@@ -953,8 +953,7 @@ class PlotCanvas extends LayoutDOM.Model
     return constraints
 
   get_constrained_variables: () ->
-        {}
-
+    {}
 
 module.exports =
   get_size_for_available_space: get_size_for_available_space
