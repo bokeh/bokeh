@@ -25,7 +25,7 @@ from .grids import Grid
 from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents
+from .tools import Tool, ToolEvents, ToolBar
 from .layouts import LayoutDOM
 
 
@@ -79,6 +79,9 @@ class Plot(LayoutDOM):
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
+
+        if "toolbar" not in kwargs:
+            kwargs["toolbar"] = ToolBar(tools=[])
 
         if "border_fill" in kwargs and "border_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
@@ -274,7 +277,7 @@ class Plot(LayoutDOM):
             tool.plot = self
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
-            self.tools.append(tool)
+            self.toolbar.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
@@ -384,7 +387,7 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    __deprecated_attributes__ = ('background_fill', 'border_fill')
+    __deprecated_attributes__ = ('background_fill', 'border_fill', 'logo')
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -462,8 +465,15 @@ class Plot(LayoutDOM):
     setup is performed.
     """)
 
-    tools = List(Instance(Tool), help="""
-    A list of tools to add to the plot.
+    toolbar = Instance(ToolBar, help="""
+        The toolbar associated with this plot which holds all the tools.
+
+        The toolbar is automatically created with the plot.
+    """)
+
+    toolbar_location = Enum(Location, help="""
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
     """)
 
     tool_events = Instance(ToolEvents, help="""
@@ -484,16 +494,6 @@ class Plot(LayoutDOM):
 
     below = List(Instance(Renderer), help="""
     A list of renderers to occupy the area below of the plot.
-    """)
-
-    toolbar_location = Enum(Location, help="""
-    Where the toolbar will be located. If set to None, no toolbar
-    will be attached to the plot.
-    """)
-
-    logo = Enum("normal", "grey", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
     """)
 
     plot_height = Int(600, help="""
@@ -551,6 +551,42 @@ class Plot(LayoutDOM):
             will be removed. Use 'border_fill_color' instead.
             """)
         self.border_fill_color = color
+
+    @property
+    def logo(self):
+        warnings.warn(
+            """
+            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.logo' instead.
+            """)
+        return self.toolbar.logo
+
+    @logo.setter
+    def logo(self, value):
+        warnings.warn(
+            """
+            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.logo' instead.
+            """)
+        self.toolbar.logo = value
+
+    @property
+    def tools(self):
+        warnings.warn(
+            """
+            Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.tools' instead.
+            """)
+        return self.toolbar.tools
+
+    @tools.setter
+    def tools(self, tools):
+        warnings.warn(
+            """
+            Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.tools' instead.
+            """)
+        self.toolbar.tools = tools
 
     background_props = Include(FillProps, help="""
     The %s for the plot background style.
