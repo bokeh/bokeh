@@ -127,6 +127,7 @@ class Document
     @_roots
 
   add_root : (model) ->
+    console.log("Adding root: #{model}")
     if model in @_roots
       return
     @_roots.push(model)
