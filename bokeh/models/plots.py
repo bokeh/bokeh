@@ -568,6 +568,8 @@ class Plot(LayoutDOM):
             Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
             User 'toolbar.logo' instead.
             """)
+        if not self.toolbar:
+            self.toolbar = Toolbar(tools=[])
         self.toolbar.logo = value
 
     @property

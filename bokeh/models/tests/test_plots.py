@@ -94,7 +94,7 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
     assert axis in plot.left
 
 
-def test_responsive_property_is_false_by_default():
+def test_responsive_property_is_fixed_by_default():
     plot = figure()
     assert plot.responsive is 'fixed'
 
@@ -135,5 +135,12 @@ class TestLinearTwinAxis(BaseTwinAxis, unittest.TestCase):
         return Range1d(0, 42)
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_setting_logo_on_plot_declaration_sets_them_on_toolbar():
+    plot = Plot(logo='grey')
+    assert plot.toolbar.logo == 'grey', "Remove this test when deprecation cycle is over"
+
+
+def test_setting_tools_on_plot_declaration_sets_them_on_toolbar():
+    pan = PanTool()
+    plot = Plot(tools=[pan])
+    assert plot.toolbar.tools == [pan], "Remove this test when deprecation cycle is over"
