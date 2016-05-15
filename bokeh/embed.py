@@ -32,7 +32,7 @@ from .util.serialization import make_id
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
-    return 'Bokeh.$(function() {\n%s\n});' % code
+    return code #'Bokeh.$(function() {\n%s\n});' % code
 
 def _wrap_in_onload(code):
     # indent and wrap Bokeh function def around

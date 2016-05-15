@@ -9,12 +9,45 @@ configuration in a Resources object.
 :type js_raw: list[str]
 
 #}
-{%- for file in js_files %}
-<script type="text/javascript" src="{{ file }}"></script>
-{%- endfor %}
+<script type="text/javascript">
+    function loadJsFilesSequentially(scriptsCollection, startIndex, librariesLoadedCallback) {
+     if (scriptsCollection[startIndex]) {
+       var fileref = document.createElement('script');
+       fileref.setAttribute("type","text/javascript");
+       fileref.setAttribute("src", scriptsCollection[startIndex]);
+       fileref.onload = function(){
+         console.log("Bokeh: loaded", scriptsCollection[startIndex])
+         startIndex = startIndex + 1;
+         loadJsFilesSequentially(scriptsCollection, startIndex, librariesLoadedCallback)
+       };
 
+       document.getElementsByTagName("head")[0].appendChild(fileref)
+     }
+     else {
+       librariesLoadedCallback();
+     }
+   }
+
+   {%- if js_files|length > 0 %}
+   loadJsFilesSequentially({{ js_files }}, 0, function() {
+        {%- for js in js_raw %}
+            {{ js|indent(4) }}
+        {% endfor %}
+        if (typeof window._bokeh_todos != 'undefined') {
+            console.log('Bokeh: found todos to process');
+            for (i = 0; i < window._bokeh_todos.length; i++) {
+                window._bokeh_todos[i]();
+            }
+        }
+   });
+   {% endif %}
+
+</script>
+
+{%- if js_files|length == 0 %}
 {%- for js in js_raw %}
 <script type="text/javascript">
     {{ js|indent(8) }}
 </script>
 {%- endfor %}
+{% endif %}
