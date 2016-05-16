@@ -277,6 +277,14 @@ describe "PlotCanvas.View resize", ->
     expect(spy.calledOnce).to.be.true
     expect(spy.calledWith([width, height], false)).to.be.true
 
+  it "should call canvas.set_dims and trigger if plot is_root", ->
+    spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
+    @test_plot._is_root = true
+    @test_plot.responsive = 'box'
+    @test_plot_view.resize()
+    expect(spy.calledOnce).to.be.true
+    expect(spy.calledWith([width, height], true)).to.be.true
+
   it "should call canvas.set_dims with height that is proportional to width by aspect ratio if responsive_mode is width", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
     @test_plot.responsive = 'width'

@@ -520,7 +520,12 @@ class PlotCanvasView extends Renderer.View
     logger.debug("resize Canvas for Plot #{@model.id} -- #{width} x #{height}")
 
     # Set the Canvas Dimensions based on new width/height
-    @canvas_view.set_dims([width, height], trigger=false)
+    if @model._is_root == true
+      trigger = true
+    else
+      trigger = false
+
+    @canvas_view.set_dims([width, height], trigger)
     
     ## Layout the plot's DOM
     LayoutDOM.render_dom(@)
