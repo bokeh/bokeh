@@ -4,11 +4,11 @@ Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-LayoutDOM = require "../layouts/layout_dom"
-GlyphRenderer = require "../renderers/glyph_renderer"
-Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
 DataRange1d = require "../ranges/data_range1d"
+GlyphRenderer = require "../renderers/glyph_renderer"
+LayoutDOM = require "../layouts/layout_dom"
+Renderer = require "../renderers/renderer"
 Toolbar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
@@ -39,6 +39,7 @@ global_gl_canvas = null
 MIN_BORDER = 50
 
 # TODO (bev) PlotView should not be a RendererView
+# TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
 class PlotCanvasView extends Renderer.View
   className: "bk-plot-wrapper"
 
@@ -672,6 +673,7 @@ class PlotCanvas extends LayoutDOM.Model
       x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
+      toolbar:           [ p.Instance                         ]
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
       toolbar_location:  [ p.Location, 'above'                ]
 
@@ -702,7 +704,6 @@ class PlotCanvas extends LayoutDOM.Model
 
   @internal {
     canvas:       [ p.Instance ]
-    toolbar:      [ p.Instance ]
     frame:        [ p.Instance ]
   }
 
