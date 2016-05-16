@@ -3,7 +3,7 @@ $ = require "jquery"
 build_views = require "../../common/build_views"
 
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
+{EQ, GE, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "./layout_dom"
@@ -522,9 +522,7 @@ class Box extends LayoutDOM.Model
     @trigger('change')
   
   get_edit_variables: () ->
-    edit_variables = []
-    if @get('responsive') == 'width'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    edit_variables = super()
     # Go down the children to pick up any more constraints
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())

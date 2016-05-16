@@ -1,4 +1,4 @@
-{EQ, GE, Variable}  = require "../../core/layout/solver"
+{EQ, GE, Strength, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 Model = require "../../model"
@@ -91,6 +91,12 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
+
+  get_edit_variables: () ->
+    edit_variables = []
+    if @get('responsive') == 'width'
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    return edit_variables
 
   @define {
     height:   [ p.Number, null ]

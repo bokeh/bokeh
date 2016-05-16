@@ -1,5 +1,5 @@
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Strength, Variable}  = require "../../core/layout/solver"
+{EQ}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
@@ -46,12 +46,6 @@ class Widget extends LayoutDOM.Model
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
     return constraints
-
-  get_edit_variables: () ->
-    editables = []
-    if @get('responsive') == 'width'
-      editables.push({edit_variable: @_height, strength: Strength.strong})
-    return editables
 
   @override {
       grow: false

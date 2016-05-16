@@ -16,11 +16,7 @@ describe "LayoutDOM.Model", ->
     expect(l._width).to.be.an.instanceOf(Variable)
     expect(l._height).to.be.an.instanceOf(Variable)
 
-  it "should should return 16 constraints if responsive is 'box'", ->
-    l = new LayoutDOM({responsive: 'box'})
-    expect(l.get_constraints().length).to.be.equal 14
-
-  it "should should return 8 constraints if responsive is 'width'", ->
+  it "should should return 6 constraints", ->
     l = new LayoutDOM()
     expect(l.get_constraints().length).to.be.equal 6
 
