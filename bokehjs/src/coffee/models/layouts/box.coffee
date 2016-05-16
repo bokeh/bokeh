@@ -188,7 +188,9 @@ class Box extends LayoutDOM.Model
         # the box spacing. This must be a weak constraint because it can
         # conflict with aligning the alignable edges in each child.
         # Alignment is generally more important visually than spacing.
-        result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
+        # TODO This was in havoc's original layout algorithm but it causes
+        # plots to fail in box layouts. I'm not sure WEAK_EQ works.
+        # result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
         # if we can't satisfy the whitespace being equal to box spacing,
         # we should fix it (align things) by increasing rather than decreasing
         # the whitespace.
