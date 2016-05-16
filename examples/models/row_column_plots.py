@@ -22,30 +22,35 @@ source = ColumnDataSource(data = dict(
     )
 )
 
-def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
+MODE = 'width'
+
+def make_plot(source, xname, yname, line_color, xdr=None, ydr=None, min_border=15, x_axis=True, y_axis=True, responsive=MODE):
     """ Returns a tuple (plot, [obj1...objN]); the former can be added
     to a GridPlot, and the latter is added to the plotcontext.
     """
     if xdr is None: xdr = DataRange1d()
     if ydr is None: ydr = DataRange1d()
 
-    plot = Plot(x_range=xdr, y_range=ydr, min_border=50, toolbar_location=None, responsive='box')
+    plot = Plot(x_range=xdr, y_range=ydr, min_border=min_border, toolbar_location=None, responsive=responsive)
 
-    plot.add_layout(LinearAxis(), 'below')
-    plot.add_layout(LinearAxis(), 'left')
+    if x_axis:
+        plot.add_layout(LinearAxis(), 'below')
+    if y_axis:
+        plot.add_layout(LinearAxis(), 'left')
 
     plot.add_glyph(source, Line(x=xname, y=yname, line_color=line_color))
 
     return plot
 
-plot1 = make_plot(source, "x", "y1", "blue")
-plot2 = make_plot(source, "x", "y2", "red", xdr=plot1.x_range)
+plot1 = make_plot(source, "x", "y1", "blue", x_axis=False, y_axis=False, responsive='box')
+plot2 = make_plot(source, "x", "y2", "red", xdr=plot1.x_range, y_axis=False, responsive='box')
 plot3 = make_plot(source, "x", "y3", "green")
 plot4 = make_plot(source, "x", "y4", "black")
 
 grid = Column(
-    Row(plot1, plot2),
-    Row(plot3, plot4)
+    Row(plot1, plot2, responsive=MODE),
+    Row(plot3, plot4, responsive=MODE),
+    responsive='box'
 )
 
 doc = Document()
