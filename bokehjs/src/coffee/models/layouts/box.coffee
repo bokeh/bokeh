@@ -36,7 +36,7 @@ class BoxView extends BokehView
       _.delay(resize, 20)
 
   bind_bokeh_events: () ->
-    @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
+    @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
   render: () ->

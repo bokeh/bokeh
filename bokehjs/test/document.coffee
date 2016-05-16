@@ -939,13 +939,21 @@ describe "Document", ->
     d.resize()
     expect(spy.called).is.false
 
-  it "resize calls update_variables on solver", ->
+  it "resize calls update_variables on solver with false", ->
     d = new Document()
     s = d.solver()
     spy = sinon.spy(s, 'update_variables')
     d.resize()
     expect(spy.calledOnce).is.true
-    expect(spy.calledWith(true)).is.true
+    expect(spy.calledWith(false)).is.true
+
+  it "resize triggers resize event on solver", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'trigger')
+    d.resize()
+    expect(spy.calledOnce).is.true
+    expect(spy.calledWith('resize')).is.true
 
   it "resize does not call update_variables on solver if _responsive is fixed", ->
     d = new Document()

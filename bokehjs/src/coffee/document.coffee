@@ -109,7 +109,8 @@ class Document
         width = window.innerWidth
       @_solver.suggest_value(@_doc_width, width)
       @_solver.suggest_value(@_doc_height, height)
-      @_solver.update_variables(true)
+      @_solver.update_variables(false)
+      @_solver.trigger('resize')
 
   clear : () ->
     while @_roots.length > 0
@@ -160,7 +161,6 @@ class Document
         if root_vars.height?
           @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
 
-      
     @_solver.update_variables()
 
   remove_root : (model) ->
