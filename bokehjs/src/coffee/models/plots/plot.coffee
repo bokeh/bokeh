@@ -12,4 +12,3 @@ class Plot extends PlotCanvas.Model
 module.exports =
   View: PlotView
   Model: Plot
-  get_size_for_available_space: PlotCanvas.get_size_for_available_space

@@ -40,34 +40,6 @@ global_gl_canvas = null
 
 MIN_BORDER = 50
 
-get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
-    # client_width and height represent the available size
-
-    if use_width
-      new_width1 = Math.max(client_width, min_size)
-      new_height1 = parseInt(new_width1 / aspect_ratio)
-      if new_height1 < min_size
-        new_height1 = min_size
-        new_width1 = parseInt(new_height1 * aspect_ratio)
-    if use_height
-      new_height2 = Math.max(client_height, min_size)
-      new_width2 = parseInt(new_height2 * aspect_ratio)
-      if new_width2 < min_size
-        new_width2 = min_size
-        new_height2 = parseInt(new_width2 / aspect_ratio)
-
-    if (not use_height) and (not use_width)
-      return null  # remain same size
-    else if use_height and use_width
-      if new_width1 < new_width2
-        return [new_width1, new_height1]
-      else
-        return [new_width2, new_height2]
-    else if use_height
-     return [new_width2, new_height2]
-    else
-      return [new_width1, new_height1]
-
 # TODO (bev) PlotView should not be a RendererView
 class PlotCanvasView extends Renderer.View
   template: plot_template
@@ -162,12 +134,6 @@ class PlotCanvasView extends Renderer.View
       @tm_view.render()
 
     @update_dataranges()
-
-    if @mget('responsive') == 'width'
-      throttled_resize = _.throttle(@resize, 100)
-      $(window).on("resize", throttled_resize)
-      # Just need to wait a small delay so container has a width
-      _.delay(@resize, 10)
 
     @unpause()
 
@@ -559,74 +525,6 @@ class PlotCanvasView extends Renderer.View
 
     s.update_variables(false)
 
-  resize: () =>
-    @resize_width_height(true, false)
-
-  resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
-    # Resize plot based on available width and/or height
-
-    # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
-    if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
-      return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
-
-    # the solver falls over if we try and resize too small.
-    # min_size is currently set in defaults to 120, we can make this
-    # user-configurable in the future, as it may not be the right number
-    # if people set a large border on their plots, for example.
-
-    # Try to find bk-root. We will query the parent of that node for its size
-    node = @.el
-    for i in [0..2]  # Use for-loop; if we ever change DOM structure, it should still work
-      if node is null or node.classList.contains('bk-root')
-         break
-      node = node.parentNode
-
-    # The plot node might be an orphan if the initial resize
-    # happened before the plot was added to the DOM. If that happens, we
-    # try again in increasingly larger intervals (the first try should just
-    # work, but lets play it safe).
-    @_re_resized = @_re_resized or 0
-    if not (node? and node.parentNode?) and @_re_resized < 14  # 2**14 ~ 16s
-      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
-      @_re_resized += 1
-      return
-
-    # Check that what we found is a bk-root. If not, this is probably a subplot, which we
-    # can not currently make responsive in a good way
-    if not node.classList.contains('bk-root')
-       logger.warn('subplots cannot be responsive')
-       return
-
-    @_resize_width_height(use_width, use_height, maintain_ar,
-                          node.parentNode.clientWidth, node.parentNode.clientHeight)
-
-  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
-    min_size = @mget('min_size')
-
-    # We need some extra space to account for padding and toolbar. Otherwise we get scrollbars.
-    # Note that during resizing, the canvas may be too large, causing scrollbars to briefly show.
-    width_offset = height_offset = 20
-    if @model.toolbar_location == 'above' then height_offset += 30
-    if @model.toolbar_location == 'below' then height_offset += 80  # bug in layout?
-    if @model.toolbar_location in ['left', 'right'] then width_offset += 30
-    avail_width -= width_offset
-    avail_height -= height_offset
-
-    if maintain_ar is false
-      # Just change width and/or height; aspect ratio will change
-      if use_width and use_height
-        @canvas_view.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
-      else if use_width
-        @canvas_view.set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
-      else if use_height
-        @canvas_view.set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
-    else
-      # Find best size to fill space while maintaining aspect ratio
-      ar = @canvas.get('width') / @canvas.get('height')
-      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
-      if w_h?
-        @canvas_view.set_dims(w_h)
-
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
 
@@ -955,6 +853,5 @@ class PlotCanvas extends LayoutDOM.Model
     {}
 
 module.exports =
-  get_size_for_available_space: get_size_for_available_space
   Model: PlotCanvas
   View: PlotCanvasView
