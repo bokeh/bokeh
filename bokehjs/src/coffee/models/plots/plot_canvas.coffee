@@ -17,7 +17,7 @@ UIEvents = require "../../common/ui_events"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
-{EQ, GE, Strength, Variable} = require "../../core/layout/solver"
+{EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"

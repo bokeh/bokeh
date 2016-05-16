@@ -1428,7 +1428,7 @@ var kiwi;
             // then it represents an unsatisfiable constraint.
             if (subject.type() === 0 /* Invalid */ && row.allDummies()) {
                 if (!nearZero(row.constant())) {
-                    throw new Error("unsatifiable constraint");
+                    throw new Error("unsatisfiable constraint");
                 } else {
                     subject = tag.marker;
                 }
@@ -1439,7 +1439,10 @@ var kiwi;
             // the row represents an unsatisfiable constraint.
             if (subject.type() === 0 /* Invalid */) {
                 if (!this._addWithArtificialVariable(row)) {
-                    throw new Error("unsatisfiable constraint");
+                    var item_1_name = constraint._expression._terms._array[0].first._name;
+                    var item_2_name = constraint._expression._terms._array[1].first._name;
+                    var human_operator = ['LE', 'GE', 'EQ'];
+                    throw new Error("Unsatisfiable constraint [" + item_1_name + ", " + item_2_name + ", ...] operator: " + human_operator[constraint._operator]);
                 }
             } else {
                 row.solveFor(subject);

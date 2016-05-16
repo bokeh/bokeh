@@ -81,34 +81,25 @@ class Box extends LayoutDOM.Model
 
   constructor: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable()
-    @_height = new Variable()
 
     # for children that want to be the same size
     # as other children, make them all equal to these
-    @_child_equal_size_width = new Variable()
-    @_child_equal_size_height = new Variable()
+    @_child_equal_size_width = new Variable("_child_equal_size_width #{@id}")
+    @_child_equal_size_height = new Variable("_child_equal_size_height #{@id}")
 
     # these are passed up to our parent after basing
     # them on the child box-equal-size vars
-    @_box_equal_size_top = new Variable()
-    @_box_equal_size_bottom = new Variable()
-    @_box_equal_size_left = new Variable()
-    @_box_equal_size_right = new Variable()
+    @_box_equal_size_top = new Variable("_box_equal_size_top #{@id}")
+    @_box_equal_size_bottom = new Variable("_box_equal_size_bottom #{@id}")
+    @_box_equal_size_left = new Variable("_box_equal_size_left #{@id}")
+    @_box_equal_size_right = new Variable("_box_equal_size_right #{@id}")
 
     # these are passed up to our parent after basing
     # them on the child box-cell-align vars
-    @_box_cell_align_top = new Variable()
-    @_box_cell_align_bottom = new Variable()
-    @_box_cell_align_left = new Variable()
-    @_box_cell_align_right = new Variable()
-
-    # these are passed up to our parent after basing
-    # them on the child whitespace
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
+    @_box_cell_align_top = new Variable("_box_equal_size_top #{@id}")
+    @_box_cell_align_bottom = new Variable("_box_equal_size_bottom #{@id}")
+    @_box_cell_align_left = new Variable("_box_equal_size_left #{@id}")
+    @_box_cell_align_right = new Variable("_box_equal_size_right #{@id}")
 
   @define {
     children: [ p.Array, [] ]
@@ -120,9 +111,9 @@ class Box extends LayoutDOM.Model
 
   _ensure_origin_variables: (child) ->
     if '__Box_x' not of child
-      child['__Box_x'] = new Variable('child_origin_x')
+      child['__Box_x'] = new Variable("child_origin_x #{@id}")
     if '__Box_y' not of child
-      child['__Box_y'] = new Variable('child_origin_y')
+      child['__Box_y'] = new Variable("child_origin_y #{@id}")
     return [child['__Box_x'], child['__Box_y']]
 
   get_constraints: () ->

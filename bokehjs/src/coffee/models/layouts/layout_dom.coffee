@@ -9,28 +9,28 @@ class LayoutDOM extends Model
 
   constructor: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable("_width")
-    @_height = new Variable("_height")
+    @_width = new Variable("_width #{@id}")
+    @_height = new Variable("_height #{@id}")
     # these are the COORDINATES of the four plot sides
-    @_left = new Variable()
-    @_right = new Variable()
-    @_top = new Variable()
-    @_bottom = new Variable()
+    @_left = new Variable("_left #{@id}")
+    @_right = new Variable("_right #{@id}")
+    @_top = new Variable("_top #{@id}")
+    @_bottom = new Variable("_bottom #{@id}")
     # this is the DISTANCE FROM THE SIDE of the right and bottom,
     # since that isn't the same as the coordinate
-    @_width_minus_right = new Variable()
-    @_height_minus_bottom = new Variable()
+    @_width_minus_right = new Variable("_width_minus_right #{@id}")
+    @_height_minus_bottom = new Variable("_height_minus_bottom #{@id}")
     # these are the plot width and height, but written
     # as a function of the coordinates because we compute
     # them that way
-    @_right_minus_left = new Variable()
-    @_bottom_minus_top = new Variable()
+    @_right_minus_left = new Variable("_right_minus_left #{@id}")
+    @_bottom_minus_top = new Variable("_bottom_minus_top #{@id}")
     # these are passed up to our parent after basing
     # them on the child whitespace
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
+    @_whitespace_top = new Variable("_whitespace_top #{@id}")
+    @_whitespace_bottom = new Variable("_whitespace_bottom #{@id}")
+    @_whitespace_left = new Variable("_whitespace_left #{@id}")
+    @_whitespace_right = new Variable("_whitespace_right #{@id}")
 
   get_constraints: () ->
     constraints = []
