@@ -129,6 +129,10 @@ class PlotCanvasView extends Renderer.View
 
     @unpause()
 
+    if @model._is_root == true
+      resize = () -> $(window).trigger('resize')
+      _.delay(resize, 5)
+
     logger.debug("PlotView initialized")
 
     return this
@@ -354,6 +358,7 @@ class PlotCanvasView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
+    @listenTo(@model.document.solver(), 'resize', @resize)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -491,6 +496,35 @@ class PlotCanvasView extends Renderer.View
         update_panel_constraints(view)
 
     s.update_variables(false)
+
+  resize: () ->
+
+    if @mget('responsive') == 'fixed'
+       return null
+
+    if @mget('responsive') == 'box'
+      width = @model._width._value
+      height = @model._height._value
+
+    if @mget('responsive') == 'width'
+      width = @model._width._value
+      # We maintain the aspect ratio to calculate the height
+      ar = @mget('plot_width') / @mget('plot_height')
+      height = width / ar
+      # We need to specify the box height based on this calculated height
+      @model.document.solver().suggest_value(@model._height, height)
+
+    if height == 0
+      throw new Error("Attempted to set height of 0 on Plot #{@model.id}")
+
+    logger.debug("resize Canvas for Plot #{@model.id} -- #{width} x #{height}")
+
+    # Set the Canvas Dimensions based on new width/height
+    @canvas_view.set_dims([width, height], trigger=false)
+    
+    ## Layout the plot's DOM
+    LayoutDOM.render_dom(@)
+
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()

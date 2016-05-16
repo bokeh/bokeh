@@ -26,6 +26,15 @@ describe "Box.View", ->
     @solver_suggest = solver_stubs['suggest']
     @test_box = new Box()
     @test_box.attach_document(new Document())
+    @test_box.set('dom_left', dom_left)
+    @test_box.set('dom_top', dom_top)
+    @test_box._width = {_value: width}
+    @test_box._height = {_value: height}
+    @test_box._whitespace_left = {_value: wl}
+    @test_box._whitespace_right = {_value: wr}
+    @test_box._whitespace_top = {_value: wt}
+    @test_box._whitespace_bottom = {_value: wb}
+
 
   it "render should call update_constraints if the responsive mode is 'width'", ->
     box_view = new @test_box.default_view({ model: @test_box })
@@ -41,30 +50,12 @@ describe "Box.View", ->
     expect(spy.callCount).is.equal 0
 
   it "render should set the appropriate positions and paddings on the element", ->
-    @test_box.set('dom_left', dom_left)
-    @test_box.set('dom_top', dom_top)
-    @test_box._width = {_value: width}
-    @test_box._height = {_value: height}
-    @test_box._whitespace_left = {_value: wl}
-    @test_box._whitespace_right = {_value: wr}
-    @test_box._whitespace_top = {_value: wt}
-    @test_box._whitespace_bottom = {_value: wb}
-
     box_view = new @test_box.default_view({ model: @test_box })
     box_view.render()
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
   it "render should set the left to 25px greater, and top 10px greater if model _is_root", ->
-    @test_box.set('dom_left', dom_left)
-    @test_box.set('dom_top', dom_top)
-    @test_box._width = {_value: width}
-    @test_box._height = {_value: height}
-    @test_box._whitespace_left = {_value: wl}
-    @test_box._whitespace_right = {_value: wr}
-    @test_box._whitespace_top = {_value: wt}
-    @test_box._whitespace_bottom = {_value: wb}
-
     @test_box._is_root = true
     box_view = new @test_box.default_view({ model: @test_box })
     box_view.render()

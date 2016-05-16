@@ -44,11 +44,12 @@ describe "Canvas.View", ->
     spy = sinon.spy(CanvasView.prototype, 'set_dims')
     c_view = new @c.default_view({'model': @c})
     expect(spy.calledOnce).to.be.true
+    spy.restore()
 
   it "set_dims should call update_constraints", ->
-    c_view = new @c.default_view({'model': @c})
-    spy = sinon.spy(CanvasView.prototype, 'update_constraints')
-    c_view.set_dims([1, 2])
+    canvas_view = new @c.default_view({'model': @c})
+    spy = sinon.spy(canvas_view, 'update_constraints')
+    canvas_view.set_dims([1, 2])
     expect(spy.calledOnce).to.be.true
 
   it "set_dims should set requested_width and requested_height on canvas_view", ->

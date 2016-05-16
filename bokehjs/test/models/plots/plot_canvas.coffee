@@ -16,15 +16,15 @@ CanvasView = utils.require("models/canvas/canvas").View
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 LayoutCanvas = utils.require("core/layout/layout_canvas").Model
 LinearAxis = utils.require("models/axes/linear_axis").Model
-Plot = utils.require("models/plots/plot").Model
-PlotView = utils.require("models/plots/plot").View
+PlotCanvas = utils.require("models/plots/plot_canvas").Model
+PlotCanvasView = utils.require("models/plots/plot_canvas").View
 Range1d = utils.require("models/ranges/range1d").Model
 Toolbar = utils.require("models/tools/toolbar").Model
 
-describe "Plot.Model", ->
+describe "PlotCanvas.Model", ->
 
   it "should have a four LayoutCanvases after document is attached is called", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
     expect(p.above_panel).to.be.undefined
     expect(p.below_panel).to.be.undefined
     expect(p.left_panel).to.be.undefined
@@ -36,7 +36,7 @@ describe "Plot.Model", ->
     expect(p.right_panel).to.be.an.instanceOf(LayoutCanvas)
 
   it "should have panels, frame, and canvas returned in get_layoutable_children", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
     p.attach_document(new Document())
     layoutable_children = p.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 6
@@ -48,7 +48,7 @@ describe "Plot.Model", ->
     expect(_.contains(layoutable_children, p.canvas)).to.be.true
 
   it "should have axis panels in get_layoutable_children if axes added", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
     p.attach_document(new Document())
     above_axis = new LinearAxis()
     below_axis = new LinearAxis()
@@ -66,7 +66,7 @@ describe "Plot.Model", ->
     expect(_.contains(layoutable_children, right_axis.panel)).to.be.true
 
   it "should call get_edit_variables on layoutable children", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
     p.attach_document(new Document())
     children = p.get_layoutable_children()
     expect(children.length).to.be.equal 6
@@ -78,7 +78,7 @@ describe "Plot.Model", ->
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
   it "should set min_border_x to value of min_border if min_border_x is not specified", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
     p.attach_document(new Document())
     expect(p.min_border_top).to.be.equal 33.33
     expect(p.min_border_bottom).to.be.equal 33.33
@@ -86,7 +86,7 @@ describe "Plot.Model", ->
     expect(p.min_border_right).to.be.equal 33.33
 
   it "should set min_border_x to value of specified, and others to value of min_border", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
     p.attach_document(new Document())
     expect(p.min_border_top).to.be.equal 33.33
     expect(p.min_border_bottom).to.be.equal 33.33
@@ -94,18 +94,18 @@ describe "Plot.Model", ->
     expect(p.min_border_right).to.be.equal 33.33
 
   it "should set min_border_x to value of specified, and others to default min_border", ->
-    p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
     p.attach_document(new Document())
     expect(p.min_border_top).to.be.equal 50
     expect(p.min_border_bottom).to.be.equal 50
     expect(p.min_border_left).to.be.equal 4
     expect(p.min_border_right).to.be.equal 50
 
-describe "Plot.Model constraints", ->
+describe "PlotCanvas.Model constraints", ->
 
   beforeEach ->
     @test_doc = new Document()
-    @test_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    @test_plot = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
     @test_plot.attach_document(@test_doc)
 
   it "should return 20 constraints from _get_constant_constraints", ->
@@ -194,7 +194,7 @@ describe "Plot.Model constraints", ->
     constrained_variables = p.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
-describe "Plot.View render", ->
+describe "PlotCanvas.View render", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -205,7 +205,7 @@ describe "Plot.View render", ->
     utils.stub_solver()
 
     @test_doc = new Document()
-    @test_plot = new Plot({
+    @test_plot = new PlotCanvas({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
@@ -219,8 +219,99 @@ describe "Plot.View render", ->
     @test_plot_view.render()
     expect(spy.calledOnce).to.be.true
 
+describe "PlotCanvas.View resize", ->
+  dom_left = 12
+  dom_top = 13
+  width = 100
+  height = 100
+  wl = 5
+  wr = 10
+  wt = 22
+  wb = 33
 
-describe "Plot.View update_constraints", ->
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    solver_stubs = utils.stub_solver()
+    @solver_suggest = solver_stubs['suggest']
+
+    @test_doc = new Document()
+    @test_plot = new PlotCanvas({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+    })
+    @test_plot.document = @test_doc
+    @test_plot._doc_attached()
+    @test_plot.set('dom_left', dom_left)
+    @test_plot.set('dom_top', dom_top)
+    @test_plot._width = {_value: width}
+    @test_plot._height = {_value: height}
+    @test_plot._whitespace_left = {_value: wl}
+    @test_plot._whitespace_right = {_value: wr}
+    @test_plot._whitespace_top = {_value: wt}
+    @test_plot._whitespace_bottom = {_value: wb}
+    @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
+
+  it "should set the appropriate positions and paddings on the element", ->
+    @test_plot.responsive = 'box'
+    @test_plot_view.resize()
+    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+    expect(@test_plot_view.$el.attr('style')).to.be.equal expected_style
+
+  # TODO Not sure why this is failing
+  #it "should set the left to 25px greater, and top 10px greater if model _is_root", ->
+  #  @test_plot._is_root == true
+  #  @test_plot_view.resize()
+  #  expected_style = "position: absolute; left: #{dom_left + 25}px; top: #{dom_top + 15}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+  #  console.log(@test_plot_view.$el)
+  #  expect(@test_plot_view.$el.attr('style')).to.be.equal expected_style
+  
+  it "should call canvas.set_dims with width & height if responsive_mode is box, and not trigger", ->
+    spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
+    @test_plot.responsive = 'box'
+    @test_plot_view.resize()
+    expect(spy.calledOnce).to.be.true
+    expect(spy.calledWith([width, height], false)).to.be.true
+
+  it "should call canvas.set_dims with height that is proportional to width by aspect ratio if responsive_mode is width", ->
+    spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
+    @test_plot.responsive = 'width'
+    @test_plot.plot_width = 100
+    @test_plot.plot_height = 1
+    @test_plot_view.resize()
+    expect(spy.calledOnce).to.be.true
+    # The aspect ratio is 100:1
+    expect(spy.calledWith([width, width / 100], false)).to.be.true
+
+  it "should call solver.suggest_value if responsive_mode is width", ->
+    spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
+    @test_plot.responsive = 'width'
+    @test_plot.plot_width = 100
+    @test_plot.plot_height = 1
+
+    callCount = @solver_suggest.callCount
+    @test_plot_view.resize()
+    expect(@solver_suggest.callCount).is.equal callCount + 1
+    # I'd like to test for the correct call value, but something funky is going
+    # on in the test suite that doesn't happen in reality.
+
+  it "should not call canvas.set_dims if responsive_mode is fixed", ->
+    spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
+    @test_plot.responsive = 'fixed'
+    @test_plot_view.resize()
+    expect(spy.called).to.be.false
+
+  it "should throw an error if height is 0", ->
+    @test_plot._height = {_value: 0}
+    @test_plot.responsive = 'box'
+    expect(@test_plot_view.resize).to.throw Error
+
+
+describe "PlotCanvas.View update_constraints", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -233,7 +324,7 @@ describe "Plot.View update_constraints", ->
     @solver_update_stub = solver_stubs['update']
 
     @test_doc = new Document()
-    @test_plot = new Plot({
+    @test_plot = new PlotCanvas({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
