@@ -30,7 +30,8 @@ class BoxView extends BokehView
       # The problem is that the widgets need to be rendererd before we can
       # figure out what size we want them.
       _.delay(resize, 5)
-      _.delay(resize, 15)
+      _.delay(resize, 10)
+      _.delay(resize, 20)
 
   bind_bokeh_events: () ->
     @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
