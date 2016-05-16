@@ -24,16 +24,13 @@ class BoxView extends BokehView
 
     @bind_bokeh_events()
 
-    if @model._is_root?
+    if @model._is_root == true
       resize = () -> $(window).trigger('resize')
       # I haven't found a way to not trigger this multiple times.
       # The problem is that the widgets need to be rendererd before we can
       # figure out what size we want them.
-      # The example plotting/file/slider_callback.py made me increase it from
-      # two to three times.
       _.delay(resize, 5)
-      _.delay(resize, 10)
-      _.delay(resize, 20)
+      _.delay(resize, 15)
 
   bind_bokeh_events: () ->
     @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
@@ -52,7 +49,7 @@ class BoxView extends BokehView
     # doc_width when resizing in document. This means that the root is positioned
     # symetrically and the vertical scroll bar doesn't mess stuff up when it
     # kicks in.
-    if @model._is_root?
+    if @model._is_root == true
       left = left + 25
       top = top + 15
 
@@ -188,9 +185,11 @@ class Box extends LayoutDOM.Model
         # the box spacing. This must be a weak constraint because it can
         # conflict with aligning the alignable edges in each child.
         # Alignment is generally more important visually than spacing.
+        
         # TODO This was in havoc's original layout algorithm but it causes
         # plots to fail in box layouts. I'm not sure WEAK_EQ works.
         # result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
+
         # if we can't satisfy the whitespace being equal to box spacing,
         # we should fix it (align things) by increasing rather than decreasing
         # the whitespace.
