@@ -36,12 +36,7 @@ class BoxView extends BokehView
     @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
-  render: () ->
-    @$el.addClass(@mget('responsive'))
-
-    if @mget('responsive') == 'width'
-      @update_constraints()
-
+  render_dom: () ->
     left = @mget('dom_left')
     top = @mget('dom_top')
 
@@ -64,6 +59,15 @@ class BoxView extends BokehView
       'margin-top': @model._whitespace_top._value
       'margin-bottom': @model._whitespace_bottom._value
     })
+
+  render: () ->
+    @$el.addClass(@mget('responsive'))
+
+    if @mget('responsive') == 'width'
+      @update_constraints()
+
+    @render_dom()
+
 
   update_constraints: () ->
     s = @model.document.solver()
