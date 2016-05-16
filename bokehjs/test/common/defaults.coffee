@@ -175,7 +175,14 @@ describe "Defaults", ->
       attrs = instance.attributes_as_json(true, deep_value_to_json)
       strip_ids(attrs)
 
-      if not check_matching_defaults(name, get_defaults(name), attrs)
+      python_defaults = get_defaults(name)
+      coffee_defaults = attrs
+      if not check_matching_defaults(name, python_defaults, coffee_defaults)
+        console.log(name)
+        console.log('python defaults:')
+        console.log(python_defaults)
+        console.log('coffee defaults:')
+        console.log(coffee_defaults)
         fail_count = fail_count + 1
 
     console.error("Python/Coffee matching defaults problems: #{fail_count}")
