@@ -1439,10 +1439,13 @@ var kiwi;
             // the row represents an unsatisfiable constraint.
             if (subject.type() === 0 /* Invalid */) {
                 if (!this._addWithArtificialVariable(row)) {
-                    var item_1_name = constraint._expression._terms._array[0].first._name;
-                    var item_2_name = constraint._expression._terms._array[1].first._name;
+                    var names = ""
+                    for (var i=0, item; item = constraint._expression._terms._array[i]; i++) {
+                        names += item.first._name;
+                        names += ", "
+                    }
                     var human_operator = ['LE', 'GE', 'EQ'];
-                    throw new Error("Unsatisfiable constraint [" + item_1_name + ", " + item_2_name + ", ...] operator: " + human_operator[constraint._operator]);
+                    throw new Error("Unsatisfiable constraint [" + names.slice(0, -2) + "] operator: " + human_operator[constraint._operator]);
                 }
             } else {
                 row.solveFor(subject);
