@@ -589,9 +589,6 @@ class PlotCanvas extends LayoutDOM.Model
       if not @get('min_border_right')?
         @set('min_border_right', min_border)
 
-    @_width = new Variable("plot_width")
-    @_height = new Variable("plot_height")
-
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
