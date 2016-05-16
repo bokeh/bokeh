@@ -151,7 +151,7 @@ def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     assert canvas.size['width'] < 1000
 
 
-def test_box_responsive_plot_fills_entire_page(output_file_url, selenium):
+def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):
     # We can test this by ensuring the aspect ratio changes after initially
     # setting it to square, and that one dimension is close to the window.
 
@@ -160,7 +160,6 @@ def test_box_responsive_plot_fills_entire_page(output_file_url, selenium):
 
     window_width = 1000
     window_height = 300
-    window_aspect = window_width / window_height
 
     selenium.set_window_size(width=window_width, height=window_height)
     selenium.get(output_file_url)
@@ -171,11 +170,10 @@ def test_box_responsive_plot_fills_entire_page(output_file_url, selenium):
 
     canvas_width = canvas.size['width']
     canvas_height = canvas.size['height']
-    canvas_aspect = canvas_width / canvas_height
-    # Canvas width should be close to window_width
-    assert canvas_width > window_width * 0.9
-    assert canvas_width < window_width
-    assert canvas_aspect == window_aspect
+    # Canvas width & height should match window
+    # If it was width mode, the plot would remain square (as per the initial aspect ratio)
+    assert canvas_width <= window_width
+    assert canvas_height <= window_height
 
 
 @pytest.mark.skip(reason='we do not currently have aspect ratio on plot')
