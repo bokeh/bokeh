@@ -97,15 +97,13 @@ class Document
   resize: () ->
     if @_responsive != 'fixed'
 
+      # The 50 is a hack for when the scroll bar kicks in
+      # when the page is allowed to extend - also see the 
+      # note in box.coffee
+
       # TODO: We can't use window in the future (bk-root?)
-      height = window.innerHeight
-      if @_responsive == 'width'
-        # The 50 is a hack for when the scroll bar kicks in
-        # when the page is allowed to extend - also see the 
-        # note in box.coffee
-        width = window.innerWidth - 50
-      if @_responsive == 'box'
-        width = window.innerWidth
+      width = window.innerWidth - 50
+      height = window.innerHeight - 30
 
       logger.debug("resize: Document -- #{width} x #{height}")
 

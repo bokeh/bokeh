@@ -928,7 +928,7 @@ describe "Document", ->
     spy = sinon.spy(s, 'suggest_value')
     d.resize()
     expect(spy.calledTwice).is.true
-    expect(spy.calledWithExactly(d._doc_height, window.innerHeight), 'suggest_value was not called with window.innerHeight').is.true
+    expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
     expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
 
   it "resize does not suggest values for width and height of document if _responsive is fixed", ->
