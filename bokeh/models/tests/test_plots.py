@@ -14,7 +14,7 @@ import pytest
 
 from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
-from bokeh.models.tools import PanTool
+from bokeh.models.tools import PanTool, Toolbar
 
 
 class TestPlotSelect(unittest.TestCase):
@@ -144,3 +144,13 @@ def test_setting_tools_on_plot_declaration_sets_them_on_toolbar():
     pan = PanTool()
     plot = Plot(tools=[pan])
     assert plot.toolbar.tools == [pan], "Remove this test when deprecation cycle is over"
+
+
+def test_plot_raises_error_if_toolbar_and_logo_are_set():
+    with pytest.raises(ValueError):
+        Plot(logo='grey', toolbar=Toolbar())
+
+
+def test_plot_raises_error_if_toolbar_and_tools_are_set():
+    with pytest.raises(ValueError):
+        Plot(tools=[PanTool()], toolbar=Toolbar())

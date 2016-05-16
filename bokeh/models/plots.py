@@ -80,8 +80,17 @@ class Plot(LayoutDOM):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
 
+        if "toolbar" in kwargs and "logo" in kwargs:
+            raise ValueError("Conflicing properties set on plot: toolbar, logo.")
+
+        if "toolbar" in kwargs and "tools" in kwargs:
+            raise ValueError("Conflicing properties set on plot: toolbar, tools.")
+
         if "toolbar" not in kwargs:
-            kwargs["toolbar"] = Toolbar(tools=[])
+            tools = kwargs.pop('tools', [])
+            logo = kwargs.pop('logo', 'normal')
+
+            kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
 
         if "border_fill" in kwargs and "border_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
@@ -568,8 +577,6 @@ class Plot(LayoutDOM):
             Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
             User 'toolbar.logo' instead.
             """)
-        if not self.toolbar:
-            self.toolbar = Toolbar(tools=[])
         self.toolbar.logo = value
 
     @property
@@ -588,8 +595,6 @@ class Plot(LayoutDOM):
             Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
             User 'toolbar.tools' instead.
             """)
-        if not self.toolbar:
-            self.toolbar = Toolbar(tools=[])
         self.toolbar.tools = tools
 
     background_props = Include(FillProps, help="""
