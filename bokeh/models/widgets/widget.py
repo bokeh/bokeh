@@ -6,7 +6,7 @@ these widgets.
 """
 from __future__ import absolute_import
 
-from ...core.properties import abstract, Bool
+from ...core.properties import abstract, Override
 from ..layouts import LayoutDOM
 
 
@@ -14,6 +14,4 @@ from ..layouts import LayoutDOM
 class Widget(LayoutDOM):
     """ A base class for all interactive widget types. """
 
-    grow = Bool(default=False, help="""
-        Widget grows to fit its container. Default value is False.
-    """)
+    grow = Override(default=False)

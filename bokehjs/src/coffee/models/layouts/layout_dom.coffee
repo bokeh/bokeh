@@ -97,6 +97,7 @@ class LayoutDOM extends Model
     width:    [ p.Number, null ]
     disabled: [ p.Bool, false  ]
     responsive: [ p.Responsive, 'width' ]
+    grow:     [ p.Bool, true ]
   }
 
   @internal {

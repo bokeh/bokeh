@@ -53,9 +53,9 @@ class Widget extends LayoutDOM.Model
       editables.push({edit_variable: @_height, strength: Strength.strong})
     return editables
 
-  @define {
-    grow:     [ p.Bool, false]
-  }
+  @override {
+      grow: false
+    }
 
 module.exports =
   Model: Widget

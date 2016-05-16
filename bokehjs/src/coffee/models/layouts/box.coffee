@@ -112,7 +112,6 @@ class Box extends LayoutDOM.Model
 
   @define {
     children: [ p.Array, [] ]
-    grow:     [ p.Bool, true ]
   }
 
   @internal {

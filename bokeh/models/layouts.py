@@ -33,6 +33,10 @@ class LayoutDOM(Model):
     the widget will be greyed-out, and not respond to UI events.
     """)
 
+    grow = Bool(default=True, help="""
+        Box grows to fit its container. Default value is True.
+    """)
+
     responsive = Responsive('width', help="""
     The type of responsiveness for the item being displayed. Possible values are `box`,
     `width` (or `True`), `fixed` (or `False`). Default is `width`.
@@ -156,10 +160,6 @@ class Box(LayoutDOM):
 
     children = List(Instance(LayoutDOM), help="""
         The list of children, which can be other components including plots, rows, columns, and widgets.
-    """)
-
-    grow = Bool(default=True, help="""
-        Box grows to fit its container. Default value is True.
     """)
 
 
