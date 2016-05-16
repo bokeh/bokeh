@@ -19,7 +19,7 @@ LinearAxis = utils.require("models/axes/linear_axis").Model
 Plot = utils.require("models/plots/plot").Model
 PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
-
+Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "Plot.Model", ->
 
@@ -180,6 +180,7 @@ describe "Plot.View render", ->
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
     })
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
@@ -207,6 +208,7 @@ describe "Plot.View update_constraints", ->
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
     })
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
