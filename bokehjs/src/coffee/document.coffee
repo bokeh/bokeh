@@ -96,7 +96,6 @@ class Document
 
   resize: () ->
     if @_responsive != 'fixed'
-      logger.debug("resize: Document")
 
       # TODO: We can't use window in the future (bk-root?)
       height = window.innerHeight
@@ -107,6 +106,9 @@ class Document
         width = window.innerWidth - 50
       if @_responsive == 'box'
         width = window.innerWidth
+
+      logger.debug("resize: Document -- #{width} x #{height}")
+
       @_solver.suggest_value(@_doc_width, width)
       @_solver.suggest_value(@_doc_height, height)
       @_solver.update_variables(false)
