@@ -23,8 +23,6 @@ p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
 update_panel_constraints = require("../../core/layout/side_panel").update_constraints
 
-plot_template = require "./plot_template"
-
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
 # webgl canvas that we create below. In this way, the rest of bokehjs
@@ -42,7 +40,7 @@ MIN_BORDER = 50
 
 # TODO (bev) PlotView should not be a RendererView
 class PlotCanvasView extends Renderer.View
-  template: plot_template
+  className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
 
@@ -92,12 +90,10 @@ class PlotCanvasView extends Renderer.View
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
 
-    @$el.html(@template())
-
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
 
-    @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
+    @$el.append(@canvas_view.el)
 
     @canvas_view.render(true)
 
