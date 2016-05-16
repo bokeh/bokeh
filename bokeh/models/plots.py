@@ -588,6 +588,8 @@ class Plot(LayoutDOM):
             Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
             User 'toolbar.tools' instead.
             """)
+        if not self.toolbar:
+            self.toolbar = Toolbar(tools=[])
         self.toolbar.tools = tools
 
     background_props = Include(FillProps, help="""
