@@ -2,10 +2,10 @@ _ = require "underscore"
 $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
 
-BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
-HasProps = require "../../core/has_props"
 p = require "../../core/properties"
+
+Widget = require "../widgets/widget"
 
 ActionTool = require "./actions/action_tool"
 HelpTool = require "./actions/help_tool"
@@ -14,7 +14,7 @@ InspectTool = require "./inspectors/inspect_tool"
 toolbar_template = require "./toolbar_template"
 
 
-class ToolbarView extends BokehView
+class ToolbarView extends Widget.View
   template: toolbar_template
 
   initialize: (options) ->
@@ -67,15 +67,13 @@ class ToolbarView extends BokehView
 
     return @
 
-class Toolbar extends HasProps
+class Toolbar extends Widget.Model
   type: 'Toolbar'
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @listenTo(@, 'change:tools', () => @_init_tools())
     @_init_tools()
-
-  serializable_in_document: () -> false
 
   _init_tools: () ->
     for tool in @get('tools')
