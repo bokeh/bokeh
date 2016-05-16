@@ -9,11 +9,11 @@ HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-plot_template = require "../plots/plot_template"
 Toolbar = require "../tools/toolbar"
 
 LayoutDOM = require "./layout_dom"
 
+plot_template = require "./grid_plot_template"
 
 class ToolProxy extends Backbone.Model
 
