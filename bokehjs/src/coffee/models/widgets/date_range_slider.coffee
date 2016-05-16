@@ -2,11 +2,12 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "jqrangeslider/jQDateRangeSlider"
 
-InputWidget = require "./input_widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class DateRangeSliderView extends BokehView
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+class DateRangeSliderView extends Widget.View
 
   initialize: (options) ->
     super(options)
@@ -14,6 +15,7 @@ class DateRangeSliderView extends BokehView
     @listenTo(@model, 'change', () => @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     [value_min, value_max] = @mget("value")

@@ -11,7 +11,11 @@ DataRange1d = utils.require("models/ranges/data_range1d").Model
 
 describe "Tabs.Model", ->
 
+  afterEach ->
+    utils.unstub_solver()
+
   beforeEach ->
+    utils.stub_solver()
     @p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
     @p.attach_document(new Document())
     @panel = new Panel({child: @p})
@@ -36,5 +40,7 @@ describe "Tabs.Model", ->
     Widget.prototype.get_constraints.restore()
 
   it "get_edit_variables should return edit_variables from children", ->
+    # Set to fixed so only getting edit variables from children
+    @tabs.responsive = 'fixed'
     sinon.stub(@p, 'get_edit_variables', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
     expect(@tabs.get_edit_variables()).to.be.deep.equal @p.get_edit_variables()

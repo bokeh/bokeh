@@ -31,4 +31,5 @@ module.exports = {
   RadioGroup:               require './radio_group'
   CheckboxButtonGroup:      require './checkbox_button_group'
   RadioButtonGroup:         require './radio_button_group'
+  Toolbar:                  require '../tools/toolbar'
 }

@@ -19,7 +19,7 @@ LinearAxis = utils.require("models/axes/linear_axis").Model
 Plot = utils.require("models/plots/plot").Model
 PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
-
+Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "Plot.Model", ->
 
@@ -108,8 +108,8 @@ describe "Plot.Model constraints", ->
     @test_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
     @test_plot.attach_document(@test_doc)
 
-  it "should return 22 constraints from _get_constant_constraints", ->
-    expect(@test_plot._get_constant_constraints().length).to.be.equal 22
+  it "should return 20 constraints from _get_constant_constraints", ->
+    expect(@test_plot._get_constant_constraints().length).to.be.equal 20
 
   it "should return 0 constraints from _get_side_constraints if there are no side renderers", ->
     expect(@test_plot._get_side_constraints().length).to.be.equal 0
@@ -165,6 +165,34 @@ describe "Plot.Model constraints", ->
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
 
+  it "should return correct constrained_variables", ->
+    p = @test_plot
+    expected_constrainted_variables = {
+      'width': p._width
+      'height': p._height
+      # edges
+      'on-top-edge-align' : p._top
+      'on-bottom-edge-align' : p._height_minus_bottom
+      'on-left-edge-align' : p._left
+      'on-right-edge-align' : p._width_minus_right
+      # sizing
+      'box-equal-size-top' : p._top
+      'box-equal-size-bottom' : p._height_minus_bottom
+      'box-equal-size-left' : p._left
+      'box-equal-size-right' : p._width_minus_right
+      # align between cells
+      'box-cell-align-top' : p._top
+      'box-cell-align-bottom' : p._height_minus_bottom
+      'box-cell-align-left' : p._left
+      'box-cell-align-right' : p._width_minus_right
+      # whitespace
+      'whitespace-top' : p._whitespace_top
+      'whitespace-bottom' : p._whitespace_bottom
+      'whitespace-left' : p._whitespace_left
+      'whitespace-right' : p._whitespace_right
+    }
+    constrained_variables = p.get_constrained_variables()
+    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
 describe "Plot.View render", ->
 
@@ -180,6 +208,7 @@ describe "Plot.View render", ->
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
     })
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
@@ -207,6 +236,7 @@ describe "Plot.View update_constraints", ->
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
     })
     @test_plot.document = @test_doc
     @test_plot._doc_attached()

@@ -4,6 +4,7 @@ from bokeh.io import save
 from bokeh.models import BoxSelectTool, ColumnDataSource, CustomJS
 from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -36,6 +37,7 @@ def test_box_select(output_file_url, selenium):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Drag a box zoom around middle point
     canvas = selenium.find_element_by_tag_name('canvas')

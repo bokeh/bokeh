@@ -9,6 +9,7 @@ Plot = utils.require("models/plots/plot").Model
 PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
 SidePanel = utils.require("core/layout/side_panel").Model
+Toolbar = utils.require("models/tools/toolbar").Model
 {Document} = utils.require "document"
 
 describe "Axis.Model", ->
@@ -62,6 +63,7 @@ describe "Axis.View", ->
     @test_plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
     })
     @test_plot.attach_document(new Document())
     ticker = new BasicTicker()

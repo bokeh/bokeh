@@ -1,17 +1,19 @@
 _ = require "underscore"
 $ = require "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class PanelView extends BokehView
+Widget = require "./widget"
+
+
+class PanelView extends Widget.View
 
   initialize: (options) ->
     super(options)
     @render()
 
   render: () ->
+    super()
     @$el.empty()
     return @
 

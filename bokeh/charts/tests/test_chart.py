@@ -53,7 +53,7 @@ class TestChart(unittest.TestCase):
         self.assertEqual(self.chart.title, "new_title")
 
     def test_responsive(self):
-        self.assertEqual(self.chart.responsive, True)
+        self.assertEqual(self.chart.responsive, 'width')
 
     def check_chart_elements(self, expected_tools):
         self.assertIsInstance(self.chart.left[0], LinearAxis)
@@ -159,8 +159,8 @@ def test_defaults():
     assert c1.plot_width == 600
     assert c2.plot_width == c3.plot_width == 1000
 
-    assert c1.tools
-    assert c2.tools == c3.tools == []
+    assert c1.tools == c2.tools == c3.tools == []
+
 
 def test_charts_theme_validation():
     from bokeh.plotting import figure

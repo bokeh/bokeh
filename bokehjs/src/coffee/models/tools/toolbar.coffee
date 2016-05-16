@@ -1,27 +1,29 @@
 _ = require "underscore"
 $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
-Backbone = require "backbone"
-ActionTool = require "../models/tools/actions/action_tool"
-HelpTool = require "../models/tools/actions/help_tool"
-GestureTool = require "../models/tools/gestures/gesture_tool"
-InspectTool = require "../models/tools/inspectors/inspect_tool"
-{logger} = require "../core/logging"
-toolbar_template = require "./toolbar_template"
-HasProps = require "../core/has_props"
-p = require "../core/properties"
 
-class ToolManagerView extends Backbone.View
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+
+Widget = require "../widgets/widget"
+
+ActionTool = require "./actions/action_tool"
+HelpTool = require "./actions/help_tool"
+GestureTool = require "./gestures/gesture_tool"
+InspectTool = require "./inspectors/inspect_tool"
+toolbar_template = require "./toolbar_template"
+
+
+class ToolbarView extends Widget.View
   template: toolbar_template
 
   initialize: (options) ->
     super(options)
     @location = options.location
-    @listenTo(@model.get('plot'), 'change:tools change:logo', () => @render())
     @listenTo(@model, 'change', () => @render())
 
   render: () ->
-    @$el.html(@template({logo: @model.get("plot")?.get("logo")}))
+    @$el.html(@template({logo: @mget("logo")}))
     @$el.addClass("bk-toolbar-#{@location}")
     @$el.addClass("bk-sidebar")
     @$el.addClass("bk-toolbar-active")
@@ -65,18 +67,16 @@ class ToolManagerView extends Backbone.View
 
     return @
 
-class ToolManager extends HasProps
-  type: 'ToolManager'
+class Toolbar extends Widget.Model
+  type: 'Toolbar'
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @listenTo(@get('plot'), 'change:tools', () => @_init_tools())
+    @listenTo(@, 'change:tools', () => @_init_tools())
     @_init_tools()
 
-  serializable_in_document: () -> false
-
   _init_tools: () ->
-    for tool in @get('plot').get('tools')
+    for tool in @get('tools')
       if tool instanceof InspectTool.Model
         if not _.some(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
@@ -90,7 +90,7 @@ class ToolManager extends HasProps
         et = tool.event_type
 
         if et not of @gestures
-          logger.warn("ToolManager: unknown event type '#{et}' for tool:
+          logger.warn("Toolbar: unknown event type '#{et}' for tool:
                       #{tool.type} (#{tool.id})")
           continue
 
@@ -113,14 +113,19 @@ class ToolManager extends HasProps
     # Toggle between tools of the same type by deactivating any active ones
     currently_active_tool = gestures[event_type].active
     if currently_active_tool? and currently_active_tool != tool
-      logger.debug("ToolManager: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+      logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
       currently_active_tool.set('active', false)
 
     # Update the gestures with the new active tool
     gestures[event_type].active = tool
     @set('gestures', gestures)
-    logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
+    logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
+
+  @define {
+      tools:             [ p.Array,    []                     ]
+      logo:              [ p.String,   'normal'               ] # TODO (bev)
+  }
 
   @internal {
     gestures:   [ p.Any, () -> {
@@ -135,9 +140,8 @@ class ToolManager extends HasProps
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
-    plot:       [ p.Instance ]
   }
 
 module.exports =
-  Model: ToolManager
-  View: ToolManagerView
+  Model: Toolbar
+  View: ToolbarView

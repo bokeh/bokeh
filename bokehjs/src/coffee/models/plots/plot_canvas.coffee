@@ -9,22 +9,19 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
 DataRange1d = require "../ranges/data_range1d"
+Toolbar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
-ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
-BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
-{EQ, GE, Strength, Variable} = require "../../core/layout/solver"
+{EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
 update_panel_constraints = require("../../core/layout/side_panel").update_constraints
-
-plot_template = require "./plot_template"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -41,37 +38,9 @@ global_gl_canvas = null
 
 MIN_BORDER = 50
 
-get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
-    # client_width and height represent the available size
-
-    if use_width
-      new_width1 = Math.max(client_width, min_size)
-      new_height1 = parseInt(new_width1 / aspect_ratio)
-      if new_height1 < min_size
-        new_height1 = min_size
-        new_width1 = parseInt(new_height1 * aspect_ratio)
-    if use_height
-      new_height2 = Math.max(client_height, min_size)
-      new_width2 = parseInt(new_height2 * aspect_ratio)
-      if new_width2 < min_size
-        new_width2 = min_size
-        new_height2 = parseInt(new_width2 / aspect_ratio)
-
-    if (not use_height) and (not use_width)
-      return null  # remain same size
-    else if use_height and use_width
-      if new_width1 < new_width2
-        return [new_width1, new_height1]
-      else
-        return [new_width2, new_height2]
-    else if use_height
-     return [new_width2, new_height2]
-    else
-      return [new_width1, new_height1]
-
 # TODO (bev) PlotView should not be a RendererView
 class PlotCanvasView extends Renderer.View
-  template: plot_template
+  className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
 
@@ -93,7 +62,7 @@ class PlotCanvasView extends Renderer.View
   remove: () =>
     super()
     # When this view is removed, also remove all of the tools.
-    for id, tool_view of @tools
+    for id, tool_view of @tool_views
       tool_view.remove()
 
   initialize: (options) ->
@@ -109,11 +78,6 @@ class PlotCanvasView extends Renderer.View
       }
     }
 
-    # TODO (bev) titles should probably be a proper guide, then they could go
-    # on any side, this will do to get the PR merged
-    @title_panel = @model.above_panel
-    @title_panel._anchor = @title_panel._bottom
-
     # compat, to be removed
     @frame = @mget('frame')
     @x_range = @frame.get('x_ranges')['default']
@@ -121,12 +85,10 @@ class PlotCanvasView extends Renderer.View
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
 
-    @$el.html(@template())
-
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
 
-    @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
+    @$el.append(@canvas_view.el)
 
     @canvas_view.render(true)
 
@@ -138,12 +100,12 @@ class PlotCanvasView extends Renderer.View
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
     @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
+      toolbar: @mget('toolbar')
       hit_area: @canvas_view.$el
     })
 
     @renderer_views = {}
-    @tools = {}
+    @tool_views = {}
 
     @levels = {}
     for level in enums.RenderLevel
@@ -155,20 +117,14 @@ class PlotCanvasView extends Renderer.View
     if toolbar_location?
       toolbar_selector = '.bk-plot-' + toolbar_location
       logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-      @tm_view = new ToolManager.View({
-        model: @mget('tool_manager')
+      @tm_view = new Toolbar.View({
+        model: @mget('toolbar')
         el: $("<div>").appendTo(@$(toolbar_selector))
         location: toolbar_location
       })
       @tm_view.render()
 
     @update_dataranges()
-
-    if @mget('responsive')
-      throttled_resize = _.throttle(@resize, 100)
-      $(window).on("resize", throttled_resize)
-      # Just need to wait a small delay so container has a width
-      _.delay(@resize, 10)
 
     @unpause()
 
@@ -274,13 +230,10 @@ class PlotCanvasView extends Renderer.View
       @update_selection(info.selection)
 
     if info.dimensions?
-      @update_dimensions(info.dimensions)
-
-  update_dimensions: (dimensions) ->
-    @canvas_view.set_dims([dimensions.width, dimensions.height])
+      @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
 
   reset_dimensions: () ->
-    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+    @canvas_view.set_dims([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
 
   get_selection: () ->
     selection = []
@@ -363,7 +316,7 @@ class PlotCanvasView extends Renderer.View
 
   build_levels: () ->
     renderer_models = @mget("renderers")
-    for tool_model in @mget("tools")
+    for tool_model in @mget("toolbar").tools
       synthetic = tool_model.get("synthetic_renderers")
       renderer_models = renderer_models.concat(synthetic)
 
@@ -374,16 +327,20 @@ class PlotCanvasView extends Renderer.View
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
-    tools = build_views(@tools, @mget('tools'), @view_options())
+
+    tool_views = build_views(@tool_views, @mget('toolbar').tools, @view_options())
+
     for v in views
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-    for tool_view in tools
+      
+    for tool_view in tool_views
       level = tool_view.mget('level')
       @levels[level][tool_view.model.id] = tool_view
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
+
     return this
 
   bind_bokeh_events: () ->
@@ -392,7 +349,7 @@ class PlotCanvasView extends Renderer.View
     for name, rng of @mget('frame').get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tools', @build_levels)
+    @listenTo(@model.toolbar, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
@@ -456,9 +413,6 @@ class PlotCanvasView extends Renderer.View
         break
 
     ctx = @canvas_view.ctx
-    title = @mget('title')
-    if title
-      @visuals.title_text.set_value(ctx)
 
     @update_constraints()
 
@@ -520,21 +474,9 @@ class PlotCanvasView extends Renderer.View
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
-    if title
-      vx = switch @visuals.title_text.text_align.value()
-        when 'left'   then 0
-        when 'center' then @canvas.get('width')/2
-        when 'right'  then @canvas.get('width')
-      vy = @title_panel.get('bottom') + @model.get('title_standoff')
-
-      sx = @canvas.vx_to_sx(vx)
-      sy = @canvas.vy_to_sy(vy)
-
-      @visuals.title_text.set_value(ctx)
-      ctx.fillText(title, sx, sy)
-
     if not @initial_range_info?
       @set_initial_range()
+
 
   update_constraints: () ->
     s = @model.document.solver()
@@ -547,82 +489,7 @@ class PlotCanvasView extends Renderer.View
       if view.model.panel?
         update_panel_constraints(view)
 
-    ctx = @canvas_view.ctx
-    title = @mget('title')
-    if title
-      th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
-      if th != @title_panel.get('height')
-        s.suggest_value(@title_panel._height, th)
-
     s.update_variables(false)
-
-  resize: () =>
-    @resize_width_height(true, false)
-
-  resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
-    # Resize plot based on available width and/or height
-
-    # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
-    if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
-      return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
-
-    # the solver falls over if we try and resize too small.
-    # min_size is currently set in defaults to 120, we can make this
-    # user-configurable in the future, as it may not be the right number
-    # if people set a large border on their plots, for example.
-
-    # Try to find bk-root. We will query the parent of that node for its size
-    node = @.el
-    for i in [0..2]  # Use for-loop; if we ever change DOM structure, it should still work
-      if node is null or node.classList.contains('bk-root')
-         break
-      node = node.parentNode
-
-    # The plot node might be an orphan if the initial resize
-    # happened before the plot was added to the DOM. If that happens, we
-    # try again in increasingly larger intervals (the first try should just
-    # work, but lets play it safe).
-    @_re_resized = @_re_resized or 0
-    if not (node? and node.parentNode?) and @_re_resized < 14  # 2**14 ~ 16s
-      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
-      @_re_resized += 1
-      return
-
-    # Check that what we found is a bk-root. If not, this is probably a subplot, which we
-    # can not currently make responsive in a good way
-    if not node.classList.contains('bk-root')
-       logger.warn('subplots cannot be responsive')
-       return
-
-    @_resize_width_height(use_width, use_height, maintain_ar,
-                          node.parentNode.clientWidth, node.parentNode.clientHeight)
-
-  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
-    min_size = @mget('min_size')
-
-    # We need some extra space to account for padding and toolbar. Otherwise we get scrollbars.
-    # Note that during resizing, the canvas may be too large, causing scrollbars to briefly show.
-    width_offset = height_offset = 20
-    if @model.toolbar_location == 'above' then height_offset += 30
-    if @model.toolbar_location == 'below' then height_offset += 80  # bug in layout?
-    if @model.toolbar_location in ['left', 'right'] then width_offset += 30
-    avail_width -= width_offset
-    avail_height -= height_offset
-
-    if maintain_ar is false
-      # Just change width and/or height; aspect ratio will change
-      if use_width and use_height
-        @canvas_view.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
-      else if use_width
-        @canvas_view.set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
-      else if use_height
-        @canvas_view.set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
-    else
-      # Find best size to fill space while maintaining aspect ratio
-      ar = @canvas.get('width') / @canvas.get('height')
-      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
-      if w_h?
-        @canvas_view.set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -657,8 +524,8 @@ class PlotCanvasView extends Renderer.View
     ctx.fillRect(frame_box...)
 
 class PlotCanvas extends LayoutDOM.Model
-  default_view: PlotCanvasView
   type: 'PlotCanvas'
+  default_view: PlotCanvasView
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -684,8 +551,6 @@ class PlotCanvas extends LayoutDOM.Model
     })
     @set('canvas', canvas)
 
-    @set('tool_manager', new ToolManager.Model({ plot: this }))
-
     min_border = @get('min_border')
     if min_border?
       if not @get('min_border_top')?
@@ -696,9 +561,6 @@ class PlotCanvas extends LayoutDOM.Model
         @set('min_border_left', min_border)
       if not @get('min_border_right')?
         @set('min_border_right', min_border)
-
-    @_width = new Variable("plot_width")
-    @_height = new Variable("plot_height")
 
     logger.debug("Plot initialized")
 
@@ -782,7 +644,7 @@ class PlotCanvas extends LayoutDOM.Model
         attrs.plot = this
         new tool.constructor(attrs)
 
-    @set("tools", @get("tools").concat(new_tools))
+    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
 
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
@@ -810,10 +672,8 @@ class PlotCanvas extends LayoutDOM.Model
       x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
-      tools:             [ p.Array,    []                     ]
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
       toolbar_location:  [ p.Location, 'above'                ]
-      logo:              [ p.String,   'normal'               ] # TODO (bev)
 
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]
@@ -822,7 +682,6 @@ class PlotCanvas extends LayoutDOM.Model
 
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
-      responsive:        [ p.Bool,     false                  ]
 
       min_border:        [ p.Number,   MIN_BORDER             ]
       min_border_top:    [ p.Number,   null                   ]
@@ -838,12 +697,12 @@ class PlotCanvas extends LayoutDOM.Model
     outline_line_color: '#aaaaaa'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
+    responsive: 'fixed'
   }
 
   @internal {
-    min_size:     [ p.Number, 120 ]
     canvas:       [ p.Instance ]
-    tool_manager: [ p.Instance ]
+    toolbar:      [ p.Instance ]
     frame:        [ p.Instance ]
   }
 
@@ -888,13 +747,8 @@ class PlotCanvas extends LayoutDOM.Model
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
-    min_size          = @get('min_size')
     frame             = @get('frame')
     canvas            = @get('canvas')
-
-    # Min-size
-    constraints.push(GE(@_width, -min_size))
-    constraints.push(GE(@_height, -min_size))
 
     # Set the border constraints
     constraints.push(GE(@above_panel._height, -min_border_top))
@@ -952,7 +806,7 @@ class PlotCanvas extends LayoutDOM.Model
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
 
+
 module.exports =
-  get_size_for_available_space: get_size_for_available_space
   Model: PlotCanvas
   View: PlotCanvasView

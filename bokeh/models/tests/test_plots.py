@@ -14,7 +14,7 @@ import pytest
 
 from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
-from bokeh.models.tools import PanTool
+from bokeh.models.tools import PanTool, Toolbar
 
 
 class TestPlotSelect(unittest.TestCase):
@@ -94,9 +94,9 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
     assert axis in plot.left
 
 
-def test_responsive_property_is_false_by_default():
+def test_responsive_property_is_fixed_by_default():
     plot = figure()
-    assert plot.responsive is False
+    assert plot.responsive is 'fixed'
 
 
 class BaseTwinAxis(object):
@@ -135,5 +135,22 @@ class TestLinearTwinAxis(BaseTwinAxis, unittest.TestCase):
         return Range1d(0, 42)
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_setting_logo_on_plot_declaration_sets_them_on_toolbar():
+    plot = Plot(logo='grey')
+    assert plot.toolbar.logo == 'grey', "Remove this test when deprecation cycle is over"
+
+
+def test_setting_tools_on_plot_declaration_sets_them_on_toolbar():
+    pan = PanTool()
+    plot = Plot(tools=[pan])
+    assert plot.toolbar.tools == [pan], "Remove this test when deprecation cycle is over"
+
+
+def test_plot_raises_error_if_toolbar_and_logo_are_set():
+    with pytest.raises(ValueError):
+        Plot(logo='grey', toolbar=Toolbar())
+
+
+def test_plot_raises_error_if_toolbar_and_tools_are_set():
+    with pytest.raises(ValueError):
+        Plot(tools=[PanTool()], toolbar=Toolbar())
