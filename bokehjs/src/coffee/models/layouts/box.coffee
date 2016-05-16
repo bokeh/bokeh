@@ -36,38 +36,13 @@ class BoxView extends BokehView
     @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
-  render_dom: () ->
-    left = @mget('dom_left')
-    top = @mget('dom_top')
-
-    # This is a hack - the 25 is half of the 50 that was subtracted from
-    # doc_width when resizing in document. This means that the root is positioned
-    # symetrically and the vertical scroll bar doesn't mess stuff up when it
-    # kicks in.
-    if @model._is_root == true
-      left = left + 25
-      top = top + 15
-
-    @$el.css({
-      position: 'absolute'
-      left: left
-      top: top
-      width: @model._width._value
-      height: @model._height._value
-      'margin-left': @model._whitespace_left._value
-      'margin-right': @model._whitespace_right._value
-      'margin-top': @model._whitespace_top._value
-      'margin-bottom': @model._whitespace_bottom._value
-    })
-
   render: () ->
     @$el.addClass(@mget('responsive'))
 
     if @mget('responsive') == 'width'
       @update_constraints()
 
-    @render_dom()
-
+    LayoutDOM.render_dom(@)
 
   update_constraints: () ->
     s = @model.document.solver()

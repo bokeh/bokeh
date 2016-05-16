@@ -3,6 +3,31 @@ p = require "../../core/properties"
 
 Model = require "../../model"
 
+# Helper method for LayoutDOMs.
+render_dom = (view) ->
+  left = view.mget('dom_left')
+  top = view.mget('dom_top')
+
+  # This is a hack - the 25 is half of the 50 that was subtracted from
+  # doc_width when resizing in document. This means that the root is positioned
+  # symetrically and the vertical scroll bar doesn't mess stuff up when it
+  # kicks in.
+  if view.model._is_root == true
+    left = left + 25
+    top = top + 15
+
+  view.$el.css({
+    position: 'absolute'
+    left: left
+    top: top
+    width: view.model._width._value
+    height: view.model._height._value
+    'margin-left': view.model._whitespace_left._value
+    'margin-right': view.model._whitespace_right._value
+    'margin-top': view.model._whitespace_top._value
+    'margin-bottom': view.model._whitespace_bottom._value
+  })
+
 
 class LayoutDOM extends Model
   type: "LayoutDOM"
@@ -100,3 +125,4 @@ class LayoutDOM extends Model
 
 module.exports =
   Model: LayoutDOM
+  render_dom: render_dom
