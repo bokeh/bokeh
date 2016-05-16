@@ -728,7 +728,6 @@ class PlotCanvas extends LayoutDOM.Model
   }
 
   @internal {
-    min_size:     [ p.Number, 120 ]
     canvas:       [ p.Instance ]
     toolbar:      [ p.Instance ]
     frame:        [ p.Instance ]
@@ -775,13 +774,8 @@ class PlotCanvas extends LayoutDOM.Model
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
-    min_size          = @get('min_size')
     frame             = @get('frame')
     canvas            = @get('canvas')
-
-    # Min-size
-    constraints.push(GE(@_width, -min_size))
-    constraints.push(GE(@_height, -min_size))
 
     # Set the border constraints
     constraints.push(GE(@above_panel._height, -min_border_top))
@@ -839,8 +833,6 @@ class PlotCanvas extends LayoutDOM.Model
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
 
-  get_constrained_variables: () ->
-    {}
 
 module.exports =
   Model: PlotCanvas
