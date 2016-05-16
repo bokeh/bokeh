@@ -127,8 +127,6 @@ module.exports = {
   DynamicImageRenderer:     require '../models/tiles/dynamic_image_renderer'
   ImageSource:              require '../models/tiles/image_source'
 
-  Toolbar:                  require '../models/tools/toolbar'
-
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'
   SaveTool:                 require '../models/tools/actions/save_tool'
