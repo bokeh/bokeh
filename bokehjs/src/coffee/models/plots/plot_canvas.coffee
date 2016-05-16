@@ -239,13 +239,10 @@ class PlotCanvasView extends Renderer.View
       @update_selection(info.selection)
 
     if info.dimensions?
-      @update_dimensions(info.dimensions)
-
-  update_dimensions: (dimensions) ->
-    @canvas_view.set_dims([dimensions.width, dimensions.height])
+      @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
 
   reset_dimensions: () ->
-    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+    @canvas_view.set_dims([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
 
   get_selection: () ->
     selection = []
