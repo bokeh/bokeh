@@ -727,7 +727,10 @@ class PlotCanvas extends LayoutDOM.Model
     outline_line_color: '#aaaaaa'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
-    responsive: 'fixed'
+    # The Plot is the responsive mode users should care about, that sets the
+    # parent constraints and then plot fills the space thats left over after
+    # Toolbar has been inserted.
+    responsive: 'box'
   }
 
   @internal {

@@ -23,6 +23,10 @@ Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "PlotCanvas.Model", ->
 
+  it "should set the responsive mode to box by default", ->
+    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    expect(p.responsive).to.be.equal 'box'
+
   it "should have a four LayoutCanvases after document is attached is called", ->
     p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
     expect(p.above_panel).to.be.undefined
