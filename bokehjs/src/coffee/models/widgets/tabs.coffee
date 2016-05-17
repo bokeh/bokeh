@@ -2,13 +2,14 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
 
-tabs_template = require "./tabs_template"
-Widget = require "./widget"
 build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
+
 p = require "../../core/properties"
 
-class TabsView extends BokehView
+tabs_template = require "./tabs_template"
+Widget = require "./widget"
+
+class TabsView extends Widget.View
 
   initialize: (options) ->
     super(options)
@@ -17,6 +18,7 @@ class TabsView extends BokehView
     @listenTo @model, 'change', this.render
 
   render: () ->
+    super()
     for own key, val of @views
       val.$el.detach()
     @$el.empty()

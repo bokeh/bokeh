@@ -44,11 +44,12 @@ describe "Canvas.View", ->
     spy = sinon.spy(CanvasView.prototype, 'set_dims')
     c_view = new @c.default_view({'model': @c})
     expect(spy.calledOnce).to.be.true
+    spy.restore()
 
   it "set_dims should call update_constraints", ->
-    c_view = new @c.default_view({'model': @c})
-    spy = sinon.spy(CanvasView.prototype, 'update_constraints')
-    c_view.set_dims([1, 2])
+    canvas_view = new @c.default_view({'model': @c})
+    spy = sinon.spy(canvas_view, 'update_constraints')
+    canvas_view.set_dims([1, 2])
     expect(spy.calledOnce).to.be.true
 
   it "set_dims should set requested_width and requested_height on canvas_view", ->
@@ -66,6 +67,22 @@ describe "Canvas.View", ->
     c_view.update_constraints()
     expect(@solver_add_stub.callCount).to.be.equal initial_add_count + 2
     expect(@solver_remove_stub.callCount).to.be.equal initial_remove_count + 0 # No constraint removal on first update
+
+  it "update_constraints should add one constraint to solver if height == 0 and width > 0", ->
+    c_view = new @c.default_view({'model': @c})
+    initial_add_count = @solver_add_stub.callCount
+    c_view.requested_width = 4
+    c_view.requested_height = 0
+    c_view.update_constraints()
+    expect(@solver_add_stub.callCount).to.be.equal initial_add_count + 1
+
+  it "update_constraints should add one constraint to solver if height > 0 and width == 0", ->
+    c_view = new @c.default_view({'model': @c})
+    initial_add_count = @solver_add_stub.callCount
+    c_view.requested_width = 0
+    c_view.requested_height = 4
+    c_view.update_constraints()
+    expect(@solver_add_stub.callCount).to.be.equal initial_add_count + 1
 
   it "update_constraints should remove two constraints from solver if update_constraints has already been called once", ->
     c_view = new @c.default_view({'model': @c})

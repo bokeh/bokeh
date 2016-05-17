@@ -1,7 +1,8 @@
 _ = require "underscore"
+$ = require "jquery"
 
 {Models} = require "./base"
-{Solver} = require "./core/layout/solver"
+{EQ, Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
@@ -83,9 +84,31 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
-
+    @_doc_width = new Variable("_doc_width #{@id}")
+    @_doc_height = new Variable("doc_height #{@id}")
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+    throttled_resize = _.throttle(@resize, 25)
+    $(window).on("resize", $.proxy(throttled_resize, @))
+    
   solver: () ->
     @_solver
+
+  resize: () ->
+    # The 50 is a hack for when the scroll bar kicks in
+    # when the page is allowed to extend - also see the 
+    # note in box.coffee
+
+    # TODO: We can't use window in the future (bk-root?)
+    width = window.innerWidth - 50
+    height = window.innerHeight - 30
+
+    logger.debug("resize: Document -- #{width} x #{height}")
+
+    @_solver.suggest_value(@_doc_width, width)
+    @_solver.suggest_value(@_doc_height, height)
+    @_solver.update_variables(false)
+    @_solver.trigger('resize')
 
   clear : () ->
     while @_roots.length > 0
@@ -108,11 +131,33 @@ class Document
       return
     @_roots.push(model)
     model.attach_document(@)
-    for {edit_variable, strength} in model.get_edit_variables()
+
+    model._is_root = true
+
+    editables = model.get_edit_variables()
+    constraints = model.get_constraints()
+
+    for {edit_variable, strength} in editables
       @_solver.add_edit_variable(edit_variable, strength)
-    for constraint in model.get_constraints()
+    for constraint in constraints
       @_solver.add_constraint(constraint)
+
     @_trigger_on_change(new RootAddedEvent(@, model))
+
+    # Set the size of the root layoutable to the document size
+    # TODO What happens if there's more than one layoutable root - does that
+    # even make sense?
+    if model.responsive?
+      root_vars = model.get_constrained_variables()
+      # We add a width constraint for width and box
+      if model.responsive != 'fixed'
+        if root_vars.width?
+          @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
+      if model.responsive == 'box'
+        if root_vars.height?
+          @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
+
+    @_solver.update_variables()
 
   remove_root : (model) ->
     i = @_roots.indexOf(model)
@@ -121,6 +166,7 @@ class Document
     else
       @_roots.splice(i, 1)
 
+    model._is_root = false
     model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
 

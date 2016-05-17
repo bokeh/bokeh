@@ -420,8 +420,8 @@ class BasicProperty(Property):
         return default
 
     def _real_set(self, obj, old, value, hint=None):
-        # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may 
-        # need refining later if this assumption changes. 
+        # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may
+        # need refining later if this assumption changes.
         unchanged = self.descriptor.matches(value, old) and (hint is None)
         if unchanged:
             return
@@ -1854,4 +1854,17 @@ class ColorSpec(DataSpec):
         if isinstance(value, tuple):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
 
+        return value
+
+class Responsive(Either):
+
+    def __init__(self, default=None, help=None):
+        types = (Enum(enums.Responsive), Bool)
+        super(Responsive, self).__init__(*types, default=default, help=help)
+
+    def transform(self, value):
+        if value is True:
+            value = 'width'
+        if value is False:
+            value = 'fixed'
         return value

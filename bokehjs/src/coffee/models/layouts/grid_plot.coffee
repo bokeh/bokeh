@@ -1,14 +1,19 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
+
 build_views = require "../../common/build_views"
+
 BokehView = require "../../core/bokeh_view"
-LayoutDOM = require "./layout_dom"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
-ToolManager = require "../../common/tool_manager"
-plot_template = require "../plots/plot_template"
 p = require "../../core/properties"
+
+Toolbar = require "../tools/toolbar"
+
+LayoutDOM = require "./layout_dom"
+
+plot_template = require "./grid_plot_template"
 
 class ToolProxy extends Backbone.Model
 
@@ -45,7 +50,7 @@ class ToolProxy extends Backbone.Model
       tool.set(attr, value)
     return null
 
-class GridToolManager extends ToolManager.Model
+class GridToolbar extends Toolbar.Model
 
   _init_tools: () ->
     # Note: no call to super(), intentionally
@@ -54,7 +59,7 @@ class GridToolManager extends ToolManager.Model
     actions = {}
     gestures = {}
 
-    for tm in @get('tool_managers')
+    for tm in @get('toolbars')
 
       for et, info of tm.get('gestures')
         if et not of gestures
@@ -113,17 +118,17 @@ class GridToolManager extends ToolManager.Model
     # Toggle between tools of the same type by deactivating any active ones
     currently_active_tool = gestures[event_type].active
     if currently_active_tool? and currently_active_tool != tool
-      logger.debug("GridToolManager: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+      logger.debug("GridToolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
       currently_active_tool.set('active', false)
 
     # Update the gestures with the new active tool
     gestures[event_type].active = tool
     @set('gestures', gestures)
-    logger.debug("GridToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
+    logger.debug("GridToolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   @internal {
-    tool_managers: [ p.Array, [] ]
+    toolbars: [ p.Array, [] ]
     toolbar_location: [ p.Location ]
     num_plots: [ p.Int ]
   }
@@ -199,8 +204,8 @@ class GridPlotView extends BokehView
       logger.debug(
         "attaching toolbar to #{toolbar_selector} for plot #{@model.id}"
       )
-      @tm_view = new ToolManager.View({
-        model: @mget('tool_manager')
+      @tm_view = new Toolbar.View({
+        model: @mget('toolbar')
         el: @$(toolbar_selector)
         location: toolbar_location
       })
@@ -252,8 +257,8 @@ class GridPlotView extends BokehView
     toolbar_location = @mget('toolbar_location')
     if toolbar_location?
       toolbar_selector = '.bk-plot-' + toolbar_location
-      @tm_view = new ToolManager.View({
-        model: @mget('tool_manager')
+      @tm_view = new Toolbar.View({
+        model: @mget('toolbar')
         el: @$(toolbar_selector)
         location: toolbar_location
       })
@@ -324,9 +329,9 @@ class GridPlot extends LayoutDOM.Model
       if plot?
         children.push(plot)
     @set('flat_children', children)
-    @define_computed_property('tool_manager', () ->
-      new GridToolManager({
-        tool_managers: (plot.get('tool_manager') for plot in @get('flat_children'))
+    @define_computed_property('toolbar', () ->
+      new GridToolbar({
+        toolbars: (plot.get('toolbar') for plot in @get('flat_children'))
         toolbar_location: @get('toolbar_location')
         num_plots: @get('flat_children').length
       })

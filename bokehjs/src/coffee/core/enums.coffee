@@ -39,3 +39,5 @@ module.exports =
   DistributionTypes: ["uniform", "normal"]
 
   TransformStepModes: ["after", "before", "center"]
+
+  Responsive: ["box", "width", "fixed"]

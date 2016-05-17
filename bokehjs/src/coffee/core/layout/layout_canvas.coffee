@@ -9,12 +9,12 @@ class LayoutCanvas extends Model
 
   initialize: (attrs, options)->
     super(attrs, options)
-    @_top = new Variable('top')
-    @_left = new Variable('left')
-    @_width = new Variable('width')
-    @_height = new Variable('height')
-    @_right = new Variable('right')
-    @_bottom = new Variable('bottom')
+    @_top = new Variable("top #{@id}")
+    @_left = new Variable("left #{@id}")
+    @_width = new Variable("width #{@id}")
+    @_height = new Variable("height #{@id}")
+    @_right = new Variable("right #{@id}")
+    @_bottom = new Variable("bottom #{@id}")
 
     # TODO (bird) - I'd like to get rid of these to reduce confusion
     @define_computed_property('height', @_get_var, false)

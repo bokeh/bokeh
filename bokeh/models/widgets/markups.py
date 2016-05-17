@@ -16,10 +16,6 @@ class Markup(Widget):
     The contents of the widget.
     """)
 
-    width = Override(default=500)
-
-    height = Override(default=400)
-
 
 class Paragraph(Markup):
     """ A block (paragraph) of text.
