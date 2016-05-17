@@ -39,7 +39,8 @@ class Plot extends Box.Model
     super(options)
     @_horizontal = false
     @toolbar.location = @toolbar_location
-    @_plot_canvas = new PlotCanvas.Model(options)
+    plot_canvas_options = _.omit(options, 'toolbar_location')
+    @_plot_canvas = new PlotCanvas.Model(plot_canvas_options)
     @_plot_canvas.toolbar = @toolbar
 
   _doc_attached: () ->

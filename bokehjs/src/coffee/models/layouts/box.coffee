@@ -33,7 +33,7 @@ class BoxView extends BokehView
       # figure out what size we want them.
       _.delay(resize, 5)
       _.delay(resize, 10)
-      _.delay(resize, 20)
+      _.delay(resize, 50)
 
   bind_bokeh_events: () ->
     @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())

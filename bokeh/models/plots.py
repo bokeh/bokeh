@@ -26,7 +26,7 @@ from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents, Toolbar
-from .layouts import LayoutDOM
+from .layouts import Box, LayoutDOM
 
 
 class _list_attr_splat(list):
@@ -71,7 +71,7 @@ def _select_helper(args, kwargs):
     return selector
 
 
-class Plot(LayoutDOM):
+class Plot(Box):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
