@@ -6,6 +6,7 @@ sinon = require "sinon"
 
 {Document} = utils.require("document")
 Box = utils.require("models/layouts/box").Model
+BoxView = utils.require("models/layouts/box").View
 
 dom_left = 12
 dom_top = 13
@@ -17,13 +18,14 @@ wt = 22
 wb = 33
 
 describe "Box.View", ->
-  afterEach ->
-    utils.unstub_solver()
-
-  beforeEach ->
-    @solver_stubs = utils.stub_solver()
 
   describe "initialize", ->
+    afterEach ->
+      utils.unstub_solver()
+
+    beforeEach ->
+      utils.stub_solver()
+
     it "should call model.variables_updated on initialization", ->
       # This seems to be very important for fixed layouts rendering properly, otherwise
       # they end up with no height.
@@ -34,8 +36,13 @@ describe "Box.View", ->
       expect(spy.calledOnce).is.true
 
   describe "render", ->
+    afterEach ->
+      utils.unstub_solver()
+      BoxView.prototype.initialize.restore()
+
     beforeEach ->
-      @solver_suggest = @solver_stubs['suggest']
+      solver_stubs = utils.stub_solver()
+      @solver_suggest = solver_stubs['suggest']
       @test_box = new Box()
       @test_box.attach_document(new Document())
       @test_box.set('dom_left', dom_left)
@@ -46,6 +53,7 @@ describe "Box.View", ->
       @test_box._whitespace_right = {_value: wr}
       @test_box._whitespace_top = {_value: wt}
       @test_box._whitespace_bottom = {_value: wb}
+      sinon.stub(BoxView.prototype, 'initialize')
 
     it "should call update_constraints if the responsive mode is 'width'", ->
       box_view = new @test_box.default_view({ model: @test_box })
@@ -68,9 +76,12 @@ describe "Box.View", ->
 
 
   describe "update_constraints", ->
+    afterEach ->
+      utils.unstub_solver()
 
     beforeEach ->
-      @solver_suggest = @solver_stubs['suggest']
+      solver_stubs = utils.stub_solver()
+      @solver_suggest = solver_stubs['suggest']
       @test_box = new Box()
       @test_box.attach_document(new Document())
 
