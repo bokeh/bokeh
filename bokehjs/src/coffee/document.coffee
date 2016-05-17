@@ -88,7 +88,6 @@ class Document
     @_doc_height = new Variable("doc_height #{@id}")
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
-    @_responsive = 'width'
     throttled_resize = _.throttle(@resize, 25)
     $(window).on("resize", $.proxy(throttled_resize, @))
     
@@ -149,8 +148,6 @@ class Document
     # TODO What happens if there's more than one layoutable root - does that
     # even make sense?
     if model.responsive?
-      @_responsive = model.responsive
-
       root_vars = model.get_constrained_variables()
       # We add a width constraint for width and box
       if model.responsive != 'fixed'
@@ -168,10 +165,6 @@ class Document
       return
     else
       @_roots.splice(i, 1)
-
-    if model.responsive?
-      # reset to default
-      @_responsive = 'width'
 
     model._is_root = false
     model.detach_document()

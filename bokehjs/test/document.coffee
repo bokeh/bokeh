@@ -893,12 +893,6 @@ describe "Document", ->
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(spy.calledOnce).is.true
 
-  it "add_root sets _responsive of document to fixed if root model is fixed", ->
-    d = new Document()
-    expect(d._responsive).is.equal 'width'
-    d.add_root(new ModelWithConstrainedVariables({responsive: 'fixed'}))
-    expect(d._responsive).is.equal 'fixed'
-
   it "add_root sets the _is_root property of model to true", ->
     d = new Document()
     root_model = new ModelWithConstrainedVariables()
@@ -913,14 +907,6 @@ describe "Document", ->
     expect(root_model._is_root).is.true
     d.remove_root(root_model)
     expect(root_model._is_root).is.false
-
-  it "remove_root sets _responsive of document to 'width'", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables({responsive: 'fixed'})
-    d.add_root(root_model)
-    expect(d._responsive).is.equal 'fixed'
-    d.remove_root(root_model)
-    expect(d._responsive).is.equal 'width'
 
   it "resize suggests value for width and height of document", ->
     d = new Document()
@@ -946,7 +932,3 @@ describe "Document", ->
     d.resize()
     expect(spy.calledOnce).is.true
     expect(spy.calledWith('resize')).is.true
-
-  it "sets responsive to 'width' on initialization", ->
-    d = new Document()
-    expect(d._responsive).is.equal 'width'
