@@ -16,6 +16,7 @@ CanvasView = utils.require("models/canvas/canvas").View
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 LayoutCanvas = utils.require("core/layout/layout_canvas").Model
 LinearAxis = utils.require("models/axes/linear_axis").Model
+Plot = utils.require("models/plots/plot").Model
 PlotCanvas = utils.require("models/plots/plot_canvas").Model
 PlotCanvasView = utils.require("models/plots/plot_canvas").View
 Range1d = utils.require("models/ranges/range1d").Model
@@ -109,68 +110,69 @@ describe "PlotCanvas.Model constraints", ->
 
   beforeEach ->
     @test_doc = new Document()
-    @test_plot = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    @test_plot.attach_document(@test_doc)
+    test_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
+    test_plot.attach_document(@test_doc)
+    @test_plot_canvas = test_plot.plot_canvas()
 
   it "should return 20 constraints from _get_constant_constraints", ->
-    expect(@test_plot._get_constant_constraints().length).to.be.equal 20
+    expect(@test_plot_canvas._get_constant_constraints().length).to.be.equal 20
 
   it "should return 0 constraints from _get_side_constraints if there are no side renderers", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on above", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(new LinearAxis(), 'above')
-    expect(@test_plot._get_side_constraints().length).to.be.equal 2
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    @test_plot_canvas.add_layout(new LinearAxis(), 'above')
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 2
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on below", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(new LinearAxis(), 'below')
-    expect(@test_plot._get_side_constraints().length).to.be.equal 2
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    @test_plot_canvas.add_layout(new LinearAxis(), 'below')
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 2
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on left", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(new LinearAxis(), 'left')
-    expect(@test_plot._get_side_constraints().length).to.be.equal 2
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    @test_plot_canvas.add_layout(new LinearAxis(), 'left')
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 2
 
   it "should return 2 constraints from _get_side_constraints if there is one side renderer on right", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(new LinearAxis(), 'right')
-    expect(@test_plot._get_side_constraints().length).to.be.equal 2
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    @test_plot_canvas.add_layout(new LinearAxis(), 'right')
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 2
 
   it "should return 4 constraints from _get_side_constraints if there are two side renderers", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(new LinearAxis(), 'left')
-    @test_plot.add_layout(new LinearAxis(), 'right')
-    expect(@test_plot._get_side_constraints().length).to.be.equal 4
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    @test_plot_canvas.add_layout(new LinearAxis(), 'left')
+    @test_plot_canvas.add_layout(new LinearAxis(), 'right')
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 4
 
   it "should return 3 constraints from _get_side_constraints if there are two side renderers on one side", ->
-    expect(@test_plot._get_side_constraints().length).to.be.equal 0
-    @test_plot.add_layout(new LinearAxis(), 'left')
-    @test_plot.add_layout(new LinearAxis(), 'left')
-    expect(@test_plot._get_side_constraints().length).to.be.equal 3
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    @test_plot_canvas.add_layout(new LinearAxis(), 'left')
+    @test_plot_canvas.add_layout(new LinearAxis(), 'left')
+    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 3
 
   it "should call _get_side_constraints, _get_constant_constraints", ->
-    @test_plot._get_side_constraints = sinon.spy()
-    @test_plot._get_constant_constraints = sinon.spy()
-    expect(@test_plot._get_side_constraints.callCount).to.be.equal 0
-    expect(@test_plot._get_constant_constraints.callCount).to.be.equal 0
-    @test_plot.get_constraints()
-    expect(@test_plot._get_side_constraints.callCount).to.be.equal 1
-    expect(@test_plot._get_constant_constraints.callCount).to.be.equal 1
+    @test_plot_canvas._get_side_constraints = sinon.spy()
+    @test_plot_canvas._get_constant_constraints = sinon.spy()
+    expect(@test_plot_canvas._get_side_constraints.callCount).to.be.equal 0
+    expect(@test_plot_canvas._get_constant_constraints.callCount).to.be.equal 0
+    @test_plot_canvas.get_constraints()
+    expect(@test_plot_canvas._get_side_constraints.callCount).to.be.equal 1
+    expect(@test_plot_canvas._get_constant_constraints.callCount).to.be.equal 1
 
   it "should call _get_constraints on children", ->
-    children = @test_plot.get_layoutable_children()
+    children = @test_plot_canvas.get_layoutable_children()
     expect(children.length).to.be.equal 6
     for child in children
       child.get_constraints = sinon.spy()
       expect(child.get_constraints.callCount).to.be.equal 0
-    @test_plot.get_constraints()
+    @test_plot_canvas.get_constraints()
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
 
   it "should return correct constrained_variables", ->
-    p = @test_plot
+    p = @test_plot_canvas
     expected_constrainted_variables = {
       'width': p._width
       'height': p._height
@@ -292,8 +294,8 @@ describe "PlotCanvas.View resize", ->
   it "should call canvas.set_dims with height that is proportional to width by aspect ratio if responsive_mode is width", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
     @test_plot.responsive = 'width'
-    @test_plot.plot_width = 100
-    @test_plot.plot_height = 1
+    @test_plot.width = 100
+    @test_plot.height = 1
     @test_plot_view.resize()
     expect(spy.calledOnce).to.be.true
     # The aspect ratio is 100:1

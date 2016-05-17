@@ -75,6 +75,7 @@ describe "Box.View", ->
       @test_box.attach_document(new Document())
 
     it "should call suggest value with the elements scrollHeight if responsive_mode is width", ->
+      @solver_suggest.reset()
       @test_box.responsive = 'width'
       box_view = new @test_box.default_view({ model: @test_box })
       box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
@@ -84,6 +85,7 @@ describe "Box.View", ->
       expect(@solver_suggest.args[1]).to.be.deep.equal [@test_box._height, 222]
 
     it "should call suggest value with the model height and width if responsive_mode is fixed", ->
+      @solver_suggest.reset()
       @test_box.responsive = 'fixed'
       @test_box.width = 22
       @test_box.height = 33

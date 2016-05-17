@@ -490,7 +490,7 @@ class PlotCanvasView extends Renderer.View
     if @mget('responsive') == 'width'
       width = @model._width._value
       # We maintain the aspect ratio to calculate the height
-      ar = @mget('plot_width') / @mget('plot_height')
+      ar = @mget('width') / @mget('height')
       height = width / ar
       # We need to specify the box height based on this calculated height
       @model.document.solver().suggest_value(@model._height, height)
@@ -831,6 +831,10 @@ class PlotCanvas extends LayoutDOM.Model
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
 
+  # TODO: This is less than awesome - this is here purely for tests to pass. Need to 
+  # find a better way, but this was expedient for now.
+  plot_canvas: () ->
+    return @
 
 module.exports =
   Model: PlotCanvas

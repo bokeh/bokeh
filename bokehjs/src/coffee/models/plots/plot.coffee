@@ -32,14 +32,15 @@ class Plot extends Box.Model
   initialize: (options) ->
     super(options)
     @_horizontal = false
+    @toolbar.location = @toolbar_location
     plot_canvas_options = _.omit(options, ['plot_width', 'plot_height', 'toolbar_location'])
     @_plot_canvas = new PlotCanvas.Model(plot_canvas_options)
     @_plot_canvas.toolbar = @toolbar
+    @_plot_canvas.width = @plot_width
+    @_plot_canvas.height = @plot_height
 
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
-    @toolbar.location = @toolbar_location
-    @toolbar.grow = false
 
   get_layoutable_children: () ->
     toolbar_location = @toolbar_location

@@ -167,7 +167,6 @@ class Toolbar extends Widget.Model
 
   @override {
     responsive: 'width'
-    grow: false
   }
 
   get_edit_variables: () ->
