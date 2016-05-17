@@ -1,9 +1,15 @@
 _ = require "underscore"
+
+ToolEvents = require "../../common/tool_events"
+
 Box = require "../layouts/box"
 PlotCanvas = require "../plots/plot_canvas"
 LayoutDOM = require "../layouts/layout_dom"
+Toolbar = require "../tools/toolbar"
 
 p = require "../../core/properties"
+
+MIN_BORDER = 50
 
 class PlotView extends Box.View
   className: "bk-plot-layout"
@@ -33,11 +39,8 @@ class Plot extends Box.Model
     super(options)
     @_horizontal = false
     @toolbar.location = @toolbar_location
-    plot_canvas_options = _.omit(options, ['plot_width', 'plot_height', 'toolbar_location'])
-    @_plot_canvas = new PlotCanvas.Model(plot_canvas_options)
+    @_plot_canvas = new PlotCanvas.Model(options)
     @_plot_canvas.toolbar = @toolbar
-    @_plot_canvas.width = @plot_width
-    @_plot_canvas.height = @plot_height
 
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
@@ -64,61 +67,57 @@ class Plot extends Box.Model
   plot_canvas: () ->
     @_plot_canvas
 
-  @define {
-      plot_width:        [ p.Number,   600                    ]
-      plot_height:       [ p.Number,   600                    ]
-
-      toolbar:           [ p.Instance ]
-      toolbar_location:  [ p.Location, 'above'                ]
-    }
-
   @override {
     responsive: 'fixed'
   }
 
-  # Set all the PlotCanvas properties as internal.
+  # Set all the PlotCanvas properties.
   # This seems to be necessary so that everything can initialize.
   # Feels very clumsy, but I'm not sure how the properties system wants
   # to handle something like this situation.
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
-  @internal {
-    title:             [ p.String ]
-    title_standoff:    [ p.Number ]
+  @define {
+      plot_width:        [ p.Number,   600                    ]
+      plot_height:       [ p.Number,   600                    ]
+      title:             [ p.String,   ''                     ]
+      title_standoff:    [ p.Number,   8                      ]
 
-    h_symmetry:        [ p.Bool ]
-    v_symmetry:        [ p.Bool ]
+      h_symmetry:        [ p.Bool,     true                   ]
+      v_symmetry:        [ p.Bool,     false                  ]
 
-    above:             [ p.Array ]
-    below:             [ p.Array ]
-    left:              [ p.Array ]
-    right:             [ p.Array ]
+      above:             [ p.Array,    []                     ]
+      below:             [ p.Array,    []                     ]
+      left:              [ p.Array,    []                     ]
+      right:             [ p.Array,    []                     ]
 
-    renderers:         [ p.Array ]
+      renderers:         [ p.Array,    []                     ]
 
-    x_range:           [ p.Instance ]
-    extra_x_ranges:    [ p.Any ]
-    y_range:           [ p.Instance ]
-    extra_y_ranges:    [ p.Any ]
+      x_range:           [ p.Instance                         ]
+      extra_x_ranges:    [ p.Any,      {}                     ] # TODO (bev)
+      y_range:           [ p.Instance                         ]
+      extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
 
-    x_mapper_type:     [ p.String ]
-    y_mapper_type:     [ p.String ]
+      x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
+      y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
-    tool_events:       [ p.Instance ]
+      toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
+      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
+      toolbar_location:  [ p.Location, 'above'                ]
 
-    lod_factor:        [ p.Number ]
-    lod_interval:      [ p.Number ]
-    lod_threshold:     [ p.Number ]
-    lod_timeout:       [ p.Number ]
+      lod_factor:        [ p.Number,   10                     ]
+      lod_interval:      [ p.Number,   300                    ]
+      lod_threshold:     [ p.Number,   2000                   ]
+      lod_timeout:       [ p.Number,   500                    ]
 
-    webgl:             [ p.Bool ]
-    hidpi:             [ p.Bool ]
+      webgl:             [ p.Bool,     false                  ]
+      hidpi:             [ p.Bool,     true                   ]
 
-    min_border:        [ p.Number ]
-    min_border_top:    [ p.Number ]
-    min_border_left:   [ p.Number ]
-    min_border_bottom: [ p.Number ]
-    min_border_right:  [ p.Number ]
-  }
+      min_border:        [ p.Number,   MIN_BORDER             ]
+      min_border_top:    [ p.Number,   null                   ]
+      min_border_left:   [ p.Number,   null                   ]
+      min_border_bottom: [ p.Number,   null                   ]
+      min_border_right:  [ p.Number,   null                   ]
+    }
 
 module.exports =
   View: PlotView

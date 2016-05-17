@@ -490,7 +490,7 @@ class PlotCanvasView extends Renderer.View
     if @mget('responsive') == 'width'
       width = @model._width._value
       # We maintain the aspect ratio to calculate the height
-      ar = @mget('width') / @mget('height')
+      ar = @mget('plot_width') / @mget('plot_height')
       height = width / ar
       # We need to specify the box height based on this calculated height
       @model.document.solver().suggest_value(@model._height, height)
@@ -566,8 +566,8 @@ class PlotCanvas extends LayoutDOM.Model
 
     canvas = new Canvas.Model({
       map: @use_map ? false
-      canvas_width: @get('width'),
-      canvas_height: @get('height'),
+      canvas_width: @get('plot_width'),
+      canvas_height: @get('plot_height'),
       use_hidpi: @get('hidpi')
     })
     @set('canvas', canvas)
@@ -670,6 +670,8 @@ class PlotCanvas extends LayoutDOM.Model
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   @define {
+      plot_width:        [ p.Number,   600                    ]
+      plot_height:       [ p.Number,   600                    ]
       title:             [ p.String,   ''                     ]
       title_standoff:    [ p.Number,   8                      ]
 

@@ -294,8 +294,8 @@ describe "PlotCanvas.View resize", ->
   it "should call canvas.set_dims with height that is proportional to width by aspect ratio if responsive_mode is width", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
     @test_plot.responsive = 'width'
-    @test_plot.width = 100
-    @test_plot.height = 1
+    @test_plot.plot_width = 100
+    @test_plot.plot_height = 1
     @test_plot_view.resize()
     expect(spy.calledOnce).to.be.true
     # The aspect ratio is 100:1

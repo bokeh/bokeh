@@ -16,8 +16,7 @@ class GMapPlot extends Plot.Model
   initialize: (options) ->
     plot_options = _.omit(options, 'map_options')
     super(plot_options)
-    plot_canvas_options = _.omit(options, ['plot_width', 'plot_height', 'toolbar_location'])
-    @_plot_canvas = new GMapPlotCanvas.Model(plot_canvas_options)
+    @_plot_canvas = new GMapPlotCanvas.Model(options)
     @_plot_canvas.toolbar = @toolbar
     @_plot_canvas.width = @plot_width
     @_plot_canvas.height = @plot_height
@@ -25,9 +24,13 @@ class GMapPlot extends Plot.Model
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
 
-  @internal {
-      map_options: [ p.Any ]
-    }
+  # Set all the PlotCanvas properties as internal.
+  # This seems to be necessary so that everything can initialize.
+  # Feels very clumsy, but I'm not sure how the properties system wants
+  # to handle something like this situation.
+  @define {
+    map_options: [ p.Any ]
+  }
 
 module.exports =
   Model: GMapPlot
