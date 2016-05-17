@@ -6,7 +6,7 @@ Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 bbox = require "../../core/util/bbox"
 Model = require "../../model"
-bokehgl = require "../glyphs/bokehgl"
+bokehgl = require "./bokehgl/main"
 
 class GlyphView extends Renderer.View
 
@@ -22,7 +22,6 @@ class GlyphView extends Renderer.View
     if @renderer?.plot_view?
       ctx = @renderer.plot_view.canvas_view.ctx
       if ctx.glcanvas?
-        window.ggg = this
         Cls = bokehgl[@model.type + 'GLGlyph']
         if Cls
           @glglyph = new Cls(ctx.glcanvas.gl, this)
