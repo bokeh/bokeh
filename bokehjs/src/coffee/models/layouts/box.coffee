@@ -24,6 +24,8 @@ class BoxView extends BokehView
 
     @bind_bokeh_events()
 
+    @model.variables_updated()
+
     if @model._is_root == true
       resize = () -> $(window).trigger('resize')
       # I haven't found a way to not trigger this multiple times.
@@ -55,7 +57,6 @@ class BoxView extends BokehView
       s.suggest_value(@model._width, @mget('width'))
       s.suggest_value(@model._height, @mget('height'))
 
-  
 
 class Box extends LayoutDOM.Model
   default_view: BoxView
