@@ -440,11 +440,13 @@ class StepGlyph(LineGlyph):
         elif self.y is None:
             y = self.x.index
 
-        xs = np.empty(2*len(x)-1, dtype=x.dtype)
+        dtype = x.dtype if hasattr(x, 'dtype') else np.int
+        xs = np.empty(2*len(x)-1, dtype=dtype)
         xs[::2] = x[:]
         xs[1::2] = x[1:]
 
-        ys = np.empty(2*len(y)-1, dtype=y.dtype)
+        dtype = y.dtype if hasattr(y, 'dtype') else np.float64
+        ys = np.empty(2*len(y)-1, dtype=dtype)
         ys[::2] = y[:]
         ys[1::2] = y[:-1]
 
