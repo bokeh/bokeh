@@ -299,23 +299,14 @@ describe "PlotCanvas.View resize", ->
     # The aspect ratio is 100:1
     expect(spy.calledWith([width, width / 100], false)).to.be.true
 
-  it "should call solver.suggest_value if responsive_mode is width", ->
-    spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
-    @test_plot.responsive = 'width'
-    @test_plot.plot_width = 100
-    @test_plot.plot_height = 1
-
-    callCount = @solver_suggest.callCount
-    @test_plot_view.resize()
-    expect(@solver_suggest.callCount).is.equal callCount + 1
-    # I'd like to test for the correct call value, but something funky is going
-    # on in the test suite that doesn't happen in reality.
-
-  it "should not call canvas.set_dims if responsive_mode is fixed", ->
+  it "should call solver.suggest_value for width and height if responsive_mode is fixed", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
     @test_plot.responsive = 'fixed'
+    @test_plot.width = 111
+    @test_plot.height = 222
     @test_plot_view.resize()
-    expect(spy.called).to.be.false
+    expect(spy.calledOnce).to.be.true
+    expect(spy.calledWith([111, 222], false)).to.be.true
 
   it "should throw an error if height is 0", ->
     @test_plot._height = {_value: 0}

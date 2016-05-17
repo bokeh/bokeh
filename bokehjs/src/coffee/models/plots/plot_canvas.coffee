@@ -489,7 +489,8 @@ class PlotCanvasView extends Renderer.View
   resize: () ->
 
     if @mget('responsive') == 'fixed'
-       return null
+      width = @mget('width')
+      height = @mget('height')
 
     if @mget('responsive') == 'box'
       width = @model._width._value
