@@ -3,6 +3,7 @@ $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
 
 {logger} = require "../../core/logging"
+{Strength}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 Widget = require "../widgets/widget"
@@ -65,6 +66,17 @@ class ToolbarView extends Widget.View
       )
 
     return @
+
+  update_constraints: () ->
+    s = @model.document.solver()
+    if @mget('responsive') == 'width'
+      if @mget('location') in ['left', 'right']
+        s.suggest_value(@model._width, 30)
+      if @mget('location') in ['above', 'below']
+        s.suggest_value(@model._height, 30)
+    if @mget('responsive') == 'fixed'
+      s.suggest_value(@model._width, @mget('width'))
+      s.suggest_value(@model._height, @mget('height'))
 
 class Toolbar extends Widget.Model
   type: 'Toolbar'
@@ -144,10 +156,57 @@ class Toolbar extends Widget.Model
   }
 
   @override {
-    height: 30
     responsive: 'width'
     grow: false
   }
+
+  get_edit_variables: () ->
+    edit_variables = []
+    # If layout is box, we do nothing - toolbar grows to fill its container
+    # If layout is fixed, we add both - toolbar is set to whatever is specified
+    # If layout is width, we add height/width depending on toolbar location
+    # Note: This kind of behavior maybe something we generalize if we conceive
+    # of a proper orientation system.
+    if @responsive == 'fixed'
+      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    if @responsive == 'width' and @location in ['above', 'below']
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    if @responsive == 'width' and @location in ['left', 'right']
+      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
+    return edit_variables
+
+  get_constrained_variables: () ->
+    # Toolbar has its own oddities and the responsive modes behave slightly
+    # differently. We always want Toolbar to be only as big as it is (30px) so
+    # we don't set the box-equal-size constrained variables so it always stays
+    # narrow.
+    constrained_variables = {
+      'width': @_width
+      'height': @_height
+      # when this widget is on the edge of a box visually,
+      # align these variables down that edge. Right/bottom
+      # are an inset from the edge.
+      'on-top-edge-align' : @_top
+      'on-bottom-edge-align' : @_height_minus_bottom
+      'on-left-edge-align' : @_left
+      'on-right-edge-align' : @_width_minus_right
+      # when this widget is in a box cell with the same "arity
+      # path" as a widget in another cell, align these variables
+      # between the two box cells. Right/bottom are an inset from
+      # the edge.
+      'box-cell-align-top' : @_top
+      'box-cell-align-bottom' : @_height_minus_bottom
+      'box-cell-align-left' : @_left
+      'box-cell-align-right' : @_width_minus_right
+      # insets from the edge that are whitespace (contain no pixels),
+      # this is used for spacing within a box.
+      'whitespace-top' : @_whitespace_top
+      'whitespace-bottom' : @_whitespace_bottom
+      'whitespace-left' : @_whitespace_left
+      'whitespace-right' : @_whitespace_right
+    }
+    return constrained_variables
 
 module.exports =
   Model: Toolbar
