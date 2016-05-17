@@ -40,17 +40,21 @@ class BoxView extends BokehView
   render: () ->
     @$el.addClass(@mget('responsive'))
 
-    if @mget('responsive') == 'width'
-      @update_constraints()
+    @update_constraints()
 
     LayoutDOM.render_dom(@)
 
   update_constraints: () ->
     s = @model.document.solver()
-    height = 0
-    for own key, child_view of @child_views
-      height += child_view.el.scrollHeight
-    s.suggest_value(@model._height, height)
+    if @mget('responsive') == 'width'
+      height = 0
+      for own key, child_view of @child_views
+        height += child_view.el.scrollHeight
+      s.suggest_value(@model._height, height)
+    if @mget('responsive') == 'fixed'
+      s.suggest_value(@model._width, @mget('width'))
+      s.suggest_value(@model._height, @mget('height'))
+
   
 
 class Box extends LayoutDOM.Model

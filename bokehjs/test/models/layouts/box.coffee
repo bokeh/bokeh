@@ -16,7 +16,7 @@ wr = 10
 wt = 22
 wb = 33
 
-describe "Box.View", ->
+describe "Box.View render", ->
 
   afterEach ->
     utils.unstub_solver()
@@ -36,39 +36,57 @@ describe "Box.View", ->
     @test_box._whitespace_bottom = {_value: wb}
 
 
-  it "render should call update_constraints if the responsive mode is 'width'", ->
+  it "should call update_constraints if the responsive mode is 'width'", ->
     box_view = new @test_box.default_view({ model: @test_box })
     spy = sinon.spy(box_view, 'update_constraints')
     box_view.render()
     expect(spy.calledOnce).is.true
     
-  it "render should not call update_constraints if the responsive mode is 'box'", ->
-    @test_box.set('responsive', 'box')
-    box_view = new @test_box.default_view({ model: @test_box })
-    spy = sinon.spy(box_view, 'update_constraints')
-    box_view.render()
-    expect(spy.callCount).is.equal 0
-
-  it "render should set the appropriate positions and paddings on the element", ->
+  it "should set the appropriate positions and paddings on the element", ->
     box_view = new @test_box.default_view({ model: @test_box })
     box_view.render()
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
-  it "render should set the left to 25px greater, and top 10px greater if model _is_root", ->
+  it "should set the left to 25px greater, and top 10px greater if model _is_root", ->
     @test_box._is_root = true
     box_view = new @test_box.default_view({ model: @test_box })
     box_view.render()
     expected_style = "position: absolute; left: #{dom_left + 25}px; top: #{dom_top + 15}px; width: #{width}px; height: #{height}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(box_view.$el.attr('style')).to.be.equal expected_style
 
-  it "update_constraints should call suggest value with the elements scrollHeight", ->
+
+describe "Box.View update_constraints", ->
+
+  afterEach ->
+    utils.unstub_solver()
+
+  beforeEach ->
+    solver_stubs = utils.stub_solver()
+    @solver_suggest = solver_stubs['suggest']
+    @test_box = new Box()
+    @test_box.attach_document(new Document())
+
+  it "should call suggest value with the elements scrollHeight if responsive_mode is width", ->
+    @test_box.responsive = 'width'
     box_view = new @test_box.default_view({ model: @test_box })
     expect(@solver_suggest.callCount).is.equal 0
     box_view.update_constraints()
     expect(@solver_suggest.callCount).is.equal 1
     # It is 0 becuase there are not children, so setting to the default
     expect(@solver_suggest.args[0]).to.be.deep.equal [@test_box._height, 0]
+
+  it "should call suggest value with the model height and width if responsive_mode is fixed", ->
+    @test_box.responsive = 'fixed'
+    @test_box.width = 22
+    @test_box.height = 33
+    box_view = new @test_box.default_view({ model: @test_box })
+    expect(@solver_suggest.callCount).is.equal 0
+    box_view.update_constraints()
+    expect(@solver_suggest.callCount).is.equal 2
+    # It is 0 becuase there are not children, so setting to the default
+    expect(@solver_suggest.args[0]).to.be.deep.equal [@test_box._width, 22]
+    expect(@solver_suggest.args[1]).to.be.deep.equal [@test_box._height, 33]
 
 
 describe "Box.Model get_edit_variables", ->
