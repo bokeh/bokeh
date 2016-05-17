@@ -1,3 +1,5 @@
+_ = require "underscore"
+
 {EQ, GE, Strength, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
@@ -72,7 +74,7 @@ class LayoutDOM extends Model
     return constraints
 
   get_constrained_variables: () ->
-    {
+    constrained_variables = {
       'width': @_width
       'height': @_height
       # when this widget is on the edge of a box visually,
@@ -82,12 +84,6 @@ class LayoutDOM extends Model
       'on-bottom-edge-align' : @_height_minus_bottom
       'on-left-edge-align' : @_left
       'on-right-edge-align' : @_width_minus_right
-      # when this widget is in a box, make these the same distance
-      # apart in every widget. Right/bottom are inset from the edge.
-      'box-equal-size-top' : @_top
-      'box-equal-size-bottom' : @_height_minus_bottom
-      'box-equal-size-left' : @_left
-      'box-equal-size-right' : @_width_minus_right
       # when this widget is in a box cell with the same "arity
       # path" as a widget in another cell, align these variables
       # between the two box cells. Right/bottom are an inset from
@@ -103,11 +99,23 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
+    if @responsive != 'fixed'
+      _.extend(constrained_variables, {
+        # when this widget is in a box, make these the same distance
+        # apart in every widget. Right/bottom are inset from the edge.
+        'box-equal-size-top' : @_top
+        'box-equal-size-bottom' : @_height_minus_bottom
+        'box-equal-size-left' : @_left
+        'box-equal-size-right' : @_width_minus_right
+      })
+    return constrained_variables
 
   get_edit_variables: () ->
     edit_variables = []
-    if @get('responsive') == 'width'
+    if @get('responsive') != 'box'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    if @get('responsive') == 'fixed'
+      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
     return edit_variables
 
   @define {
