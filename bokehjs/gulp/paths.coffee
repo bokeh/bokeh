@@ -35,6 +35,11 @@ module.exports = {
         full: "bokeh-widgets.js"
         fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js")
         minified: "bokeh-widgets.min.js"
+    bokehgl:
+      destination:
+        full: "bokeh-gl.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-gl.js")
+        minified: "bokeh-gl.min.js"
     compiler:
       destination:
         full: "bokeh-compiler.js"
@@ -42,7 +47,8 @@ module.exports = {
         minified: "bokeh-compiler.min.js"
     sources: [
         "./src/coffee/main.coffee"
-        "./src/coffee/widget/main.coffee"
+        "./src/coffee/models/widgets/main.coffee"
+        "./src/coffee/models/glyphs/webgl/main.coffee"
     ]
     watchSources: [
       "./src/coffee/**/**"
