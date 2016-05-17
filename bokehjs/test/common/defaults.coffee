@@ -179,10 +179,11 @@ describe "Defaults", ->
       coffee_defaults = attrs
       if not check_matching_defaults(name, python_defaults, coffee_defaults)
         console.log(name)
-        console.log('python defaults:')
-        console.log(python_defaults)
-        console.log('coffee defaults:')
-        console.log(coffee_defaults)
+        #console.log('python defaults:')
+        #console.log(python_defaults)
+        #console.log('coffee defaults:')
+        #console.log(coffee_defaults)
+        console.log(_.difference(_.keys(python_defaults), _.keys(coffee_defaults)))
         fail_count = fail_count + 1
 
     console.error("Python/Coffee matching defaults problems: #{fail_count}")
