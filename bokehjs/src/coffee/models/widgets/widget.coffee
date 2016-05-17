@@ -14,8 +14,7 @@ class WidgetView extends BokehView
   className: "bk-widget"
 
   render: () ->
-    if @mget('responsive') == 'width'
-      @update_constraints()
+    @update_constraints()
 
     @$el.css({
       position: 'absolute'
@@ -30,11 +29,15 @@ class WidgetView extends BokehView
 
   update_constraints: () ->
     s = @model.document.solver()
-    # TODO We need to get better at measuring heights on widgets
-    if @mget('height')
+    if @mget('responsive') == 'width'
+      # TODO We need to get better at measuring heights on widgets
+      if @mget('height')
+        s.suggest_value(@model._height, @mget('height'))
+      else
+        s.suggest_value(@model._height, @el.scrollHeight)
+    if @mget('responsive') == 'fixed'
+      s.suggest_value(@model._width, @mget('width'))
       s.suggest_value(@model._height, @mget('height'))
-    else
-      s.suggest_value(@model._height, @el.scrollHeight)
 
 
 class Widget extends LayoutDOM.Model

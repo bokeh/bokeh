@@ -41,9 +41,7 @@ class BoxView extends BokehView
 
   render: () ->
     @$el.addClass(@mget('responsive'))
-
     @update_constraints()
-
     LayoutDOM.render_dom(@)
 
   update_constraints: () ->
