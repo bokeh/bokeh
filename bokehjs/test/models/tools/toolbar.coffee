@@ -1,6 +1,7 @@
 _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
+sinon = require "sinon"
 
 {Strength, Variable}  = utils.require("core/layout/solver")
 
@@ -18,6 +19,37 @@ describe "Toolbar.View", ->
     doc = new Document()
     @test_tb = new Toolbar()
     @test_tb.attach_document(doc)
+
+  it "render should call update_constraints", ->
+    tb_view = new @test_tb.default_view({ model: @test_tb })
+    spy = sinon.spy(tb_view, 'update_constraints')
+    tb_view.render()
+    expect(spy.calledOnce).is.true
+    
+  it "render should set the appropriate positions and paddings on the element", ->
+    dom_left = 12
+    dom_top = 13
+    width = 100
+    height = 100
+    wl = 5
+    wr = 10
+    wt = 22
+    wb = 33
+    @test_tb.set('dom_left', dom_left)
+    @test_tb.set('dom_top', dom_top)
+    @test_tb._width = {_value: width}
+    @test_tb._height = {_value: height}
+    @test_tb._whitespace_left = {_value: wl}
+    @test_tb._whitespace_right = {_value: wr}
+    @test_tb._whitespace_top = {_value: wt}
+    @test_tb._whitespace_bottom = {_value: wb}
+
+    tb_view = new @test_tb.default_view({ model: @test_tb })
+    expect(tb_view.$el.attr('style')).to.be.undefined
+    tb_view.render()
+    
+    expected_style = "position: absolute; left: #{dom_left - wr}px; top: #{dom_top}px; width: #{width}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+    expect(tb_view.$el.attr('style')).to.be.equal expected_style
 
   it "update_constraints should suggest _height of 30 if responsive_mode is width and location is above", ->
     @test_tb.location = 'above'

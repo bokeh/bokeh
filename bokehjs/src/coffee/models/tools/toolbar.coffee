@@ -24,7 +24,17 @@ class ToolbarView extends Widget.View
     @listenTo(@model, 'change', () => @render())
 
   render: () ->
-    super()
+    @update_constraints()
+    @$el.css({
+      position: 'absolute'
+      left: @mget('dom_left') - @model._whitespace_right._value
+      top: @mget('dom_top')
+      'width': @model._width._value
+      'margin-left': @model._whitespace_left._value
+      'margin-right': @model._whitespace_right._value
+      'margin-top': @model._whitespace_top._value
+      'margin-bottom': @model._whitespace_bottom._value
+    })
 
     @$el.html(@template({logo: @mget("logo"), location: @mget("location")}))
 
