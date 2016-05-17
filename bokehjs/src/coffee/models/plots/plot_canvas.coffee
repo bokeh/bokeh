@@ -393,23 +393,13 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
-    width = @mget("plot_width")
-    height = @mget("plot_height")
-
-    if (@canvas.get("canvas_width") != width or
-        @canvas.get("canvas_height") != height)
-      @canvas_view.set_dims([width, height], trigger=false)
-
-    @canvas_view.render(force_canvas)
-
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
-    ctx = @canvas_view.ctx
-
     @update_constraints()
+    @canvas_view.render(force_canvas)
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
@@ -422,6 +412,7 @@ class PlotCanvasView extends Renderer.View
       @frame.get('height'),
     ]
 
+    ctx = @canvas_view.ctx
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
 
@@ -575,8 +566,8 @@ class PlotCanvas extends LayoutDOM.Model
 
     canvas = new Canvas.Model({
       map: @use_map ? false
-      canvas_width: @get('plot_width'),
-      canvas_height: @get('plot_height'),
+      canvas_width: @get('width'),
+      canvas_height: @get('height'),
       use_hidpi: @get('hidpi')
     })
     @set('canvas', canvas)
@@ -682,8 +673,6 @@ class PlotCanvas extends LayoutDOM.Model
       title:             [ p.String,   ''                     ]
       title_standoff:    [ p.Number,   8                      ]
 
-      plot_width:        [ p.Number,   600                    ]
-      plot_height:       [ p.Number,   600                    ]
       h_symmetry:        [ p.Bool,     true                   ]
       v_symmetry:        [ p.Bool,     false                  ]
 
@@ -702,9 +691,7 @@ class PlotCanvas extends LayoutDOM.Model
       x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
-      toolbar:           [ p.Instance                         ]
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
-      toolbar_location:  [ p.Location, 'above'                ]
 
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]
@@ -720,6 +707,11 @@ class PlotCanvas extends LayoutDOM.Model
       min_border_bottom: [ p.Number,   null                   ]
       min_border_right:  [ p.Number,   null                   ]
     }
+
+  @internal {
+      # This is set by parent plot for convenient access
+      toolbar: [ p.Instance ]
+  }
 
   @override {
     title_text_font_size: "20pt"

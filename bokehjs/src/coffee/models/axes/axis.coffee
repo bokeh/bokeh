@@ -419,7 +419,7 @@ class Axis extends GuideRenderer.Model
   _offsets: () ->
     side = @get('panel_side')
     [xoff, yoff] = [0, 0]
-    frame = @get('plot').get('frame')
+    frame = @plot.plot_canvas().get('frame')
 
     if side == "below"
       yoff = Math.abs(@panel.get("top") - frame.get("bottom"))
@@ -438,7 +438,7 @@ class Axis extends GuideRenderer.Model
   _ranges: () ->
     i = @get('dimension')
     j = (i + 1) % 2
-    frame = @get('plot').get('frame')
+    frame = @plot.plot_canvas().get('frame')
     ranges = [
       frame.get('x_ranges')[@get('x_range_name')],
       frame.get('y_ranges')[@get('y_range_name')]
