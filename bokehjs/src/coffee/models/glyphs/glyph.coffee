@@ -6,7 +6,7 @@ Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 bbox = require "../../core/util/bbox"
 Model = require "../../model"
-bokehgl = require "./bokehgl/main"
+bokehgl = require "./webgl/main"
 
 class GlyphView extends Renderer.View
 

@@ -80,6 +80,14 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
     prelude: preludeText
   }
 
+  bokehglOpts = {
+    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'models/glyphs/webgl/main.js'))]
+    extensions: [".js"]
+    debug: true
+    preludePath: preludePath
+    prelude: preludeText
+  }
+
   compilerOpts = {
     entries: [path.resolve(path.join(paths.buildDir.jsTree, 'compiler/main.js'))]
     extensions: [".js"]
@@ -92,6 +100,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   bokehjs.exclude("coffee-script")
 
   widgets = browserify(widgetsOpts)
+  bokehgl = browserify(bokehglOpts)
   compiler = browserify(compilerOpts)
 
   labels = {}
@@ -136,6 +145,26 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
 
+  buildBokehgl = (next) ->
+    if argv.verbose then util.log("Building bokehgl")
+    namedLabeler(bokehgl, labels)
+    for own file, name of labels
+      bokehgl.external(file) if name != "_process"
+    bokehgl
+      .bundle()
+      .pipe(source(paths.coffee.bokehgl.destination.full))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+      # This solves a conflict when requirejs is loaded on the page. Backbone
+      # looks for `define` before looking for `module.exports`, which eats up
+      # our backbone.
+      .pipe change (content) ->
+        "(function() { var define = undefined; return #{content} })()"
+      .pipe(insert.append(license))
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest(paths.buildDir.js))
+      .on 'end', () -> next()
+
   buildCompiler = (next) ->
     if argv.verbose then util.log("Building compiler")
     namedLabeler(compiler, labels)
@@ -156,11 +185,12 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
 
-  buildBokehjs(() -> buildWidgets(() -> buildCompiler(cb)))
+  buildBokehjs(() -> buildWidgets(() -> buildBokehgl(() -> buildCompiler(cb))))
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  tasks = [paths.coffee.bokehjs, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
+  tasks = [paths.coffee.bokehjs, paths.coffee.widgets,
+           paths.coffee.bokehgl, paths.coffee.compiler].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
