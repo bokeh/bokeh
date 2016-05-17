@@ -89,28 +89,27 @@ class Document
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
     @_responsive = 'width'
-    $(window).on("resize", $.proxy(@resize, @))
+    throttled_resize = _.throttle(@resize, 25)
+    $(window).on("resize", $.proxy(throttled_resize, @))
     
   solver: () ->
     @_solver
 
   resize: () ->
-    if @_responsive != 'fixed'
+    # The 50 is a hack for when the scroll bar kicks in
+    # when the page is allowed to extend - also see the 
+    # note in box.coffee
 
-      # The 50 is a hack for when the scroll bar kicks in
-      # when the page is allowed to extend - also see the 
-      # note in box.coffee
+    # TODO: We can't use window in the future (bk-root?)
+    width = window.innerWidth - 50
+    height = window.innerHeight - 30
 
-      # TODO: We can't use window in the future (bk-root?)
-      width = window.innerWidth - 50
-      height = window.innerHeight - 30
+    logger.debug("resize: Document -- #{width} x #{height}")
 
-      logger.debug("resize: Document -- #{width} x #{height}")
-
-      @_solver.suggest_value(@_doc_width, width)
-      @_solver.suggest_value(@_doc_height, height)
-      @_solver.update_variables(false)
-      @_solver.trigger('resize')
+    @_solver.suggest_value(@_doc_width, width)
+    @_solver.suggest_value(@_doc_height, height)
+    @_solver.update_variables(false)
+    @_solver.trigger('resize')
 
   clear : () ->
     while @_roots.length > 0

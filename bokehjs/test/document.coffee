@@ -931,14 +931,6 @@ describe "Document", ->
     expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
     expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
 
-  it "resize does not suggest values for width and height of document if _responsive is fixed", ->
-    d = new Document()
-    d._responsive = 'fixed'
-    s = d.solver()
-    spy = sinon.spy(s, 'suggest_value')
-    d.resize()
-    expect(spy.called).is.false
-
   it "resize calls update_variables on solver with false", ->
     d = new Document()
     s = d.solver()
@@ -954,14 +946,6 @@ describe "Document", ->
     d.resize()
     expect(spy.calledOnce).is.true
     expect(spy.calledWith('resize')).is.true
-
-  it "resize does not call update_variables on solver if _responsive is fixed", ->
-    d = new Document()
-    d._responsive = 'fixed'
-    s = d.solver()
-    spy = sinon.spy(s, 'update_variables')
-    d.resize()
-    expect(spy.called).is.false
 
   it "sets responsive to 'width' on initialization", ->
     d = new Document()
