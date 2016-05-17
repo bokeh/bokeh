@@ -117,14 +117,15 @@
     //outline: 1px solid teal;
     &:last-child {
       &:after {
-        content: "|";
+        content: " ";
         font-size: 90%;
-        color: @buttonColor;
+        background-color: @buttonColor;
         display: inline-block;
         float: left;
-        height: @buttonHeight;
+        height: 10px;
+	 width: 1px; 
         line-height: @buttonHeight;
-        padding: 0 3px;
+        margin: 10px 3px 0px 3px;
       }
     }
   }
@@ -209,41 +210,49 @@
 }
 
 .bk-button-bar-list li::hover .bk-toolbar-button {
-  cursor: pointer;
   background: transparent !important;
 }
 
-.bk-button-bar-list li:hover .bk-toolbar-button span.tip:before {
+.bk-button-bar-list li:hover .bk-toolbar-button .tip:before {
   display: inline-block;
 }
 
-.bk-button-bar-list li:hover .bk-toolbar-button span.tip {
+.bk-button-bar-list li:hover .bk-toolbar-button .tip {
   z-index: 100;
-  font-size: 100%;
-  color: #fff;
-  font-family: 'Open Sans', sans-serif;
   white-space: nowrap;
-  background-color: #818789;
-  border-radius: 3px !important;
-  -moz-border-radius: 3px !important;
-  -webkit-border-radius: 3px !important;
+  background-color: #fff;
+  opacity: 0.95;
+  border: #e5e5e5 solid 1px;
   display: inline-block;
   position: relative;
-  top: 25px;
-  padding: 3px 5px;
-  transition:  all 0.6s ease;
-  -webkit-transition:  all 0.6s ease;
-  -moz-transition:   all 0.6s ease;
-  -o-transition:  all 0.6s ease;
-  > * {
-    display: block;
-    text-align: left;
+  height: 15px;
+  float: left;
+  padding: 5px 10px;
+  &:before {
+    display: block !important;
   }
-  span {
-    width: 200px;
-    white-space: normal;
-  }
- }
+}
+
+.bk-toolbar-above .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+  top: 10px;
+  left: -10px;
+}
+
+.bk-toolbar-below .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+  top: -50px;
+  left: -10px;
+}
+
+.bk-toolbar-left .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+   top: -22px;
+   left: 26px;
+}
+
+.bk-toolbar-right .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+   float: right;
+   top: -22px;
+   left: -26px;
+}
 
 .bk-button-bar-list .bk-toolbar-button.active {
   background: #fff;
@@ -251,35 +260,66 @@
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   outline: none !important;
+}
+
+.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button.active {
   border-bottom: 2px solid #26aae1;
 }
 
+.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button.active {
+  border-top: 2px solid #26aae1;
+}
+
+.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button.active {
+  border-left: 2px solid #26aae1;
+}
+
+.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button.active {
+  border-right: 2px solid #26aae1;
+}
 
 
 .bk-button-bar > .bk-toolbar-button.active {
-  border-bottom: 2px solid #26aae1;
+  border-bottom: 1px solid #26aae1;
+}
+
+.bk-toolbar-above {
+  border-bottom: 1px solid #e5e5e5;
+  .bk-button-bar {
+    top: 1px;
+  }
+}
+
+.bk-toolbar-below {
+  border-top: 1px solid #e5e5e5;
+  .bk-button-bar {
+    top: -1px;
+  }
+}
+
+.bk-toolbar-left {
+  border-right: 1px solid #e5e5e5;
+  .bk-button-bar {
+  }
+}
+
+.bk-toolbar-right {
+  border-left: 1px solid #e5e5e5;
+  .bk-button-bar {
+  }
 }
 
 
-
-/* css specific to toolbar orientation (above, below)*/
-
-.bk-toolbar-above.bk-toolbar-active {
-  border-bottom: 2px solid #e5e5e5;
-}
-.bk-toolbar-below.bk-toolbar-active {
-  border-top: 2px solid #e5e5e5;
-  padding-bottom: 45px;
-}
-.bk-toolbar-above.bk-toolbar-active, .bk-toolbar-below.bk-toolbar-active {
-  height: 30px;
+.bk-toolbar-above, 
+.bk-toolbar-below {
+  height: 28px;
+  float: right;
   .bk-logo {
-    float: left;
+    float: right;
     margin: 5px 0;
   }
   .bk-button-bar {
     padding: 0;
-    top: 2px;
     float: right;
     position: relative;
     .bk-button-bar-list {
@@ -294,65 +334,43 @@
           position: absolute;
         }
       }
+      &[type='help'] {
+        .bk-toolbar-button {
+          .tip {
+             float: right;
+          }
+        }
+      }
       .bk-bs-dropdown-menu {
         &:after {
           content: "";
         }
       }
-    }
-     .bk-toolbar-button {
-      float: left;
-      &.help {
-        float: right;
-        span.tip {
-          right: 0;
-          text-align: left;
-          width: 200px;
-          white-space: normal;
-          > * {
-            margin-left: 0;
-            margin-right: 0;
+      .bk-toolbar-button {
+        .tip {
+          float: left;
+          top: 31px;
+          z-index: 100;
+          padding: 5px 10px;
+          &:before {
+            display: block !important;
           }
-        }
-      }
-      span.tip {
-        top: 41px;
-        left: 0;
-        z-index: 100;
-        position: absolute;
-        width: auto;
-        padding: 0 10px 5px 10px;
-        &:before {
-          top: -7px;
-          left: -5px;
-          width: 100%;
-          height: 9px;
-          padding: 0 10px;
-          background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAJCAYAAAAGuM1UAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo3NzIwRUFGMDYyMjE2ODExOTdBNUNBNjVEQTY5OTRDRSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpDQjA4MDBGRDQ3NjExMUU0QjI1NEVEQTlCODRBRDIyNiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpDQjA4MDBGQzQ3NjExMUU0QjI1NEVEQTlCODRBRDIyNiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6N0Y0M0E0Nzk5NDIyNjgxMTk3QTVDQTY1REE2OTk0Q0UiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NzcyMEVBRjA2MjIxNjgxMTk3QTVDQTY1REE2OTk0Q0UiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4te1g5AAAAk0lEQVR42mL8//8/AymApamjC5dcJRBPBOJvyIJM2FQCbS0GUm1APAddDkPDv3//3BgZGTuh3Eig5lKcGv78+aPKxMS0HMhkhokBNbcDDfHApoGHmZl5HZAWQrOUGWQIyDBkDYxAqxcBTdPBEQACQMM2AGk+Jqgn64CKA/EFJ1BeC2QoE9B9AUBOPTFxAFTnDxBgAI5eL2ABBdyaAAAAAElFTkSuQmCC);
-          display: block !important;
         }
       }
     }
   }
 }
 
-/* css specific to toolbar orientation (left, right)*/
-.bk-toolbar-left.bk-toolbar-active{
-  border-right: 2px solid #e5e5e5;
-}
-.bk-toolbar-right.bk-toolbar-active {
-  border-left: 2px solid #e5e5e5;
-}
-.bk-toolbar-left.bk-toolbar-active, .bk-toolbar-right.bk-toolbar-active {
+.bk-toolbar-left, 
+.bk-toolbar-right {
   display: block;
-  margin: 45px 0 0 0;
+  margin: 0;
   .bk-logo  {
-    left: 6px;
-    margin-bottom: 20px;
+    left: 4px;
+    margin-bottom: 3px;
   }
   .bk-button-bar {
     position: relative;
-    left: 3px;
     &:before, &:after {
       content: " ";
       display: block;
@@ -360,11 +378,13 @@
       clear: both;
     }
     .bk-button-bar-list {
-      &:after {
-        content: " ";
-        height: 0px;
-        display: block;
-        clear: both;
+      &[type='help'] {
+        > li {
+          height: 24px;
+          &:last-child:after {
+             display: none;
+          }
+        }
       }
       &.bk-bs-dropdown {
         &:after {
@@ -383,47 +403,17 @@
         clear: both;
         &:last-child {
           &:after {
-            content: " \2014";
+            content: " ";
             float: none;
             clear: both;
             display: block;
-            width: @buttonWidth;
-            height: 8px;
-            line-height: 8px;
-            padding: 3px 0;
-            text-align: center;
+            height: 1px;
+            width: 10px;
+            padding: 0;
+            margin: 2px 0 2px 10px;
           }
-        }
-
-        .bk-toolbar-button {
-          &.active {
-            border-bottom: none;
-            border-right: 2px solid #26aae1;
-          }
-          &.help {
-            span.tip {
-              &:before {
-                left: -57%;
-              }
-            }
-          }
-            span.tip {
-              position: absolute;
-              top: 4px;
-              left: 40px;
-              padding: 5px 10px 5px 10px;
-              &:before {
-                top: 2px;
-                left: -19px;
-                width: 9px;
-                height: 15px;
-                background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAMAAAABFhU/AAAAA3NCSVQICAjb4U/gAAAAY1BMVEX////////8/Pz5+fn39/f19fX09PTv8fHv7+/t7e7s7Ozp6enn6Onm5ubj4+Ph4eHf39/X2drW1tfMzMzAw8S+wMGusbKorK6orK2nq6ufo6WcoaGYnZ+RlpiJj5GGjI6Bh4n1ho2QAAAAIXRSTlMA//////////////////////////////////////////9G9E6kAAAACXBIWXMAAAsSAAALEgHS3X78AAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABR0RVh0Q3JlYXRpb24gVGltZQA5LzUvMTTY+fXxAAAAUklEQVQImTXN2xZAIABE0VQUIfdLwvz/V1rL1DztpzOi4EoIQoekNoIaH1AL8EvvoExEUkBWfWZZvyWVzq/vL6kbP9/sKdtPF8vKdMPBN1m5AR+0BAnD6uP50QAAAABJRU5ErkJggg==);
-              }
-            }
-
         }
       }
-
     }
   }
 }
