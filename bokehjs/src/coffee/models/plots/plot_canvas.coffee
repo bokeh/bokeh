@@ -114,17 +114,6 @@ class PlotCanvasView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
-    toolbar_location = @mget('toolbar_location')
-    if toolbar_location?
-      toolbar_selector = '.bk-plot-' + toolbar_location
-      logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-      @tm_view = new Toolbar.View({
-        model: @mget('toolbar')
-        el: $("<div>").appendTo(@$(toolbar_selector))
-        location: toolbar_location
-      })
-      @tm_view.render()
-
     @update_dataranges()
 
     @unpause()

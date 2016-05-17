@@ -23,14 +23,13 @@ class ToolbarView extends Widget.View
     @listenTo(@model, 'change', () => @render())
 
   render: () ->
-    @$el.html(@template({logo: @mget("logo")}))
-    @$el.addClass("bk-toolbar-#{@location}")
-    @$el.addClass("bk-sidebar")
-    @$el.addClass("bk-toolbar-active")
-    button_bar_list = @$('.bk-button-bar-list')
+    super()
+
+    @$el.html(@template({logo: @mget("logo"), location: @mget("location")}))
 
     inspectors = @model.get('inspectors')
     button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
+
     if inspectors.length == 0
       button_bar_list.hide()
     else
@@ -69,6 +68,7 @@ class ToolbarView extends Widget.View
 
 class Toolbar extends Widget.Model
   type: 'Toolbar'
+  default_view: ToolbarView
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -140,6 +140,13 @@ class Toolbar extends Widget.Model
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
+    location:   [ p.Location, 'above' ]
+  }
+
+  @override {
+    height: 30
+    responsive: 'width'
+    grow: false
   }
 
 module.exports =
