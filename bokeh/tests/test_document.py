@@ -731,9 +731,11 @@ class TestDocument(unittest.TestCase):
         assert len(d._all_models) == 0
         p1 = figure(tools=[])
         N = 10
-        x = np.linspace(0, 4*np.pi, N)
+        x = np.linspace(0, 4 * np.pi, N)
         y = np.sin(x)
-        p1.scatter(x,y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+        p1.scatter(x, y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+        # figure does not automatically add itself to the document
+        d.add_root(p1)
         assert len(d.roots) == 1
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
@@ -751,7 +753,7 @@ class TestDocument(unittest.TestCase):
 
         before = d.to_json()
 
-        root1.foo=47
+        root1.foo = 47
 
         after = d.to_json()
 

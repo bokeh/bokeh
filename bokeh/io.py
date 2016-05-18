@@ -30,10 +30,10 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.layouts import LayoutDOM
 from .models.plots import GridPlot
-from .models.layouts import HBox, VBox, VBoxForm
+from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column
 from .model import _ModelInDocument
+from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -387,11 +387,11 @@ def _detect_filename(ext):
     import inspect
     from os.path import isfile, dirname, basename, splitext, join
     from inspect import currentframe
-    
+
     frame = inspect.currentframe()
     while frame.f_back and frame.f_globals.get('name') != '__main__':
         frame = frame.f_back
-    
+
     filename = frame.f_globals.get('__file__')
     if filename and isfile(filename):
         name, _ = splitext(basename(filename))
@@ -612,32 +612,35 @@ def gridplot(plot_arrangement, **kwargs):
     _push_or_save(grid)
     return grid
 
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
-    ''' Generate a layout that arranges several subplots horizontally.
-
-    '''
-    _remove_roots(children)
-    layout = HBox(children=list(children), **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
+    warnings.warn(
+        """
+        The new Row is responsive by default, it resizes based on the space available. If you would
+        like to keep using a fixed size row like hplot you can set responsive=False
+        on Row. This has been automatically set on hplot.
+        """)
+    layout = Row(children=list(children), responsive=False, **kwargs)
     return layout
 
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
-    ''' Generate a layout that arranges several subplots vertically.
-
-    '''
-    _remove_roots(children)
-    layout = VBox(children=list(children), **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
+    warnings.warn(
+        """
+        The new Column is responsive by default, it resizes based on the space available. If you would
+        like to keep using a fixed size column like vplot you can set responsive=False
+        on Column. This has been automatically set on vplot.
+        """)
+    layout = Column(children=list(children), responsive=False, **kwargs)
     return layout
 
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vform(*children, **kwargs):
-    ''' Generate a layout that arranges several subplots vertically.
-
-    '''
-    _remove_roots(children)
-    layout = VBoxForm(children=list(children), **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
+    warnings.warn(
+        """
+        The new Column is responsive by default, it resizes based on the space available. If you would
+        like to keep using a fixed size column like vform you can set responsive=False
+        on Column. This has been automatically set on vform.
+        """)
+    layout = Column(children=list(children), responsive=False, **kwargs)
     return layout

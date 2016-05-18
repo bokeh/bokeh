@@ -3,6 +3,7 @@
 """
 from __future__ import absolute_import
 
+import warnings
 import logging
 logger = logging.getLogger(__name__)
 
@@ -119,14 +120,32 @@ class Column(Box):
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def HBox(*args, **kwargs):
-    return Row(*args, **kwargs)
+    warnings.warn(
+        """
+        The new Column is responsive by default, it resizes based on the space available. If you would
+        like to keep using a fixed size column like HBox you can set responsive=False
+        on Column. This has been automatically set HBox.
+        """)
+    return Row(*args, responsive=False, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def VBox(*args, **kwargs):
-    return Column(*args, **kwargs)
+    warnings.warn(
+        """
+        The new Column is responsive by default, it resizes based on the space available. If you would
+        like to keep using a fixed size column like VBox you can set responsive=False
+        on Column. This has been automatically set VBox.
+        """)
+    return Column(*args, responsive=False, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def VBoxForm(*args, **kwargs):
-    return Column(*args, **kwargs)
+    warnings.warn(
+        """
+        The new Column is responsive by default, it resizes based on the space available. If you would
+        like to keep using a fixed size column like VBoxForm you can set responsive=False
+        on Column. This has been automatically set VBoxForm.
+        """)
+    return Column(*args, responsive=False, **kwargs)
