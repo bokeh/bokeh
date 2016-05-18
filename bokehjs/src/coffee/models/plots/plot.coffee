@@ -135,8 +135,6 @@ class Plot extends Box.Model
       min_border_left:   [ p.Number,   null                   ]
       min_border_bottom: [ p.Number,   null                   ]
       min_border_right:  [ p.Number,   null                   ]
-
-      grow:              [ p.Bool,     false                  ]
     }
 
 module.exports =
