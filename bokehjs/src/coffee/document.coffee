@@ -84,32 +84,30 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
-    @_doc_width = new Variable()
-    @_doc_height = new Variable()
+    @_doc_width = new Variable("_doc_width #{@id}")
+    @_doc_height = new Variable("doc_height #{@id}")
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
-    @_responsive = 'width'
     $(window).on("resize", $.proxy(@resize, @))
     
   solver: () ->
     @_solver
 
   resize: () ->
-    if @_responsive != 'fixed'
-      logger.debug("resize: Document")
+    # The 50 is a hack for when the scroll bar kicks in
+    # when the page is allowed to extend - also see the 
+    # note in box.coffee
 
-      # TODO: We can't use window in the future (bk-root?)
-      height = window.innerHeight
-      if @_responsive == 'width'
-        # The 50 is a hack for when the scroll bar kicks in
-        # when the page is allowed to extend - also see the 
-        # note in box.coffee
-        width = window.innerWidth - 50
-      if @_responsive == 'box'
-        width = window.innerWidth
-      @_solver.suggest_value(@_doc_width, width)
-      @_solver.suggest_value(@_doc_height, height)
-      @_solver.update_variables(true)
+    # TODO: We can't use window in the future (bk-root?)
+    width = window.innerWidth - 50
+    height = window.innerHeight - 30
+
+    logger.debug("resize: Document -- #{width} x #{height}")
+
+    @_solver.suggest_value(@_doc_width, width)
+    @_solver.suggest_value(@_doc_height, height)
+    @_solver.update_variables(false)
+    @_solver.trigger('resize')
 
   clear : () ->
     while @_roots.length > 0
@@ -149,8 +147,6 @@ class Document
     # TODO What happens if there's more than one layoutable root - does that
     # even make sense?
     if model.responsive?
-      @_responsive = model.responsive
-
       root_vars = model.get_constrained_variables()
       # We add a width constraint for width and box
       if model.responsive != 'fixed'
@@ -160,7 +156,6 @@ class Document
         if root_vars.height?
           @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
 
-      
     @_solver.update_variables()
 
   remove_root : (model) ->
@@ -169,10 +164,6 @@ class Document
       return
     else
       @_roots.splice(i, 1)
-
-    if model.responsive?
-      # reset to default
-      @_responsive = 'width'
 
     model._is_root = false
     model.detach_document()

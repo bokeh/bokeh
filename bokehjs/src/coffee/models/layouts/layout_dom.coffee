@@ -1,7 +1,34 @@
-{EQ, GE, Variable}  = require "../../core/layout/solver"
+_ = require "underscore"
+
+{EQ, GE, Strength, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 Model = require "../../model"
+
+# Helper method for LayoutDOMs.
+render_dom = (view) ->
+  left = view.mget('dom_left')
+  top = view.mget('dom_top')
+
+  # This is a hack - the 25 is half of the 50 that was subtracted from
+  # doc_width when resizing in document. This means that the root is positioned
+  # symetrically and the vertical scroll bar doesn't mess stuff up when it
+  # kicks in.
+  if view.model._is_root == true
+    left = left + 25
+    top = top + 15
+
+  view.$el.css({
+    position: 'absolute'
+    left: left
+    top: top
+    width: view.model._width._value
+    height: view.model._height._value
+    'margin-left': view.model._whitespace_left._value
+    'margin-right': view.model._whitespace_right._value
+    'margin-top': view.model._whitespace_top._value
+    'margin-bottom': view.model._whitespace_bottom._value
+  })
 
 
 class LayoutDOM extends Model
@@ -9,28 +36,28 @@ class LayoutDOM extends Model
 
   constructor: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable("_width")
-    @_height = new Variable("_height")
+    @_width = new Variable("_width #{@id}")
+    @_height = new Variable("_height #{@id}")
     # these are the COORDINATES of the four plot sides
-    @_left = new Variable()
-    @_right = new Variable()
-    @_top = new Variable()
-    @_bottom = new Variable()
+    @_left = new Variable("_left #{@id}")
+    @_right = new Variable("_right #{@id}")
+    @_top = new Variable("_top #{@id}")
+    @_bottom = new Variable("_bottom #{@id}")
     # this is the DISTANCE FROM THE SIDE of the right and bottom,
     # since that isn't the same as the coordinate
-    @_width_minus_right = new Variable()
-    @_height_minus_bottom = new Variable()
+    @_width_minus_right = new Variable("_width_minus_right #{@id}")
+    @_height_minus_bottom = new Variable("_height_minus_bottom #{@id}")
     # these are the plot width and height, but written
     # as a function of the coordinates because we compute
     # them that way
-    @_right_minus_left = new Variable()
-    @_bottom_minus_top = new Variable()
+    @_right_minus_left = new Variable("_right_minus_left #{@id}")
+    @_bottom_minus_top = new Variable("_bottom_minus_top #{@id}")
     # these are passed up to our parent after basing
     # them on the child whitespace
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
+    @_whitespace_top = new Variable("_whitespace_top #{@id}")
+    @_whitespace_bottom = new Variable("_whitespace_bottom #{@id}")
+    @_whitespace_left = new Variable("_whitespace_left #{@id}")
+    @_whitespace_right = new Variable("_whitespace_right #{@id}")
 
   get_constraints: () ->
     constraints = []
@@ -43,24 +70,11 @@ class LayoutDOM extends Model
     # Add constraints for calculated variables
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
-    
-    if @responsive == 'box'
-      # Whitespace has to be positive
-      constraints.push(GE(@_whitespace_left))
-      constraints.push(GE(@_whitespace_right))
-      constraints.push(GE(@_whitespace_top))
-      constraints.push(GE(@_whitespace_bottom))
-
-      # plot sides align with the sum of the stuff outside the plot
-      constraints.push(EQ(@_whitespace_left, [-1, @_left]))
-      constraints.push(EQ(@_right, @_whitespace_right, [-1, @_width]))
-      constraints.push(EQ(@_whitespace_top, [-1, @_top]))
-      constraints.push(EQ(@_bottom, @_whitespace_bottom, [-1, @_height]))
 
     return constraints
 
   get_constrained_variables: () ->
-    {
+    constrained_variables = {
       'width': @_width
       'height': @_height
       # when this widget is on the edge of a box visually,
@@ -70,12 +84,6 @@ class LayoutDOM extends Model
       'on-bottom-edge-align' : @_height_minus_bottom
       'on-left-edge-align' : @_left
       'on-right-edge-align' : @_width_minus_right
-      # when this widget is in a box, make these the same distance
-      # apart in every widget. Right/bottom are inset from the edge.
-      'box-equal-size-top' : @_top
-      'box-equal-size-bottom' : @_height_minus_bottom
-      'box-equal-size-left' : @_left
-      'box-equal-size-right' : @_width_minus_right
       # when this widget is in a box cell with the same "arity
       # path" as a widget in another cell, align these variables
       # between the two box cells. Right/bottom are an inset from
@@ -91,12 +99,31 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
+    if @responsive != 'fixed'
+      _.extend(constrained_variables, {
+        # when this widget is in a box, make these the same distance
+        # apart in every widget. Right/bottom are inset from the edge.
+        'box-equal-size-top' : @_top
+        'box-equal-size-bottom' : @_height_minus_bottom
+        'box-equal-size-left' : @_left
+        'box-equal-size-right' : @_width_minus_right
+      })
+    return constrained_variables
+
+  get_edit_variables: () ->
+    edit_variables = []
+    if @get('responsive') != 'box'
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    if @get('responsive') == 'fixed'
+      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
+    return edit_variables
 
   @define {
     height:   [ p.Number, null ]
     width:    [ p.Number, null ]
     disabled: [ p.Bool, false  ]
     responsive: [ p.Responsive, 'width' ]
+    grow:     [ p.Bool, true ]
   }
 
   @internal {
@@ -106,3 +133,4 @@ class LayoutDOM extends Model
 
 module.exports =
   Model: LayoutDOM
+  render_dom: render_dom

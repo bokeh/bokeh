@@ -1,5 +1,5 @@
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Strength, Variable}  = require "../../core/layout/solver"
+{EQ}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
@@ -14,8 +14,7 @@ class WidgetView extends BokehView
   className: "bk-widget"
 
   render: () ->
-    if @mget('responsive') == 'width'
-      @update_constraints()
+    @update_constraints()
 
     @$el.css({
       position: 'absolute'
@@ -30,11 +29,15 @@ class WidgetView extends BokehView
 
   update_constraints: () ->
     s = @model.document.solver()
-    # TODO We need to get better at measuring heights on widgets
-    if @mget('height')
+    if @mget('responsive') == 'width'
+      # TODO We need to get better at measuring heights on widgets
+      if @mget('height')
+        s.suggest_value(@model._height, @mget('height'))
+      else
+        s.suggest_value(@model._height, @el.scrollHeight)
+    if @mget('responsive') == 'fixed'
+      s.suggest_value(@model._width, @mget('width'))
       s.suggest_value(@model._height, @mget('height'))
-    else
-      s.suggest_value(@model._height, @el.scrollHeight)
 
 
 class Widget extends LayoutDOM.Model
@@ -47,15 +50,9 @@ class Widget extends LayoutDOM.Model
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
     return constraints
 
-  get_edit_variables: () ->
-    editables = []
-    if @get('responsive') == 'width'
-      editables.push({edit_variable: @_height, strength: Strength.strong})
-    return editables
-
-  @define {
-    grow:     [ p.Bool, false]
-  }
+  @override {
+      grow: false
+    }
 
 module.exports =
   Model: Widget

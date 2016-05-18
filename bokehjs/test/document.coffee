@@ -893,12 +893,6 @@ describe "Document", ->
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(spy.calledOnce).is.true
 
-  it "add_root sets _responsive of document to fixed if root model is fixed", ->
-    d = new Document()
-    expect(d._responsive).is.equal 'width'
-    d.add_root(new ModelWithConstrainedVariables({responsive: 'fixed'}))
-    expect(d._responsive).is.equal 'fixed'
-
   it "add_root sets the _is_root property of model to true", ->
     d = new Document()
     root_model = new ModelWithConstrainedVariables()
@@ -914,47 +908,27 @@ describe "Document", ->
     d.remove_root(root_model)
     expect(root_model._is_root).is.false
 
-  it "remove_root sets _responsive of document to 'width'", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables({responsive: 'fixed'})
-    d.add_root(root_model)
-    expect(d._responsive).is.equal 'fixed'
-    d.remove_root(root_model)
-    expect(d._responsive).is.equal 'width'
-
   it "resize suggests value for width and height of document", ->
     d = new Document()
     s = d.solver()
     spy = sinon.spy(s, 'suggest_value')
     d.resize()
     expect(spy.calledTwice).is.true
-    expect(spy.calledWithExactly(d._doc_height, window.innerHeight), 'suggest_value was not called with window.innerHeight').is.true
+    expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
     expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
 
-  it "resize does not suggest values for width and height of document if _responsive is fixed", ->
-    d = new Document()
-    d._responsive = 'fixed'
-    s = d.solver()
-    spy = sinon.spy(s, 'suggest_value')
-    d.resize()
-    expect(spy.called).is.false
-
-  it "resize calls update_variables on solver", ->
+  it "resize calls update_variables on solver with false", ->
     d = new Document()
     s = d.solver()
     spy = sinon.spy(s, 'update_variables')
     d.resize()
     expect(spy.calledOnce).is.true
-    expect(spy.calledWith(true)).is.true
+    expect(spy.calledWith(false)).is.true
 
-  it "resize does not call update_variables on solver if _responsive is fixed", ->
+  it "resize triggers resize event on solver", ->
     d = new Document()
-    d._responsive = 'fixed'
     s = d.solver()
-    spy = sinon.spy(s, 'update_variables')
+    spy = sinon.spy(s, 'trigger')
     d.resize()
-    expect(spy.called).is.false
-
-  it "sets responsive to 'width' on initialization", ->
-    d = new Document()
-    expect(d._responsive).is.equal 'width'
+    expect(spy.calledOnce).is.true
+    expect(spy.calledWith('resize')).is.true

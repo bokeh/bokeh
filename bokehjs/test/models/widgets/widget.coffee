@@ -21,19 +21,12 @@ describe "Widget.View", ->
     @test_widget = new Widget()
     @test_widget.attach_document(@test_doc)
 
-  it "render should call update_constraints if the responsive mode is 'width'", ->
+  it "render should call update_constraints", ->
     widget_view = new @test_widget.default_view({ model: @test_widget })
     spy = sinon.spy(widget_view, 'update_constraints')
     widget_view.render()
     expect(spy.calledOnce).is.true
     
-  it "render should not call update_constraints if the responsive mode is 'box'", ->
-    @test_widget.set('responsive', 'box')
-    widget_view = new @test_widget.default_view({ model: @test_widget })
-    spy = sinon.spy(widget_view, 'update_constraints')
-    widget_view.render()
-    expect(spy.callCount).is.equal 0
-
   it "render should set the appropriate positions and paddings on the element", ->
     dom_left = 12
     dom_top = 13
@@ -59,7 +52,7 @@ describe "Widget.View", ->
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width - wl - wr}px; padding: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(widget_view.$el.attr('style')).to.be.equal expected_style
 
-  it "update_constraints should call suggest value with the elements scrollHeight", ->
+  it "update_constraints should call suggest value with the elements scrollHeight if responsive_mode is width", ->
     widget_view = new @test_widget.default_view({ model: @test_widget })
     
     # scrollHeight isn't available in test so setting manually
@@ -70,26 +63,19 @@ describe "Widget.View", ->
     expect(@solver_suggest.callCount).is.equal 1
     expect(@solver_suggest.args[0]).to.be.deep.equal [@test_widget._height, 222]
 
+  it "update_constraints should call suggest value with the model height and width if responsive_mode is fixed", ->
+    @test_widget.responsive = 'fixed'
+    @test_widget.width = 22
+    @test_widget.height = 33
+    widget_view = new @test_widget.default_view({ model: @test_widget })
+    expect(@solver_suggest.callCount).is.equal 0
+    widget_view.update_constraints()
+    expect(@solver_suggest.callCount).is.equal 2
+    expect(@solver_suggest.args[0]).to.be.deep.equal [@test_widget._width, 22]
+    expect(@solver_suggest.args[1]).to.be.deep.equal [@test_widget._height, 33]
+
 
 describe "Widget.Model", ->
-  it "should set edit_variable height if responsive mode is width", ->
-    widget = new Widget()
-    ev = widget.get_edit_variables()
-    expect(ev.length).to.be.equal 1
-
-    expected_height_ev = ev[0]
-    expect(expected_height_ev.edit_variable).to.be.equal widget._height
-    expect(expected_height_ev.strength._strength).to.be.equal Strength.strong._strength
-
-  it "should not set edit_variable height if responsive mode is fixed", ->
-    widget = new Widget({responsive: 'box'})
-    ev = widget.get_edit_variables()
-    expect(ev.length).to.be.equal 0
-
-  it "should not set edit_variable height if responsive mode is fixed", ->
-    widget = new Widget({responsive: 'fixed'})
-    ev = widget.get_edit_variables()
-    expect(ev.length).to.be.equal 0
 
   it "should should return 8 constraints", ->
     w = new Widget()

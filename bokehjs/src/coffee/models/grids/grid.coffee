@@ -77,14 +77,14 @@ class Grid extends GuideRenderer.Model
     level: "underlay"
     band_fill_color: null
     band_fill_alpha: 0
-    grid_line_color: '#cccccc'
+    grid_line_color: '#e5e5e5'
     minor_grid_line_color: null
   }
 
   ranges: () ->
     i = @get('dimension')
     j = (i + 1) % 2
-    frame = @get('plot').get('frame')
+    frame = @plot.plot_canvas().get('frame')
     ranges = [
       frame.get('x_ranges')[@get('x_range_name')],
       frame.get('y_ranges')[@get('y_range_name')]

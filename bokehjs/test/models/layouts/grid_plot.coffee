@@ -5,15 +5,17 @@ sinon = require 'sinon'
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 GridPlot = utils.require("models/layouts/grid_plot").Model
 Plot = utils.require("models/plots/plot").Model
+PlotCanvas = utils.require("models/plots/plot_canvas").Model
+Toolbar = utils.require("models/tools/toolbar").Model
 {Document} = utils.require "document"
 
 describe "GridPlot.Model", ->
   
   beforeEach ->
     document = new Document()
-    @p1 = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    @p1 = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     @p1.attach_document(document)
-    @p2 = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    @p2 = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     @p2.attach_document(document)
     @grid = new GridPlot({children:[[@p1], [@p2]]})
 
@@ -28,8 +30,8 @@ describe "GridPlot.Model", ->
   it "should call get_edit_variables on child plots", ->
     children_1 = @p1.get_layoutable_children()
     children_2 = @p2.get_layoutable_children()
-    expect(children_1.length).to.be.equal 6
-    expect(children_2.length).to.be.equal 6
+    expect(children_1.length).to.be.equal 2
+    expect(children_2.length).to.be.equal 2
 
     # Add spies to child plots
     for child in children_1
@@ -51,8 +53,8 @@ describe "GridPlot.Model", ->
   it "should call get_constraints on child plots", ->
     children_1 = @p1.get_layoutable_children()
     children_2 = @p2.get_layoutable_children()
-    expect(children_1.length).to.be.equal 6
-    expect(children_2.length).to.be.equal 6
+    expect(children_1.length).to.be.equal 2
+    expect(children_2.length).to.be.equal 2
 
     # Add spies to child plots
     for child in children_1

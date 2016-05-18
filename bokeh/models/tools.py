@@ -30,8 +30,9 @@ from ..core.properties import (
 from ..core.enums import Dimension
 
 from .annotations import BoxAnnotation, PolyAnnotation
-from .renderers import Renderer
 from .callbacks import Callback
+from .renderers import Renderer
+from .widgets.widget import Widget
 
 
 class ToolEvents(Model):
@@ -51,6 +52,20 @@ class Tool(Model):
 
     plot = Instance(".models.plots.Plot", help="""
     The Plot that this tool will act on.
+    """)
+
+
+class Toolbar(Widget):
+    """ Widget that holds tools to display
+    """
+
+    logo = Enum("normal", "grey", help="""
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
+    """)
+
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
     """)
 
 

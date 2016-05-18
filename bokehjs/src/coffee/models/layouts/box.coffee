@@ -3,7 +3,7 @@ $ = require "jquery"
 build_views = require "../../common/build_views"
 
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
+{EQ, GE, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "./layout_dom"
@@ -24,95 +24,65 @@ class BoxView extends BokehView
 
     @bind_bokeh_events()
 
-    if @model._is_root?
+    @model.variables_updated()
+
+    if @model._is_root == true
       resize = () -> $(window).trigger('resize')
       # I haven't found a way to not trigger this multiple times.
       # The problem is that the widgets need to be rendererd before we can
       # figure out what size we want them.
-      # The example plotting/file/slider_callback.py made me increase it from
-      # two to three times.
       _.delay(resize, 5)
       _.delay(resize, 10)
-      _.delay(resize, 20)
+      _.delay(resize, 50)
 
   bind_bokeh_events: () ->
-    @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
+    @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
   render: () ->
     @$el.addClass(@mget('responsive'))
-
-    if @mget('responsive') == 'width'
-      @update_constraints()
-
-    left = @mget('dom_left')
-    top = @mget('dom_top')
-
-    # This is a hack - the 25 is half of the 50 that was subtracted from
-    # doc_width when resizing in document. This means that the root is positioned
-    # symetrically and the vertical scroll bar doesn't mess stuff up when it
-    # kicks in.
-    if @model._is_root?
-      left = left + 25
-      top = top + 15
-
-    @$el.css({
-      position: 'absolute'
-      left: left
-      top: top
-      width: @model._width._value
-      height: @model._height._value
-      'margin-left': @model._whitespace_left._value
-      'margin-right': @model._whitespace_right._value
-      'margin-top': @model._whitespace_top._value
-      'margin-bottom': @model._whitespace_bottom._value
-    })
+    @update_constraints()
+    LayoutDOM.render_dom(@)
 
   update_constraints: () ->
     s = @model.document.solver()
-    height = 0
-    for own key, child_view of @child_views
-      height += child_view.el.scrollHeight
-    s.suggest_value(@model._height, height)
-  
+    if @mget('responsive') == 'width'
+      height = 0
+      for own key, child_view of @child_views
+        height += child_view.el.scrollHeight
+      s.suggest_value(@model._height, height)
+    if @mget('responsive') == 'fixed'
+      s.suggest_value(@model._width, @mget('width'))
+      s.suggest_value(@model._height, @mget('height'))
+
 
 class Box extends LayoutDOM.Model
   default_view: BoxView
 
   constructor: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable()
-    @_height = new Variable()
 
     # for children that want to be the same size
     # as other children, make them all equal to these
-    @_child_equal_size_width = new Variable()
-    @_child_equal_size_height = new Variable()
+    @_child_equal_size_width = new Variable("_child_equal_size_width #{@id}")
+    @_child_equal_size_height = new Variable("_child_equal_size_height #{@id}")
 
     # these are passed up to our parent after basing
     # them on the child box-equal-size vars
-    @_box_equal_size_top = new Variable()
-    @_box_equal_size_bottom = new Variable()
-    @_box_equal_size_left = new Variable()
-    @_box_equal_size_right = new Variable()
+    @_box_equal_size_top = new Variable("_box_equal_size_top #{@id}")
+    @_box_equal_size_bottom = new Variable("_box_equal_size_bottom #{@id}")
+    @_box_equal_size_left = new Variable("_box_equal_size_left #{@id}")
+    @_box_equal_size_right = new Variable("_box_equal_size_right #{@id}")
 
     # these are passed up to our parent after basing
     # them on the child box-cell-align vars
-    @_box_cell_align_top = new Variable()
-    @_box_cell_align_bottom = new Variable()
-    @_box_cell_align_left = new Variable()
-    @_box_cell_align_right = new Variable()
-
-    # these are passed up to our parent after basing
-    # them on the child whitespace
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
+    @_box_cell_align_top = new Variable("_box_equal_size_top #{@id}")
+    @_box_cell_align_bottom = new Variable("_box_equal_size_bottom #{@id}")
+    @_box_cell_align_left = new Variable("_box_equal_size_left #{@id}")
+    @_box_cell_align_right = new Variable("_box_equal_size_right #{@id}")
 
   @define {
     children: [ p.Array, [] ]
-    grow:     [ p.Bool, true ]
   }
 
   @internal {
@@ -121,9 +91,9 @@ class Box extends LayoutDOM.Model
 
   _ensure_origin_variables: (child) ->
     if '__Box_x' not of child
-      child['__Box_x'] = new Variable('child_origin_x')
+      child['__Box_x'] = new Variable("child_origin_x #{@id}")
     if '__Box_y' not of child
-      child['__Box_y'] = new Variable('child_origin_y')
+      child['__Box_y'] = new Variable("child_origin_y #{@id}")
     return [child['__Box_x'], child['__Box_y']]
 
   get_constraints: () ->
@@ -198,7 +168,11 @@ class Box extends LayoutDOM.Model
         # the box spacing. This must be a weak constraint because it can
         # conflict with aligning the alignable edges in each child.
         # Alignment is generally more important visually than spacing.
-        result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
+        
+        # TODO This was in havoc's original layout algorithm but it causes
+        # plots to fail in box layouts. I'm not sure WEAK_EQ works.
+        # result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
+
         # if we can't satisfy the whitespace being equal to box spacing,
         # we should fix it (align things) by increasing rather than decreasing
         # the whitespace.
@@ -531,9 +505,7 @@ class Box extends LayoutDOM.Model
     @trigger('change')
   
   get_edit_variables: () ->
-    edit_variables = []
-    if @get('responsive') == 'width'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    edit_variables = super()
     # Go down the children to pick up any more constraints
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
