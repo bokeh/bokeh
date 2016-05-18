@@ -276,7 +276,7 @@ def show(obj, browser=None, new="tab"):
     load the plot from that server session.
 
     Args:
-        obj (Component object) : a plot object to display
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows
@@ -298,7 +298,10 @@ def show(obj, browser=None, new="tab"):
         an IPython/Jupyter notebook.
 
     '''
+    if obj not in _state.document.roots:
+        _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new)
+
 
 def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)

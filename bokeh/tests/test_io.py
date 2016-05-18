@@ -7,7 +7,7 @@
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
-from mock import patch, Mock
+from mock import patch, Mock, PropertyMock
 import unittest
 
 import bokeh.io as io
@@ -30,6 +30,7 @@ class testCurstate(unittest.TestCase):
     def test(self):
         self.assertEqual(io.curstate(), io._state)
 
+
 class DefaultStateTester(unittest.TestCase):
 
     def _check_func_called(self, func, args, kwargs):
@@ -40,9 +41,14 @@ class DefaultStateTester(unittest.TestCase):
     def setUp(self):
         self._orig_state = io._state
         io._state = Mock()
+        doc = Mock()
+        roots = PropertyMock(return_value=[])
+        type(doc).roots = roots
+        io._state.document = doc
 
     def tearDown(self):
         io._state = self._orig_state
+        io._state.document.clear()
 
 class testOutputFile(DefaultStateTester):
 
@@ -266,6 +272,25 @@ class TestShow(DefaultStateTester):
         default_kwargs = dict(browser="browser", new="new")
         io.show("obj", **default_kwargs)
         self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {})
+
+
+@patch('bokeh.io._show_with_state')
+def test_show_adds_obj_to_document_if_not_already_there(m):
+    assert io._state.document.roots == []
+    p = Plot()
+    io.show(p)
+    assert p in io._state.document.roots
+
+
+@patch('bokeh.io._show_with_state')
+def test_show_doesnt_duplicate_if_already_there(m):
+    io._state.document.clear()
+    p = Plot()
+    io.show(p)
+    assert io._state.document.roots == [p]
+    io.show(p)
+    assert io._state.document.roots == [p]
+
 
 class Test_ShowWithState(DefaultStateTester):
 
