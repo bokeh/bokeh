@@ -36,7 +36,7 @@ update_panel_constraints = require("../../core/layout/side_panel").update_constr
 
 global_gl_canvas = null
 
-MIN_BORDER = 50
+MIN_BORDER = 5
 
 # TODO (bev) PlotView should not be a RendererView
 # TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
@@ -719,7 +719,7 @@ class PlotCanvas extends LayoutDOM.Model
     title_text_font_size: "20pt"
     title_text_align: "center"
     title_text_baseline: "alphabetic"
-    outline_line_color: '#aaaaaa'
+    outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
     # The Plot is the responsive mode users should care about, that sets the

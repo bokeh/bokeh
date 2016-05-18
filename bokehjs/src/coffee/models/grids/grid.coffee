@@ -77,7 +77,7 @@ class Grid extends GuideRenderer.Model
     level: "underlay"
     band_fill_color: null
     band_fill_alpha: 0
-    grid_line_color: '#cccccc'
+    grid_line_color: '#e5e5e5'
     minor_grid_line_color: null
   }
 

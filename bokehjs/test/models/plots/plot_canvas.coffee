@@ -101,10 +101,11 @@ describe "PlotCanvas.Model", ->
   it "should set min_border_x to value of specified, and others to default min_border", ->
     p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
     p.attach_document(new Document())
-    expect(p.min_border_top).to.be.equal 50
-    expect(p.min_border_bottom).to.be.equal 50
+    # MIN_BORDER is 5
+    expect(p.min_border_top).to.be.equal 5
+    expect(p.min_border_bottom).to.be.equal 5
     expect(p.min_border_left).to.be.equal 4
-    expect(p.min_border_right).to.be.equal 50
+    expect(p.min_border_right).to.be.equal 5
 
 describe "PlotCanvas.Model constraints", ->
 
