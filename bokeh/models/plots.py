@@ -104,7 +104,7 @@ class Plot(LayoutDOM):
         if "background_fill" in kwargs and "background_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
-        super(LayoutDOM, self).__init__(**kwargs)
+        super(Plot, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that

@@ -26,9 +26,6 @@ def _stable_id():
 def test_components_return_type():
     plot1 = figure()
     plot2 = figure()
-    # This is a testing artefact, users dont' have to do this in practice
-    curdoc().add_root(plot1)
-    curdoc().add_root(plot2)
 
     r = embed.components(plot1)
     assert len(r) == 2
@@ -48,9 +45,6 @@ def test_components_return_type():
 def test_plot_dict_returned_when_wrap_plot_info_is_false(mock_make_id):
     plot1 = figure()
     plot2 = figure()
-    # This is a testing artefact, users dont' have to do this in practice
-    curdoc().add_root(plot1)
-    curdoc().add_root(plot2)
 
     expected_plotdict_1 = {"modelid": plot1.ref["id"], "elementid": "ID", "docid": "ID"}
     expected_plotdict_2 = {"modelid": plot2.ref["id"], "elementid": "ID", "docid": "ID"}

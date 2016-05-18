@@ -402,9 +402,24 @@ def _test_layout_added_to_root(layout_generator, children=None):
 def _test_children_removed_from_root(layout_generator, children=None):
     component = Plot()
     io.curdoc().add_root(component if children is None else children[0][0])
-    layout = layout_generator(component if children is None else children)
+    layout_generator(component if children is None else children)
     assert component not in io.curdoc().roots
     io.curdoc().clear()
+
+
+def test_hplot():
+    _test_layout_added_to_root(io.hplot)
+    _test_children_removed_from_root(io.hplot)
+
+
+def test_vplot():
+    _test_layout_added_to_root(io.vplot)
+    _test_children_removed_from_root(io.vplot)
+
+
+def test_vform():
+    _test_layout_added_to_root(io.vform)
+    _test_children_removed_from_root(io.vform)
 
 
 def test_gridplot():

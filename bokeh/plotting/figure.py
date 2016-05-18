@@ -540,6 +540,9 @@ def figure(**kwargs):
         kwargs['plot_width'] = kwargs.pop('width')
 
     fig = Figure(**kwargs)
+    curdoc()._current_plot = fig # TODO (havocp) store this on state, not doc?
+    if curstate().autoadd:
+        curdoc().add_root(fig)
     return fig
 
 
