@@ -17,7 +17,24 @@ class PlotView extends Box.View
   render: () ->
     @$el.addClass(@mget('responsive'))
     @update_constraints()
-    LayoutDOM.render_dom(@)
+    left = @mget('dom_left')
+    top = @mget('dom_top')
+
+    # This is a hack - the 25 is half of the 50 that was subtracted from
+    # doc_width when resizing in document. This means that the root is positioned
+    # symetrically and the vertical scroll bar doesn't mess stuff up when it
+    # kicks in.
+    if @model._is_root == true
+      left = left + 25
+      top = top + 15
+
+    @$el.css({
+      position: 'absolute'
+      left: left
+      top: top
+      width: @model._width._value
+      height: @model._height._value
+    })
 
   update_constraints: () ->
     s = @model.document.solver()

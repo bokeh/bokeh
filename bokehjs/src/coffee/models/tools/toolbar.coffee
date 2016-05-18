@@ -27,7 +27,7 @@ class ToolbarView extends Widget.View
     @update_constraints()
     @$el.css({
       position: 'absolute'
-      left: @mget('dom_left') - @model._whitespace_right._value
+      left: @mget('dom_left')
       top: @mget('dom_top')
       'width': @model._width._value
       'margin-left': @model._whitespace_left._value

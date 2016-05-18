@@ -88,8 +88,7 @@ class Document
     @_doc_height = new Variable("doc_height #{@id}")
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
-    throttled_resize = _.throttle(@resize, 25)
-    $(window).on("resize", $.proxy(throttled_resize, @))
+    $(window).on("resize", $.proxy(@resize, @))
     
   solver: () ->
     @_solver

@@ -48,7 +48,7 @@ describe "Toolbar.View", ->
     expect(tb_view.$el.attr('style')).to.be.undefined
     tb_view.render()
     
-    expected_style = "position: absolute; left: #{dom_left - wr}px; top: #{dom_top}px; width: #{width}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
+    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; margin: #{wt}px #{wr}px #{wb}px #{wl}px;"
     expect(tb_view.$el.attr('style')).to.be.equal expected_style
 
   it "update_constraints should suggest _height of 30 if responsive_mode is width and location is above", ->

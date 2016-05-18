@@ -89,23 +89,24 @@ class CanvasView extends BokehView
     if not requested_width? or not requested_height?
       return
 
+    MIN_SIZE = 50
+    if requested_width < MIN_SIZE or requested_height < MIN_SIZE
+      return
+
     if _.isEqual(@last_requested_dims, [requested_width, requested_height])
       return
 
     s = @model.document.solver()
 
-    # This would be the place for a min-size check
-    if requested_width > 0
-      if @_width_constraint?
-        s.remove_constraint(@_width_constraint)
-      @_width_constraint = EQ(@model._width, -requested_width)
-      s.add_constraint(@_width_constraint)
+    if @_width_constraint?
+      s.remove_constraint(@_width_constraint)
+    @_width_constraint = EQ(@model._width, -requested_width)
+    s.add_constraint(@_width_constraint)
 
-    if requested_height > 0
-      if @_height_constraint?
-        s.remove_constraint(@_height_constraint)
-      @_height_constraint = EQ(@model._height, -requested_height)
-      s.add_constraint(@_height_constraint)
+    if @_height_constraint?
+      s.remove_constraint(@_height_constraint)
+    @_height_constraint = EQ(@model._height, -requested_height)
+    s.add_constraint(@_height_constraint)
 
     @last_requested_dims = [requested_width, requested_height]
 
