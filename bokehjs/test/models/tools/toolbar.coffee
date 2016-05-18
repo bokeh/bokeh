@@ -25,6 +25,23 @@ describe "Toolbar.View", ->
     spy = sinon.spy(tb_view, 'update_constraints')
     tb_view.render()
     expect(spy.calledOnce).is.true
+
+  it "render should call template with location", ->
+    @test_tb.location = 'below'
+    tb_view = new @test_tb.default_view({ model: @test_tb })
+    spy = sinon.spy(tb_view, 'template')
+    tb_view.render()
+    expect(spy.calledOnce).is.true
+    expect(spy.args[0][0]['location']).is.equal 'below'
+
+  it "render should call template with above location if location is None", ->
+    # We need to set above so toolbar looks nice
+    @test_tb.location = null
+    tb_view = new @test_tb.default_view({ model: @test_tb })
+    spy = sinon.spy(tb_view, 'template')
+    tb_view.render()
+    expect(spy.calledOnce).is.true
+    expect(spy.args[0][0]['location']).is.equal 'above'
     
   it "render should set the appropriate positions and paddings on the element", ->
     dom_left = 12

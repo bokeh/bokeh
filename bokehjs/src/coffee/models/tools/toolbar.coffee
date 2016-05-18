@@ -35,8 +35,8 @@ class ToolbarView extends Widget.View
       'margin-top': @model._whitespace_top._value
       'margin-bottom': @model._whitespace_bottom._value
     })
-
-    @$el.html(@template({logo: @mget("logo"), location: @mget("location")}))
+    location = if @mget("location")? then @mget('location') else 'above'
+    @$el.html(@template({logo: @mget("logo"), location: location}))
 
     inspectors = @model.get('inspectors')
     button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
