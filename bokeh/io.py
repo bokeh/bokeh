@@ -31,13 +31,13 @@ from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models.plots import GridPlot
-from .models.layouts import LayoutDOM, Row, Column
+from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
-import bokeh.util.browser as browserlib  # full import needed for test mocking to work
+import bokeh.util.browser as browserlib # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
 
 #-----------------------------------------------------------------------------
@@ -612,7 +612,6 @@ def gridplot(plot_arrangement, **kwargs):
     _push_or_save(grid)
     return grid
 
-
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
     warnings.warn(
@@ -621,12 +620,8 @@ def hplot(*children, **kwargs):
         like to keep using a fixed size row like hplot you can set responsive=False
         on Row. This has been automatically set on hplot.
         """)
-    _remove_roots(children)
     layout = Row(children=list(children), responsive=False, **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
     return layout
-
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
@@ -636,12 +631,8 @@ def vplot(*children, **kwargs):
         like to keep using a fixed size column like vplot you can set responsive=False
         on Column. This has been automatically set on vplot.
         """)
-    _remove_roots(children)
     layout = Column(children=list(children), responsive=False, **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
     return layout
-
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vform(*children, **kwargs):
@@ -651,8 +642,5 @@ def vform(*children, **kwargs):
         like to keep using a fixed size column like vform you can set responsive=False
         on Column. This has been automatically set on vform.
         """)
-    _remove_roots(children)
     layout = Column(children=list(children), responsive=False, **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
     return layout
