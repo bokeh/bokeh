@@ -283,15 +283,15 @@ class Label(Annotation):
     Acceptable values for units are ``"rad"`` and ``"deg"``
     """)
 
-    x_offset = NumberSpec(default=0, help="""
+    x_offset = Float(default=0, help="""
     Offset value to apply to the x-coordinate.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in screen units from a given data position.
     """)
 
-    y_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the y-coordinate.
+    y_offset = Float(default=0, help="""
+    Offset value to apply to the y-coordinate.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in screen units from a given data position.

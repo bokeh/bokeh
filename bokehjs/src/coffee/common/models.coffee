@@ -7,6 +7,7 @@ module.exports = {
   Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'
   Label:                    require '../models/annotations/label'
+  LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
