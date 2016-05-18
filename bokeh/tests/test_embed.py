@@ -7,7 +7,7 @@ import bs4
 
 import bokeh.embed as embed
 from bokeh.resources import CDN, JSResources, CSSResources
-from bokeh.plotting import figure
+from bokeh.plotting import figure, curdoc
 from bokeh.util.string import encode_utf8
 from jinja2 import Template
 from six import string_types
@@ -22,20 +22,52 @@ def setUpModule():
 def _stable_id():
     return 'ID'
 
+
+def test_components_return_type():
+    plot1 = figure()
+    plot2 = figure()
+    # This is a testing artefact, users dont' have to do this in practice
+    curdoc().add_root(plot1)
+    curdoc().add_root(plot2)
+
+    r = embed.components(plot1)
+    assert len(r) == 2
+
+    _, divs = embed.components((plot1, plot2))
+    assert isinstance(divs, tuple)
+
+    _, divs = embed.components([plot1, plot2])
+    assert isinstance(divs, tuple)
+
+    _, divs = embed.components({"Plot 1": plot1, "Plot 2": plot2})
+    assert isinstance(divs, dict)
+    assert all(isinstance(x, string_types) for x in divs.keys())
+
+
+@mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
+def test_plot_dict_returned_when_wrap_plot_info_is_false(mock_make_id):
+    plot1 = figure()
+    plot2 = figure()
+    # This is a testing artefact, users dont' have to do this in practice
+    curdoc().add_root(plot1)
+    curdoc().add_root(plot2)
+
+    expected_plotdict_1 = {"modelid": plot1.ref["id"], "elementid": "ID", "docid": "ID"}
+    expected_plotdict_2 = {"modelid": plot2.ref["id"], "elementid": "ID", "docid": "ID"}
+
+    _, plotdict = embed.components(plot1, wrap_plot_info=False)
+    assert plotdict == expected_plotdict_1
+
+    _, plotids = embed.components((plot1, plot2), wrap_plot_info=False)
+    assert plotids == (expected_plotdict_1, expected_plotdict_2)
+
+    _, plotiddict = embed.components({'p1': plot1, 'p2': plot2}, wrap_plot_info=False)
+    assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
+
+
+
 class TestComponents(unittest.TestCase):
 
-    def test_return_type(self):
-        r = embed.components(_embed_test_plot)
-        self.assertEqual(len(r), 2)
-
-        script, divs = embed.components((_embed_test_plot, _embed_test_plot))
-        self.assertTrue(isinstance(divs, tuple))
-
-        script, divs = embed.components([_embed_test_plot, _embed_test_plot])
-        self.assertTrue(isinstance(divs, tuple))
-
-        script, divs = embed.components({"Plot 1": _embed_test_plot, "Plot 2": _embed_test_plot})
-        self.assertTrue(isinstance(divs, dict) and all(isinstance(x, string_types) for x in divs.keys()))
 
     def test_result_attrs(self):
         script, div = embed.components(_embed_test_plot)
@@ -71,20 +103,6 @@ class TestComponents(unittest.TestCase):
         rawscript, div = embed.components(_embed_test_plot, wrap_script=False)
         self.maxDiff = None
         self.assertEqual(rawscript.strip(), script_content.strip())
-
-    @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
-    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
-        plot = _embed_test_plot
-        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "ID", "docid": "ID"}
-        script, plotdict = embed.components(_embed_test_plot, wrap_plot_info=False)
-        self.assertEqual(plotdict, expected_plotdict)
-
-        script, plotids = embed.components((_embed_test_plot, _embed_test_plot), wrap_plot_info=False)
-        self.assertEqual(plotids, (expected_plotdict, expected_plotdict))
-
-        script, plotiddict = embed.components({'p1': _embed_test_plot, 'p2': _embed_test_plot}, wrap_plot_info=False)
-        self.assertEqual(plotiddict, {'p1': expected_plotdict, 'p2': expected_plotdict})
-
 
 class TestNotebookDiv(unittest.TestCase):
 
@@ -255,6 +273,3 @@ class TestAutoloadServer(unittest.TestCase):
 
     def test_autoload_server_value_error_on_model_id_without_session_id(self):
         self.assertRaises(ValueError, embed.autoload_server, _embed_test_plot)
-
-if __name__ == "__main__":
-    unittest.main()

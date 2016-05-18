@@ -271,11 +271,14 @@ class ClientSession(object):
         if self._document is None:
             self._attach_document(doc)
 
-
-    def show(self, browser=None, new="tab"):
+    def show(self, obj=None, browser=None, new="tab"):
         """ Open a browser displaying this session.
 
         Args:
+            obj (LayoutDOM object, optional) : a Layout (Row/Column),
+                Plot or Widget object to display. The object will be added
+                to the session's document.
+
             browser (str, optional) : browser to show with (default: None)
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
@@ -288,6 +291,8 @@ class ClientSession(object):
                 opens a new tab. If **new** is 'window', then opens a new window.
 
         """
+        if obj and obj not in self.document.roots:
+            self.document.add_root(obj)
         show_session(session=self)
 
     @classmethod

@@ -60,9 +60,6 @@ module.exports = {
   Grid:                     require '../models/grids/grid'
 
   GridPlot:                 require '../models/layouts/grid_plot'
-  HBox:                     require '../models/layouts/hbox'
-  VBox:                     require '../models/layouts/vbox'
-  VBoxForm:                 require '../models/layouts/vboxform'
   Column:                   require '../models/layouts/column'
   Row:                      require '../models/layouts/row'
 

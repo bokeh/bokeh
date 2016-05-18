@@ -8,17 +8,19 @@ import warnings
 
 from ..core.query import find
 from ..core import validation
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
+from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.warnings import (
+    MISSING_RENDERERS, NO_DATA_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..core.enums import Location
 from ..core.property_mixins import LineProps, TextProps, FillProps
 from ..model import Model
-from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+from ..core.properties import (
+    Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override)
 from ..util.string import nice_join
-from ..core.validation.errors import REQUIRED_RANGE
 
-from .annotations import Annotation, Legend
+from .annotations import Legend
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
@@ -26,7 +28,7 @@ from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents, Toolbar
-from .layouts import Box, LayoutDOM
+from .layouts import LayoutDOM
 
 
 class _list_attr_splat(list):
@@ -62,7 +64,7 @@ def _select_helper(args, kwargs):
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
         elif issubclass(arg, Model):
-            selector = {"type" : arg}
+            selector = {"type": arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
 
@@ -71,7 +73,11 @@ def _select_helper(args, kwargs):
     return selector
 
 
-class Plot(Box):
+# Plot inherits from Box on BokehJS but LayoutDOM here.
+# We need to inherit from LayoutDOM as we don't want the validation errors
+# around children although on BokehJS Plot acquires Toolbar and PlotCanvas as
+# children.
+class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
@@ -98,7 +104,7 @@ class Plot(Box):
         if "background_fill" in kwargs and "background_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
-        super(Plot, self).__init__(**kwargs)
+        super(LayoutDOM, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that

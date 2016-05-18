@@ -66,14 +66,10 @@ def create_and_build(builder_class, *data, **kws):
     builder = builder_class(*data, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
+    chart_kws = {k: v for k, v in kws.items() if k not in builder_props}
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
     chart.start_plot()
-
-    curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
-    if curstate().autoadd:
-        curdoc().add_root(chart)
 
     return chart
 
