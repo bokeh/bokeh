@@ -21,6 +21,7 @@ update_constraints = (view) ->
       # if not visible, avoid applying constraints until visible again
       return
 
+  # Constrain size based on contents (may not have changed)
   size = v._get_size()
 
   if not v._last_size?
@@ -37,7 +38,9 @@ update_constraints = (view) ->
   v._size_constraint = GE(v.model.panel._size, -size)
   s.add_constraint(v._size_constraint)
 
-  # Set Full (only needs to be done once)
+  # Constrain Full Dimension - link it to the plot (only needs to be done once)
+  # If axis is on the left, then it is the full height of the plot.
+  # If axis is on the top, then it is the full width of the plot.
   if not v._full_set?
     v._full_set = false
   if not v._full_set
