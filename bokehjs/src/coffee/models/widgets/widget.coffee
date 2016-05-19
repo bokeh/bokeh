@@ -13,6 +13,9 @@ class Widget extends LayoutDOM.Model
 
   get_constraints: () ->
     constraints = []
+    # Dom position should always be greater than 0
+    constraints.push(GE(@_dom_left))
+    constraints.push(GE(@_dom_top))
     # plot has to be inside the width/height
     constraints.push(GE(@_left))
     constraints.push(GE(@_width, [-1, @_right]))

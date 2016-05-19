@@ -23,13 +23,15 @@ class ToolbarView extends Widget.View
     @location = options.location
     @listenTo(@model, 'change', @render)
     @listenTo(@model.document.solver(), 'resize', @render)
-    @render()
 
   render: () ->
+    console.log("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    console.log("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    console.log("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     @$el.css({
       position: 'absolute'
-      left: @model.dom_left
-      top: @model.dom_top
+      left: @model._dom_left._value
+      top: @model._dom_top._value
       'width': @model._width._value
       'height': @model._height._value
     })
@@ -82,13 +84,14 @@ class Toolbar extends Widget.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @listenTo(@, 'change:tools', () => @_init_tools())
+    @listenTo(@, 'change:tools', @_init_tools)
     @_init_tools()
 
   get_constraints: () ->
-    constraints = []
+    # Get the constraints from widget
+    constraints = super()
     if @location == 'above'
-      constraints.push(EQ(@_height, -30))
+      constraints.push(EQ(@_sizeable, -30))
     return constraints
 
   _init_tools: () ->

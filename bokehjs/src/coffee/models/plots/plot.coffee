@@ -36,10 +36,13 @@ class PlotView extends BokehView
     @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
+    console.log("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    console.log("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    console.log("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     @$el.css({
       position: 'absolute'
-      left: @mget('dom_left')
-      top: @mget('dom_top')
+      left: @model._dom_left._value
+      top: @model._dom_top._value
       'width': @model._width._value
       'height': @model._height._value
     })
@@ -85,6 +88,9 @@ class Plot extends LayoutDOM.Model
 
   get_constraints: () ->
     constraints = []
+    # Dom position should always be greater than 0
+    constraints.push(GE(@_dom_left))
+    constraints.push(GE(@_dom_top))
     # plot has to be inside the width/height
     constraints.push(GE(@_left))
     constraints.push(GE(@_width, [-1, @_right]))

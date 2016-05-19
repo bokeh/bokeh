@@ -88,9 +88,7 @@ class PlotCanvasView extends Renderer.View
 
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
-
     @$el.append(@canvas_view.el)
-
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -389,13 +387,17 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
+    # I think this is unecessary.
+    if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
+      @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
+    @canvas_view.render(force_canvas)
+
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
     @update_constraints()
-    @canvas_view.render(force_canvas)
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
@@ -462,12 +464,16 @@ class PlotCanvasView extends Renderer.View
   resize: () ->
     width = @model._width._value
     height = @model._height._value
-    logger.debug("resize Canvas for Plot #{@model.id} -- #{width} x #{height}")
-    @canvas_view.set_dims([width, height])
+
+    @canvas_view.set_dims([width, height], true)
+
+    console.log("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    console.log("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    console.log("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     @$el.css({
       position: 'absolute'
-      left: @mget('dom_left')
-      top: @model._top._value
+      left: @model._dom_left._value
+      top: @model._dom_top._value
       'width': @model._width._value
       'height': @model._height._value
     })
@@ -732,6 +738,10 @@ class PlotCanvas extends LayoutDOM.Model
   _get_constant_constraints: () ->
     constraints = []
 
+    # Dom position should always be greater than 0
+    constraints.push(GE(@_dom_left))
+    constraints.push(GE(@_dom_top))
+    
     # plot has to be inside the width/height
     constraints.push(GE(@_left))
     constraints.push(GE(@_width, [-1, @_right]))

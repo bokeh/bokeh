@@ -15,17 +15,15 @@ class LayoutDOM extends Model
     @_right = new Variable("_right #{@id}")
     @_top = new Variable("_top #{@id}")
     @_bottom = new Variable("_bottom #{@id}")
+    # this is the dom position
+    @_dom_top = new Variable("_dom_top #{@id}")
+    @_dom_left = new Variable("_dom_left #{@id}")
 
   @define {
       height:   [ p.Number, null ]
       width:    [ p.Number, null ]
       disabled: [ p.Bool, false ]
     }
-
-  @internal {
-    dom_left:  [ p.Number, 0   ]
-    dom_top:   [ p.Number, 0   ]
-  }
 
 module.exports =
   Model: LayoutDOM
