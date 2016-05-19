@@ -13,6 +13,17 @@ Toolbar = require "../tools/toolbar"
 PlotCanvas = require("./plot_canvas").Model
 
 class PlotView extends BokehView
+  className: "bk-plot-layout"
+
+  initialize: (options) ->
+    super(options)
+
+    children = @model.get_layoutable_children()
+    @child_views = {}
+    build_views(@child_views, children)
+  
+    for own key, child_view of @child_views
+      @$el.append(child_view.$el)
 
 
 class Plot extends LayoutDOM.Model
