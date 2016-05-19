@@ -223,7 +223,7 @@ class PlotCanvasView extends Renderer.View
       @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
 
   reset_dimensions: () ->
-    @canvas_view.set_dims([@canvas.get('canvas_width'), @canvas.get('canvas_height')])
+    @canvas_view.set_dims([@canvas.initial_width, @canvas.initial_height])
 
   get_selection: () ->
     selection = []
@@ -538,41 +538,37 @@ class PlotCanvas extends LayoutDOM.Model
         plots = plots.concat(@)
         yr.set('plots', plots)
 
-    canvas = new Canvas.Model({
+    @canvas = new Canvas.Model({
       map: @use_map ? false
-      canvas_width: @get('plot_width'),
-      canvas_height: @get('plot_height'),
-      use_hidpi: @get('hidpi')
+      initial_width: @plot_width,
+      initial_height: @plot_height,
+      use_hidpi: @hidpi
     })
-    @set('canvas', canvas)
 
-    min_border = @get('min_border')
-    if min_border?
-      if not @get('min_border_top')?
-        @set('min_border_top', min_border)
-      if not @get('min_border_bottom')?
-        @set('min_border_bottom', min_border)
-      if not @get('min_border_left')?
-        @set('min_border_left', min_border)
-      if not @get('min_border_right')?
-        @set('min_border_right', min_border)
+    # Min border applies to the edge of everything
+    if @min_border?
+      if not @min_border_top?
+        @min_border_top = @min_border
+      if not @min_border_bottom?
+        @min_border_bottom = @min_border
+      if not @min_border_left?
+        @min_border_left = @min_border
+      if not @min_border_right?
+        @min_border_right = @min_border
 
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
-    canvas = @get('canvas')
-    canvas.attach_document(@document)
-
-    frame = new CartesianFrame.Model({
-      x_range: @get('x_range'),
-      extra_x_ranges: @get('extra_x_ranges'),
-      x_mapper_type: @get('x_mapper_type'),
-      y_range: @get('y_range'),
-      extra_y_ranges: @get('extra_y_ranges'),
-      y_mapper_type: @get('y_mapper_type'),
+    @canvas.attach_document(@document)
+    @frame = new CartesianFrame.Model({
+      x_range: @x_range,
+      extra_x_ranges: @extra_x_ranges,
+      x_mapper_type: @x_mapper_type,
+      y_range: @y_range,
+      extra_y_ranges: @extra_y_ranges,
+      y_mapper_type: @y_mapper_type,
     })
-    frame.attach_document(@document)
-    @set('frame', frame)
+    @frame.attach_document(@document)
 
     # Add the panels that make up the layout
     @above_panel = new LayoutCanvas.Model()
@@ -590,14 +586,13 @@ class PlotCanvas extends LayoutDOM.Model
       layout_renderers = @get(side)
       for r in layout_renderers
         r.add_panel(side)
-
     logger.debug("Plot attached to document")
 
   serializable_attributes: () ->
     attrs = super()
     if 'renderers' of attrs
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
-    attrs
+    return attrs
 
   add_renderers: (new_renderers...) ->
     renderers = @get('renderers')
@@ -607,9 +602,7 @@ class PlotCanvas extends LayoutDOM.Model
   add_layout: (renderer, side="center") ->
     if renderer.props.plot?
       renderer.plot = this
-
     @add_renderers(renderer)
-
     if side != 'center'
       renderer.add_panel(side)
       @set(side, @get(side).concat([renderer]))

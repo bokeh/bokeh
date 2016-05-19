@@ -34,9 +34,7 @@ class CanvasView extends BokehView
 
     # map plots reference this attribute
     @map_div = @$('div.bk-canvas-map') ? null
-
-    @set_dims([@mget('canvas_width'), @mget('canvas_height')])
-
+    @set_dims([@model.initial_width, @model.initial_height])
     logger.debug("CanvasView initialized")
 
   get_canvas_element: () ->
@@ -49,8 +47,8 @@ class CanvasView extends BokehView
 
   render: (force=false) ->
 
-    width = @mget('width')
-    height = @mget('height')
+    width = @model._width._value
+    height = @model._height._value
 
     # only render the canvas when the canvas dimensions change unless force==true
     if not _.isEqual(@last_dims, [width, height]) or force
@@ -118,8 +116,8 @@ class Canvas extends LayoutCanvas.Model
 
   @internal {
     map: [ p.Boolean, false ]
-    canvas_width: [ p.Number ]
-    canvas_height: [ p.Number ]
+    initial_width: [ p.Number ]
+    initial_height: [ p.Number ]
     use_hidpi: [ p.Boolean, true ]
   }
 
@@ -132,7 +130,7 @@ class Canvas extends LayoutCanvas.Model
 
   vy_to_sy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @get('height') - (y + 1)
+    return @_height._value - (y + 1)
 
   # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
   v_vx_to_sx: (xx) ->
@@ -141,10 +139,10 @@ class Canvas extends LayoutCanvas.Model
     return xx
 
   v_vy_to_sy: (yy) ->
-    canvas_height = @get('height')
+    height = @_height._value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = canvas_height - (y + 1)
+      yy[idx] = height - (y + 1)
     return yy
 
   # transform underlying screen coordinates to view coordinates
@@ -161,10 +159,10 @@ class Canvas extends LayoutCanvas.Model
     return xx
 
   v_sy_to_vy: (yy) ->
-    canvas_height = @get('height')
+    height = @_height._value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = canvas_height - (y + 1)
+      yy[idx] = height - (y + 1)
     return yy
 
   get_constraints: () ->
