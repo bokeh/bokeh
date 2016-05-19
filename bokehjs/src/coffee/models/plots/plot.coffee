@@ -79,17 +79,10 @@ class Plot extends LayoutDOM.Model
     @_plot_canvas
 
   get_layoutable_children: () ->
-    toolbar_location = @toolbar_location
-    if toolbar_location in ['left', 'right']
-      @_horizontal = true
     # Default if toolbar_location is None
     children = [@_plot_canvas]
-    if toolbar_location in ['above', 'left']
-      # Toolbar is first
+    if toolbar_location?
       children = [@toolbar, @_plot_canvas]
-    if toolbar_location in ['below', 'right']
-      # Toolbar is second
-      children = [@_plot_canvas, @toolbar]
     return children
 
   get_edit_variables: () ->
@@ -103,11 +96,13 @@ class Plot extends LayoutDOM.Model
     # Dom position should always be greater than 0
     constraints.push(GE(@_dom_left))
     constraints.push(GE(@_dom_top))
-    # plot has to be inside the width/height
+    # Has to be inside the width/height
     constraints.push(GE(@_left))
     constraints.push(GE(@_width, [-1, @_right]))
     constraints.push(GE(@_top))
     constraints.push(GE(@_height, [-1, @_bottom]))
+
+
 
     if not toolbar_location?
       constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
