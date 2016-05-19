@@ -73,10 +73,6 @@ def _select_helper(args, kwargs):
     return selector
 
 
-# Plot inherits from Box on BokehJS but LayoutDOM here.
-# We need to inherit from LayoutDOM as we don't want the validation errors
-# around children although on BokehJS Plot acquires Toolbar and PlotCanvas as
-# children.
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
@@ -698,8 +694,6 @@ class Plot(LayoutDOM):
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
     """)
-
-    responsive = Override(default=False)
 
 
 class GridPlot(LayoutDOM):

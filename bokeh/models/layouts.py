@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 from ..core import validation
 from ..core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ..core.properties import abstract, Bool, Int, Instance, List, Responsive
+from ..core.properties import abstract, Bool, Int, Instance, List  # , Responsive
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
@@ -35,26 +35,6 @@ class LayoutDOM(Model):
     the widget will be greyed-out, and not respond to UI events.
     """)
 
-    grow = Bool(default=True, help="""
-        Box grows to fit its container. Default value is True.
-    """)
-
-    responsive = Responsive('width', help="""
-    The type of responsiveness for the item being displayed. Possible values are `box`,
-    `width` (or `True`), `fixed` (or `False`). Default is `width`.
-
-    `box` mode constrains both the height and width. The items being laid out
-    attempt to fit entirely within the window. Items will shrink and grow with both
-    the height and width of the browser window changing. This is sometimes called outside-in.
-    This is a typical behavior for desktop applications.
-
-    `width` mode constrains only the width. The items being laid out will resize to
-    fit the width and will take up whatever vertical space they may need. This is a
-    typical behavior for modern websites.
-
-    `fixed` mode prevents responsiveness. The items will have a fixed size.
-    """)
-
     # TODO: (mp) Not yet, because it breaks plotting/notebook examples.
     # Rename to _repr_html_ if we decide to enable this by default.
     def __repr_html__(self):
@@ -67,7 +47,7 @@ class LayoutDOM(Model):
 
 
 @abstract
-class Box(LayoutDOM):
+class Box(Model):
     """ Abstract base class for Row and Column. Do not use directly.
     """
 
@@ -126,7 +106,7 @@ def HBox(*args, **kwargs):
         like to keep using a fixed size column like HBox you can set responsive=False
         on Column. This has been automatically set HBox.
         """)
-    return Row(*args, responsive=False, **kwargs)
+    return Row(*args, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
@@ -137,7 +117,7 @@ def VBox(*args, **kwargs):
         like to keep using a fixed size column like VBox you can set responsive=False
         on Column. This has been automatically set VBox.
         """)
-    return Column(*args, responsive=False, **kwargs)
+    return Column(*args, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
@@ -148,4 +128,4 @@ def VBoxForm(*args, **kwargs):
         like to keep using a fixed size column like VBoxForm you can set responsive=False
         on Column. This has been automatically set VBoxForm.
         """)
-    return Column(*args, responsive=False, **kwargs)
+    return Column(*args, **kwargs)
