@@ -29,7 +29,8 @@ class PlotView extends BokehView
     @bind_bokeh_events()
 
     if @model._is_root == true
-      $(window).trigger('resize')
+      resize = () -> $(window).trigger('resize')
+      _.delay(resize, 50)
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
