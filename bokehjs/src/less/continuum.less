@@ -238,7 +238,7 @@
 .bk-toolbar-below {
   border-top: 1px solid #e5e5e5;
   .bk-button-bar {
-    top: -1px;
+    top: 2px;
   }
 }
 
@@ -251,14 +251,18 @@
 .bk-toolbar-right {
   border-left: 1px solid #e5e5e5;
   .bk-button-bar {
+    left: 1px;
   }
 }
 
+.bk-toolbar-below {
+  // We need to push the toolbar down because it's ended up positioned inside
+  // canvas edge (but there's space in the plot container for it)
+  margin-top: 28px;
+}
 
 .bk-toolbar-above, 
 .bk-toolbar-below {
-  height: 28px;
-  float: right;
   .bk-logo {
     float: right;
     margin: 5px;
@@ -306,10 +310,13 @@
   }
 }
 
+.bk-toolbar-right {
+  margin-left: 28px;
+}
+
 .bk-toolbar-left, 
 .bk-toolbar-right {
   display: block;
-  margin: 0;
   .bk-logo  {
     left: 4px;
     margin-bottom: 3px;

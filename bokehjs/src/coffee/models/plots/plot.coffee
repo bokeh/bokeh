@@ -5,7 +5,8 @@ build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
 
 BokehView = require "../../core/bokeh_view"
-{LE, GE, EQ, Variable}  = require "../../core/layout/solver"
+{WEAK_EQ, GE, EQ, Variable}  = require "../../core/layout/solver"
+{logger} = require "../../core/logging"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
@@ -39,9 +40,11 @@ class PlotView extends BokehView
     @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
-    console.log("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    console.log("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    console.log("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
+    #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
+    #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _width_minus_left: #{@model._width_minus_left._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
+    #logger.debug("#{@model} _right_minus_left: #{@model._right_minus_left._value}, _bottom_minus_top: #{@model._bottom_minus_top._value}")
     @$el.css({
       position: 'absolute'
       left: @model._dom_left._value
@@ -94,51 +97,37 @@ class Plot extends LayoutDOM.Model
     return edit_variables
 
   get_constraints: () ->
-    constraints = []
-    # Everything should be greater than 0
-    constraints.push(GE(@_dom_left))
-    constraints.push(GE(@_dom_top))
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_width))
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_height))
+    constraints = super()
 
     # CONSTRAINTS (if toolbar is above)
     # Size:
-    # * (1) COMPUTE THE VARIABLE: plot_height = plot_canvas_height + toolbar_height
+    # * (1) COMPUTE THE VARIABLE PIECES (shrinks canvas): plot_height = plot_canvas_height + toolbar_height
     # * (2) SIZE THE FIXED: plot_width = plot_canvas_width 
     # * (3) SIZE THE FIXED: plot_width = toolbar_width
     # Position:
-    # * (4) stack: plot_canvas._dom_top = toolbar._dom_top + toolbar._height
-    # * (5) align: plot._top = toolbar._top
+    # * (4) stack or stick to the side - note that below and right also require a css offset (couldn't find another way)
 
-    if @toolbar_location == 'above'
-      console.log('in above')
-      # (1) plot_height > plot_canvas_height + toolbar_height
-      constraints.push(GE(@_height, [-1, @_plot_canvas._height], [-1, @toolbar._height]))
+    if @toolbar_location?
+      # (1) plot_height = plot_canvas_height + toolbar_height | plot_width = plot_canvas_width + toolbar_width
+      constraints.push(EQ(@_sizeable, [-1, @_plot_canvas._sizeable], [-1, @toolbar._sizeable]))
+      # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
+      constraints.push(EQ(@_full, [-1, @_plot_canvas._full]))
+      # (3) plot_full = toolbar_full | plot_height = toolbar_height | plot_height = toolbar_height
+      constraints.push(EQ(@_full, [-1, @toolbar._full]))
 
-      # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height
-      constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
+      if @toolbar_location == 'above'
+        # (4) stack: plot_canvas._dom_top = toolbar._dom_top + toolbar._height
+        constraints.push(EQ(@_plot_canvas._dom_top, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
 
-      # (3) plot_width = toolbar_width | plot_height = toolbar_height
-      constraints.push(EQ(@_width, [-1, @toolbar._width]))
-      
-      # (4) stack: plot_canvas._dom_top = toolbar._dom_top + toolbar._height
-      constraints.push(EQ(@_plot_canvas._dom_top, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
+      if @toolbar_location == 'below'
+        constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas._height], @toolbar._bottom))
 
-    if @toolbar_location == 'left'
-      console.log('in left')
-      # (1) plot_width = plot_canvas_width + toolbar_width
-      constraints.push(EQ(@_width, [-1, @_plot_canvas._width], [-1, @toolbar._width]))
+      if @toolbar_location == 'left'
+        # (4) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
+        constraints.push(EQ(@_plot_canvas._dom_left, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
 
-      # (2) plot_height = plot_canvas_height
-      constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
-
-      # (3) plot_height = toolbar_height
-      constraints.push(EQ(@_height, [-1, @toolbar._height]))
-      
-      # (4) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
-      constraints.push(EQ(@_plot_canvas._dom_left, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
+      if @toolbar_location == 'right'
+        constraints.push(EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @toolbar._right))
 
     if not @toolbar_location?
       console.log('in else')

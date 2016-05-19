@@ -465,9 +465,11 @@ class PlotCanvasView extends Renderer.View
 
     @canvas_view.set_dims([width, height], true)
 
-    console.log("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    console.log("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    console.log("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
+    #logger.debug("PlotCanvas _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    #logger.debug("PlotCanvas _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    #logger.debug("PlotCanvas _width: #{@model._width._value}, _height: #{@model._height._value}")
+    #logger.debug("PlotCanvas _width_minus_right: #{@model._width_minus_right._value}, _width_minus_left: #{@model._width_minus_left._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
+    #logger.debug("PlotCanvas _right_minus_left: #{@model._right_minus_left._value}, _bottom_minus_top: #{@model._bottom_minus_top._value}")
     @$el.css({
       position: 'absolute'
       left: @model._dom_left._value
@@ -725,7 +727,7 @@ class PlotCanvas extends LayoutDOM.Model
     return edit_variables
 
   get_constraints: () ->
-    constraints = []
+    constraints = super()
     constraints = constraints.concat(@_get_constant_constraints())
     constraints = constraints.concat(@_get_side_constraints())
     # Go down the children to pick up any more constraints
@@ -735,16 +737,6 @@ class PlotCanvas extends LayoutDOM.Model
 
   _get_constant_constraints: () ->
     constraints = []
-
-    # Dom position should always be greater than 0
-    constraints.push(GE(@_dom_left))
-    constraints.push(GE(@_dom_top))
-    
-    # plot has to be inside the width/height
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_width, [-1, @_right]))
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_height, [-1, @_bottom]))
 
     # Add the constraints that always apply for a plot
     min_border_top    = @get('min_border_top')
