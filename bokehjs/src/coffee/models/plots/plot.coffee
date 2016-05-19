@@ -57,10 +57,19 @@ class Plot extends LayoutDOM.Model
 
   initialize: (options) ->
     super(options)
+    
     @_horizontal = false
-    @toolbar.location = @toolbar_location
+    if @toolbar_location in ['left', 'right']
+      @_horizontal = true
+
     plot_canvas_options = _.omit(options, 'toolbar_location')
     @_plot_canvas = new PlotCanvas(plot_canvas_options)
+
+    @_set_orientation_variables(@)
+    @_set_orientation_variables(@toolbar)
+    @_set_orientation_variables(@_plot_canvas)
+
+    @toolbar.location = @toolbar_location
     @_plot_canvas.toolbar = @toolbar
 
   _doc_attached: () ->
@@ -115,6 +124,14 @@ class Plot extends LayoutDOM.Model
       "width": @_width
       "height": @_height
     }
+
+  _set_orientation_variables: (model) ->
+    if @_horizontal == false
+      model._sizeable = model._height
+      model._full = model._width
+    if @_horizontal == true
+      model._sizeable = model._width
+      model._full = model._height
 
   # 
   # SETUP PROPERTIES

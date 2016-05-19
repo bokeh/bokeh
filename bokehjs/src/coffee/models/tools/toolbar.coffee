@@ -21,6 +21,10 @@ class ToolbarView extends Widget.View
   initialize: (options) ->
     super(options)
     @location = options.location
+    @bind_bokeh_events()
+    @render()
+
+  bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
     @listenTo(@model.document.solver(), 'resize', @render)
 
