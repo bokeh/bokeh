@@ -5,7 +5,7 @@ build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
 
 BokehView = require "../../core/bokeh_view"
-{WEAK_EQ, GE, EQ, Variable}  = require "../../core/layout/solver"
+{WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -74,10 +74,14 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@toolbar)
     @_set_orientation_variables(@_plot_canvas)
 
-    console.log(@_plot_canvas._sizeable)
-
     @toolbar.location = @toolbar_location
     @_plot_canvas.toolbar = @toolbar
+
+    # Add our whitespace variables
+    @_whitespace_top = new Variable()
+    @_whitespace_bottom = new Variable()
+    @_whitespace_left = new Variable()
+    @_whitespace_right = new Variable()
 
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
@@ -94,6 +98,8 @@ class Plot extends LayoutDOM.Model
 
   get_edit_variables: () ->
     edit_variables = []
+    edit_variables.push({'edit_variable': @_dom_left, 'strength': Strength.strong})
+    edit_variables.push({'edit_variable': @_dom_top, 'strength': Strength.strong})
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
@@ -146,6 +152,12 @@ class Plot extends LayoutDOM.Model
     {
       "width": @_width
       "height": @_height
+      # insets from the edge that are whitespace (contain no pixels),
+      # this is used for spacing within a box.
+      'whitespace-top' : @_whitespace_top
+      'whitespace-bottom' : @_whitespace_bottom
+      'whitespace-left' : @_whitespace_left
+      'whitespace-right' : @_whitespace_right
     }
 
   _set_orientation_variables: (model) ->
