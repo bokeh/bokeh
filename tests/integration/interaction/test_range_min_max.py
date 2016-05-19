@@ -1,9 +1,18 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.plotting import figure
-from bokeh.models import CustomJS, Range1d, DataRange1d
+from bokeh.models import (
+    BoxZoomTool,
+    ColumnDataSource,
+    CustomJS,
+    DataRange1d,
+    PanTool,
+    Plot,
+    Range1d,
+    Rect,
+)
 from selenium.webdriver.common.action_chains import ActionChains
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -38,11 +47,10 @@ def make_pan_plot_with_callback(xr=None, yr=None):
     """)
     y_range.callback = y_callback
 
-    plot = figure(
-        height=400, width=400, tools='pan,box_zoom,reset', x_range=x_range, y_range=y_range
-    )
-    plot.min_border = 0
-    plot.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
+    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
+    plot = Plot(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, min_border=0)
+    plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
+    plot.add_tools(PanTool(), BoxZoomTool())
     return plot
 
 
@@ -86,6 +94,7 @@ def test_range_with_callback_triggers_alert(output_file_url, selenium):
     initial_start = plot.x_range.start
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=100, pan_y=100)
@@ -99,6 +108,7 @@ def test_x_range_does_not_pan_left_of_x_min(output_file_url, selenium):
     plot = make_pan_plot_with_callback(xr=Range1d(0, 3, bounds=(x_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=200, pan_y=0)
@@ -112,6 +122,7 @@ def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
     plot = make_pan_plot_with_callback(xr=Range1d(0, 3, bounds=(None, x_range_max)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=-200, pan_y=0)
@@ -125,6 +136,7 @@ def test_y_range_does_not_pan_below_y_min(output_file_url, selenium):
     plot = make_pan_plot_with_callback(yr=Range1d(0, 3, bounds=(y_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=-150)
@@ -138,6 +150,7 @@ def test_y_range_does_not_pan_above_y_max(output_file_url, selenium):
     plot = make_pan_plot_with_callback(yr=Range1d(0, 3, bounds=(None, y_range_max)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=150)
@@ -155,6 +168,7 @@ def test_reversed_x_range_does_not_pan_right_of_x_min(output_file_url, selenium)
     plot = make_pan_plot_with_callback(xr=Range1d(3, 0, bounds=(x_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=-200, pan_y=0)
@@ -168,6 +182,7 @@ def test_reversed_x_range_does_not_pan_left_of_x_max(output_file_url, selenium):
     plot = make_pan_plot_with_callback(xr=Range1d(3, 0, bounds=(None, x_range_max)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=200, pan_y=0)
@@ -181,6 +196,7 @@ def test_reversed_y_range_does_not_pan_above_y_min(output_file_url, selenium):
     plot = make_pan_plot_with_callback(yr=Range1d(3, 0, bounds=(y_range_min, None)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=150)
@@ -195,6 +211,7 @@ def test_reversed_y_range_does_not_pan_below_y_max(output_file_url, selenium):
     plot = make_pan_plot_with_callback(yr=Range1d(3, 0, bounds=(None, y_range_max)))
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Pan plot and test for new range value
     pan_plot(selenium, pan_x=50, pan_y=-150)
@@ -209,6 +226,7 @@ def test_reversed_y_range_does_not_pan_below_y_max(output_file_url, selenium):
 
 def _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium):
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Zoom into plot so we can pan around a little
     zoom_plot(selenium)

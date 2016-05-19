@@ -164,7 +164,7 @@ class PlotCanvasView extends Renderer.View
 
     @update_dataranges()
 
-    if @mget('responsive')
+    if @mget('responsive') == 'width'
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
       # Just need to wait a small delay so container has a width
@@ -822,7 +822,6 @@ class PlotCanvas extends LayoutDOM.Model
 
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
-      responsive:        [ p.Bool,     false                  ]
 
       min_border:        [ p.Number,   MIN_BORDER             ]
       min_border_top:    [ p.Number,   null                   ]
@@ -838,6 +837,7 @@ class PlotCanvas extends LayoutDOM.Model
     outline_line_color: '#aaaaaa'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
+    responsive: 'fixed'
   }
 
   @internal {
@@ -951,6 +951,9 @@ class PlotCanvas extends LayoutDOM.Model
         if side == "right"
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
+
+  get_constrained_variables: () ->
+    {}
 
 module.exports =
   get_size_for_available_space: get_size_for_available_space

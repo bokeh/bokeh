@@ -8,7 +8,9 @@ from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override, Include, MinMaxBounds)
+    DistanceSpec, Override, Include, MinMaxBounds, Responsive)
+
+from bokeh.models import Plot
 
 class Basictest(unittest.TestCase):
 
@@ -1445,13 +1447,24 @@ class TestProperties(unittest.TestCase):
         # Invalid values
         self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), 22)))
 
+
 def test_HasProps_clone():
-    from bokeh.models import Plot
     p1 = Plot(plot_width=1000)
     c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
-if __name__ == "__main__":
-    unittest.main()
+
+def test_responsive_transforms_true_into_width():
+    class Foo(HasProps):
+        responsive = Responsive
+    f = Foo(responsive=True)
+    assert f.responsive == 'width'
+
+
+def test_responsive_transforms_false_into_fixed():
+    class Foo(HasProps):
+        responsive = Responsive
+    f = Foo(responsive=False)
+    assert f.responsive == 'fixed'

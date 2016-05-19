@@ -1,6 +1,20 @@
 from __future__ import absolute_import, print_function
 
+import pytest
+
 from bokeh.models import ColumnDataSource, Rect, BoxSelectTool, CustomJS
+
+
+def has_no_console_errors(selenium):
+    """
+    Helper function to detect console errors.
+    """
+    logs = selenium.get_log('browser')
+    errors = [l for l in logs if l['level'] == 'SEVERE']
+    if len(errors) == 0:
+        return True
+    else:
+        pytest.fail('Console errors: %s' % errors)
 
 
 class value_to_be_present_in_datahash(object):

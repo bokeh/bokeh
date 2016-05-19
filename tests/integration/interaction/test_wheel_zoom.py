@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 from bokeh.io import save
 from bokeh.plotting import figure
 from selenium.common.exceptions import StaleElementReferenceException
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -36,6 +37,7 @@ def test_wheel_zoom_is_deselected_by_default(output_file_url, selenium):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Tap the plot and test for alert
     scroll_button = get_non_stale_scroll_button(selenium)
