@@ -6,7 +6,7 @@ BokehView = require "../../core/bokeh_view"
 {EQ, GE, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
-LayoutDOM = require "./layout_dom"
+Model = require "../../model"
 
 
 class BoxView extends BokehView
@@ -40,46 +40,76 @@ class BoxView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
-    @$el.addClass(@mget('responsive'))
-    @update_constraints()
-    LayoutDOM.render_dom(@)
-
-  update_constraints: () ->
-    s = @model.document.solver()
-    if @mget('responsive') == 'width'
-      height = 0
-      for own key, child_view of @child_views
-        height += child_view.el.scrollHeight
-      s.suggest_value(@model._height, height)
-    if @mget('responsive') == 'fixed'
-      s.suggest_value(@model._width, @mget('width'))
-      s.suggest_value(@model._height, @mget('height'))
+    @$el.css({
+      position: 'absolute',
+      left: @mget('dom_left'),
+      top: @mget('dom_top'),
+      width: @model._width._value,
+      height: @model._height._value
+    })
 
 
-class Box extends LayoutDOM.Model
+class BoxView extends BokehView
+  className: "bk-box"
+
+  initialize: (options) ->
+    super(options)
+    @_created_child_views = false
+    @listenTo(@model, 'change', @render)
+
+  render: () ->
+    # obviously this is too simple for real life, where
+    # we have to see if the children list has changed
+    if not @_created_child_views
+      children = @model.get_layoutable_children()
+      for child in children
+        view = new child.default_view({ model: child })
+        view.render()
+        @$el.append(view.$el)
+      @_created_child_views = true
+
+    @$el.css({
+      position: 'absolute',
+      left: @mget('dom_left'),
+      top: @mget('dom_top'),
+      width: @model._width._value,
+      height: @model._height._value
+    });
+
+class Box extends Model
   default_view: BoxView
 
   constructor: (attrs, options) ->
     super(attrs, options)
-
+    @set('dom_left', 0)
+    @set('dom_top', 0)
+    @_width = new Variable()
+    @_height = new Variable()
     # for children that want to be the same size
     # as other children, make them all equal to these
-    @_child_equal_size_width = new Variable("_child_equal_size_width #{@id}")
-    @_child_equal_size_height = new Variable("_child_equal_size_height #{@id}")
+    @_child_equal_size_width = new Variable()
+    @_child_equal_size_height = new Variable()
 
     # these are passed up to our parent after basing
     # them on the child box-equal-size vars
-    @_box_equal_size_top = new Variable("_box_equal_size_top #{@id}")
-    @_box_equal_size_bottom = new Variable("_box_equal_size_bottom #{@id}")
-    @_box_equal_size_left = new Variable("_box_equal_size_left #{@id}")
-    @_box_equal_size_right = new Variable("_box_equal_size_right #{@id}")
+    @_box_equal_size_top = new Variable()
+    @_box_equal_size_bottom = new Variable()
+    @_box_equal_size_left = new Variable()
+    @_box_equal_size_right = new Variable()
 
     # these are passed up to our parent after basing
     # them on the child box-cell-align vars
-    @_box_cell_align_top = new Variable("_box_equal_size_top #{@id}")
-    @_box_cell_align_bottom = new Variable("_box_equal_size_bottom #{@id}")
-    @_box_cell_align_left = new Variable("_box_equal_size_left #{@id}")
-    @_box_cell_align_right = new Variable("_box_equal_size_right #{@id}")
+    @_box_cell_align_top = new Variable()
+    @_box_cell_align_bottom = new Variable()
+    @_box_cell_align_left = new Variable()
+    @_box_cell_align_right = new Variable()
+
+    # these are passed up to our parent after basing
+    # them on the child whitespace
+    @_whitespace_top = new Variable()
+    @_whitespace_bottom = new Variable()
+    @_whitespace_left = new Variable()
+    @_whitespace_right = new Variable()
 
   @define {
     children: [ p.Array, [] ]
@@ -87,19 +117,22 @@ class Box extends LayoutDOM.Model
 
   @internal {
     spacing:  [ p.Number, 6 ]
+    dom_left:  [ p.Number, 0   ]
+    dom_top:   [ p.Number, 0   ]
   }
 
   _ensure_origin_variables: (child) ->
     if '__Box_x' not of child
-      child['__Box_x'] = new Variable("child_origin_x #{@id}")
+      child['__Box_x'] = new Variable('child_origin_x')
     if '__Box_y' not of child
-      child['__Box_y'] = new Variable("child_origin_y #{@id}")
+      child['__Box_y'] = new Variable('child_origin_y')
     return [child['__Box_x'], child['__Box_y']]
 
   get_constraints: () ->
     children = @get_layoutable_children()
-    result = []
-    if children.length != 0
+    if children.length == 0
+      []
+    else
       child_rect = (child) =>
         vars = child.get_constrained_variables()
         width = vars['width']
@@ -132,9 +165,8 @@ class Box extends LayoutDOM.Model
           if 'box-equal-size-left' of vars
             constraints.push(EQ([-1, vars['box-equal-size-left']], [-1, vars['box-equal-size-right']], vars['width'], @_child_equal_size_width))
         else
-          if child.get('grow') == true
-            if 'box-equal-size-top' of vars
-              constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
+          if 'box-equal-size-top' of vars
+            constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
 
       info = (child) =>
         {
@@ -142,10 +174,11 @@ class Box extends LayoutDOM.Model
           whitespace: whitespace(child)
         }
 
+      result = []
+
       spacing = @get('spacing')
 
       for child in children
-
         # make total widget sizes fill the orthogonal direction
         rect = child_rect(child)
         if @_horizontal
@@ -164,22 +197,20 @@ class Box extends LayoutDOM.Model
         next = info(children[i])
         # each child's start equals the previous child's end
         result.push(EQ(last.span[0], last.span[1], [-1, next.span[0]]))
+
         # the whitespace at end of one child + start of next must equal
         # the box spacing. This must be a weak constraint because it can
         # conflict with aligning the alignable edges in each child.
         # Alignment is generally more important visually than spacing.
-        
-        # TODO This was in havoc's original layout algorithm but it causes
-        # plots to fail in box layouts. I'm not sure WEAK_EQ works.
-        # result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
-
+        result.push(WEAK_EQ(last.whitespace[1], next.whitespace[0], 0 - spacing))
         # if we can't satisfy the whitespace being equal to box spacing,
         # we should fix it (align things) by increasing rather than decreasing
         # the whitespace.
         result.push(GE(last.whitespace[1], next.whitespace[0], 0 - spacing))
+
         last = next
 
-      # Child's side has to stick to the end of the box
+      # last child's right side has to stick to the right side of the box
       if @_horizontal
         total = @_width
       else
@@ -205,7 +236,7 @@ class Box extends LayoutDOM.Model
       result = result.concat(@_box_whitespace(true)) # horizontal=true
       result = result.concat(@_box_whitespace(false))
 
-    return result
+    result
 
   get_constrained_variables: () ->
     {
@@ -493,23 +524,18 @@ class Box extends LayoutDOM.Model
     # child pixels)
     @_box_insets_from_child_insets(horizontal, 'whitespace', '_whitespace', true)
 
+  set_dom_origin: (left, top) ->
+    @set({ dom_left: left, dom_top: top })
+
   variables_updated: () ->
     for child in @get_layoutable_children()
       [left, top] = @_ensure_origin_variables(child)
-      child.set('dom_left', left._value)
-      child.set('dom_top', top._value)
-      # TODO - Do we really need this?
-      child.trigger('change')
+      child.set_dom_origin(left._value, top._value)
+      child.variables_updated()
 
     # hack to force re-render
     @trigger('change')
-  
-  get_edit_variables: () ->
-    edit_variables = super()
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
+
 
 module.exports =
   Model: Box
