@@ -94,13 +94,8 @@ class Document
     @_solver
 
   resize: () ->
-    # The 50 is a hack for when the scroll bar kicks in
-    # when the page is allowed to extend - also see the 
-    # note in box.coffee
-
-    # TODO: We can't use window in the future (bk-root?)
-    width = window.innerWidth - 50
-    height = window.innerHeight - 30
+    width = window.innerWidth
+    height = window.innerHeight
 
     logger.debug("resize: Document -- #{width} x #{height}")
 
@@ -144,18 +139,11 @@ class Document
 
     @_trigger_on_change(new RootAddedEvent(@, model))
 
-    # Set the size of the root layoutable to the document size
-    # TODO What happens if there's more than one layoutable root - does that
-    # even make sense?
-    if model.responsive?
-      root_vars = model.get_constrained_variables()
-      # We add a width constraint for width and box
-      if model.responsive != 'fixed'
-        if root_vars.width?
-          @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
-      if model.responsive == 'box'
-        if root_vars.height?
-          @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
+    root_vars = model.get_constrained_variables()
+    if not root_vars.width? or not root_vars.height?
+      throw new Error("Attempted to add an un-constrained model to document roots: #{model}")
+    @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
+    @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
 
     @_solver.update_variables()
 
