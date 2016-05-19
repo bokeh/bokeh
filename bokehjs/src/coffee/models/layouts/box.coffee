@@ -1,12 +1,10 @@
-_ = require "underscore"
-$ = require "jquery"
 build_views = require "../../common/build_views"
 
 BokehView = require "../../core/bokeh_view"
-{EQ, GE, Variable}  = require "../../core/layout/solver"
+{EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
-Model = require "../../model"
+LayoutDOM = require "./layout_dom"
 
 
 class BoxView extends BokehView
@@ -14,9 +12,7 @@ class BoxView extends BokehView
 
   initialize: (options) ->
     super(options)
-    
-    # Provides a hook so document can measure - things
-    # that are root layouts must have this.
+    # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
 
     children = @model.get_layoutable_children()
@@ -28,67 +24,54 @@ class BoxView extends BokehView
 
     @bind_bokeh_events()
 
-    @model.variables_updated()
-
-    if @model._is_root == true
-      resize = () -> $(window).trigger('resize')
-      # I haven't found a way to not trigger this multiple times.
-      # The problem is that the widgets need to be rendererd before we can
-      # figure out what size we want them.
-      _.delay(resize, 5)
-      _.delay(resize, 10)
-      _.delay(resize, 50)
-
   bind_bokeh_events: () ->
-    @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
+    @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    @$el.addClass(@mget('responsive'))
+
+    if @mget('responsive') == 'width'
+      @update_constraints()
+
+    left = @mget('dom_left')
+    top = @mget('dom_top')
+
+    # This is a hack - the 25 is half of the 50 that was subtracted from
+    # doc_width when resizing in document. This means that the root is positioned
+    # symetrically and the vertical scroll bar doesn't mess stuff up when it
+    # kicks in.
+    if @model._is_root?
+      left = left + 25
+
     @$el.css({
-      position: 'absolute',
-      left: @mget('dom_left'),
-      top: @mget('dom_top'),
-      width: @model._width._value,
+      position: 'absolute'
+      left: left
+      top: top
+      width: @model._width._value
       height: @model._height._value
+      'margin-left': @model._whitespace_left._value
+      'margin-right': @model._whitespace_right._value
+      'margin-top': @model._whitespace_top._value
+      'margin-bottom': @model._whitespace_bottom._value
     })
 
+  update_constraints: () ->
+    s = @model.document.solver()
+    height = 0
+    for own key, child_view of @child_views
+      height += child_view.el.scrollHeight
+    s.suggest_value(@model._height, height)
+  
 
-class BoxView extends BokehView
-  className: "bk-box"
-
-  initialize: (options) ->
-    super(options)
-    @_created_child_views = false
-    @listenTo(@model, 'change', @render)
-
-  render: () ->
-    # obviously this is too simple for real life, where
-    # we have to see if the children list has changed
-    if not @_created_child_views
-      children = @model.get_layoutable_children()
-      for child in children
-        view = new child.default_view({ model: child })
-        view.render()
-        @$el.append(view.$el)
-      @_created_child_views = true
-
-    @$el.css({
-      position: 'absolute',
-      left: @mget('dom_left'),
-      top: @mget('dom_top'),
-      width: @model._width._value,
-      height: @model._height._value
-    });
-
-class Box extends Model
+class Box extends LayoutDOM.Model
   default_view: BoxView
 
   constructor: (attrs, options) ->
     super(attrs, options)
-    @set('dom_left', 0)
-    @set('dom_top', 0)
     @_width = new Variable()
     @_height = new Variable()
+
     # for children that want to be the same size
     # as other children, make them all equal to these
     @_child_equal_size_width = new Variable()
@@ -121,8 +104,9 @@ class Box extends Model
 
   @internal {
     spacing:  [ p.Number, 6 ]
-    dom_left:  [ p.Number, 0   ]
-    dom_top:   [ p.Number, 0   ]
+    responsive: [ p.Responsive, 'box']
+    dom_left: [ p.Number, 0 ]
+    dom_top: [ p.Number, 0 ]
   }
 
   _ensure_origin_variables: (child) ->
@@ -134,9 +118,8 @@ class Box extends Model
 
   get_constraints: () ->
     children = @get_layoutable_children()
-    if children.length == 0
-      []
-    else
+    result = []
+    if children.length != 0
       child_rect = (child) =>
         vars = child.get_constrained_variables()
         width = vars['width']
@@ -178,11 +161,10 @@ class Box extends Model
           whitespace: whitespace(child)
         }
 
-      result = []
-
       spacing = @get('spacing')
 
       for child in children
+
         # make total widget sizes fill the orthogonal direction
         rect = child_rect(child)
         if @_horizontal
@@ -201,7 +183,6 @@ class Box extends Model
         next = info(children[i])
         # each child's start equals the previous child's end
         result.push(EQ(last.span[0], last.span[1], [-1, next.span[0]]))
-
         # the whitespace at end of one child + start of next must equal
         # the box spacing. This must be a weak constraint because it can
         # conflict with aligning the alignable edges in each child.
@@ -211,10 +192,9 @@ class Box extends Model
         # we should fix it (align things) by increasing rather than decreasing
         # the whitespace.
         result.push(GE(last.whitespace[1], next.whitespace[0], 0 - spacing))
-
         last = next
 
-      # last child's right side has to stick to the right side of the box
+      # Child's side has to stick to the end of the box
       if @_horizontal
         total = @_width
       else
@@ -240,7 +220,7 @@ class Box extends Model
       result = result.concat(@_box_whitespace(true)) # horizontal=true
       result = result.concat(@_box_whitespace(false))
 
-    result
+    return result
 
   get_constrained_variables: () ->
     {
@@ -528,18 +508,25 @@ class Box extends Model
     # child pixels)
     @_box_insets_from_child_insets(horizontal, 'whitespace', '_whitespace', true)
 
-  set_dom_origin: (left, top) ->
-    @set({ dom_left: left, dom_top: top })
-
   variables_updated: () ->
     for child in @get_layoutable_children()
       [left, top] = @_ensure_origin_variables(child)
-      child.set_dom_origin(left._value, top._value)
-      child.variables_updated()
+      child.set('dom_left', left._value)
+      child.set('dom_top', top._value)
+      # TODO - Do we really need this?
+      child.trigger('change')
 
     # hack to force re-render
     @trigger('change')
-
+  
+  get_edit_variables: () ->
+    edit_variables = []
+    if @get('responsive') == 'width'
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
 
 module.exports =
   Model: Box
