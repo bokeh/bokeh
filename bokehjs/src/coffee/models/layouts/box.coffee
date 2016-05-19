@@ -14,6 +14,10 @@ class BoxView extends BokehView
 
   initialize: (options) ->
     super(options)
+    
+    # Provides a hook so document can measure - things
+    # that are root layouts must have this.
+    @$el.attr("id", "modelid_#{@model.id}")
 
     children = @model.get_layoutable_children()
     @child_views = {}
