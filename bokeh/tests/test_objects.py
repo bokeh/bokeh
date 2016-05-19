@@ -32,18 +32,18 @@ def large_plot(n):
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
         plot.renderers.append(renderer)
-        pan = PanTool(plot=plot)
-        wheel_zoom = WheelZoomTool(plot=plot)
-        box_zoom = BoxZoomTool(plot=plot)
-        box_select = BoxSelectTool(plot=plot)
-        resize = ResizeTool(plot=plot)
-        save = SaveTool(plot=plot)
-        reset = ResetTool(plot=plot)
+        pan = PanTool()
+        wheel_zoom = WheelZoomTool()
+        box_zoom = BoxZoomTool()
+        box_select = BoxSelectTool()
+        resize = ResizeTool()
+        save = SaveTool()
+        reset = ResetTool()
         tools = [pan, wheel_zoom, box_zoom, box_select, resize, save, reset]
-        plot.tools.extend(tools)
+        plot.add_tools(*tools)
         vbox.children.append(plot)
         objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
-                        renderer, glyph, plot.tool_events, box_zoom.overlay, box_select.overlay] +
+                        renderer, glyph, plot.toolbar, plot.tool_events, box_zoom.overlay, box_select.overlay] +
                         tickers + tools)
 
     return vbox, objects

@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+from mock import patch
 import unittest
 
 import logging
@@ -7,8 +8,9 @@ import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
-from bokeh.document import ModelChangedEvent, TitleChangedEvent
+from bokeh.document import ModelChangedEvent, TitleChangedEvent, Document
 from bokeh.model import Model
+from bokeh.models import Plot
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado import gen
 from tornado.httpclient import HTTPError
@@ -1037,3 +1039,13 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch):
         client_session.loop_until_closed()
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
+
+
+@patch('bokeh.client.session.show_session')
+def test_session_show_adds_obj_to_curdoc_if_necessary(m):
+    session = ClientSession()
+    session._document = Document()
+    p = Plot()
+    assert session.document.roots == []
+    session.show(p)
+    assert session.document.roots == [p]

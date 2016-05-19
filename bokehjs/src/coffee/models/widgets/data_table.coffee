@@ -5,11 +5,12 @@ SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
 
-TableWidget = require "./table_widget"
 hittest = require "../../common/hittest"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 DOMUtil = require "../../util/dom_util"
+
+TableWidget = require "./table_widget"
+Widget = require "./widget"
 
 class DataProvider
 
@@ -87,7 +88,7 @@ class DataProvider
 
     @updateSource()
 
-class DataTableView extends BokehView
+class DataTableView extends Widget.View
   attributes:
     class: "bk-data-table"
 
@@ -137,6 +138,7 @@ class DataTableView extends BokehView
     }
 
   render: () ->
+    super()
     columns = (column.toColumn() for column in @mget("columns"))
 
     if @mget("selectable") == "checkbox"

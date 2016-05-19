@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from bokeh.io import save
 from bokeh.models import Plot, Range1d, Label, LinearAxis
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -66,6 +67,7 @@ def test_label(output_file_url, selenium, screenshot):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Take screenshot
     assert screenshot.is_valid()

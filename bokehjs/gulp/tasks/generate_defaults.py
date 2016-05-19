@@ -101,7 +101,7 @@ module.exports = {
     print("Wrote %s with %d model classes" % (filename, len(defaults)))
 
 
-output_defaults_module(filename = os.path.join(dest_dir, 'test_common/defaults/models_defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, 'common/generated_defaults/models_defaults.coffee'),
                        defaults = all_json)
-output_defaults_module(filename = os.path.join(dest_dir, 'test_common/defaults/widgets_defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, 'common/generated_defaults/widgets_defaults.coffee'),
                        defaults = widgets_json)

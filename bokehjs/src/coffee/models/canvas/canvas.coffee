@@ -89,6 +89,10 @@ class CanvasView extends BokehView
     if not requested_width? or not requested_height?
       return
 
+    MIN_SIZE = 50
+    if requested_width < MIN_SIZE or requested_height < MIN_SIZE
+      return
+
     if _.isEqual(@last_requested_dims, [requested_width, requested_height])
       return
 

@@ -147,7 +147,8 @@ class Chart(Plot):
         self._scales = defaultdict(list)
         self._tooltips = []
 
-        self.create_tools(self._tools)
+        if hasattr(self, '_tools'):
+            self.create_tools(self._tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers

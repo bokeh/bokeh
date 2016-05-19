@@ -8,24 +8,26 @@ import warnings
 
 from ..core.query import find
 from ..core import validation
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
+from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.warnings import (
+    MISSING_RENDERERS, NO_DATA_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..core.enums import Location
 from ..core.property_mixins import LineProps, TextProps, FillProps
 from ..model import Model
-from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+from ..core.properties import (
+    Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override)
 from ..util.string import nice_join
-from ..core.validation.errors import REQUIRED_RANGE
 
-from .annotations import Annotation, Legend
+from .annotations import Legend
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents
+from .tools import Tool, ToolEvents, Toolbar
 from .layouts import LayoutDOM
 
 
@@ -62,7 +64,7 @@ def _select_helper(args, kwargs):
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
         elif issubclass(arg, Model):
-            selector = {"type" : arg}
+            selector = {"type": arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
 
@@ -71,6 +73,10 @@ def _select_helper(args, kwargs):
     return selector
 
 
+# Plot inherits from Box on BokehJS but LayoutDOM here.
+# We need to inherit from LayoutDOM as we don't want the validation errors
+# around children although on BokehJS Plot acquires Toolbar and PlotCanvas as
+# children.
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
@@ -80,13 +86,25 @@ class Plot(LayoutDOM):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
 
+        if "toolbar" in kwargs and "logo" in kwargs:
+            raise ValueError("Conflicing properties set on plot: toolbar, logo.")
+
+        if "toolbar" in kwargs and "tools" in kwargs:
+            raise ValueError("Conflicing properties set on plot: toolbar, tools.")
+
+        if "toolbar" not in kwargs:
+            tools = kwargs.pop('tools', [])
+            logo = kwargs.pop('logo', 'normal')
+
+            kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
+
         if "border_fill" in kwargs and "border_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
 
         if "background_fill" in kwargs and "background_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
-        super(Plot, self).__init__(**kwargs)
+        super(LayoutDOM, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
@@ -274,7 +292,7 @@ class Plot(LayoutDOM):
             tool.plot = self
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
-            self.tools.append(tool)
+            self.toolbar.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
@@ -384,7 +402,7 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    __deprecated_attributes__ = ('background_fill', 'border_fill')
+    __deprecated_attributes__ = ('background_fill', 'border_fill', 'logo', 'tools')
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -462,8 +480,15 @@ class Plot(LayoutDOM):
     setup is performed.
     """)
 
-    tools = List(Instance(Tool), help="""
-    A list of tools to add to the plot.
+    toolbar = Instance(Toolbar, help="""
+        The toolbar associated with this plot which holds all the tools.
+
+        The toolbar is automatically created with the plot.
+    """)
+
+    toolbar_location = Enum(Location, help="""
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
     """)
 
     tool_events = Instance(ToolEvents, help="""
@@ -484,16 +509,6 @@ class Plot(LayoutDOM):
 
     below = List(Instance(Renderer), help="""
     A list of renderers to occupy the area below of the plot.
-    """)
-
-    toolbar_location = Enum(Location, help="""
-    Where the toolbar will be located. If set to None, no toolbar
-    will be attached to the plot.
-    """)
-
-    logo = Enum("normal", "grey", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
     """)
 
     plot_height = Int(600, help="""
@@ -551,6 +566,42 @@ class Plot(LayoutDOM):
             will be removed. Use 'border_fill_color' instead.
             """)
         self.border_fill_color = color
+
+    @property
+    def logo(self):
+        warnings.warn(
+            """
+            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.logo' instead.
+            """)
+        return self.toolbar.logo
+
+    @logo.setter
+    def logo(self, value):
+        warnings.warn(
+            """
+            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.logo' instead.
+            """)
+        self.toolbar.logo = value
+
+    @property
+    def tools(self):
+        warnings.warn(
+            """
+            Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.tools' instead.
+            """)
+        return self.toolbar.tools
+
+    @tools.setter
+    def tools(self, tools):
+        warnings.warn(
+            """
+            Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.tools' instead.
+            """)
+        self.toolbar.tools = tools
 
     background_props = Include(FillProps, help="""
     The %s for the plot background style.
@@ -648,16 +699,7 @@ class Plot(LayoutDOM):
     support this will render via WebGL instead of the 2D canvas.
     """)
 
-    responsive = Bool(False, help="""
-    If True, the plot will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
-    act only to set the initial aspect ratio.
-    .. warning::
-
-       The responsive setting is known not to work with HBox layout and may not work
-       in combination with other widgets or layouts.
-    """)
-
+    responsive = Override(default=False)
 
 
 class GridPlot(LayoutDOM):

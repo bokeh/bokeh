@@ -186,4 +186,4 @@ def cb(gind):
         update_centric_sources(p['csources'], p['fs'], newx, gind, p['cfs'])
 
 curdoc().add_periodic_callback(cb, 100)
-
+curdoc().add_root(layout)
