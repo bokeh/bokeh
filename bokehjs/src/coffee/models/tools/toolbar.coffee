@@ -22,6 +22,7 @@ class ToolbarView extends Widget.View
     super(options)
     @location = options.location
     @listenTo(@model, 'change', () => @render())
+    @render()
 
   render: () ->
     @$el.css({
