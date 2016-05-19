@@ -65,8 +65,8 @@ module.exports =
   LE: _constrainer(Operator.Le)
   GE: _constrainer(Operator.Ge)
 
-  WEAK_EQ: _constrainer(Operator.Eq)
-  WEAK_LE: _constrainer(Operator.Le)
-  WEAK_GE: _constrainer(Operator.Ge)
+  WEAK_EQ: _weak_constrainer(Operator.Eq)
+  WEAK_LE: _weak_constrainer(Operator.Le)
+  WEAK_GE: _weak_constrainer(Operator.Ge)
 
   Solver: Solver
