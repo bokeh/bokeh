@@ -49,6 +49,9 @@ class PlotView extends BokehView
     #logger.debug("#{@model} _right_minus_left: #{@model._right_minus_left._value}, _bottom_minus_top: #{@model._bottom_minus_top._value}")
     @$el.css({
       position: 'absolute'
+      #We currently have a property coming from box, and a variable coming internally!
+      #left: @model.dom_left
+      #top: @model.dom_top
       left: @model._dom_left._value
       top: @model._dom_top._value
       'width': @model._width._value
@@ -76,12 +79,6 @@ class Plot extends LayoutDOM.Model
 
     @toolbar.location = @toolbar_location
     @_plot_canvas.toolbar = @toolbar
-
-    # Add our whitespace variables
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
 
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
@@ -148,18 +145,6 @@ class Plot extends LayoutDOM.Model
 
     return constraints
 
-  get_constrained_variables: () ->
-    {
-      "width": @_width
-      "height": @_height
-      # insets from the edge that are whitespace (contain no pixels),
-      # this is used for spacing within a box.
-      'whitespace-top' : @_whitespace_top
-      'whitespace-bottom' : @_whitespace_bottom
-      'whitespace-left' : @_whitespace_left
-      'whitespace-right' : @_whitespace_right
-    }
-
   _set_orientation_variables: (model) ->
     if @_horizontal == false  # toolbar is above or below or null
       model._sizeable = model._height
@@ -171,6 +156,11 @@ class Plot extends LayoutDOM.Model
   # 
   # SETUP PROPERTIES
   #
+  @internal {
+    dom_left: [ p.Number, 0 ]
+    dom_top: [ p.Number, 0 ]
+  }
+
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   @define {
