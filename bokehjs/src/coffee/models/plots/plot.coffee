@@ -1,5 +1,6 @@
 _ = require "underscore"
 
+build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
 
 BokehView = require "../../core/bokeh_view"
@@ -29,6 +30,9 @@ class Plot extends LayoutDOM.Model
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
 
+  plot_canvas: () ->
+    @_plot_canvas
+
   get_layoutable_children: () ->
     toolbar_location = @toolbar_location
     if toolbar_location in ['left', 'right']
@@ -48,8 +52,23 @@ class Plot extends LayoutDOM.Model
 
     return children
 
-  plot_canvas: () ->
-    @_plot_canvas
+  get_edit_variables: () ->
+    edit_variables = []
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = []
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
+
+  get_constrained_variables: () ->
+    {
+      "width": @_width
+      "height": @_height
+    }
 
   # 
   # SETUP PROPERTIES

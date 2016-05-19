@@ -708,14 +708,14 @@ class PlotCanvas extends LayoutDOM.Model
     return children
 
   get_edit_variables: () ->
-    edit_variables = super()
+    edit_variables = []
     # Go down the children to pick up any more constraints
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
 
   get_constraints: () ->
-    constraints = super()
+    constraints = []
     constraints = constraints.concat(@_get_constant_constraints())
     constraints = constraints.concat(@_get_side_constraints())
     # Go down the children to pick up any more constraints
