@@ -36,8 +36,6 @@ update_panel_constraints = require("../../core/layout/side_panel").update_constr
 
 global_gl_canvas = null
 
-MIN_BORDER = 5
-
 # TODO (bev) PlotView should not be a RendererView
 # TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
 class PlotCanvasView extends Renderer.View
@@ -676,7 +674,7 @@ class PlotCanvas extends LayoutDOM.Model
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
 
-      min_border:        [ p.Number,   MIN_BORDER             ]
+      min_border:        [ p.Number,   5                      ]
       min_border_top:    [ p.Number,   null                   ]
       min_border_left:   [ p.Number,   null                   ]
       min_border_bottom: [ p.Number,   null                   ]

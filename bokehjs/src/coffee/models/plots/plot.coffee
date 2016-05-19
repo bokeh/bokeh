@@ -13,6 +13,7 @@ Toolbar = require "../tools/toolbar"
 
 PlotCanvas = require("./plot_canvas").Model
 
+
 class PlotView extends BokehView
   className: "bk-plot-layout"
 
@@ -30,6 +31,7 @@ class PlotView extends BokehView
 
     if @model._is_root == true
       resize = () -> $(window).trigger('resize')
+      _.delay(resize, 5)
       _.delay(resize, 50)
 
   bind_bokeh_events: () ->
@@ -98,16 +100,10 @@ class Plot extends LayoutDOM.Model
     constraints.push(GE(@_top))
     constraints.push(GE(@_height, [-1, @_bottom]))
 
-    # Stick toolbar to plot side
-    constraints.push(EQ(@toolbar._height, [-1, @_plot_canvas._top]))
-    
-    # Make toolbar same width/height as plot
-    constraints.push(EQ(@_width, [-1, @toolbar._width]))
+    if not toolbar_location?
+      constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
+      constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
 
-    # Make plot same width/height as plot_canvas
-    constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
-    constraints.push(EQ(@_height, [-1, @_plot_canvas._height], [-1, @toolbar._height]))
-    
     # Get all the child constraints
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
@@ -123,8 +119,6 @@ class Plot extends LayoutDOM.Model
   # 
   # SETUP PROPERTIES
   #
-  MIN_BORDER = 5
-
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   @define {
@@ -165,7 +159,7 @@ class Plot extends LayoutDOM.Model
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
 
-      min_border:        [ p.Number,   MIN_BORDER             ]
+      min_border:        [ p.Number,   null                   ]
       min_border_top:    [ p.Number,   null                   ]
       min_border_left:   [ p.Number,   null                   ]
       min_border_bottom: [ p.Number,   null                   ]
