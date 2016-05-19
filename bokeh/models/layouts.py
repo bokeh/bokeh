@@ -47,7 +47,7 @@ class LayoutDOM(Model):
 
 
 @abstract
-class Box(Model):
+class Box(LayoutDOM):
     """ Abstract base class for Row and Column. Do not use directly.
     """
 
