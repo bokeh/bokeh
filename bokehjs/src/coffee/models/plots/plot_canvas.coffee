@@ -467,7 +467,7 @@ class PlotCanvasView extends Renderer.View
     @$el.css({
       position: 'absolute'
       left: @mget('dom_left')
-      top: @mget('dom_top')
+      top: @model._top._value
       'width': @model._width._value
       'height': @model._height._value
     })

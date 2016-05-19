@@ -91,8 +91,8 @@ class Plot extends LayoutDOM.Model
     constraints.push(GE(@_top))
     constraints.push(GE(@_height, [-1, @_bottom]))
 
-    # Stick toolbar to plot side - NOT WORKING 
-    constraints.push(EQ(@_plot_canvas._top, @toolbar._bottom))
+    # Stick toolbar to plot side
+    constraints.push(EQ(@toolbar._height, [-1, @_plot_canvas._top]))
     
     # Make toolbar same width/height as plot
     constraints.push(EQ(@_width, [-1, @toolbar._width]))

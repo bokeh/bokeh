@@ -3,7 +3,7 @@ $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
 
 {logger} = require "../../core/logging"
-{EQ}  = require "../../core/layout/solver"
+{EQ, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 Widget = require "../widgets/widget"
