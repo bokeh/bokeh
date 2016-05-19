@@ -89,8 +89,6 @@ class Chart(Plot):
 
     title_text_font_size = Override(default={ 'value' : '14pt' })
 
-    responsive = Override(default=False)
-
     _defaults = defaults
 
     __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend')
