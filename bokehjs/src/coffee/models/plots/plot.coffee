@@ -20,6 +20,8 @@ class PlotView extends BokehView
 
   initialize: (options) ->
     super(options)
+    # Provides a hook so document can measure
+    @$el.attr("id", "modelid_#{@model.id}")
 
     children = @model.get_layoutable_children()
     @child_views = {}

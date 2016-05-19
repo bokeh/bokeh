@@ -94,14 +94,37 @@ class Document
     @_solver
 
   resize: () ->
-    width = window.innerWidth
-    height = window.innerHeight
+    
+    #TODO Picking off first root - that can't be right (but better than 
+    # using window) - we need to talk about this!
+    root = @_roots[0]
+    root_div = $("#modelid_#{root.id}")
+    root_mode = root.responsive
+    parent = root_div.parent()
+
+    # Get rid of any styling from the previous resize, so can measure again.
+    parent.removeAttr('style')
+
+    # Start working upwards until you find a height
+    target_height = 0
+    measuring = root_div
+    while target_height == 0
+      measuring = measuring.parent()
+      target_height = measuring.height()
+
+    width = measuring.width()
+    height = target_height
 
     logger.debug("resize: Document -- #{width} x #{height}")
 
     @_solver.suggest_value(@_doc_width, width)
     @_solver.suggest_value(@_doc_height, height)
+
     @_solver.update_variables(false)
+    parent.css({
+       width: width
+       height: height
+    })
     @_solver.trigger('resize')
 
   clear : () ->
