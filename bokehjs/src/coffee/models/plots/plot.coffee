@@ -5,7 +5,7 @@ build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
 
 BokehView = require "../../core/bokeh_view"
-{GE, EQ, Variable}  = require "../../core/layout/solver"
+{LE, GE, EQ, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
@@ -69,6 +69,8 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@toolbar)
     @_set_orientation_variables(@_plot_canvas)
 
+    console.log(@_plot_canvas._sizeable)
+
     @toolbar.location = @toolbar_location
     @_plot_canvas.toolbar = @toolbar
 
@@ -81,7 +83,7 @@ class Plot extends LayoutDOM.Model
   get_layoutable_children: () ->
     # Default if toolbar_location is None
     children = [@_plot_canvas]
-    if toolbar_location?
+    if @toolbar_location?
       children = [@toolbar, @_plot_canvas]
     return children
 
@@ -93,18 +95,53 @@ class Plot extends LayoutDOM.Model
 
   get_constraints: () ->
     constraints = []
-    # Dom position should always be greater than 0
+    # Everything should be greater than 0
     constraints.push(GE(@_dom_left))
     constraints.push(GE(@_dom_top))
-    # Has to be inside the width/height
     constraints.push(GE(@_left))
-    constraints.push(GE(@_width, [-1, @_right]))
+    constraints.push(GE(@_width))
     constraints.push(GE(@_top))
-    constraints.push(GE(@_height, [-1, @_bottom]))
+    constraints.push(GE(@_height))
 
+    # CONSTRAINTS (if toolbar is above)
+    # Size:
+    # * (1) COMPUTE THE VARIABLE: plot_height = plot_canvas_height + toolbar_height
+    # * (2) SIZE THE FIXED: plot_width = plot_canvas_width 
+    # * (3) SIZE THE FIXED: plot_width = toolbar_width
+    # Position:
+    # * (4) stack: plot_canvas._dom_top = toolbar._dom_top + toolbar._height
+    # * (5) align: plot._top = toolbar._top
 
+    if @toolbar_location == 'above'
+      console.log('in above')
+      # (1) plot_height > plot_canvas_height + toolbar_height
+      constraints.push(GE(@_height, [-1, @_plot_canvas._height], [-1, @toolbar._height]))
 
-    if not toolbar_location?
+      # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height
+      constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
+
+      # (3) plot_width = toolbar_width | plot_height = toolbar_height
+      constraints.push(EQ(@_width, [-1, @toolbar._width]))
+      
+      # (4) stack: plot_canvas._dom_top = toolbar._dom_top + toolbar._height
+      constraints.push(EQ(@_plot_canvas._dom_top, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
+
+    if @toolbar_location == 'left'
+      console.log('in left')
+      # (1) plot_width = plot_canvas_width + toolbar_width
+      constraints.push(EQ(@_width, [-1, @_plot_canvas._width], [-1, @toolbar._width]))
+
+      # (2) plot_height = plot_canvas_height
+      constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
+
+      # (3) plot_height = toolbar_height
+      constraints.push(EQ(@_height, [-1, @toolbar._height]))
+      
+      # (4) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
+      constraints.push(EQ(@_plot_canvas._dom_left, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
+
+    if not @toolbar_location?
+      console.log('in else')
       constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
       constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
 
@@ -121,10 +158,10 @@ class Plot extends LayoutDOM.Model
     }
 
   _set_orientation_variables: (model) ->
-    if @_horizontal == false
+    if @_horizontal == false  # toolbar is above or below or null
       model._sizeable = model._height
       model._full = model._width
-    if @_horizontal == true
+    if @_horizontal == true  # toolbar is left or right
       model._sizeable = model._width
       model._full = model._height
 

@@ -94,8 +94,8 @@ class Toolbar extends Widget.Model
   get_constraints: () ->
     # Get the constraints from widget
     constraints = super()
-    if @location == 'above'
-      constraints.push(EQ(@_sizeable, -30))
+    # Set the fixed size of toolbar
+    constraints.push(EQ(@_sizeable, -30))
     return constraints
 
   _init_tools: () ->
