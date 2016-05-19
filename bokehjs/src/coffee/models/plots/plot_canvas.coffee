@@ -459,6 +459,19 @@ class PlotCanvasView extends Renderer.View
     if not @initial_range_info?
       @set_initial_range()
 
+  resize: () ->
+    width = @model._width._value
+    height = @model._height._value
+    logger.debug("resize Canvas for Plot #{@model.id} -- #{width} x #{height}")
+    @canvas_view.set_dims([width, height])
+    @$el.css({
+      position: 'absolute'
+      left: @mget('dom_left')
+      top: @mget('dom_top')
+      'width': @model._width._value
+      'height': @model._height._value
+    })
+
 
   update_constraints: () ->
     s = @model.document.solver()
@@ -757,7 +770,7 @@ class PlotCanvas extends LayoutDOM.Model
     constraints.push(EQ(@right_panel._left, [-1, frame._right]))
 
     # Plot sides align
-    constraints.push(EQ(@above_panel._height, [-1, @_top]))
+    constraints.push(EQ(@above_panel._height, [-1, @_top]))  # This (I believe) is the magic that makes multiple plots line-up
     constraints.push(EQ(@above_panel._height, [-1, canvas._top], frame._top))
     constraints.push(EQ(@below_panel._height, [-1, @_height], @_bottom))
     constraints.push(EQ(@below_panel._height, [-1, frame._bottom]))

@@ -1,10 +1,11 @@
 _ = require "underscore"
+$ = require "jquery"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
 
 BokehView = require "../../core/bokeh_view"
-{GE}  = require "../../core/layout/solver"
+{GE, EQ, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
@@ -24,6 +25,24 @@ class PlotView extends BokehView
   
     for own key, child_view of @child_views
       @$el.append(child_view.$el)
+
+    @bind_bokeh_events()
+
+    if @model._is_root == true
+      $(window).trigger('resize')
+
+  bind_bokeh_events: () ->
+    @listenTo(@model, 'change', @render)
+    @listenTo(@model.document.solver(), 'resize', @render)
+
+  render: () ->
+    @$el.css({
+      position: 'absolute'
+      left: @mget('dom_left')
+      top: @mget('dom_top')
+      'width': @model._width._value
+      'height': @model._height._value
+    })
 
 
 class Plot extends LayoutDOM.Model
@@ -48,19 +67,14 @@ class Plot extends LayoutDOM.Model
     toolbar_location = @toolbar_location
     if toolbar_location in ['left', 'right']
       @_horizontal = true
-
-    # Define the layout children based on the toolbar_location
-
     # Default if toolbar_location is None
     children = [@_plot_canvas]
-
     if toolbar_location in ['above', 'left']
       # Toolbar is first
-      children = [@get('toolbar'), @_plot_canvas]
+      children = [@toolbar, @_plot_canvas]
     if toolbar_location in ['below', 'right']
       # Toolbar is second
-      children = [@_plot_canvas, @get('toolbar')]
-
+      children = [@_plot_canvas, @toolbar]
     return children
 
   get_edit_variables: () ->
@@ -71,8 +85,26 @@ class Plot extends LayoutDOM.Model
 
   get_constraints: () ->
     constraints = []
+    # plot has to be inside the width/height
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_width, [-1, @_right]))
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_height, [-1, @_bottom]))
+
+    # Stick toolbar to plot side - NOT WORKING 
+    constraints.push(EQ(@_plot_canvas._top, @toolbar._bottom))
+    
+    # Make toolbar same width/height as plot
+    constraints.push(EQ(@_width, [-1, @toolbar._width]))
+
+    # Make plot same width/height as plot_canvas
+    constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
+    constraints.push(EQ(@_height, [-1, @_plot_canvas._height], [-1, @toolbar._height]))
+    
+    # Get all the child constraints
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
+
     return constraints
 
   get_constrained_variables: () ->

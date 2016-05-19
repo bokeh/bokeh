@@ -3,7 +3,7 @@ $ = require "jquery"
 $$1 = require "bootstrap/dropdown"
 
 {logger} = require "../../core/logging"
-{Strength}  = require "../../core/layout/solver"
+{EQ}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 Widget = require "../widgets/widget"
@@ -21,18 +21,19 @@ class ToolbarView extends Widget.View
   initialize: (options) ->
     super(options)
     @location = options.location
-    @listenTo(@model, 'change', () => @render())
+    @listenTo(@model, 'change', @render)
+    @listenTo(@model.document.solver(), 'resize', @render)
     @render()
 
   render: () ->
     @$el.css({
       position: 'absolute'
-      left: @mget('dom_left')
-      top: @mget('dom_top')
+      left: @model.dom_left
+      top: @model.dom_top
       'width': @model._width._value
       'height': @model._height._value
     })
-    location = if @mget("location")? then @mget('location') else 'above'
+    location = if @model.location? then @model.location else 'above'
     @$el.html(@template({logo: @mget("logo"), location: location}))
 
     inspectors = @model.get('inspectors')
@@ -83,6 +84,12 @@ class Toolbar extends Widget.Model
     super(attrs, options)
     @listenTo(@, 'change:tools', () => @_init_tools())
     @_init_tools()
+
+  get_constraints: () ->
+    constraints = []
+    if @location == 'above'
+      constraints.push(EQ(@_height, -30))
+    return constraints
 
   _init_tools: () ->
     for tool in @get('tools')
