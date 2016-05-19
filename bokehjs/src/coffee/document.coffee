@@ -96,7 +96,11 @@ class Document
   resize: () ->
     
     #TODO Picking off first root - that can't be right (but better than 
-    # using window) - we need to talk about this!
+    # using window)
+    #
+    # We can probably store the edit_variables for each of the root (that way
+    # we can test if they're even layoutable), then we can loop through each
+    # and then do the suggest for each item. This should make embedding work.
     root = @_roots[0]
     root_div = $("#modelid_#{root.id}")
     root_mode = root.responsive
