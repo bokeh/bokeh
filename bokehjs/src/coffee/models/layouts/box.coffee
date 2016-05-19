@@ -1,3 +1,5 @@
+_ = require "underscore"
+$ = require "jquery"
 build_views = require "../../common/build_views"
 
 BokehView = require "../../core/bokeh_view"
@@ -24,7 +26,12 @@ class BoxView extends BokehView
 
     @bind_bokeh_events()
 
+    if @model._is_root == true
+      resize = () -> $(window).trigger('resize')
+      _.delay(resize, 15)
+
   bind_bokeh_events: () ->
+    @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
     @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
     @listenTo(@model, 'change', @render)
 
@@ -36,13 +43,6 @@ class BoxView extends BokehView
 
     left = @mget('dom_left')
     top = @mget('dom_top')
-
-    # This is a hack - the 25 is half of the 50 that was subtracted from
-    # doc_width when resizing in document. This means that the root is positioned
-    # symetrically and the vertical scroll bar doesn't mess stuff up when it
-    # kicks in.
-    if @model._is_root?
-      left = left + 25
 
     @$el.css({
       position: 'absolute'
