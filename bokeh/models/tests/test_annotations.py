@@ -3,7 +3,7 @@ from __future__ import  absolute_import
 from itertools import chain
 
 from bokeh.models.annotations import (
-    Legend, Arrow, BoxAnnotation, Span, LabelSet, Label
+    Legend, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
 from bokeh.models import ColumnDataSource, ArrowHead
 from bokeh.core.enums import (
@@ -248,3 +248,34 @@ def test_Span():
         "level",
         "render_mode"
     ], LINE)
+
+def test_Title():
+    title = Title()
+    assert title.plot is None
+    assert title.level == 'annotation'
+    assert title.text is None
+    assert title.title_alignment == 'left'
+    assert title.angle == 0
+    assert title.angle_units == 'rad'
+    assert title.text_font == 'helvetica'
+    assert title.text_font_size == {'value': '12pt'}
+    assert title.text_font_style == 'normal'
+    assert title.text_color == '#444444'
+    assert title.text_alpha == 1.0
+    yield check_fill, title, "background_", None, 1.0
+    yield check_line, title, "border_", None, 1.0, 1.0
+    yield (check_props, title, [
+        "plot",
+        "level",
+        "text",
+        "title_alignment",
+        "angle",
+        "angle_units",
+        "text_font",
+        "text_font_size",
+        "text_font_style",
+        "text_color",
+        "text_alpha",
+        "render_mode"],
+        prefix('border_', LINE),
+        prefix('background_', FILL))

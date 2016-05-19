@@ -6,14 +6,14 @@ from __future__ import absolute_import
 
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode, Side,
-    AngleUnits
+    AngleUnits, TextAlign, FontStyle
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
-from ..core.properties import abstract
+from ..core.properties import abstract, value
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
-    AngleSpec, Angle
+    AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
 from .arrow_heads import ArrowHead, OpenHead
@@ -527,6 +527,104 @@ class Span(Annotation):
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the span.
+    """)
+
+class Title(Annotation):
+    """ Render a single text box as an annotation.
+
+    """
+
+    text = String(help="""
+    The text value to render.
+    """)
+
+    title_alignment = Enum(TextAlign, default='left', help="""
+    Location to align the title text.
+    """
+    )
+
+    angle = Angle(default=0, help="""
+    The angle to rotate the text, as measured from the horizontal.
+
+    .. warning::
+        The center of rotation for canvas and css render_modes is different.
+        For `render_mode="canvas"` the label is rotated from the top-left
+        corner of the annotation, while for `render_mode="css"` the annotation
+        is rotated around it's center.
+    """)
+
+    angle_units = Enum(AngleUnits, default='rad', help="""
+    Acceptable values for units are ``"rad"`` and ``"deg"``
+    """)
+
+    text_font = String("helvetica", help="""
+    Name of a font to use for rendering text, e.g., ``'times'``,
+    ``'helvetica'``.
+
+    """)
+
+    text_font_size = FontSizeSpec(value("12pt"))
+
+    text_font_style = Enum(FontStyle, help="""
+    A style to use for rendering text.
+
+    Acceptable values are:
+
+    - ``'normal'`` normal text
+    - ``'italic'`` *italic text*
+    - ``'bold'`` **bold text**
+
+    """)
+
+    text_color = ColorSpec(default="#444444", help="""
+    A color to use to fill text with.
+
+    Acceptable values are:
+
+    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+    - a 3-tuple of integers (r,g,b) between 0 and 255
+    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
+
+    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
+
+    """)
+
+    text_alpha = NumberSpec(default=1.0, help="""
+    An alpha value to use to fill text with.
+
+    Acceptable values are floating point numbers between 0 (transparent)
+    and 1 (opaque).
+
+    """)
+
+    background_props = Include(FillProps, use_prefix=True, help="""
+    The %s values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default=None)
+
+    border_props = Include(LineProps, use_prefix=True, help="""
+    The %s values for the text bounding box.
+    """)
+
+    border_line_color = Override(default=None)
+
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the text is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    .. note::
+        The CSS labels won't be present in the output using the "save" tool.
+
+    .. warning::
+        Not all visual styling properties are supported if the render_mode is
+        set to "css". The border_line_dash property isn't fully supported and
+        border_line_dash_offset isn't supported at all. Setting text_alpha will
+        modify the opacity of the entire background box and border in addition
+        to the text. Finally, clipping Label annotations inside of the plot
+        area isn't supported in "css" mode.
+
     """)
 
 class Tooltip(Annotation):
