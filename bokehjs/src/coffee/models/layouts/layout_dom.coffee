@@ -16,15 +16,6 @@ class LayoutDOM extends Model
     @_top = new Variable("_top #{@id}")
     @_bottom = new Variable("_bottom #{@id}")
 
-  get_constraints: () ->
-    constraints = []
-    # plot has to be inside the width/height
-    constraints.push(GE(@_left))
-    constraints.push(GE(@_width, [-1, @_right]))
-    constraints.push(GE(@_top))
-    constraints.push(GE(@_height, [-1, @_bottom]))
-    return constraints
-
   @define {
       height:   [ p.Number, null ]
       width:    [ p.Number, null ]

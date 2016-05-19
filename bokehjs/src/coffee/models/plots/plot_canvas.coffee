@@ -726,6 +726,12 @@ class PlotCanvas extends LayoutDOM.Model
   _get_constant_constraints: () ->
     constraints = []
 
+    # plot has to be inside the width/height
+    constraints.push(GE(@_left))
+    constraints.push(GE(@_width, [-1, @_right]))
+    constraints.push(GE(@_top))
+    constraints.push(GE(@_height, [-1, @_bottom]))
+
     # Add the constraints that always apply for a plot
     min_border_top    = @get('min_border_top')
     min_border_bottom = @get('min_border_bottom')
