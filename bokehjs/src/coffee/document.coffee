@@ -103,7 +103,6 @@ class Document
     # and then do the suggest for each item. This should make embedding work.
     root = @_roots[0]
     root_div = $("#modelid_#{root.id}")
-    root_mode = root.responsive
     parent = root_div.parent()
 
     # Get rid of any styling from the previous resize, so can measure again.

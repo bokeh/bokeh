@@ -36,38 +36,20 @@ class BoxView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
-    @$el.addClass(@mget('responsive'))
-
-    if @mget('responsive') == 'width'
-      @update_constraints()
-
     @$el.css({
       position: 'absolute'
       left: @model._dom_left._value
       top: @model._dom_top._value
       width: @model._width._value
       height: @model._height._value
-      'margin-left': @model._whitespace_left._value
-      'margin-right': @model._whitespace_right._value
-      'margin-top': @model._whitespace_top._value
-      'margin-bottom': @model._whitespace_bottom._value
     })
 
-  update_constraints: () ->
-    s = @model.document.solver()
-    height = 0
-    for own key, child_view of @child_views
-      height += child_view.el.scrollHeight
-    s.suggest_value(@model._height, height)
-  
 
 class Box extends LayoutDOM.Model
   default_view: BoxView
 
   constructor: (attrs, options) ->
     super(attrs, options)
-    @_width = new Variable()
-    @_height = new Variable()
 
     # for children that want to be the same size
     # as other children, make them all equal to these
@@ -88,65 +70,50 @@ class Box extends LayoutDOM.Model
     @_box_cell_align_left = new Variable()
     @_box_cell_align_right = new Variable()
 
-    # these are passed up to our parent after basing
-    # them on the child whitespace
-    @_whitespace_top = new Variable()
-    @_whitespace_bottom = new Variable()
-    @_whitespace_left = new Variable()
-    @_whitespace_right = new Variable()
-
   @define {
     children: [ p.Array, [] ]
   }
 
   @internal {
     spacing:  [ p.Number, 6 ]
-    responsive: [ p.Responsive, 'box']
     dom_left: [ p.Number, 0 ]
     dom_top: [ p.Number, 0 ]
   }
 
-  _test_layoutable: (child) ->
-    required_constrained_variables = [
-      'origin-x',
-      'origin-y',
-      'width',
-      'height',
-      'whitespace-top',
-      'whitespace-right',
-      'whitespace-bottom',
-      'whitespace-left'
-    ]
-    if not child.get_constrained_variables?
-      throw new Error("#{child} is missing get_constrained_variables method")
-    vars = child.get_constrained_variables()
-    for key in required_constrained_variables
-      if key not in _.keys(vars)
-        throw new Error("#{child} is missing constrained_variable #{key}")
-      if not vars[key] instanceof Variable
-        throw new Error("#{child} #{key} is not a solver Variable")
-    return true
+  get_layoutable_children: () ->
+    @get('children')
 
-  _child_rect: (vars) ->
-    width = vars['width']
-    height = vars['height']
-    [x, y] = [vars['origin-x'], vars['origin-y']]
-    return {x: x, y: y, width: width, height: height}
+  variables_updated: () ->
+    # Use trigger to force re-render
+    for child in @get_layoutable_children()
+      child.trigger('change')
+    @trigger('change')
+  
+  get_edit_variables: () ->
+    edit_variables = []
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
 
-  _span: (rect) ->
-    # return [coordinate, size] pair in box-aligned direction
-    if @_horizontal
-      {start: rect.x, size: rect.width}
-    else
-      {start: rect.y, size: rect.height}
-
-  _info: (vars) ->
-    if @_horizontal
-      whitespace = {before: vars['whitespace-left'], after: vars['whitespace-right']}
-    else
-      whitespace = {before: vars['whitespace-top'], after: vars['whitespace-bottom']}
-    span = @_span(@_child_rect(vars))
-    return {span: span, whitespace: whitespace}
+  get_constrained_variables: () ->
+    {
+      'width' : @_width
+      'height' : @_height
+      'box-equal-size-top' : @_box_equal_size_top
+      'box-equal-size-bottom' : @_box_equal_size_bottom
+      'box-equal-size-left' : @_box_equal_size_left
+      'box-equal-size-right' : @_box_equal_size_right
+      'box-cell-align-top' : @_box_cell_align_top
+      'box-cell-align-bottom' : @_box_cell_align_bottom
+      'box-cell-align-left' : @_box_cell_align_left
+      'box-cell-align-right' : @_box_cell_align_right
+      'whitespace-top' : @_whitespace_top
+      'whitespace-bottom' : @_whitespace_bottom
+      'whitespace-left' : @_whitespace_left
+      'whitespace-right' : @_whitespace_right
+      'origin-x': @_dom_left
+      'origin-y': @_dom_top
+    }
 
   get_constraints: () ->
     # Note we don't got and get constraints from _layout_dom parent.
@@ -229,38 +196,47 @@ class Box extends LayoutDOM.Model
 
     return constraints
 
-  get_constrained_variables: () ->
-    {
-      'width' : @_width
-      'height' : @_height
-      'box-equal-size-top' : @_box_equal_size_top
-      'box-equal-size-bottom' : @_box_equal_size_bottom
-      'box-equal-size-left' : @_box_equal_size_left
-      'box-equal-size-right' : @_box_equal_size_right
-      'box-cell-align-top' : @_box_cell_align_top
-      'box-cell-align-bottom' : @_box_cell_align_bottom
-      'box-cell-align-left' : @_box_cell_align_left
-      'box-cell-align-right' : @_box_cell_align_right
-      'whitespace-top' : @_whitespace_top
-      'whitespace-bottom' : @_whitespace_bottom
-      'whitespace-left' : @_whitespace_left
-      'whitespace-right' : @_whitespace_right
-      'origin-x': @_dom_left
-      'origin-y': @_dom_top
-    }
+  _test_layoutable: (child) ->
+    required_constrained_variables = [
+      'origin-x',
+      'origin-y',
+      'width',
+      'height',
+      'whitespace-top',
+      'whitespace-right',
+      'whitespace-bottom',
+      'whitespace-left'
+    ]
+    if not child.get_constrained_variables?
+      throw new Error("#{child} is missing get_constrained_variables method")
+    vars = child.get_constrained_variables()
+    for key in required_constrained_variables
+      if key not in _.keys(vars)
+        throw new Error("#{child} is missing constrained_variable #{key}")
+      if not vars[key] instanceof Variable
+        throw new Error("#{child} #{key} is not a solver Variable")
+    return true
 
-  get_layoutable_children: () ->
-    @get('children')
+  _child_rect: (vars) ->
+    width = vars['width']
+    height = vars['height']
+    [x, y] = [vars['origin-x'], vars['origin-y']]
+    return {x: x, y: y, width: width, height: height}
 
-  @_left_right_inner_cell_edge_variables = [
-    'box-cell-align-left',
-    'box-cell-align-right'
-  ]
+  _span: (rect) ->
+    # return [coordinate, size] pair in box-aligned direction
+    if @_horizontal
+      {start: rect.x, size: rect.width}
+    else
+      {start: rect.y, size: rect.height}
 
-  @_top_bottom_inner_cell_edge_variables = [
-    'box-cell-align-top',
-    'box-cell-align-bottom'
-  ]
+  _info: (vars) ->
+    if @_horizontal
+      whitespace = {before: vars['whitespace-left'], after: vars['whitespace-right']}
+    else
+      whitespace = {before: vars['whitespace-top'], after: vars['whitespace-bottom']}
+    span = @_span(@_child_rect(vars))
+    return {span: span, whitespace: whitespace}
 
   _flatten_cell_edge_variables: (horizontal) ->
     # All alignment happens in terms of the
@@ -513,21 +489,15 @@ class Box extends LayoutDOM.Model
     # child pixels)
     @_box_insets_from_child_insets(horizontal, 'whitespace', '_whitespace', true)
 
-  variables_updated: () ->
-    for child in @get_layoutable_children()
-      child.trigger('change')
+  @_left_right_inner_cell_edge_variables = [
+    'box-cell-align-left',
+    'box-cell-align-right'
+  ]
 
-    # hack to force re-render
-    @trigger('change')
-  
-  get_edit_variables: () ->
-    edit_variables = []
-    if @get('responsive') == 'width'
-      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    # Go down the children to pick up any more constraints
-    for child in @get_layoutable_children()
-      edit_variables = edit_variables.concat(child.get_edit_variables())
-    return edit_variables
+  @_top_bottom_inner_cell_edge_variables = [
+    'box-cell-align-top',
+    'box-cell-align-bottom'
+  ]
 
 module.exports =
   Model: Box
