@@ -46,7 +46,7 @@ def add_axes(plot, below_axis=True, left_axis=True, right_axis=False, above_axis
         plot.add_layout(LinearAxis(), 'right')
     return plot
 
-toolbar_locations = [None, 'above', 'left', 'below', 'right']
+
 
 def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=True, right_axis=False, border_fill_color="white", toolbar_location_index=0, plot_width=600, plot_height=300):
     plot = Plot(
@@ -64,75 +64,57 @@ def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=Tr
     return plot
 
 # ----- SET TOOLBAR LOCATION
+toolbar_locations = [None, 'above', 'left', 'below', 'right']
 TOOLBAR_LOCATION = 1
 suffix = "_%s" % toolbar_locations[TOOLBAR_LOCATION]
+suffix = "_just_plots"
 
-plot_1 = make_plot("y1", "blue", toolbar_location_index=TOOLBAR_LOCATION, border_fill_color="Thistle")
-plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=TOOLBAR_LOCATION)
+plot_1 = make_plot("y1", "blue", toolbar_location_index=1, border_fill_color="Thistle")
+plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=2)
 plot_3 = make_plot("y3", "green", left_axis=False, toolbar_location_index=0)
-plot_4 = make_plot("y4", "black", left_axis=False, below_axis=False, toolbar_location_index=2)
+plot_4 = make_plot("y4", "pink", left_axis=False, below_axis=False, right_axis=True, toolbar_location_index=1)
+plot_5 = make_plot("y4", "purple", left_axis=False, below_axis=False, above_axis=True, toolbar_location_index=2)
+plot_6 = make_plot("y4", "teal", left_axis=False, below_axis=False, toolbar_location_index=0)
 
 
 #doc.add_root(plot_2)
 #doc.add_root(plot_3)
 #doc.add_root(slider_1)
-col1 = Column(Row(plot_1), Row(plot_2))
-col2 = Column(Row(plot_3), Row(plot_4))
-doc.add_root(Row(col1, col2))
-#doc.add_root(Column(plot_1, plot_2))
+col1 = Column(
+    Row(plot_1),
+    Row(plot_2, plot_3, plot_4),
+    Row(plot_5, plot_6)
+)
+doc.add_root(col1)
+#col2 = Column(plot_3, plot_4)
+#doc.add_root(Row(col1, col2))
+#doc.add_root(Row(plot_1, plot_2))
 #doc.add_root(Column(Row(plot_1, plot_2), Row(plot_3, plot_4)))
 #doc.add_root(Column(Row(button_1, button_2), Row(button_3, button_4)))
 
 
-#row1 = Row(children=[plot_1, plot_2])
-#row2col1 = Column(children=[plot_3, plot_4])
-#row2col2 = Column(children=[slider_1, button, dropdown])
-#row2 = Row(children=[row2col1, row2col2])
-#widgetcol = row2col2
-#doc.add_root(Column(
-#    children=[
-##        button,
-#         slider_1,
-#        Column(
-#            children=[
-#                Row(children=[plot_1, plot_2]),
-#                Row(children=[plot_3, plot_4])
-#            ]
-#        )
-#    ]
-#))
-#doc.add_root(row1)
-#doc.add_root(row2col1)
-#doc.add_root(Row(children=[plot_1, Column(children=[plot_2, plot_3, plot_4])]))
-#doc.add_root(Column(children=[row1, row2]))
-#doc.add_root(Column(children=[slider_1, button, plot_1, plot_2])
-#doc.add_root(Row(children=[Column(children=[slider_1, button]), plot_1]))
-#doc.add_root(Column(children=[plot_1, plot_2, slider_1, button]))
-
-#doc.add_root(Column(children=[plot_1, slider_1, plot_2, button, plot_3, slider_2]))
-
-#row1 = Row(children=[Column(children=[slider_1, plot_1])])
-#row2 = Row(children=[Column(children=[button, plot_2])])
-#doc.add_root(Column(children=[row1, row2]))
-
-#row1 = Row(
-#    children=[
-#        Column(children=[slider_1, plot_1]),
-#        Column(children=[slider_2, plot_2]),
-#    ]
-#)
-#row2 = Row(
-#    children=[
-#        Column(children=[slider_3, plot_3]),
-#        Column(children=[slider_4, plot_4]),
-#    ]
-#)
-#doc.add_root(Column(children=[row1, row2]))
+row1 = Row(plot_1, plot_2)
+row2col1 = Column(plot_3, plot_4)
+row2col2 = Column(slider_1, button_1, dropdown)
+row2 = Row(row2col1, row2col2)
+#doc.add_root(Column(row1, row2))
+#
+#row1 = Row(Column(slider_1, plot_1), Column(slider_2, plot_2),)
+#row2 = Row(Column(slider_3, plot_3), Column(slider_4, plot_4),)
+#doc.add_root(Column(row1, row2))
+#
+#doc.add_root(Column(button_1, slider_1, Column(Row(plot_1, plot_2), Row(plot_3, plot_4))))
+#doc.add_root(Row(plot_1, Column(plot_2, plot_3, plot_4)))
+#doc.add_root(Column(row1, row2))
+#doc.add_root(Column(slider_1, button_1, plot_1, plot_2))
+#doc.add_root(Row(Column(slider_1, button_1), plot_1))
+#doc.add_root(Column(plot_1, plot_2, slider_1, button_1))
+#doc.add_root(Column(plot_1, slider_1, plot_2, button_1, plot_3, slider_2))
 
 
 if __name__ == "__main__":
     filename = "test_grid_layout%s.html" % suffix
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Grid Layout"))
+        f.write(file_html(doc, INLINE, suffix))
     print("Wrote %s" % filename)
     view(filename)
