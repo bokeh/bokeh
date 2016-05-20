@@ -208,7 +208,9 @@ class Chart(Plot):
         self.create_axes()
         self.create_grids(self._xgrid, self._ygrid)
 
-        # Add tools if supposed to
+        # Add tools if supposed to - TODO XXX (bird) This line is causing a deprecation
+        # warning - not sure what to do - I guess tools should become a proper
+        # property with a tansform??
         if self.tools:
             self.create_tools(self.tools)
 

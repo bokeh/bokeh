@@ -31,7 +31,7 @@ from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models.plots import GridPlot
-from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column
+from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column, WidgetBox
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
@@ -619,31 +619,25 @@ def gridplot(plot_arrangement, **kwargs):
 def hplot(*children, **kwargs):
     warnings.warn(
         """
-        The new Row is responsive by default, it resizes based on the space available. If you would
-        like to keep using a fixed size row like hplot you can set responsive=False
-        on Row. This has been automatically set on hplot.
+        The new Row is responsive by default, it resizes based on the space available.
         """)
-    layout = Row(children=list(children), responsive=False, **kwargs)
+    layout = Row(children=list(children), **kwargs)
     return layout
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
     warnings.warn(
         """
-        The new Column is responsive by default, it resizes based on the space available. If you would
-        like to keep using a fixed size column like vplot you can set responsive=False
-        on Column. This has been automatically set on vplot.
+        The new Column is responsive by default, it resizes based on the space available.
         """)
-    layout = Column(children=list(children), responsive=False, **kwargs)
+    layout = Column(children=list(children), **kwargs)
     return layout
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
     warnings.warn(
         """
-        The new Column is responsive by default, it resizes based on the space available. If you would
-        like to keep using a fixed size column like vform you can set responsive=False
-        on Column. This has been automatically set on vform.
+        The new Column is responsive by default, it resizes based on the space available.
         """)
-    layout = Column(children=list(children), responsive=False, **kwargs)
+    layout = WidgetBox(children=list(children), **kwargs)
     return layout
