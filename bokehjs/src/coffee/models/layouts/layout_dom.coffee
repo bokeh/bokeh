@@ -58,23 +58,23 @@ class LayoutDOM extends Model
       #  # When this widget is on the edge of a box visually,
       #  # align these variables down that edge. Right/bottom
       #  # are an inset from the edge.
-      #  'on-top-edge-align' : @_top
-      #  'on-bottom-edge-align' : @_height_minus_bottom
-      #  'on-left-edge-align' : @_left
-      #  'on-right-edge-align' : @_width_minus_right
+      #  'on-edge-align-top'    : @_top
+      #  'on-edge-align-bottom' : @_height_minus_bottom
+      #  'on-edge-align-left'   : @_left
+      #  'on-edge-align-right'  : @_width_minus_right
       #  # When this widget is in a box cell with the same "arity
       #  # path" as a widget in another cell, align these variables
       #  # between the two box cells. Right/bottom are an inset from
       #  # the edge.
-      #  'box-cell-align-top' : @_top
-      #  'box-cell-align-bottom' : @_height_minus_bottom
-      #  'box-cell-align-left' : @_left
+      #  'box-cell-align-top'   : @_top
+      #  'box-cell-align-bottom': @_height_minus_bottom
+      #  'box-cell-align-left'  : @_left
       #  'box-cell-align-right' : @_width_minus_right
       #  # When this widget is in a box, make these the same distance
       #  # apart in every widget. Right/bottom are inset from the edge.
-      #  'box-equal-size-top' : @_top
-      #  'box-equal-size-bottom' : @_height_minus_bottom
-      #  'box-equal-size-left' : @_left
+      #  'box-equal-size-top'   : @_top
+      #  'box-equal-size-bottom': @_height_minus_bottom
+      #  'box-equal-size-left'  : @_left
       #  'box-equal-size-right' : @_width_minus_right
     }
 

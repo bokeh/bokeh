@@ -408,11 +408,11 @@ class Box extends LayoutDOM.Model
     [start_leaves, end_leaves] = @_find_edge_leaves(horizontal)
 
     if horizontal
-      start_variable = 'on-left-edge-align'
-      end_variable = 'on-right-edge-align'
+      start_variable = 'on-edge-align-left'
+      end_variable = 'on-edge-align-right'
     else
-      start_variable = 'on-top-edge-align'
-      end_variable = 'on-bottom-edge-align'
+      start_variable = 'on-edge-align-top'
+      end_variable = 'on-edge-align-bottom'
 
     collect_vars = (leaves, name) ->
       #console.log("collecting #{name} in ", leaves)

@@ -141,19 +141,19 @@ class Plot extends LayoutDOM.Model
 
   get_constrained_variables: () ->
     return _.extend {}, super(), {
-      'on-top-edge-align' : @_top
-      'on-bottom-edge-align' : @_height_minus_bottom
-      'on-left-edge-align' : @_left
-      'on-right-edge-align' : @_width_minus_right
-      # Make the plot canvas edges line up (this 
-      # pushes up the constraint that we want axes lining up)
-      'box-cell-align-top' : @_plot_canvas._top
-      'box-cell-align-bottom' : @_plot_canvas._height_minus_bottom
-      'box-cell-align-left' : @_plot_canvas._left
+      'on-edge-align-top'    : @_top
+      'on-edge-align-bottom' : @_height_minus_bottom
+      'on-edge-align-left'   : @_left
+      'on-edge-align-right'  : @_width_minus_right
+
+      'box-cell-align-top'   : @_plot_canvas._top
+      'box-cell-align-bottom': @_plot_canvas._height_minus_bottom
+      'box-cell-align-left'  : @_plot_canvas._left
       'box-cell-align-right' : @_plot_canvas._width_minus_right
-      'box-equal-size-top' : @_top
-      'box-equal-size-bottom' : @_height_minus_bottom
-      'box-equal-size-left' : @_left
+
+      'box-equal-size-top'   : @_top
+      'box-equal-size-bottom': @_height_minus_bottom
+      'box-equal-size-left'  : @_left
       'box-equal-size-right' : @_width_minus_right
     }
 
