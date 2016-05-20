@@ -73,33 +73,36 @@ class LayoutDOM extends Model
     {
       'width': @_width
       'height': @_height
-      # when this widget is on the edge of a box visually,
-      # align these variables down that edge. Right/bottom
-      # are an inset from the edge.
-      'on-top-edge-align' : @_top
-      'on-bottom-edge-align' : @_height_minus_bottom
-      'on-left-edge-align' : @_left
-      'on-right-edge-align' : @_width_minus_right
-      # when this widget is in a box, make these the same distance
-      # apart in every widget. Right/bottom are inset from the edge.
-      'box-equal-size-top' : @_top
-      'box-equal-size-bottom' : @_height_minus_bottom
-      'box-equal-size-left' : @_left
-      'box-equal-size-right' : @_width_minus_right
-      # when this widget is in a box cell with the same "arity
-      # path" as a widget in another cell, align these variables
-      # between the two box cells. Right/bottom are an inset from
-      # the edge.
-      'box-cell-align-top' : @_top
-      'box-cell-align-bottom' : @_height_minus_bottom
-      'box-cell-align-left' : @_left
-      'box-cell-align-right' : @_width_minus_right
-      # insets from the edge that are whitespace (contain no pixels),
-      # this is used for spacing within a box.
       'whitespace-top' : @_whitespace_top
       'whitespace-bottom' : @_whitespace_bottom
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
+      'origin-x': @_dom_left
+      'origin-y': @_dom_top
+      # THE ABOVE ARE REQUIRED FOR A LAYOUTABLE OBJECT
+      # THE BELOW IS A GUIDE OF OPTIONAL VARS THAT SHOULD BE ADDED INTO SUBCLASSES
+      #
+      #  # When this widget is on the edge of a box visually,
+      #  # align these variables down that edge. Right/bottom
+      #  # are an inset from the edge.
+      #  'on-top-edge-align' : @_top
+      #  'on-bottom-edge-align' : @_height_minus_bottom
+      #  'on-left-edge-align' : @_left
+      #  'on-right-edge-align' : @_width_minus_right
+      #  # When this widget is in a box cell with the same "arity
+      #  # path" as a widget in another cell, align these variables
+      #  # between the two box cells. Right/bottom are an inset from
+      #  # the edge.
+      #  'box-cell-align-top' : @_top
+      #  'box-cell-align-bottom' : @_height_minus_bottom
+      #  'box-cell-align-left' : @_left
+      #  'box-cell-align-right' : @_width_minus_right
+      #  # When this widget is in a box, make these the same distance
+      #  # apart in every widget. Right/bottom are inset from the edge.
+      #  'box-equal-size-top' : @_top
+      #  'box-equal-size-bottom' : @_height_minus_bottom
+      #  'box-equal-size-left' : @_left
+      #  'box-equal-size-right' : @_width_minus_right
     }
 
   @define {

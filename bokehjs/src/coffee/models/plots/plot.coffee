@@ -145,6 +145,22 @@ class Plot extends LayoutDOM.Model
 
     return constraints
 
+  get_constrained_variables: () ->
+    return _.extend {}, super(), {
+      'on-top-edge-align' : @_top
+      'on-bottom-edge-align' : @_height_minus_bottom
+      'on-left-edge-align' : @_left
+      'on-right-edge-align' : @_width_minus_right
+      'box-cell-align-top' : @_top
+      'box-cell-align-bottom' : @_height_minus_bottom
+      'box-cell-align-left' : @_left
+      'box-cell-align-right' : @_width_minus_right
+      'box-equal-size-top' : @_top
+      'box-equal-size-bottom' : @_height_minus_bottom
+      'box-equal-size-left' : @_left
+      'box-equal-size-right' : @_width_minus_right
+    }
+
   _set_orientation_variables: (model) ->
     if @_horizontal == false  # toolbar is above or below or null
       model._sizeable = model._height
@@ -156,11 +172,6 @@ class Plot extends LayoutDOM.Model
   # 
   # SETUP PROPERTIES
   #
-  @internal {
-    dom_left: [ p.Number, 0 ]
-    dom_top: [ p.Number, 0 ]
-  }
-
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   @define {
