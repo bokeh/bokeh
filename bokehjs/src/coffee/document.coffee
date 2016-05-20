@@ -84,8 +84,8 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
-    @_doc_width = new Variable("_doc_width #{@id}")
-    @_doc_height = new Variable("doc_height #{@id}")
+    @_doc_width = new Variable("document_width")
+    @_doc_height = new Variable("document_height")
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
     $(window).on("resize", $.proxy(@resize, @))
