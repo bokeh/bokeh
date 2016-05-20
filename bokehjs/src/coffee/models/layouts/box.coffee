@@ -149,7 +149,8 @@ class Box extends LayoutDOM.Model
     return {span: span, whitespace: whitespace}
 
   get_constraints: () ->
-    constraints = super()
+    # Note we don't got and get constraints from _layout_dom parent.
+    constraints = []
 
     children = @get_layoutable_children()
     if children.length == 0

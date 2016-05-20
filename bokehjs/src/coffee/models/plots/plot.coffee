@@ -92,8 +92,6 @@ class Plot extends LayoutDOM.Model
 
   get_edit_variables: () ->
     edit_variables = []
-    edit_variables.push({'edit_variable': @_dom_left, 'strength': Strength.strong})
-    edit_variables.push({'edit_variable': @_dom_top, 'strength': Strength.strong})
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
