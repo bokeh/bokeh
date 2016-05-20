@@ -10,30 +10,22 @@ class LayoutDOM extends Model
     super(attrs, options)
     @_width = new Variable("_width #{@id}")
     @_height = new Variable("_height #{@id}")
-    # these are the COORDINATES of the four plot sides
+    # These are the COORDINATES of the four plot sides
     @_left = new Variable("_left #{@id}")
     @_right = new Variable("_right #{@id}")
     @_top = new Variable("_top #{@id}")
     @_bottom = new Variable("_bottom #{@id}")
-    # this is the dom position
+    # This is the dom position
     @_dom_top = new Variable("_dom_top #{@id}")
     @_dom_left = new Variable("_dom_left #{@id}")
-    ## this is the DISTANCE FROM THE SIDE of the right and bottom,
-    ## useful if that isn't the same as the coordinate (as happens in plot_canvas)  
-    #@_width_minus_left = new Variable("_width_minus_left #{@id}")
+    # This is the distance from the side of the right and bottom,
     @_width_minus_right = new Variable("_width_minus_right #{@id}")
     @_height_minus_bottom = new Variable("_height_minus_bottom #{@id}")
-    ## these are the plot width and height, but written
-    ## as a function of the coordinates because we compute
-    ## them that way
-    @_right_minus_left = new Variable("_right_minus_left #{@id}")
-    @_bottom_minus_top = new Variable("_bottom_minus_top #{@id}")
     # Add our whitespace variables
     @_whitespace_top = new Variable()
     @_whitespace_bottom = new Variable()
     @_whitespace_left = new Variable()
     @_whitespace_right = new Variable()
-
 
   get_constraints: () ->
     constraints = []
@@ -49,11 +41,8 @@ class LayoutDOM extends Model
     constraints.push(GE(@_height, [-1, @_bottom]))
 
     # Declare computed constraints
-    #constraints.push(EQ(@_width_minus_left, [-1, @_width], @_left))
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
-    constraints.push(EQ(@_right_minus_left, [-1, @_right], @_left))
-    constraints.push(EQ(@_bottom_minus_top, [-1, @_bottom], @_top))
       
     # Whitespace has to be positive
     constraints.push(GE(@_whitespace_left))

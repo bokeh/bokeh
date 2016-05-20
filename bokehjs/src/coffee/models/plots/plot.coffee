@@ -42,11 +42,11 @@ class PlotView extends BokehView
     @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
-    #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
-    #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _width_minus_left: #{@model._width_minus_left._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
-    #logger.debug("#{@model} _right_minus_left: #{@model._right_minus_left._value}, _bottom_minus_top: #{@model._bottom_minus_top._value}")
+    logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
+    logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
+
     @$el.css({
       position: 'absolute'
       'left': @model._dom_left._value
