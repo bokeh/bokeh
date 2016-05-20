@@ -47,7 +47,6 @@ def add_axes(plot, below_axis=True, left_axis=True, right_axis=False, above_axis
     return plot
 
 
-
 def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=True, right_axis=False, border_fill_color="white", toolbar_location_index=0, plot_width=600, plot_height=300):
     plot = Plot(
         x_range=DataRange1d(),
@@ -65,16 +64,16 @@ def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=Tr
 
 # ----- SET TOOLBAR LOCATION
 toolbar_locations = [None, 'above', 'left', 'below', 'right']
-TOOLBAR_LOCATION = 1
-suffix = "_%s" % toolbar_locations[TOOLBAR_LOCATION]
-suffix = "_just_plots"
+TBL = 0
+suffix = "_%s" % toolbar_locations[TBL]
+suffix = "_align_plots"
 
-plot_1 = make_plot("y1", "blue", toolbar_location_index=1, border_fill_color="Thistle")
-plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=2)
-plot_3 = make_plot("y3", "green", left_axis=False, toolbar_location_index=0)
-plot_4 = make_plot("y4", "pink", left_axis=False, below_axis=False, right_axis=True, toolbar_location_index=1)
-plot_5 = make_plot("y4", "purple", left_axis=False, below_axis=False, above_axis=True, toolbar_location_index=2)
-plot_6 = make_plot("y4", "teal", left_axis=False, below_axis=False, toolbar_location_index=0)
+plot_1 = make_plot("y1", "blue", toolbar_location_index=TBL, border_fill_color="Thistle")
+plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=TBL)
+plot_3 = make_plot("y3", "green", left_axis=False, toolbar_location_index=TBL)
+plot_4 = make_plot("y4", "pink", left_axis=False, below_axis=False, right_axis=True, toolbar_location_index=TBL)
+plot_5 = make_plot("y4", "purple", left_axis=False, below_axis=False, above_axis=True, toolbar_location_index=TBL)
+plot_6 = make_plot("y4", "teal", left_axis=False, below_axis=False, toolbar_location_index=TBL)
 
 
 #doc.add_root(plot_2)
@@ -89,14 +88,15 @@ doc.add_root(col1)
 #col2 = Column(plot_3, plot_4)
 #doc.add_root(Row(col1, col2))
 #doc.add_root(Row(plot_1, plot_2))
-#doc.add_root(Column(Row(plot_1, plot_2), Row(plot_3, plot_4)))
 #doc.add_root(Column(Row(button_1, button_2), Row(button_3, button_4)))
 
+# Row of two columns
+#doc.add_root(Row(Column(plot_1, plot_2), Column(plot_3, plot_4)))
 
-row1 = Row(plot_1, plot_2)
-row2col1 = Column(plot_3, plot_4)
-row2col2 = Column(slider_1, button_1, dropdown)
-row2 = Row(row2col1, row2col2)
+#row1 = Row(plot_1, plot_2)
+#row2col1 = Column(plot_3, plot_4)
+#row2col2 = Column(slider_1, button_1, dropdown)
+#row2 = Row(row2col1, row2col2)
 #doc.add_root(Column(row1, row2))
 #
 #row1 = Row(Column(slider_1, plot_1), Column(slider_2, plot_2),)
