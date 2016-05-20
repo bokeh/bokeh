@@ -130,7 +130,6 @@ class Plot extends LayoutDOM.Model
         constraints.push(EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @toolbar._right))
 
     if not @toolbar_location?
-      console.log('in else')
       constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
       constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
 

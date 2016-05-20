@@ -30,17 +30,13 @@ class LayoutDOM extends Model
   get_constraints: () ->
     constraints = []
 
-    # Dom position should always be greater than 0
-    constraints.push(GE(@_dom_left))
-    constraints.push(GE(@_dom_top))
-    
     # Plot has to be inside the width/height
     constraints.push(GE(@_left))
     constraints.push(GE(@_width, [-1, @_right]))
     constraints.push(GE(@_top))
     constraints.push(GE(@_height, [-1, @_bottom]))
 
-    # Declare computed constraints
+    ## Declare computed constraints
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
       
