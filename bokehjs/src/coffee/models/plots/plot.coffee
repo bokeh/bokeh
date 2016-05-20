@@ -49,11 +49,8 @@ class PlotView extends BokehView
     #logger.debug("#{@model} _right_minus_left: #{@model._right_minus_left._value}, _bottom_minus_top: #{@model._bottom_minus_top._value}")
     @$el.css({
       position: 'absolute'
-      #We currently have a property coming from box, and a variable coming internally!
-      #left: @model.dom_left
-      #top: @model.dom_top
-      left: @model._dom_left._value
-      top: @model._dom_top._value
+      'left': @model._dom_left._value
+      'top': @model._dom_top._value
       'width': @model._width._value
       'height': @model._height._value
     })
