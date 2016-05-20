@@ -32,7 +32,7 @@ from ..core.enums import Dimension
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
-from .widgets.widget import Widget
+from .layouts import LayoutDOM
 
 
 class ToolEvents(Model):
@@ -55,8 +55,8 @@ class Tool(Model):
     """)
 
 
-class Toolbar(Widget):
-    """ Widget that holds tools to display
+class Toolbar(LayoutDOM):
+    """ Hold tools to display
     """
 
     logo = Enum("normal", "grey", help="""

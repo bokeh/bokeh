@@ -6,7 +6,7 @@ $$1 = require "bootstrap/dropdown"
 {EQ, Variable}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
-Widget = require "../widgets/widget"
+LayoutDOM = require "../layouts/layout_dom"
 
 ActionTool = require "./actions/action_tool"
 HelpTool = require "./actions/help_tool"
@@ -15,18 +15,14 @@ InspectTool = require "./inspectors/inspect_tool"
 toolbar_template = require "./toolbar_template"
 
 
-class ToolbarView extends Widget.View
+class ToolbarView extends LayoutDOM.View
+  className: "bk-toolbar-wrapper"
   template: toolbar_template
 
   initialize: (options) ->
     super(options)
     @location = options.location
-    @bind_bokeh_events()
     @render()
-
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @render)
-    @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
     #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
@@ -86,7 +82,7 @@ class ToolbarView extends Widget.View
     return @
 
 
-class Toolbar extends Widget.Model
+class Toolbar extends LayoutDOM.Model
   type: 'Toolbar'
   default_view: ToolbarView
 

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 from ..core import validation
 from ..core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ..core.properties import abstract, Bool, Int, Instance, List  # , Responsive
+from ..core.properties import abstract, Bool, Int, Instance, List, Either
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
@@ -46,6 +46,37 @@ class LayoutDOM(Model):
         return HTML(self.__repr_html__())
 
 
+class WidgetBox(LayoutDOM):
+    """ A container for widgets that are part of a layout."""
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0 and "children" in kwargs:
+            raise ValueError("'children' keyword cannot be used with positional arguments")
+        elif len(args) > 0:
+            kwargs["children"] = list(args)
+        super(WidgetBox, self).__init__(**kwargs)
+
+    @validation.warning(EMPTY_LAYOUT)
+    def _check_empty_layout(self):
+        from itertools import chain
+        if not list(chain(self.children)):
+            return str(self)
+
+    @validation.warning(BOTH_CHILD_AND_ROOT)
+    def _check_child_is_also_root(self):
+        problems = []
+        for c in self.children:
+            if c.document is not None and c in c.document.roots:
+                problems.append(str(c))
+        if problems:
+            return ", ".join(problems)
+        else:
+            return None
+
+    children = List(Instance('bokeh.models.widgets.Widget'), help="""
+        The list of widgets to put in the layout box.
+    """)
+
+
 @abstract
 class Box(LayoutDOM):
     """ Abstract base class for Row and Column. Do not use directly.
@@ -75,6 +106,17 @@ class Box(LayoutDOM):
         else:
             return None
 
+    #TODO Debating the following instead to prevent people adding just a plain
+    #     widget into a box, which sometimes works and sometimes looks disastrous
+    #children = List(
+    #    Either(
+    #        Instance('bokeh.models.layouts.Row'),
+    #        Instance('bokeh.models.layouts.Column'),
+    #        Instance('bokeh.models.plots.Plot'),
+    #        Instance('bokeh.models.layouts.WidgetBox')
+    #    ), help="""
+    #    The list of children, which can be other components including plots, rows, columns, and widgets.
+    #""")
     children = List(Instance(LayoutDOM), help="""
         The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
@@ -102,9 +144,7 @@ class Column(Box):
 def HBox(*args, **kwargs):
     warnings.warn(
         """
-        The new Column is responsive by default, it resizes based on the space available. If you would
-        like to keep using a fixed size column like HBox you can set responsive=False
-        on Column. This has been automatically set HBox.
+        The new Column is responsive by default, it resizes based on the space available.
         """)
     return Row(*args, **kwargs)
 
@@ -113,19 +153,15 @@ def HBox(*args, **kwargs):
 def VBox(*args, **kwargs):
     warnings.warn(
         """
-        The new Column is responsive by default, it resizes based on the space available. If you would
-        like to keep using a fixed size column like VBox you can set responsive=False
-        on Column. This has been automatically set VBox.
+        The new Column is responsive by default, it resizes based on the space available.
         """)
     return Column(*args, **kwargs)
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def VBoxForm(*args, **kwargs):
     warnings.warn(
         """
-        The new Column is responsive by default, it resizes based on the space available. If you would
-        like to keep using a fixed size column like VBoxForm you can set responsive=False
-        on Column. This has been automatically set VBoxForm.
+        The new WidgetBox is responsive by default, it resizes based on the space available.
         """)
-    return Column(*args, **kwargs)
+    return WidgetBox(*args, **kwargs)

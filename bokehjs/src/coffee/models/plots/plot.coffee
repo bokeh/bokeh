@@ -1,59 +1,18 @@
 _ = require "underscore"
 $ = require "jquery"
 
-build_views = require "../../common/build_views"
-ToolEvents = require "../../common/tool_events"
-
-BokehView = require "../../core/bokeh_view"
 {WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
 Toolbar = require "../tools/toolbar"
-
+ToolEvents = require "../../common/tool_events"
 PlotCanvas = require("./plot_canvas").Model
 
 
-class PlotView extends BokehView
+class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
-
-  initialize: (options) ->
-    super(options)
-    # Provides a hook so document can measure
-    @$el.attr("id", "modelid_#{@model.id}")
-
-    children = @model.get_layoutable_children()
-    @child_views = {}
-    build_views(@child_views, children)
-  
-    for own key, child_view of @child_views
-      @$el.append(child_view.$el)
-
-    @bind_bokeh_events()
-
-    if @model._is_root is true
-      resize = () -> $(window).trigger('resize')
-      _.delay(resize, 5)
-      _.delay(resize, 50)
-
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @render)
-    @listenTo(@model.document.solver(), 'resize', @render)
-
-  render: () ->
-    #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
-    #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
-
-    @$el.css({
-      position: 'absolute'
-      'left': @model._dom_left._value
-      'top': @model._dom_top._value
-      'width': @model._width._value
-      'height': @model._height._value
-    })
 
 
 class Plot extends LayoutDOM.Model

@@ -1,6 +1,19 @@
 @import (reference) "flexbox.less";
 @import "data_table.less";
 
+.bk-widget-box {
+  overflow: auto;
+  padding: 5px;
+}
+
+.bk-widget label {
+  margin-bottom: 2px;
+}
+
+.bk-widget {
+  margin-top: 10px;
+}
+
 .bk-widget h1:first-child,
 .bk-widget h2:first-child,
 .bk-widget h3:first-child,
@@ -13,28 +26,28 @@
   margin-top: 0;
 }
 
-.bk-widget-form {
-  padding: 30px 30px 30px 30px;
-  overflow: hidden;
-}
-
-.bk-widget-form-group {
-  .bk-bs-form-group;
-}
-
+/* This is the line that gives everything bootstrap styling */
 .bk-widget-form-input {
   .bk-bs-form-control;
 }
 
+
+//
+//
+// Individual widget customizations
+//
+//
+
+/* mis */
 .bk-widget select,
 .bk-widget button {
   min-width: 50%;
 }
-
 .bk-widget input[type="text"] {
   min-width: 90%;
 }
 
+/* slider - start */
 .bk-slider-parent input[type="text"] {
   display: inline-block;
   border: 0; 
@@ -49,10 +62,11 @@
 .bk-widget .bk-slider-horizontal {
   width: 93%;
   margin-left: 8px;
-  height: 16px;
+  height: 10px;
 }
 
 .bk-slider-vertical {
   height: 100%;
   width: 16px;
 }
+/* slider - end */

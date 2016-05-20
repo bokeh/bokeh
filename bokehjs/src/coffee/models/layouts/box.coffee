@@ -1,48 +1,13 @@
 _ = require "underscore"
-$ = require "jquery"
-build_views = require "../../common/build_views"
 
-BokehView = require "../../core/bokeh_view"
 {EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
 p = require "../../core/properties"
 
 LayoutDOM = require "./layout_dom"
 
 
-class BoxView extends BokehView
+class BoxView extends LayoutDOM.View
   className: "bk-grid"
-
-  initialize: (options) ->
-    super(options)
-    # Provides a hook so document can measure
-    @$el.attr("id", "modelid_#{@model.id}")
-
-    children = @model.get_layoutable_children()
-    @child_views = {}
-    build_views(@child_views, children)
-  
-    for own key, child_view of @child_views
-      @$el.append(child_view.$el)
-
-    @bind_bokeh_events()
-
-    if @model._is_root == true
-      resize = () -> $(window).trigger('resize')
-      _.delay(resize, 15)
-
-  bind_bokeh_events: () ->
-    @listenTo(@model.document.solver(), 'resize', () => @model.variables_updated())
-    @listenTo(@model.document.solver(), 'layout_update', () => @model.variables_updated())
-    @listenTo(@model, 'change', @render)
-
-  render: () ->
-    @$el.css({
-      position: 'absolute'
-      left: @model._dom_left._value
-      top: @model._dom_top._value
-      width: @model._width._value
-      height: @model._height._value
-    })
 
 
 class Box extends LayoutDOM.Model
