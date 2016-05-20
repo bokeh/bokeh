@@ -170,6 +170,12 @@ class PlotCanvasView extends Renderer.View
       # Just need to wait a small delay so container has a width
       _.delay(@resize, 10)
 
+    # Re-render when dpi changes (modern browsers emit a resize event on zoom)
+    check_resize_need_render = () ->
+      if @canvas_view.need_render()
+         @request_render()
+    $(window).on("resize", check_resize_need_render.bind(this))
+
     @unpause()
 
     logger.debug("PlotView initialized")
@@ -454,11 +460,13 @@ class PlotCanvasView extends Renderer.View
         break
 
     ctx = @canvas_view.ctx
-    ctx.save()  # Save default state
 
-    # Set hidpi-transform
+    # Get hdpi ratio
     ratio = @canvas_view.render(force_canvas)
     ctx.pixel_ratio = ratio  # we need this in WebGL
+
+    # Set hidpi-transform
+    ctx.save()  # Save default state (do this after getting ratio, because it may resize the canvas)
     ctx.scale(ratio, ratio)
     ctx.translate(0.5, 0.5)
 
