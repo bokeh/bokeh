@@ -47,7 +47,7 @@ def add_axes(plot, below_axis=True, left_axis=True, right_axis=False, above_axis
     return plot
 
 
-def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=True, right_axis=False, border_fill_color="white", toolbar_location_index=0, plot_width=600, plot_height=300):
+def make_plot(yname, line_color, tbs=True, above_axis=False, below_axis=True, left_axis=True, right_axis=False, border_fill_color="white", toolbar_location_index=0, plot_width=600, plot_height=300):
     plot = Plot(
         x_range=DataRange1d(),
         y_range=DataRange1d(),
@@ -56,6 +56,7 @@ def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=Tr
         plot_width=plot_width,
         plot_height=plot_height,
         min_border=10,
+        toolbar_sticky=tbs,
     )
     plot.add_glyph(source, Line(x="x", y=yname, line_color=line_color))
     plot.add_tools(PanTool())
@@ -64,16 +65,16 @@ def make_plot(yname, line_color, above_axis=False, below_axis=True, left_axis=Tr
 
 # ----- SET TOOLBAR LOCATION
 toolbar_locations = [None, 'above', 'left', 'below', 'right']
-TBL = 0
+TBL = 1
 suffix = "_%s" % toolbar_locations[TBL]
 suffix = "_align_plots"
 
-plot_1 = make_plot("y1", "blue", toolbar_location_index=TBL, border_fill_color="Thistle")
+plot_1 = make_plot("y1", "blue", toolbar_location_index=1, border_fill_color="Thistle", tbs=False)
 plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=TBL)
-plot_3 = make_plot("y3", "green", left_axis=False, toolbar_location_index=TBL)
-plot_4 = make_plot("y4", "pink", left_axis=False, below_axis=False, right_axis=True, toolbar_location_index=TBL)
-plot_5 = make_plot("y4", "purple", left_axis=False, below_axis=False, above_axis=True, toolbar_location_index=TBL)
-plot_6 = make_plot("y4", "teal", left_axis=False, below_axis=False, toolbar_location_index=TBL)
+plot_3 = make_plot("y3", "green", left_axis=False, toolbar_location_index=4)
+plot_4 = make_plot("y4", "pink", left_axis=False, below_axis=False, right_axis=True, toolbar_location_index=0)
+plot_5 = make_plot("y4", "purple", left_axis=False, below_axis=False, above_axis=True, toolbar_location_index=2)
+plot_6 = make_plot("y4", "teal", left_axis=False, below_axis=False, toolbar_location_index=3)
 
 
 #doc.add_root(plot_2)

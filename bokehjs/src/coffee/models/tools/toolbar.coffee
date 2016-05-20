@@ -38,9 +38,13 @@ class ToolbarView extends Widget.View
       top: @model._dom_top._value
       'width': @model._width._value
       'height': @model._height._value
+      # This allows us to nudge it down into the PlotCanvas space for alignment
+      # with plot-edge
+      'z-index': 100
     })
     location = if @model.location? then @model.location else 'above'
-    @$el.html(@template({logo: @mget("logo"), location: location}))
+    sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
+    @$el.html(@template({logo: @mget("logo"), location: location, sticky: sticky}))
 
     inspectors = @model.get('inspectors')
     button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
@@ -164,6 +168,7 @@ class Toolbar extends Widget.Model
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
     location:   [ p.Location, 'above' ]
+    toolbar_sticky: [ p.Bool ]
   }
 
 module.exports =

@@ -228,36 +228,34 @@
   border-bottom: 1px solid #26aae1;
 }
 
-.bk-toolbar-above {
+// If the toolbar is not sticky - add the line
+.bk-toolbar-above.bk-toolbar-not-sticky {
   border-bottom: 1px solid #e5e5e5;
-  .bk-button-bar {
-    top: 2px;
-  }
 }
-
-.bk-toolbar-below {
+.bk-toolbar-below.bk-toolbar-not-sticky {
   border-top: 1px solid #e5e5e5;
-  .bk-button-bar {
-  }
 }
-
-.bk-toolbar-left {
+.bk-toolbar-left.bk-toolbar-not-sticky {
   border-right: 1px solid #e5e5e5;
-  .bk-button-bar {
-  }
 }
-
-.bk-toolbar-right {
+.bk-toolbar-right.bk-toolbar-not-sticky {
   border-left: 1px solid #e5e5e5;
-  .bk-button-bar {
-    left: 1px;
-  }
 }
 
+// Small visual tweaks to button bar offset (not sure we need these)
+.bk-toolbar-above  .bk-button-bar {
+  top: 2px;
+}
+.bk-toolbar-right .bk-button-bar {
+  left: 1px;
+}
+
+// Positioning tweaks - can't seem to get solver to do it right
 .bk-toolbar-below {
-  // We need to push the toolbar down because it's ended up positioned inside
-  // canvas edge (but there's space in the plot container for it)
-  top: 30px;
+  top: 29px;
+}
+.bk-toolbar-right {
+  right: -30px; 
 }
 
 .bk-toolbar-above, 
@@ -310,10 +308,6 @@
       }
     }
   }
-}
-
-.bk-toolbar-right {
- right: -31px; 
 }
 
 .bk-toolbar-left, 

@@ -32,7 +32,7 @@ class PlotView extends BokehView
 
     @bind_bokeh_events()
 
-    if @model._is_root == true
+    if @model._is_root is true
       resize = () -> $(window).trigger('resize')
       _.delay(resize, 5)
       _.delay(resize, 50)
@@ -42,10 +42,10 @@ class PlotView extends BokehView
     @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
-    logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
-    logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
+    #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
+    #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
+    #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
+    #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
 
     @$el.css({
       position: 'absolute'
@@ -67,7 +67,8 @@ class Plot extends LayoutDOM.Model
     if @toolbar_location in ['left', 'right']
       @_horizontal = true
 
-    plot_canvas_options = _.omit(options, 'toolbar_location')
+    plot_only_options = ['toolbar_location', 'toolbar_sticky']
+    plot_canvas_options = _.omit(options, plot_only_options)
     @_plot_canvas = new PlotCanvas(plot_canvas_options)
 
     @_set_orientation_variables(@)
@@ -75,6 +76,7 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@_plot_canvas)
 
     @toolbar.location = @toolbar_location
+    @toolbar.toolbar_sticky = @toolbar_sticky
     @_plot_canvas.toolbar = @toolbar
 
   _doc_attached: () ->
@@ -99,37 +101,67 @@ class Plot extends LayoutDOM.Model
   get_constraints: () ->
     constraints = super()
 
-    # CONSTRAINTS (if toolbar is above)
-    # Size:
-    # * (1) COMPUTE THE VARIABLE PIECES (shrinks canvas): plot_height = plot_canvas_height + toolbar_height
-    # * (2) SIZE THE FIXED: plot_width = plot_canvas_width 
-    # * (3) SIZE THE FIXED: plot_width = toolbar_width
-    # Position:
-    # * (4) stack or stick to the side - note that below and right also require a css offset (couldn't find another way)
-
     if @toolbar_location?
+      # Constraints if we have a toolbar
+      #
+      #  (1) COMPUTE THE VARIABLE PIECES (shrinks canvas): plot_height = plot_canvas_height + toolbar_height
+      #  (2) SIZE THE FIXED: plot_width = plot_canvas_width 
+      #  (3) stack or stick to the side 
+      #      - note that below and right also require a css offset (couldn't find another way)
+      #      - use canvas._top not canvas._dom_top as this lets us stick the
+      #      toolbar right to the edge of the plot
+      #  (4) nudge: set toolbar width to be almost full less that needed 
+      #      to give a margin that lines up nicely with plot canvas edge
+
+
       # (1) plot_height = plot_canvas_height + toolbar_height | plot_width = plot_canvas_width + toolbar_width
-      constraints.push(EQ(@_sizeable, [-1, @_plot_canvas._sizeable], [-1, @toolbar._sizeable]))
+      if @toolbar_sticky is true
+        constraints.push(EQ(@_sizeable, [-1, @_plot_canvas._sizeable]))
+      else
+        constraints.push(EQ(@_sizeable, [-1, @_plot_canvas._sizeable], [-1, @toolbar._sizeable]))
+
       # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
       constraints.push(EQ(@_full, [-1, @_plot_canvas._full]))
-      # (3) plot_full = toolbar_full | plot_height = toolbar_height | plot_height = toolbar_height
-      constraints.push(EQ(@_full, [-1, @toolbar._full]))
 
-      if @toolbar_location == 'above'
-        # (4) stack: plot_canvas._dom_top = toolbar._dom_top + toolbar._height
-        constraints.push(EQ(@_plot_canvas._dom_top, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
+      if @toolbar_location is 'above'
+        # (3) stack: plot_canvas._top = toolbar._dom_top + toolbar._height
+        sticky_edge = if @toolbar_sticky is true then @_plot_canvas._top else @_plot_canvas._dom_top
+        constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
 
-      if @toolbar_location == 'below'
-        constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas._height], @toolbar._bottom))
+      if @toolbar_location is 'below'
+        # (3) stack: plot_canvas._dom_top = toolbar._bottom - toolbar._height
+        if @toolbar_sticky is false
+          constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas._height], @toolbar._bottom))
+        if @toolbar_sticky is true
+          constraints.push(GE(@_plot_canvas.below_panel._height, [-1, @toolbar._height]))
+          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @_plot_canvas._height], @_plot_canvas.below_panel._height, @toolbar._height))
 
-      if @toolbar_location == 'left'
-        # (4) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
-        constraints.push(EQ(@_plot_canvas._dom_left, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
+      if @toolbar_location is 'left'
+        # (3) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
+        sticky_edge = if @toolbar_sticky is true then @_plot_canvas._left else @_plot_canvas._dom_left
+        constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
 
-      if @toolbar_location == 'right'
-        constraints.push(EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @toolbar._right))
+      if @toolbar_location is 'right'
+        # (3) stack: plot_canvas._dom_left = plot_canvas._right - toolbar._width
+        if @toolbar_sticky is false
+          constraints.push(EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @toolbar._right))
+        if @toolbar_sticky is true
+          constraints.push(GE(@_plot_canvas.right_panel._width, [-1, @toolbar._width]))
+          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @_plot_canvas.right_panel._width, @toolbar._width))
+
+      if @toolbar_location in ['above', 'below']
+        # (4) toolbar_width = full_width - plot_canvas._right
+        constraints.push(EQ(@_width, [-1, @toolbar._width], [-1, @_plot_canvas._width_minus_right]))
+
+      if @toolbar_location in ['left', 'right']
+        # (4a) the following makes the toolbar as tall as the plot less the distance of the axis from the edge 
+        constraints.push(EQ(@_height, [-1, @toolbar._height], [-1, @_plot_canvas.above_panel._height]))
+        # (4b) nudge the toolbar down by that distance
+        constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas.above_panel._height]))
+
 
     if not @toolbar_location?
+      # If we don't have a toolbar just set them
       constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
       constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
 
@@ -158,10 +190,10 @@ class Plot extends LayoutDOM.Model
     }
 
   _set_orientation_variables: (model) ->
-    if @_horizontal == false  # toolbar is above or below or null
+    if @_horizontal is false  # toolbar is above or below or null
       model._sizeable = model._height
       model._full = model._width
-    if @_horizontal == true  # toolbar is left or right
+    if @_horizontal is true  # toolbar is left or right
       model._sizeable = model._width
       model._full = model._height
 
@@ -173,6 +205,7 @@ class Plot extends LayoutDOM.Model
   @define {
       toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
       toolbar_location:  [ p.Location, 'above'                   ]
+      toolbar_sticky:    [ p.Bool, true                       ]
       
       # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
