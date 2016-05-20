@@ -47,15 +47,23 @@ class CanvasView extends BokehView
     ctx = canvas_el[0].getContext('2d')
     return ctx
 
+  need_render: () ->
+    # Public method so the plot can determine if size/dpi changed
+    width = @mget('width')
+    height = @mget('height')
+    dpr = window.devicePixelRatio  # this changes when browser zoom changes
+    return not _.isEqual(@last_dims, [width, height, dpr])
+
   render: (force=false) ->
 
     width = @mget('width')
     height = @mget('height')
+    dpr = window.devicePixelRatio
 
     # only render the canvas when the canvas dimensions change unless force==true
-    if not _.isEqual(@last_dims, [width, height]) or force
+    if not _.isEqual(@last_dims, [width, height, dpr]) or force
 
-      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
+      @_pixel_ratio = ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
 
       logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
 
@@ -69,12 +77,9 @@ class CanvasView extends BokehView
       @$('div.bk-canvas-overlays').attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
       @$('div.bk-canvas-events').attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
-      @ctx.scale(ratio, ratio)
-      @ctx.translate(0.5, 0.5)
+      @last_dims = [width, height, dpr]
 
-      @last_dims = [width, height]
-
-    return
+    return @_pixel_ratio
 
   set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]
