@@ -29,14 +29,10 @@ class ToolbarView extends LayoutDOM.View
     #logger.debug("#{@model} _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
     #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     @$el.css({
-      position: 'absolute'
       left: @model._dom_left._value
       top: @model._dom_top._value
       'width': @model._width._value
       'height': @model._height._value
-      # This allows us to nudge it down into the PlotCanvas space for alignment
-      # with plot-edge
-      'z-index': 100
     })
     location = if @model.location? then @model.location else 'above'
     sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'

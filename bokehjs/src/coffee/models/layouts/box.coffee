@@ -53,7 +53,7 @@ class Box extends LayoutDOM.Model
     @trigger('change')
   
   get_edit_variables: () ->
-    edit_variables = []
+    edit_variables = super()
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
@@ -125,20 +125,16 @@ class Box extends LayoutDOM.Model
     for i in [1...children.length]
       next = @_info(children[i].get_constrained_variables())
 
-      # Each child's start equals the previous child's end
-      # TODO(bird) - Is there a way to clean this up by linking up info from span about whether
-      # we need width or height mode.
-      if @_horizontal
-        if @_has_var('height', var_keys)
-          constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
-      else
-        if @_has_var('width', var_keys)
-          constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
+      # Each child's start equals the previous child's end (unless we have a fixed layout
+      # in which case size may not be available)
+      if last.span.size
+        constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
 
       # The whitespace at end of one child + start of next must equal the box spacing. 
       # This must be a weak constraint because it can conflict with aligning the 
       # alignable edges in each child. Alignment is generally more important visually than spacing.
       constraints.push(WEAK_EQ(last.whitespace.after, next.whitespace.before, 0 - @spacing))
+
       # If we can't satisfy the whitespace being equal to box spacing, we should fix 
       # it (align things) by increasing rather than decreasing the whitespace.
       constraints.push(GE(last.whitespace.after, next.whitespace.before, 0 - @spacing))

@@ -200,8 +200,8 @@ describe "PlotCanvas.View render", ->
 describe "PlotCanvas.View resize", ->
   dom_left = 12
   dom_top = 13
-  width = 100
-  height = 100
+  width = 44
+  height = 99
   wl = 5
   wr = 10
   wt = 22
@@ -266,15 +266,12 @@ describe "PlotCanvas.View resize", ->
     # The aspect ratio is 100:1
     expect(spy.calledWith([width, width / 100], false)).to.be.true
 
-  # TODO(bird) - responsive is still being worked on
-  it.skip "should call solver.suggest_value for width and height if responsive_mode is fixed", ->
+  it "should call solver.suggest_value for width and height if responsive_mode is fixed", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
     @test_plot.responsive = 'fixed'
-    @test_plot.width = 111
-    @test_plot.height = 222
     @test_plot_view.resize()
-    expect(spy.calledOnce).to.be.true
-    expect(spy.calledWith([111, 222], false)).to.be.true
+    expect(spy.calledOnce, 'set_dims was not called').to.be.true
+    expect(spy.calledWith([width, height], true)).to.be.true
 
   it "should throw an error if height is 0", ->
     @test_plot._height = {_value: 0}

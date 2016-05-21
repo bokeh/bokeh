@@ -519,6 +519,7 @@ class PlotCanvasView extends Renderer.View
     @visuals.background_fill.set_value(ctx)
     ctx.fillRect(frame_box...)
 
+# TODO(bird) I'm not sure LayoutDOM is the best parent for PlotCanvas
 class PlotCanvas extends LayoutDOM.Model
   type: 'PlotCanvas'
   default_view: PlotCanvasView
@@ -690,6 +691,8 @@ class PlotCanvas extends LayoutDOM.Model
     outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
+    # We should find a way to enforce this
+    responsive: 'box'
   }
 
   @internal {

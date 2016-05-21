@@ -46,25 +46,17 @@ describe "Toolbar.View", ->
     
   it "render should set the appropriate positions and paddings on the element", ->
     dom_left = 12
-    dom_top = 13
-    width = 100
-    height = 100
-    wl = 5
-    wr = 10
-    wt = 22
-    wb = 33
+    dom_top = 44
+    width = 111
+    height = 123
     @test_tb._dom_left = {_value: dom_left}
     @test_tb._dom_top = {_value: dom_top}
     @test_tb._width = {_value: width}
     @test_tb._height = {_value: height}
-    @test_tb._whitespace_left = {_value: wl}
-    @test_tb._whitespace_right = {_value: wr}
-    @test_tb._whitespace_top = {_value: wt}
-    @test_tb._whitespace_bottom = {_value: wb}
 
     tb_view = new @test_tb.default_view({ model: @test_tb })
     tb_view.render()
-    expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px; z-index: 100;"
+    expected_style = "left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
     expect(tb_view.$el.attr('style')).to.be.equal expected_style
 
   # TODO(bird) - Still implementing responsive

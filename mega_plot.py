@@ -64,7 +64,7 @@ def slider():
     offset_slider = Slider(start=-5, end=5, value=0, step=.1, title="Offset", callback=callback)
     callback.args["offset"] = offset_slider
 
-    layout = hplot(vform(amp_slider, freq_slider, phase_slider, offset_slider), plot)
+    layout = hplot(Column(amp_slider, freq_slider, phase_slider, offset_slider, responsive='fixed', width=250), plot)
     return layout
 
 
@@ -130,8 +130,8 @@ def lorenz():
 def lorez_and_linked():
     return Row(lorenz(), *linked_brushing())
 
-#output_file('megaplot_1.html')
-#show(Column(bollinger(), slider(), lorez_and_linked()))
+output_file('megaplot_1.html')
+show(Column(bollinger(), slider(), lorez_and_linked()))
 
-output_file('megaplot_2.html')
-show(Column(bollinger(), slider(), linked_panning()))
+#output_file('megaplot_2.html')
+#show(Column(bollinger(), slider(), linked_panning()))

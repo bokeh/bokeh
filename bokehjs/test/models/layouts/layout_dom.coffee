@@ -1,10 +1,133 @@
 _ = require "underscore"
 {expect} = require "chai"
+sinon = require "sinon"
 utils = require "../../utils"
 
 {Strength, Variable}  = utils.require("core/layout/solver")
 
+{Document} = utils.require("document")
 LayoutDOM = utils.require("models/layouts/layout_dom").Model
+LayoutDOMView = utils.require("models/layouts/layout_dom").View
+
+dom_left = 12
+dom_top = 13
+width = 111
+height = 443
+
+describe "LayoutDOM.View", ->
+
+  describe "initialize", ->
+    afterEach ->
+      utils.unstub_solver()
+
+    beforeEach ->
+      utils.stub_solver()
+      @test_layout = new LayoutDOM()
+      @doc = new Document()
+      @test_layout.attach_document(@doc)
+
+    it "should set a class of 'bk-layout-fixed' is responsive-mode is fixed", ->
+      @test_layout.responsive = 'fixed'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed'
+
+    it "should not set a class of 'bk-layout-fixed' is responsive-mode is box", ->
+      @test_layout.responsive = 'box'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(layout_view.$el.attr('class')).to.be.undefined
+
+    it "should not set a class of 'bk-layout-fixed' if responsive-mode is width", ->
+      @test_layout.responsive = 'width'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(layout_view.$el.attr('class')).to.be.undefined
+
+    it "should set an id matching the model.id", ->
+      # This is used by document to find the model and its parents on resize events
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(layout_view.$el.attr('id')).to.equal "modelid_#{@test_layout.id}"
+
+    it.skip "should build the child views", ->
+      # needs a test
+      null
+
+    it.skip "should trigger a resize event", ->
+      # needs a test
+      null
+
+  describe "render", ->
+    afterEach ->
+      utils.unstub_solver()
+
+    beforeEach ->
+      solver_stubs = utils.stub_solver()
+      @solver_suggest = solver_stubs['suggest']
+      @test_layout = new LayoutDOM()
+      @doc = new Document()
+      @test_layout.attach_document(@doc)
+      @test_layout._dom_left = {_value: dom_left}
+      @test_layout._dom_top = {_value: dom_top}
+      @test_layout._width = {_value: width}
+      @test_layout._height = {_value: height}
+
+    it "should set the appropriate style on the element if responsive mode is 'box'", ->
+      @test_layout.responsive = 'box'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
+      expect(layout_view.$el.attr('style')).to.be.equal expected_style
+
+    it "should set the appropriate style on the element if responsive mode is 'fixed'", ->
+      @test_layout.responsive = 'fixed'
+      @test_layout.width = 88
+      @test_layout.height = 11
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expected_style = "width: 88px; height: 11px;"
+      expect(layout_view.$el.attr('style')).to.be.equal expected_style
+
+    it "should not call solver suggest_value if the responsive mode is 'box'", ->
+      @test_layout.responsive = 'box'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(@solver_suggest.called).is.false
+    
+    # TODO(bird) - responsive is wip
+    it.skip "should call suggest_value if the responsive mode is 'width'", ->
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(@solver_suggest.calledOnce).is.true
+
+    it "should call solver suggest_value twice if the responsive mode is 'fixed'", ->
+      @test_layout.responsive = 'fixed'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
+      expect(@solver_suggest.calledTwice).is.true
+    
+    it "should call suggest value with the model height and width if responsive_mode is fixed", ->
+      @test_layout.responsive = 'fixed'
+      @test_layout.width = 22
+      @test_layout.height = 33
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      expect(@solver_suggest.callCount).is.equal 0
+      layout_view.render()
+      expect(@solver_suggest.callCount).is.equal 2
+      expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._width, 22]
+      expect(@solver_suggest.args[1]).to.be.deep.equal [@test_layout._height, 33]
+
+    # TODO(bird) - responsive is wip
+    it.skip "should call suggest value with the elements scrollHeight if responsive_mode is width", ->
+      @solver_suggest.reset()
+      @test_box.responsive = 'width'
+      box_view = new @test_box.default_view({ model: @test_box })
+      box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
+      expect(@solver_suggest.callCount).is.equal 1
+      box_view.update_constraints()
+      expect(@solver_suggest.callCount).is.equal 2
+      expect(@solver_suggest.args[1]).to.be.deep.equal [@test_box._height, 222]
 
 
 describe "LayoutDOM.Model", ->
@@ -35,7 +158,7 @@ describe "LayoutDOM.Model", ->
     expect(l.get_constrained_variables).is.a 'function'
     expect(l.get_layoutable_children).is.a 'function'
 
-  it "should return default constrained_variables in all responsive modes", ->
+  it "should return default constrained_variables in width and box responsive modes", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
       'width': l._width
@@ -48,13 +171,24 @@ describe "LayoutDOM.Model", ->
       'whitespace-left' : l._whitespace_left
       'whitespace-right' : l._whitespace_right
     }
-    l.responsive = 'fixed'
-    constrained_variables = l.get_constrained_variables()
-    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
     l.responsive = 'width'
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
     l.responsive = 'box'
+    constrained_variables = l.get_constrained_variables()
+    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
+
+  it "should not return width and height constraints in fixed responsive mode", ->
+    l = new LayoutDOM()
+    expected_constrainted_variables = {
+      'origin-x': l._dom_left
+      'origin-y': l._dom_top
+      'whitespace-top' : l._whitespace_top
+      'whitespace-bottom' : l._whitespace_bottom
+      'whitespace-left' : l._whitespace_left
+      'whitespace-right' : l._whitespace_right
+    }
+    l.responsive = 'fixed'
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
@@ -72,8 +206,7 @@ describe "LayoutDOM.Model", ->
     ev = l.get_edit_variables()
     expect(ev.length).to.be.equal 0
 
-  # TODO(bird) Responsive is WIP
-  it.skip "should set edit_variable height and width if responsive mode is fixed", ->
+  it "should set edit_variable height and width if responsive mode is fixed", ->
     l = new LayoutDOM()
     l.responsive = 'fixed'
     ev = l.get_edit_variables()

@@ -38,6 +38,14 @@ class Plot extends LayoutDOM.Model
     @toolbar.toolbar_sticky = @toolbar_sticky
     @_plot_canvas.toolbar = @toolbar
 
+    # Set width & height to be the passed in plot_width and plot_height
+    # We may need to be more subtle about this - not sure why people use one 
+    # or the other.
+    if not @width?
+      @width = @plot_width
+    if not @height?
+      @height = @plot_height
+
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
 
@@ -52,7 +60,7 @@ class Plot extends LayoutDOM.Model
     return children
 
   get_edit_variables: () ->
-    edit_variables = []
+    edit_variables = super()
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
