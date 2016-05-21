@@ -36,6 +36,9 @@ class LayoutCanvas extends Model
     editables.push({edit_variable: @_height, strength: Strength.strong})
     return editables
 
+  get_constraints: () ->
+    []
+
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
 

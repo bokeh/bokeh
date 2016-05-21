@@ -465,11 +465,6 @@ class PlotCanvasView extends Renderer.View
 
     @canvas_view.set_dims([width, height], true)
 
-    #logger.debug("PlotCanvas _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
-    #logger.debug("PlotCanvas _top: #{@model._top._value}, _right: #{@model._right._value}, _bottom: #{@model._bottom._value}, _left: #{@model._left._value}")
-    #logger.debug("PlotCanvas _width: #{@model._width._value}, _height: #{@model._height._value}")
-    #logger.debug("PlotCanvas _width_minus_right: #{@model._width_minus_right._value}, _width_minus_left: #{@model._width_minus_left._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
-    #logger.debug("PlotCanvas _right_minus_left: #{@model._right_minus_left._value}, _bottom_minus_top: #{@model._bottom_minus_top._value}")
     @$el.css({
       position: 'absolute'
       left: @model._dom_left._value

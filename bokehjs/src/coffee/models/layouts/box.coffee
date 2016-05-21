@@ -41,8 +41,6 @@ class Box extends LayoutDOM.Model
 
   @internal {
     spacing:  [ p.Number, 6 ]
-    dom_left: [ p.Number, 0 ]
-    dom_top: [ p.Number, 0 ]
   }
 
   get_layoutable_children: () ->

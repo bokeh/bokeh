@@ -9,7 +9,7 @@ LayoutDOM = utils.require("models/layouts/layout_dom").Model
 
 describe "LayoutDOM.Model", ->
 
-  it "should have 6 variables", ->
+  it "should have default variables", ->
     l = new LayoutDOM()
     expect(l._top).to.be.an.instanceOf(Variable)
     expect(l._bottom).to.be.an.instanceOf(Variable)
@@ -17,64 +17,31 @@ describe "LayoutDOM.Model", ->
     expect(l._right).to.be.an.instanceOf(Variable)
     expect(l._width).to.be.an.instanceOf(Variable)
     expect(l._height).to.be.an.instanceOf(Variable)
+    expect(l._dom_top).to.be.an.instanceOf(Variable)
+    expect(l._dom_left).to.be.an.instanceOf(Variable)
+    expect(l._whitespace_left).to.be.an.instanceOf(Variable)
+    expect(l._whitespace_right).to.be.an.instanceOf(Variable)
+    expect(l._whitespace_top).to.be.an.instanceOf(Variable)
+    expect(l._whitespace_bottom).to.be.an.instanceOf(Variable)
 
-  it "should should return 6 constraints", ->
+  it "should return 8 constraints", ->
     l = new LayoutDOM()
-    expect(l.get_constraints().length).to.be.equal 6
+    expect(l.get_constraints().length).to.be.equal 8
 
-  it "should should have default dom_left and dom_top", ->
+  it "should have have layoutable methods", ->
     l = new LayoutDOM()
-    expect(l.dom_left).to.be.equal 0
-    expect(l.dom_top).to.be.equal 0
+    expect(l.get_constraints).is.a 'function'
+    expect(l.get_edit_variables).is.a 'function'
+    expect(l.get_constrained_variables).is.a 'function'
+    expect(l.get_layoutable_children).is.a 'function'
 
-  it "should return all constrained_variables if responsive_mode is width or box", ->
-    l = new LayoutDOM()
-    expected_constrainted_variables = {
-      'width': l._width
-      'height': l._height
-      # edges
-      'on-top-edge-align' : l._top
-      'on-bottom-edge-align' : l._height_minus_bottom
-      'on-left-edge-align' : l._left
-      'on-right-edge-align' : l._width_minus_right
-      # sizing
-      'box-equal-size-top' : l._top
-      'box-equal-size-bottom' : l._height_minus_bottom
-      'box-equal-size-left' : l._left
-      'box-equal-size-right' : l._width_minus_right
-      # align between cells
-      'box-cell-align-top' : l._top
-      'box-cell-align-bottom' : l._height_minus_bottom
-      'box-cell-align-left' : l._left
-      'box-cell-align-right' : l._width_minus_right
-      # whitespace
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
-    }
-    l.responsive = 'width'
-    constrained_variables = l.get_constrained_variables()
-    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
-    l.responsive = 'box'
-    constrained_variables = l.get_constrained_variables()
-    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
-
-  it "should not return box equal constrained_variables if responsive_mode is fixed", ->
+  it "should return default constrained_variables in all responsive modes", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
       'width': l._width
       'height': l._height
-      # edges
-      'on-top-edge-align' : l._top
-      'on-bottom-edge-align' : l._height_minus_bottom
-      'on-left-edge-align' : l._left
-      'on-right-edge-align' : l._width_minus_right
-      # align between cells
-      'box-cell-align-top' : l._top
-      'box-cell-align-bottom' : l._height_minus_bottom
-      'box-cell-align-left' : l._left
-      'box-cell-align-right' : l._width_minus_right
+      'origin-x': l._dom_left
+      'origin-y': l._dom_top
       # whitespace
       'whitespace-top' : l._whitespace_top
       'whitespace-bottom' : l._whitespace_bottom
@@ -84,8 +51,15 @@ describe "LayoutDOM.Model", ->
     l.responsive = 'fixed'
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
+    l.responsive = 'width'
+    constrained_variables = l.get_constrained_variables()
+    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
+    l.responsive = 'box'
+    constrained_variables = l.get_constrained_variables()
+    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
-  it "should set edit_variable height if responsive mode is width", ->
+  # TODO(bird) Responsive is WIP
+  it.skip "should set edit_variable height if responsive mode is width", ->
     l = new LayoutDOM()
     ev = l.get_edit_variables()
     expect(ev.length).to.be.equal 1
@@ -98,7 +72,8 @@ describe "LayoutDOM.Model", ->
     ev = l.get_edit_variables()
     expect(ev.length).to.be.equal 0
 
-  it "should set edit_variable height and width if responsive mode is fixed", ->
+  # TODO(bird) Responsive is WIP
+  it.skip "should set edit_variable height and width if responsive mode is fixed", ->
     l = new LayoutDOM()
     l.responsive = 'fixed'
     ev = l.get_edit_variables()

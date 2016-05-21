@@ -36,8 +36,8 @@ describe "Plot", ->
         dom_top = 13
         width = 80
         height = 100
-        @p.set('dom_left', dom_left)
-        @p.set('dom_top', dom_top)
+        @p._dom_left = {_value: dom_left}
+        @p._dom_top = {_value: dom_top}
         @p._width = {_value: width}
         @p._height = {_value: height}
 
@@ -62,3 +62,38 @@ describe "Plot", ->
       doc = new Document()
       @p.attach_document(doc)
       expect(@p.plot_canvas().document).to.be.equal doc
+
+  it "should return correct constrained_variables", ->
+    # Visual alignment is dominated by the plot_canvas so
+    # a number of the cosntraints come from there - whilst others
+    # come from the plot container.
+    plot_canvas = @p.plot_canvas()
+    expected_constrainted_variables = {
+      # Constraints from Plot
+      'width': @p._width
+      'height': @p._height
+      'origin-x': @p._dom_left
+      'origin-y': @p._dom_top
+      'whitespace-top' : @p._whitespace_top
+      'whitespace-bottom' : @p._whitespace_bottom
+      'whitespace-left' : @p._whitespace_left
+      'whitespace-right' : @p._whitespace_right
+      # Constraints from PlotCanvas
+      # edges
+      'on-edge-align-top' : plot_canvas._top
+      'on-edge-align-bottom' : plot_canvas._height_minus_bottom
+      'on-edge-align-left' : plot_canvas._left
+      'on-edge-align-right' : plot_canvas._width_minus_right
+      # sizing
+      'box-equal-size-top' : plot_canvas._top
+      'box-equal-size-bottom' : plot_canvas._height_minus_bottom
+      'box-equal-size-left' : plot_canvas._left
+      'box-equal-size-right' : plot_canvas._width_minus_right
+      # align between cells
+      'box-cell-align-top' : plot_canvas._top
+      'box-cell-align-bottom' : plot_canvas._height_minus_bottom
+      'box-cell-align-left' : plot_canvas._left
+      'box-cell-align-right' : plot_canvas._width_minus_right
+    }
+    constrained_variables = @p.get_constrained_variables()
+    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
