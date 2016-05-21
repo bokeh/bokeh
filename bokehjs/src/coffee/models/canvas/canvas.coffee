@@ -53,19 +53,22 @@ class CanvasView extends BokehView
     # only render the canvas when the canvas dimensions change unless force==true
     if not _.isEqual(@last_dims, [width, height]) or force
 
-      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
-
       logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
 
-      canvas_el = @$('canvas.bk-canvas')
-      canvas_el.attr('style', "width:#{width}px; height:#{height}px")
-      canvas_el.attr('width', width*ratio).attr('height', height*ratio)
-
-      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
-      @$el.attr("width", width).attr('height', height)
-
-      @$('div.bk-canvas-overlays').attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
-      @$('div.bk-canvas-events').attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      @$el.css({
+        width: width
+        height:height
+      })
+      
+      # Scale the canvas
+      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
+      canvas_el = @$('.bk-canvas')
+      canvas_el.css({
+        width: width
+        height: height
+      })
+      canvas_el.attr('width', width*ratio)
+      canvas_el.attr('height', height*ratio)
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)

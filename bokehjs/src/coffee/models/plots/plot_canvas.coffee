@@ -465,14 +465,14 @@ class PlotCanvasView extends Renderer.View
 
     @canvas_view.set_dims([width, height], true)
 
+    # This allows the plot canvas to be positioned around the toolbar
     @$el.css({
       position: 'absolute'
       left: @model._dom_left._value
       top: @model._dom_top._value
-      'width': @model._width._value
-      'height': @model._height._value
+      width: @model._width._value
+      height: @model._height._value
     })
-
 
   update_constraints: () ->
     s = @model.document.solver()
