@@ -174,10 +174,10 @@ def VBox(*args, **kwargs):
     return Column(*args, **kwargs)
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def VBoxForm(*args, **kwargs):
     warnings.warn(
         """
-        The new WidgetBox is responsive by default, it resizes based on the space available.
+        The new Column is responsive by default, it resizes based on the space available.
         """)
-    return WidgetBox(*args, **kwargs)
+    return Column(*args, **kwargs)

@@ -45,9 +45,6 @@ def test_HBox():
     check_children_prop(HBox)
 
 
-@pytest.mark.xfail(reason="""
-    The new WidgetColumn only accepts widget. This makes
-    it incompatible with VBoxForm. Need to figure this out.""")
 def test_VBoxForm():
     check_props(VBoxForm())
     check_children_prop(VBoxForm)
