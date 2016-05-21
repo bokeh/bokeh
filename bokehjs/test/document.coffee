@@ -72,7 +72,24 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 
-class ModelWithConstraint extends Model
+class LayoutableModel extends Model
+  type: 'LayoutableModel'
+
+  get_constraints: () ->
+    []
+
+  get_edit_variables: () ->
+    []
+
+  get_constrained_variables: () ->
+    {}
+
+  @internal {
+    layoutable: [ p.Bool, true ]
+  }
+Models.register('LayoutableModel', LayoutableModel)
+
+class ModelWithConstraint extends LayoutableModel
   type: 'ModelWithConstraint'
 
   constructor: (attrs, options) ->
@@ -87,7 +104,7 @@ class ModelWithConstraint extends Model
 Models.register('ModelWithConstraint', ModelWithConstraint)
 
 
-class ModelWithEditVariable extends Model
+class ModelWithEditVariable extends LayoutableModel
   type: 'ModelWithEditVariable'
 
   constructor: (attrs, options) ->
@@ -101,7 +118,7 @@ class ModelWithEditVariable extends Model
 
 Models.register('ModelWithEditVariable', ModelWithEditVariable)
 
-class ModelWithConstrainedVariables extends Model
+class ModelWithConstrainedVariables extends LayoutableModel
   type: 'ModelWithConstrainedVariables'
 
   constructor: (attrs, options) ->
@@ -121,7 +138,7 @@ class ModelWithConstrainedVariables extends Model
 
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
 
-class ModelWithConstrainedWidthVariable extends Model
+class ModelWithConstrainedWidthVariable extends LayoutableModel
   type: 'ModelWithConstrainedWidthVariable'
 
   constructor: (attrs, options) ->
@@ -140,7 +157,7 @@ class ModelWithConstrainedWidthVariable extends Model
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
 
 
-class ModelWithConstrainedHeightVariable extends Model
+class ModelWithConstrainedHeightVariable extends LayoutableModel
   type: 'ModelWithConstrainedHeightVariable'
 
   constructor: (attrs, options) ->
@@ -158,7 +175,7 @@ class ModelWithConstrainedHeightVariable extends Model
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
 
-class ModelWithEditVariableAndConstraint extends Model
+class ModelWithEditVariableAndConstraint extends LayoutableModel
   type: 'ModelWithEditVariableAndConstraint'
 
   constructor: (attrs, options) ->
@@ -819,7 +836,8 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 1
 
-  it "adds no constraints on add_root if model has get_constrained_variables height and responsive is width", ->
+  #TODO(bird) - Responsive is changing - need to full tests for it once it's nailed down
+  it.skip "adds no constraints on add_root if model has get_constrained_variables height and responsive is width", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
@@ -858,7 +876,8 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints 
 
-  it "adds one constraints on add_root if responsive mode is width", ->
+  #TODO(bird) - Responsive is changing - need to full tests for it once it's nailed down
+  it.skip "adds one constraints on add_root if responsive mode is width", ->
     # Even if models has both width & height constrained variables to offer
 
     d = new Document()
@@ -908,10 +927,13 @@ describe "Document", ->
     d.remove_root(root_model)
     expect(root_model._is_root).is.false
 
-  it "resize suggests value for width and height of document", ->
+  #TODO(bird) - Resize is changing - need to full tests for it once it's nailed down
+  it.skip "resize suggests value for width and height of document", ->
     d = new Document()
     s = d.solver()
     spy = sinon.spy(s, 'suggest_value')
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
     d.resize()
     expect(spy.calledTwice).is.true
     expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
@@ -919,14 +941,18 @@ describe "Document", ->
 
   it "resize calls update_variables on solver with false", ->
     d = new Document()
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
     s = d.solver()
     spy = sinon.spy(s, 'update_variables')
     d.resize()
-    expect(spy.calledOnce).is.true
-    expect(spy.calledWith(false)).is.true
+    expect(spy.calledOnce, 'update_variables was not called').is.true
+    expect(spy.calledWith(false), 'update_variables was not called with false').is.true
 
   it "resize triggers resize event on solver", ->
     d = new Document()
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
     s = d.solver()
     spy = sinon.spy(s, 'trigger')
     d.resize()

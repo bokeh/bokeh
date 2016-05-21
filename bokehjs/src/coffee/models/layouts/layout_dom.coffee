@@ -49,6 +49,8 @@ class LayoutDOMView extends BokehView
       height: @model._height._value
     })
 
+  update_constraints: () ->
+    null
 
 class LayoutDOM extends Model
   type: "LayoutDOM"
@@ -68,7 +70,7 @@ class LayoutDOM extends Model
     # This is the distance from the side of the right and bottom,
     @_width_minus_right = new Variable("_width_minus_right #{@id}")
     @_height_minus_bottom = new Variable("_height_minus_bottom #{@id}")
-    # Add our whitespace variables
+    # Whitespace variables
     @_whitespace_top = new Variable()
     @_whitespace_bottom = new Variable()
     @_whitespace_left = new Variable()
@@ -94,6 +96,9 @@ class LayoutDOM extends Model
     return constraints
 
   get_layoutable_children: () ->
+    []
+
+  get_edit_variables: () ->
     []
 
   get_constrained_variables: () ->
@@ -136,7 +141,12 @@ class LayoutDOM extends Model
       height:   [ p.Number, null ]
       width:    [ p.Number, null ]
       disabled: [ p.Bool, false ]
+      responsive: [ p.Responsive, 'box']
     }
+
+  @internal {
+      layoutable: [ p.Bool, true ]
+  }
 
 module.exports =
   Model: LayoutDOM

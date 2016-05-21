@@ -146,32 +146,41 @@ class Document
   roots : () ->
     @_roots
 
-  add_root : (model) ->
-    console.log("Adding root: #{model}")
-    if model in @_roots
-      return
-    @_roots.push(model)
-    model.attach_document(@)
+  _add_layoutable: (model) ->
+    if model.layoutable isnt true
+      throw new Error("Cannot add non-layoutable - #{model}")
 
     model._is_root = true
 
     editables = model.get_edit_variables()
     constraints = model.get_constraints()
+    vars = model.get_constrained_variables()
 
     for {edit_variable, strength} in editables
       @_solver.add_edit_variable(edit_variable, strength)
+
     for constraint in constraints
       @_solver.add_constraint(constraint)
 
-    @_trigger_on_change(new RootAddedEvent(@, model))
-
-    root_vars = model.get_constrained_variables()
-    if not root_vars.width? or not root_vars.height?
-      throw new Error("Attempted to add an un-constrained model to document roots: #{model}")
-    @_solver.add_constraint(EQ(root_vars.width, @_doc_width))
-    @_solver.add_constraint(EQ(root_vars.height, @_doc_height))
+    if vars.width?
+      @_solver.add_constraint(EQ(vars.width, @_doc_width))
+    if vars.height?
+      @_solver.add_constraint(EQ(vars.height, @_doc_height))
 
     @_solver.update_variables()
+
+  add_root : (model) ->
+    logger.debug("Adding root: #{model}")
+    if model in @_roots
+      return
+    @_roots.push(model)
+    model.attach_document(@)
+
+    if model.layoutable is true
+      @_add_layoutable(model)
+
+    @_trigger_on_change(new RootAddedEvent(@, model))
+
 
   remove_root : (model) ->
     i = @_roots.indexOf(model)
