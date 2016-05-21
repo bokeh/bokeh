@@ -246,46 +246,105 @@ class PlotCanvasView extends Renderer.View
   reset_selection: () ->
     @update_selection(null)
 
-  _update_single_range: (rng, range_info, is_panning) ->
-    # Is this a reversed range?
-    reversed = if rng.get('start') > rng.get('end') then true else false
+  _update_ranges_together: (range_info_iter) ->
+    # Get weight needed to scale the diff of the range to honor interval limits
+    weight = 1.0
+    for [rng, range_info] in range_info_iter
+      weight = Math.min(weight, @_get_weight_to_constrain_interval(rng, range_info))
+    # Apply shared weight to all ranges
+    if weight < 1
+      for [rng, range_info] in range_info_iter
+        range_info['start'] = weight * range_info['start'] + (1-weight) * rng.get('start')
+        range_info['end'] = weight * range_info['end'] + (1-weight) * rng.get('end')
 
-    # Prevent range from going outside limits
-    # Also ensure that range keeps the same delta when panning
+  _update_ranges_individually: (range_info_iter, is_panning, is_scrolling) ->
+    hit_bound = false
+    for [rng, range_info] in range_info_iter
+      # Is this a reversed range?
+      reversed = if rng.get('start') > rng.get('end') then true else false
 
-    if rng.get('bounds')?
-      min = rng.get('bounds')[0]
-      max = rng.get('bounds')[1]
+      # Limit range interval first. Note that for scroll events,
+      # the interval has already been limited for all ranges simultaneously
+      if not is_scrolling
+        weight = @_get_weight_to_constrain_interval(rng, range_info)
+        if weight < 1
+            range_info['start'] = weight * range_info['start'] + (1-weight) * rng.get('start')
+            range_info['end'] = weight * range_info['end'] + (1-weight) * rng.get('end')
 
-      if reversed
-        if min?
-          if min >= range_info['end']
-            range_info['end'] = min
-            if is_panning?
-              range_info['start'] = rng.get('start')
-        if max?
-          if max <= range_info['start']
-            range_info['start'] = max
-            if is_panning?
-              range_info['end'] = rng.get('end')
-      else
-        if min?
-          if min >= range_info['start']
-            range_info['start'] = min
-            if is_panning?
-              range_info['end'] = rng.get('end')
-        if max?
-          if max <= range_info['end']
-            range_info['end'] = max
-            if is_panning?
-              range_info['start'] = rng.get('start')
+      # Prevent range from going outside limits
+      # Also ensure that range keeps the same delta when panning/scrolling
+      if rng.get('bounds')?
+        min = rng.get('bounds')[0]
+        max = rng.get('bounds')[1]
+        new_interval = Math.abs(range_info['end'] - range_info['start'])
 
-    if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
+        if reversed
+          if min?
+            if min >= range_info['end']
+              hit_bound = true
+              range_info['end'] = min
+              if is_panning? or is_scrolling?
+                range_info['start'] = min + new_interval
+          if max?
+            if max <= range_info['start']
+              hit_bound = true
+              range_info['start'] = max
+              if is_panning? or is_scrolling?
+                range_info['end'] = max - new_interval
+        else
+          if min?
+            if min >= range_info['start']
+              hit_bound = true
+              range_info['start'] = min
+              if is_panning? or is_scrolling?
+                range_info['end'] = min + new_interval
+          if max?
+            if max <= range_info['end']
+              hit_bound = true
+              range_info['end'] = max
+              if is_panning? or is_scrolling?
+                range_info['start'] = max - new_interval
+
+    # Cancel the event when hitting a bound while scrolling. This ensures that
+    # the scroll-zoom tool maintains its focus position. Disabling the next
+    # two lines would result in a more "gliding" behavior, allowing one to
+    # zoom out more smoothly, at the cost of losing the focus position.
+    if is_scrolling and hit_bound
+      return
+
+    for [rng, range_info] in range_info_iter
       rng.have_updated_interactively = true
-      rng.set(range_info)
-      rng.get('callback')?.execute(rng)
+      if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
+          rng.set(range_info)
+          rng.get('callback')?.execute(rng)
 
-  update_range: (range_info, is_panning) ->
+  _get_weight_to_constrain_interval: (rng, range_info) ->
+      # Get the weight by which a range-update can be applied
+      # to still honor the interval limits (including the implicit
+      # max interval imposed by the bounds)
+      min_interval = rng.get('min_interval')
+      max_interval = rng.get('max_interval')
+      weight = 1.0
+
+      # Express bounds as a max_interval. By doing this, the application of
+      # bounds and interval limits can be applied independent from each-other.
+      if rng.get('bounds')?
+        [min, max] = rng.get('bounds')
+        if min? and max?
+          max_interval2 = Math.abs(max - min)
+          max_interval = if max_interval? then Math.min(max_interval, max_interval2) else max_interval2
+
+      if min_interval? || max_interval?
+        old_interval = Math.abs(rng.get('end') - rng.get('start'))
+        new_interval = Math.abs(range_info['end'] - range_info['start'])
+        if min_interval > 0 and new_interval < min_interval
+            weight = (old_interval - min_interval) / (old_interval - new_interval)
+        if max_interval > 0 and new_interval > max_interval
+            weight = (max_interval - old_interval) / (new_interval - old_interval)
+        weight = Math.max(0.0, Math.min(1.0, weight))
+      return weight
+
+  update_range: (range_info, is_panning, is_scrolling) ->
     @pause
     if not range_info?
       for name, rng of @frame.get('x_ranges')
@@ -294,10 +353,14 @@ class PlotCanvasView extends Renderer.View
         rng.reset()
       @update_dataranges()
     else
+      range_info_iter = []
       for name, rng of @frame.get('x_ranges')
-        @_update_single_range(rng, range_info.xrs[name], is_panning)
+        range_info_iter.push([rng, range_info.xrs[name]])
       for name, rng of @frame.get('y_ranges')
-        @_update_single_range(rng, range_info.yrs[name], is_panning)
+        range_info_iter.push([rng, range_info.yrs[name]])
+      if is_scrolling
+        @_update_ranges_together(range_info_iter)  # apply interval bounds while keeping aspect
+      @_update_ranges_individually(range_info_iter, is_panning, is_scrolling)
     @unpause()
 
   reset_range: () ->

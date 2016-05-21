@@ -1561,6 +1561,36 @@ class Datetime(PropertyDescriptor):
         return value
         # Handled by serialization in protocol.py for now
 
+class TimeDelta(PropertyDescriptor):
+    """ TimeDelta type property.
+
+    """
+
+    def __init__(self, default=datetime.timedelta(), help=None):
+        super(TimeDelta, self).__init__(default=default, help=help)
+
+    def validate(self, value):
+        super(TimeDelta, self).validate(value)
+
+        timedelta_types = (datetime.timedelta,)
+        try:
+            import numpy as np
+            timedelta_types += (np.timedelta64,)
+        except ImportError:
+            pass
+
+        if (isinstance(value, timedelta_types)):
+            return
+
+        if pd and isinstance(value, (pd.Timedelta)):
+            return
+
+        raise ValueError("Expected a timedelta instance, got %r" % value)
+
+    def transform(self, value):
+        value = super(TimeDelta, self).transform(value)
+        return value
+        # Handled by serialization in protocol.py for now
 
 class RelativeDelta(Dict):
     """ RelativeDelta type property for time deltas.

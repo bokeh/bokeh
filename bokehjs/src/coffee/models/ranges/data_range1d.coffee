@@ -17,6 +17,8 @@ class DataRange1d extends DataRange.Model
       follow_interval: [ p.Number        ]
       default_span:    [ p.Number, 2     ]
       bounds:          [ p.Any           ] # TODO (bev)
+      min_interval: [ p.Any ]
+      max_interval: [ p.Any ]
     }
 
   initialize: (attrs, options) ->
