@@ -95,39 +95,38 @@ class Document
 
   resize: () ->
     
-    #TODO Picking off first root - that can't be right (but better than 
-    # using window)
-    #
-    # We can probably store the edit_variables for each of the root (that way
-    # we can test if they're even layoutable), then we can loop through each
-    # and then do the suggest for each item. This should make embedding work.
-    root = @_roots[0]
-    root_div = $("#modelid_#{root.id}")
-    parent = root_div.parent()
+    for root in @_roots
+      if root.layoutable isnt true
+        continue
 
-    # Get rid of any styling from the previous resize, so can measure again.
-    parent.removeAttr('style')
+      vars = root.get_constrained_variables()
+      if not vars.width? and not vars.height?
+        continue
 
-    # Start working upwards until you find a height
-    target_height = 0
-    measuring = root_div
-    while target_height == 0
-      measuring = measuring.parent()
-      target_height = measuring.height()
+      # Find the html element
+      root_div = $("#modelid_#{root.id}")
 
-    width = measuring.width()
-    height = target_height
+      # Start working upwards until you find a height to pin against - usually .bk-root
+      target_height = 0
+      measuring = root_div
+      while target_height == 0
+        measuring = measuring.parent()
+        target_height = measuring.height()
 
-    logger.debug("resize: Document -- #{width} x #{height}")
+      # Once we've found that grab the width of this element
+      width = measuring.width()
+      height = target_height
 
-    @_solver.suggest_value(@_doc_width, width)
-    @_solver.suggest_value(@_doc_height, height)
+      # Set the constraints on root
+      if vars.width?
+        logger.debug("Suggest width on Document -- #{width}")
+        @_solver.suggest_value(@_doc_width, width)
+      if vars.height?
+        logger.debug("Suggest height on Document -- #{height}")
+        @_solver.suggest_value(@_doc_height, height)
 
+    # Finally update everything only once.
     @_solver.update_variables(false)
-    parent.css({
-       width: width
-       height: height
-    })
     @_solver.trigger('resize')
 
   clear : () ->

@@ -927,7 +927,8 @@ describe "Document", ->
     d.remove_root(root_model)
     expect(root_model._is_root).is.false
 
-  #TODO(bird) - Resize is changing - need to full tests for it once it's nailed down
+  # TODO(bird) - We're not using window - so need to find a new 
+  # way to test the size was set correctly.
   it.skip "resize suggests value for width and height of document", ->
     d = new Document()
     s = d.solver()
@@ -938,6 +939,42 @@ describe "Document", ->
     expect(spy.calledTwice).is.true
     expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
     expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
+
+  it "resize calls suggest_value once for one root with width", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedWidthVariable())
+    d.resize()
+    expect(spy.calledOnce).is.true
+
+  it "resize calls suggest_value once for one root with height", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedHeightVariable())
+    d.resize()
+    expect(spy.calledOnce).is.true
+
+  it "resize calls suggest_value twice for one root with width & height", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedVariables())
+    d.resize()
+    expect(spy.calledTwice).is.true
+
+  it "resize calls suggest_value four times for two roots with width & height", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedVariables())
+    d.add_root(new ModelWithConstrainedVariables())
+    d.resize()
+    expect(spy.callCount).to.be.equal 4
+
+  it "resize does not call suggest value if root is not a layoutable", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new SomeModel())
+    d.resize()
+    expect(spy.called).is.false
 
   it "resize calls update_variables on solver with false", ->
     d = new Document()
