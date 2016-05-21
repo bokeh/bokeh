@@ -93,35 +93,48 @@ class Box extends LayoutDOM.Model
       @_test_layoutable(child)
 
       vars = child.get_constrained_variables()
+      var_keys = _.keys(vars)
 
       # Make total widget sizes fill the orthogonal direction
+      # TODO(bird) Can't we make this shorter by using span which has already picked a 
+      # dominant direction (we'd just also need to set a doc_span)
       rect = @_child_rect(vars)
       if @_horizontal
-        constraints.push(EQ(rect.height, [ -1, @_height ]))
+        if @_has_var('height', var_keys)
+          constraints.push(EQ(rect.height, [ -1, @_height ]))
       else
-        constraints.push(EQ(rect.width, [ -1, @_width ]))
+        if @_has_var('width', var_keys)
+          constraints.push(EQ(rect.width, [ -1, @_width ]))
 
       # Add equal-size constraint
       # - A child's "interesting area" (like the plot area) is the same size as the previous child 
       #   (a child can opt out of this by not returning the box-equal-size variables)
       if @_horizontal
-        if 'box-equal-size-left' of vars
+        if @_has_var(['box-equal-size-left', 'box-equal-size-right', 'width'], var_keys)
           constraints.push(EQ([-1, vars['box-equal-size-left']], [-1, vars['box-equal-size-right']], vars['width'], @_child_equal_size_width))
       else
-        if 'box-equal-size-top' of vars
+        if @_has_var(['box-equal-size-top', 'box-equal-size-bottom', 'height'], var_keys)
           constraints.push(EQ([-1, vars['box-equal-size-top']], [-1, vars['box-equal-size-bottom']], vars['height'], @_child_equal_size_height))
 
       # Pull child constraints up recursively
       constraints = constraints.concat(child.get_constraints())
 
-    # TODO - This is the second time we loop through children
-    # Can we incorporate with above.
+    # TODO(bird) - This is the second time we loop through children
     last = @_info(children[0].get_constrained_variables())
     constraints.push(EQ(last.span.start, 0))
     for i in [1...children.length]
       next = @_info(children[i].get_constrained_variables())
+
       # Each child's start equals the previous child's end
-      constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
+      # TODO(bird) - Is there a way to clean this up by linking up info from span about whether
+      # we need width or height mode.
+      if @_horizontal
+        if @_has_var('height', var_keys)
+          constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
+      else
+        if @_has_var('width', var_keys)
+          constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
+
       # The whitespace at end of one child + start of next must equal the box spacing. 
       # This must be a weak constraint because it can conflict with aligning the 
       # alignable edges in each child. Alignment is generally more important visually than spacing.
@@ -133,10 +146,11 @@ class Box extends LayoutDOM.Model
 
     # Child's side has to stick to the end of the box
     if @_horizontal
-      total = @_width
+      if @_has_var('width', var_keys)
+        constraints.push(EQ(last.span.start, last.span.size, [-1, @_width]))
     else
-      total = @_height
-    constraints.push(EQ(last.span.start, last.span.size, [-1, total]))
+      if @_has_var('height', var_keys)
+        constraints.push(EQ(last.span.start, last.span.size, [-1, @_height]))
 
     # align outermost edges in both dimensions
     constraints = constraints.concat(@_align_outer_edges_constraints(true)) # horizontal=true
@@ -159,12 +173,19 @@ class Box extends LayoutDOM.Model
 
     return constraints
 
+  _has_var: (look_up, var_keys) ->
+    # Convenience wrapper on an underscore method to
+    # keep code in get_constraints cleaner
+    if typeof look_up is 'string'
+      look_up_list = [look_up]
+    else
+      look_up_list = look_up
+    return _.every(look_up_list, (x) -> x in var_keys)
+
   _test_layoutable: (child) ->
     required_constrained_variables = [
       'origin-x',
       'origin-y',
-      'width',
-      'height',
       'whitespace-top',
       'whitespace-right',
       'whitespace-bottom',
