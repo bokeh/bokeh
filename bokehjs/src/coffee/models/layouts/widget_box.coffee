@@ -14,6 +14,21 @@ LayoutDOM = require "../layouts/layout_dom"
 class WidgetBoxView extends LayoutDOM.View
   className: "bk-widget-box"
 
+  render: () ->
+    super()
+    if @model.responsive == 'width'
+      @$el.css({
+        # The -10 is a hack because the widget box has padding on the css.
+        # TODO(bird) Make this configurable & less flaky
+        width: @model._width._value - 10
+        height: @model._height._value
+      })
+  get_width_mode_height: () ->
+    height = 0
+    for own key, child_view of @child_views
+      height += child_view.el.scrollHeight
+    return height
+
 
 class WidgetBox extends LayoutDOM.Model
   type: 'WidgetBox'

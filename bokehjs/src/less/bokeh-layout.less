@@ -1,11 +1,14 @@
 // Styles related to laying out bokeh.
 
-.bk-layout-fixed {
+.bk-layout-fixed, .bk-layout-width {
   position: relative;
   &.bk-grid-row > div {
     display: inline-block;
     float: left;
   }
+}
+.bk-grid-row.bk-layout-width {
+  clear: both;
 }
 .bk-toolbar-wrapper {
   position: relative;

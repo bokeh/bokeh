@@ -16,9 +16,7 @@ class LayoutDOMView extends BokehView
     super(options)
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
-    # Add a class based on responsive type
-    if @model.responsive is 'fixed'
-      @$el.addClass("bk-layout-fixed")
+    @$el.addClass("bk-layout-#{@model.responsive}")
 
     children = @model.get_layoutable_children()
     @child_views = {}
@@ -45,8 +43,11 @@ class LayoutDOMView extends BokehView
     #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
 
+    # LayoutDOM does not have a generic width implementation
+
+    s = @model.document.solver()
+
     if @model.responsive is 'fixed'
-      s = @model.document.solver()
       s.suggest_value(@model._width, @model.width)
       s.suggest_value(@model._height, @model.height)
       s.update_variables()
@@ -55,7 +56,17 @@ class LayoutDOMView extends BokehView
         height: @model.height
       })
 
-    else
+    if @model.responsive is 'width'
+      height = @get_width_mode_height()
+
+      s.suggest_value(@model._height, height)
+      s.update_variables()
+      @$el.css({
+        width: @model._width._value
+        height: @model._height._value
+      })
+
+    if @model.responsive is 'box'
       @$el.css({
         position: 'absolute'
         left: @model._dom_left._value
@@ -64,6 +75,12 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
+  get_width_mode_height: () ->
+    # Subclasses should implement this to explain
+    # what their height should be in responsive mode.
+    return null
+
+    
 
 class LayoutDOM extends Model
   type: "LayoutDOM"
@@ -116,6 +133,8 @@ class LayoutDOM extends Model
     if @responsive == 'fixed'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
+    if @responsive == 'width'
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
     return edit_variables
 
   get_constrained_variables: () ->
@@ -152,10 +171,14 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
-    if @responsive != 'fixed'
+    if @responsive == 'box'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
         'height': @_height
+      })
+    if @responsive == 'width'
+      constrained_variables = _.extend(constrained_variables, {
+        'width': @_width
       })
     return constrained_variables
 

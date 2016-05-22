@@ -836,20 +836,6 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 1
 
-  #TODO(bird) - Responsive is changing - need to full tests for it once it's nailed down
-  it.skip "adds no constraints on add_root if model has get_constrained_variables height and responsive is width", ->
-    d = new Document()
-    s = d.solver()
-    expect(d.roots().length).to.equal 0
-
-    before_constraints = s.num_constraints()
-
-    expect(s.num_edit_variables()).to.equal 2
-    d.add_root(new ModelWithConstrainedHeightVariable())
-
-    expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints
-
   it "adds one constraints on add_root if model has get_constrained_variables height and responsive is box", ->
     d = new Document()
     s = d.solver()
@@ -875,22 +861,6 @@ describe "Document", ->
 
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints 
-
-  #TODO(bird) - Responsive is changing - need to full tests for it once it's nailed down
-  it.skip "adds one constraints on add_root if responsive mode is width", ->
-    # Even if models has both width & height constrained variables to offer
-
-    d = new Document()
-    s = d.solver()
-    expect(d.roots().length).to.equal 0
-
-    before_constraints = s.num_constraints()
-
-    expect(s.num_edit_variables()).to.equal 2
-    d.add_root(new ModelWithConstrainedVariables())
-
-    expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints + 1
 
   it "adds two constraints on add_root if model has get_constrained_variables width & height and responsive is 'box'", ->
     d = new Document()

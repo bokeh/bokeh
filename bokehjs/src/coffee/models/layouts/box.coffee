@@ -9,6 +9,15 @@ LayoutDOM = require "./layout_dom"
 class BoxView extends LayoutDOM.View
   className: "bk-grid"
 
+  get_width_mode_height: () ->
+    children = @model.get_layoutable_children()
+    if @model._horizontal
+      height = _.max(children, ((child) -> child._height._value))
+    else
+      child_heights = _.map(children, ((child) -> child._height._value))
+      height = _.reduce(child_heights, ((a, b) -> a + b))
+    return height
+
 
 class Box extends LayoutDOM.Model
   default_view: BoxView
@@ -59,24 +68,19 @@ class Box extends LayoutDOM.Model
     return edit_variables
 
   get_constrained_variables: () ->
-    {
-      'width' : @_width
-      'height' : @_height
+    constrained_variables = super()
+    constrained_variables = _.extend(constrained_variables, {
       'box-equal-size-top' : @_box_equal_size_top
       'box-equal-size-bottom' : @_box_equal_size_bottom
       'box-equal-size-left' : @_box_equal_size_left
       'box-equal-size-right' : @_box_equal_size_right
+
       'box-cell-align-top' : @_box_cell_align_top
       'box-cell-align-bottom' : @_box_cell_align_bottom
       'box-cell-align-left' : @_box_cell_align_left
       'box-cell-align-right' : @_box_cell_align_right
-      'whitespace-top' : @_whitespace_top
-      'whitespace-bottom' : @_whitespace_bottom
-      'whitespace-left' : @_whitespace_left
-      'whitespace-right' : @_whitespace_right
-      'origin-x': @_dom_left
-      'origin-y': @_dom_top
-    }
+    })
+    return constrained_variables
 
   get_constraints: () ->
     # Note we don't got and get constraints from _layout_dom parent.

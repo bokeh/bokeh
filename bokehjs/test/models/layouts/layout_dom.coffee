@@ -29,25 +29,21 @@ describe "LayoutDOM.View", ->
     it "should set a class of 'bk-layout-fixed' is responsive-mode is fixed", ->
       @test_layout.responsive = 'fixed'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      layout_view.render()
       expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed'
 
-    it "should not set a class of 'bk-layout-fixed' is responsive-mode is box", ->
+    it "should set a class of 'bk-layout-box' is responsive-mode is box", ->
       @test_layout.responsive = 'box'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      layout_view.render()
-      expect(layout_view.$el.attr('class')).to.be.undefined
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-box'
 
-    it "should not set a class of 'bk-layout-fixed' if responsive-mode is width", ->
+    it "should set a class of 'bk-layout-width' if responsive-mode is width", ->
       @test_layout.responsive = 'width'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      layout_view.render()
-      expect(layout_view.$el.attr('class')).to.be.undefined
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-width'
 
     it "should set an id matching the model.id", ->
       # This is used by document to find the model and its parents on resize events
       layout_view = new LayoutDOMView({ model: @test_layout })
-      layout_view.render()
       expect(layout_view.$el.attr('id')).to.equal "modelid_#{@test_layout.id}"
 
     it.skip "should build the child views", ->
@@ -95,39 +91,31 @@ describe "LayoutDOM.View", ->
       layout_view.render()
       expect(@solver_suggest.called).is.false
     
-    # TODO(bird) - responsive is wip
-    it.skip "should call suggest_value if the responsive mode is 'width'", ->
+    it "should call get_width_mode_height if responsive_mode is 'width'", ->
+      @test_layout.responsive = 'width'
       layout_view = new LayoutDOMView({ model: @test_layout })
+      spy = sinon.spy(layout_view, 'get_width_mode_height')
+      expect(spy.called).is.false
       layout_view.render()
-      expect(@solver_suggest.calledOnce).is.true
+      expect(spy.calledOnce).is.true
 
-    it "should call solver suggest_value twice if the responsive mode is 'fixed'", ->
-      @test_layout.responsive = 'fixed'
-      layout_view = new LayoutDOMView({ model: @test_layout })
-      layout_view.render()
-      expect(@solver_suggest.calledTwice).is.true
-    
     it "should call suggest value with the model height and width if responsive_mode is fixed", ->
       @test_layout.responsive = 'fixed'
       @test_layout.width = 22
       @test_layout.height = 33
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(@solver_suggest.callCount).is.equal 0
       layout_view.render()
       expect(@solver_suggest.callCount).is.equal 2
       expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._width, 22]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@test_layout._height, 33]
 
-    # TODO(bird) - responsive is wip
-    it.skip "should call suggest value with the elements scrollHeight if responsive_mode is width", ->
-      @solver_suggest.reset()
-      @test_box.responsive = 'width'
-      box_view = new @test_box.default_view({ model: @test_box })
-      box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
+    it "should call suggest value with the value from get_width_mode_height if responsive_mode is width", ->
+      @test_layout.responsive = 'width'
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      sinon.stub(layout_view, 'get_width_mode_height').returns(89)
+      layout_view.render()
       expect(@solver_suggest.callCount).is.equal 1
-      box_view.update_constraints()
-      expect(@solver_suggest.callCount).is.equal 2
-      expect(@solver_suggest.args[1]).to.be.deep.equal [@test_box._height, 222]
+      expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._height, 89]
 
 
 describe "LayoutDOM.Model", ->
@@ -158,7 +146,7 @@ describe "LayoutDOM.Model", ->
     expect(l.get_constrained_variables).is.a 'function'
     expect(l.get_layoutable_children).is.a 'function'
 
-  it "should return default constrained_variables in width and box responsive modes", ->
+  it "should return all default constrained_variables in box responsive modes", ->
     l = new LayoutDOM()
     expected_constrainted_variables = {
       'width': l._width
@@ -171,9 +159,6 @@ describe "LayoutDOM.Model", ->
       'whitespace-left' : l._whitespace_left
       'whitespace-right' : l._whitespace_right
     }
-    l.responsive = 'width'
-    constrained_variables = l.get_constrained_variables()
-    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
     l.responsive = 'box'
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
@@ -192,9 +177,25 @@ describe "LayoutDOM.Model", ->
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
-  # TODO(bird) Responsive is WIP
-  it.skip "should set edit_variable height if responsive mode is width", ->
+  it "should not return height constraint in width responsive modes", ->
     l = new LayoutDOM()
+    expected_constrainted_variables = {
+      'width': l._width
+      'origin-x': l._dom_left
+      'origin-y': l._dom_top
+      # whitespace
+      'whitespace-top' : l._whitespace_top
+      'whitespace-bottom' : l._whitespace_bottom
+      'whitespace-left' : l._whitespace_left
+      'whitespace-right' : l._whitespace_right
+    }
+    l.responsive = 'width'
+    constrained_variables = l.get_constrained_variables()
+    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
+
+  it "should set edit_variable height if responsive mode is width", ->
+    l = new LayoutDOM()
+    l.responsive = 'width'
     ev = l.get_edit_variables()
     expect(ev.length).to.be.equal 1
     expect(ev[0].edit_variable).to.be.equal l._height

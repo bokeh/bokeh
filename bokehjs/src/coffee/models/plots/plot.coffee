@@ -14,6 +14,12 @@ PlotCanvas = require("./plot_canvas").Model
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
 
+  get_width_mode_height: () ->
+    width = @model._width._value
+    user_width = @model.width
+    user_height = @model.height
+    new_height = width / (user_width/user_height)
+    return new_height
 
 class Plot extends LayoutDOM.Model
   type: 'Plot'

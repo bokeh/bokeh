@@ -29,23 +29,29 @@ describe "Plot", ->
       utils.stub_solver()
       @p.attach_document(new Document())
 
-    describe "render", ->
+    it "render should set the appropriate positions and paddings on the element", ->
+      dom_left = 12
+      dom_top = 13
+      width = 80
+      height = 100
+      @p._dom_left = {_value: dom_left}
+      @p._dom_top = {_value: dom_top}
+      @p._width = {_value: width}
+      @p._height = {_value: height}
 
-      it "should set the appropriate positions and paddings on the element", ->
-        dom_left = 12
-        dom_top = 13
-        width = 80
-        height = 100
-        @p._dom_left = {_value: dom_left}
-        @p._dom_top = {_value: dom_top}
-        @p._width = {_value: width}
-        @p._height = {_value: height}
+      plot_view = new @p.default_view({ model: @p })
+      plot_view.render()
+      # Note we do not set margin & padding on Plot
+      expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
+      expect(plot_view.$el.attr('style')).to.be.equal expected_style
 
-        plot_view = new @p.default_view({ model: @p })
-        plot_view.render()
-        # Note we do not set margin & padding on Plot
-        expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-        expect(plot_view.$el.attr('style')).to.be.equal expected_style
+    it "get_width_mode_height should return the height from the aspect ratio", ->
+      @p.width = 22
+      @p.height = 44
+      plot_view = new @p.default_view({ model: @p })
+      @p._width = {_value: 33}
+      expect(plot_view.get_width_mode_height()).to.be.equal 66
+
 
   describe "Plot.Model", ->
 
