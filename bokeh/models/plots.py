@@ -700,6 +700,8 @@ class Plot(LayoutDOM):
     support this will render via WebGL instead of the 2D canvas.
     """)
 
+    responsive = Override(default='fixed')
+
 
 class GridPlot(LayoutDOM):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.

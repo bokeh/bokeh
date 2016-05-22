@@ -221,6 +221,10 @@ class Plot extends LayoutDOM.Model
       min_border_right:  [ p.Number,   null                   ]
     }
 
+  @override {
+    responsive: 'fixed'
+  }
+
 module.exports =
   View: PlotView
   Model: Plot

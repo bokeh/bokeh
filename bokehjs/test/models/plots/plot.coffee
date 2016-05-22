@@ -29,7 +29,7 @@ describe "Plot", ->
       utils.stub_solver()
       @p.attach_document(new Document())
 
-    it "render should set the appropriate positions and paddings on the element", ->
+    it "render should set the appropriate positions and paddings on the element when it is mode box", ->
       dom_left = 12
       dom_top = 13
       width = 80
@@ -38,7 +38,7 @@ describe "Plot", ->
       @p._dom_top = {_value: dom_top}
       @p._width = {_value: width}
       @p._height = {_value: height}
-
+      @p.responsive = 'box'
       plot_view = new @p.default_view({ model: @p })
       plot_view.render()
       # Note we do not set margin & padding on Plot
@@ -73,6 +73,7 @@ describe "Plot", ->
     # Visual alignment is dominated by the plot_canvas so
     # a number of the cosntraints come from there - whilst others
     # come from the plot container.
+    @p.responsive = 'box'
     plot_canvas = @p.plot_canvas()
     expected_constrainted_variables = {
       # Constraints from Plot

@@ -621,7 +621,7 @@ def hplot(*children, **kwargs):
         """
         The new Row is responsive by default, it resizes based on the space available.
         """)
-    layout = Row(children=list(children), **kwargs)
+    layout = Row(children=list(children), responsive='fixed', **kwargs)
     return layout
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
@@ -630,14 +630,14 @@ def vplot(*children, **kwargs):
         """
         The new Column is responsive by default, it resizes based on the space available.
         """)
-    layout = Column(children=list(children), **kwargs)
+    layout = Column(children=list(children), responsive='fixed', **kwargs)
     return layout
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vform(*children, **kwargs):
     warnings.warn(
         """
         The new Column is responsive by default, it resizes based on the space available.
         """)
-    layout = WidgetBox(children=list(children), **kwargs)
+    layout = Column(children=list(children), responsive='fixed', **kwargs)
     return layout
