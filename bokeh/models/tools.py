@@ -55,7 +55,7 @@ class Tool(Model):
     """)
 
 
-class Toolbar(LayoutDOM):
+class Toolbar(Model):
     """ Hold tools to display
     """
 

@@ -22,7 +22,6 @@ class ToolbarView extends LayoutDOM.View
   initialize: (options) ->
     super(options)
     @location = options.location
-    @render()
 
   render: () ->
     #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
@@ -162,6 +161,7 @@ class Toolbar extends LayoutDOM.Model
     location:   [ p.Location, 'above' ]
     toolbar_sticky: [ p.Bool ]
   }
+
 
 module.exports =
   Model: Toolbar
