@@ -27,7 +27,9 @@ class WidgetBoxView extends LayoutDOM.View
   get_height: () ->
     height = 0
     for own key, child_view of @child_views
-      height += child_view.el.scrollHeight
+      # We have to add on 10px because widgets have a margin at the top.
+      # TODO(bird) Widgets should report their own height.
+      height += child_view.el.scrollHeight + 10
     return height
 
 
