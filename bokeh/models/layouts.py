@@ -167,28 +167,24 @@ class Column(Box):
 
 # ---- DEPRECATIONS
 
+_WARNING_MSG = "Switching to '%s' will make elements responsive by default (they will resize based on the space available)"
+
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def HBox(*args, **kwargs):
-    warnings.warn(
-        """
-        The new Column is responsive by default, it resizes based on the space available.
-        """)
+    kwargs['responsive'] = 'fixed'
+    warnings.warn(_WARNING_MSG % "Row")
     return Row(*args, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def VBox(*args, **kwargs):
-    warnings.warn(
-        """
-        The new Column is responsive by default, it resizes based on the space available.
-        """)
+    kwargs['responsive'] = 'fixed'
+    warnings.warn(_WARNING_MSG % "Column")
     return Column(*args, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def VBoxForm(*args, **kwargs):
-    warnings.warn(
-        """
-        The new Column is responsive by default, it resizes based on the space available.
-        """)
+    kwargs['responsive'] = 'fixed'
+    warnings.warn(_WARNING_MSG % "Column")
     return Column(*args, **kwargs)
