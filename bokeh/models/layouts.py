@@ -54,7 +54,8 @@ class LayoutDOM(Model):
 
     `height_ar` mode constrains only the height. The items being laid out will resize to
     fit the height and will take up whatever width they may need. For a Plot,
-    the aspect ratio (plot_width/plot_height) is maintained.
+    the aspect ratio (plot_width/plot_height) is maintained. A plot with `height_ar` mode needs
+    to be wrapped in a Row or Column to be responsive.
 
     `box_ar` mode constrains the width and height, but maintains the plot aspect ratio
     for a plot inside the box.

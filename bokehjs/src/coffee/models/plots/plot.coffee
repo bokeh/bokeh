@@ -15,11 +15,10 @@ class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
 
   get_height: () ->
-    width = @model._width._value
-    user_width = @model.width
-    user_height = @model.height
-    new_height = width / (user_width/user_height)
-    return new_height
+    return @model._width._value / @model.get_aspect_ratio()
+
+  get_width: () ->
+    return @model._height._value * @model.get_aspect_ratio()
 
 class Plot extends LayoutDOM.Model
   type: 'Plot'
@@ -57,6 +56,9 @@ class Plot extends LayoutDOM.Model
 
   plot_canvas: () ->
     @_plot_canvas
+
+  get_aspect_ratio: () ->
+    return @width / @height
 
   get_layoutable_children: () ->
     # Default if toolbar_location is None
