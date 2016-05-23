@@ -40,4 +40,4 @@ module.exports =
 
   TransformStepModes: ["after", "before", "center"]
 
-  Responsive: ["box", "width", "fixed"]
+  Responsive: ["box", "width_ar", "height_ar", "box_ar", "fixed"]

@@ -45,12 +45,12 @@ describe "Plot", ->
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.$el.attr('style')).to.be.equal expected_style
 
-    it "get_width_mode_height should return the height from the aspect ratio", ->
+    it "get_height should return the height from the aspect ratio", ->
       @p.width = 22
       @p.height = 44
       plot_view = new @p.default_view({ model: @p })
       @p._width = {_value: 33}
-      expect(plot_view.get_width_mode_height()).to.be.equal 66
+      expect(plot_view.get_height()).to.be.equal 66
 
 
   describe "Plot.Model", ->

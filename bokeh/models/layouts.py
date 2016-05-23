@@ -36,19 +36,29 @@ class LayoutDOM(Model):
     """)
 
     responsive = Responsive('box', help="""
-    The type of responsiveness for the item being displayed. Possible values are `box`,
-    `width` (or `True`), `fixed` (or `False`). Default is `box`.
+    The type of responsiveness for the item being displayed. Possible values are
+    `fixed` (or `False`), `width_ar` (or `True`), `height_ar`, `box_ar`, `box`.
+    Default is `box`.
 
     `box` mode constrains both the height and width. The items being laid out
-    attempt to fit entirely within the window. Items will shrink and grow with both
-    the height and width of the browser window changing. This is sometimes called outside-in.
+    attempt to fit entirely within their box. Items will shrink and grow with both
+    the height and width as their parent box changes size. This is sometimes called outside-in.
     This is a typical behavior for desktop applications.
 
-    `width` mode constrains only the width. The items being laid out will resize to
-    fit the width and will take up whatever vertical space they may need. This is a
-    typical behavior for modern websites.
-
     `fixed` mode prevents responsiveness. The items will have a fixed size.
+
+    `width_ar` mode constrains only the width. The items being laid out will resize to
+    fit the width and will take up whatever vertical space they may need. This is a
+    typical behavior for modern websites. For a Plot,
+    the aspect ratio (plot_width/plot_height) is maintained.
+
+    `height_ar` mode constrains only the height. The items being laid out will resize to
+    fit the height and will take up whatever width they may need. For a Plot,
+    the aspect ratio (plot_width/plot_height) is maintained.
+
+    `box_ar` mode constrains the width and height, but maintains the plot aspect ratio
+    for a plot inside the box.
+
     """)
 
     # TODO: (mp) Not yet, because it breaks plotting/notebook examples.

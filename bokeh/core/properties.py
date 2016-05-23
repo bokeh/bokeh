@@ -1864,7 +1864,7 @@ class Responsive(Either):
 
     def transform(self, value):
         if value is True:
-            value = 'width'
+            value = 'width_ar'
         if value is False:
             value = 'fixed'
         return value

@@ -9,7 +9,7 @@ LayoutDOM = require "./layout_dom"
 class BoxView extends LayoutDOM.View
   className: "bk-grid"
 
-  get_width_mode_height: () ->
+  get_height: () ->
     children = @model.get_layoutable_children()
     if @model._horizontal
       height = _.max(children, ((child) -> child._height._value))

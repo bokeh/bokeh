@@ -16,14 +16,15 @@ class WidgetBoxView extends LayoutDOM.View
 
   render: () ->
     super()
-    if @model.responsive == 'width'
+    if @model.responsive == 'width_ar'
       @$el.css({
         # The -10 is a hack because the widget box has padding on the css.
         # TODO(bird) Make this configurable & less flaky
         width: @model._width._value - 10
         height: @model._height._value
       })
-  get_width_mode_height: () ->
+
+  get_height: () ->
     height = 0
     for own key, child_view of @child_views
       height += child_view.el.scrollHeight

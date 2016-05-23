@@ -53,7 +53,7 @@ class TestChart(unittest.TestCase):
         self.assertEqual(self.chart.title, "new_title")
 
     def test_responsive(self):
-        self.assertEqual(self.chart.responsive, 'width')
+        self.assertEqual(self.chart.responsive, 'width_ar')
 
     def check_chart_elements(self, expected_tools):
         self.assertIsInstance(self.chart.left[0], LinearAxis)

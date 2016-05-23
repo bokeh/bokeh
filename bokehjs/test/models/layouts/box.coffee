@@ -9,6 +9,10 @@ sinon = require "sinon"
 Box = utils.require("models/layouts/box").Model
 BoxView = utils.require("models/layouts/box").View
 
+describe "Box.View", ->
+
+  it.skip "should have a test for get_height", ->
+    null
 
 describe "Box.Model", ->
 
