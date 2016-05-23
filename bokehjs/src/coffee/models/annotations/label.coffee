@@ -35,6 +35,18 @@ class LabelView extends Renderer.View
     for name, prop of @visuals
       prop.warm_cache(null)
 
+  _get_size: () ->
+    ctx = @plot_view.canvas_view.ctx
+    @visuals.text.set_value(ctx)
+
+    side = @model.panel.side
+    if side == "above" or side == "below"
+      height = ctx.measureText(@mget('text')).ascent
+      return height
+    if side == 'left' or side == 'right'
+      width = ctx.measureText(@mget('text')).width
+      return width
+
   _calculate_text_dimensions: (ctx, i, text) ->
     @visuals.text.set_vectorize(ctx, i)
     width = [ctx.measureText(text).width]

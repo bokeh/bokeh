@@ -1,12 +1,134 @@
+_ = require "underscore"
+
 {EQ, GE} = require "./solver"
 LayoutCanvas = require "./layout_canvas"
 
 p = require "../../core/properties"
 {logger} = require "../../core/logging"
 
+# This table lays out the rules for configuring the baseline, alignment, etc. of
+# title text, based on it's location and orientation
+#
+# side    orient        baseline   align     angle   normal-dist
+# ------------------------------------------------------------------------------
+# above   parallel      bottom     center    0       height
+#         normal        middle     left      -90     width
+#         horizontal    bottom     center    0       height
+#         [angle > 0]   middle     left              width * sin + height * cos
+#         [angle < 0]   middle     right             width * sin + height * cos
+#
+# below   parallel      top        center    0       height
+#         normal        middle     right     90      width
+#         horizontal    top        center    0       height
+#         [angle > 0]   middle     right             width * sin + height * cos
+#         [angle < 0]   middle     left              width * sin + height * cos
+#
+# left    parallel      bottom     center    90      height
+#         normal        middle     right     0       width
+#         horizontal    middle     right     0       width
+#         [angle > 0]   middle     right             width * cos + height * sin
+#         [angle < 0]   middle     right             width * cos + height + sin
+#
+# right   parallel      bottom     center   -90      height
+#         normal        middle     left     0        width
+#         horizontal    middle     left     0        width
+#         [angle > 0]   middle     left              width * cos + height * sin
+#         [angle < 0]   middle     left              width * cos + height + sin
+
+pi2 = Math.PI/2
+ALPHABETIC = 'alphabetic'
+MIDDLE = 'middle'
+HANGING = 'hanging'
+LEFT = 'left'
+RIGHT = 'right'
+CENTER = 'center'
+
+_angle_lookup = {
+  above:
+    parallel   : 0
+    normal     : -pi2
+    horizontal : 0
+    vertical   : -pi2
+  below:
+    parallel   : 0
+    normal     : pi2
+    horizontal : 0
+    vertical   : pi2
+  left:
+    parallel   : -pi2
+    normal     : 0
+    horizontal : 0
+    vertical   : -pi2
+  right:
+    parallel   : pi2
+    normal     : 0
+    horizontal : 0
+    vertical   : pi2
+}
+
+_baseline_lookup = {
+  above:
+    parallel   : ALPHABETIC
+    normal     : MIDDLE
+    horizontal : ALPHABETIC
+    vertical   : MIDDLE
+  below:
+    parallel   : HANGING
+    normal     : MIDDLE
+    horizontal : HANGING
+    vertical   : MIDDLE
+  left:
+    parallel   : ALPHABETIC
+    normal     : MIDDLE
+    horizontal : MIDDLE
+    vertical   : ALPHABETIC
+  right:
+    parallel   : ALPHABETIC
+    normal     : MIDDLE
+    horizontal : MIDDLE
+    vertical   : ALPHABETIC
+}
+
+_align_lookup = {
+  above:
+    parallel   : CENTER
+    normal     : LEFT
+    horizontal : CENTER
+    vertical   : LEFT
+  below:
+    parallel   : CENTER
+    normal     : LEFT
+    horizontal : CENTER
+    vertical   : RIGHT
+  left:
+    parallel   : CENTER
+    normal     : RIGHT
+    horizontal : RIGHT
+    vertical   : CENTER
+  right:
+    parallel   : CENTER
+    normal     : LEFT
+    horizontal : LEFT
+    vertical   : CENTER
+}
+
+_align_lookup_negative = {
+  above  : RIGHT
+  below  : LEFT
+  left   : RIGHT
+  right  : LEFT
+}
+
+_align_lookup_positive = {
+  above  : LEFT
+  below  : RIGHT
+  left   : RIGHT
+  right  : LEFT
+}
+
 # Some terms:
 #
-# - Size: is the narrower (usually) dimension that is calculated based on 
+# - Size: is the narrower (usually) dimension that is calculated based on
 #         the contents of the panel
 # - Full: is the other dimension which we want to extend to either the full
 #         height or width. Extending to full height or width means it's easy to
@@ -94,6 +216,32 @@ class SidePanel extends LayoutCanvas.Model
     constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
     return constraints
 
+  apply_label_text_heuristics: (ctx, orient) ->
+    side = @get('side')
+
+    if _.isString(orient)
+      baseline = _baseline_lookup[side][orient]
+      align = _align_lookup[side][orient]
+
+    else if orient == 0
+      baseline = _baseline_lookup[side][orient]
+      align = _align_lookup[side][orient]
+
+    else if orient < 0
+      baseline = 'middle'
+      align = _align_lookup_negative[side]
+
+    else if orient > 0
+      baseline = 'middle'
+      align = _align_lookup_positive[side]
+
+    ctx.textBaseline = baseline
+    ctx.textAlign = align
+    return ctx
+
+  get_label_angle_heuristic: (orient) ->
+    side = @get('side')
+    return _angle_lookup[side][orient]
 
 module.exports =
   Model: SidePanel

@@ -25,10 +25,35 @@ describe "SidePanel.Model", ->
     # constraints, but this is hard (impossible?) at the moment, so will have to do some
     # visual testing to make sure things line up.
 
+describe "SidePanel apply_location_heuristics", ->
+
+    it "should calculate appropriate axis_label text properties based on location", ->
+      p = new SidePanel({side: 'left'})
+      ctx = {}
+      p.apply_label_text_heuristics(ctx, 'parallel')
+      expect(ctx.textBaseline).to.be.equal "alphabetic"
+      expect(ctx.textAlign).to.be.equal "center"
+
+      p2 = new SidePanel({side: 'below'})
+      ctx = {}
+      p2.apply_label_text_heuristics(ctx, Math.PI/2)
+      expect(ctx.textBaseline).to.be.equal "middle"
+      expect(ctx.textAlign).to.be.equal "right"
+
+describe "SidePanel get_label_angle_heuristic", ->
+
+    it "should calculate appropriate axis_label angle rotation based on location", ->
+      p = new SidePanel({side: 'left'})
+      angle = p.get_label_angle_heuristic('parallel')
+      expect(angle).to.be.equal -Math.PI/2
+
+      p2 = new SidePanel({side: 'below'})
+      angle = p.get_label_angle_heuristic('horizontal')
+      expect(angle).to.be.equal 0
 
 describe "SidePanel update_constraints", ->
   # Using axis_view as the view to pass into update_constraints
-  
+
   afterEach ->
     utils.unstub_canvas()
     utils.unstub_solver()
