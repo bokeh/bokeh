@@ -145,7 +145,8 @@ class Plot extends LayoutDOM.Model
     return constraints
 
   get_constrained_variables: () ->
-    return _.extend {}, super(), {
+    constrained_variables = super()
+    constrained_variables = _.extend(constrained_variables, {
       'on-edge-align-top'    : @_plot_canvas._top
       'on-edge-align-bottom' : @_plot_canvas._height_minus_bottom
       'on-edge-align-left'   : @_plot_canvas._left
@@ -158,9 +159,13 @@ class Plot extends LayoutDOM.Model
 
       'box-equal-size-top'   : @_plot_canvas._top
       'box-equal-size-bottom': @_plot_canvas._height_minus_bottom
-      'box-equal-size-left'  : @_plot_canvas._left
-      'box-equal-size-right' : @_plot_canvas._width_minus_right
-    }
+    })
+    if @responsive isnt 'fixed'
+      constrained_variables = _.extend(constrained_variables, {
+        'box-equal-size-left'  : @_plot_canvas._left
+        'box-equal-size-right' : @_plot_canvas._width_minus_right
+      })
+    return constrained_variables
 
   _set_orientation_variables: (model) ->
     if @_horizontal is false  # toolbar is above or below or null

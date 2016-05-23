@@ -1,5 +1,6 @@
 require "./box"
 require "./column"
-require "./layout_dom"
 require "./grid_plot"
+require "./layout_dom"
 require "./row"
+require "./widget_box"

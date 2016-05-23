@@ -18,7 +18,7 @@ class WidgetBoxView extends LayoutDOM.View
     super()
     if @model.responsive == 'width_ar'
       @$el.css({
-        # The -10 is a hack because the widget box has padding on the css.
+        # The -20 is a hack because the widget box has padding on the css.
         # TODO(bird) Make this configurable & less flaky
         width: @model._width._value - 20
         height: @model._height._value + 10
@@ -38,7 +38,8 @@ class WidgetBox extends LayoutDOM.Model
   default_view: WidgetBoxView
 
   get_constrained_variables: () ->
-    return _.extend {}, super(), {
+    constrained_variables = super()
+    constrained_variables = _.extend(constrained_variables, {
       'on-edge-align-top'    : @_top
       'on-edge-align-bottom' : @_height_minus_bottom
       'on-edge-align-left'   : @_left
@@ -49,15 +50,15 @@ class WidgetBox extends LayoutDOM.Model
       'box-cell-align-left'  : @_left
       'box-cell-align-right' : @_width_minus_right
 
-      # TODO This forces height to the widget box, but means that
-      # widget box is not responsive to the height of the widgets inside it
-      # - which it could be with a little effort summing up the total height
-      # of all widgets.
       'box-equal-size-top'   : @_top
       'box-equal-size-bottom': @_height_minus_bottom
-      'box-equal-size-left'  : @_left
-      'box-equal-size-right' : @_width_minus_right
-    }
+    })
+    if @responsive isnt 'fixed'
+      constrained_variables = _.extend(constrained_variables, {
+        'box-equal-size-left'  : @_left
+        'box-equal-size-right' : @_width_minus_right
+      })
+    return constrained_variables
   
   get_layoutable_children: () ->
     return @children

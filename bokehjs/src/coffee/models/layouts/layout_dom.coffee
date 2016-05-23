@@ -108,7 +108,7 @@ class LayoutDOM extends Model
 
   get_constraints: () ->
     constraints = []
-
+    
     # Make sure things dont squeeze out of their bounding box
     constraints.push(GE(@_dom_left))
     constraints.push(GE(@_dom_top))
@@ -171,12 +171,16 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
-    if @responsive == 'box'
+    if @responsive is 'box'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
         'height': @_height
       })
-    if @responsive == 'width_ar'
+    if @responsive is 'width_ar'
+      constrained_variables = _.extend(constrained_variables, {
+        'width': @_width
+      })
+    if @_is_root isnt true and @responsive is 'fixed'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
       })
