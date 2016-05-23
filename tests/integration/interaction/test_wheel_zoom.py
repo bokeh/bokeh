@@ -53,6 +53,7 @@ def test_wheel_zoom_can_be_selected(output_file_url, selenium):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Tap the plot and test for alert
     scroll_button = get_non_stale_scroll_button(selenium)
@@ -70,6 +71,7 @@ def test_wheel_zoom_can_be_selected_and_deselected(output_file_url, selenium):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Check is not active
     scroll_button = get_non_stale_scroll_button(selenium)
