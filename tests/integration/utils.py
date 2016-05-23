@@ -6,19 +6,24 @@ from selenium.common.exceptions import TimeoutException
 
 from bokeh.models import ColumnDataSource, Rect, BoxSelectTool, CustomJS
 
+from tests.plugins.utils import warn
+
 
 def has_no_console_errors(selenium):
     """
     Helper function to detect console errors.
     """
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, selenium)
     logs = selenium.get_log('browser')
-    errors = [l for l in logs if l['level'] == 'SEVERE']
-    if len(errors) == 0:
+    severe_errors = [l for l in logs if l['level'] == 'SEVERE']
+    non_network_errors = [l for l in severe_errors if l['type'] != 'network']
+    if len(non_network_errors) == 0:
         return True
     else:
-        pytest.fail('Console errors: %s' % errors)
+        pytest.fail('Console errors: %s' % non_network_errors)
+    if len(non_network_errors) == 0 and len(severe_errors) != 0:
+        warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
 
 
 class value_to_be_present_in_datahash(object):

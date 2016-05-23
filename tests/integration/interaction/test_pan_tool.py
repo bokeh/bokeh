@@ -24,7 +24,7 @@ def get_non_stale_pan_buttons(selenium):
             pan_buttons[0].get_attribute('class')
             used = True
         except StaleElementReferenceException:
-            print('Got a StaleElementReference, retrying %s more times' % 4 - attempts)
+            print('Got a StaleElementReference, retrying %s more times' % (4 - attempts))
         except IndexError:
             print('No pan buttons availabe yet')
         finally:

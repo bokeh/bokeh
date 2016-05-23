@@ -32,7 +32,7 @@ def get_non_stale_scroll_button(selenium):
             scroll_button.get_attribute('class')
             used = True
         except StaleElementReferenceException:
-            print('Got a StaleElementReference, retrying %s more times' % 4 - attempts)
+            print('Got a StaleElementReference, retrying %s more times' % (4 - attempts))
             attempts += 1
     return scroll_button
 
