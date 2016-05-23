@@ -84,6 +84,7 @@ class TitleView extends Renderer.View
         @mset('text_baseline', 'bottom')
 
     @mset('text_align', text_align)
+
     sx = @canvas.vx_to_sx(vx)
     sy = @canvas.vy_to_sy(vy)
 
