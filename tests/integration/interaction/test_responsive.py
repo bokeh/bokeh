@@ -5,27 +5,11 @@ from bokeh.io import save
 from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d
 from bokeh.sampledata.autompg import autompg as df
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from tests.integration.utils import has_no_console_errors
+from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize
 
 import pytest
 
-from ..utils import element_to_start_resizing, element_to_finish_resizing
-
 pytestmark = pytest.mark.integration
-
-
-def wait_for_canvas_resize(canvas, test_driver):
-    try:
-        wait = WebDriverWait(test_driver, 5)
-        wait.until(element_to_start_resizing(canvas))
-        wait.until(element_to_finish_resizing(canvas))
-    except TimeoutException:
-        # Resize may or may not happen instantaneously,
-        # Put the waits in to give some time, but allow test to
-        # try and process.
-        pass
 
 
 def make_responsive_plot(plot_width, plot_height, responsive_mode='width'):

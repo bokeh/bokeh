@@ -1,6 +1,8 @@
 from __future__ import absolute_import, print_function
-
 import pytest
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 from bokeh.models import ColumnDataSource, Rect, BoxSelectTool, CustomJS
 
@@ -9,6 +11,8 @@ def has_no_console_errors(selenium):
     """
     Helper function to detect console errors.
     """
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
     logs = selenium.get_log('browser')
     errors = [l for l in logs if l['level'] == 'SEVERE']
     if len(errors) == 0:
@@ -66,6 +70,18 @@ class element_to_finish_resizing(object):
         else:
             self.previous_width = current_width
             return False
+
+
+def wait_for_canvas_resize(canvas, test_driver):
+    try:
+        wait = WebDriverWait(test_driver, 1)
+        wait.until(element_to_start_resizing(canvas))
+        wait.until(element_to_finish_resizing(canvas))
+    except TimeoutException:
+        # Resize may or may not happen instantaneously,
+        # Put the waits in to give some time, but allow test to
+        # try and process.
+        pass
 
 
 def add_visual_box_select(plot):
