@@ -26,7 +26,8 @@ describe "Plot", ->
 
     beforeEach ->
       utils.stub_canvas()
-      utils.stub_solver()
+      solver_stubs = utils.stub_solver()
+      @solver_suggest = solver_stubs['suggest']
       @p.attach_document(new Document())
 
     it "render should set the appropriate positions and paddings on the element when it is mode box", ->
@@ -45,6 +46,16 @@ describe "Plot", ->
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.$el.attr('style')).to.be.equal expected_style
 
+    it "should call suggest value with the model height and width if responsive_mode is box_ar", ->
+      @p.responsive = 'box_ar'
+      plot_view = new @p.default_view({ model: @p })
+      sinon.stub(plot_view, 'get_width_height').returns([34, 77])
+      @solver_suggest.reset()
+      plot_view.render()
+      expect(@solver_suggest.callCount).is.equal 2
+      expect(@solver_suggest.args[0]).to.be.deep.equal [@p._width, 34]
+      expect(@solver_suggest.args[1]).to.be.deep.equal [@p._height, 77]
+
     it "get_height should return the height from the aspect ratio", ->
       @p.width = 22
       @p.height = 44
@@ -58,6 +69,32 @@ describe "Plot", ->
       plot_view = new @p.default_view({ model: @p })
       @p._height= {_value: 100}
       expect(plot_view.get_width()).to.be.equal 20
+
+    it "get_width should return the width from the aspect ratio", ->
+      @p.width = 2
+      @p.height = 10
+      plot_view = new @p.default_view({ model: @p })
+      @p._height= {_value: 100}
+      expect(plot_view.get_width()).to.be.equal 20
+
+    it "get_width_height should return a constrained width if plot is landscape oriented", ->
+      @p.width = 4
+      @p.height = 2
+      plot_view = new @p.default_view({ model: @p })
+      plot_view.el = {'parentNode': {'clientWidth': 56, 'clientHeight': 49}}
+      [w, h] = plot_view.get_width_height()
+      expect(w).to.be.equal 56
+      expect(h).to.be.equal 56 / (4/2)
+
+    it "get_width_height should return a constrained height if plot is portrait oriented", ->
+      @p.width = 3
+      @p.height = 5
+      plot_view = new @p.default_view({ model: @p })
+      plot_view.el = {'parentNode': {'clientWidth': 56, 'clientHeight': 49}}
+      [w, h] = plot_view.get_width_height()
+      expect(h).to.be.equal 49
+      expect(w).to.be.equal 49 * (3/5)
+      
 
   describe "Plot.Model", ->
 

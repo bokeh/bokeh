@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from bokeh.charts import Histogram
 from bokeh.io import save
-from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d
+from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d, Row
 from bokeh.sampledata.autompg import autompg as df
 
 from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize
@@ -166,7 +166,6 @@ def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):
     assert canvas_height <= window_height
 
 
-@pytest.mark.skip(reason='we do not currently have aspect ratio on plot')
 def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.
@@ -174,13 +173,15 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     # We want the aspect ratio of the initial plot to be maintained, but we
     # can't measure it perfectly so we test against bounds.
     aspect_ratio = 2
-    plot_height = 400
     plot_width = 400 * aspect_ratio
+    plot_height = 400
     lower_bound = aspect_ratio * 0.95
     upper_bound = aspect_ratio * 1.05
 
     plot = make_responsive_plot(plot_width, plot_height, responsive_mode='box_ar')
-    save(plot)
+    # We have to wrap box_ar plots in a Row for them to work.
+    layout = Row(plot)
+    save(layout)
 
     # Open the browser with the plot and resize the window to get an initial measure
     selenium.set_window_size(width=1200, height=600)
@@ -207,8 +208,8 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     aspect_ratio2 = width2 / height2
     assert aspect_ratio2 > lower_bound
     assert aspect_ratio2 < upper_bound
-    assert width2 < width1 - 20
-    assert height2 < height1 - 20
+    assert width2 == width1
+    assert height2 == height1
 
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)
@@ -228,8 +229,8 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     aspect_ratio4 = width4 / height4
     assert aspect_ratio4 > lower_bound
     assert aspect_ratio4 < upper_bound
-    assert width4 < width1 - 20
-    assert height4 < height1 - 20
+    assert width4 < width1
+    assert height4 < height1
 
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)

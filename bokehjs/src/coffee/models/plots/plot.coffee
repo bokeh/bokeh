@@ -14,6 +14,43 @@ PlotCanvas = require("./plot_canvas").Model
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
 
+  render: () ->
+    super()
+
+    if @model.responsive is 'box_ar'
+      [width, height] = @get_width_height()
+      s = @model.document.solver()
+      s.suggest_value(@model._width, width)
+      s.suggest_value(@model._height, height)
+      @$el.css({
+        position: 'absolute'
+        left: @model._dom_left._value
+        top: @model._dom_top._value
+        width: @model.width
+        height: @model.height
+      })
+
+  get_width_height: () ->
+      parent_height = @el.parentNode.clientHeight
+      parent_width = @el.parentNode.clientWidth
+
+      ar = @model.get_aspect_ratio()
+
+      new_width_1 = parent_width
+      new_height_1 = parent_width / ar
+
+      new_width_2 = parent_height * ar
+      new_height_2 = parent_height
+
+      if new_width_1 < new_width_2
+        width = new_width_1
+        height = new_height_1
+      else
+        width = new_width_2
+        height = new_height_2
+
+      return [width, height]
+
   get_height: () ->
     return @model._width._value / @model.get_aspect_ratio()
 
@@ -69,6 +106,9 @@ class Plot extends LayoutDOM.Model
 
   get_edit_variables: () ->
     edit_variables = super()
+    if @responsive is 'box_ar'
+      edit_variables.push({edit_variable: @_width, strength: Strength.strong})
+      edit_variables.push({edit_variable: @_height, strength: Strength.strong})
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
     return edit_variables
