@@ -7,7 +7,8 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Line
 from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, ColumnDataSource, Row, Column, PanTool, Slider, Dropdown, Button
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, Row, Column, PanTool,
+    Slider, Dropdown, Button, HoverTool, CrosshairTool
 )
 from bokeh.resources import INLINE
 
@@ -57,9 +58,10 @@ def make_plot(yname, line_color, tbs=True, above_axis=False, below_axis=True, le
         plot_height=plot_height,
         min_border=10,
         toolbar_sticky=tbs,
+        responsive='box'
     )
     plot.add_glyph(source, Line(x="x", y=yname, line_color=line_color))
-    plot.add_tools(PanTool())
+    plot.add_tools(PanTool(), HoverTool(), CrosshairTool())
     plot = add_axes(plot, below_axis=below_axis, left_axis=left_axis, right_axis=right_axis, above_axis=above_axis)
     return plot
 
@@ -70,22 +72,22 @@ suffix = "_%s" % toolbar_locations[TBL]
 suffix = "_align_plots"
 
 plot_1 = make_plot("y1", "blue", toolbar_location_index=1, border_fill_color="Thistle", tbs=False)
-plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=TBL)
-plot_3 = make_plot("y3", "green", left_axis=False, toolbar_location_index=4)
+plot_2 = make_plot("y2", "red", right_axis=True, toolbar_location_index=2)
+plot_3 = make_plot("y3", "green", left_axis=False, below_axis=False, toolbar_location_index=4)
 plot_4 = make_plot("y4", "pink", left_axis=False, below_axis=False, right_axis=True, toolbar_location_index=0)
 plot_5 = make_plot("y4", "purple", left_axis=False, below_axis=False, above_axis=True, toolbar_location_index=2)
 plot_6 = make_plot("y4", "teal", left_axis=False, below_axis=False, toolbar_location_index=3)
 
 
-#doc.add_root(plot_2)
+doc.add_root(plot_3)
 #doc.add_root(plot_3)
 #doc.add_root(slider_1)
-col1 = Column(
-    Row(plot_1),
-    Row(plot_2, plot_3, plot_4),
-    Row(plot_5, plot_6)
-)
-doc.add_root(col1)
+#col1 = Column(
+#    Row(plot_1),
+#    Row(plot_2, plot_3, plot_4),
+#    Row(plot_5, plot_6)
+#)
+#doc.add_root(col1)
 #col2 = Column(plot_3, plot_4)
 #doc.add_root(Row(col1, col2))
 #doc.add_root(Row(plot_1, plot_2))
