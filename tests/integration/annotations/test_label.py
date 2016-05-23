@@ -11,6 +11,7 @@ HEIGHT = 600
 WIDTH = 600
 
 
+@pytest.mark.screenshot
 def test_label(output_file_url, selenium, screenshot):
 
     # Have to specify x/y range as labels aren't included in the plot area solver

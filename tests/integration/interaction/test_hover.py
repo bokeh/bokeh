@@ -19,6 +19,7 @@ def hover_at_position(selenium, canvas, x, y):
     actions.perform()
 
 
+@pytest.mark.screenshot
 def test_hover_changes_color(output_file_url, selenium, screenshot):
 
     # Make plot and add a taptool callback that generates an alert
