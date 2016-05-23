@@ -5,6 +5,8 @@ Annotation = require "./annotation"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
+{get_text_height} = require "../../core/util/text"
+
 class LabelView extends Renderer.View
   initialize: (options) ->
     super(options)
@@ -36,7 +38,7 @@ class LabelView extends Renderer.View
   _calculate_text_dimensions: (ctx, i, text) ->
     @visuals.text.set_vectorize(ctx, i)
     width = [ctx.measureText(text).width]
-    height = [ctx.measureText(text).ascent / 1.175]
+    height = [get_text_height(@visuals.text.font_value()).height]
     return [width, height]
 
   _calculate_rect_offset: (ctx, i, width, height) ->
@@ -58,6 +60,7 @@ class LabelView extends Renderer.View
     return [x_shift, y_shift]
 
   render: () ->
+
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
