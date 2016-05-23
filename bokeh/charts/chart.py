@@ -197,7 +197,7 @@ class Chart(Plot):
             # in case tools == False just exit
             return
 
-        if len(self.tools) == 0:
+        if len(self.toolbar.tools) == 0:
             # if no tools customization let's create the default tools
             tool_objs = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
@@ -208,11 +208,8 @@ class Chart(Plot):
         self.create_axes()
         self.create_grids(self._xgrid, self._ygrid)
 
-        # Add tools if supposed to - TODO XXX (bird) This line is causing a deprecation
-        # warning - not sure what to do - I guess tools should become a proper
-        # property with a tansform??
-        if self.tools:
-            self.create_tools(self.tools)
+        if self.toolbar.tools:
+            self.create_tools(self._tools)
 
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))
