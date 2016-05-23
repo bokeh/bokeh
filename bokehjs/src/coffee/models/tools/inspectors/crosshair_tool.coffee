@@ -57,7 +57,7 @@ class CrosshairTool extends InspectTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-    @set('spans', {
+    @spans = {
       width: new Span.Model({
         for_hover: true
         dimension: "width",
@@ -76,12 +76,10 @@ class CrosshairTool extends InspectTool.Model
         line_width: @get('line_width')
         line_alpha: @get('line_alpha')
       })
-    })
+    }
 
-    renderers = @get('plot').get('renderers')
-    renderers.push(@get('spans').width)
-    renderers.push(@get('spans').height)
-    @get('plot').set('renderers', renderers)
+    @plot.plot_canvas().add_renderers(@spans.width)
+    @plot.plot_canvas().add_renderers(@spans.height)
 
 module.exports =
   Model: CrosshairTool

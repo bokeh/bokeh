@@ -1,1 +1,2 @@
+require "./inspectors"
 require "./toolbar"
