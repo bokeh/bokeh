@@ -20,8 +20,8 @@ class WidgetBoxView extends LayoutDOM.View
       @$el.css({
         # The -10 is a hack because the widget box has padding on the css.
         # TODO(bird) Make this configurable & less flaky
-        width: @model._width._value - 10
-        height: @model._height._value
+        width: @model._width._value - 20
+        height: @model._height._value + 10
       })
 
   get_height: () ->
