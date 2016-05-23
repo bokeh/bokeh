@@ -38,7 +38,6 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     # scaled down by approximately the correct amount.
     initial_window_width = 1200
     final_window_width = 600
-    window_ratio = initial_window_width / final_window_width
 
     # Make the plot with autoresize
     plot = make_responsive_plot(plot_width, plot_height, responsive_mode='width')
@@ -46,10 +45,10 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
 
     # Open the browser with the plot and resize the window to get an initial measure
     selenium.set_window_size(width=initial_window_width, height=600)
-
     selenium.get(output_file_url)
     assert has_no_console_errors(selenium)
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
 
     initial_height = canvas.size['height']
     initial_width = canvas.size['width']
@@ -59,14 +58,19 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
 
     # Now resize to a smaller window size and check again
     selenium.set_window_size(width=final_window_width, height=600)
+    selenium.set_window_size(width=final_window_width, height=599)  # See note (1) below
     wait_for_canvas_resize(canvas, selenium)
+
     final_height = canvas.size['height']
     final_width = canvas.size['width']
     final_aspect_ratio = final_width / final_height
     assert final_aspect_ratio > lower_bound
     assert final_aspect_ratio < upper_bound
-    assert final_width <= initial_width / window_ratio
-    assert final_height <= initial_height / window_ratio
+
+    # Notes:
+    # (1) Since the new layout work, this extra kick was necessary for the test
+    # to run properly. From what I can tell this is a selenium thing not a
+    # real problem, but something to keep an eye on - bird 2016-05-22
 
 
 def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
@@ -114,9 +118,10 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
 
-    # Canvas width should be just under 1000
-    assert canvas.size['width'] > 900
-    assert canvas.size['width'] < 1000
+    # Canvas width should be just under 1000 * 0.9
+    # (default file_html has a body width of 90%)
+    assert canvas.size['width'] > 850
+    assert canvas.size['width'] < 900
 
 
 def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
@@ -130,9 +135,10 @@ def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
 
-    # Canvas width should be just under 1000
-    assert canvas.size['width'] > 900
-    assert canvas.size['width'] < 1000
+    # Canvas width should be just under 1000 * 0.9
+    # (default file_html has a body width of 90%)
+    assert canvas.size['width'] > 850
+    assert canvas.size['width'] < 900
 
 
 def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):

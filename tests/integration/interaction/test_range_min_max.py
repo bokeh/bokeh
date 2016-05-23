@@ -10,6 +10,7 @@ from bokeh.models import (
     Plot,
     Range1d,
     Rect,
+    LinearAxis
 )
 from selenium.webdriver.common.action_chains import ActionChains
 from tests.integration.utils import has_no_console_errors
@@ -17,6 +18,7 @@ from tests.integration.utils import has_no_console_errors
 import pytest
 pytestmark = pytest.mark.integration
 
+from .test_responsive import wait_for_canvas_resize
 
 def make_pan_plot_with_callback(xr=None, yr=None):
     if xr is None:
@@ -51,37 +53,24 @@ def make_pan_plot_with_callback(xr=None, yr=None):
     plot = Plot(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, min_border=0)
     plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
     plot.add_tools(PanTool(), BoxZoomTool())
+    plot.add_layout(LinearAxis(), 'below')
+    plot.add_layout(LinearAxis(), 'left')
     return plot
 
 
 def pan_plot(selenium, pan_x=None, pan_y=None):
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
     # Enable the pan tool
     pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] button')
     pan_button = pan_buttons[0]
     if 'active' not in pan_button.get_attribute('class'):
         pan_button.click()
 
-    canvas = selenium.find_element_by_tag_name('canvas')
     actions = ActionChains(selenium)
     actions.move_to_element_with_offset(canvas, 200, 200)
     actions.click_and_hold()
     actions.move_by_offset(pan_x, pan_y)
-    actions.release()
-    actions.perform()
-
-
-def zoom_plot(selenium):
-    # Enable the box zoom tool
-    pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] button')
-    zoom_button = pan_buttons[1]
-    if 'active' not in zoom_button.get_attribute('class'):
-        zoom_button.click()
-
-    canvas = selenium.find_element_by_tag_name('canvas')
-    actions = ActionChains(selenium)
-    actions.move_to_element_with_offset(canvas, 10, 10)
-    actions.click_and_hold()
-    actions.move_by_offset(200, 200)
     actions.release()
     actions.perform()
 
@@ -223,6 +212,23 @@ def test_reversed_y_range_does_not_pan_below_y_max(output_file_url, selenium):
 ############################
 # Test auto bounds
 ############################
+
+def zoom_plot(selenium):
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+    # Enable the box zoom tool
+    pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] button')
+    zoom_button = pan_buttons[1]
+    if 'active' not in zoom_button.get_attribute('class'):
+        zoom_button.click()
+
+    actions = ActionChains(selenium)
+    actions.move_to_element_with_offset(canvas, 30, 30)
+    actions.click_and_hold()
+    actions.move_by_offset(200, 200)
+    actions.release()
+    actions.perform()
+
 
 def _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium):
     selenium.get(output_file_url)
