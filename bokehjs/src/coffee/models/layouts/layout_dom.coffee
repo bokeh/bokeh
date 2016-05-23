@@ -43,8 +43,6 @@ class LayoutDOMView extends BokehView
     #logger.debug("#{@model} _width: #{@model._width._value}, _height: #{@model._height._value}")
     #logger.debug("#{@model} _width_minus_right: #{@model._width_minus_right._value}, _height_minus_bottom: #{@model._height_minus_bottom._value}")
 
-    # LayoutDOM does not have a generic width implementation
-
     s = @model.document.solver()
 
     if @model.responsive is 'fixed'
@@ -145,12 +143,12 @@ class LayoutDOM extends Model
 
   get_edit_variables: () ->
     edit_variables = []
-    if @responsive == 'fixed'
+    if @responsive is 'fixed'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    if @responsive == 'width_ar'
+    if @responsive is 'width_ar'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    if @responsive == 'height_ar'
+    if @responsive is 'height_ar'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
     return edit_variables
 
