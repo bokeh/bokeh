@@ -543,6 +543,10 @@ class Title(Annotation):
     """
     )
 
+    title_padding = Float(default=0, help="""
+    Offset value to apply to the title alignment coordinate.
+    """)
+
     angle = Angle(default=0, help="""
     The angle to rotate the text, as measured from the horizontal.
 

@@ -5,6 +5,8 @@ Annotation = require "./annotation"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
+{get_text_height} = require "../../core/util/text"
+
 class TitleView extends Renderer.View
   initialize: (options) ->
     super(options)
@@ -21,10 +23,10 @@ class TitleView extends Renderer.View
     @canvas = @plot_model.get('canvas')
 
     if @mget('render_mode') == 'css'
-      @$el.addClass('bk-title-parent')
+      @$el.addClass('bk-label-parent')
 
-      @title_div = $("<div>").addClass('bk-title-child').hide()
-      @title_div.appendTo(@$el)
+      @label_div = $("<div>").addClass('bk-label-child').hide()
+      @label_div.appendTo(@$el)
 
       @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
 
@@ -34,7 +36,7 @@ class TitleView extends Renderer.View
   _calculate_text_dimensions: (ctx, i, text) ->
     @visuals.text.set_vectorize(ctx, i)
     width = [ctx.measureText(text).width]
-    height = [ctx.measureText(text).ascent / 1.175]
+    height = [get_text_height(@visuals.text.font_value()).height]
     return [width, height]
 
   _calculate_rect_offset: (ctx, i, width, height) ->
@@ -58,20 +60,66 @@ class TitleView extends Renderer.View
   render: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    # Here because AngleSpec does units tranform and Title doesn't support specs
-    switch @mget('angle_units')
-      when "rad" then angle = -1 * @mget('angle')
-      when "deg" then angle = -1 * @mget('angle') * Math.PI/180.0
+    # Here because AngleSpec does units tranform and label doesn't support specs
+    angle = switch @mget('angle_units')
+      when "rad" then -1 * @mget('angle')
+      when "deg" then -1 * @mget('angle') * Math.PI/180.0
 
-    sx = @canvas.vx_to_sx(@mget('x'))
-    sy = @canvas.vy_to_sy(@mget('y'))
+    switch @model.panel.side
+      when 'left'
+        vx = 0
+        [vy, text_align] = @_get_alignment_values(@mget('title_alignment'), 'height')
+        @mset('text_baseline', 'middle')
+      when 'right'
+        vx = @canvas.get('right')
+        [vy, text_align] = @_get_alignment_values(@mget('title_alignment'), 'height')
+        @mset('text_baseline', 'middle')
+      when 'above'
+        [vx, text_align] = @_get_alignment_values(@mget('title_alignment'), 'width')
+        vy = @canvas.get('top')
+        @mset('text_baseline', 'top')
+      when 'below'
+        [vx, text_align] = @_get_alignment_values(@mget('title_alignment'), 'width')
+        vy = 0
+        @mset('text_baseline', 'bottom')
+
+    @mset('text_align', text_align)
+
+    sx = @canvas.vx_to_sx(vx)
+    sy = @canvas.vy_to_sy(vy)
 
     if @mget('render_mode') == 'canvas'
       @_canvas_text(ctx, 0, @mget('text'), sx, sy, angle)
     else
       @_css_text(ctx, 0, @mget('text'), sx, sy, angle)
 
+  _get_alignment_values: (alignment, canvas_dimension) ->
+    switch alignment
+      when 'left'
+        text_location = 0
+        text_align = 'left'
+      when 'center'
+        text_location = @canvas.get(canvas_dimension)/2
+        text_align = 'center'
+      when 'right'
+        text_location = @canvas.get(canvas_dimension)
+        text_align = 'right'
+    return [text_location, text_align]
+
+  _get_size: () ->
+    ctx = @plot_view.canvas_view.ctx
+    @visuals.text.set_value(ctx)
+
+    side = @model.panel.side
+    if side == "above" or side == "below"
+      height = ctx.measureText(@mget('text')).ascent
+      return height
+    if side == 'left' or side == 'right'
+      width = ctx.measureText(@mget('text')).width
+      return width
+
   _canvas_text: (ctx, i, text, sx, sy, angle) ->
+    debugger;
     [text_width, text_height] = @_calculate_text_dimensions(ctx, i, text)
     [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, i, text_width, text_height)
 
@@ -158,19 +206,18 @@ class Title extends Annotation.Model
   @mixins ['text', 'line:border_', 'fill:background_']
 
   @define {
-      x:            [ p.Number,                      ]
-      y:            [ p.Number,                      ]
-      text:         [ p.String,                      ]
-      angle:        [ p.Angle,       0               ]
-      angle_units:  [ p.AngleUnits,  'rad'           ]
-      render_mode:  [ p.RenderMode,  'canvas'        ]
+      text:             [ p.String,                      ]
+      location:         [ p.Location,    'left'          ]
+      title_alignment:  [ p.TextAlign,   'left'          ]
+      title_padding:    [ p.Number,      0               ]
+      angle:            [ p.Angle,       0               ]
+      angle_units:      [ p.AngleUnits,  'rad'           ]
+      render_mode:      [ p.RenderMode,  'canvas'        ]
     }
 
   @override {
-    background_fill_color: null
+    background_fill_color: 'green'
     border_line_color: null
-    text_font_size: "14pt"
-    text_font_style: "bold"
   }
 
 module.exports =

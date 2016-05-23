@@ -255,6 +255,7 @@ def test_Title():
     assert title.level == 'annotation'
     assert title.text is None
     assert title.title_alignment == 'left'
+    assert title.title_padding == 0
     assert title.angle == 0
     assert title.angle_units == 'rad'
     assert title.text_font == 'helvetica'
@@ -269,6 +270,7 @@ def test_Title():
         "level",
         "text",
         "title_alignment",
+        "title_padding",
         "angle",
         "angle_units",
         "text_font",

@@ -60,7 +60,6 @@ class LabelView extends Renderer.View
     return [x_shift, y_shift]
 
   render: () ->
-
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
