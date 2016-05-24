@@ -13,7 +13,7 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis
+from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis, GridPlot
 from bokeh.models.tools import PanTool, Toolbar
 
 
@@ -154,3 +154,15 @@ def test_plot_raises_error_if_toolbar_and_logo_are_set():
 def test_plot_raises_error_if_toolbar_and_tools_are_set():
     with pytest.raises(ValueError):
         Plot(tools=[PanTool()], toolbar=Toolbar())
+
+
+############
+#
+# Test GridPlot
+#
+############
+
+
+def test_grid_plot_responsive_property_is_fixed_by_default():
+    gp = GridPlot()
+    assert gp.responsive is 'fixed'

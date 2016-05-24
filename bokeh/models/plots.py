@@ -704,7 +704,7 @@ class Plot(LayoutDOM):
 
 
 class GridPlot(LayoutDOM):
-    """ A 2D grid of plots rendered on separate canvases in an HTML table.
+    """ A 2D grid of plots rendered on separate canvases.
 
     """
 
@@ -740,6 +740,8 @@ class GridPlot(LayoutDOM):
     Where the toolbar will be located. If set to None, no toolbar
     will be attached to the plot.
     """)
+
+    responsive = Override(default='fixed')
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
