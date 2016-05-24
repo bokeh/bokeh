@@ -385,6 +385,8 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
+    if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
+      @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
     @canvas_view.render(force_canvas)
 
     for k, v of @renderer_views
