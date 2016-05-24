@@ -119,4 +119,5 @@ module.exports = {
   line_width: line_width
   attach_float: attach_float
   attach_color: attach_color
+  color2rgba: color2rgba
 }

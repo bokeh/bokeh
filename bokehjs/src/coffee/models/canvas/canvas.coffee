@@ -70,12 +70,12 @@ class CanvasView extends BokehView
       canvas_el.attr('width', width*ratio)
       canvas_el.attr('height', height*ratio)
 
-      @ctx.scale(ratio, ratio)
-      @ctx.translate(0.5, 0.5)
-
       @last_dims = [width, height]
 
-    return
+    else
+      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
+
+    return ratio
 
   set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]
