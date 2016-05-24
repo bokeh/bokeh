@@ -32,6 +32,12 @@ class Annotation(Renderer):
 
     level = Override(default="annotation")
 
+@abstract
+class TextAnnotation(Annotation):
+    """ Base class for annotation models.
+
+    """
+
 class Legend(Annotation):
     """ Render informational legends for a plot.
 
@@ -242,7 +248,7 @@ class BoxAnnotation(Annotation):
 
     """)
 
-class Label(Annotation):
+class Label(TextAnnotation):
     """ Render a single text box as an annotation.
 
     """
@@ -340,7 +346,7 @@ class Label(Annotation):
 
     """)
 
-class LabelSet(Annotation):
+class LabelSet(TextAnnotation):
     """ Render a group of text boxes as annotations.
 
     """
@@ -529,8 +535,8 @@ class Span(Annotation):
     The %s values for the span.
     """)
 
-class Title(Annotation):
-    """ Render a single text box as an annotation.
+class Title(TextAnnotation):
+    """ Render a single title box as an annotation.
 
     """
 
