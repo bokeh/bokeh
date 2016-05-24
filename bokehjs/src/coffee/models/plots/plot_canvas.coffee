@@ -320,7 +320,7 @@ class PlotCanvasView extends Renderer.View
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-      
+
     for tool_view in tool_views
       level = tool_view.mget('level')
       @levels[level][tool_view.model.id] = tool_view
@@ -385,9 +385,9 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
-    if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
-      @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
-    @canvas_view.render(force_canvas)
+    # This seems not needed
+    #if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
+    #  @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -395,10 +395,20 @@ class PlotCanvasView extends Renderer.View
         break
 
     @update_constraints()
-
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
     @model.get('frame')._update_mappers()
+
+    ctx = @canvas_view.ctx
+
+    # Get hidpi ratio
+    ratio = @canvas_view.render(force_canvas)
+    ctx.pixel_ratio = ratio  # we need this in WebGL
+
+    # Set hidpi-transform
+    ctx.save()  # Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
+    ctx.scale(ratio, ratio)
+    ctx.translate(0.5, 0.5)
 
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
@@ -406,8 +416,6 @@ class PlotCanvasView extends Renderer.View
       @frame.get('width'),
       @frame.get('height'),
     ]
-
-    ctx = @canvas_view.ctx
 
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
@@ -424,8 +432,8 @@ class PlotCanvasView extends Renderer.View
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
       # Clipping
       gl.enable(gl.SCISSOR_TEST)
-      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
-      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
+      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
+      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
       # Setup blending
       gl.enable(gl.BLEND)
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
@@ -438,26 +446,23 @@ class PlotCanvasView extends Renderer.View
     @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
 
     if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. We set up offsets so the pixel
-      # mapping is one-on-one and we do not get any blurring due to
-      # interpolation. In theory, we could disable the image interpolation,
-      # and we can on Chrome, but then the result looks ugly on Firefox. Since
-      # the image *does* look sharp, this might be a bug in Firefox'
-      # interpolation-less image rendering.
-      # This is how we would disable image interpolation (keep as a reference)
-      #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-      #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
-      #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      src_offset = 0.0
-      dst_offset = 0.5
-      ctx.drawImage(ctx.glcanvas, src_offset, src_offset, ctx.glcanvas.width, ctx.glcanvas.height,
-                                  dst_offset, dst_offset, ctx.glcanvas.width, ctx.glcanvas.height)
+      # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      # to remove the hidpi transform, then blit, then restore.
+      # ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug('drawing with WebGL')
+      ctx.restore()
+      ctx.drawImage(ctx.glcanvas, 0, 0)
+      # Set back hidpi transform
+      ctx.save()
+      ctx.scale(ratio, ratio)
+      ctx.translate(0.5, 0.5)
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if not @initial_range_info?
       @set_initial_range()
+
+    ctx.restore()  # Restore to default state
 
   resize: () ->
     width = @model._width._value
@@ -800,7 +805,7 @@ class PlotCanvas extends LayoutDOM.Model
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
 
-  # TODO: This is less than awesome - this is here purely for tests to pass. Need to 
+  # TODO: This is less than awesome - this is here purely for tests to pass. Need to
   # find a better way, but this was expedient for now.
   plot_canvas: () ->
     return @
