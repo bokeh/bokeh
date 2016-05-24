@@ -11,7 +11,6 @@ class MarkerGLGlyph extends BaseGLGlyph
     precision mediump float;
     const float SQRT_2 = 1.4142135623730951;
     //
-    uniform float u_pixel_ratio;
     uniform vec2 u_canvas_size;
     uniform vec2 u_offset;
     uniform vec2 u_scale;
@@ -33,18 +32,17 @@ class MarkerGLGlyph extends BaseGLGlyph
 
     void main (void)
     {
-        v_size = a_size * u_pixel_ratio;
-        v_linewidth = a_linewidth * u_pixel_ratio;
+        v_size = a_size;
+        v_linewidth = a_linewidth;
         v_fg_color = a_fg_color;
         v_bg_color = a_bg_color;
         v_rotation = vec2(cos(-a_angle), sin(-a_angle));
         // Calculate position - the -0.5 is to correct for canvas origin
-        vec2 pos = (vec2(a_x, a_y) + u_offset) * u_scale; // in pixels
-        pos += 0.5;  // make up for Bokeh's offset
-        pos /= u_canvas_size / u_pixel_ratio;  // in 0..1
+        vec2 pos = (vec2(a_x, a_y) + u_offset) * u_scale - vec2(0.5, 0.5); // in pixels
+        pos /= u_canvas_size;  // in 0..1
         gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
         gl_Position.y *= -1.0;
-        gl_PointSize = SQRT_2 * v_size + 2.0 * (v_linewidth + 1.5*u_antialias);
+        gl_PointSize = SQRT_2 * v_size + 2.0 * (a_linewidth + 1.5*u_antialias);
     }
     """
 
@@ -157,7 +155,6 @@ class MarkerGLGlyph extends BaseGLGlyph
     # Handle transformation to device coordinates
     # Note the baked-in offset to avoid float32 precision problems
     baked_offset = mainGlGlyph._baked_offset
-    @prog.set_uniform('u_pixel_ratio', 'float', [trans.pixel_ratio])
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
     @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
@@ -250,7 +247,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line, 'line')
     attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill, 'fill')
     # Static value for antialias. Smaller aa-region to obtain crisper images
-    @prog.set_uniform('u_antialias', 'float', [0.8])
+    @prog.set_uniform('u_antialias', 'float', [0.4])
 
 
 class CircleGLGlyph extends MarkerGLGlyph
@@ -301,7 +298,7 @@ class DiamondGLGlyph extends MarkerGLGlyph
         float x = SQRT_2 / 2.0 * (P.x * 1.5 - P.y);
         float y = SQRT_2 / 2.0 * (P.x * 1.5 + P.y);
         float r1 = max(abs(x), abs(y)) - size / (2.0 * SQRT_2);
-        return r1 / SQRT_2;
+        return r1;
     }
     """
 
@@ -317,7 +314,7 @@ class TriangleGLGlyph extends MarkerGLGlyph
         float y = SQRT_2 / 2.0 * (P.x * 1.7 + P.y);
         float r1 = max(abs(x), abs(y)) - size / 1.6;
         float r2 = P.y;
-        return max(r1 / SQRT_2, r2);  // Instersect diamond with rectangle
+        return max(r1, r2);  // Instersect diamond with rectangle
     }
     """
 
@@ -333,7 +330,7 @@ class InvertedTriangleGLGlyph extends MarkerGLGlyph
         float y = SQRT_2 / 2.0 * (P.x * 1.7 + P.y);
         float r1 = max(abs(x), abs(y)) - size / 1.6;
         float r2 = - P.y;
-        return max(r1 / SQRT_2, r2);  // Instersect diamond with rectangle
+        return max(r1, r2);  // Instersect diamond with rectangle
     }
     """
 
@@ -344,7 +341,7 @@ class CrossGLGlyph extends MarkerGLGlyph
   MARKERCODE: """
     float marker(vec2 P, float size)
     {
-        float square = max(abs(P.x), abs(P.y)) - size / 2.5;  // 2.5 is a tweak
+        float square = max(abs(P.x), abs(P.y)) - size/2.0 + 0.5;
         float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
         return max(square, cross);
     }
@@ -358,7 +355,7 @@ class CircleCrossGLGlyph extends MarkerGLGlyph
     float marker(vec2 P, float size)
     {
         // Define quadrants
-        float qs = size / 2.0;  // quadrant size
+        float qs = size / 4.0;  // quadrant size
         float s1 = max(abs(P.x - qs), abs(P.y - qs)) - qs;
         float s2 = max(abs(P.x + qs), abs(P.y - qs)) - qs;
         float s3 = max(abs(P.x - qs), abs(P.y + qs)) - qs;
@@ -382,7 +379,7 @@ class SquareCrossGLGlyph extends MarkerGLGlyph
     float marker(vec2 P, float size)
     {
         // Define quadrants
-        float qs = size / 2.0;  // quadrant size
+        float qs = size / 4.0;  // quadrant size
         float s1 = max(abs(P.x - qs), abs(P.y - qs)) - qs;
         float s2 = max(abs(P.x + qs), abs(P.y - qs)) - qs;
         float s3 = max(abs(P.x - qs), abs(P.y + qs)) - qs;
@@ -406,7 +403,7 @@ class DiamondCrossGLGlyph extends MarkerGLGlyph
     float marker(vec2 P, float size)
     {
         // Define quadrants
-        float qs = size / 2.0;  // quadrant size
+        float qs = size / 4.0;  // quadrant size
         float s1 = max(abs(P.x - qs), abs(P.y - qs)) - qs;
         float s2 = max(abs(P.x + qs), abs(P.y - qs)) - qs;
         float s3 = max(abs(P.x - qs), abs(P.y + qs)) - qs;
@@ -415,7 +412,6 @@ class DiamondCrossGLGlyph extends MarkerGLGlyph
         float x = SQRT_2 / 2.0 * (P.x * 1.5 - P.y);
         float y = SQRT_2 / 2.0 * (P.x * 1.5 + P.y);
         float diamond = max(abs(x), abs(y)) - size / (2.0 * SQRT_2);
-        diamond /= SQRT_2;
         float c1 = max(diamond, s1);
         float c2 = max(diamond, s2);
         float c3 = max(diamond, s3);
@@ -432,9 +428,9 @@ class XGLGlyph extends MarkerGLGlyph
   MARKERCODE: """
     float marker(vec2 P, float size)
     {
-        float circle = length(P) - size / 1.6;
+        float square = max(abs(P.x), abs(P.y)) - size/2.0 + 0.5;
         float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
-        return max(circle, X);
+        return max(square, X);
     }
     """
 
@@ -462,9 +458,9 @@ class CircleXGLGlyph extends MarkerGLGlyph
         // Union
         float almost = min(min(min(c1, c2), c3), c4);
         // In this case, the X is also outside of the main shape
-        float Xmask = length(P) - size / 1.6;  // a circle
+        float square = max(abs(P.x), abs(P.y)) - size/2.0;
         float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
-        return min(max(X, Xmask), almost);
+        return min(max(X, square), almost);
     }
     """
 
@@ -501,14 +497,11 @@ class AsteriskGLGlyph extends MarkerGLGlyph
   MARKERCODE: """
     float marker(vec2 P, float size)
     {
-        // Masks
-        float diamond = max(abs(SQRT_2 / 2.0 * (P.x - P.y)), abs(SQRT_2 / 2.0 * (P.x + P.y))) - size / (2.0 * SQRT_2);
-        float square = max(abs(P.x), abs(P.y)) - size / (2.0 * SQRT_2);
-        // Shapes
+        float circle = length(P) - size/2.0 + 1.0;
         float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
         float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
-        // Result is union of masked shapes
-        return min(max(X, diamond), max(cross, square));
+        float asterisk = min(X, cross);
+        return max(circle, asterisk);  // limit to size of circle
     }
     """
 
