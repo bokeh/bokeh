@@ -30,8 +30,7 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.plots import GridPlot
-from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column, WidgetBox
+from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column, WidgetBox, GridPlot
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms

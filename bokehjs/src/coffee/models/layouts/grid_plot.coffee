@@ -1,3 +1,5 @@
+p = require "../../core/properties"
+
 Box = require "./box"
 
 
@@ -14,6 +16,12 @@ class GridPlot extends Box.Model
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
       @_horizontal = true
+    @spacing = @border_space
+
+  @define {
+    border_space: [ p.Number, 0 ]
+    toolbar_location: [ p.Location, 'left' ]
+  }
 
 module.exports =
   View: GridPlotView
