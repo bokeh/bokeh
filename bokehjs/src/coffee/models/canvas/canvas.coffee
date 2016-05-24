@@ -69,12 +69,12 @@ class CanvasView extends BokehView
       @$('div.bk-canvas-overlays').attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
       @$('div.bk-canvas-events').attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
+      @ctx.scale(ratio, ratio)
+      @ctx.translate(0.5, 0.5)
+
       @last_dims = [width, height]
 
-    else
-      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
-
-    return ratio
+    return
 
   set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]

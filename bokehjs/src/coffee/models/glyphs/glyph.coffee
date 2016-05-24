@@ -53,7 +53,6 @@ class GlyphView extends Renderer.View
       return false
     [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
     trans =
-        pixel_ratio: ctx.pixel_ratio,  # pass pixel_ratio to webgl
         width: ctx.glcanvas.width, height: ctx.glcanvas.height,
         dx: dx[0]/sx, dy: dy[0]/sy, sx: sx, sy: sy
     @glglyph.draw(indices, mainglyph, trans)
