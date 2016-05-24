@@ -31,11 +31,11 @@ class TitleView extends Renderer.View
   _computed_location: () ->
     switch @model.panel.side
       when 'left'
-        vx = 0 + @mget('title_padding')
-        vy = @_get_text_location(@mget('title_alignment'), 'height')
+        vx = 0
+        vy = @_get_text_location(@mget('title_alignment'), 'height') + @mget('title_padding')
       when 'right'
-        vx = @canvas.get('right') + @mget('title_padding')
-        vy = @canvas.get('height') - @_get_text_location(@mget('title_alignment'), 'height')
+        vx = @canvas.get('right')
+        vy = @canvas.get('height') - @_get_text_location(@mget('title_alignment'), 'height') + @mget('title_padding')
       when 'above'
         vx = @_get_text_location(@mget('title_alignment'), 'width') + @mget('title_padding')
         vy = @canvas.get('top')
@@ -196,7 +196,7 @@ class Title extends Annotation.Model
     }
 
   @override {
-    background_fill_color: "green"
+    background_fill_color: null
     border_line_color: null
   }
 
