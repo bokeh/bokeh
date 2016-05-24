@@ -256,8 +256,6 @@ def test_Title():
     assert title.text is None
     assert title.title_alignment == 'left'
     assert title.title_padding == 0
-    assert title.angle == 0
-    assert title.angle_units == 'rad'
     assert title.text_font == 'helvetica'
     assert title.text_font_size == {'value': '12pt'}
     assert title.text_font_style == 'normal'
@@ -271,8 +269,6 @@ def test_Title():
         "text",
         "title_alignment",
         "title_padding",
-        "angle",
-        "angle_units",
         "text_font",
         "text_font_size",
         "text_font_style",

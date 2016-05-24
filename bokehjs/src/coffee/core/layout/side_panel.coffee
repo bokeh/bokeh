@@ -37,6 +37,8 @@ p = require "../../core/properties"
 
 pi2 = Math.PI/2
 ALPHABETIC = 'alphabetic'
+TOP = 'top'
+BOTTOM = 'bottom'
 MIDDLE = 'middle'
 HANGING = 'hanging'
 LEFT = 'left'
@@ -68,21 +70,25 @@ _angle_lookup = {
 
 _baseline_lookup = {
   above:
+    justified  : TOP
     parallel   : ALPHABETIC
     normal     : MIDDLE
     horizontal : ALPHABETIC
     vertical   : MIDDLE
   below:
+    justified  : BOTTOM
     parallel   : HANGING
     normal     : MIDDLE
     horizontal : HANGING
     vertical   : MIDDLE
   left:
+    justified  : TOP
     parallel   : ALPHABETIC
     normal     : MIDDLE
     horizontal : MIDDLE
     vertical   : ALPHABETIC
   right:
+    justified  : TOP
     parallel   : ALPHABETIC
     normal     : MIDDLE
     horizontal : MIDDLE
@@ -91,21 +97,25 @@ _baseline_lookup = {
 
 _align_lookup = {
   above:
+    justified  : CENTER
     parallel   : CENTER
     normal     : LEFT
     horizontal : CENTER
     vertical   : LEFT
   below:
+    justified  : CENTER
     parallel   : CENTER
     normal     : LEFT
     horizontal : CENTER
     vertical   : RIGHT
   left:
+    justified  : CENTER
     parallel   : CENTER
     normal     : RIGHT
     horizontal : RIGHT
     vertical   : CENTER
   right:
+    justified  : CENTER
     parallel   : CENTER
     normal     : LEFT
     horizontal : LEFT

@@ -538,27 +538,13 @@ class Title(Annotation):
     The text value to render.
     """)
 
-    title_alignment = Enum(TextAlign, default='left', help="""
+    title_alignment = Enum(TextAlign, default='center', help="""
     Location to align the title text.
     """
     )
 
     title_padding = Float(default=0, help="""
     Offset value to apply to the title alignment coordinate.
-    """)
-
-    angle = Angle(default=0, help="""
-    The angle to rotate the text, as measured from the horizontal.
-
-    .. warning::
-        The center of rotation for canvas and css render_modes is different.
-        For `render_mode="canvas"` the label is rotated from the top-left
-        corner of the annotation, while for `render_mode="css"` the annotation
-        is rotated around it's center.
-    """)
-
-    angle_units = Enum(AngleUnits, default='rad', help="""
-    Acceptable values for units are ``"rad"`` and ``"deg"``
     """)
 
     text_font = String("helvetica", help="""

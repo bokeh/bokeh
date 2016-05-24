@@ -20,27 +20,48 @@ class TitleView extends Renderer.View
       @listenTo(@model, 'change', @plot_view.request_render)
 
   _initialize_properties: () ->
+    @frame = @plot_model.get('frame')
     @canvas = @plot_model.get('canvas')
 
     if @mget('render_mode') == 'css'
-      @$el.addClass('bk-label-parent')
-
-      @label_div = $("<div>").addClass('bk-label-child').hide()
-      @label_div.appendTo(@$el)
+      @$el.addClass('bk-title')
 
       @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
 
-    for name, prop of @visuals
-      prop.warm_cache(null)
+  _computed_location: () ->
+    switch @model.panel.side
+      when 'left'
+        vx = 0 + @mget('title_padding')
+        vy = @_get_text_location(@mget('title_alignment'), 'height')
+      when 'right'
+        vx = @canvas.get('right') + @mget('title_padding')
+        vy = @canvas.get('height') - @_get_text_location(@mget('title_alignment'), 'height')
+      when 'above'
+        vx = @_get_text_location(@mget('title_alignment'), 'width') + @mget('title_padding')
+        vy = @canvas.get('top')
+      when 'below'
+        vx = @_get_text_location(@mget('title_alignment'), 'width') + @mget('title_padding')
+        vy = 0
+    return [vx, vy]
 
-  _calculate_text_dimensions: (ctx, i, text) ->
-    @visuals.text.set_vectorize(ctx, i)
+  _get_text_location: (alignment, canvas_dimension) ->
+    switch alignment
+      when 'left'
+        text_location = 0
+      when 'center'
+        text_location = @canvas.get(canvas_dimension)/2
+      when 'right'
+        text_location = @canvas.get(canvas_dimension)
+    return text_location
+
+  _calculate_text_dimensions: (ctx, text) ->
+    @visuals.text.set_value(ctx)
     width = [ctx.measureText(text).width]
     height = [get_text_height(@visuals.text.font_value()).height]
     return [width, height]
 
-  _calculate_rect_offset: (ctx, i, width, height) ->
-    @visuals.text.set_vectorize(ctx, i)
+  _calculate_rect_offset: (ctx, width, height) ->
+    @visuals.text.set_value(ctx)
     switch ctx.textAlign
       when 'left' then x_shift = 0
       when 'center' then x_shift = -width / 2
@@ -60,68 +81,30 @@ class TitleView extends Renderer.View
   render: () ->
     ctx = @plot_view.canvas_view.ctx
 
-    # Here because AngleSpec does units tranform and label doesn't support specs
-    angle = switch @mget('angle_units')
-      when "rad" then -1 * @mget('angle')
-      when "deg" then -1 * @mget('angle') * Math.PI/180.0
+    @model.panel.apply_label_text_heuristics(ctx, 'justified')
+    @mset('text_baseline', ctx.textBaseline)
+    @mset('text_align', @mget('title_alignment'))
 
-    switch @model.panel.side
-      when 'left'
-        vx = 0
-        [vy, text_align] = @_get_alignment_values(@mget('title_alignment'), 'height')
-        @mset('text_baseline', 'middle')
-      when 'right'
-        vx = @canvas.get('right')
-        [vy, text_align] = @_get_alignment_values(@mget('title_alignment'), 'height')
-        @mset('text_baseline', 'middle')
-      when 'above'
-        [vx, text_align] = @_get_alignment_values(@mget('title_alignment'), 'width')
-        vy = @canvas.get('top')
-        @mset('text_baseline', 'top')
-      when 'below'
-        [vx, text_align] = @_get_alignment_values(@mget('title_alignment'), 'width')
-        vy = 0
-        @mset('text_baseline', 'bottom')
+    angle = @model.panel.get_label_angle_heuristic('parallel')
 
-    @mset('text_align', text_align)
+    [vx, vy] = @_computed_location()
 
     sx = @canvas.vx_to_sx(vx)
     sy = @canvas.vy_to_sy(vy)
 
     if @mget('render_mode') == 'canvas'
-      @_canvas_text(ctx, 0, @mget('text'), sx, sy, angle)
+      @_canvas_text(ctx, @mget('text'), sx, sy, angle)
     else
-      @_css_text(ctx, 0, @mget('text'), sx, sy, angle)
-
-  _get_alignment_values: (alignment, canvas_dimension) ->
-    switch alignment
-      when 'left'
-        text_location = 0
-        text_align = 'left'
-      when 'center'
-        text_location = @canvas.get(canvas_dimension)/2
-        text_align = 'center'
-      when 'right'
-        text_location = @canvas.get(canvas_dimension)
-        text_align = 'right'
-    return [text_location, text_align]
+      @_css_text(ctx, @mget('text'), sx, sy, angle)
 
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx
     @visuals.text.set_value(ctx)
+    return ctx.measureText(@mget('text')).ascent
 
-    side = @model.panel.side
-    if side == "above" or side == "below"
-      height = ctx.measureText(@mget('text')).ascent
-      return height
-    if side == 'left' or side == 'right'
-      width = ctx.measureText(@mget('text')).width
-      return width
-
-  _canvas_text: (ctx, i, text, sx, sy, angle) ->
-    debugger;
-    [text_width, text_height] = @_calculate_text_dimensions(ctx, i, text)
-    [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, i, text_width, text_height)
+  _canvas_text: (ctx, text, sx, sy, angle) ->
+    [text_width, text_height] = @_calculate_text_dimensions(ctx, text)
+    [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, text_width, text_height)
 
     ctx.save()
 
@@ -132,24 +115,25 @@ class TitleView extends Renderer.View
     ctx.rect(x_rect_offset, y_rect_offset, text_width, text_height)
 
     if @visuals.background_fill.doit
-      @visuals.background_fill.set_vectorize(ctx, i)
+      @visuals.background_fill.set_value(ctx)
       ctx.fill()
 
     if @visuals.border_line.doit
-      @visuals.border_line.set_vectorize(ctx, i)
+      @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
     if @visuals.text.doit
-      @visuals.text.set_vectorize(ctx, i)
+      @visuals.text.set_value(ctx)
+      # ctx.textBaseline = "bottom"
       ctx.fillText(text, 0, 0)
 
     ctx.restore()
 
-  _css_text: (ctx, i, text, sx, sy, angle) ->
-    [text_width, text_height] = @_calculate_text_dimensions(ctx, i, text)
-    [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, i, text_width, text_height)
+  _css_text: (ctx, text, sx, sy, angle) ->
+    [text_width, text_height] = @_calculate_text_dimensions(ctx, text)
+    [ x_rect_offset, y_rect_offset ] = @_calculate_rect_offset(ctx, text_width, text_height)
 
-    @visuals.text.set_vectorize(ctx, i)
+    @visuals.text.set_value(ctx)
 
     # attempt to support vector-style ("8 4 8") line dashing for css mode
     ld = @visuals.border_line.line_dash.value()
@@ -161,8 +145,8 @@ class TitleView extends Renderer.View
     if _.isString(ld)
         line_dash = ld
 
-    @visuals.border_line.set_vectorize(ctx, i)
-    @visuals.background_fill.set_vectorize(ctx, i)
+    @visuals.border_line.set_value(ctx)
+    @visuals.background_fill.set_value(ctx)
 
     div_style = {
       'position': 'absolute'
@@ -193,10 +177,9 @@ class TitleView extends Renderer.View
         'border-color': "#{@visuals.border_line.color_value()}"
       })
 
-    @$el.children().eq(i)
-                   .html(text)
-                   .css(div_style)
-                   .show()
+    @$el.html(text)
+        .css(div_style)
+        .show()
 
 class Title extends Annotation.Model
   default_view: TitleView
@@ -207,16 +190,13 @@ class Title extends Annotation.Model
 
   @define {
       text:             [ p.String,                      ]
-      location:         [ p.Location,    'left'          ]
-      title_alignment:  [ p.TextAlign,   'left'          ]
+      title_alignment:  [ p.TextAlign,   'center'        ]
       title_padding:    [ p.Number,      0               ]
-      angle:            [ p.Angle,       0               ]
-      angle_units:      [ p.AngleUnits,  'rad'           ]
       render_mode:      [ p.RenderMode,  'canvas'        ]
     }
 
   @override {
-    background_fill_color: 'green'
+    background_fill_color: "green"
     border_line_color: null
   }
 
