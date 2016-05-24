@@ -1,6 +1,6 @@
 gloo2 = require "gloo2"
 {logger} = require "../../../core/logging"
-{BaseGLGlyph, line_width, attach_float, attach_color, color2rgba} = require "./base"
+{BaseGLGlyph, line_width, attach_float, attach_color} = require "./base"
 
 
 class DashAtlas
@@ -89,7 +89,6 @@ class LineGLGlyph extends BaseGLGlyph
       const float PI = 3.14159265358979323846264;
       const float THETA = 15.0 * 3.14159265358979323846264/180.0;
 
-      uniform float u_pixel_ratio;
       uniform vec2 u_canvas_size, u_offset;
       uniform vec2 u_scale_aspect;
       uniform float u_scale_length;
@@ -139,7 +138,7 @@ class LineGLGlyph extends BaseGLGlyph
 
           // Attributes and uniforms to varyings
           v_color = u_color;
-          v_linewidth = u_linewidth * u_pixel_ratio;
+          v_linewidth = u_linewidth;
           v_segment = a_segment * u_scale_length;
           v_length = u_length * u_scale_length;
 
@@ -167,7 +166,7 @@ class LineGLGlyph extends BaseGLGlyph
           }
 
           // This is the actual half width of the line
-          float w = ceil(u_antialias+v_linewidth)/2.0;
+          float w = ceil(1.25*u_antialias+v_linewidth)/2.0;
 
           vec2 position = (a_position + u_offset) * abs_scale;
 
@@ -297,9 +296,8 @@ class LineGLGlyph extends BaseGLGlyph
 
           // Calculate position in device coordinates. Note that we
           // already scaled with abs scale above.
-          vec2 normpos = position * sign(u_scale_aspect);
-          normpos += 0.5;  // make up for Bokeh's offset
-          normpos /= u_canvas_size / u_pixel_ratio;  // in 0..1
+          vec2 normpos = position * sign(u_scale_aspect) - vec2(0.5, 0.5);
+          normpos /= u_canvas_size;  // in 0..1
           gl_Position = vec4(normpos*2.0-1.0, 0.0, 1.0);
           gl_Position.y *= -1.0;
       }
@@ -684,7 +682,6 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Handle transformation to device coordinates
       baked_offset = mainGlGlyph._baked_offset
-      @prog.set_uniform('u_pixel_ratio', 'float', [trans.pixel_ratio])
       @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
       @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
