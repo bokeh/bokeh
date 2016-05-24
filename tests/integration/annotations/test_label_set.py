@@ -13,9 +13,13 @@ def test_label(output_file_url, selenium, screenshot):
 
     source = ColumnDataSource(data=dict(text=['one', 'two', 'three'],
                                         x1=[1,4,7],
-                                        x2=[60,240,420])
+                                        x2=[60,240,420]))
 
     # Have to specify x/y range as labels aren't included in the plot area solver
+    plot = Plot(plot_height=HEIGHT, plot_width=WIDTH,
+                x_range=Range1d(0, 10), y_range=Range1d(0, 10),
+                toolbar_location=None)
+
     label_set1 = LabelSet(x='x1', y=2, x_offset=25, y_offset=25,
                           text="text", source=source,
                           text_font_size='38pt', text_color='red', text_alpha=0.9,
