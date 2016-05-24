@@ -43,6 +43,11 @@ class LabelView extends TextAnnotation.View
       vy = @mget('y')
     sy = @canvas.vy_to_sy(vy)
 
+    if @model.panel?
+      panel_offset = @_get_panel_offset()
+      sx += panel_offset.x
+      sy += panel_offset.y
+
     if @mget('render_mode') == 'canvas'
       @_canvas_text(ctx, @mget('text'), sx + @mget('x_offset'), sy - @mget('y_offset'), angle)
     else
