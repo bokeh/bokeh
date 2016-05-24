@@ -63,6 +63,7 @@ module.exports = {
   Column:                   require '../models/layouts/column'
   Row:                      require '../models/layouts/row'
   WidgetBox:                require '../models/layouts/widget_box'
+  ToolbarBox:               require '../models/layouts/toolbar_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
