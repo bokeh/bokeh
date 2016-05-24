@@ -586,22 +586,14 @@ class Plot(LayoutDOM):
             """)
         self.toolbar.logo = value
 
+    # TODO(bird) I have removed the deprecation warnings
+    # from these properties, I think they are a very useful convenience.
     @property
     def tools(self):
-        warnings.warn(
-            """
-            Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
-            User 'toolbar.tools' instead.
-            """)
         return self.toolbar.tools
 
     @tools.setter
     def tools(self, tools):
-        warnings.warn(
-            """
-            Plot property 'tools' was deprecated in Bokeh 0.12.0 and will be removed.
-            User 'toolbar.tools' instead.
-            """)
         self.toolbar.tools = tools
 
     background_props = Include(FillProps, help="""

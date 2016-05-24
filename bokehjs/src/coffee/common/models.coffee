@@ -63,7 +63,6 @@ module.exports = {
   Column:                   require '../models/layouts/column'
   Row:                      require '../models/layouts/row'
   WidgetBox:                require '../models/layouts/widget_box'
-  ToolbarBox:               require '../models/layouts/toolbar_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
@@ -127,6 +126,7 @@ module.exports = {
   ImageSource:              require '../models/tiles/image_source'
 
   Toolbar:                  require '../models/tools/toolbar'
+  ToolbarBox:               require '../models/tools/toolbar_box'
 
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'

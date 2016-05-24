@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 from ..core import validation
 from ..core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ..core.properties import abstract, Bool, Int, Instance, List, Responsive, Enum
-from ..core.enums import Orientation
+from ..core.properties import abstract, Bool, Int, Instance, List, Responsive
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
@@ -164,20 +163,6 @@ class Column(Box):
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
     """
-
-
-class ToolbarBox(Box):
-    """ Holds a toolbar that can be added to a document independently of plots.
-    """
-
-    toolbar = Instance('bokeh.models.tools.Toolbar', help="""
-        The toolbar to be displayed in the box.
-    """)
-
-    orientation = Enum(Orientation, default='horizontal', help="""
-        Should the toolbar be displayed vertically, in which case the ToolbarBox will behave
-        like a column, or horizontally - and the box will behave like a Column.
-    """)
 
 
 # ---- DEPRECATIONS

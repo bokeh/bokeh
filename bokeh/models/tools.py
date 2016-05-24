@@ -27,7 +27,7 @@ from ..core.properties import abstract, Float, Color
 from ..core.properties import (
     Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 )
-from ..core.enums import Dimension
+from ..core.enums import Dimension, Orientation
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
@@ -55,8 +55,11 @@ class Tool(Model):
     """)
 
 
-class Toolbar(Model):
-    """ Hold tools to display
+@abstract
+class ToolbarBase(LayoutDOM):
+    """ A base class for different toolbars. ``ToolbarBase`` is
+    not generally useful to instantiate on its own.
+
     """
 
     logo = Enum("normal", "grey", help="""
@@ -66,6 +69,28 @@ class Toolbar(Model):
 
     tools = List(Instance(Tool), help="""
     A list of tools to add to the plot.
+    """)
+
+
+class Toolbar(ToolbarBase):
+    """ Hold tools to display for a single plot.
+
+    """
+
+
+class ToolbarBox(ToolbarBase):
+    """ A layoutable toolbar that can accept the tools of multiple plots, and
+    can merge the tools into a single button for convenience.
+
+    """
+
+    orientation = Enum(Orientation, default='horizontal', help="""
+        Should the toolbar be displayed vertically, in which case the ToolbarBox will behave
+        like a column, or horizontally - and the box will behave like a Column.
+    """)
+
+    merge_tools = Bool(default=True, help="""
+        Merge all the tools together so there is one tool to control all the plots.
     """)
 
 
