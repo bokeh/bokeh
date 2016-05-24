@@ -44,7 +44,7 @@ def test_title(output_file_url, selenium, screenshot):
     plot.add_layout(title4, 'right')
 
     # Save the plot and start the test
-    save(plot)
+    save(plot) 
     selenium.get(output_file_url)
 
     # Take screenshot
