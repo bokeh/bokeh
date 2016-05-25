@@ -93,7 +93,6 @@ module.exports = {
 
   ## api/typings/models/plots.d.ts
   Plot:                                   require("../models/plots/plot").Model
-  GridPlot:                               require("../models/layouts/grid_plot").Model
 
   ## api/typings/models/ranges.d.ts
   Range:                                  require("../models/ranges/range").Model
