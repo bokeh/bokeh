@@ -46,12 +46,15 @@ class LayoutDOMView extends BokehView
     s = @model.document.solver()
 
     if @model.responsive is 'fixed'
-      s.suggest_value(@model._width, @model.width)
-      s.suggest_value(@model._height, @model.height)
+      width = if @model.width? then @model.width else @get_width()
+      height = if @model.height? then @model.height else @get_height()
+
+      s.suggest_value(@model._width, width)
+      s.suggest_value(@model._height, height)
       s.update_variables()
       @$el.css({
-        width: @model.width
-        height: @model.height
+        width: width
+        height: height
       })
 
     if @model.responsive is 'width_ar'
