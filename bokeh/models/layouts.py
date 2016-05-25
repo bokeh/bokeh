@@ -12,18 +12,12 @@ from ..core import validation
 from ..core.validation.warnings import (
     EMPTY_LAYOUT,
     BOTH_CHILD_AND_ROOT,
-    MISSING_RENDERERS,
-    NO_DATA_RENDERERS,
 )
-from ..core.validation.errors import REQUIRED_RANGE
-from ..core.enums import Location
-from ..core.properties import abstract, Bool, Int, Instance, List, Responsive, Enum
+from ..core.enums import Location, Responsive as ResponsiveEnum
+from ..core.properties import abstract, Bool, Int, Instance, List, Responsive
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
-
-from ..core.query import find
-from ..util.plot_utils import _list_attr_splat, _select_helper
 
 
 @abstract
@@ -176,84 +170,94 @@ class Column(Box):
     """
 
 
-class GridPlot(Box):
-    """ A 2D grid of plots rendered on separate canvases.
+def GridPlot(children=None, toolbar_location='left', responsive='box', toolbar_options=None, *args):
+    """ Create a grid of plots rendered on separate canvases.
+
+    Args:
+        children List(List(Instance(Plot))): An array of plots to display in a
+        grid, given as a list of lists of Plot objects. To leave a position in
+        the grid empty, pass None for that position in the children list.
+
+        toolbar_location Enum(``above``, ``below``, ``left``, ``right``) : Where the
+        toolbar will be located, with respect to the grid. If set to None,
+        no toolbar will be attached to the grid.
+
+        responsive Enum(``box``, ``fixed``, ``width_ar``, ``height_ar``, ``box_ar``) :  How
+        the grid will respond to the html page. Default is ``box``.
+
+        toolbar_options Dict (optional) : A dictionary of options that will be used to construct the
+        toolbar (an instance of class::bokeh.models.tools.ToolbarBox). If none is supplied,
+        ToolbarBox's defaults will be used.
+
+    Examples:
+
+        >>> GridPlot([[plot_1, plot_2], [plot_3, plot_4]])
+        >>> GridPlot(
+                children=[[plot_1, plot_2]],
+                toolbar_location='right'
+                responsive='fixed',
+                toolbar_options=dict(logo='gray')
+            )
 
     """
-    def __init__(self, *args, **kwargs):
-        if len(args) > 0 and "children" in kwargs:
-            raise ValueError("'children' keyword cannot be used with positional arguments")
-        elif len(args) > 0:
-            nested_children = list(args)
-        else:
-            nested_children = kwargs['children']
+    from bokeh.models.tools import ToolbarBox
 
-        toolbar_location = kwargs.get('toolbar_location', 'left')
-        responsive = kwargs.get('responsive', 'box')
+    # Integrity checks
 
-        # Make the grid
-        tools = []
-        rows = []
+    if len(args) > 0 and children is not None:
+        raise ValueError("'children' keyword cannot be used with positional arguments")
+    elif len(args) > 0:
+        children = list(args)
 
-        for row in nested_children:
-            row_tools = []
-            for plot in row:
-                if plot:
-                    row_tools = row_tools + plot.toolbar.tools
-                    plot.toolbar_location = None
-                    plot.responsive = responsive
-            tools = tools + row_tools
-            rows.append(Row(children=row, responsive=responsive))
+    if not children:
+        children = []
 
-        grid = Column(children=rows, responsive=responsive)
+    if toolbar_location:
+        if not hasattr(Location, toolbar_location):
+            raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
+    if responsive:
+        if not hasattr(ResponsiveEnum, responsive):
+            raise ValueError("Invalid value of responsive: %s" % responsive)
 
-        # Make the toolbar
-        orientation = 'vertical'
-        if toolbar_location in ['above', 'below']:
-            orientation = 'horizontal'
+    # Make the grid
+    tools = []
+    rows = []
 
-        from bokeh.models.tools import ToolbarBox
+    for row in children:
+        row_tools = []
+        for plot in row:
+            if plot:
+                row_tools = row_tools + plot.toolbar.tools
+                plot.toolbar_location = None
+                plot.responsive = responsive
+        tools = tools + row_tools
+        rows.append(Row(children=row, responsive=responsive))
+
+    grid = Column(children=rows, responsive=responsive)
+
+    # Make the toolbar
+    if toolbar_location:
+        if not toolbar_options:
+            toolbar_options = {}
+        if 'toolbar_location' not in toolbar_options:
+            toolbar_options['toolbar_location'] = toolbar_location
         toolbar = ToolbarBox(
             tools=tools,
-            orientation=orientation,
-            merge_tools=True,
-            responsive=responsive
+            responsive=responsive,
+            **toolbar_options
         )
 
-        # Assign the new children
-        if toolbar_location in ['left', 'above']:
-            kwargs['children'] = [toolbar, grid]
-        else:
-            kwargs['children'] = [grid, toolbar]
-
-        super(GridPlot, self).__init__(*args, **kwargs)
-
-    @validation.error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        pass
-
-    @validation.warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
-        pass
-
-    @validation.warning(NO_DATA_RENDERERS)
-    def _check_no_data_renderers(self):
-        pass
-
-    @validation.warning(EMPTY_LAYOUT)
-    def _check_empty_layout(self):
-        from itertools import chain
-        if not list(chain(self.children)):
-            return str(self)
-
-    border_space = Int(0, help="""
-    Distance (in pixels) between adjacent plots.
-    """)
-
-    toolbar_location = Enum(Location, default="left", help="""
-    Where the toolbar will be located. If set to None, no toolbar
-    will be attached to the plot.
-    """)
+    # Set up children
+    if toolbar_location == 'above':
+        return Column(children=[toolbar, grid], responsive=responsive)
+    elif toolbar_location == 'below':
+        return Column(children=[grid, toolbar], responsive=responsive)
+    elif toolbar_location == 'left':
+        return Row(children=[toolbar, grid], responsive=responsive)
+    elif toolbar_location == 'right':
+        return Row(children=[grid, toolbar], responsive=responsive)
+    else:
+        return grid
 
 
 # ---- DEPRECATIONS

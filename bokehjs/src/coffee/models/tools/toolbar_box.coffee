@@ -8,28 +8,20 @@ InspectTool = require "./inspectors/inspect_tool"
 ToolbarBase = require "./toolbar_base"
 {ToolProxy} = require "./tool_proxy"
 
+Box = require "../layouts/box"
 
-class ToolbarBox extends ToolbarBase.Model
-  type: 'ToolbarBox'
+
+class ToolbarBoxToolbar extends ToolbarBase.Model
+  type: 'ToolbarBoxToolbar'
   default_view: ToolbarBase.View
 
   initialize: (options) ->
     super(options)
-    if @orientation is "horizontal"
-      @_horizontal = true
-      @_sizeable = @_height
-      @location = 'above'
-    else
-      @_horizontal = false
-      @_sizeable = @_width
-      @location = 'left'
-
     @_init_tools()
     if @merge_tools is true
       @_merge_tools()
 
   @define {
-    orientation: [ p.Orientation, "horizontal" ]
     merge_tools: [ p.Bool, true ]
   }
 
@@ -110,6 +102,42 @@ class ToolbarBox extends ToolbarBase.Model
       @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         @gestures[et].tools[0].set('active', true)
+
+
+class ToolbarBoxView extends Box.View
+  className: 'bk-toolbar-box'
+
+
+class ToolbarBox extends Box.Model
+  type: 'ToolbarBox'
+  default_view: ToolbarBoxView
+
+  initialize: (options) ->
+    super(options)
+    @_toolbar = new ToolbarBoxToolbar(options)
+    if @toolbar_location in ['left', 'right']
+      @_horizontal = true
+      @_toolbar._sizeable = @_toolbar._width
+    else
+      @_horizontal = false
+      @_toolbar._sizeable = @_toolbar._height
+
+  _doc_attached: () ->
+    @_toolbar.attach_document(@document)
+
+  get_layoutable_children: () ->
+    return [@_toolbar]
+
+  @define {
+    toolbar_location: [ p.Location ]
+    merge_tools: [ p.Bool ]
+    tools: [ p.Array ]
+    logo: [ p.String ]
+  }
+
+  # These exist only to allow pass-through to create the toolbar.
+  @internal {
+  }
 
 
 module.exports =

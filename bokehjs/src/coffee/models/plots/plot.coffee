@@ -76,7 +76,7 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@toolbar)
     @_set_orientation_variables(@_plot_canvas)
 
-    @toolbar.location = @toolbar_location
+    @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
     @_plot_canvas.toolbar = @toolbar
 

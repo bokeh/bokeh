@@ -26,7 +26,7 @@ class ToolbarBaseView extends LayoutDOM.View
       'width': @model._width._value
       'height': @model._height._value
     })
-    location = if @model.location? then @model.location else 'above'
+    location = if @model.toolbar_location? then @model.toolbar_location else 'above'
     sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
     @$el.html(@template({logo: @mget("logo"), location: location, sticky: sticky}))
 
@@ -115,7 +115,7 @@ class ToolbarBase extends LayoutDOM.Model
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
-    location:   [ p.Location, 'above' ]
+    toolbar_location: [ p.Location, 'above' ]
     toolbar_sticky: [ p.Bool ]
   }
 

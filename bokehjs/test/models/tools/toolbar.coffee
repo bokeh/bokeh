@@ -20,17 +20,17 @@ describe "Toolbar.View", ->
     @test_tb = new Toolbar()
     @test_tb.attach_document(doc)
 
-  it "render should call template with location", ->
-    @test_tb.location = 'below'
+  it "render should call template with toolbar_location", ->
+    @test_tb.toolbar_location = 'below'
     tb_view = new @test_tb.default_view({ model: @test_tb })
     spy = sinon.spy(tb_view, 'template')
     tb_view.render()
     expect(spy.calledOnce).is.true
     expect(spy.args[0][0]['location']).is.equal 'below'
 
-  it "render should call template with above location if location is None", ->
+  it "render should call template with above toolbar_location if location is None", ->
     # We need to set above so toolbar looks nice
-    @test_tb.location = null
+    @test_tb.toolbar_location = null
     tb_view = new @test_tb.default_view({ model: @test_tb })
     spy = sinon.spy(tb_view, 'template')
     tb_view.render()

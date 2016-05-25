@@ -163,6 +163,6 @@ def test_plot_raises_error_if_toolbar_and_tools_are_set():
 ############
 
 
-def test_grid_plot_responsive_property_is_fixed_by_default():
+def test_grid_plot_responsive_property_is_box_by_default():
     gp = GridPlot()
-    assert gp.responsive is 'fixed'
+    assert gp.responsive is 'box'

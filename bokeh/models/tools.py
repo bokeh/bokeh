@@ -27,12 +27,12 @@ from ..core.properties import abstract, Float, Color
 from ..core.properties import (
     Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 )
-from ..core.enums import Dimension, Orientation
+from ..core.enums import Dimension, Location
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
-from .layouts import LayoutDOM
+from .layouts import Box
 
 
 class ToolEvents(Model):
@@ -56,7 +56,7 @@ class Tool(Model):
 
 
 @abstract
-class ToolbarBase(LayoutDOM):
+class ToolbarBase(Box):
     """ A base class for different toolbars. ``ToolbarBase`` is
     not generally useful to instantiate on its own.
 
@@ -84,9 +84,9 @@ class ToolbarBox(ToolbarBase):
 
     """
 
-    orientation = Enum(Orientation, default='horizontal', help="""
-        Should the toolbar be displayed vertically, in which case the ToolbarBox will behave
-        like a column, or horizontally - and the box will behave like a Column.
+    toolbar_location = Enum(Location, default='above', help="""
+        Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
+        edge of a plot. Default is `above`.
     """)
 
     merge_tools = Bool(default=True, help="""
