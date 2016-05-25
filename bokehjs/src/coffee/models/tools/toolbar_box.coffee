@@ -107,6 +107,8 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
 class ToolbarBoxView extends Box.View
   className: 'bk-toolbar-box'
 
+  get_width: () ->
+    return null
 
 class ToolbarBox extends Box.Model
   type: 'ToolbarBox'
