@@ -105,7 +105,8 @@ class Server(object):
         # doing the operation immediately (I think - havocp)
         try:
             self._http.bind(self._port, address=self._address)
-            self._http.start(1)
+            self._http.start(0)
+            self._tornado.initialize(**tornado_kwargs)
         except OSError as e:
             import errno
             if e.errno == errno.EADDRINUSE:
