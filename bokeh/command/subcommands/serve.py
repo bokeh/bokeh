@@ -363,7 +363,6 @@ class Serve(Subcommand):
     name = "serve"
 
     help = "Run a Bokeh server hosting one or more applications"
-
     args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
@@ -449,7 +448,16 @@ class Serve(Subcommand):
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
+        ('--nprocs', dict(
+            metavar='N',
+            action='store',
+            help="Number of worker processes for app. Default to one. Using "
+                 "0 will autodetect number of cores",
+            default=1,
+            type=int,
+        )),
     )
+
 
     def invoke(self, args):
         argvs = { f : args.args for f in args.files}
@@ -489,6 +497,7 @@ class Serve(Subcommand):
                                                               'address',
                                                               'allow_websocket_origin',
                                                               'host',
+                                                              'nprocs',
                                                               'prefix',
                                                               'develop',
                                                               'keep_alive_milliseconds',
