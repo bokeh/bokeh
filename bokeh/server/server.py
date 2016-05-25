@@ -100,14 +100,17 @@ class Server(object):
         self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
         self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
         self._address = None
+
         if 'address' in kwargs:
             self._address = kwargs['address']
+
+        self._nprocs = kwargs.get('nprocs', 1)
 
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:
             self._http.bind(self._port, address=self._address)
-            self._http.start(0)
+            self._http.start(self._nprocs)
             self._tornado.initialize(**tornado_kwargs)
         except OSError as e:
             import errno

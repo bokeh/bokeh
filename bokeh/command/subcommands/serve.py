@@ -373,7 +373,6 @@ class Serve(Subcommand):
     name = "serve"
 
     help = "Run a Bokeh server hosting one or more applications"
-
     args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
@@ -469,6 +468,15 @@ class Serve(Subcommand):
             action = 'store_true',
             help    = 'Do not redirect to running app from root path',
         )),
+
+        ('--nprocs', dict(
+            metavar='N',
+            action='store',
+            help="Number of worker processes for app. Default to one. Using "
+                 "0 will autodetect number of cores",
+            default=1,
+            type=int,
+        )),
     )
 
 
@@ -510,6 +518,7 @@ class Serve(Subcommand):
                                                               'address',
                                                               'allow_websocket_origin',
                                                               'host',
+                                                              'nprocs',
                                                               'prefix',
                                                               'develop',
                                                               'keep_alive_milliseconds',
