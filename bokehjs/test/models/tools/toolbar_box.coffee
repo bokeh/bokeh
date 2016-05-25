@@ -1,8 +1,19 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
+{Document} = utils.require("document")
+
 ToolbarBox = utils.require("models/tools/toolbar_box").Model
 Toolbar = utils.require("models/tools/toolbar").Model
+
+describe "ToolbarBox.View", ->
+
+  it "should return null from get_width", ->
+    box = new ToolbarBox()
+    box.attach_document(new Document())
+    box_view = new box.default_view({ model: box })
+    expect(box_view.get_width()).to.be.null
+
 
 describe "ToolbarBox.Model", ->
 

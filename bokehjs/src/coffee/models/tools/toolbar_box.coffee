@@ -144,3 +144,4 @@ class ToolbarBox extends Box.Model
 
 module.exports =
   Model: ToolbarBox
+  View: ToolbarBoxView

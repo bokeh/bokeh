@@ -74,7 +74,7 @@ describe "Box.Model", ->
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in fixed mode", ->
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
+      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width'])
       @box.responsive = 'fixed'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables

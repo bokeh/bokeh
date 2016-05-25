@@ -161,6 +161,6 @@ describe "Plot", ->
 
       it "should return correct constrained_variables in fixed mode", ->
         @p.responsive = 'fixed'
-        expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'box-equal-size-left', 'box-equal-size-right'])
+        expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box-equal-size-left', 'box-equal-size-right'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables

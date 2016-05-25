@@ -37,7 +37,7 @@ describe "Toolbar.View", ->
     expect(spy.calledOnce).is.true
     expect(spy.args[0][0]['location']).is.equal 'above'
     
-  it "render should set the appropriate positions and paddings on the element", ->
+  it "render should set the appropriate positions and paddings on the element in box mode", ->
     dom_left = 12
     dom_top = 44
     width = 111
@@ -46,11 +46,27 @@ describe "Toolbar.View", ->
     @test_tb._dom_top = {_value: dom_top}
     @test_tb._width = {_value: width}
     @test_tb._height = {_value: height}
+    @test_tb.responsive = 'box'
 
     tb_view = new @test_tb.default_view({ model: @test_tb })
     tb_view.render()
     expected_style = "left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
     expect(tb_view.$el.attr('style')).to.be.equal expected_style
+
+  it "render should not render any styling in fixed mode", ->
+    dom_left = 12
+    dom_top = 44
+    width = 111
+    height = 123
+    @test_tb._dom_left = {_value: dom_left}
+    @test_tb._dom_top = {_value: dom_top}
+    @test_tb._width = {_value: width}
+    @test_tb._height = {_value: height}
+    @test_tb.responsive = 'fixed'
+
+    tb_view = new @test_tb.default_view({ model: @test_tb })
+    tb_view.render()
+    expect(tb_view.$el.attr('style')).to.be.undefined
 
 
 describe "Toolbar.Model", ->

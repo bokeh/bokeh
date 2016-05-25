@@ -193,25 +193,6 @@ describe "LayoutDOM.Model", ->
       'whitespace-bottom' : l._whitespace_bottom
       'whitespace-left' : l._whitespace_left
       'whitespace-right' : l._whitespace_right
-      'width': l._width
-    }
-    l.responsive = 'fixed'
-    constrained_variables = l.get_constrained_variables()
-    expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
-
-  it "should not return height and width constraints in fixed responsive mode if is_root", ->
-    # If it's the root, then the constrained vars get attached to the document,
-    # so we can't return the width otherwise it'll get stuck to the window side
-    # and will become responsive.
-    l = new LayoutDOM()
-    l._is_root = true
-    expected_constrainted_variables = {
-      'origin-x': l._dom_left
-      'origin-y': l._dom_top
-      'whitespace-top' : l._whitespace_top
-      'whitespace-bottom' : l._whitespace_bottom
-      'whitespace-left' : l._whitespace_left
-      'whitespace-right' : l._whitespace_right
     }
     l.responsive = 'fixed'
     constrained_variables = l.get_constrained_variables()

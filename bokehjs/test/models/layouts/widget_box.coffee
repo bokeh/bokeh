@@ -128,10 +128,8 @@ describe "WidgetBox", ->
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in fixed mode", ->
-      # We don't return height because we're going to set it ourselves. We do return width
-      # so that fixed boxes can still stick to other boxes, so we have to leave off the
-      # equal size constraint, so that when we suggest a width everything can stick together.
+      # We don't return height or width because we're going to set them ourselves.
       @widget_box.responsive = 'fixed'
-      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'box-equal-size-left', 'box-equal-size-right'])
+      expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box-equal-size-left', 'box-equal-size-right'])
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
