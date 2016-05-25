@@ -18,7 +18,7 @@ from bokeh.util.tornado import _CallbackGroup, yield_for_all_futures
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
         self.application_context = application_context
-        self._callbacks = _CallbackGroup(self.application_context.io_loop)
+        self._callbacks = _CallbackGroup() #self.application_context.io_loop)
 
     def _remove_all_callbacks(self):
         self._callbacks.remove_all_callbacks()
@@ -92,7 +92,7 @@ class ApplicationContext(object):
         self._sessions = dict()
         self._pending_sessions = dict()
         self._session_contexts = dict()
-        self._server_context = BokehServerContext(self)
+        self._server_context = None
 
     @property
     def io_loop(self):
@@ -108,6 +108,8 @@ class ApplicationContext(object):
 
     @property
     def server_context(self):
+        if self._server_context is None:
+            self._server_context = BokehServerContext(self)
         return self._server_context
 
     @property
