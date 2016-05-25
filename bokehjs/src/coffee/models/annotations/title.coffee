@@ -9,21 +9,21 @@ class TitleView extends TextAnnotation.View
     ctx = @plot_view.canvas_view.ctx
     @model.panel.apply_label_text_heuristics(ctx, 'justified')
     @mset('text_baseline', ctx.textBaseline)
-    @mset('text_align', @mget('title_alignment'))
+    @mset('text_align', @mget('title_align'))
 
   _get_computed_location: () ->
     switch @model.panel.side
       when 'left'
         vx = 0
-        vy = @_get_text_location(@mget('title_alignment'), 'height') + @mget('title_padding')
+        vy = @_get_text_location(@mget('title_align'), 'height') + @mget('title_padding')
       when 'right'
         vx = @canvas.get('right') - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.get('height') - @_get_text_location(@mget('title_alignment'), 'height') + @mget('title_padding')
+        vy = @canvas.get('height') - @_get_text_location(@mget('title_align'), 'height') + @mget('title_padding')
       when 'above'
-        vx = @_get_text_location(@mget('title_alignment'), 'width') + @mget('title_padding')
+        vx = @_get_text_location(@mget('title_align'), 'width') + @mget('title_padding')
         vy = @canvas.get('top') - 1 #fudge factor due to error in text height measurement
       when 'below'
-        vx = @_get_text_location(@mget('title_alignment'), 'width') + @mget('title_padding')
+        vx = @_get_text_location(@mget('title_align'), 'width') + @mget('title_padding')
         vy = 0
 
     sx = @canvas.vx_to_sx(vx)
@@ -64,7 +64,7 @@ class Title extends TextAnnotation.Model
 
   @define {
       text:             [ p.String,                      ]
-      title_alignment:  [ p.TextAlign,   'center'        ]
+      title_align:      [ p.TextAlign,   'center'        ]
       title_padding:    [ p.Number,      0               ]
       render_mode:      [ p.RenderMode,  'canvas'        ]
     }

@@ -544,7 +544,7 @@ class Title(TextAnnotation):
     The text value to render.
     """)
 
-    title_alignment = Enum(TextAlign, default='center', help="""
+    title_align = Enum(TextAlign, default='center', help="""
     Location to align the title text.
     """
     )

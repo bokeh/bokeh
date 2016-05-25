@@ -254,7 +254,7 @@ def test_Title():
     assert title.plot is None
     assert title.level == 'annotation'
     assert title.text is None
-    assert title.title_alignment == 'center'
+    assert title.title_align == 'center'
     assert title.title_padding == 0
     assert title.text_font == 'helvetica'
     assert title.text_font_size == {'value': '12pt'}
@@ -267,7 +267,7 @@ def test_Title():
         "plot",
         "level",
         "text",
-        "title_alignment",
+        "title_align",
         "title_padding",
         "text_font",
         "text_font_size",
