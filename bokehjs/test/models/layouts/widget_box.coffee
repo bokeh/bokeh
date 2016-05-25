@@ -55,32 +55,32 @@ describe "WidgetBox", ->
       expected_style = "width: #{width - 20}px; height: #{height + 10}px;"
       expect(widget_box_view.$el.attr('style')).to.be.equal expected_style
 
-    it "get_height should return the height of the widget children plus 10 for margin", ->
+    it "get_height should return the height of the widget children plus 10 for margin + 10 overall", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
-      expect(widget_box_view.get_height()).to.be.equal 222 + 10
+      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 10
 
-    it "get_height should return the sum of multiple children plus 10 for margin", ->
+    it "get_height should return the sum of multiple children plus 10 for margin + 10 overall", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {
         'child_view_1': {'el': {'scrollHeight': 222}}
         'child_view_2': {'el': {'scrollHeight': 23}}
       }
-      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10
+      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10 + 10
 
-    it "get_width should return the width of a widget child plus 20 for margin", ->
+    it "get_width should return the width of a widget child", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollWidth': 111}}}
-      expect(widget_box_view.get_width()).to.be.equal 111 + 20
+      expect(widget_box_view.get_width()).to.be.equal 111
 
-    it "get_width should return only the max of the children plus 20 for margin", ->
+    it "get_width should return only the max of the children", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {
         'child_view_1': {'el': {'scrollWidth': 111}}
         'child_view_2': {'el': {'scrollWidth': 189}}
         'child_view_3': {'el': {'scrollWidth': 44}}
       }
-      expect(widget_box_view.get_width()).to.be.equal 189 + 20
+      expect(widget_box_view.get_width()).to.be.equal 189
 
 
   describe "WidgetBox.Model", ->

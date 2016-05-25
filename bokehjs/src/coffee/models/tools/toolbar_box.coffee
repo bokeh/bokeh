@@ -108,7 +108,16 @@ class ToolbarBoxView extends Box.View
   className: 'bk-toolbar-box'
 
   get_width: () ->
-    return null
+    if @model._horizontal is true
+      return 30
+    else
+      return null
+
+  get_height: () ->
+    # Returning null from this causes
+    # Left toolbar to overlap in width_ar case
+    return 30
+
 
 class ToolbarBox extends Box.Model
   type: 'ToolbarBox'

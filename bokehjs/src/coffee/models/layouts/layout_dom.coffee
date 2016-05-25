@@ -51,8 +51,21 @@ class LayoutDOMView extends BokehView
     s = @model.document.solver()
 
     if @model.responsive is 'fixed'
-      width = if @model.width? then @model.width else @get_width()
-      height = if @model.height? then @model.height else @get_height()
+      # If the width or height is unset:
+      # - compute it from children
+      # - but then save for future use
+      # (for some reason widget boxes keep shrinking if you keep computing
+      # but this is more efficient and appropriate for fixed anyway).
+      if @model.width?
+        width = @model.width
+      else
+        width = @get_width()
+        @model.width = width
+      if @model.height?
+        height = @model.height
+      else
+        height = @get_height()
+        @model.height = height
 
       s.suggest_value(@model._width, width)
       s.suggest_value(@model._height, height)

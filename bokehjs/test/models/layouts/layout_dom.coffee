@@ -138,6 +138,24 @@ describe "LayoutDOM.View", ->
       expect(@solver_suggest.callCount).is.equal 1
       expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._width, 222]
 
+    it "should set the value of model.width from get_width if mode is fixed and if model.width is null", ->
+      @test_layout.responsive = 'fixed'
+      @test_layout.width = null
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      sinon.stub(layout_view, 'get_width').returns(123)
+      expect(@test_layout.width).to.be.null
+      layout_view.render()
+      expect(@test_layout.width).to.be.equal 123
+
+    it "should set the value of model.height from get_height if mode is fixed and if model.height is null", ->
+      @test_layout.responsive = 'fixed'
+      @test_layout.height = null
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      sinon.stub(layout_view, 'get_height').returns(123)
+      expect(@test_layout.height).to.be.null
+      layout_view.render()
+      expect(@test_layout.height).to.be.equal 123
+
 
 describe "LayoutDOM.Model", ->
 

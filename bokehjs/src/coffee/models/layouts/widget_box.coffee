@@ -16,28 +16,34 @@ class WidgetBoxView extends LayoutDOM.View
 
   render: () ->
     super()
-    if @model.responsive == 'width_ar'
+
+    # Go through and make rendering tweaks because of margin
+    # TODO(bird) Make this configurable & less flaky
+
+    if @model.responsive is 'width_ar'
       @$el.css({
-        # The -20 is a hack because the widget box has padding on the css.
-        # TODO(bird) Make this configurable & less flaky
         width: @model._width._value - 20
         height: @model._height._value + 10
       })
 
+    if @model.responsive is 'fixed'
+      @$el.css({
+        width: @model.width - 20  # for padding
+        height: @model.height + 10  # for padding
+      })
+
   get_height: () ->
     height = 0
+    # We have to add on 10px because widgets have a margin at the top.
     for own key, child_view of @child_views
-      # We have to add on 10px because widgets have a margin at the top.
-      # TODO(bird) Widgets should report their own height.
       height += child_view.el.scrollHeight + 10
-    return height
+    return height + 10
 
   get_width: () ->
     width = 0
     for own key, child_view of @child_views
       # Take the max width of all the children as the constrainer.
-      # Also add on 10px for margin
-      child_width = child_view.el.scrollWidth + 20
+      child_width = child_view.el.scrollWidth
       if child_width > width
         width = child_width
     return width
