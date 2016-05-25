@@ -430,9 +430,3 @@ def _test_children_removed_from_root(layout_generator, children=None):
     layout = layout_generator(component if children is None else children)
     assert component not in io.curdoc().roots
     io.curdoc().clear()
-
-
-def test_gridplot():
-    children = [[Plot()]]
-    _test_layout_added_to_root(io.gridplot, children)
-    _test_children_removed_from_root(io.gridplot, children)
