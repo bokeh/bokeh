@@ -9,7 +9,7 @@ pytestmark = pytest.mark.integration
 HEIGHT = 600
 WIDTH = 600
 
-def test_label(output_file_url, selenium, screenshot):
+def test_label_set(output_file_url, selenium, screenshot):
 
     source = ColumnDataSource(data=dict(text=['one', 'two', 'three'],
                                         x1=[1,4,7],
