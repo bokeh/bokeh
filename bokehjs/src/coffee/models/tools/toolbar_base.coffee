@@ -20,12 +20,13 @@ class ToolbarBaseView extends LayoutDOM.View
   template: toolbar_template
 
   render: () ->
-    @$el.css({
-      left: @model._dom_left._value
-      top: @model._dom_top._value
-      'width': @model._width._value
-      'height': @model._height._value
-    })
+    if @model.responsive != 'fixed'
+      @$el.css({
+        left: @model._dom_left._value
+        top: @model._dom_top._value
+        'width': @model._width._value
+        'height': @model._height._value
+      })
     location = if @model.toolbar_location? then @model.toolbar_location else 'above'
     sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
     @$el.html(@template({logo: @mget("logo"), location: location, sticky: sticky}))
