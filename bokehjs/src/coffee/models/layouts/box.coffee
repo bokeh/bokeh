@@ -11,12 +11,21 @@ class BoxView extends LayoutDOM.View
 
   get_height: () ->
     children = @model.get_layoutable_children()
+    child_heights = _.map(children, ((child) -> child._height._value))
     if @model._horizontal
-      height = _.max(children, ((child) -> child._height._value))
+      height = _.reduce(child_heights, ((a, b) -> Math.max(a, b)))
     else
-      child_heights = _.map(children, ((child) -> child._height._value))
       height = _.reduce(child_heights, ((a, b) -> a + b))
     return height
+
+  get_width: () ->
+    children = @model.get_layoutable_children()
+    child_widths = _.map(children, ((child) -> child._width._value))
+    if @model._horizontal
+      width = _.reduce(child_widths, ((a, b) -> a + b))
+    else
+      width = _.reduce(child_widths, ((a, b) -> Math.max(a, b)))
+    return width
 
 
 class Box extends LayoutDOM.Model
