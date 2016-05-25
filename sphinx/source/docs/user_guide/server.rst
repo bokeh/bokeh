@@ -856,7 +856,7 @@ you must also add the ``--use-xheaders`` flag:
 
 .. code-block:: sh
 
-    bokeh bserve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+    bokeh serve myapp.py --port 5100 --host foo.com:443 --use-xheaders
 
 The ``--use-xheaders`` option causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,

@@ -102,10 +102,24 @@ If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
 that the server is configured to listen on (by default: {DEFAULT_PORT}).
 
-If an asterix ``*`` is used in the host value (for example ``--host *``) then
-it will be treated as a wildcard.  As a warning, using permissive host values
-like ``*`` may be insecure and open your application to HTTP host header
-attacks.
+If an asterix ``*`` is used in the host value then it will be treated as a
+wildcard:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --address=0.0.0.0 --host='*'
+
+Using the wildcard can be helpful when testing applications that are deployed
+with cloud orchestration tools and when the public endpoint is not known ahead
+of time: for instance if the public IP is dynamically allocated during the
+deployment process and no public DNS has been configured for the testing
+environment.
+
+As a warning, using permissive host values like ``*`` may be insecure and open
+your application to HTTP host header attacks. Production deployments should
+always set the ``--host`` flag to use the DNS name of the public endpoint such
+as a TLS-enabled load balancer or reverse proxy that serves the application to
+the end users.
 
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.

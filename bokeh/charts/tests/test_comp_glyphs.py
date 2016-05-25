@@ -70,6 +70,26 @@ def test_comp_glyph_array_input(test_data):
     assert cg.data['values'] is not None
 
 
+def test_step_glyph():
+    xx = [-2, 0, 1, 3, 4, 5, 6, 9]
+    dates = np.array(['2016-05-%02i' % i for i in range(1, 9)], dtype=np.datetime64)
+    values = [1, 2, 3, 2, 1, 5, 4, 5]
+
+    # Test with integer x
+    g = StepGlyph(x=xx, y=values)
+    data = g.renderers[0].data_source.data
+    for i in range(0, len(xx)-1):
+        assert data['x_values'][i*2+0] == xx[i+0]
+        assert data['x_values'][i*2+1] == xx[i+1]
+
+    # Test with dates (#3616)
+    g = StepGlyph(x=dates, y=values)
+    data = g.renderers[0].data_source.data
+    for i in range(0, len(xx)-1):
+        assert data['x_values'][i*2+0] == dates[i+0]
+        assert data['x_values'][i*2+1] == dates[i+1]
+
+
 # operations
 
 def test_bar_stacking():

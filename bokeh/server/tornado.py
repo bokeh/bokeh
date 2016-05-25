@@ -31,13 +31,19 @@ from .views.static_handler import StaticHandler
 def match_host(host, pattern):
     """ Match host against pattern
 
-    >>> match_host('192.168.0.1', '192.168.0.1')
+    >>> match_host('192.168.0.1:80', '192.168.0.1:80')
     True
+    >>> match_host('192.168.0.1:80', '192.168.0.1')
+    True
+    >>> match_host('192.168.0.1:80', '192.168.0.1:8080')
+    False
     >>> match_host('192.168.0.1', '192.168.0.2')
     False
     >>> match_host('192.168.0.1', '192.168.*.*')
     True
     >>> match_host('alice', 'alice')
+    True
+    >>> match_host('alice:80', 'alice')
     True
     >>> match_host('alice', 'bob')
     False
@@ -45,7 +51,31 @@ def match_host(host, pattern):
     False
     >>> match_host('alice', '*')
     True
+    >>> match_host('alice', '*:*')
+    True
+    >>> match_host('alice:80', '*')
+    True
+    >>> match_host('alice:80', '*:80')
+    True
+    >>> match_host('alice:8080', '*:80')
+    False
+
     """
+    if ':' in host:
+        host, host_port = host.rsplit(':', 1)
+    else:
+        host_port = None
+
+    if ':' in pattern:
+        pattern, pattern_port = pattern.rsplit(':', 1)
+        if pattern_port == '*':
+            pattern_port = None
+    else:
+        pattern_port = None
+
+    if pattern_port is not None and host_port != pattern_port:
+        return False
+
     host = host.split('.')
     pattern = pattern.split('.')
 
