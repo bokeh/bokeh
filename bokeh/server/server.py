@@ -104,13 +104,13 @@ class Server(object):
         if 'address' in kwargs:
             self._address = kwargs['address']
 
-        self._nprocs = kwargs.get('nprocs', 1)
+        self._num_procs = kwargs.get('num_procs', 1)
 
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:
             self._http.bind(self._port, address=self._address)
-            self._http.start(self._nprocs)
+            self._http.start(self._num_procs)
             self._tornado.initialize(**tornado_kwargs)
         except OSError as e:
             import errno

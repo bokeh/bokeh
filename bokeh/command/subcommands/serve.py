@@ -134,6 +134,16 @@ the end users.
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
 
+Bokeh server can fork the underlying tornado server into multiprocess.  This is
+useful when trying to handle multiple connections especially in the context of
+apps which require high computational loads.  Default behavior is one process.
+using 0 will auto-detect the number of cores and spin up corresponding number of
+processes
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --num_procs 2
+
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
 hosts by specifying them with the ``--allow-websocket-origin`` option:
@@ -469,10 +479,10 @@ class Serve(Subcommand):
             help    = 'Do not redirect to running app from root path',
         )),
 
-        ('--nprocs', dict(
+        ('--num-procs', dict(
             metavar='N',
             action='store',
-            help="Number of worker processes for app. Default to one. Using "
+            help="Number of worker processes for an app. Default to one. Using "
                  "0 will autodetect number of cores",
             default=1,
             type=int,
@@ -518,7 +528,7 @@ class Serve(Subcommand):
                                                               'address',
                                                               'allow_websocket_origin',
                                                               'host',
-                                                              'nprocs',
+                                                              'num_procs',
                                                               'prefix',
                                                               'develop',
                                                               'keep_alive_milliseconds',
