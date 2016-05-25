@@ -53,7 +53,6 @@ class CanvasView extends BokehView
     # only render the canvas when the canvas dimensions change unless force==true
     if not _.isEqual(@last_dims, [width, height]) or force
 
-      logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
 
       @$el.css({
         width: width
@@ -70,7 +69,7 @@ class CanvasView extends BokehView
       canvas_el.attr('width', width*ratio)
       canvas_el.attr('height', height*ratio)
 
-      console.log('canvas.render', ratio, [width, height], @last_dims)
+      logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
       @last_dims = [width, height]
 
     else
