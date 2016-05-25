@@ -32,7 +32,7 @@ from ..core.enums import Dimension, Location
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
-from .layouts import Box
+from .layouts import LayoutDOM
 
 
 class ToolEvents(Model):
@@ -56,7 +56,7 @@ class Tool(Model):
 
 
 @abstract
-class ToolbarBase(Box):
+class ToolbarBase(LayoutDOM):
     """ A base class for different toolbars. ``ToolbarBase`` is
     not generally useful to instantiate on its own.
 
