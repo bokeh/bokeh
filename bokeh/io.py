@@ -19,7 +19,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
-import itertools
 import json
 import os
 import warnings
@@ -30,13 +29,13 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.layouts import HBox, VBox, VBoxForm, LayoutDOM, Row, Column, WidgetBox, GridPlot
+from .models.layouts import LayoutDOM, Row, Column, WidgetBox, GridPlot
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
-import bokeh.util.browser as browserlib # full import needed for test mocking to work
+import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
 
 #-----------------------------------------------------------------------------
@@ -594,25 +593,11 @@ def _push_or_save(obj):
     if _state.file and _state.autosave:
         save(obj)
 
-def gridplot(plot_arrangement, **kwargs):
-    ''' Generate a plot that arranges several subplots into a grid.
 
-    Args:
-        plot_arrangement (nested list of Plots) : plots to arrange in a grid
-        **kwargs: additional attributes to pass in to GridPlot() constructor
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.GridPlot")
+def gridplot(*args, **kwargs):
+    return GridPlot(*args, **kwargs)
 
-    .. note:: ``plot_arrangement`` can be nested, e.g [[p1, p2], [p3, p4]]
-
-    Returns:
-        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
-
-    '''
-    subplots = itertools.chain.from_iterable(plot_arrangement)
-    _remove_roots(subplots)
-    grid = GridPlot(children=plot_arrangement, **kwargs)
-    curdoc().add_root(grid)
-    _push_or_save(grid)
-    return grid
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
@@ -623,6 +608,7 @@ def hplot(*children, **kwargs):
     layout = Row(children=list(children), responsive='fixed', **kwargs)
     return layout
 
+
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
     warnings.warn(
@@ -631,6 +617,7 @@ def vplot(*children, **kwargs):
         """)
     layout = Column(children=list(children), responsive='fixed', **kwargs)
     return layout
+
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vform(*children, **kwargs):
