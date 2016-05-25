@@ -315,3 +315,30 @@ describe "PlotCanvas.View update_constraints", ->
     test_plot_view.update_constraints()
     expect(@solver_update_stub.calledWith(false)).to.be.true
     expect(@solver_update_stub.callCount).to.be.equal initial_count + 1
+
+
+describe "Plot.View get_canvas_element", ->
+
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+
+    @test_doc = new Document()
+    @test_plot = new PlotCanvas({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+    })
+    @test_plot.document = @test_doc
+    @test_plot._doc_attached()
+    @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
+
+  it "should exist because get_canvas_element depends on it", ->
+    expect(@test_plot_view.canvas_view.ctx).to.exist
+
+  it "should exist to grab the canvas DOM element using canvas_view.ctx", ->
+    expect(@test_plot_view.get_canvas_element).to.exist
