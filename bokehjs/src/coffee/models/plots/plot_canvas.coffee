@@ -118,6 +118,9 @@ class PlotCanvasView extends Renderer.View
 
     return this
 
+  get_canvas_element: () ->
+    return @canvas_view.ctx.canvas
+
   init_webgl: () ->
 
     # We use a global invisible canvas and gl context. By having a global context,
