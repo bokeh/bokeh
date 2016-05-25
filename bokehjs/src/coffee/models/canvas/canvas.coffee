@@ -59,7 +59,7 @@ class CanvasView extends BokehView
         width: width
         height:height
       })
-      
+
       # Scale the canvas
       ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
       canvas_el = @$('.bk-canvas')
@@ -70,12 +70,13 @@ class CanvasView extends BokehView
       canvas_el.attr('width', width*ratio)
       canvas_el.attr('height', height*ratio)
 
-      @ctx.scale(ratio, ratio)
-      @ctx.translate(0.5, 0.5)
-
+      console.log('canvas.render', ratio, [width, height], @last_dims)
       @last_dims = [width, height]
 
-    return
+    else
+      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
+
+    return ratio
 
   set_dims: (dims, trigger=true) ->
     @requested_width = dims[0]
