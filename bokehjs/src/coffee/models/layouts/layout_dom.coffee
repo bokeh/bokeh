@@ -22,7 +22,12 @@ class LayoutDOMView extends BokehView
     @child_views = {}
     build_views(@child_views, children)
   
-    for own key, child_view of @child_views
+    for child in children
+      # Look-up the child_view in @child_views and then append
+      # We can't just read from @child_views because then we 
+      # don't get guaranteed ordering. Which is a problem in 
+      # non-box layouts.
+      child_view = @child_views[child.id]
       @$el.append(child_view.$el)
 
     @bind_bokeh_events()
@@ -201,10 +206,6 @@ class LayoutDOM extends Model
     if @responsive is 'height_ar'
       constrained_variables = _.extend(constrained_variables, {
         'height': @_height
-      })
-    if @_is_root isnt true and @responsive is 'fixed'
-      constrained_variables = _.extend(constrained_variables, {
-        'width': @_width
       })
     return constrained_variables
 
