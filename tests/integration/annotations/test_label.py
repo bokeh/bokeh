@@ -20,36 +20,36 @@ def test_label(output_file_url, selenium, screenshot):
                 toolbar_location=None)
 
     label1 = Label(x=1, y=6, x_offset=25, y_offset=25,
-                   text=["Demo Label"],
+                   text="Demo Label",
                    text_font_size='38pt', text_color='red', text_alpha=0.9,
                    text_baseline='bottom', text_align='left',
                    background_fill_color='green', background_fill_alpha=0.2,
                    angle=15, angle_units='deg',
                    render_mode='canvas')
 
-    label2 = Label(x=3, y=5.5, text=["(I'm Canvas)"], text_font_size='20pt',
+    label2 = Label(x=3, y=5.5, text="(I'm Canvas)", text_font_size='20pt',
                    border_line_color='black', border_line_width=2, border_line_dash='8 4',
                    render_mode='canvas')
 
     label3 = Label(x=1, y=2, x_offset=25, y_offset=25,
-                   text=["Demo Label"],
+                   text="Demo Label",
                    text_font_size='38pt', text_color='red', text_alpha=0.9,
                    text_baseline='bottom', text_align='left',
                    background_fill_color='green', background_fill_alpha=0.2,
                    angle=0.261, angle_units='rad',
                    render_mode='css')
 
-    label4 = Label(x=3, y=1.0, text=["(I'm CSS)"], text_font_size='20pt',
+    label4 = Label(x=3, y=1.0, text="(I'm CSS)", text_font_size='20pt',
                    border_line_color='black', border_line_width=2, border_line_dash='8 4',
                    render_mode='css')
 
     label_above = Label(
-        x=0, y=0, text=["Label in above panel"], x_units='screen', y_units='screen',
+        x=0, y=0, text="Label in above panel", x_units='screen', y_units='screen',
         text_font_size='38pt', text_color='firebrick', text_alpha=0.9,
     )
 
     label_left = Label(
-        x=0, y=0, text=["Label in left panel"],
+        x=0, y=0, text="Label in left panel",
         x_units='screen', y_units='screen', angle=90, angle_units='deg',
         text_font_size='18pt', text_color='firebrick', text_alpha=0.9,
         background_fill_color='aliceblue', text_baseline='top',

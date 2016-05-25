@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Label
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Title
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -46,9 +46,9 @@ plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
 
-# Add a caption as a label placed in "below" layout panel.
+# Add a caption as a title placed in "below" layout panel.
 msg = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
-caption = Label(x=0, y=0, text=[msg], x_units='screen', y_units='screen', text_font_size='10pt')
+caption = Title(text=msg, title_align='left', text_font_size='10pt')
 plot.add_layout(caption, 'below')
 
 doc = Document()
