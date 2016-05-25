@@ -176,7 +176,7 @@ class Column(Box):
     """
 
 
-def GridPlot(children=None, toolbar_location='left', responsive='box', toolbar_options=None, *args):
+def GridPlot(children=None, toolbar_location='left', responsive='fixed', toolbar_options=None, *args):
     """ Create a grid of plots rendered on separate canvases.
 
     Args:
