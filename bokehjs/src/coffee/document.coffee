@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 {Models} = require "./base"
+{json_parse} = require "./util/jsondecode"
 {Solver} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
@@ -434,7 +435,7 @@ class Document
   @from_json_string : (s) ->
     if s == null or not s?
       throw new Error("JSON string is #{typeof s}")
-    json = JSON.parse(s)
+    json = json_parse(s)
     Document.from_json(json)
 
   @from_json : (json) ->
@@ -519,7 +520,7 @@ class Document
     }
 
   apply_json_patch_string: (patch) ->
-    @apply_json_patch(JSON.parse(patch))
+    @apply_json_patch(json_parse(patch))
 
   apply_json_patch: (patch) ->
     references_json = patch['references']
