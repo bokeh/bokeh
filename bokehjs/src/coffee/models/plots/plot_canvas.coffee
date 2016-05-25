@@ -405,8 +405,8 @@ class PlotCanvasView extends Renderer.View
     ctx = @canvas_view.ctx
 
     # Get hidpi ratio
-    ratio = @canvas_view.render(force_canvas)
-    ctx.pixel_ratio = ratio  # we need this in WebGL
+    @canvas_view.prepare_canvas(force_canvas)
+    ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
 
     # Set hidpi-transform
     ctx.save()  # Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
