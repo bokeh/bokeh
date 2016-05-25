@@ -35,6 +35,23 @@ def check_children_prop(layout_callable):
         layout_callable(children=[ColumnDataSource()])
 
 
+def check_widget_children_prop(layout_callable):
+    ## component subclasses are layouts, widgets and plots
+    components = [Slider()]
+
+    # Test layout accepts splatted components
+    layout1 = layout_callable(*components)
+    assert layout1.children == components
+
+    # Test layout accepts children argument
+    layout2 = layout_callable(children=components)
+    assert layout2.children == components
+
+    # Test value error raised when non-layout is provided as children
+    with pytest.raises(ValueError):
+        layout_callable(children=[ColumnDataSource()])
+
+
 def test_VBox():
     check_props(VBox())
     check_children_prop(VBox)
@@ -47,7 +64,7 @@ def test_HBox():
 
 def test_VBoxForm():
     check_props(VBoxForm())
-    check_children_prop(VBoxForm)
+    check_widget_children_prop(VBoxForm)
 
 
 def test_Row():

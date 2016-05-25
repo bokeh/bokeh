@@ -294,8 +294,8 @@ def VBox(*args, **kwargs):
     return Column(*args, **kwargs)
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def VBoxForm(*args, **kwargs):
     kwargs['responsive'] = 'fixed'
-    warnings.warn(_WARNING_MSG % "Column")
-    return Column(*args, **kwargs)
+    warnings.warn(_WARNING_MSG % "WidgetBox")
+    return WidgetBox(*args, **kwargs)

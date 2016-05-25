@@ -619,11 +619,11 @@ def vplot(*children, **kwargs):
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
     warnings.warn(
         """
-        The new Column is responsive by default, it resizes based on the space available.
+        The new WidgetBox is responsive by default, it resizes based on the space available.
         """)
-    layout = Column(children=list(children), responsive='fixed', **kwargs)
+    layout = WidgetBox(children=list(children), responsive='fixed', **kwargs)
     return layout
