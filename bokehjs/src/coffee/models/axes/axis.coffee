@@ -8,146 +8,6 @@ Renderer = require "../renderers/renderer"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-# This table lays out the rules for configuring the baseline, alignment, etc. of
-# axis title text, based on it's location and orientation
-#
-# side    orient        baseline   align     angle   normal-dist
-# ------------------------------------------------------------------------------
-# above   parallel      bottom     center    0       height
-#         normal        middle     left      -90     width
-#         horizontal    bottom     center    0       height
-#         [angle > 0]   middle     left              width * sin + height * cos
-#         [angle < 0]   middle     right             width * sin + height * cos
-#
-# below   parallel      top        center    0       height
-#         normal        middle     right     90      width
-#         horizontal    top        center    0       height
-#         [angle > 0]   middle     right             width * sin + height * cos
-#         [angle < 0]   middle     left              width * sin + height * cos
-#
-# left    parallel      bottom     center    90      height
-#         normal        middle     right     0       width
-#         horizontal    middle     right     0       width
-#         [angle > 0]   middle     right             width * cos + height * sin
-#         [angle < 0]   middle     right             width * cos + height + sin
-#
-# right   parallel      bottom     center   -90      height
-#         normal        middle     left     0        width
-#         horizontal    middle     left     0        width
-#         [angle > 0]   middle     left              width * cos + height * sin
-#         [angle < 0]   middle     left              width * cos + height + sin
-
-pi2 = Math.PI/2
-ALPHABETIC = 'alphabetic'
-MIDDLE = 'middle'
-HANGING = 'hanging'
-LEFT = 'left'
-RIGHT = 'right'
-CENTER = 'center'
-
-_angle_lookup = {
-  above:
-    parallel   : 0
-    normal     : -pi2
-    horizontal : 0
-    vertical   : -pi2
-  below:
-    parallel   : 0
-    normal     : pi2
-    horizontal : 0
-    vertical   : pi2
-  left:
-    parallel   : -pi2
-    normal     : 0
-    horizontal : 0
-    vertical   : -pi2
-  right:
-    parallel   : pi2
-    normal     : 0
-    horizontal : 0
-    vertical   : pi2
-}
-
-_baseline_lookup = {
-  above:
-    parallel   : ALPHABETIC
-    normal     : MIDDLE
-    horizontal : ALPHABETIC
-    vertical   : MIDDLE
-  below:
-    parallel   : HANGING
-    normal     : MIDDLE
-    horizontal : HANGING
-    vertical   : MIDDLE
-  left:
-    parallel   : ALPHABETIC
-    normal     : MIDDLE
-    horizontal : MIDDLE
-    vertical   : ALPHABETIC
-  right:
-    parallel   : ALPHABETIC
-    normal     : MIDDLE
-    horizontal : MIDDLE
-    vertical   : ALPHABETIC
-}
-
-_align_lookup = {
-  above:
-    parallel   : CENTER
-    normal     : LEFT
-    horizontal : CENTER
-    vertical   : LEFT
-  below:
-    parallel   : CENTER
-    normal     : LEFT
-    horizontal : CENTER
-    vertical   : RIGHT
-  left:
-    parallel   : CENTER
-    normal     : RIGHT
-    horizontal : RIGHT
-    vertical   : CENTER
-  right:
-    parallel   : CENTER
-    normal     : LEFT
-    horizontal : LEFT
-    vertical   : CENTER
-}
-
-_align_lookup_negative = {
-  above  : RIGHT
-  below  : LEFT
-  left   : RIGHT
-  right  : LEFT
-}
-
-_align_lookup_positive = {
-  above  : LEFT
-  below  : RIGHT
-  left   : RIGHT
-  right  : LEFT
-}
-
-_apply_location_heuristics = (ctx, side, orient) ->
-  if _.isString(orient)
-    baseline = _baseline_lookup[side][orient]
-    align = _align_lookup[side][orient]
-
-  else if orient == 0
-    baseline = _baseline_lookup[side][orient]
-    align = _align_lookup[side][orient]
-
-  else if orient < 0
-    baseline = 'middle'
-    align = _align_lookup_negative[side]
-
-  else if orient > 0
-    baseline = 'middle'
-    align = _align_lookup_positive[side]
-
-  ctx.textBaseline = baseline
-  ctx.textAlign = align
-
 class AxisView extends Renderer.View
   initialize: (options) ->
     super(options)
@@ -231,14 +91,14 @@ class AxisView extends Renderer.View
     side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     if _.isString(orient)
-      angle = _angle_lookup[side][orient]
+      angle = @model.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
     standoff = @_tick_extent() + @mget('major_label_standoff')
     labels = @mget('formatter').doFormat(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
-    _apply_location_heuristics(ctx, side, orient)
+    @model.panel.apply_label_text_heuristics(ctx, orient)
     for i in [0...sx.length]
       if angle
         ctx.translate(sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
@@ -259,12 +119,12 @@ class AxisView extends Renderer.View
     [xoff, yoff]  = @mget('offsets')
     side = @mget('panel_side')
     orient = 'parallel'
-    angle = _angle_lookup[side][orient]
+    angle = @model.panel.get_label_angle_heuristic(orient)
     standoff = (@_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff'))
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
     @visuals.axis_label_text.set_value(ctx)
-    _apply_location_heuristics(ctx, side, orient)
+    @model.panel.apply_label_text_heuristics(ctx, orient)
 
     x = sx+nx*standoff+nx*xoff
     y = sy+ny*standoff+ny*yoff
@@ -297,7 +157,7 @@ class AxisView extends Renderer.View
 
     if _.isString(orient)
       hscale = 1
-      angle = _angle_lookup[side][orient]
+      angle = @model.panel.get_label_angle_heuristic(orient)
     else
       hscale = 2
       angle = -orient
@@ -330,7 +190,7 @@ class AxisView extends Renderer.View
     orient = 'parallel'
     ctx = @plot_view.canvas_view.ctx
     @visuals.axis_label_text.set_value(ctx)
-    angle = Math.abs(_angle_lookup[side][orient])
+    angle = Math.abs(@model.panel.get_label_angle_heuristic(orient))
     c = Math.cos(angle)
     s = Math.sin(angle)
     if axis_label
@@ -384,7 +244,7 @@ class Axis extends GuideRenderer.Model
     major_label_text_font_size: "8pt"
     major_label_text_align: "center"
     major_label_text_baseline: "alphabetic"
-    
+
     axis_label_text_font_size: "10pt"
     axis_label_text_font_style: "italic"
   }
