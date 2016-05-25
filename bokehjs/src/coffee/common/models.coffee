@@ -59,9 +59,9 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
-  GridPlot:                 require '../models/layouts/grid_plot'
   Column:                   require '../models/layouts/column'
   Row:                      require '../models/layouts/row'
+  Spacer:                   require '../models/layouts/spacer'
   WidgetBox:                require '../models/layouts/widget_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'

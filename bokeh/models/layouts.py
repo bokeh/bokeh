@@ -78,6 +78,12 @@ class LayoutDOM(Model):
         return HTML(self.__repr_html__())
 
 
+class Spacer(LayoutDOM):
+    """ A container for space used to fill an empty spot in a row or column.
+
+    """
+
+
 class WidgetBox(LayoutDOM):
     """ A container for widgets that are part of a layout."""
     def __init__(self, *args, **kwargs):
@@ -193,14 +199,15 @@ def GridPlot(children=None, toolbar_location='left', responsive='box', toolbar_o
 
         >>> GridPlot([[plot_1, plot_2], [plot_3, plot_4]])
         >>> GridPlot(
-                children=[[plot_1, plot_2]],
+                children=[[plot_1, plot_2], [None, plot_3],
                 toolbar_location='right'
                 responsive='fixed',
                 toolbar_options=dict(logo='gray')
             )
 
     """
-    from bokeh.models.tools import ToolbarBox
+    from .tools import ToolbarBox
+    from .plots import Plot
 
     # Integrity checks
 
@@ -215,6 +222,7 @@ def GridPlot(children=None, toolbar_location='left', responsive='box', toolbar_o
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
+
     if responsive:
         if not hasattr(ResponsiveEnum, responsive):
             raise ValueError("Invalid value of responsive: %s" % responsive)
@@ -225,13 +233,20 @@ def GridPlot(children=None, toolbar_location='left', responsive='box', toolbar_o
 
     for row in children:
         row_tools = []
-        for plot in row:
-            if plot:
-                row_tools = row_tools + plot.toolbar.tools
-                plot.toolbar_location = None
-                plot.responsive = responsive
+        row_children = []
+        for item in row:
+            if isinstance(item, Plot):
+                row_tools = row_tools + item.toolbar.tools
+                item.toolbar_location = None
+            if item is None:
+                item = Spacer()
+            if isinstance(item, LayoutDOM):
+                item.responsive = responsive
+                row_children.append(item)
+            else:
+                raise ValueError("Only LayoutDOM items can be inserted into Grid")
         tools = tools + row_tools
-        rows.append(Row(children=row, responsive=responsive))
+        rows.append(Row(children=row_children, responsive=responsive))
 
     grid = Column(children=rows, responsive=responsive)
 
