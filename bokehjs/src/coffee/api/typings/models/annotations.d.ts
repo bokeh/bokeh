@@ -108,7 +108,7 @@ declare namespace Bokeh {
     export var Tooltip: { new(attributes?: ITooltip, options?: ModelOpts): Tooltip };
     export interface Tooltip extends Overlay, ITooltip {}
     export interface ITooltip extends IOverlay {
-        side?: Auto | Side;
+        attachment?: "horizontal" | "vertical" | "left" | "right" | "above" | "below";
         inner_only?: boolean;
     }
 }

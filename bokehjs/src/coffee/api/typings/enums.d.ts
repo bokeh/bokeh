@@ -8,7 +8,6 @@ declare namespace Bokeh {
     export type TextAlign = "left" | "right" | "center";
     export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging";
     export type Direction = "clock" | "anticlock";
-    export type Side = "left" | "right";
     export type Units = "screen" | "data";
     export type SpatialUnits = Units;
     export type AngleUnits = "deg" | "rad";
