@@ -2,7 +2,7 @@
 @import "data_table.less";
 
 .bk-widget-box {
-  overflow: auto;
+  overflow: visible;
   padding: 5px 10px;
 }
 
@@ -45,13 +45,20 @@
 //
 //
 
-/* mis */
+/* misc */
 .bk-widget select,
 .bk-widget button {
   min-width: 50%;
 }
 .bk-widget input[type="text"] {
   min-width: 90%;
+}
+
+/* dropdown */
+.bk-bs-dropdown-toggle .bk-bs-caret {
+  margin-right: 5px;
+  margin-bottom: 5px;
+  color: #A1A6A9;
 }
 
 /* slider - start */
