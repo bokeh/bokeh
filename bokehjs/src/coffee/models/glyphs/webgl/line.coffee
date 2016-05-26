@@ -654,6 +654,8 @@ class LineGLGlyph extends BaseGLGlyph
       mainGlGlyph = mainGlyph.glglyph
 
       if mainGlGlyph.data_changed
+        if not (isFinite(trans.dx) and isFinite(trans.dy))
+          return  # not sure why, but it happens on init sometimes (#4367)
         mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _bake() and below
         mainGlGlyph._set_data()
         mainGlGlyph.data_changed = false
