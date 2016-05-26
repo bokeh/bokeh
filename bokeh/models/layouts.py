@@ -40,7 +40,7 @@ class LayoutDOM(Model):
     the widget will be greyed-out, and not respond to UI events.
     """)
 
-    responsive = Responsive('box', help="""
+    responsive = Responsive(default='fixed', help="""
     The type of responsiveness for the item being displayed. Possible values are
     `fixed` (or `False`), `width_ar` (or `True`), `height_ar`, `box_ar`, `box`.
     Default is `box`.
@@ -121,11 +121,33 @@ class Box(LayoutDOM):
     """
 
     def __init__(self, *args, **kwargs):
+
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
         elif len(args) > 0:
             kwargs["children"] = list(args)
+
+        unwrapped_children = kwargs.get("children", [])
+        kwargs["children"] = self._wrap_children(unwrapped_children)
         super(Box, self).__init__(**kwargs)
+
+    def _wrap_children(self, children):
+        """ Wrap any Widgets of a list of child layouts in a WidgetBox.
+        This allows for the convenience of just spelling Row(button1, button2).
+        """
+        from .widgets.widget import Widget
+        wrapped_children = []
+        for child in children:
+            if isinstance(child, Widget):
+                child = WidgetBox(
+                    children=[child],
+                    responsive=child.responsive,
+                    width=child.width,
+                    height=child.height,
+                    disabled=child.disabled
+                )
+            wrapped_children.append(child)
+        return wrapped_children
 
     @validation.warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
@@ -277,25 +299,16 @@ def GridPlot(children=None, toolbar_location='left', responsive='fixed', toolbar
 
 # ---- DEPRECATIONS
 
-_WARNING_MSG = "Switching to '%s' will make elements responsive by default (they will resize based on the space available)"
-
-
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def HBox(*args, **kwargs):
-    kwargs['responsive'] = 'fixed'
-    warnings.warn(_WARNING_MSG % "Row")
     return Row(*args, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def VBox(*args, **kwargs):
-    kwargs['responsive'] = 'fixed'
-    warnings.warn(_WARNING_MSG % "Column")
     return Column(*args, **kwargs)
 
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def VBoxForm(*args, **kwargs):
-    kwargs['responsive'] = 'fixed'
-    warnings.warn(_WARNING_MSG % "WidgetBox")
     return WidgetBox(*args, **kwargs)
