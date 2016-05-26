@@ -1868,3 +1868,16 @@ class Responsive(Either):
         if value is False:
             value = 'fixed'
         return value
+
+
+class TitleProp(Either):
+
+    def __init__(self, default=None, help=None):
+        types = (Instance('bokeh.models.annotations.Title'), String)
+        super(TitleProp, self).__init__(*types, default=default, help=help)
+
+    def transform(self, value):
+        if isinstance(value, str):
+            from bokeh.models.annotations import Title
+            value = Title(text=value)
+        return value

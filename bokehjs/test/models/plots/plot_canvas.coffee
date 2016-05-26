@@ -107,6 +107,10 @@ describe "PlotCanvas.Model", ->
     expect(p.min_border_left).to.be.equal 4
     expect(p.min_border_right).to.be.equal 5
 
+  it.skip "should add the title to the list of renderers", ->
+    # TODO(bird) Write this test.
+    null
+
 describe "PlotCanvas.Model constraints", ->
 
   beforeEach ->

@@ -17,10 +17,10 @@ from ..core.property_mixins import LineProps, TextProps, FillProps
 from ..model import Model
 from ..core.properties import (
     Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
+    List, Dict, Include, Override, TitleProp)
 from ..util.string import nice_join
 
-from .annotations import Legend
+from .annotations import Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
@@ -59,6 +59,9 @@ class Plot(LayoutDOM):
 
         if "background_fill" in kwargs and "background_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
+
+        if "title" not in kwargs:
+            kwargs["title"] = Title(text='')
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -200,6 +203,15 @@ class Plot(LayoutDOM):
 
         """
         return _list_attr_splat(self.xgrid + self.ygrid)
+
+    @property
+    def tools(self):
+        return self.toolbar.tools
+
+    @tools.setter
+    def tools(self, tools):
+        self.toolbar.tools = tools
+
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
@@ -402,24 +414,14 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title_standoff = Int(default=8, help="""
-    How far (in screen units) to place a title away from the central
-    plot region.
-    """)
-
-    title = String('', help="""
+    title = TitleProp('', help="""
     A title for the plot.
     """)
 
-    title_props = Include(TextProps, help="""
-    The %s for the plot title.
+    title_location = Enum(Location, default="above", help="""
+    Where the title will be located. Titles on the left or right side
+    will be rotated.
     """)
-
-    title_text_align = Override(default='center')
-
-    title_text_baseline = Override(default='alphabetic')
-
-    title_text_font_size = Override(default={ 'value' : '20pt' })
 
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
@@ -492,70 +494,6 @@ class Plot(LayoutDOM):
 
     """)
 
-    @property
-    def background_fill(self):
-        warnings.warn(
-            """
-            Plot property 'background_fill' was deprecated in Bokeh
-            0.11.0 and will be removed. Use 'background_fill_color' instead.
-            """)
-        return self.background_fill_color
-
-    @background_fill.setter
-    def background_fill(self, color):
-        warnings.warn(
-            """
-            Plot property 'background_fill' was deprecated in Bokeh
-            0.11.0 and will be removed. Use 'background_fill_color' instead.
-            """)
-        self.background_fill_color = color
-
-    @property
-    def border_fill(self):
-        warnings.warn(
-            """
-            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
-            will be removed. Use 'border_fill_color' instead.
-            """)
-        return self.border_fill_color
-
-    @border_fill.setter
-    def border_fill(self, color):
-        warnings.warn(
-            """
-            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
-            will be removed. Use 'border_fill_color' instead.
-            """)
-        self.border_fill_color = color
-
-    @property
-    def logo(self):
-        warnings.warn(
-            """
-            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
-            User 'toolbar.logo' instead.
-            """)
-        return self.toolbar.logo
-
-    @logo.setter
-    def logo(self, value):
-        warnings.warn(
-            """
-            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
-            User 'toolbar.logo' instead.
-            """)
-        self.toolbar.logo = value
-
-    # TODO(bird) I have removed the deprecation warnings
-    # from these properties, I think they are a very useful convenience.
-    @property
-    def tools(self):
-        return self.toolbar.tools
-
-    @tools.setter
-    def tools(self, tools):
-        self.toolbar.tools = tools
-
     background_props = Include(FillProps, help="""
     The %s for the plot background style.
     """)
@@ -619,7 +557,6 @@ class Plot(LayoutDOM):
     be made equal (the left or right padding amount, whichever is larger).
     """)
 
-
     v_symmetry = Bool(False, help="""
     Whether the total vertical padding on both sides of the plot will
     be made equal (the top or bottom padding amount, whichever is larger).
@@ -653,3 +590,76 @@ class Plot(LayoutDOM):
     """)
 
     responsive = Override(default='fixed')
+
+    #
+    # DEPRECATED PROPERTIES
+    #
+
+    @property
+    def background_fill(self):
+        warnings.warn(
+            """
+            Plot property 'background_fill' was deprecated in Bokeh
+            0.11.0 and will be removed. Use 'background_fill_color' instead.
+            """)
+        return self.background_fill_color
+
+    @background_fill.setter
+    def background_fill(self, color):
+        warnings.warn(
+            """
+            Plot property 'background_fill' was deprecated in Bokeh
+            0.11.0 and will be removed. Use 'background_fill_color' instead.
+            """)
+        self.background_fill_color = color
+
+    @property
+    def border_fill(self):
+        warnings.warn(
+            """
+            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
+            will be removed. Use 'border_fill_color' instead.
+            """)
+        return self.border_fill_color
+
+    @border_fill.setter
+    def border_fill(self, color):
+        warnings.warn(
+            """
+            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
+            will be removed. Use 'border_fill_color' instead.
+            """)
+        self.border_fill_color = color
+
+    @property
+    def logo(self):
+        warnings.warn(
+            """
+            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.logo' instead.
+            """)
+        return self.toolbar.logo
+
+    @logo.setter
+    def logo(self, value):
+        warnings.warn(
+            """
+            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
+            User 'toolbar.logo' instead.
+            """)
+        self.toolbar.logo = value
+
+    title_standoff = Int(default=8, help="""
+    How far (in screen units) to place a title away from the central
+    plot region.
+    """)
+
+    title_props = Include(TextProps, help="""
+    The %s for the plot title.
+    """)
+
+    title_text_align = Override(default='center')
+
+    title_text_baseline = Override(default='alphabetic')
+
+    title_text_font_size = Override(default={ 'value' : '20pt' })

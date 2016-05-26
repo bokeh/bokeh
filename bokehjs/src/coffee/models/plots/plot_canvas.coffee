@@ -9,6 +9,7 @@ DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 Renderer = require "../renderers/renderer"
+Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
@@ -565,7 +566,7 @@ class PlotCanvas extends LayoutDOM.Model
         @min_border_left = @min_border
       if not @min_border_right?
         @min_border_right = @min_border
-
+    
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
@@ -590,12 +591,18 @@ class PlotCanvas extends LayoutDOM.Model
     @right_panel = new LayoutCanvas.Model()
     @right_panel.attach_document(@document)
 
+    # Add the title to layout
+    if @title?
+      @add_layout(@title, @title_location)
+
     # Add panels for any side renderers
     # (Needs to be called in _doc_attached, so that panels can attach to the document.)
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
       for r in layout_renderers
         r.add_panel(side)
+
+
     logger.debug("Plot attached to document")
 
   serializable_attributes: () ->
@@ -644,13 +651,13 @@ class PlotCanvas extends LayoutDOM.Model
 
     @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
 
-  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.String,   ''                     ]
-      title_standoff:    [ p.Number,   8                      ]
+      title:             [ p.Instance, () -> new Title.Model({text: ''})]
+      title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]
       v_symmetry:        [ p.Bool,     false                  ]
@@ -693,9 +700,6 @@ class PlotCanvas extends LayoutDOM.Model
   }
 
   @override {
-    title_text_font_size: "20pt"
-    title_text_align: "center"
-    title_text_baseline: "alphabetic"
     outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"

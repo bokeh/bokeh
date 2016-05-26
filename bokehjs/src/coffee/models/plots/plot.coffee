@@ -6,6 +6,7 @@ $ = require "jquery"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
+Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 ToolEvents = require "../../common/tool_events"
 PlotCanvas = require("./plot_canvas").Model
@@ -230,8 +231,8 @@ class Plot extends LayoutDOM.Model
       # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.String,   ''                     ]
-      title_standoff:    [ p.Number,   8                      ]
+      title:             [ p.Instance, () -> new Title.Model({text: ''})]
+      title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]
       v_symmetry:        [ p.Bool,     false                  ]
