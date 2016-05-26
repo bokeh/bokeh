@@ -180,7 +180,7 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
 
     plot = make_responsive_plot(plot_width, plot_height, responsive_mode='box_ar')
     # We have to wrap box_ar plots in a Row for them to work.
-    layout = Row(plot)
+    layout = Row(plot, responsive='box')
     save(layout)
 
     # Open the browser with the plot and resize the window to get an initial measure
