@@ -32,6 +32,11 @@ from .layouts import LayoutDOM
 
 from ..util.plot_utils import _list_attr_splat, _select_helper
 
+# See all the way at the bottom of Plot for where this is used.
+DEP_MSG_0_12_0 = """
+    Plot property '%s' was deprecated in 0.12.0 and will be removed. Use '%s' instead.
+    """
+
 
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -633,33 +638,90 @@ class Plot(LayoutDOM):
 
     @property
     def logo(self):
-        warnings.warn(
-            """
-            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
-            User 'toolbar.logo' instead.
-            """)
+        warnings.warn(DEP_MSG_0_12_0 % ('logo', 'Plot.toolbar.logo'))
         return self.toolbar.logo
 
     @logo.setter
     def logo(self, value):
-        warnings.warn(
-            """
-            Plot property 'logo' was deprecated in Bokeh 0.12.0 and will be removed.
-            User 'toolbar.logo' instead.
-            """)
+        warnings.warn(DEP_MSG_0_12_0 % ('logo', 'Plot.toolbar.logo'))
         self.toolbar.logo = value
 
-    title_standoff = Int(default=8, help="""
-    How far (in screen units) to place a title away from the central
-    plot region.
-    """)
+    @property
+    def title_standoff(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.title_padding'))
+        return self.title.title_padding
 
-    title_props = Include(TextProps, help="""
-    The %s for the plot title.
-    """)
+    @title_standoff.setter
+    def title_standoff(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.title_padding'))
+        self.title.title_padding = value
 
-    title_text_align = Override(default='center')
+    @property
+    def title_text_font(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font', 'Plot.title.text_font'))
+        return self.title.text_font
 
-    title_text_baseline = Override(default='alphabetic')
+    @title_text_font.setter
+    def title_text_font(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font', 'Plot.title.text_font'))
+        self.title.text_font = value
 
-    title_text_font_size = Override(default={ 'value' : '20pt' })
+    @property
+    def title_text_font_size(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_size', 'Plot.title.text_font_size'))
+        return self.title.text_font_size
+
+    @title_text_font_size.setter
+    def title_text_font_size(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_size', 'Plot.title.text_font_size'))
+        self.title.text_font_size = value
+
+    @property
+    def title_text_font_style(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_style', 'Plot.title.text_font_style'))
+        return self.title.text_font_style
+
+    @title_text_font_style.setter
+    def title_text_font_style(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_style', 'Plot.title.text_font_style'))
+        self.title.text_font_style = value
+
+    @property
+    def title_text_color(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_color', 'Plot.title.text_color'))
+        return self.title.text_color
+
+    @title_text_color.setter
+    def title_text_color(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_color', 'Plot.title.text_color'))
+        self.title.text_color = value
+
+    @property
+    def title_text_alpha(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_alpha', 'Plot.title.text_alpha'))
+        return self.title.text_alpha
+
+    @title_text_alpha.setter
+    def title_text_alpha(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_alpha', 'Plot.title.text_alpha'))
+        self.title.text_alpha = value
+
+    @property
+    def title_text_align(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.text_align'))
+        return self.title.text_align
+
+    @title_text_align.setter
+    def title_text_align(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.text_align'))
+        self.title.text_align = value
+
+    @property
+    def title_text_baseline(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_baseline', 'Plot.title.text_baseline'))
+        return self.title.text_baseline
+
+    @title_text_baseline.setter
+    def title_text_baseline(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_baseline', 'Plot.title.text_baseline'))
+        self.title.text_baseline = value
