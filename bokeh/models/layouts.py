@@ -264,7 +264,10 @@ def GridPlot(children=None, toolbar_location='left', responsive='fixed', toolbar
                 row_tools = row_tools + item.toolbar.tools
                 item.toolbar_location = None
             if item is None:
-                item = Spacer()
+                for neighbor in row:
+                    if isinstance(neighbor, Plot):
+                        break
+                item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
             if isinstance(item, LayoutDOM):
                 item.responsive = responsive
                 row_children.append(item)
