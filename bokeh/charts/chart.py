@@ -87,8 +87,6 @@ class Chart(Plot):
     What kind of scale to use for the y-axis.
     """)
 
-    title_text_font_size = Override(default={ 'value' : '14pt' })
-
     _defaults = defaults
 
     __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend')
@@ -130,10 +128,6 @@ class Chart(Plot):
         for k in self.__deprecated_attributes__:
             if k in kwargs:
                 setattr(self, k, kwargs[k])
-
-        # TODO (bev) have to force serialization of overriden defaults on subtypes for now
-        self.title_text_font_size = "10pt"
-        self.title_text_font_size = "14pt"
 
         self._glyphs = []
         self._built = False
