@@ -14,7 +14,7 @@ from ..core.validation.warnings import (
     BOTH_CHILD_AND_ROOT,
 )
 from ..core.enums import Location, Responsive as ResponsiveEnum
-from ..core.properties import abstract, Bool, Int, Instance, List, Responsive
+from ..core.properties import abstract, Bool, Int, Instance, List, Responsive, Override
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
@@ -40,10 +40,9 @@ class LayoutDOM(Model):
     the widget will be greyed-out, and not respond to UI events.
     """)
 
-    responsive = Responsive(default='fixed', help="""
+    responsive = Responsive(help="""
     The type of responsiveness for the item being displayed. Possible values are
     `fixed` (or `False`), `width_ar` (or `True`), `height_ar`, `box_ar`, `box`.
-    Default is `box`.
 
     `box` mode constrains both the height and width. The items being laid out
     attempt to fit entirely within their box. Items will shrink and grow with both
@@ -114,6 +113,8 @@ class WidgetBox(LayoutDOM):
         The list of widgets to put in the layout box.
     """)
 
+    responsive = Override(default='fixed')
+
 
 @abstract
 class Box(LayoutDOM):
@@ -180,6 +181,8 @@ class Box(LayoutDOM):
     children = List(Instance(LayoutDOM), help="""
         The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
+
+    responsive = Override(default='fixed')
 
 
 class Row(Box):

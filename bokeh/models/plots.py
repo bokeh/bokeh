@@ -651,3 +651,5 @@ class Plot(LayoutDOM):
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
     """)
+
+    responsive = Override(default='fixed')

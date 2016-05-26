@@ -159,6 +159,13 @@ describe "LayoutDOM.View", ->
 
 describe "LayoutDOM.Model", ->
 
+  it "should have default responsive mode of null", ->
+    # CHANGE THIS AT YOUR PERIL - HAS CONSEQUENCES THAT ARE NON-OBVIOUS 
+    # AND HARD TO DEBUG e.g. strange toolbars, oddly disappearing plots
+    l = new LayoutDOM()
+    expect(l.responsive).to.be.null
+
+
   it "should have default variables", ->
     l = new LayoutDOM()
     expect(l._top).to.be.an.instanceOf(Variable)

@@ -61,6 +61,10 @@ class Box extends LayoutDOM.Model
     spacing:  [ p.Number, 6 ]
   }
 
+  @override {
+    responsive: 'fixed'
+  }
+
   get_layoutable_children: () ->
     @get('children')
 

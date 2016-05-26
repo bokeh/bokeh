@@ -83,5 +83,9 @@ class WidgetBox extends LayoutDOM.Model
     'children': [ p.Array, [] ]
   }
 
+  @override {
+    responsive: 'fixed'
+  }
+
 module.exports =
   Model: WidgetBox
