@@ -26,16 +26,13 @@ is_dark = ([r, g, b]) ->
   return l >= 0.6
 
 pie = (data, opts={}) ->
-  labels = _.clone(data.labels)
-  values = _.clone(data.values)
+  labels = []
+  values = []
 
-  i = 0
-  while i < values.length
-    if values[i] <= 0
-      labels.splice(i, 1)
-      values.splice(i, 1)
-    else
-      i++
+  for i in [0...Math.min(data.labels.length, data.values.length)]
+    if data.values[i] > 0
+      labels.push(data.labels[i])
+      values.push(data.values[i])
 
   start_angle = opts.start_angle ? 0
   end_angle = opts.end_angle ? (start_angle + 2*Math.PI)
