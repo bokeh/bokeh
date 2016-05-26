@@ -5,7 +5,7 @@ ActionTool = require "./action_tool"
 class SaveToolView extends ActionTool.View
 
   do: () ->
-    canvas = @plot_view.canvas_view.canvas[0]
+    canvas = @plot_view.get_canvas_element()
     name = "bokeh_plot.png"
 
     if canvas.msToBlob?
@@ -24,7 +24,6 @@ class SaveTool extends ActionTool.Model
   tool_name: "Save"
   icon: "bk-tool-icon-save"
 
-module.exports = {
+module.exports =
   Model: SaveTool
   View: SaveToolView
-}

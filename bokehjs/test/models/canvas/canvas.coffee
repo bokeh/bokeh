@@ -12,7 +12,6 @@ describe "Canvas.Model", ->
   it "should have 6 variables", ->
     c = new Canvas()
     c.document = new Document()
-    c._doc_attached()
     # These are inherited from LayoutDOM
     expect(c._top).to.be.an.instanceOf(Variable)
     expect(c._bottom).to.be.an.instanceOf(Variable)
@@ -24,7 +23,6 @@ describe "Canvas.Model", ->
   it "should should return 8 constraints", ->
     c = new Canvas()
     c.document = new Document()
-    c._doc_attached()
     expect(c.get_constraints().length).to.be.equal 8
 
 describe "Canvas.View", ->
@@ -41,7 +39,6 @@ describe "Canvas.View", ->
 
     @c = new Canvas()
     @c.document = new Document()
-    @c._doc_attached()
 
   it "initialize should call set_dims", ->
     spy = sinon.spy(CanvasView.prototype, 'set_dims')

@@ -2,7 +2,9 @@ from __future__ import  absolute_import
 
 from itertools import chain
 
-from bokeh.models.annotations import Legend, Arrow, BoxAnnotation, Span, Label
+from bokeh.models.annotations import (
+    Legend, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
+)
 from bokeh.models import ColumnDataSource, ArrowHead
 from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign
@@ -40,10 +42,10 @@ def check_line(annotation, prefix="", line_color=Color.black, line_width=1.0, li
     assert getattr(annotation, prefix + "line_dash") == []
     assert getattr(annotation, prefix + "line_dash_offset") == 0
 
-def check_text(annotation, prefix="", font_size='12pt', baseline='bottom'):
+def check_text(annotation, prefix="", font_size='12pt', baseline='bottom', font_style='normal'):
     assert getattr(annotation, prefix + "text_font") == "helvetica"
     assert getattr(annotation, prefix + "text_font_size") == {"value": font_size}
-    assert getattr(annotation, prefix + "text_font_style") == FontStyle.normal
+    assert getattr(annotation, prefix + "text_font_style") == font_style
     assert getattr(annotation, prefix + "text_color") == "#444444"
     assert getattr(annotation, prefix + "text_alpha") == 1.0
     assert getattr(annotation, prefix + "text_align") == TextAlign.left
@@ -153,15 +155,14 @@ def test_Label():
     assert label.y is None
     assert label.x_units == 'data'
     assert label.y_units == 'data'
-    assert label.text ==  'text'
+    assert label.text is None
     assert label.angle == 0
+    assert label.angle_units == 'rad'
     assert label.x_offset == 0
     assert label.y_offset == 0
     assert label.render_mode == 'canvas'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
-    assert isinstance(label.source, ColumnDataSource)
-    assert label.source.data == {}
     yield check_text, label
     yield check_fill, label, "background_", None, 1.0
     yield check_line, label, "border_", None, 1.0, 1.0
@@ -174,6 +175,47 @@ def test_Label():
         "y_units",
         "text",
         "angle",
+        "angle_units",
+        "x_offset",
+        "y_offset",
+        "render_mode",
+        "x_range_name",
+        "y_range_name"],
+        TEXT,
+        prefix('border_', LINE),
+        prefix('background_', FILL))
+
+def test_LabelSet():
+    label_set = LabelSet()
+    assert label_set.plot is None
+    assert label_set.level == 'annotation'
+    assert label_set.x is None
+    assert label_set.y is None
+    assert label_set.x_units == 'data'
+    assert label_set.y_units == 'data'
+    assert label_set.text ==  'text'
+    assert label_set.angle == 0
+    assert label_set.angle_units == 'rad'
+    assert label_set.x_offset == 0
+    assert label_set.y_offset == 0
+    assert label_set.render_mode == 'canvas'
+    assert label_set.x_range_name == 'default'
+    assert label_set.y_range_name == 'default'
+    assert isinstance(label_set.source, ColumnDataSource)
+    assert label_set.source.data == {}
+    yield check_text, label_set
+    yield check_fill, label_set, "background_", None, 1.0
+    yield check_line, label_set, "border_", None, 1.0, 1.0
+    yield (check_props, label_set, [
+        "plot",
+        "level",
+        "x",
+        "y",
+        "x_units",
+        "y_units",
+        "text",
+        "angle",
+        "angle_units",
         "x_offset",
         "y_offset",
         "render_mode",
@@ -206,3 +248,32 @@ def test_Span():
         "level",
         "render_mode"
     ], LINE)
+
+def test_Title():
+    title = Title()
+    assert title.plot is None
+    assert title.level == 'annotation'
+    assert title.text is None
+    assert title.title_align == 'center'
+    assert title.title_padding == 0
+    assert title.text_font == 'helvetica'
+    assert title.text_font_size == {'value': '12pt'}
+    assert title.text_font_style == 'normal'
+    assert title.text_color == '#444444'
+    assert title.text_alpha == 1.0
+    yield check_fill, title, "background_", None, 1.0
+    yield check_line, title, "border_", None, 1.0, 1.0
+    yield (check_props, title, [
+        "plot",
+        "level",
+        "text",
+        "title_align",
+        "title_padding",
+        "text_font",
+        "text_font_size",
+        "text_font_style",
+        "text_color",
+        "text_alpha",
+        "render_mode"],
+        prefix('border_', LINE),
+        prefix('background_', FILL))

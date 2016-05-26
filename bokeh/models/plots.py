@@ -310,26 +310,6 @@ class Plot(LayoutDOM):
         self.renderers.append(g)
         return g
 
-    def add_annotation(self, annotation, **kwargs):
-        '''Adds new Annotation into the Plot.renderers
-
-        Args:
-            annotation (Annotation) : instance of annotation to add to plot
-        Returns:
-            Annotation
-
-        '''
-        if not isinstance(annotation, Annotation):
-            raise ValueError("'annotation' argument to add_annotation must be Annotation subclass")
-
-        if annotation.plot is not None:
-            raise ValueError("annotation %s to be added already has 'plot' attribute set" % annotation)
-
-        annotation.plot = self
-
-        self.renderers.append(annotation)
-        return annotation
-
     def add_tile(self, tile_source, **kw):
         '''Adds new TileRenderer into the Plot.renderers
 

@@ -9,8 +9,6 @@ describe "Cartesian.Model", ->
 
   it "should have 6 variables", ->
     c = new CartesianFrame()
-    c.document = new Document()
-    c._doc_attached()
     # These are inherited from LayoutDOM
     expect(c._top).to.be.an.instanceOf(Variable)
     expect(c._bottom).to.be.an.instanceOf(Variable)
@@ -22,6 +20,4 @@ describe "Cartesian.Model", ->
 
   it "should should return 8 constraints", ->
     c = new CartesianFrame()
-    c.document = new Document()
-    c._doc_attached()
     expect(c.get_constraints().length).to.be.equal 8
