@@ -18,8 +18,7 @@ class GMapPlot extends Plot.Model
     super(plot_options)
     @_plot_canvas = new GMapPlotCanvas.Model(options)
     @_plot_canvas.toolbar = @toolbar
-    @_plot_canvas.width = @plot_width
-    @_plot_canvas.height = @plot_height
+    @_set_orientation_variables(@_plot_canvas)
 
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
