@@ -40,7 +40,7 @@ class WidgetBoxView extends LayoutDOM.View
     return height + 10
 
   get_width: () ->
-    width = 0
+    width = @el.scrollWidth + 20
     for own key, child_view of @child_views
       # Take the max width of all the children as the constrainer.
       child_width = child_view.el.scrollWidth

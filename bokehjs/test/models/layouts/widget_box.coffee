@@ -68,19 +68,22 @@ describe "WidgetBox", ->
       }
       expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10 + 10
 
-    it "get_width should return the width of a widget child", ->
+    it "get_width should return the max of it and the children", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
-      widget_box_view.child_views = {'child_view_1': {'el': {'scrollWidth': 111}}}
-      expect(widget_box_view.get_width()).to.be.equal 111
-
-    it "get_width should return only the max of the children", ->
-      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
         'child_view_1': {'el': {'scrollWidth': 111}}
         'child_view_2': {'el': {'scrollWidth': 189}}
         'child_view_3': {'el': {'scrollWidth': 44}}
       }
       expect(widget_box_view.get_width()).to.be.equal 189
+
+    it "get_width should return itself + 20 if no children", ->
+      widget_box_view = new @widget_box.default_view({ model: @widget_box })
+      widget_box_view.el = {'scrollWidth': 99}
+      widget_box_view.child_views = {
+      }
+      expect(widget_box_view.get_width()).to.be.equal 99 + 20
 
 
   describe "WidgetBox.Model", ->
