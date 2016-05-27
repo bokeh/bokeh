@@ -2,8 +2,6 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
 
-build_views = require "../../common/build_views"
-
 p = require "../../core/properties"
 
 tabs_template = require "./tabs_template"
@@ -11,23 +9,15 @@ Widget = require "./widget"
 
 class TabsView extends Widget.View
 
-  initialize: (options) ->
-    super(options)
-    @views = {}
-    @render()
-    @listenTo @model, 'change', this.render
-
   render: () ->
     super()
-    for own key, val of @views
+    for own key, val of @child_views
       val.$el.detach()
     @$el.empty()
 
     tabs = @mget('tabs')
     active = @mget('active')
     children = @mget('children')
-
-    build_views(@views, children)
 
     html = $(tabs_template({
       tabs: tabs
@@ -49,7 +39,7 @@ class TabsView extends Widget.View
     $panels = html.children(".bk-bs-tab-pane")
 
     for [child, panel] in _.zip(children, $panels)
-      $(panel).html(@views[child.id].$el)
+      $(panel).html(@child_views[child.id].$el)
 
     @$el.append(html)
     @$el.tabs

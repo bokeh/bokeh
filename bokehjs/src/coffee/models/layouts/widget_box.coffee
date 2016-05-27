@@ -53,6 +53,20 @@ class WidgetBox extends LayoutDOM.Model
   type: 'WidgetBox'
   default_view: WidgetBoxView
 
+  get_edit_variables: () ->
+    edit_variables = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
+
   get_constrained_variables: () ->
     constrained_variables = super()
     constrained_variables = _.extend(constrained_variables, {
@@ -75,7 +89,7 @@ class WidgetBox extends LayoutDOM.Model
         'box-equal-size-right' : @_width_minus_right
       })
     return constrained_variables
-  
+
   get_layoutable_children: () ->
     return @children
 

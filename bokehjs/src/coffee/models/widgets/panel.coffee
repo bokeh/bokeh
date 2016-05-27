@@ -5,12 +5,7 @@ p = require "../../core/properties"
 
 Widget = require "./widget"
 
-
 class PanelView extends Widget.View
-
-  initialize: (options) ->
-    super(options)
-    @render()
 
   render: () ->
     super()
