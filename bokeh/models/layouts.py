@@ -201,109 +201,13 @@ class Column(Box):
     """
 
 
-def GridPlot(children=None, toolbar_location='left', responsive='fixed', toolbar_options=None, *args):
-    """ Create a grid of plots rendered on separate canvases.
-
-    Args:
-        children List(List(Instance(Plot))): An array of plots to display in a
-        grid, given as a list of lists of Plot objects. To leave a position in
-        the grid empty, pass None for that position in the children list.
-
-        toolbar_location Enum(``above``, ``below``, ``left``, ``right``) : Where the
-        toolbar will be located, with respect to the grid. If set to None,
-        no toolbar will be attached to the grid.
-
-        responsive Enum(``box``, ``fixed``, ``width_ar``, ``height_ar``, ``box_ar``) :  How
-        the grid will respond to the html page. Default is ``box``.
-
-        toolbar_options Dict (optional) : A dictionary of options that will be used to construct the
-        toolbar (an instance of class::bokeh.models.tools.ToolbarBox). If none is supplied,
-        ToolbarBox's defaults will be used.
-
-    Examples:
-
-        >>> GridPlot([[plot_1, plot_2], [plot_3, plot_4]])
-        >>> GridPlot(
-                children=[[plot_1, plot_2], [None, plot_3],
-                toolbar_location='right'
-                responsive='fixed',
-                toolbar_options=dict(logo='gray')
-            )
-
-    """
-    from .tools import ToolbarBox
-    from .plots import Plot
-
-    # Integrity checks
-
-    if len(args) > 0 and children is not None:
-        raise ValueError("'children' keyword cannot be used with positional arguments")
-    elif len(args) > 0:
-        children = list(args)
-
-    if not children:
-        children = []
-
-    if toolbar_location:
-        if not hasattr(Location, toolbar_location):
-            raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
-
-    if responsive:
-        if not hasattr(ResponsiveEnum, responsive):
-            raise ValueError("Invalid value of responsive: %s" % responsive)
-
-    # Make the grid
-    tools = []
-    rows = []
-
-    for row in children:
-        row_tools = []
-        row_children = []
-        for item in row:
-            if isinstance(item, Plot):
-                row_tools = row_tools + item.toolbar.tools
-                item.toolbar_location = None
-            if item is None:
-                for neighbor in row:
-                    if isinstance(neighbor, Plot):
-                        break
-                item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
-            if isinstance(item, LayoutDOM):
-                item.responsive = responsive
-                row_children.append(item)
-            else:
-                raise ValueError("Only LayoutDOM items can be inserted into Grid")
-        tools = tools + row_tools
-        rows.append(Row(children=row_children, responsive=responsive))
-
-    grid = Column(children=rows, responsive=responsive)
-
-    # Make the toolbar
-    if toolbar_location:
-        if not toolbar_options:
-            toolbar_options = {}
-        if 'toolbar_location' not in toolbar_options:
-            toolbar_options['toolbar_location'] = toolbar_location
-        toolbar = ToolbarBox(
-            tools=tools,
-            responsive=responsive,
-            **toolbar_options
-        )
-
-    # Set up children
-    if toolbar_location == 'above':
-        return Column(children=[toolbar, grid], responsive=responsive)
-    elif toolbar_location == 'below':
-        return Column(children=[grid, toolbar], responsive=responsive)
-    elif toolbar_location == 'left':
-        return Row(children=[toolbar, grid], responsive=responsive)
-    elif toolbar_location == 'right':
-        return Row(children=[grid, toolbar], responsive=responsive)
-    else:
-        return grid
-
-
 # ---- DEPRECATIONS
+
+@deprecated("Bokeh 0.12.0", "bokeh.layouts.gridplot")
+def GridPlot(*args, **kwargs):
+    from bokeh.layouts import gridplot
+    return gridplot(*args, **kwargs)
+
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def HBox(*args, **kwargs):
