@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Title, LinearAxis
+from bokeh.models import Plot, Range1d, LinearAxis, Circle, Column, ColumnDataSource
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -16,23 +16,32 @@ def test_the_default_titles_settings_and_ensure_outside_any_axes(output_file_url
     # label test. The title added to plot as the primary title
     #  should always be outside axes and other side renderers.
 
-    plot = Plot(
-        x_range=Range1d(0, 10), y_range=Range1d(0, 10), toolbar_location=None,
-        title="title_align=left, title_location=left (I should be outside all axes)", title_location='left'
+    source = ColumnDataSource(data=dict(x=[1, 2], y=[1, 2]))
+
+    def make_plot(location, title_align, two_axes=True):
+        plot = Plot(
+            plot_width=400, plot_height=200,
+            x_range=Range1d(0, 2), y_range=Range1d(0, 2),
+            toolbar_location=None,
+            title="Title %s - %s" % (location, title_align),
+            title_location=location,
+        )
+        plot.title.title_align = title_align
+        plot.add_glyph(source, Circle(x='x', y='y', radius=0.4))
+        plot.add_layout(LinearAxis(), location)
+        if two_axes:
+            plot.add_layout(LinearAxis(), location)
+        return plot
+
+    layout = Column(
+        make_plot('above', 'left', two_axes=False),  # This is a workaround top doesn't like two axes
+        make_plot('right', 'right'),
+        make_plot('below', 'center'),  # NOTE THIS HAS A BUG!!!
+        make_plot('left', 'left')
     )
-    title_above = Title(text="title_align=left, title_location=above")
-    title_right = Title(text="title_align=center, title_location=right (THIS IS BROKEN!!)", title_align='center')
-    title_below = Title(text="title_align=right, title_location=below", title_align='right')
-
-    plot.add_layout(title_above, 'above')
-    plot.add_layout(title_right, 'right')
-    plot.add_layout(title_below, 'below')
-
-    plot.add_layout(LinearAxis(), 'left')
-    plot.add_layout(LinearAxis(), 'left')
 
     # Save the plot and start the test
-    save(plot)
+    save(layout)
     selenium.get(output_file_url)
 
     # Take screenshot
