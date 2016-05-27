@@ -709,20 +709,41 @@ class Plot(LayoutDOM):
 
     @property
     def title_text_align(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.text_align'))
-        return self.title.text_align
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.title_align'))
+        warnings.warn("""``title_text_align`` was deprecated in 0.12.0 and is no longer
+        available on the new Title object. There is a new ``plot.title.title_align`` which is
+        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
+        If you need the exact ``title_text_align`` behavior, please add a title by creating a
+        Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
+        return self.title.title_align
 
     @title_text_align.setter
     def title_text_align(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.text_align'))
-        self.title.text_align = value
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.title_align'))
+        warnings.warn("""``title_text_align`` was deprecated in 0.12.0 and is no longer
+        available on the new Title object. There is a new ``plot.title.title_align`` which is
+        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
+        If you need the exact ``title_text_align`` behavior, please add a title by creating a
+        Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
+        self.title.title_align = value
 
     @property
     def title_text_baseline(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_baseline', 'Plot.title.text_baseline'))
-        return self.title.text_baseline
+        warnings.warn("""title_text_baseline was deprecated in 0.12.0 and is no longer
+        available on the new Title object. If you need to alter the text_baseline, please
+        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
+        return None
 
     @title_text_baseline.setter
     def title_text_baseline(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_baseline', 'Plot.title.text_baseline'))
-        self.title.text_baseline = value
+        warnings.warn("""title_text_baseline was deprecated in 0.12.0 and is no longer
+        available on the new Title object. If you need to alter the text_baseline, please
+        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
