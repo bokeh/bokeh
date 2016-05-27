@@ -61,10 +61,10 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
-  GridPlot:                 require '../models/layouts/grid_plot'
-  HBox:                     require '../models/layouts/hbox'
-  VBox:                     require '../models/layouts/vbox'
-  VBoxForm:                 require '../models/layouts/vboxform'
+  Column:                   require '../models/layouts/column'
+  Row:                      require '../models/layouts/row'
+  Spacer:                   require '../models/layouts/spacer'
+  WidgetBox:                require '../models/layouts/widget_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
@@ -126,6 +126,9 @@ module.exports = {
 
   DynamicImageRenderer:     require '../models/tiles/dynamic_image_renderer'
   ImageSource:              require '../models/tiles/image_source'
+
+  Toolbar:                  require '../models/tools/toolbar'
+  ToolbarBox:               require '../models/tools/toolbar_box'
 
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'

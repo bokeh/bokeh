@@ -4,27 +4,24 @@ Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-LayoutDOM = require "../layouts/layout_dom"
-GlyphRenderer = require "../renderers/glyph_renderer"
-Renderer = require "../renderers/renderer"
 ColumnDataSource = require "../sources/column_data_source"
 DataRange1d = require "../ranges/data_range1d"
+GlyphRenderer = require "../renderers/glyph_renderer"
+LayoutDOM = require "../layouts/layout_dom"
+Renderer = require "../renderers/renderer"
+Toolbar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
-ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 
-BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
-{EQ, GE, Strength, Variable} = require "../../core/layout/solver"
+{EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
 update_panel_constraints = require("../../core/layout/side_panel").update_constraints
-
-plot_template = require "./plot_template"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -39,39 +36,10 @@ plot_template = require "./plot_template"
 
 global_gl_canvas = null
 
-MIN_BORDER = 50
-
-get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
-    # client_width and height represent the available size
-
-    if use_width
-      new_width1 = Math.max(client_width, min_size)
-      new_height1 = parseInt(new_width1 / aspect_ratio)
-      if new_height1 < min_size
-        new_height1 = min_size
-        new_width1 = parseInt(new_height1 * aspect_ratio)
-    if use_height
-      new_height2 = Math.max(client_height, min_size)
-      new_width2 = parseInt(new_height2 * aspect_ratio)
-      if new_width2 < min_size
-        new_width2 = min_size
-        new_height2 = parseInt(new_width2 / aspect_ratio)
-
-    if (not use_height) and (not use_width)
-      return null  # remain same size
-    else if use_height and use_width
-      if new_width1 < new_width2
-        return [new_width1, new_height1]
-      else
-        return [new_width2, new_height2]
-    else if use_height
-     return [new_width2, new_height2]
-    else
-      return [new_width1, new_height1]
-
 # TODO (bev) PlotView should not be a RendererView
+# TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
 class PlotCanvasView extends Renderer.View
-  template: plot_template
+  className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
 
@@ -93,7 +61,7 @@ class PlotCanvasView extends Renderer.View
   remove: () =>
     super()
     # When this view is removed, also remove all of the tools.
-    for id, tool_view of @tools
+    for id, tool_view of @tool_views
       tool_view.remove()
 
   initialize: (options) ->
@@ -109,11 +77,6 @@ class PlotCanvasView extends Renderer.View
       }
     }
 
-    # TODO (bev) titles should probably be a proper guide, then they could go
-    # on any side, this will do to get the PR merged
-    @title_panel = @model.above_panel
-    @title_panel._anchor = @title_panel._bottom
-
     # compat, to be removed
     @frame = @mget('frame')
     @x_range = @frame.get('x_ranges')['default']
@@ -121,13 +84,9 @@ class PlotCanvasView extends Renderer.View
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
 
-    @$el.html(@template())
-
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
-
-    @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
-
+    @$el.append(@canvas_view.el)
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -138,12 +97,12 @@ class PlotCanvasView extends Renderer.View
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
     @ui_event_bus = new UIEvents({
-      tool_manager: @mget('tool_manager')
+      toolbar: @mget('toolbar')
       hit_area: @canvas_view.$el
     })
 
     @renderer_views = {}
-    @tools = {}
+    @tool_views = {}
 
     @levels = {}
     for level in enums.RenderLevel
@@ -151,24 +110,7 @@ class PlotCanvasView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
-    toolbar_location = @mget('toolbar_location')
-    if toolbar_location?
-      toolbar_selector = '.bk-plot-' + toolbar_location
-      logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-      @tm_view = new ToolManager.View({
-        model: @mget('tool_manager')
-        el: $("<div>").appendTo(@$(toolbar_selector))
-        location: toolbar_location
-      })
-      @tm_view.render()
-
     @update_dataranges()
-
-    if @mget('responsive')
-      throttled_resize = _.throttle(@resize, 100)
-      $(window).on("resize", throttled_resize)
-      # Just need to wait a small delay so container has a width
-      _.delay(@resize, 10)
 
     @unpause()
 
@@ -277,13 +219,10 @@ class PlotCanvasView extends Renderer.View
       @update_selection(info.selection)
 
     if info.dimensions?
-      @update_dimensions(info.dimensions)
-
-  update_dimensions: (dimensions) ->
-    @canvas_view.set_dims([dimensions.width, dimensions.height])
+      @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
 
   reset_dimensions: () ->
-    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+    @canvas_view.set_dims([@canvas.initial_width, @canvas.initial_height])
 
   get_selection: () ->
     selection = []
@@ -366,7 +305,7 @@ class PlotCanvasView extends Renderer.View
 
   build_levels: () ->
     renderer_models = @mget("renderers")
-    for tool_model in @mget("tools")
+    for tool_model in @mget("toolbar").tools
       synthetic = tool_model.get("synthetic_renderers")
       renderer_models = renderer_models.concat(synthetic)
 
@@ -377,16 +316,20 @@ class PlotCanvasView extends Renderer.View
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
-    tools = build_views(@tools, @mget('tools'), @view_options())
+
+    tool_views = build_views(@tool_views, @mget('toolbar').tools, @view_options())
+
     for v in views
       level = v.mget('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
-    for tool_view in tools
+
+    for tool_view in tool_views
       level = tool_view.mget('level')
       @levels[level][tool_view.model.id] = tool_view
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
+
     return this
 
   bind_bokeh_events: () ->
@@ -395,10 +338,11 @@ class PlotCanvasView extends Renderer.View
     for name, rng of @mget('frame').get('y_ranges')
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tools', @build_levels)
+    @listenTo(@model.toolbar, 'change:tools', @build_levels)
     @listenTo(@model, 'change', @request_render)
     @listenTo(@model, 'destroy', () => @remove())
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
+    @listenTo(@model.document.solver(), 'resize', @resize)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -444,30 +388,30 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
-    width = @mget("plot_width")
-    height = @mget("plot_height")
-
-    if (@canvas.get("canvas_width") != width or
-        @canvas.get("canvas_height") != height)
-      @canvas_view.set_dims([width, height], trigger=false)
-
-    @canvas_view.render(force_canvas)
+    # This seems not needed
+    #if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
+    #  @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
 
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
-    ctx = @canvas_view.ctx
-    title = @mget('title')
-    if title
-      @visuals.title_text.set_value(ctx)
-
     @update_constraints()
-
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
     @model.get('frame')._update_mappers()
+
+    ctx = @canvas_view.ctx
+
+    # Get hidpi ratio
+    ratio = @canvas_view.render(force_canvas)
+    ctx.pixel_ratio = ratio  # we need this in WebGL
+
+    # Set hidpi-transform
+    ctx.save()  # Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
+    ctx.scale(ratio, ratio)
+    ctx.translate(0.5, 0.5)
 
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
@@ -491,8 +435,8 @@ class PlotCanvasView extends Renderer.View
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
       # Clipping
       gl.enable(gl.SCISSOR_TEST)
-      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
-      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
+      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
+      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
       # Setup blending
       gl.enable(gl.BLEND)
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
@@ -505,39 +449,38 @@ class PlotCanvasView extends Renderer.View
     @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
 
     if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. We set up offsets so the pixel
-      # mapping is one-on-one and we do not get any blurring due to
-      # interpolation. In theory, we could disable the image interpolation,
-      # and we can on Chrome, but then the result looks ugly on Firefox. Since
-      # the image *does* look sharp, this might be a bug in Firefox'
-      # interpolation-less image rendering.
-      # This is how we would disable image interpolation (keep as a reference)
-      #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-      #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
-      #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      src_offset = 0.0
-      dst_offset = 0.5
-      ctx.drawImage(ctx.glcanvas, src_offset, src_offset, ctx.glcanvas.width, ctx.glcanvas.height,
-                                  dst_offset, dst_offset, ctx.glcanvas.width, ctx.glcanvas.height)
+      # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      # to remove the hidpi transform, then blit, then restore.
+      # ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug('drawing with WebGL')
+      ctx.restore()
+      ctx.drawImage(ctx.glcanvas, 0, 0)
+      # Set back hidpi transform
+      ctx.save()
+      ctx.scale(ratio, ratio)
+      ctx.translate(0.5, 0.5)
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
-    if title
-      vx = switch @visuals.title_text.text_align.value()
-        when 'left'   then 0
-        when 'center' then @canvas.get('width')/2
-        when 'right'  then @canvas.get('width')
-      vy = @title_panel.get('bottom') + @model.get('title_standoff')
-
-      sx = @canvas.vx_to_sx(vx)
-      sy = @canvas.vy_to_sy(vy)
-
-      @visuals.title_text.set_value(ctx)
-      ctx.fillText(title, sx, sy)
-
     if not @initial_range_info?
       @set_initial_range()
+
+    ctx.restore()  # Restore to default state
+
+  resize: () ->
+    width = @model._width._value
+    height = @model._height._value
+
+    @canvas_view.set_dims([width, height], true)
+
+    # This allows the plot canvas to be positioned around the toolbar
+    @$el.css({
+      position: 'absolute'
+      left: @model._dom_left._value
+      top: @model._dom_top._value
+      width: @model._width._value
+      height: @model._height._value
+    })
 
   update_constraints: () ->
     s = @model.document.solver()
@@ -550,82 +493,7 @@ class PlotCanvasView extends Renderer.View
       if view.model.panel?
         update_panel_constraints(view)
 
-    ctx = @canvas_view.ctx
-    title = @mget('title')
-    if title
-      th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
-      if th != @title_panel.get('height')
-        s.suggest_value(@title_panel._height, th)
-
     s.update_variables(false)
-
-  resize: () =>
-    @resize_width_height(true, false)
-
-  resize_width_height: (use_width, use_height, maintain_ar=true, width=null, height=null) =>
-    # Resize plot based on available width and/or height
-
-    # If size is explicitly given, we don't have to measure any DOM elements. Shortcut for Phosphor.
-    if typeof width is 'number' and typeof height is 'number' and width >=0 and height >= 0
-      return @_resize_width_height(use_width, use_height, maintain_ar, width, height)
-
-    # the solver falls over if we try and resize too small.
-    # min_size is currently set in defaults to 120, we can make this
-    # user-configurable in the future, as it may not be the right number
-    # if people set a large border on their plots, for example.
-
-    # Try to find bk-root. We will query the parent of that node for its size
-    node = @.el
-    for i in [0..2]  # Use for-loop; if we ever change DOM structure, it should still work
-      if node is null or node.classList.contains('bk-root')
-         break
-      node = node.parentNode
-
-    # The plot node might be an orphan if the initial resize
-    # happened before the plot was added to the DOM. If that happens, we
-    # try again in increasingly larger intervals (the first try should just
-    # work, but lets play it safe).
-    @_re_resized = @_re_resized or 0
-    if not (node? and node.parentNode?) and @_re_resized < 14  # 2**14 ~ 16s
-      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
-      @_re_resized += 1
-      return
-
-    # Check that what we found is a bk-root. If not, this is probably a subplot, which we
-    # can not currently make responsive in a good way
-    if not node.classList.contains('bk-root')
-       logger.warn('subplots cannot be responsive')
-       return
-
-    @_resize_width_height(use_width, use_height, maintain_ar,
-                          node.parentNode.clientWidth, node.parentNode.clientHeight)
-
-  _resize_width_height: (use_width, use_height, maintain_ar, avail_width, avail_height) =>
-    min_size = @mget('min_size')
-
-    # We need some extra space to account for padding and toolbar. Otherwise we get scrollbars.
-    # Note that during resizing, the canvas may be too large, causing scrollbars to briefly show.
-    width_offset = height_offset = 20
-    if @model.toolbar_location == 'above' then height_offset += 30
-    if @model.toolbar_location == 'below' then height_offset += 80  # bug in layout?
-    if @model.toolbar_location in ['left', 'right'] then width_offset += 30
-    avail_width -= width_offset
-    avail_height -= height_offset
-
-    if maintain_ar is false
-      # Just change width and/or height; aspect ratio will change
-      if use_width and use_height
-        @canvas_view.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
-      else if use_width
-        @canvas_view.set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
-      else if use_height
-        @canvas_view.set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
-    else
-      # Find best size to fill space while maintaining aspect ratio
-      ar = @canvas.get('width') / @canvas.get('height')
-      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
-      if w_h?
-        @canvas_view.set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -659,9 +527,10 @@ class PlotCanvasView extends Renderer.View
     @visuals.background_fill.set_value(ctx)
     ctx.fillRect(frame_box...)
 
+# TODO(bird) I'm not sure LayoutDOM is the best parent for PlotCanvas
 class PlotCanvas extends LayoutDOM.Model
-  default_view: PlotCanvasView
   type: 'PlotCanvas'
+  default_view: PlotCanvasView
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -679,46 +548,37 @@ class PlotCanvas extends LayoutDOM.Model
         plots = plots.concat(@)
         yr.set('plots', plots)
 
-    canvas = new Canvas.Model({
+    @canvas = new Canvas.Model({
       map: @use_map ? false
-      canvas_width: @get('plot_width'),
-      canvas_height: @get('plot_height'),
-      use_hidpi: @get('hidpi')
+      initial_width: @plot_width,
+      initial_height: @plot_height,
+      use_hidpi: @hidpi
     })
-    @set('canvas', canvas)
 
-    @set('tool_manager', new ToolManager.Model({ plot: this }))
-
-    min_border = @get('min_border')
-    if min_border?
-      if not @get('min_border_top')?
-        @set('min_border_top', min_border)
-      if not @get('min_border_bottom')?
-        @set('min_border_bottom', min_border)
-      if not @get('min_border_left')?
-        @set('min_border_left', min_border)
-      if not @get('min_border_right')?
-        @set('min_border_right', min_border)
-
-    @_width = new Variable("plot_width")
-    @_height = new Variable("plot_height")
-
+    # Min border applies to the edge of everything
+    if @min_border?
+      if not @min_border_top?
+        @min_border_top = @min_border
+      if not @min_border_bottom?
+        @min_border_bottom = @min_border
+      if not @min_border_left?
+        @min_border_left = @min_border
+      if not @min_border_right?
+        @min_border_right = @min_border
+    
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
-    canvas = @get('canvas')
-    canvas.attach_document(@document)
-
-    frame = new CartesianFrame.Model({
-      x_range: @get('x_range'),
-      extra_x_ranges: @get('extra_x_ranges'),
-      x_mapper_type: @get('x_mapper_type'),
-      y_range: @get('y_range'),
-      extra_y_ranges: @get('extra_y_ranges'),
-      y_mapper_type: @get('y_mapper_type'),
+    @canvas.attach_document(@document)
+    @frame = new CartesianFrame.Model({
+      x_range: @x_range,
+      extra_x_ranges: @extra_x_ranges,
+      x_mapper_type: @x_mapper_type,
+      y_range: @y_range,
+      extra_y_ranges: @extra_y_ranges,
+      y_mapper_type: @y_mapper_type,
     })
-    frame.attach_document(@document)
-    @set('frame', frame)
+    @frame.attach_document(@document)
 
     # Add the panels that make up the layout
     @above_panel = new LayoutCanvas.Model()
@@ -730,6 +590,10 @@ class PlotCanvas extends LayoutDOM.Model
     @right_panel = new LayoutCanvas.Model()
     @right_panel.attach_document(@document)
 
+    # Add the title to layout
+    if @title?
+      @add_layout(@title, @title_location)
+
     # Add panels for any side renderers
     # (Needs to be called in _doc_attached, so that panels can attach to the document.)
     for side in ['above', 'below', 'left', 'right']
@@ -737,13 +601,14 @@ class PlotCanvas extends LayoutDOM.Model
       for r in layout_renderers
         r.add_panel(side)
 
+
     logger.debug("Plot attached to document")
 
   serializable_attributes: () ->
     attrs = super()
     if 'renderers' of attrs
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
-    attrs
+    return attrs
 
   add_renderers: (new_renderers...) ->
     renderers = @get('renderers')
@@ -753,9 +618,7 @@ class PlotCanvas extends LayoutDOM.Model
   add_layout: (renderer, side="center") ->
     if renderer.props.plot?
       renderer.plot = this
-
     @add_renderers(renderer)
-
     if side != 'center'
       renderer.add_panel(side)
       @set(side, @get(side).concat([renderer]))
@@ -785,16 +648,16 @@ class PlotCanvas extends LayoutDOM.Model
         attrs.plot = this
         new tool.constructor(attrs)
 
-    @set("tools", @get("tools").concat(new_tools))
+    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
 
-  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
-      title:             [ p.String,   ''                     ]
-      title_standoff:    [ p.Number,   8                      ]
-
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
+      title:             [ p.Instance                         ]
+      title_location:    [ p.Location, 'above'                ]
+
       h_symmetry:        [ p.Bool,     true                   ]
       v_symmetry:        [ p.Bool,     false                  ]
 
@@ -813,10 +676,7 @@ class PlotCanvas extends LayoutDOM.Model
       x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
-      tools:             [ p.Array,    []                     ]
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
-      toolbar_location:  [ p.Location, 'above'                ]
-      logo:              [ p.String,   'normal'               ] # TODO (bev)
 
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]
@@ -825,28 +685,29 @@ class PlotCanvas extends LayoutDOM.Model
 
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
-      responsive:        [ p.Bool,     false                  ]
 
-      min_border:        [ p.Number,   MIN_BORDER             ]
+      min_border:        [ p.Number,   5                      ]
       min_border_top:    [ p.Number,   null                   ]
       min_border_left:   [ p.Number,   null                   ]
       min_border_bottom: [ p.Number,   null                   ]
       min_border_right:  [ p.Number,   null                   ]
     }
 
+  @internal {
+      # This is set by parent plot for convenient access
+      toolbar: [ p.Instance ]
+  }
+
   @override {
-    title_text_font_size: "20pt"
-    title_text_align: "center"
-    title_text_baseline: "alphabetic"
-    outline_line_color: '#aaaaaa'
+    outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
+    # We should find a way to enforce this
+    responsive: 'box'
   }
 
   @internal {
-    min_size:     [ p.Number, 120 ]
     canvas:       [ p.Instance ]
-    tool_manager: [ p.Instance ]
     frame:        [ p.Instance ]
   }
 
@@ -868,7 +729,7 @@ class PlotCanvas extends LayoutDOM.Model
     return children
 
   get_edit_variables: () ->
-    edit_variables = super()
+    edit_variables = []
     # Go down the children to pick up any more constraints
     for child in @get_layoutable_children()
       edit_variables = edit_variables.concat(child.get_edit_variables())
@@ -891,13 +752,8 @@ class PlotCanvas extends LayoutDOM.Model
     min_border_bottom = @get('min_border_bottom')
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
-    min_size          = @get('min_size')
     frame             = @get('frame')
     canvas            = @get('canvas')
-
-    # Min-size
-    constraints.push(GE(@_width, -min_size))
-    constraints.push(GE(@_height, -min_size))
 
     # Set the border constraints
     constraints.push(GE(@above_panel._height, -min_border_top))
@@ -955,7 +811,11 @@ class PlotCanvas extends LayoutDOM.Model
           constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
     return constraints
 
+  # TODO: This is less than awesome - this is here purely for tests to pass. Need to
+  # find a better way, but this was expedient for now.
+  plot_canvas: () ->
+    return @
+
 module.exports =
-  get_size_for_available_space: get_size_for_available_space
   Model: PlotCanvas
   View: PlotCanvasView

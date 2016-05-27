@@ -34,17 +34,19 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
+    legend_padding = @mget('legend_padding')
+
     if @mget("orientation") == "vertical"
-      legend_height = legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing
-      legend_width = max_label_width + glyph_width + 3 * legend_spacing
+      legend_height = (legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing) + legend_padding * 2
+      legend_width = (max_label_width + glyph_width + 3 * legend_spacing) + legend_padding * 2
     else
       legend_width = 0
       for name, width of @text_widths
         legend_width += (_.max([width, label_width]) + glyph_width + 3 * legend_spacing)
-      legend_height = @max_label_height + 2 * legend_spacing
+      legend_width += legend_padding
+      legend_height = (@max_label_height + 2 * legend_spacing) + legend_padding * 2
 
     location = @mget('location')
-    legend_padding = @mget('legend_padding')
     h_range = @plot_view.frame.get('h_range')
     v_range = @plot_view.frame.get('v_range')
 
@@ -111,21 +113,23 @@ class LegendView extends Annotation.View
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
+    legend_padding = @mget('legend_padding')
     legend_spacing = @mget('legend_spacing')
     N = @mget("legends").length
 
     xoffset = 0
+    yoffset = 0
     for [legend_name, glyphs], idx in @mget("legends")
       if orientation == "vertical"
-        yoffset = idx * bbox.height / N
-        x1 = bbox.x + legend_spacing
+        x1 = bbox.x + legend_spacing + legend_padding
         x2 = x1 + glyph_width
-        y1 = bbox.y + yoffset + legend_spacing
+        y1 = bbox.y + yoffset + legend_spacing + legend_padding
         y2 = y1 + glyph_height
+        yoffset += (bbox.height/N) - legend_padding
       else
-        x1 = bbox.x + xoffset + legend_spacing
+        x1 = bbox.x + xoffset + legend_spacing + legend_padding
         x2 = x1 + glyph_width
-        y1 = bbox.y + legend_spacing
+        y1 = bbox.y + legend_spacing + legend_padding
         y2 = y1 + glyph_height
         xoffset += @text_widths[legend_name] + 3*legend_spacing + glyph_width
 
@@ -175,8 +179,11 @@ class Legend extends Annotation.Model
   }
 
   @override {
-    border_line_color: 'black'
-    background_fill_color: "#ffffff"
+    border_line_color: "#e5e5e5"
+    border_line_alpha: 0.5
+    border_line_width: 1
+    background_fill_color: "#fffff"
+    background_fill_alpha: 0.95
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }

@@ -10,6 +10,14 @@ _constrainer = (op) ->
     Expression.apply(expr, arguments)
     return new Constraint(expr, op)
 
+_weak_constrainer = (op) ->
+  () ->
+    args = [null]
+    for arg in arguments
+      args.push(arg)
+    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, kiwi.Strength.weak )
+
+
 class Solver
 
   constructor: () ->
@@ -56,5 +64,9 @@ module.exports =
   EQ: _constrainer(Operator.Eq)
   LE: _constrainer(Operator.Le)
   GE: _constrainer(Operator.Ge)
+
+  WEAK_EQ: _weak_constrainer(Operator.Eq)
+  WEAK_LE: _weak_constrainer(Operator.Le)
+  WEAK_GE: _weak_constrainer(Operator.Ge)
 
   Solver: Solver

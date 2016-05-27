@@ -87,13 +87,14 @@ class Chart(Plot):
     What kind of scale to use for the y-axis.
     """)
 
-    title_text_font_size = Override(default={ 'value' : '14pt' })
-
-    responsive = Override(default=False)
-
     _defaults = defaults
 
-    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend')
+    __deprecated_attributes__ = (
+        'filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend'
+        'background_fill', 'border_fill', 'logo', 'tools',
+        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
+        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
+    )
 
     _xgrid = True
     _ygrid = True
@@ -133,10 +134,6 @@ class Chart(Plot):
             if k in kwargs:
                 setattr(self, k, kwargs[k])
 
-        # TODO (bev) have to force serialization of overriden defaults on subtypes for now
-        self.title_text_font_size = "10pt"
-        self.title_text_font_size = "14pt"
-
         self._glyphs = []
         self._built = False
 
@@ -147,7 +144,8 @@ class Chart(Plot):
         self._scales = defaultdict(list)
         self._tooltips = []
 
-        self.create_tools(self._tools)
+        if hasattr(self, '_tools'):
+            self.create_tools(self._tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -198,7 +196,7 @@ class Chart(Plot):
             # in case tools == False just exit
             return
 
-        if len(self.tools) == 0:
+        if len(self.toolbar.tools) == 0:
             # if no tools customization let's create the default tools
             tool_objs = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
@@ -209,9 +207,8 @@ class Chart(Plot):
         self.create_axes()
         self.create_grids(self._xgrid, self._ygrid)
 
-        # Add tools if supposed to
-        if self.tools:
-            self.create_tools(self.tools)
+        if self.toolbar.tools:
+            self.create_tools(self._tools)
 
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))

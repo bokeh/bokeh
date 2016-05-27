@@ -2,11 +2,12 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class RadioButtonGroupView extends BokehView
+Widget = require "./widget"
+
+
+class RadioButtonGroupView extends Widget.View
   tagName: "div"
   events:
     "change input": "change_input"
@@ -17,6 +18,7 @@ class RadioButtonGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     @$el.addClass("bk-bs-btn-group")

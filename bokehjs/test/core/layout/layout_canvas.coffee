@@ -30,8 +30,8 @@ describe "LayoutCanvas.Model", ->
     for e in ev
       variables.push(e.edit_variable._name)
       expect(e.strength._strength).to.be.equal Strength.strong._strength
-    expect(_.contains(variables, 'top')).to.be.true
-    expect(_.contains(variables, 'left')).to.be.true
-    expect(_.contains(variables, 'width')).to.be.true
-    expect(_.contains(variables, 'height')).to.be.true
+    expect(_.contains(variables, "top #{c.id}")).to.be.true
+    expect(_.contains(variables, "left #{c.id}")).to.be.true
+    expect(_.contains(variables, "width #{c.id}")).to.be.true
+    expect(_.contains(variables, "height #{c.id}")).to.be.true
 

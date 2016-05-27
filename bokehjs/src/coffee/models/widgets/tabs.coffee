@@ -2,30 +2,22 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
 
-tabs_template = require "./tabs_template"
-Widget = require "./widget"
-build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class TabsView extends BokehView
+tabs_template = require "./tabs_template"
+Widget = require "./widget"
 
-  initialize: (options) ->
-    super(options)
-    @views = {}
-    @render()
-    @listenTo @model, 'change', this.render
+class TabsView extends Widget.View
 
   render: () ->
-    for own key, val of @views
+    super()
+    for own key, val of @child_views
       val.$el.detach()
     @$el.empty()
 
     tabs = @mget('tabs')
     active = @mget('active')
     children = @mget('children')
-
-    build_views(@views, children)
 
     html = $(tabs_template({
       tabs: tabs
@@ -47,7 +39,7 @@ class TabsView extends BokehView
     $panels = html.children(".bk-bs-tab-pane")
 
     for [child, panel] in _.zip(children, $panels)
-      $(panel).html(@views[child.id].$el)
+      $(panel).html(@child_views[child.id].$el)
 
     @$el.append(html)
     @$el.tabs
