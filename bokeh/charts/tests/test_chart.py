@@ -159,7 +159,8 @@ def test_defaults():
     assert c1.plot_width == 600
     assert c2.plot_width == c3.plot_width == 1000
 
-    assert c1.tools == c2.tools == c3.tools == []
+    assert c1.tools
+    assert c2.tools == c3.tools == []
 
 
 def test_charts_theme_validation():
