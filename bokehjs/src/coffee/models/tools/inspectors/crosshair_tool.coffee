@@ -78,7 +78,7 @@ class CrosshairTool extends InspectTool.Model
       })
     }
 
-    @override_computed_property('synthetic_renderers', (() -> _.values(@get("spans"))), true)
+    @override_computed_property('synthetic_renderers', (() => _.values(@get("spans"))), true)
 
 module.exports =
   Model: CrosshairTool
