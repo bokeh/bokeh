@@ -89,7 +89,12 @@ class Chart(Plot):
 
     _defaults = defaults
 
-    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend')
+    __deprecated_attributes__ = (
+        'filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend'
+        'background_fill', 'border_fill', 'logo', 'tools',
+        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
+        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
+    )
 
     _xgrid = True
     _ygrid = True

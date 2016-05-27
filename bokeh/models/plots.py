@@ -372,7 +372,11 @@ class Plot(LayoutDOM):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    __deprecated_attributes__ = ('background_fill', 'border_fill', 'logo', 'tools')
+    __deprecated_attributes__ = (
+        'background_fill', 'border_fill', 'logo', 'tools',
+        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
+        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
+    )
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
