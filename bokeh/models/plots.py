@@ -65,9 +65,6 @@ class Plot(LayoutDOM):
         if "background_fill" in kwargs and "background_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
-        if "title" not in kwargs:
-            kwargs["title"] = Title(text='')
-
         super(LayoutDOM, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
@@ -419,8 +416,8 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = TitleProp('', help="""
-    A title for the plot.
+    title = TitleProp(help="""
+    A title for the plot. Can be a text string or a Title annotation.
     """)
 
     title_location = Enum(Location, default="above", help="""

@@ -9,7 +9,6 @@ DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 Renderer = require "../renderers/renderer"
-Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 
 build_views = require "../../common/build_views"
@@ -656,7 +655,7 @@ class PlotCanvas extends LayoutDOM.Model
   @define {
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.Instance, () -> new Title.Model({text: ''})]
+      title:             [ p.Instance                         ]
       title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]
