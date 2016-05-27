@@ -1863,11 +1863,15 @@ class Responsive(Either):
         super(Responsive, self).__init__(*types, default=default, help=help)
 
     def transform(self, value):
+        """ Transform True to width_ar mode and False to fixed
+        """
         if value is True:
-            value = 'width_ar'
-        if value is False:
-            value = 'fixed'
-        return value
+            responsive = 'width_ar'
+        elif value is False:
+            responsive = 'fixed'
+        else:
+            responsive = value
+        return responsive
 
 
 class TitleProp(Either):
