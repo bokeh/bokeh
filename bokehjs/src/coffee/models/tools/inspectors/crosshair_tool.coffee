@@ -78,8 +78,7 @@ class CrosshairTool extends InspectTool.Model
       })
     }
 
-    @plot.plot_canvas().add_renderers(@spans.width)
-    @plot.plot_canvas().add_renderers(@spans.height)
+    @override_computed_property('synthetic_renderers', (() -> _.values(@get("spans"))), true)
 
 module.exports =
   Model: CrosshairTool
