@@ -1878,6 +1878,9 @@ class TitleProp(Either):
 
     def transform(self, value):
         if isinstance(value, str):
-            from bokeh.models.annotations import Title
-            value = Title(text=value)
+            if value == "":
+                return None
+            else:
+                from bokeh.models.annotations import Title
+                value = Title(text=value)
         return value
