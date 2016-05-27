@@ -317,4 +317,23 @@ def VBox(*args, **kwargs):
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def VBoxForm(*args, **kwargs):
-    return WidgetBox(*args, **kwargs)
+    from bokeh.models.widgets.widget import Widget
+
+    if len(args) > 0 and "children" in kwargs:
+        raise ValueError("'children' keyword cannot be used with positional arguments")
+    elif len(args) > 0:
+        children = list(args)
+    else:
+        children = kwargs.get("children", [])
+    is_widget = [isinstance(item, Widget) for item in children]
+    if all(is_widget):
+        return WidgetBox(*args, **kwargs)
+    else:
+        warnings.warn(
+            """WARNING: Non-widgets added to VBoxForm! VBoxForm is deprecated and is
+            being replaced with WidgetBox. WidgetBox does not allow you to add non-widgets to it.
+            We have transformed your request into a Column, with your Plots and WidgetBox(es) inside
+            it. In the future, you will need to update your code to use Row and Column. You may
+            find the new bokeh.layouts functions helpful.
+            """)
+        return Column(*args, **kwargs)

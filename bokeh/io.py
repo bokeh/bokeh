@@ -29,7 +29,7 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.layouts import LayoutDOM, Row, Column, WidgetBox, GridPlot
+from .models.layouts import LayoutDOM, Row, Column, WidgetBox, GridPlot, VBoxForm
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
@@ -613,5 +613,6 @@ def vplot(*children, **kwargs):
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
-    layout = WidgetBox(children=list(children), **kwargs)
-    return layout
+    # Returning a VBoxForm, because it has helpers so that
+    # Bokeh deprecates gracefully.
+    return VBoxForm(*children, **kwargs)
