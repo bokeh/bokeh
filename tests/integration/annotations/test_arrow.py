@@ -4,6 +4,7 @@ from bokeh.io import save
 from bokeh.models import Arrow, OpenHead, NormalHead, VeeHead
 from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
+from tests.integration.utils import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -11,6 +12,7 @@ pytestmark = pytest.mark.integration
 HEIGHT = 600
 WIDTH = 600
 
+@pytest.mark.screenshot
 def test_arrow(output_file_url, selenium, screenshot):
 
     # Have to specify x/y range as labels aren't included in the plot area solver
@@ -35,6 +37,7 @@ def test_arrow(output_file_url, selenium, screenshot):
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     # Take screenshot
     assert screenshot.is_valid()

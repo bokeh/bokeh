@@ -12,6 +12,7 @@ class TitleView extends TextAnnotation.View
     @mset('text_align', @mget('title_align'))
 
   _get_computed_location: () ->
+    [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text) 
     switch @model.panel.side
       when 'left'
         vx = 0
@@ -21,7 +22,7 @@ class TitleView extends TextAnnotation.View
         vy = @canvas.get('height') - @_get_text_location(@mget('title_align'), 'height') + @mget('title_padding')
       when 'above'
         vx = @_get_text_location(@mget('title_align'), 'width') + @mget('title_padding')
-        vy = @canvas.get('top') - 1 #fudge factor due to error in text height measurement
+        vy = @canvas.get('top') - 10 # Corresponds to the +10 added in get_size
       when 'below'
         vx = @_get_text_location(@mget('title_align'), 'width') + @mget('title_padding')
         vy = 0
@@ -53,7 +54,7 @@ class TitleView extends TextAnnotation.View
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx
     @visuals.text.set_value(ctx)
-    return ctx.measureText(@mget('text')).ascent
+    return ctx.measureText(@mget('text')).ascent + 10
 
 class Title extends TextAnnotation.Model
   default_view: TitleView
@@ -64,7 +65,7 @@ class Title extends TextAnnotation.Model
 
   @define {
       text:             [ p.String,                      ]
-      title_align:      [ p.TextAlign,   'center'        ]
+      title_align:      [ p.TextAlign,   'left'          ]
       title_padding:    [ p.Number,      0               ]
       render_mode:      [ p.RenderMode,  'canvas'        ]
     }
@@ -72,6 +73,9 @@ class Title extends TextAnnotation.Model
   @override {
     background_fill_color: null
     border_line_color: null
+    text_font_size: '10pt'
+    text_baseline: 'bottom'
+    text_font_style: 'bold'
   }
 
 module.exports =

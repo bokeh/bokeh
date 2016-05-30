@@ -37,10 +37,11 @@
 }
 
 .bk-ui-slider-horizontal {
-	height: .8em;
+	height: 0;
+  margin-top: 10px
 }
 .bk-ui-slider-horizontal .bk-ui-slider-handle {
-	top: -.3em;
+	top: -10px;
 	margin-left: -.6em;
 }
 .bk-ui-slider-horizontal .bk-ui-slider-range {

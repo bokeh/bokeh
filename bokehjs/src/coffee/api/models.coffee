@@ -62,9 +62,8 @@ module.exports = {
 
   ## api/typings/models/layouts.d.ts
   LayoutDOM:                              require("../models/layouts/layout_dom").Model
-  #BaseBox:                               require("../models/layouts/base_box").Model
-  HBox:                                   require("../models/layouts/hbox").Model
-  VBox:                                   require("../models/layouts/vbox").Model
+  Row:                                    require("../models/layouts/row").Model
+  Column:                                 require("../models/layouts/column").Model
 
   ## api/typings/models/map_plots.d.ts
   GMapPlot:                               require("../models/plots/gmap_plot").Model
@@ -94,7 +93,6 @@ module.exports = {
 
   ## api/typings/models/plots.d.ts
   Plot:                                   require("../models/plots/plot").Model
-  GridPlot:                               require("../models/layouts/grid_plot").Model
 
   ## api/typings/models/ranges.d.ts
   Range:                                  require("../models/ranges/range").Model

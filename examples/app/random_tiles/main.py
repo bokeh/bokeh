@@ -9,17 +9,26 @@ class RandomTileSource(MercatorTileSource):
     __implementation__ = """
     _ = require "underscore"
     Util = require "util/util"
+    p = require 'core/properties'
     MercatorTileSource = require "models/tiles/mercator_tile_source"
+
     class RandomTileSource extends MercatorTileSource
       type: "RandomTileSource"
+
       get_image_url: (x, y, z) ->
         urls = @get('urls')
         url = urls[Math.floor(Math.random() * urls.length)]
         image_url = @string_lookup_replace(url, @get('extra_url_vars'))
         [x, y, z] = @tms_to_wmts(x, y, z)
         return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+
+      @define {
+        urls: [ p.Any ]
+      }
+
     module.exports =
       Model: RandomTileSource
+
     """
     urls = List(String)
 

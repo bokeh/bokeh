@@ -15,6 +15,7 @@ BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Mod
 Plot = utils.require("models/plots/plot").Model
 PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
+Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "SidePanel.Model", ->
 
@@ -64,9 +65,10 @@ describe "SidePanel update_constraints", ->
     @solver_add_constraint = solver_stubs['add']
     @solver_remove_constraint = solver_stubs['remove']
 
-    @test_plot = new Plot({ x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}) })
-    @test_plot.attach_document(new Document())
+    test_plot = new Plot({ x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), toolbar: new Toolbar()})
+    test_plot.attach_document(new Document())
     @axis = new Axis({ ticker: new BasicTicker(), formatter: new BasicTickFormatter() })
+    @test_plot = test_plot.plot_canvas()
     @test_plot.add_layout(@axis, 'below')
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
     @axis_view = new @axis.default_view({ model: @axis, plot_model: @test_plot, plot_view: @test_plot_view })

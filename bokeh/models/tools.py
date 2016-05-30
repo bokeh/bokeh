@@ -27,11 +27,12 @@ from ..core.properties import abstract, Float, Color
 from ..core.properties import (
     Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 )
-from ..core.enums import Dimension, Anchor
+from ..core.enums import Dimension, Location, Anchor
 
 from .annotations import BoxAnnotation, PolyAnnotation
-from .renderers import Renderer
 from .callbacks import Callback
+from .renderers import Renderer
+from .layouts import LayoutDOM
 
 
 class ToolEvents(Model):
@@ -51,6 +52,45 @@ class Tool(Model):
 
     plot = Instance(".models.plots.Plot", help="""
     The Plot that this tool will act on.
+    """)
+
+
+@abstract
+class ToolbarBase(LayoutDOM):
+    """ A base class for different toolbars. ``ToolbarBase`` is
+    not generally useful to instantiate on its own.
+
+    """
+
+    logo = Enum("normal", "grey", help="""
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
+    """)
+
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
+    """)
+
+
+class Toolbar(ToolbarBase):
+    """ Hold tools to display for a single plot.
+
+    """
+
+
+class ToolbarBox(ToolbarBase):
+    """ A layoutable toolbar that can accept the tools of multiple plots, and
+    can merge the tools into a single button for convenience.
+
+    """
+
+    toolbar_location = Enum(Location, default='above', help="""
+        Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
+        edge of a plot. Default is `above`.
+    """)
+
+    merge_tools = Bool(default=True, help="""
+        Merge all the tools together so there is one tool to control all the plots.
     """)
 
 

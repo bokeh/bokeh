@@ -1,6 +1,7 @@
 _ = require "underscore"
 {expect} = require "chai"
 utils = require "./utils"
+sinon = require "sinon"
 
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
@@ -71,7 +72,24 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 
-class ModelWithConstraint extends Model
+class LayoutableModel extends Model
+  type: 'LayoutableModel'
+
+  get_constraints: () ->
+    []
+
+  get_edit_variables: () ->
+    []
+
+  get_constrained_variables: () ->
+    {}
+
+  @internal {
+    layoutable: [ p.Bool, true ]
+  }
+Models.register('LayoutableModel', LayoutableModel)
+
+class ModelWithConstraint extends LayoutableModel
   type: 'ModelWithConstraint'
 
   constructor: (attrs, options) ->
@@ -86,7 +104,7 @@ class ModelWithConstraint extends Model
 Models.register('ModelWithConstraint', ModelWithConstraint)
 
 
-class ModelWithEditVariable extends Model
+class ModelWithEditVariable extends LayoutableModel
   type: 'ModelWithEditVariable'
 
   constructor: (attrs, options) ->
@@ -100,8 +118,64 @@ class ModelWithEditVariable extends Model
 
 Models.register('ModelWithEditVariable', ModelWithEditVariable)
 
+class ModelWithConstrainedVariables extends LayoutableModel
+  type: 'ModelWithConstrainedVariables'
 
-class ModelWithEditVariableAndConstraint extends Model
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_width = new Variable()
+    @_height = new Variable()
+
+  get_constrained_variables: () ->
+    return {
+      width: @_width
+      height: @_height
+    }
+
+  @define {
+    responsive: [ p.Responsive, 'width_ar']
+  }
+
+Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
+
+class ModelWithConstrainedWidthVariable extends LayoutableModel
+  type: 'ModelWithConstrainedWidthVariable'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_width = new Variable()
+
+  get_constrained_variables: () ->
+    return {
+      width: @_width
+    }
+
+  @define {
+    responsive: [ p.Responsive, 'width_ar']
+  }
+
+Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
+
+
+class ModelWithConstrainedHeightVariable extends LayoutableModel
+  type: 'ModelWithConstrainedHeightVariable'
+
+  constructor: (attrs, options) ->
+    super(attrs, options)
+    @_height = new Variable()
+
+  get_constrained_variables: () ->
+    return {
+      height: @_height
+    }
+
+  @define {
+    responsive: [ p.Responsive, 'width_ar']
+  }
+
+Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
+
+class ModelWithEditVariableAndConstraint extends LayoutableModel
   type: 'ModelWithEditVariableAndConstraint'
 
   constructor: (attrs, options) ->
@@ -698,44 +772,196 @@ describe "Document", ->
     expect(Object.keys(root1.get('dict_of_list_prop')).length).to.equal 1
     expect(_.values(root1.get('dict_of_list_prop'))[0].length).to.equal 1
 
+  it "adds two constraints and two edit_variables on instantiation solver", ->
+    d = new Document()
+    s = d.solver()
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
+
   it "adds edit_variables of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 0
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
 
     d.add_root(new ModelWithEditVariable())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 1
-    expect(s.num_constraints()).to.equal 1
-    expect(s.solver._editMap._array['0'].first._name).to.equal 'ModelWithEditVariable._left'
-    expect(s.solver._editMap._array['0'].second.constraint._strength).to.equal Strength.strong
+    expect(s.num_edit_variables()).to.equal 3
+    expect(s.num_constraints()).to.equal 3
+    expect(s.solver._editMap._array['2'].first._name).to.equal 'ModelWithEditVariable._left'
+    expect(s.solver._editMap._array['2'].second.constraint._strength).to.equal Strength.strong
 
   it "adds constraints of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 0
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
 
     d.add_root(new ModelWithConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 0
-    expect(s.num_constraints()).to.equal 1
-    expect(s.solver._cnMap._array['0'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
+    expect(s.num_edit_variables()).to.equal 2
+    expect(s.num_constraints()).to.equal 3
+    expect(s.solver._cnMap._array['2'].first._expression._terms._array['0'].first._name).to.equal 'ModelWithConstraint._left'
 
   it "adds constraints and edit variable of root to solver", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
-    expect(s.num_constraints()).to.equal 0
+    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 2
 
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(d.roots().length).to.equal 1
 
     # Check state of solver
-    expect(s.num_edit_variables()).to.equal 1
-    expect(s.num_constraints()).to.equal 2
+    expect(s.num_edit_variables()).to.equal 3
+    expect(s.num_constraints()).to.equal 4
+
+  it "adds one constraint on add_root if model has get_constrained_variables width", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedWidthVariable())
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 1
+
+  it "adds one constraints on add_root if model has get_constrained_variables height and responsive is box", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedHeightVariable({responsive: 'box'}))
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 1
+
+  it "adds no new constraints on add_root if model has no get_constrained_variables", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new SomeModel())
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints 
+
+  it "adds two constraints on add_root if model has get_constrained_variables width & height and responsive is 'box'", ->
+    d = new Document()
+    s = d.solver()
+    expect(d.roots().length).to.equal 0
+
+    before_constraints = s.num_constraints()
+
+    expect(s.num_edit_variables()).to.equal 2
+    d.add_root(new ModelWithConstrainedVariables({responsive: 'box'}))
+
+    expect(d.roots().length).to.equal 1
+    expect(s.num_constraints()).to.equal before_constraints + 2
+
+  it "add_root calls update_variables on solver", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'update_variables')
+    d.add_root(new ModelWithEditVariableAndConstraint())
+    expect(spy.calledOnce).is.true
+
+  it "add_root sets the _is_root property of model to true", ->
+    d = new Document()
+    root_model = new ModelWithConstrainedVariables()
+    expect(root_model._is_root).is.undefined
+    d.add_root(root_model)
+    expect(root_model._is_root).is.true
+
+  it "remove_root sets the _is_root property of model to false", ->
+    d = new Document()
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
+    expect(root_model._is_root).is.true
+    d.remove_root(root_model)
+    expect(root_model._is_root).is.false
+
+  # TODO(bird) - We're not using window - so need to find a new 
+  # way to test the size was set correctly.
+  it.skip "resize suggests value for width and height of document", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'suggest_value')
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
+    d.resize()
+    expect(spy.calledTwice).is.true
+    expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
+    expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
+
+  it "resize calls suggest_value once for one root with width", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedWidthVariable())
+    d.resize()
+    expect(spy.calledOnce).is.true
+
+  it "resize calls suggest_value once for one root with height", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedHeightVariable())
+    d.resize()
+    expect(spy.calledOnce).is.true
+
+  it "resize calls suggest_value twice for one root with width & height", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedVariables())
+    d.resize()
+    expect(spy.calledTwice).is.true
+
+  it "resize calls suggest_value four times for two roots with width & height", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new ModelWithConstrainedVariables())
+    d.add_root(new ModelWithConstrainedVariables())
+    d.resize()
+    expect(spy.callCount).to.be.equal 4
+
+  it "resize does not call suggest value if root is not a layoutable", ->
+    d = new Document()
+    spy = sinon.spy(d.solver(), 'suggest_value')
+    d.add_root(new SomeModel())
+    d.resize()
+    expect(spy.called).is.false
+
+  it "resize calls update_variables on solver with false", ->
+    d = new Document()
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
+    s = d.solver()
+    spy = sinon.spy(s, 'update_variables')
+    d.resize()
+    expect(spy.calledOnce, 'update_variables was not called').is.true
+    expect(spy.calledWith(false), 'update_variables was not called with false').is.true
+
+  it "resize triggers resize event on solver", ->
+    d = new Document()
+    root_model = new ModelWithConstrainedVariables()
+    d.add_root(root_model)
+    s = d.solver()
+    spy = sinon.spy(s, 'trigger')
+    d.resize()
+    expect(spy.calledOnce).is.true
+    expect(spy.calledWith('resize')).is.true
