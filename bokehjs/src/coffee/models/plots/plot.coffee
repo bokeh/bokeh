@@ -63,7 +63,7 @@ class Plot extends LayoutDOM.Model
 
   initialize: (options) ->
     super(options)
-    
+
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
       @_horizontal = true
@@ -81,7 +81,7 @@ class Plot extends LayoutDOM.Model
     @_plot_canvas.toolbar = @toolbar
 
     # Set width & height to be the passed in plot_width and plot_height
-    # We may need to be more subtle about this - not sure why people use one 
+    # We may need to be more subtle about this - not sure why people use one
     # or the other.
     if not @width?
       @width = @plot_width
@@ -90,6 +90,18 @@ class Plot extends LayoutDOM.Model
 
   _doc_attached: () ->
     @_plot_canvas.attach_document(@document)
+
+  add_renderers: (new_renderers...) ->
+    @_plot_canvas.add_renderers(new_renderers...)
+
+  add_layout: (renderer, side="center") ->
+    @_plot_canvas.add_layout(renderer, side)
+
+  add_glyph: (glyph, source, attrs={}) ->
+    @_plot_canvas.add_glyph(glyph, source, attrs)
+
+  add_tools: (tools...) ->
+    @_plot_canvas.add_tools(tools...)
 
   plot_canvas: () ->
     @_plot_canvas
@@ -120,12 +132,12 @@ class Plot extends LayoutDOM.Model
       # Constraints if we have a toolbar
       #
       #  (1) COMPUTE THE VARIABLE PIECES (shrinks canvas): plot_height = plot_canvas_height + toolbar_height
-      #  (2) SIZE THE FIXED: plot_width = plot_canvas_width 
-      #  (3) stack or stick to the side 
+      #  (2) SIZE THE FIXED: plot_width = plot_canvas_width
+      #  (3) stack or stick to the side
       #      - note that below and right also require a css offset (couldn't find another way)
       #      - use canvas._top not canvas._dom_top as this lets us stick the
       #      toolbar right to the edge of the plot
-      #  (4) nudge: set toolbar width to be almost full less that needed 
+      #  (4) nudge: set toolbar width to be almost full less that needed
       #      to give a margin that lines up nicely with plot canvas edge
 
 
@@ -169,7 +181,7 @@ class Plot extends LayoutDOM.Model
         constraints.push(EQ(@_width, [-1, @toolbar._width], [-1, @_plot_canvas._width_minus_right]))
 
       if @toolbar_location in ['left', 'right']
-        # (4a) the following makes the toolbar as tall as the plot less the distance of the axis from the edge 
+        # (4a) the following makes the toolbar as tall as the plot less the distance of the axis from the edge
         constraints.push(EQ(@_height, [-1, @toolbar._height], [-1, @_plot_canvas.above_panel._height]))
         # (4b) nudge the toolbar down by that distance
         constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas.above_panel._height]))
@@ -217,7 +229,7 @@ class Plot extends LayoutDOM.Model
       model._sizeable = model._width
       model._full = model._height
 
-  # 
+  #
   # SETUP PROPERTIES
   #
   @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
@@ -226,7 +238,7 @@ class Plot extends LayoutDOM.Model
       toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
       toolbar_location:  [ p.Location, 'above'                   ]
       toolbar_sticky:    [ p.Bool, true                       ]
-      
+
       # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
