@@ -133,7 +133,7 @@ class ModelWithConstrainedVariables extends LayoutableModel
     }
 
   @define {
-    responsive: [ p.Responsive, 'width_ar']
+    responsive: [ p.Responsive, 'width_scale']
   }
 
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
@@ -151,7 +151,7 @@ class ModelWithConstrainedWidthVariable extends LayoutableModel
     }
 
   @define {
-    responsive: [ p.Responsive, 'width_ar']
+    responsive: [ p.Responsive, 'width_scale']
   }
 
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
@@ -170,7 +170,7 @@ class ModelWithConstrainedHeightVariable extends LayoutableModel
     }
 
   @define {
-    responsive: [ p.Responsive, 'width_ar']
+    responsive: [ p.Responsive, 'width_scale']
   }
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)

@@ -22,7 +22,7 @@ def layout(children=None, responsive='box', *args):
         following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
         are then assigned the responsive mode of the layout.
 
-        responsive Enum(``box``, ``fixed``, ``width_ar``, ``height_ar``, ``box_ar``) :  How
+        responsive Enum(``box``, ``fixed``, ``width_scale``, ``height_scale``, ``scale``) :  How
         the grid will respond to the html page. Default is ``box``.
 
     Examples:
@@ -80,7 +80,7 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         toolbar will be located, with respect to the grid. If set to None,
         no toolbar will be attached to the grid.
 
-        responsive Enum(``box``, ``fixed``, ``width_ar``, ``height_ar``, ``box_ar``) :  How
+        responsive Enum(``box``, ``fixed``, ``width_scale``, ``height_scale``, ``scale``) :  How
         the grid will respond to the html page. Default is ``fixed``.
 
         toolbar_options Dict (optional) : A dictionary of options that will be used to construct the

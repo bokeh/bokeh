@@ -47,8 +47,8 @@ describe "Plot", ->
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.$el.attr('style')).to.be.equal expected_style
 
-    it "should call suggest value with the model height and width if responsive_mode is box_ar", ->
-      @p.responsive = 'box_ar'
+    it "should call suggest value with the model height and width if responsive_mode is scale", ->
+      @p.responsive = 'scale'
       plot_view = new @p.default_view({ model: @p })
       sinon.stub(plot_view, 'get_width_height').returns([34, 77])
       @solver_suggest.reset()
@@ -148,14 +148,14 @@ describe "Plot", ->
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
-      it "should return correct constrained_variables in width_ar mode", ->
-        @p.responsive = 'width_ar'
+      it "should return correct constrained_variables in width_scale mode", ->
+        @p.responsive = 'width_scale'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
-      it "should return correct constrained_variables in height_ar mode", ->
-        @p.responsive = 'height_ar'
+      it "should return correct constrained_variables in height_scale mode", ->
+        @p.responsive = 'height_scale'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
