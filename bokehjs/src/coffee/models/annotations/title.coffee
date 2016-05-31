@@ -19,7 +19,7 @@ class TitleView extends TextAnnotation.View
         vy = @_get_text_location(@mget('title_align'), @frame.get('v_range')) + @mget('title_padding')
       when 'right'
         vx = @canvas.get('right') - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.get('height') - @_get_text_location(@mget('title_align'), @frame.get('v_range')) + @mget('title_padding')
+        vy = @canvas.get('height') - @_get_text_location(@mget('title_align'), @frame.get('v_range')) - @mget('title_padding')
       when 'above'
         vx = @_get_text_location(@mget('title_align'), @frame.get('h_range')) + @mget('title_padding')
         vy = @canvas.get('top') - 10 # Corresponds to the +10 added in get_size
