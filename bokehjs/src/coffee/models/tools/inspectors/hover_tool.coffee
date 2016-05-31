@@ -99,8 +99,8 @@ class HoverToolView extends InspectTool.View
     y = ymapper.map_from_target(vy)
 
     for i in indices['0d'].indices
-      data_x = renderer.glyph.x[i+1]
-      data_y = renderer.glyph.y[i+1]
+      data_x = renderer.glyph._x[i+1]
+      data_y = renderer.glyph._y[i+1]
 
       if @mget('line_policy') == "interp"# and renderer.get_interpolation_hit?
         [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
@@ -130,8 +130,8 @@ class HoverToolView extends InspectTool.View
           [sdatax, sdatay] = [d2x, d2y]
           i = i+1
 
-        data_x = renderer.glyph.x[i]
-        data_y = renderer.glyph.y[i]
+        data_x = renderer.glyph._x[i]
+        data_y = renderer.glyph._y[i]
         rx = canvas.sx_to_vx(sdatax)
         ry = canvas.sy_to_vy(sdatay)
 
@@ -143,8 +143,8 @@ class HoverToolView extends InspectTool.View
 
     for i in indices['1d'].indices
       # patches will not have .x, .y attributes, for instance
-      data_x = renderer.glyph.x?[i]
-      data_y = renderer.glyph.y?[i]
+      data_x = renderer.glyph._x?[i]
+      data_y = renderer.glyph._y?[i]
       if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
         # Pass in our screen position so we can determine
         # which patch we're over if there are discontinuous
