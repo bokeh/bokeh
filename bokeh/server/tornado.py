@@ -22,6 +22,7 @@ from tornado.web import StaticFileHandler
 from bokeh.resources import Resources
 from bokeh.settings import settings
 
+from .views.root_handler import RootHandler
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
@@ -230,7 +231,11 @@ class BokehTornado(TornadoApplication):
                 all_patterns.append((route, StaticFileHandler, { "path" : app.static_path }))
 
         for p in extra_patterns + toplevel_patterns:
-            prefixed_pat = (self._prefix+p[0],) + p[1:]
+            if p[1] == RootHandler:
+                data = {"applications": self._applications, "prefix": self._prefix}
+                prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
+            else:
+                prefixed_pat = (self._prefix + p[0],) + p[1:]
             all_patterns.append(prefixed_pat)
 
         for pat in all_patterns:
