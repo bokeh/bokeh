@@ -1,10 +1,9 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
-class BoxAnnotationView extends Renderer.View
+class BoxAnnotationView extends Annotation.View
   initialize: (options) ->
     super(options)
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))

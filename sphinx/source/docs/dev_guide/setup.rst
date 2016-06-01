@@ -291,3 +291,7 @@ For Bokeh server examples, add ``BOKEH_DEV=true`` to the server invocation:
 
     BOKEH_DEV=true bokeh serve example-server.py
 
+.. _contact the developers: http://bokehplots.com/pages/contact.html
+.. _GitHub: https://github.com
+.. _Gulp: http://gulpjs.com/
+.. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml

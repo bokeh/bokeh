@@ -24,5 +24,3 @@ def test_validation_success():
     assert partial.header == msg.header
     assert partial.content == msg.content
     assert partial.metadata == msg.metadata
-
-

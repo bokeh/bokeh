@@ -75,7 +75,7 @@ The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
 handful of exceptions, no outside libraries such as NumPy, Pandas, or
 Blaze are required to run the examples as written. However, Bokeh works
-well with NumPy, Pandas, Blaze, or almost any array or table-like data 
+well with NumPy, Pandas, Blaze, or almost any array or table-like data
 structure.
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`

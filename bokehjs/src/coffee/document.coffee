@@ -1,7 +1,8 @@
 _ = require "underscore"
+$ = require "jquery"
 
 {Models} = require "./base"
-{Solver} = require "./core/layout/solver"
+{EQ, Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
@@ -83,9 +84,50 @@ class Document
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
+    @_doc_width = new Variable("document_width")
+    @_doc_height = new Variable("document_height")
+    @_solver.add_edit_variable(@_doc_width)
+    @_solver.add_edit_variable(@_doc_height)
+    $(window).on("resize", $.proxy(@resize, @))
 
   solver: () ->
     @_solver
+
+  resize: () ->
+
+    for root in @_roots
+      if root.layoutable isnt true
+        continue
+
+      vars = root.get_constrained_variables()
+      if not vars.width? and not vars.height?
+        continue
+
+      # Find the html element
+      root_div = $("#modelid_#{root.id}")
+
+      # Start working upwards until you find a height to pin against - usually .bk-root
+      target_height = 0
+      measuring = root_div
+      while target_height == 0
+        measuring = measuring.parent()
+        target_height = measuring.height()
+
+      # Once we've found that grab the width of this element
+      width = measuring.width()
+      height = target_height
+
+      # Set the constraints on root
+      if vars.width?
+        logger.debug("Suggest width on Document -- #{width}")
+        @_solver.suggest_value(@_doc_width, width)
+      if vars.height?
+        logger.debug("Suggest height on Document -- #{height}")
+        @_solver.suggest_value(@_doc_height, height)
+
+    # Finally update everything only once.
+    @_solver.update_variables(false)
+    @_solver.trigger('resize')
 
   clear : () ->
     while @_roots.length > 0
@@ -103,12 +145,41 @@ class Document
   roots : () ->
     @_roots
 
+  _add_layoutable: (model) ->
+    if model.layoutable isnt true
+      throw new Error("Cannot add non-layoutable - #{model}")
+
+    model._is_root = true
+
+    editables = model.get_edit_variables()
+    constraints = model.get_constraints()
+    vars = model.get_constrained_variables()
+
+    for {edit_variable, strength} in editables
+      @_solver.add_edit_variable(edit_variable, strength)
+
+    for constraint in constraints
+      @_solver.add_constraint(constraint)
+
+    if vars.width?
+      @_solver.add_constraint(EQ(vars.width, @_doc_width))
+    if vars.height?
+      @_solver.add_constraint(EQ(vars.height, @_doc_height))
+
+    @_solver.update_variables()
+
   add_root : (model) ->
+    logger.debug("Adding root: #{model}")
     if model in @_roots
       return
     @_roots.push(model)
     model.attach_document(@)
+
+    if model.layoutable is true
+      @_add_layoutable(model)
+
     @_trigger_on_change(new RootAddedEvent(@, model))
+
 
   remove_root : (model) ->
     i = @_roots.indexOf(model)
@@ -117,6 +188,7 @@ class Document
     else
       @_roots.splice(i, 1)
 
+    model._is_root = false
     model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
 

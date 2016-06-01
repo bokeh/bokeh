@@ -100,7 +100,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
         for g, j in geometry.geometries
           count += 1
       else
-	      count += 1
+        count += 1
     return count
 
   geojson_to_column_data: () ->

@@ -20,9 +20,8 @@ _known_tools = {
   wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width", "height"])
   xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width"])
   ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["height"])
-  save:         (plot) -> new models.PreviewSaveTool(plot: plot)
   resize:       (plot) -> new models.ResizeTool(plot: plot)
-  click:        (plot) -> new models.TapTool(plot: plot)
+  click:        (plot) -> new models.TapTool(plot: plot, behavior: "inspect")
   tap:          (plot) -> new models.TapTool(plot: plot)
   crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
   box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
@@ -34,7 +33,8 @@ _known_tools = {
   xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width'])
   ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['height'])
   hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
-  previewsave:  (plot) -> new models.PreviewSaveTool(plot: plot)
+  save:         (plot) -> new models.SaveTool(plot: plot)
+  previewsave:  (plot) -> new models.SaveTool(plot: plot)
   undo:         (plot) -> new models.UndoTool(plot: plot)
   redo:         (plot) -> new models.RedoTool(plot: plot)
   reset:        (plot) -> new models.ResetTool(plot: plot)
@@ -55,8 +55,8 @@ class Figure extends models.Plot
     attrs.x_range = @_get_range(attrs.x_range)
     attrs.y_range = @_get_range(attrs.y_range)
 
-    x_axis_type = attrs.x_axis_type ? "auto"
-    y_axis_type = attrs.y_axis_type ? "auto"
+    x_axis_type = if _.isUndefined(attrs.x_axis_type) then "auto" else attrs.x_axis_type
+    y_axis_type = if _.isUndefined(attrs.y_axis_type) then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
@@ -95,6 +95,9 @@ class Figure extends models.Plot
     @_process_guides(1, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label)
 
     @add_tools(@_process_tools(tools)...)
+
+    @_legend = new models.Legend({plot: this})
+    @add_renderers(@_legend)
 
   Object.defineProperty this.prototype, "xgrid", {
     get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 0)[0] # TODO
@@ -352,27 +355,16 @@ class Figure extends models.Plot
     return objs
 
   _update_legend: (legend_name, glyph_renderer) ->
-    legends = @renderers.filter((r) -> r instanceof models.Legend)
-
-    switch legends.length
-      when 0
-        legend = new models.Legend({plot: this})
-        @add_renderers(legend)
-      when 1
-        legend = legends[0]
-      else
-        throw new Error("plot configured with more than one legend")
-
-    legends = _.clone(legend.legends)
+    legends = _.clone(@_legend.legends)
 
     for [name, renderers] in legends
       if name == legend_name
         renderers.push(glyph_renderer)
-        legend.legends = legends
+        @_legend.legends = legends
         return
 
     legends.push([legend_name, [glyph_renderer]])
-    legend.legends = legends
+    @_legend.legends = legends
 
 figure = (attributes={}, options={}) ->
   new Figure(attributes, options)

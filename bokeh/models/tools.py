@@ -27,11 +27,12 @@ from ..core.properties import abstract, Float, Color
 from ..core.properties import (
     Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 )
-from ..core.enums import Dimension
+from ..core.enums import Dimension, Location
 
 from .annotations import BoxAnnotation, PolyAnnotation
-from .renderers import Renderer
 from .callbacks import Callback
+from .renderers import Renderer
+from .layouts import LayoutDOM
 
 
 class ToolEvents(Model):
@@ -51,6 +52,45 @@ class Tool(Model):
 
     plot = Instance(".models.plots.Plot", help="""
     The Plot that this tool will act on.
+    """)
+
+
+@abstract
+class ToolbarBase(LayoutDOM):
+    """ A base class for different toolbars. ``ToolbarBase`` is
+    not generally useful to instantiate on its own.
+
+    """
+
+    logo = Enum("normal", "grey", help="""
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
+    """)
+
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
+    """)
+
+
+class Toolbar(ToolbarBase):
+    """ Hold tools to display for a single plot.
+
+    """
+
+
+class ToolbarBox(ToolbarBase):
+    """ A layoutable toolbar that can accept the tools of multiple plots, and
+    can merge the tools into a single button for convenience.
+
+    """
+
+    toolbar_location = Enum(Location, default='above', help="""
+        Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
+        edge of a plot. Default is `above`.
+    """)
+
+    merge_tools = Bool(default=True, help="""
+        Merge all the tools together so there is one tool to control all the plots.
     """)
 
 
@@ -103,17 +143,15 @@ class WheelZoomTool(Tool):
     """)
 
 
-class PreviewSaveTool(Tool):
+class SaveTool(Tool):
     """ *toolbar icon*: |save_icon|
 
-    The preview/save tool is an action. When activated in the toolbar, the
-    tool presents a modal dialog with an image reproduction of the Plot, which
-    may be saved as a png image by right clicking on the image.
-
-    .. note::
-        Work is ongoing to support headless (svg, png) image creation without
-        requiring user interaction. See  :bokeh-issue:`538` to track progress
-        or contribute.
+    The save tool is an action. When activated, the tool opens a download dialog
+    which allows to save an image reproduction of the plot in PNG format. If
+    automatic download is not support by a web browser, the tool falls back to
+    opening the generated image in a new tab or window. User then can manually
+    save it by right clicking on the image and choosing "Save As" (or similar)
+    menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
         :height: 18pt
@@ -179,6 +217,14 @@ class TapTool(Tool):
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
+    """)
+
+    behavior = Enum("select", "inspect", defult="select", help="""
+    This tool can be configured to either make selections or inspections
+    on associated data sources. The difference is that selection changes
+    propagate across bokeh and other components (e.g. selection glyph)
+    will be notified. Inspecions don't act like this, so it's useful to
+    configure `callback` when setting `behavior='inspect'`.
     """)
 
     callback = Instance(Callback, help="""

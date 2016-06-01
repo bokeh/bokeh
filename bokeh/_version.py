@@ -1,4 +1,3 @@
-
 IN_LONG_VERSION_PY = True
 # This file helps to compute a version number in source trees obtained from
 # git-archive tarball (such as those provided by github's download-from-tag
@@ -190,4 +189,3 @@ def get_versions(default={"version": "unknown", "full": ""}, verbose=False):
     if not ver:
         ver = default
     return ver
-

@@ -677,8 +677,8 @@ scaling, and uptime. In these cases more sophisticated deployment
 configurations are needed. In the following sections we discuss some of
 these considerations.
 
-Tunnels
-'''''''
+SSH Tunnels
+'''''''''''
 
 It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
 
@@ -723,15 +723,23 @@ Again, replace *user* with your username on the gateway and *gateway.host* with 
     and wish to contribute your knowledge here, please
     `contact us on the mailing list`_.
 
-.. _userguide_server_deployment_nginx_proxy:
+.. _userguide_server_deplyoment_proxy:
 
-Reverse Proxying with Nginx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Basic Reverse Proxy Setup
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the goal is to serve an web application to the general Internet, it is
 often desirable to host the application on an internal network, and proxy
-connections to it through some dedicated HTTP server. One very common HTTP
-and reverse-proxying server is Nginx.
+connections to it through some dedicated HTTP server. This sections provides
+guidance for basic configuration behind some common reverse proxies.
+
+.. _userguide_server_deployment_nginx_proxy:
+
+Nginx
+'''''
+
+One very common HTTP and reverse-proxying server is Nginx. A sample
+server confuguration block is shown below:
 
 .. code-block:: nginx
 
@@ -792,6 +800,50 @@ whatever user Nginx is running as. Alternatively, you can copy the resources
 to a global static directory during your deployment process. See
 :ref:`userguide_server_deployment_automation` for a demonstration of this.
 
+Apache
+''''''
+
+Another common HTTP server and proxy is Apache:
+
+.. code-block:: apache
+
+    <VirtualHost *:80>
+        ServerName localhost
+
+        CustomLog "/path/to/logs/access_log" combined
+        ErrorLog "/path/to/logs/error_log"
+
+        ProxyPreserveHost On
+        ProxyPass /myapp/ws ws://127.0.0.1:5100/myapp/ws
+        ProxyPassReverse /myapp/ws ws://127.0.0.1:5100/myapp/ws
+
+        ProxyPass /myapp http://127.0.0.1:5100/myapp/
+        ProxyPassReverse /myapp http://127.0.0.1:5100/myapp/
+
+        <Directory />
+            Require all granted
+            Options -Indexes
+        </Directory>
+
+        Alias /static /path/to/bokeh/server/static
+        <Directory /path/to/bokeh/server/static>
+            # directives to effect the static directory
+            Options +Indexes
+        </Directory>
+
+    </VirtualHost>
+
+The above configuration aliases `/static` to the location of the Bokeh
+static resources directory, however it is also possible (and probably
+preferable) to copy the Bokeh static resources to whatever standard
+static files location is configured for Apache as part of the deployment.
+
+As before, you would run the Bokeh server with the command:
+
+.. code-block:: sh
+
+    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
+
 .. _userguide_server_deployment_nginx_proxy_ssl:
 
 Reverse Proxying with Nginx and SSL
@@ -804,7 +856,7 @@ you must also add the ``--use-xheaders`` flag:
 
 .. code-block:: sh
 
-    bokeh bserve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+    bokeh serve myapp.py --port 5100 --host foo.com:443 --use-xheaders
 
 The ``--use-xheaders`` option causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,

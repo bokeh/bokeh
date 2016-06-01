@@ -1,4 +1,3 @@
-
 .. _bokeh.server:
 
 ``bokeh.server``

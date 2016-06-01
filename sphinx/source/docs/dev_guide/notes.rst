@@ -1,4 +1,3 @@
-
 .. _devguide_notes:
 
 Notes

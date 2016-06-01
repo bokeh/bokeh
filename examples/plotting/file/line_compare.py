@@ -40,7 +40,7 @@ for p in (p1, p2):
     l4 = p.line(y, x * ys, color="#aa2222",
                 line_width=6, line_cap='butt',
                 line_join='round', line_dash=(10, 10))
-    
+
     lines.extend([l1, l2, l3, l4])
 
 def add_callback(widget, prop):

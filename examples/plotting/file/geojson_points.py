@@ -1,4 +1,3 @@
-
 from bokeh.io import output_file, show
 from bokeh.models import GeoJSONDataSource, HoverTool
 from bokeh.plotting import figure

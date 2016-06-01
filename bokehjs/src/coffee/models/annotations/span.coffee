@@ -1,10 +1,9 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
-class SpanView extends Renderer.View
+class SpanView extends Annotation.View
 
   initialize: (options) ->
     super(options)

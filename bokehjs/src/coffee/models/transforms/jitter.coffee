@@ -13,7 +13,7 @@ class Jitter extends Transform.Model
   compute: (x) ->
     # Apply the transform to a single value
     if @get('distribution') == 'uniform'
-      return(x + @get('mean') + ((Math.random() - 0.5) * @get('width')))
+      return(x + @get('mean') + ((bokeh_math.random() - 0.5) * @get('width')))
 
     if @get('distribution') == 'normal'
       return(x + bokeh_math.rnorm(@get('mean'), @get('width')))

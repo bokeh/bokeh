@@ -17,4 +17,3 @@ class CategoricalTicker extends Ticker.Model
 
 module.exports =
   Model: CategoricalTicker
-

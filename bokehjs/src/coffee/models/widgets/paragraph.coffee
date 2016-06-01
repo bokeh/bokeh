@@ -9,7 +9,10 @@ class ParagraphView extends Markup.View
   render: () ->
     super()
     @$el.text(@mget('text'))
-    return @
+    # This overrides default user-agent styling and helps layout work
+    @$el.css({
+      margin: 0
+    })
 
 class Paragraph extends Markup.Model
   type: "Paragraph"

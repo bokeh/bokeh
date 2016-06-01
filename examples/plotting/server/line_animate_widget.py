@@ -49,7 +49,6 @@ def update(step):
 playing = True
 curdoc().add_periodic_callback(update, 50)
 
-session.show() # open the document in a browser
+session.show(layout) # open the document in a browser
 
 session.loop_until_closed() # run forever
-

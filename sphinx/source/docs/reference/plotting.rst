@@ -8,5 +8,3 @@
 .. autoclass:: bokeh.plotting.figure.Figure
     :members:
     :undoc-members:
-
-

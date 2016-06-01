@@ -28,7 +28,7 @@ namespace TappyScatter {
         data: {x: xx, y: yy, radius: radii, colors: colors }
     })
 
-    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,previewsave"
+    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,save"
 
     const p = plt.figure({title: "Tappy Scatter", tools: tools})
 

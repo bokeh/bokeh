@@ -17,10 +17,10 @@ point_in_poly = (x, y, px, py) ->
 
 nullreturner = () -> null  # stub function shared by all hittests by default
 
-create_hit_test_result = ->
-  result = {
+class HitTestResult
+  constructor: () ->
     # 0d is only valid for line and patch glyphs
-    '0d': {
+    @['0d'] = {
       # the glyph that was picked
       glyph: null,
       get_view: nullreturner,  # this is a function, because setting the view causes inf. recursion
@@ -28,17 +28,25 @@ create_hit_test_result = ->
       indices: []
     }
     # 1d for all other glyphs apart from multilines and multi patches
-    '1d': {
+    @['1d'] = {
       # index of the closest point to the crossed segment
       # useful for special glyphs like line that are continuous and
       # not discrete between 2 data points
       indices: []
     }
     # 2d for all for multilines and multi patches
-    '2d': {indices: []}
-  }
+    @['2d'] = {indices: []}
 
-  return result
+  Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
+  Object.defineProperty(this.prototype, '_1d', { get: () -> @['1d'] })
+  Object.defineProperty(this.prototype, '_2d', { get: () -> @['2d'] })
+
+  is_empty: () ->
+    @_0d.indices.length == 0 &&
+    @_1d.indices.length == 0 &&
+    @_2d.indices.length == 0
+
+create_hit_test_result = () -> new HitTestResult()
 
 validate_bbox_coords = ([x0, x1], [y0, y1]) ->
   # rbush expects x0, y0 to be min, x1, y1 max
@@ -93,6 +101,7 @@ check_2_segments_intersect = (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l
 
 module.exports =
   point_in_poly: point_in_poly
+  HitTestResult: HitTestResult
   create_hit_test_result: create_hit_test_result
   dist_2_pts: dist_2_pts
   dist_to_segment: dist_to_segment

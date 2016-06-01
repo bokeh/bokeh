@@ -1,4 +1,3 @@
-
 .. _bokeh.resources:
 
 ``bokeh.resources``

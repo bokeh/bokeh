@@ -1,6 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
+p = require 'core/properties'
 BokehView = require "core/bokeh_view"
 BaseBox = require "models/layouts/basebox"
 
@@ -12,7 +13,6 @@ class StyleableBoxView extends BokehView
   initialize: (options) ->
     super(options)
 
-
     @views = {}
     @render()
     @listenTo(@model, 'change', @render)
@@ -22,7 +22,7 @@ class StyleableBoxView extends BokehView
     if @model.get('orientation') == 'horizontal' and @attributes.class != 'horizontal'
       $(@el).addClass('bk-hbox').removeClass('bk-vbox')
 
-    children = @model.children()
+    children = @model.children
     build_views(@views, children)
     for own key, val of @views
       val.$el.detach()
@@ -39,15 +39,10 @@ class StyleableBox extends BaseBox.Model
   type: "StyleableBox"
   default_view: StyleableBoxView
 
-  defaults: ->
-    return _.extend {}, super(), {
-      children: []
-      css_properties: {}
-      orientation: 'vertical'
-    }
-
-  children: () ->
-    return @get('children')
+  @define {
+    css_properties: [ p.Any                     ]
+    orientation:    [ p.Orientation, 'vertical' ]
+  }
 
 module.exports =
   Model: StyleableBox

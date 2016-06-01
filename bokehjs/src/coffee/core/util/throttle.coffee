@@ -1,4 +1,3 @@
-
 _delay_animation = (f) ->
   return f()
 

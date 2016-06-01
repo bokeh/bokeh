@@ -55,5 +55,3 @@ describe "logging module", ->
     it "ignores unknown levels", ->
       out = stdoutTrap -> logging.set_log_level("bad")
       expect(out).to.be.equal "Bokeh: Unrecognized logging level 'bad' passed to Bokeh.set_log_level, ignoring.\nBokeh: Valid log levels are: trace,debug,info,warn,error,fatal\n"
-
-

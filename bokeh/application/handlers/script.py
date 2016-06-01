@@ -23,5 +23,5 @@ class ScriptHandler(CodeHandler):
 
         with codecs.open(filename, 'r', 'UTF-8') as f:
             kwargs['source'] = f.read()
-            
+
         super(ScriptHandler, self).__init__(*args, **kwargs)
