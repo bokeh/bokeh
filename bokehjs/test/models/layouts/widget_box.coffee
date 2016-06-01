@@ -53,7 +53,7 @@ describe "WidgetBox", ->
       @widget_box._dom_top = {_value: dom_top}
       @widget_box._width = {_value: width}
       @widget_box._height = {_value: height}
-      @widget_box.responsive = 'width_ar'
+      @widget_box.responsive = 'width_scale'
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
       widget_box_view.render()
@@ -122,17 +122,17 @@ describe "WidgetBox", ->
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
-    it "should return correct constrained_variables in width_ar mode", ->
+    it "should return correct constrained_variables in width_scale mode", ->
       # We don't return height because we're going to set it ourselves.
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
-      @widget_box.responsive = 'width_ar'
+      @widget_box.responsive = 'width_scale'
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
-    it "should return correct constrained_variables in height_ar mode", ->
+    it "should return correct constrained_variables in height_scale mode", ->
       # We don't return width because we're going to set it ourselves.
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
-      @widget_box.responsive = 'height_ar'
+      @widget_box.responsive = 'height_scale'
       constrained_variables = @widget_box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 

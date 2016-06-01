@@ -42,7 +42,7 @@ class LayoutDOM(Model):
 
     responsive = Responsive(help="""
     The type of responsiveness for the item being displayed. Possible values are
-    `fixed` (or `False`), `width_ar` (or `True`), `height_ar`, `box_ar`, `box`.
+    `fixed` (or `False`), `width_scale` (or `True`), `height_scale`, `scale`, `box`.
 
     `box` mode constrains both the height and width. The items being laid out
     attempt to fit entirely within their box. Items will shrink and grow with both
@@ -51,17 +51,17 @@ class LayoutDOM(Model):
 
     `fixed` mode prevents responsiveness. The items will have a fixed size.
 
-    `width_ar` mode constrains only the width. The items being laid out will resize to
+    `width_scale` mode constrains only the width. The items being laid out will resize to
     fit the width and will take up whatever vertical space they may need. This is a
     typical behavior for modern websites. For a Plot,
     the aspect ratio (plot_width/plot_height) is maintained.
 
-    `height_ar` mode constrains only the height. The items being laid out will resize to
+    `height_scale` mode constrains only the height. The items being laid out will resize to
     fit the height and will take up whatever width they may need. For a Plot,
-    the aspect ratio (plot_width/plot_height) is maintained. A plot with `height_ar` mode needs
+    the aspect ratio (plot_width/plot_height) is maintained. A plot with `height_scale` mode needs
     to be wrapped in a Row or Column to be responsive.
 
-    `box_ar` mode constrains the width and height, but maintains the plot aspect ratio
+    `scale` mode constrains the width and height, but maintains the plot aspect ratio
     for a plot inside the box.
 
     """)

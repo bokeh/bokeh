@@ -180,4 +180,4 @@ JitterRandomDistribution = enumeration("uniform", "normal")
 SortDirection = enumeration("ascending", "descending")
 
 #: Responsive types
-Responsive = enumeration("box", "width_ar", "height_ar", "box_ar", "fixed")
+Responsive = enumeration("box", "width_scale", "height_scale", "scale", "fixed")

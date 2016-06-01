@@ -1461,7 +1461,7 @@ def test_responsive_transforms_true_into_width():
     class Foo(HasProps):
         responsive = Responsive
     f = Foo(responsive=True)
-    assert f.responsive == 'width_ar'
+    assert f.responsive == 'width_scale'
 
 
 def test_responsive_transforms_false_into_fixed():

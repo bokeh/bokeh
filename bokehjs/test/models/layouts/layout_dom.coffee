@@ -36,15 +36,15 @@ describe "LayoutDOM.View", ->
       layout_view = new LayoutDOMView({ model: @test_layout })
       expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-box'
 
-    it "should set a class of 'bk-layout-width_ar' if responsive-mode is width_ar", ->
-      @test_layout.responsive = 'width_ar'
+    it "should set a class of 'bk-layout-width_scale' if responsive-mode is width_scale", ->
+      @test_layout.responsive = 'width_scale'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-width_ar'
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-width_scale'
 
-    it "should set a class of 'bk-layout-height_ar' if responsive-mode is height_ar", ->
-      @test_layout.responsive = 'height_ar'
+    it "should set a class of 'bk-layout-height_scale' if responsive-mode is height_scale", ->
+      @test_layout.responsive = 'height_scale'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-height_ar'
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-height_scale'
 
     it "should set an id matching the model.id", ->
       # This is used by document to find the model and its parents on resize events
@@ -96,16 +96,16 @@ describe "LayoutDOM.View", ->
       layout_view.render()
       expect(@solver_suggest.called).is.false
     
-    it "should call get_height if responsive_mode is 'width_ar'", ->
-      @test_layout.responsive = 'width_ar'
+    it "should call get_height if responsive_mode is 'width_scale'", ->
+      @test_layout.responsive = 'width_scale'
       layout_view = new LayoutDOMView({ model: @test_layout })
       spy = sinon.spy(layout_view, 'get_height')
       expect(spy.called).is.false
       layout_view.render()
       expect(spy.calledOnce).is.true
 
-    it "should call get_width if responsive_mode is 'height_ar'", ->
-      @test_layout.responsive = 'height_ar'
+    it "should call get_width if responsive_mode is 'height_scale'", ->
+      @test_layout.responsive = 'height_scale'
       layout_view = new LayoutDOMView({ model: @test_layout })
       spy = sinon.spy(layout_view, 'get_width')
       expect(spy.called).is.false
@@ -122,16 +122,16 @@ describe "LayoutDOM.View", ->
       expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._width, 22]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@test_layout._height, 33]
 
-    it "should call suggest value with the value from get_height if responsive_mode is width_ar", ->
-      @test_layout.responsive = 'width_ar'
+    it "should call suggest value with the value from get_height if responsive_mode is width_scale", ->
+      @test_layout.responsive = 'width_scale'
       layout_view = new LayoutDOMView({ model: @test_layout })
       sinon.stub(layout_view, 'get_height').returns(89)
       layout_view.render()
       expect(@solver_suggest.callCount).is.equal 1
       expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._height, 89]
 
-    it "should call suggest value with the value from get_width if responsive_mode is height_ar", ->
-      @test_layout.responsive = 'height_ar'
+    it "should call suggest value with the value from get_width if responsive_mode is height_scale", ->
+      @test_layout.responsive = 'height_scale'
       layout_view = new LayoutDOMView({ model: @test_layout })
       sinon.stub(layout_view, 'get_width').returns(222)
       layout_view.render()
@@ -223,9 +223,9 @@ describe "LayoutDOM.Model", ->
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
-  it "should not return height constraint in width_ar responsive modes", ->
+  it "should not return height constraint in width_scale responsive modes", ->
     l = new LayoutDOM()
-    l.responsive = 'width_ar'
+    l.responsive = 'width_scale'
     expected_constrainted_variables = {
       'width': l._width
       'origin-x': l._dom_left
@@ -239,9 +239,9 @@ describe "LayoutDOM.Model", ->
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
-  it "should not return width constraint in height_ar responsive modes", ->
+  it "should not return width constraint in height_scale responsive modes", ->
     l = new LayoutDOM()
-    l.responsive = 'height_ar'
+    l.responsive = 'height_scale'
     expected_constrainted_variables = {
       'height': l._height
       'origin-x': l._dom_left
@@ -255,17 +255,17 @@ describe "LayoutDOM.Model", ->
     constrained_variables = l.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrainted_variables
 
-  it "should set edit_variable height if responsive mode is width_ar", ->
+  it "should set edit_variable height if responsive mode is width_scale", ->
     l = new LayoutDOM()
-    l.responsive = 'width_ar'
+    l.responsive = 'width_scale'
     ev = l.get_edit_variables()
     expect(ev.length).to.be.equal 1
     expect(ev[0].edit_variable).to.be.equal l._height
     expect(ev[0].strength._strength).to.be.equal Strength.strong._strength
 
-  it "should set edit_variable width if responsive mode is height_ar", ->
+  it "should set edit_variable width if responsive mode is height_scale", ->
     l = new LayoutDOM()
-    l.responsive = 'height_ar'
+    l.responsive = 'height_scale'
     ev = l.get_edit_variables()
     expect(ev.length).to.be.equal 1
     expect(ev[0].edit_variable).to.be.equal l._width

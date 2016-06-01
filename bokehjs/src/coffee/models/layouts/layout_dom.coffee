@@ -75,7 +75,7 @@ class LayoutDOMView extends BokehView
         height: height
       })
 
-    if @model.responsive is 'width_ar'
+    if @model.responsive is 'width_scale'
       height = @get_height()
 
       s.suggest_value(@model._height, height)
@@ -85,7 +85,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'height_ar'
+    if @model.responsive is 'height_scale'
       width = @get_width()
 
       s.suggest_value(@model._width, width)
@@ -167,9 +167,9 @@ class LayoutDOM extends Model
     if @responsive is 'fixed'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    if @responsive is 'width_ar'
+    if @responsive is 'width_scale'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    if @responsive is 'height_ar'
+    if @responsive is 'height_scale'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
     return edit_variables
 
@@ -212,11 +212,11 @@ class LayoutDOM extends Model
         'width': @_width
         'height': @_height
       })
-    if @responsive is 'width_ar'
+    if @responsive is 'width_scale'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
       })
-    if @responsive is 'height_ar'
+    if @responsive is 'height_scale'
       constrained_variables = _.extend(constrained_variables, {
         'height': @_height
       })
