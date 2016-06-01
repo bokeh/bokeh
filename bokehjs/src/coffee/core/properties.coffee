@@ -49,7 +49,10 @@ class Property extends Backbone.Model
   value: () ->
     if _.isUndefined(@spec.value)
       throw new Error("attempted to retrieve property value for property without value specification")
-    return @transform([@spec.value])[0]
+    ret = @transform([@spec.value])[0]
+    if @spec.transform?
+      ret = @spec.transform.compute(ret)
+    return ret
 
   array: (source) ->
     if not @dataspec
@@ -57,7 +60,10 @@ class Property extends Backbone.Model
     data = source.get('data')
     if @spec.field?
       if @spec.field of data
-        return @transform(source.get_column(@spec.field))
+        ret = @transform(source.get_column(@spec.field))
+        if @spec.transform?
+          ret = @spec.transform.v_compute(ret)
+        return (ret)
       else
         throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
     else
