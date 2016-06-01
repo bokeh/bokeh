@@ -66,7 +66,7 @@ class HoverToolView extends InspectTool.View
 
     for r in @mget('computed_renderers')
       sm = r.get('data_source').get('selection_manager')
-      sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
+      sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
     if @mget('callback')?
       @_emit_callback(geometry)
@@ -162,7 +162,7 @@ class HoverToolView extends InspectTool.View
 
   _emit_callback: (geometry) ->
     r = @mget('computed_renderers')[0]
-    indices = @plot_view.renderers[r.id].hit_test(geometry)
+    indices = @plot_view.renderer_views[r.id].hit_test(geometry)
 
     canvas = @plot_model.get('canvas')
     frame = @plot_model.get('frame')

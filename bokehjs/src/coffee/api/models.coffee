@@ -21,9 +21,6 @@ module.exports = {
   OpenURL:                                require("../models/callbacks/open_url").Model
   CustomJS:                               require("../models/callbacks/customjs").Model
 
-  ## api/typings/models/component.d.ts
-  Component:                              require("../models/component").Model
-
   ## api/typings/models/formatters.d.ts
   TickFormatter:                          require("../models/formatters/tick_formatter").Model
   BasicTickFormatter:                     require("../models/formatters/basic_tick_formatter").Model
@@ -64,10 +61,9 @@ module.exports = {
   ImageSource:                            require("../models/tiles/image_source").Model
 
   ## api/typings/models/layouts.d.ts
-  Layout:                                 require("../models/layouts/layout").Model
-  #BaseBox:                               require("../models/layouts/base_box").Model
-  HBox:                                   require("../models/layouts/hbox").Model
-  VBox:                                   require("../models/layouts/vbox").Model
+  LayoutDOM:                              require("../models/layouts/layout_dom").Model
+  Row:                                    require("../models/layouts/row").Model
+  Column:                                 require("../models/layouts/column").Model
 
   ## api/typings/models/map_plots.d.ts
   GMapPlot:                               require("../models/plots/gmap_plot").Model
@@ -97,7 +93,6 @@ module.exports = {
 
   ## api/typings/models/plots.d.ts
   Plot:                                   require("../models/plots/plot").Model
-  GridPlot:                               require("../models/layouts/grid_plot").Model
 
   ## api/typings/models/ranges.d.ts
   Range:                                  require("../models/ranges/range").Model
@@ -148,7 +143,7 @@ module.exports = {
   Tool:                                   require("../models/tools/tool").Model
   PanTool:                                require("../models/tools/gestures/pan_tool").Model
   WheelZoomTool:                          require("../models/tools/gestures/wheel_zoom_tool").Model
-  PreviewSaveTool:                        require("../models/tools/actions/preview_save_tool").Model
+  SaveTool:                               require("../models/tools/actions/save_tool").Model
   UndoTool:                               require("../models/tools/actions/undo_tool").Model
   RedoTool:                               require("../models/tools/actions/redo_tool").Model
   ResetTool:                              require("../models/tools/actions/reset_tool").Model

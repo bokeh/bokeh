@@ -9,7 +9,7 @@ declare namespace Bokeh {
     }
 
     export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
-    export interface Plot extends Component, IPlot {
+    export interface Plot extends LayoutDOM, IPlot {
         add_renderers(...Renderer: Array<Renderer>): void;
         add_layout(obj: Model, place?: Place): void;
         add_glyph(glyph: Glyph, source?: DataSource, attrs?: ModelOpts): GlyphRenderer;
@@ -21,7 +21,7 @@ declare namespace Bokeh {
 
         tools?: Array<Tool>;
     }
-    export interface IBasePlot extends IComponent {
+    export interface IBasePlot extends ILayoutDOM {
         title?: string;
 
         // {{{ title = include[TextProps]
@@ -91,8 +91,8 @@ declare namespace Bokeh {
         new(attributes?: IGridPlot, options?: ModelOpts): GridPlot;
         (children: Array<Array<Plot>>): GridPlot;
     };
-    export interface GridPlot extends Component, IGridPlot {}
-    export interface IGridPlot extends IComponent {
+    export interface GridPlot extends LayoutDOM, IGridPlot {}
+    export interface IGridPlot extends ILayoutDOM {
         children?: Array<Array<Plot>>;
         border_space?: Int;
         toolbar_location?: Location;

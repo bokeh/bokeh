@@ -3,6 +3,7 @@
 from ..document import Document; Document
 
 from ..models import ColumnDataSource; ColumnDataSource
+from ..models.layouts import Row, Column; Row, Column
 
 from ..io import curdoc; curdoc
 from ..io import output_file; output_file
@@ -20,4 +21,3 @@ from .figure import Figure; Figure
 from .figure import figure; figure
 from .figure import markers; markers
 from .figure import DEFAULT_TOOLS; DEFAULT_TOOLS
-

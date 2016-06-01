@@ -20,7 +20,7 @@ data = dict(
     IBM=IBM['Adj Close'][:1000],
 )
 
-TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
+TOOLS="resize,pan,wheel_zoom,box_zoom,reset,save"
 
 # line simple
 tsline = TimeSeries(

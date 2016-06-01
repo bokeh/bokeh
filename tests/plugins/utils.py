@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import boto
 import colorama
 import subprocess
 import sys

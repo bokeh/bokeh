@@ -1,6 +1,6 @@
 declare namespace Bokeh.Plotting {
-    function show(objs: Array<Component>, target?: string | HTMLElement): Map<View<Model>>;
-    function show<T extends Component>(obj: T, target?: string | HTMLElement): View<T>;
+    function show(objs: Array<LayoutDOM>, target?: string | HTMLElement): Map<View<Model>>;
+    function show<T extends LayoutDOM>(obj: T, target?: string | HTMLElement): View<T>;
 
     function color(r: number, g: number, b: number): string;
 
@@ -18,7 +18,7 @@ declare namespace Bokeh.Plotting {
         "lasso_select" |
         "box_zoom" | "xbox_zoom" | "ybox_zoom" |
         "hover" |
-        "previewsave" |
+        "save" | "previewsave" |
         "undo" |
         "redo" |
         "reset" |

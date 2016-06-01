@@ -401,6 +401,11 @@ class Document(object):
         if model in self._roots:
             return
         self._push_all_models_freeze()
+        # TODO(bird) Should we do some kind of reporting of how many LayoutDOM
+        # items are in the document roots. In vanilla bokeh cases e.g.
+        # output_file, output_server more than one LayoutDOM is probably not
+        # going to go well. But in embedded cases, you may well want more than
+        # one.
         try:
             self._roots.append(model)
         finally:

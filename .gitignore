@@ -110,5 +110,5 @@ win-64
 .cache/
 
 # generated coffeescript
-/bokehjs/test/test_common/defaults/models_defaults.coffee
-/bokehjs/test/test_common/defaults/widgets_defaults.coffee
+/bokehjs/test/common/generated_defaults/models_defaults.coffee
+/bokehjs/test/common/generated_defaults/widgets_defaults.coffee
