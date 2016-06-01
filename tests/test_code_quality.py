@@ -37,8 +37,8 @@ def collect_errors():
         for idx, line in enumerate(test_file):
             line_no = idx + 1
 
-            #if idx == 0 and len(line.strip()) == 0:
-            #    errors.append((message_multi_bof, fname, line_no))
+            if idx == 0 and len(line.strip()) == 0:
+                errors.append((message_multi_bof, fname, line_no))
             if line.endswith(" \n") or line.endswith("\t\n"):
                 errors.append((message_space, fname, line_no))
             if line.endswith("\r\n") or line.endswith("\r"):
