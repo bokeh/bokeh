@@ -1,36 +1,26 @@
 from __future__ import absolute_import
 
-import random
-
-from jinja2 import Template
-
-from bokeh.charts import Area, Histogram
+from bokeh.charts import Histogram
 from bokeh.io import save
-from bokeh.plotting import figure
+from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d, Row
 from bokeh.sampledata.autompg import autompg as df
-from bokeh.resources import INLINE
-from bokeh.embed import components
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
+from tests.integration.utils import has_no_console_errors, wait_for_canvas_resize
 
 import pytest
-
-from ..utils import element_to_start_resizing, element_to_finish_resizing
 
 pytestmark = pytest.mark.integration
 
 
-def wait_for_canvas_resize(canvas, test_driver):
-    try:
-        wait = WebDriverWait(test_driver, 5)
-        wait.until(element_to_start_resizing(canvas))
-        wait.until(element_to_finish_resizing(canvas))
-    except TimeoutException:
-        # Resize may or may not happen instantaneously,
-        # Put the waits in to give some time, but allow test to
-        # try and process.
-        pass
+def make_responsive_plot(plot_width, plot_height, responsive_mode='width_ar'):
+    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
+    plot = Plot(
+        plot_height=plot_height, plot_width=plot_width,
+        x_range=DataRange1d(), y_range=DataRange1d(),
+        responsive=responsive_mode
+    )
+    plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
+    return plot
 
 
 def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
@@ -48,18 +38,17 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     # scaled down by approximately the correct amount.
     initial_window_width = 1200
     final_window_width = 600
-    window_ratio = initial_window_width / final_window_width
 
     # Make the plot with autoresize
-    plot = figure(plot_width=plot_width, plot_height=plot_height, responsive=True)
-    plot.scatter([1, 2, 3], [3, 2, 3])
+    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='width_ar')
     save(plot)
 
     # Open the browser with the plot and resize the window to get an initial measure
     selenium.set_window_size(width=initial_window_width, height=600)
-
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
 
     initial_height = canvas.size['height']
     initial_width = canvas.size['width']
@@ -69,25 +58,30 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
 
     # Now resize to a smaller window size and check again
     selenium.set_window_size(width=final_window_width, height=600)
+    selenium.set_window_size(width=final_window_width, height=599)  # See note (1) below
     wait_for_canvas_resize(canvas, selenium)
+
     final_height = canvas.size['height']
     final_width = canvas.size['width']
     final_aspect_ratio = final_width / final_height
     assert final_aspect_ratio > lower_bound
     assert final_aspect_ratio < upper_bound
-    assert final_width <= initial_width / window_ratio
-    assert final_height <= initial_height / window_ratio
+
+    # Notes:
+    # (1) Since the new layout work, this extra kick was necessary for the test
+    # to run properly. From what I can tell this is a selenium thing not a
+    # real problem, but something to keep an eye on - bird 2016-05-22
 
 
 def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
     # The aspect ratio is portrait but should not allow a width less than 100
-    plot = figure(plot_width=600, plot_height=1200, responsive=True)
-    plot.scatter([1, 2, 3], [3, 2, 3])
+    plot = make_responsive_plot(600, 1200, responsive_mode='width_ar')
     save(plot)
 
     # Open the browser with the plot and resize the window small
     selenium.set_window_size(width=100, height=600)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
 
@@ -98,13 +92,13 @@ def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
 
 def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
     # The aspect ratio is landscape but should not allow a height less than 100
-    plot = figure(plot_width=1200, plot_height=600, responsive=True)
-    plot.scatter([1, 2, 3], [3, 2, 3])
+    plot = make_responsive_plot(1200, 600, responsive_mode='width_ar')
     save(plot)
 
     # Open the browser with the plot and resize the window small
     selenium.set_window_size(width=100, height=600)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
 
@@ -119,127 +113,83 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
 
     selenium.set_window_size(width=1000, height=600)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
 
-    # Canvas width should be just under 1000
-    assert canvas.size['width'] > 900
-    assert canvas.size['width'] < 1000
-
-
-def test_responsive_legacy_chart_starts_at_correct_size(output_file_url, selenium):
-    values = dict(
-        apples=[2, 3, 7, 5, 26, 221, 44, 233, 254, 25, 2, 67, 10, 11],
-        oranges=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
-    )
-
-    area = Area(values, title="Area Chart", responsive=True)
-    save(area)
-
-    selenium.set_window_size(width=1000, height=600)
-    selenium.get(output_file_url)
-
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, selenium)
-
-    # Canvas width should be just under 1000
-    assert canvas.size['width'] > 900
-    assert canvas.size['width'] < 1000
+    # Canvas width should be just under 1000 * 0.9
+    # (default file_html has a body width of 90%)
+    assert canvas.size['width'] > 850
+    assert canvas.size['width'] < 900
 
 
 def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
-    plot = figure(responsive=True, title="Test Me")
-    plot.scatter([1, 2, 3], [3, 2, 3])
+    plot = make_responsive_plot(600, 600, responsive_mode='width_ar')
     save(plot)
 
     selenium.set_window_size(width=1000, height=600)
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
 
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
 
-    # Canvas width should be just under 1000
-    assert canvas.size['width'] > 900
-    assert canvas.size['width'] < 1000
+    # Canvas width should be just under 1000 * 0.9
+    # (default file_html has a body width of 90%)
+    assert canvas.size['width'] > 850
+    assert canvas.size['width'] < 900
 
 
-def test_responsive_resizes_width_and_height(output_file_url, selenium):
+def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):
+    # We can test this by ensuring the aspect ratio changes after initially
+    # setting it to square, and that one dimension is close to the window.
+
+    plot = make_responsive_plot(200, 200, responsive_mode='box')
+    save(plot)
+
+    window_width = 1000
+    window_height = 300
+
+    selenium.set_window_size(width=window_width, height=window_height)
+    selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
+
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+
+    canvas_width = canvas.size['width']
+    canvas_height = canvas.size['height']
+    # Canvas width & height should match window
+    # If it was width mode, the plot would remain square (as per the initial aspect ratio)
+    assert canvas_width <= window_width
+    assert canvas_height <= window_height
+
+
+def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.
-    
+
     # We want the aspect ratio of the initial plot to be maintained, but we
     # can't measure it perfectly so we test against bounds.
     aspect_ratio = 2
-    plot_height = 400
     plot_width = 400 * aspect_ratio
+    plot_height = 400
     lower_bound = aspect_ratio * 0.95
     upper_bound = aspect_ratio * 1.05
 
-    # Define our html template for out plots
-    template = Template('''<!DOCTYPE html>
-    <html lang="en">
-        <head>
-            <meta charset="utf-8">
-            {{ js_resources }}
-            {{ css_resources }}
-        </head>
-        <body>
-        {{ plot_div.red }}
-        {{ plot_script }}
-        <script>
-        // Set things up to resize the plot on a window resize. You can play with
-        // the arguments of resize_width_height() to change the plot's behavior.
-        var plot_resize_setup = function () {
-            var plotid = Object.keys(Bokeh.index)[0]; // assume we have just one plot
-            var plot = Bokeh.index[plotid];
-            var plotresizer = function() {
-                // arguments: use width, use height, maintain aspect ratio
-                plot.resize_width_height(true, true, true);
-            };
-            window.addEventListener('resize', plotresizer);
-            plotresizer();
-        };
-        window.addEventListener('load', plot_resize_setup);
-        </script>
-        <style>
-        /* Need this to get the page in "desktop mode"; not having an infinite height.*/
-        html, body {height: 100%;}
-        </style>
-        </body>
-    </html>
-    ''')
-    
-    PLOT_OPTIONS = dict(plot_width=plot_width, plot_height=plot_height)
-    SCATTER_OPTIONS = dict(size=12, alpha=0.5)
-    
-    data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
-    
-    red = figure(responsive=False, tools='pan', **PLOT_OPTIONS)
-    red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
-    
-    resources = INLINE
-    
-    js_resources = resources.render_js()
-    css_resources = resources.render_css()
-    
-    script, div = components({'red': red})
-    
-    html = template.render(js_resources=js_resources,
-                        css_resources=css_resources,
-                        plot_script=script,
-                        plot_div=div)
-    
-    filename = output_file_url.split('/', 3)[-1]  # strip "http://xxxx:yyyy/"
-    with open(filename, 'w') as f:
-        f.write(html)
-    
+    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='box_ar')
+    # We have to wrap box_ar plots in a Row for them to work.
+    layout = Row(plot, responsive='box')
+    save(layout)
+
     # Open the browser with the plot and resize the window to get an initial measure
     selenium.set_window_size(width=1200, height=600)
 
     selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
     canvas = selenium.find_element_by_tag_name('canvas')
-    
+
     # Check initial size
     wait_for_canvas_resize(canvas, selenium)
     #
@@ -248,7 +198,7 @@ def test_responsive_resizes_width_and_height(output_file_url, selenium):
     aspect_ratio1 = width1 / height1
     assert aspect_ratio1 > lower_bound
     assert aspect_ratio1 < upper_bound
-    
+
     # Now resize to a smaller width and check again
     selenium.set_window_size(width=800, height=600)
     wait_for_canvas_resize(canvas, selenium)
@@ -258,9 +208,9 @@ def test_responsive_resizes_width_and_height(output_file_url, selenium):
     aspect_ratio2 = width2 / height2
     assert aspect_ratio2 > lower_bound
     assert aspect_ratio2 < upper_bound
-    assert width2 < width1 - 20
-    assert height2 < height1 - 20
-    
+    assert width2 == width1
+    assert height2 == height1
+
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)
     wait_for_canvas_resize(canvas, selenium)
@@ -269,7 +219,7 @@ def test_responsive_resizes_width_and_height(output_file_url, selenium):
     width3 = canvas.size['width']
     assert width3 == width1
     assert height3 == height1
-    
+
     # Now resize to a smaller height and check again
     selenium.set_window_size(width=1200, height=400)
     wait_for_canvas_resize(canvas, selenium)
@@ -279,9 +229,9 @@ def test_responsive_resizes_width_and_height(output_file_url, selenium):
     aspect_ratio4 = width4 / height4
     assert aspect_ratio4 > lower_bound
     assert aspect_ratio4 < upper_bound
-    assert width4 < width1 - 20
-    assert height4 < height1 - 20
-    
+    assert width4 < width1
+    assert height4 < height1
+
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)
     wait_for_canvas_resize(canvas, selenium)
@@ -290,4 +240,3 @@ def test_responsive_resizes_width_and_height(output_file_url, selenium):
     width5 = canvas.size['width']
     assert width5 == width1
     assert height5 == height1
-

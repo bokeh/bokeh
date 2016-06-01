@@ -2,17 +2,19 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/datepicker"
 
-InputWidget = require "./input_widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class DatePickerView extends BokehView
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+class DatePickerView extends Widget.View
 
   initialize: (options) ->
     super(options)
     @render()
 
   render: () ->
+    super()
     @$el.empty()
     $label = $('<label>').text(@mget("title"))
     $datepicker = $("<div>").datepicker({

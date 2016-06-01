@@ -163,6 +163,8 @@ enum_prop = (name, enum_values) ->
 
 class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
+class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits)
+
 class Direction extends enum_prop("Direction", enums.Direction)
   transform: (values) ->
     result = new Uint8Array(values.length)
@@ -194,7 +196,13 @@ class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
 
 class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
+class Responsive extends enum_prop("Responsive", enums.Responsive)
+
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
+
+class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
+
+class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
 
 #
 # Units Properties
@@ -258,6 +266,7 @@ module.exports =
   Anchor: Anchor
   Any: Any
   Angle: Angle
+  AngleUnits: AngleUnits
   Array: Array
   Bool: Bool
   Boolean: Bool                   # alias
@@ -277,10 +286,13 @@ module.exports =
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode
+  Responsive: Responsive
   SpatialUnits: SpatialUnits
   String: String
   TextAlign: TextAlign
   TextBaseline: TextBaseline
+  Distribution: Distribution
+  TransformStepMode: TransformStepMode
 
   AngleSpec: AngleSpec
   ColorSpec: ColorSpec
@@ -289,4 +301,3 @@ module.exports =
   FontSizeSpec: FontSizeSpec
   NumberSpec: NumberSpec
   StringSpec: StringSpec
-

@@ -29,7 +29,7 @@
 	font-size: 1em;
 }
 .bk-ui-widget-content {
-	border: 1px solid #aaaaaa/*{borderColorContent}*/;
+	border-bottom: 1px solid #ccc/*{borderColorContent}*/;
 	background: #ffffff/*{bgColorContent}*/ url("images/ui-bg_flat_75_ffffff_40x100.png")/*{bgImgUrlContent}*/ 50%/*{bgContentXPos}*/ 50%/*{bgContentYPos}*/ repeat-x/*{bgContentRepeat}*/;
 	color: #222222/*{fcContent}*/;
 }

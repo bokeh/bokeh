@@ -1,12 +1,15 @@
 _ = require "jquery"
 $ = require "underscore"
 
-InputWidget = require "./input_widget"
-multiselecttemplate = require "./multiselecttemplate"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class MultiSelectView extends BokehView
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+multiselecttemplate = require "./multiselecttemplate"
+
+
+class MultiSelectView extends Widget.View
   tagName: "div"
   template: multiselecttemplate
   events:
@@ -21,6 +24,7 @@ class MultiSelectView extends BokehView
     @listenTo(@model, 'change:title', @render)
 
   render: () ->
+    super()
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)

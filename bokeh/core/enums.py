@@ -167,5 +167,17 @@ ScriptingLanguage = enumeration("javascript", "coffeescript")
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")
 
+#: Specify a mode for stepwise interpolation
+StepMode = enumeration("before", "after", "center")
+
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
+
+#: Specify a distribution to use for the Jitter class
+JitterRandomDistribution = enumeration("uniform", "normal")
+
+#: Specify sorting directions
+SortDirection = enumeration("ascending", "descending")
+
+#: Responsive types
+Responsive = enumeration("box", "width_ar", "height_ar", "box_ar", "fixed")

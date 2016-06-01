@@ -24,15 +24,14 @@ import warnings
 from collections import defaultdict
 import numpy as np
 
-from ..core.enums import enumeration, LegendLocation
+from ..core.enums import enumeration
 from ..models import (
-    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
-    HoverTool, FactorRange
+    CategoricalAxis, DatetimeAxis, glyphs, Grid, Legend, LinearAxis, markers,
+    Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg
-from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
-                          String, Tuple, Override)
+from ..plotting.helpers import _process_tools_arg, _glyph_function
+from ..core.properties import Auto, Either, Enum, String, Override
 from ..util.deprecate import deprecated
 
 #-----------------------------------------------------------------------------
@@ -46,8 +45,9 @@ class ChartDefaults(object):
         """Apply this defaults to a chart."""
 
         if not isinstance(chart, Chart):
-            raise ValueError("ChartsDefaults should be only used on Chart \
-            objects but it's being used on %s instead." % chart)
+            raise ValueError(
+                "ChartsDefaults should be only used on Chart objects but it's being used on %s instead." % chart
+            )
 
         all_props = set(chart.properties_with_values(include_defaults=True))
         dirty_props = set(chart.properties_with_values(include_defaults=False))
@@ -71,18 +71,6 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
-    legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
-    A location where the legend should draw itself.
-    """)
-
-    xgrid = Bool(True, help="""
-    Whether to draw an x-grid.
-    """)
-
-    ygrid = Bool(True, help="""
-    Whether to draw an y-grid.
-    """)
-
     xlabel = String(None, help="""
     A label for the x-axis. (default: None)
     """)
@@ -99,18 +87,40 @@ class Chart(Plot):
     What kind of scale to use for the y-axis.
     """)
 
-    title_text_font_size = Override(default={ 'value' : '14pt' })
-
-    responsive = Override(default=False)
-
     _defaults = defaults
 
-    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height')
+    __deprecated_attributes__ = (
+        'filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend'
+        'background_fill', 'border_fill', 'logo', 'tools',
+        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
+        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
+    )
+
+    _xgrid = True
+    _ygrid = True
+    _legend = True
+
+    @Plot.xgrid.setter
+    def xgrid(self, value):
+        warnings.warn("Non-functional 'xgrid' setter has been removed; use 'xgrid' keyword argument to Chart instead")
+
+    @Plot.ygrid.setter
+    def ygrid(self, value):
+        warnings.warn("Non-functional 'ygrid' setter has been removed; use 'ygrid' keyword argument to Chart instead")
+
+    @Plot.legend.setter
+    def legend(self, value):
+        warnings.warn("Non-functional 'legend' setter has been removed; use 'legend' keyword argument to Chart instead")
 
     def __init__(self, *args, **kwargs):
         # pop tools as it is also a property that doesn't match the argument
         # supported types
         tools = kwargs.pop('tools', None)
+        for name in ['xgrid', 'ygrid', 'legend']:
+            if name in kwargs:
+                kwargs["_" + name] = kwargs[name]
+                del kwargs[name]
+
         super(Chart, self).__init__(*args, **kwargs)
 
         defaults.apply(self)
@@ -124,10 +134,6 @@ class Chart(Plot):
             if k in kwargs:
                 setattr(self, k, kwargs[k])
 
-        # TODO (bev) have to force serialization of overriden defaults on subtypes for now
-        self.title_text_font_size = "10pt"
-        self.title_text_font_size = "14pt"
-
         self._glyphs = []
         self._built = False
 
@@ -138,7 +144,8 @@ class Chart(Plot):
         self._scales = defaultdict(list)
         self._tooltips = []
 
-        self.create_tools(self._tools)
+        if hasattr(self, '_tools'):
+            self.create_tools(self._tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -189,7 +196,7 @@ class Chart(Plot):
             # in case tools == False just exit
             return
 
-        if len(self.tools) == 0:
+        if len(self.toolbar.tools) == 0:
             # if no tools customization let's create the default tools
             tool_objs = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
@@ -198,11 +205,10 @@ class Chart(Plot):
         """Add the axis, grids and tools
         """
         self.create_axes()
-        self.create_grids(self.xgrid, self.ygrid)
+        self.create_grids(self._xgrid, self._ygrid)
 
-        # Add tools if supposed to
-        if self.tools:
-            self.create_tools(self.tools)
+        if self.toolbar.tools:
+            self.create_tools(self._tools)
 
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))
@@ -219,10 +225,10 @@ class Chart(Plot):
                 labels.
         """
         location = None
-        if self.legend is True:
+        if self._legend is True:
             location = "top_left"
         else:
-            location = self.legend
+            location = self._legend
 
         if location:
             legend = Legend(location=location, legends=legends)
@@ -338,22 +344,68 @@ class Chart(Plot):
         import bokeh.io
         bokeh.io.show(self)
 
-    @property
-    def width(self):
-        warnings.warn("Chart property 'width' was deprecated in 0.11 \
-            and will be removed in the future.")
-        return self.plot_width
+    annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
-    @width.setter
-    def width(self, width):
-        self.plot_width = width
+    annulus = _glyph_function(glyphs.Annulus)
 
-    @property
-    def height(self):
-        warnings.warn("Chart property 'height' was deprecated in 0.11 \
-            and will be removed in the future.")
-        return self.plot_height
+    arc = _glyph_function(glyphs.Arc)
 
-    @height.setter
-    def height(self, height):
-        self.plot_height = height
+    asterisk = _glyph_function(markers.Asterisk)
+
+    bezier = _glyph_function(glyphs.Bezier)
+
+    circle = _glyph_function(markers.Circle)
+
+    circle_cross = _glyph_function(markers.CircleCross)
+
+    circle_x = _glyph_function(markers.CircleX)
+
+    cross = _glyph_function(markers.Cross)
+
+    diamond = _glyph_function(markers.Diamond)
+
+    diamond_cross = _glyph_function(markers.DiamondCross)
+
+    ellipse = _glyph_function(glyphs.Ellipse)
+
+    image = _glyph_function(glyphs.Image)
+
+    image_rgba = _glyph_function(glyphs.ImageRGBA)
+
+    image_url = _glyph_function(glyphs.ImageURL)
+
+    inverted_triangle = _glyph_function(markers.InvertedTriangle)
+
+    line = _glyph_function(glyphs.Line)
+
+    multi_line = _glyph_function(glyphs.MultiLine)
+
+    oval = _glyph_function(glyphs.Oval)
+
+    patch = _glyph_function(glyphs.Patch)
+
+    patches = _glyph_function(glyphs.Patches)
+
+    quad = _glyph_function(glyphs.Quad)
+
+    quadratic = _glyph_function(glyphs.Quadratic)
+
+    ray = _glyph_function(glyphs.Ray)
+
+    rect = _glyph_function(glyphs.Rect)
+
+    segment = _glyph_function(glyphs.Segment)
+
+    square = _glyph_function(markers.Square)
+
+    square_cross = _glyph_function(markers.SquareCross)
+
+    square_x = _glyph_function(markers.SquareX)
+
+    text = _glyph_function(glyphs.Text)
+
+    triangle = _glyph_function(markers.Triangle)
+
+    wedge = _glyph_function(glyphs.Wedge)
+
+    x = _glyph_function(markers.X)

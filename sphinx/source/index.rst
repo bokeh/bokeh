@@ -96,10 +96,11 @@ the :ref:`devguide`.
     docs/releases/0.1.0
     docs/dev_guide
     docs/dev_guide/setup
-    docs/dev_guide/documentation
+    docs/dev_guide/env_vars
     docs/dev_guide/testing
-    docs/dev_guide/objects
+    docs/dev_guide/documentation
+    docs/dev_guide/models
     docs/dev_guide/server
     docs/dev_guide/bindings
-    docs/dev_guide/notes
     docs/dev_guide/bokehjs
+    docs/dev_guide/notes

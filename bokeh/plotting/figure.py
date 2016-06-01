@@ -4,12 +4,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..io import curdoc, curstate
-from ..models import Axis, Grid, Legend, Plot
+from ..models import Plot
 from ..models import glyphs, markers
-from .helpers import (
-    _list_attr_splat, _get_range, _process_axis_and_grid,
-    _process_tools_arg, _glyph_function
-)
+from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 
@@ -51,69 +48,6 @@ class Figure(Plot):
 
         tool_objs = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)
-
-    def _axis(self, *sides):
-        objs = []
-        for s in sides:
-            objs.extend(getattr(self, s, []))
-        axis = [obj for obj in objs if isinstance(obj, Axis)]
-        return _list_attr_splat(axis)
-
-    @property
-    def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
-
-        """
-        return self._axis("above", "below")
-
-    @property
-    def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
-
-        """
-        return self._axis("left", "right")
-
-    @property
-    def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
-
-        """
-        return _list_attr_splat(self.xaxis + self.yaxis)
-
-    @property
-    def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
-
-        """
-        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
-        return _list_attr_splat(legends)
-
-    def _grid(self, dimension):
-        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
-        return _list_attr_splat(grid)
-
-    @property
-    def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
-
-        """
-        return self._grid(0)
-
-    @property
-    def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
-
-        """
-        return self._grid(1)
-
-    @property
-    def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
-
-        """
-        return _list_attr_splat(self.xgrid + self.ygrid)
-
-
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
@@ -246,6 +180,22 @@ Examples:
         plot = figure(width=300, height=300)
         plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
                            color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
+    ellipse = _glyph_function(glyphs.Ellipse, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
+                     color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 
@@ -590,9 +540,6 @@ def figure(**kwargs):
         kwargs['plot_width'] = kwargs.pop('width')
 
     fig = Figure(**kwargs)
-    curdoc()._current_plot = fig # TODO (havocp) store this on state, not doc?
-    if curstate().autoadd:
-        curdoc().add_root(fig)
     return fig
 
 

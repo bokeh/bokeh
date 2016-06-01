@@ -18,6 +18,8 @@ types on top of it.
 
 from __future__ import absolute_import
 
+import warnings
+from six import string_types
 from .attributes import AttrSpec, ColorAttr, CatAttr
 from .chart import Chart
 from .data_source import ChartDataSource
@@ -28,7 +30,8 @@ from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..core.properties import (HasProps, Instance, List, String, Dict,
-                          Color, Bool, Tuple, Either)
+                          Color, Bool, Tuple, Either, Enum)
+from ..core.enums import SortDirection
 from ..io import curdoc, curstate
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -47,7 +50,8 @@ def create_and_build(builder_class, *data, **kws):
     if getattr(builder_class, 'default_attributes') is None:
         raise NotImplementedError('Each builder must specify its default_attributes, %s does not.' % builder_class.__name__)
 
-    builder_props = set(builder_class.properties())
+    builder_props = set(builder_class.properties()) | \
+        set(getattr(builder_class, "__deprecated_attributes__", []))
 
     # append dimensions to the builder props
     for dim in builder_class.dimensions:
@@ -62,14 +66,10 @@ def create_and_build(builder_class, *data, **kws):
     builder = builder_class(*data, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
+    chart_kws = {k: v for k, v in kws.items() if k not in builder_props}
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
     chart.start_plot()
-
-    curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
-    if curstate().autoadd:
-        curdoc().add_root(chart)
 
     return chart
 
@@ -220,6 +220,17 @@ class Builder(HasProps):
         is (Column, Ascending).
         """)
 
+    legend_sort_field = String(help="""
+        Attribute that should be used to sort the legend, for example: color,
+        dash, maker, etc. Valid values for this property depend on the type
+        of chart.
+        """)
+
+    legend_sort_direction = Enum(SortDirection, help="""
+    Sort direction to apply to :attr:`~bokeh.charts.builder.Builder.sort_legend`.
+    Valid values are: `ascending` or `descending`.
+    """)
+
     source = Instance(ColumnDataSource)
 
     tooltips = Either(List(Tuple(String, String)), List(String), Bool, default=None,
@@ -229,6 +240,8 @@ class Builder(HasProps):
         column specified (list(str)), or by explicit specification of the tooltips
         using the valid input for the `HoverTool` tooltips kwarg.
         """)
+
+    __deprecated_attributes__ = ('sort_legend',)
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -292,6 +305,10 @@ class Builder(HasProps):
 
         # collect unique columns used for attributes
         self.attribute_columns = collect_attribute_columns(**self.attributes)
+
+        for k in self.__deprecated_attributes__:
+            if k in kws:
+                setattr(self, k, kws[k])
 
         self._data = data
         self._legends = []
@@ -523,6 +540,11 @@ class Builder(HasProps):
         chart.add_ranges('x', self.x_range)
         chart.add_ranges('y', self.y_range)
 
+        # sort the legend if we are told to
+        self._legends = self._sort_legend(
+                self.legend_sort_field, self.legend_sort_direction,
+                self._legends, self.attributes)
+
         # always contribute legends, let Chart sort it out
         chart.add_legend(self._legends)
 
@@ -547,6 +569,49 @@ class Builder(HasProps):
 
         return help_str
 
+    @staticmethod
+    def _sort_legend(legend_sort_field, legend_sort_direction, legends, attributes):
+        """Sort legends sorted by looping though sort_legend items (
+        see :attr:`Builder.sort_legend` for more details)
+        """
+        if legend_sort_field:
+            if len(attributes[legend_sort_field].columns) > 0:
+
+                # TODO(fpliger): attributes should be consistent and not
+                #               need any type checking but for
+                #               the moment it is not, specially when going
+                #               though a process like binning or when data
+                #               is built for HeatMap, Scatter, etc...
+                item_order = [x[0] if isinstance(x, tuple) else x
+                    for x in attributes[legend_sort_field].items]
+
+                item_order = [str(x) if not isinstance(x, string_types)
+                    else x for x in item_order]
+
+                def foo(leg):
+                    return item_order.index(leg[0])
+                reverse = legend_sort_direction == 'descending'
+                return list(sorted(legends, key=foo, reverse=reverse))
+
+        return legends
+
+    @property
+    def sort_legend(self):
+        warnings.warn("Chart property `sort_legend` was deprecated in 0.12 \
+            and will be removed in the future. Use `legend_sort_field` and \
+            `legend_sort_direction` instead.")
+        return [(self.legend_sort_field, self.legend_sort_direction)]
+
+    @sort_legend.setter
+    def sort_legend(self, value):
+        warnings.warn("Chart property 'sort_legend' was deprecated in 0.12 \
+            and will be removed in the future. Use `legend_sort_field` and \
+            `legend_sort_direction` instead.")
+        self.legend_sort_field, direction = value[0]
+        if direction:
+            self.legend_sort_direction = "ascending"
+        else:
+            self.legend_sort_direction = "descending"
 
 class XYBuilder(Builder):
     """Implements common functionality for XY Builders."""
@@ -591,15 +656,6 @@ class XYBuilder(Builder):
             else:
                 select = ['']
             self.ylabel = ', '.join(select)
-
-        # sort the legend if we are told to
-        if len(self.sort_legend) > 0:
-            for attr, asc in self.sort_legend:
-                if len(self.attributes[attr].columns) > 0:
-                    item_order = self.attributes[attr].items
-                    self._legends = list(sorted(self._legends, key=lambda leg:
-                                                item_order.index(leg[0]),
-                                                reverse=~asc))
 
     def _get_range(self, dim, start, end):
         """Create a :class:`Range` for the :class:`Chart`.

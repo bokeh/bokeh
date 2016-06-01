@@ -33,6 +33,6 @@ def update():
 
 curdoc().add_periodic_callback(update, 30)
 
-session.show() # open the document in a browser
+session.show(p) # open the document in a browser
 
 session.loop_until_closed() # run forever

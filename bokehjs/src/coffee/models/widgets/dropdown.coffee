@@ -1,11 +1,13 @@
 _ = require "underscore"
 $ = require "jquery"
 
-AbstractButton = require "./abstract_button"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class DropdownView extends BokehView
+AbstractButton = require "./abstract_button"
+Widget = require "./widget"
+
+
+class DropdownView extends Widget.View
   tagName: "div"
 
   initialize: (options) ->
@@ -14,6 +16,7 @@ class DropdownView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     split = @mget("default_value")?

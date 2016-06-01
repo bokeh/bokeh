@@ -35,3 +35,9 @@ module.exports =
   TextAlign: ["left", "right", "center"]
 
   TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+
+  DistributionTypes: ["uniform", "normal"]
+
+  TransformStepModes: ["after", "before", "center"]
+
+  Responsive: ["box", "width_ar", "height_ar", "box_ar", "fixed"]

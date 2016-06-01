@@ -33,9 +33,9 @@ declare namespace Bokeh {
         dimensions?: Array<Dimension>;
     }
 
-    export var PreviewSaveTool: { new(attributes?: IPreviewSaveTool, options?: ModelOpts): PreviewSaveTool };
-    export interface PreviewSaveTool extends Tool, IPreviewSaveTool {}
-    export interface IPreviewSaveTool extends ITool {}
+    export var SaveTool: { new(attributes?: ISaveTool, options?: ModelOpts): SaveTool };
+    export interface SaveTool extends Tool, ISaveTool {}
+    export interface ISaveTool extends ITool {}
 
     export var UndoTool: { new(attributes?: IUndoTool, options?: ModelOpts): UndoTool };
     export interface UndoTool extends Tool, IUndoTool {}
@@ -47,7 +47,9 @@ declare namespace Bokeh {
 
     export var ResetTool: { new(attributes?: IResetTool, options?: ModelOpts): ResetTool };
     export interface ResetTool extends Tool, IResetTool {}
-    export interface IResetTool extends ITool {}
+    export interface IResetTool extends ITool {
+        reset_size?: Boolean;
+    }
 
     export var ResizeTool: { new(attributes?: IResizeTool, options?: ModelOpts): ResizeTool };
     export interface ResizeTool extends Tool, IResizeTool {}
@@ -87,6 +89,7 @@ declare namespace Bokeh {
     export var TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
     export interface TapTool extends SelectTool, ITapTool {}
     export interface ITapTool extends ISelectTool {
+        behavior?: "select" | "inspect";
         callback?: Callback | ((source: DataSource) => void);
     }
 

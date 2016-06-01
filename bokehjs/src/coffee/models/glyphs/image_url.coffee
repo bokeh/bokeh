@@ -22,6 +22,9 @@ class ImageURLView extends Glyph.View
     @retries = (retry_attempts for img in @_url)
 
     for i in [0...@_url.length]
+      if not @_url[i]?
+        continue
+
       img = new Image()
       img.onerror = do (i, img) =>
         return () =>
@@ -38,8 +41,11 @@ class ImageURLView extends Glyph.View
       img.src = @_url[i]
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @_x, @_w, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, @_h, 'edge', @mget('dilate'))
+    # XXX: remove this when `null` handling is improved.
+    ws = (if w? then w else NaN for w in @_w)
+    hs = (if h? then h else NaN for h in @_h)
+    @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
 

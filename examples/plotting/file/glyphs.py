@@ -35,6 +35,11 @@ p = figure(title="circle")
 p.circle(x, y, radius=0.1, color="#3288BD")
 children.append(p)
 
+p = figure(title="ellipse")
+p.ellipse(x, y, 15, 25, angle=-0.7, color="#1D91C0",
+       width_units="screen", height_units="screen")
+children.append(p)
+
 p = figure(title="line")
 p.line(x, y, color="#F46D43")
 children.append(p)

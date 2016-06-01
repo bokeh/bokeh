@@ -34,6 +34,11 @@ def _wrap_in_function(code):
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
+def _wrap_in_onload(code):
+    # indent and wrap Bokeh function def around
+    code = "\n".join(["    " + line for line in code.split("\n")])
+    return 'document.addEventListener("DOMContentLoaded", function(event) {\n%s\n});' % code
+
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -341,13 +346,13 @@ def autoload_static(model, resources, script_path):
     script = _script_for_render_items(docs_json, render_items, wrap_script=False)
     item = render_items[0]
 
-    js = AUTOLOAD_JS.render(
+    js = _wrap_in_onload(AUTOLOAD_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
         elementid = item['elementid'],
-    )
+    ))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
@@ -593,7 +598,7 @@ def standalone_html_page_for_models(models, resources, title):
     '''
     return file_html(models, resources, title)
 
-def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url):
+def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url, template=FILE):
     render_items = []
     for modelid in model_ids:
         if modelid is None:
@@ -608,9 +613,9 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
             })
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
 
-def server_html_page_for_session(session_id, resources, title, websocket_url):
+def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE):
     elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
@@ -620,4 +625,4 @@ def server_html_page_for_session(session_id, resources, title, websocket_url):
     }]
 
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
