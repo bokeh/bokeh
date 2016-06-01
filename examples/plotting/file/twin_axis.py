@@ -1,4 +1,3 @@
-
 from numpy import pi, arange, sin, linspace
 
 from bokeh.models import LinearAxis, Range1d
