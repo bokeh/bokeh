@@ -1,4 +1,3 @@
-
 from bokeh.charts import Bar, output_file, show
 from bokeh.sampledata.autompg import autompg as df
 

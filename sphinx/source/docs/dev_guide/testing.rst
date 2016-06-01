@@ -73,7 +73,7 @@ The examples tests run through most of the bokeh examples and perform a visual
 diff to check how the examples are running. To run the examples tests you need:
 - phantomjs
 - perceptualdiff
-  
+
 On linux systems, ``conda install phantomjs pdiff``.
 On OSX, with homebrew ``brew install phantomjs perceptualdiff``.
 
@@ -127,7 +127,7 @@ Screenshot tests
 
 Some of the integration tests are screenshot tests that take a screenshot of
 the bokehplot and compare it against a reference image that is stored in the
-repository. 
+repository.
 
 In addition, because all machines and browsers are slightly different, the
 screenshot tests must be run on [SauceLabs](http://saucelabs.com/) so that we
@@ -153,8 +153,8 @@ Adding (or updating) a screenshot test
 
 If you'd like to add a new screenshot test to the Bokeh repo, first make sure
 you can run the existing screenshot tests. Assuming this runs, then you'll be
-able to make a new screenshot test. Check-out the existing screenshot tests to 
-see how to set-up your new test. 
+able to make a new screenshot test. Check-out the existing screenshot tests to
+see how to set-up your new test.
 
 Once you have done this you need to generate a base image.
 

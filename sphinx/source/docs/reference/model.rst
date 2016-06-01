@@ -1,4 +1,3 @@
-
 .. _bokeh.model:
 
 ``bokeh.model``

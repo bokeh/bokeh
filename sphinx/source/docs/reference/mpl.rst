@@ -1,4 +1,3 @@
-
 .. _bokeh.mpl:
 
 ``bokeh.mpl``

@@ -1,4 +1,3 @@
-
 .. _bokeh.core:
 
 ``bokeh.core``

@@ -1,4 +1,3 @@
-
 from math import pi
 
 from bokeh.models import HoverTool

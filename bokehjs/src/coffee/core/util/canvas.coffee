@@ -1,4 +1,3 @@
-
 fixup_line_dash = (ctx) ->
   if (!ctx.setLineDash)
     ctx.setLineDash = (dash) ->

@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from bokeh.io import vform

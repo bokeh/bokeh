@@ -1,6 +1,3 @@
-
-
-
 .. _devguide_models:
 
 Bokeh Models

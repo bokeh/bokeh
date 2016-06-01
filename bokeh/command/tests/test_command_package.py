@@ -1,4 +1,3 @@
-
 import bokeh.command as command
 
 def test_doc():

@@ -95,7 +95,7 @@ describe "Plot", ->
       [w, h] = plot_view.get_width_height()
       expect(h).to.be.equal 49
       expect(w).to.be.equal 49 * (3/5)
-      
+
 
   describe "Plot.Model", ->
 
@@ -116,7 +116,7 @@ describe "Plot", ->
     describe "get_constrained_variables", ->
       beforeEach ->
         plot_canvas = @p.plot_canvas()
-        # Visual alignment is dominated by the plot_canvas so a number of the 
+        # Visual alignment is dominated by the plot_canvas so a number of the
         # constraints come from there - whilst others come from the plot container.
         @expected_constrained_variables = {
           # Constraints from Plot

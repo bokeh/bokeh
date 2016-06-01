@@ -1,4 +1,3 @@
-
 from bokeh.models import HoverTool
 from bokeh.plotting import figure, show, output_file, ColumnDataSource
 from bokeh.sampledata.us_counties import data as counties

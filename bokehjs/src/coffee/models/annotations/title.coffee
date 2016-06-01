@@ -12,7 +12,7 @@ class TitleView extends TextAnnotation.View
     @mset('text_align', @mget('title_align'))
 
   _get_computed_location: () ->
-    [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text) 
+    [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
     switch @model.panel.side
       when 'left'
         vx = 0

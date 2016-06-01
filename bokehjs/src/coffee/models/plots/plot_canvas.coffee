@@ -565,7 +565,7 @@ class PlotCanvas extends LayoutDOM.Model
         @min_border_left = @min_border
       if not @min_border_right?
         @min_border_right = @min_border
-    
+
     logger.debug("Plot initialized")
 
   _doc_attached: () ->

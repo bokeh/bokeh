@@ -1,4 +1,3 @@
-
 from bokeh.charts import BoxPlot, output_file, show, defaults, vplot, hplot
 from bokeh.sampledata.autompg import autompg as df
 

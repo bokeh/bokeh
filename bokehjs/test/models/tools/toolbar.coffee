@@ -36,7 +36,7 @@ describe "Toolbar.View", ->
     tb_view.render()
     expect(spy.calledOnce).is.true
     expect(spy.args[0][0]['location']).is.equal 'above'
-    
+
   it "render should set the appropriate positions and paddings on the element in box mode", ->
     dom_left = 12
     dom_top = 44

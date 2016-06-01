@@ -95,7 +95,7 @@ describe "LayoutDOM.View", ->
       layout_view = new LayoutDOMView({ model: @test_layout })
       layout_view.render()
       expect(@solver_suggest.called).is.false
-    
+
     it "should call get_height if responsive_mode is 'width_ar'", ->
       @test_layout.responsive = 'width_ar'
       layout_view = new LayoutDOMView({ model: @test_layout })
@@ -160,7 +160,7 @@ describe "LayoutDOM.View", ->
 describe "LayoutDOM.Model", ->
 
   it "should have default responsive mode of null", ->
-    # CHANGE THIS AT YOUR PERIL - HAS CONSEQUENCES THAT ARE NON-OBVIOUS 
+    # CHANGE THIS AT YOUR PERIL - HAS CONSEQUENCES THAT ARE NON-OBVIOUS
     # AND HARD TO DEBUG e.g. strange toolbars, oddly disappearing plots
     l = new LayoutDOM()
     expect(l.responsive).to.be.null

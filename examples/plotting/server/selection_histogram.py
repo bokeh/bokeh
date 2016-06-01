@@ -60,7 +60,7 @@ vh2 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.
 
 # NOTE: Version 0.11 has introduced auto spacing by default on VBox/HBox/vplot/hplot
 #       so for now we must tweak some spacing and borders to have it closely
-#       aligned. 
+#       aligned.
 pv.min_border_top = 80
 pv.min_border_left = 0
 ph.min_border_top = 10

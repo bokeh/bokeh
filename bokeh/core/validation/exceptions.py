@@ -7,4 +7,3 @@ class ValidationError(Exception):
 
     '''
     pass
-

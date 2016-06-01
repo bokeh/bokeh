@@ -1,4 +1,3 @@
-
 # extra imports -- just things to add to 'from bokeh.plotting import'
 from ..document import Document; Document
 

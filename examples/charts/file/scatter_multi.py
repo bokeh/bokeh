@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 from bokeh.charts import Scatter, output_file, show, vplot, hplot, defaults

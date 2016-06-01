@@ -54,4 +54,3 @@ The full BokehJS interface is described detail in :doc:`../reference/bokehjs`
 .. _Chaco: http://code.enthought.com/chaco/
 .. _JSFiddle: http://jsfiddle.net/
 .. _Protovis: http://mbostock.github.io/protovis/
-

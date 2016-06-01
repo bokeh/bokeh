@@ -1,4 +1,3 @@
-
 from bokeh.charts import Bar, output_file, show
 from bokeh.charts.attributes import cat, color
 from bokeh.charts.operations import blend

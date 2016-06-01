@@ -428,4 +428,3 @@ class DatetimeTickFormatter(TickFormatter):
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
     """)
-

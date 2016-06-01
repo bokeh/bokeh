@@ -45,7 +45,7 @@ describe "Tabs.Model", ->
   it "get_edit_variables should return edit_variables from children", ->
     # Stub out LayoutDOM to focus on tabs
     sinon.stub(LayoutDOM.prototype, 'get_edit_variables').returns([])
-    
+
     # The tab plot has edit variables that should be returned by get_edit_variables
     sinon.stub(@tab_plot, 'get_edit_variables', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
     expect(@tabs.get_edit_variables()).to.be.deep.equal @tab_plot.get_edit_variables()
@@ -55,7 +55,7 @@ describe "Tabs.Model", ->
   it "get_constraints should return constraints from children", ->
     # Stub out LayoutDOM to focus on tabs
     sinon.stub(LayoutDOM.prototype, 'get_constraints').returns([])
-    
+
     # The tab plot has edit variables that should be returned by get_constraints
     sinon.stub(@tab_plot, 'get_constraints', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
     expect(@tabs.get_constraints()).to.be.deep.equal @tab_plot.get_constraints()
