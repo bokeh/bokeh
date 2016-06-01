@@ -42,8 +42,8 @@ class ImageURLView extends Glyph.View
 
   _map_data: () ->
     # XXX: remove this when `null` handling is improved.
-    ws = (if w? then w else NaN for w in @_w)
-    hs = (if h? then h else NaN for h in @_h)
+    ws = (if @_w? then @_w else NaN for x in @_x)
+    hs = (if @_h? then @_h else NaN for x in @_x)
     @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
 
