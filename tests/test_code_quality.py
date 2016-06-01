@@ -86,7 +86,7 @@ def collect_errors():
 
     check_files(["setup.py"])
     check_tree('bin',          ['*'])
-    check_tree('bokeh',        ['*.py', '*.html', '*.js'])
+    check_tree('bokeh',        ['*.py', '*.html', '*.js'], ["server/static"])
     check_tree('bokehjs',      ['*.coffee', '*.js', '*.ts', '*.less', '*.css', '*.json'], ['build', 'node_modules', 'src/vendor', 'typings'])
     check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
     check_tree('examples',     ['*.py', '*.ipynb'])
