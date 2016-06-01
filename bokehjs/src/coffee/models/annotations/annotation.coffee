@@ -9,7 +9,7 @@ class AnnotationView extends Renderer.View
 
   _get_panel_offset: () ->
     # Sub-classes may have to implement _get_panel_offset themselves
-    # because different renderers draw themselves differently so 
+    # because different renderers draw themselves differently so
     # need the individual classes to determine the correct offset.
     x = @model.panel._left._value
     y = @model.panel._bottom._value

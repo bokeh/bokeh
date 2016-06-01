@@ -14,7 +14,7 @@ class VegaRenderer(Renderer):
         self.scales = []
         self.axes = []
         self.marks = []
-            
+
     def open_axes(self, ax, props):
         if len(self.axes) > 0:
             warnings.warn("multiple axes not yet supported")

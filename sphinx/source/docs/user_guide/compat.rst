@@ -1,4 +1,3 @@
-
 .. _userguide_compat:
 
 Leveraging Other Libraries
@@ -42,7 +41,7 @@ requires only one line of code in HoloViews:
 .. data = (xs, np.sin(xs))
 ..
 .. (hv.Curve(data) + hv.Points(data)[4:10] + hv.Text(2,0,'Some text'))
-         
+
 Adding overlaid plots, slider widgets, selector widgets, selection
 tools, and tabs is similarly straightforward.  HoloViews objects can
 also be rendered using a Matplotlib-based backend, which allows SVG or
@@ -79,7 +78,7 @@ Matplotlib, potentially in both directions (i.e., with Matplotlib able
 to display Bokeh plots).
 
 You can see examples of Bokeh rendering Matplotlib plots generated
-from each of these libraries in the :bokeh-tree:`examples/compat` directory. 
+from each of these libraries in the :bokeh-tree:`examples/compat` directory.
 
 .. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
 .. _ggplot.py: https://github.com/yhat/ggplot

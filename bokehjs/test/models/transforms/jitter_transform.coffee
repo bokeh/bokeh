@@ -19,7 +19,7 @@ describe "Jitter transform module", ->
 
   before ->
     sinon.stub(bokeh_math, "random", () -> return 0.5)
-    # This menas that rnorm isn't getting tested, which we probably 
+    # This menas that rnorm isn't getting tested, which we probably
     # do want to do, but could be a separate test.
     sinon.stub(bokeh_math, "rnorm", () -> return 0)
 
@@ -43,7 +43,7 @@ describe "Jitter transform module", ->
       thediff = (thesum/N) - 5
       # We can set this deterministically because we've stubbed random
       expect(thediff).to.equal 0
-      
+
   describe "Jitter with normal", ->
     transform = generate_jitter()
     transform.set('distribution', 'normal')

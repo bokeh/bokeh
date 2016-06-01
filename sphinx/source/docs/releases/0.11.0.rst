@@ -94,9 +94,9 @@ Old location               New location
 If you have been using ``file_html`` and manually passing in
 ``js_resources`` or ``css_resources``, your call will no longer
 work. You can still do this, but you pass a tuple to the ``resources``
-argument. 
+argument.
 
-Before: 
+Before:
 
   ``html = file_html(layout, None, title=title, template=template, js_resources=js_resources, css_resources=css_resources)``
 

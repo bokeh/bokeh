@@ -31,7 +31,7 @@ describe "SelectionManager", ->
 
   plot_view_stub_normal = {
     frame:
-      get: (param) -> 
+      get: (param) ->
         if param is 'x_mappers' or param is 'y_mappers'
           {'default': mapper_normal}
     canvas_view:
@@ -40,7 +40,7 @@ describe "SelectionManager", ->
 
   plot_view_stub_reverse = {
     frame:
-      get: (param) -> 
+      get: (param) ->
         if param is 'x_mappers' or param is 'y_mappers'
           {'default': mapper_reverse}
     canvas_view:
