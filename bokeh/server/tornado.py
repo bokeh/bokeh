@@ -143,6 +143,7 @@ class BokehTornado(TornadoApplication):
         unused_session_lifetime_milliseconds (int) : number of milliseconds for unused session lifetime
         stats_log_frequency_milliseconds (int) : number of milliseconds between logging stats
         develop (boolean) : True for develop mode
+        use_index (boolean) : True to generate an index of the running apps in the RootHandler
 
     '''
 
@@ -161,9 +162,11 @@ class BokehTornado(TornadoApplication):
                  unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
-                 develop=False):
+                 develop=False,
+                 use_index=True):
 
         self._prefix = prefix
+        self.use_index = use_index
 
         if io_loop is None:
             io_loop = IOLoop.current()
@@ -232,11 +235,13 @@ class BokehTornado(TornadoApplication):
 
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
-                data = {"applications": self._applications, "prefix": self._prefix}
-                prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
+                if self.use_index:
+                    data = {"applications": self._applications, "prefix": self._prefix}
+                    prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
+                    all_patterns.append(prefixed_pat)
             else:
                 prefixed_pat = (self._prefix + p[0],) + p[1:]
-            all_patterns.append(prefixed_pat)
+                all_patterns.append(prefixed_pat)
 
         for pat in all_patterns:
             _whitelist(pat[1])

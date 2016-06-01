@@ -449,7 +449,13 @@ class Serve(Subcommand):
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
+
+        ('--disable-index', dict(
+            action = 'store_true',
+            help    = 'Do not use the default index on the root path',
+        )),
     )
+
 
     def invoke(self, args):
         argvs = { f : args.args for f in args.files}
@@ -519,6 +525,8 @@ class Serve(Subcommand):
         if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
+
+        server_kwargs['use_index'] = not args.disable_index
 
         server = Server(applications, **server_kwargs)
 
