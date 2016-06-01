@@ -1,7 +1,7 @@
 # This is based on sympy's sympy/utilities/tests/test_code_quality.py
 
 from os import walk, sep, pardir
-from os.path import split, join, isabs, abspath, relpath, exists, isfile
+from os.path import split, join, isabs, abspath, relpath, exists, isfile, basename
 from glob import glob
 
 TOP_PATH = abspath(join(split(__file__)[0], pardir))
@@ -61,20 +61,23 @@ def collect_errors():
     def canonicalize(path):
         return path.replace('/', sep)
 
-    def check_tree(base_path, patterns, exclusions=[]):
+    def check_tree(base_path, patterns, dir_exclusions=None, file_exclusions=None):
+        dir_exclusions = dir_exclusions or []
+        file_exclusions = file_exclusions or []
         base_path = join(TOP_PATH, canonicalize(base_path))
-        exclusions = set([ join(base_path, canonicalize(path)) for path in exclusions ])
+        dir_exclusions = set([ join(base_path, canonicalize(path)) for path in dir_exclusions ])
 
         for root, dirs, _ in walk(base_path):
-            if root in exclusions:
+            if root in dir_exclusions:
                 del dirs[:]
                 continue
 
             for pattern in patterns:
                 files = glob(join(root, pattern))
-                check_files(files)
+                check_files(files, file_exclusions)
 
-    def check_files(files):
+    def check_files(files, file_exclusions=None):
+        file_exclusions = file_exclusions or []
         for fname in files:
             if not isabs(fname):
                 fname = join(TOP_PATH, fname)
@@ -82,16 +85,19 @@ def collect_errors():
             if not exists(fname) or not isfile(fname):
                 continue
 
+            if basename(fname) in file_exclusions:
+                continue
+
             test(fname)
 
     check_files(["setup.py"])
     check_tree('bin',          ['*'])
-    check_tree('bokeh',        ['*.py', '*.html', '*.js'], ["__conda_version__.py", "server/static"])
+    check_tree('bokeh',        ['*.py', '*.html', '*.js'], ["server/static"], ["__conda_version__.py"])
     check_tree('bokehjs',      ['*.coffee', '*.js', '*.ts', '*.less', '*.css', '*.json'], ['build', 'node_modules', 'src/vendor', 'typings'])
     check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
     check_tree('examples',     ['*.py', '*.ipynb'])
     check_tree('scripts',      ['*.py', '*.sh'])
-    check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'], ['source/docs/gallery'])
+    check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'], ['_build', 'source/docs/gallery'])
     check_tree('tests',        ['*.py', '*.js'])
 
     return errors
@@ -106,3 +112,6 @@ def test_files():
     errors = [ format_message(*args) for args in collect_errors() ]
 
     assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
+
+if __name__ == "__main__":
+    test_files()
