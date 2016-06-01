@@ -8,4 +8,3 @@ p = Histogram(df, values='hp', color='cyl',
 output_file("histogram_color.html")
 
 show(p)
-

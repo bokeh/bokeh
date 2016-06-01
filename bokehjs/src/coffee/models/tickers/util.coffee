@@ -65,4 +65,3 @@ module.exports =
   ONE_DAY:                  ONE_DAY
   ONE_MONTH:                ONE_MONTH
   ONE_YEAR:                 ONE_YEAR
-

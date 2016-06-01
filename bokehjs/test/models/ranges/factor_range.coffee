@@ -61,5 +61,3 @@ describe "factor_range module", ->
 
       expect(r.get('start')).to.be.equal -0.5
       expect(r.get('end')).to.be.equal 0.5
-
-

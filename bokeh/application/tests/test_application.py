@@ -87,4 +87,3 @@ def test_excess_static_path():
     with pytest.raises(RuntimeError) as e:
         a.add(handler2)
     assert "More than one static path" in str(e)
-

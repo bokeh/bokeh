@@ -57,5 +57,3 @@ describe "column_data_source module", ->
       expect(r.get_length()).to.be.equal 2
 
     it "should raise an error if column lengths are inconsistent"
-
-

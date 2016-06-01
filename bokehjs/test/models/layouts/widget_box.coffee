@@ -164,4 +164,3 @@ describe "WidgetBox", ->
     it "get_constraints", ->
       sinon.stub(@tabs, 'get_constraints', () -> [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
       expect(@widget_box.get_constraints()).to.be.deep.equal @tabs.get_constraints()
-

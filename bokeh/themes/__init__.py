@@ -10,4 +10,3 @@ from .theme import Theme
 default = Theme(json={})
 
 del join
-

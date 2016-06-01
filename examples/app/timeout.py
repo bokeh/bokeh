@@ -59,4 +59,3 @@ callbacks = [make_callback(i) for i in range(N)]
 
 for callback in callbacks:
     curdoc().add_timeout_callback(callback, callback.interval)
-

@@ -188,5 +188,3 @@ def test_bar_chart_below_visibility():
     df = dict(types=['foo'], counts=[3])
     p = Bar(df, values='counts')
     assert not p.below[0].visible
-
-

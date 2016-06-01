@@ -172,4 +172,3 @@ plot.
 .. bokeh-gallery:: main_gallery.json
 
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
-

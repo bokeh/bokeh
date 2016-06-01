@@ -7,4 +7,3 @@ from __future__ import absolute_import
 from .check import check_integrity
 from .decorators import error, warning
 from .exceptions import ValidationError
-

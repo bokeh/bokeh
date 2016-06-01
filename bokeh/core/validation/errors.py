@@ -33,7 +33,3 @@ codes = {
 
 for code in codes:
     exec("%s = %d" % (codes[code][0], code))
-
-
-
-

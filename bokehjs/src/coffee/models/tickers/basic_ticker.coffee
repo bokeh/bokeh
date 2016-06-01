@@ -7,4 +7,3 @@ class BasicTicker extends AdaptiveTicker.Model
 
 module.exports =
   Model: BasicTicker
-
