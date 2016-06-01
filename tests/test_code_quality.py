@@ -49,8 +49,8 @@ def collect_errors():
             #    errors.append((message_too_long, fname, line_no))
 
         if line is not None:
-            #if idx > 0 and len(line.strip()) == 0:
-            #    errors.append((message_multi_eof, fname, line_no))
+            if idx > 0 and len(line.strip()) == 0:
+                errors.append((message_multi_eof, fname, line_no))
             if not line.endswith('\n'):
                 errors.append((message_eof, fname, line_no))
 
