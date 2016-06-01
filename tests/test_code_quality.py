@@ -12,7 +12,8 @@ message_space     = "File contains trailing whitespace: %s, line %s."
 message_tabs      = "File contains tabs instead of spaces: %s, line %s."
 message_carriage  = "File contains carriage returns at end of line: %s, line %s"
 message_eof       = "File does not end with a newline: %s, line %s"
-message_multi_eof = "File ends with more than 1 newline: %s, line %s"
+message_multi_bof = "File starts with more than 1 empty line: %s, line %s"
+message_multi_eof = "File ends with more than 1 empty line: %s, line %s"
 message_too_long  = "File contains a line with over %(n)s characters: %%s, line %%s" % dict(n=MAX_LINE_LENGTH)
 
 def tab_in_leading(s):
@@ -27,11 +28,8 @@ def tab_in_leading(s):
         check = s[:n] + smore[:len(smore) - len(smore.lstrip())]
     return check.expandtabs() != check
 
-def test_files():
+def collect_errors():
     errors = []
-
-    def format_message(msg, fname, line_no):
-        return msg % (relpath(fname, TOP_PATH), line_no)
 
     def test_this_file(fname, test_file):
         line = None
@@ -39,20 +37,22 @@ def test_files():
         for idx, line in enumerate(test_file):
             line_no = idx + 1
 
+            #if idx == 0 and len(line.strip()) == 0:
+            #    errors.append((message_multi_bof, fname, line_no))
             if line.endswith(" \n") or line.endswith("\t\n"):
-                errors.append(format_message(message_space, fname, line_no))
-            if line.endswith("\r\n"):
-                errors.append(format_message(message_carriage, fname, line_no))
+                errors.append((message_space, fname, line_no))
+            if line.endswith("\r\n") or line.endswith("\r"):
+                errors.append((message_carriage, fname, line_no))
             if tab_in_leading(line):
-                errors.append(format_message(message_tabs, fname, line_no))
-            if len(line) > MAX_LINE_LENGTH:
-                errors.append(format_message(message_too_long, fname, line_no))
+                errors.append((message_tabs, fname, line_no))
+            #if len(line) > MAX_LINE_LENGTH:
+            #    errors.append((message_too_long, fname, line_no))
 
         if line is not None:
-            if line == '\n' and idx > 0:
-                errors.append(format_message(message_multi_eof, fname, line_no))
-            elif not line.endswith('\n'):
-                errors.append(format_message(message_eof, fname, line_no))
+            #if idx > 0 and len(line.strip()) == 0:
+            #    errors.append((message_multi_eof, fname, line_no))
+            if not line.endswith('\n'):
+                errors.append((message_eof, fname, line_no))
 
     def test(fname):
         with open(fname, "rt") as test_file:
@@ -93,5 +93,13 @@ def test_files():
     check_tree('scripts',      ['*.py', '*.sh'])
     check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'])
     check_tree('tests',        ['*.py', '*.js'])
+
+    return errors
+
+def test_files():
+    def format_message(msg, fname, line_no):
+        return msg % (relpath(fname, TOP_PATH), line_no)
+
+    errors = [ format_message(*args) for args in collect_errors() ]
 
     assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
