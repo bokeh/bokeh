@@ -16,6 +16,7 @@ DIRECTORIES = {
     'plotting-file'    : '../../examples/plotting/file',
     'plotting-notebook': '../../examples/plotting/notebook',
     'server'           : '../../examples/plotting/server',
+    'webgl'           : '../../examples/plotting/webgl',
     'compat'           : '../../examples/compat',
     'models'           : '../../examples/models',
     'charts-file'      : '../../examples/charts/file',
