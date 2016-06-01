@@ -91,7 +91,7 @@ def collect_errors():
     check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
     check_tree('examples',     ['*.py', '*.ipynb'])
     check_tree('scripts',      ['*.py', '*.sh'])
-    check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'])
+    check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'], ['source/docs/gallery'])
     check_tree('tests',        ['*.py', '*.js'])
 
     return errors
