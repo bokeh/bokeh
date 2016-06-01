@@ -96,6 +96,9 @@ def collect_errors():
 
     return errors
 
+def bad_files():
+    return " ".join(sorted(set([ file for (_, file, _) in collect_errors() ])))
+
 def test_files():
     def format_message(msg, fname, line_no):
         return msg % (relpath(fname, TOP_PATH), line_no)
