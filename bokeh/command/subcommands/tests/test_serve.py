@@ -137,4 +137,9 @@ def test_args():
             choices = scserve.SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
         )),
+
+        ('--disable-index', dict(
+            action = 'store_true',
+            help    = 'Do not use the default index on the root path',
+        )),
     )
