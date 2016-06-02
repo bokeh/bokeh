@@ -48,7 +48,6 @@ interface. For more understanding of the bokeh.models interface see [the
 concepts section of the
 user_guide](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
 
-
 ### [`plotting`](plotting/)
 
 This directory contains example using the
@@ -61,6 +60,14 @@ different modes:
 * `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
 
 * `server` examples that send output to a Bokeh server, using the python client library for the server
+
+### [`webgl`](webgl/)
+
+This directory contains examples that demonstrate the various glyphs that have
+support for WebGL rendering. Most of these examples have a testing purpose, e.g.
+to compare the appearance of the WebGL glyph with its regular appearance, or to
+test another aspect of WebGL (e.g. blending of transparent glyphs).
+
 
 ## Other sources for examples
 
