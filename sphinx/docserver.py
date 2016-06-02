@@ -54,7 +54,7 @@ def shutdown_server():
 
 def ui():
     time.sleep(0.5)
-    input("Press any key to exit...")
+    input("Press <ENTER> to exit...\n")
 
 
 if __name__ == "__main__":
