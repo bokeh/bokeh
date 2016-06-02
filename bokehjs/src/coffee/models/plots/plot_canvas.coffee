@@ -471,6 +471,8 @@ class PlotCanvasView extends Renderer.View
     ctx.restore()  # Restore to default state
 
   resize: () ->
+    # Set the plot and canvas to the current model's size
+    # This gets called upon solver resize events
     width = @model._width._value
     height = @model._height._value
 

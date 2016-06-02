@@ -95,6 +95,12 @@ class Document
 
   resize: () ->
 
+    # Notes on resizing:
+    # This gets called whenever the window resizes, and this will
+    # update the solver and trigger a resize event on the solver.
+    # The plot listens for the solver's resize event (to update the canvas).
+    # The reset tool also triggers the solver resize event.
+
     for root in @_roots
       if root.layoutable isnt true
         continue
