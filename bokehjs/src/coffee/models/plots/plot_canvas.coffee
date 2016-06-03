@@ -10,6 +10,7 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 Renderer = require "../renderers/renderer"
 Toolbar = require "../tools/toolbar"
+Title = require "../annotations/title"
 
 build_views = require "../../common/build_views"
 ToolEvents = require "../../common/tool_events"
@@ -595,7 +596,8 @@ class PlotCanvas extends LayoutDOM.Model
 
     # Add the title to layout
     if @title?
-      @add_layout(@title, @title_location)
+      title = if _.isString(@title) then new Title({text: @title}) else @title
+      @add_layout(title, @title_location)
 
     # Add panels for any side renderers
     # (Needs to be called in _doc_attached, so that panels can attach to the document.)
@@ -658,7 +660,7 @@ class PlotCanvas extends LayoutDOM.Model
   @define {
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.Instance                         ]
+      title:             [ p.Any                              ] # TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]

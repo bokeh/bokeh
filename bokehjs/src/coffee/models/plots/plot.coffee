@@ -242,7 +242,7 @@ class Plot extends LayoutDOM.Model
       # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.Instance                         ]
+      title:             [ p.Any                              ] # TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]

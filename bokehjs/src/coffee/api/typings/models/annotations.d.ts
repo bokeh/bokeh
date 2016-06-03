@@ -101,6 +101,51 @@ declare namespace Bokeh {
         render_mode?: RenderMode;
     }
 
+    export var TextAnnotation: { new(attributes?: ITextAnnotation, options?: ModelOpts): TextAnnotation };
+    export interface TextAnnotation extends Annotation, ITextAnnotation {}
+    export interface ITextAnnotation extends IAnnotation {}
+
+    export var Title: { new(attributes?: ITitle, options?: ModelOpts): Title };
+    export interface Title extends TextAnnotation, ITitle {}
+    export interface ITitle extends ITextAnnotation {
+        text?: string;
+
+        title_align?: TextAlign;
+        title_padding?: number;
+
+        // {{{ label = include[TextProps]
+        text_font?: string;
+        text_font_size?: FontSize;
+        text_font_style?: FontStyle;
+        text_color?: Color;
+        text_alpha?: Percent;
+        //text_align?: TextAlign;
+        //text_baseline?: TextBaseline;
+        // }}}
+
+        // {{{ background = include[FillProps]
+        background_fill_color?: Color;
+        background_fill_width?: number;
+        background_fill_alpha?: Percent;
+        background_fill_join?: LineJoin;
+        background_fill_cap?: LineCap;
+        background_fill_dash?: DashPattern;
+        background_fill_dash_offset?: Int;
+        // }}}
+
+        // {{{ border = include[LineProps]
+        border_line_color?: Color;
+        border_line_width?: number;
+        border_line_alpha?: Percent;
+        border_line_join?: LineJoin;
+        border_line_cap?: LineCap;
+        border_line_dash?: DashPattern;
+        border_line_dash_offset?: Int;
+        // }}}
+
+        render_mode?: RenderMode;
+    }
+
     export var Overlay: { new(attributes?: IOverlay, options?: ModelOpts): Overlay };
     export interface Overlay extends Annotation, IOverlay {}
     export interface IOverlay extends IAnnotation {}

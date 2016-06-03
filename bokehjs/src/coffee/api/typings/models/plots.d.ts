@@ -22,7 +22,7 @@ declare namespace Bokeh {
         tools?: Array<Tool>;
     }
     export interface IBasePlot extends ILayoutDOM {
-        title?: string;
+        title?: Title | string;
 
         // {{{ title = include[TextProps]
         title_text_font?: string;
