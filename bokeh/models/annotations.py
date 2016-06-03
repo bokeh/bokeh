@@ -128,7 +128,6 @@ class Arrow(Annotation):
 
     """
 
-    from .arrow_heads import ArrowHead
 
     x_start = NumberSpec(help="""
     The x-coordinates to locate the start of the arrows.
@@ -143,7 +142,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    start = Instance(ArrowHead, default=None, help="""
+    start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
     Instance of ArrowHead.
     """)
 
@@ -160,7 +159,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end = Instance(ArrowHead, default=_DEDAULT_ARROW, help="""
+    end = Instance('.models.arrow_heads.ArrowHead', default=_DEDAULT_ARROW, help="""
     Instance of ArrowHead.
     """)
 
