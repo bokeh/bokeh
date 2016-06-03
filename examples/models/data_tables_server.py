@@ -9,7 +9,7 @@ from bokeh.models import (
 from bokeh.models.widgets import (
     Select, DataTable, TableColumn, StringFormatter,
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
 class DataTables(object):
@@ -91,11 +91,11 @@ class DataTables(object):
         plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
 
-        controls = VBox(children=[
+        controls = WidgetBox(children=[
             manufacturer_select, model_select, transmission_select,
              drive_select, class_select])
-        top_panel = HBox(children=[controls, plot])
-        layout = VBox(children=[top_panel, data_table])
+        top_panel = Row(children=[controls, plot])
+        layout = Column(children=[top_panel, data_table])
 
         return layout
 

@@ -12,7 +12,7 @@ from bokeh.models import (
 )
 from bokeh.sampledata.population import load_population
 from bokeh.models.widgets import Select
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
 session = push_session(document)
@@ -130,8 +130,8 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = HBox(children=[year_select, location_select])
-    layout = VBox(children=[controls, pyramid(), population()])
+    controls = WidgetBox(children=[year_select, location_select])
+    layout = Column(children=[controls, pyramid(), population()])
 
     return layout
 
