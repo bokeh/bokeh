@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
 from bokeh.models.widgets import Tabs, Panel, Paragraph
-from bokeh.models.layouts import VBox
+from bokeh.models.layouts import Column
 from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc, Bezier, Gear, Circle, ImageURL, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
@@ -101,7 +101,7 @@ def make_tab(title, glyph):
 def make_tabs(objs):
     return Tabs(tabs=[ make_tab(title, obj) for title, obj in objs ])
 
-layout = VBox(children=[Paragraph(text="Only Image and ImageRGBA glyphs are not demonstrated."), make_tabs(glyphs), make_tabs(markers)])
+layout = Column(children=[Paragraph(text="Only Image and ImageRGBA glyphs are not demonstrated."), make_tabs(glyphs), make_tabs(markers)])
 
 doc = Document()
 doc.add_root(layout)
