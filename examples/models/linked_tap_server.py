@@ -5,7 +5,7 @@ import numpy as np
 from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models import (
-    ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
+    ColumnDataSource, DataRange1d, Plot, Circle, WidgetBox, Row, Button, TapTool
 )
 
 document = Document()
@@ -69,11 +69,11 @@ def on_reset_click():
 
 reset.on_click(on_reset_click)
 
-vbox = VBox(children=[reset], width=150)
-hbox = HBox(children=[vbox, plot1, plot2])
+widgetBox = WidgetBox(children=[reset], width=150)
+row = Row(children=[widgetBox, plot1, plot2])
 
-document.add_root(hbox)
-session.show(hbox)
+document.add_root(row)
+session.show(row)
 
 if __name__ == "__main__":
     print("\npress ctrl-C to exit")
