@@ -16,7 +16,6 @@ from ..core.properties import (
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
-from .arrow_heads import ArrowHead, OpenHead
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
@@ -60,11 +59,17 @@ class Legend(Annotation):
     The %s for the legend border outline.
     """)
 
+    border_line_color = Override(default="#e5e5e5")
+
+    border_line_alpha = Override(default=0.5)
+
     background_props = Include(FillProps, help="""
     The %s for the legend background style.
     """)
 
     background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=0.95)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.
@@ -114,10 +119,16 @@ class Legend(Annotation):
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
+def _DEDAULT_ARROW():
+    from .arrow_heads import OpenHead
+    return OpenHead()
+
 class Arrow(Annotation):
     """ Render an arrow as an annotation.
 
     """
+
+    from .arrow_heads import ArrowHead
 
     x_start = NumberSpec(help="""
     The x-coordinates to locate the start of the arrows.
@@ -149,7 +160,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end = Instance(ArrowHead, default=lambda: OpenHead(), help="""
+    end = Instance(ArrowHead, default=_DEDAULT_ARROW, help="""
     Instance of ArrowHead.
     """)
 
@@ -157,7 +168,7 @@ class Arrow(Annotation):
     The %s values for the arrow body.
     """)
 
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    source = Instance(DataSource, help="""
     Local data source to use when rendering annotations on the plot.
     """)
 
@@ -544,7 +555,7 @@ class Title(TextAnnotation):
     The text value to render.
     """)
 
-    title_align = Enum(TextAlign, default='center', help="""
+    title_align = Enum(TextAlign, default='left', help="""
     Location to align the title text.
     """
     )
@@ -553,15 +564,15 @@ class Title(TextAnnotation):
     Offset value to apply to the title alignment coordinate.
     """)
 
-    text_font = String("helvetica", help="""
+    text_font = String(default="helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
 
     """)
 
-    text_font_size = FontSizeSpec(value("12pt"))
+    text_font_size = FontSizeSpec(default=value("10pt"))
 
-    text_font_style = Enum(FontStyle, help="""
+    text_font_style = Enum(FontStyle, default="bold", help="""
     A style to use for rendering text.
 
     Acceptable values are:

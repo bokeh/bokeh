@@ -78,7 +78,7 @@ class Toolbar(ToolbarBase):
     """
 
 
-class ToolbarBox(ToolbarBase):
+class ToolbarBox(LayoutDOM):
     """ A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.
 
