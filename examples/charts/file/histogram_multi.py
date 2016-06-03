@@ -1,4 +1,3 @@
-
 from bokeh.charts import Histogram, defaults, vplot, hplot, show, output_file
 from bokeh.sampledata.autompg import autompg as df
 

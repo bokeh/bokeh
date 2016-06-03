@@ -11,4 +11,3 @@ find all the tutorial notebooks in the `tutorials section`_ of the
 
 .. _tutorials section: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb#Tutorial
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
-

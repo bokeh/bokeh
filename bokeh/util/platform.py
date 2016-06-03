@@ -34,4 +34,3 @@ def is_notebook():
         return True
     except NameError:
         return False
-

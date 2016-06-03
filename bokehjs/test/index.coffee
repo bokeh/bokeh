@@ -30,4 +30,3 @@ blacklist.push('constructor')
 for own key, val of global.window
   if blacklist.indexOf(key) == -1
     global[key] = val
-

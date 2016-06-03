@@ -1,4 +1,3 @@
-
 .. _devguide_bindings:
 
 Language Bindings

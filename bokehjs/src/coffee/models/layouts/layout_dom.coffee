@@ -21,11 +21,11 @@ class LayoutDOMView extends BokehView
     children = @model.get_layoutable_children()
     @child_views = {}
     build_views(@child_views, children)
-  
+
     for child in children
       # Look-up the child_view in @child_views and then append
-      # We can't just read from @child_views because then we 
-      # don't get guaranteed ordering. Which is a problem in 
+      # We can't just read from @child_views because then we
+      # don't get guaranteed ordering. Which is a problem in
       # non-box layouts.
       child_view = @child_views[child.id]
       @$el.append(child_view.$el)
@@ -114,7 +114,7 @@ class LayoutDOMView extends BokehView
     # what their width should be in responsive mode.
     return null
 
-    
+
 
 class LayoutDOM extends Model
   type: "LayoutDOM"
@@ -142,11 +142,11 @@ class LayoutDOM extends Model
 
   get_constraints: () ->
     constraints = []
-    
+
     # Make sure things dont squeeze out of their bounding box
     constraints.push(GE(@_dom_left))
     constraints.push(GE(@_dom_top))
-    
+
     # Plot has to be inside the width/height
     constraints.push(GE(@_left))
     constraints.push(GE(@_width, [-1, @_right]))
@@ -156,7 +156,7 @@ class LayoutDOM extends Model
     ## Declare computed constraints
     constraints.push(EQ(@_width_minus_right, [-1, @_width], @_right))
     constraints.push(EQ(@_height_minus_bottom, [-1, @_height], @_bottom))
-      
+
     return constraints
 
   get_layoutable_children: () ->
@@ -198,7 +198,7 @@ class LayoutDOM extends Model
     #  'box-equal-size-bottom': @_height_minus_bottom
     #  'box-equal-size-left'  : @_left
     #  'box-equal-size-right' : @_width_minus_right
-    
+
     constrained_variables = {
       'origin-x': @_dom_left
       'origin-y': @_dom_top

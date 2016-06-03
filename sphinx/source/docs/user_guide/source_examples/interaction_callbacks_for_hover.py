@@ -1,4 +1,3 @@
-
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, CustomJS
 
@@ -45,4 +44,3 @@ callback = CustomJS(args={'circle': cr.data_source, 'segment': sr.data_source}, 
 p.add_tools(HoverTool(tooltips=None, callback=callback, renderers=[cr]))
 
 show(p)
-

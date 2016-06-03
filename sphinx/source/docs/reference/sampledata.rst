@@ -1,4 +1,3 @@
-
 .. _bokeh.sampledata:
 
 ``bokeh.sampledata``

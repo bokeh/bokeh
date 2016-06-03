@@ -404,9 +404,12 @@ class PlotCanvasView extends Renderer.View
 
     ctx = @canvas_view.ctx
 
-    # Get hidpi ratio
-    ratio = @canvas_view.render(force_canvas)
-    ctx.pixel_ratio = ratio  # we need this in WebGL
+    # Prepare the canvas and get pixel ratio.
+    # Note that this may cause a resize of the canvas, which means that
+    # this should be considered the main rendering entry point; any previous
+    # calls to ctx.save() may be undone (due to the canvas resize).
+    @canvas_view.prepare_canvas(force_canvas)
+    ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
 
     # Set hidpi-transform
     ctx.save()  # Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
@@ -565,7 +568,7 @@ class PlotCanvas extends LayoutDOM.Model
         @min_border_left = @min_border
       if not @min_border_right?
         @min_border_right = @min_border
-    
+
     logger.debug("Plot initialized")
 
   _doc_attached: () ->

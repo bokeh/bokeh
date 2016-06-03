@@ -860,7 +860,7 @@ describe "Document", ->
     d.add_root(new SomeModel())
 
     expect(d.roots().length).to.equal 1
-    expect(s.num_constraints()).to.equal before_constraints 
+    expect(s.num_constraints()).to.equal before_constraints
 
   it "adds two constraints on add_root if model has get_constrained_variables width & height and responsive is 'box'", ->
     d = new Document()
@@ -897,7 +897,7 @@ describe "Document", ->
     d.remove_root(root_model)
     expect(root_model._is_root).is.false
 
-  # TODO(bird) - We're not using window - so need to find a new 
+  # TODO(bird) - We're not using window - so need to find a new
   # way to test the size was set correctly.
   it.skip "resize suggests value for width and height of document", ->
     d = new Document()

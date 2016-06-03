@@ -1,4 +1,3 @@
-
 .. _bokeh.settings:
 
 ``bokeh.settings``

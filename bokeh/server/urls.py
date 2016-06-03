@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 from .views.ws import WSHandler
+from .views.root_handler import RootHandler
 from .views.doc_handler import DocHandler
 from .views.static_handler import StaticHandler
 from .views.autoload_js_handler import AutoloadJsHandler
@@ -11,6 +12,7 @@ from .views.autoload_js_handler import AutoloadJsHandler
 # all routes are prefixed with any --prefix specified
 
 toplevel_patterns = [
+    (r'/?', RootHandler),
     (r'/static/(.*)', StaticHandler)
 ]
 

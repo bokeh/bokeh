@@ -125,4 +125,3 @@ What version of BokehJS to use with ``cdn`` resources
 See the :class:`~bokeh.resources.Resources` class reference for full details.
 
 .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
-

@@ -1,4 +1,3 @@
-
 module.exports =
   AngleUnits: ["deg", "rad"]
 

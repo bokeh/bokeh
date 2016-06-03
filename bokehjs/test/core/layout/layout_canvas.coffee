@@ -34,4 +34,3 @@ describe "LayoutCanvas.Model", ->
     expect(_.contains(variables, "left #{c.id}")).to.be.true
     expect(_.contains(variables, "width #{c.id}")).to.be.true
     expect(_.contains(variables, "height #{c.id}")).to.be.true
-

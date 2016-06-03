@@ -73,7 +73,7 @@ class Box extends LayoutDOM.Model
     for child in @get_layoutable_children()
       child.trigger('change')
     @trigger('change')
-  
+
   get_edit_variables: () ->
     edit_variables = super()
     for child in @get_layoutable_children()
@@ -113,7 +113,7 @@ class Box extends LayoutDOM.Model
       var_keys = _.keys(vars)
 
       # Make total widget sizes fill the orthogonal direction
-      # TODO(bird) Can't we make this shorter by using span which has already picked a 
+      # TODO(bird) Can't we make this shorter by using span which has already picked a
       # dominant direction (we'd just also need to set a doc_span)
       rect = @_child_rect(vars)
       if @_horizontal
@@ -124,7 +124,7 @@ class Box extends LayoutDOM.Model
           constraints.push(EQ(rect.width, [ -1, @_width ]))
 
       # Add equal-size constraint
-      # - A child's "interesting area" (like the plot area) is the same size as the previous child 
+      # - A child's "interesting area" (like the plot area) is the same size as the previous child
       #   (a child can opt out of this by not returning the box-equal-size variables)
       if @_horizontal
         if @_has_var(['box-equal-size-left', 'box-equal-size-right', 'width'], var_keys)
@@ -147,12 +147,12 @@ class Box extends LayoutDOM.Model
       if last.span.size
         constraints.push(EQ(last.span.start, last.span.size, [-1, next.span.start]))
 
-      # The whitespace at end of one child + start of next must equal the box spacing. 
-      # This must be a weak constraint because it can conflict with aligning the 
+      # The whitespace at end of one child + start of next must equal the box spacing.
+      # This must be a weak constraint because it can conflict with aligning the
       # alignable edges in each child. Alignment is generally more important visually than spacing.
       constraints.push(WEAK_EQ(last.whitespace.after, next.whitespace.before, 0 - @spacing))
 
-      # If we can't satisfy the whitespace being equal to box spacing, we should fix 
+      # If we can't satisfy the whitespace being equal to box spacing, we should fix
       # it (align things) by increasing rather than decreasing the whitespace.
       constraints.push(GE(last.whitespace.after, next.whitespace.before, 0 - @spacing))
       last = next

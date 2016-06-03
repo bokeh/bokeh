@@ -144,11 +144,11 @@ For more information on the command line tool see :ref:`userguide_cli`.
 Interfaces
 ----------
 
-Bokeh is intended to provide a quick and simple interface to data scientists 
-and domain experts who do not want to be distracted by the details of the 
-software, and also provide a richly detailed interface to application 
-developers and software engineers who may want more control or access to more 
-sophisticated features. Because of this, Bokeh takes a layered approach and 
+Bokeh is intended to provide a quick and simple interface to data scientists
+and domain experts who do not want to be distracted by the details of the
+software, and also provide a richly detailed interface to application
+developers and software engineers who may want more control or access to more
+sophisticated features. Because of this, Bokeh takes a layered approach and
 offers programming interfaces appropriate to different levels, as well as some
 compatibility interfaces to make use of existing code from other
 libraries. This section provides an overview of the different interfaces

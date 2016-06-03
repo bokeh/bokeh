@@ -30,7 +30,7 @@ class Solver
 
   num_edit_variables: () ->
     @solver._editMap._array.length
-    
+
   update_variables: (trigger=true) ->
     @solver.updateVariables()
     if trigger

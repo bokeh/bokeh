@@ -1,4 +1,3 @@
-
 from mock import MagicMock
 import pytest
 

@@ -6,4 +6,3 @@
 .. automodule:: bokeh.models.tiles
    :members:
    :undoc-members:
-

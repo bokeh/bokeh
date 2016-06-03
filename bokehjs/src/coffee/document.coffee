@@ -89,12 +89,12 @@ class Document
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
     $(window).on("resize", $.proxy(@resize, @))
-    
+
   solver: () ->
     @_solver
 
   resize: () ->
-    
+
     for root in @_roots
       if root.layoutable isnt true
         continue

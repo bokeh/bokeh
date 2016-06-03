@@ -107,5 +107,3 @@ class Theme(object):
         # the dict.
         if len(_empty_dict) > 0:
             raise RuntimeError("Somebody put stuff in _empty_dict")
-
-
