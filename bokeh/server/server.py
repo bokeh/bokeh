@@ -58,6 +58,9 @@ class Server(object):
             mapping from URL paths to Application instances, or a single Application to put at the root URL
             The Application is a factory for Document, with a new Document initialized for each Session.
             Each application should be identified by a path meant to go in a URL, like "/" or "/foo"
+    Kwargs:
+        num_procs (str):
+            Number of worker processes for an app. Default to one. Using 0 will autodetect number of cores
     '''
 
     def __init__(self, applications, **kwargs):
