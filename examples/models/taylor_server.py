@@ -93,7 +93,7 @@ slider.on_change('value', on_slider_value_change)
 text = TextInput(value=str(expr), title="Expression:")
 text.on_change('value', on_text_value_change)
 
-inputs = WidgetBox(children=[slider, text])
+inputs = WidgetBox(children=[slider, text],width=400)
 layout = Column(children=[inputs, plot, dialog])
 update_data()
 document.add_root(layout)
