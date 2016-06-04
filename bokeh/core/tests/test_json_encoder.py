@@ -138,7 +138,7 @@ class TestSerializeJson(unittest.TestCase):
         baseline = {u"days": 42,
                     u"seconds": 1138,
                     u"microseconds": 1337}
-        assert deserialized == baseline        
+        assert deserialized == baseline
 
 if __name__ == "__main__":
     unittest.main()
