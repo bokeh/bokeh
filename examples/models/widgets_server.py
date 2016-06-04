@@ -64,7 +64,7 @@ def make_layout():
     data_table = DataTable(source=source, columns=columns, width=400, height=400, editable=True)
     button = Button(label="Randomize data", button_type="success")
     button.on_click(click_handler)
-    buttons = WidgetBox(children=[button])
+    buttons = WidgetBox(children=[button],width=800)
     column = Column(children=[buttons, plot, data_table])
     return column
 

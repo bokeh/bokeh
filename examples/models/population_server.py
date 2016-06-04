@@ -130,7 +130,7 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = WidgetBox(children=[year_select, location_select])
+    controls = WidgetBox(children=[year_select, location_select],height=150,width=600)
     layout = Column(children=[controls, pyramid(), population()])
 
     return layout
