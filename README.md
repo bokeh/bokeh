@@ -48,24 +48,17 @@ Bokeh
 </tr>
 </table>
 
-Bokeh is a Python interactive visualization library that targets modern
-web browsers for presentation. Its goal is to provide elegant, concise
-construction of novel graphics in the style of D3.js, but also deliver this
-capability with high-performance interactivity over very large or streaming
-datasets. Bokeh can help anyone who would like to quickly and easily create
-interactive plots, dashboards, and data applications.
+Bokeh, a Python interactive visualization library, enables beautiful and
+meaningful visual presentation of data in modern web browsers. With Bokeh,
+you can quickly and easily create interactive plots, dashboards, and data
+applications.
 
-Please visit the [Bokeh web page](http://bokeh.pydata.org/en/latest) for more information and full documentation.
+Bokeh helps provide elegant, concise construction of novel graphics in the
+style of D3.js, while also delivering **high-performance** interactivity over
+very large or streaming datasets.
 
-To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html) in the online documentation.
-
-Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots), as well as on
-[Vine](https://vine.co/bokehplots), and [Youtube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw)!
-
-
-Interactive gallery
-===================
-
+[Interactive gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html)
+---------------------------------------------------------------------------
 
 <p>
 <table cellspacing="20">
@@ -207,3 +200,26 @@ Interactive gallery
 </table>
 </p>
 
+Installation
+------------
+We recommend using the [Anaconda Python distribution](https://www.continuum.io/why-anaconda) and conda to install Bokeh. Enter this command at a Bash or Windows command prompt:
+
+```
+conda install bokeh
+```
+
+This installs Bokeh and all needed dependencies.
+
+To begin using Bokeh or to install using `pip`, follow the [Quickstart](http://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html) documentation.
+
+Documentation
+-------------
+Visit the [Bokeh web page](http://bokeh.pydata.org/en/latest) for information and full documentation.
+
+Contribute to Bokeh
+-------------------
+To contribute to Bokeh, please review the [Developer Guide](http://bokeh.pydata.org/en/latest/docs/dev_guide.html).
+
+Follow us
+---------
+Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots), on [Vine](https://vine.co/bokehplots), and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
