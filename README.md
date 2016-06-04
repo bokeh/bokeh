@@ -57,7 +57,7 @@ Bokeh helps provide elegant, concise construction of novel graphics in the
 style of D3.js, while also delivering **high-performance** interactivity over
 very large or streaming datasets.
 
-[Interactive gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html)
+[Interactive gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html)
 ---------------------------------------------------------------------------
 
 <p>
