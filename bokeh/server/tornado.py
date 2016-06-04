@@ -272,7 +272,6 @@ class BokehTornado(TornadoApplication):
 
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
-        print(self._loop)
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats,
                                            stats_log_frequency_milliseconds,
