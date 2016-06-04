@@ -18,7 +18,7 @@ from bokeh.util.tornado import _CallbackGroup, yield_for_all_futures
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
         self.application_context = application_context
-        self._callbacks = _CallbackGroup() #self.application_context.io_loop)
+        self._callbacks = _CallbackGroup(self.application_context.io_loop)
 
     def _remove_all_callbacks(self):
         self._callbacks.remove_all_callbacks()
@@ -118,7 +118,7 @@ class ApplicationContext(object):
 
     def run_load_hook(self):
         try:
-            result = self._application.on_server_loaded(self._server_context)
+            result = self._application.on_server_loaded(self.server_context)
             if isinstance(result, gen.Future):
                 log.error("on_server_loaded returned a Future; this doesn't make sense "
                           "because we run this hook before starting the IO loop.")
@@ -127,14 +127,14 @@ class ApplicationContext(object):
 
     def run_unload_hook(self):
         try:
-            result = self._application.on_server_unloaded(self._server_context)
+            result = self._application.on_server_unloaded(self.server_context)
             if isinstance(result, gen.Future):
                 log.error("on_server_unloaded returned a Future; this doesn't make sense "
                           "because we stop the IO loop right away after calling on_server_unloaded.")
         except Exception as e:
             log.error("Error in server unloaded hook %r", e, exc_info=True)
 
-        self._server_context._remove_all_callbacks()
+        self.server_context._remove_all_callbacks()
 
     @gen.coroutine
     def create_session_if_needed(self, session_id):
@@ -150,7 +150,7 @@ class ApplicationContext(object):
             doc = Document()
 
             session_context = BokehSessionContext(session_id,
-                                                  self._server_context,
+                                                  self.server_context,
                                                   doc)
             try:
                 result = yield yield_for_all_futures(self._application.on_session_created(session_context))

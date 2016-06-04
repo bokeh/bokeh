@@ -4,9 +4,12 @@ import pytest
 import logging
 import re
 
+from unittest.mock import patch
+
 from tornado import gen
-from tornado.ioloop import PeriodicCallback
+from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
+import tornado.process
 
 import bokeh.server.server as server
 
@@ -445,3 +448,18 @@ def test__no_generate_session_doc():
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
+
+def test__server_multiple_processes():
+    with patch('tornado.process.fork_processes') as tornado_fp:
+        application = Application()
+        with ManagedServerLoop(application, num_procs=3) as server:
+            pass
+
+        tornado_fp.assert_called_with(3)
+
+def test__existing_ioloop_with_multiple_processes_exception():
+    application = Application()
+    ioloop_instance = IOLoop.instance()
+    with pytest.raises(RuntimeError):
+        with ManagedServerLoop(application, num_procs=3) as server:
+            pass
