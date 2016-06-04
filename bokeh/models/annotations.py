@@ -119,7 +119,7 @@ class Legend(Annotation):
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
-def _DEDAULT_ARROW():
+def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead
     return OpenHead()
 
@@ -127,7 +127,6 @@ class Arrow(Annotation):
     """ Render an arrow as an annotation.
 
     """
-
 
     x_start = NumberSpec(help="""
     The x-coordinates to locate the start of the arrows.
@@ -159,7 +158,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end = Instance('.models.arrow_heads.ArrowHead', default=_DEDAULT_ARROW, help="""
+    end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
     Instance of ArrowHead.
     """)
 
