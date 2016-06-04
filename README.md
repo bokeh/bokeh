@@ -58,7 +58,7 @@ style of D3.js, while also delivering **high-performance** interactivity over
 very large or streaming datasets.
 
 [Interactive gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html)
-===========================================================================
+---------------------------------------------------------------------------
 
 <p>
 <table cellspacing="20">
