@@ -53,7 +53,6 @@ class TestBokehJSONEncoder(unittest.TestCase):
         ts = pd.tslib.Timestamp('April 28, 1948')
         self.assertEqual(self.encoder.default(ts), -684115200000)
 
-
 class TestSerializeJson(unittest.TestCase):
 
     def setUp(self):
@@ -129,5 +128,17 @@ class TestSerializeJson(unittest.TestCase):
                     u'b': [time.mktime(b.timetuple())*1000],
         }
         assert deserialized == baseline
+
+    def test_builtin_timedelta_types(self):
+        """ should convert time delta to a dictionary
+        """
+        delta = dt.timedelta(days=42, seconds=1138, microseconds=1337)
+        serialized = self.serialize(delta)
+        deserialized = self.deserialize(serialized)
+        baseline = {u"days": 42,
+                    u"seconds": 1138,
+                    u"microseconds": 1337}
+        assert deserialized == baseline        
+
 if __name__ == "__main__":
     unittest.main()
