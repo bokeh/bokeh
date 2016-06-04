@@ -89,6 +89,10 @@ class ToolbarBox(LayoutDOM):
         edge of a plot. Default is `above`.
     """)
 
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
+    """)
+
     merge_tools = Bool(default=True, help="""
         Merge all the tools together so there is one tool to control all the plots.
     """)

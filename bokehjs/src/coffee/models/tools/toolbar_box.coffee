@@ -143,6 +143,7 @@ class ToolbarBox extends LayoutDOM.Model
   @define {
     toolbar_location: [ p.Location, "above"  ]
     merge_tools:      [ p.Bool,     true     ]
+    tools:            [ p.Any,  []   ]
   }
 
   @override {
