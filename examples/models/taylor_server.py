@@ -87,7 +87,7 @@ def on_text_value_change(attr, old, new):
 
 dialog = Dialog(title="Invalid expression")
 
-slider = Slider(start=1, end=20, value=order, step=1, title="Order:")
+slider = Slider(start=1, end=20, value=order, step=1, title="Order",callback_policy='mouseup')
 slider.on_change('value', on_slider_value_change)
 
 text = TextInput(value=str(expr), title="Expression:")
