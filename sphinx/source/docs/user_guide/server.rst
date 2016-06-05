@@ -324,6 +324,14 @@ to the address of the running application, which in this case is:
 
     http://localhost:5006/myapp
 
+You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option
+
 In addition to creating Bokeh applications from single python files, it is
 also possible to create applications from directories.
 

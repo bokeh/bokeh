@@ -67,6 +67,14 @@ Note that if multiple scripts or directories are provided, they
 all receive the same set of command line arguments (if any) given by
 ``--args``.
 
+You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option
+
 Network Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
