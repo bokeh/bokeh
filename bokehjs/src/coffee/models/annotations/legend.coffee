@@ -17,8 +17,6 @@ class LegendView extends Annotation.View
     label_height = @mget('label_height')
     label_width = @mget('label_width')
 
-    legend_spacing = @mget('legend_spacing')
-
     @max_label_height = _.max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
     )
@@ -36,14 +34,16 @@ class LegendView extends Annotation.View
 
     legend_margin = @mget('legend_margin')
     legend_padding = @mget('legend_padding')
+    legend_spacing = @mget('legend_spacing')
+    label_standoff =  @mget('label_standoff')
 
     if @mget("orientation") == "vertical"
       legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
-      legend_width = max_label_width + glyph_width + 2 * legend_padding
+      legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
       legend_width = 2 * legend_padding + (legend_names.length - 1) * legend_spacing
       for name, width of @text_widths
-        legend_width += _.max([width, label_width]) + glyph_width
+        legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
     location = @mget('location')
@@ -115,6 +115,7 @@ class LegendView extends Annotation.View
 
     N = @mget("legends").length
     legend_spacing = @mget('legend_spacing')
+    label_standoff = @mget('label_standoff')
     xoffset = yoffset = @mget('legend_padding')
     for [legend_name, glyphs], idx in @mget("legends")
       x1 = bbox.x + xoffset
@@ -124,10 +125,10 @@ class LegendView extends Annotation.View
       if orientation == "vertical"
         yoffset += @max_label_height + legend_spacing
       else
-        xoffset += @text_widths[legend_name] + glyph_width + legend_spacing
+        xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
 
       @visuals.label_text.set_value(ctx)
-      ctx.fillText(legend_name, x2, y1 + @max_label_height / 2.0)
+      ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
       for renderer in glyphs
         view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
@@ -159,7 +160,7 @@ class Legend extends Annotation.Model
       legends:        [ p.Array,          []          ]
       orientation:    [ p.Orientation,    'vertical'  ]
       location:       [ p.Any,            'top_right' ] # TODO (bev)
-      label_standoff: [ p.Number,         15          ]
+      label_standoff: [ p.Number,         5           ]
       glyph_height:   [ p.Number,         20          ]
       glyph_width:    [ p.Number,         20          ]
       label_height:   [ p.Number,         20          ]

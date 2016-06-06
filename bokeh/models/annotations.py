@@ -74,7 +74,7 @@ class Legend(Annotation):
 
     label_text_font_size = Override(default={ 'value' : '10pt' })
 
-    label_standoff = Int(15, help="""
+    label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
     """)
 
