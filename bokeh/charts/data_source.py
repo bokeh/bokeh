@@ -154,7 +154,7 @@ class DataGroup(object):
 
         """
         self.label = label
-        self.data = data.reset_index()
+        self.data = data.reset_index(drop=True)
         self.attr_specs = attr_specs
 
     def get_values(self, selection):
@@ -167,9 +167,7 @@ class DataGroup(object):
             :class:`pandas.DataFrame`
 
         """
-        if selection in special_columns:
-            return special_columns[selection](self.data)
-        elif isinstance(selection, str):
+        if isinstance(selection, str):
             return self.data[selection]
         elif isinstance(selection, list) and len(selection) == 1:
             return self.data[selection[0]]
