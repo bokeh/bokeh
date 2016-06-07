@@ -42,6 +42,10 @@ class BokehJSONEncoder(json.JSONEncoder):
         # datetime is a subclass of date.
         elif isinstance(obj, dt.datetime):
             return time.mktime(obj.timetuple()) * 1000. + obj.microsecond / 1000.
+        # Timedelta
+        # timedelta is class in the datetime library
+        elif isinstance(obj, dt.timedelta):
+            return dict(days=obj.days, seconds=obj.seconds, microseconds=obj.microseconds)
         # Date
         elif isinstance(obj, dt.date):
             return time.mktime(obj.timetuple()) * 1000.
