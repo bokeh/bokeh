@@ -142,7 +142,7 @@ processes
 
 .. code-block:: sh
 
-    bokeh serve app_script.py --num_procs 2
+    bokeh serve app_script.py --num-procs 2
 
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
