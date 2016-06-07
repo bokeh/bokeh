@@ -137,10 +137,6 @@ class DataGroup(object):
     The DataGroup contains a map from the labels of each attribute
     associated with an :class:`AttrSpec` to the value of the attribute assigned to the
     DataGroup.
-
-    .. note::
-        resets the index on the input data
-
     """
 
     def __init__(self, label, data, attr_specs):
@@ -154,7 +150,6 @@ class DataGroup(object):
 
         """
         self.label = label
-        self.data = data.reset_index(drop=True)
         self.attr_specs = attr_specs
 
     def get_values(self, selection):
