@@ -150,6 +150,7 @@ class DataGroup(object):
 
         """
         self.label = label
+        self.data = data
         self.attr_specs = attr_specs
 
     def get_values(self, selection):
@@ -220,7 +221,7 @@ def groupby(df, **specs):
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:
-        # df = df.sort(columns=spec_cols)
+        df = df.sort(columns=spec_cols)
 
         for name, data in df.groupby(spec_cols, sort=False):
 
