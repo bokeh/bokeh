@@ -63,9 +63,9 @@ def test_Legend():
     assert legend.legend_padding == 10
     assert legend.legend_spacing == 3
     assert legend.legends == []
-    yield check_line, legend, "border_"
+    yield check_line, legend, "border_", "#e5e5e5", 1.0, 0.5
     yield check_text, legend, "label_", "10pt", "middle"
-    yield check_fill, legend, "background_"
+    yield check_fill, legend, "background_", "#ffffff", 0.95
     yield (check_props, legend, [
         "plot",
         "location",
@@ -94,8 +94,7 @@ def test_Arrow():
     assert arrow.y_end is None
     assert arrow.end_units == 'data'
     assert isinstance(arrow.end, ArrowHead)
-    assert isinstance(arrow.source, ColumnDataSource)
-    assert arrow.source.data == {}
+    assert arrow.source is None
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     yield check_line, arrow
@@ -257,8 +256,8 @@ def test_Title():
     assert title.title_align == 'left'
     assert title.title_padding == 0
     assert title.text_font == 'helvetica'
-    assert title.text_font_size == {'value': '12pt'}
-    assert title.text_font_style == 'normal'
+    assert title.text_font_size == {'value': '10pt'}
+    assert title.text_font_style == 'bold'
     assert title.text_color == '#444444'
     assert title.text_alpha == 1.0
     yield check_fill, title, "background_", None, 1.0

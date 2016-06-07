@@ -182,7 +182,7 @@ class Legend extends Annotation.Model
     border_line_color: "#e5e5e5"
     border_line_alpha: 0.5
     border_line_width: 1
-    background_fill_color: "#fffff"
+    background_fill_color: "#ffffff"
     background_fill_alpha: 0.95
     label_text_font_size: "10pt"
     label_text_baseline: "middle"

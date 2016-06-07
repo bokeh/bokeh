@@ -49,7 +49,7 @@ class Grid(GuideRenderer):
     The %s of the Grid lines.
     """)
 
-    grid_line_color = Override(default='#cccccc')
+    grid_line_color = Override(default='#e5e5e5')
 
     minor_grid_props = Include(LineProps, help="""
     The %s of the minor Grid lines.
