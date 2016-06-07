@@ -75,6 +75,7 @@ def test_Legend():
         "label_width",
         "glyph_height",
         "glyph_width",
+        "legend_margin",
         "legend_padding",
         "legend_spacing",
         "legends",
