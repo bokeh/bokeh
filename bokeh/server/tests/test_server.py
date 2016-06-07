@@ -4,7 +4,7 @@ import pytest
 import logging
 import re
 
-from unittest.mock import patch
+import mock
 
 from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
@@ -450,7 +450,7 @@ def test__no_generate_session_doc():
         assert 0 == len(sessions)
 
 def test__server_multiple_processes():
-    with patch('tornado.process.fork_processes') as tornado_fp:
+    with mock.patch('tornado.process.fork_processes') as tornado_fp:
         application = Application()
         with ManagedServerLoop(application, num_procs=3) as server:
             pass
