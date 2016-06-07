@@ -55,7 +55,12 @@ class GlyphRendererView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'stream', @set_data)
-    @listenTo(@mget('data_source'), 'select', @request_render)
+
+    # XXX: you might be tempted to enable the next line, but that
+    # will duplicate rendering effort, because `request_render()`
+    # is already triggered by `set_data()` under `change` event.
+    #
+    # @listenTo(@mget('data_source'), 'select', @request_render)
     if @hover_glyph?
       @listenTo(@mget('data_source'), 'inspect', @request_render)
 
