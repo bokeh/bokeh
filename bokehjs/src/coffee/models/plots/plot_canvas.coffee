@@ -478,6 +478,8 @@ class PlotCanvasView extends Renderer.View
 
     @canvas_view.set_dims([width, height], true)
 
+    @update_constraints()
+
     # This allows the plot canvas to be positioned around the toolbar
     @$el.css({
       position: 'absolute'
