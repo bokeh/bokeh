@@ -55,9 +55,9 @@ def test_Legend():
     legend = Legend()
     assert legend.plot is None
     assert legend.location == 'top_right'
-    assert legend.label_standoff == 15
+    assert legend.label_standoff == 5
     assert legend.label_height == 20
-    assert legend.label_width == 50
+    assert legend.label_width == 20
     assert legend.glyph_height == 20
     assert legend.glyph_width == 20
     assert legend.legend_padding == 10
