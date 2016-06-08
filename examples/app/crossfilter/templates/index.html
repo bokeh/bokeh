@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            @import url(https://fonts.googleapis.com/css?family=Noto+Sans);
+            body {
+              font-family: 'Noto Sans', sans-serif;
+              -webkit-font-smoothing: antialiased;
+              text-rendering: optimizeLegibility;
+              color: #fff;
+              background: #2F2F2F;
+             }
+        </style>
+        <meta charset="utf-8">
+        <title>Bokeh Crossfilter Example</title>
+        {{ bokeh_css }}
+        {{ bokeh_js }}
+    </head>
+    <body>
+        {{ plot_div|indent(8) }}
+        {{ plot_script|indent(8) }}
+    </body>
+</html>
