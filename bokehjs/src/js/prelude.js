@@ -9,7 +9,7 @@
 
             var m = cache[name] = {exports: {}};
 
-            function moduleRequire(x) {
+            var moduleRequire = function foo(x) {
                 var id = modules[name][1][x];
                 return newRequire(id ? id : x);
             }
