@@ -221,7 +221,7 @@ def groupby(df, **specs):
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:
-        df = df.sort(columns=spec_cols)
+        # df = df.sort(columns=spec_cols)
 
         for name, data in df.groupby(spec_cols, sort=False):
 
