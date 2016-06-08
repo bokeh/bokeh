@@ -372,7 +372,7 @@ class PlotCanvasView extends Renderer.View
       logger.warn('could not set initial ranges')
 
   render: (force_canvas=false) ->
-    logger.trace("Plot.render(force_canvas=#{force_canvas})")
+    logger.trace("Plot.render(force_canvas=#{force_canvas}) for #{@model.id}")
 
     if not @model.document?
       return
