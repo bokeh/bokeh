@@ -79,16 +79,16 @@ class Legend(Annotation):
 
     label_text_font_size = Override(default={ 'value' : '10pt' })
 
-    label_standoff = Int(15, help="""
+    label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
     """)
 
     label_height = Int(20, help="""
-    The height (in pixels) of the area that legend labels should occupy.
+    The minimum height (in pixels) of the area that legend labels should occupy.
     """)
 
-    label_width = Int(50, help="""
-    The width (in pixels) of the area that legend labels should occupy.
+    label_width = Int(20, help="""
+    The minimum width (in pixels) of the area that legend labels should occupy.
     """)
 
     glyph_height = Int(20, help="""
@@ -99,8 +99,12 @@ class Legend(Annotation):
     The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
+    legend_margin = Int(10, help="""
+    Amount of margin around the legend.
+    """)
+
     legend_padding = Int(10, help="""
-    Amount of padding around the legend.
+    Amount of padding around the contents of the legend.
     """)
 
     legend_spacing = Int(3, help="""

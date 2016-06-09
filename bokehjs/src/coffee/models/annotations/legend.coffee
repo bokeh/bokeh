@@ -17,10 +17,8 @@ class LegendView extends Annotation.View
     label_height = @mget('label_height')
     label_width = @mget('label_width')
 
-    legend_spacing = @mget('legend_spacing')
-
     @max_label_height = _.max(
-      [get_text_height(@visuals.label_text.font_value()), label_height, glyph_height]
+      [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
     )
 
     # this is to measure text properties
@@ -34,17 +32,19 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
+    legend_margin = @mget('legend_margin')
     legend_padding = @mget('legend_padding')
+    legend_spacing = @mget('legend_spacing')
+    label_standoff =  @mget('label_standoff')
 
     if @mget("orientation") == "vertical"
-      legend_height = (legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing) + legend_padding * 2
-      legend_width = (max_label_width + glyph_width + 3 * legend_spacing) + legend_padding * 2
+      legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
+      legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
-      legend_width = 0
+      legend_width = 2 * legend_padding + (legend_names.length - 1) * legend_spacing
       for name, width of @text_widths
-        legend_width += (_.max([width, label_width]) + glyph_width + 3 * legend_spacing)
-      legend_width += legend_padding
-      legend_height = (@max_label_height + 2 * legend_spacing) + legend_padding * 2
+        legend_width += _.max([width, label_width]) + glyph_width + label_standoff
+      legend_height = @max_label_height + 2 * legend_padding
 
     location = @mget('location')
     h_range = @plot_view.frame.get('h_range')
@@ -53,28 +53,28 @@ class LegendView extends Annotation.View
     if _.isString(location)
       switch location
         when 'top_left'
-          x = h_range.get('start') + legend_padding
-          y = v_range.get('end') - legend_padding
+          x = h_range.get('start') + legend_margin
+          y = v_range.get('end') - legend_margin
         when 'top_center'
           x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('end') - legend_padding
+          y = v_range.get('end') - legend_margin
         when 'top_right'
-          x = h_range.get('end') - legend_padding - legend_width
-          y = v_range.get('end') - legend_padding
+          x = h_range.get('end') - legend_margin - legend_width
+          y = v_range.get('end') - legend_margin
         when 'right_center'
-          x = h_range.get('end') - legend_padding - legend_width
+          x = h_range.get('end') - legend_margin - legend_width
           y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
         when 'bottom_right'
-          x = h_range.get('end') - legend_padding - legend_width
-          y = v_range.get('start') + legend_padding + legend_height
+          x = h_range.get('end') - legend_margin - legend_width
+          y = v_range.get('start') + legend_margin + legend_height
         when 'bottom_center'
           x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('start') + legend_padding + legend_height
+          y = v_range.get('start') + legend_margin + legend_height
         when 'bottom_left'
-          x = h_range.get('start') + legend_padding
-          y = v_range.get('start') + legend_padding + legend_height
+          x = h_range.get('start') + legend_margin
+          y = v_range.get('start') + legend_margin + legend_height
         when 'left_center'
-          x = h_range.get('start') + legend_padding
+          x = h_range.get('start') + legend_margin
           y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
         when 'center'
           x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
@@ -113,31 +113,22 @@ class LegendView extends Annotation.View
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
-    legend_padding = @mget('legend_padding')
-    legend_spacing = @mget('legend_spacing')
     N = @mget("legends").length
-
-    xoffset = 0
-    yoffset = 0
+    legend_spacing = @mget('legend_spacing')
+    label_standoff = @mget('label_standoff')
+    xoffset = yoffset = @mget('legend_padding')
     for [legend_name, glyphs], idx in @mget("legends")
+      x1 = bbox.x + xoffset
+      y1 = bbox.y + yoffset
+      x2 = x1 + glyph_width
+      y2 = y1 + glyph_height
       if orientation == "vertical"
-        x1 = bbox.x + legend_spacing + legend_padding
-        x2 = x1 + glyph_width
-        y1 = bbox.y + yoffset + legend_spacing + legend_padding
-        y2 = y1 + glyph_height
-        yoffset += (bbox.height/N) - legend_padding
+        yoffset += @max_label_height + legend_spacing
       else
-        x1 = bbox.x + xoffset + legend_spacing + legend_padding
-        x2 = x1 + glyph_width
-        y1 = bbox.y + legend_spacing + legend_padding
-        y2 = y1 + glyph_height
-        xoffset += @text_widths[legend_name] + 3*legend_spacing + glyph_width
-
-      tx = x2 + legend_spacing
-      ty = y1 + @max_label_height / 2.0
+        xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
 
       @visuals.label_text.set_value(ctx)
-      ctx.fillText(legend_name, tx, ty)
+      ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
       for renderer in glyphs
         view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
@@ -169,11 +160,12 @@ class Legend extends Annotation.Model
       legends:        [ p.Array,          []          ]
       orientation:    [ p.Orientation,    'vertical'  ]
       location:       [ p.Any,            'top_right' ] # TODO (bev)
-      label_standoff: [ p.Number,         15          ]
+      label_standoff: [ p.Number,         5           ]
       glyph_height:   [ p.Number,         20          ]
       glyph_width:    [ p.Number,         20          ]
       label_height:   [ p.Number,         20          ]
-      label_width:    [ p.Number,         50          ]
+      label_width:    [ p.Number,         20          ]
+      legend_margin:  [ p.Number,         10          ]
       legend_padding: [ p.Number,         10          ]
       legend_spacing: [ p.Number,         3           ]
   }
