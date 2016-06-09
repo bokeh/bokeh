@@ -26,4 +26,9 @@ class RootHandler(RequestHandler):
 
     @gen.coroutine
     def get(self, *args, **kwargs):
-        self.render("app_index.html", items=self.applications.keys())
+        if len(self.applications) == 1:
+            app_names = list(self.applications.keys())
+            redirect_to = (self.prefix if self.prefix else "") + app_names[0]
+            self.redirect(redirect_to)
+        else:
+            self.render("app_index.html", items=self.applications.keys())
