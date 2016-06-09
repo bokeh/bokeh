@@ -69,7 +69,7 @@ class Range1d(Range):
 
     min_interval = Either(Float, TimeDelta, Int, default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
-    minimum visible interval. If set to ``None`` (defaut), the minimum
+    minimum visible interval. If set to ``None`` (default), the minimum
     interval is not bound. Can be a timedelta. """)
 
     max_interval = Either(Float, TimeDelta, Int, default=None, help="""
@@ -146,7 +146,7 @@ class DataRange1d(DataRange):
 
     min_interval = Float(default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
-    minimum visible interval. If set to ``None`` (defaut), the minimum
+    minimum visible interval. If set to ``None`` (default), the minimum
     interval is not bound.""")
 
     max_interval = Float(default=None, help="""
@@ -263,7 +263,7 @@ class FactorRange(Range):
 
     min_interval = Int(default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
-    minimum number of visible categories. If set to ``None`` (defaut),
+    minimum number of visible categories. If set to ``None`` (default),
     the minimum interval is not bound.""")
 
     max_interval = Int(default=None, help="""

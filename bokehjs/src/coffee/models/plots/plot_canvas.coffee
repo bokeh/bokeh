@@ -261,7 +261,7 @@ class PlotCanvasView extends Renderer.View
     hit_bound = false
     for [rng, range_info] in range_info_iter
       # Is this a reversed range?
-      reversed = if rng.get('start') > rng.get('end') then true else false
+      reversed = (rng.get('start') > rng.get('end'))
 
       # Limit range interval first. Note that for scroll events,
       # the interval has already been limited for all ranges simultaneously
