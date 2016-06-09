@@ -29,6 +29,7 @@ declare namespace Bokeh {
     export type ScriptingLanguage = "javascript" | "coffeescript";
     export type StartEnd = "start" | "end";
     export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup";
+    export type Responsive = "box" | "width_ar" | "height_ar" | "box_ar" | "fixed";
 
     export type Logo = "normal" | "grey";
     export type HoverMode = "mouse" | "hline" | "vline";

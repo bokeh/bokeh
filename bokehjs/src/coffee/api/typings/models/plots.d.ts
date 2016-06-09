@@ -3,11 +3,6 @@ declare namespace Bokeh {
         plot?: Plot;
     }
 
-    export interface PlotView extends View<Plot> {
-        resize_width_height(use_width: boolean, use_height: boolean, maintain_ar?: boolean,
-                            width?: number, height?: number): void;
-    }
-
     export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
     export interface Plot extends LayoutDOM, IPlot {
         add_renderers(...Renderer: Array<Renderer>): void;
@@ -83,18 +78,5 @@ declare namespace Bokeh {
         lod_timeout?: Int;
 
         webgl?: boolean;
-
-        responsive?: boolean;
-    }
-
-    export var GridPlot: {
-        new(attributes?: IGridPlot, options?: ModelOpts): GridPlot;
-        (children: Array<Array<Plot>>): GridPlot;
-    };
-    export interface GridPlot extends LayoutDOM, IGridPlot {}
-    export interface IGridPlot extends ILayoutDOM {
-        children?: Array<Array<Plot>>;
-        border_space?: Int;
-        toolbar_location?: Location;
     }
 }

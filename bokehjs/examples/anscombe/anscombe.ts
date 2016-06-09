@@ -67,7 +67,7 @@ namespace Anscombe {
     const III = make_plot("III", "xiii", "yiii");
     const IV  = make_plot("IV",  "xiv",  "yiv");
 
-    const grid = new Bokeh.GridPlot({children: [[I, II], [III, IV]]});
+    const grid = Bokeh.Plotting.gridplot([[I, II], [III, IV]]);
 
     const doc = new Bokeh.Document();
     doc.add_root(grid);

@@ -596,7 +596,7 @@ class PlotCanvas extends LayoutDOM.Model
 
     # Add the title to layout
     if @title?
-      title = if _.isString(@title) then new Title({text: @title}) else @title
+      title = if _.isString(@title) then new Title.Model({text: @title}) else @title
       @add_layout(title, @title_location)
 
     # Add panels for any side renderers

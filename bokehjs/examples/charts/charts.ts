@@ -30,5 +30,5 @@ namespace Charts {
         [p21, p22, p23, p24],
     ]
 
-    plt.show(Bokeh.GridPlot(plots))
+    plt.show(plt.gridplot(plots))
 }

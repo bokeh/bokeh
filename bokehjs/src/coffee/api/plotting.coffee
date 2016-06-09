@@ -392,9 +392,57 @@ show = (obj, target) ->
 
 color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
+gridplot = (children, options={}) ->
+  toolbar_location = if _.isUndefined(options.toolbar_location) then 'left' else options.toolbar_location
+  responsive = if _.isUndefined(options.responsive) then 'fixed' else options.responsive
+
+  tools = []
+  rows = []
+
+  for row in children
+    row_tools = []
+    row_children = []
+    for item in row
+      if item instanceof models.Plot
+        row_tools = row_tools.concat(item.toolbar.tools)
+        item.toolbar_location = null
+      if item == null
+        for neighbor in row
+          if neighbor instanceof models.Plot
+            break
+        item = new models.Spacer({width: neighbor.plot_width, height: neighbor.plot_height})
+      if item instanceof models.LayoutDOM
+        item.responsive = responsive
+        row_children.push(item)
+      else
+        throw new Error("only LayoutDOM items can be inserted into Grid")
+    tools = tools.concat(row_tools)
+    row = new models.Row({children: row_children, responsive: responsive})
+    rows.push(row)
+
+  grid = new models.Column({children: rows, responsive: responsive})
+
+  layout = if toolbar_location
+    toolbar = new models.ToolbarBox({tools: tools, responsive: responsive})
+
+    switch toolbar_location
+      when 'above'
+        new models.Column({children: [toolbar, grid], responsive: responsive})
+      when 'below'
+        new models.Column({children: [grid, toolbar], responsive: responsive})
+      when 'left'
+        new models.Row({children: [toolbar, grid], responsive: responsive})
+      when 'right'
+        new models.Row({children: [grid, toolbar], responsive: responsive})
+  else
+    grid
+
+  return layout
+
 module.exports = {
   Figure: Figure
   figure: figure
   show  : show
   color : color
+  gridplot: gridplot
 }
