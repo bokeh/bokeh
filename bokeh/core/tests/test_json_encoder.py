@@ -135,10 +135,7 @@ class TestSerializeJson(unittest.TestCase):
         delta = dt.timedelta(days=42, seconds=1138, microseconds=1337)
         serialized = self.serialize(delta)
         deserialized = self.deserialize(serialized)
-        baseline = {u"days": 42,
-                    u"seconds": 1138,
-                    u"microseconds": 1337}
-        assert deserialized == baseline
+        assert deserialized == delta.total_seconds() * 1000
 
 if __name__ == "__main__":
     unittest.main()
