@@ -77,9 +77,6 @@ class HasProps extends Backbone.Model
     super(options)
     @stopListening()
 
-  isNew: () ->
-    return false
-
   constructor : (attributes, options) ->
     @document = null
 
