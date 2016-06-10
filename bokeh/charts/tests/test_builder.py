@@ -103,15 +103,15 @@ def test_created_range_type(test_builder, test_data):
     assert isinstance(builder1._get_range('x', 1, 4), Range1d)
     assert builder1.xscale == 'linear'
 
-    # "None" as str is for label repr, handles case where there is no x dim    
+    # "None" as str is for label repr, handles case where there is no x dim
     builder2 = XYBuilder(pd_data, x='col2')
     assert isinstance(builder2._get_range('x', "None", "None"), FactorRange)
     assert builder2.xscale == 'categorical'
-    
+
     builder3 = XYBuilder(pd_data, x='col3')
     assert isinstance(builder3._get_range('x', 'a', 'c'), FactorRange)
     assert builder3.xscale == 'categorical'
-    
+
     builder4 = XYBuilder(pd_data, x='col4')
     assert isinstance(builder4._get_range('x', 0, 1), Range1d)
     assert builder4.xscale == 'datetime'
