@@ -163,7 +163,8 @@ class BokehTornado(TornadoApplication):
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
                  develop=False,
-                 use_index=True):
+                 use_index=True,
+                 redirect_root=True):
 
         self._prefix = prefix
         self.use_index = use_index
@@ -236,7 +237,9 @@ class BokehTornado(TornadoApplication):
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
                 if self.use_index:
-                    data = {"applications": self._applications, "prefix": self._prefix}
+                    data = {"applications": self._applications,
+                            "prefix": self._prefix,
+                            "use_redirect": redirect_root}
                     prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
                     all_patterns.append(prefixed_pat)
             else:
