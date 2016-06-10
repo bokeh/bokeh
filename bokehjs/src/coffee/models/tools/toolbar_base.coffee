@@ -116,7 +116,7 @@ class ToolbarBase extends LayoutDOM.Model
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
-    toolbar_location: [ p.Location, 'above' ]
+    toolbar_location: [ p.Location, 'right' ]
     toolbar_sticky: [ p.Bool ]
   }
 

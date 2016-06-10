@@ -224,7 +224,7 @@ class Plot extends LayoutDOM.Model
 
   @define {
       toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
-      toolbar_location:  [ p.Location, 'above'                   ]
+      toolbar_location:  [ p.Location, 'right'                ]
       toolbar_sticky:    [ p.Bool, true                       ]
 
       # ALL BELOW ARE FOR PLOT CANVAS
