@@ -67,13 +67,15 @@ Note that if multiple scripts or directories are provided, they
 all receive the same set of command line arguments (if any) given by
 ``--args``.
 
-You can see an index of all running applications at the server root:
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
 
 .. code-block:: none
 
     http://localhost:5006/
 
-This index can be disabled with the ``--disable-index`` option
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
 
 Network Configuration
 ~~~~~~~~~~~~~~~~~~~~~
