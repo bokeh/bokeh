@@ -540,13 +540,11 @@ class PlotCanvas extends LayoutDOM.Model
     super(attrs, options)
 
     for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
-      xr = @resolve_ref(xr)
       plots = xr.get('plots')
       if _.isArray(plots)
         plots = plots.concat(@)
         xr.set('plots', plots)
     for yr in _.values(@get('extra_y_ranges')).concat(@get('y_range'))
-      yr = @resolve_ref(yr)
       plots = yr.get('plots')
       if _.isArray(plots)
         plots = plots.concat(@)
