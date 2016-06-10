@@ -53,7 +53,7 @@ w = 0.5
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
-p = figure(tools=TOOLS, plot_width=1000, toolbar_location="left")
+p = figure(tools=TOOLS, plot_width=1000)
 
 p.title = "MSFT Candlestick with custom x axis"
 p.xaxis.major_label_orientation = pi/4
