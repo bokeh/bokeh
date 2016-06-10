@@ -94,12 +94,17 @@ class Document
     @_solver
 
   resize: () ->
+    # Notes on resizing (xx:yy means event yy on object xx):
+    # window:event -> document.resize() -> solver:resize
+    #   -> LayoutDOM.render()
+    #   -> PlotCanvas.resize() -> solver:update_layout
 
-    # Notes on resizing:
-    # This gets called whenever the window resizes, and this will
-    # update the solver and trigger a resize event on the solver.
-    # The plot listens for the solver's resize event (to update the canvas).
-    # The reset tool also triggers the solver resize event.
+    # Ideally the solver would  settle in one pass (can that be done?),
+    # but it currently needs two passes to get it right.
+    @_resize()
+    @_resize()
+
+  _resize: () ->
 
     for root in @_roots
       if root.layoutable isnt true
