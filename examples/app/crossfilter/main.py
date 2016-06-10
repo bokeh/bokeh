@@ -3,7 +3,9 @@ import pandas as pd
 from bokeh.models import Row, Column, Select
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure
-from bokeh.sampledata.autompg import autompg as df
+from bokeh.sampledata.autompg import autompg
+
+df = autompg.copy()
 
 SIZES = list(range(6, 22, 3))
 COLORS = Spectral5
