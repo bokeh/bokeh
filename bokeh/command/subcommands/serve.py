@@ -462,6 +462,11 @@ class Serve(Subcommand):
             action = 'store_true',
             help    = 'Do not use the default index on the root path',
         )),
+
+        ('--disable-index-redirect', dict(
+            action = 'store_true',
+            help    = 'Do not redirect to running app from root path',
+        )),
     )
 
 
@@ -535,6 +540,7 @@ class Serve(Subcommand):
                 "the `bokeh secret` command can be used to generate a new key.")
 
         server_kwargs['use_index'] = not args.disable_index
+        server_kwargs['redirect_root'] = not args.disable_index_redirect
 
         server = Server(applications, **server_kwargs)
 
