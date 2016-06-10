@@ -607,12 +607,6 @@ class PlotCanvas extends LayoutDOM.Model
 
     logger.debug("Plot attached to document")
 
-  serializable_attributes: () ->
-    attrs = super()
-    if 'renderers' of attrs
-      attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
-    return attrs
-
   add_renderers: (new_renderers...) ->
     renderers = @get('renderers')
     renderers = renderers.concat(new_renderers)

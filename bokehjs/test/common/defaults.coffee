@@ -35,18 +35,12 @@ deep_value_to_json = (key, value, optional_parent_object) ->
   else if _.isArray(value)
     ref_array = []
     for v, i in value
-      if v instanceof HasProps and not v.serializable_in_document()
-        console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
-      else
-        ref_array.push(deep_value_to_json(i, v, value))
+      ref_array.push(deep_value_to_json(i, v, value))
     ref_array
   else if _.isObject(value)
     ref_obj = {}
     for own subkey of value
-      if value[subkey] instanceof HasProps and not value[subkey].serializable_in_document()
-        console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
-      else
-        ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
+      ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
     ref_obj
   else
     value

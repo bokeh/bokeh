@@ -233,10 +233,6 @@ class Document
 
   # called by the model on attach
   _notify_attach : (model) ->
-    if not model.serializable_in_document()
-      console.log("Attempted to attach nonserializable to document ", model)
-      throw new Error("Should not attach nonserializable model #{model.constructor.name} to document")
-
     if model.id of @_all_model_counts
       @_all_model_counts[model.id] = @_all_model_counts[model.id] + 1
     else
@@ -261,9 +257,6 @@ class Document
   @_references_json : (references, include_defaults=true) ->
     references_json = []
     for r in references
-      if not r.serializable_in_document()
-        console.log("nonserializable value in references ", r)
-        throw new Error("references should never contain nonserializable value")
       ref = r.ref()
       ref['attributes'] = r.attributes_as_json(include_defaults)
       # server doesn't want id in here since it's already in ref above
