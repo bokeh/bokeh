@@ -32,8 +32,9 @@ class Annotation extends Renderer.Model
   }
 
   add_panel: (side) ->
+    # XXXXXX prob wrong
     @panel = new SidePanel.Model({side: side})
-    @panel.attach_document(@document)
+    @panel._attach_document(@document)
     # If the annotation is in a side panel, we need to set level to overlay, so it is visible.
     @level = 'overlay'
 

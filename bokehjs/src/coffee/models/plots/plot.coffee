@@ -89,7 +89,8 @@ class Plot extends LayoutDOM.Model
       @height = @plot_height
 
   _doc_attached: () ->
-    @_plot_canvas.attach_document(@document)
+    # XXXXXXX prob wrong
+    @_plot_canvas._attach_document(@document)
 
   plot_canvas: () ->
     @_plot_canvas

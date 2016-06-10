@@ -28,6 +28,9 @@ class LayoutDOMView extends BokehView
       _.delay(resize, 200)
 
   build_views: () ->
+    # TODO better way?
+    # @model.document._invalidate_all_models()
+    # @model.document._init_solver()
     children = @model.get_layoutable_children()
     @child_views = {}
     build_views(@child_views, children)

@@ -135,7 +135,8 @@ class ToolbarBox extends LayoutDOM.Model
       @_toolbar._sizeable = @_toolbar._height
 
   _doc_attached: () ->
-    @_toolbar.attach_document(@document)
+    # XXXXXXX prob wrong
+    @_toolbar._attach_document(@document)
 
   get_layoutable_children: () ->
     return [@_toolbar]

@@ -272,8 +272,9 @@ class Axis extends GuideRenderer.Model
     @define_computed_property('offsets', @_offsets, true)
 
   add_panel: (side) ->
+    # XXXXXXX prob wrong
     @panel = new SidePanel.Model({side: side})
-    @panel.attach_document(@document)
+    @panel._attach_document(@document)
     @set('panel_side', side)
 
   _offsets: () ->

@@ -572,7 +572,8 @@ class PlotCanvas extends LayoutDOM.Model
     logger.debug("Plot initialized")
 
   _doc_attached: () ->
-    @canvas.attach_document(@document)
+    # XXXXXX prob wrong
+    @canvas._attach_document(@document)
     @frame = new CartesianFrame.Model({
       x_range: @x_range,
       extra_x_ranges: @extra_x_ranges,
@@ -581,17 +582,17 @@ class PlotCanvas extends LayoutDOM.Model
       extra_y_ranges: @extra_y_ranges,
       y_mapper_type: @y_mapper_type,
     })
-    @frame.attach_document(@document)
+    @frame._attach_document(@document)
 
     # Add the panels that make up the layout
     @above_panel = new LayoutCanvas.Model()
-    @above_panel.attach_document(@document)
+    @above_panel._attach_document(@document)
     @below_panel = new LayoutCanvas.Model()
-    @below_panel.attach_document(@document)
+    @below_panel._attach_document(@document)
     @left_panel = new LayoutCanvas.Model()
-    @left_panel.attach_document(@document)
+    @left_panel._attach_document(@document)
     @right_panel = new LayoutCanvas.Model()
-    @right_panel.attach_document(@document)
+    @right_panel._attach_document(@document)
 
     # Add the title to layout
     if @title?
@@ -600,10 +601,8 @@ class PlotCanvas extends LayoutDOM.Model
     # Add panels for any side renderers
     # (Needs to be called in _doc_attached, so that panels can attach to the document.)
     for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
-      for r in layout_renderers
+      for r in @get(side)
         r.add_panel(side)
-
 
     logger.debug("Plot attached to document")
 

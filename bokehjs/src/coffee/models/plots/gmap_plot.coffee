@@ -21,7 +21,8 @@ class GMapPlot extends Plot.Model
     @_set_orientation_variables(@_plot_canvas)
 
   _doc_attached: () ->
-    @_plot_canvas.attach_document(@document)
+    # XXXXXX prob wrong
+    @_plot_canvas._attach_document(@document)
 
   # Set all the PlotCanvas properties as internal.
   # This seems to be necessary so that everything can initialize.
