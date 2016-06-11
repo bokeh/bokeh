@@ -68,8 +68,24 @@ class Plot extends LayoutDOM.Model
     if @toolbar_location in ['left', 'right']
       @_horizontal = true
 
-    plot_only_options = ['toolbar_location', 'toolbar_sticky']
+    # Min border applies to the edge of everything
+    if @min_border?
+      if not @min_border_top?
+        @min_border_top = @min_border
+      if not @min_border_bottom?
+        @min_border_bottom = @min_border
+      if not @min_border_left?
+        @min_border_left = @min_border
+      if not @min_border_right?
+        @min_border_right = @min_border
+
+    plot_only_options = [
+      'toolbar_location', 'toolbar_sticky', 'min_border',
+      'min_border_top', 'min_border_bottom',
+      'min_border_left', 'min_border_right'
+    ]
     plot_canvas_options = _.omit(options, plot_only_options)
+    plot_canvas_options.plot = @
     @_plot_canvas = new PlotCanvas(plot_canvas_options)
 
     @_set_orientation_variables(@)

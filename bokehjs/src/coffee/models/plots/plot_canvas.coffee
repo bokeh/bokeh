@@ -620,18 +620,7 @@ class PlotCanvas extends LayoutDOM.Model
       use_hidpi: @hidpi
     })
 
-    # Min border applies to the edge of everything
-    if @min_border?
-      if not @min_border_top?
-        @min_border_top = @min_border
-      if not @min_border_bottom?
-        @min_border_bottom = @min_border
-      if not @min_border_left?
-        @min_border_left = @min_border
-      if not @min_border_right?
-        @min_border_right = @min_border
-
-    logger.debug("Plot initialized")
+    logger.debug("PlotCanvas initialized")
 
   _doc_attached: () ->
     @canvas.attach_document(@document)
@@ -746,17 +735,7 @@ class PlotCanvas extends LayoutDOM.Model
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
 
-      min_border:        [ p.Number,   5                      ]
-      min_border_top:    [ p.Number,   null                   ]
-      min_border_left:   [ p.Number,   null                   ]
-      min_border_bottom: [ p.Number,   null                   ]
-      min_border_right:  [ p.Number,   null                   ]
     }
-
-  @internal {
-      # This is set by parent plot for convenient access
-      toolbar: [ p.Instance ]
-  }
 
   @override {
     outline_line_color: '#e5e5e5'
@@ -767,6 +746,8 @@ class PlotCanvas extends LayoutDOM.Model
   }
 
   @internal {
+    plot:         [ p.Instance ]
+    toolbar:      [ p.Instance ]
     canvas:       [ p.Instance ]
     frame:        [ p.Instance ]
   }
@@ -777,6 +758,7 @@ class PlotCanvas extends LayoutDOM.Model
       @left_panel, @right_panel,
       @canvas, @frame
     ]
+
     # Add the layout panels for each of the axes
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
@@ -803,10 +785,10 @@ class PlotCanvas extends LayoutDOM.Model
 
   _get_constant_constraints: () ->
 
-    min_border_top    = @get('min_border_top')
-    min_border_bottom = @get('min_border_bottom')
-    min_border_left   = @get('min_border_left')
-    min_border_right  = @get('min_border_right')
+    min_border_top    = @plot.min_border_top
+    min_border_bottom = @plot.min_border_bottom
+    min_border_left   = @plot.min_border_left
+    min_border_right  = @plot.min_border_right
 
     # Create the constraints that always apply for a plot
     constraints = []
