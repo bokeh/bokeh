@@ -46,11 +46,11 @@ class Property extends Backbone.Model
 
   # ----- property accessors
 
-  value: () ->
+  value: (do_spec_transform=true) ->
     if _.isUndefined(@spec.value)
       throw new Error("attempted to retrieve property value for property without value specification")
     ret = @transform([@spec.value])[0]
-    if @spec.transform?
+    if @spec.transform? and do_spec_transform
       ret = @spec.transform.compute(ret)
     return ret
 
@@ -61,16 +61,17 @@ class Property extends Backbone.Model
     if @spec.field?
       if @spec.field of data
         ret = @transform(source.get_column(@spec.field))
-        if @spec.transform?
-          ret = @spec.transform.v_compute(ret)
-        return (ret)
       else
         throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
     else
       length = source.get_length()
       length = 1 if not length?
-      value = @value() # already transformed
-      return (value for i in [0...length])
+      value = @value(false) # don't apply any spec transform
+      ret = (value for i in [0...length])
+
+    if @spec.transform?
+      ret = @spec.transform.v_compute(ret)
+    return ret
 
   # ----- private methods
 
