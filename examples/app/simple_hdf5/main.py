@@ -1,3 +1,5 @@
+from os.path import dirname, join
+
 import numpy as np
 import h5py
 
@@ -26,7 +28,7 @@ def get_data(f, name):
 
 def select_data():
     data_val = data_select.value
-    with h5py.File('demo_data.hdf5', 'r') as f:
+    with h5py.File(join(dirname(__file__), 'demo_data.hdf5'), 'r') as f:
         return get_data(f, data_val)
 
 

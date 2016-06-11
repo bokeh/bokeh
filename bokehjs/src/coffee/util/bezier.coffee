@@ -1,4 +1,3 @@
-
 segment_to_bezier = (cx, cy, th0, th1, rx, ry, sin_th, cos_th) ->
   a00 = cos_th*rx
   a01 = -sin_th*ry

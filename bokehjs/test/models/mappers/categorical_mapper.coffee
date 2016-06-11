@@ -249,6 +249,3 @@ describe "categorical mapper module", ->
 
       values = generate_mapper(-1).v_map_to_target ['baz:0.3', 'baz:0.7']
       expect(values).to.deep.equal new Float64Array [66, 74]
-
-
-

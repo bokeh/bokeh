@@ -1,4 +1,3 @@
-
 .. _bokeh.icons:
 
 ``bokeh.icons``

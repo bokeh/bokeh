@@ -1,4 +1,3 @@
-
 .. _bokeh.themes:
 
 ``bokeh.themes``

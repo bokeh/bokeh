@@ -1,0 +1,887 @@
+_ = require "underscore"
+$ = require "jquery"
+Backbone = require "backbone"
+
+Canvas = require "../canvas/canvas"
+CartesianFrame = require "../canvas/cartesian_frame"
+ColumnDataSource = require "../sources/column_data_source"
+DataRange1d = require "../ranges/data_range1d"
+GlyphRenderer = require "../renderers/glyph_renderer"
+LayoutDOM = require "../layouts/layout_dom"
+Renderer = require "../renderers/renderer"
+Toolbar = require "../tools/toolbar"
+
+build_views = require "../../common/build_views"
+ToolEvents = require "../../common/tool_events"
+UIEvents = require "../../common/ui_events"
+
+enums = require "../../core/enums"
+LayoutCanvas = require "../../core/layout/layout_canvas"
+{EQ, GE} = require "../../core/layout/solver"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
+{throttle} = require "../../core/util/throttle"
+update_panel_constraints = require("../../core/layout/side_panel").update_constraints
+
+# Notes on WebGL support:
+# Glyps can be rendered into the original 2D canvas, or in a (hidden)
+# webgl canvas that we create below. In this way, the rest of bokehjs
+# can keep working as it is, and we can incrementally update glyphs to
+# make them use GL.
+#
+# When the author or user wants to, we try to create a webgl canvas,
+# which is saved on the ctx object that gets passed around during drawing.
+# The presence (and not-being-false) of the ctx.glcanvas attribute is the
+# marker that we use throughout that determines whether we have gl support.
+
+global_gl_canvas = null
+
+# TODO (bev) PlotView should not be a RendererView
+# TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
+class PlotCanvasView extends Renderer.View
+  className: "bk-plot-wrapper"
+
+  state: { history: [], index: -1 }
+
+  view_options: () ->
+    _.extend({plot_model: @model, plot_view: @}, @options)
+
+  pause: () ->
+    @is_paused = true
+
+  unpause: () ->
+    @is_paused = false
+    @request_render()
+
+  request_render: () =>
+    if not @is_paused
+      @throttled_render()
+    return
+
+  remove: () =>
+    super()
+    # When this view is removed, also remove all of the tools.
+    for id, tool_view of @tool_views
+      tool_view.remove()
+
+  initialize: (options) ->
+    super(options)
+    @pause()
+
+    @_initial_state_info = {
+      range: null                     # set later by set_initial_range()
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @mget("canvas").get("width")
+        height: @mget("canvas").get("height")
+      }
+    }
+
+    # compat, to be removed
+    @frame = @mget('frame')
+    @x_range = @frame.get('x_ranges')['default']
+    @y_range = @frame.get('y_ranges')['default']
+    @xmapper = @frame.get('x_mappers')['default']
+    @ymapper = @frame.get('y_mappers')['default']
+
+    @canvas = @mget('canvas')
+    @canvas_view = new @canvas.default_view({'model': @canvas})
+    @$el.append(@canvas_view.el)
+    @canvas_view.render(true)
+
+    # If requested, try enabling webgl
+    if @mget('webgl') or window.location.search.indexOf('webgl=1') > 0
+      if window.location.search.indexOf('webgl=0') == -1
+        @init_webgl()
+
+    @throttled_render = throttle(@render, 15) # TODO (bev) configurable
+
+    @ui_event_bus = new UIEvents({
+      toolbar: @mget('toolbar')
+      hit_area: @canvas_view.$el
+    })
+
+    @renderer_views = {}
+    @tool_views = {}
+
+    @levels = {}
+    for level in enums.RenderLevel
+      @levels[level] = {}
+    @build_levels()
+    @bind_bokeh_events()
+
+    @update_dataranges()
+
+    @unpause()
+
+    logger.debug("PlotView initialized")
+
+    return this
+
+  get_canvas_element: () ->
+    return @canvas_view.ctx.canvas
+
+  init_webgl: () ->
+
+    # We use a global invisible canvas and gl context. By having a global context,
+    # we avoid the limitation of max 16 contexts that most browsers have.
+    glcanvas = global_gl_canvas
+    if not glcanvas?
+      global_gl_canvas = glcanvas = document.createElement('canvas')
+      opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
+      glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
+
+    # If WebGL is available, we store a reference to the gl canvas on
+    # the ctx object, because that's what gets passed everywhere.
+    if glcanvas.gl?
+      @canvas_view.ctx.glcanvas = glcanvas
+    else
+      logger.warn('WebGL is not supported, falling back to 2D canvas.')
+      # Do not set @canvas_view.ctx.glcanvas
+
+  update_dataranges: () ->
+    # Update any DataRange1ds here
+    frame = @model.get('frame')
+    bounds = {}
+    for k, v of @renderer_views
+      bds = v.glyph?.bounds?()
+      if bds?
+        bounds[k] = bds
+
+    follow_enabled = false
+    has_bounds = false
+
+    for xr in _.values(frame.get('x_ranges'))
+      if xr instanceof DataRange1d.Model
+        xr.update(bounds, 0, @model.id)
+        if xr.get('follow')
+          follow_enabled = true
+      has_bounds = true if xr.get('bounds')?
+
+    for yr in _.values(frame.get('y_ranges'))
+      if yr instanceof DataRange1d.Model
+        yr.update(bounds, 1, @model.id)
+        if yr.get('follow')
+          follow_enabled = true
+      has_bounds = true if yr.get('bounds')?
+
+    if follow_enabled and has_bounds
+      logger.warn('Follow enabled so bounds are unset.')
+      for xr in _.values(frame.get('x_ranges'))
+        xr.set('bounds', null)
+      for yr in _.values(frame.get('y_ranges'))
+        yr.set('bounds', null)
+
+    @range_update_timestamp = Date.now()
+
+  map_to_screen: (x, y, x_name='default', y_name='default') ->
+    @frame.map_to_screen(x, y, @canvas, x_name, y_name)
+
+  push_state: (type, info) ->
+    prev_info = @state.history[@state.index]?.info or {}
+    info = _.extend({}, @_initial_state_info, prev_info, info)
+
+    @state.history.slice(0, @state.index + 1)
+    @state.history.push({type: type, info: info})
+    @state.index = @state.history.length - 1
+
+    @trigger("state_changed")
+
+  clear_state: () ->
+    @state = {history: [], index: -1}
+    @trigger("state_changed")
+
+  can_undo: () ->
+    @state.index >= 0
+
+  can_redo: () ->
+    @state.index < @state.history.length - 1
+
+  undo: () ->
+    if @can_undo()
+      @state.index -= 1
+      @_do_state_change(@state.index)
+      @trigger("state_changed")
+
+  redo: () ->
+    if @can_redo()
+      @state.index += 1
+      @_do_state_change(@state.index)
+      @trigger("state_changed")
+
+  _do_state_change: (index) ->
+    info = @state.history[index]?.info or @_initial_state_info
+
+    if info.range?
+      @update_range(info.range)
+
+    if info.selection?
+      @update_selection(info.selection)
+
+    if info.dimensions?
+      @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
+
+  reset_dimensions: () ->
+    @canvas_view.set_dims([@canvas.initial_width, @canvas.initial_height])
+
+  get_selection: () ->
+    selection = []
+    for renderer in @mget('renderers')
+      if renderer instanceof GlyphRenderer.Model
+        selected = renderer.get('data_source').get("selected")
+        selection[renderer.id] = selected
+    selection
+
+  update_selection: (selection) ->
+    for renderer in @mget("renderers")
+      if renderer not instanceof GlyphRenderer.Model
+        continue
+      ds = renderer.get('data_source')
+      if selection?
+        if renderer.id in selection
+          ds.set("selected", selection[renderer.id])
+      else
+        ds.get('selection_manager').clear()
+
+  reset_selection: () ->
+    @update_selection(null)
+
+  _update_ranges_together: (range_info_iter) ->
+    # Get weight needed to scale the diff of the range to honor interval limits
+    weight = 1.0
+    for [rng, range_info] in range_info_iter
+      weight = Math.min(weight, @_get_weight_to_constrain_interval(rng, range_info))
+    # Apply shared weight to all ranges
+    if weight < 1
+      for [rng, range_info] in range_info_iter
+        range_info['start'] = weight * range_info['start'] + (1-weight) * rng.get('start')
+        range_info['end'] = weight * range_info['end'] + (1-weight) * rng.get('end')
+
+  _update_ranges_individually: (range_info_iter, is_panning, is_scrolling) ->
+    hit_bound = false
+    for [rng, range_info] in range_info_iter
+      # Is this a reversed range?
+      reversed = (rng.get('start') > rng.get('end'))
+
+      # Limit range interval first. Note that for scroll events,
+      # the interval has already been limited for all ranges simultaneously
+      if not is_scrolling
+        weight = @_get_weight_to_constrain_interval(rng, range_info)
+        if weight < 1
+            range_info['start'] = weight * range_info['start'] + (1-weight) * rng.get('start')
+            range_info['end'] = weight * range_info['end'] + (1-weight) * rng.get('end')
+
+      # Prevent range from going outside limits
+      # Also ensure that range keeps the same delta when panning/scrolling
+      if rng.get('bounds')?
+        min = rng.get('bounds')[0]
+        max = rng.get('bounds')[1]
+        new_interval = Math.abs(range_info['end'] - range_info['start'])
+
+        if reversed
+          if min?
+            if min >= range_info['end']
+              hit_bound = true
+              range_info['end'] = min
+              if is_panning? or is_scrolling?
+                range_info['start'] = min + new_interval
+          if max?
+            if max <= range_info['start']
+              hit_bound = true
+              range_info['start'] = max
+              if is_panning? or is_scrolling?
+                range_info['end'] = max - new_interval
+        else
+          if min?
+            if min >= range_info['start']
+              hit_bound = true
+              range_info['start'] = min
+              if is_panning? or is_scrolling?
+                range_info['end'] = min + new_interval
+          if max?
+            if max <= range_info['end']
+              hit_bound = true
+              range_info['end'] = max
+              if is_panning? or is_scrolling?
+                range_info['start'] = max - new_interval
+
+    # Cancel the event when hitting a bound while scrolling. This ensures that
+    # the scroll-zoom tool maintains its focus position. Disabling the next
+    # two lines would result in a more "gliding" behavior, allowing one to
+    # zoom out more smoothly, at the cost of losing the focus position.
+    if is_scrolling and hit_bound
+      return
+
+    for [rng, range_info] in range_info_iter
+      rng.have_updated_interactively = true
+      if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
+          rng.set(range_info)
+          rng.get('callback')?.execute(rng)
+
+  _get_weight_to_constrain_interval: (rng, range_info) ->
+      # Get the weight by which a range-update can be applied
+      # to still honor the interval limits (including the implicit
+      # max interval imposed by the bounds)
+      min_interval = rng.get('min_interval')
+      max_interval = rng.get('max_interval')
+      weight = 1.0
+
+      # Express bounds as a max_interval. By doing this, the application of
+      # bounds and interval limits can be applied independent from each-other.
+      if rng.get('bounds')?
+        [min, max] = rng.get('bounds')
+        if min? and max?
+          max_interval2 = Math.abs(max - min)
+          max_interval = if max_interval? then Math.min(max_interval, max_interval2) else max_interval2
+
+      if min_interval? || max_interval?
+        old_interval = Math.abs(rng.get('end') - rng.get('start'))
+        new_interval = Math.abs(range_info['end'] - range_info['start'])
+        if min_interval > 0 and new_interval < min_interval
+            weight = (old_interval - min_interval) / (old_interval - new_interval)
+        if max_interval > 0 and new_interval > max_interval
+            weight = (max_interval - old_interval) / (new_interval - old_interval)
+        weight = Math.max(0.0, Math.min(1.0, weight))
+      return weight
+
+  update_range: (range_info, is_panning, is_scrolling) ->
+    @pause
+    if not range_info?
+      for name, rng of @frame.get('x_ranges')
+        rng.reset()
+      for name, rng of @frame.get('y_ranges')
+        rng.reset()
+      @update_dataranges()
+    else
+      range_info_iter = []
+      for name, rng of @frame.get('x_ranges')
+        range_info_iter.push([rng, range_info.xrs[name]])
+      for name, rng of @frame.get('y_ranges')
+        range_info_iter.push([rng, range_info.yrs[name]])
+      if is_scrolling
+        @_update_ranges_together(range_info_iter)  # apply interval bounds while keeping aspect
+      @_update_ranges_individually(range_info_iter, is_panning, is_scrolling)
+    @unpause()
+
+  reset_range: () ->
+    @update_range(null)
+
+  build_levels: () ->
+    renderer_models = @mget("renderers")
+    for tool_model in @mget("toolbar").tools
+      synthetic = tool_model.get("synthetic_renderers")
+      renderer_models = renderer_models.concat(synthetic)
+
+    # should only bind events on NEW views and tools
+    old_renderers = _.keys(@renderer_views)
+    views = build_views(@renderer_views, renderer_models, @view_options())
+    renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
+
+    for id_ in renderers_to_remove
+      delete @levels.glyph[id_]
+
+    tool_views = build_views(@tool_views, @mget('toolbar').tools, @view_options())
+
+    for v in views
+      level = v.mget('level')
+      @levels[level][v.model.id] = v
+      v.bind_bokeh_events()
+
+    for tool_view in tool_views
+      level = tool_view.mget('level')
+      @levels[level][tool_view.model.id] = tool_view
+      tool_view.bind_bokeh_events()
+      @ui_event_bus.register_tool(tool_view)
+
+    return this
+
+  bind_bokeh_events: () ->
+    for name, rng of @mget('frame').get('x_ranges')
+      @listenTo(rng, 'change', @request_render)
+    for name, rng of @mget('frame').get('y_ranges')
+      @listenTo(rng, 'change', @request_render)
+    @listenTo(@model, 'change:renderers', @build_levels)
+    @listenTo(@model.toolbar, 'change:tools', @build_levels)
+    @listenTo(@model, 'change', @request_render)
+    @listenTo(@model, 'destroy', () => @remove())
+    @listenTo(@model.document.solver(), 'layout_update', @request_render)
+    @listenTo(@model.document.solver(), 'resize', @resize)
+
+  set_initial_range : () ->
+    # check for good values for ranges before setting initial range
+    good_vals = true
+    xrs = {}
+    for name, rng of @frame.get('x_ranges')
+      if (not rng.get('start')? or not rng.get('end')? or
+          _.isNaN(rng.get('start') + rng.get('end')))
+        good_vals = false
+        break
+      xrs[name] = { start: rng.get('start'), end: rng.get('end') }
+    if good_vals
+      yrs = {}
+      for name, rng of @frame.get('y_ranges')
+        if (not rng.get('start')? or not rng.get('end')? or
+            _.isNaN(rng.get('start') + rng.get('end')))
+          good_vals = false
+          break
+        yrs[name] = { start: rng.get('start'), end: rng.get('end') }
+    if good_vals
+      @_initial_state_info.range = @initial_range_info = {
+        xrs: xrs
+        yrs: yrs
+      }
+      logger.debug("initial ranges set")
+    else
+      logger.warn('could not set initial ranges')
+
+  render: (force_canvas=false) ->
+    logger.trace("Plot.render(force_canvas=#{force_canvas})")
+
+    if not @model.document?
+      return
+
+    if Date.now() - @interactive_timestamp < @mget('lod_interval')
+      @interactive = true
+      lod_timeout = @mget('lod_timeout')
+      setTimeout(() =>
+          if @interactive and (Date.now() - @interactive_timestamp) > lod_timeout
+            @interactive = false
+          @request_render()
+        , lod_timeout)
+    else
+      @interactive = false
+
+    # This seems not needed
+    #if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
+    #  @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
+
+    for k, v of @renderer_views
+      if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
+        @update_dataranges()
+        break
+
+    @update_constraints()
+    # TODO (bev) OK this sucks, but the event from the solver update doesn't
+    # reach the frame in time (sometimes) so force an update here for now
+    @model.get('frame')._update_mappers()
+
+    ctx = @canvas_view.ctx
+
+    # Prepare the canvas and get pixel ratio.
+    # Note that this may cause a resize of the canvas, which means that
+    # this should be considered the main rendering entry point; any previous
+    # calls to ctx.save() may be undone (due to the canvas resize).
+    @canvas_view.prepare_canvas(force_canvas)
+    ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
+
+    # Set hidpi-transform
+    ctx.save()  # Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
+    ctx.scale(ratio, ratio)
+    ctx.translate(0.5, 0.5)
+
+    frame_box = [
+      @canvas.vx_to_sx(@frame.get('left')),
+      @canvas.vy_to_sy(@frame.get('top')),
+      @frame.get('width'),
+      @frame.get('height'),
+    ]
+
+    @_map_hook(ctx, frame_box)
+    @_paint_empty(ctx, frame_box)
+
+    if ctx.glcanvas
+      # Sync canvas size
+      canvas = @canvas_view.get_canvas_element()
+      ctx.glcanvas.width = canvas.width
+      ctx.glcanvas.height = canvas.height
+      # Prepare GL for drawing
+      gl = ctx.glcanvas.gl
+      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+      # Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
+      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
+      # Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
+      #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
+
+    if @visuals.outline_line.doit
+      @visuals.outline_line.set_value(ctx)
+      ctx.strokeRect.apply(ctx, frame_box)
+
+    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
+
+    if ctx.glcanvas
+      # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      # to remove the hidpi transform, then blit, then restore.
+      # ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+      logger.debug('drawing with WebGL')
+      ctx.restore()
+      ctx.drawImage(ctx.glcanvas, 0, 0)
+      # Set back hidpi transform
+      ctx.save()
+      ctx.scale(ratio, ratio)
+      ctx.translate(0.5, 0.5)
+
+    @_render_levels(ctx, ['overlay', 'tool'])
+
+    if not @initial_range_info?
+      @set_initial_range()
+
+    ctx.restore()  # Restore to default state
+
+  resize: () ->
+    width = @model._width._value
+    height = @model._height._value
+
+    @canvas_view.set_dims([width, height], true)
+
+    # This allows the plot canvas to be positioned around the toolbar
+    @$el.css({
+      position: 'absolute'
+      left: @model._dom_left._value
+      top: @model._dom_top._value
+      width: @model._width._value
+      height: @model._height._value
+    })
+
+  update_constraints: () ->
+    s = @model.document.solver()
+
+    # Note: -1 to effectively dilate the canvas by 1px
+    s.suggest_value(@frame._width, @canvas.get('width') - 1)
+    s.suggest_value(@frame._height, @canvas.get('height') - 1)
+
+    for model_id, view of @renderer_views
+      if view.model.panel?
+        update_panel_constraints(view)
+
+    s.update_variables(false)
+
+  _render_levels: (ctx, levels, clip_region) ->
+    ctx.save()
+
+    if clip_region?
+      ctx.beginPath()
+      ctx.rect.apply(ctx, clip_region)
+      ctx.clip()
+      ctx.beginPath()
+
+    indices = {}
+    for renderer, i in @mget("renderers")
+      indices[renderer.id] = i
+
+    sortKey = (renderer_view) -> indices[renderer_view.model.id]
+
+    for level in levels
+      renderer_views = _.sortBy(_.values(@levels[level]), sortKey)
+
+      for renderer_view in renderer_views
+        renderer_view.render()
+
+    ctx.restore()
+
+  _map_hook: (ctx, frame_box) ->
+
+  _paint_empty: (ctx, frame_box) ->
+    @visuals.border_fill.set_value(ctx)
+    ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+    ctx.clearRect(frame_box...)
+    @visuals.background_fill.set_value(ctx)
+    ctx.fillRect(frame_box...)
+
+# TODO(bird) I'm not sure LayoutDOM is the best parent for PlotCanvas
+class PlotCanvas extends LayoutDOM.Model
+  type: 'PlotCanvas'
+  default_view: PlotCanvasView
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+
+    for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
+      xr = @resolve_ref(xr)
+      plots = xr.get('plots')
+      if _.isArray(plots)
+        plots = plots.concat(@)
+        xr.set('plots', plots)
+    for yr in _.values(@get('extra_y_ranges')).concat(@get('y_range'))
+      yr = @resolve_ref(yr)
+      plots = yr.get('plots')
+      if _.isArray(plots)
+        plots = plots.concat(@)
+        yr.set('plots', plots)
+
+    @canvas = new Canvas.Model({
+      map: @use_map ? false
+      initial_width: @plot_width,
+      initial_height: @plot_height,
+      use_hidpi: @hidpi
+    })
+
+    # Min border applies to the edge of everything
+    if @min_border?
+      if not @min_border_top?
+        @min_border_top = @min_border
+      if not @min_border_bottom?
+        @min_border_bottom = @min_border
+      if not @min_border_left?
+        @min_border_left = @min_border
+      if not @min_border_right?
+        @min_border_right = @min_border
+
+    logger.debug("Plot initialized")
+
+  _doc_attached: () ->
+    @canvas.attach_document(@document)
+    @frame = new CartesianFrame.Model({
+      x_range: @x_range,
+      extra_x_ranges: @extra_x_ranges,
+      x_mapper_type: @x_mapper_type,
+      y_range: @y_range,
+      extra_y_ranges: @extra_y_ranges,
+      y_mapper_type: @y_mapper_type,
+    })
+    @frame.attach_document(@document)
+
+    # Add the panels that make up the layout
+    @above_panel = new LayoutCanvas.Model()
+    @above_panel.attach_document(@document)
+    @below_panel = new LayoutCanvas.Model()
+    @below_panel.attach_document(@document)
+    @left_panel = new LayoutCanvas.Model()
+    @left_panel.attach_document(@document)
+    @right_panel = new LayoutCanvas.Model()
+    @right_panel.attach_document(@document)
+
+    # Add the title to layout
+    if @title?
+      @add_layout(@title, @title_location)
+
+    # Add panels for any side renderers
+    # (Needs to be called in _doc_attached, so that panels can attach to the document.)
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        r.add_panel(side)
+
+
+    logger.debug("Plot attached to document")
+
+  serializable_attributes: () ->
+    attrs = super()
+    if 'renderers' of attrs
+      attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
+    return attrs
+
+  add_renderers: (new_renderers...) ->
+    renderers = @get('renderers')
+    renderers = renderers.concat(new_renderers)
+    @set('renderers', renderers)
+
+  add_layout: (renderer, side="center") ->
+    if renderer.props.plot?
+      renderer.plot = this
+    @add_renderers(renderer)
+    if side != 'center'
+      renderer.add_panel(side)
+      @set(side, @get(side).concat([renderer]))
+
+  add_glyph: (glyph, source, attrs={}) ->
+    if not source?
+      source = new ColumnDataSource.Model()
+
+    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    renderer = new GlyphRenderer.Model(attrs)
+
+    @add_renderers(renderer)
+
+    return renderer
+
+  add_tools: (tools...) ->
+    new_tools = for tool in tools
+      if tool.overlay?
+        @add_renderers(tool.overlay)
+
+      if tool.plot?
+        tool
+      else
+        # XXX: this part should be unnecessary, but you can't configure tool.plot
+        # after construting a tool. When this limitation is lifted, remove this code.
+        attrs = _.clone(tool.attributes)
+        attrs.plot = this
+        new tool.constructor(attrs)
+
+    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
+
+  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
+
+  @define {
+      plot_width:        [ p.Number,   600                    ]
+      plot_height:       [ p.Number,   600                    ]
+      title:             [ p.Instance                         ]
+      title_location:    [ p.Location, 'above'                ]
+
+      h_symmetry:        [ p.Bool,     true                   ]
+      v_symmetry:        [ p.Bool,     false                  ]
+
+      above:             [ p.Array,    []                     ]
+      below:             [ p.Array,    []                     ]
+      left:              [ p.Array,    []                     ]
+      right:             [ p.Array,    []                     ]
+
+      renderers:         [ p.Array,    []                     ]
+
+      x_range:           [ p.Instance                         ]
+      extra_x_ranges:    [ p.Any,      {}                     ] # TODO (bev)
+      y_range:           [ p.Instance                         ]
+      extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
+
+      x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
+      y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
+
+      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
+
+      lod_factor:        [ p.Number,   10                     ]
+      lod_interval:      [ p.Number,   300                    ]
+      lod_threshold:     [ p.Number,   2000                   ]
+      lod_timeout:       [ p.Number,   500                    ]
+
+      webgl:             [ p.Bool,     false                  ]
+      hidpi:             [ p.Bool,     true                   ]
+
+      min_border:        [ p.Number,   5                      ]
+      min_border_top:    [ p.Number,   null                   ]
+      min_border_left:   [ p.Number,   null                   ]
+      min_border_bottom: [ p.Number,   null                   ]
+      min_border_right:  [ p.Number,   null                   ]
+    }
+
+  @internal {
+      # This is set by parent plot for convenient access
+      toolbar: [ p.Instance ]
+  }
+
+  @override {
+    outline_line_color: '#e5e5e5'
+    border_fill_color: "#ffffff"
+    background_fill_color: "#ffffff"
+    # We should find a way to enforce this
+    responsive: 'box'
+  }
+
+  @internal {
+    canvas:       [ p.Instance ]
+    frame:        [ p.Instance ]
+  }
+
+  get_layoutable_children: () ->
+    children = [
+      @above_panel,
+      @below_panel,
+      @left_panel,
+      @right_panel,
+      @get('canvas'),
+      @get('frame')
+    ]
+    # Add the layout panels for each of the axes
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        if r.panel?
+          children.push(r.panel)
+    return children
+
+  get_edit_variables: () ->
+    edit_variables = []
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    constraints = constraints.concat(@_get_constant_constraints())
+    constraints = constraints.concat(@_get_side_constraints())
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
+
+  _get_constant_constraints: () ->
+    constraints = []
+
+    # Add the constraints that always apply for a plot
+    min_border_top    = @get('min_border_top')
+    min_border_bottom = @get('min_border_bottom')
+    min_border_left   = @get('min_border_left')
+    min_border_right  = @get('min_border_right')
+    frame             = @get('frame')
+    canvas            = @get('canvas')
+
+    # Set the border constraints
+    constraints.push(GE(@above_panel._height, -min_border_top))
+    constraints.push(GE(@below_panel._height, -min_border_bottom))
+    constraints.push(GE(@left_panel._width, -min_border_left))
+    constraints.push(GE(@right_panel._width, -min_border_right))
+
+    # Set panel top and bottom related to canvas and frame
+    constraints.push(EQ(@above_panel._top, [-1, canvas._top]))
+    constraints.push(EQ(@above_panel._bottom, [-1, frame._top]))
+    constraints.push(EQ(@below_panel._bottom, [-1, canvas._bottom]))
+    constraints.push(EQ(@below_panel._top, [-1, frame._bottom]))
+    constraints.push(EQ(@left_panel._left, [-1, canvas._left]))
+    constraints.push(EQ(@left_panel._right, [-1, frame._left]))
+    constraints.push(EQ(@right_panel._right, [-1, canvas._right]))
+    constraints.push(EQ(@right_panel._left, [-1, frame._right]))
+
+    # Plot sides align
+    constraints.push(EQ(@above_panel._height, [-1, @_top]))
+    constraints.push(EQ(@above_panel._height, [-1, canvas._top], frame._top))
+    constraints.push(EQ(@below_panel._height, [-1, @_height], @_bottom))
+    constraints.push(EQ(@below_panel._height, [-1, frame._bottom]))
+    constraints.push(EQ(@left_panel._width, [-1, @_left]))
+    constraints.push(EQ(@left_panel._width, [-1, frame._left]))
+    constraints.push(EQ(@right_panel._width, [-1, @_width], @_right))
+    constraints.push(EQ(@right_panel._width, [-1, canvas._right], frame._right))
+
+    return constraints
+
+  _get_side_constraints: () ->
+    constraints = []
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      last = @get('frame')
+      for r in layout_renderers
+        # Stack together the renderers
+        if side == "above"
+          constraints.push(EQ(last.panel._top, [-1, r.panel._bottom]))
+        if side == "below"
+          constraints.push(EQ(last.panel._bottom, [-1, r.panel._top]))
+        if side == "left"
+          constraints.push(EQ(last.panel._left, [-1, r.panel._right]))
+        if side == "right"
+          constraints.push(EQ(last.panel._right, [-1, r.panel._left]))
+        last = r
+      if layout_renderers.length != 0
+        # Set panel extent to match the side renderers (e.g. axes)
+        if side == "above"
+          constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
+        if side == "below"
+          constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
+        if side == "left"
+          constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
+        if side == "right"
+          constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
+    return constraints
+
+  # TODO: This is less than awesome - this is here purely for tests to pass. Need to
+  # find a better way, but this was expedient for now.
+  plot_canvas: () ->
+    return @
+
+module.exports =
+  Model: PlotCanvas
+  View: PlotCanvasView

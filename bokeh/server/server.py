@@ -24,6 +24,15 @@ def _create_hosts_whitelist(host_list, port):
 
     hosts = []
     for host in host_list:
+        if '*' in host:
+            log.warning('Host wildcard %r can expose the application to HTTP '
+                        'host header attacks. Host wildcard should only be '
+                        'used for testing purpose.', host)
+        if host == '*':
+            # do not append the :80 port suffix in that case: any port is
+            # accepted
+            hosts.append(host)
+            continue
         parts = host.split(':')
         if len(parts) == 1:
             if parts[0] == "":
@@ -53,7 +62,7 @@ class Server(object):
 
     def __init__(self, applications, **kwargs):
         log.info("Starting Bokeh server version %s" % __version__)
-        
+
         if isinstance(applications, Application):
             self._applications = { '/' : applications }
         else:
@@ -85,6 +94,8 @@ class Server(object):
 
         tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host', None), self._port)
         tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin', None), self._port)
+        tornado_kwargs['use_index'] = kwargs.get('use_index', True)
+        tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 
         self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
         self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))

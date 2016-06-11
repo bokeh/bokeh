@@ -35,6 +35,3 @@ class BokehExporter(Exporter):
 
     def draw_patch(self, ax, patch, force_trans=None):
         super(BokehExporter, self).draw_patch(ax, patch, force_trans)
-
-
-

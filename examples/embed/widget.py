@@ -178,4 +178,3 @@ document.add_root(layout)
 if __name__ == "__main__":
     print("\npress ctrl-C to exit")
     session.loop_until_closed()
-

@@ -200,13 +200,26 @@ class CategoricalTickFormatter(TickFormatter):
     """
     pass
 
+DEFAULT_DATETIME_FORMATS = lambda : {
+    'microseconds': ['%fus'],
+    'milliseconds': ['%3Nms', '%S.%3Ns'],
+    'seconds':      ['%Ss'],
+    'minsec':       [':%M:%S'],
+    'minutes':      [':%M', '%Mm'],
+    'hourmin':      ['%H:%M'],
+    'hours':        ['%Hh', '%H:%M'],
+    'days':         ['%m/%d', '%a%d'],
+    'months':       ['%m/%Y', '%b%y'],
+    'years':        ['%Y'],
+}
+
 class DatetimeTickFormatter(TickFormatter):
     """ Display tick values from a continuous range as formatted
     datetimes.
 
     """
 
-    formats = Dict(Enum(DatetimeUnits), List(String), help="""
+    formats = Dict(Enum(DatetimeUnits), List(String), default=DEFAULT_DATETIME_FORMATS, help="""
     User defined formats for displaying datetime values.
 
     The enum values correspond roughly to different "time scales". The
@@ -415,4 +428,3 @@ class DatetimeTickFormatter(TickFormatter):
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
     """)
-

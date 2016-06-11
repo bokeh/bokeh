@@ -238,8 +238,8 @@ ResetTool
 
 The reset tool will restore the plot ranges to their original values.
 
-PreviewSaveTool
-'''''''''''''''
+SaveTool
+''''''''
 
 * name: ``'save'``
 * icon: |save_icon|

@@ -1,15 +1,10 @@
 _ = require "underscore"
 
-bokehgl = require "./bokehgl"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 p = require "../../core/properties"
 
 class CircleView extends Glyph.View
-
-  _init_gl: (gl) ->
-    # This is how you enable gl for a glyph
-    @glglyph = new bokehgl.CircleGLGlyph(gl, this)
 
   _index_data: () ->
     return @_xy_index()

@@ -12,7 +12,7 @@ The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
 in Python, and then converted to a JSON format that is consumed by the
 client library, BokehJS. (See :ref:`userguide_concepts` for a more detailed
-disussion.) By itself, this flexible and decoupled design offers advantages,
+discussion.) By itself, this flexible and decoupled design offers advantages,
 for instance it is easy to have other languages (R, Scala, Lua, ...) drive
 the exact same Bokeh plots and visualizations in the browser.
 
@@ -23,7 +23,7 @@ possibilities immediately open up:
 * respond to UI and tool events generated in a browser with computations or
   queries using the full power of python
 * automatically push updates the UI (i.e. widgets or plots), in a browser
-* use periodic, timeout, and asychronous callbacks drive streaming updates
+* use periodic, timeout, and asynchronous callbacks drive streaming updates
 
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
@@ -324,6 +324,16 @@ to the address of the running application, which in this case is:
 
     http://localhost:5006/myapp
 
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
+
 In addition to creating Bokeh applications from single python files, it is
 also possible to create applications from directories.
 
@@ -359,16 +369,20 @@ The full set of files that Bokeh server knows about is:
        |
        +---main.py
        +---server_lifecycle.py
-       +---theme.yaml
        +---static
+       +---theme.yaml
+       +---templates
+            +---index.html
 
 The optional components are
 
 * A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
 
+* A ``static`` subdirectory that can be used to serve static resources associated with this application.
+
 * A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
 
-* a ``static`` subdirectory that can be used to serve static resources associated with this application.
+* A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
@@ -392,17 +406,21 @@ An example might be:
        |    +---custom.js
        |
        +---server_lifecycle.py
-       +---theme.yaml
        +---static
-            +---css
-            |    +---special.css
-            |
-            +---images
-            |    +---foo.png
-            |    +---bar.png
-            |
-            +---js
-                 +---special.js
+       |    +---css
+       |    |    +---special.css
+       |    |
+       |    +---images
+       |    |    +---foo.png
+       |    |    +---bar.png
+       |    |
+       |    +---js
+       |        +---special.js
+       |
+       |---templates
+       |    +---index.html
+       |
+       +---theme.yaml
 
 In this case you might have code similar to:
 
@@ -669,8 +687,8 @@ scaling, and uptime. In these cases more sophisticated deployment
 configurations are needed. In the following sections we discuss some of
 these considerations.
 
-Tunnels
-'''''''
+SSH Tunnels
+'''''''''''
 
 It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
 
@@ -715,15 +733,23 @@ Again, replace *user* with your username on the gateway and *gateway.host* with 
     and wish to contribute your knowledge here, please
     `contact us on the mailing list`_.
 
-.. _userguide_server_deployment_nginx_proxy:
+.. _userguide_server_deplyoment_proxy:
 
-Reverse Proxying with Nginx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Basic Reverse Proxy Setup
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the goal is to serve an web application to the general Internet, it is
 often desirable to host the application on an internal network, and proxy
-connections to it through some dedicated HTTP server. One very common HTTP
-and reverse-proxying server is Nginx.
+connections to it through some dedicated HTTP server. This sections provides
+guidance for basic configuration behind some common reverse proxies.
+
+.. _userguide_server_deployment_nginx_proxy:
+
+Nginx
+'''''
+
+One very common HTTP and reverse-proxying server is Nginx. A sample
+server confuguration block is shown below:
 
 .. code-block:: nginx
 
@@ -784,6 +810,50 @@ whatever user Nginx is running as. Alternatively, you can copy the resources
 to a global static directory during your deployment process. See
 :ref:`userguide_server_deployment_automation` for a demonstration of this.
 
+Apache
+''''''
+
+Another common HTTP server and proxy is Apache:
+
+.. code-block:: apache
+
+    <VirtualHost *:80>
+        ServerName localhost
+
+        CustomLog "/path/to/logs/access_log" combined
+        ErrorLog "/path/to/logs/error_log"
+
+        ProxyPreserveHost On
+        ProxyPass /myapp/ws ws://127.0.0.1:5100/myapp/ws
+        ProxyPassReverse /myapp/ws ws://127.0.0.1:5100/myapp/ws
+
+        ProxyPass /myapp http://127.0.0.1:5100/myapp/
+        ProxyPassReverse /myapp http://127.0.0.1:5100/myapp/
+
+        <Directory />
+            Require all granted
+            Options -Indexes
+        </Directory>
+
+        Alias /static /path/to/bokeh/server/static
+        <Directory /path/to/bokeh/server/static>
+            # directives to effect the static directory
+            Options +Indexes
+        </Directory>
+
+    </VirtualHost>
+
+The above configuration aliases `/static` to the location of the Bokeh
+static resources directory, however it is also possible (and probably
+preferable) to copy the Bokeh static resources to whatever standard
+static files location is configured for Apache as part of the deployment.
+
+As before, you would run the Bokeh server with the command:
+
+.. code-block:: sh
+
+    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
+
 .. _userguide_server_deployment_nginx_proxy_ssl:
 
 Reverse Proxying with Nginx and SSL
@@ -796,7 +866,7 @@ you must also add the ``--use-xheaders`` flag:
 
 .. code-block:: sh
 
-    bokeh bserve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+    bokeh serve myapp.py --port 5100 --host foo.com:443 --use-xheaders
 
 The ``--use-xheaders`` option causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,

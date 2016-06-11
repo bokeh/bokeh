@@ -10,6 +10,8 @@ class Range1d extends Range.Model
       start:  [ p.Number, 0 ]
       end:    [ p.Number, 1 ]
       bounds: [ p.Any       ] # TODO (bev)
+      min_interval: [ p.Any ]
+      max_interval: [ p.Any ]
     }
 
   _set_auto_bounds: () ->

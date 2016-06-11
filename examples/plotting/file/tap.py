@@ -1,4 +1,3 @@
-
 import itertools
 import numpy as np
 
@@ -24,7 +23,7 @@ source = ColumnDataSource(data=dict(
     bar=np.random.normal(size=N),
 ))
 
-TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,save"
 
 p = figure(title="Tappy Scatter", tools=TOOLS)
 

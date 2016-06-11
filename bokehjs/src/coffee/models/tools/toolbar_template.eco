@@ -1,0 +1,18 @@
+<div class="bk-toolbar-<%=@location%> bk-plot-<%=@location%> bk-toolbar-<%=@sticky%> bk-toolbar-active">
+  <% if @logo? && @logo=="grey": %>
+    <a href='http://bokeh.pydata.org/' target='_blank' class='bk-logo bk-logo-small grey'></a>
+  <% else if @logo?: %>
+  <a href='http://bokeh.pydata.org/' target='_blank' class='bk-logo bk-logo-small'></a>
+  <% end %>
+  <div class='bk-button-bar'>
+    <ul class='bk-button-bar-list' type="pan" />
+    <ul class='bk-button-bar-list' type="scroll" />
+    <ul class='bk-button-bar-list' type="pinch" />
+    <ul class='bk-button-bar-list' type="tap" />
+    <ul class='bk-button-bar-list' type="press" />
+    <ul class='bk-button-bar-list' type="rotate" />
+    <ul class='bk-button-bar-list' type="actions" />
+    <div class='bk-button-bar-list bk-bs-dropdown' type="inspectors" />
+    <ul class='bk-button-bar-list' type="help" />
+  </div>
+</div>

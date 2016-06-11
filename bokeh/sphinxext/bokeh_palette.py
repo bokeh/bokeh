@@ -90,9 +90,3 @@ def setup(app):
                  text=(text_visit_bokeh_palette, None),
                  man=(man_visit_bokeh_palette, None))
     app.add_directive('bokeh-palette', BokehPaletteDirective)
-
-
-
-
-
-

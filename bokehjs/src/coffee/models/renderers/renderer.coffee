@@ -286,19 +286,6 @@ class RendererView extends BokehView
 class Renderer extends Model
   type: "Renderer"
 
-  _coords: []
-
-  @coords: (coords) ->
-    _coords = this.prototype._coords.concat(coords)
-    this.prototype._coords = _coords
-
-    result = {}
-    for [x, y] in coords
-      result[x] = [ p.NumberSpec ]
-      result[y] = [ p.NumberSpec ]
-
-    @define(result)
-
   @define {
     level: [ p.RenderLevel, null ]
   }
@@ -306,3 +293,4 @@ class Renderer extends Model
 module.exports =
   Model: Renderer
   View: RendererView
+  Visuals: VISUALS

@@ -1,4 +1,3 @@
-
 .. _bokeh.io:
 
 ``bokeh.io``

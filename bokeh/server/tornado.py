@@ -22,6 +22,7 @@ from tornado.web import StaticFileHandler
 from bokeh.resources import Resources
 from bokeh.settings import settings
 
+from .views.root_handler import RootHandler
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
@@ -31,13 +32,19 @@ from .views.static_handler import StaticHandler
 def match_host(host, pattern):
     """ Match host against pattern
 
-    >>> match_host('192.168.0.1', '192.168.0.1')
+    >>> match_host('192.168.0.1:80', '192.168.0.1:80')
     True
+    >>> match_host('192.168.0.1:80', '192.168.0.1')
+    True
+    >>> match_host('192.168.0.1:80', '192.168.0.1:8080')
+    False
     >>> match_host('192.168.0.1', '192.168.0.2')
     False
     >>> match_host('192.168.0.1', '192.168.*.*')
     True
     >>> match_host('alice', 'alice')
+    True
+    >>> match_host('alice:80', 'alice')
     True
     >>> match_host('alice', 'bob')
     False
@@ -45,7 +52,31 @@ def match_host(host, pattern):
     False
     >>> match_host('alice', '*')
     True
+    >>> match_host('alice', '*:*')
+    True
+    >>> match_host('alice:80', '*')
+    True
+    >>> match_host('alice:80', '*:80')
+    True
+    >>> match_host('alice:8080', '*:80')
+    False
+
     """
+    if ':' in host:
+        host, host_port = host.rsplit(':', 1)
+    else:
+        host_port = None
+
+    if ':' in pattern:
+        pattern, pattern_port = pattern.rsplit(':', 1)
+        if pattern_port == '*':
+            pattern_port = None
+    else:
+        pattern_port = None
+
+    if pattern_port is not None and host_port != pattern_port:
+        return False
+
     host = host.split('.')
     pattern = pattern.split('.')
 
@@ -112,6 +143,7 @@ class BokehTornado(TornadoApplication):
         unused_session_lifetime_milliseconds (int) : number of milliseconds for unused session lifetime
         stats_log_frequency_milliseconds (int) : number of milliseconds between logging stats
         develop (boolean) : True for develop mode
+        use_index (boolean) : True to generate an index of the running apps in the RootHandler
 
     '''
 
@@ -130,9 +162,12 @@ class BokehTornado(TornadoApplication):
                  unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
-                 develop=False):
+                 develop=False,
+                 use_index=True,
+                 redirect_root=True):
 
         self._prefix = prefix
+        self.use_index = use_index
 
         if io_loop is None:
             io_loop = IOLoop.current()
@@ -200,8 +235,16 @@ class BokehTornado(TornadoApplication):
                 all_patterns.append((route, StaticFileHandler, { "path" : app.static_path }))
 
         for p in extra_patterns + toplevel_patterns:
-            prefixed_pat = (self._prefix+p[0],) + p[1:]
-            all_patterns.append(prefixed_pat)
+            if p[1] == RootHandler:
+                if self.use_index:
+                    data = {"applications": self._applications,
+                            "prefix": self._prefix,
+                            "use_redirect": redirect_root}
+                    prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
+                    all_patterns.append(prefixed_pat)
+            else:
+                prefixed_pat = (self._prefix + p[0],) + p[1:]
+                all_patterns.append(prefixed_pat)
 
         for pat in all_patterns:
             _whitelist(pat[1])

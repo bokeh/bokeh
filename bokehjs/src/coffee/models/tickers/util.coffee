@@ -1,4 +1,3 @@
-
 # TODO Clear out debugging code, etc.
 # TODO Organize helper functions.
 # TODO The years ticker doesn't always use the roundest numbers; it should
@@ -65,4 +64,3 @@ module.exports =
   ONE_DAY:                  ONE_DAY
   ONE_MONTH:                ONE_MONTH
   ONE_YEAR:                 ONE_YEAR
-

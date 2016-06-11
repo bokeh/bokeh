@@ -644,6 +644,24 @@ describe "properties module", ->
       it "should be Property.transform", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
+  describe "Responsive", ->
+    prop = new properties.Responsive({obj: new SomeHasProps(a: {value: "fixed"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on dimension input", ->
+        for x in enums.Responsive
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
   describe "String", ->
     prop = new properties.String({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
 
@@ -728,6 +746,7 @@ describe "properties module", ->
       expect("Any" of properties).to.be.true
       expect("Anchor" of properties).to.be.true
       expect("Angle" of properties).to.be.true
+      expect("AngleUnits" of properties).to.be.true
       expect("Array" of properties).to.be.true
       expect("Bool" of properties).to.be.true
       expect("Color" of properties).to.be.true
@@ -750,6 +769,7 @@ describe "properties module", ->
       expect("String" of properties).to.be.true
       expect("TextAlign" of properties).to.be.true
       expect("TextBaseline" of properties).to.be.true
+      expect("Responsive" of properties).to.be.true
 
     it "should have dataspec property subclasses", ->
       expect("AngleSpec" of properties).to.be.true
@@ -759,4 +779,3 @@ describe "properties module", ->
       expect("FontSizeSpec" of properties).to.be.true
       expect("NumberSpec" of properties).to.be.true
       expect("StringSpec" of properties).to.be.true
-

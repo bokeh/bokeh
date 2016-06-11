@@ -3,13 +3,15 @@ $ = require "jquery"
 $1 = require "jquery-ui/autocomplete"
 $2 = require "jquery-ui/spinner"
 
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
+
 Model = require "../../model"
+
+Widget = require "./widget"
 
 class CellEditor extends Model
 
-class CellEditorView extends BokehView
+class CellEditorView extends Widget.View
 
   tagName: "div"
   className: "bk-cell-editor"
@@ -26,6 +28,7 @@ class CellEditorView extends BokehView
     @render()
 
   render: () ->
+    super()
     @$el.appendTo(@args.container)
     @$input = $(@input)
     @$el.append(@$input)

@@ -1,4 +1,3 @@
-
 _delay_animation = (f) ->
   return f()
 
@@ -36,7 +35,7 @@ throttle = (func, wait) ->
       clearTimeout(timeout)
       pending = true
       delay_animation(later)
-    else if (!timeout)
+    else if (!timeout and !pending)
       timeout = setTimeout((-> delay_animation(later)), remaining)
     return result
 

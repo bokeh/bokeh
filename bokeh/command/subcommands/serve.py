@@ -67,6 +67,16 @@ Note that if multiple scripts or directories are provided, they
 all receive the same set of command line arguments (if any) given by
 ``--args``.
 
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
+
 Network Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -102,10 +112,24 @@ If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
 that the server is configured to listen on (by default: {DEFAULT_PORT}).
 
-If an asterix ``*`` is used in the host value (for example ``--host *``) then
-it will be treated as a wildcard.  As a warning, using permissive host values
-like ``*`` may be insecure and open your application to HTTP host header
-attacks.
+If an asterix ``*`` is used in the host value then it will be treated as a
+wildcard:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --address=0.0.0.0 --host='*'
+
+Using the wildcard can be helpful when testing applications that are deployed
+with cloud orchestration tools and when the public endpoint is not known ahead
+of time: for instance if the public IP is dynamically allocated during the
+deployment process and no public DNS has been configured for the testing
+environment.
+
+As a warning, using permissive host values like ``*`` may be insecure and open
+your application to HTTP host header attacks. Production deployments should
+always set the ``--host`` flag to use the DNS name of the public endpoint such
+as a TLS-enabled load balancer or reverse proxy that serves the application to
+the end users.
 
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
@@ -435,7 +459,18 @@ class Serve(Subcommand):
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
+
+        ('--disable-index', dict(
+            action = 'store_true',
+            help    = 'Do not use the default index on the root path',
+        )),
+
+        ('--disable-index-redirect', dict(
+            action = 'store_true',
+            help    = 'Do not redirect to running app from root path',
+        )),
     )
+
 
     def invoke(self, args):
         argvs = { f : args.args for f in args.files}
@@ -505,6 +540,9 @@ class Serve(Subcommand):
         if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
+
+        server_kwargs['use_index'] = not args.disable_index
+        server_kwargs['redirect_root'] = not args.disable_index_redirect
 
         server = Server(applications, **server_kwargs)
 

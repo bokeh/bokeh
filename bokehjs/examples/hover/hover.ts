@@ -28,7 +28,7 @@ namespace HoverfulScatter {
         data: {x: xx, y: yy, radius: radii, colors: colors }
     })
 
-    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,hover,previewsave"
+    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,hover,save"
 
     const p = plt.figure({title: "Hoverful Scatter", tools: tools})
 

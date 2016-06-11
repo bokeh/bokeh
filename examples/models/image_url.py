@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from bokeh.util.browser import view

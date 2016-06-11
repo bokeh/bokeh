@@ -14,7 +14,7 @@ from ..models import (
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, PolySelectTool, ContinuousTicker,
-    PreviewSaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
+    SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime
@@ -203,9 +203,8 @@ _known_tools = {
     "wheel_zoom": lambda: WheelZoomTool(dimensions=["width", "height"]),
     "xwheel_zoom": lambda: WheelZoomTool(dimensions=["width"]),
     "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
-    "save": lambda: PreviewSaveTool(),
     "resize": lambda: ResizeTool(),
-    "click": "tap",
+    "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
@@ -221,7 +220,8 @@ _known_tools = {
         ("data (x, y)", "($x, $y)"),
         ("canvas (x, y)", "($sx, $sy)"),
     ]),
-    "previewsave": lambda: PreviewSaveTool(),
+    "save": lambda: SaveTool(),
+    "previewsave": "save",
     "undo": lambda: UndoTool(),
     "redo": lambda: RedoTool(),
     "reset": lambda: ResetTool(),
@@ -320,17 +320,6 @@ def _process_tools_arg(plot, tools):
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
 
     return tool_objs
-
-class _list_attr_splat(list):
-    def __setattr__(self, attr, value):
-        for x in self:
-            setattr(x, attr, value)
-
-    def __dir__(self):
-        if len(set(type(x) for x in self)) == 1:
-            return dir(self[0])
-        else:
-            return dir(self)
 
 _arg_template = "    %s (%s) : %s (default %r)"
 _doc_template = """ Configure and add %s glyphs to this Figure.

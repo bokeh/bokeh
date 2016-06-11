@@ -1,27 +1,94 @@
 @import (reference) "flexbox.less";
 @import "data_table.less";
 
-.bk-widget-form {
-  padding: 30px 30px 30px 30px;
-  overflow: hidden;
+.bk-widget-box {
+  overflow: visible;
+  padding: 5px 10px;
 }
 
-.bk-widget-form-group {
-  .bk-bs-form-group;
+.bk-widget label {
+  margin-bottom: 2px;
 }
 
+.bk-widget {
+  margin-top: 10px;
+}
+
+// Icons were picking up this margin, which we don't want.
+// Better way it probably to fix how they get rendered so they
+// don't do a widget render (but that's for another time)
+.bk-widget.bk-fa {
+  margin-top: 0px;
+}
+
+.bk-widget h1:first-child,
+.bk-widget h2:first-child,
+.bk-widget h3:first-child,
+.bk-widget h4:first-child,
+.bk-widget h5:first-child,
+.bk-widget h6:first-child,
+.bk-widget p:first-child {
+  /* This ensures that the top of the item is at the top of box in common text cases that */
+  /* get browser styling */
+  margin-top: 0;
+}
+
+/* This is the line that gives everything bootstrap styling */
 .bk-widget-form-input {
   .bk-bs-form-control;
 }
 
-.bk-slider-horizontal {
-  width: 100%;
-  height: 50px;
-  min-width: 200px;
+
+//
+//
+// Individual widget customizations
+//
+//
+
+/* misc */
+.bk-widget select,
+.bk-widget button {
+  min-width: 50%;
+}
+.bk-widget input[type="text"] {
+  min-width: 90%;
+}
+
+/* dropdown */
+.bk-bs-dropdown-toggle .bk-bs-caret {
+  margin-right: 5px;
+  margin-bottom: 5px;
+  color: #A1A6A9;
+}
+
+/* tabs */
+.bk-bs-nav-tabs {
+  overflow: hidden;
+}
+.bk-bs-tab-pane {
+  float: left;
+}
+
+/* slider - start */
+.bk-slider-parent input[type="text"] {
+  display: inline-block;
+  border: 0;
+  font-weight: 600;
+  margin-left: 4px;
+  font-size: 13px;
+  vertical-align: text-bottom;
+  padding: 0;
+  min-width: 20px;
+}
+
+.bk-widget .bk-slider-horizontal {
+  width: 93%;
+  margin-left: 8px;
+  height: 10px;
 }
 
 .bk-slider-vertical {
   height: 100%;
-  width: 50px;
-  min-height: 200px;
+  width: 16px;
 }
+/* slider - end */

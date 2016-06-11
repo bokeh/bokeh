@@ -54,7 +54,7 @@ def shutdown_server():
 
 def ui():
     time.sleep(0.5)
-    input("Press any key to exit...")
+    input("Press <ENTER> to exit...\n")
 
 
 if __name__ == "__main__":
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print("\nStarting Bokeh plot server on port %d..." % PORT)
     print("Visit http://localhost:%d/en/latest/index.html to see plots\n" % PORT)
 
-    t_server = threading.Thread(target=serve_http)  
+    t_server = threading.Thread(target=serve_http)
     t_server.start()
     t_browser = threading.Thread(target=open_browser)
     t_browser.start()

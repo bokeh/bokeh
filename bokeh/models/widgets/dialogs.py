@@ -3,9 +3,10 @@
 from __future__ import absolute_import
 
 from ...core.properties import Bool, String, List, Instance, Either
-from ..layouts import BaseBox, HBox
+from ..layouts import Box, Row
 from .widget import Widget
 from .buttons import Button
+
 
 class Dialog(Widget):
     """ Simple dialog box with string message.
@@ -25,8 +26,8 @@ class Dialog(Widget):
     The title of the dialog widget.
     """)
 
-    content = Either(String(), Instance(BaseBox), default="", help="""
-    Either a message to be displayed by this dialog or a BaseBox to be used
+    content = Either(String(), Instance(Box), default="", help="""
+    Either a message to be displayed by this dialog or a Box to be used
     as dialog body.
     """)
 
@@ -34,8 +35,8 @@ class Dialog(Widget):
     A list of buttons to be placed on the bottom of the dialog.
     """)
 
-    buttons_box = Instance(BaseBox, help="""
-    A BaseBox with buttons to be used as dialog footer.
+    buttons_box = Instance(Box, help="""
+    A Box with buttons to be used as dialog footer.
     """)
 
     def __init__(self, **kwargs):
@@ -43,7 +44,7 @@ class Dialog(Widget):
             raise ValueError("'buttons' keyword cannot be used with 'buttons_box' argument")
 
         if 'buttons' in kwargs:
-            kwargs['buttons_box'] = HBox(children=kwargs['buttons'])
+            kwargs['buttons_box'] = Row(children=kwargs['buttons'])
 
         elif 'buttons_box' in kwargs:
             kwargs['buttons'] = kwargs['buttons_box'].children

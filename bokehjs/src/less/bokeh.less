@@ -1,6 +1,21 @@
 .bk-root {
-  @import "bootstrap.less"; // XXX: core bokeh shouldn't depend on bootstrap
+  // Only import the bits of bootstrap we need for toolbar
+  @bootstrap: "../vendor/bootstrap-3.1.1/less";
+  @import "@{bootstrap}/variables.less";
+  @import "@{bootstrap}/mixins.less";
+  @import "@{bootstrap}/buttons.less";
+  @import "@{bootstrap}/button-groups.less";
+  @import "@{bootstrap}/dropdowns.less";
+
   @import "continuum.less";
   @import "main.less";
   @import "icons.less";
+  @import "bokeh-layout.less";
+
+  // Properties of bk-root itself
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }

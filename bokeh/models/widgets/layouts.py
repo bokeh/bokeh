@@ -1,4 +1,3 @@
-
 ### Deprecation note:
 ### bokeh.models.widgets.layouts has been deprecated in 0.11.1 in favor of
 ### bokeh.models.layouts and is awaiting removal. The following imports will

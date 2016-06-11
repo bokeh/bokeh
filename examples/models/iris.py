@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Title
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -27,7 +27,7 @@ source = ColumnDataSource(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=80, title="Iris Data")
+plot = Plot(x_range=xdr, y_range=ydr, title="Iris Data", plot_width=800, plot_height=400)
 
 circle = Circle(
     x="petal_length", y="petal_width", size=10,
@@ -35,16 +35,21 @@ circle = Circle(
 )
 plot.add_glyph(source, circle)
 
-xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
+xaxis = LinearAxis(axis_label="petal length", major_tick_in=0)
 plot.add_layout(xaxis, 'below')
 
-yaxis = LinearAxis(axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
+yaxis = LinearAxis(axis_label="petal width", major_tick_in=0)
 plot.add_layout(yaxis, 'left')
 
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
+
+# Add a caption as a title placed in "below" layout panel.
+msg = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
+caption = Title(text=msg, title_align='left', text_font_size='10pt')
+plot.add_layout(caption, 'below')
 
 doc = Document()
 doc.add_root(plot)

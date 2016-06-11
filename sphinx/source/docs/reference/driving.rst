@@ -1,4 +1,3 @@
-
 .. _bokeh.driving:
 
 ``bokeh.driving``
