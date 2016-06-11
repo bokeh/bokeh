@@ -80,7 +80,8 @@ class Plot extends LayoutDOM.Model
         @min_border_right = @min_border
 
     plot_only_options = [
-      'toolbar_location', 'toolbar_sticky', 'min_border',
+      'toolbar_location', 'toolbar_sticky',
+      'webgl', 'hidpi', 'min_border',
       'min_border_top', 'min_border_bottom',
       'min_border_left', 'min_border_right'
     ]

@@ -16,10 +16,11 @@ Toolbar = utils.require("models/tools/toolbar").Model
 describe "Axis.Model", ->
 
   it "should have a SidePanel after add_panel is called", ->
-    p = new PlotCanvas({
+    pp = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
+    p = pp._plot_canvas
     p.attach_document(new Document())
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
@@ -34,10 +35,11 @@ describe "Axis.Model", ->
     expect(axis.panel).to.be.an.instanceOf(SidePanel)
 
   it "should have a SidePanel after plot.add_layout is called", ->
-    p = new PlotCanvas({
+    pp = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
+    p = pp._plot_canvas
     p.attach_document(new Document())
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()

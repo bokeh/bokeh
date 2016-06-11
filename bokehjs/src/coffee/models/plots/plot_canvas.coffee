@@ -91,7 +91,7 @@ class PlotCanvasView extends Renderer.View
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
-    if @mget('webgl') or window.location.search.indexOf('webgl=1') > 0
+    if @model.plot.webgl or window.location.search.indexOf('webgl=1') > 0
       if window.location.search.indexOf('webgl=0') == -1
         @init_webgl()
 
@@ -617,7 +617,7 @@ class PlotCanvas extends LayoutDOM.Model
       map: @use_map ? false
       initial_width: @plot_width,
       initial_height: @plot_height,
-      use_hidpi: @hidpi
+      use_hidpi: @plot.hidpi
     })
 
     logger.debug("PlotCanvas initialized")
@@ -731,10 +731,6 @@ class PlotCanvas extends LayoutDOM.Model
       lod_interval:      [ p.Number,   300                    ]
       lod_threshold:     [ p.Number,   2000                   ]
       lod_timeout:       [ p.Number,   500                    ]
-
-      webgl:             [ p.Bool,     false                  ]
-      hidpi:             [ p.Bool,     true                   ]
-
     }
 
   @override {
