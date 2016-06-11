@@ -1,6 +1,4 @@
 _ = require "underscore"
-$ = require "jquery"
-Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
@@ -231,14 +229,14 @@ class PlotCanvasView extends Renderer.View
 
   get_selection: () ->
     selection = []
-    for renderer in @mget('renderers')
+    for renderer in @model.plot.renderers
       if renderer instanceof GlyphRenderer.Model
         selected = renderer.get('data_source').get("selected")
         selection[renderer.id] = selected
     selection
 
   update_selection: (selection) ->
-    for renderer in @mget("renderers")
+    for renderer in @model.plot.renderers
       if renderer not instanceof GlyphRenderer.Model
         continue
       ds = renderer.get('data_source')

@@ -1,5 +1,4 @@
 _ = require "underscore"
-$ = require "jquery"
 
 {WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
@@ -9,7 +8,6 @@ LayoutDOM = require "../layouts/layout_dom"
 Toolbar = require "../tools/toolbar"
 ToolEvents = require "../../common/tool_events"
 PlotCanvas = require("./plot_canvas").Model
-
 
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
