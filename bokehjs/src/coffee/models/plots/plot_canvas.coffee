@@ -707,9 +707,6 @@ class PlotCanvas extends LayoutDOM.Model
       title:             [ p.Any                              ] # TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                ]
 
-      h_symmetry:        [ p.Bool,     true                   ]
-      v_symmetry:        [ p.Bool,     false                  ]
-
       above:             [ p.Array,    []                     ]
       below:             [ p.Array,    []                     ]
       left:              [ p.Array,    []                     ]
