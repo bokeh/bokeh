@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
+from ...core.properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either, Override
 from ...model import Model
 from ...core.enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
@@ -374,3 +374,5 @@ class DataTable(TableWidget):
     rows into the table's viewport if none of the selected rows are already
     in the viewport.
     """)
+
+    height = Override(default=400)

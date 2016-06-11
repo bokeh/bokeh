@@ -5,6 +5,7 @@ ActionTool = require "./actions/action_tool"
 HelpTool = require "./actions/help_tool"
 GestureTool = require "./gestures/gesture_tool"
 InspectTool = require "./inspectors/inspect_tool"
+LayoutDOM = require "../layouts/layout_dom"
 ToolbarBase = require "./toolbar_base"
 {ToolProxy} = require "./tool_proxy"
 
@@ -49,6 +50,14 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
     inspectors = {}
     actions = {}
     gestures = {}
+
+    new_help_tools = []
+    new_help_urls = []
+    for helptool in @help
+      if not _.contains(new_help_urls, helptool.redirect)
+        new_help_tools.push(helptool)
+        new_help_urls.push(helptool.redirect)
+    @help = new_help_tools
 
     for event_type, info of @gestures
       if event_type not of gestures
@@ -119,7 +128,7 @@ class ToolbarBoxView extends Box.View
     return 30
 
 
-class ToolbarBox extends Box.Model
+class ToolbarBox extends LayoutDOM.Model
   type: 'ToolbarBox'
   default_view: ToolbarBoxView
 
@@ -140,10 +149,13 @@ class ToolbarBox extends Box.Model
     return [@_toolbar]
 
   @define {
-    toolbar_location: [ p.Location ]
-    merge_tools: [ p.Bool ]
-    tools: [ p.Array ]
-    logo: [ p.String ]
+    toolbar_location: [ p.Location, "above"  ]
+    merge_tools:      [ p.Bool,     true     ]
+    tools:            [ p.Any,  []   ]
+  }
+
+  @override {
+    responsive: null
   }
 
   # These exist only to allow pass-through to create the toolbar.

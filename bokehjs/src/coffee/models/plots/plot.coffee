@@ -220,7 +220,7 @@ class Plot extends LayoutDOM.Model
   #
   # SETUP PROPERTIES
   #
-  @mixins ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
+  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
       toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
@@ -261,7 +261,7 @@ class Plot extends LayoutDOM.Model
       webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
 
-      min_border:        [ p.Number,   null                   ]
+      min_border:        [ p.Number,   5                      ]
       min_border_top:    [ p.Number,   null                   ]
       min_border_left:   [ p.Number,   null                   ]
       min_border_bottom: [ p.Number,   null                   ]
@@ -269,6 +269,9 @@ class Plot extends LayoutDOM.Model
     }
 
   @override {
+    outline_line_color: '#e5e5e5'
+    border_fill_color: "#ffffff"
+    background_fill_color: "#ffffff"
     responsive: 'fixed'
   }
 

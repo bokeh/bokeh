@@ -3,6 +3,12 @@
 Testing
 =======
 
+Before running the unit tests set, please increase the maximum number of open
+file descriptors as some of our tests open many files to test the server.
+
+.. code-block:: sh
+
+    ulimit -n 1024
 
 To run just the python unit tests, run either command:
 

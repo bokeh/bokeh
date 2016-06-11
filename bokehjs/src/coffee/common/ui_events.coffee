@@ -108,8 +108,8 @@ class UIEvents extends Backbone.Model
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
     else
-      x = e.center.x
-      y = e.center.y
+      x = e.pointers[0].pageX
+      y = e.pointers[0].pageY
     offset = $(e.target).offset()
     left = offset.left ? 0
     top = offset.top ? 0

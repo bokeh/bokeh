@@ -69,6 +69,8 @@ class Button(AbstractButton):
     A private property used to trigger ``on_click`` event handler.
     """)
 
+    height = Override(default=45)
+
     def on_click(self, handler):
         """ Set up a handler for button clicks.
 

@@ -94,6 +94,8 @@ class Server(object):
 
         tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host', None), self._port)
         tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin', None), self._port)
+        tornado_kwargs['use_index'] = kwargs.get('use_index', True)
+        tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 
         self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
         self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))

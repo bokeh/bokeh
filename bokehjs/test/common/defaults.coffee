@@ -62,8 +62,16 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
       continue
 
     # special case for date time tickers, class hierarchy and attributes are handled differently
-    if name = "DatetimeTicker" and k = "tickers"
+    if name == "DatetimeTicker" and k == "tickers"
       continue
+
+    # special case for Title derived text properties
+    if name == "Title" and (k == "text_align" or k == "text_baseline")
+      continue
+
+    # special case for selections that have a method added to them
+    if k == 'selected'
+      v['0d'] = _.omit(v['0d'], 'get_view')
 
     if k == 'id'
       continue
@@ -179,10 +187,10 @@ describe "Defaults", ->
       coffee_defaults = attrs
       if not check_matching_defaults(name, python_defaults, coffee_defaults)
         console.log(name)
-        #console.log('python defaults:')
-        #console.log(python_defaults)
-        #console.log('coffee defaults:')
-        #console.log(coffee_defaults)
+        # console.log('python defaults:')
+        # console.log(python_defaults)
+        # console.log('coffee defaults:')
+        # console.log(coffee_defaults)
         console.log(_.difference(_.keys(python_defaults), _.keys(coffee_defaults)))
         fail_count = fail_count + 1
 

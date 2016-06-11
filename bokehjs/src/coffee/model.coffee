@@ -5,6 +5,19 @@ p = require "./core/properties"
 class Model extends HasProps
   type: "Model"
 
+  _coords: []
+
+  @coords: (coords) ->
+    _coords = this.prototype._coords.concat(coords)
+    this.prototype._coords = _coords
+
+    result = {}
+    for [x, y] in coords
+      result[x] = [ p.NumberSpec ]
+      result[y] = [ p.NumberSpec ]
+
+    @define(result)
+
   @define {
     tags: [ p.Array, [] ]
     name: [ p.String    ]
