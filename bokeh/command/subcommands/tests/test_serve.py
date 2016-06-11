@@ -142,4 +142,9 @@ def test_args():
             action = 'store_true',
             help    = 'Do not use the default index on the root path',
         )),
+
+        ('--disable-index-redirect', dict(
+            action = 'store_true',
+            help    = 'Do not redirect to running app from root path',
+        )),
     )

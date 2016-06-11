@@ -10,6 +10,7 @@ class TextAnnotationView extends Annotation.View
     super(options)
 
     @canvas = @plot_model.get('canvas')
+    @frame = @plot_model.get('frame')
 
     if @mget('render_mode') == 'css'
       @$el.addClass('bk-annotation')

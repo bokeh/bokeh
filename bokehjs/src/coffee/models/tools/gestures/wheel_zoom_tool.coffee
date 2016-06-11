@@ -90,7 +90,7 @@ class WheelZoomToolView extends GestureTool.View
       factor: factor
     }
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
-    @plot_view.update_range(zoom_info)
+    @plot_view.update_range(zoom_info, false, true)
     @plot_view.interactive_timestamp = Date.now()
     return null
 

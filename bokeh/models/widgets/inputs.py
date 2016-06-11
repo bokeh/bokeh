@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import six
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance, Override
 from ..callbacks import Callback
 from .widget import Widget
 from ...core.enums import SliderCallbackPolicy
@@ -66,6 +66,8 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
+    height = Override(default=65)
+
 class Select(InputWidget):
     """ Single-select widget.
 
@@ -83,6 +85,8 @@ class Select(InputWidget):
     A callback to run in the browser whenever the current Select dropdown
     value changes.
     """)
+
+    height = Override(default=65)
 
     @classmethod
     def create(self, *args, **kwargs):

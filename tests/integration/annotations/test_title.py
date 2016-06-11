@@ -36,7 +36,7 @@ def test_the_default_titles_settings_and_ensure_outside_any_axes(output_file_url
     layout = Column(
         make_plot('above', 'left', two_axes=False),  # This is a workaround top doesn't like two axes
         make_plot('right', 'right'),
-        make_plot('below', 'center'),  # NOTE THIS HAS A BUG!!!
+        make_plot('below', 'center'),
         make_plot('left', 'left')
     )
 

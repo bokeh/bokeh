@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Active Apps</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600%7CNoto+Sans:400,700' rel='stylesheet' type='text/css'>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="http://bokehplots.com/theme/css/main.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="http://bokeh.pydata.org/en/latest/_static/images/favicon.ico">
+
+</head>
+<body class="">
+
+  <header class="navigation">
+    <div class="wrapper">
+      <a href="http://bokeh.pydata.org" class="logo">
+        <img src="http://bokeh.pydata.org/en/latest/_static/images/logo.png" alt="Bokeh Logo">
+      </a>
+      <a href="#" class="navigation-menu logo-text">Bokeh</a>
+    </div>
+  </header>
+
+  <div class="docs section wrapper">
+    <div class="content">
+       <h1>Active Bokeh Applications</h1>
+       Current Running applications:
+       <ul>
+         {% for item in items %}
+           <li><a href={{ item }}>{{ item[1:] }}</a></li>
+         {% end %}
+       </ul>
+    </div>
+  </div>
+
+
+ </body>
+</html>
