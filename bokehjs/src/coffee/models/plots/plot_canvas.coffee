@@ -452,10 +452,6 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
-    # This seems not needed
-    #if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
-    #  @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
-
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
@@ -615,8 +611,8 @@ class PlotCanvas extends LayoutDOM.Model
 
     @canvas = new Canvas.Model({
       map: @use_map ? false
-      initial_width: @plot_width,
-      initial_height: @plot_height,
+      initial_width: @plot.plot_width,
+      initial_height: @plot.plot_height,
       use_hidpi: @plot.hidpi
     })
 
@@ -702,8 +698,6 @@ class PlotCanvas extends LayoutDOM.Model
   @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
-      plot_width:        [ p.Number,   600                    ]
-      plot_height:       [ p.Number,   600                    ]
       title:             [ p.Any                              ] # TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                ]
 

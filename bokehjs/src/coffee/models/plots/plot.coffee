@@ -81,6 +81,7 @@ class Plot extends LayoutDOM.Model
 
     plot_only_options = [
       'toolbar_location', 'toolbar_sticky',
+      'plot_height', 'plot_width',
       'x_mapper_type', 'y_mapper_type',
       'webgl', 'hidpi', 'min_border',
       'min_border_top', 'min_border_bottom',
