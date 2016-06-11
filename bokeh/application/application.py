@@ -149,6 +149,10 @@ class Application(object):
         return tuple(self._handlers)
 
     @property
+    def safe_to_fork(self):
+        return all(handler.safe_to_fork for handler in self._handlers)
+
+    @property
     def static_path(self):
         return self._static_path
 

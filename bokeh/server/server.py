@@ -108,6 +108,10 @@ class Server(object):
             self._address = kwargs['address']
 
         self._num_procs = kwargs.get('num_procs', 1)
+        if self._num_procs != 1:
+            assert all(app.safe_to_fork for app in self._applications.values()), (
+                      'User code has ran before attempting to run multiple '
+                      'processes. This is considered an unsafe operation.')
 
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
