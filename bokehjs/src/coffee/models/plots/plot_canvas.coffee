@@ -627,10 +627,10 @@ class PlotCanvas extends LayoutDOM.Model
     @frame = new CartesianFrame.Model({
       x_range: @x_range,
       extra_x_ranges: @extra_x_ranges,
-      x_mapper_type: @x_mapper_type,
+      x_mapper_type: @plot.x_mapper_type,
       y_range: @y_range,
       extra_y_ranges: @extra_y_ranges,
-      y_mapper_type: @y_mapper_type,
+      y_mapper_type: @plot.y_mapper_type,
     })
     @frame.attach_document(@document)
 
@@ -718,9 +718,6 @@ class PlotCanvas extends LayoutDOM.Model
       extra_x_ranges:    [ p.Any,      {}                     ] # TODO (bev)
       y_range:           [ p.Instance                         ]
       extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
-
-      x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
-      y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
 
