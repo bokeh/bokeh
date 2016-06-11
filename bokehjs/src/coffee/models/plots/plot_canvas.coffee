@@ -4,16 +4,12 @@ Backbone = require "backbone"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
-ColumnDataSource = require "../sources/column_data_source"
 DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 Renderer = require "../renderers/renderer"
-Toolbar = require "../tools/toolbar"
-Title = require "../annotations/title"
 
 build_views = require "../../common/build_views"
-ToolEvents = require "../../common/tool_events"
 UIEvents = require "../../common/ui_events"
 
 enums = require "../../core/enums"
@@ -68,6 +64,14 @@ class PlotCanvasView extends Renderer.View
   initialize: (options) ->
     super(options)
     @pause()
+
+    # TODO (bev) this sucks a bit
+    @visuals = {}
+
+    for spec in @model.plot.mixins
+      [name, prefix] = spec.split(":")
+      prefix ?= ""
+      @visuals[prefix+name] = new Renderer.Visuals[name]({obj: @model.plot, prefix: prefix})
 
     @_initial_state_info = {
       range: null                     # set later by set_initial_range()
@@ -142,7 +146,7 @@ class PlotCanvasView extends Renderer.View
 
   update_dataranges: () ->
     # Update any DataRange1ds here
-    frame = @model.get('frame')
+    frame = @model.frame
     bounds = {}
     for k, v of @renderer_views
       bds = v.glyph?.bounds?()
@@ -368,8 +372,8 @@ class PlotCanvasView extends Renderer.View
     @update_range(null)
 
   build_levels: () ->
-    renderer_models = @mget("renderers")
-    for tool_model in @mget("toolbar").tools
+    renderer_models = @model.plot.renderers
+    for tool_model in @model.plot.toolbar.tools
       synthetic = tool_model.get("synthetic_renderers")
       renderer_models = renderer_models.concat(synthetic)
 
@@ -381,7 +385,7 @@ class PlotCanvasView extends Renderer.View
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
 
-    tool_views = build_views(@tool_views, @mget('toolbar').tools, @view_options())
+    tool_views = build_views(@tool_views, @model.plot.toolbar.tools, @view_options())
 
     for v in views
       level = v.mget('level')
@@ -397,16 +401,16 @@ class PlotCanvasView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @mget('frame').get('x_ranges')
+    for name, rng of @model.frame.get('x_ranges')
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @mget('frame').get('y_ranges')
+    for name, rng of @model.frame.get('y_ranges')
       @listenTo(rng, 'change', @request_render)
-    @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model.toolbar, 'change:tools', @build_levels)
-    @listenTo(@model, 'change', @request_render)
-    @listenTo(@model, 'destroy', () => @remove())
-    @listenTo(@model.document.solver(), 'layout_update', @request_render)
-    @listenTo(@model.document.solver(), 'resize', @resize)
+    @listenTo(@model.plot, 'change:renderers', @build_levels)
+    @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
+    @listenTo(@model.plot, 'change', @request_render)
+    @listenTo(@model.plot, 'destroy', () => @remove())
+    @listenTo(@model.plot.document.solver(), 'layout_update', @request_render)
+    @listenTo(@model.plot.document.solver(), 'resize', @resize)
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
@@ -441,9 +445,9 @@ class PlotCanvasView extends Renderer.View
     if not @model.document?
       return
 
-    if Date.now() - @interactive_timestamp < @mget('lod_interval')
+    if Date.now() - @interactive_timestamp < @model.plot.lod_interval
       @interactive = true
-      lod_timeout = @mget('lod_timeout')
+      lod_timeout = @model.plot.lod_timeout
       setTimeout(() =>
           if @interactive and (Date.now() - @interactive_timestamp) > lod_timeout
             @interactive = false
@@ -568,7 +572,7 @@ class PlotCanvasView extends Renderer.View
       ctx.beginPath()
 
     indices = {}
-    for renderer, i in @mget("renderers")
+    for renderer, i in @model.plot.renderers
       indices[renderer.id] = i
 
     sortKey = (renderer_view) -> indices[renderer_view.model.id]
@@ -598,17 +602,6 @@ class PlotCanvas extends LayoutDOM.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
-      plots = xr.get('plots')
-      if _.isArray(plots)
-        plots = plots.concat(@)
-        xr.set('plots', plots)
-    for yr in _.values(@get('extra_y_ranges')).concat(@get('y_range'))
-      plots = yr.get('plots')
-      if _.isArray(plots)
-        plots = plots.concat(@)
-        yr.set('plots', plots)
-
     @canvas = new Canvas.Model({
       map: @use_map ? false
       initial_width: @plot.plot_width,
@@ -616,115 +609,38 @@ class PlotCanvas extends LayoutDOM.Model
       use_hidpi: @plot.hidpi
     })
 
+    @frame = new CartesianFrame.Model({
+      x_range: @plot.x_range,
+      extra_x_ranges: @plot.extra_x_ranges,
+      x_mapper_type: @plot.x_mapper_type,
+      y_range: @plot.y_range,
+      extra_y_ranges: @plot.extra_y_ranges,
+      y_mapper_type: @plot.y_mapper_type,
+    })
+
+    @above_panel = new LayoutCanvas.Model()
+    @below_panel = new LayoutCanvas.Model()
+    @left_panel = new LayoutCanvas.Model()
+    @right_panel = new LayoutCanvas.Model()
+
     logger.debug("PlotCanvas initialized")
 
   _doc_attached: () ->
     @canvas.attach_document(@document)
-    @frame = new CartesianFrame.Model({
-      x_range: @x_range,
-      extra_x_ranges: @extra_x_ranges,
-      x_mapper_type: @plot.x_mapper_type,
-      y_range: @y_range,
-      extra_y_ranges: @extra_y_ranges,
-      y_mapper_type: @plot.y_mapper_type,
-    })
+
     @frame.attach_document(@document)
 
-    # Add the panels that make up the layout
-    @above_panel = new LayoutCanvas.Model()
     @above_panel.attach_document(@document)
-    @below_panel = new LayoutCanvas.Model()
+
     @below_panel.attach_document(@document)
-    @left_panel = new LayoutCanvas.Model()
+
     @left_panel.attach_document(@document)
-    @right_panel = new LayoutCanvas.Model()
+
     @right_panel.attach_document(@document)
 
-    # Add the title to layout
-    if @title?
-      title = if _.isString(@title) then new Title.Model({text: @title}) else @title
-      @add_layout(title, @title_location)
-
-    # Add panels for any side renderers
-    # (Needs to be called in _doc_attached, so that panels can attach to the document.)
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
-      for r in layout_renderers
-        r.add_panel(side)
-
-
-    logger.debug("Plot attached to document")
-
-  add_renderers: (new_renderers...) ->
-    renderers = @get('renderers')
-    renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
-
-  add_layout: (renderer, side="center") ->
-    if renderer.props.plot?
-      renderer.plot = this
-    @add_renderers(renderer)
-    if side != 'center'
-      renderer.add_panel(side)
-      @set(side, @get(side).concat([renderer]))
-
-  add_glyph: (glyph, source, attrs={}) ->
-    if not source?
-      source = new ColumnDataSource.Model()
-
-    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
-    renderer = new GlyphRenderer.Model(attrs)
-
-    @add_renderers(renderer)
-
-    return renderer
-
-  add_tools: (tools...) ->
-    new_tools = for tool in tools
-      if tool.overlay?
-        @add_renderers(tool.overlay)
-
-      if tool.plot?
-        tool
-      else
-        # XXX: this part should be unnecessary, but you can't configure tool.plot
-        # after construting a tool. When this limitation is lifted, remove this code.
-        attrs = _.clone(tool.attributes)
-        attrs.plot = this
-        new tool.constructor(attrs)
-
-    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
-
-  @mixins ['line:outline_', 'fill:background_', 'fill:border_']
-
-  @define {
-      title:             [ p.Any                              ] # TODO: p.Either(p.Instance(Title), p.String)
-      title_location:    [ p.Location, 'above'                ]
-
-      above:             [ p.Array,    []                     ]
-      below:             [ p.Array,    []                     ]
-      left:              [ p.Array,    []                     ]
-      right:             [ p.Array,    []                     ]
-
-      renderers:         [ p.Array,    []                     ]
-
-      x_range:           [ p.Instance                         ]
-      extra_x_ranges:    [ p.Any,      {}                     ] # TODO (bev)
-      y_range:           [ p.Instance                         ]
-      extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
-
-      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
-
-      lod_factor:        [ p.Number,   10                     ]
-      lod_interval:      [ p.Number,   300                    ]
-      lod_threshold:     [ p.Number,   2000                   ]
-      lod_timeout:       [ p.Number,   500                    ]
-    }
+    logger.debug("PlotCanvas attached to document")
 
   @override {
-    outline_line_color: '#e5e5e5'
-    border_fill_color: "#ffffff"
-    background_fill_color: "#ffffff"
     # We should find a way to enforce this
     responsive: 'box'
   }
@@ -745,7 +661,7 @@ class PlotCanvas extends LayoutDOM.Model
 
     # Add the layout panels for each of the axes
     for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
+      layout_renderers = @plot.get(side)
       for r in layout_renderers
         if r.panel?
           children.push(r.panel)
@@ -808,8 +724,8 @@ class PlotCanvas extends LayoutDOM.Model
   _get_side_constraints: () ->
     constraints = []
     for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
-      last = @get('frame')
+      layout_renderers = @plot.get(side)
+      last = @frame
       for r in layout_renderers
         # Stack together the renderers
         if side == "above"

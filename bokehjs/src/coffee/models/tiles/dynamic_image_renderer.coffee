@@ -14,7 +14,7 @@ class DynamicImageView extends Renderer.View
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
 
   _set_data: () ->
-    @map_plot = @plot_view.model
+    @map_plot = @plot_view.model.plot
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_view.frame
     @x_range = @map_plot.get('x_range')
@@ -98,7 +98,7 @@ class DynamicImageView extends Renderer.View
       @map_canvas.restore()
 
   _set_rect:() ->
-    outline_width = @plot_model.properties.outline_line_width.value()
+    outline_width = @plot_model.plot.properties.outline_line_width.value()
     l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
     t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
     w = @map_frame.get('width') - outline_width

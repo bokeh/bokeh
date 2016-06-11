@@ -23,7 +23,7 @@ class TapToolView extends SelectTool.View
     @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.get('tool_events').get('geometries')
+      geometries: @plot_model.plot.tool_events.get('geometries')
 
     for r in @mget('computed_renderers')
       ds = r.get('data_source')

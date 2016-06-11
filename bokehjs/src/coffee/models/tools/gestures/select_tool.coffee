@@ -36,7 +36,7 @@ class SelectToolView extends GestureTool.View
       logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
     if final
-      tool_events = @plot_model.get('tool_events')
+      tool_events = @plot_model.plot.tool_events
       if append
         geoms = tool_events.get('geometries')
         geoms.push(g)

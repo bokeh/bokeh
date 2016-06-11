@@ -64,6 +64,17 @@ class Plot extends LayoutDOM.Model
   initialize: (options) ->
     super(options)
 
+    for xr in _.values(@extra_x_ranges).concat(@x_range)
+      plots = xr.get('plots')
+      if _.isArray(plots)
+        plots = plots.concat(@)
+        xr.set('plots', plots)
+    for yr in _.values(@extra_y_ranges).concat(@y_range)
+      plots = yr.get('plots')
+      if _.isArray(plots)
+        plots = plots.concat(@)
+        yr.set('plots', plots)
+
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
       @_horizontal = true
@@ -79,17 +90,12 @@ class Plot extends LayoutDOM.Model
       if not @min_border_right?
         @min_border_right = @min_border
 
-    plot_only_options = [
-      'toolbar_location', 'toolbar_sticky',
-      'plot_height', 'plot_width',
-      'x_mapper_type', 'y_mapper_type',
-      'webgl', 'hidpi', 'min_border',
-      'min_border_top', 'min_border_bottom',
-      'min_border_left', 'min_border_right'
-    ]
-    plot_canvas_options = _.omit(options, plot_only_options)
-    plot_canvas_options.plot = @
-    @_plot_canvas = new PlotCanvas(plot_canvas_options)
+    # Add the title to layout
+    if @title?
+      title = if _.isString(@title) then new Title.Model({text: @title}) else @title
+      @add_layout(title, @title_location)
+
+    @_plot_canvas = new PlotCanvas({plot: @})
 
     @_set_orientation_variables(@)
     @_set_orientation_variables(@toolbar)
@@ -108,19 +114,54 @@ class Plot extends LayoutDOM.Model
       @height = @plot_height
 
   _doc_attached: () ->
+
+    # Add panels for any side renderers
+    # (Needs to be called in _doc_attached, so that panels can attach to the document.)
+    for side in ['above', 'below', 'left', 'right']
+      layout_renderers = @get(side)
+      for r in layout_renderers
+        r.add_panel(side)
+
     @_plot_canvas.attach_document(@document)
 
   add_renderers: (new_renderers...) ->
-    @_plot_canvas.add_renderers(new_renderers...)
+    renderers = @get('renderers')
+    renderers = renderers.concat(new_renderers)
+    @set('renderers', renderers)
 
   add_layout: (renderer, side="center") ->
-    @_plot_canvas.add_layout(renderer, side)
+    @add_renderers(renderer)
+    if side != 'center'
+      if @document?
+        renderer.add_panel(side)
+      @set(side, @get(side).concat([renderer]))
 
   add_glyph: (glyph, source, attrs={}) ->
-    @_plot_canvas.add_glyph(glyph, source, attrs)
+    if not source?
+      source = new ColumnDataSource.Model()
+
+    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    renderer = new GlyphRenderer.Model(attrs)
+
+    @add_renderers(renderer)
+
+    return renderer
 
   add_tools: (tools...) ->
-    @_plot_canvas.add_tools(tools...)
+    new_tools = for tool in tools
+      if tool.overlay?
+        @add_renderers(tool.overlay)
+
+      if tool.plot?
+        tool
+      else
+        # XXX: this part should be unnecessary, but you can't configure tool.plot
+        # after construting a tool. When this limitation is lifted, remove this code.
+        attrs = _.clone(tool.attributes)
+        attrs.plot = this
+        new tool.constructor(attrs)
+
+    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
 
   plot_canvas: () ->
     @_plot_canvas
