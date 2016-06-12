@@ -20,7 +20,7 @@ data = pd.DataFrame(data=dict(AAPL=AAPL['Adj Close'],
                               IBM=IBM['Adj Close'],
                               Date=AAPL['Date'])).set_index('Date')
 
-hp = Horizon(data, plot_width=800, plot_height=300, 
+hp = Horizon(data, plot_width=800, plot_height=300,
              title="horizon plot using stock inputs", xlabel='Date')
 
 output_file("horizon.html", title="horizon.py example")
