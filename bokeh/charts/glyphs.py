@@ -770,7 +770,7 @@ class QuartileGlyph(Interval):
 class BoxGlyph(AggregateGlyph):
     """Summarizes the distribution with a collection of glyphs.
 
-    A box glyph produces one "stretch_both" for a given array of vales. The box
+    A box glyph produces one "box" for a given array of vales. The box
     is made up of multiple other child composite glyphs (intervals,
     scatter) and directly produces glyph renderers for the whiskers,
     as well.
