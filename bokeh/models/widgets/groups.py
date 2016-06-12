@@ -4,9 +4,10 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, String, List
+from ...core.properties import Bool, Int, String, List, Instance
 from .widget import Widget
 from .buttons import ButtonLike
+from .callbacks import Callback
 
 @abstract
 class AbstractGroup(Widget):
@@ -49,6 +50,10 @@ class Group(AbstractGroup):
     inline = Bool(False, help="""
     Should items be arrange vertically (``False``) or horizontally
     in-line (``True``).
+    """)
+    
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever a group is manipulated.
     """)
 
 class CheckboxGroup(Group):
