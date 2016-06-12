@@ -54,21 +54,21 @@ describe "Spacer.Model", ->
     }
 
   it "should return all constrained_variables in all modes", ->
-    @spacer.responsive = 'box'
+    @spacer.responsive = 'stretch_both'
     constrained_variables = @spacer.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
-  it "should return correct constrained_variables in width_ar mode", ->
+  it "should return correct constrained_variables in scale_width mode", ->
     # We don't return height because we're going to set it ourselves.
     expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
-    @spacer.responsive = 'width_ar'
+    @spacer.responsive = 'scale_width'
     constrained_variables = @spacer.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
-  it "should return correct constrained_variables in height_ar mode", ->
+  it "should return correct constrained_variables in scale_height mode", ->
     # We don't return width because we're going to set it ourselves.
     expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
-    @spacer.responsive = 'height_ar'
+    @spacer.responsive = 'scale_height'
     constrained_variables = @spacer.get_constrained_variables()
     expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
