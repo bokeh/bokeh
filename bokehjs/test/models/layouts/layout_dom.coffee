@@ -31,10 +31,10 @@ describe "LayoutDOM.View", ->
       layout_view = new LayoutDOMView({ model: @test_layout })
       expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed'
 
-    it "should set a class of 'bk-layout-box' is responsive-mode is box", ->
+    it "should set a class of 'bk-layout-stretch_both' is responsive-mode is stretch_both", ->
       @test_layout.responsive = 'stretch_both'
       layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-box'
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-stretch_both'
 
     it "should set a class of 'bk-layout-scale_width' if responsive-mode is scale_width", ->
       @test_layout.responsive = 'scale_width'
