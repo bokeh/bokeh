@@ -17,7 +17,7 @@ w = 12*60*60*1000 # half day in ms
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
-p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000, toolbar_location="left")
+p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000)
 
 p.title = "MSFT Candlestick"
 p.xaxis.major_label_orientation = pi/4

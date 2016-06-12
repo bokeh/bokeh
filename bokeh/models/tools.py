@@ -84,7 +84,7 @@ class ToolbarBox(LayoutDOM):
 
     """
 
-    toolbar_location = Enum(Location, default='above', help="""
+    toolbar_location = Enum(Location, default='right', help="""
         Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
         edge of a plot. Default is `above`.
     """)

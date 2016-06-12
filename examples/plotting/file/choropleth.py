@@ -27,7 +27,7 @@ for county_id in counties:
     except KeyError:
         county_colors.append("black")
 
-p = figure(title="US Unemployment 2009", toolbar_location="left",
+p = figure(title="US Unemployment 2009",
            plot_width=1100, plot_height=700)
 
 p.patches(county_xs, county_ys,
