@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from bokeh.models import ColumnDataSource, Jitter
