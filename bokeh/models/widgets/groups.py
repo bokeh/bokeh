@@ -33,6 +33,10 @@ class AbstractGroup(Widget):
         """
         self.on_change('active', lambda attr, old, new: handler(new))
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever a button group is manipulated.
+    """)
+
 @abstract
 class ButtonGroup(AbstractGroup, ButtonLike):
     """ Abstract base class for groups with items rendered as buttons.
@@ -50,10 +54,6 @@ class Group(AbstractGroup):
     inline = Bool(False, help="""
     Should items be arrange vertically (``False``) or horizontally
     in-line (``True``).
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever a radio button group is manipulated.
     """)
 
 class CheckboxGroup(Group):
