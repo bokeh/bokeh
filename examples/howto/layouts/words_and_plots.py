@@ -35,7 +35,7 @@ def text():
 def scatter():
     s = Scatter(
         flowers,
-        title="Fisher's Iris data set", toolbar_location='right', tools='tap,box_select,save',
+        title="Fisher's Iris data set", tools='tap,box_select,save',
         x=blend('petal_length', name='Length'),
         y=blend('petal_width', name='Width'),
         color='species', palette=Spectral4, legend=True,

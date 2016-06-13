@@ -99,8 +99,8 @@ describe "Plot", ->
 
   describe "Plot.Model", ->
 
-    it "should have _horizontal set to false by default", ->
-      expect(@p._horizontal).to.false
+    it "should have _horizontal set to true by default", ->
+      expect(@p._horizontal).to.true
 
     it "should have a PlotCanvas set on initialization with all the options passed to Plot", ->
       expect(@p.plot_canvas()).to.exist

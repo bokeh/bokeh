@@ -110,3 +110,7 @@ class CodeHandler(Handler):
     @property
     def error_detail(self):
         return self._runner.error_detail
+
+    @property
+    def safe_to_fork(self):
+        return not self._runner.ran

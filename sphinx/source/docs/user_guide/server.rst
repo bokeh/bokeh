@@ -1066,6 +1066,20 @@ And to update the process control after editing the config file, run:
 
     supervisorctl -c /path/to/supervisord.conf update
 
+.. _userguide_server_scaling:
+
+Scaling the server
+~~~~~~~~~~~~~~~~~~
+
+You can fork multiple server processes with the `num-procs` option. For example, to fork 3 processes:
+
+.. code-block:: sh
+
+    bokeh serve --num-procs 3
+
+Note that the forking operation happens in the underlying Tornado Server, see notes in the `Tornado docs`_.
+
+.. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
 .. _userguide_server_deployment_automation:
 

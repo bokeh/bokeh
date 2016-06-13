@@ -450,7 +450,7 @@ class Plot(LayoutDOM):
         The toolbar is automatically created with the plot.
     """)
 
-    toolbar_location = Enum(Location, default="above", help="""
+    toolbar_location = Enum(Location, default="right", help="""
     Where the toolbar will be located. If set to None, no toolbar
     will be attached to the plot.
     """)
