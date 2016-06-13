@@ -16,7 +16,6 @@ from ..core.properties import (
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
-from .arrow_heads import ArrowHead, OpenHead
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
@@ -60,11 +59,17 @@ class Legend(Annotation):
     The %s for the legend border outline.
     """)
 
+    border_line_color = Override(default="#e5e5e5")
+
+    border_line_alpha = Override(default=0.5)
+
     background_props = Include(FillProps, help="""
     The %s for the legend background style.
     """)
 
     background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=0.95)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.
@@ -74,16 +79,16 @@ class Legend(Annotation):
 
     label_text_font_size = Override(default={ 'value' : '10pt' })
 
-    label_standoff = Int(15, help="""
+    label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
     """)
 
     label_height = Int(20, help="""
-    The height (in pixels) of the area that legend labels should occupy.
+    The minimum height (in pixels) of the area that legend labels should occupy.
     """)
 
-    label_width = Int(50, help="""
-    The width (in pixels) of the area that legend labels should occupy.
+    label_width = Int(20, help="""
+    The minimum width (in pixels) of the area that legend labels should occupy.
     """)
 
     glyph_height = Int(20, help="""
@@ -94,8 +99,12 @@ class Legend(Annotation):
     The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
+    legend_margin = Int(10, help="""
+    Amount of margin around the legend.
+    """)
+
     legend_padding = Int(10, help="""
-    Amount of padding around the legend.
+    Amount of padding around the contents of the legend.
     """)
 
     legend_spacing = Int(3, help="""
@@ -113,6 +122,10 @@ class Legend(Annotation):
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
+
+def _DEFAULT_ARROW():
+    from .arrow_heads import OpenHead
+    return OpenHead()
 
 class Arrow(Annotation):
     """ Render an arrow as an annotation.
@@ -132,7 +145,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    start = Instance(ArrowHead, default=None, help="""
+    start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
     Instance of ArrowHead.
     """)
 
@@ -149,7 +162,7 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end = Instance(ArrowHead, default=lambda: OpenHead(), help="""
+    end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
     Instance of ArrowHead.
     """)
 
@@ -157,7 +170,7 @@ class Arrow(Annotation):
     The %s values for the arrow body.
     """)
 
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    source = Instance(DataSource, help="""
     Local data source to use when rendering annotations on the plot.
     """)
 
@@ -544,7 +557,7 @@ class Title(TextAnnotation):
     The text value to render.
     """)
 
-    title_align = Enum(TextAlign, default='center', help="""
+    title_align = Enum(TextAlign, default='left', help="""
     Location to align the title text.
     """
     )
@@ -553,15 +566,15 @@ class Title(TextAnnotation):
     Offset value to apply to the title alignment coordinate.
     """)
 
-    text_font = String("helvetica", help="""
+    text_font = String(default="helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
 
     """)
 
-    text_font_size = FontSizeSpec(value("12pt"))
+    text_font_size = FontSizeSpec(default=value("10pt"))
 
-    text_font_style = Enum(FontStyle, help="""
+    text_font_style = Enum(FontStyle, default="bold", help="""
     A style to use for rendering text.
 
     Acceptable values are:

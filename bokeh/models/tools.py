@@ -78,15 +78,19 @@ class Toolbar(ToolbarBase):
     """
 
 
-class ToolbarBox(ToolbarBase):
+class ToolbarBox(LayoutDOM):
     """ A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.
 
     """
 
-    toolbar_location = Enum(Location, default='above', help="""
+    toolbar_location = Enum(Location, default='right', help="""
         Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
         edge of a plot. Default is `above`.
+    """)
+
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
     """)
 
     merge_tools = Bool(default=True, help="""

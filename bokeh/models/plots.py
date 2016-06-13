@@ -433,7 +433,7 @@ class Plot(LayoutDOM):
     The %s for the plot border outline.
     """)
 
-    outline_line_color = Override(default="#aaaaaa")
+    outline_line_color = Override(default="#e5e5e5")
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
@@ -450,7 +450,7 @@ class Plot(LayoutDOM):
         The toolbar is automatically created with the plot.
     """)
 
-    toolbar_location = Enum(Location, default="above", help="""
+    toolbar_location = Enum(Location, default="right", help="""
     Where the toolbar will be located. If set to None, no toolbar
     will be attached to the plot.
     """)
@@ -512,7 +512,7 @@ class Plot(LayoutDOM):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(50, help="""
+    min_border_top = Int(help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -522,7 +522,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border_bottom = Int(50, help="""
+    min_border_bottom = Int(help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -532,7 +532,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border_left = Int(50, help="""
+    min_border_left = Int(help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -542,7 +542,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border_right = Int(50, help="""
+    min_border_right = Int(help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 
@@ -552,7 +552,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border = Int(50, help="""
+    min_border = Int(5, help="""
     A convenience property to set all all the ``min_border_X`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.

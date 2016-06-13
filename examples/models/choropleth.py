@@ -49,7 +49,7 @@ xdr = DataRange1d()
 ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, min_border=0, border_fill_color="white",
-            title="2009 Unemployment Data", plot_width=1300, plot_height=800, toolbar_location="left")
+            title="2009 Unemployment Data", plot_width=1300, plot_height=800)
 
 county_patches = Patches(xs="county_xs", ys="county_ys", fill_color="county_colors", fill_alpha=0.7, line_color="white", line_width=0.5)
 plot.add_glyph(county_source, county_patches)

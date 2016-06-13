@@ -10,6 +10,8 @@ class FactorRange extends Range.Model
       offset:  [ p.Number, 0  ]
       factors: [ p.Array,  [] ]
       bounds:  [ p.Any        ] # TODO (bev)
+      min_interval: [ p.Any ]
+      max_interval: [ p.Any ]
     }
 
   @internal {

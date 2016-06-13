@@ -12,7 +12,7 @@ The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
 in Python, and then converted to a JSON format that is consumed by the
 client library, BokehJS. (See :ref:`userguide_concepts` for a more detailed
-disussion.) By itself, this flexible and decoupled design offers advantages,
+discussion.) By itself, this flexible and decoupled design offers advantages,
 for instance it is easy to have other languages (R, Scala, Lua, ...) drive
 the exact same Bokeh plots and visualizations in the browser.
 
@@ -23,7 +23,7 @@ possibilities immediately open up:
 * respond to UI and tool events generated in a browser with computations or
   queries using the full power of python
 * automatically push updates the UI (i.e. widgets or plots), in a browser
-* use periodic, timeout, and asychronous callbacks drive streaming updates
+* use periodic, timeout, and asynchronous callbacks drive streaming updates
 
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
@@ -323,6 +323,16 @@ to the address of the running application, which in this case is:
 .. code-block:: none
 
     http://localhost:5006/myapp
+
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
 
 In addition to creating Bokeh applications from single python files, it is
 also possible to create applications from directories.
@@ -1056,6 +1066,20 @@ And to update the process control after editing the config file, run:
 
     supervisorctl -c /path/to/supervisord.conf update
 
+.. _userguide_server_scaling:
+
+Scaling the server
+~~~~~~~~~~~~~~~~~~
+
+You can fork multiple server processes with the `num-procs` option. For example, to fork 3 processes:
+
+.. code-block:: sh
+
+    bokeh serve --num-procs 3
+
+Note that the forking operation happens in the underlying Tornado Server, see notes in the `Tornado docs`_.
+
+.. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
 .. _userguide_server_deployment_automation:
 

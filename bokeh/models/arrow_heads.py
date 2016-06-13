@@ -7,10 +7,10 @@ from __future__ import absolute_import
 from ..core.properties import abstract
 from ..core.properties import Float, Include, Override
 from ..core.property_mixins import LineProps, FillProps
-from .renderers import Renderer
+from .annotations import Annotation
 
 @abstract
-class ArrowHead(Renderer):
+class ArrowHead(Annotation):
     """ Base class for arrow heads.
 
     """

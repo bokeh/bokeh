@@ -171,7 +171,7 @@ class GlyphView extends Renderer.View
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
 
-class Glyph extends Renderer.Model
+class Glyph extends Model
   @define {
       visible: [ p.Bool, true ]
     }
