@@ -16,8 +16,8 @@ class GMapPlot extends Plot.Model
   initialize: (options) ->
     super(options)
     @_plot_canvas = new GMapPlotCanvas.Model({plot: @})
-    @_plot_canvas.toolbar = @toolbar
-    @_set_orientation_variables(@_plot_canvas)
+    @plot_canvas.toolbar = @toolbar
+    @_set_orientation_variables(@plot_canvas)
 
   _doc_attached: () ->
 
@@ -28,7 +28,7 @@ class GMapPlot extends Plot.Model
       for r in layout_renderers
         r.add_panel(side)
 
-    @_plot_canvas.attach_document(@document)
+    @plot_canvas.attach_document(@document)
 
   # Set all the PlotCanvas properties as internal.
   # This seems to be necessary so that everything can initialize.

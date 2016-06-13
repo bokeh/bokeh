@@ -26,12 +26,12 @@ describe "PlotCanvas.Model", ->
 
   it "should set the responsive mode to box by default", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     expect(p.responsive).to.be.equal 'box'
 
   it "should have a four LayoutCanvases after document is attached is called", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     expect(p.above_panel).to.be.undefined
     expect(p.below_panel).to.be.undefined
     expect(p.left_panel).to.be.undefined
@@ -44,7 +44,7 @@ describe "PlotCanvas.Model", ->
 
   it "should have panels, frame, and canvas returned in get_layoutable_children", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     p.attach_document(new Document())
     layoutable_children = p.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 6
@@ -57,7 +57,7 @@ describe "PlotCanvas.Model", ->
 
   it "should have axis panels in get_layoutable_children if axes added", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     p.attach_document(new Document())
     above_axis = new LinearAxis()
     below_axis = new LinearAxis()
@@ -76,7 +76,7 @@ describe "PlotCanvas.Model", ->
 
   it "should call get_edit_variables on layoutable children", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     p.attach_document(new Document())
     children = p.get_layoutable_children()
     expect(children.length).to.be.equal 6
@@ -120,7 +120,7 @@ describe "PlotCanvas.Model constraints", ->
     @test_doc = new Document()
     test_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     test_plot.attach_document(@test_doc)
-    @test_plot_canvas = test_plot.plot_canvas()
+    @test_plot_canvas = test_plot.plot_canvas
 
   it "should return 20 constraints from _get_constant_constraints", ->
     expect(@test_plot_canvas._get_constant_constraints().length).to.be.equal 20
@@ -195,7 +195,7 @@ describe "PlotCanvas.View render", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @test_plot = plot._plot_canvas
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
@@ -230,7 +230,7 @@ describe "PlotCanvas.View resize", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @test_plot = plot._plot_canvas
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
     @test_plot._dom_left = {_value: dom_left}
@@ -295,7 +295,7 @@ describe "PlotCanvas.View update_constraints", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @test_plot = plot._plot_canvas
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
 
@@ -343,7 +343,7 @@ describe "Plot.View get_canvas_element", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @test_plot = plot._plot_canvas
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })

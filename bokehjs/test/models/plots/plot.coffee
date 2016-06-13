@@ -103,19 +103,19 @@ describe "Plot", ->
       expect(@p._horizontal).to.true
 
     it "should have a PlotCanvas set on initialization with all the options passed to Plot", ->
-      expect(@p.plot_canvas()).to.exist
-      expect(@p.plot_canvas().x_range).to.be.deep.equal @x_range
-      expect(@p.plot_canvas().y_range).to.be.deep.equal @y_range
+      expect(@p.plot_canvas).to.exist
+      expect(@p.plot_canvas.x_range).to.be.deep.equal @x_range
+      expect(@p.plot_canvas.y_range).to.be.deep.equal @y_range
 
     it "should attach document to plot canvas when document is attached to it", ->
-      expect(@p.plot_canvas().document).to.be.null
+      expect(@p.plot_canvas.document).to.be.null
       doc = new Document()
       @p.attach_document(doc)
-      expect(@p.plot_canvas().document).to.be.equal doc
+      expect(@p.plot_canvas.document).to.be.equal doc
 
     describe "get_constrained_variables", ->
       beforeEach ->
-        plot_canvas = @p.plot_canvas()
+        plot_canvas = @p.plot_canvas
         # Visual alignment is dominated by the plot_canvas so a number of the
         # constraints come from there - whilst others come from the plot container.
         @expected_constrained_variables = {

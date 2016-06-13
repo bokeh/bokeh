@@ -20,7 +20,7 @@ describe "Axis.Model", ->
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     p.attach_document(new Document())
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
@@ -39,7 +39,7 @@ describe "Axis.Model", ->
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
-    p = pp._plot_canvas
+    p = pp.plot_canvas
     p.attach_document(new Document())
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
@@ -69,7 +69,7 @@ describe "Axis.View", ->
       toolbar: new Toolbar()
     })
     test_plot.attach_document(new Document())
-    test_plot_canvas = test_plot.plot_canvas()
+    test_plot_canvas = test_plot.plot_canvas
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
     @axis = new Axis({

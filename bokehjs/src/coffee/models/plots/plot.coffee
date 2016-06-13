@@ -101,11 +101,11 @@ class Plot extends LayoutDOM.Model
 
     @_set_orientation_variables(@)
     @_set_orientation_variables(@toolbar)
-    @_set_orientation_variables(@_plot_canvas)
+    @_set_orientation_variables(@plot_canvas)
 
     @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
-    @_plot_canvas.toolbar = @toolbar
+    @plot_canvas.toolbar = @toolbar
 
     # Set width & height to be the passed in plot_width and plot_height
     # We may need to be more subtle about this - not sure why people use one
@@ -114,6 +114,8 @@ class Plot extends LayoutDOM.Model
       @width = @plot_width
     if not @height?
       @height = @plot_height
+
+  Object.defineProperty(this.prototype, "plot_canvas", { get: () -> @_plot_canvas })
 
   _doc_attached: () ->
 
@@ -124,7 +126,7 @@ class Plot extends LayoutDOM.Model
       for r in layout_renderers
         r.add_panel(side)
 
-    @_plot_canvas.attach_document(@document)
+    @plot_canvas.attach_document(@document)
 
   add_renderers: (new_renderers...) ->
     renderers = @get('renderers')
@@ -165,17 +167,14 @@ class Plot extends LayoutDOM.Model
 
     @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
 
-  plot_canvas: () ->
-    @_plot_canvas
-
   get_aspect_ratio: () ->
     return @width / @height
 
   get_layoutable_children: () ->
     # Default if toolbar_location is None
-    children = [@_plot_canvas]
+    children = [@plot_canvas]
     if @toolbar_location?
-      children = [@toolbar, @_plot_canvas]
+      children = [@toolbar, @plot_canvas]
     return children
 
   get_edit_variables: () ->
@@ -205,54 +204,54 @@ class Plot extends LayoutDOM.Model
 
       # (1) plot_height = plot_canvas_height + toolbar_height | plot_width = plot_canvas_width + toolbar_width
       if @toolbar_sticky is true
-        constraints.push(EQ(@_sizeable, [-1, @_plot_canvas._sizeable]))
+        constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable]))
       else
-        constraints.push(EQ(@_sizeable, [-1, @_plot_canvas._sizeable], [-1, @toolbar._sizeable]))
+        constraints.push(EQ(@_sizeable, [-1, @plot_canvas._sizeable], [-1, @toolbar._sizeable]))
 
       # (2) plot_width = plot_canvas_width | plot_height = plot_canvas_height | plot_height = plot_canvas_height
-      constraints.push(EQ(@_full, [-1, @_plot_canvas._full]))
+      constraints.push(EQ(@_full, [-1, @plot_canvas._full]))
 
       if @toolbar_location is 'above'
         # (3) stack: plot_canvas._top = toolbar._dom_top + toolbar._height
-        sticky_edge = if @toolbar_sticky is true then @_plot_canvas._top else @_plot_canvas._dom_top
+        sticky_edge = if @toolbar_sticky is true then @plot_canvas._top else @plot_canvas._dom_top
         constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_top], [-1, @toolbar._height]))
 
       if @toolbar_location is 'below'
         # (3) stack: plot_canvas._dom_top = toolbar._bottom - toolbar._height
         if @toolbar_sticky is false
-          constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas._height], @toolbar._bottom))
+          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom))
         if @toolbar_sticky is true
-          constraints.push(GE(@_plot_canvas.below_panel._height, [-1, @toolbar._height]))
-          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @_plot_canvas._height], @_plot_canvas.below_panel._height, @toolbar._height))
+          constraints.push(GE(@plot_canvas.below_panel._height, [-1, @toolbar._height]))
+          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height, @toolbar._height))
 
       if @toolbar_location is 'left'
         # (3) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
-        sticky_edge = if @toolbar_sticky is true then @_plot_canvas._left else @_plot_canvas._dom_left
+        sticky_edge = if @toolbar_sticky is true then @plot_canvas._left else @plot_canvas._dom_left
         constraints.push(EQ(sticky_edge, [-1, @toolbar._dom_left], [-1, @toolbar._width]))
 
       if @toolbar_location is 'right'
         # (3) stack: plot_canvas._dom_left = plot_canvas._right - toolbar._width
         if @toolbar_sticky is false
-          constraints.push(EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @toolbar._right))
+          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right))
         if @toolbar_sticky is true
-          constraints.push(GE(@_plot_canvas.right_panel._width, [-1, @toolbar._width]))
-          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @_plot_canvas._width], @_plot_canvas.right_panel._width, @toolbar._width))
+          constraints.push(GE(@plot_canvas.right_panel._width, [-1, @toolbar._width]))
+          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width, @toolbar._width))
 
       if @toolbar_location in ['above', 'below']
         # (4) toolbar_width = full_width - plot_canvas._right
-        constraints.push(EQ(@_width, [-1, @toolbar._width], [-1, @_plot_canvas._width_minus_right]))
+        constraints.push(EQ(@_width, [-1, @toolbar._width], [-1, @plot_canvas._width_minus_right]))
 
       if @toolbar_location in ['left', 'right']
         # (4a) the following makes the toolbar as tall as the plot less the distance of the axis from the edge
-        constraints.push(EQ(@_height, [-1, @toolbar._height], [-1, @_plot_canvas.above_panel._height]))
+        constraints.push(EQ(@_height, [-1, @toolbar._height], [-1, @plot_canvas.above_panel._height]))
         # (4b) nudge the toolbar down by that distance
-        constraints.push(EQ(@toolbar._dom_top, [-1, @_plot_canvas.above_panel._height]))
+        constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas.above_panel._height]))
 
 
     if not @toolbar_location?
       # If we don't have a toolbar just set them
-      constraints.push(EQ(@_width, [-1, @_plot_canvas._width]))
-      constraints.push(EQ(@_height, [-1, @_plot_canvas._height]))
+      constraints.push(EQ(@_width, [-1, @plot_canvas._width]))
+      constraints.push(EQ(@_height, [-1, @plot_canvas._height]))
 
     # Get all the child constraints
     for child in @get_layoutable_children()
@@ -263,23 +262,23 @@ class Plot extends LayoutDOM.Model
   get_constrained_variables: () ->
     constrained_variables = super()
     constrained_variables = _.extend(constrained_variables, {
-      'on-edge-align-top'    : @_plot_canvas._top
-      'on-edge-align-bottom' : @_plot_canvas._height_minus_bottom
-      'on-edge-align-left'   : @_plot_canvas._left
-      'on-edge-align-right'  : @_plot_canvas._width_minus_right
+      'on-edge-align-top'    : @plot_canvas._top
+      'on-edge-align-bottom' : @plot_canvas._height_minus_bottom
+      'on-edge-align-left'   : @plot_canvas._left
+      'on-edge-align-right'  : @plot_canvas._width_minus_right
 
-      'box-cell-align-top'   : @_plot_canvas._top
-      'box-cell-align-bottom': @_plot_canvas._height_minus_bottom
-      'box-cell-align-left'  : @_plot_canvas._left
-      'box-cell-align-right' : @_plot_canvas._width_minus_right
+      'box-cell-align-top'   : @plot_canvas._top
+      'box-cell-align-bottom': @plot_canvas._height_minus_bottom
+      'box-cell-align-left'  : @plot_canvas._left
+      'box-cell-align-right' : @plot_canvas._width_minus_right
 
-      'box-equal-size-top'   : @_plot_canvas._top
-      'box-equal-size-bottom': @_plot_canvas._height_minus_bottom
+      'box-equal-size-top'   : @plot_canvas._top
+      'box-equal-size-bottom': @plot_canvas._height_minus_bottom
     })
     if @responsive isnt 'fixed'
       constrained_variables = _.extend(constrained_variables, {
-        'box-equal-size-left'  : @_plot_canvas._left
-        'box-equal-size-right' : @_plot_canvas._width_minus_right
+        'box-equal-size-left'  : @plot_canvas._left
+        'box-equal-size-right' : @plot_canvas._width_minus_right
       })
     return constrained_variables
 
