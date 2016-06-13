@@ -7,7 +7,7 @@ from ...core.properties import abstract
 from ...core.properties import Bool, Int, String, List, Instance
 from .widget import Widget
 from .buttons import ButtonLike
-from .callbacks import Callback
+from ..callbacks import Callback
 
 @abstract
 class AbstractGroup(Widget):
@@ -51,10 +51,6 @@ class Group(AbstractGroup):
     Should items be arrange vertically (``False``) or horizontally
     in-line (``True``).
     """)
-    
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever a group is manipulated.
-    """)
 
 class CheckboxGroup(Group):
     """ A group of check boxes.
@@ -63,6 +59,10 @@ class CheckboxGroup(Group):
 
     active = List(Int, help="""
     The list of indices of selected check boxes.
+    """)
+    
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever a checkbox group is manipulated.
     """)
 
 class RadioGroup(Group):
@@ -92,4 +92,8 @@ class RadioButtonGroup(ButtonGroup):
     active = Int(None, help="""
     The index of the selected radio box, or ``None`` if nothing is
     selected.
+    """)
+    
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever a radio button group is manipulated.
     """)
