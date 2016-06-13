@@ -9,6 +9,10 @@ Toolbar = require "../tools/toolbar"
 ToolEvents = require "../../common/tool_events"
 PlotCanvas = require("./plot_canvas").Model
 
+ColumnDataSource = require "../sources/column_data_source"
+GlyphRenderer = require "../renderers/glyph_renderer"
+Title = require "../annotations/title"
+
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
 
