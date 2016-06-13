@@ -450,6 +450,14 @@ class LassoSelectTool(Tool):
     event, or only once, when the selection region is completed. Default: True
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on completion of drawing a selection box.
+    The cb_data parameter that is available to the Callback code will contain
+    one BoxSelectTool-specific field:
+
+    :geometry: object containing the coordinates of the selection box
+    """)
+
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
