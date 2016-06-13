@@ -30,7 +30,7 @@ from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models.layouts import LayoutDOM, Row, Column, WidgetBox, VBoxForm
-from .layouts import gridplot
+from .layouts import gridplot, GridSpec
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
@@ -593,7 +593,6 @@ def _push_or_save(obj):
         push()
     if _state.file and _state.autosave:
         save(obj)
-
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
