@@ -60,7 +60,7 @@ class CheckboxGroup(Group):
     active = List(Int, help="""
     The list of indices of selected check boxes.
     """)
-    
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever a checkbox group is manipulated.
     """)
@@ -93,7 +93,7 @@ class RadioButtonGroup(ButtonGroup):
     The index of the selected radio box, or ``None`` if nothing is
     selected.
     """)
-    
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever a radio button group is manipulated.
     """)
