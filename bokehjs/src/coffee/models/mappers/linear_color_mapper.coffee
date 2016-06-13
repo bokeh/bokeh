@@ -58,17 +58,5 @@ class LinearColorMapper extends ColorMapper.Model
 
     return buf
 
-  _build_palette: (palette) ->
-    new_palette = new Uint32Array(palette.length+1)
-    _convert = (value) ->
-      if _.isNumber(value)
-        return value
-      else
-        return parseInt(value.slice(1), 16)
-    for i in [0...palette.length]
-      new_palette[i] = _convert(palette[i])
-    new_palette[new_palette.length-1] = _convert(palette[palette.length-1])
-    return new_palette
-
 module.exports =
   Model: LinearColorMapper
