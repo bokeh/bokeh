@@ -62,6 +62,12 @@ rnorm = (mu, sigma) ->
 
   return rn
 
+get_base_log = (x, y) ->
+  """
+  Calculate the logarithm of y with base x (i.e. logx(y))
+  """
+  return Math.log(y) / Math.log(x)
+
 module.exports =
   array_min: array_min
   array_max: array_max
@@ -71,3 +77,4 @@ module.exports =
   atan2: atan2
   rnorm: rnorm
   random: random
+  get_base_log: get_base_log

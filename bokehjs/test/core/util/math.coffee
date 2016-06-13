@@ -35,3 +35,7 @@ describe "math module", ->
     expect(math.atan2([0,0],[1,0])).to.be.closeTo(0, 0.0000001) # horizontal right
     expect(math.atan2([0,0],[-1,0])).to.be.closeTo(Math.PI, 0.0000001) # horizontal left
     expect(math.atan2([1,1],[2,2])).to.be.closeTo(Math.PI/4, 0.0000001)
+
+  it "should return the logarithm of y with base x", ->
+    expect(math.get_base_log(2, 1024)).to.be.closeTo(10, 0.0000001)
+    expect(math.get_base_log(10, 1000)).to.be.closeTo(3, 0.0000001)

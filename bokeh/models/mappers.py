@@ -88,7 +88,7 @@ class LogColorMapper(ColorMapper):
     """)
 
     log_base = Float(default=10, help="""
-    Log base.
+    The base of the logarithm to use.
     """)
 
     def __init__(self, palette=None, **kwargs):
