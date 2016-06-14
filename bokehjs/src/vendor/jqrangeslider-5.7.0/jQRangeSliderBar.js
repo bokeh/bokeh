@@ -550,4 +550,4 @@
 		return value;
 	}
 
-}(jQuery));
+}(Bokeh.$));

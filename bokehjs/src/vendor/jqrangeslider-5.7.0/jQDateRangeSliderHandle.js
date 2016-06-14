@@ -20,7 +20,7 @@
 		},
 
 		_getValueForPosition: function(position){
-			
+
 			var raw = this._getRawValueForPositionAndBounds(position, this.options.bounds.min.valueOf(), this.options.bounds.max.valueOf());
 
 			return this._constraintValue(new Date(raw));
@@ -177,9 +177,9 @@
 				if (negative){
 					max = this.add(max, this.options.step);
 				}else{
-					min = this.add(min, this.options.step);	
+					min = this.add(min, this.options.step);
 				}
-				
+
 				steps++;
 			}
 
@@ -207,4 +207,4 @@
 			}
 		}
 	});
-}(jQuery));
+}(Bokeh.$));

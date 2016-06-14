@@ -479,6 +479,6 @@
 		this.Init();
 	}
 
-}(jQuery));
+}(Bokeh.$));
 
 
