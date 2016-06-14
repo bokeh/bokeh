@@ -49,6 +49,7 @@ class RadioButtonGroup extends Widget.Model
       active:      [ p.Any,    null      ] # TODO (bev) better type?
       labels:      [ p.Array,  []        ]
       button_type: [ p.String, "default" ]
+      callback:    [ p.Instance ]
     }
 
 module.exports =
