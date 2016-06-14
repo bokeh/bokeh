@@ -4,7 +4,7 @@ from bokeh.sampledata.iris import flowers
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 colors = [colormap[x] for x in flowers['species']]
 
-p = figure(title = "Iris Morphology")
+p = figure(title = "Iris Morphology", responsive='box')
 p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Petal Width'
 
