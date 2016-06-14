@@ -27,7 +27,7 @@ class LogColorMapper extends ColorMapper.Model
     high = @get('high') ? _.max(data)
 
     N = @_palette.length - 1
-    scale = N / get_base_log(high - low, @get('log_base'))
+    scale = N / get_base_log(@get('log_base'), high - low)
 
     if @_little_endian
       for i in [0...data.length]
@@ -35,10 +35,12 @@ class LogColorMapper extends ColorMapper.Model
 
         if (d > high)
           d = high
-        if (d < low)
+        else if (d < low)
           d = low
+        else if (d == low)
+          d = d * 2 # optimization to augment value and prevent checking _.isFinite on each value
      
-        log = get_base_log(d - low, @get('log_base'))
+        log = get_base_log(@get('log_base'), d - low)
         value = @_palette[Math.floor(log * scale)]
 
         color[i] =
@@ -53,13 +55,15 @@ class LogColorMapper extends ColorMapper.Model
 
         if (d > high)
           d = high
-        if (d < low)
+        else if (d < low)
           d = low
-        log = get_base_log(d - low, @get('log_base'))
+        else if (d == low)
+          d = d * 2 # optimization to augment value and prevent checking _.isFinite on each value
+          
+        log = get_base_log(@get('log_base'), d - low)
         value = @_palette[Math.floor(log * scale)]     # rgb
 
         color[i] = (value << 8) | 0xff                 # alpha
-
     return buf
 
 module.exports =
