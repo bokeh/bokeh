@@ -167,7 +167,7 @@ class Plot extends LayoutDOM.Model
         attrs.plot = this
         new tool.constructor(attrs)
 
-    @set(@toolbar.tools, @get("toolbar").tools.concat(new_tools))
+    @toolbar.tools = @toolbar.tools.concat(new_tools)
 
   get_aspect_ratio: () ->
     return @width / @height
