@@ -55,7 +55,7 @@ class LinearColorMapper extends ColorMapper.Model
     else
       for i in [0...data.length]
         d = data[i]
-        
+
         if (d == @_reserve_val)
           value = @_reserve_color
         else
