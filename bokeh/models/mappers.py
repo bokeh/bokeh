@@ -49,6 +49,17 @@ class LinearColorMapper(ColorMapper):
     this are clamped to ``high``.
     """)
 
+    # TODO: (jc) what is the color code for transparent?
+    # TODO: (bev) better docstring
+    reserve_color = Color("#ffffff", help="""
+    Used by Abstract Rendering.
+    """)
+
+    # TODO: (bev) better docstring
+    reserve_val = Float(default=None, help="""
+    Used by Abstract Rendering.
+    """)
+
     def __init__(self, palette=None, **kwargs):
         if palette is not None: kwargs['palette'] = palette
         super(LinearColorMapper, self).__init__(**kwargs)
