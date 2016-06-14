@@ -13,21 +13,17 @@ declare namespace Bokeh {
     export interface IPlot extends IBasePlot {
         x_range?: Range;
         y_range?: Range;
-
-        tools?: Array<Tool>;
     }
     export interface IBasePlot extends ILayoutDOM {
-        title?: Title | string;
+        toolbar?: Toolbar;
+        toolbar_location?: Location;
+        toolbar_sticky?: boolean;
 
-        // {{{ title = include[TextProps]
-        title_text_font?: string;
-        title_text_font_size?: FontSize;
-        title_text_font_style?: FontStyle;
-        title_text_color?: Color;
-        title_text_alpha?: Percent;
-        title_text_align?: TextAlign;
-        title_text_baseline?: TextBaseline;
-        // }}}
+        plot_width?: Int;
+        plot_height?: Int;
+
+        title?: Title | string;
+        title_location?: Location;
 
         // {{{ outline = include[LineProps]
         outline_line_color?: Color;
@@ -39,29 +35,30 @@ declare namespace Bokeh {
         outline_line_dash_offset?: Int;
         // }}}
 
-        extra_x_ranges?: Map<Range>;
-        extra_y_ranges?: Map<Range>;
+        // {{{ background = include[FillProps]
+        background_fill_color?: Color;
+        background_fill_alpha?: Percent;
+        // }}}
 
-        x_mapper_type?: Auto | "log";
-        y_mapper_type?: Auto | "log";
-
-        renderers?: Array<Renderer>;
-
-        tool_events?: ToolEvents;
+        // {{{ border = include[FillProps]
+        border_fill_color?: Color;
+        border_fill_alpha?: Percent;
+        // }}}
 
         left?: Array<Renderer>;
         right?: Array<Renderer>;
         above?: Array<Renderer>;
         below?: Array<Renderer>;
 
-        toolbar_location?: Location;
-        logo?: Logo;
+        renderers?: Array<Renderer>;
 
-        plot_width?: Int;
-        plot_height?: Int;
+        extra_x_ranges?: Map<Range>;
+        extra_y_ranges?: Map<Range>;
 
-        background_fill_color?: Color;
-        border_fill_color?: Color;
+        x_mapper_type?: Auto | "log";
+        y_mapper_type?: Auto | "log";
+
+        tool_events?: ToolEvents;
 
         min_border_top?: Int;
         min_border_bottom?: Int;
@@ -78,5 +75,6 @@ declare namespace Bokeh {
         lod_timeout?: Int;
 
         webgl?: boolean;
+        hidpi?: boolean;
     }
 }
