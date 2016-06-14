@@ -18,7 +18,7 @@ SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
 
-red = figure(responsive='box_ar', tools='pan', **PLOT_OPTIONS)
+red = figure(responsive='scale_both', tools='pan', **PLOT_OPTIONS)
 red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
 
 output_file('embed_responsive_width_height.html')
