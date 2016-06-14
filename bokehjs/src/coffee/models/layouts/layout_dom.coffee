@@ -38,9 +38,14 @@ class LayoutDOMView extends BokehView
       _.delay(resize, 100)
       _.delay(resize, 200)
 
+    if @model.responsive is 'fixed'
+      # Render isn't triggered by resize - so trigger manually
+      @render()
+
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
-    @listenTo(@model.document.solver(), 'resize', @render)
+    if @model.responsive isnt 'fixed'
+      @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
     #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
