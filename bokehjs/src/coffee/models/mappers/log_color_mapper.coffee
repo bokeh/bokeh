@@ -2,7 +2,6 @@ _ = require "underscore"
 
 ColorMapper = require "./color_mapper"
 p = require "../../core/properties"
-{get_base_log} = require "../../core/util/math"
 
 class LogColorMapper extends ColorMapper.Model
   type: "LogColorMapper"
@@ -11,7 +10,6 @@ class LogColorMapper extends ColorMapper.Model
       high:          [ p.Number           ]
       low:           [ p.Number           ]
       palette:       [ p.Any              ] # TODO (bev)
-      log_base:      [ p.Number,    10    ]
     }
 
   initialize: (attrs, options) ->
@@ -27,7 +25,7 @@ class LogColorMapper extends ColorMapper.Model
     high = @get('high') ? _.max(data)
 
     N = @_palette.length - 1
-    scale = N / get_base_log(@get('log_base'), high - low)
+    scale = N / Math.log1p(high/low) #dividing by low substracts the offset
 
     if @_little_endian
       for i in [0...data.length]
@@ -37,10 +35,8 @@ class LogColorMapper extends ColorMapper.Model
           d = high
         else if (d < low)
           d = low
-        else if (d == low)
-          d = d * 2 # optimization to augment value and prevent checking _.isFinite on each value
-     
-        log = get_base_log(@get('log_base'), d - low)
+
+        log = Math.log1p(d/low) #dividing by low substracts the offset
         value = @_palette[Math.floor(log * scale)]
 
         color[i] =
@@ -57,11 +53,9 @@ class LogColorMapper extends ColorMapper.Model
           d = high
         else if (d < low)
           d = low
-        else if (d == low)
-          d = d * 2 # optimization to augment value and prevent checking _.isFinite on each value
-          
-        log = get_base_log(@get('log_base'), d - low)
-        value = @_palette[Math.floor(log * scale)]     # rgb
+
+        log = Math.log1p(d/low) #dividing by low substracts the offset
+        value = @_palette[Math.floor(log * scale)]
 
         color[i] = (value << 8) | 0xff                 # alpha
     return buf

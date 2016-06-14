@@ -56,17 +56,21 @@ class LinearColorMapper(ColorMapper):
 
 class LogColorMapper(ColorMapper):
     """ Map numbers in a range [*low*, *high*] into a
-    sequence of colors (a palette) on a logscale.
+    sequence of colors (a palette) on a natural logarithm scale.
 
-    For example, if the range is [0, 1] and the palette is
+    For example, if the range is [0, 25] and the palette is
     ``['red', 'green', 'blue']``, the values would be mapped as
     follows::
 
-             x < 0  : 'red'     # values < low are clamped
-        0 >= x < 33 : 'red'
-       33 >= x < 66 : 'green'
-       66 >= x < 99 : 'blue'
-       99 >= x      : 'blue'    # values > high are clamped
+                x < 0     : 'red'     # values < low are clamped
+       0     >= x < 2.72  : 'red'     # math.e ** 1
+       2.72  >= x < 7.39  : 'green'   # math.e ** 2
+       7.39  >= x < 20.09 : 'blue'    # math.e ** 3
+       20.09 >= x         : 'blue'    # values > high are clamped
+
+    .. warning::
+        The LogColorMapper only works for images with scalar values that are
+        non-negative. 
 
     """
 
@@ -85,10 +89,6 @@ class LogColorMapper(ColorMapper):
     high = Float(help="""
     The maximum value of the range to map into the palette. Values above
     this are clamped to ``high``.
-    """)
-
-    log_base = Float(default=10, help="""
-    The base of the logarithm to use.
     """)
 
     def __init__(self, palette=None, **kwargs):
