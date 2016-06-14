@@ -89,9 +89,6 @@ namespace Burtin {
         background_fill_color: "#f0e1d2",
         border_fill_color: "#f0e1d2"})
 
-    p.xgrid.grid_line_color = null
-    p.ygrid.grid_line_color = null
-
     // annular wedges
     const angles = df.index.map((i) => Math.PI/2 - big_angle/2 - i*big_angle)
     const colors = df.gram.map((gram) => gram_color[gram])

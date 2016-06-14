@@ -25,11 +25,13 @@ Toolbar = utils.require("models/tools/toolbar").Model
 describe "PlotCanvas.Model", ->
 
   it "should set the responsive mode to box by default", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = pp.plot_canvas
     expect(p.responsive).to.be.equal 'box'
 
   it "should have a four LayoutCanvases after document is attached is called", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = pp.plot_canvas
     expect(p.above_panel).to.be.undefined
     expect(p.below_panel).to.be.undefined
     expect(p.left_panel).to.be.undefined
@@ -41,7 +43,8 @@ describe "PlotCanvas.Model", ->
     expect(p.right_panel).to.be.an.instanceOf(LayoutCanvas)
 
   it "should have panels, frame, and canvas returned in get_layoutable_children", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = pp.plot_canvas
     p.attach_document(new Document())
     layoutable_children = p.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 6
@@ -53,7 +56,8 @@ describe "PlotCanvas.Model", ->
     expect(_.contains(layoutable_children, p.canvas)).to.be.true
 
   it "should have axis panels in get_layoutable_children if axes added", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = pp.plot_canvas
     p.attach_document(new Document())
     above_axis = new LinearAxis()
     below_axis = new LinearAxis()
@@ -71,7 +75,8 @@ describe "PlotCanvas.Model", ->
     expect(_.contains(layoutable_children, right_axis.panel)).to.be.true
 
   it "should call get_edit_variables on layoutable children", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
+    p = pp.plot_canvas
     p.attach_document(new Document())
     children = p.get_layoutable_children()
     expect(children.length).to.be.equal 6
@@ -82,30 +87,28 @@ describe "PlotCanvas.Model", ->
     for child in children
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
+  # TODO (bev) these tests should be moved now
   it "should set min_border_x to value of min_border if min_border_x is not specified", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
-    p.attach_document(new Document())
-    expect(p.min_border_top).to.be.equal 33.33
-    expect(p.min_border_bottom).to.be.equal 33.33
-    expect(p.min_border_left).to.be.equal 33.33
-    expect(p.min_border_right).to.be.equal 33.33
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
+    expect(pp.min_border_top).to.be.equal 33.33
+    expect(pp.min_border_bottom).to.be.equal 33.33
+    expect(pp.min_border_left).to.be.equal 33.33
+    expect(pp.min_border_right).to.be.equal 33.33
 
   it "should set min_border_x to value of specified, and others to value of min_border", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
-    p.attach_document(new Document())
-    expect(p.min_border_top).to.be.equal 33.33
-    expect(p.min_border_bottom).to.be.equal 33.33
-    expect(p.min_border_left).to.be.equal 66.66
-    expect(p.min_border_right).to.be.equal 33.33
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
+    expect(pp.min_border_top).to.be.equal 33.33
+    expect(pp.min_border_bottom).to.be.equal 33.33
+    expect(pp.min_border_left).to.be.equal 66.66
+    expect(pp.min_border_right).to.be.equal 33.33
 
   it "should set min_border_x to value of specified, and others to default min_border", ->
-    p = new PlotCanvas({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
-    p.attach_document(new Document())
+    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
     # MIN_BORDER is 5
-    expect(p.min_border_top).to.be.equal 5
-    expect(p.min_border_bottom).to.be.equal 5
-    expect(p.min_border_left).to.be.equal 4
-    expect(p.min_border_right).to.be.equal 5
+    expect(pp.min_border_top).to.be.equal 5
+    expect(pp.min_border_bottom).to.be.equal 5
+    expect(pp.min_border_left).to.be.equal 4
+    expect(pp.min_border_right).to.be.equal 5
 
   it.skip "should add the title to the list of renderers", ->
     # TODO(bird) Write this test.
@@ -117,7 +120,7 @@ describe "PlotCanvas.Model constraints", ->
     @test_doc = new Document()
     test_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     test_plot.attach_document(@test_doc)
-    @test_plot_canvas = test_plot.plot_canvas()
+    @test_plot_canvas = test_plot.plot_canvas
 
   it "should return 20 constraints from _get_constant_constraints", ->
     expect(@test_plot_canvas._get_constant_constraints().length).to.be.equal 20
@@ -187,11 +190,12 @@ describe "PlotCanvas.View render", ->
     utils.stub_solver()
 
     @test_doc = new Document()
-    @test_plot = new PlotCanvas({
+    plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
@@ -221,11 +225,12 @@ describe "PlotCanvas.View resize", ->
     @solver_suggest = solver_stubs['suggest']
 
     @test_doc = new Document()
-    @test_plot = new PlotCanvas({
+    plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
     @test_plot._dom_left = {_value: dom_left}
@@ -285,11 +290,12 @@ describe "PlotCanvas.View update_constraints", ->
     @solver_update_stub = solver_stubs['update']
 
     @test_doc = new Document()
-    @test_plot = new PlotCanvas({
+    plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
 
@@ -332,11 +338,12 @@ describe "Plot.View get_canvas_element", ->
     utils.stub_solver()
 
     @test_doc = new Document()
-    @test_plot = new PlotCanvas({
+    plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
+    @test_plot = plot.plot_canvas
     @test_plot.document = @test_doc
     @test_plot._doc_attached()
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })

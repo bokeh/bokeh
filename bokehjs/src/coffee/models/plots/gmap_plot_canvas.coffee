@@ -87,7 +87,7 @@ class GMapPlotCanvasView extends PlotCanvas.View
     @canvas_view.map_div.attr('style', "height:#{height}px;")
     @canvas_view.map_div.width("#{width}px").height("#{height}px")
 
-    @initial_zoom = @mget('map_options').zoom
+    @initial_zoom = @model.plot.map_options.zoom
 
     build_map = () =>
       maps = window.google.maps
@@ -97,7 +97,7 @@ class GMapPlotCanvasView extends PlotCanvas.View
         "roadmap": maps.MapTypeId.ROADMAP,
         "hybrid": maps.MapTypeId.HYBRID
       }
-      mo = @mget('map_options')
+      mo = @model.plot.map_options
       map_options =
         center: new maps.LatLng(mo.lat, mo.lng)
         zoom:mo.zoom
@@ -156,16 +156,13 @@ class GMapPlotCanvasView extends PlotCanvas.View
     ctx.lineTo(left,    top)
     ctx.closePath()
 
-    ctx.fillStyle = @mget('border_fill_color')
+    ctx.fillStyle = @model.plot.border_fill_color
     ctx.fill()
 
 class GMapPlotCanvas extends PlotCanvas.Model
   type: 'GMapPlotCanvas'
   default_view: GMapPlotCanvasView
 
-  @define {
-      map_options: [ p.Any ]
-    }
 
   initialize: (attrs, options) ->
     @use_map = true

@@ -38,7 +38,7 @@ namespace HoverfulScatter {
     p.text({field: "x"}, {field: "y"}, indices, {source: source, alpha: 0.5,
            text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
-    const hover = p.select_one(Bokeh.HoverTool)
+    const hover = p.toolbar.select_one(Bokeh.HoverTool)
     hover.tooltips = (source, info) => {
         const ds = source as Bokeh.ColumnDataSource
         const div = document.createElement("div")

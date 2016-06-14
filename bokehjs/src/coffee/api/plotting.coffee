@@ -300,19 +300,17 @@ class Figure extends models.Plot
         else
           @y_mapper_type = 'log'
 
-      axis = new axiscls({plot: if axis_location? then this else null})
+      axis = new axiscls()
 
       if axis.ticker instanceof models.ContinuousTicker
         axis.ticker.num_minor_ticks = @_get_num_minor_ticks(axiscls, minor_ticks)
       if axis_label.length != 0
         axis.axis_label = axis_label
 
-      grid = new models.Grid({plot: this, dimension: dim, ticker: axis.ticker})
+      grid = new models.Grid({dimension: dim, ticker: axis.ticker})
 
-      if axis_location?
-        this[axis_location] = (this[axis_location] ? []).concat([axis])
-
-      @add_renderers(axis, grid)
+      @add_layout(axis, axis_location)
+      @add_layout(grid)
 
   _get_axis_class: (axis_type, range) ->
     if not axis_type?
