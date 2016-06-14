@@ -401,6 +401,8 @@ class PlotCanvasView extends Renderer.View
     # AK: seems weird to me that this is here, but get solver errors if I remove it
     @update_constraints()
 
+    @model.get('frame')._update_mappers()
+    
     ctx = @canvas_view.ctx
     ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
 
