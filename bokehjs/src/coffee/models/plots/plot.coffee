@@ -134,6 +134,8 @@ class Plot extends LayoutDOM.Model
     @set('renderers', renderers)
 
   add_layout: (renderer, side="center") ->
+    if renderer.props.plot?
+      renderer.plot = this
     @add_renderers(renderer)
     if side != 'center'
       if @document?
