@@ -206,14 +206,18 @@ class CategoricalTickFormatter(TickFormatter):
     pass
 
 class FuncTickFormatter(TickFormatter):
-    """ Format a function based on a python function that is transpiled to
-    javascript via PyScript
+    """ Display tick values that are formatted by a user-defined function.
+
     """
 
     @classmethod
     def from_py_func(cls, func):
-        """ Create a CustomJS instance from a Python function. The
-        function is translated to Python using PyScript.
+        """ Create a FuncTickFormatter instance from a Python function. The
+        function is translated to Javascript using PyScript.
+
+        .. warning::
+            The function can have only a single positional argument and return
+            a single value.
         """
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
@@ -223,7 +227,7 @@ class FuncTickFormatter(TickFormatter):
 
         arg = inspect.getargspec(func)[0]
         if len(arg) != 1:
-            raise ValueError("Can only have one argument. You have: %d" % len(arg))
+            raise ValueError("Function `func` can have only one argument, but %d were supplied." % len(arg))
 
         # Set the transpiled functions as `formatter` so that we can call it
         code = pyscript.py2js(func, 'formatter')
@@ -234,11 +238,19 @@ class FuncTickFormatter(TickFormatter):
         return cls(code=wrapped_code, lang='javascript')
 
     code = String(default="", help="""
-    An anonymous JavaScript/CoffeeScript function to reformat a single tick to
-    the desired format.
+    An anonymous JavaScript or CoffeeScript function expression to reformat a
+    single tick to the desired format. E.g.:
+
+    code = '''
+    function (tick) {
+        // Convert from minutes to seconds and add units str
+        return tick * 60 + " seconds"
+    };
+    '''
 
     .. warning::
-        The anonymous can have only a single argument
+        The function can have only a single positional argument and return
+        a single value.
 
     """)
 
