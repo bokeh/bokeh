@@ -488,7 +488,12 @@ class PlotCanvasView extends Renderer.View
     # a resize of the canvas, which means that any previous calls to ctx.save() may be undone.
     @canvas_view.prepare_canvas()
 
-    @update_constraints()
+    try
+      @update_constraints()
+    catch silent_error
+      # [AK] This sucks, but due to probably some race condidition this (sometimes?)
+      # results in "unknown edit variable" at kiwi.js. Tried to skip only the
+      # first time we get here, but then layout initialization fails.
 
     # This allows the plot canvas to be positioned around the toolbar
     @$el.css({
