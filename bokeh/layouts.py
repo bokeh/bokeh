@@ -167,7 +167,7 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
 
     """
     # Integrity checks & set-up
-    _verify_responsive()
+    _verify_responsive(responsive)
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
