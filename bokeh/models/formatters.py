@@ -4,11 +4,16 @@ labels on Bokeh plot axes.
 """
 from __future__ import absolute_import
 
+from types import FunctionType
+import inspect
+
 from .tickers import Ticker
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
-from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
+from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
+    Either, Instance)
+from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage, ScriptingLanguage
+from ..util.dependencies import import_required
 
 @abstract
 class TickFormatter(Model):
@@ -199,6 +204,50 @@ class CategoricalTickFormatter(TickFormatter):
 
     """
     pass
+
+class FuncTickFormatter(TickFormatter):
+    """ Format a function based on a python function that is transpiled to
+    javascript via PyScript
+    """
+
+    @classmethod
+    def from_py_func(cls, func):
+        """ Create a CustomJS instance from a Python function. The
+        function is translated to Python using PyScript.
+        """
+        if not isinstance(func, FunctionType):
+            raise ValueError('CustomJS.from_py_func needs function object.')
+        pyscript = import_required('flexx.pyscript',
+                                   'To use Python functions for CustomJS, you need Flexx ' +
+                                   '("conda install -c bokeh flexx" or "pip install flexx")')
+
+        arg = inspect.getargspec(func)[0]
+        if len(arg) != 1:
+            raise ValueError("Can only have one argument. You have: %d" % len(arg))
+
+        # Set the transpiled functions as `formatter` so that we can call it
+        code = pyscript.py2js(func, 'formatter')
+        # We wrap the transpiled function into an anonymous function with a single
+        # arg that matches that of func.
+        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (arg[0], code, arg[0])
+
+        return cls(code=wrapped_code, lang='javascript')
+
+    code = String(default="", help="""
+    An anonymous JavaScript/CoffeeScript function to reformat a single tick to
+    the desired format.
+
+    .. warning::
+        The anonymous can have only a single argument
+
+    """)
+
+    lang = Enum(ScriptingLanguage, default="javascript", help="""
+    The implementation scripting language of the snippet. This can be either
+    raw JavaScript or CoffeeScript. In CoffeeScript's case, the snippet will
+    be compiled at runtime (in a web browser), so you don't need to have
+    node.js/io.js, etc. installed.
+    """)
 
 DEFAULT_DATETIME_FORMATS = lambda : {
     'microseconds': ['%fus'],
