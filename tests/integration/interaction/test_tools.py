@@ -9,9 +9,9 @@ from tests.integration.utils import has_no_console_errors
 import pytest
 pytestmark = pytest.mark.integration
 
-def generate_plot():
-    PLOT_DIM = 600
+PLOT_DIM = 600
 
+def generate_plot():
     source = ColumnDataSource(dict(
         x=[1, 2, 3],
         y=[3, 2, 3],
