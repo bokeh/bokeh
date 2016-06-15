@@ -3,11 +3,6 @@ declare namespace Bokeh {
         plot?: Plot;
     }
 
-    export interface PlotView extends View<Plot> {
-        resize_width_height(use_width: boolean, use_height: boolean, maintain_ar?: boolean,
-                            width?: number, height?: number): void;
-    }
-
     export var Plot: { new(attributes?: IPlot, options?: ModelOpts): Plot };
     export interface Plot extends LayoutDOM, IPlot {
         add_renderers(...Renderer: Array<Renderer>): void;

@@ -12,6 +12,7 @@ declare namespace Bokeh {
         roots(): Array<Model>;
         add_root(model: Model): void;
         remove_root(model: Model): void;
+        resize(): void;
 
         title(): string;
         set_title(title: string): void;
