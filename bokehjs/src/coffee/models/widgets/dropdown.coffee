@@ -37,7 +37,7 @@ class DropdownView extends Widget.View
       $button.click(() => @change_input(@mget("default_value")))
       $toggle = $('<button></button>')
       $toggle.addClass("bk-bs-btn")
-      $toggle.addClass("bk-bs-btn-" + @mget("type"))
+      $toggle.addClass("bk-bs-btn-" + @mget("button_type"))
       $toggle.addClass("bk-bs-dropdown-toggle")
       $toggle.attr("data-bk-bs-toggle", "dropdown")
       $toggle.append($caret)
