@@ -39,6 +39,7 @@ class RadioGroupView extends Widget.View
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
+    @mget('callback')?.execute(@model)
 
 class RadioGroup extends Widget.Model
   type: "RadioGroup"
@@ -48,6 +49,7 @@ class RadioGroup extends Widget.Model
       active:   [ p.Any,   null  ] # TODO (bev) better type?
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
+      callback: [ p.Instance ]
     }
 
 module.exports =

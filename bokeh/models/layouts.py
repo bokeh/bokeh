@@ -42,27 +42,28 @@ class LayoutDOM(Model):
 
     responsive = Responsive(help="""
     The type of responsiveness for the item being displayed. Possible values are
-    `fixed` (or `False`), `width_ar` (or `True`), `height_ar`, `box_ar`, `box`.
+    ``"fixed"`` (or ``False``), ``"scale_width"`` (or ``True``),
+    ``"scale_height"``, ``"scale_both"``, ``"stretch_both"``.
 
-    `box` mode constrains both the height and width. The items being laid out
-    attempt to fit entirely within their box. Items will shrink and grow with both
-    the height and width as their parent box changes size. This is sometimes called outside-in.
-    This is a typical behavior for desktop applications.
+    ``"stretch_both"`` elements are completely responsive (independently in width and height) and
+    will resize to occupy all available space, even if this changes the aspect ratio of the element.
+    This is sometimes called outside-in, and is a typical behavior for desktop applications.
 
-    `fixed` mode prevents responsiveness. The items will have a fixed size.
+    ``"fixed"`` elements are not responsive. They will retain their original width and height
+    regardless of any subsequent browser window resize events.
 
-    `width_ar` mode constrains only the width. The items being laid out will resize to
-    fit the width and will take up whatever vertical space they may need. This is a
-    typical behavior for modern websites. For a Plot,
-    the aspect ratio (plot_width/plot_height) is maintained.
+    ``"scale_width"`` elements will responsively resize to fit to the width available, *while
+    maintaining the original aspect ratio*. This is a typical behavior for modern websites. For a
+    ``Plot``, the aspect ratio ``plot_width/plot_height`` is maintained.
 
-    `height_ar` mode constrains only the height. The items being laid out will resize to
-    fit the height and will take up whatever width they may need. For a Plot,
-    the aspect ratio (plot_width/plot_height) is maintained. A plot with `height_ar` mode needs
-    to be wrapped in a Row or Column to be responsive.
+    ``"scale_height"`` elements will responsively resize to fit to the height available, *while
+    maintaining the original aspect ratio*. For a ``Plot``, the aspect ratio
+    ``plot_width/plot_height`` is maintained. A plot with ``"scale_height"`` mode needs
+    to be wrapped in a ``Row`` or ``Column`` to be responsive.
 
-    `box_ar` mode constrains the width and height, but maintains the plot aspect ratio
-    for a plot inside the box.
+
+    ``"scale_both"`` elements will responsively resize to fir both the width and height available,
+    *while maintaining the original aspect ratio*.
 
     """)
 

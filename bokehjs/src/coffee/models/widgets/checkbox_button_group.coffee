@@ -48,6 +48,7 @@ class CheckboxButtonGroup extends Widget.Model
       active:      [ p.Array,  []        ]
       labels:      [ p.Array,  []        ]
       button_type: [ p.String, "default" ]
+      callback:    [ p.Instance ]
     }
 
 module.exports =

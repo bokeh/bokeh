@@ -124,7 +124,7 @@ class ToolbarBoxView extends Box.View
 
   get_height: () ->
     # Returning null from this causes
-    # Left toolbar to overlap in width_ar case
+    # Left toolbar to overlap in scale_width case
     return 30
 
 

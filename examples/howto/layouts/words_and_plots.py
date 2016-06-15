@@ -70,8 +70,8 @@ def intro():
         <p>Hopefully you'll see from the code, that the layout tries to get out of your way
         and do the right thing. Of course, it might not always, so please report bugs as you
         find them and attach them to the epic we're creating <a href="">here</a>.</p>
-        <p>This is an example of <code>width_ar</code> mode (happy to continue the conversations
-        about what to name the modes). In <code>width_ar</code> everything responds to the width
+        <p>This is an example of <code>scale_width</code> mode (happy to continue the conversations
+        about what to name the modes). In <code>scale_width</code> everything responds to the width
         that's available to it. Plots alter their height to maintain their aspect ratio, and widgets
         are allowed to grow as tall as they need to accomodate themselves. Often times widgets
         stay the same height, but text is a good example of a widget that doesn't.</p>
@@ -87,7 +87,7 @@ l = layout(
         [text()],
         [hover_plot(), text()],
     ],
-    responsive='width_ar'
+    responsive='scale_width'
 )
 
 show(l)
