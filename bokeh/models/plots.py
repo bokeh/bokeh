@@ -650,12 +650,12 @@ class Plot(LayoutDOM):
     @property
     def title_standoff(self):
         warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.offset'))
-        return self.title.title_offset
+        return self.title.offset
 
     @title_standoff.setter
     def title_standoff(self, value):
         warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.offset'))
-        self.title.title_offset = value
+        self.title.offset = value
 
     @property
     def title_text_font(self):
