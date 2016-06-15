@@ -557,12 +557,12 @@ class Title(TextAnnotation):
     The text value to render.
     """)
 
-    title_align = Enum(TextAlign, default='left', help="""
+    align = Enum(TextAlign, default='left', help="""
     Location to align the title text.
     """
     )
 
-    title_padding = Float(default=0, help="""
+    offset = Float(default=0, help="""
     Offset value to apply to the title alignment coordinate.
     """)
 
