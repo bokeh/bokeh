@@ -14,6 +14,11 @@ PlotCanvas = require("./plot_canvas").Model
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
 
+  bind_bokeh_events: () ->
+    super()
+    title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
+    @listenTo(@model, 'change:title', () => logger.warn(title_msg))
+
   render: () ->
     super()
 
