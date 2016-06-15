@@ -24,7 +24,7 @@ def bollinger():
 
     p.title = 'Bollinger Bands'
     p.title_location = 'left'
-    p.title.title_align = 'left'
+    p.title.align = 'left'
     p.plot_height = 600
     p.plot_width = 800
     p.grid.grid_line_alpha = 0.4
