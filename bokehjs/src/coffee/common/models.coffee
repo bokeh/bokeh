@@ -70,6 +70,7 @@ module.exports = {
   GridMapper:               require '../models/mappers/grid_mapper'
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'
+  LogColorMapper:           require '../models/mappers/log_color_mapper'
   LogMapper:                require '../models/mappers/log_mapper'
 
   Transform:                require '../models/transforms/transform'

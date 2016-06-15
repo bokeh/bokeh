@@ -3,24 +3,19 @@ _ = require "underscore"
 ColorMapper = require "./color_mapper"
 p = require "../../core/properties"
 
-class LinearColorMapper extends ColorMapper.Model
-  type: "LinearColorMapper"
+class LogColorMapper extends ColorMapper.Model
+  type: "LogColorMapper"
 
   @define {
       high:          [ p.Number           ]
       low:           [ p.Number           ]
       palette:       [ p.Any              ] # TODO (bev)
-      reserve_val:   [ p.Number           ]
-      reserve_color: [ p.Color, '#ffffff' ]
     }
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @_little_endian = @_is_little_endian()
     @_palette       = @_build_palette(@get('palette'))
-    if @get('reserve_color')?
-      @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
-      @_reserve_val   = @get('reserve_val')
 
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)
@@ -30,21 +25,19 @@ class LinearColorMapper extends ColorMapper.Model
     high = @get('high') ? _.max(data)
 
     N = @_palette.length - 1
-    scale = N/(high-low)
-    offset = -scale*low
+    scale = N / Math.log1p(high/low) #dividing by low substracts the offset
 
     if @_little_endian
       for i in [0...data.length]
         d = data[i]
 
-        if (d == @_reserve_val)
-          value = @_reserve_color
-        else
-          if (d > high)
-            d = high
-          if (d < low)
-            d = low
-          value = @_palette[Math.floor(d*scale+offset)]
+        if (d > high)
+          d = high
+        else if (d < low)
+          d = low
+
+        log = Math.log1p(d/low) #dividing by low substracts the offset
+        value = @_palette[Math.floor(log * scale)]
 
         color[i] =
           (0xff << 24)               | # alpha
@@ -56,18 +49,16 @@ class LinearColorMapper extends ColorMapper.Model
       for i in [0...data.length]
         d = data[i]
 
-        if (d == @_reserve_val)
-          value = @_reserve_color
-        else
-          if (d > high)
-            d = high
-          if (d < low)
-            d = low
-          value = @_palette[Math.floor(d*scale+offset)] # rgb
+        if (d > high)
+          d = high
+        else if (d < low)
+          d = low
 
-        color[i] = (value << 8) | 0xff               # alpha
+        log = Math.log1p(d/low) #dividing by low substracts the offset
+        value = @_palette[Math.floor(log * scale)]
 
+        color[i] = (value << 8) | 0xff                 # alpha
     return buf
 
 module.exports =
-  Model: LinearColorMapper
+  Model: LogColorMapper
