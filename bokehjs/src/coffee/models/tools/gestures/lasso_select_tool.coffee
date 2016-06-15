@@ -63,9 +63,29 @@ class LassoSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
+    if @mget('callback')?
+      @_emit_callback(geometry)
+
     @_save_geometry(geometry, final, append)
 
     return null
+
+  _emit_callback: (geometry) ->
+    r = @mget('computed_renderers')[0]
+    canvas = @plot_model.get('canvas')
+    frame = @plot_model.get('frame')
+
+    geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
+    geometry['sy'] = canvas.v_vy_to_sy(geometry.vy)
+
+    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
+    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    geometry['x'] = xmapper.v_map_from_target(geometry.vx)
+    geometry['y'] = ymapper.v_map_from_target(geometry.vy)
+
+    @mget('callback').execute(@model, {geometry: geometry})
+
+    return
 
 DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   level: "overlay"
@@ -89,6 +109,7 @@ class LassoSelectTool extends SelectTool.Model
 
   @define {
       select_every_mousemove: [ p.Bool,    true                  ]
+      callback:               [ p.Instance                       ]
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
 
