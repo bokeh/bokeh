@@ -239,14 +239,18 @@ class FuncTickFormatter(TickFormatter):
 
     code = String(default="", help="""
     An anonymous JavaScript or CoffeeScript function expression to reformat a
-    single tick to the desired format. E.g.:
+    single tick to the desired format.
 
-    code = '''
-    function (tick) {
-        // Convert from minutes to seconds and add units str
-        return tick * 60 + " seconds"
-    };
-    '''
+    Example:
+
+        .. code-block:: python
+
+            code = '''
+            function (tick) {
+                // Convert from minutes to seconds and add units str
+                return tick * 60 + " seconds"
+            };
+            '''
 
     .. warning::
         The function can have only a single positional argument and return
