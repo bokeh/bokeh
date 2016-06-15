@@ -13,7 +13,94 @@ from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer
 
 
-def layout(children=None, responsive='stretch_both', *args):
+#-----------------------------------------------------------------------------
+# Common helper functions
+#-----------------------------------------------------------------------------
+def _handle_children(children, *args):
+    # Set-up Children from args or kwargs
+    if len(args) > 0 and children is not None:
+        raise ValueError("'children' keyword cannot be used with positional arguments")
+    elif len(args) > 0:
+        children = list(args)
+    if not children:
+        return
+    return children
+
+
+def _verify_responsive(responsive):
+    if not hasattr(Responsive, responsive):
+        raise ValueError("Invalid value of responsive: %s" % responsive)
+
+
+def row(children=None, responsive='fixed', *args):
+    """ Create a row of Bokeh Layout objects. Forces all objects to
+    have the same responsive mode, which is required for complex layouts to work.
+
+    Args:
+        children List(Instance(LayoutDOM)): An list of lists containing any of the
+        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
+        are then assigned the responsive mode of the layout.
+
+        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
+        the grid will respond to the html page. Default is ``fixed``.
+
+    Examples:
+
+        >>> row([plot_1, plot_2])
+        >>> row(children=[widget_box_1, plot_1], responsive='stretch_both')
+    """
+
+    _verify_responsive(responsive)
+    children = _handle_children(children, args)
+
+    for item in children:
+        row_children = []
+        if isinstance(item, LayoutDOM):
+            item.responsive = responsive
+            row_children.append(item)
+        else:
+            raise ValueError(
+                """Only LayoutDOM items can be inserted into a layout.
+                Tried to insert: %s of type %s""" % (item, type(item))
+            )
+    return Row(children=row_children, responsive=responsive)
+
+
+def column(children=None, responsive='fixed', *args):
+    """ Create a column of Bokeh Layout objects. Forces all objects to
+    have the same responsive mode, which is required for complex layouts to work.
+
+    Args:
+        children List(Instance(LayoutDOM)): An list of lists containing any of the
+        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
+        are then assigned the responsive mode of the layout.
+
+        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
+        the grid will respond to the html page. Default is ``fixed``.
+
+    Examples:
+
+        >>> column([plot_1, plot_2])
+        >>> column(children=[widget_box_1, plot_1], responsive='stretch_both')
+    """
+
+    _verify_responsive(responsive)
+    children = _handle_children(children, args)
+
+    for item in children:
+        col_children = []
+        if isinstance(item, LayoutDOM):
+            item.responsive = responsive
+            col_children.append(item)
+        else:
+            raise ValueError(
+                """Only LayoutDOM items can be inserted into a layout.
+                Tried to insert: %s of type %s""" % (item, type(item))
+            )
+    return Column(children=col_children, responsive=responsive)
+
+
+def layout(children=None, responsive='fixed', *args):
     """ Create a grid-based arrangement of Bokeh Layout objects. Forces all objects to
     have the same responsive mode, which is required for complex layouts to work.
 
@@ -22,8 +109,8 @@ def layout(children=None, responsive='stretch_both', *args):
         following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
         are then assigned the responsive mode of the layout.
 
-        responsive Enum(``box``, ``fixed``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
-        the grid will respond to the html page. Default is ``box``.
+        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
+        the grid will respond to the html page. Default is ``fixed``.
 
     Examples:
 
@@ -34,37 +121,18 @@ def layout(children=None, responsive='stretch_both', *args):
                     [slider],
                     [widget_box_2, plot_2, plot_3]
                 ],
-                responsive='fixed',
+                responsive='stretch_both',
             )
 
     """
-    # Set-up Children from args or kwargs
-    if len(args) > 0 and children is not None:
-        raise ValueError("'children' keyword cannot be used with positional arguments")
-    elif len(args) > 0:
-        children = list(args)
-    if not children:
-        return
-    if not hasattr(Responsive, responsive):
-        raise ValueError("Invalid value of responsive: %s" % responsive)
+    _verify_responsive(responsive)
+    children = _handle_children(children, args)
 
     # Make the grid
     rows = []
-
     for row in children:
-        row_children = []
-        for item in row:
-            if isinstance(item, LayoutDOM):
-                item.responsive = responsive
-                row_children.append(item)
-            else:
-                raise ValueError(
-                    """Only LayoutDOM items can be inserted into a layout.
-                    Tried to insert: %s of type %s""" % (item, type(item))
-                )
-        rows.append(Row(children=row_children, responsive=responsive))
-
-    grid = Column(children=rows, responsive=responsive)
+        rows.append(row(children=row, responsive=responsive))
+    grid = column(children=rows, responsive=responsive)
     return grid
 
 
@@ -98,24 +166,18 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
             )
 
     """
+    # Integrity checks & set-up
+    _verify_responsive()
+    if toolbar_location:
+        if not hasattr(Location, toolbar_location):
+            raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
+    children = _handle_children(children, args)
 
-    # Integrity checks
-
-    if len(args) > 0 and children is not None:
-        raise ValueError("'children' keyword cannot be used with positional arguments")
-    elif len(args) > 0:
-        children = list(args)
+    # Additional children set-up for GridPlot
     if not children:
         children = []
     if isinstance(children, GridSpec):
         children = list(children)
-
-    if not hasattr(Responsive, responsive):
-        raise ValueError("Invalid value of responsive: %s" % responsive)
-
-    if toolbar_location:
-        if not hasattr(Location, toolbar_location):
-            raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
 
     # Make the grid
     tools = []
@@ -166,6 +228,7 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         return Row(children=[grid, toolbar], responsive=responsive)
     else:
         return grid
+
 
 class GridSpec(object):
     """ Simplifies grid layout specification. """
