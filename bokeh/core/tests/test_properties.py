@@ -1477,10 +1477,3 @@ def test_titleprop_transforms_string_into_title_object():
     f = Foo(title="hello")
     assert isinstance(f.title, Title)
     assert f.title.text == "hello"
-
-
-def test_titleprop_transforms_empty_string_into_None():
-    class Foo(HasProps):
-        title = TitleProp
-    f = Foo(title="")
-    assert f.title is None
