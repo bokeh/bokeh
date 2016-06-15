@@ -559,11 +559,17 @@ class Title(TextAnnotation):
 
     align = Enum(TextAlign, default='left', help="""
     Location to align the title text.
-    """
-    )
+
+    """)
 
     offset = Float(default=0, help="""
-    Offset value to apply to the title alignment coordinate.
+    Offset the text by a number of pixels (can be positive or negative). Shifts the text in
+    different directions based on the location of the title:
+        * above: shifts title right
+        * right: shifts title down
+        * below: shifts title right
+        * left: shifts title up
+
     """)
 
     text_font = String(default="helvetica", help="""
