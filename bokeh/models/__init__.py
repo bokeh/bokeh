@@ -21,6 +21,7 @@ from .sources import *
 from .tickers import *
 from .tiles import *
 from .tools import *
+from .transforms import *
 
 ### Deprecation note:
 ### bokeh.models.widgets.layouts was deprecated in 0.11.1 in favor of
