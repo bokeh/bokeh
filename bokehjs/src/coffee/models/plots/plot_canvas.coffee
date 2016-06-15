@@ -404,7 +404,7 @@ class PlotCanvasView extends Renderer.View
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
     @model.get('frame')._update_mappers()
-    
+
     ctx = @canvas_view.ctx
     ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
 
