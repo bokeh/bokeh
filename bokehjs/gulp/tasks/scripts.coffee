@@ -6,6 +6,7 @@ gulp = require "gulp"
 gutil = util = require "gulp-util"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
+replace = require "gulp-replace"
 uglify = require "gulp-uglify"
 runSequence = require "run-sequence"
 sourcemaps = require "gulp-sourcemaps"
@@ -151,6 +152,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       # our backbone.
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
+      .pipe(replace("function lex\(\) \{", "var lex = function foo\(\) \{"))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))

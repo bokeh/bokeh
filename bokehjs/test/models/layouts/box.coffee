@@ -57,19 +57,19 @@ describe "Box.Model", ->
       }
 
     it "should return correct constrained_variables in box mode", ->
-      @box.responsive = 'box'
+      @box.responsive = 'stretch_both'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
-    it "should return correct constrained_variables in width_ar mode", ->
+    it "should return correct constrained_variables in scale_width mode", ->
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
-      @box.responsive = 'width_ar'
+      @box.responsive = 'scale_width'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
-    it "should return correct constrained_variables in height_ar mode", ->
+    it "should return correct constrained_variables in scale_height mode", ->
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
-      @box.responsive = 'height_ar'
+      @box.responsive = 'scale_height'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 

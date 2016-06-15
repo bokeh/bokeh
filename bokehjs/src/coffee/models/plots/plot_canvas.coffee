@@ -640,7 +640,7 @@ class PlotCanvas extends LayoutDOM.Model
 
   @override {
     # We should find a way to enforce this
-    responsive: 'box'
+    responsive: 'stretch_both'
   }
 
   @internal {
