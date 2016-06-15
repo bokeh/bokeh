@@ -101,11 +101,10 @@ class Document
 
     # Ideally the solver would  settle in one pass (can that be done?),
     # but it currently needs two passes to get it right.
+    # Seems to be needed everywhere on initialization, and on Windows
+    # it seems necessary on each Draw
     @_resize()
-    if not @_first_resize_complete?
-      @_resize()
-      @_first_resize_complete = true
-
+    @_resize()
 
   _resize: () ->
 
