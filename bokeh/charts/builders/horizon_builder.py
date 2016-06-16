@@ -90,7 +90,7 @@ def Horizon(data=None, x=None, y=None, series=None, **kws):
 
     tools = kws.get('tools', True)
     if tools == True:
-        tools = "save,resize,reset"
+        tools = "save,reset"
     elif isinstance(tools, string_types):
         tools = tools.replace('pan', '')
         tools = tools.replace('wheel_zoom', '')
