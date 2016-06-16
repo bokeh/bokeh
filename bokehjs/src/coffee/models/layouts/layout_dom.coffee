@@ -34,7 +34,7 @@ class LayoutDOMView extends BokehView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
-    # Note: Responsive update is not supported because changing the sizing_mode mode
+    # Note: `sizing_mode` update is not supported because changing the sizing_mode mode
     # necessitates stripping out all the relevant constraints from solver and re-adding the new correct ones.
     # We don't currently have a machinery for this. Other things with a similar problem are axes and title.
     sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."

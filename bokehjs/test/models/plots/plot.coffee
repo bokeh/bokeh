@@ -40,15 +40,15 @@ describe "Plot", ->
       @p._dom_top = {_value: dom_top}
       @p._width = {_value: width}
       @p._height = {_value: height}
-      @p.responsive = 'stretch_both'
+      @p.sizing_mode = 'stretch_both'
       plot_view = new @p.default_view({ model: @p })
       plot_view.render()
       # Note we do not set margin & padding on Plot
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.$el.attr('style')).to.be.equal expected_style
 
-    it "should call suggest value with the model height and width if responsive_mode is scale_both", ->
-      @p.responsive = 'scale_both'
+    it "should call suggest value with the model height and width if sizing_mode is scale_both", ->
+      @p.sizing_mode = 'scale_both'
       plot_view = new @p.default_view({ model: @p })
       sinon.stub(plot_view, 'get_width_height').returns([34, 77])
       @solver_suggest.reset()
@@ -144,24 +144,24 @@ describe "Plot", ->
         }
 
       it "should return correct constrained_variables in box mode", ->
-        @p.responsive = 'stretch_both'
+        @p.sizing_mode = 'stretch_both'
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
       it "should return correct constrained_variables in scale_width mode", ->
-        @p.responsive = 'scale_width'
+        @p.sizing_mode = 'scale_width'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
       it "should return correct constrained_variables in scale_height mode", ->
-        @p.responsive = 'scale_height'
+        @p.sizing_mode = 'scale_height'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
       it "should return correct constrained_variables in fixed mode", ->
-        @p.responsive = 'fixed'
+        @p.sizing_mode = 'fixed'
         expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width', 'box-equal-size-left', 'box-equal-size-right'])
         constrained_variables = @p.get_constrained_variables()
         expect(constrained_variables).to.be.deep.equal expected_constrained_variables
