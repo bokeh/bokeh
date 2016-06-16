@@ -99,8 +99,8 @@ controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cas
 for control in controls:
     control.on_change('value', update)
 
-inputs = HBox(VBoxForm(*controls), width=300)
+inputs = HBox(VBoxForm(*controls))
 
 update(None, None, None) # initial load of the data
 
-curdoc().add_root(HBox(inputs, p, width=1100))
+curdoc().add_root(HBox(inputs, p))
