@@ -13,5 +13,3 @@ from ..layouts import LayoutDOM
 @abstract
 class Widget(LayoutDOM):
     """ A base class for all interactive widget types. """
-
-    sizing_mode = Override(default='fixed')
