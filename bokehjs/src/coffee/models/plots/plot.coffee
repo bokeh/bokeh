@@ -17,6 +17,9 @@ class PlotView extends LayoutDOM.View
 
   bind_bokeh_events: () ->
     super()
+    # Note: Title object cannot be replaced after initialization, similar to axes, and also
+    # not being able to change the sizing_mode. All of these changes require a re-initialization
+    # of all constraints which we don't currently support.
     title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
     @listenTo(@model, 'change:title', () => logger.warn(title_msg))
 
