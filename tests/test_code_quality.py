@@ -35,6 +35,7 @@ def collect_errors():
         line = None
 
         for idx, line in enumerate(test_file):
+            line = line.decode('utf-8')
             line_no = idx + 1
 
             if idx == 0 and len(line.strip()) == 0:
@@ -55,7 +56,7 @@ def collect_errors():
                 errors.append((message_eof, fname, line_no))
 
     def test(fname):
-        with open(fname, "rt") as test_file:
+        with open(fname, "rb") as test_file:
             test_this_file(fname, test_file)
 
     def canonicalize(path):
