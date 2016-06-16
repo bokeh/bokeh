@@ -112,30 +112,35 @@ describe "LayoutDOM.View", ->
       layout_view.render()
       expect(spy.calledOnce).is.true
 
-    it "should call render on initialization if responsive_mode is fixed", ->
-      @test_layout.responsive = 'fixed'
-      render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
-      layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(render_spy.calledOnce).is.true
-      LayoutDOMView.prototype.render.restore()
-
-    it "should not call render on initialization if responsive_mode is not fixed, but should call on resize", ->
-      @test_layout.responsive = 'box'
-      render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
-      layout_view = new LayoutDOMView({ model: @test_layout })
-      expect(render_spy.called).is.false
-      @doc.resize()
-      expect(render_spy.calledOnce).is.true
-      LayoutDOMView.prototype.render.restore()
-
     it "should call suggest value with the model height and width if responsive_mode is fixed", ->
       @test_layout.responsive = 'fixed'
       @test_layout.width = 22
       @test_layout.height = 33
       layout_view = new LayoutDOMView({ model: @test_layout })
+      layout_view.render()
       expect(@solver_suggest.callCount).is.equal 2
       expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._width, 22]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@test_layout._height, 33]
+
+    it "should only listen to resize event once if responsive_mode is fixed", ->
+      @test_layout.responsive = 'fixed'
+      render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      expect(render_spy.calledOnce).is.true
+      LayoutDOMView.prototype.render.restore()
+
+    it "should keep listening to resize event if responsive_mode is not fixed", ->
+      @test_layout.responsive = 'scale_both'
+      render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      expect(render_spy.calledThrice).is.true
+      LayoutDOMView.prototype.render.restore()
 
     it "should call suggest value with the value from get_height if responsive_mode is scale_width", ->
       @test_layout.responsive = 'scale_width'
