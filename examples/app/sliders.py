@@ -46,7 +46,7 @@ freq = Slider(title="frequency", value=1.0, start=0.1, end=5.1)
 
 # Set up callbacks
 def update_title(attrname, old, new):
-    plot.title = text.value
+    plot.title.text = text.value
 
 text.on_change('value', update_title)
 

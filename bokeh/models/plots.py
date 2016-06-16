@@ -37,6 +37,9 @@ DEP_MSG_0_12_0 = """
     Plot property '%s' was deprecated in 0.12.0 and will be removed. Use '%s' instead.
     """
 
+# We create an empty title by default
+DEFAULT_TITLE = lambda: Title(text="")
+
 
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -420,8 +423,8 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = TitleProp(help="""
-    A title for the plot. Can be a text string or a Title annotation.
+    title = TitleProp(default=DEFAULT_TITLE, help="""
+    A title for the plot. Can be a text string or a Title annotation. Default is Title(text="").
     """)
 
     title_location = Enum(Location, default="above", help="""

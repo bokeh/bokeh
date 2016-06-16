@@ -121,7 +121,11 @@ class Chart(Plot):
                 kwargs["_" + name] = kwargs[name]
                 del kwargs[name]
 
+        title_text = kwargs.pop("title", None)
+
         super(Chart, self).__init__(*args, **kwargs)
+
+        self.title.text = title_text
 
         defaults.apply(self)
 

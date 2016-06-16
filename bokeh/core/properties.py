@@ -1914,9 +1914,14 @@ class TitleProp(Either):
 
     def transform(self, value):
         if isinstance(value, str):
-            if value == "":
-                return None
-            else:
-                from bokeh.models.annotations import Title
-                value = Title(text=value)
+            from bokeh.models.annotations import Title
+            warn("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
+            and will be removed. The title is now an object on Plot (which holds all of it's
+            styling properties). Please use Plot.title.text instead.
+
+            SERVER USERS: If you were using plot.title to have the server update the plot title
+            in a callback, you MUST update to plot.title.text as the title object cannot currently
+            be replaced after intialization.
+            """)
+            value = Title(text=value)
         return value
