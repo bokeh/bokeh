@@ -26,7 +26,7 @@ def test_the_default_titles_settings_and_ensure_outside_any_axes(output_file_url
             title="Title %s - %s" % (location, title_align),
             title_location=location,
         )
-        plot.title.title_align = title_align
+        plot.title.align = title_align
         plot.add_glyph(source, Circle(x='x', y='y', radius=0.4))
         plot.add_layout(LinearAxis(), location)
         if two_axes:
