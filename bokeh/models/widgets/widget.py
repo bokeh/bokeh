@@ -14,4 +14,4 @@ from ..layouts import LayoutDOM
 class Widget(LayoutDOM):
     """ A base class for all interactive widget types. """
 
-    responsive = Override(default='fixed')
+    sizing_mode = Override(default='fixed')

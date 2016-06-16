@@ -30,7 +30,7 @@ from ..models import (
     Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg, _glyph_function
+from ..plotting.helpers import _process_tools_arg, _glyph_function, _convert_responsive
 from ..core.properties import Auto, Either, Enum, String, Override
 from ..util.deprecate import deprecated
 
@@ -120,6 +120,12 @@ class Chart(Plot):
             if name in kwargs:
                 kwargs["_" + name] = kwargs[name]
                 del kwargs[name]
+
+        if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+            raise ValueError("Chart initialized with both 'responsive' and 'sizing_mode' supplied, supply only one")
+        if 'responsive' in kwargs:
+            kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
+            del kwargs['responsive']
 
         super(Chart, self).__init__(*args, **kwargs)
 

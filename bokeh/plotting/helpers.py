@@ -276,6 +276,13 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         if axis_location is not None:
             getattr(plot, axis_location).append(axis)
 
+def _convert_responsive(responsive):
+    if responsive == True:
+        return 'scale_width'
+    if responsive == False:
+        return'fixed'
+    raise ValueError("'responsive' may only be True or False, passed %r" % responsive)
+
 
 def _process_tools_arg(plot, tools):
     """ Adds tools to the plot object

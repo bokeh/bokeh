@@ -1888,24 +1888,6 @@ class ColorSpec(DataSpec):
 
         return value
 
-class Responsive(Either):
-
-    def __init__(self, default=None, help=None):
-        types = (Enum(enums.Responsive), Bool)
-        super(Responsive, self).__init__(*types, default=default, help=help)
-
-    def transform(self, value):
-        """ Transform True to scale_width mode and False to fixed
-        """
-        if value is True:
-            responsive = 'scale_width'
-        elif value is False:
-            responsive = 'fixed'
-        else:
-            responsive = value
-        return responsive
-
-
 class TitleProp(Either):
 
     def __init__(self, default=None, help=None):

@@ -94,9 +94,9 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
     assert axis in plot.left
 
 
-def test_responsive_property_is_fixed_by_default():
+def test_sizing_mode_property_is_fixed_by_default():
     plot = figure()
-    assert plot.responsive is 'fixed'
+    assert plot.sizing_mode is 'fixed'
 
 
 class BaseTwinAxis(object):
@@ -163,6 +163,6 @@ def test_plot_raises_error_if_toolbar_and_tools_are_set():
 ############
 
 
-def test_grid_plot_responsive_property_is_fixed_by_default():
+def test_grid_plot_sizing_mode_property_is_fixed_by_default():
     gp = GridPlot()
-    assert gp.responsive is 'fixed'
+    assert gp.sizing_mode is 'fixed'
