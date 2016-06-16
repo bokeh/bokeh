@@ -133,7 +133,7 @@ class ModelWithConstrainedVariables extends LayoutableModel
     }
 
   @define {
-    responsive: [ p.Responsive, 'scale_width']
+    sizing_mode: [ p.SizingMode, 'scale_width']
   }
 
 Models.register('ModelWithConstrainedVariables', ModelWithConstrainedVariables)
@@ -151,7 +151,7 @@ class ModelWithConstrainedWidthVariable extends LayoutableModel
     }
 
   @define {
-    responsive: [ p.Responsive, 'scale_width']
+    sizing_mode: [ p.SizingMode, 'scale_width']
   }
 
 Models.register('ModelWithConstrainedWidthVariable', ModelWithConstrainedWidthVariable)
@@ -170,7 +170,7 @@ class ModelWithConstrainedHeightVariable extends LayoutableModel
     }
 
   @define {
-    responsive: [ p.Responsive, 'scale_width']
+    sizing_mode: [ p.SizingMode, 'scale_width']
   }
 
 Models.register('ModelWithConstrainedHeightVariable', ModelWithConstrainedHeightVariable)
@@ -836,7 +836,7 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 1
 
-  it "adds one constraints on add_root if model has get_constrained_variables height and responsive is box", ->
+  it "adds one constraints on add_root if model has get_constrained_variables height and sizing_mode is stretch_both", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
@@ -844,7 +844,7 @@ describe "Document", ->
     before_constraints = s.num_constraints()
 
     expect(s.num_edit_variables()).to.equal 2
-    d.add_root(new ModelWithConstrainedHeightVariable({responsive: 'stretch_both'}))
+    d.add_root(new ModelWithConstrainedHeightVariable({sizing_mode: 'stretch_both'}))
 
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 1
@@ -862,7 +862,7 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints
 
-  it "adds two constraints on add_root if model has get_constrained_variables width & height and responsive is 'stretch_both'", ->
+  it "adds two constraints on add_root if model has get_constrained_variables width & height and sizing_mode is 'stretch_both'", ->
     d = new Document()
     s = d.solver()
     expect(d.roots().length).to.equal 0
@@ -870,7 +870,7 @@ describe "Document", ->
     before_constraints = s.num_constraints()
 
     expect(s.num_edit_variables()).to.equal 2
-    d.add_root(new ModelWithConstrainedVariables({responsive: 'stretch_both'}))
+    d.add_root(new ModelWithConstrainedVariables({sizing_mode: 'stretch_both'}))
 
     expect(d.roots().length).to.equal 1
     expect(s.num_constraints()).to.equal before_constraints + 2

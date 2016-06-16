@@ -87,7 +87,7 @@ l = layout(
         [text()],
         [hover_plot(), text()],
     ],
-    responsive='scale_width'
+    sizing_mode='scale_width'
 )
 
 show(l)

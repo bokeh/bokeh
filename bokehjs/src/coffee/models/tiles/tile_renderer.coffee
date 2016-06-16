@@ -111,7 +111,7 @@ class TileRendererView extends Renderer.View
     return tile
 
   _enforce_aspect_ratio: () ->
-    # brute force way of handling resize or responsive event -------------------------------------------------------------
+    # brute force way of handling resize or sizing_mode event -------------------------------------------------------------
     if @_last_height != @map_frame.get('height') or @_last_width != @map_frame.get('width')
       extent = @get_extent()
       zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))

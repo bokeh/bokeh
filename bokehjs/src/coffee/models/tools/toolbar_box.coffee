@@ -154,14 +154,6 @@ class ToolbarBox extends LayoutDOM.Model
     tools:            [ p.Any,  []   ]
   }
 
-  @override {
-    responsive: null
-  }
-
-  # These exist only to allow pass-through to create the toolbar.
-  @internal {
-  }
-
 
 module.exports =
   Model: ToolbarBox

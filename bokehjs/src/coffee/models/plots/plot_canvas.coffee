@@ -788,7 +788,7 @@ class PlotCanvas extends LayoutDOM.Model
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
     # We should find a way to enforce this
-    responsive: 'stretch_both'
+    sizing_mode: 'stretch_both'
   }
 
   @internal {

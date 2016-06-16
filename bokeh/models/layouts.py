@@ -13,8 +13,8 @@ from ..core.validation.warnings import (
     EMPTY_LAYOUT,
     BOTH_CHILD_AND_ROOT,
 )
-from ..core.enums import Location, Responsive as ResponsiveEnum
-from ..core.properties import abstract, Bool, Int, Instance, List, Responsive, Override
+from ..core.enums import Location, SizingMode
+from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Override
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
@@ -40,10 +40,10 @@ class LayoutDOM(Model):
     the widget will be greyed-out, and not respond to UI events.
     """)
 
-    responsive = Responsive(help="""
-    The type of responsiveness for the item being displayed. Possible values are
-    ``"fixed"`` (or ``False``), ``"scale_width"`` (or ``True``),
-    ``"scale_height"``, ``"scale_both"``, ``"stretch_both"``.
+    sizing_mode = Enum(SizingMode, default="fixed", help="""
+    How the item being displayed should size itself. Possible values are
+    ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
+    ``"stretch_both"``.
 
     ``"stretch_both"`` elements are completely responsive (independently in width and height) and
     will resize to occupy all available space, even if this changes the aspect ratio of the element.
@@ -60,7 +60,6 @@ class LayoutDOM(Model):
     maintaining the original aspect ratio*. For a ``Plot``, the aspect ratio
     ``plot_width/plot_height`` is maintained. A plot with ``"scale_height"`` mode needs
     to be wrapped in a ``Row`` or ``Column`` to be responsive.
-
 
     ``"scale_both"`` elements will responsively resize to fir both the width and height available,
     *while maintaining the original aspect ratio*.
@@ -114,8 +113,6 @@ class WidgetBox(LayoutDOM):
         The list of widgets to put in the layout box.
     """)
 
-    responsive = Override(default='fixed')
-
 
 @abstract
 class Box(LayoutDOM):
@@ -143,7 +140,7 @@ class Box(LayoutDOM):
             if isinstance(child, Widget):
                 child = WidgetBox(
                     children=[child],
-                    responsive=child.responsive,
+                    sizing_mode=child.sizing_mode,
                     width=child.width,
                     height=child.height,
                     disabled=child.disabled
@@ -182,8 +179,6 @@ class Box(LayoutDOM):
     children = List(Instance(LayoutDOM), help="""
         The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
-
-    responsive = Override(default='fixed')
 
 
 class Row(Box):

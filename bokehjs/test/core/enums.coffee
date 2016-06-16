@@ -43,5 +43,5 @@ describe "enums module", ->
   it "should have TextBaseline", ->
     expect(enums.TextBaseline).to.be.deep.equal ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
 
-  it "should have Responsive", ->
-    expect(enums.Responsive).to.be.deep.equal ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+  it "should have SizingMode", ->
+    expect(enums.SizingMode).to.be.deep.equal ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]

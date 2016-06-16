@@ -7,11 +7,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from .core.enums import Location, Responsive
+from .core.enums import Location, SizingMode
 from .models.tools import ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
 from .models.widgets import Widget
+from .util._plot_arg_helpers import _convert_responsive
 
 
 #-----------------------------------------------------------------------------
@@ -28,123 +29,149 @@ def _handle_children(children, *args):
     return children
 
 
-def _verify_responsive(responsive):
-    if not hasattr(Responsive, responsive):
-        raise ValueError("Invalid value of responsive: %s" % responsive)
+def _verify_sizing_mode(sizing_mode):
+    if sizing_mode not in SizingMode:
+        raise ValueError("Invalid value of sizing_mode: %s" % sizing_mode)
 
 
-def row(children=None, responsive='fixed', *args):
+def row(children=None, sizing_mode='fixed', responsive=None, *args):
     """ Create a row of Bokeh Layout objects. Forces all objects to
-    have the same responsive mode, which is required for complex layouts to work.
+    have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
         children List(Instance(LayoutDOM)): An list containing any of the
         following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
-        are then assigned the responsive mode of the layout.
+        are then assigned the sizing_mode of the layout.
 
-        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
-        the grid will respond to the html page. Default is ``fixed``.
+        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
+        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
+        fill the available space.
+
+        responsive ``True``, ``False``. True sets ``sizing_mode`` to
+        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
+        responsive will override sizing_mode.
 
     Examples:
 
         >>> row([plot_1, plot_2])
-        >>> row(children=[widget_box_1, plot_1], responsive='stretch_both')
+        >>> row(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
     """
 
-    _verify_responsive(responsive)
+    if responsive:
+        sizing_mode = _convert_responsive(responsive)
+    _verify_sizing_mode(sizing_mode)
     children = _handle_children(children, *args)
 
     row_children = []
     for item in children:
         if isinstance(item, LayoutDOM):
-            item.responsive = responsive
+            item.sizing_mode = sizing_mode
             row_children.append(item)
         else:
             raise ValueError(
                 """Only LayoutDOM items can be inserted into a row.
                 Tried to insert: %s of type %s""" % (item, type(item))
             )
-    return Row(children=row_children, responsive=responsive)
+    return Row(children=row_children, sizing_mode=sizing_mode)
 
 
-def column(children=None, responsive='fixed', *args):
+def column(children=None, sizing_mode='fixed', responsive=None, *args):
     """ Create a column of Bokeh Layout objects. Forces all objects to
-    have the same responsive mode, which is required for complex layouts to work.
+    have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
         children List(Instance(LayoutDOM)): An list containing any of the
         following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
-        are then assigned the responsive mode of the layout.
+        are then assigned the sizing_mode of the layout.
 
-        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
-        the grid will respond to the html page. Default is ``fixed``.
+        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
+        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
+        fill the available space.
+
+        responsive ``True``, ``False``. True sets ``sizing_mode`` to
+        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
+        responsive will override sizing_mode.
 
     Examples:
 
         >>> column([plot_1, plot_2])
-        >>> column(children=[widget_box_1, plot_1], responsive='stretch_both')
+        >>> column(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
     """
 
-    _verify_responsive(responsive)
+    if responsive:
+        sizing_mode = _convert_responsive(responsive)
+    _verify_sizing_mode(sizing_mode)
     children = _handle_children(children, *args)
 
     col_children = []
     for item in children:
         if isinstance(item, LayoutDOM):
-            item.responsive = responsive
+            item.sizing_mode = sizing_mode
             col_children.append(item)
         else:
             raise ValueError(
                 """Only LayoutDOM items can be inserted into a column.
                 Tried to insert: %s of type %s""" % (item, type(item))
             )
-    return Column(children=col_children, responsive=responsive)
+    return Column(children=col_children, sizing_mode=sizing_mode)
 
 
-def widgetbox(children=None, responsive='fixed', *args):
+def widgetbox(children=None, sizing_mode='fixed', responsive=None, *args):
     """ Create a widgetbox of Bokeh widgets. Forces all to
-    have the same responsive mode, which is required for complex layouts to work.
+    have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
         children List(Instance(Widget)): An list of widgets. All tems in the grid
-        are then assigned the responsive mode of the layout.
+        are then assigned the sizing_mode of the layout.
 
-        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
-        the grid will respond to the html page. Default is ``fixed``.
+        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
+        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
+        fill the available space.
+
+        responsive ``True``, ``False``. True sets ``sizing_mode`` to
+        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
+        responsive will override sizing_mode.
 
     Examples:
 
         >>> widgetbox([button, select])
-        >>> widgetbox(children=[slider], responsive='scale_width')
+        >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
 
-    _verify_responsive(responsive)
+    if responsive:
+        sizing_mode = _convert_responsive(responsive)
+    _verify_sizing_mode(sizing_mode)
     children = _handle_children(children, *args)
 
     widget_children = []
     for item in children:
         if isinstance(item, Widget):
-            item.responsive = responsive
+            item.sizing_mode = sizing_mode
             widget_children.append(item)
         else:
             raise ValueError(
                 """Only Widgets can be inserted into a WidgetBox.
                 Tried to insert: %s of type %s""" % (item, type(item))
             )
-    return WidgetBox(children=widget_children, responsive=responsive)
+    return WidgetBox(children=widget_children, sizing_mode=sizing_mode)
 
 
-def layout(children=None, responsive='fixed', *args):
+def layout(children=None, sizing_mode='fixed', responsive=None, *args):
     """ Create a grid-based arrangement of Bokeh Layout objects. Forces all objects to
-    have the same responsive mode, which is required for complex layouts to work.
+    have the same sizing mode, which is required for complex layouts to work.
 
     Args:
         children List(List(Instance(LayoutDOM))): An list of lists containing any of the
-        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
-        are then assigned the responsive mode of the layout.
+        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
+        in the grid are then assigned the sizing mode of the layout.
 
-        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
-        the grid will respond to the html page. Default is ``fixed``.
+        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
+        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
+        fill the available space.
+
+        responsive ``True``, ``False``. True sets ``sizing_mode`` to
+        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
+        responsive will override sizing_mode.
 
     Examples:
 
@@ -155,22 +182,34 @@ def layout(children=None, responsive='fixed', *args):
                     [slider],
                     [widget_box_2, plot_2, plot_3]
                 ],
-                responsive='stretch_both',
+                sizing_mode='fixed',
             )
 
     """
-    _verify_responsive(responsive)
+    if responsive:
+        sizing_mode = _convert_responsive(responsive)
+    _verify_sizing_mode(sizing_mode)
     children = _handle_children(children, *args)
 
     # Make the grid
     rows = []
     for row in children:
-        rows.append(row(children=row, responsive=responsive))
-    grid = column(children=rows, responsive=responsive)
+        row_children = []
+        for item in row:
+            if isinstance(item, LayoutDOM):
+                item.sizing_mode = sizing_mode
+                row_children.append(item)
+            else:
+                raise ValueError(
+                    """Only LayoutDOM items can be inserted into a layout.
+                    Tried to insert: %s of type %s""" % (item, type(item))
+                )
+        rows.append(row(children=row, sizing_mode=sizing_mode))
+    grid = column(children=rows, sizing_mode=sizing_mode)
     return grid
 
 
-def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar_options=None, *args):
+def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', responsive=None, toolbar_options=None, *args):
     """ Create a grid of plots rendered on separate canvases.
 
     Args:
@@ -182,11 +221,17 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         toolbar will be located, with respect to the grid. If set to None,
         no toolbar will be attached to the grid.
 
-        responsive Enum(``box``, ``fixed``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
-        the grid will respond to the html page. Default is ``fixed``.
+        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
+        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the grid resize to
+        fill the available space.
 
-        toolbar_options Dict (optional) : A dictionary of options that will be used to construct the
-        toolbar (an instance of class::bokeh.models.tools.ToolbarBox). If none is supplied,
+        responsive ``True``, ``False``. True sets ``sizing_mode`` to
+        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
+        responsive will override sizing_mode.
+
+        toolbar_options Dict (optional) : A dictionary of options that will be
+        used to construct the toolbar (an instance of
+        class::bokeh.models.tools.ToolbarBox). If none is supplied,
         ToolbarBox's defaults will be used.
 
     Examples:
@@ -195,13 +240,15 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
                 toolbar_location='right'
-                responsive='fixed',
+                sizing_mode='fixed',
                 toolbar_options=dict(logo='gray')
             )
 
     """
     # Integrity checks & set-up
-    _verify_responsive(responsive)
+    if responsive:
+        sizing_mode = _convert_responsive(responsive)
+    _verify_sizing_mode(sizing_mode)
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
@@ -230,14 +277,14 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
                         break
                 item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
             if isinstance(item, LayoutDOM):
-                item.responsive = responsive
+                item.sizing_mode = sizing_mode
                 row_children.append(item)
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into Grid")
         tools = tools + row_tools
-        rows.append(Row(children=row_children, responsive=responsive))
+        rows.append(Row(children=row_children, sizing_mode=sizing_mode))
 
-    grid = Column(children=rows, responsive=responsive)
+    grid = Column(children=rows, sizing_mode=sizing_mode)
 
     # Make the toolbar
     if toolbar_location:
@@ -247,19 +294,19 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
             toolbar_options['toolbar_location'] = toolbar_location
         toolbar = ToolbarBox(
             tools=tools,
-            responsive=responsive,
+            sizing_mode=sizing_mode,
             **toolbar_options
         )
 
     # Set up children
     if toolbar_location == 'above':
-        return Column(children=[toolbar, grid], responsive=responsive)
+        return Column(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'below':
-        return Column(children=[grid, toolbar], responsive=responsive)
+        return Column(children=[grid, toolbar], sizing_mode=sizing_mode)
     elif toolbar_location == 'left':
-        return Row(children=[toolbar, grid], responsive=responsive)
+        return Row(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'right':
-        return Row(children=[grid, toolbar], responsive=responsive)
+        return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
     else:
         return grid
 
