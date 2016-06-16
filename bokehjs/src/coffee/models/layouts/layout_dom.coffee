@@ -80,7 +80,7 @@ class LayoutDOMView extends BokehView
         height: height
       })
 
-    if @model.responsive is 'width_ar'
+    if @model.responsive is 'scale_width'
       height = @get_height()
 
       s.suggest_value(@model._height, height)
@@ -90,7 +90,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'height_ar'
+    if @model.responsive is 'scale_height'
       width = @get_width()
 
       s.suggest_value(@model._width, width)
@@ -100,7 +100,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'box'
+    if @model.responsive is 'stretch_both'
       @$el.css({
         position: 'absolute'
         left: @model._dom_left._value
@@ -172,9 +172,9 @@ class LayoutDOM extends Model
     if @responsive is 'fixed'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    if @responsive is 'width_ar'
+    if @responsive is 'scale_width'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    if @responsive is 'height_ar'
+    if @responsive is 'scale_height'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
     return edit_variables
 
@@ -212,16 +212,16 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
-    if @responsive is 'box'
+    if @responsive is 'stretch_both'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
         'height': @_height
       })
-    if @responsive is 'width_ar'
+    if @responsive is 'scale_width'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
       })
-    if @responsive is 'height_ar'
+    if @responsive is 'scale_height'
       constrained_variables = _.extend(constrained_variables, {
         'height': @_height
       })

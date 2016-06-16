@@ -20,7 +20,7 @@ class WidgetBoxView extends LayoutDOM.View
     # Go through and make rendering tweaks because of margin
     # TODO(bird) Make this configurable & less flaky
 
-    if @model.responsive is 'width_ar'
+    if @model.responsive is 'scale_width'
       @$el.css({
         width: @model._width._value - 20
         height: @model._height._value + 10
