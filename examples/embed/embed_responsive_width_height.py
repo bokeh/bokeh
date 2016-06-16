@@ -1,6 +1,6 @@
 """ This example shows how a Bokeh plot can be embedded in an HTML
 document, in a way that the plot resizes to make use of the available
-width and height ~~(while keeping the aspect ratio fixed)~~.
+width and height (while keeping the aspect ratio fixed).
 
 To make this work well, the plot should be placed in a container that
 *has* a certain width and height (i.e. non-scrollable), which is the
@@ -18,7 +18,7 @@ SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
 
-red = figure(responsive='scale_both', tools='pan', **PLOT_OPTIONS)
+red = figure(sizing_mode='scale_both', tools='pan', **PLOT_OPTIONS)
 red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
 
 output_file('embed_responsive_width_height.html')
