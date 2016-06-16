@@ -7,7 +7,7 @@ declare namespace Bokeh.Plotting {
     function gridplot(children: Array<Array<Plot>>, options?: IGridPlotOptions): Box;
     export interface IGridPlotOptions {
         toolbar_location?: Location;
-        responsive?: Responsive;
+        sizing_mode?: SizingMode;
     }
 
     type AxisType = "linear" | "log" | "datetime" | Auto;

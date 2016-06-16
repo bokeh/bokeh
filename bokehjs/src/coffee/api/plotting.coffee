@@ -392,7 +392,7 @@ color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
 gridplot = (children, options={}) ->
   toolbar_location = if _.isUndefined(options.toolbar_location) then 'left' else options.toolbar_location
-  responsive = if _.isUndefined(options.responsive) then 'fixed' else options.responsive
+  sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
 
   tools = []
   rows = []
@@ -410,28 +410,28 @@ gridplot = (children, options={}) ->
             break
         item = new models.Spacer({width: neighbor.plot_width, height: neighbor.plot_height})
       if item instanceof models.LayoutDOM
-        item.responsive = responsive
+        item.sizing_mode = sizing_mode
         row_children.push(item)
       else
         throw new Error("only LayoutDOM items can be inserted into Grid")
     tools = tools.concat(row_tools)
-    row = new models.Row({children: row_children, responsive: responsive})
+    row = new models.Row({children: row_children, sizing_mode: sizing_mode})
     rows.push(row)
 
-  grid = new models.Column({children: rows, responsive: responsive})
+  grid = new models.Column({children: rows, sizing_mode: sizing_mode})
 
   layout = if toolbar_location
-    toolbar = new models.ToolbarBox({tools: tools, responsive: responsive})
+    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: sizing_mode})
 
     switch toolbar_location
       when 'above'
-        new models.Column({children: [toolbar, grid], responsive: responsive})
+        new models.Column({children: [toolbar, grid], sizing_mode: sizing_mode})
       when 'below'
-        new models.Column({children: [grid, toolbar], responsive: responsive})
+        new models.Column({children: [grid, toolbar], sizing_mode: sizing_mode})
       when 'left'
-        new models.Row({children: [toolbar, grid], responsive: responsive})
+        new models.Row({children: [toolbar, grid], sizing_mode: sizing_mode})
       when 'right'
-        new models.Row({children: [grid, toolbar], responsive: responsive})
+        new models.Row({children: [grid, toolbar], sizing_mode: sizing_mode})
   else
     grid
 

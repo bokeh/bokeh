@@ -4,7 +4,7 @@ declare namespace Bokeh {
         width?: Int;
         height?: Int;
         disabled?: boolean;
-        responsive?: Responsive;
+        sizing_mode?: SizingMode;
     }
 
     export var Spacer: {
