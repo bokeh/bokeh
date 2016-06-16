@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"
