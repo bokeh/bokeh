@@ -182,8 +182,6 @@ class Box(LayoutDOM):
         The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
 
-    sizing_mode = Override(default='fixed')
-
 
 class Row(Box):
     """ Lay out child components in a single horizontal row.
