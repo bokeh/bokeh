@@ -34,12 +34,12 @@ class LayoutDOMView extends BokehView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
-    # Note: Responsive update is not supported because changing the responsive mode
+    # Note: Responsive update is not supported because changing the sizing_mode mode
     # necessitates stripping out all the relevant constraints from solver and re-adding the new correct ones.
     # We don't currently have a machinery for this. Other things with a similar problem are axes and title.
-    responsive_msg = "Changing responsive after initialization is not currently supported."
-    @listenTo(@model, 'change:responsive', () -> logger.warn(responsive_msg))
-    if @model.responsive == 'fixed'
+    sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
+    @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
+    if @model.sizing_mode == 'fixed'
       @listenToOnce(@model.document.solver(), 'resize', @render)
     else
       @listenTo(@model.document.solver(), 'resize', @render)
