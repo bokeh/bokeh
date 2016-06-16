@@ -156,6 +156,11 @@ def test_plot_raises_error_if_toolbar_and_tools_are_set():
         Plot(tools=[PanTool()], toolbar=Toolbar())
 
 
+def test_plot_with_no_title_specified_creates_an_empty_title():
+    plot = Plot()
+    assert plot.title.text == ""
+
+
 ############
 #
 # Test GridPlot

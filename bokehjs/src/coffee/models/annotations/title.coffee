@@ -46,15 +46,22 @@ class TitleView extends TextAnnotation.View
     [sx, sy] = @_get_computed_location()
     ctx = @plot_view.canvas_view.ctx
 
-    if @mget('render_mode') == 'canvas'
-      @_canvas_text(ctx, @mget('text'), sx, sy, angle)
+    if @model.text == "" or @model.text == null
+      return
+
+    if @model.render_mode == 'canvas'
+      @_canvas_text(ctx, @model.text, sx, sy, angle)
     else
-      @_css_text(ctx, @mget('text'), sx, sy, angle)
+      @_css_text(ctx, @model.text, sx, sy, angle)
 
   _get_size: () ->
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.text.set_value(ctx)
-    return ctx.measureText(@mget('text')).ascent + 10
+    text = @model.text
+    if text == "" or text == null
+      return 0
+    else
+      ctx = @plot_view.canvas_view.ctx
+      @visuals.text.set_value(ctx)
+      return ctx.measureText(text).ascent + 10
 
 class Title extends TextAnnotation.Model
   default_view: TitleView
@@ -64,11 +71,11 @@ class Title extends TextAnnotation.Model
   @mixins ['text', 'line:border_', 'fill:background_']
 
   @define {
-      text:             [ p.String,                      ]
-      align:            [ p.TextAlign,   'left'          ]
-      offset:           [ p.Number,      0               ]
-      render_mode:      [ p.RenderMode,  'canvas'        ]
-    }
+    text:             [ p.String,               ]
+    align:            [ p.TextAlign,   'left'   ]
+    offset:           [ p.Number,      0        ]
+    render_mode:      [ p.RenderMode,  'canvas' ]
+  }
 
   @override {
     background_fill_color: null

@@ -38,7 +38,11 @@ class Figure(Plot):
         x_axis_label = kw.pop("x_axis_label", "")
         y_axis_label = kw.pop("y_axis_label", "")
 
+        title_text = kw.pop("title", None)
+
         super(Figure, self).__init__(*arg, **kw)
+
+        self.title.text = title_text
 
         self.x_range = _get_range(x_range)
         self.y_range = _get_range(y_range)

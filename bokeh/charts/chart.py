@@ -127,7 +127,11 @@ class Chart(Plot):
             kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
             del kwargs['responsive']
 
+        title_text = kwargs.pop("title", None)
+
         super(Chart, self).__init__(*args, **kwargs)
+
+        self.title.text = title_text
 
         defaults.apply(self)
 

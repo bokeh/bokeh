@@ -9,10 +9,13 @@ from bokeh.document import Document
 from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
+
 def large_plot(n):
-    from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
+    from bokeh.models import (
+        Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, ResizeTool, SaveTool, ResetTool)
+        BoxSelectTool, ResizeTool, SaveTool, ResetTool
+    )
     from bokeh.models.layouts import VBox
     from bokeh.models.glyphs import Line
 
@@ -42,11 +45,13 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, resize, save, reset]
         plot.add_tools(*tools)
         vbox.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
-                        renderer, glyph, plot.toolbar, plot.tool_events, box_zoom.overlay, box_select.overlay] +
-                        tickers + tools)
+        objects |= set([
+            source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph,
+            plot.toolbar, plot.tool_events, plot.title, box_zoom.overlay, box_select.overlay] +
+            tickers + tools)
 
     return vbox, objects
+
 
 class TestViewable(unittest.TestCase):
 

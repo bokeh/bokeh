@@ -162,6 +162,9 @@ def test_defaults():
     assert c1.tools
     assert c2.tools == c3.tools == []
 
+def test_title_kwarg_no_warning(recwarn):
+    Chart(title="title")
+    assert len(recwarn) == 0
 
 def test_charts_theme_validation():
     from bokeh.plotting import figure
