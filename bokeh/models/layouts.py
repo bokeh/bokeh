@@ -113,8 +113,6 @@ class WidgetBox(LayoutDOM):
         The list of widgets to put in the layout box.
     """)
 
-    sizing_mode = Override(default='fixed')
-
 
 @abstract
 class Box(LayoutDOM):
