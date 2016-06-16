@@ -154,14 +154,6 @@ class ToolbarBox extends LayoutDOM.Model
     tools:            [ p.Any,  []   ]
   }
 
-  @override {
-    sizing_mode: "fixed"
-  }
-
-  # These exist only to allow pass-through to create the toolbar.
-  @internal {
-  }
-
 
 module.exports =
   Model: ToolbarBox

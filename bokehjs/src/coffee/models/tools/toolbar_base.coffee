@@ -120,6 +120,9 @@ class ToolbarBase extends LayoutDOM.Model
     toolbar_sticky: [ p.Bool ]
   }
 
+  @override {
+    sizing_mode: null
+  }
 
 module.exports =
   Model: ToolbarBase

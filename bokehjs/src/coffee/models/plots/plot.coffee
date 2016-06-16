@@ -272,7 +272,6 @@ class Plot extends LayoutDOM.Model
     outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
-    sizing_mode: 'fixed'
   }
 
 module.exports =

@@ -97,9 +97,5 @@ class WidgetBox extends LayoutDOM.Model
     'children': [ p.Array, [] ]
   }
 
-  @override {
-    sizing_mode: 'fixed'
-  }
-
 module.exports =
   Model: WidgetBox

@@ -102,11 +102,6 @@ class ToolbarBox(LayoutDOM):
         Merge all the tools together so there is one tool to control all the plots.
     """)
 
-    # This is an odd case. The sizing is custom handled. In the future we will
-    # probably set it as `stretch_width` or `stretch_height` depending on its
-    # orientation.
-    sizing_mode = Override(default=None)
-
 
 class PanTool(Tool):
     """ *toolbar icon*: |pan_icon|
