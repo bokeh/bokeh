@@ -18,7 +18,7 @@ from tests.integration.utils import has_no_console_errors
 import pytest
 pytestmark = pytest.mark.integration
 
-from .test_responsive import wait_for_canvas_resize
+from .test_sizing_mode import wait_for_canvas_resize
 
 def make_pan_plot_with_callback(xr=None, yr=None):
     if xr is None:

@@ -153,7 +153,7 @@ def update_algorithm_or_clusters(attrname, old, new):
     source.data['x'] = X[:, 0]
     source.data['y'] = X[:, 1]
 
-    plot.title = algorithm
+    plot.title.text = algorithm
 
 def update_samples_or_dataset(attrname, old, new):
     global X, y

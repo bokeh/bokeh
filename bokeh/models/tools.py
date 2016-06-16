@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from ..model import Model
 from ..core.properties import abstract, Float, Color
 from ..core.properties import (
-    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
 from ..core.enums import Dimension, Location, Anchor
 
@@ -70,6 +70,11 @@ class ToolbarBase(LayoutDOM):
     tools = List(Instance(Tool), help="""
     A list of tools to add to the plot.
     """)
+
+    # This is an odd case. The sizing is custom handled. In the future we will
+    # probably set it as `stretch_width` or `stretch_height` depending on its
+    # orientation.
+    sizing_mode = Override(default=None)
 
 
 class Toolbar(ToolbarBase):

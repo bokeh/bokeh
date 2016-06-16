@@ -7,6 +7,7 @@ from ..io import curdoc, curstate
 from ..models import Plot
 from ..models import glyphs, markers
 from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function
+from ..util._plot_arg_helpers import _convert_responsive
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
@@ -535,13 +536,19 @@ def figure(**kwargs):
 
     '''
     if 'plot_width' in kwargs and 'width' in kwargs:
-        raise ValueError("figure() called but both plot_width and width supplied, supply only one")
+        raise ValueError("figure() called with both 'plot_width' and 'width' supplied, supply only one")
     if 'plot_height' in kwargs and 'height' in kwargs:
-        raise ValueError("figure() called but both plot_height and height supplied, supply only one")
+        raise ValueError("figure() called with both 'plot_height' and 'height' supplied, supply only one")
     if 'height' in kwargs:
         kwargs['plot_height'] = kwargs.pop('height')
     if 'width' in kwargs:
         kwargs['plot_width'] = kwargs.pop('width')
+
+    if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+        raise ValueError("figure() called with both 'responsive' and 'sizing_mode' supplied, supply only one")
+    if 'responsive' in kwargs:
+        kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
+        del kwargs['responsive']
 
     fig = Figure(**kwargs)
     return fig

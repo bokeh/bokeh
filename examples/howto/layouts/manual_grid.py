@@ -29,9 +29,9 @@ spacer_2 = Spacer(width=300, height=100)
 paragraph = Paragraph(text="We build up a grid plot manually. Try changing the mode yourself.")
 
 MODE = 'fixed'
-widgets = widgetbox([paragraph], responsive=MODE)
-row_1 = row([spacer_1, p1, spacer_2], responsive=MODE)
-row_2 = row([p2, p3, p4], responsive=MODE)
-layout = column([widgets, row_1, row_2], responsive=MODE)
+widgets = widgetbox([paragraph], sizing_mode=MODE)
+row_1 = row([spacer_1, p1, spacer_2], sizing_mode=MODE)
+row_2 = row([p2, p3, p4], sizing_mode=MODE)
+layout = column([widgets, row_1, row_2], sizing_mode=MODE)
 
 show(layout)

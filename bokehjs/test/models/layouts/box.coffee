@@ -19,9 +19,9 @@ describe "Box.Model", ->
   describe "get_edit_variables", ->
 
     it "should get edit_variables of children", ->
-      child1 = new Box(responsive: 'fixed')
-      child2 = new Box(responsive: 'fixed')
-      parent_box = new Box({children: [child1, child2], responsive: 'fixed'})
+      child1 = new Box(sizing_mode: 'fixed')
+      child2 = new Box(sizing_mode: 'fixed')
+      parent_box = new Box({children: [child1, child2], sizing_mode: 'fixed'})
       ev = parent_box.get_edit_variables()
       expect(ev.length).to.be.equal 6
 
@@ -56,25 +56,25 @@ describe "Box.Model", ->
         'box-cell-align-right' : @box._box_cell_align_right
       }
 
-    it "should return correct constrained_variables in box mode", ->
-      @box.responsive = 'stretch_both'
+    it "should return correct constrained_variables in stretch_both mode", ->
+      @box.sizing_mode = 'stretch_both'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal @expected_constrained_variables
 
     it "should return correct constrained_variables in scale_width mode", ->
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['height'])
-      @box.responsive = 'scale_width'
+      @box.sizing_mode = 'scale_width'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in scale_height mode", ->
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['width'])
-      @box.responsive = 'scale_height'
+      @box.sizing_mode = 'scale_height'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables
 
     it "should return correct constrained_variables in fixed mode", ->
       expected_constrained_variables = _.omit(@expected_constrained_variables, ['height', 'width'])
-      @box.responsive = 'fixed'
+      @box.sizing_mode = 'fixed'
       constrained_variables = @box.get_constrained_variables()
       expect(constrained_variables).to.be.deep.equal expected_constrained_variables

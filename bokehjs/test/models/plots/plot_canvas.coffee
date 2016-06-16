@@ -24,10 +24,10 @@ Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "PlotCanvas.Model", ->
 
-  it "should set the responsive mode to box by default", ->
+  it "should set the sizing_mode to box by default", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
     p = pp.plot_canvas
-    expect(p.responsive).to.be.equal 'stretch_both'
+    expect(p.sizing_mode).to.be.equal 'stretch_both'
 
   it "should have a four LayoutCanvases after document is attached is called", ->
     pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
@@ -244,14 +244,14 @@ describe "PlotCanvas.View resize", ->
     @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
 
   it "should set the appropriate positions and paddings on the element", ->
-    @test_plot.responsive = 'stretch_both'
+    @test_plot.sizing_mode = 'stretch_both'
     @test_plot_view.resize()
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
     expect(@test_plot_view.$el.attr('style')).to.be.equal expected_style
 
-  it "should call canvas.set_dims with width & height if responsive_mode is box, and trigger true", ->
+  it "should call canvas.set_dims with width & height if sizing_mode is box, and trigger true", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
-    @test_plot.responsive = 'stretch_both'
+    @test_plot.sizing_mode = 'stretch_both'
     @test_plot_view.resize()
     expect(spy.calledOnce).to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
@@ -259,21 +259,21 @@ describe "PlotCanvas.View resize", ->
   it "should call canvas.set_dims and trigger if plot is_root", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
     @test_plot._is_root = true
-    @test_plot.responsive = 'stretch_both'
+    @test_plot.sizing_mode = 'stretch_both'
     @test_plot_view.resize()
     expect(spy.calledOnce).to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
 
-  it "should call solver.suggest_value for width and height if responsive_mode is fixed", ->
+  it "should call solver.suggest_value for width and height if sizing_mode is fixed", ->
     spy = sinon.spy(@test_plot_view.canvas_view, 'set_dims')
-    @test_plot.responsive = 'fixed'
+    @test_plot.sizing_mode = 'fixed'
     @test_plot_view.resize()
     expect(spy.calledOnce, 'set_dims was not called').to.be.true
     expect(spy.calledWith([width, height], true)).to.be.true
 
   it "should throw an error if height is 0", ->
     @test_plot._height = {_value: 0}
-    @test_plot.responsive = 'stretch_both'
+    @test_plot.sizing_mode = 'stretch_both'
     expect(@test_plot_view.resize).to.throw Error
 
 

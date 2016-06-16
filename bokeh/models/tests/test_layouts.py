@@ -11,11 +11,11 @@ def check_props(layout):
     assert layout.children == []
 
 
-def check_props_with_responsive(layout):
+def check_props_with_sizing_mode(layout):
     assert layout.width is None
     assert layout.height is None
     assert layout.children == []
-    assert layout.responsive == 'fixed'
+    assert layout.sizing_mode == 'fixed'
 
 
 def check_children_prop(layout_callable):
@@ -58,13 +58,13 @@ def test_HBox():
 
 
 def test_Row():
-    check_props_with_responsive(Row())
+    check_props_with_sizing_mode(Row())
     check_children_prop(Row)
     check_widget_wrapped_in_widget_box(HBox)
 
 
 def test_Column():
-    check_props_with_responsive(Column())
+    check_props_with_sizing_mode(Column())
     check_children_prop(Column)
 
 

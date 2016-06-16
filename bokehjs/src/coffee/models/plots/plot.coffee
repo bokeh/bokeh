@@ -28,7 +28,7 @@ class PlotView extends LayoutDOM.View
   render: () ->
     super()
 
-    if @model.responsive is 'scale_both'
+    if @model.sizing_mode is 'scale_both'
       [width, height] = @get_width_height()
       s = @model.document.solver()
       s.suggest_value(@model._width, width)
@@ -190,7 +190,7 @@ class Plot extends LayoutDOM.Model
 
   get_edit_variables: () ->
     edit_variables = super()
-    if @responsive is 'scale_both'
+    if @sizing_mode is 'scale_both'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
     for child in @get_layoutable_children()
@@ -286,7 +286,7 @@ class Plot extends LayoutDOM.Model
       'box-equal-size-top'   : @plot_canvas._top
       'box-equal-size-bottom': @plot_canvas._height_minus_bottom
     })
-    if @responsive isnt 'fixed'
+    if @sizing_mode isnt 'fixed'
       constrained_variables = _.extend(constrained_variables, {
         'box-equal-size-left'  : @plot_canvas._left
         'box-equal-size-right' : @plot_canvas._width_minus_right
@@ -357,7 +357,6 @@ class Plot extends LayoutDOM.Model
     outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
-    responsive: 'fixed'
   }
 
 module.exports =
