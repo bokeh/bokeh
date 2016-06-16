@@ -46,14 +46,17 @@ class TitleView extends TextAnnotation.View
     [sx, sy] = @_get_computed_location()
     ctx = @plot_view.canvas_view.ctx
 
-    if @mget('render_mode') == 'canvas'
-      @_canvas_text(ctx, @mget('text'), sx, sy, angle)
+    if @model.text == "" or @model.text == null
+      return
+
+    if @model.render_mode == 'canvas'
+      @_canvas_text(ctx, @model.text, sx, sy, angle)
     else
-      @_css_text(ctx, @mget('text'), sx, sy, angle)
+      @_css_text(ctx, @model.text, sx, sy, angle)
 
   _get_size: () ->
     text = @model.text
-    if text == ""
+    if text == "" or text == null
       return 0
     else
       ctx = @plot_view.canvas_view.ctx
@@ -68,10 +71,10 @@ class Title extends TextAnnotation.Model
   @mixins ['text', 'line:border_', 'fill:background_']
 
   @define {
-      text:             [ p.String,                      ]
-      title_align:      [ p.TextAlign,   'left'          ]
-      title_padding:    [ p.Number,      0               ]
-      render_mode:      [ p.RenderMode,  'canvas'        ]
+      text:             [ p.String,               ]
+      title_align:      [ p.TextAlign,   'left'   ]
+      title_padding:    [ p.Number,      0        ]
+      render_mode:      [ p.RenderMode,  'canvas' ]
     }
 
   @override {
