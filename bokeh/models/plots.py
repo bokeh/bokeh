@@ -595,8 +595,6 @@ class Plot(LayoutDOM):
     support this will render via WebGL instead of the 2D canvas.
     """)
 
-    sizing_mode = Override(default='fixed')
-
     #
     # DEPRECATED PROPERTIES
     #
