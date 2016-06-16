@@ -165,7 +165,7 @@ def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):
     assert canvas_height <= window_height
 
 
-def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
+def test_scale_both_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.
 
@@ -177,10 +177,8 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     lower_bound = aspect_ratio * 0.95
     upper_bound = aspect_ratio * 1.05
 
-    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='stretch_both')
-    # We have to wrap scale_both plots in a Row for them to work.
-    layout = Row(plot, responsive='stretch_both')
-    save(layout)
+    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='scale_both')
+    save(plot)
 
     # Open the browser with the plot and resize the window to get an initial measure
     selenium.set_window_size(width=1200, height=600)
