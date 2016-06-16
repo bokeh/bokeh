@@ -74,6 +74,7 @@ test:
     - sympy
     - ggplot
     - seaborn
+    - networkx
     - icalendar          [unix]
     - flask
     - flexx

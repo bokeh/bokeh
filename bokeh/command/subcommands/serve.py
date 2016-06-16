@@ -67,6 +67,16 @@ Note that if multiple scripts or directories are provided, they
 all receive the same set of command line arguments (if any) given by
 ``--args``.
 
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
+
 Network Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -123,6 +133,16 @@ the end users.
 
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
+
+Bokeh server can fork the underlying tornado server into multiprocess.  This is
+useful when trying to handle multiple connections especially in the context of
+apps which require high computational loads.  Default behavior is one process.
+using 0 will auto-detect the number of cores and spin up corresponding number of
+processes
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --num-procs 2
 
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
@@ -363,7 +383,6 @@ class Serve(Subcommand):
     name = "serve"
 
     help = "Run a Bokeh server hosting one or more applications"
-
     args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
@@ -454,6 +473,20 @@ class Serve(Subcommand):
             action = 'store_true',
             help    = 'Do not use the default index on the root path',
         )),
+
+        ('--disable-index-redirect', dict(
+            action = 'store_true',
+            help    = 'Do not redirect to running app from root path',
+        )),
+
+        ('--num-procs', dict(
+            metavar='N',
+            action='store',
+            help="Number of worker processes for an app. Default to one. Using "
+                 "0 will autodetect number of cores",
+            default=1,
+            type=int,
+        )),
     )
 
 
@@ -495,6 +528,7 @@ class Serve(Subcommand):
                                                               'address',
                                                               'allow_websocket_origin',
                                                               'host',
+                                                              'num_procs',
                                                               'prefix',
                                                               'develop',
                                                               'keep_alive_milliseconds',
@@ -527,6 +561,7 @@ class Serve(Subcommand):
                 "the `bokeh secret` command can be used to generate a new key.")
 
         server_kwargs['use_index'] = not args.disable_index
+        server_kwargs['redirect_root'] = not args.disable_index_redirect
 
         server = Server(applications, **server_kwargs)
 

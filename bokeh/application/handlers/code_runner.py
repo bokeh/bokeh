@@ -31,6 +31,7 @@ class _CodeRunner(object):
         self._path = path
         self._source = source
         self._argv = argv
+        self.ran = False
 
     @property
     def source(self):
@@ -96,3 +97,4 @@ class _CodeRunner(object):
             os.chdir(_cwd)
             sys.path = _sys_path
             sys.argv = _sys_argv
+            self.ran = True

@@ -4,12 +4,11 @@ import pandas as pd
 from bokeh import mpl
 from bokeh.plotting import output_file, show
 
-ts = pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2000', periods=1000))
-ts = ts.cumsum()
+index=pd.date_range('1/1/2000', periods=1000)
 
-df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list('ABCD'))
-df = df.cumsum()
-df.plot(legend=False)
+df = pd.DataFrame(np.random.randn(1000, 4), index=index, columns=list('ABCD'))
+
+df.cumsum().plot(legend=False)
 
 output_file("pandas_dataframe.html", title="pandas_dataframe.py example")
 

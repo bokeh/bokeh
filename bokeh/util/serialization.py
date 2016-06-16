@@ -67,6 +67,8 @@ def transform_array(obj):
                 return (obj.astype('int64') / 10**6.0).tolist()
         else:
             return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
+    elif obj.dtype.kind == 'm':
+        return (obj.astype('timedelta64[us]').astype('int64') / 1000).tolist()
     elif obj.dtype.kind in ('u', 'i', 'f'):
         return transform_numerical_array(obj)
     return obj.tolist()

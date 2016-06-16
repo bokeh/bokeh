@@ -24,7 +24,7 @@ def bollinger():
 
     p.title = 'Bollinger Bands'
     p.title_location = 'left'
-    p.title.title_align = 'left'
+    p.title.align = 'left'
     p.plot_height = 600
     p.plot_width = 800
     p.grid.grid_line_alpha = 0.4
@@ -39,7 +39,7 @@ def slider():
 
     plot = figure(
         y_range=(-10, 10), tools='', toolbar_location=None,
-        title="Sliders example", title_location='right')
+        title="Sliders example")
     plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
     callback = CustomJS(args=dict(source=source), code="""
@@ -79,11 +79,11 @@ def linked_panning():
     y2 = np.cos(x)
     y3 = np.sin(x) + np.cos(x)
 
-    s1 = figure(tools=tools, toolbar_location='right')
+    s1 = figure(tools=tools)
     s1.circle(x, y1, color="navy", size=8, alpha=0.5)
-    s2 = figure(tools=tools, toolbar_location='right', x_range=s1.x_range, y_range=s1.y_range)
+    s2 = figure(tools=tools, x_range=s1.x_range, y_range=s1.y_range)
     s2.circle(x, y2, color="firebrick", size=8, alpha=0.5)
-    s3 = figure(tools='pan, box_select', toolbar_location='right', x_range=s1.x_range)
+    s3 = figure(tools='pan, box_select', x_range=s1.x_range)
     s3.circle(x, y3, color="olive", size=8, alpha=0.5)
     return [s1, s2, s3]
 

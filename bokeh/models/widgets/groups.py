@@ -4,9 +4,10 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, String, List
+from ...core.properties import Bool, Int, String, List, Instance
 from .widget import Widget
 from .buttons import ButtonLike
+from ..callbacks import Callback
 
 @abstract
 class AbstractGroup(Widget):
@@ -31,6 +32,10 @@ class AbstractGroup(Widget):
 
         """
         self.on_change('active', lambda attr, old, new: handler(new))
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever a button group is manipulated.
+    """)
 
 @abstract
 class ButtonGroup(AbstractGroup, ButtonLike):

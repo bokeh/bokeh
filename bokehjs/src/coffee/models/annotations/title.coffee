@@ -9,22 +9,22 @@ class TitleView extends TextAnnotation.View
     ctx = @plot_view.canvas_view.ctx
     @model.panel.apply_label_text_heuristics(ctx, 'justified')
     @mset('text_baseline', ctx.textBaseline)
-    @mset('text_align', @mget('title_align'))
+    @mset('text_align', @mget('align'))
 
   _get_computed_location: () ->
     [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
     switch @model.panel.side
       when 'left'
         vx = 0
-        vy = @_get_text_location(@mget('title_align'), @frame.get('v_range')) + @mget('title_padding')
+        vy = @_get_text_location(@mget('align'), @frame.get('v_range')) + @mget('offset')
       when 'right'
         vx = @canvas.get('right') - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.get('height') - @_get_text_location(@mget('title_align'), @frame.get('v_range')) - @mget('title_padding')
+        vy = @canvas.get('height') - @_get_text_location(@mget('align'), @frame.get('v_range')) - @mget('offset')
       when 'above'
-        vx = @_get_text_location(@mget('title_align'), @frame.get('h_range')) + @mget('title_padding')
+        vx = @_get_text_location(@mget('align'), @frame.get('h_range')) + @mget('offset')
         vy = @canvas.get('top') - 10 # Corresponds to the +10 added in get_size
       when 'below'
-        vx = @_get_text_location(@mget('title_align'), @frame.get('h_range')) + @mget('title_padding')
+        vx = @_get_text_location(@mget('align'), @frame.get('h_range')) + @mget('offset')
         vy = 0
 
     sx = @canvas.vx_to_sx(vx)
@@ -65,8 +65,8 @@ class Title extends TextAnnotation.Model
 
   @define {
       text:             [ p.String,                      ]
-      title_align:      [ p.TextAlign,   'left'          ]
-      title_padding:    [ p.Number,      0               ]
+      align:            [ p.TextAlign,   'left'          ]
+      offset:           [ p.Number,      0               ]
       render_mode:      [ p.RenderMode,  'canvas'        ]
     }
 

@@ -36,6 +36,7 @@ try:
     def red(text): return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
     def green(text): return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
     def yellow(text): return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+    sys.platform == "win32" and colorama.init()
 except ImportError:
     def bright(text): return text
     def dim(text): return text

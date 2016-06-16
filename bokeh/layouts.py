@@ -13,7 +13,7 @@ from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer
 
 
-def layout(children=None, responsive='box', *args):
+def layout(children=None, responsive='stretch_both', *args):
     """ Create a grid-based arrangement of Bokeh Layout objects. Forces all objects to
     have the same responsive mode, which is required for complex layouts to work.
 
@@ -22,7 +22,7 @@ def layout(children=None, responsive='box', *args):
         following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
         are then assigned the responsive mode of the layout.
 
-        responsive Enum(``box``, ``fixed``, ``width_ar``, ``height_ar``, ``box_ar``) :  How
+        responsive Enum(``box``, ``fixed``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
         the grid will respond to the html page. Default is ``box``.
 
     Examples:
@@ -80,7 +80,7 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         toolbar will be located, with respect to the grid. If set to None,
         no toolbar will be attached to the grid.
 
-        responsive Enum(``box``, ``fixed``, ``width_ar``, ``height_ar``, ``box_ar``) :  How
+        responsive Enum(``box``, ``fixed``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
         the grid will respond to the html page. Default is ``fixed``.
 
         toolbar_options Dict (optional) : A dictionary of options that will be used to construct the
@@ -107,6 +107,9 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         children = list(args)
     if not children:
         children = []
+    if isinstance(children, GridSpec):
+        children = list(children)
+
     if not hasattr(Responsive, responsive):
         raise ValueError("Invalid value of responsive: %s" % responsive)
 
@@ -163,3 +166,61 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
         return Row(children=[grid, toolbar], responsive=responsive)
     else:
         return grid
+
+class GridSpec(object):
+    """ Simplifies grid layout specification. """
+
+    def __init__(self, nrows, ncols):
+        self.nrows = nrows
+        self.ncols = ncols
+        self._arrangement = {}
+
+    def __setitem__(self, key, obj):
+        k1, k2 = key
+
+        if isinstance(k1, slice):
+            row1, row2, _ = k1.indices(self.nrows)
+        else:
+            if k1 < 0:
+                k1 += self.nrows
+            if k1 >= self.nrows or k1 < 0:
+                raise IndexError("index out of range")
+            row1, row2 = k1, None
+
+        if isinstance(k2, slice):
+            col1, col2, _ = k2.indices(self.ncols)
+        else:
+            if k2 < 0:
+                k2 += self.ncols
+            if k2 >= self.ncols or k2 < 0:
+                raise IndexError("index out of range")
+            col1, col2 = k2, None
+
+        # gs[row, col]             = obj
+        # gs[row1:row2, col]       = [...]
+        # gs[row, col1:col2]       = [...]
+        # gs[row1:row2, col1:col2] = [[...], ...]
+
+        def get_or_else(fn, default):
+            try:
+                return fn()
+            except IndexError:
+                return default
+
+        if row2 is None and col2 is None:
+            self._arrangement[row1, col1] = obj
+        elif row2 is None:
+            for col in range(col1, col2):
+                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None)
+        elif col2 is None:
+            for row in range(row1, row2):
+                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None)
+        else:
+            for row, col in zip(range(row1, row2), range(col1, col2)):
+                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None)
+
+    def __iter__(self):
+        array = [ [ None ]*self.ncols for _ in range(0, self.nrows) ]
+        for (row, col), obj in self._arrangement.items():
+            array[row][col] = obj
+        return iter(array)

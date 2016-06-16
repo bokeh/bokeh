@@ -1561,6 +1561,36 @@ class Datetime(PropertyDescriptor):
         return value
         # Handled by serialization in protocol.py for now
 
+class TimeDelta(PropertyDescriptor):
+    """ TimeDelta type property.
+
+    """
+
+    def __init__(self, default=datetime.timedelta(), help=None):
+        super(TimeDelta, self).__init__(default=default, help=help)
+
+    def validate(self, value):
+        super(TimeDelta, self).validate(value)
+
+        timedelta_types = (datetime.timedelta,)
+        try:
+            import numpy as np
+            timedelta_types += (np.timedelta64,)
+        except ImportError:
+            pass
+
+        if (isinstance(value, timedelta_types)):
+            return
+
+        if pd and isinstance(value, (pd.Timedelta)):
+            return
+
+        raise ValueError("Expected a timedelta instance, got %r" % value)
+
+    def transform(self, value):
+        value = super(TimeDelta, self).transform(value)
+        return value
+        # Handled by serialization in protocol.py for now
 
 class RelativeDelta(Dict):
     """ RelativeDelta type property for time deltas.
@@ -1600,8 +1630,10 @@ class DataSpecProperty(BasicProperty):
 
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
-        super(DataSpec, self).__init__(String, Dict(String, Either(String, typ)), typ, default=default, help=help)
+        super(DataSpec, self).__init__(String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)), typ, default=default, help=help)
         self._type = self._validate_type_param(typ)
+
+    # TODO (bev) add stricter validation on keys
 
     def make_properties(self, base_name):
         return [ DataSpecProperty(descriptor=self, name=base_name) ]
@@ -1863,10 +1895,10 @@ class Responsive(Either):
         super(Responsive, self).__init__(*types, default=default, help=help)
 
     def transform(self, value):
-        """ Transform True to width_ar mode and False to fixed
+        """ Transform True to scale_width mode and False to fixed
         """
         if value is True:
-            responsive = 'width_ar'
+            responsive = 'scale_width'
         elif value is False:
             responsive = 'fixed'
         else:

@@ -55,9 +55,9 @@ def test_Legend():
     legend = Legend()
     assert legend.plot is None
     assert legend.location == 'top_right'
-    assert legend.label_standoff == 15
+    assert legend.label_standoff == 5
     assert legend.label_height == 20
-    assert legend.label_width == 50
+    assert legend.label_width == 20
     assert legend.glyph_height == 20
     assert legend.glyph_width == 20
     assert legend.legend_padding == 10
@@ -75,6 +75,7 @@ def test_Legend():
         "label_width",
         "glyph_height",
         "glyph_width",
+        "legend_margin",
         "legend_padding",
         "legend_spacing",
         "legends",
@@ -253,8 +254,8 @@ def test_Title():
     assert title.plot is None
     assert title.level == 'annotation'
     assert title.text is None
-    assert title.title_align == 'left'
-    assert title.title_padding == 0
+    assert title.align == 'left'
+    assert title.offset == 0
     assert title.text_font == 'helvetica'
     assert title.text_font_size == {'value': '10pt'}
     assert title.text_font_style == 'bold'
@@ -266,8 +267,8 @@ def test_Title():
         "plot",
         "level",
         "text",
-        "title_align",
-        "title_padding",
+        "align",
+        "offset",
         "text_font",
         "text_font_size",
         "text_font_style",

@@ -63,10 +63,11 @@ Install Gulp and necessary plugins
 
 Once you have npm and Node.js installed, you must use them to install
 the required dependencies before you can build BokehJS.
-Execute the following command in the ``bokehjs`` subdirectory:
+Execute the following commands:
 
 .. code-block:: sh
 
+    cd bokehjs
     npm install
 
 This command will install the necessary packages into the ``node_modules``

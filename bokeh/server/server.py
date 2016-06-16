@@ -58,6 +58,9 @@ class Server(object):
             mapping from URL paths to Application instances, or a single Application to put at the root URL
             The Application is a factory for Document, with a new Document initialized for each Session.
             Each application should be identified by a path meant to go in a URL, like "/" or "/foo"
+    Kwargs:
+        num_procs (str):
+            Number of worker processes for an app. Default to one. Using 0 will autodetect number of cores
     '''
 
     def __init__(self, applications, **kwargs):
@@ -95,18 +98,27 @@ class Server(object):
         tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host', None), self._port)
         tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin', None), self._port)
         tornado_kwargs['use_index'] = kwargs.get('use_index', True)
+        tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 
         self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
         self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
         self._address = None
+
         if 'address' in kwargs:
             self._address = kwargs['address']
+
+        self._num_procs = kwargs.get('num_procs', 1)
+        if self._num_procs != 1:
+            assert all(app.safe_to_fork for app in self._applications.values()), (
+                      'User code has ran before attempting to run multiple '
+                      'processes. This is considered an unsafe operation.')
 
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:
             self._http.bind(self._port, address=self._address)
-            self._http.start(1)
+            self._http.start(self._num_procs)
+            self._tornado.initialize(**tornado_kwargs)
         except OSError as e:
             import errno
             if e.errno == errno.EADDRINUSE:

@@ -51,6 +51,14 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
     actions = {}
     gestures = {}
 
+    new_help_tools = []
+    new_help_urls = []
+    for helptool in @help
+      if not _.contains(new_help_urls, helptool.redirect)
+        new_help_tools.push(helptool)
+        new_help_urls.push(helptool.redirect)
+    @help = new_help_tools
+
     for event_type, info of @gestures
       if event_type not of gestures
         gestures[event_type] = {}
@@ -116,7 +124,7 @@ class ToolbarBoxView extends Box.View
 
   get_height: () ->
     # Returning null from this causes
-    # Left toolbar to overlap in width_ar case
+    # Left toolbar to overlap in scale_width case
     return 30
 
 
@@ -141,7 +149,7 @@ class ToolbarBox extends LayoutDOM.Model
     return [@_toolbar]
 
   @define {
-    toolbar_location: [ p.Location, "above"  ]
+    toolbar_location: [ p.Location, "right"  ]
     merge_tools:      [ p.Bool,     true     ]
     tools:            [ p.Any,  []   ]
   }
