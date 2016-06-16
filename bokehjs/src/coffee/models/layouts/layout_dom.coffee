@@ -16,7 +16,7 @@ class LayoutDOMView extends BokehView
     super(options)
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
-    @$el.addClass("bk-layout-#{@model.responsive}")
+    @$el.addClass("bk-layout-#{@model.sizing_mode}")
 
     children = @model.get_layoutable_children()
     @child_views = {}
@@ -50,7 +50,7 @@ class LayoutDOMView extends BokehView
 
     s = @model.document.solver()
 
-    if @model.responsive is 'fixed'
+    if @model.sizing_mode is 'fixed'
       # If the width or height is unset:
       # - compute it from children
       # - but then save for future use
@@ -75,7 +75,7 @@ class LayoutDOMView extends BokehView
         height: height
       })
 
-    if @model.responsive is 'scale_width'
+    if @model.sizing_mode is 'scale_width'
       height = @get_height()
 
       s.suggest_value(@model._height, height)
@@ -85,7 +85,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'scale_height'
+    if @model.sizing_mode is 'scale_height'
       width = @get_width()
 
       s.suggest_value(@model._width, width)
@@ -95,7 +95,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'stretch_both'
+    if @model.sizing_mode is 'stretch_both'
       @$el.css({
         position: 'absolute'
         left: @model._dom_left._value
@@ -106,12 +106,12 @@ class LayoutDOMView extends BokehView
 
   get_height: () ->
     # Subclasses should implement this to explain
-    # what their height should be in responsive mode.
+    # what their height should be in sizing_mode mode.
     return null
 
   get_width: () ->
     # Subclasses should implement this to explain
-    # what their width should be in responsive mode.
+    # what their width should be in sizing_mode mode.
     return null
 
 
@@ -164,12 +164,12 @@ class LayoutDOM extends Model
 
   get_edit_variables: () ->
     edit_variables = []
-    if @responsive is 'fixed'
+    if @sizing_mode is 'fixed'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    if @responsive is 'scale_width'
+    if @sizing_mode is 'scale_width'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    if @responsive is 'scale_height'
+    if @sizing_mode is 'scale_height'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
     return edit_variables
 
@@ -207,26 +207,26 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
-    if @responsive is 'stretch_both'
+    if @sizing_mode is 'stretch_both'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
         'height': @_height
       })
-    if @responsive is 'scale_width'
+    if @sizing_mode is 'scale_width'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
       })
-    if @responsive is 'scale_height'
+    if @sizing_mode is 'scale_height'
       constrained_variables = _.extend(constrained_variables, {
         'height': @_height
       })
     return constrained_variables
 
   @define {
-      height:   [ p.Number, null ]
-      width:    [ p.Number, null ]
-      disabled: [ p.Bool, false ]
-      responsive: [ p.Responsive, null ]
+      height:      [ p.Number              ]
+      width:       [ p.Number              ]
+      disabled:    [ p.Bool,       false   ]
+      sizing_mode: [ p.SizingMode, "fixed" ]
     }
 
   @internal {

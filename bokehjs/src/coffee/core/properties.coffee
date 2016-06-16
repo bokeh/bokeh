@@ -203,7 +203,7 @@ class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
 
 class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
-class Responsive extends enum_prop("Responsive", enums.Responsive)
+class SizingMode extends enum_prop("SizingMode", enums.SizingMode)
 
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
@@ -293,7 +293,7 @@ module.exports =
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode
-  Responsive: Responsive
+  SizingMode: SizingMode
   SpatialUnits: SpatialUnits
   String: String
   TextAlign: TextAlign

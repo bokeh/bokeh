@@ -40,7 +40,7 @@ class LayoutDOM(Model):
     the widget will be greyed-out, and not respond to UI events.
     """)
 
-    sizing_mode = Enum(SizingMode, help="""
+    sizing_mode = Enum(SizingMode, default="fixed", help="""
     How the item being displayed should size itself. Possible values are
     ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
     ``"stretch_both"``.

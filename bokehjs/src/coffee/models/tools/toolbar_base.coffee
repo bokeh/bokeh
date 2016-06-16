@@ -20,7 +20,7 @@ class ToolbarBaseView extends LayoutDOM.View
   template: toolbar_template
 
   render: () ->
-    if @model.responsive != 'fixed'
+    if @model.sizing_mode != 'fixed'
       @$el.css({
         left: @model._dom_left._value
         top: @model._dom_top._value

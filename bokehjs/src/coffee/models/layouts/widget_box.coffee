@@ -20,13 +20,13 @@ class WidgetBoxView extends LayoutDOM.View
     # Go through and make rendering tweaks because of margin
     # TODO(bird) Make this configurable & less flaky
 
-    if @model.responsive is 'scale_width'
+    if @model.sizing_mode is 'scale_width'
       @$el.css({
         width: @model._width._value - 20
         height: @model._height._value + 10
       })
 
-    if @model.responsive is 'fixed'
+    if @model.sizing_mode is 'fixed'
       @$el.css({
         width: @model.width - 20  # for padding
         height: @model.height + 10  # for padding
@@ -83,7 +83,7 @@ class WidgetBox extends LayoutDOM.Model
       'box-equal-size-top'   : @_top
       'box-equal-size-bottom': @_height_minus_bottom
     })
-    if @responsive isnt 'fixed'
+    if @sizing_mode isnt 'fixed'
       constrained_variables = _.extend(constrained_variables, {
         'box-equal-size-left'  : @_left
         'box-equal-size-right' : @_width_minus_right
@@ -98,7 +98,7 @@ class WidgetBox extends LayoutDOM.Model
   }
 
   @override {
-    responsive: 'fixed'
+    sizing_mode: 'fixed'
   }
 
 module.exports =

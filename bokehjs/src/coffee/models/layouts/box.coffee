@@ -62,7 +62,7 @@ class Box extends LayoutDOM.Model
   }
 
   @override {
-    responsive: 'fixed'
+    sizing_mode: 'fixed'
   }
 
   get_layoutable_children: () ->

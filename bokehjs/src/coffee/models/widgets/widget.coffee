@@ -16,7 +16,7 @@ class Widget extends LayoutDOM.Model
   default_view: WidgetView
 
   @override {
-    responsive: 'fixed'
+    sizing_mode: 'fixed'
   }
 
 module.exports =
