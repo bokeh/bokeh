@@ -72,8 +72,8 @@ class Title extends TextAnnotation.Model
 
   @define {
     text:             [ p.String,               ]
-    title_align:      [ p.TextAlign,   'left'   ]
-    title_padding:    [ p.Number,      0        ]
+    align:      [ p.TextAlign,   'left'   ]
+    padding:    [ p.Number,      0        ]
     render_mode:      [ p.RenderMode,  'canvas' ]
   }
 
