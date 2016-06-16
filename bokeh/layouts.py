@@ -51,7 +51,7 @@ def row(children=None, responsive='fixed', *args):
     """
 
     _verify_responsive(responsive)
-    children = _handle_children(children, args)
+    children = _handle_children(children, *args)
 
     for item in children:
         row_children = []
@@ -85,7 +85,7 @@ def column(children=None, responsive='fixed', *args):
     """
 
     _verify_responsive(responsive)
-    children = _handle_children(children, args)
+    children = _handle_children(children, *args)
 
     for item in children:
         col_children = []
@@ -126,7 +126,7 @@ def layout(children=None, responsive='fixed', *args):
 
     """
     _verify_responsive(responsive)
-    children = _handle_children(children, args)
+    children = _handle_children(children, *args)
 
     # Make the grid
     rows = []
@@ -171,7 +171,7 @@ def gridplot(children=None, toolbar_location='left', responsive='fixed', toolbar
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
-    children = _handle_children(children, args)
+    children = _handle_children(children, *args)
 
     # Additional children set-up for GridPlot
     if not children:
