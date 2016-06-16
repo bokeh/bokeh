@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 import unittest
 
+import pytest
+
 from bokeh.models import (
     LinearAxis, PanTool, BoxZoomTool, LassoSelectTool, ResetTool, ResizeTool)
 
@@ -219,6 +221,10 @@ class TestMarkers(unittest.TestCase):
         self.assertEqual(p.renderers[-1].level, "underlay")
         with self.assertRaises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
+
+def test_title_kwarg_no_warning(recwarn):
+    plt.figure(title="title")
+    assert len(recwarn) == 0
 
 if __name__ == "__main__":
     unittest.main()
