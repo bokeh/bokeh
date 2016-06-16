@@ -52,9 +52,13 @@ class TitleView extends TextAnnotation.View
       @_css_text(ctx, @mget('text'), sx, sy, angle)
 
   _get_size: () ->
-    ctx = @plot_view.canvas_view.ctx
-    @visuals.text.set_value(ctx)
-    return ctx.measureText(@mget('text')).ascent + 10
+    text = @model.text
+    if text == ""
+      return 0
+    else
+      ctx = @plot_view.canvas_view.ctx
+      @visuals.text.set_value(ctx)
+      return ctx.measureText(text).ascent + 10
 
 class Title extends TextAnnotation.Model
   default_view: TitleView
