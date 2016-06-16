@@ -5,6 +5,7 @@ _ = require "underscore"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
+Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 ToolEvents = require "../../common/tool_events"
 PlotCanvas = require("./plot_canvas").Model
@@ -15,6 +16,14 @@ Title = require "../annotations/title"
 
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
+
+  bind_bokeh_events: () ->
+    super()
+    # Note: Title object cannot be replaced after initialization, similar to axes, and also
+    # not being able to change the sizing_mode. All of these changes require a re-initialization
+    # of all constraints which we don't currently support.
+    title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
+    @listenTo(@model, 'change:title', () => logger.warn(title_msg))
 
   render: () ->
     super()
@@ -305,7 +314,8 @@ class Plot extends LayoutDOM.Model
       # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.Any                              ] # TODO: p.Either(p.Instance(Title), p.String)
+
+      title:             [ p.Any, () -> new Title.Model({text: ""})] # TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]

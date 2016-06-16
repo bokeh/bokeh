@@ -8,7 +8,7 @@ from ..models import Plot
 from ..models import glyphs, markers
 from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function
 
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
@@ -38,7 +38,11 @@ class Figure(Plot):
         x_axis_label = kw.pop("x_axis_label", "")
         y_axis_label = kw.pop("y_axis_label", "")
 
+        title_text = kw.pop("title", None)
+
         super(Figure, self).__init__(*arg, **kw)
+
+        self.title.text = title_text
 
         self.x_range = _get_range(x_range)
         self.y_range = _get_range(y_range)

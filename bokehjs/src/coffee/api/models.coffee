@@ -32,6 +32,7 @@ module.exports = {
   LogTickFormatter:                       require("../models/formatters/basic_tick_formatter").Model
   CategoricalTickFormatter:               require("../models/formatters/categorical_tick_formatter").Model
   DatetimeTickFormatter:                  require("../models/formatters/datetime_tick_formatter").Model
+  FuncTickFormatter:                      require("../models/formatters/func_tick_formatter").Model
   NumeralTickFormatter:                   require("../models/formatters/numeral_tick_formatter").Model
   PrintfTickFormatter:                    require("../models/formatters/printf_tick_formatter").Model
 

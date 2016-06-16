@@ -11,7 +11,7 @@ _default_tooltips = [
   ["canvas (x, y)", "($sx, $sy)"],
 ]
 
-_default_tools = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+_default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 _known_tools = {
   pan:          (plot) -> new models.PanTool(plot: plot, dimensions: ["width", "height"])

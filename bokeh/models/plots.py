@@ -37,6 +37,9 @@ DEP_MSG_0_12_0 = """
     Plot property '%s' was deprecated in 0.12.0 and will be removed. Use '%s' instead.
     """
 
+# We create an empty title by default
+DEFAULT_TITLE = lambda: Title(text="")
+
 
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -420,8 +423,8 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = TitleProp(help="""
-    A title for the plot. Can be a text string or a Title annotation.
+    title = TitleProp(default=DEFAULT_TITLE, help="""
+    A title for the plot. Can be a text string or a Title annotation. Default is Title(text="").
     """)
 
     title_location = Enum(Location, default="above", help="""
@@ -649,13 +652,13 @@ class Plot(LayoutDOM):
 
     @property
     def title_standoff(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.title_padding'))
-        return self.title.title_padding
+        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.offset'))
+        return self.title.offset
 
     @title_standoff.setter
     def title_standoff(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.title_padding'))
-        self.title.title_padding = value
+        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.offset'))
+        self.title.offset = value
 
     @property
     def title_text_font(self):
@@ -709,7 +712,7 @@ class Plot(LayoutDOM):
 
     @property
     def title_text_align(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.title_align'))
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.align'))
         warnings.warn("""``title_text_align`` was deprecated in 0.12.0 and is no longer
         available on the new Title object. There is a new ``plot.title.title_align`` which is
         similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
@@ -717,11 +720,11 @@ class Plot(LayoutDOM):
         Label (``bokeh.models.annotations.Label``) and manually adding
         it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
         """)
-        return self.title.title_align
+        return self.title.align
 
     @title_text_align.setter
     def title_text_align(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.title_align'))
+        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.align'))
         warnings.warn("""``title_text_align`` was deprecated in 0.12.0 and is no longer
         available on the new Title object. There is a new ``plot.title.title_align`` which is
         similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
@@ -729,7 +732,7 @@ class Plot(LayoutDOM):
         Label (``bokeh.models.annotations.Label``) and manually adding
         it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
         """)
-        self.title.title_align = value
+        self.title.align = value
 
     @property
     def title_text_baseline(self):
