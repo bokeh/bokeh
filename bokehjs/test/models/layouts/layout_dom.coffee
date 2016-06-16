@@ -122,6 +122,26 @@ describe "LayoutDOM.View", ->
       expect(@solver_suggest.args[0]).to.be.deep.equal [@test_layout._width, 22]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@test_layout._height, 33]
 
+    it "should only listen to resize event once if responsive_mode is fixed", ->
+      @test_layout.responsive = 'fixed'
+      render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      expect(render_spy.calledOnce).is.true
+      LayoutDOMView.prototype.render.restore()
+
+    it "should keep listening to resize event if responsive_mode is not fixed", ->
+      @test_layout.responsive = 'scale_both'
+      render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      @doc.solver().trigger('resize')
+      expect(render_spy.calledThrice).is.true
+      LayoutDOMView.prototype.render.restore()
+
     it "should call suggest value with the value from get_height if responsive_mode is scale_width", ->
       @test_layout.responsive = 'scale_width'
       layout_view = new LayoutDOMView({ model: @test_layout })
