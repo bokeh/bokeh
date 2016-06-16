@@ -10,7 +10,8 @@ from __future__ import absolute_import
 from .core.enums import Location, Responsive
 from .models.tools import ToolbarBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Row, Column, Spacer
+from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
+from .models.widgets import Widget
 
 
 #-----------------------------------------------------------------------------
@@ -37,8 +38,8 @@ def row(children=None, responsive='fixed', *args):
     have the same responsive mode, which is required for complex layouts to work.
 
     Args:
-        children List(Instance(LayoutDOM)): An list of lists containing any of the
-        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
+        children List(Instance(LayoutDOM)): An list containing any of the
+        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
         are then assigned the responsive mode of the layout.
 
         responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
@@ -53,14 +54,14 @@ def row(children=None, responsive='fixed', *args):
     _verify_responsive(responsive)
     children = _handle_children(children, *args)
 
+    row_children = []
     for item in children:
-        row_children = []
         if isinstance(item, LayoutDOM):
             item.responsive = responsive
             row_children.append(item)
         else:
             raise ValueError(
-                """Only LayoutDOM items can be inserted into a layout.
+                """Only LayoutDOM items can be inserted into a row.
                 Tried to insert: %s of type %s""" % (item, type(item))
             )
     return Row(children=row_children, responsive=responsive)
@@ -71,8 +72,8 @@ def column(children=None, responsive='fixed', *args):
     have the same responsive mode, which is required for complex layouts to work.
 
     Args:
-        children List(Instance(LayoutDOM)): An list of lists containing any of the
-        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All tems in the grid
+        children List(Instance(LayoutDOM)): An list containing any of the
+        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
         are then assigned the responsive mode of the layout.
 
         responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
@@ -87,17 +88,50 @@ def column(children=None, responsive='fixed', *args):
     _verify_responsive(responsive)
     children = _handle_children(children, *args)
 
+    col_children = []
     for item in children:
-        col_children = []
         if isinstance(item, LayoutDOM):
             item.responsive = responsive
             col_children.append(item)
         else:
             raise ValueError(
-                """Only LayoutDOM items can be inserted into a layout.
+                """Only LayoutDOM items can be inserted into a column.
                 Tried to insert: %s of type %s""" % (item, type(item))
             )
     return Column(children=col_children, responsive=responsive)
+
+
+def widgetbox(children=None, responsive='fixed', *args):
+    """ Create a widgetbox of Bokeh widgets. Forces all to
+    have the same responsive mode, which is required for complex layouts to work.
+
+    Args:
+        children List(Instance(Widget)): An list of widgets. All tems in the grid
+        are then assigned the responsive mode of the layout.
+
+        responsive Enum(``fixed``, ``stretch_both``, ``scale_width``, ``scale_height``, ``scale_both``) :  How
+        the grid will respond to the html page. Default is ``fixed``.
+
+    Examples:
+
+        >>> widgetbox([button, select])
+        >>> widgetbox(children=[slider], responsive='scale_width')
+    """
+
+    _verify_responsive(responsive)
+    children = _handle_children(children, *args)
+
+    widget_children = []
+    for item in children:
+        if isinstance(item, Widget):
+            item.responsive = responsive
+            widget_children.append(item)
+        else:
+            raise ValueError(
+                """Only Widgets can be inserted into a WidgetBox.
+                Tried to insert: %s of type %s""" % (item, type(item))
+            )
+    return WidgetBox(children=widget_children, responsive=responsive)
 
 
 def layout(children=None, responsive='fixed', *args):
