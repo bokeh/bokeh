@@ -18,18 +18,7 @@ class LayoutDOMView extends BokehView
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.responsive}")
 
-    children = @model.get_layoutable_children()
-    @child_views = {}
-    build_views(@child_views, children)
-
-    for child in children
-      # Look-up the child_view in @child_views and then append
-      # We can't just read from @child_views because then we
-      # don't get guaranteed ordering. Which is a problem in
-      # non-box layouts.
-      child_view = @child_views[child.id]
-      @$el.append(child_view.$el)
-
+    @build_views()
     @bind_bokeh_events()
 
     if @model._is_root is true
@@ -38,7 +27,22 @@ class LayoutDOMView extends BokehView
       _.delay(resize, 100)
       _.delay(resize, 200)
 
+  build_views: () ->
+    children = @model.get_layoutable_children()
+    @child_views = {}
+    build_views(@child_views, children)
+
+    @$el.empty()
+    for child in children
+      # Look-up the child_view in @child_views and then append
+      # We can't just read from @child_views because then we
+      # don't get guaranteed ordering. Which is a problem in
+      # non-box layouts.
+      child_view = @child_views[child.id]
+      @$el.append(child_view.$el)
+
   bind_bokeh_events: () ->
+    @listenTo(@model, 'change:children', @build_views)
     @listenTo(@model, 'change', @render)
     @listenTo(@model.document.solver(), 'resize', @render)
 

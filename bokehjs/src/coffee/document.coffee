@@ -614,6 +614,10 @@ class Document
         new_references[id] = value
 
     Document._initialize_references_json(references_json, old_references, new_references)
+    for id, model of new_references
+      model.attach_document(@)
+      if model.layoutable is true
+        @_add_layoutable(model)
 
     for event_json in events_json
       if event_json['kind'] == 'ModelChanged'
