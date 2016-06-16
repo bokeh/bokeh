@@ -32,12 +32,6 @@ class LayoutDOMView extends BokehView
 
     @bind_bokeh_events()
 
-    if @model._is_root is true
-      resize = () -> $(window).trigger('resize')
-      _.delay(resize, 50)
-      _.delay(resize, 100)
-      _.delay(resize, 200)
-
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
     @listenTo(@model.document.solver(), 'resize', @render)

@@ -96,6 +96,11 @@ class PlotCanvasView extends Renderer.View
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
+    # Keep track of which plots of the canvas are not yet rendered
+    if not @model.document._unrendered_plots?
+      @model.document._unrendered_plots = {}  # poor man's set
+    @model.document._unrendered_plots[@id] = true
+
     @ui_event_bus = new UIEvents({
       toolbar: @mget('toolbar')
       hit_area: @canvas_view.$el
@@ -451,27 +456,19 @@ class PlotCanvasView extends Renderer.View
     else
       @interactive = false
 
-    # This seems not needed
-    #if @canvas.initial_width != @model.plot_width or @canvas.initial_height != @model.plot_height
-    #  @canvas_view.set_dims([@model.plot_width, @model.plot_height], trigger=false)
-
     for k, v of @renderer_views
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
+    # AK: seems weird to me that this is here, but get solver errors if I remove it
     @update_constraints()
+
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
     @model.get('frame')._update_mappers()
 
     ctx = @canvas_view.ctx
-
-    # Prepare the canvas and get pixel ratio.
-    # Note that this may cause a resize of the canvas, which means that
-    # this should be considered the main rendering entry point; any previous
-    # calls to ctx.save() may be undone (due to the canvas resize).
-    @canvas_view.prepare_canvas(force_canvas)
     ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
 
     # Set hidpi-transform
@@ -533,11 +530,33 @@ class PlotCanvasView extends Renderer.View
 
     ctx.restore()  # Restore to default state
 
+    # Invoke a resize on the document the first time that all plots of that
+    # document are rendered. For some reason, the layout solver only works well
+    # after the plots have been rendered. See #4401.
+    if @model.document._unrendered_plots?
+      delete @model.document._unrendered_plots[@id]
+      if _.isEmpty(@model.document._unrendered_plots)
+        @model.document._unrendered_plots = null
+        _.delay($.proxy(@model.document.resize, @model.document), 1)
+
   resize: () ->
+    # Set the plot and canvas to the current model's size
+    # This gets called upon solver resize events
     width = @model._width._value
     height = @model._height._value
 
-    @canvas_view.set_dims([width, height], true)
+    @canvas_view.set_dims([width, height], true)  # this indirectly calls @request_render
+
+    # Prepare the canvas size, taking HIDPI into account. Note that this may cause
+    # a resize of the canvas, which means that any previous calls to ctx.save() may be undone.
+    @canvas_view.prepare_canvas()
+
+    try
+      @update_constraints()
+    catch silent_error
+      # [AK] This sucks, but due to probably some race condidition this (sometimes?)
+      # results in "unknown edit variable" at kiwi.js. Tried to skip only the
+      # first time we get here, but then layout initialization fails.
 
     # This allows the plot canvas to be positioned around the toolbar
     @$el.css({

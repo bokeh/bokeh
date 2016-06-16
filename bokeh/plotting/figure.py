@@ -8,7 +8,7 @@ from ..models import Plot
 from ..models import glyphs, markers
 from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _convert_responsive
 
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot

@@ -14,6 +14,10 @@ class SpacerView extends LayoutDOM.View
         height: @model.height
       })
 
+  get_height: () ->
+    # spacer must always have some height
+    return 1
+
 
 class Spacer extends LayoutDOM.Model
   type: 'Spacer'
