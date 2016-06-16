@@ -35,8 +35,8 @@ class PlotView extends LayoutDOM.View
         position: 'absolute'
         left: @model._dom_left._value
         top: @model._dom_top._value
-        width: @model.width
-        height: @model.height
+        width: @model._width.value()
+        height: @model._height.value()
       })
 
   get_width_height: () ->
