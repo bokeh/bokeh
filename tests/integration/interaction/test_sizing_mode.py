@@ -205,8 +205,8 @@ def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file
     aspect_ratio2 = width2 / height2
     assert aspect_ratio2 > lower_bound
     assert aspect_ratio2 < upper_bound
-    assert width2 == width1
-    assert height2 == height1
+    assert width2 < width1 - 20
+    assert height2 < height1 - 20
 
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)
