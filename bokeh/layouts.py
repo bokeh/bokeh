@@ -12,7 +12,7 @@ from .models.tools import ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
 from .models.widgets import Widget
-from .plotting.helpers import _convert_responsive
+from .util._plot_arg_helpers import _convert_responsive
 
 
 #-----------------------------------------------------------------------------

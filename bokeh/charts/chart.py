@@ -30,9 +30,10 @@ from ..models import (
     Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg, _glyph_function, _convert_responsive
+from ..plotting.helpers import _process_tools_arg, _glyph_function
 from ..core.properties import Auto, Either, Enum, String, Override
 from ..util.deprecate import deprecated
+from ..util._plot_arg_helpers import _convert_responsive
 
 #-----------------------------------------------------------------------------
 # Classes and functions
