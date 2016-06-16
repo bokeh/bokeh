@@ -84,7 +84,7 @@ class ToolbarBox(LayoutDOM):
 
     """
 
-    toolbar_location = Enum(Location, default='above', help="""
+    toolbar_location = Enum(Location, default='right', help="""
         Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
         edge of a plot. Default is `above`.
     """)
@@ -448,6 +448,14 @@ class LassoSelectTool(Tool):
     select_every_mousemove = Bool(True, help="""
     Whether a selection computation should happen on every mouse
     event, or only once, when the selection region is completed. Default: True
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on every selection of a lasso area.
+    The cb_data parameter that is available to the Callback code will contain
+    one LassoSelectTool-specific field:
+
+    :geometry: object containing the coordinates of the lasso area
     """)
 
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""

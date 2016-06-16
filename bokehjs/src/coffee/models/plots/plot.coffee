@@ -17,7 +17,7 @@ class PlotView extends LayoutDOM.View
   render: () ->
     super()
 
-    if @model.responsive is 'box_ar'
+    if @model.responsive is 'scale_both'
       [width, height] = @get_width_height()
       s = @model.document.solver()
       s.suggest_value(@model._width, width)
@@ -106,7 +106,7 @@ class Plot extends LayoutDOM.Model
 
   get_edit_variables: () ->
     edit_variables = super()
-    if @responsive is 'box_ar'
+    if @responsive is 'scale_both'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
     for child in @get_layoutable_children()
@@ -224,7 +224,7 @@ class Plot extends LayoutDOM.Model
 
   @define {
       toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
-      toolbar_location:  [ p.Location, 'above'                   ]
+      toolbar_location:  [ p.Location, 'right'                ]
       toolbar_sticky:    [ p.Bool, true                       ]
 
       # ALL BELOW ARE FOR PLOT CANVAS

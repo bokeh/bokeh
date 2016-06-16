@@ -25,6 +25,13 @@ declare namespace Bokeh {
         formats?: Map<Array<string>>; // XXX: key: DatetimeUnits
     }
 
+    export var FuncTickFormatter: { new(attributes?: IFuncTickFormatter, options?: ModelOpts): FuncTickFormatter };
+    export interface FuncTickFormatter extends TickFormatter, IFuncTickFormatter {}
+    export interface IFuncTickFormatter extends ITickFormatter {
+        code?: string;
+        lang?: ScriptingLanguage;
+    }
+
     export var NumeralTickFormatter: { new(attributes?: INumeralTickFormatter, options?: ModelOpts): NumeralTickFormatter };
     export interface NumeralTickFormatter extends TickFormatter, INumeralTickFormatter {}
     export interface INumeralTickFormatter extends ITickFormatter {
