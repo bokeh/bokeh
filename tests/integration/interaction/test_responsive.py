@@ -178,7 +178,7 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     lower_bound = aspect_ratio * 0.95
     upper_bound = aspect_ratio * 1.05
 
-    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='scale_both')
+    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='stretch_both')
     # We have to wrap scale_both plots in a Row for them to work.
     layout = Row(plot, responsive='stretch_both')
     save(layout)
