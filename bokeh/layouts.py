@@ -209,7 +209,7 @@ def layout(children=None, sizing_mode='fixed', responsive=None, *args):
     return grid
 
 
-def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', responsive=None, toolbar_options=None, *args):
+def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', responsive=None, toolbar_options=None, plot_width=None, plot_height=None, *args):
     """ Create a grid of plots rendered on separate canvases.
 
     Args:
@@ -278,6 +278,11 @@ def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', respon
                 item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
             if isinstance(item, LayoutDOM):
                 item.sizing_mode = sizing_mode
+                if isinstance(item, Plot):
+                    if plot_width:
+                        item.plot_width = plot_width
+                    if plot_height:
+                        item.plot_height = plot_height
                 row_children.append(item)
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into Grid")
