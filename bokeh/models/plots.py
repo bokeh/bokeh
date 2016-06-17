@@ -384,8 +384,6 @@ class Plot(LayoutDOM):
         if len(objs) > 0:
             return str(self)
 
-
-
     __deprecated_attributes__ = (
         'background_fill', 'border_fill', 'logo', 'tools',
         'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
