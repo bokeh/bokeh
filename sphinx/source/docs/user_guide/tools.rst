@@ -52,6 +52,18 @@ running the code and changing the ``toolbar_location`` value.
 Specifying Tools
 ----------------
 
+At the lowest |bokeh.models| level, tools are added to a ``Plot`` by
+passing instances of ``Tool`` objects to the ``add_tools`` method:
+
+.. code-block:: python
+
+    plot = Plot()
+    plot.add_tools(LassoSelectTool())
+    plot.add_tools(WheelZoomTool())
+
+This explicit way of adding tools works with any Bokeh ``Plot`` or
+``Plot`` subclass, such as ``Figure`` or ``Chart``.
+
 Tools can be specified by passing the ``tools`` parameter to the |figure|
 function or to any |bokeh.charts| Chart function. The tools parameter
 accepts a list of tool objects, for instance:
@@ -65,7 +77,7 @@ containing tool shortcut names:
 
 .. code-block:: python
 
-    tools = "pan,wheel_zoom,box_zoom,reset,resize"
+    tools = "pan,wheel_zoom,box_zoom,reset"
 
 However, this method does not allow setting properties of the tools.
 To use shortcut names but also add tools with properties, one can
@@ -73,8 +85,52 @@ also call the ``add_tools`` method:
 
 .. code-block:: python
 
-    fig = figure(tools="pan,wheel_zoom,box_zoom,reset,resize")
-    fig.add_tools(BoxSelectTool(dimensions=["width"]))
+    plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
+    plot.add_tools(BoxSelectTool(dimensions=["width"]))
+
+.. _userguide_tools_setting_active_tools:
+
+Setting the Active Tools:
+-------------------------
+
+Bokeh toolbars can have (at most) one active tool from each kind of gesture
+(drag, scroll, tap). By default, Bokeh will use a default pre-defined
+order of preference to choose one of each kind from the set of configured
+tools, to be active.
+
+However it is possible to exert control over which tool is active. At the
+lowest |bokeh.models| level, this is accomplished by using the ``active_drag``,
+``active_scroll``, and ``active_tap`` properties of ``Toolbar``. These
+properties can take the following values:
+
+* ``None`` --- there is no active tool of this kind
+* ``"auto"`` --- Bokeh chooses a tool of this kind to be active (possibly none)
+* a ``Tool`` instance --- Bokeh sets the given tool to be the active tool
+
+As an example:
+
+.. code-block:: python
+
+    # configure so that no drag tools are active
+    plot.toolbar.active_drag = None
+
+    # configure so that Bokeh chooses what (if any) scroll tool is active
+    plot.toolbar.active_scroll = "auto"
+
+    # configure so that a specific PolySelect tap tool is active
+    plot.toolbar.active_tap = poly_select
+
+The default value for all of these properties is ``"auto"``.
+
+Active tools can be specified by passing the these properties as keyword
+arguments to the |figure| function or to any |bokeh.charts| Chart function.
+In this case, it is also possible to pass any one of the string names for,
+ease of configuration:
+
+.. code-block:: python
+
+    # configures the lasso tool to be active
+    plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
 
 .. _userguide_tools_pandrag:
 
