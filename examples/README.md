@@ -3,7 +3,7 @@
 ## Examples in this repository
 
 This directory contains many examples of different ways to use Bokeh. As Bokeh has been evolving
-fast, it is important that you **ensure that the version of an example you're looking at matches 
+fast, it is important that you **ensure that the version of an example you're looking at matches
 the version of Bokeh you are running**.
 
 ### [`app`](app/)
@@ -75,10 +75,6 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 
 * The [Bokeh User's Guide](http://bokeh.pydata.org/en/latest/docs/user_guide.html) has many plots with corresponding code samples throughout.
 
-* Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
+* Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.jupyter.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
 
 * Larger examples, e.g. integrations with web application frameworks such as [Flask](http://flask.pocoo.org) or [Django](https://www.djangoproject.com), are collected in the [`bokeh-demos`](https://github.com/bokeh/bokeh-demos) repository.
-
-
-
-
