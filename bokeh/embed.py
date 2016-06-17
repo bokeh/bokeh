@@ -253,6 +253,10 @@ def notebook_div(model, notebook_comms_target=None):
     with _ModelInDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
+    # Set the root_ids to only be the one we want to show in this div
+    doc_key = list(docs_json.keys())[0]
+    docs_json[doc_key]['roots']['root_ids'] = [model.ref['id']]
+
     item = render_items[0]
     item['notebook_comms_target'] = notebook_comms_target
 
