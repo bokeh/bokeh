@@ -450,7 +450,7 @@ brewer = {
 def _cmap_func_generator(name, cmap):
     def func(n):
         """Return a palette of n equally spaced colors."""
-        return [cmap[math.floor(i)] for i in np.linspace(0, len(cmap)-1, num=n)]
+        return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
     func.__name__ = name
     return func
 
