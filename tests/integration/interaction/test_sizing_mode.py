@@ -165,7 +165,6 @@ def test_stretch_both_plot_is_not_taller_than_page(output_file_url, selenium):
     assert canvas_height <= window_height
 
 
-@pytest.mark.xfail(reason="scale_both was slightly broken in #4473")
 def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.
@@ -200,20 +199,18 @@ def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file
     # Now resize to a smaller width and check again
     selenium.set_window_size(width=800, height=600)
     wait_for_canvas_resize(canvas, selenium)
-    wait_for_canvas_resize(canvas, selenium)  # twice, for now
     #
     height2 = canvas.size['height']
     width2 = canvas.size['width']
     aspect_ratio2 = width2 / height2
     assert aspect_ratio2 > lower_bound
     assert aspect_ratio2 < upper_bound
-    assert width2 == width1
-    assert height2 == height1
+    assert width2 < width1 - 20
+    assert height2 < height1 - 20
 
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)
     wait_for_canvas_resize(canvas, selenium)
-    wait_for_canvas_resize(canvas, selenium)  # twice, for now
     #
     height3 = canvas.size['height']
     width3 = canvas.size['width']
@@ -223,7 +220,6 @@ def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file
     # Now resize to a smaller height and check again
     selenium.set_window_size(width=1200, height=400)
     wait_for_canvas_resize(canvas, selenium)
-    wait_for_canvas_resize(canvas, selenium)  # twice, for now
     #
     height4 = canvas.size['height']
     width4 = canvas.size['width']
@@ -236,7 +232,6 @@ def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)
     wait_for_canvas_resize(canvas, selenium)
-    wait_for_canvas_resize(canvas, selenium)  # twice, for now
     #
     height5 = canvas.size['height']
     width5 = canvas.size['width']

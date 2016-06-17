@@ -25,7 +25,7 @@ def check_integrity(models):
         logger.error("E-%d (%s): %s: %s" % msg)
 
     for msg in sorted(messages['warning']):
-        logger.error("W-%d (%s): %s: %s" % msg)
+        logger.warning("W-%d (%s): %s: %s" % msg)
 
     # This will be turned on in a future release
     # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
