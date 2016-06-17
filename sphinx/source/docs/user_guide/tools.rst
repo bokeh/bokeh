@@ -52,7 +52,7 @@ running the code and changing the ``toolbar_location`` value.
 Specifying Tools
 ----------------
 
-At the lowest |bokeh.models| level, tools are added to a ``Plot`` by
+At the lowest ``bokeh.models`` level, tools are added to a ``Plot`` by
 passing instances of ``Tool`` objects to the ``add_tools`` method:
 
 .. code-block:: python
@@ -90,8 +90,8 @@ also call the ``add_tools`` method:
 
 .. _userguide_tools_setting_active_tools:
 
-Setting the Active Tools:
--------------------------
+Setting the Active Tools
+------------------------
 
 Bokeh toolbars can have (at most) one active tool from each kind of gesture
 (drag, scroll, tap). By default, Bokeh will use a default pre-defined
@@ -99,7 +99,7 @@ order of preference to choose one of each kind from the set of configured
 tools, to be active.
 
 However it is possible to exert control over which tool is active. At the
-lowest |bokeh.models| level, this is accomplished by using the ``active_drag``,
+lowest ``bokeh.models`` level, this is accomplished by using the ``active_drag``,
 ``active_scroll``, and ``active_tap`` properties of ``Toolbar``. These
 properties can take the following values:
 
@@ -131,6 +131,11 @@ ease of configuration:
 
     # configures the lasso tool to be active
     plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
+
+.. _userguide_tools_builtin_tools:
+
+Built-in Tools
+--------------
 
 .. _userguide_tools_pandrag:
 
