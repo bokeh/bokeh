@@ -36,8 +36,8 @@ class Solver
     if trigger
       @trigger('layout_update')
 
-  add_constraint: (constraint) ->
-    @solver.addConstraint(constraint)
+  add_constraint: (constraint, optimize=true) ->
+    @solver.addConstraint(constraint, optimize)
 
   remove_constraint: (constraint) ->
     @solver.removeConstraint(constraint)
