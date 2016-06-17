@@ -46,7 +46,7 @@ describe "Toolbar.View", ->
     @test_tb._dom_top = {_value: dom_top}
     @test_tb._width = {_value: width}
     @test_tb._height = {_value: height}
-    @test_tb.responsive = 'box'
+    @test_tb.sizing_mode = 'stretch_both'
 
     tb_view = new @test_tb.default_view({ model: @test_tb })
     tb_view.render()
@@ -62,7 +62,7 @@ describe "Toolbar.View", ->
     @test_tb._dom_top = {_value: dom_top}
     @test_tb._width = {_value: width}
     @test_tb._height = {_value: height}
-    @test_tb.responsive = 'fixed'
+    @test_tb.sizing_mode = 'fixed'
 
     tb_view = new @test_tb.default_view({ model: @test_tb })
     tb_view.render()

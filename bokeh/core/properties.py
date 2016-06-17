@@ -1630,8 +1630,10 @@ class DataSpecProperty(BasicProperty):
 
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
-        super(DataSpec, self).__init__(String, Dict(String, Either(String, typ)), typ, default=default, help=help)
+        super(DataSpec, self).__init__(String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)), typ, default=default, help=help)
         self._type = self._validate_type_param(typ)
+
+    # TODO (bev) add stricter validation on keys
 
     def make_properties(self, base_name):
         return [ DataSpecProperty(descriptor=self, name=base_name) ]
@@ -1886,24 +1888,6 @@ class ColorSpec(DataSpec):
 
         return value
 
-class Responsive(Either):
-
-    def __init__(self, default=None, help=None):
-        types = (Enum(enums.Responsive), Bool)
-        super(Responsive, self).__init__(*types, default=default, help=help)
-
-    def transform(self, value):
-        """ Transform True to width_ar mode and False to fixed
-        """
-        if value is True:
-            responsive = 'width_ar'
-        elif value is False:
-            responsive = 'fixed'
-        else:
-            responsive = value
-        return responsive
-
-
 class TitleProp(Either):
 
     def __init__(self, default=None, help=None):
@@ -1912,9 +1896,14 @@ class TitleProp(Either):
 
     def transform(self, value):
         if isinstance(value, str):
-            if value == "":
-                return None
-            else:
-                from bokeh.models.annotations import Title
-                value = Title(text=value)
+            from bokeh.models.annotations import Title
+            warn("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
+            and will be removed. The title is now an object on Plot (which holds all of it's
+            styling properties). Please use Plot.title.text instead.
+
+            SERVER USERS: If you were using plot.title to have the server update the plot title
+            in a callback, you MUST update to plot.title.text as the title object cannot currently
+            be replaced after intialization.
+            """)
+            value = Title(text=value)
         return value

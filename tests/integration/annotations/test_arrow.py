@@ -16,7 +16,7 @@ WIDTH = 600
 def test_arrow(output_file_url, selenium, screenshot):
 
     # Have to specify x/y range as labels aren't included in the plot area solver
-    plot = figure(height=HEIGHT, width=WIDTH, x_range=(0,10), y_range=(0,10), tools='')
+    plot = figure(height=HEIGHT, width=WIDTH, x_range=(0,10), y_range=(0,10), tools='', toolbar_location="above")
 
     arrow1 = Arrow(x_start=1, y_start=3, x_end=6, y_end=8,
                    line_color='green', line_alpha=0.7,

@@ -169,10 +169,6 @@ class BokehTornado(TornadoApplication):
         self._prefix = prefix
         self.use_index = use_index
 
-        if io_loop is None:
-            io_loop = IOLoop.current()
-        self._loop = io_loop
-
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
@@ -200,7 +196,7 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v, self._develop, self._loop)
+            self._applications[k] = ApplicationContext(v, self._develop)
 
         extra_patterns = extra_patterns or []
         all_patterns = []
@@ -254,6 +250,25 @@ class BokehTornado(TornadoApplication):
             log.debug("  " + line)
 
         super(BokehTornado, self).__init__(all_patterns)
+
+    def initialize(self,
+                 io_loop=None,
+                 keep_alive_milliseconds=37000,
+                 # how often to check for unused sessions
+                 check_unused_sessions_milliseconds=17000,
+                 # how long unused sessions last
+                 unused_session_lifetime_milliseconds=15000,
+                 # how often to log stats
+                 stats_log_frequency_milliseconds=15000,
+                 develop=False,
+                 **kw):
+
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
+
+        for app_context in self._applications.values():
+            app_context._loop = self._loop
 
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)

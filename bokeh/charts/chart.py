@@ -33,6 +33,7 @@ from ..plotting import DEFAULT_TOOLS
 from ..plotting.helpers import _process_tools_arg, _glyph_function
 from ..core.properties import Auto, Either, Enum, String, Override
 from ..util.deprecate import deprecated
+from ..util._plot_arg_helpers import _convert_responsive
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -121,7 +122,17 @@ class Chart(Plot):
                 kwargs["_" + name] = kwargs[name]
                 del kwargs[name]
 
+        if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+            raise ValueError("Chart initialized with both 'responsive' and 'sizing_mode' supplied, supply only one")
+        if 'responsive' in kwargs:
+            kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
+            del kwargs['responsive']
+
+        title_text = kwargs.pop("title", None)
+
         super(Chart, self).__init__(*args, **kwargs)
+
+        self.title.text = title_text
 
         defaults.apply(self)
 

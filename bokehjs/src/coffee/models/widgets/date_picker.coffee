@@ -11,23 +11,19 @@ class DatePickerView extends Widget.View
 
   initialize: (options) ->
     super(options)
-    @render()
-
-  render: () ->
-    super()
-    @$el.empty()
-    $label = $('<label>').text(@mget("title"))
-    $datepicker = $("<div>").datepicker({
+    @label = $('<label>').text(@mget("title"))
+    @input = $('<input type="text">')
+    @datepicker = @input.datepicker({
       defaultDate: new Date(@mget('value'))
       minDate: if @mget('min_date')? then new Date(@mget('min_date')) else null
       maxDate: if @mget('max_date')? then new Date(@mget('max_date')) else null
       onSelect: @onSelect
     })
-    @$el.append([$label, $datepicker])
-    return @
+    @$el.append([@label, @input])
 
   onSelect: (dateText, ui) =>
-    @mset('value', new Date(dateText))
+    d = new Date(dateText)
+    @mset('value', d.toString())
     @mget('callback')?.execute(@model)
 
 class DatePicker extends InputWidget.Model

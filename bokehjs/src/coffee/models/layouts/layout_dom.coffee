@@ -16,7 +16,7 @@ class LayoutDOMView extends BokehView
     super(options)
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
-    @$el.addClass("bk-layout-#{@model.responsive}")
+    @$el.addClass("bk-layout-#{@model.sizing_mode}")
 
     children = @model.get_layoutable_children()
     @child_views = {}
@@ -32,15 +32,17 @@ class LayoutDOMView extends BokehView
 
     @bind_bokeh_events()
 
-    if @model._is_root is true
-      resize = () -> $(window).trigger('resize')
-      _.delay(resize, 50)
-      _.delay(resize, 100)
-      _.delay(resize, 200)
-
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
-    @listenTo(@model.document.solver(), 'resize', @render)
+    # Note: `sizing_mode` update is not supported because changing the sizing_mode mode
+    # necessitates stripping out all the relevant constraints from solver and re-adding the new correct ones.
+    # We don't currently have a machinery for this. Other things with a similar problem are axes and title.
+    sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
+    @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
+    if @model.sizing_mode == 'fixed'
+      @listenToOnce(@model.document.solver(), 'resize', @render)
+    else
+      @listenTo(@model.document.solver(), 'resize', @render)
 
   render: () ->
     #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")
@@ -50,7 +52,7 @@ class LayoutDOMView extends BokehView
 
     s = @model.document.solver()
 
-    if @model.responsive is 'fixed'
+    if @model.sizing_mode is 'fixed'
       # If the width or height is unset:
       # - compute it from children
       # - but then save for future use
@@ -75,7 +77,7 @@ class LayoutDOMView extends BokehView
         height: height
       })
 
-    if @model.responsive is 'width_ar'
+    if @model.sizing_mode is 'scale_width'
       height = @get_height()
 
       s.suggest_value(@model._height, height)
@@ -85,7 +87,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'height_ar'
+    if @model.sizing_mode is 'scale_height'
       width = @get_width()
 
       s.suggest_value(@model._width, width)
@@ -95,7 +97,7 @@ class LayoutDOMView extends BokehView
         height: @model._height._value
       })
 
-    if @model.responsive is 'box'
+    if @model.sizing_mode is 'stretch_both'
       @$el.css({
         position: 'absolute'
         left: @model._dom_left._value
@@ -106,12 +108,12 @@ class LayoutDOMView extends BokehView
 
   get_height: () ->
     # Subclasses should implement this to explain
-    # what their height should be in responsive mode.
+    # what their height should be in sizing_mode mode.
     return null
 
   get_width: () ->
     # Subclasses should implement this to explain
-    # what their width should be in responsive mode.
+    # what their width should be in sizing_mode mode.
     return null
 
 
@@ -164,12 +166,12 @@ class LayoutDOM extends Model
 
   get_edit_variables: () ->
     edit_variables = []
-    if @responsive is 'fixed'
+    if @sizing_mode is 'fixed'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
-    if @responsive is 'width_ar'
+    if @sizing_mode is 'scale_width'
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
-    if @responsive is 'height_ar'
+    if @sizing_mode is 'scale_height'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
     return edit_variables
 
@@ -207,26 +209,26 @@ class LayoutDOM extends Model
       'whitespace-left' : @_whitespace_left
       'whitespace-right' : @_whitespace_right
     }
-    if @responsive is 'box'
+    if @sizing_mode is 'stretch_both'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
         'height': @_height
       })
-    if @responsive is 'width_ar'
+    if @sizing_mode is 'scale_width'
       constrained_variables = _.extend(constrained_variables, {
         'width': @_width
       })
-    if @responsive is 'height_ar'
+    if @sizing_mode is 'scale_height'
       constrained_variables = _.extend(constrained_variables, {
         'height': @_height
       })
     return constrained_variables
 
   @define {
-      height:   [ p.Number, null ]
-      width:    [ p.Number, null ]
-      disabled: [ p.Bool, false ]
-      responsive: [ p.Responsive, null ]
+      height:      [ p.Number              ]
+      width:       [ p.Number              ]
+      disabled:    [ p.Bool,       false   ]
+      sizing_mode: [ p.SizingMode, "fixed" ]
     }
 
   @internal {

@@ -47,6 +47,7 @@ class CheckboxGroup extends Widget.Model
       active:   [ p.Array, []    ]
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
+      callback: [ p.Instance ]
     }
 
 module.exports =

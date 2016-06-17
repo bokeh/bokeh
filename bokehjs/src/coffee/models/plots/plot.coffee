@@ -6,6 +6,7 @@ $ = require "jquery"
 p = require "../../core/properties"
 
 LayoutDOM = require "../layouts/layout_dom"
+Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 ToolEvents = require "../../common/tool_events"
 PlotCanvas = require("./plot_canvas").Model
@@ -14,10 +15,18 @@ PlotCanvas = require("./plot_canvas").Model
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
 
+  bind_bokeh_events: () ->
+    super()
+    # Note: Title object cannot be replaced after initialization, similar to axes, and also
+    # not being able to change the sizing_mode. All of these changes require a re-initialization
+    # of all constraints which we don't currently support.
+    title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
+    @listenTo(@model, 'change:title', () => logger.warn(title_msg))
+
   render: () ->
     super()
 
-    if @model.responsive is 'box_ar'
+    if @model.sizing_mode is 'scale_both'
       [width, height] = @get_width_height()
       s = @model.document.solver()
       s.suggest_value(@model._width, width)
@@ -26,8 +35,8 @@ class PlotView extends LayoutDOM.View
         position: 'absolute'
         left: @model._dom_left._value
         top: @model._dom_top._value
-        width: @model.width
-        height: @model.height
+        width: @model._width.value()
+        height: @model._height.value()
       })
 
   get_width_height: () ->
@@ -106,7 +115,7 @@ class Plot extends LayoutDOM.Model
 
   get_edit_variables: () ->
     edit_variables = super()
-    if @responsive is 'box_ar'
+    if @sizing_mode is 'scale_both'
       edit_variables.push({edit_variable: @_width, strength: Strength.strong})
       edit_variables.push({edit_variable: @_height, strength: Strength.strong})
     for child in @get_layoutable_children()
@@ -202,7 +211,7 @@ class Plot extends LayoutDOM.Model
       'box-equal-size-top'   : @_plot_canvas._top
       'box-equal-size-bottom': @_plot_canvas._height_minus_bottom
     })
-    if @responsive isnt 'fixed'
+    if @sizing_mode isnt 'fixed'
       constrained_variables = _.extend(constrained_variables, {
         'box-equal-size-left'  : @_plot_canvas._left
         'box-equal-size-right' : @_plot_canvas._width_minus_right
@@ -224,13 +233,13 @@ class Plot extends LayoutDOM.Model
 
   @define {
       toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
-      toolbar_location:  [ p.Location, 'above'                   ]
+      toolbar_location:  [ p.Location, 'right'                ]
       toolbar_sticky:    [ p.Bool, true                       ]
 
       # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
-      title:             [ p.Instance                         ]
+      title:             [ p.Instance, () -> new Title.Model({text: ""})]
       title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]
@@ -272,7 +281,6 @@ class Plot extends LayoutDOM.Model
     outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
-    responsive: 'fixed'
   }
 
 module.exports =

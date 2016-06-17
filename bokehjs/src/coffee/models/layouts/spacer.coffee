@@ -8,11 +8,15 @@ class SpacerView extends LayoutDOM.View
 
   render: () ->
     super()
-    if @responsive is 'fixed'
+    if @sizing_mode is 'fixed'
       @$el.css({
         width: @model.width
         height: @model.height
       })
+
+  get_height: () ->
+    # spacer must always have some height
+    return 1
 
 
 class Spacer extends LayoutDOM.Model

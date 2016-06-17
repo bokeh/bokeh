@@ -79,7 +79,7 @@ class _CallbackGroup(object):
     """ A collection of callbacks added to a Tornado IOLoop that we may
     want to remove as a group. """
 
-    def __init__(self, io_loop):
+    def __init__(self, io_loop=None):
         if io_loop is None:
             raise ValueError("must provide an io loop")
         self._loop = io_loop
@@ -188,7 +188,7 @@ class _CallbackGroup(object):
         self._remove(callback, self._periodic_callbacks)
 
 class _DocumentCallbackGroup(object):
-    def __init__(self, io_loop):
+    def __init__(self, io_loop=None):
         self._group = _CallbackGroup(io_loop)
         # from callback ids to removers
         self._removers = dict()

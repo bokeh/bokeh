@@ -124,7 +124,7 @@ class ToolbarBoxView extends Box.View
 
   get_height: () ->
     # Returning null from this causes
-    # Left toolbar to overlap in width_ar case
+    # Left toolbar to overlap in scale_width case
     return 30
 
 
@@ -149,17 +149,9 @@ class ToolbarBox extends LayoutDOM.Model
     return [@_toolbar]
 
   @define {
-    toolbar_location: [ p.Location, "above"  ]
+    toolbar_location: [ p.Location, "right"  ]
     merge_tools:      [ p.Bool,     true     ]
     tools:            [ p.Any,  []   ]
-  }
-
-  @override {
-    responsive: null
-  }
-
-  # These exist only to allow pass-through to create the toolbar.
-  @internal {
   }
 
 

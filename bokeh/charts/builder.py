@@ -18,7 +18,9 @@ types on top of it.
 
 from __future__ import absolute_import
 
+import numpy as np
 import warnings
+
 from six import string_types
 from .attributes import AttrSpec, ColorAttr, CatAttr
 from .chart import Chart
@@ -670,12 +672,12 @@ class XYBuilder(Builder):
         """
         dim_ref = getattr(self, dim)
         values = dim_ref.data
-        dtype = dim_ref.dtype.name
+        dtype = dim_ref.dtype
 
         sort = self.sort_dim.get(dim)
 
         # object data or single value
-        if dtype == 'object':
+        if dtype.name == 'object':
             factors = values.drop_duplicates()
             if sort:
                 # TODO (fpliger):   this handles pandas API change so users do not experience
@@ -688,7 +690,7 @@ class XYBuilder(Builder):
 
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
-        elif 'datetime' in dtype:
+        elif np.issubdtype(dtype, np.datetime64):
             setattr(self, dim + 'scale', 'datetime')
             return Range1d(start=start, end=end)
         else:

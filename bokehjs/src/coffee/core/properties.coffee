@@ -46,10 +46,13 @@ class Property extends Backbone.Model
 
   # ----- property accessors
 
-  value: () ->
+  value: (do_spec_transform=true) ->
     if _.isUndefined(@spec.value)
       throw new Error("attempted to retrieve property value for property without value specification")
-    return @transform([@spec.value])[0]
+    ret = @transform([@spec.value])[0]
+    if @spec.transform? and do_spec_transform
+      ret = @spec.transform.compute(ret)
+    return ret
 
   array: (source) ->
     if not @dataspec
@@ -57,14 +60,18 @@ class Property extends Backbone.Model
     data = source.get('data')
     if @spec.field?
       if @spec.field of data
-        return @transform(source.get_column(@spec.field))
+        ret = @transform(source.get_column(@spec.field))
       else
         throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
     else
       length = source.get_length()
       length = 1 if not length?
-      value = @value() # already transformed
-      return (value for i in [0...length])
+      value = @value(false) # don't apply any spec transform
+      ret = (value for i in [0...length])
+
+    if @spec.transform?
+      ret = @spec.transform.v_compute(ret)
+    return ret
 
   # ----- private methods
 
@@ -196,7 +203,7 @@ class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
 
 class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
-class Responsive extends enum_prop("Responsive", enums.Responsive)
+class SizingMode extends enum_prop("SizingMode", enums.SizingMode)
 
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
@@ -286,7 +293,7 @@ module.exports =
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode
-  Responsive: Responsive
+  SizingMode: SizingMode
   SpatialUnits: SpatialUnits
   String: String
   TextAlign: TextAlign

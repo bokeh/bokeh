@@ -33,6 +33,7 @@ module.exports = {
   CategoricalTickFormatter: require '../models/formatters/categorical_tick_formatter'
   DatetimeTickFormatter:    require '../models/formatters/datetime_tick_formatter'
   LogTickFormatter:         require '../models/formatters/log_tick_formatter'
+  FuncTickFormatter:        require '../models/formatters/func_tick_formatter'
   NumeralTickFormatter:     require '../models/formatters/numeral_tick_formatter'
   PrintfTickFormatter:      require '../models/formatters/printf_tick_formatter'
 
@@ -70,6 +71,7 @@ module.exports = {
   GridMapper:               require '../models/mappers/grid_mapper'
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'
+  LogColorMapper:           require '../models/mappers/log_color_mapper'
   LogMapper:                require '../models/mappers/log_mapper'
 
   Transform:                require '../models/transforms/transform'

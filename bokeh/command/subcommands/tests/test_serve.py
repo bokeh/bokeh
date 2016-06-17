@@ -147,4 +147,13 @@ def test_args():
             action = 'store_true',
             help    = 'Do not redirect to running app from root path',
         )),
+
+        ('--num-procs', dict(
+             metavar='N',
+             action='store',
+             help="Number of worker processes for an app. Default to one. Using "
+                  "0 will autodetect number of cores",
+             default=1,
+             type=int,
+         )),
     )

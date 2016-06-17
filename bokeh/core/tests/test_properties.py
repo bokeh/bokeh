@@ -8,7 +8,7 @@ from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override, Include, MinMaxBounds, Responsive, TitleProp)
+    DistanceSpec, Override, Include, MinMaxBounds, TitleProp)
 
 from bokeh.models import Plot
 from bokeh.models.annotations import Title
@@ -1457,30 +1457,9 @@ def test_HasProps_clone():
     assert c1 == c2
 
 
-def test_responsive_transforms_true_into_width():
-    class Foo(HasProps):
-        responsive = Responsive
-    f = Foo(responsive=True)
-    assert f.responsive == 'width_ar'
-
-
-def test_responsive_transforms_false_into_fixed():
-    class Foo(HasProps):
-        responsive = Responsive
-    f = Foo(responsive=False)
-    assert f.responsive == 'fixed'
-
-
 def test_titleprop_transforms_string_into_title_object():
     class Foo(HasProps):
         title = TitleProp
     f = Foo(title="hello")
     assert isinstance(f.title, Title)
     assert f.title.text == "hello"
-
-
-def test_titleprop_transforms_empty_string_into_None():
-    class Foo(HasProps):
-        title = TitleProp
-    f = Foo(title="")
-    assert f.title is None

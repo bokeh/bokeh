@@ -12,18 +12,18 @@ import pytest
 pytestmark = pytest.mark.integration
 
 
-def make_responsive_plot(plot_width, plot_height, responsive_mode='width_ar'):
+def make_sizing_mode_plot(plot_width, plot_height, sizing_mode='scale_width'):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     plot = Plot(
         plot_height=plot_height, plot_width=plot_width,
         x_range=DataRange1d(), y_range=DataRange1d(),
-        responsive=responsive_mode
+        sizing_mode=sizing_mode
     )
     plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
     return plot
 
 
-def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
+def test_scale_width_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
 
     # We want the aspect ratio of the initial plot to be maintained, but we
     # can't measure it perfectly so we test against bounds.
@@ -40,7 +40,7 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     final_window_width = 600
 
     # Make the plot with autoresize
-    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='width_ar')
+    plot = make_sizing_mode_plot(plot_width, plot_height, sizing_mode='scale_width')
     save(plot)
 
     # Open the browser with the plot and resize the window to get an initial measure
@@ -72,10 +72,9 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     # to run properly. From what I can tell this is a selenium thing not a
     # real problem, but something to keep an eye on - bird 2016-05-22
 
-
-def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
+def test_scale_width_maintains_a_minimum_width(output_file_url, selenium):
     # The aspect ratio is portrait but should not allow a width less than 100
-    plot = make_responsive_plot(600, 1200, responsive_mode='width_ar')
+    plot = make_sizing_mode_plot(600, 1200, sizing_mode='scale_width')
     save(plot)
 
     # Open the browser with the plot and resize the window small
@@ -90,9 +89,9 @@ def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
     assert canvas.size['width'] >= 100
 
 
-def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
+def test_scale_width_maintains_a_minimum_height(output_file_url, selenium):
     # The aspect ratio is landscape but should not allow a height less than 100
-    plot = make_responsive_plot(1200, 600, responsive_mode='width_ar')
+    plot = make_sizing_mode_plot(1200, 600, sizing_mode='scale_width')
     save(plot)
 
     # Open the browser with the plot and resize the window small
@@ -107,8 +106,8 @@ def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
     assert canvas.size['height'] >= 100
 
 
-def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
-    hist = Histogram(df['mpg'], title="MPG Distribution", responsive=True)
+def test_scale_width_chart_starts_at_correct_size(output_file_url, selenium):
+    hist = Histogram(df['mpg'], title="MPG Distribution", sizing_mode='scale_width')
     save(hist)
 
     selenium.set_window_size(width=1000, height=600)
@@ -124,8 +123,8 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
     assert canvas.size['width'] < 900
 
 
-def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
-    plot = make_responsive_plot(600, 600, responsive_mode='width_ar')
+def test_scale_width_plot_starts_at_correct_size(output_file_url, selenium):
+    plot = make_sizing_mode_plot(600, 600, sizing_mode='scale_width')
     save(plot)
 
     selenium.set_window_size(width=1000, height=600)
@@ -141,11 +140,11 @@ def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     assert canvas.size['width'] < 900
 
 
-def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):
+def test_stretch_both_plot_is_not_taller_than_page(output_file_url, selenium):
     # We can test this by ensuring the aspect ratio changes after initially
     # setting it to square, and that one dimension is close to the window.
 
-    plot = make_responsive_plot(200, 200, responsive_mode='box')
+    plot = make_sizing_mode_plot(200, 200, sizing_mode='stretch_both')
     save(plot)
 
     window_width = 1000
@@ -166,7 +165,7 @@ def test_box_responsive_plot_is_not_taller_than_page(output_file_url, selenium):
     assert canvas_height <= window_height
 
 
-def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
+def test_scale_both_resizes_width_and_height_with_fixed_aspect_ratio(output_file_url, selenium):
     # Test that a Bokeh plot embedded in a desktop-ish setting (e.g.
     # a Phosphor widget) behaves well w.r.t. resizing.
 
@@ -178,10 +177,8 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     lower_bound = aspect_ratio * 0.95
     upper_bound = aspect_ratio * 1.05
 
-    plot = make_responsive_plot(plot_width, plot_height, responsive_mode='box_ar')
-    # We have to wrap box_ar plots in a Row for them to work.
-    layout = Row(plot, responsive='box')
-    save(layout)
+    plot = make_sizing_mode_plot(plot_width, plot_height, sizing_mode='scale_both')
+    save(plot)
 
     # Open the browser with the plot and resize the window to get an initial measure
     selenium.set_window_size(width=1200, height=600)
@@ -208,8 +205,8 @@ def test_box_responsive_resizes_width_and_height_with_fixed_aspect_ratio(output_
     aspect_ratio2 = width2 / height2
     assert aspect_ratio2 > lower_bound
     assert aspect_ratio2 < upper_bound
-    assert width2 == width1
-    assert height2 == height1
+    assert width2 < width1 - 20
+    assert height2 < height1 - 20
 
     # Now resize back and check again
     selenium.set_window_size(width=1200, height=600)

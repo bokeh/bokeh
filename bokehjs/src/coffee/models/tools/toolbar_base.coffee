@@ -20,7 +20,7 @@ class ToolbarBaseView extends LayoutDOM.View
   template: toolbar_template
 
   render: () ->
-    if @model.responsive != 'fixed'
+    if @model.sizing_mode != 'fixed'
       @$el.css({
         left: @model._dom_left._value
         top: @model._dom_top._value
@@ -116,10 +116,13 @@ class ToolbarBase extends LayoutDOM.Model
     actions:    [ p.Array, [] ]
     inspectors: [ p.Array, [] ]
     help:       [ p.Array, [] ]
-    toolbar_location: [ p.Location, 'above' ]
+    toolbar_location: [ p.Location, 'right' ]
     toolbar_sticky: [ p.Bool ]
   }
 
+  @override {
+    sizing_mode: null
+  }
 
 module.exports =
   Model: ToolbarBase
