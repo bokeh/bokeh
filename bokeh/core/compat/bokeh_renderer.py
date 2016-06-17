@@ -83,7 +83,7 @@ class BokehRenderer(Renderer):
                              plot_width=self.width,
                              plot_height=self.height)
 
-                _plot.title = Title()
+                _plot.title.text = ''
                 # and add new tools
                 _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
                 _plot.add_tools(*_tool_objs)

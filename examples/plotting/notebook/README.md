@@ -1,8 +1,6 @@
 
-The examples in this directory illustrate the use of Bokeh inside the IPython
-notebook. To view the examples here, first execute 'ipython notebook' in this
-directory. A web browser should automatically open up to the IPython Dashboard
-at localhost:8891 (or you may navigate there manually). Click on any of the 
+The examples in this directory illustrate the use of Bokeh inside the Jupyter
+notebook. To view the examples here, first execute 'jupyter notebook' in this
+directory. A web browser should automatically open up to the Jupyter Dashboard
+at localhost:8888 (or you may navigate there manually). Click on any of the 
 notebooks listed to open and explore.
-
-
