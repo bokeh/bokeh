@@ -9,4 +9,3 @@ def test_Toolbar():
     assert tb.active_tap == 'auto'
 
     # TODO (bev) validate entire list of props
-
