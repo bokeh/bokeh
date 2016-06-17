@@ -13,6 +13,10 @@
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
+import math
+
+import numpy as np
+
 YlGn3       = ["#31a354", "#addd8e", "#f7fcb9"]
 YlGn4       = ["#238443", "#78c679", "#c2e699", "#ffffcc"]
 YlGn5       = ["#006837", "#31a354", "#78c679", "#c2e699", "#ffffcc"]
@@ -442,3 +446,20 @@ brewer = {
     "Spectral" : { 3: Spectral3, 4: Spectral4, 5: Spectral5, 6: Spectral6, 7: Spectral7, 8: Spectral8, 9: Spectral9,  10: Spectral10, 11: Spectral11 },
     "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
 }
+
+def _cmap_func_generator(name, cmap):
+    def func(n):
+        """Return a palette of n equally spaced colors."""
+        return [cmap[math.floor(i)] for i in np.linspace(0, len(cmap)-1, num=n)]
+    func.__name__ = name
+    return func
+
+_cmaps = {name: _cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
+                                                                    ('inferno', Inferno256),
+                                                                    ('plasma', Plasma256),
+                                                                    ('viridis', Viridis256))}
+
+magma = _cmaps['magma']
+inferno = _cmaps['inferno']
+plasma = _cmaps['plasma']
+viridis = _cmaps['viridis']
