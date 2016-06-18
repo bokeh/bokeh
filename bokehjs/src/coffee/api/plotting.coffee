@@ -391,7 +391,7 @@ show = (obj, target) ->
 color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
 gridplot = (children, options={}) ->
-  toolbar_location = if _.isUndefined(options.toolbar_location) then 'right' else options.toolbar_location
+  toolbar_location = if _.isUndefined(options.toolbar_location) then 'left' else options.toolbar_location
   sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
 
   tools = []
