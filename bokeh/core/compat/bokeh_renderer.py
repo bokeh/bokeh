@@ -24,6 +24,7 @@ from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis,
                      Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
+from ...models.annotations import Title
 from ...plotting import DEFAULT_TOOLS
 from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
@@ -82,7 +83,7 @@ class BokehRenderer(Renderer):
                              plot_width=self.width,
                              plot_height=self.height)
 
-                _plot.title = ""
+                _plot.title.text = ''
                 # and add new tools
                 _tool_objs, _tool_map = _process_tools_arg(_plot, DEFAULT_TOOLS)
                 _plot.add_tools(*_tool_objs)
@@ -150,9 +151,9 @@ class BokehRenderer(Renderer):
         background_fill_color = convert_color(ax.get_axis_bgcolor())
         self.plot.background_fill_color = background_fill_color
         if self.xkcd:
-            self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
-            self.plot.title_text_font_style = "bold"
-            self.plot.title_text_color = "black"
+            self.plot.title.text_font = "Comic Sans MS, Textile, cursive"
+            self.plot.title.text_font_style = "bold"
+            self.plot.title.text_color = "black"
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         self._axes = getattr(self, "_axes", [0])
