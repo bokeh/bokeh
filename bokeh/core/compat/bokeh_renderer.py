@@ -59,7 +59,7 @@ class BokehRenderer(Renderer):
     def close_figure(self, fig):
         "Complete the plot: add tools."
         # Add tools
-        tool_objs = _process_tools_arg(self.plot, DEFAULT_TOOLS)
+        tool_objs, tools_map = _process_tools_arg(self.plot, DEFAULT_TOOLS)
         self.plot.add_tools(*tool_objs)
 
         # Simple or Grid plot setup
@@ -84,7 +84,7 @@ class BokehRenderer(Renderer):
 
                 _plot.title = ""
                 # and add new tools
-                _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
+                _tool_objs, _tool_map = _process_tools_arg(_plot, DEFAULT_TOOLS)
                 _plot.add_tools(*_tool_objs)
                 # clean the plot ref from axis and grids
                 _plot_rends = subrends[i]
