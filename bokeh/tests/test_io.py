@@ -371,14 +371,12 @@ class Test_ShowNotebookWithState(DefaultStateTester):
 
     @patch('bokeh.io.publish_display_data')
     @patch('bokeh.io.autoload_server')
-    @patch('bokeh.io.push')
-    def test_with_server(self, mock_push, mock_autoload_server, mock_publish_display_data):
+    def test_with_server(self, mock_autoload_server, mock_publish_display_data):
         s = io.State()
         s._server_enabled = True
         mock_autoload_server.return_value = "snippet"
 
         io._show_notebook_with_state("obj", s)
-        self._check_func_called(mock_push, (), {"state": s})
         self._check_func_called(mock_publish_display_data, ({"text/html":"snippet"},), {})
 
     @patch('bokeh.io.get_comms')
