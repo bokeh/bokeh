@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
+from copy import copy
 from json import loads
 
 from six import iteritems
@@ -239,6 +240,19 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 cls._visit_immediate_value_references(obj, queue_one)
 
         return collected
+
+    def _make_documentless_copy(self):
+        """Returns a copy of the model which doesn't have
+        a document on it or any of its references. Used by notebook
+        div which only shows one model in any given cell.
+        """
+        shadow = copy(self)
+        shadow._document = None
+        refs = shadow.references()
+        for ref in refs:
+            ref._document = None
+        return shadow
+
 
     def references(self):
         """Returns all ``Models`` that this object has references to. """
