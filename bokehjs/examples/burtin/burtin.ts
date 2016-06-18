@@ -80,7 +80,8 @@ namespace Burtin {
     const small_angle = big_angle / 7
 
     const p = plt.figure({
-        title: "",
+        title: null,
+        toolbar_sticky: false,
         plot_width: width, plot_height: height,
         x_axis_type: null, y_axis_type: null,
         x_range: [-420, 420], y_range: [-420, 420],
