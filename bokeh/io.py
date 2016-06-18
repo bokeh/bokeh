@@ -338,7 +338,7 @@ def _show_notebook_with_state(obj, state):
         return handle
 
 def _show_server_with_state(obj, state, new, controller):
-    push(state=state)
+    #push(state=state)
     show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
                  new=new, controller=controller)
 
