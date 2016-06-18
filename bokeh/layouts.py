@@ -193,9 +193,9 @@ def layout(children=None, sizing_mode='fixed', responsive=None, *args):
 
     # Make the grid
     rows = []
-    for row in children:
+    for r in children:
         row_children = []
-        for item in row:
+        for item in r:
             if isinstance(item, LayoutDOM):
                 item.sizing_mode = sizing_mode
                 row_children.append(item)
@@ -204,7 +204,7 @@ def layout(children=None, sizing_mode='fixed', responsive=None, *args):
                     """Only LayoutDOM items can be inserted into a layout.
                     Tried to insert: %s of type %s""" % (item, type(item))
                 )
-        rows.append(row(children=row, sizing_mode=sizing_mode))
+        rows.append(row(children=row_children, sizing_mode=sizing_mode))
     grid = column(children=rows, sizing_mode=sizing_mode)
     return grid
 
