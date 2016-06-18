@@ -24,20 +24,23 @@ from .core.templates import (
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from .model import Model, _ModelInDocument
+from .model import Model, _ModelInDocument, _ModelInEmptyDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
+
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
+
 def _wrap_in_onload(code):
     # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'document.addEventListener("DOMContentLoaded", function(event) {\n%s\n});' % code
+
 
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
@@ -251,10 +254,8 @@ def notebook_div(model, notebook_comms_target=None):
     '''
     model = _check_one_model(model)
 
-    div_model = model._make_documentless_copy()
-    div_doc = Document()
-    div_doc.add_root(div_model)
-    (docs_json, render_items) = _standalone_docs_json_and_render_items([div_model])
+    with _ModelInEmptyDocument(model):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
     item['notebook_comms_target'] = notebook_comms_target
