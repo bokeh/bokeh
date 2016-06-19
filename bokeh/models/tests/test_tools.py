@@ -26,5 +26,5 @@ def test_toolbar_box_properties():
     tb_box = ToolbarBox()
     assert tb_box.logo == "normal"
     assert tb_box.toolbar_location == "right"
-    assert tb_box.tools is None
+    assert tb_box.tools == []
     assert tb_box.merge_tools is True
