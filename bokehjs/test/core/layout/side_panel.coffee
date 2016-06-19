@@ -13,6 +13,7 @@ Axis = utils.require("models/axes/axis").Model
 BasicTicker = utils.require("models/tickers/basic_ticker").Model
 BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Model
 Plot = utils.require("models/plots/plot").Model
+PlotCanvas = utils.require("models/plots/plot_canvas").Model
 PlotView = utils.require("models/plots/plot").View
 Range1d = utils.require("models/ranges/range1d").Model
 Toolbar = utils.require("models/tools/toolbar").Model
@@ -65,16 +66,24 @@ describe "SidePanel.Model", ->
       @solver_add_constraint = solver_stubs['add']
       @solver_remove_constraint = solver_stubs['remove']
 
-      @test_plot = new Plot({ x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), toolbar: new Toolbar()})
+      doc = new Document()
+      plot = new Plot({
+        x_range: new Range1d({start: 0, end: 1})
+        y_range: new Range1d({start: 0, end: 1})
+        toolbar: new Toolbar()
+      })
       @axis = new Axis({ ticker: new BasicTicker(), formatter: new BasicTickFormatter() })
-      @test_plot.add_layout(@axis, 'below')
-      @test_plot.attach_document(new Document())
-      @test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
-      @axis_view = new @axis.default_view({ model: @axis, plot_model: @test_plot, plot_view: @test_plot_view })
+      plot.add_layout(@axis, 'below')
+      plot.attach_document(doc)
+      plot_view = new plot.default_view({ 'model': plot })
+      @plot_canvas = new PlotCanvas({ 'plot': plot })
+      @plot_canvas.attach_document(doc)
+      @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
+      @axis_view = new @axis.default_view({ model: @axis, plot_model: @plot_canvas, plot_view: @plot_canvas_view })
 
     it "should not fail if visible is not on model", ->
       an = new Annotation()
-      an_view = new an.default_view({model: an, plot_model: @test_plot, plot_view: @test_plot_view})
+      an_view = new an.default_view({model: an, plot_model: @plot_canvas, plot_view: @plot_canvas_view})
       expect(an_view._size_constraint).to.be.undefined
       update_constraints(an_view)
       # Should still be undefined because visible is false
