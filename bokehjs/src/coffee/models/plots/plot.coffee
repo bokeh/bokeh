@@ -127,14 +127,11 @@ class Plot extends LayoutDOM.Model
   Object.defineProperty(this.prototype, "plot_canvas", { get: () -> @_plot_canvas })
 
   _doc_attached: () ->
-
-    # Add panels for any side renderers
-    # (Needs to be called in _doc_attached, so that panels can attach to the document.)
+    # Setup side renderers
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)
       for r in layout_renderers
-        r.add_panel(side)
-
+        @plot_canvas.add_renderer_to_canvas_side(r, side)
     @plot_canvas.attach_document(@document)
 
   add_renderers: (new_renderers...) ->
@@ -143,23 +140,24 @@ class Plot extends LayoutDOM.Model
     @set('renderers', renderers)
 
   add_layout: (renderer, side="center") ->
+    # For non-center renderers, this method can only be used before
+    # the document is attached to the plot. In _doc_attached, the canvas
+    # sets up the the sub-side panels that are necessary for
+    # side_renderers to lay themselves out.
+    # (Bird: I'm not sure if live adding of center renderers will work or not).
     if renderer.props.plot?
       renderer.plot = this
     @add_renderers(renderer)
     if side != 'center'
-      if @document?
-        renderer.add_panel(side)
-      @set(side, @get(side).concat([renderer]))
+      side_renderers = @get(side)
+      side_renderers.push(renderer)
 
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
       source = new ColumnDataSource.Model()
-
     attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
     renderer = new GlyphRenderer.Model(attrs)
-
     @add_renderers(renderer)
-
     return renderer
 
   add_tools: (tools...) ->
