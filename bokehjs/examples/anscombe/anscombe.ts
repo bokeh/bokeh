@@ -43,8 +43,7 @@ namespace Anscombe {
             title: title,
             plot_width: 400,
             plot_height: 400,
-            border_fill_color: "white",
-            background_fill_color: "#e9e0db",
+            background_fill_color: "#F2F2F7",
         });
         const xaxis = new Bokeh.LinearAxis({axis_line_color: null});
         const yaxis = new Bokeh.LinearAxis({axis_line_color: null});
