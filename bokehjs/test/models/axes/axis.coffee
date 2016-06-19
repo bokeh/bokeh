@@ -16,11 +16,10 @@ Toolbar = utils.require("models/tools/toolbar").Model
 describe "Axis.Model", ->
 
   it "should have a SidePanel after add_panel is called", ->
-    pp = new Plot({
+    p = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
-    p = pp.plot_canvas
     p.attach_document(new Document())
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
@@ -35,22 +34,19 @@ describe "Axis.Model", ->
     expect(axis.panel).to.be.an.instanceOf(SidePanel)
 
   it "should have a SidePanel after plot.add_layout is called", ->
-    pp = new Plot({
-      x_range: new Range1d({start: 0, end: 1})
-      y_range: new Range1d({start: 0, end: 1})
-    })
-    p = pp.plot_canvas
-    p.attach_document(new Document())
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
     axis = new Axis({
       ticker: ticker
       formatter: formatter
-      plot: p
     })
-    axis.attach_document(p.document)
     expect(axis.panel).to.be.undefined
+    p = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+    })
     p.add_layout(axis, 'left')
+    p.attach_document(new Document())
     expect(axis.panel).to.be.an.instanceOf(SidePanel)
 
 describe "Axis.View", ->
@@ -63,13 +59,7 @@ describe "Axis.View", ->
     utils.stub_canvas()
     solver_stubs = utils.stub_solver()
 
-    test_plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1})
-      y_range: new Range1d({start: 0, end: 1})
-      toolbar: new Toolbar()
-    })
-    test_plot.attach_document(new Document())
-    test_plot_canvas = test_plot.plot_canvas
+    doc = new Document()
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
     @axis = new Axis({
@@ -78,13 +68,20 @@ describe "Axis.View", ->
       ticker: ticker
       formatter: formatter
     })
-    test_plot_canvas.add_layout(@axis, 'below')
-    # Must create the test_plot_view after adding the axis to the plot
-    test_plot_canvas_view = new test_plot_canvas.default_view({ 'model': test_plot_canvas })
+    plot = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+    })
+    plot.add_layout(@axis, 'below')
+    plot.attach_document(doc)
+    plot_canvas = new PlotCanvas({ 'plot': plot })
+    plot_canvas.attach_document(doc)
+    plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
     @axis_view = new @axis.default_view({
       model: @axis
-      plot_model: test_plot_canvas
-      plot_view: test_plot_canvas_view
+      plot_model: plot_canvas
+      plot_view: plot_canvas_view
     })
 
   it "_tick_extent should return the major_tick_out property", ->
