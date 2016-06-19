@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from ..model import Model
 from ..core.properties import abstract, Float, Color
 from ..core.properties import (
-    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
+    Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
 from ..core.enums import Dimension, Location, Anchor
 
@@ -54,6 +54,25 @@ class Tool(Model):
     The Plot that this tool will act on.
     """)
 
+@abstract
+class Action(Tool):
+    pass
+
+@abstract
+class Drag(Tool):
+    pass
+
+@abstract
+class Scroll(Tool):
+    pass
+
+@abstract
+class Tap(Tool):
+    pass
+
+@abstract
+class Inspection(Tool):
+    pass
 
 @abstract
 class ToolbarBase(LayoutDOM):
@@ -76,12 +95,22 @@ class ToolbarBase(LayoutDOM):
     # orientation.
     sizing_mode = Override(default=None)
 
-
 class Toolbar(ToolbarBase):
     """ Hold tools to display for a single plot.
 
     """
 
+    active_drag = Either(Auto, Instance(Drag), help="""
+    Specify a drag tool to be active when the plot is displayed.
+    """)
+
+    active_scroll = Either(Auto, Instance(Scroll), help="""
+    Specify a scroll/pinch tool to be active when the plot is displayed.
+    """)
+
+    active_tap = Either(Auto, Instance(Tap), help="""
+    Specify a tap/click tool to be active when the plot is displayed.
+    """)
 
 class ToolbarBox(LayoutDOM):
     """ A layoutable toolbar that can accept the tools of multiple plots, and
@@ -103,7 +132,7 @@ class ToolbarBox(LayoutDOM):
     """)
 
 
-class PanTool(Tool):
+class PanTool(Drag):
     """ *toolbar icon*: |pan_icon|
 
     The pan tool allows the user to pan a Plot by left-dragging
@@ -128,7 +157,7 @@ class PanTool(Tool):
     """)
 
 
-class WheelZoomTool(Tool):
+class WheelZoomTool(Scroll):
     """ *toolbar icon*: |wheel_zoom_icon|
 
     The wheel zoom tool will zoom the plot in and out, centered on the
@@ -152,7 +181,7 @@ class WheelZoomTool(Tool):
     """)
 
 
-class SaveTool(Tool):
+class SaveTool(Action):
     """ *toolbar icon*: |save_icon|
 
     The save tool is an action. When activated, the tool opens a download dialog
@@ -168,7 +197,7 @@ class SaveTool(Tool):
     """
 
 
-class ResetTool(Tool):
+class ResetTool(Action):
     """ *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool
@@ -187,7 +216,7 @@ class ResetTool(Tool):
     """)
 
 
-class ResizeTool(Tool):
+class ResizeTool(Drag):
     """ *toolbar icon*: |resize_icon|
 
     The resize tool allows the user to left-drag a mouse or drag a finger
@@ -199,7 +228,7 @@ class ResizeTool(Tool):
     """
 
 
-class TapTool(Tool):
+class TapTool(Tap):
     """ *toolbar icon*: |tap_select_icon|
 
     The tap selection tool allows the user to select at single points by
@@ -241,16 +270,10 @@ class TapTool(Tool):
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
 
-@abstract
-class InspectTool(Tool):
-    pass
 
-    #active = Bool(True, help="""
-    #Whether the tool is intially active or not. If set to ``False``, the user
-    #will have to click tool's button to active it.
-    #""")
 
-class CrosshairTool(InspectTool):
+
+class CrosshairTool(Inspection):
     """ *toolbar icon*: |inspector_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
@@ -315,7 +338,7 @@ DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
     line_dash=[4, 4]
 )
 
-class BoxZoomTool(Tool):
+class BoxZoomTool(Drag):
     """ *toolbar icon*: |box_zoom_icon|
 
     The box zoom tool allows users to define a rectangular
@@ -353,7 +376,7 @@ class BoxZoomTool(Tool):
     """)
 
 
-class BoxSelectTool(Tool):
+class BoxSelectTool(Drag):
     """ *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a
@@ -419,7 +442,7 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
     line_dash=[4, 4]
 )
 
-class LassoSelectTool(Tool):
+class LassoSelectTool(Drag):
     """ *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a
@@ -468,7 +491,7 @@ class LassoSelectTool(Tool):
     """)
 
 
-class PolySelectTool(Tool):
+class PolySelectTool(Tap):
     """ *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a
@@ -504,7 +527,7 @@ class PolySelectTool(Tool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class HoverTool(InspectTool):
+class HoverTool(Inspection):
     """ *toolbar icon*: |inspector_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
@@ -645,7 +668,7 @@ class HoverTool(InspectTool):
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 
-class HelpTool(Tool):
+class HelpTool(Action):
     """
     The help tool is a widget designed to replace the hardcoded 'Help' link.
     The hover text can be customized through the ``help_tooltip`` attribute
@@ -660,7 +683,7 @@ class HelpTool(Tool):
     Site to be redirected through upon click.
     """)
 
-class UndoTool(Tool):
+class UndoTool(Action):
     """ *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
@@ -669,7 +692,7 @@ class UndoTool(Tool):
         :height: 18pt
     """
 
-class RedoTool(Tool):
+class RedoTool(Action):
     """ *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.

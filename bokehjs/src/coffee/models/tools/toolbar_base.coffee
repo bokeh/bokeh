@@ -100,12 +100,12 @@ class ToolbarBase extends LayoutDOM.Model
     return constraints
 
   @define {
-      tools:             [ p.Array,    []                     ]
-      logo:              [ p.String,   'normal'               ] # TODO (bev)
+      tools: [ p.Array,    []       ]
+      logo:  [ p.String,   'normal' ] # TODO (bev)
   }
 
   @internal {
-    gestures:   [ p.Any, () -> {
+    gestures: [ p.Any, () -> {
       pan:       { tools: [], active: null }
       tap:       { tools: [], active: null }
       doubletap: { tools: [], active: null }

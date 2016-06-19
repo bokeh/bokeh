@@ -1,5 +1,7 @@
 _ = require "underscore"
 
+p = require "../../core/properties"
+
 ActionTool = require "./actions/action_tool"
 HelpTool = require "./actions/help_tool"
 GestureTool = require "./gestures/gesture_tool"
@@ -45,9 +47,33 @@ class Toolbar extends ToolbarBase.Model
       if tools.length == 0
         continue
       @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
-      if et not in ['pinch', 'scroll']
-        @gestures[et].tools[0].set('active', true)
 
+      if et == 'tap'
+        if @active_tap is null
+          continue
+        if @active_tap is 'auto'
+          @gestures[et].tools[0].active = true
+        else
+          @active_tap.active = true
+
+      if et == 'pan'
+        if @active_drag is null
+          continue
+        if @active_drag is 'auto'
+          @gestures[et].tools[0].active = true
+        else
+          @active_drag.active = true
+
+      if et in ['pinch', 'scroll']
+        if @active_scroll is null or @active_scroll is 'auto'
+          continue
+        @active_scroll.active = true
+
+  @define {
+      active_drag:   [ p.Any, 'auto' ]
+      active_scroll: [ p.Any, 'auto' ]
+      active_tap:    [ p.Any, 'auto' ]
+  }
 
 module.exports =
   Model: Toolbar
