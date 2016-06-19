@@ -2,9 +2,8 @@ _ = Bokeh._
 
 find_glyph_renderer = (index_item) ->
   for key, r of index_item.get('renderers')
-      data_source = r.get('data_source')
-      if data_source?
-          return r
+    if r instanceof Bokeh.GlyphRenderer
+      return r
   return null
 
 class SpectrogramApp
@@ -122,8 +121,7 @@ class SpectrogramPlot
   constructor: (@model, @config) ->
 
     palette = ['#081d58', '#253494', '#225ea8', '#1d91c0', '#41b6c4', '#7fcdbb', '#c7e9b4', '#edf8b1', '#ffffd9']
-    Bokeh.Collections('LinearColorMapper').model({'palette':palette, low:0, high:5})
-    @cmap = Bokeh.Collections('LinearColorMapper').models[0]
+    @cmap = new Bokeh.LinearColorMapper({'palette':palette, low:0, high:5})
 
     @num_images = Math.ceil(@config.NGRAMS/@config.TILE_WIDTH) + 1
 
