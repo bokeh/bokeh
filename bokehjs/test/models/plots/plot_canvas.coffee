@@ -24,50 +24,52 @@ Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "PlotCanvas.Model", ->
 
-  it "should set the sizing_mode to box by default", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp.plot_canvas
-    expect(p.sizing_mode).to.be.equal 'stretch_both'
+  beforeEach ->
+    @doc = new Document()
+    @plot = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+      title: null
+    })
+    @plot.attach_document(@doc)
+    @plot_canvas = new PlotCanvas({ 'plot': @plot })
+    @plot_canvas.attach_document(@doc)
 
-  it "should have a four LayoutCanvases after document is attached is called", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp.plot_canvas
-    expect(p.above_panel).to.be.undefined
-    expect(p.below_panel).to.be.undefined
-    expect(p.left_panel).to.be.undefined
-    expect(p.right_panel).to.be.undefined
-    p.attach_document(new Document())
-    expect(p.above_panel).to.be.an.instanceOf(LayoutCanvas)
-    expect(p.below_panel).to.be.an.instanceOf(LayoutCanvas)
-    expect(p.left_panel).to.be.an.instanceOf(LayoutCanvas)
-    expect(p.right_panel).to.be.an.instanceOf(LayoutCanvas)
+  it "should set the sizing_mode to box by default", ->
+    expect(@plot_canvas.sizing_mode).to.be.equal 'stretch_both'
+
+  it "should have a four LayoutCanvases", ->
+    expect(@plot_canvas.above_panel).to.be.an.instanceOf(LayoutCanvas)
+    expect(@plot_canvas.below_panel).to.be.an.instanceOf(LayoutCanvas)
+    expect(@plot_canvas.left_panel).to.be.an.instanceOf(LayoutCanvas)
+    expect(@plot_canvas.right_panel).to.be.an.instanceOf(LayoutCanvas)
 
   it "should have panels, frame, and canvas returned in get_layoutable_children", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp.plot_canvas
-    p.attach_document(new Document())
-    layoutable_children = p.get_layoutable_children()
+    layoutable_children = @plot_canvas.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 6
-    expect(_.contains(layoutable_children, p.above_panel)).to.be.true
-    expect(_.contains(layoutable_children, p.below_panel)).to.be.true
-    expect(_.contains(layoutable_children, p.left_panel)).to.be.true
-    expect(_.contains(layoutable_children, p.right_panel)).to.be.true
-    expect(_.contains(layoutable_children, p.frame)).to.be.true
-    expect(_.contains(layoutable_children, p.canvas)).to.be.true
+    expect(_.contains(layoutable_children, @plot_canvas.above_panel)).to.be.true
+    expect(_.contains(layoutable_children, @plot_canvas.below_panel)).to.be.true
+    expect(_.contains(layoutable_children, @plot_canvas.left_panel)).to.be.true
+    expect(_.contains(layoutable_children, @plot_canvas.right_panel)).to.be.true
+    expect(_.contains(layoutable_children, @plot_canvas.frame)).to.be.true
+    expect(_.contains(layoutable_children, @plot_canvas.canvas)).to.be.true
 
   it "should have axis panels in get_layoutable_children if axes added", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp.plot_canvas
-    p.attach_document(new Document())
+    plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
+    doc = new Document()
     above_axis = new LinearAxis()
     below_axis = new LinearAxis()
     left_axis = new LinearAxis()
     right_axis = new LinearAxis()
-    p.add_layout(above_axis, 'above')
-    p.add_layout(below_axis, 'below')
-    p.add_layout(left_axis, 'left')
-    p.add_layout(right_axis, 'right')
-    layoutable_children = p.get_layoutable_children()
+    plot.add_layout(above_axis, 'above')
+    plot.add_layout(below_axis, 'below')
+    plot.add_layout(left_axis, 'left')
+    plot.add_layout(right_axis, 'right')
+    plot.attach_document(doc)
+    plot_canvas = new PlotCanvas({ 'plot': plot })
+    plot_canvas.attach_document(doc)
+    layoutable_children = plot_canvas.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 10
     expect(_.contains(layoutable_children, above_axis.panel)).to.be.true
     expect(_.contains(layoutable_children, below_axis.panel)).to.be.true
@@ -87,69 +89,43 @@ describe "PlotCanvas.Model", ->
     for child in children
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
-  # TODO (bev) these tests should be moved now
-  it "should set min_border_x to value of min_border if min_border_x is not specified", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
-    expect(pp.min_border_top).to.be.equal 33.33
-    expect(pp.min_border_bottom).to.be.equal 33.33
-    expect(pp.min_border_left).to.be.equal 33.33
-    expect(pp.min_border_right).to.be.equal 33.33
-
-  it "should set min_border_x to value of specified, and others to value of min_border", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
-    expect(pp.min_border_top).to.be.equal 33.33
-    expect(pp.min_border_bottom).to.be.equal 33.33
-    expect(pp.min_border_left).to.be.equal 66.66
-    expect(pp.min_border_right).to.be.equal 33.33
-
-  it "should set min_border_x to value of specified, and others to default min_border", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border_left: 4})
-    # MIN_BORDER is 5
-    expect(pp.min_border_top).to.be.equal 5
-    expect(pp.min_border_bottom).to.be.equal 5
-    expect(pp.min_border_left).to.be.equal 4
-    expect(pp.min_border_right).to.be.equal 5
-
-  it.skip "should add the title to the list of renderers", ->
-    # TODO(bird) Write this test.
-    null
 
 describe "PlotCanvas.Model constraints", ->
 
   beforeEach ->
-    @test_doc = new Document()
-    @plot = new Plot({
+    test_doc = new Document()
+    plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
       title: null
     })
-    @plot.attach_document(@test_doc)
-    @test_plot_canvas = new PlotCanvas({ 'plot': @plot })
-    @test_plot_canvas.attach_document(@test_doc)
+    plot.attach_document(test_doc)
+    @plot_canvas = new PlotCanvas({ 'plot': plot })
+    @plot_canvas.attach_document(test_doc)
 
   it "should return 20 constraints from _get_constant_constraints", ->
-    expect(@test_plot_canvas._get_constant_constraints().length).to.be.equal 20
+    expect(@plot_canvas._get_constant_constraints().length).to.be.equal 20
 
   it "should return 0 constraints from _get_side_constraints if there are no side renderers", ->
-    expect(@test_plot_canvas._get_side_constraints().length).to.be.equal 0
+    expect(@plot_canvas._get_side_constraints().length).to.be.equal 0
 
   it "should call _get_side_constraints, _get_constant_constraints", ->
-    @test_plot_canvas._get_side_constraints = sinon.spy()
-    @test_plot_canvas._get_constant_constraints = sinon.spy()
-    expect(@test_plot_canvas._get_side_constraints.callCount).to.be.equal 0
-    expect(@test_plot_canvas._get_constant_constraints.callCount).to.be.equal 0
-    @test_plot_canvas.get_constraints()
-    expect(@test_plot_canvas._get_side_constraints.callCount).to.be.equal 1
-    expect(@test_plot_canvas._get_constant_constraints.callCount).to.be.equal 1
+    @plot_canvas._get_side_constraints = sinon.spy()
+    @plot_canvas._get_constant_constraints = sinon.spy()
+    expect(@plot_canvas._get_side_constraints.callCount).to.be.equal 0
+    expect(@plot_canvas._get_constant_constraints.callCount).to.be.equal 0
+    @plot_canvas.get_constraints()
+    expect(@plot_canvas._get_side_constraints.callCount).to.be.equal 1
+    expect(@plot_canvas._get_constant_constraints.callCount).to.be.equal 1
 
   it "should call _get_constraints on children", ->
-    children = @test_plot_canvas.get_layoutable_children()
+    children = @plot_canvas.get_layoutable_children()
     expect(children.length).to.be.equal 6
     for child in children
       child.get_constraints = sinon.spy()
       expect(child.get_constraints.callCount).to.be.equal 0
-    @test_plot_canvas.get_constraints()
+    @plot_canvas.get_constraints()
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
 
