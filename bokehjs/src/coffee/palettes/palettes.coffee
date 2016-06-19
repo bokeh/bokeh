@@ -479,4 +479,3 @@ module.exports = _.extend({},
   palettes.Magma,
   palettes.Plasma,
   palettes.Viridis)
-
