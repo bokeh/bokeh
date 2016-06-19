@@ -309,7 +309,6 @@ class Plot extends LayoutDOM.Model
       toolbar_location:  [ p.Location, 'right'                ]
       toolbar_sticky:    [ p.Bool, true                       ]
 
-      # ALL BELOW ARE FOR PLOT CANVAS
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
 
