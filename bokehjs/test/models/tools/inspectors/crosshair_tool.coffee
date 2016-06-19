@@ -22,10 +22,6 @@ describe "Crosshair Tool", ->
       @p = new Plot({x_range: @x_range, y_range: @y_range, toolbar: toolbar})
 
     it "should add two new spans to the plot_canvas synthetic_renderers", ->
-      plot_canvas = @p.plot_canvas
-      # Plot canvas has no renderers
-      expect(plot_canvas.renderers.length).to.be.equal 0
-
       crosshair = new CrosshairTool({plot: @p})
       spans = [crosshair.spans.width, crosshair.spans.height]
       # Plot canvas should now have the two cross hair span renderers
