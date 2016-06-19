@@ -18,12 +18,15 @@ from .util._plot_arg_helpers import _convert_responsive
 #-----------------------------------------------------------------------------
 # Common helper functions
 #-----------------------------------------------------------------------------
-def _handle_children(children, *args):
+def _handle_children(children, wrap=True, *args):
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
     elif len(args) > 0:
-        children = list(args)
+        if wrap:
+            children = list(args)
+        else:
+            children = args
     if not children:
         return
     return children
@@ -209,7 +212,16 @@ def layout(children=None, sizing_mode='fixed', responsive=None, *args):
     return grid
 
 
-def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', responsive=None, toolbar_options=None, *args):
+def chunks(l, n):
+    """Yield successive n-sized chunks from list, l."""
+    for i in range(0, len(l), n):
+        yield l[i: i+n]
+
+
+def gridplot(
+    children=None, toolbar_location='left', sizing_mode='fixed',
+    responsive=None, toolbar_options=None, plot_width=None, plot_height=None,
+    ncols=None, *args):
     """ Create a grid of plots rendered on separate canvases.
 
     Args:
@@ -252,7 +264,13 @@ def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', respon
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
-    children = _handle_children(children, *args)
+    if ncols:
+        children = _handle_children(children, wrap=False, *args)
+        if any(isinstance(child, list) for child in children):
+            raise ValueError("Cannot provide a nested list when using ncols")
+        children = list(chunks(children, ncols))
+    else:
+        children = _handle_children(children, *args)
 
     # Additional children set-up for GridPlot
     if not children:
@@ -278,6 +296,11 @@ def gridplot(children=None, toolbar_location='left', sizing_mode='fixed', respon
                 item = Spacer(width=neighbor.plot_width, height=neighbor.plot_height)
             if isinstance(item, LayoutDOM):
                 item.sizing_mode = sizing_mode
+                if isinstance(item, Plot):
+                    if plot_width:
+                        item.plot_width = plot_width
+                    if plot_height:
+                        item.plot_height = plot_height
                 row_children.append(item)
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into Grid")
