@@ -18,7 +18,7 @@ describe "Plot", ->
     @x_range = new Range1d({start: 0, end:10})
     @y_range = new Range1d({start: 0, end: 10})
     toolbar = new Toolbar()
-    @p = new Plot({x_range: @x_range, y_range: @y_range, toolbar: toolbar})
+    @p = new Plot({x_range: @x_range, y_range: @y_range, toolbar: toolbar, title: null})
 
   describe "Plot.View", ->
     afterEach ->
@@ -104,7 +104,7 @@ describe "Plot", ->
       expect(p.min_border_right).to.be.equal 33.33
 
     it "should set min_border_x to value of specified, and others to value of min_border", ->
-      pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
+      p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33, min_border_left: 66.66})
       expect(p.min_border_top).to.be.equal 33.33
       expect(p.min_border_bottom).to.be.equal 33.33
       expect(p.min_border_left).to.be.equal 66.66
@@ -122,17 +122,14 @@ describe "Plot", ->
       # TODO(bird) Write this test.
       null
 
-
-
   describe "Plot.Model", ->
 
     it "should have _horizontal set to true by default", ->
       expect(@p._horizontal).to.true
 
-    it "should have a PlotCanvas set on initialization with all the options passed to Plot", ->
+    it "should have a PlotCanvas set on initialization with plot on it", ->
       expect(@p.plot_canvas).to.exist
-      expect(@p.plot_canvas.x_range).to.be.deep.equal @x_range
-      expect(@p.plot_canvas.y_range).to.be.deep.equal @y_range
+      expect(@p.plot_canvas.plot).to.be.deep.equal @p
 
     it "should attach document to plot canvas when document is attached to it", ->
       expect(@p.plot_canvas.document).to.be.null
@@ -141,6 +138,7 @@ describe "Plot", ->
       expect(@p.plot_canvas.document).to.be.equal doc
 
     describe "get_constrained_variables", ->
+
       beforeEach ->
         plot_canvas = @p.plot_canvas
         # Visual alignment is dominated by the plot_canvas so a number of the
