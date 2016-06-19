@@ -266,8 +266,7 @@ def gridplot(
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
     if ncols:
         children = _handle_children(children, wrap=False, *args)
-        has_list = [isinstance(child, list) for child in children]
-        if sum(has_list) > 0:
+        if any(isinstance(child, list) for child in children):
             raise ValueError("Cannot provide a nested list when using ncols")
         children = list(chunks(children, ncols))
     else:
