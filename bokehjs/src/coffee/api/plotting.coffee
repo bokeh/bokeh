@@ -421,7 +421,7 @@ gridplot = (children, options={}) ->
   grid = new models.Column({children: rows, sizing_mode: sizing_mode})
 
   layout = if toolbar_location
-    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: sizing_mode})
+    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: sizing_mode, toolbar_location: toolbar_location})
 
     switch toolbar_location
       when 'above'
