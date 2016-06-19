@@ -391,8 +391,9 @@ show = (obj, target) ->
 color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
 gridplot = (children, options={}) ->
-  toolbar_location = if _.isUndefined(options.toolbar_location) then 'left' else options.toolbar_location
+  toolbar_location = if _.isUndefined(options.toolbar_location) then 'above' else options.toolbar_location
   sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
+  toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
 
   tools = []
   rows = []
@@ -421,7 +422,7 @@ gridplot = (children, options={}) ->
   grid = new models.Column({children: rows, sizing_mode: sizing_mode})
 
   layout = if toolbar_location
-    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: sizing_mode, toolbar_location: toolbar_location})
+    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: toolbar_sizing_mode, toolbar_location: toolbar_location})
 
     switch toolbar_location
       when 'above'
