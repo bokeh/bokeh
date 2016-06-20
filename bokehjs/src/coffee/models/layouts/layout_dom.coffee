@@ -17,14 +17,24 @@ class LayoutDOMView extends BokehView
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.sizing_mode}")
+    @child_views = {}
 
-    @build_views()
+    console.log "LAYOUTDOM INITIALIZE", @model.id
+    @build_views(false) # only need to init solver on subsequent children change
     @bind_bokeh_events()
 
-  build_views: () ->
+  build_views: (init_solver=true) ->
+    console.log "LAYOUTDOM BUILD VIEWS", @
+    console.log "FOOOOOOOOOOOOOOOOOOOOO", @child_views
+
+    @unbind_bokeh_events()
+
     # TODO better way?
-    @model.document._invalidate_all_models()
-    @model.document._init_solver()
+    if init_solver
+      console.log "LAYOUTDOM BUILD VIEWS -- invalidate"
+      @model.document._invalidate_all_models()
+      @model.document._init_solver()
+      @model.document.resize()
 
     children = @model.get_layoutable_children()
     @child_views = {}
@@ -41,6 +51,13 @@ class LayoutDOMView extends BokehView
       @$el.append(child_view.$el)
 
     @bind_bokeh_events()
+
+  unbind_bokeh_events: () ->
+    @stopListening()
+    for id, view of @child_views
+      console.log "UNBIND BOKEH EVENTS", view.model.id, @
+      view.stopListening()
+      view.unbind_bokeh_events?()
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:children', @build_views)

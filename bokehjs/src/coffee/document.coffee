@@ -83,14 +83,16 @@ class Document
     @_all_models_by_name = new MultiDict()
     @_all_models_freeze_count = 0
     @_callbacks = []
+    @_doc_width = new Variable("document_width")
+    @_doc_height = new Variable("document_height")
     @_solver = new Solver()
+    @_init_solver()
 
     $(window).on("resize", $.proxy(@resize, @))
 
   _init_solver : () ->
+    console.log "INIT SOLVER"
     @_solver.clear()
-    @_doc_width = new Variable("document_width")
-    @_doc_height = new Variable("document_height")
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
     for model in @_roots
@@ -194,6 +196,7 @@ class Document
       @_recompute_all_models()
 
   _invalidate_all_models: () ->
+    console.log "INVALIDATE ALL MODELS"
     # if freeze count is > 0, we'll recompute on unfreeze
     if @_all_models_freeze_count == 0
       @_recompute_all_models()
@@ -225,6 +228,9 @@ class Document
         @_all_models_by_name.add_value(name, a)
 
     @_all_models = recomputed
+    console.log "RECOMPUTE -- detach", to_detach.values.length
+    console.log "RECOMPUTE -- attach", to_attach.values.length
+    console.log "RECOMPUTE -- all", _.values(@_all_models).length
 
   roots : () ->
     @_roots
@@ -233,11 +239,15 @@ class Document
     if model.layoutable isnt true
       throw new Error("Cannot add non-layoutable - #{model}")
 
-    model._is_root = true
+    console.log "ADD_LAYOUTABLE", model
 
     editables = model.get_edit_variables()
     constraints = model.get_constraints()
     vars = model.get_constrained_variables()
+
+    console.log " - editables", editables.length
+    console.log " - constraints", constraints.length
+    console.log " - vars", _.values(vars).length
 
     for {edit_variable, strength} in editables
       @_solver.add_edit_variable(edit_variable, strength)
@@ -265,6 +275,8 @@ class Document
     finally
       @_pop_all_models_freeze()
 
+    console.log "ADD ROOT", @_roots.length, @_roots
+
     @_init_solver()
 
     @_trigger_on_change(new RootAddedEvent(@, model))
@@ -281,7 +293,10 @@ class Document
     finally
       @_pop_all_models_freeze()
 
-    model._is_root = false
+    console.log "REMOVE ROOT", @_roots.length, @_roots
+
+    @_init_solver()
+
     @_trigger_on_change(new RootRemovedEvent(@, model))
 
   title : () ->
@@ -609,6 +624,7 @@ class Document
     @apply_json_patch(JSON.parse(patch))
 
   apply_json_patch: (patch) ->
+    console.log "APPLY_JSON_PATCH", patch
     references_json = patch['references']
     events_json = patch['events']
     references = Document._instantiate_references_json(references_json, @_all_models)
@@ -619,10 +635,11 @@ class Document
         model_id = event_json['model']['id']
         if model_id of @_all_models
           references[model_id] = @_all_models[model_id]
-        else
-          if model_id not of references
-            console.log("Got an event for unknown model ", event_json['model'])
-            throw new Error("event model wasn't known")
+        # else
+        #   if model_id not of references
+        #     debugger
+        #     console.log("Got an event for unknown model ", event_json['model'])
+        #     throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update
     old_references = {}

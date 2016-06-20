@@ -127,6 +127,7 @@ class Plot extends LayoutDOM.Model
   Object.defineProperty(this.prototype, "plot_canvas", { get: () -> @_plot_canvas })
 
   _doc_attached: () ->
+    console.log "PLOT _DOC_ATTACHED", @
     # Setup side renderers
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @get(side)

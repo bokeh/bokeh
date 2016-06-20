@@ -466,6 +466,7 @@ class PlotCanvasView extends Renderer.View
         break
 
     # AK: seems weird to me that this is here, but get solver errors if I remove it
+    console.log "PLOT CANVAS -- render, update_constraints"
     @update_constraints()
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
@@ -572,6 +573,7 @@ class PlotCanvasView extends Renderer.View
     })
 
   update_constraints: () ->
+    console.log "PLOT_CANVAS -- update_constraints", @model.id
     s = @model.document.solver()
 
     # Note: -1 to effectively dilate the canvas by 1px
@@ -624,6 +626,7 @@ class PlotCanvas extends LayoutDOM.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
+    console.log "PLOT_CANVAS -- initialize", @id
     @canvas = new Canvas.Model({
       map: @use_map ? false
       initial_width: @plot.plot_width,
@@ -640,6 +643,7 @@ class PlotCanvas extends LayoutDOM.Model
       y_mapper_type: @plot.y_mapper_type,
     })
 
+    console.log "PLOT_CANVAS CREATING panels ------------------------------", @
     @above_panel = new LayoutCanvas.Model()
     @below_panel = new LayoutCanvas.Model()
     @left_panel = new LayoutCanvas.Model()
@@ -662,6 +666,7 @@ class PlotCanvas extends LayoutDOM.Model
       renderer.add_panel(side)
 
   _doc_attached: () ->
+    console.log "PLOT CANVAS _DOC_ATTACHED", @
     @canvas.attach_document(@document)
     @frame.attach_document(@document)
     @above_panel.attach_document(@document)
@@ -714,7 +719,6 @@ class PlotCanvas extends LayoutDOM.Model
     return constraints
 
   _get_constant_constraints: () ->
-
     min_border_top    = @plot.min_border_top
     min_border_bottom = @plot.min_border_bottom
     min_border_left   = @plot.min_border_left
@@ -752,6 +756,7 @@ class PlotCanvas extends LayoutDOM.Model
     return constraints
 
   _get_side_constraints: () ->
+    console.log "PLOT CANVAS GET SIDE CONSTRAINTS --------------------------------", @
     constraints = []
     for side in ['above', 'below', 'left', 'right']
       layout_renderers = @plot.get(side)
