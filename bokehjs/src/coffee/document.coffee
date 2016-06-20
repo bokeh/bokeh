@@ -614,7 +614,6 @@ class Document
     events_json = patch['events']
     references = Document._instantiate_references_json(references_json, @_all_models)
 
-    console.log "FOOOOO", references, @_all_models
     # The model being changed isn't always in references so add it in
     for event_json in events_json
       if 'model' of event_json
@@ -623,7 +622,6 @@ class Document
           references[model_id] = @_all_models[model_id]
         else
           if model_id not of references
-            console.log event_json
             console.log("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
 

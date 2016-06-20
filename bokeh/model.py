@@ -89,8 +89,8 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
-        self._document = doc
         doc.theme.apply_to_model(self)
+        self._document = doc
 
     def _detach_document(self):
         '''This should only be called by the Document implementation to unset the document field'''

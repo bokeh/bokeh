@@ -74,7 +74,6 @@ class Plot extends LayoutDOM.Model
 
   initialize: (options) ->
     super(options)
-    console.log "PLOT ID", @id
     for xr in _.values(@extra_x_ranges).concat(@x_range)
       plots = xr.get('plots')
       if _.isArray(plots)
