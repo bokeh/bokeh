@@ -369,31 +369,24 @@ class HasProps extends Backbone.Model
     return _.values(references)
 
   attach_document: (doc) ->
-    if @document != null
-      if @document != doc
-        throw new Error("models must be owned by only a single document")
-      else
-        @document._notify_attach(@)
-    else
-      @document = doc
-      @document._notify_attach(@)
+    # This should only be called by the Document implementation to set the document field
+    if @document != null and @document != doc
+      throw new Error("models must be owned by only a single document")
 
-      for ref in @_immediate_references()
-        ref.attach_document(@document)
+    @document = doc
 
-      # TODO (bev) is there are way to get rid of this?
-      for name, prop of @properties
-        prop.update()
+    # XXXXXXX not sure about the things below yet
 
-      if @_doc_attached?
-        @_doc_attached()
+    # TODO (bev) is there are way to get rid of this?
+    for name, prop of @properties
+      prop.update()
+
+    if @_doc_attached?
+      @_doc_attached()
 
   detach_document: () ->
-    if @document != null
-      if @document._notify_detach(@) == 0
-        @document = null
-        for c in @_immediate_references()
-          c.detach_document()
+    # This should only be called by the Document implementation to unset the document field
+    @document = null
 
   _tell_document_about_change: (attr, old, new_) ->
     if not @attribute_is_serializable(attr)

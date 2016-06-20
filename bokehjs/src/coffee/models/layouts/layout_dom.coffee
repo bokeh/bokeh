@@ -18,9 +18,19 @@ class LayoutDOMView extends BokehView
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.sizing_mode}")
 
+    @build_views()
+    @bind_bokeh_events()
+
+  build_views: () ->
+    # TODO better way?
+    @model.document._invalidate_all_models()
+    @model.document._init_solver()
+
     children = @model.get_layoutable_children()
     @child_views = {}
     build_views(@child_views, children)
+
+    @$el.empty()
 
     for child in children
       # Look-up the child_view in @child_views and then append
@@ -33,6 +43,7 @@ class LayoutDOMView extends BokehView
     @bind_bokeh_events()
 
   bind_bokeh_events: () ->
+    @listenTo(@model, 'change:children', @build_views)
     @listenTo(@model, 'change', @render)
     # Note: `sizing_mode` update is not supported because changing the sizing_mode mode
     # necessitates stripping out all the relevant constraints from solver and re-adding the new correct ones.

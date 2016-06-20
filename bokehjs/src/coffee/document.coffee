@@ -6,7 +6,7 @@ $ = require "jquery"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
-{MultiDict} = require "./core/util/data_structures"
+{MultiDict, Set} = require "./core/util/data_structures"
 ColumnDataSource = require "./models/sources/column_data_source"
 
 class DocumentChangedEvent
@@ -81,14 +81,21 @@ class Document
     @_roots = []
     @_all_models = {}
     @_all_models_by_name = new MultiDict()
-    @_all_model_counts = {}
+    @_all_models_freeze_count = 0
     @_callbacks = []
     @_solver = new Solver()
+
+    $(window).on("resize", $.proxy(@resize, @))
+
+  _init_solver : () ->
+    @_solver.clear()
     @_doc_width = new Variable("document_width")
     @_doc_height = new Variable("document_height")
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
-    $(window).on("resize", $.proxy(@resize, @))
+    for model in @_roots
+      if model.layoutable
+        @_add_layoutable(model)
 
   solver: () ->
     @_solver
@@ -143,17 +150,81 @@ class Document
     @_solver.trigger('resize')
 
   clear : () ->
-    while @_roots.length > 0
-      @remove_root(@_roots[0])
+    @_push_all_models_freeze()
+    try
+      while @_roots.length > 0
+        @remove_root(@_roots[0])
+    finally
+      @_pop_all_models_freeze()
 
   _destructively_move : (dest_doc) ->
+    if dest_doc is @
+      throw new Error("Attempted to overwrite a document with itself")
+
     dest_doc.clear()
-    while @_roots.length > 0
-      r = @_roots[0]
-      @remove_root(r)
+    # we have to remove ALL roots before adding any
+    # to the new doc or else models referenced from multiple
+    # roots could be in both docs at once, which isn't allowed.
+    roots = []
+    @_push_all_models_freeze()
+    try
+      while @_roots.length > 0
+        @remove_root(@_roots[0])
+        roots.push(r)
+    finally
+        @_pop_all_models_freeze()
+
+    for r in roots
+      if r.document != null
+        throw new Error("Somehow we didn't detach #{r}")
+    if _all_models.length != 0
+        throw new Error("_all_models still had stuff in it: #{ @_all_models }")
+
+    for r in roots
       dest_doc.add_root(r)
     dest_doc.set_title(@_title)
     # TODO other fields of doc
+
+  _push_all_models_freeze: () ->
+    @_all_models_freeze_count += 1
+
+  _pop_all_models_freeze: () ->
+    @_all_models_freeze_count -= 1
+    if @_all_models_freeze_count == 0
+      @_recompute_all_models()
+
+  _invalidate_all_models: () ->
+    # if freeze count is > 0, we'll recompute on unfreeze
+    if @_all_models_freeze_count == 0
+      @_recompute_all_models()
+
+  _recompute_all_models: () ->
+    new_all_models_set = new Set()
+
+    for r in @_roots
+      new_all_models_set = new_all_models_set.union(r.references())
+    old_all_models_set = new Set(_.values(@_all_models))
+    to_detach = old_all_models_set.diff(new_all_models_set)
+    to_attach = new_all_models_set.diff(old_all_models_set)
+
+    recomputed = {}
+
+    for m in new_all_models_set.values
+      recomputed[m.id] = m
+
+    for d in to_detach.values
+      d.detach_document()
+      name = d.get('name')
+      if name != null
+        @_all_models_by_name.remove_value(name, d)
+
+    for a in to_attach.values
+      a.attach_document(@)
+      name = a.get('name')
+      if name != null
+        @_all_models_by_name.add_value(name, a)
+
+    @_all_models = recomputed
 
   roots : () ->
     @_roots
@@ -183,26 +254,34 @@ class Document
 
   add_root : (model) ->
     logger.debug("Adding root: #{model}")
+
     if model in @_roots
       return
-    @_roots.push(model)
-    model.attach_document(@)
 
-    if model.layoutable is true
-      @_add_layoutable(model)
+    @_push_all_models_freeze()
+    try
+      @_roots.push(model)
+      model._is_root = true # TODO get rid of this?
+    finally
+      @_pop_all_models_freeze()
+
+    @_init_solver()
 
     @_trigger_on_change(new RootAddedEvent(@, model))
-
 
   remove_root : (model) ->
     i = @_roots.indexOf(model)
     if i < 0
       return
-    else
+
+    @_push_all_models_freeze()
+    try
       @_roots.splice(i, 1)
+      model._is_root = false
+    finally
+      @_pop_all_models_freeze()
 
     model._is_root = false
-    model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
 
   title : () ->
@@ -243,29 +322,6 @@ class Document
       if new_ != null
         @_all_models_by_name.add_value(new_, model)
     @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
-
-  # called by the model on attach
-  _notify_attach : (model) ->
-    if model.id of @_all_model_counts
-      @_all_model_counts[model.id] = @_all_model_counts[model.id] + 1
-    else
-      @_all_model_counts[model.id] = 1
-    @_all_models[model.id] = model
-    name = model.get('name')
-    if name != null
-      @_all_models_by_name.add_value(name, model)
-
-  # called by the model on detach
-  _notify_detach : (model) ->
-    @_all_model_counts[model.id] -= 1
-    attach_count = @_all_model_counts[model.id]
-    if attach_count == 0
-      delete @_all_models[model.id]
-      delete @_all_model_counts[model.id]
-      name = model.get('name')
-      if name != null
-        @_all_models_by_name.remove_value(name, model)
-    attach_count
 
   @_references_json : (references, include_defaults=true) ->
     references_json = []
@@ -564,8 +620,9 @@ class Document
         if model_id of @_all_models
           references[model_id] = @_all_models[model_id]
         else
-          console.log("Got an event for unknown model ", event_json['model'])
-          throw new Error("event model wasn't known")
+          if model_id not of references
+            console.log("Got an event for unknown model ", event_json['model'])
+            throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update
     old_references = {}
