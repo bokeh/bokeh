@@ -1,19 +1,16 @@
 import pandas as pd
 
-from jinja2 import Template
+import numpy as np
 
-from bokeh.util.browser import view
 from bokeh.models import (
     ColumnDataSource, Plot, Circle, Range1d,
     LinearAxis, HoverTool, Text,
-    SingleIntervalTicker, CustomJS, Slider
+    SingleIntervalTicker, Slider, Button
 )
-from bokeh.models.annotations import Title
 from bokeh.palettes import Spectral6
-from bokeh.plotting import vplot
-from bokeh.resources import JSResources
-from bokeh.embed import file_html
-
+from bokeh.models.layouts import Column
+from bokeh.models.annotations import Title
+from bokeh.io import curdoc
 from data import process_data
 
 fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions = process_data()
@@ -41,14 +38,13 @@ ydr = Range1d(20, 100)
 plot = Plot(
     x_range=xdr,
     y_range=ydr,
-    title=Title(text=''),
+    title=Title(text='Gapminder Server'),
     plot_width=800,
-    plot_height=400,
+    plot_height=500,
     outline_line_color=None,
     toolbar_location=None,
-    min_border=20,
+    min_border = 20,
 )
-
 AXIS_FORMATS = dict(
     minor_tick_in=None,
     minor_tick_out=None,
@@ -73,7 +69,7 @@ plot.add_layout(xaxis, 'below')
 plot.add_layout(yaxis, 'left')
 
 
-# ### Add the background year text
+# Add the background year text
 # We add this first so it is below all the other glyphs
 text_source = ColumnDataSource({'year': ['%s' % years[0]]})
 text = Text(x=2, y=35, text='year', text_font_size='150pt', text_color='#EEEEEE')
@@ -101,34 +97,60 @@ for i, region in enumerate(regions):
     text_y = text_y - 5
 
 # Add the slider
-code = """
-    var year = slider.get('value'),
-        sources = %s,
-        new_source_data = sources[year].get('data');
-    renderer_source.set('data', new_source_data);
-    text_source.set('data', {'year': [String(year)]});
-""" % js_source_array
+slider = Slider(start=years[0], end=years[-1], value=1, step=1, title="Year", name='test', width=800)
 
-callback = CustomJS(args=sources, code=code)
-slider = Slider(start=years[0], end=years[-1], value=1, step=1, title="Year", callback=callback, name='testy')
-callback.args["renderer_source"] = renderer_source
-callback.args["slider"] = slider
-callback.args["text_source"] = text_source
+# Create anim_update to detect if it is the user or the animation that is updating the slider
+anim_update = False
 
+# Replace numpy NaNs in data since they are invalid JSON values and will cause errors
+def replace_nans (data):
+    for key in data:
+        data[key] = ['NaN' if pd.isnull(value) else value for value in data[key]]
+    return data
 
-# Stick the plot and the slider together
-layout = vplot(plot, slider)
+# Update the years when the animation is running
+def update ():
+    global text_source
+    global renderer_source
+    global slider
+    global anim_update
+    if text_source.data['year'] == [str(years[-1])]:
+        text_source.data['year'] = [str(years[0])]
+    else:
+        text_source.data['year'] = [str(int(text_source.data['year'][0]) + 1)]
+    new_data = sources['_' + text_source.data['year'][0]].data
+    new_data = replace_nans(new_data)
+    renderer_source.data = new_data
+    anim_update = True
+    slider.value = int(text_source.data['year'][0])
+    anim_update = False
 
-# Open our custom template
-with open('gapminder_template.jinja', 'r') as f:
-    template = Template(f.read())
+# Start or stop the animation if the slider is moved and update the values
+def slider_update (attrname,old,new):
+    if button.label == 'Stop' and anim_update == False:
+        button.label = 'Start'
+        curdoc().remove_periodic_callback(update)
+    text_source.data['year'] = [str(slider.value)]
+    new_data = sources['_' + text_source.data['year'][0]].data
+    new_data = replace_nans(new_data)
+    renderer_source.data = new_data
 
-# Use inline resources, render the html and open
-js_resources = JSResources(mode='inline')
-title = "Bokeh - Gapminder Bubble Plot"
-html = file_html(layout, resources=(js_resources, None), title=title, template=template)
+slider.on_change('value',slider_update)
 
-output_file = 'gapminder.html'
-with open(output_file, 'w') as f:
-    f.write(html)
-view(output_file)
+# Add animation button
+button = Button(label='Start', width=800)
+
+# Start or stop the animation when clicked
+def startanim ():
+    if button.label == 'Start':
+        button.label = 'Stop'
+        curdoc().add_periodic_callback(update, 200)
+    else:
+        button.label = 'Start'
+        curdoc().remove_periodic_callback(update)
+
+button.on_click(startanim)
+
+# Stick the plot, slider, and button together
+layout = Column(plot, slider, button)
+curdoc().add_root(layout)
