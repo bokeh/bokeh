@@ -6,18 +6,20 @@ import unittest
 import bs4
 
 import bokeh.embed as embed
-from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.plotting import figure, curdoc
+from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.util.string import encode_utf8
 from jinja2 import Template
 from six import string_types
 
 _embed_test_plot = None
 
+
 def setUpModule():
     global _embed_test_plot
     _embed_test_plot = figure()
-    _embed_test_plot.circle([1,2], [2,3])
+    _embed_test_plot.circle([1, 2], [2, 3])
+
 
 def _stable_id():
     return 'ID'
@@ -127,6 +129,15 @@ class TestNotebookDiv(unittest.TestCase):
         self.assertTrue(set(div.attrs), set(['class', 'id']))
         self.assertEqual(div.attrs['class'], ['bk-root'])
         self.assertEqual(div.text, '\n\n')
+
+    def test_model_in_empty_document_context_manager_is_used(self):
+        m = mock.MagicMock(name='_ModelInEmptyDocument')
+        plot1 = figure()
+        curdoc().add_root(plot1)
+        with mock.patch('bokeh.embed._ModelInEmptyDocument', m):
+            embed.notebook_div(plot1)
+        m.assert_called_once_with(plot1)
+
 
 class TestFileHTML(unittest.TestCase):
 
