@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.driving import count
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, VBox
+from bokeh.models import ColumnDataSource, Row
 
 from surface3d import Surface3d
 
@@ -18,11 +18,9 @@ def compute(t):
 
 source = ColumnDataSource(data=compute(0))
 
-surface = Surface3d(
-    x="x", y="y", z="z", color="color", data_source=source, selector="#myplot"
-)
+surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
-curdoc().add_root(VBox(surface))
+curdoc().add_root(Row(surface))
 
 @count()
 def update(t):

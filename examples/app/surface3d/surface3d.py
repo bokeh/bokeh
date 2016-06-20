@@ -1,9 +1,25 @@
 from os.path import dirname, join
 
 from bokeh.core.properties import Any, Dict, Instance, String
-from bokeh.models import ColumnDataSource, Component
+from bokeh.models import ColumnDataSource, LayoutDOM
 
-class Surface3d(Component):
+DEFAULTS = {
+    'width':          '600px',
+    'height':         '600px',
+    'style':          'surface',
+    'showPerspective': True,
+    'showGrid':        True,
+    'keepAspectRatio': True,
+    'verticalRatio':   1.0,
+    'legendLabel':     'stuff',
+    'cameraPosition':  {
+        'horizontal': -0.35,
+        'vertical':    0.22,
+        'distance':    1.8,
+    }
+}
+
+class Surface3d(LayoutDOM):
 
     __implementation__ = open(join(dirname(__file__), "surface3d.js")).read()
 
@@ -17,20 +33,4 @@ class Surface3d(Component):
 
     data_source = Instance(ColumnDataSource)
 
-    selector = String
-
-    options = Dict(String, Any, default={
-        'width':          '600px',
-        'height':         '600px',
-        'style':          'surface',
-        'showPerspective': True,
-        'showGrid':        True,
-        'keepAspectRatio': True,
-        'verticalRatio':   1.0,
-        'legendLabel':     'stuff',
-        'cameraPosition':  {
-            'horizontal': -0.35,
-            'vertical':    0.22,
-            'distance':    1.8,
-        },
-    })
+    options = Dict(String, Any, default=DEFAULTS)

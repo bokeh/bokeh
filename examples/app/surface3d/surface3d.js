@@ -3,7 +3,7 @@ $ = require "jquery"
 
 BokehView = require "core/bokeh_view"
 p = require "core/properties"
-Component = require "models/component"
+LayoutDOM = require "models/layouts/layout_dom"
 
 OPTIONS =
   width:  '600px'
@@ -23,43 +23,35 @@ class Surface3dView extends BokehView
 
   initialize: (options) ->
     super(options)
-    data = @set_data()
-    @container = $(@mget('selector'));
-    debugger
-    @graph = new vis.Graph3d(@container[0], data, @mget('options'))
-    @bind_bokeh_events()
+    @_graph = new vis.Graph3d(@$el[0], @get_data(), @mget('options'))
+    @listenTo(@mget('data_source'), 'change', () =>
+        @_graph.setData(@get_data())
+    )
 
-  set_data: () ->
+  get_data: () ->
     data = new vis.DataSet()
     source = @mget('data_source')
     for i in [0...source.get_length()]
       data.add({
-        x:     source.get_column(@mget('x'))[i]
-        y:     source.get_column(@mget('y'))[i]
-        z:     source.get_column(@mget('z'))[i]
-        style: source.get_column(@mget('color'))[i]
+        x:     source.get_column(@model.x)[i]
+        y:     source.get_column(@model.y)[i]
+        z:     source.get_column(@model.z)[i]
+        style: source.get_column(@model.color)[i]
       })
     return data
 
-  bind_bokeh_events: () ->
-    @listenTo(@mget('data_source'), 'change', () =>
-        @graph.setData(@set_data())
-    )
-
-class Surface3d extends Component.Model
+class Surface3d extends LayoutDOM.Model
   default_view: Surface3dView
   type: "Surface3d"
 
-  props: ->
-    return _.extend {}, super(), {
-      x:           [ p.String       ]
-      y:           [ p.String       ]
-      z:           [ p.String       ]
-      color:       [ p.String       ]
-      data_source: [ p.Instance     ]
-      selector:    [ p.String       ]
-      options :    [ p.Any, OPTIONS ]
-    }
+  @define {
+    x:           [ p.String       ]
+    y:           [ p.String       ]
+    z:           [ p.String       ]
+    color:       [ p.String       ]
+    data_source: [ p.Instance     ]
+    options :    [ p.Any, OPTIONS ]
+  }
 
 module.exports =
   Model: Surface3d
