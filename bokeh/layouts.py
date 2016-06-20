@@ -219,7 +219,7 @@ def chunks(l, n):
 
 
 def gridplot(
-    children=None, toolbar_location='left', sizing_mode='fixed',
+    children=None, toolbar_location='above', sizing_mode='fixed',
     responsive=None, toolbar_options=None, plot_width=None, plot_height=None,
     ncols=None, *args):
     """ Create a grid of plots rendered on separate canvases.
