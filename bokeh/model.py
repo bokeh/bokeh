@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
+from contextlib import contextmanager
 from json import loads
 
 from six import iteritems
@@ -14,6 +15,7 @@ from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
+
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -400,3 +402,21 @@ class _ModelInDocument(object):
     def __enter__(self):
         for model in self._to_remove_after:
             self._doc.add_root(model)
+
+
+@contextmanager
+def _ModelInEmptyDocument(model):
+    from .document import Document
+    full_doc = _find_some_document([model])
+
+    model._document = None
+    for ref in model.references():
+        ref._document = None
+    empty_doc = Document()
+    empty_doc.add_root(model)
+
+    yield model
+
+    model._document = full_doc
+    for ref in model.references():
+        ref._document = full_doc
