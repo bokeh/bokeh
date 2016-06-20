@@ -4,6 +4,7 @@ toProjection = proj4.defs('GOOGLE')
 Backbone = require "backbone"
 
 BokehView = require "../../core/bokeh_view"
+{color2rgba} = require "../../core/util/color"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 mixins = require "../../core/property_mixins"
@@ -90,6 +91,10 @@ class _Line extends _ContextProperties
     if ctx.getLineDashOffset() != @cache.line_dash_offset
       ctx.setLineDashOffset(@cache.line_dash_offset)
 
+  color_value: () ->
+    color = color2rgba(@line_color.value(), @line_alpha.value())
+    return "rgba(#{color[0]*255},#{color[1]*255},#{color[2]*255},#{color[3]})"
+
 class _Fill extends _ContextProperties
 
   attrs: _.keys(mixins.fill())
@@ -108,6 +113,10 @@ class _Fill extends _ContextProperties
     if ctx.globalAlpha != @cache.fill_alpha
       ctx.globalAlpha = @cache.fill_alpha
 
+  color_value: () ->
+    color = color2rgba(@fill_color.value(), @fill_alpha.value())
+    return "rgba(#{color[0]*255},#{color[1]*255},#{color[2]*255},#{color[3]})"
+
 class _Text extends _ContextProperties
 
   attrs: _.keys(mixins.text())
@@ -125,6 +134,10 @@ class _Text extends _ContextProperties
     font_size  = @text_font_size.value()
     font_style = @text_font_style.value()
     return font_style + " " + font_size + " " + font
+
+  color_value: () ->
+    color = color2rgba(@text_color.value(), @text_alpha.value())
+    return "rgba(#{color[0]*255},#{color[1]*255},#{color[2]*255},#{color[3]})"
 
   set_value: (ctx) ->
     ctx.font         = @font_value()
@@ -182,9 +195,11 @@ class RendererView extends BokehView
     # todo: if using gl, skip this (when is this called?)
 
     # map all the coordinate fields
-    for [xname, yname] in @model.coords
+    for [xname, yname] in @model._coords
       sxname = "s#{xname}"
       syname = "s#{yname}"
+      xname = "_#{xname}"
+      yname = "_#{yname}"
       if _.isArray(@[xname]?[0])
         [ @[sxname], @[syname] ] = [ [], [] ]
         for i in [0...@[xname].length]
@@ -222,18 +237,18 @@ class RendererView extends BokehView
       # this skips optional properties like radius for circles
       if (prop.optional || false) and prop.spec.value == null and (name not of @model._set_after_defaults)
         continue
-      @[name] = prop.array(source)
+      @["_#{name}"] = prop.array(source)
       if prop instanceof p.Distance
-        @["max_#{name}"] = array_max(@[name])
+        @["max_#{name}"] = array_max(@["_#{name}"])
 
-    if @renderer.plot_model.use_map
-      if @x?
-        [@x, @y] = @project_xy(@x, @y)
-      if @xs?
-        [@xs, @ys] = @project_xsys(@xs, @ys)
+    if @plot_model.use_map
+      if @_x?
+        [@_x, @_y] = @project_xy(@_x, @_y)
+      if @_xs?
+        [@_xs, @_ys] = @project_xsys(@_xs, @_ys)
 
     if @glglyph?
-      @glglyph.set_data_changed(@x.length)
+      @glglyph.set_data_changed(@_x.length)
 
     @_set_data()
 
@@ -249,6 +264,7 @@ class RendererView extends BokehView
 
   _set_data: () -> null
   _map_data: () -> null
+  _index_data: () -> null
   _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
 
@@ -270,20 +286,11 @@ class RendererView extends BokehView
 class Renderer extends Model
   type: "Renderer"
 
-  # Specify any coordinate pairs here, they will be added as NumberSpec
-  # properties to HasProps.properties
-  coords: []
-
-  props: ->
-    return _.extend {}, super(), @_coords()
-
-  _coords: ->
-    result = {}
-    for [x, y] in @coords
-      result[x] = [ p.NumberSpec ]
-      result[y] = [ p.NumberSpec ]
-    return result
+  @define {
+    level: [ p.RenderLevel, null ]
+  }
 
 module.exports =
   Model: Renderer
   View: RendererView
+  Visuals: VISUALS

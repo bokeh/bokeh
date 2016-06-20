@@ -1,4 +1,4 @@
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, save, show
 from bokeh.sampledata.us_counties import data as counties
 from bokeh.sampledata.us_states import data as states
 from bokeh.sampledata.unemployment import data as unemployment
@@ -27,7 +27,7 @@ for county_id in counties:
     except KeyError:
         county_colors.append("black")
 
-p = figure(title="US Unemployment 2009", toolbar_location="left",
+p = figure(title="US Unemployment 2009",
            plot_width=1100, plot_height=700)
 
 p.patches(county_xs, county_ys,
@@ -37,6 +37,4 @@ p.patches(county_xs, county_ys,
 p.patches(state_xs, state_ys, fill_alpha=0.0,
           line_color="#884444", line_width=2, line_alpha=0.3)
 
-output_file("choropleth.html", title="choropleth.py example")
-
-show(p)
+show(p)  # Change to save(p) to save but not show the HTML file

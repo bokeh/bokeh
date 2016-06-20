@@ -26,7 +26,7 @@ from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange
 from bokeh.models.tools import (
-    BoxZoomTool, HelpTool, LassoSelectTool, PanTool, PreviewSaveTool, ResetTool,
+    BoxZoomTool, HelpTool, LassoSelectTool, PanTool, SaveTool, ResetTool,
     ResizeTool, WheelZoomTool)
 
 #-----------------------------------------------------------------------------
@@ -50,10 +50,10 @@ class TestChart(unittest.TestCase):
 
     def test_title(self):
         self.chart.title = "new_title"
-        self.assertEqual(self.chart.title, "new_title")
+        self.assertEqual(self.chart.title.text, "new_title")
 
-    def test_responsive(self):
-        self.assertEqual(self.chart.responsive, True)
+    def test_sizing_mode(self):
+        self.assertEqual(self.chart.sizing_mode, 'scale_width')
 
     def check_chart_elements(self, expected_tools):
         self.assertIsInstance(self.chart.left[0], LinearAxis)
@@ -81,16 +81,13 @@ class TestChart(unittest.TestCase):
         self.chart.add_ranges('x', Range1d())
 
         axis = self.chart.make_axis("x", "left", "datetime", "foo")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foo")
 
         axis = self.chart.make_axis("x", "left", "categorical", "bar")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "bar")
         self.assertEqual(axis.major_label_orientation, np.pi/4)
 
         axis = self.chart.make_axis("x", "left", "linear", "foobar")
-        self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foobar")
 
     def test_make_grid(self):
@@ -119,12 +116,12 @@ class TestChart(unittest.TestCase):
             width=800, height=600,
         )
         expected = [
-            [PanTool,  WheelZoomTool, BoxZoomTool, PreviewSaveTool, ResizeTool, ResetTool, HelpTool],
+            [PanTool,  WheelZoomTool, BoxZoomTool, SaveTool, ResetTool, HelpTool],
             [],
-            [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
+            [PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
         ]
         scenarios = zip(
-            [True, False, "resize,pan,box_zoom,reset,lasso_select"], expected
+            [True, False, "pan,box_zoom,reset,lasso_select"], expected
         )
 
         self.check_tools_scenario(base_args, scenarios)
@@ -132,11 +129,11 @@ class TestChart(unittest.TestCase):
         self.check_tools_scenario(base_args, scenarios, categorical=True)
 
         msg_repeat = "LassoSelectTool are being repeated"
-        expected_tools = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool, LassoSelectTool]
+        expected_tools = [PanTool, BoxZoomTool, ResetTool, LassoSelectTool, LassoSelectTool]
         mock_warn.reset_mock()
 
         # Finally check removing tools
-        base_args['tools'] = "resize,pan,box_zoom,reset,lasso_select,lasso_select"
+        base_args['tools'] = "pan,box_zoom,reset,lasso_select,lasso_select"
 
         chart = Chart(**base_args)
         chart.x_range = FactorRange()
@@ -165,9 +162,32 @@ def test_defaults():
     assert c1.tools
     assert c2.tools == c3.tools == []
 
+def test_title_kwarg_no_warning(recwarn):
+    Chart(title="title")
+    assert len(recwarn) == 0
+
 def test_charts_theme_validation():
     from bokeh.plotting import figure
     p = figure()
 
     with pytest.raises(ValueError):
         defaults.apply(p)
+
+
+def test_bar_chart_below_visibility():
+    from bokeh.charts import Bar
+
+    # Visible because we have multiple bars
+    df = dict(types=['foo', 'bar'], counts=[3, 2])
+    p = Bar(df, values='counts')
+    p.below[0].visible
+
+    # Visible because we excplicitly specify labels
+    df = dict(types=['foo'], counts=[3])
+    p = Bar(df, values='counts', label='types')
+    assert p.below[0].visible
+
+    # Not visible because only one item and no labels
+    df = dict(types=['foo'], counts=[3])
+    p = Bar(df, values='counts')
+    assert not p.below[0].visible

@@ -43,11 +43,11 @@ class CheckboxGroup extends Widget.Model
   type: "CheckboxGroup"
   default_view: CheckboxGroupView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       active:   [ p.Array, []    ]
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
+      callback: [ p.Instance ]
     }
 
 module.exports =

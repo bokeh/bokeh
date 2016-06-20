@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
+from ...core.properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either, Override
 from ...model import Model
 from ...core.enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
@@ -338,17 +338,6 @@ class DataTable(TableWidget):
     The list of child column widgets.
     """)
 
-    width = Int(None, help="""
-    Optional width in pixels of the table widget. By default, uses all
-    horizontal space available.
-    """)
-
-    height = Either(Int(400), Auto, help="""
-    Height in pixels of the table widget. Use ``Auto`` to make the widget
-    adjust its height automatically. Note that ``Auto`` is inefficient for
-    large amounts of data, so should be used with care.
-    """)
-
     fit_columns = Bool(True, help="""
     Whether columns should be fit to the available width. This results in no
     horizontal scrollbar showing up, but data can get unreadable if there is
@@ -385,3 +374,5 @@ class DataTable(TableWidget):
     rows into the table's viewport if none of the selected rows are already
     in the viewport.
     """)
+
+    height = Override(default=400)

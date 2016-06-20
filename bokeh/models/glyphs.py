@@ -11,7 +11,7 @@ from ..model import Model
 from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, Int, NumberSpec, StringSpec)
 
-from .mappers import LinearColorMapper
+from .mappers import ColorMapper, LinearColorMapper
 
 @abstract
 class Glyph(Model):
@@ -186,6 +186,43 @@ class Bezier(Glyph):
     The %s values for the Bézier curves.
     """)
 
+class Ellipse(Glyph):
+    u""" Render ellipses. """
+
+    __example__ = "tests/glyphs/Ellipse.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'width', 'height', 'angle')
+
+    x = NumberSpec(help="""
+    The x-coordinates of the centers of the ellipses.
+    """)
+
+    y = NumberSpec(help="""
+    The y-coordinates of the centers of the ellipses.
+    """)
+
+    width = DistanceSpec(help="""
+    The widths of each ellipse.
+    """)
+
+    height = DistanceSpec(help="""
+    The heights of each ellipse.
+    """)
+
+    angle = AngleSpec(default=0.0, help="""
+    The angle the ellipses are rotated from horizontal. [rad]
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the ovals.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the ovals.
+    """)
+
 class Gear(Glyph):
     """ Render gears.
 
@@ -316,7 +353,7 @@ class Image(Glyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    color_mapper = Instance(LinearColorMapper, help="""
+    color_mapper = Instance(ColorMapper, help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
@@ -519,7 +556,8 @@ class Oval(Glyph):
 
     .. note::
         This glyph renders ovals using Bézier curves, which are similar,
-        but not identical to ellipses.
+        but not identical to ellipses. In particular, widths equal to heights
+        will not render circles. Use the ``Ellipse`` glyph for that.
     """
 
     __example__ = "tests/glyphs/Oval.py"

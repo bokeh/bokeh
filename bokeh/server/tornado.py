@@ -10,36 +10,99 @@ import atexit
 # NOTE: needs PyPI backport on Python 2 (https://pypi.python.org/pypi/futures)
 from concurrent.futures import ProcessPoolExecutor
 import os
+from pprint import pformat
 import signal
 
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import HTTPError
+from tornado.web import StaticFileHandler
 
 from bokeh.resources import Resources
 from bokeh.settings import settings
 
+from .views.root_handler import RootHandler
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
 from .views.static_handler import StaticHandler
+
+
+def match_host(host, pattern):
+    """ Match host against pattern
+
+    >>> match_host('192.168.0.1:80', '192.168.0.1:80')
+    True
+    >>> match_host('192.168.0.1:80', '192.168.0.1')
+    True
+    >>> match_host('192.168.0.1:80', '192.168.0.1:8080')
+    False
+    >>> match_host('192.168.0.1', '192.168.0.2')
+    False
+    >>> match_host('192.168.0.1', '192.168.*.*')
+    True
+    >>> match_host('alice', 'alice')
+    True
+    >>> match_host('alice:80', 'alice')
+    True
+    >>> match_host('alice', 'bob')
+    False
+    >>> match_host('foo.example.com', 'foo.example.com.net')
+    False
+    >>> match_host('alice', '*')
+    True
+    >>> match_host('alice', '*:*')
+    True
+    >>> match_host('alice:80', '*')
+    True
+    >>> match_host('alice:80', '*:80')
+    True
+    >>> match_host('alice:8080', '*:80')
+    False
+
+    """
+    if ':' in host:
+        host, host_port = host.rsplit(':', 1)
+    else:
+        host_port = None
+
+    if ':' in pattern:
+        pattern, pattern_port = pattern.rsplit(':', 1)
+        if pattern_port == '*':
+            pattern_port = None
+    else:
+        pattern_port = None
+
+    if pattern_port is not None and host_port != pattern_port:
+        return False
+
+    host = host.split('.')
+    pattern = pattern.split('.')
+
+    if len(pattern) > len(host):
+        return False
+
+    for h, p in zip(host, pattern):
+        if h == p or p == '*':
+            continue
+        else:
+            return False
+    return True
+
 
 # factored out to be easier to test
 def check_whitelist(request_host, whitelist):
     ''' Check a given request host against a whitelist.
 
     '''
-    if request_host not in whitelist:
+    if ':' not in request_host:
+        request_host = request_host + ':80'
 
-        # see if the request came with no port, assume port 80 in that case
-        if len(request_host.split(':')) == 1:
-            host = request_host + ":80"
-            return host in whitelist
-        else:
-            return False
+    if request_host in whitelist:
+        return True
 
-    return True
+    return any(match_host(request_host, host) for host in whitelist)
 
 
 def _whitelist(handler_class):
@@ -80,6 +143,7 @@ class BokehTornado(TornadoApplication):
         unused_session_lifetime_milliseconds (int) : number of milliseconds for unused session lifetime
         stats_log_frequency_milliseconds (int) : number of milliseconds between logging stats
         develop (boolean) : True for develop mode
+        use_index (boolean) : True to generate an index of the running apps in the RootHandler
 
     '''
 
@@ -95,16 +159,15 @@ class BokehTornado(TornadoApplication):
                  # how often to check for unused sessions
                  check_unused_sessions_milliseconds=17000,
                  # how long unused sessions last
-                 unused_session_lifetime_milliseconds=60*30*1000,
+                 unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
-                 develop=False):
+                 develop=False,
+                 use_index=True,
+                 redirect_root=True):
 
         self._prefix = prefix
-
-        if io_loop is None:
-            io_loop = IOLoop.current()
-        self._loop = io_loop
+        self.use_index = use_index
 
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
@@ -133,11 +196,11 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v, self._develop, self._loop)
+            self._applications[k] = ApplicationContext(v, self._develop)
 
         extra_patterns = extra_patterns or []
         all_patterns = []
-        for key in applications:
+        for key, app in applications.items():
             app_patterns = []
             for p in per_app_patterns:
                 if key == "/":
@@ -158,16 +221,54 @@ class BokehTornado(TornadoApplication):
 
             all_patterns.extend(app_patterns)
 
+            # add a per-app static path if requested by the application
+            if app.static_path is not None:
+                if key == "/":
+                    route = "/static/(.*)"
+                else:
+                    route = key + "/static/(.*)"
+                route = self._prefix + route
+                all_patterns.append((route, StaticFileHandler, { "path" : app.static_path }))
+
         for p in extra_patterns + toplevel_patterns:
-            prefixed_pat = (self._prefix+p[0],) + p[1:]
-            all_patterns.append(prefixed_pat)
+            if p[1] == RootHandler:
+                if self.use_index:
+                    data = {"applications": self._applications,
+                            "prefix": self._prefix,
+                            "use_redirect": redirect_root}
+                    prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
+                    all_patterns.append(prefixed_pat)
+            else:
+                prefixed_pat = (self._prefix + p[0],) + p[1:]
+                all_patterns.append(prefixed_pat)
 
         for pat in all_patterns:
             _whitelist(pat[1])
 
-        log.debug("Patterns are: %r", all_patterns)
+        log.debug("Patterns are:")
+        for line in pformat(all_patterns, width=60).split("\n"):
+            log.debug("  " + line)
 
         super(BokehTornado, self).__init__(all_patterns)
+
+    def initialize(self,
+                 io_loop=None,
+                 keep_alive_milliseconds=37000,
+                 # how often to check for unused sessions
+                 check_unused_sessions_milliseconds=17000,
+                 # how long unused sessions last
+                 unused_session_lifetime_milliseconds=15000,
+                 # how often to log stats
+                 stats_log_frequency_milliseconds=15000,
+                 develop=False,
+                 **kw):
+
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
+
+        for app_context in self._applications.values():
+            app_context._loop = self._loop
 
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
@@ -175,7 +276,7 @@ class BokehTornado(TornadoApplication):
         self._stats_job = PeriodicCallback(self.log_stats,
                                            stats_log_frequency_milliseconds,
                                            io_loop=self._loop)
-        self._unused_session_linger_seconds = unused_session_lifetime_milliseconds
+        self._unused_session_linger_milliseconds = unused_session_lifetime_milliseconds
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions,
                                              check_unused_sessions_milliseconds,
                                              io_loop=self._loop)
@@ -299,7 +400,7 @@ class BokehTornado(TornadoApplication):
     @gen.coroutine
     def cleanup_sessions(self):
         for app in self._applications.values():
-            yield app.cleanup_sessions(self._unused_session_linger_seconds)
+            yield app.cleanup_sessions(self._unused_session_linger_milliseconds)
         raise gen.Return(None)
 
     def log_stats(self):

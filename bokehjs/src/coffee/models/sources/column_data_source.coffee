@@ -12,22 +12,15 @@ p = require "../../core/properties"
 class ColumnDataSource extends DataSource.Model
   type: 'ColumnDataSource'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       data:              [ p.Any,      {} ]
       column_names:      [ p.Array,    [] ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-
-      # internal
-      selection_manager: new SelectionManager({'source':@})
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['selection_manager', 'inspected'])
+  @internal {
+    selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
+    inspected:         [ p.Any ]
+  }
 
   get_column: (colname) ->
     return @get('data')[colname] ? null

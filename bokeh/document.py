@@ -8,12 +8,15 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
+from functools import wraps
 from json import loads
 
+import jinja2
 from six import string_types
 
 from .core.json_encoder import serialize_json
 from .core.query import find
+from .core.templates import FILE
 from .core.validation import check_integrity
 from .model import Model
 from .themes import default as default_theme
@@ -24,6 +27,44 @@ from .util.version import __version__
 from .util.serialization import make_id
 
 DEFAULT_TITLE = "Bokeh Application"
+
+class UnlockedDocumentProxy(object):
+    ''' Wrap a Document object so that only methods that can safely be used
+    from unlocked callbacks or threads are exposed. Attempts to otherwise
+    access or change the Document results in an exception.
+
+    '''
+
+    def __init__(self, doc):
+        self._doc = doc
+
+    def __getattr__(self, attr):
+        raise RuntimeError(
+            "Only add_next_tick_callback may be used safely without taking the document lock; "
+            "to make other changes to the document, add a next tick callback and make your changes "
+            "from that callback.")
+
+    def add_next_tick_callback(self, callback):
+        return self._doc.add_next_tick_callback(callback)
+
+    def remove_next_tick_callback(self, callback):
+        return self._doc.remove_next_tick_callback(callback)
+
+def without_document_lock(f):
+    ''' Mark a callback function to execute without first obtaining
+    the document lock.
+
+    .. warning::
+        The value of curdoc() inside the callback will be None. Any
+        attempt to modify the document inside the callback can result
+        in data or protocol corruption.
+
+    '''
+    @wraps(f)
+    def wrapper(*args, **kw):
+        return f(*args, **kw)
+    wrapper.nolock = True
+    return wrapper
 
 class DocumentChangedEvent(object):
     def __init__(self, document):
@@ -220,6 +261,7 @@ class Document(object):
         self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
+        self._template = FILE
 
         # TODO (bev) add vars, stores
 
@@ -317,6 +359,16 @@ class Document(object):
             self._trigger_on_change(TitleChangedEvent(self, title))
 
     @property
+    def template(self):
+        return self._template
+
+    @template.setter
+    def template(self, template):
+        if not isinstance(template, jinja2.Template):
+            raise ValueError("Document templates must be Jinja2 Templates")
+        self._template = template
+
+    @property
     def theme(self):
         """ Get the current Theme instance affecting models in this Document. Never returns None."""
         return self._theme
@@ -349,6 +401,11 @@ class Document(object):
         if model in self._roots:
             return
         self._push_all_models_freeze()
+        # TODO(bird) Should we do some kind of reporting of how many LayoutDOM
+        # items are in the document roots. In vanilla bokeh cases e.g.
+        # output_file, output_server more than one LayoutDOM is probably not
+        # going to go well. But in embedded cases, you may well want more than
+        # one.
         try:
             self._roots.append(model)
         finally:
@@ -409,7 +466,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             seq[Model]
@@ -428,7 +485,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             Model
@@ -447,8 +504,8 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) :
+                name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                updates (dict) :
 
         Returns:
             None
@@ -487,14 +544,19 @@ class Document(object):
         from bokeh.io import set_curdoc, curdoc
         old_doc = curdoc()
         try:
-            set_curdoc(self)
+            if getattr(f, "nolock", False):
+                set_curdoc(UnlockedDocumentProxy(self))
+            else:
+                set_curdoc(self)
             return f()
         finally:
             set_curdoc(old_doc)
 
     def _wrap_with_self_as_curdoc(self, f):
         doc = self
+        @wraps(f)
         def wrapper(*args, **kwargs):
+            @wraps(f)
             def invoke():
                 return f(*args, **kwargs)
             return doc._with_self_as_curdoc(invoke)
@@ -900,6 +962,7 @@ class Document(object):
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
         if one_shot:
+            @wraps(callback)
             def remove_then_invoke(*args, **kwargs):
                 if callback in self._session_callbacks:
                     obj = self._session_callbacks[callback]
@@ -996,4 +1059,3 @@ class Document(object):
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
         self._trigger_on_change(SessionCallbackRemoved(self, cb))
-

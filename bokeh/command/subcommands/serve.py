@@ -67,6 +67,16 @@ Note that if multiple scripts or directories are provided, they
 all receive the same set of command line arguments (if any) given by
 ``--args``.
 
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
+
 Network Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -102,8 +112,37 @@ If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
 that the server is configured to listen on (by default: {DEFAULT_PORT}).
 
+If an asterix ``*`` is used in the host value then it will be treated as a
+wildcard:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --address=0.0.0.0 --host='*'
+
+Using the wildcard can be helpful when testing applications that are deployed
+with cloud orchestration tools and when the public endpoint is not known ahead
+of time: for instance if the public IP is dynamically allocated during the
+deployment process and no public DNS has been configured for the testing
+environment.
+
+As a warning, using permissive host values like ``*`` may be insecure and open
+your application to HTTP host header attacks. Production deployments should
+always set the ``--host`` flag to use the DNS name of the public endpoint such
+as a TLS-enabled load balancer or reverse proxy that serves the application to
+the end users.
+
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
+
+Bokeh server can fork the underlying tornado server into multiprocess.  This is
+useful when trying to handle multiple connections especially in the context of
+apps which require high computational loads.  Default behavior is one process.
+using 0 will auto-detect the number of cores and spin up corresponding number of
+processes
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --num-procs 2
 
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
@@ -253,7 +292,7 @@ To configure how often unused sessions last. set the
     bokeh serve app_script.py --unused-session-lifetime 60000
 
 The value is specified in milliseconds. The default lifetime interval
-for unused sessions is 30 minutes. Only positive integer values are
+for unused sessions is 15 seconds. Only positive integer values are
 accepted.
 
 Logging Options
@@ -289,6 +328,8 @@ from bokeh.server.server import Server
 from bokeh.util.string import nice_join
 from bokeh.settings import settings
 
+from os import getpid
+
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
 
@@ -303,6 +344,37 @@ __doc__ = __doc__.format(
     DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
 
+base_serve_args = (
+    ('--port', dict(
+        metavar = 'PORT',
+        type    = int,
+        help    = "Port to listen on",
+        default = None
+    )),
+
+    ('--address', dict(
+        metavar = 'ADDRESS',
+        type    = str,
+        help    = "Address to listen on",
+        default = None,
+    )),
+
+    ('--log-level', dict(
+        metavar = 'LOG-LEVEL',
+        action  = 'store',
+        default = 'info',
+        choices = LOGLEVELS,
+        help    = "One of: %s" % nice_join(LOGLEVELS),
+    )),
+
+    ('--log-format', dict(
+        metavar ='LOG-FORMAT',
+        action  = 'store',
+        default = DEFAULT_LOG_FORMAT,
+        help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+    )),
+)
+
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.
 
@@ -311,9 +383,7 @@ class Serve(Subcommand):
     name = "serve"
 
     help = "Run a Bokeh server hosting one or more applications"
-
-    args = (
-
+    args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
@@ -335,20 +405,6 @@ class Serve(Subcommand):
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",
-        )),
-
-        ('--port', dict(
-            metavar='PORT',
-            type=int,
-            help="Port to listen on",
-            default=None
-        )),
-
-        ('--address', dict(
-            metavar='ADDRESS',
-            type=str,
-            help="Address to listen on",
-            default=None,
         )),
 
         ('--allow-websocket-origin', dict(
@@ -405,21 +461,6 @@ class Serve(Subcommand):
             help="Prefer X-headers for IP/protocol information",
         )),
 
-        ('--log-level', dict(
-            metavar='LOG-LEVEL',
-            action  = 'store',
-            default = 'debug',
-            choices = LOGLEVELS,
-            help    = "One of: %s" % nice_join(LOGLEVELS),
-        )),
-
-        ('--log-format', dict(
-            metavar='LOG-FORMAT',
-            action  = 'store',
-            default = DEFAULT_LOG_FORMAT,
-            help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
-        )),
-
         ('--session-ids', dict(
             metavar='MODE',
             action  = 'store',
@@ -428,7 +469,26 @@ class Serve(Subcommand):
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
 
+        ('--disable-index', dict(
+            action = 'store_true',
+            help    = 'Do not use the default index on the root path',
+        )),
+
+        ('--disable-index-redirect', dict(
+            action = 'store_true',
+            help    = 'Do not redirect to running app from root path',
+        )),
+
+        ('--num-procs', dict(
+            metavar='N',
+            action='store',
+            help="Number of worker processes for an app. Default to one. Using "
+                 "0 will autodetect number of cores",
+            default=1,
+            type=int,
+        )),
     )
+
 
     def invoke(self, args):
         argvs = { f : args.args for f in args.files}
@@ -468,6 +528,7 @@ class Serve(Subcommand):
                                                               'address',
                                                               'allow_websocket_origin',
                                                               'host',
+                                                              'num_procs',
                                                               'prefix',
                                                               'develop',
                                                               'keep_alive_milliseconds',
@@ -499,6 +560,9 @@ class Serve(Subcommand):
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
 
+        server_kwargs['use_index'] = not args.disable_index
+        server_kwargs['redirect_root'] = not args.disable_index_redirect
+
         server = Server(applications, **server_kwargs)
 
         if args.show:
@@ -519,5 +583,7 @@ class Serve(Subcommand):
                  server.port,
                  address_string,
                  sorted(applications.keys()))
+
+        log.info("Starting Bokeh server with process id: %d" % getpid())
 
         server.start()

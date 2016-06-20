@@ -19,7 +19,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
-import itertools
 import json
 import os
 import warnings
@@ -30,14 +29,14 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models import Component
-from .models.plots import GridPlot
-from .models.layouts import HBox, VBox, VBoxForm
+from .models.layouts import LayoutDOM, Row, Column, WidgetBox, VBoxForm
+from .layouts import gridplot, GridSpec
 from .model import _ModelInDocument
+from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
-import bokeh.util.browser as browserlib # full import needed for test mocking to work
+import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
 
 #-----------------------------------------------------------------------------
@@ -276,7 +275,7 @@ def show(obj, browser=None, new="tab"):
     load the plot from that server session.
 
     Args:
-        obj (Component object) : a plot object to display
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows
@@ -298,27 +297,33 @@ def show(obj, browser=None, new="tab"):
         an IPython/Jupyter notebook.
 
     '''
+    if obj not in _state.document.roots:
+        _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new)
+
 
 def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
+    shown = False
 
     if state.notebook:
         comms_handle = _show_notebook_with_state(obj, state)
+        shown = True
 
     elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
+        shown = True
 
-    if state.file:
+    if state.file or not shown:
         _show_file_with_state(obj, state, new, controller)
 
     return comms_handle
 
 def _show_file_with_state(obj, state, new, controller):
-    save(obj, state=state)
-    controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
+    filename = save(obj, state=state)
+    controller.open("file://" + filename, new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
@@ -342,7 +347,9 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
     Will fall back to the default output state (or an explicitly provided
     :class:`State` object) for ``filename``, ``resources``, or ``title`` if they
-    are not provided.
+    are not provided. If the filename is not given and not provided via output state,
+    it is derived from the script name (e.g. ``/foo/myplot.py`` will create
+    ``/foo/myplot.html``)
 
     Args:
         obj (Document or model object) : a plot object to save
@@ -362,7 +369,7 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         validate (bool, optional) : True to check integrity of the models
 
     Returns:
-        None
+        filename (str) : the filename where the HTML file is saved.
 
     Raises:
         RuntimeError
@@ -372,37 +379,63 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
         state = _state
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-
     _save_helper(obj, filename, resources, title, validate)
+    return os.path.abspath(filename)
+
+def _detect_filename(ext):
+    """ Detect filename from the name of the script being run. Returns
+    None if the script could not be found (e.g. interactive mode).
+    """
+    import inspect
+    from os.path import isfile, dirname, basename, splitext, join
+    from inspect import currentframe
+
+    frame = inspect.currentframe()
+    while frame.f_back and frame.f_globals.get('name') != '__main__':
+        frame = frame.f_back
+
+    filename = frame.f_globals.get('__file__')
+    if filename and isfile(filename):
+        name, _ = splitext(basename(filename))
+        return join(dirname(filename), name + "." + ext)
 
 def _get_save_args(state, filename, resources, title):
+    warn = True
 
     if filename is None and state.file:
         filename = state.file['filename']
 
+    if filename is None:
+        warn = False
+        filename = _detect_filename("html")
+
+    if filename is None:
+        raise RuntimeError("save() called but no filename was supplied or detected, and output_file(...) was never called, nothing saved")
+
     if resources is None and state.file:
         resources = state.file['resources']
+
+    if resources is None:
+        if warn:
+            warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+
+        from .resources import CDN
+        resources = CDN
 
     if title is None and state.file:
         title = state.file['title']
 
-    if filename is None:
-        raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
-
-    if resources is None:
-        warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
-        from .resources import CDN
-        resources = CDN
-
     if title is None:
-        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+        if warn:
+            warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+
         title = "Bokeh Plot"
 
     return filename, resources, title
 
 def _save_helper(obj, filename, resources, title, validate):
     with _ModelInDocument(obj):
-        if isinstance(obj, Component):
+        if isinstance(obj, LayoutDOM):
             doc = obj.document
         elif isinstance(obj, Document):
             doc = obj
@@ -561,52 +594,20 @@ def _push_or_save(obj):
     if _state.file and _state.autosave:
         save(obj)
 
-def gridplot(plot_arrangement, **kwargs):
-    ''' Generate a plot that arranges several subplots into a grid.
-
-    Args:
-        plot_arrangement (nested list of Plots) : plots to arrange in a grid
-        **kwargs: additional attributes to pass in to GridPlot() constructor
-
-    .. note:: ``plot_arrangement`` can be nested, e.g [[p1, p2], [p3, p4]]
-
-    Returns:
-        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
-
-    '''
-    subplots = itertools.chain.from_iterable(plot_arrangement)
-    _remove_roots(subplots)
-    grid = GridPlot(children=plot_arrangement, **kwargs)
-    curdoc().add_root(grid)
-    _push_or_save(grid)
-    return grid
-
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
-    ''' Generate a layout that arranges several subplots horizontally.
-
-    '''
-    _remove_roots(children)
-    layout = HBox(children=list(children), **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
+    layout = Row(children=list(children), **kwargs)
     return layout
 
+
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
-    ''' Generate a layout that arranges several subplots vertically.
-
-    '''
-    _remove_roots(children)
-    layout = VBox(children=list(children), **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
+    layout = Column(children=list(children), **kwargs)
     return layout
 
+
+@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
-    ''' Generate a layout that arranges several subplots vertically.
-
-    '''
-    _remove_roots(children)
-    layout = VBoxForm(children=list(children), **kwargs)
-    curdoc().add_root(layout)
-    _push_or_save(layout)
-    return layout
+    # Returning a VBoxForm, because it has helpers so that
+    # Bokeh deprecates gracefully.
+    return VBoxForm(*children, **kwargs)

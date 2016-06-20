@@ -2,11 +2,12 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class RadioButtonGroupView extends BokehView
+Widget = require "./widget"
+
+
+class RadioButtonGroupView extends Widget.View
   tagName: "div"
   events:
     "change input": "change_input"
@@ -17,6 +18,7 @@ class RadioButtonGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     @$el.addClass("bk-bs-btn-group")
@@ -29,7 +31,7 @@ class RadioButtonGroupView extends BokehView
       if i == active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("type"))
+      $label.addClass("bk-bs-btn-" + @mget("button_type"))
       if i == active then $label.addClass("bk-bs-active")
       @$el.append($label)
     return @
@@ -43,11 +45,11 @@ class RadioButtonGroup extends Widget.Model
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
-  props: ->
-    return _.extend {}, super(), {
-      active:   [ p.Any,    null      ] # TODO (bev) better type?
-      labels:   [ p.Array,  []        ]
-      type:     [ p.String, "default" ]
+  @define {
+      active:      [ p.Any,    null      ] # TODO (bev) better type?
+      labels:      [ p.Array,  []        ]
+      button_type: [ p.String, "default" ]
+      callback:    [ p.Instance ]
     }
 
 module.exports =

@@ -21,7 +21,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 from ...models import Range1d
-from ...core.properties import Bool, Int
+from ...core.properties import Bool, Int, Either, Float, List
 
 from ..builder import create_and_build
 from .bar_builder import BarBuilder
@@ -48,7 +48,9 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     the variable by a categorical variable.
 
     Args:
-      data (:ref:`userguide_charts_data_types`): the data source for the chart
+      data (:ref:`userguide_charts_data_types`): the data source for the chart.
+        Must consist of at least 2 values. If all values are equal, the result
+        is a single bin with arbitrary width.
       values (str, optional): the values to use for producing the histogram using
         table-like input data
       label (str or list(str), optional): the categorical variable to use for creating
@@ -58,6 +60,8 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
         histogram, or explicit color as a string.
       agg (str, optional): how to aggregate the bins. Defaults to "count".
       bins (int, optional): the number of bins to use. Defaults to None to auto select.
+      density (bool, optional): whether to normalize the histogram. Defaults to False.
+
       **kw:
 
     In addition to the parameters specific to this chart,
@@ -109,20 +113,26 @@ class HistogramBuilder(BarBuilder):
 
     """
 
-    bins = Int(default=None, help="""
-    Number of bins to use for the histogram. (default: None
-    (use Freedman-Diaconis rule)
+    bins = Either(List(Float), Int, default=None, help="""
+    If bins is an int, it defines the number of equal-width bins in the
+    given range. If bins is a sequence, it defines the
+    bin edges, including the rightmost edge, allowing for non-uniform
+    bin widths.
+
+    (default: None, use Freedman-Diaconis rule)
     """)
 
-    density = Bool(True, help="""
-    Whether to normalize the histogram. (default: True)
+    density = Bool(False, help="""
+    Whether to normalize the histogram.
 
     If True, the result is the value of the probability *density* function
     at the bin, normalized such that the *integral* over the range is 1. If
     False, the result will contain the number of samples in each bin.
 
-    For more info check ``numpy.histogram`` function documentation.
+    For more info check :class:`~bokeh.charts.glyphs.HistogramGlyph`
+    documentation.
 
+    (default: False)
     """)
 
     glyph = HistogramGlyph
@@ -136,7 +146,7 @@ class HistogramBuilder(BarBuilder):
 
     def get_extra_args(self):
         """Build kwargs that are unique to the histogram builder."""
-        return dict(bin_count=self.bins)
+        return dict(bins=self.bins, density=self.density)
 
     def _apply_inferred_index(self):
         # ignore this for now, unless histogram later adds handling of indexed data

@@ -1,0 +1,10 @@
+{
+  "name": "bokehjs",
+  "version": false,
+  "dependencies": {},
+  "ambientDependencies": {
+    "jquery": "registry:dt/jquery#1.10.0+20160316155526",
+    "jsnlog": "registry:dt/jsnlog#2.11.0+20160317120654",
+    "underscore": "registry:dt/underscore#1.7.0+20160316155526"
+  }
+}

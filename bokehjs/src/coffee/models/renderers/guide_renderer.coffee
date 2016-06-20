@@ -6,11 +6,13 @@ p = require "../../core/properties"
 class GuideRenderer extends Renderer.Model
   type: 'GuideRenderer'
 
-  props: ->
-    return _.extend {}, super(), {
-      level: [ p.RenderLevel, 'overlay' ]
+  @define {
       plot:  [ p.Instance               ]
     }
+
+  @override {
+    level: 'overlay'
+  }
 
 module.exports =
   Model: GuideRenderer

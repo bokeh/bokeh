@@ -1,0 +1,36 @@
+// Styles related to laying out bokeh.
+
+.bk-layout-fixed, .bk-layout-scale_width, .bk-layout-scale_height {
+  position: relative;
+  &.bk-grid-row > div {
+    display: inline-block;
+    float: left;
+  }
+}
+.bk-grid-row {
+  clear: both;
+}
+
+.bk-toolbar-wrapper {
+  position: relative;
+}
+// Set-up the plot canvas css
+.bk-canvas, .bk-canvas-overlays, .bk-canvas-events {
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.bk-canvas-wrapper {
+  z-index: 50;
+}
+.bk-canvas-overlays {
+  z-index: 75;
+}
+.bk-canvas-events {
+  z-index: 100;
+}
+.bk-toolbar-wrapper {
+  z-index: 125;
+}

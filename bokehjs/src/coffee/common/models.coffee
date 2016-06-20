@@ -1,14 +1,21 @@
 module.exports = {
-
   SelectionManager:         require './selection_manager'
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 
+  Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'
+  Label:                    require '../models/annotations/label'
+  LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
+  Title:                    require '../models/annotations/title'
   Tooltip:                  require '../models/annotations/tooltip'
+
+  OpenHead:                 require('../models/annotations/arrow_head').OpenHead
+  NormalHead:               require('../models/annotations/arrow_head').NormalHead
+  VeeHead:                  require('../models/annotations/arrow_head').VeeHead
 
   CategoricalAxis:          require '../models/axes/categorical_axis'
   DatetimeAxis:             require '../models/axes/datetime_axis'
@@ -19,13 +26,13 @@ module.exports = {
   OpenURL:                  require '../models/callbacks/open_url'
 
   Canvas:                   require '../models/canvas/canvas'
-  LayoutBox:                require '../models/canvas/layout_box'
   CartesianFrame:           require '../models/canvas/cartesian_frame'
 
   BasicTickFormatter:       require '../models/formatters/basic_tick_formatter'
   CategoricalTickFormatter: require '../models/formatters/categorical_tick_formatter'
   DatetimeTickFormatter:    require '../models/formatters/datetime_tick_formatter'
   LogTickFormatter:         require '../models/formatters/log_tick_formatter'
+  FuncTickFormatter:        require '../models/formatters/func_tick_formatter'
   NumeralTickFormatter:     require '../models/formatters/numeral_tick_formatter'
   PrintfTickFormatter:      require '../models/formatters/printf_tick_formatter'
 
@@ -34,6 +41,7 @@ module.exports = {
   Arc:                      require '../models/glyphs/arc'
   Bezier:                   require '../models/glyphs/bezier'
   Circle:                   require '../models/glyphs/circle'
+  Ellipse:                  require '../models/glyphs/ellipse'
   Gear:                     require '../models/glyphs/gear'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
@@ -53,16 +61,23 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
-  GridPlot:                 require '../models/layouts/grid_plot'
-  HBox:                     require '../models/layouts/hbox'
-  VBox:                     require '../models/layouts/vbox'
-  VBoxForm:                 require '../models/layouts/vboxform'
+  Column:                   require '../models/layouts/column'
+  Row:                      require '../models/layouts/row'
+  Spacer:                   require '../models/layouts/spacer'
+  WidgetBox:                require '../models/layouts/widget_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'
+  LogColorMapper:           require '../models/mappers/log_color_mapper'
   LogMapper:                require '../models/mappers/log_mapper'
+
+  Transform:                require '../models/transforms/transform'
+  Jitter:                   require '../models/transforms/jitter'
+  Interpolator:             require '../models/transforms/interpolator'
+  LinearInterpolator:       require '../models/transforms/linear_interpolator'
+  StepInterpolator:       require '../models/transforms/step_interpolator'
 
   Asterisk:                 require '../models/markers/asterisk'
   CircleCross:              require '../models/markers/circle_cross'
@@ -113,9 +128,12 @@ module.exports = {
   DynamicImageRenderer:     require '../models/tiles/dynamic_image_renderer'
   ImageSource:              require '../models/tiles/image_source'
 
+  Toolbar:                  require '../models/tools/toolbar'
+  ToolbarBox:               require '../models/tools/toolbar_box'
+
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'
-  PreviewSaveTool:          require '../models/tools/actions/preview_save_tool'
+  SaveTool:                 require '../models/tools/actions/save_tool'
   UndoTool:                 require '../models/tools/actions/undo_tool'
   RedoTool:                 require '../models/tools/actions/redo_tool'
   ResetTool:                require '../models/tools/actions/reset_tool'

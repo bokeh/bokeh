@@ -102,9 +102,3 @@ def setup(app):
         )
     )
     app.add_directive('collapsible-code-block', CollapsibleCodeBlock)
-
-
-
-
-
-

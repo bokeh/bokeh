@@ -11,4 +11,3 @@ p.title_text_font_style = "italic"
 p.circle([1, 2, 3, 4, 5], [2, 5, 8, 2, 7], size=10)
 
 show(p)
-

@@ -2,6 +2,7 @@ _ = require "underscore"
 HasProps = require "../core/has_props"
 hittest = require "./hittest"
 {logger} = require "../core/logging"
+p = require "../core/properties"
 
 class Selector extends HasProps
   type: 'Selector'
@@ -21,9 +22,10 @@ class Selector extends HasProps
     @set('final', true)
     @set('indices', hittest.create_hit_test_result())
 
-  defaults: ->
-    return _.extend {}, super(), {
-      indices: hittest.create_hit_test_result()
-    }
+  @internal {
+    indices:   [ p.Any, () -> hittest.create_hit_test_result() ]
+    final:     [ p.Boolean ]
+    timestamp: [ p.Any ]
+  }
 
 module.exports = Selector

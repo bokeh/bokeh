@@ -1,13 +1,15 @@
 _ = require "underscore"
 
-InputWidget = require "./input_widget"
-template = require "./selecttemplate"
-BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class SelectView extends BokehView
-  tagName: "div"
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+template = require "./selecttemplate"
+
+
+class SelectView extends Widget.View
   template: template
   events:
     "change select": "change_input"
@@ -24,19 +26,24 @@ class SelectView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
     return @
 
+
 class Select extends InputWidget.Model
   type: "Select"
   default_view: SelectView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       value:   [ p.String, '' ]
       options: [ p.Any,    [] ] # TODO (bev) is this used?
+    }
+
+  @override {
+      height: 65
     }
 
 module.exports =

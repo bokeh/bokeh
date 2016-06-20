@@ -1,39 +1,43 @@
 _ = require "underscore"
 
-AbstractButton = require "./abstract_button"
 build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class ButtonView extends BokehView
-  tagName: "button"
+AbstractButton = require "./abstract_button"
+Widget = require "./widget"
+
+template = require "./button_template"
+
+class ButtonView extends Widget.View
   events:
     "click": "change_input"
+  template: template
 
   initialize: (options) ->
     super(options)
-    @views = {}
-    @render()
+    @icon_views = {}
     @listenTo(@model, 'change', @render)
+    @render()
 
   render: () ->
+    super()
+
     icon = @mget('icon')
     if icon?
-      build_views(@views, [icon])
-      for own key, val of @views
+      build_views(@icon_views, [icon])
+      for own key, val of @icon_views
         val.$el.detach()
 
     @$el.empty()
-    @$el.attr("type","button")
-    @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("type"))
-    if @mget("disabled") then @$el.attr("disabled", "disabled")
+    html = @template(@model.attributes)
+    @$el.append(html)
 
     label = @mget("label")
     if icon?
-      @$el.append(@views[icon.id].$el)
+      @$el.find('button').append(@icon_views[icon.id].$el)
       label = " #{label}"
-    @$el.append(document.createTextNode(label))
+
+    @$el.find('button').append(label)
 
     return @
 
@@ -45,9 +49,12 @@ class Button extends AbstractButton.Model
   type: "Button"
   default_view: ButtonView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       clicks: [ p.Number, 0        ]
+    }
+
+  @override {
+      height: 45
     }
 
 module.exports =

@@ -45,10 +45,10 @@ class PatchesView extends Glyph.View
   _index_data: () ->
     index = rbush()
     pts = []
-    xss = @_build_discontinuous_object(@xs)
-    yss = @_build_discontinuous_object(@ys)
+    xss = @_build_discontinuous_object(@_xs)
+    yss = @_build_discontinuous_object(@_ys)
 
-    for i in [0...@xs.length]
+    for i in [0...@_xs.length]
       for j in [0...xss[i].length]
         xs = xss[i][j]
         ys = yss[i][j]
@@ -69,7 +69,8 @@ class PatchesView extends Glyph.View
     yr = @renderer.plot_view.y_range
     [y0, y1] = [yr.get('min'), yr.get('max')]
 
-    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    return (x[4].i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
@@ -181,7 +182,8 @@ class Patches extends Glyph.Model
 
   type: 'Patches'
 
-  coords: [ ['xs', 'ys'] ]
+  @coords [ ['xs', 'ys'] ]
+  @mixins ['line', 'fill']
 
 module.exports =
   Model: Patches

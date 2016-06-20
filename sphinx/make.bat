@@ -194,4 +194,11 @@ results in %BUILDDIR%/doctest/output.txt.
 	goto end
 )
 
+if "%1" == "serve" (
+	python docserver.py
+	if errorlevel 1 exit /b 1
+	goto end
+)
+
+
 :end

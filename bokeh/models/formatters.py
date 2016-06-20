@@ -4,11 +4,16 @@ labels on Bokeh plot axes.
 """
 from __future__ import absolute_import
 
+from types import FunctionType
+import inspect
+
 from .tickers import Ticker
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
-from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
+from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
+    Either, Instance)
+from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage, ScriptingLanguage
+from ..util.dependencies import import_required
 
 @abstract
 class TickFormatter(Model):
@@ -200,13 +205,86 @@ class CategoricalTickFormatter(TickFormatter):
     """
     pass
 
+class FuncTickFormatter(TickFormatter):
+    """ Display tick values that are formatted by a user-defined function.
+
+    """
+
+    @classmethod
+    def from_py_func(cls, func):
+        """ Create a FuncTickFormatter instance from a Python function. The
+        function is translated to Javascript using PyScript.
+
+        .. warning::
+            The function can have only a single positional argument and return
+            a single value.
+        """
+        if not isinstance(func, FunctionType):
+            raise ValueError('CustomJS.from_py_func needs function object.')
+        pyscript = import_required('flexx.pyscript',
+                                   'To use Python functions for CustomJS, you need Flexx ' +
+                                   '("conda install -c bokeh flexx" or "pip install flexx")')
+
+        arg = inspect.getargspec(func)[0]
+        if len(arg) != 1:
+            raise ValueError("Function `func` can have only one argument, but %d were supplied." % len(arg))
+
+        # Set the transpiled functions as `formatter` so that we can call it
+        code = pyscript.py2js(func, 'formatter')
+        # We wrap the transpiled function into an anonymous function with a single
+        # arg that matches that of func.
+        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (arg[0], code, arg[0])
+
+        return cls(code=wrapped_code, lang='javascript')
+
+    code = String(default="", help="""
+    An anonymous JavaScript or CoffeeScript function expression to reformat a
+    single tick to the desired format.
+
+    Example:
+
+        .. code-block:: python
+
+            code = '''
+            function (tick) {
+                // Convert from minutes to seconds and add units str
+                return tick * 60 + " seconds"
+            };
+            '''
+
+    .. warning::
+        The function can have only a single positional argument and return
+        a single value.
+
+    """)
+
+    lang = Enum(ScriptingLanguage, default="javascript", help="""
+    The implementation scripting language of the snippet. This can be either
+    raw JavaScript or CoffeeScript. In CoffeeScript's case, the snippet will
+    be compiled at runtime (in a web browser), so you don't need to have
+    node.js/io.js, etc. installed.
+    """)
+
+DEFAULT_DATETIME_FORMATS = lambda : {
+    'microseconds': ['%fus'],
+    'milliseconds': ['%3Nms', '%S.%3Ns'],
+    'seconds':      ['%Ss'],
+    'minsec':       [':%M:%S'],
+    'minutes':      [':%M', '%Mm'],
+    'hourmin':      ['%H:%M'],
+    'hours':        ['%Hh', '%H:%M'],
+    'days':         ['%m/%d', '%a%d'],
+    'months':       ['%m/%Y', '%b%y'],
+    'years':        ['%Y'],
+}
+
 class DatetimeTickFormatter(TickFormatter):
     """ Display tick values from a continuous range as formatted
     datetimes.
 
     """
 
-    formats = Dict(Enum(DatetimeUnits), List(String), help="""
+    formats = Dict(Enum(DatetimeUnits), List(String), default=DEFAULT_DATETIME_FORMATS, help="""
     User defined formats for displaying datetime values.
 
     The enum values correspond roughly to different "time scales". The
@@ -415,4 +493,3 @@ class DatetimeTickFormatter(TickFormatter):
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
     """)
-

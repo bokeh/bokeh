@@ -33,27 +33,23 @@ class CrosshairTool extends InspectTool.Model
   type: "CrosshairTool"
   tool_name: "Crosshair"
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions: [ p.Array, ["width", "height"] ]
       line_color: [ p.Color, 'black'             ]
       line_width: [ p.Number, 1                  ]
       line_alpha: [ p.Number, 1.0                ]
-    })
+    }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['location_units', 'render_mode', 'spans'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      location_units: "screen"
-      render_mode: "css",
-    })
+  @internal {
+    location_units: [ p.SpatialUnits, "screen" ]
+    render_mode:    [ p.RenderMode, "css" ]
+    spans:          [ p.Any ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           "Crosshair",
           @_check_dims(@get('dimensions'), "crosshair tool")
@@ -61,7 +57,7 @@ class CrosshairTool extends InspectTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-    @set('spans', {
+    @spans = {
       width: new Span.Model({
         for_hover: true
         dimension: "width",
@@ -80,12 +76,9 @@ class CrosshairTool extends InspectTool.Model
         line_width: @get('line_width')
         line_alpha: @get('line_alpha')
       })
-    })
+    }
 
-    renderers = @get('plot').get('renderers')
-    renderers.push(@get('spans').width)
-    renderers.push(@get('spans').height)
-    @get('plot').set('renderers', renderers)
+    @override_computed_property('synthetic_renderers', (() => _.values(@get("spans"))), true)
 
 module.exports =
   Model: CrosshairTool

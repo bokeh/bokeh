@@ -48,8 +48,8 @@ class UIEvents extends Backbone.Model
 
 
   register_tool: (tool_view) ->
-    et = tool_view.mget('event_type')
-    id = tool_view.mget('id')
+    et = tool_view.model.event_type
+    id = tool_view.model.id
     type = tool_view.model.type
 
     # tool_viewbar button events handled by tool_view manager
@@ -89,9 +89,9 @@ class UIEvents extends Backbone.Model
       tool_view.listenTo(@, "doubletap", tool_view._doubletap)
 
   _trigger: (event_type, e) ->
-    tm = @get('tool_manager')
+    toolbar = @get('toolbar')
     base_event_type = event_type.split(":")[0]
-    gestures = tm.get('gestures')
+    gestures = toolbar.get('gestures')
     active_tool = gestures[base_event_type].active
     if active_tool?
       @_trigger_event(event_type, active_tool, e)
@@ -108,8 +108,8 @@ class UIEvents extends Backbone.Model
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
     else
-      x = e.center.x
-      y = e.center.y
+      x = e.pointers[0].pageX
+      y = e.pointers[0].pageY
     offset = $(e.target).offset()
     left = offset.left ? 0
     top = offset.top ? 0

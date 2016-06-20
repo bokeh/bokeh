@@ -2,12 +2,12 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
 
-dialog_template = require "./dialog_template"
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class DialogView extends BokehView
+dialog_template = require "./dialog_template"
+Widget = require "./widget"
+
+class DialogView extends Widget.View
 
   initialize: (options) ->
     super(options)
@@ -45,6 +45,7 @@ class DialogView extends BokehView
     return @
 
   render: () ->
+    super()
     @$modal = $(dialog_template(@model.attributes))
     @$modal.modal({show: @mget("visible")})
     @$modal.on('hidden.bk-bs.modal', @onHide)
@@ -64,8 +65,7 @@ class Dialog extends Widget.Model
   type: "Dialog"
   default_view: DialogView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       visible:     [ p.Bool,    false ]
       closable:    [ p.Bool,    true  ]
       title:       [ p.String,  ""    ]

@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 import unittest
 
+import pytest
+
 from bokeh.models import (
     LinearAxis, PanTool, BoxZoomTool, LassoSelectTool, ResetTool, ResizeTool)
 
@@ -97,6 +99,15 @@ class TestFigure(unittest.TestCase):
         expected.add(ax4)
         p.right.append(ax4)
         self.assertEqual(set(p.axis), expected)
+
+    def test_log_axis(self):
+        p = plt.figure(x_axis_type='log')
+        p.circle([1, 2, 3], [1, 2, 3])
+        self.assertEqual(p.x_mapper_type, 'log')
+
+        p = plt.figure(y_axis_type='log')
+        p.circle([1, 2, 3], [1, 2, 3])
+        self.assertEqual(p.y_mapper_type, 'log')
 
     def test_xgrid(self):
         p = plt.figure()
@@ -210,6 +221,10 @@ class TestMarkers(unittest.TestCase):
         self.assertEqual(p.renderers[-1].level, "underlay")
         with self.assertRaises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
+
+def test_title_kwarg_no_warning(recwarn):
+    plt.figure(title="title")
+    assert len(recwarn) == 0
 
 if __name__ == "__main__":
     unittest.main()

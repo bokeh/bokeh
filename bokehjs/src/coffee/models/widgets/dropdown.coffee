@@ -1,11 +1,13 @@
 _ = require "underscore"
 $ = require "jquery"
 
-AbstractButton = require "./abstract_button"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class DropdownView extends BokehView
+AbstractButton = require "./abstract_button"
+Widget = require "./widget"
+
+
+class DropdownView extends Widget.View
   tagName: "div"
 
   initialize: (options) ->
@@ -14,13 +16,14 @@ class DropdownView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     split = @mget("default_value")?
 
     $button = $('<button></button>')
     $button.addClass("bk-bs-btn")
-    $button.addClass("bk-bs-btn-" + @mget("type"))
+    $button.addClass("bk-bs-btn-" + @mget("button_type"))
     $button.text(@mget("label"))
 
     $caret = $('<span class="bk-bs-caret"></span>')
@@ -34,7 +37,7 @@ class DropdownView extends BokehView
       $button.click(() => @change_input(@mget("default_value")))
       $toggle = $('<button></button>')
       $toggle.addClass("bk-bs-btn")
-      $toggle.addClass("bk-bs-btn-" + @mget("type"))
+      $toggle.addClass("bk-bs-btn-" + @mget("button_type"))
       $toggle.addClass("bk-bs-dropdown-toggle")
       $toggle.attr("data-bk-bs-toggle", "dropdown")
       $toggle.append($caret)
@@ -65,18 +68,15 @@ class Dropdown extends AbstractButton.Model
   type: "Dropdown"
   default_view: DropdownView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       value:         [ p.String    ]
       default_value: [ p.String    ]
       menu:          [ p.Array, [] ]
     }
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      # overrides
-      label: "Dropdown"
-    }
+  @override {
+    label: "Dropdown"
+  }
 
 module.exports =
   Model: Dropdown

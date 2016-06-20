@@ -3,6 +3,7 @@ $ = require "jquery"
 
 InspectTool = require "./inspect_tool"
 Tooltip = require "../../annotations/tooltip"
+GlyphRenderer = require "../../renderers/glyph_renderer"
 hittest = require "../../../common/hittest"
 {logger} = require "../../../core/logging"
 p = require "../../../core/properties"
@@ -24,9 +25,16 @@ class HoverToolView extends InspectTool.View
 
   bind_bokeh_events: () ->
     for r in @mget('computed_renderers')
-      @listenTo(r.get('data_source'), 'inspect', @_update)
+      @listenTo(r.data_source, 'inspect', @_update)
 
     @plot_view.canvas_view.$el.css('cursor', 'crosshair')
+
+  _clear: () ->
+
+    @_inspect(Infinity, Infinity)
+
+    for rid, tt of @mget('ttmodels')
+      tt.clear()
 
   _move: (e) ->
     if not @mget('active')
@@ -35,14 +43,11 @@ class HoverToolView extends InspectTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
     if not @plot_view.frame.contains(vx, vy)
-      for rid, tt of @mget('ttmodels')
-        tt.clear()
-      return
-    @_inspect(vx, vy)
+      @_clear()
+    else
+      @_inspect(vx, vy)
 
-  _move_exit: ()->
-    for rid, tt of @mget('ttmodels')
-      tt.clear()
+  _move_exit: () -> @_clear()
 
   _inspect: (vx, vy, e) ->
     geometry = {
@@ -51,11 +56,11 @@ class HoverToolView extends InspectTool.View
       vy: vy
     }
 
-    if @mget('mode') == 'mouse'
+    if @model.mode == 'mouse'
       geometry['type'] = 'point'
     else
         geometry['type'] = 'span'
-        if @mget('mode') == 'vline'
+        if @model.mode == 'vline'
           geometry.direction = 'h'
         else
           geometry.direction = 'v'
@@ -64,8 +69,8 @@ class HoverToolView extends InspectTool.View
     hovered_renderers = []
 
     for r in @mget('computed_renderers')
-      sm = r.get('data_source').get('selection_manager')
-      sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
+      sm = r.data_source.get('selection_manager')
+      sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
     if @mget('callback')?
       @_emit_callback(geometry)
@@ -76,7 +81,6 @@ class HoverToolView extends InspectTool.View
     tooltip = @mget('ttmodels')[renderer.model.id] ? null
     if not tooltip?
       return
-
     tooltip.clear()
 
     [i1d, i2d] = [indices['1d'].indices, indices['2d'].indices]
@@ -98,23 +102,23 @@ class HoverToolView extends InspectTool.View
     y = ymapper.map_from_target(vy)
 
     for i in indices['0d'].indices
-      data_x = renderer.glyph.x[i+1]
-      data_y = renderer.glyph.y[i+1]
+      data_x = renderer.glyph._x[i+1]
+      data_y = renderer.glyph._y[i+1]
 
-      if @mget('line_policy') == "interp"# and renderer.get_interpolation_hit?
+      if @model.line_policy == "interp" # and renderer.get_interpolation_hit?
         [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
         rx = xmapper.map_to_target(data_x)
         ry = ymapper.map_to_target(data_y)
 
-      else if @mget('line_policy') == "prev"
+      else if @model.line_policy == "prev"
         rx = canvas.sx_to_vx(renderer.glyph.sx[i])
         ry = canvas.sy_to_vy(renderer.glyph.sy[i])
 
-      else if @mget('line_policy') == "next"
+      else if @model.line_policy == "next"
         rx = canvas.sx_to_vx(renderer.glyph.sx[i+1])
         ry = canvas.sy_to_vy(renderer.glyph.sy[i+1])
 
-      else if @mget('line_policy') == "nearest"
+      else if @model.line_policy == "nearest"
         d1x = renderer.glyph.sx[i]
         d1y = renderer.glyph.sy[i]
         dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
@@ -129,8 +133,8 @@ class HoverToolView extends InspectTool.View
           [sdatax, sdatay] = [d2x, d2y]
           i = i+1
 
-        data_x = renderer.glyph.x[i]
-        data_y = renderer.glyph.y[i]
+        data_x = renderer.glyph._x[i]
+        data_y = renderer.glyph._y[i]
         rx = canvas.sx_to_vx(sdatax)
         ry = canvas.sy_to_vy(sdatay)
 
@@ -138,18 +142,25 @@ class HoverToolView extends InspectTool.View
           [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
+
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     for i in indices['1d'].indices
       # patches will not have .x, .y attributes, for instance
-      data_x = renderer.glyph.x?[i]
-      data_y = renderer.glyph.y?[i]
-      if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
+      data_x = renderer.glyph._x?[i]
+      data_y = renderer.glyph._y?[i]
+      if @model.point_policy == 'snap_to_data' # and renderer.glyph.sx? and renderer.glyph.sy?
         # Pass in our screen position so we can determine
         # which patch we're over if there are discontinuous
         # patches.
-        rx = canvas.sx_to_vx(renderer.glyph.scx(i, sx, sy))
-        ry = canvas.sy_to_vy(renderer.glyph.scy(i, sx, sy))
+        pt = renderer.glyph.get_anchor_point(@model.anchor, i, [sx, sy])
+        if pt?
+          {x, y} = pt
+        else
+          {x, y} = renderer.glyph.get_anchor_point("center", i, [sx, sy])
+
+        rx = canvas.sx_to_vx(x)
+        ry = canvas.sy_to_vy(y)
       else
         [rx, ry] = [vx, vy]
 
@@ -161,10 +172,10 @@ class HoverToolView extends InspectTool.View
 
   _emit_callback: (geometry) ->
     r = @mget('computed_renderers')[0]
-    indices = @plot_view.renderers[r.id].hit_test(geometry)
+    indices = @plot_view.renderer_views[r.id].hit_test(geometry)
 
-    canvas = @plot_model.get('canvas')
-    frame = @plot_model.get('frame')
+    canvas = @plot_model.canvas
+    frame = @plot_model.frame
 
     geometry['sx'] = canvas.vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.vy_to_sy(geometry.vy)
@@ -174,15 +185,22 @@ class HoverToolView extends InspectTool.View
     geometry['x'] = xmapper.map_from_target(geometry.vx)
     geometry['y'] = ymapper.map_from_target(geometry.vy)
 
-    @mget('callback').execute(@model, {index: indices, geometry: geometry})
+    callback = @model.callback
+    [obj, data] = [callback, {index: indices, geometry: geometry}]
+
+    if _.isFunction(callback)
+      callback(obj, data)
+    else
+      callback.execute(obj, data)
 
     return
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @mget("tooltips")
-
     if _.isString(tooltips)
       return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
+    else if _.isFunction(tooltips)
+      return tooltips(ds, vars)
     else
       table = $('<table></table>')
 
@@ -229,8 +247,7 @@ class HoverTool extends InspectTool.Model
   tool_name: "Hover Tool"
   icon: "bk-tool-icon-hover"
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       tooltips: [ p.Any,
         [
           ["index",         "$index"]
@@ -242,42 +259,50 @@ class HoverTool extends InspectTool.Model
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
       line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
-      callback:     [ p.Instance               ]
-    })
-
-  nonserializable_attribute_names: () ->
-    super().concat(['ttmodels', 'computed_renderers'])
+      anchor:       [ p.String, 'center'       ] # TODO: enum
+      attachment:   [ p.String, 'horizontal'   ] # TODO: enum
+      callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    names = @get('names')
-    renderers = @get('renderers')
+    @define_computed_property('computed_renderers',
+      () ->
+        renderers = @get('renderers')
+        names = @get('names')
 
-    if renderers.length == 0
-      all_renderers = @get('plot').get('renderers')
-      renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
+        if renderers.length == 0
+          all_renderers = @get('plot').get('renderers')
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
 
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+        if names.length > 0
+          renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
 
-    @set('computed_renderers', renderers)
-    logger.debug("setting #{renderers.length} computed renderers for #{@type} #{@id}")
-    for r in renderers
-      logger.debug("  - #{r.type} #{r.id}")
+        return renderers
+      , true)
+    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
+    @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
-    ttmodels = {}
-    renderers = @get('plot').get('renderers')
-    tooltips = @get("tooltips")
-    if tooltips?
-      for r in @get('computed_renderers')
-        tooltip = new Tooltip.Model()
-        tooltip.set("custom", _.isString(tooltips))
-        ttmodels[r.id] = tooltip
-        renderers.push(tooltip)
-    @set('ttmodels', ttmodels)
-    @get('plot').set('renderers', renderers)
-    return
+    @define_computed_property('ttmodels',
+      () ->
+        ttmodels = {}
+        tooltips = @get("tooltips")
+
+        if tooltips?
+          for r in @get('computed_renderers')
+            tooltip = new Tooltip.Model({
+              custom: _.isString(tooltips) or _.isFunction(tooltips)
+              attachment: @attachment
+            })
+            ttmodels[r.id] = tooltip
+
+        return ttmodels
+      , true)
+    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
+
+    @override_computed_property('synthetic_renderers', (() -> _.values(@get("ttmodels"))), true)
+    @add_dependencies('synthetic_renderers', this, ['ttmodels'])
 
 module.exports =
   Model: HoverTool

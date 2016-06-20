@@ -20,7 +20,7 @@ def callback(source=source, window=None):
         y[i] = window.Math.pow(x[i], f)
     source.trigger('change');
 
-slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", 
+slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
                 callback=CustomJS.from_py_func(callback))
 
 layout = vform(slider, plot)

@@ -105,15 +105,28 @@ the inputs for line and fill alphas:
     provide ``fill|line_alpha`` or ``fill|line_color`` in combination with
     the ``color``/``alpha`` keywords, and the former will take precedence.
 
+.. _userguide_styling_arrow_annotations:
+
+Styling Arrow Annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are several `ArrowHead` subtypes that can be applied to Arrow
+annotations. Setting the `start` or `end` property to None will
+cause no arrow head to be applied at the specified arrow end. Double-sided
+arrows can be created by setting both `start` and `end` styles.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_arrow_annotations.py
+    :source-position: none
+
 .. _userguide_styling_units:
 
 Screen Units and Data-space Units
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Screen units use raw numbers of pixels to specify height or width, while 
-data-space units are relative to the data and the axes of the chart. For 
-example, in a 400 pixel by 400 pixel graph with x and y axes ranging from 0 
-through 10, a glyph one fifth as wide and tall as the graph would be 80 screen 
+Screen units use raw numbers of pixels to specify height or width, while
+data-space units are relative to the data and the axes of the chart. For
+example, in a 400 pixel by 400 pixel graph with x and y axes ranging from 0
+through 10, a glyph one fifth as wide and tall as the graph would be 80 screen
 units or 2 data-space units.
 
 .. _userguide_styling_selecting:
@@ -354,10 +367,10 @@ below demonstrates the latter method:
     Only the *visual* properties of ``hover_glyph`` are considered when
     rendering. Changing positions, sizes, etc. will have no effect.
 
-.. _userguide_styling_tools:
+.. _userguide_styling_tool_overlays:
 
-Tools
------
+Tool Overlays
+-------------
 
 Some Bokeh tools also have configurable visual attributes. For instance the
 various region selection tools and box zoom tool all have an ``overlay``

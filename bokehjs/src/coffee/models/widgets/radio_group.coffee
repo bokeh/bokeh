@@ -1,11 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class RadioGroupView extends BokehView
+Widget = require "./widget"
+
+
+class RadioGroupView extends Widget.View
   tagName: "div"
   events:
     "change input": "change_input"
@@ -16,6 +17,7 @@ class RadioGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     name = _.uniqueId("RadioGroup")
@@ -37,16 +39,17 @@ class RadioGroupView extends BokehView
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
+    @mget('callback')?.execute(@model)
 
 class RadioGroup extends Widget.Model
   type: "RadioGroup"
   default_view: RadioGroupView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       active:   [ p.Any,   null  ] # TODO (bev) better type?
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
+      callback: [ p.Instance ]
     }
 
 module.exports =

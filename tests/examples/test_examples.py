@@ -179,7 +179,7 @@ def _run_example(example, log_file):
     example_path = join(example_dir, example)
 
     code = """\
-filename = '%s'
+__file__ = filename = '%s'
 
 import random
 random.seed(1)

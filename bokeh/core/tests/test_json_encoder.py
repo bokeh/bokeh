@@ -3,6 +3,9 @@ from __future__ import absolute_import
 import unittest
 from unittest import skipIf
 
+import datetime as dt
+import time
+
 import numpy as np
 
 try:
@@ -50,7 +53,6 @@ class TestBokehJSONEncoder(unittest.TestCase):
         ts = pd.tslib.Timestamp('April 28, 1948')
         self.assertEqual(self.encoder.default(ts), -684115200000)
 
-
 class TestSerializeJson(unittest.TestCase):
 
     def setUp(self):
@@ -91,7 +93,7 @@ class TestSerializeJson(unittest.TestCase):
         assert deserialized[3] == 0
 
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
-    def test_datetime_types(self):
+    def test_pandas_datetime_types(self):
         """should convert to millis
         """
         idx = pd.date_range('2001-1-1', '2001-1-5')
@@ -111,6 +113,29 @@ class TestSerializeJson(unittest.TestCase):
                              978652800000]
         }
         assert deserialized == baseline
+
+    def test_builtin_datetime_types(self):
+        """ should convert to millis as-is
+        """
+
+        a = dt.date(2016, 4, 28)
+        b = dt.datetime(2016, 4, 28, 2, 20, 50)
+        serialized = self.serialize({'a' : [a],
+                                     'b' : [b]})
+        deserialized = self.deserialize(serialized)
+
+        baseline = {u'a': [time.mktime(a.timetuple())*1000],
+                    u'b': [time.mktime(b.timetuple())*1000],
+        }
+        assert deserialized == baseline
+
+    def test_builtin_timedelta_types(self):
+        """ should convert time delta to a dictionary
+        """
+        delta = dt.timedelta(days=42, seconds=1138, microseconds=1337)
+        serialized = self.serialize(delta)
+        deserialized = self.deserialize(serialized)
+        assert deserialized == delta.total_seconds() * 1000
 
 if __name__ == "__main__":
     unittest.main()

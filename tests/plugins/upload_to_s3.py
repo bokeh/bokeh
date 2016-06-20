@@ -7,6 +7,9 @@ from os.path import join
 from .constants import job_id, __version__
 from .utils import ok, fail
 
+import logging
+logging.getLogger('boto').setLevel(logging.INFO)
+
 S3_BUCKET = "bokeh-travis"
 S3_URL = "https://s3.amazonaws.com/%s" % S3_BUCKET
 

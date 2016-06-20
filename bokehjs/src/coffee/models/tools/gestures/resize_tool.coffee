@@ -60,7 +60,7 @@ class ResizeToolView extends GestureTool.View
 
   _update: (dx, dy) ->
     @plot_view.pause()
-    @plot_view.canvas.set_dims([@cw+dx, @ch+dy])
+    @plot_view.canvas_view.set_dims([@cw+dx, @ch+dy])
     @plot_view.unpause()
     return
 
@@ -71,18 +71,6 @@ class ResizeTool extends GestureTool.Model
   icon: "bk-tool-icon-resize"
   event_type: "pan"
   default_order: 40
-
-  nonserializable_attribute_names: () ->
-    super().concat(['data'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      # overrides
-      level: 'overlay'
-
-      # internal
-      data: {}
-    })
 
 module.exports =
   Model: ResizeTool

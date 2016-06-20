@@ -20,15 +20,26 @@ class TapToolView extends SelectTool.View
     }
 
     callback = @mget("callback")
+    @_save_geometry(geometry, final, append)
 
-    for r in @mget('renderers')
+    cb_data =
+      geometries: @plot_model.plot.tool_events.get('geometries')
+
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
-      sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
-      if callback? then callback.execute(ds)
 
-    @_save_geometry(geometry, final, append)
-    @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+      fn = if @model.behavior == "select" then sm.select else sm.inspect
+      did_hit = fn.bind(sm)(@, @plot_view.renderer_views[r.id], geometry, final, append)
+
+      if did_hit and callback?
+        if _.isFunction(callback)
+          callback(ds, cb_data)
+        else
+          callback.execute(ds, cb_data)
+
+    if @model.behavior == "select"
+      @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
     return null
 
@@ -40,10 +51,10 @@ class TapTool extends SelectTool.Model
   event_type: "tap"
   default_order: 10
 
-  props: ->
-    return _.extend({}, super(), {
-      callback: [ p.Instance ]
-    })
+  @define {
+    behavior: [ p.String, "select" ] # TODO: Enum("select", "inspect")
+    callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
+  }
 
 module.exports =
   Model: TapTool

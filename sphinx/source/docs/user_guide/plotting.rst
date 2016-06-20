@@ -49,8 +49,8 @@ example plots for all of them by clicking on entries in the list below:
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by 
-default). Additionally, |circle| has a ``radius`` property that can be used to 
+:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by
+default). Additionally, |circle| has a ``radius`` property that can be used to
 specify :ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
@@ -135,8 +135,8 @@ patch objects, that have multiple disjoint components when rendered:
 
 .. _userguide_plotting_quads_rects:
 
-Rectangles and Ovals
-~~~~~~~~~~~~~~~~~~~~
+Rectangles, Ovals and Ellipses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To draw *axis aligned* rectangles ("quads"), use the |quad| glyph function,
 which accepts ``left``, ``right``, ``top``, and ``bottom`` values to specify
@@ -155,6 +155,14 @@ The |oval| glyph method accepts the same properties as |rect|, but renders
 oval shapes:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ovals.py
+    :source-position: above
+
+The |ellipse| glyph accepts the same properties as |oval| and |rect| but
+renders ellipse shapes, which are different from oval ones. In particular,
+the same value for width and height will render a circle using the |ellipse|
+glyph but not the |oval| one:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ellipses.py
     :source-position: above
 
 .. _userguide_plotting_images:
@@ -190,9 +198,9 @@ The |segment| function accepts start points ``x0``, ``y0`` and end points
     :source-position: above
 
 The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default 
-``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an 
-"infinite" ray, that always extends to the edge of the plot, specify ``0`` for 
+(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default
+``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an
+"infinite" ray, that always extends to the edge of the plot, specify ``0`` for
 the length:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_ray.py
@@ -380,6 +388,22 @@ glyph methods, when creating a plot.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
     :source-position: above
 
+.. _userguide_plotting_arrows:
+
+Arrows
+~~~~~~
+
+Arrows can be used to connect glyphs and label annotations or to simply
+highlight plot regions. Arrows are compound annotations, meaning that their
+`start` and `end` attributes are `ArrowHead` annotations themselves. By
+default, the Arrow annotation is one-sided with the `end` set as an
+`OpenHead`-type arrow head (an open-backed wedge style) and the `start`
+property set to `None`. Double-sided arrows can be created by setting both the
+`start` and `end` properties as appropriate `ArrowHead` subclass instances.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arrow.py
+    :source-position: above
+
 .. _userguide_plotting_box_annotations:
 
 Box Annotations
@@ -390,6 +414,17 @@ emphasize desired plot regions. By default, box annotation dimensions (e.g.
 left or top) default will extend the annotation to the edge of the plot area.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
+    :source-position: above
+
+.. _userguide_plotting_labels:
+
+Labels
+~~~~~~
+
+Labels are text elements that can be used to annotate either glyphs or plot
+regions.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_label.py
     :source-position: above
 
 .. _userguide_plotting_spans:
@@ -422,6 +457,7 @@ extend to the edge of the plot area.
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+.. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`

@@ -46,10 +46,13 @@ class Property extends Backbone.Model
 
   # ----- property accessors
 
-  value: () ->
+  value: (do_spec_transform=true) ->
     if _.isUndefined(@spec.value)
       throw new Error("attempted to retrieve property value for property without value specification")
-    return @transform([@spec.value])[0]
+    ret = @transform([@spec.value])[0]
+    if @spec.transform? and do_spec_transform
+      ret = @spec.transform.compute(ret)
+    return ret
 
   array: (source) ->
     if not @dataspec
@@ -57,14 +60,18 @@ class Property extends Backbone.Model
     data = source.get('data')
     if @spec.field?
       if @spec.field of data
-        return @transform(source.get_column(@spec.field))
+        ret = @transform(source.get_column(@spec.field))
       else
         throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
     else
       length = source.get_length()
       length = 1 if not length?
-      value = @value() # already transformed
-      return (value for i in [0...length])
+      value = @value(false) # don't apply any spec transform
+      ret = (value for i in [0...length])
+
+    if @spec.transform?
+      ret = @spec.transform.v_compute(ret)
+    return ret
 
   # ----- private methods
 
@@ -83,12 +90,15 @@ class Property extends Backbone.Model
 
     attr_value = obj.get(attr)
 
-    default_value = @get('default_value')
     if _.isUndefined(attr_value)
-      if _.isUndefined(default_value)
-        attr_value = null
-      else
-        attr_value = default_value
+      default_value = @get('default_value')
+
+      attr_value = switch
+        when _.isUndefined(default_value) then null
+        when _.isArray(default_value)     then _.clone(default_value)
+        when _.isFunction(default_value)  then default_value(obj)
+        else                                   default_value
+
       obj.set(attr, attr_value, {silent: true, defaults: true})
 
     # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
@@ -160,6 +170,8 @@ enum_prop = (name, enum_values) ->
 
 class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
+class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits)
+
 class Direction extends enum_prop("Direction", enums.Direction)
   transform: (values) ->
     result = new Uint8Array(values.length)
@@ -191,7 +203,13 @@ class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
 
 class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
+class SizingMode extends enum_prop("SizingMode", enums.SizingMode)
+
 class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
+
+class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
+
+class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
 
 #
 # Units Properties
@@ -255,8 +273,10 @@ module.exports =
   Anchor: Anchor
   Any: Any
   Angle: Angle
+  AngleUnits: AngleUnits
   Array: Array
   Bool: Bool
+  Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
   Direction: Direction
@@ -269,13 +289,17 @@ module.exports =
   LineJoin: LineJoin
   Location: Location
   Number: Number
+  Int: Number                     # TODO
   Orientation: Orientation
   RenderLevel: RenderLevel
   RenderMode: RenderMode
+  SizingMode: SizingMode
   SpatialUnits: SpatialUnits
   String: String
   TextAlign: TextAlign
   TextBaseline: TextBaseline
+  Distribution: Distribution
+  TransformStepMode: TransformStepMode
 
   AngleSpec: AngleSpec
   ColorSpec: ColorSpec
@@ -284,4 +308,3 @@ module.exports =
   FontSizeSpec: FontSizeSpec
   NumberSpec: NumberSpec
   StringSpec: StringSpec
-

@@ -1,4 +1,3 @@
-
 fixup_line_dash = (ctx) ->
   if (!ctx.setLineDash)
     ctx.setLineDash = (dash) ->
@@ -47,9 +46,38 @@ get_scale_ratio = (ctx, hidpi) ->
   else
     return 1
 
+fixup_ellipse = (ctx) ->
+  # implementing the ctx.ellipse function with bezier curves
+  # we don't implement the startAngle, endAngle and anticlockwise arguments.
+  ellipse_bezier = (x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise = false) ->
+    c = 0.551784 # see http://www.tinaja.com/glib/ellipse4.pdf
+
+    ctx.translate(x, y)
+    ctx.rotate(rotation)
+
+    rx = radiusX
+    ry = radiusY
+    if anticlockwise
+      rx = -radiusX
+      ry = -radiusY
+
+    ctx.moveTo(-rx, 0) # start point of first curve
+    ctx.bezierCurveTo(-rx,  ry * c, -rx * c,  ry, 0,  ry)
+    ctx.bezierCurveTo( rx * c,  ry,  rx,  ry * c,  rx, 0)
+    ctx.bezierCurveTo( rx, -ry * c,  rx * c, -ry, 0, -ry)
+    ctx.bezierCurveTo(-rx * c, -ry, -rx, -ry * c, -rx, 0)
+
+    ctx.rotate(-rotation)
+    ctx.translate(-x, -y)
+    return
+
+  if (!ctx.ellipse)
+    ctx.ellipse = ellipse_bezier
+
 module.exports =
   fixup_image_smoothing: fixup_image_smoothing
   fixup_line_dash: fixup_line_dash
   fixup_line_dash_offset: fixup_line_dash_offset
   fixup_measure_text: fixup_measure_text
   get_scale_ratio: get_scale_ratio
+  fixup_ellipse: fixup_ellipse

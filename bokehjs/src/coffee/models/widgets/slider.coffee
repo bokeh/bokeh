@@ -1,13 +1,16 @@
 _ = require "underscore"
 $2 = require "jquery-ui/slider"
 
-InputWidget = require "./input_widget"
-slidertemplate = require "./slidertemplate"
-BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
-class SliderView extends BokehView
+InputWidget = require "./input_widget"
+Widget = require "./widget"
+
+slidertemplate = require "./slidertemplate"
+
+
+class SliderView extends Widget.View
   tagName: "div"
   template: slidertemplate
 
@@ -28,6 +31,7 @@ class SliderView extends BokehView
     @render()
 
   render: () ->
+    super()
     max = @mget('end')
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)
@@ -39,19 +43,15 @@ class SliderView extends BokehView
       min: min,
       max: max,
       step: step,
-      start: @slidestart,
       stop: @slidestop,
       slide: @slide
     }
-    @$('.slider').slider(opts)
+    @$el.find('.slider').slider(opts)
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
+    @$el.find('.bk-slider-parent').height(@mget('height'))
     return @
 
-  slidestart: (event, ui) =>
-    @$( "##{ @mget('id') }" ).css('color', '#ffceab')
-
   slidestop: (event, ui) =>
-    @$( "##{ @mget('id') }" ).css('color', '#f6931f')
     if @mget('callback_policy') == 'mouseup' or @mget('callback_policy') == 'throttle'
       @mget('callback')?.execute(@model)
 
@@ -66,8 +66,7 @@ class Slider extends InputWidget.Model
   type: "Slider"
   default_view: SliderView
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       value:             [ p.Number,      0.5          ]
       start:             [ p.Number,      0            ]
       end:               [ p.Number,      1            ]

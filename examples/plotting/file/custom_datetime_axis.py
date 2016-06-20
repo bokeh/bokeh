@@ -22,13 +22,18 @@ class DateGapTickFormatter(TickFormatter):
     __implementation__ = """
         _ = require "underscore"
         Model = require "model"
+        p = require "core/properties"
 
         class DateGapTickFormatter extends Model
           type: 'DateGapTickFormatter'
 
-          format: (ticks) ->
+          doFormat: (ticks) ->
             date_labels = @get("date_labels")
             return (date_labels[tick] ? "" for tick in ticks)
+
+          @define {
+            date_labels: [ p.Any ]
+          }
 
         module.exports =
           Model: DateGapTickFormatter
@@ -48,7 +53,7 @@ w = 0.5
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
-p = figure(tools=TOOLS, plot_width=1000, toolbar_location="left")
+p = figure(tools=TOOLS, plot_width=1000)
 
 p.title = "MSFT Candlestick with custom x axis"
 p.xaxis.major_label_orientation = pi/4

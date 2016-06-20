@@ -1,17 +1,14 @@
 _ = require "underscore"
 $ = require "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class PanelView extends BokehView
+Widget = require "./widget"
 
-  initialize: (options) ->
-    super(options)
-    @render()
+class PanelView extends Widget.View
 
   render: () ->
+    super()
     @$el.empty()
     return @
 
@@ -19,8 +16,7 @@ class Panel extends Widget.Model
   type: "Panel"
   default_view: PanelView
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       title:    [ p.String,  ""    ]
       child:    [ p.Instance       ]
       closable: [ p.Bool,    false ]

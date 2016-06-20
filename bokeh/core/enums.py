@@ -87,13 +87,10 @@ FontStyle = enumeration("normal", "italic", "bold")
 TextAlign = enumeration("left", "right", "center")
 
 #: Specify the baseline location for rendering text
-TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging")
+TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
 #: Specify a stroke direction for circles, wedges, etc.
 Direction = enumeration("clock", "anticlock")
-
-#: Specify a left/right side
-Side = enumeration("left", "right")
 
 #: Specify units for mapping values
 Units = enumeration("screen", "data")
@@ -167,5 +164,17 @@ ScriptingLanguage = enumeration("javascript", "coffeescript")
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")
 
+#: Specify a mode for stepwise interpolation
+StepMode = enumeration("before", "after", "center")
+
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
+
+#: Specify a distribution to use for the Jitter class
+JitterRandomDistribution = enumeration("uniform", "normal")
+
+#: Specify sorting directions
+SortDirection = enumeration("ascending", "descending")
+
+#: Sizing mode policies
+SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")

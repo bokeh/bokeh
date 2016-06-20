@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 GestureTool = require "./gesture_tool"
+GlyphRenderer = require "../../renderers/glyph_renderer"
 {logger} = require "../../../core/logging"
 p = require "../../../core/properties"
 
@@ -8,7 +9,7 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @mget('renderers')
+      for r in @mget('computed_renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.clear()
@@ -35,7 +36,7 @@ class SelectToolView extends GestureTool.View
       logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
     if final
-      tool_events = @plot_model.get('tool_events')
+      tool_events = @plot_model.plot.tool_events
       if append
         geoms = tool_events.get('geometries')
         geoms.push(g)
@@ -47,38 +48,35 @@ class SelectToolView extends GestureTool.View
 
 class SelectTool extends GestureTool.Model
 
-  props: () ->
-    return _.extend {}, super(), {
+  @define {
       renderers: [ p.Array, [] ]
       names:     [ p.Array, [] ]
     }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['multi_select_modifier'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      #internal
-      multi_select_modifier: "shift"
-    })
+  @internal {
+    multi_select_modifier: [ p.String, "shift" ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    names = @get('names')
-    renderers = @get('renderers')
+    @define_computed_property('computed_renderers',
+      () ->
+        renderers = @get('renderers')
+        names = @get('names')
 
-    if renderers.length == 0
-      all_renderers = @get('plot').get('renderers')
-      renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
+        if renderers.length == 0
+          all_renderers = @get('plot').get('renderers')
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
 
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+        if names.length > 0
+          renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
 
-    @set('renderers', renderers)
-    logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
-    for r in renderers
-      logger.debug(" - #{r.type} #{r.id}")
+        return renderers
+      , true)
+    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
+    @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
+
     return null
 
 module.exports =

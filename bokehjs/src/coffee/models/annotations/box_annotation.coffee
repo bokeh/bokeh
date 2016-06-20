@@ -1,21 +1,24 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 
-class BoxAnnotationView extends Renderer.View
+class BoxAnnotationView extends Annotation.View
   initialize: (options) ->
     super(options)
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.addClass('shading')
+    @$el.addClass('bk-shading')
     @$el.hide()
 
   bind_bokeh_events: () ->
+    # need to respond to either normal BB change events or silent
+    # "data only updates" that tools might want to use
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
+      @listenTo(@model, 'change', @render)
       @listenTo(@model, 'data_update', @render)
     else
+      @listenTo(@model, 'change', @plot_view.request_render)
       @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: () ->
@@ -68,7 +71,6 @@ class BoxAnnotationView extends Renderer.View
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    debugger
     @visuals.fill.set_value(ctx)
     ctx.fill()
 
@@ -92,10 +94,9 @@ class BoxAnnotation extends Annotation.Model
 
   type: 'BoxAnnotation'
 
-  mixins: ['line', 'fill']
+  @mixins ['line', 'fill']
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       render_mode:  [ p.RenderMode,   'canvas'  ]
       x_range_name: [ p.String,       'default' ]
       y_range_name: [ p.String,       'default' ]
@@ -107,31 +108,17 @@ class BoxAnnotation extends Annotation.Model
       left_units:   [ p.SpatialUnits, 'data'    ]
       right:        [ p.Number,       null      ]
       right_units:  [ p.SpatialUnits, 'data'    ]
-    }
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      fill_color: '#fff9ba'
-      fill_alpha: 0.4
-      line_color: '#cccccc'
-      line_alpha: 0.3
-
-      # internal
-      silent_update: false
-    }
-
-  nonserializable_attribute_names: () ->
-    super().concat(['silent_update'])
+  @override {
+    fill_color: '#fff9ba'
+    fill_alpha: 0.4
+    line_color: '#cccccc'
+    line_alpha: 0.3
+  }
 
   update:({left, right, top, bottom}) ->
-    if @get('silent_update')
-      @attributes['left'] = left
-      @attributes['right'] = right
-      @attributes['top'] = top
-      @attributes['bottom'] = bottom
-    else
-      @set({left: left, right: right, top: top, bottom: bottom})
+    @set({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
 
 module.exports =

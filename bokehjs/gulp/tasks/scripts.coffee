@@ -6,6 +6,7 @@ gulp = require "gulp"
 gutil = util = require "gulp-util"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
+replace = require "gulp-replace"
 uglify = require "gulp-uglify"
 runSequence = require "run-sequence"
 sourcemaps = require "gulp-sourcemaps"
@@ -25,6 +26,7 @@ gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
 eco = require '../eco'
+ts = require 'gulp-typescript'
 
 {namedLabeler} = require "../labeler"
 
@@ -40,7 +42,21 @@ gulp.task "scripts:eco", () ->
       .pipe(eco().on('error', gutil.log))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
-gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco"]
+tsOpts = {
+  noImplicitAny: true
+  noEmitOnError: true
+  module: "commonjs"
+  moduleResolution: "node"
+  target: "ES5"
+}
+
+gulp.task "scripts:ts", () ->
+  gulp.src("./src/coffee/**/*.ts")
+      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
+      .pipe(ts(tsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
+      .pipe(gulp.dest(paths.buildDir.jsTree))
+
+gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco", "scripts:ts"]
 
 gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")
@@ -136,6 +152,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       # our backbone.
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
+      .pipe(replace("function lex\(\) \{", "var lex = function foo\(\) \{"))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))

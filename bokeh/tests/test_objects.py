@@ -9,10 +9,13 @@ from bokeh.document import Document
 from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
+
 def large_plot(n):
-    from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
+    from bokeh.models import (
+        Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool)
+        BoxSelectTool, ResizeTool, SaveTool, ResetTool
+    )
     from bokeh.models.layouts import VBox
     from bokeh.models.glyphs import Line
 
@@ -32,21 +35,23 @@ def large_plot(n):
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
         plot.renderers.append(renderer)
-        pan = PanTool(plot=plot)
-        wheel_zoom = WheelZoomTool(plot=plot)
-        box_zoom = BoxZoomTool(plot=plot)
-        box_select = BoxSelectTool(plot=plot)
-        resize = ResizeTool(plot=plot)
-        previewsave = PreviewSaveTool(plot=plot)
-        reset = ResetTool(plot=plot)
-        tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
-        plot.tools.extend(tools)
+        pan = PanTool()
+        wheel_zoom = WheelZoomTool()
+        box_zoom = BoxZoomTool()
+        box_select = BoxSelectTool()
+        resize = ResizeTool()
+        save = SaveTool()
+        reset = ResetTool()
+        tools = [pan, wheel_zoom, box_zoom, box_select, resize, save, reset]
+        plot.add_tools(*tools)
         vbox.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
-                        renderer, glyph, plot.tool_events, box_zoom.overlay, box_select.overlay] +
-                        tickers + tools)
+        objects |= set([
+            source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph,
+            plot.toolbar, plot.tool_events, plot.title, box_zoom.overlay, box_select.overlay] +
+            tickers + tools)
 
     return vbox, objects
+
 
 class TestViewable(unittest.TestCase):
 

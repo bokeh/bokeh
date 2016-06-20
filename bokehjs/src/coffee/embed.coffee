@@ -21,26 +21,21 @@ _handle_notebook_comms = (msg) ->
 
 _init_comms = (target, doc) ->
   if Jupyter?
-    comm_manager = Jupyter.notebook.kernel.comm_manager
-    comm_manager.register_target(target, (comm, msg) ->
-      logger.info("Registering Jupyter comms for target #{target}")
-      comm.on_msg(_.bind(_handle_notebook_comms, doc))
-    )
+    try
+      comm_manager = Jupyter.notebook.kernel.comm_manager
+      comm_manager.register_target(target, (comm, msg) ->
+        logger.info("Registering Jupyter comms for target #{target}")
+        comm.on_msg(_.bind(_handle_notebook_comms, doc))
+      )
+    catch e
+      logger.warn("Jupyter comms failed to register. push_notebook() will not function. (exception reported: #{e})")
   else
-    console.warn('Juptyer notebooks comms not available. push_notebook will not function');
+    console.warn('Juptyer notebooks comms not available. push_notebook() will not function');
 
 _create_view = (model) ->
   view = new model.default_view({model : model})
   base.index[model.id] = view
   view
-
-# Replace element with a view of model_id from document
-add_model_static = (element, model_id, doc) ->
-  model = doc.get_model_by_id(model_id)
-  if not model?
-    throw new Error("Model #{model_id} was not in document #{doc}")
-  view = _create_view(model)
-  _.delay(-> $(element).replaceWith(view.$el))
 
 _render_document_to_element = (element, document, use_for_title) ->
   # this is a LOCAL index of views used only by this
@@ -72,9 +67,22 @@ _render_document_to_element = (element, document, use_for_title) ->
     else if use_for_title and event instanceof TitleChangedEvent
       window.document.title = event.title
 
+  return views
+
+# Replace element with a view of model_id from document
+add_model_static = (element, model_id, doc) ->
+  model = doc.get_model_by_id(model_id)
+  if not model?
+    throw new Error("Model #{model_id} was not in document #{doc}")
+  view = _create_view(model)
+  _.delay(-> $(element).replaceWith(view.$el))
+
 # Fill element with the roots from doc
 add_document_static = (element, doc, use_for_title) ->
   _.delay(-> _render_document_to_element($(element), doc, use_for_title))
+
+add_document_standalone = (document, element, use_for_title=false) ->
+  return _render_document_to_element($(element), document, use_for_title)
 
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
@@ -192,6 +200,8 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
 
 module.exports = {
   embed_items: embed_items
+  add_document_static: add_document_static
+  add_document_standalone: add_document_standalone
   inject_css: inject_css
   inject_raw_css: inject_raw_css
 }

@@ -10,4 +10,3 @@
 * Table widget
 * Pan, Zoom, Select, Resize tools
 * initial Python implementation of Abstract Rendering
-

@@ -1,4 +1,3 @@
-
 .. _bokeh.sphinxext:
 
 ``bokeh.sphinxext``
@@ -73,5 +72,3 @@ collapsible_code_block
 ----------------------
 
 .. automodule:: bokeh.sphinxext.collapsible_code_block
-
-

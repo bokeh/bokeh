@@ -54,17 +54,17 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
-      sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
+      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
     @_save_geometry(geometry, final, append)
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 
     return null
 
-DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
@@ -84,14 +84,9 @@ class PolySelectTool extends SelectTool.Model
   event_type: "tap"
   default_order: 11
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
-    })
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @get('overlay').set('silent_update', true, {silent: true})
+    }
 
 module.exports =
   Model: PolySelectTool

@@ -3,40 +3,38 @@ _ = require "underscore"
 utils = require "../utils"
 fixtures = require "./fixtures/object"
 
-base = utils.require "base"
-{Collections} = base
+{Models} = utils.require "base"
 HasProps = utils.require "core/has_props"
 p = utils.require "core/properties"
 mixins = utils.require "core/property_mixins"
 {Document} = utils.require "document"
 
 class SubclassWithProps extends HasProps
-  props: () -> _.extend super(), {
+  @define {
     foo: [ p.Number, 0    ]
     bar: [ p.Bool,   true ]
   }
 
 class SubSubclassWithProps extends SubclassWithProps
-  props: () -> _.extend super(), {
+  @define {
     baz: [ p.String, '' ]
   }
 
 class SubclassWithMixins extends HasProps
-  mixins: ['line']
+  @mixin('line')
 
 class SubSubclassWithMixins extends SubclassWithMixins
-  mixins: ['fill:foo_']
+  @mixin('fill:foo_')
 
 class SubclassWithMultipleMixins extends HasProps
-  mixins: ['line', 'text:bar_']
+  @mixin('line', 'text:bar_')
 
 describe "has_properties module", ->
 
   before ->
-    fixtures.Collection.reset()
-    base.collection_overrides['TestObject'] = fixtures.Collection
+    Models.register('TestObject', fixtures.Model)
   after ->
-    base.collection_overrides['TestObject'] = undefined
+    Models.unregister('TestObject')
 
   describe "creation", ->
 
@@ -52,23 +50,21 @@ describe "has_properties module", ->
       obj = new SubSubclassWithProps()
       expect(_.keys(obj.properties)).to.be.deep.equal ['foo', 'bar', 'baz']
 
-    it "should override mixins from subclasses", ->
+    it "should combine mixins from subclasses", ->
       obj = new SubclassWithMixins()
       expect(_.keys(obj.properties)).to.be.deep.equal _.keys(mixins.line(""))
 
-    it "should override mixins from sub-subclasses", ->
+    it "should combine mixins from sub-subclasses", ->
       obj = new SubSubclassWithMixins()
-      expect(_.keys(obj.properties)).to.be.deep.equal _.keys(mixins.fill("foo_"))
+      expect(_.keys(obj.properties)).to.be.deep.equal _.keys(_.extend mixins.line(""), mixins.fill("foo_"))
 
-    it "should override multiple mixins from subclasses", ->
+    it "should combine multiple mixins from subclasses", ->
       obj = new SubclassWithMultipleMixins()
       expect(_.keys(obj.properties)).to.be.deep.equal _.keys(_.extend mixins.line(""), mixins.text("bar_"))
 
-
-
   # it "should support computed properties", ->
-  #   model = Collections('TestObject').create({'a': 1, 'b': 1})
-  #   model.register_property 'c', ->
+  #   model = new TestObject({'a': 1, 'b': 1})
+  #   model.define_computed_property 'c', ->
   #   @get('a') + @get('b')
   #   model.add_dependencies('c', model, ['a', 'b'])
 
@@ -77,8 +73,8 @@ describe "has_properties module", ->
   # describe "cached properties", ->
   #   model = null
   #   before ->
-  #     model = Collections('TestObject').create({a: 1, b: 1})
-  #     model.register_property 'c', ->
+  #     model = new TestObject({a: 1, b: 1})
+  #     model.define_computed_property 'c', ->
   #         @get('a') + @get('b')
   #       , true
   #     model.add_dependencies('c', model, ['a', 'b'])
@@ -97,14 +93,14 @@ describe "has_properties module", ->
   # describe "arrays of references", ->
   #   [model1, model2, model3, model4, doc] = [null, null, null, null, null]
   #   before ->
-  #     model1 = Collections('TestObject').create({a: 1, b: 1})
-  #     model2 = Collections('TestObject').create({a: 2, b: 2})
-  #     model3 = Collections('TestObject').create(
+  #     model1 = new TestObject({a: 1, b: 1})
+  #     model2 = new TestObject({a: 2, b: 2})
+  #     model3 = new TestObject(
   #       a: 1
   #       b: 1
   #       vectordata: [model1.ref(), model2.ref()]
   #     )
-  #     model4 = Collections('TestObject').create(
+  #     model4 = new TestObject(
   #       a: 1
   #       b: 1
   #       vectordata: [[model1.ref(), model2.ref()]]

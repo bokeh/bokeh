@@ -142,7 +142,7 @@ def stack(*comp_glyphs, **kwargs):
 
     Args:
         *comp_glyphs (:class:`CompositeGlyph`): a sequence of glyphs to stack
-         
+
     Returns:
         comp_glyphs: a list of composite glyphs
 

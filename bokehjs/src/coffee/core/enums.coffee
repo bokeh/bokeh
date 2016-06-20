@@ -1,4 +1,3 @@
-
 module.exports =
   AngleUnits: ["deg", "rad"]
 
@@ -34,4 +33,10 @@ module.exports =
 
   TextAlign: ["left", "right", "center"]
 
-  TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging"]
+  TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+
+  DistributionTypes: ["uniform", "normal"]
+
+  TransformStepModes: ["after", "before", "center"]
+
+  SizingMode: ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]

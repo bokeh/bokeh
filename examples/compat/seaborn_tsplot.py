@@ -15,4 +15,3 @@ sns.tsplot(data=gammas, time="timepoint", unit="subject",
 output_file("seaborn_tsplot.html", title="seaborn_tsplot.py example")
 
 show(mpl.to_bokeh())
-

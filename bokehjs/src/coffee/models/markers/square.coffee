@@ -1,26 +1,21 @@
 _ = require "underscore"
 Marker = require "./marker"
-bokehgl = require "../glyphs/bokehgl"
-
 
 class SquareView extends Marker.View
 
-  _init_gl: (gl) ->
-    @glglyph = new bokehgl.SquareGLGlyph(gl, this)
-
-  _render: (ctx, indices, {sx, sy, size, angle}) ->
+  _render: (ctx, indices, {sx, sy, _size, _angle}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+      if isNaN(sx[i]+sy[i]+_size[i]+_angle[i])
         continue
 
       ctx.beginPath()
       ctx.translate(sx[i], sy[i])
 
-      if angle[i]
-        ctx.rotate(angle[i])
-      ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
-      if angle[i]
-        ctx.rotate(-angle[i])
+      if _angle[i]
+        ctx.rotate(_angle[i])
+      ctx.rect(-_size[i]/2, -_size[i]/2, _size[i], _size[i])
+      if _angle[i]
+        ctx.rotate(-_angle[i])
 
       if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)

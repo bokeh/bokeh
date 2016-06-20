@@ -3,7 +3,7 @@
 ## Examples in this repository
 
 This directory contains many examples of different ways to use Bokeh. As Bokeh has been evolving
-fast, it is important that you **ensure that the version of an example you're looking at matches 
+fast, it is important that you **ensure that the version of an example you're looking at matches
 the version of Bokeh you are running**.
 
 ### [`app`](app/)
@@ -48,7 +48,6 @@ interface. For more understanding of the bokeh.models interface see [the
 concepts section of the
 user_guide](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
 
-
 ### [`plotting`](plotting/)
 
 This directory contains example using the
@@ -62,16 +61,20 @@ different modes:
 
 * `server` examples that send output to a Bokeh server, using the python client library for the server
 
+### [`webgl`](webgl/)
+
+This directory contains examples that demonstrate the various glyphs that have
+support for WebGL rendering. Most of these examples have a testing purpose, e.g.
+to compare the appearance of the WebGL glyph with its regular appearance, or to
+test another aspect of WebGL (e.g. blending of transparent glyphs).
+
+
 ## Other sources for examples
 
 * There are many examples in the [Bokeh Gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html) on main documentation site http://bokeh.pydata.org.
 
 * The [Bokeh User's Guide](http://bokeh.pydata.org/en/latest/docs/user_guide.html) has many plots with corresponding code samples throughout.
 
-* Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
+* Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.jupyter.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
 
 * Larger examples, e.g. integrations with web application frameworks such as [Flask](http://flask.pocoo.org) or [Django](https://www.djangoproject.com), are collected in the [`bokeh-demos`](https://github.com/bokeh/bokeh-demos) repository.
-
-
-
-

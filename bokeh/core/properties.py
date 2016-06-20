@@ -420,7 +420,9 @@ class BasicProperty(Property):
         return default
 
     def _real_set(self, obj, old, value, hint=None):
-        unchanged = self.descriptor.matches(value, old)
+        # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may
+        # need refining later if this assumption changes.
+        unchanged = self.descriptor.matches(value, old) and (hint is None)
         if unchanged:
             return
 
@@ -1559,6 +1561,36 @@ class Datetime(PropertyDescriptor):
         return value
         # Handled by serialization in protocol.py for now
 
+class TimeDelta(PropertyDescriptor):
+    """ TimeDelta type property.
+
+    """
+
+    def __init__(self, default=datetime.timedelta(), help=None):
+        super(TimeDelta, self).__init__(default=default, help=help)
+
+    def validate(self, value):
+        super(TimeDelta, self).validate(value)
+
+        timedelta_types = (datetime.timedelta,)
+        try:
+            import numpy as np
+            timedelta_types += (np.timedelta64,)
+        except ImportError:
+            pass
+
+        if (isinstance(value, timedelta_types)):
+            return
+
+        if pd and isinstance(value, (pd.Timedelta)):
+            return
+
+        raise ValueError("Expected a timedelta instance, got %r" % value)
+
+    def transform(self, value):
+        value = super(TimeDelta, self).transform(value)
+        return value
+        # Handled by serialization in protocol.py for now
 
 class RelativeDelta(Dict):
     """ RelativeDelta type property for time deltas.
@@ -1598,8 +1630,10 @@ class DataSpecProperty(BasicProperty):
 
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
-        super(DataSpec, self).__init__(String, Dict(String, Either(String, typ)), typ, default=default, help=help)
+        super(DataSpec, self).__init__(String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)), typ, default=default, help=help)
         self._type = self._validate_type_param(typ)
+
+    # TODO (bev) add stricter validation on keys
 
     def make_properties(self, base_name):
         return [ DataSpecProperty(descriptor=self, name=base_name) ]
@@ -1852,4 +1886,24 @@ class ColorSpec(DataSpec):
         if isinstance(value, tuple):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
 
+        return value
+
+class TitleProp(Either):
+
+    def __init__(self, default=None, help=None):
+        types = (Instance('bokeh.models.annotations.Title'), String)
+        super(TitleProp, self).__init__(*types, default=default, help=help)
+
+    def transform(self, value):
+        if isinstance(value, str):
+            from bokeh.models.annotations import Title
+            warn("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
+            and will be removed. The title is now an object on Plot (which holds all of it's
+            styling properties). Please use Plot.title.text instead.
+
+            SERVER USERS: If you were using plot.title to have the server update the plot title
+            in a callback, you MUST update to plot.title.text as the title object cannot currently
+            be replaced after intialization.
+            """)
+            value = Title(text=value)
         return value

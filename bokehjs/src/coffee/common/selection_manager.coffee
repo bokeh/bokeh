@@ -3,18 +3,20 @@ HasProps = require "../core/has_props"
 {logger} = require "../core/logging"
 Selector = require "./selector"
 hittest = require "./hittest"
+p = require "../core/properties"
 
 class SelectionManager extends HasProps
   type: 'SelectionManager'
+
+  @internal {
+    source: [ p.Any ]
+  }
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @selectors = {}
     @inspectors = {}
-    @empty = hittest.create_hit_test_result()
     @last_inspection_was_empty = {}
-
-  serializable_in_document: () -> false
 
   select: (tool, renderer_view, geometry, final, append=false) ->
     source = @get('source')
@@ -32,6 +34,10 @@ class SelectionManager extends HasProps
       source.trigger('select')
       source.trigger('select-' + renderer_view.mget('id'))
 
+      return not indices.is_empty()
+    else
+      return false
+
   inspect: (tool, renderer_view, geometry, data) ->
     source = @get('source')
     if source != renderer_view.mget('data_source')
@@ -40,9 +46,9 @@ class SelectionManager extends HasProps
     indices = renderer_view.hit_test(geometry)
 
     if indices?
-
       r_id = renderer_view.model.id
-      if _.isEqual(indices, @empty)
+
+      if indices.is_empty()
         if not @last_inspection_was_empty[r_id]?
           @last_inspection_was_empty[r_id] = false
         if @last_inspection_was_empty[r_id]
@@ -64,6 +70,9 @@ class SelectionManager extends HasProps
         "inspect#{renderer_view.mget('id')}", indices, tool, renderer_view,
         source, data
       )
+      return not indices.is_empty()
+    else
+      return false
 
   clear: (rview) ->
     if rview?

@@ -4,14 +4,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..io import curdoc, curstate
-from ..models import Axis, Grid, Legend, LogAxis, Plot
+from ..models import Plot
 from ..models import glyphs, markers
-from .helpers import (
-    _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks,
-    _process_tools_arg, _glyph_function
-)
+from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
+from ..util._plot_arg_helpers import _convert_responsive
 
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
@@ -41,108 +39,25 @@ class Figure(Plot):
         x_axis_label = kw.pop("x_axis_label", "")
         y_axis_label = kw.pop("y_axis_label", "")
 
+        title_text = kw.pop("title", None)
+
+        active_drag = kw.pop('active_drag', 'auto')
+        active_scroll = kw.pop('active_scroll', 'auto')
+        active_tap = kw.pop('active_tap', 'auto')
+
         super(Figure, self).__init__(*arg, **kw)
+
+        self.title.text = title_text
 
         self.x_range = _get_range(x_range)
         self.y_range = _get_range(y_range)
 
-        x_axiscls = _get_axis_class(x_axis_type, self.x_range)
-        if x_axiscls:
-            if x_axiscls is LogAxis:
-                self.x_mapper_type = 'log'
-            xaxis = x_axiscls(plot=self)
-            if hasattr(xaxis.ticker, 'num_minor_ticks'):
-                xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
-            axis_label = x_axis_label
-            if axis_label:
-                xaxis.axis_label = axis_label
-            xgrid = Grid(plot=self, dimension=0, ticker=xaxis.ticker); xgrid
-            if x_axis_location == "above":
-                self.above.append(xaxis)
-            elif x_axis_location == "below":
-                self.below.append(xaxis)
+        _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range, 0)
+        _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range, 1)
 
-        y_axiscls = _get_axis_class(y_axis_type, self.y_range)
-        if y_axiscls:
-            if y_axiscls is LogAxis:
-                self.y_mapper_type = 'log'
-            yaxis = y_axiscls(plot=self)
-            if hasattr(yaxis.ticker, 'num_minor_ticks'):
-                yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
-            axis_label = y_axis_label
-            if axis_label:
-                yaxis.axis_label = axis_label
-            ygrid = Grid(plot=self, dimension=1, ticker=yaxis.ticker); ygrid
-            if y_axis_location == "left":
-                self.left.append(yaxis)
-            elif y_axis_location == "right":
-                self.right.append(yaxis)
-
-        tool_objs = _process_tools_arg(self, tools)
+        tool_objs, tool_map = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)
-
-    def _axis(self, *sides):
-        objs = []
-        for s in sides:
-            objs.extend(getattr(self, s, []))
-        axis = [obj for obj in objs if isinstance(obj, Axis)]
-        return _list_attr_splat(axis)
-
-    @property
-    def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
-
-        """
-        return self._axis("above", "below")
-
-    @property
-    def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
-
-        """
-        return self._axis("left", "right")
-
-    @property
-    def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
-
-        """
-        return _list_attr_splat(self.xaxis + self.yaxis)
-
-    @property
-    def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
-
-        """
-        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
-        return _list_attr_splat(legends)
-
-    def _grid(self, dimension):
-        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
-        return _list_attr_splat(grid)
-
-    @property
-    def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
-
-        """
-        return self._grid(0)
-
-    @property
-    def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
-
-        """
-        return self._grid(1)
-
-    @property
-    def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
-
-        """
-        return _list_attr_splat(self.xgrid + self.ygrid)
-
-
+        _process_active_tools(self.toolbar, tool_map, active_drag, active_scroll, active_tap)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
@@ -275,6 +190,22 @@ Examples:
         plot = figure(width=300, height=300)
         plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
                            color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
+    ellipse = _glyph_function(glyphs.Ellipse, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
+                     color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 
@@ -610,18 +541,21 @@ def figure(**kwargs):
 
     '''
     if 'plot_width' in kwargs and 'width' in kwargs:
-        raise ValueError("figure() called but both plot_width and width supplied, supply only one")
+        raise ValueError("figure() called with both 'plot_width' and 'width' supplied, supply only one")
     if 'plot_height' in kwargs and 'height' in kwargs:
-        raise ValueError("figure() called but both plot_height and height supplied, supply only one")
+        raise ValueError("figure() called with both 'plot_height' and 'height' supplied, supply only one")
     if 'height' in kwargs:
         kwargs['plot_height'] = kwargs.pop('height')
     if 'width' in kwargs:
         kwargs['plot_width'] = kwargs.pop('width')
 
+    if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+        raise ValueError("figure() called with both 'responsive' and 'sizing_mode' supplied, supply only one")
+    if 'responsive' in kwargs:
+        kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
+        del kwargs['responsive']
+
     fig = Figure(**kwargs)
-    curdoc()._current_plot = fig # TODO (havocp) store this on state, not doc?
-    if curstate().autoadd:
-        curdoc().add_root(fig)
     return fig
 
 

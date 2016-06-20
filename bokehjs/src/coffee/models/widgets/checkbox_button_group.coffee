@@ -6,7 +6,7 @@ Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class CheckboxButtonGroupView extends BokehView
+class CheckboxButtonGroupView extends Widget.View
   tagName: "div"
   events:
     "change input": "change_input"
@@ -17,6 +17,7 @@ class CheckboxButtonGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     @$el.addClass("bk-bs-btn-group")
@@ -28,7 +29,7 @@ class CheckboxButtonGroupView extends BokehView
       if i in active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("type"))
+      $label.addClass("bk-bs-btn-" + @mget("button_type"))
       if i in active then $label.addClass("bk-bs-active")
       @$el.append($label)
 
@@ -43,11 +44,11 @@ class CheckboxButtonGroup extends Widget.Model
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
-  props: () ->
-    return _.extend {}, super(), {
-      active:   [ p.Array,  []        ]
-      labels:   [ p.Array,  []        ]
-      type:     [ p.String, "default" ]
+  @define {
+      active:      [ p.Array,  []        ]
+      labels:      [ p.Array,  []        ]
+      button_type: [ p.String, "default" ]
+      callback:    [ p.Instance ]
     }
 
 module.exports =

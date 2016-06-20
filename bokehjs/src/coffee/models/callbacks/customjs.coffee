@@ -6,8 +6,7 @@ Model = require "../../model"
 class CustomJS extends Model
   type: 'CustomJS'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       args: [ p.Any,     {}           ] # TODO (bev) better type
       code: [ p.String,  ''           ]
       lang: [ p.String , 'javascript' ] # TODO (bev) enum
@@ -16,10 +15,10 @@ class CustomJS extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('values', @_make_values, true)
+    @define_computed_property('values', @_make_values, true)
     @add_dependencies('values', @, ['args'])
 
-    @register_property('func', @_make_func, true)
+    @define_computed_property('func', @_make_func, true)
     @add_dependencies('func', @, ['args', 'code'])
 
   execute: (cb_obj, cb_data) ->

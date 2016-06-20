@@ -92,7 +92,7 @@ class ApplicationContext(object):
         self._sessions = dict()
         self._pending_sessions = dict()
         self._session_contexts = dict()
-        self._server_context = BokehServerContext(self)
+        self._server_context = None
 
     @property
     def io_loop(self):
@@ -108,6 +108,8 @@ class ApplicationContext(object):
 
     @property
     def server_context(self):
+        if self._server_context is None:
+            self._server_context = BokehServerContext(self)
         return self._server_context
 
     @property
@@ -116,7 +118,7 @@ class ApplicationContext(object):
 
     def run_load_hook(self):
         try:
-            result = self._application.on_server_loaded(self._server_context)
+            result = self._application.on_server_loaded(self.server_context)
             if isinstance(result, gen.Future):
                 log.error("on_server_loaded returned a Future; this doesn't make sense "
                           "because we run this hook before starting the IO loop.")
@@ -125,14 +127,14 @@ class ApplicationContext(object):
 
     def run_unload_hook(self):
         try:
-            result = self._application.on_server_unloaded(self._server_context)
+            result = self._application.on_server_unloaded(self.server_context)
             if isinstance(result, gen.Future):
                 log.error("on_server_unloaded returned a Future; this doesn't make sense "
                           "because we stop the IO loop right away after calling on_server_unloaded.")
         except Exception as e:
             log.error("Error in server unloaded hook %r", e, exc_info=True)
 
-        self._server_context._remove_all_callbacks()
+        self.server_context._remove_all_callbacks()
 
     @gen.coroutine
     def create_session_if_needed(self, session_id):
@@ -148,7 +150,7 @@ class ApplicationContext(object):
             doc = Document()
 
             session_context = BokehSessionContext(session_id,
-                                                  self._server_context,
+                                                  self.server_context,
                                                   doc)
             try:
                 result = yield yield_for_all_futures(self._application.on_session_created(session_context))
@@ -186,7 +188,7 @@ class ApplicationContext(object):
     def _discard_session(self, session, should_discard):
         if session.connection_count > 0:
             raise RuntimeError("Should not be discarding a session with open connections")
-        log.debug("Discarding session %r last in use %r seconds ago", session.id, session.seconds_since_last_unsubscribe)
+        log.debug("Discarding session %r last in use %r milliseconds ago", session.id, session.milliseconds_since_last_unsubscribe)
 
         session_context = self._session_contexts[session.id]
 
@@ -218,10 +220,10 @@ class ApplicationContext(object):
         raise gen.Return(None)
 
     @gen.coroutine
-    def cleanup_sessions(self, unused_session_linger_seconds):
+    def cleanup_sessions(self, unused_session_linger_milliseconds):
         def should_discard_ignoring_block(session):
             return session.connection_count == 0 and \
-                (session.seconds_since_last_unsubscribe > unused_session_linger_seconds or \
+                (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \
                  session.expiration_requested)
         # build a temp list to avoid trouble from self._sessions changes
         to_discard = []

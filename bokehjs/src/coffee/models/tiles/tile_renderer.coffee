@@ -21,9 +21,9 @@ class TileRendererView extends Renderer.View
 
   _set_data: () ->
     @pool = new ImagePool()
-    @map_plot = @plot_view.model
+    @map_plot = @plot_model.plot
     @map_canvas = @plot_view.canvas_view.ctx
-    @map_frame = @plot_view.frame
+    @map_frame = @plot_model.frame
     @x_range = @map_plot.get('x_range')
     @x_mapper = this.map_frame.get('x_mappers')['default']
     @y_range = @map_plot.get('y_range')
@@ -111,7 +111,7 @@ class TileRendererView extends Renderer.View
     return tile
 
   _enforce_aspect_ratio: () ->
-    # brute force way of handling resize or responsive event -------------------------------------------------------------
+    # brute force way of handling resize or sizing_mode event -------------------------------------------------------------
     if @_last_height != @map_frame.get('height') or @_last_width != @map_frame.get('width')
       extent = @get_extent()
       zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
@@ -157,7 +157,7 @@ class TileRendererView extends Renderer.View
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _set_rect:() ->
-    outline_width = @plot_model.properties.outline_line_width.value()
+    outline_width = @plot_model.plot.properties.outline_line_width.value()
     l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
     t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
     w = @map_frame.get('width') - outline_width
@@ -275,19 +275,17 @@ class TileRenderer extends Renderer.Model
   default_view: TileRendererView
   type: 'TileRenderer'
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       alpha:          [ p.Number,   1.0              ]
       x_range_name:   [ p.String,   "default"        ]
       y_range_name:   [ p.String,   "default"        ]
-      tile_source:    [ p.Instance, new wmts.Model() ]
+      tile_source:    [ p.Instance, () -> new wmts.Model() ]
       render_parents: [ p.Bool,     true             ]
     }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      level: 'underlay'
-    }
+  @override {
+    level: 'underlay'
+  }
 
 module.exports =
   Model: TileRenderer

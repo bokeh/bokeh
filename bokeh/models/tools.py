@@ -25,13 +25,14 @@ from __future__ import absolute_import
 from ..model import Model
 from ..core.properties import abstract, Float, Color
 from ..core.properties import (
-    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+    Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
-from ..core.enums import Dimension
+from ..core.enums import Dimension, Location, Anchor
 
 from .annotations import BoxAnnotation, PolyAnnotation
-from .renderers import Renderer
 from .callbacks import Callback
+from .renderers import Renderer
+from .layouts import LayoutDOM, Box
 
 
 class ToolEvents(Model):
@@ -54,7 +55,97 @@ class Tool(Model):
     """)
 
 
-class PanTool(Tool):
+@abstract
+class Action(Tool):
+    pass
+
+
+@abstract
+class Drag(Tool):
+    pass
+
+
+@abstract
+class Scroll(Tool):
+    pass
+
+
+@abstract
+class Tap(Tool):
+    pass
+
+
+@abstract
+class Inspection(Tool):
+    pass
+
+
+@abstract
+class ToolbarBase(LayoutDOM):
+    """ A base class for different toolbars. ``ToolbarBase`` is
+    not generally useful to instantiate on its own.
+
+    """
+
+    logo = Enum("normal", "grey", help="""
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
+    """)
+
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
+    """)
+
+    # This is an odd case. The sizing is custom handled. In the future we will
+    # probably set it as `stretch_width` or `stretch_height` depending on its
+    # orientation.
+    sizing_mode = Override(default=None)
+
+
+class Toolbar(ToolbarBase):
+    """ Hold tools to display for a single plot.
+
+    """
+
+    active_drag = Either(Auto, Instance(Drag), help="""
+    Specify a drag tool to be active when the plot is displayed.
+    """)
+
+    active_scroll = Either(Auto, Instance(Scroll), help="""
+    Specify a scroll/pinch tool to be active when the plot is displayed.
+    """)
+
+    active_tap = Either(Auto, Instance(Tap), help="""
+    Specify a tap/click tool to be active when the plot is displayed.
+    """)
+
+
+class ToolbarBox(Box):
+    """ A layoutable toolbar that can accept the tools of multiple plots, and
+    can merge the tools into a single button for convenience.
+
+    """
+
+    toolbar_location = Enum(Location, default='right', help="""
+        Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
+        edge of a plot. Default is `right`.
+    """)
+
+    tools = List(Instance(Tool), help="""
+    A list of tools to add to the plot.
+    """)
+
+    merge_tools = Bool(default=True, help="""
+        Merge all the tools together so there is one tool to control all the plots.
+    """)
+
+    logo = Enum("normal", "grey", help="""
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
+    """)
+
+
+class PanTool(Drag):
     """ *toolbar icon*: |pan_icon|
 
     The pan tool allows the user to pan a Plot by left-dragging
@@ -79,7 +170,7 @@ class PanTool(Tool):
     """)
 
 
-class WheelZoomTool(Tool):
+class WheelZoomTool(Scroll):
     """ *toolbar icon*: |wheel_zoom_icon|
 
     The wheel zoom tool will zoom the plot in and out, centered on the
@@ -103,17 +194,15 @@ class WheelZoomTool(Tool):
     """)
 
 
-class PreviewSaveTool(Tool):
+class SaveTool(Action):
     """ *toolbar icon*: |save_icon|
 
-    The preview/save tool is an action. When activated in the toolbar, the
-    tool presents a modal dialog with an image reproduction of the Plot, which
-    may be saved as a png image by right clicking on the image.
-
-    .. note::
-        Work is ongoing to support headless (svg, png) image creation without
-        requiring user interaction. See  :bokeh-issue:`538` to track progress
-        or contribute.
+    The save tool is an action. When activated, the tool opens a download dialog
+    which allows to save an image reproduction of the plot in PNG format. If
+    automatic download is not support by a web browser, the tool falls back to
+    opening the generated image in a new tab or window. User then can manually
+    save it by right clicking on the image and choosing "Save As" (or similar)
+    menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
         :height: 18pt
@@ -121,24 +210,26 @@ class PreviewSaveTool(Tool):
     """
 
 
-class ResetTool(Tool):
+class ResetTool(Action):
     """ *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool
     resets the data bounds of the plot to their values when the plot was
     initially created.
 
-    .. note::
-        This tool does not also reset the plot canvas size, if the plot
-        has been resized using the ``ResizeTool``. That feature may be
-        added in a future release.
+    Optionally, the reset tool also resets the plat canvas dimensions to
+    their original size
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 18pt
     """
+    reset_size = Bool(default=True, help="""
+    Whether activating the Reset tool should also reset the plot's canvas
+    dimensions to their original size.
+    """)
 
 
-class ResizeTool(Tool):
+class ResizeTool(Drag):
     """ *toolbar icon*: |resize_icon|
 
     The resize tool allows the user to left-drag a mouse or drag a finger
@@ -150,7 +241,7 @@ class ResizeTool(Tool):
     """
 
 
-class TapTool(Tool):
+class TapTool(Tap):
     """ *toolbar icon*: |tap_select_icon|
 
     The tap selection tool allows the user to select at single points by
@@ -179,20 +270,23 @@ class TapTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    behavior = Enum("select", "inspect", defult="select", help="""
+    This tool can be configured to either make selections or inspections
+    on associated data sources. The difference is that selection changes
+    propagate across bokeh and other components (e.g. selection glyph)
+    will be notified. Inspecions don't act like this, so it's useful to
+    configure `callback` when setting `behavior='inspect'`.
+    """)
+
     callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
 
-@abstract
-class InspectTool(Tool):
 
-    active = Bool(True, help="""
-    Whether the tool is intially active or not. If set to ``False``, the user
-    will have to click tool's button to active it.
-    """)
 
-class CrosshairTool(InspectTool):
+
+class CrosshairTool(Inspection):
     """ *toolbar icon*: |inspector_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
@@ -257,7 +351,7 @@ DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
     line_dash=[4, 4]
 )
 
-class BoxZoomTool(Tool):
+class BoxZoomTool(Drag):
     """ *toolbar icon*: |box_zoom_icon|
 
     The box zoom tool allows users to define a rectangular
@@ -284,8 +378,18 @@ class BoxZoomTool(Tool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
+    match_aspect = Bool(default=False, help="""
+    Whether the box zoom region should be restricted to have the same
+    aspect ratio as the plot region.
 
-class BoxSelectTool(Tool):
+    .. note::
+        If the tool is restricted to one dimension, this value has
+        no effect.
+
+    """)
+
+
+class BoxSelectTool(Drag):
     """ *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a
@@ -351,7 +455,7 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
     line_dash=[4, 4]
 )
 
-class LassoSelectTool(Tool):
+class LassoSelectTool(Drag):
     """ *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a
@@ -387,12 +491,20 @@ class LassoSelectTool(Tool):
     event, or only once, when the selection region is completed. Default: True
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on every selection of a lasso area.
+    The cb_data parameter that is available to the Callback code will contain
+    one LassoSelectTool-specific field:
+
+    :geometry: object containing the coordinates of the lasso area
+    """)
+
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
 
 
-class PolySelectTool(Tool):
+class PolySelectTool(Tap):
     """ *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a
@@ -428,7 +540,7 @@ class PolySelectTool(Tool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class HoverTool(InspectTool):
+class HoverTool(Inspection):
     """ *toolbar icon*: |inspector_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
@@ -545,8 +657,8 @@ class HoverTool(InspectTool):
     """)
 
     point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
-    Whether the tooltip position should snap to the "center" position of
-    the associated glyph, or always follow the current mouse cursor
+    Whether the tooltip position should snap to the "center" (or other anchor)
+    position of the associated glyph, or always follow the current mouse cursor
     position.
     """)
 
@@ -557,10 +669,19 @@ class HoverTool(InspectTool):
     mouse position.
     """)
 
+    anchor = Enum(Anchor, default="center", help="""
+    If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
+    point of a tooltip. The default is to attach to the center of a glyph.
+    """)
+
+    attachment = Enum("horizontal", "vertical", help="""
+    Whether tooltip's arrow should appear in the horizontal or vertical dimension.
+    """)
+
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 
-class HelpTool(Tool):
+class HelpTool(Action):
     """
     The help tool is a widget designed to replace the hardcoded 'Help' link.
     The hover text can be customized through the ``help_tooltip`` attribute
@@ -575,7 +696,7 @@ class HelpTool(Tool):
     Site to be redirected through upon click.
     """)
 
-class UndoTool(Tool):
+class UndoTool(Action):
     """ *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
@@ -584,7 +705,7 @@ class UndoTool(Tool):
         :height: 18pt
     """
 
-class RedoTool(Tool):
+class RedoTool(Action):
     """ *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.

@@ -1,15 +1,29 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-properties = utils.require "core/properties"
+p = properties = utils.require "core/properties"
 
 HasProps = utils.require "core/has_props"
 enums = utils.require "core/enums"
 ColumnDataSource = utils.require("models/sources/column_data_source").Model
 svg_colors = utils.require "core/util/svg_colors"
+Transform = utils.require "models/transforms/transform"
+
+class TestTransform extends Transform.Model
+  compute: (x) -> x+1
+  v_compute: (xs) ->
+    ret = []
+    for i in [0...xs.length]
+      ret.push(xs[i]+i)
+    ret
 
 class SomeHasProps extends HasProps
   type: 'SomeHasProps'
+
+  @define {
+    a: [ p.Any ]
+    b: [ p.Any ]
+  }
 
 describe "properties module", ->
 
@@ -29,11 +43,13 @@ describe "properties module", ->
     validation_error prop, undefined
     validation_error prop, new SomeHasProps()
 
-  fixed           = {a: 1}
-  spec_field      = {a: {field: 'foo'}, b: 30}
-  spec_field_only = {a: {field: 'foo'}}
-  spec_value      = {a: {value: 2}}
-  spec_value_null = {a: {value: null}}
+  fixed            = {a: 1}
+  spec_field       = {a: {field: 'foo'}, b: 30}
+  spec_field_only  = {a: {field: 'foo'}}
+  spec_field_trans = {a: {field: 'foo', transform: new TestTransform()}}
+  spec_value       = {a: {value: 2}}
+  spec_value_trans = {a: {value: 2, transform: new TestTransform()}}
+  spec_value_null  = {a: {value: null}}
 
   describe "Property", ->
 
@@ -59,10 +75,10 @@ describe "properties module", ->
         p = new properties.Property({obj: obj, attr: 'b'})
         expect(obj.get('b')).to.be.equal null
 
-      it "should set undefined property attr value if a default is given", ->
-        obj = new SomeHasProps(a: {})
-        p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
-        expect(obj.get('b')).to.be.equal 10
+      #it "should set undefined property attr value if a default is given", ->
+      #  obj = new SomeHasProps(a: {})
+      #  p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
+      #  expect(obj.get('b')).to.be.equal 10
 
       # it "should throw an Error for missing specifications", ->
       #   fn = ->
@@ -106,6 +122,10 @@ describe "properties module", ->
         expect(prop.value()).to.be.equal 1
         prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
         expect(prop.value()).to.be.equal 2
+
+      it "should return a transformed value if there is a value spec with transform", ->
+        prop = new properties.Property({obj: new SomeHasProps(spec_value_trans), attr: 'a'})
+        expect(prop.value()).to.be.equal 3
 
       it "should allow a fixed null value", ->
         prop = new properties.Property({obj: new SomeHasProps(spec_value_null), attr: 'a'})
@@ -171,6 +191,32 @@ describe "properties module", ->
           prop.dataspec = true
           arr = prop.array(source)
         expect(fn).to.throw Error, /attempted to retrieve property array for nonexistent field 'foo'/
+
+      it "should apply a spec transform to a field", ->
+        source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        prop = new properties.Property({obj: new SomeHasProps(spec_field_trans), attr: 'a'})
+        prop.dataspec = true
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 0
+        expect(arr[1]).to.be.equal 2
+        expect(arr[2]).to.be.equal 4
+        expect(arr[3]).to.be.equal 6
+        expect(arr[4]).to.be.equal 14
+
+      it "should apply a spec transform to a value array", ->
+        source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        prop = new properties.Property({obj: new SomeHasProps(spec_value_trans), attr: 'a'})
+        prop.dataspec = true
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 2
+        expect(arr[1]).to.be.equal 3
+        expect(arr[2]).to.be.equal 4
+        expect(arr[3]).to.be.equal 5
+        expect(arr[4]).to.be.equal 6
 
     describe "init", ->
       it "should return nothing by default", ->
@@ -723,6 +769,7 @@ describe "properties module", ->
       expect("Any" of properties).to.be.true
       expect("Anchor" of properties).to.be.true
       expect("Angle" of properties).to.be.true
+      expect("AngleUnits" of properties).to.be.true
       expect("Array" of properties).to.be.true
       expect("Bool" of properties).to.be.true
       expect("Color" of properties).to.be.true
@@ -754,4 +801,3 @@ describe "properties module", ->
       expect("FontSizeSpec" of properties).to.be.true
       expect("NumberSpec" of properties).to.be.true
       expect("StringSpec" of properties).to.be.true
-

@@ -33,6 +33,9 @@ p.rect(x=50, y=50, width=80, height=80,
 r = p.text(x=[], y=[], text=[], text_color=[],
            text_font_size="20pt", text_baseline="middle", text_align="center")
 
+# Add plot to document
+curdoc().add(p)
+
 def make_callback(i):
     ds = r.data_source
 
@@ -56,6 +59,3 @@ callbacks = [make_callback(i) for i in range(N)]
 
 for callback in callbacks:
     curdoc().add_timeout_callback(callback, callback.interval)
-
-
-

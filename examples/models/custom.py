@@ -6,7 +6,7 @@ from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
-from bokeh.models.layouts import HBox
+from bokeh.models.layouts import Row
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -16,6 +16,7 @@ class Popup(Callback):
 _ = require "underscore"
 Util = require "util/util"
 Model = require "model"
+p = require "core/properties"
 
 class Popup extends Model
   type: "Popup"
@@ -26,10 +27,9 @@ class Popup extends Model
       window.alert(message)
     null
 
-  defaults: ->
-    return _.extend {}, super(), {
-      message: ""
-    }
+  @define {
+    message: [ p.String, "" ]
+  }
 
 module.exports =
   Model: Popup
@@ -40,23 +40,24 @@ module.exports =
     which will be formatted with data from the data source.
     """)
 
-class MyHBox(HBox):
+
+class MyRow(Row):
 
     __implementation__ = """
-HBox = require "models/layouts/hbox"
+Row = require "models/layouts/row"
 
-class MyHBoxView extends HBox.View
+class MyRowView extends Row.View
   render: () ->
     super()
     @$el.css({border: "5px solid black"})
 
-class MyHBox extends HBox.Model
-  type: "MyHBox"
-  default_view: MyHBoxView
+class MyRow extends Row.Model
+  type: "MyRow"
+  default_view: MyRowView
 
 module.exports = {
-  Model: MyHBox
-  View: MyHBoxView
+  Model: MyRow
+  View: MyRowView
 }
 """
 
@@ -83,7 +84,7 @@ tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected colo
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add_root(MyHBox(children=[plot]))
+doc.add_root(MyRow(children=[plot]))
 
 if __name__ == "__main__":
     filename = "custom.html"

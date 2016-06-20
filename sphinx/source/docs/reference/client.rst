@@ -1,4 +1,3 @@
-
 .. _bokeh.client:
 
 ``bokeh.client``

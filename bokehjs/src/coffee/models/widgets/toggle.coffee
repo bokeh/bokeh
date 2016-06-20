@@ -1,10 +1,10 @@
-_  = require "underscore"
-
-AbstractButton = require "./abstract_button"
-BokehView  = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class ToggleView extends BokehView
+AbstractButton = require "./abstract_button"
+Widget = require "./widget"
+
+
+class ToggleView extends Widget.View
   tagName: "button"
   events:
     "click": "change_input"
@@ -22,8 +22,9 @@ class ToggleView extends BokehView
         val.$el.detach()
 
     @$el.empty()
+    @$el.removeClass()
     @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("type"))
+    @$el.addClass("bk-bs-btn-" + @mget("button_type"))
     if @mget("disabled") then @$el.attr("disabled", "disabled")
 
     label = @mget("label")
@@ -34,28 +35,26 @@ class ToggleView extends BokehView
 
     if @mget("active")
       @$el.addClass("bk-bs-active")
-
-    @$el.attr("data-bk-bs-toggle", "button")
+    else
+      @$el.removeClass("bk-bs-active")
     return @
 
   change_input: () ->
     @mset('active', not @mget('active'))
     @mget('callback')?.execute(@model)
 
+
 class Toggle extends AbstractButton.Model
   type: "Toggle"
   default_view: ToggleView
 
-  props: ->
-    return _.extend {}, super(), {
-      active: [ p. Bool, false ]
-    }
+  @define {
+    active: [ p. Bool, false ]
+  }
 
-  defaults: ->
-    return _.extend {}, super(), {
-      # overrides
-      label: "Toggle"
-    }
+  @override {
+    label: "Toggle"
+  }
 
 module.exports =
   Model: Toggle

@@ -26,11 +26,18 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
+  </script>
   <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
+
+  <!-- Canonical
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="canonical" href="http://bokeh.pydata.org/en/latest/{{ pagename }}{{ file_suffix }}" />
 
 </head>
 <body class="">
@@ -117,4 +124,3 @@
 </body>
 
 </html>
-

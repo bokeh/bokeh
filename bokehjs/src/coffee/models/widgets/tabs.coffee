@@ -2,30 +2,22 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
 
-tabs_template = require "./tabs_template"
-Widget = require "./widget"
-build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class TabsView extends BokehView
+tabs_template = require "./tabs_template"
+Widget = require "./widget"
 
-  initialize: (options) ->
-    super(options)
-    @views = {}
-    @render()
-    @listenTo @model, 'change', this.render
+class TabsView extends Widget.View
 
   render: () ->
-    for own key, val of @views
+    super()
+    for own key, val of @child_views
       val.$el.detach()
     @$el.empty()
 
     tabs = @mget('tabs')
-    active = @mget("active")
-
-    children = (tab.get("child") for tab in tabs)
-    build_views(@views, children)
+    active = @mget('active')
+    children = @mget('children')
 
     html = $(tabs_template({
       tabs: tabs
@@ -47,7 +39,7 @@ class TabsView extends BokehView
     $panels = html.children(".bk-bs-tab-pane")
 
     for [child, panel] in _.zip(children, $panels)
-      $(panel).html(@views[child.id].$el)
+      $(panel).html(@child_views[child.id].$el)
 
     @$el.append(html)
     @$el.tabs
@@ -57,12 +49,36 @@ class Tabs extends Widget.Model
   type: "Tabs"
   default_view: TabsView
 
-  props: ->
-    return _.extend {}, super(), {
+  initialize: (options) ->
+    super(options)
+    @children = (tab.get("child") for tab in @tabs)
+
+  @define {
       tabs:     [ p.Array,   [] ]
       active:   [ p.Number,  0  ]
       callback: [ p.Instance    ]
     }
+
+  @internal {
+      children: [ p.Array,   [] ]
+  }
+
+  get_layoutable_children: () ->
+    return @get('children')
+
+  get_edit_variables: () ->
+    edit_variables = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
 
 module.exports =
   Model: Tabs

@@ -5,7 +5,7 @@ p = require "../../../core/properties"
 
 class HelpToolView extends ActionTool.View
   do: () ->
-  	window.open(@mget('redirect'))
+    window.open(@mget('redirect'))
 
 class HelpTool extends ActionTool.Model
   default_view: HelpToolView
@@ -13,8 +13,7 @@ class HelpTool extends ActionTool.Model
   tool_name: "Help"
   icon: "bk-tool-icon-help"
 
-  props: ->
-    return _.extend {}, super(), {
+  @define {
       help_tooltip: [
         p.String,
         'Click the question mark to learn more about Bokeh plot tools.'
@@ -27,7 +26,7 @@ class HelpTool extends ActionTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @register_property('tooltip', () ->@get('help_tooltip'))
+    @override_computed_property('tooltip', () ->@get('help_tooltip'))
 
 module.exports =
   Model: HelpTool,

@@ -12,7 +12,7 @@ The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
 in Python, and then converted to a JSON format that is consumed by the
 client library, BokehJS. (See :ref:`userguide_concepts` for a more detailed
-disussion.) By itself, this flexible and decoupled design offers advantages,
+discussion.) By itself, this flexible and decoupled design offers advantages,
 for instance it is easy to have other languages (R, Scala, Lua, ...) drive
 the exact same Bokeh plots and visualizations in the browser.
 
@@ -23,7 +23,7 @@ possibilities immediately open up:
 * respond to UI and tool events generated in a browser with computations or
   queries using the full power of python
 * automatically push updates the UI (i.e. widgets or plots), in a browser
-* use periodic, timeout, and asychronous callbacks drive streaming updates
+* use periodic, timeout, and asynchronous callbacks drive streaming updates
 
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
@@ -97,7 +97,7 @@ Another possibility is to have a single centrally created app (perhaps by an
 organization), that can access data or other artifacts published by many
 different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
-server with other web application frameworks. See a complete example at 
+server with other web application frameworks. See a complete example at
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
 
@@ -116,6 +116,12 @@ First, we must have a Bokeh Server running. To do that, execute the command:
 .. code-block:: sh
 
     bokeh serve
+
+or, alternatively:
+
+.. code-block:: sh
+
+    python -m bokeh serve
 
 When the server starts you should see output similar to the following on your
 console:
@@ -318,6 +324,16 @@ to the address of the running application, which in this case is:
 
     http://localhost:5006/myapp
 
+If you have only one application, the server root will redirect to it.
+Otherwise, You can see an index of all running applications at the server root:
+
+.. code-block:: none
+
+    http://localhost:5006/
+
+This index can be disabled with the ``--disable-index`` option, and the redirect
+behavior can be disabled with the ``--disable-index-redirect`` option.
+
 In addition to creating Bokeh applications from single python files, it is
 also possible to create applications from directories.
 
@@ -353,25 +369,57 @@ The full set of files that Bokeh server knows about is:
        |
        +---main.py
        +---server_lifecycle.py
+       +---static
        +---theme.yaml
+       +---templates
+            +---index.html
+
+The optional components are
+
+* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
+
+* A ``static`` subdirectory that can be used to serve static resources associated with this application.
+
+* A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
+
+* A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
 to include data files or custom user defined models in your directory
-however you like. An example might be:
+however you like. Additionally, the application directory is also added
+to ``sys.path`` so that python modules in the application directory may
+be easily imported.
+
+An example might be:
 
 .. code-block:: none
 
     myapp
        |
        +---data
-       |      +---things.csv
+       |    +---things.csv
        |
+       +---helpers.py
        +---main.py
        |---models
-       |      +---custom.js
+       |    +---custom.js
        |
        +---server_lifecycle.py
+       +---static
+       |    +---css
+       |    |    +---special.css
+       |    |
+       |    +---images
+       |    |    +---foo.png
+       |    |    +---bar.png
+       |    |
+       |    +---js
+       |        +---special.js
+       |
+       |---templates
+       |    +---index.html
+       |
        +---theme.yaml
 
 In this case you might have code similar to:
@@ -379,16 +427,13 @@ In this case you might have code similar to:
 .. code-block:: python
 
     from os.path import dirname, join
-    import pandas
+    from helpers import load_data
 
-    pandas.read_csv(join(dirname(__file__), 'data', 'things.csv')
+    load_data(join(dirname(__file__), 'data', 'things.csv')
 
 And similar code to load the JavaScript implementation for a custom model
-from ``custom.js``
+from ``models/custom.js``
 
-.. note::
-    Currently only absolute imports are supported in ``main.py``. We hope to
-    lift this limitation in future releases.
 
 .. _userguide_server_applications_callbacks:
 
@@ -431,6 +476,154 @@ detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
     capability for two-way Python<-->JS synchronization through Jupyter comms
     is a planned future addition.
 
+Updating From Threads
+'''''''''''''''''''''
+
+If the app needs to perform blocking computation, it can be possible to have
+a separate thread perform that work, and then add a callback to update the
+document with the results. It is important to emphasize that the interface
+to update the document must pass through a "next tick callback". A callback
+added this way will execute as soon as possible on the next iteration of the
+Tornado event loop, and automatically acquire necessary locks to update the
+document state safely.
+
+Any usage that updates the document state from another thread, either by
+calling other methods on the document, or by setting properties directly
+on Bokeh models, risks data and protocol corruption.
+
+.. warning::
+    The ONLY safe operations to perform on a document from a different thread
+    is :func:`~bokeh.document.Document.add_next_tick_callback` and
+    :func:`~bokeh.document.Document.remove_next_tick_callback`
+
+It is also important to save a local copy of ``curdoc()`` off so that all
+threads have access to the same document. This is illustrated in the example
+below:
+
+.. code-block:: python
+
+    from functools import partial
+    from random import random
+    from threading import Thread
+    import time
+
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import curdoc, figure
+
+    from tornado import gen
+
+    # this must only be modified from a Bokeh session allback
+    source = ColumnDataSource(data=dict(x=[0], y=[0]))
+
+    # This is important! Save curdoc() to make sure all threads
+    # see then same document.
+    doc = curdoc()
+
+    @gen.coroutine
+    def update(x, y):
+        source.stream(dict(x=[x], y=[y]))
+
+    def blocking_task():
+        while True:
+            # do some blocking computation
+            time.sleep(0.1)
+            x, y = random(), random()
+
+            # but update the document from callback
+            doc.add_next_tick_callback(partial(update, x=x, y=y))
+
+    p = figure(x_range=[0, 1], y_range=[0,1])
+    l = p.circle(x='x', y='y', source=source)
+
+    doc.add_root(p)
+
+    thread = Thread(target=blocking_task)
+    thread.start()
+
+To see this example in action, save it to a python file, e.g. ``testapp.py`` and
+then execute
+
+.. code-block:: sh
+
+    bokeh serve --show testapp.py
+
+.. warning::
+    There is currently no locking around adding next tick callbacks to
+    documents. It is recommended that at most one thread add callbacks to
+    the document. It is planned to add more fine grained locking to
+    callback methods in the future.
+
+Updating from Unlocked Callbacks
+''''''''''''''''''''''''''''''''
+
+You may also want to drive blocking computations from callbacks using, e.g.
+Tornado's ``ThreadPoolExecutor`` in an asynchronous callback. This can work,
+however, normally Bokeh session callbacks recursively lock the document until
+all future work they initiate is completed. To make this scenario work as
+desired, Bokeh provides a :func:`~bokeh.document.without_document_lock`
+decorator that can suppress the normal locking behavior.
+
+As with the thread example above, all actions that update document state
+**must go through a next-tick callback**.
+
+The following example demonstrates an application that drives a blocking
+computation from one unlocked Bokeh session callback, by yielding to a
+blocking function that runs on the thread pool executor and updates by using
+a next-tick callback, and also updates the state simply from a standard
+locked session callback on a different update rate.
+
+.. code-block:: python
+
+    from functools import partial
+    import time
+
+    from concurrent.futures import ThreadPoolExecutor
+    from tornado import gen
+
+    from bokeh.document import without_document_lock
+    from bokeh.models import ColumnDataSource
+    from bokeh.plotting import curdoc, figure
+
+    source = ColumnDataSource(data=dict(x=[0], y=[0], color=["blue"]))
+
+    i = 0
+
+    doc = curdoc()
+
+    executor = ThreadPoolExecutor(max_workers=2)
+
+    def blocking_task(i):
+        time.sleep(1)
+        return i
+
+    # the unlocked callback uses this locked callback to safely update
+    @gen.coroutine
+    def locked_update(i):
+        source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["blue"]))
+
+    # this unclocked callback will not prevent other session callbacks from
+    # executing while it is in flight
+    @gen.coroutine
+    @without_document_lock
+    def unlocked_task():
+        global i
+        i += 1
+        res = yield executor.submit(blocking_task, i)
+        doc.add_next_tick_callback(partial(locked_update, i=res))
+
+    @gen.coroutine
+    def update():
+        source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["red"]))
+
+    p = figure(x_range=[0, 100], y_range=[0,20])
+    l = p.circle(x='x', y='y', color='color', source=source)
+
+    doc.add_periodic_callback(unlocked_task, 1000)
+    doc.add_periodic_callback(update, 200)
+    doc.add_root(p)
+
+As before, you can run this example by saving to a python file and running
+``bokeh serve`` on it.
 
 .. _userguide_server_applications_lifecycle:
 
@@ -494,8 +687,8 @@ scaling, and uptime. In these cases more sophisticated deployment
 configurations are needed. In the following sections we discuss some of
 these considerations.
 
-Tunnels
-'''''''
+SSH Tunnels
+'''''''''''
 
 It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
 
@@ -512,7 +705,7 @@ Next, issue the following command on the **local machine** to establish an ssh t
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006  user@remote.host
-    
+
 Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
 
 The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
@@ -523,7 +716,7 @@ Issue the following commands on the **remote host** where the Bokeh server will 
 
     nohup bokeh server &
     ssh -NfR 5006:localhost:5006 user@gateway.host
-    
+
 Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
 
 Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
@@ -531,7 +724,7 @@ Now set up the other half of the tunnel, from the local machine to the gateway. 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006 user@gateway.host
-    
+
 Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
 
 .. note::
@@ -540,15 +733,23 @@ Again, replace *user* with your username on the gateway and *gateway.host* with 
     and wish to contribute your knowledge here, please
     `contact us on the mailing list`_.
 
-.. _userguide_server_deployment_nginx_proxy:
+.. _userguide_server_deplyoment_proxy:
 
-Reverse Proxying with Nginx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Basic Reverse Proxy Setup
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the goal is to serve an web application to the general Internet, it is
 often desirable to host the application on an internal network, and proxy
-connections to it through some dedicated HTTP server. One very common HTTP
-and reverse-proxying server is Nginx.
+connections to it through some dedicated HTTP server. This sections provides
+guidance for basic configuration behind some common reverse proxies.
+
+.. _userguide_server_deployment_nginx_proxy:
+
+Nginx
+'''''
+
+One very common HTTP and reverse-proxying server is Nginx. A sample
+server confuguration block is shown below:
 
 .. code-block:: nginx
 
@@ -609,6 +810,50 @@ whatever user Nginx is running as. Alternatively, you can copy the resources
 to a global static directory during your deployment process. See
 :ref:`userguide_server_deployment_automation` for a demonstration of this.
 
+Apache
+''''''
+
+Another common HTTP server and proxy is Apache:
+
+.. code-block:: apache
+
+    <VirtualHost *:80>
+        ServerName localhost
+
+        CustomLog "/path/to/logs/access_log" combined
+        ErrorLog "/path/to/logs/error_log"
+
+        ProxyPreserveHost On
+        ProxyPass /myapp/ws ws://127.0.0.1:5100/myapp/ws
+        ProxyPassReverse /myapp/ws ws://127.0.0.1:5100/myapp/ws
+
+        ProxyPass /myapp http://127.0.0.1:5100/myapp/
+        ProxyPassReverse /myapp http://127.0.0.1:5100/myapp/
+
+        <Directory />
+            Require all granted
+            Options -Indexes
+        </Directory>
+
+        Alias /static /path/to/bokeh/server/static
+        <Directory /path/to/bokeh/server/static>
+            # directives to effect the static directory
+            Options +Indexes
+        </Directory>
+
+    </VirtualHost>
+
+The above configuration aliases `/static` to the location of the Bokeh
+static resources directory, however it is also possible (and probably
+preferable) to copy the Bokeh static resources to whatever standard
+static files location is configured for Apache as part of the deployment.
+
+As before, you would run the Bokeh server with the command:
+
+.. code-block:: sh
+
+    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
+
 .. _userguide_server_deployment_nginx_proxy_ssl:
 
 Reverse Proxying with Nginx and SSL
@@ -621,7 +866,7 @@ you must also add the ``--use-xheaders`` flag:
 
 .. code-block:: sh
 
-    bokeh bserve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+    bokeh serve myapp.py --port 5100 --host foo.com:443 --use-xheaders
 
 The ``--use-xheaders`` option causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
@@ -807,20 +1052,34 @@ to start the Supervisor process. Then to control processes execute
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf start all
+    supervisorctl -c /path/to/supervisord.conf start all
 
 To stop all processes run:
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf start all
+    supervisorctl -c /path/to/supervisord.conf start all
 
 And to update the process control after editing the config file, run:
 
 .. code-block:: sh
 
-    supervisctl -c /path/to/supervisord.conf update
+    supervisorctl -c /path/to/supervisord.conf update
 
+.. _userguide_server_scaling:
+
+Scaling the server
+~~~~~~~~~~~~~~~~~~
+
+You can fork multiple server processes with the `num-procs` option. For example, to fork 3 processes:
+
+.. code-block:: sh
+
+    bokeh serve --num-procs 3
+
+Note that the forking operation happens in the underlying Tornado Server, see notes in the `Tornado docs`_.
+
+.. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
 .. _userguide_server_deployment_automation:
 

@@ -90,7 +90,7 @@ class WheelZoomToolView extends GestureTool.View
       factor: factor
     }
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
-    @plot_view.update_range(zoom_info)
+    @plot_view.update_range(zoom_info, false, true)
     @plot_view.interactive_timestamp = Date.now()
     return null
 
@@ -105,27 +105,21 @@ class WheelZoomTool extends GestureTool.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @register_property('tooltip', () ->
+    @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
-          @get("tool_name"),
+          @tool_name,
           @_check_dims(@get('dimensions'), "wheel zoom tool")
         )
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-  props: () ->
-    return _.extend({}, super(), {
+  @define {
       dimensions: [ p.Array, ["width", "height"] ]
-    })
+    }
 
-  nonserializable_attribute_names: () ->
-    super().concat(['speed'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      # internal
-      speed: 1/600
-    })
+  @internal {
+    speed: [ p.Number, 1/600 ]
+  }
 
 module.exports =
   Model: WheelZoomTool

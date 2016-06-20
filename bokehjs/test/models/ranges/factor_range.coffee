@@ -1,12 +1,12 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Collections} = utils.require "base"
+FactorRange = utils.require("models/ranges/factor_range").Model
 
 describe "factor_range module", ->
 
   describe "default creation", ->
-    r = Collections('FactorRange').create()
+    r = new FactorRange()
 
     it "should have empty factors", ->
       expect(r.get('factors')).to.be.deep.equal []
@@ -18,7 +18,7 @@ describe "factor_range module", ->
       expect(r.get('offset')).to.be.equal 0.0
 
   describe "min/max properties", ->
-    r = Collections('FactorRange').create({factors: ['FOO']})
+    r = new FactorRange({factors: ['FOO']})
 
     it "should return values from synthetic range", ->
 
@@ -43,7 +43,7 @@ describe "factor_range module", ->
       expect(r.get('max')).to.be.equal r.get('end')
 
   describe "offset property", ->
-    r = Collections('FactorRange').create({factors: ['FOO'], offset: -1})
+    r = new FactorRange({factors: ['FOO'], offset: -1})
 
     it "should be applied to other properties", ->
 
@@ -54,12 +54,10 @@ describe "factor_range module", ->
       expect(r.get('end')).to.be.equal 0.5
 
   describe "start/end properties", ->
-    r = Collections('FactorRange').create({factors: ['FOO']})
+    r = new FactorRange({factors: ['FOO']})
 
     it "should update when offset updates", ->
       r.set('offset', -1)
 
       expect(r.get('start')).to.be.equal -0.5
       expect(r.get('end')).to.be.equal 0.5
-
-
