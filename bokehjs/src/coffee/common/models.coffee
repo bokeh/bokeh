@@ -102,6 +102,8 @@ module.exports = {
 
   GlyphRenderer:            require '../models/renderers/glyph_renderer'
 
+  ColorBar:                 require '../models/scales/color_bar'
+
   AjaxDataSource:           require '../models/sources/ajax_data_source'
   ColumnDataSource:         require '../models/sources/column_data_source'
   GeoJSONDataSource:        require '../models/sources/geojson_data_source'
