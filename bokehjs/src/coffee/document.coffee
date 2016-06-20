@@ -635,11 +635,10 @@ class Document
         model_id = event_json['model']['id']
         if model_id of @_all_models
           references[model_id] = @_all_models[model_id]
-        # else
-        #   if model_id not of references
-        #     debugger
-        #     console.log("Got an event for unknown model ", event_json['model'])
-        #     throw new Error("event model wasn't known")
+        else
+          if model_id not of references
+            console.log("Got an event for unknown model ", event_json['model'])
+            throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update
     old_references = {}
@@ -649,6 +648,8 @@ class Document
         old_references[id] = value
       else
         new_references[id] = value
+
+    console.log "DOCUMENT ------- NEW REFS", new_references
 
     Document._initialize_references_json(references_json, old_references, new_references)
 

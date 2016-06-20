@@ -399,13 +399,20 @@ class HasProps extends Backbone.Model
       old_refs = {}
       HasProps._value_record_references(old, old_refs, false)
 
+      need_invalidate = false
       for new_id, new_ref of new_refs
         if new_id not of old_refs
-          new_ref.attach_document(@document)
+          need_invalidate = true
+          break
 
-      for old_id, old_ref of old_refs
-        if old_id not of new_refs
-          old_ref.detach_document()
+      if not need_invalidate
+        for old_id, old_ref of old_refs
+          if old_id not of new_refs
+            need_invalidate = true
+            break
+
+      if need_invalidate
+        @document._invalidate_all_models()
 
       @document._notify_change(@, attr, old, new_)
 
