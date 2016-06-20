@@ -22,7 +22,6 @@ that accepts these same parameters.
     <head>
         <meta charset="utf-8">
         <title>{{ title if title else "Bokeh Plot" }}</title>
-        <script type="text/javascript" src="http://visjs.org/dist/vis.js"></script>
         {{ bokeh_css }}
         {{ bokeh_js }}
         <style>
@@ -40,6 +39,5 @@ that accepts these same parameters.
     <body>
         {{ plot_div|indent(8) }}
         {{ plot_script|indent(8) }}
-        <div id="myplot"></div>
     </body>
 </html>
