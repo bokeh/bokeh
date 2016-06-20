@@ -3,7 +3,7 @@ _ = require "underscore"
 Glyph = require "../glyphs/glyph"
 LinearColorMapper = require "../mappers/linear_color_mapper"
 p = require "../../core/properties"
-{Greys9} = require '../../palettes/palettes'
+{Greys} = require '../../palettes/palettes'
 
 class ImageView extends Glyph.View
 
@@ -96,7 +96,7 @@ class Image extends Glyph.Model
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]
       dilate:       [ p.Bool,      false ]
-      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys9) ]
+      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys.Greys9) ]
   }
 
 module.exports =

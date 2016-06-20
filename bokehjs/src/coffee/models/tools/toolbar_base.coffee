@@ -95,7 +95,8 @@ class ToolbarBase extends LayoutDOM.Model
     # Get the constraints from widget
     constraints = super()
     # Set the fixed size of toolbar
-    constraints.push(EQ(@_sizeable, -30))
+    if @_sizeable?
+      constraints.push(EQ(@_sizeable, -30))
     return constraints
 
   @define {

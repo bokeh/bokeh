@@ -1,11 +1,16 @@
 module.exports = {
   ## api/typings/models/annotations.d.ts
-  Annotation:                             require("../models/annotations/annotation").Model
-  Legend:                                 require("../models/annotations/legend").Model
+  Arrow:                                  require("../models/annotations/arrow").Model
+  OpenHead:                               require("../models/annotations/arrow_head").OpenHead
+  NormalHead:                             require("../models/annotations/arrow_head").NormalHead
+  VeeHead:                                require("../models/annotations/arrow_head").VeeHead
   BoxAnnotation:                          require("../models/annotations/box_annotation").Model
+  Label:                                  require("../models/annotations/label").Model
+  LabelSet:                               require("../models/annotations/label_set").Model
+  Legend:                                 require("../models/annotations/legend").Model
   PolyAnnotation:                         require("../models/annotations/poly_annotation").Model
   Span:                                   require("../models/annotations/span").Model
-  #Overlay:                               require("../models/annotations/overlay").Model
+  Title:                                  require("../models/annotations/title").Model
   Tooltip:                                require("../models/annotations/tooltip").Model
 
   ## api/typings/models/axes.d.ts
@@ -65,6 +70,8 @@ module.exports = {
   LayoutDOM:                              require("../models/layouts/layout_dom").Model
   Row:                                    require("../models/layouts/row").Model
   Column:                                 require("../models/layouts/column").Model
+  Spacer:                                 require("../models/layouts/spacer").Model
+  WidgetBox:                              require("../models/layouts/widget_box").Model
 
   ## api/typings/models/map_plots.d.ts
   GMapPlot:                               require("../models/plots/gmap_plot").Model
@@ -138,6 +145,11 @@ module.exports = {
   WMTSTileSource:                         require("../models/tiles/wmts_tile_source").Model
   QUADKEYTileSource:                      require("../models/tiles/quadkey_tile_source").Model
   BBoxTileSource:                         require("../models/tiles/bbox_tile_source").Model
+
+  ## api/typings/models/toolbars.d.ts
+  ToolbarBase:                            require("../models/tools/toolbar_base").Model
+  Toolbar:                                require("../models/tools/toolbar").Model
+  ToolbarBox:                             require("../models/tools/toolbar_box").Model
 
   ## api/typings/models/tools.d.ts
   ToolEvents:                             require("../common/tool_events").Model

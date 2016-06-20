@@ -29,5 +29,5 @@ namespace Legends {
     p2.square(x, y3, {legend: "3*sin(x)", fill_color: null, line_color: "green"})
     p2.line(x, y3, {legend: "3*sin(x)", line_color: "green"})
 
-    plt.show(new Bokeh.VBox({children: [p1, p2]}))
+    plt.show(new Bokeh.Column({children: [p1, p2]}))
 }

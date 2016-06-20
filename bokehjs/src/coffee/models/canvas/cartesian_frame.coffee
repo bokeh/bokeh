@@ -96,8 +96,7 @@ class CartesianFrame extends LayoutCanvas.Model
     extra_ranges = @get("extra_#{dim}_ranges")
     if extra_ranges?
       for name, range of extra_ranges
-        # resolve ref needed because dicts are not auto-resolved
-        ranges[name] = @resolve_ref(range)
+        ranges[name] = range
     return ranges
 
   _get_mappers: (dim, ranges, frame_range) ->

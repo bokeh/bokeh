@@ -6,6 +6,8 @@ $ = require "jquery"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
 {is_ref} = require "./core/util/refs"
+{MultiDict} = require "./core/util/data_structures"
+ColumnDataSource = require "./models/sources/column_data_source"
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -13,64 +15,62 @@ class DocumentChangedEvent
 class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
     super @document
+  json : (references) ->
+
+    if @attr == 'id'
+      console.log("'id' field is immutable and should never be in a ModelChangedEvent ", @)
+      throw new Error("'id' field should never change, whatever code just set it is wrong")
+
+    value = @new_
+    value_json = HasProps._value_to_json('new_', value, @model)
+
+    value_refs = {}
+    HasProps._value_record_references(value, value_refs, true) # true = recurse
+
+    if @model.id of value_refs and @model != value
+      # we know we don't want a whole new copy of the obj we're
+      # patching unless it's also the value itself
+      delete value_refs[@model.id]
+
+    for id of value_refs
+      references[id] = value_refs[id]
+
+    {
+      'kind' : 'ModelChanged',
+      'model' : @model.ref(),
+      'attr' : @attr,
+      'new' : value_json
+    }
 
 class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title) ->
     super @document
+  json : (references) ->
+    {
+      'kind' : 'TitleChanged',
+      'title' : @title
+    }
 
 class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
+  json : (references) ->
+    HasProps._value_record_references(@model, references, true)
+    {
+      'kind' : 'RootAdded',
+      'model' : @model.ref()
+    }
 
 class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
+  json : (references) ->
+    {
+      'kind' : 'RootRemoved',
+      'model' : @model.ref()
+    }
 
 DEFAULT_TITLE = "Bokeh Application"
-
-class _MultiValuedDict
-    constructor : () ->
-      @_dict = {}
-
-    _existing: (key) ->
-      if key of @_dict
-        return @_dict[key]
-      else
-        return null
-
-    add_value: (key, value) ->
-      if value == null
-        throw new Error("Can't put null in this dict")
-      if _.isArray(value)
-        throw new Error("Can't put arrays in this dict")
-      existing = @_existing(key)
-      if existing == null
-        @_dict[key] = value
-      else if _.isArray(existing)
-        existing.push(value)
-      else
-        @_dict[key] = [existing, value]
-
-    remove_value: (key, value) ->
-      existing = @_existing(key)
-      if _.isArray(existing)
-        new_array = _.without(existing, value)
-        if new_array.length > 0
-          @_dict[key] = new_array
-        else
-          delete @_dict[key]
-      else if _.isEqual(existing, value)
-        delete @_dict[key]
-
-    get_one: (key, duplicate_error) ->
-      existing = @_existing(key)
-      if _.isArray(existing)
-        if existing.length == 1
-          return existing[0]
-        else
-          throw new Error(duplicate_error)
-      else
-        return existing
 
 # This class should match the API of the Python Document class
 # as much as possible.
@@ -80,7 +80,7 @@ class Document
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
-    @_all_models_by_name = new _MultiValuedDict()
+    @_all_models_by_name = new MultiDict()
     @_all_model_counts = {}
     @_callbacks = []
     @_solver = new Solver()
@@ -246,10 +246,6 @@ class Document
 
   # called by the model on attach
   _notify_attach : (model) ->
-    if not model.serializable_in_document()
-      console.log("Attempted to attach nonserializable to document ", model)
-      throw new Error("Should not attach nonserializable model #{model.constructor.name} to document")
-
     if model.id of @_all_model_counts
       @_all_model_counts[model.id] = @_all_model_counts[model.id] + 1
     else
@@ -274,9 +270,6 @@ class Document
   @_references_json : (references, include_defaults=true) ->
     references_json = []
     for r in references
-      if not r.serializable_in_document()
-        console.log("nonserializable value in references ", r)
-        throw new Error("references should never contain nonserializable value")
       ref = r.ref()
       ref['attributes'] = r.attributes_as_json(include_defaults)
       # server doesn't want id in here since it's already in ref above
@@ -500,9 +493,7 @@ class Document
     for r in @_roots
       root_ids.push(r.id)
 
-    root_references =
-      for k, v of @_all_models
-        v
+    root_references = _.values(@_all_models)
 
     {
       'title' : @_title
@@ -547,57 +538,16 @@ class Document
     references = {}
     json_events = []
     for event in events
+
       if event.document != @
         console.log("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
         throw new Error("Cannot create a patch using events from a different document")
-      if event instanceof ModelChangedEvent
-        if event.attr == 'id'
-          console.log("'id' field is immutable and should never be in a ModelChangedEvent ", event)
-          throw new Error("'id' field should never change, whatever code just set it is wrong")
-        value = event.new_
-        value_json = HasProps._value_to_json('new_', value, event.model)
-        value_refs = {}
-        HasProps._value_record_references(value, value_refs, true) # true = recurse
 
-        if event.model.id of value_refs and event.model != value
-          # we know we don't want a whole new copy of the obj we're patching
-          # unless it's also the value itself
-          delete value_refs[event.model.id]
-        for id of value_refs
-          references[id] = value_refs[id]
+      json_events.push(event.json(references))
 
-        json_event = {
-          'kind' : 'ModelChanged',
-          'model' : event.model.ref(),
-          'attr' : event.attr,
-          'new' : value_json
-        }
-
-        json_events.push(json_event)
-      else if event instanceof RootAddedEvent
-        HasProps._value_record_references(event.model, references, true)
-        json_event = {
-          'kind' : 'RootAdded',
-          'model' : event.model.ref()
-        }
-        json_events.push(json_event)
-      else if event instanceof RootRemovedEvent
-        json_event = {
-          'kind' : 'RootRemoved',
-          'model' : event.model.ref()
-        }
-        json_events.push(json_event)
-      else if event instanceof TitleChangedEvent
-        json_event = {
-          'kind' : 'TitleChanged',
-          'title' : event.title
-        }
-        json_events.push(json_event)
-
-    {
-      'events' : json_events,
-      'references' : Document._references_json(_.values(references))
-    }
+    result =
+      events: json_events,
+      references: Document._references_json(_.values(references))
 
   apply_json_patch_string: (patch) ->
     @apply_json_patch(JSON.parse(patch))
@@ -629,6 +579,7 @@ class Document
     Document._initialize_references_json(references_json, old_references, new_references)
 
     for event_json in events_json
+
       if event_json['kind'] == 'ModelChanged'
         patched_id = event_json['model']['id']
         if patched_id not of @_all_models
@@ -637,25 +588,31 @@ class Document
         attr = event_json['attr']
         value = Document._resolve_refs(event_json['new'], old_references, new_references)
         patched_obj.set({ "#{attr}" : value })
+
       else if event_json['kind'] == 'ColumnsStreamed'
         column_source_id = event_json['column_source']['id']
         if column_source_id not of @_all_models
           throw new Error("Cannot stream to #{column_source_id} which is not in the document")
         column_source = @_all_models[column_source_id]
-        # TODO (bev) intance check is column data source
+        if column_source not instanceof ColumnDataSource.Model
+          throw new Error("Cannot stream to non-ColumnDataSource")
         data = event_json['data']
         rollover = event_json['rollover']
         column_source.stream(data, rollover)
+
       else if event_json['kind'] == 'RootAdded'
         root_id = event_json['model']['id']
         root_obj = references[root_id]
         @add_root(root_obj)
+
       else if event_json['kind'] == 'RootRemoved'
         root_id = event_json['model']['id']
         root_obj = references[root_id]
         @remove_root(root_obj)
+
       else if event_json['kind'] == 'TitleChanged'
         @set_title(event_json['title'])
+
       else
         throw new Error("Unknown patch event " + JSON.stringify(event_json))
 
