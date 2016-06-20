@@ -22,15 +22,16 @@ class TooltipView extends Annotation.View
     @_draw_tips()
 
   _draw_tips: () ->
+    data = @model.data
     @$el.empty()
     @$el.hide()
 
     @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
 
-    if _.isEmpty(@mget('data'))
+    if _.isEmpty(data)
       return
 
-    for val in @mget('data')
+    for val in data
       [vx, vy, content] = val
       if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
           continue
@@ -40,7 +41,6 @@ class TooltipView extends Annotation.View
     sy = @plot_view.mget('canvas').vy_to_sy(vy)
 
     attachment = @model.attachment
-
     switch attachment
       when "horizontal"
         width = @plot_view.frame.get('width')
@@ -103,19 +103,20 @@ class Tooltip extends Annotation.Model
   }
 
   @internal {
-    data: [ p.Any ]
-    custom: [ p.Any ]
+    data:   [ p.Any, [] ]
+    custom: [ p.Any     ]
   }
 
   clear: () ->
-    @set('data', [])
+    @data = []
 
   add: (vx, vy, content) ->
-    data = @get('data')
+    data = @data
     data.push([vx, vy, content])
-    @set('data', data)
+    @data = data
 
-
+    # TODO (bev) not sure why this is now necessary
+    @trigger('change:data')
 
 module.exports =
   Model: Tooltip

@@ -25,11 +25,12 @@ class HoverToolView extends InspectTool.View
 
   bind_bokeh_events: () ->
     for r in @mget('computed_renderers')
-      @listenTo(r.get('data_source'), 'inspect', @_update)
+      @listenTo(r.data_source, 'inspect', @_update)
 
     @plot_view.canvas_view.$el.css('cursor', 'crosshair')
 
   _clear: () ->
+
     @_inspect(Infinity, Infinity)
 
     for rid, tt of @mget('ttmodels')
@@ -55,11 +56,11 @@ class HoverToolView extends InspectTool.View
       vy: vy
     }
 
-    if @mget('mode') == 'mouse'
+    if @model.mode == 'mouse'
       geometry['type'] = 'point'
     else
         geometry['type'] = 'span'
-        if @mget('mode') == 'vline'
+        if @model.mode == 'vline'
           geometry.direction = 'h'
         else
           geometry.direction = 'v'
@@ -68,7 +69,7 @@ class HoverToolView extends InspectTool.View
     hovered_renderers = []
 
     for r in @mget('computed_renderers')
-      sm = r.get('data_source').get('selection_manager')
+      sm = r.data_source.get('selection_manager')
       sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
     if @mget('callback')?
@@ -80,7 +81,6 @@ class HoverToolView extends InspectTool.View
     tooltip = @mget('ttmodels')[renderer.model.id] ? null
     if not tooltip?
       return
-
     tooltip.clear()
 
     [i1d, i2d] = [indices['1d'].indices, indices['2d'].indices]
@@ -105,20 +105,20 @@ class HoverToolView extends InspectTool.View
       data_x = renderer.glyph._x[i+1]
       data_y = renderer.glyph._y[i+1]
 
-      if @mget('line_policy') == "interp"# and renderer.get_interpolation_hit?
+      if @model.line_policy == "interp" # and renderer.get_interpolation_hit?
         [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
         rx = xmapper.map_to_target(data_x)
         ry = ymapper.map_to_target(data_y)
 
-      else if @mget('line_policy') == "prev"
+      else if @model.line_policy == "prev"
         rx = canvas.sx_to_vx(renderer.glyph.sx[i])
         ry = canvas.sy_to_vy(renderer.glyph.sy[i])
 
-      else if @mget('line_policy') == "next"
+      else if @model.line_policy == "next"
         rx = canvas.sx_to_vx(renderer.glyph.sx[i+1])
         ry = canvas.sy_to_vy(renderer.glyph.sy[i+1])
 
-      else if @mget('line_policy') == "nearest"
+      else if @model.line_policy == "nearest"
         d1x = renderer.glyph.sx[i]
         d1y = renderer.glyph.sy[i]
         dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
@@ -142,18 +142,18 @@ class HoverToolView extends InspectTool.View
           [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
+
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     for i in indices['1d'].indices
       # patches will not have .x, .y attributes, for instance
       data_x = renderer.glyph._x?[i]
       data_y = renderer.glyph._y?[i]
-      if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
+      if @model.point_policy == 'snap_to_data' # and renderer.glyph.sx? and renderer.glyph.sy?
         # Pass in our screen position so we can determine
         # which patch we're over if there are discontinuous
         # patches.
         pt = renderer.glyph.get_anchor_point(@model.anchor, i, [sx, sy])
-
         if pt?
           {x, y} = pt
         else
@@ -174,8 +174,8 @@ class HoverToolView extends InspectTool.View
     r = @mget('computed_renderers')[0]
     indices = @plot_view.renderer_views[r.id].hit_test(geometry)
 
-    canvas = @plot_model.get('canvas')
-    frame = @plot_model.get('frame')
+    canvas = @plot_model.canvas
+    frame = @plot_model.frame
 
     geometry['sx'] = canvas.vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.vy_to_sy(geometry.vy)
@@ -185,8 +185,8 @@ class HoverToolView extends InspectTool.View
     geometry['x'] = xmapper.map_from_target(geometry.vx)
     geometry['y'] = ymapper.map_from_target(geometry.vy)
 
-    callback = @mget('callback')
-    [obj, data] = [@model, {index: indices, geometry: geometry}]
+    callback = @model.callback
+    [obj, data] = [callback, {index: indices, geometry: geometry}]
 
     if _.isFunction(callback)
       callback(obj, data)
@@ -197,7 +197,6 @@ class HoverToolView extends InspectTool.View
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @mget("tooltips")
-
     if _.isString(tooltips)
       return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
     else if _.isFunction(tooltips)
