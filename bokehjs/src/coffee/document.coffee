@@ -91,7 +91,6 @@ class Document
     $(window).on("resize", $.proxy(@resize, @))
 
   _init_solver : () ->
-    console.log "INIT SOLVER"
     @_solver.clear()
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
@@ -196,7 +195,7 @@ class Document
       @_recompute_all_models()
 
   _invalidate_all_models: () ->
-    console.log "INVALIDATE ALL MODELS"
+    logger.debug("invalidating document models")
     # if freeze count is > 0, we'll recompute on unfreeze
     if @_all_models_freeze_count == 0
       @_recompute_all_models()
@@ -228,9 +227,6 @@ class Document
         @_all_models_by_name.add_value(name, a)
 
     @_all_models = recomputed
-    console.log "RECOMPUTE -- detach", to_detach.values.length
-    console.log "RECOMPUTE -- attach", to_attach.values.length
-    console.log "RECOMPUTE -- all", _.values(@_all_models).length
 
   roots : () ->
     @_roots
@@ -239,15 +235,9 @@ class Document
     if model.layoutable isnt true
       throw new Error("Cannot add non-layoutable - #{model}")
 
-    console.log "ADD_LAYOUTABLE", model
-
     editables = model.get_edit_variables()
     constraints = model.get_constraints()
     vars = model.get_constrained_variables()
-
-    console.log " - editables", editables.length
-    console.log " - constraints", constraints.length
-    console.log " - vars", _.values(vars).length
 
     for {edit_variable, strength} in editables
       @_solver.add_edit_variable(edit_variable, strength)
@@ -275,8 +265,6 @@ class Document
     finally
       @_pop_all_models_freeze()
 
-    console.log "ADD ROOT", @_roots.length, @_roots
-
     @_init_solver()
 
     @_trigger_on_change(new RootAddedEvent(@, model))
@@ -292,8 +280,6 @@ class Document
       model._is_root = false
     finally
       @_pop_all_models_freeze()
-
-    console.log "REMOVE ROOT", @_roots.length, @_roots
 
     @_init_solver()
 
@@ -624,11 +610,11 @@ class Document
     @apply_json_patch(JSON.parse(patch))
 
   apply_json_patch: (patch) ->
-    console.log "APPLY_JSON_PATCH", patch
     references_json = patch['references']
     events_json = patch['events']
     references = Document._instantiate_references_json(references_json, @_all_models)
 
+    console.log "FOOOOO", references, @_all_models
     # The model being changed isn't always in references so add it in
     for event_json in events_json
       if 'model' of event_json
@@ -637,6 +623,7 @@ class Document
           references[model_id] = @_all_models[model_id]
         else
           if model_id not of references
+            console.log event_json
             console.log("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
 
@@ -648,8 +635,6 @@ class Document
         old_references[id] = value
       else
         new_references[id] = value
-
-    console.log "DOCUMENT ------- NEW REFS", new_references
 
     Document._initialize_references_json(references_json, old_references, new_references)
 

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bokeh.models import Row, Column, Select, WidgetBox
+from bokeh.models import Row, Column, Select
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure
 from bokeh.sampledata.autompg import autompg
@@ -41,7 +41,7 @@ def create_figure():
     if x.value in discrete: kw['x_range'] = sorted(set(xs))
     if y.value in discrete: kw['y_range'] = sorted(set(ys))
 
-    p = figure(plot_height=800, plot_width=1200, tools='pan', sizing_mode="scale_width", **kw)
+    p = figure(plot_height=800, plot_width=1200, tools='pan', **kw)
 
     p.xaxis.axis_label = x.value
     if x.value in discrete: p.xaxis.major_label_orientation = pd.np.pi / 4
@@ -63,7 +63,7 @@ def create_figure():
     return p
 
 def update(attr, old, new):
-    plot_row.children = [create_figure()]
+    layout.children[1] = create_figure()
 
 x = Select(title='X-Axis', value='mpg', options=columns)
 x.on_change('value', update)
@@ -77,9 +77,9 @@ size.on_change('value', update)
 color = Select(title='Color', value='None', options=['None'] + quantileable)
 color.on_change('value', update)
 
-controls = WidgetBox(x, y, color, size, sizing_mode="scale_width")
+controls = Row(x, y, color, size)
 
-plot_row = Row(create_figure(), sizing_mode="scale_width")
+layout = Column(controls, create_figure())
 
-doc = curdoc().add_root(Column(controls, plot_row, sizing_mode="scale_width"))
+doc = curdoc().add_root(layout)
 
