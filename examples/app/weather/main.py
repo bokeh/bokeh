@@ -16,7 +16,7 @@ def get_dataset(src, name, distribution):
     df = src[src.airport == name].copy()
     del df['airport']
     df['date'] = pd.to_datetime(df.date)
-    df['left'] = df.date - datetime.timedelta(days=0.5)  # use instead of pd.DateOffset to avoid pandas bug
+    df['left'] = df.date - datetime.timedelta(days=0.5)  # timedelta instead of pd.DateOffset to avoid pandas bug < 0.18 (Pandas issue #11925)
     df['right'] = df.date + datetime.timedelta(days=0.5)
     df = df.set_index(['date'])
     df.sort_index(inplace=True)
