@@ -95,7 +95,6 @@ describe "WidgetBox", ->
 
     it "should call build_child_views if children change", ->
       child_widget = new Tabs()
-      @doc.add_root(child_widget)
       spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
       new @widget_box.default_view({ model: @widget_box })
       expect(spy.callCount).is.equal 1  # Expect one from initialization

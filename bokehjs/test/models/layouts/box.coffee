@@ -29,7 +29,6 @@ describe "Box.View", ->
 
   it "should call build_child_views if children change", ->
     child_box = new Box()
-    @doc.add_root(child_box)
     spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
     new @box.default_view({ model: @box })
     expect(spy.callCount).is.equal 1  # Expect one from initialization
