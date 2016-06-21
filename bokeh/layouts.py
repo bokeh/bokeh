@@ -28,6 +28,8 @@ def _handle_children(*args, **kwargs):
     if not children:
         if len(args) == 1 and isinstance(args[0], list):
             children = args[0]
+        elif len(args) == 1 and isinstance(args[0], GridSpec):
+            children = args[0]
         else:
             children = list(args)
 
@@ -243,7 +245,7 @@ def gridplot(*args, **kwargs):
         children List(List(Instance(Plot))): An array of plots to display in a
         grid, given as a list of lists of Plot objects. To leave a position in
         the grid empty, pass None for that position in the children list. OR
-        List(Instance(Plot)) if called with ncols.
+        List(Instance(Plot)) if called with ncols. OR an instance of GridSpec.
 
         toolbar_location ``above``, ``below``, ``left``, ``right``: Where the
         toolbar will be located, with respect to the grid. Default is ``above``. If set to None,
@@ -272,6 +274,7 @@ def gridplot(*args, **kwargs):
     Examples:
 
         >>> gridplot([[plot_1, plot_2], [plot_3, plot_4]])
+        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, plot_width=200, plot_height=100)
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
                 toolbar_location='right'
@@ -307,8 +310,6 @@ def gridplot(*args, **kwargs):
     # Additional children set-up for GridPlot
     if not children:
         children = []
-    if isinstance(children, GridSpec):
-        children = list(children)
 
     # Make the grid
     tools = []
