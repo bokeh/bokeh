@@ -21,12 +21,15 @@ class LayoutDOMView extends BokehView
     
     # init_solver = false becuase we only need to init solver on subsequent
     # children change. build_child_views calls bind_bokeh_events
-    @build_child_views(init_solver=false) 
+    @build_child_views(init_solver=false)
 
   build_child_views: (init_solver=true) ->
     @unbind_bokeh_events()
 
     if init_solver == true
+      # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver
+      # surely its document's problem to know how to init a solver. Also _init_solver
+      # probably shouldn't be a private method if we're using it here.
       @model.document._invalidate_all_models()
       @model.document._init_solver()
 
@@ -52,7 +55,6 @@ class LayoutDOMView extends BokehView
       view.unbind_bokeh_events?()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:children', @build_child_views)
     @listenTo(@model, 'change', @render)
 
     if @model.sizing_mode == 'fixed'
