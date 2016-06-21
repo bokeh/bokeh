@@ -2,9 +2,6 @@ import numpy as np
 
 from bokeh.palettes import Spectral6
 
-from bokeh.io import output_server
-
-
 def process_data():
     from bokeh.sampledata.gapminder import fertility, life_expectancy, population, regions
 
@@ -34,4 +31,3 @@ def process_data():
 
     return fertility, life_expectancy, population_size, regions, years, regions_list
 
-#output_server('GapminderPy')
