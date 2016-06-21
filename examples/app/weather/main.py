@@ -1,4 +1,5 @@
 from os.path import join, dirname
+import datetime
 import numpy as np
 import pandas as pd
 
@@ -15,8 +16,8 @@ def get_dataset(src, name, distribution):
     df = src[src.airport == name].copy()
     del df['airport']
     df['date'] = pd.to_datetime(df.date)
-    df['left'] = df.date - pd.DateOffset(days=0.5)
-    df['right'] = df.date + pd.DateOffset(days=0.5)
+    df['left'] = df.date - datetime.timedelta(days=0.5)  # timedelta instead of pd.DateOffset to avoid pandas bug < 0.18 (Pandas issue #11925)
+    df['right'] = df.date + datetime.timedelta(days=0.5)
     df = df.set_index(['date'])
     df.sort_index(inplace=True)
     if distribution == 'Smooth':

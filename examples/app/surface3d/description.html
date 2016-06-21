@@ -1,0 +1,50 @@
+<style>
+h1 {
+    margin: 2em 0 0 0;
+    color: #2e484c;
+    font-family: 'Julius Sans One', sans-serif;
+    font-size: 1.8em;
+    text-transform: uppercase;
+}
+a:link {
+    font-weight: bold;
+    text-decoration: none;
+    color: #0d8ba1;
+}
+a:visited {
+    font-weight: bold;
+    text-decoration: none;
+    color: #1a5952;
+}
+a:hover, a:focus, a:active {
+    text-decoration: underline;
+    color: #9685BA;
+}
+p {
+    font: "Libre Baskerville", sans-serif;
+    text-align: justify;
+    text-justify: inter-word;
+}
+code {
+    color: #336699;
+}
+</style>
+
+<h1>A custom extension for simple 3d graphs</h1>
+
+<p>
+This example shows how Bokeh custom extension models can be used with
+Bokeh server applications. While there are many great features built
+into Bokeh, with custom extensions, and the Bokeh server, it becomes
+simple to connect powerful Python tools for data analytics to almost
+any web tool, widget, or framework, even if it is not built into
+Bokeh natively.
+</p>
+
+<p>
+This example demonstrates connecting a Bokeh <code>ColumnDataSource</code>
+to the <a href="http://visjs.org/graph3d_examples.html">VisJS Graph3d</a>
+library. The 3d plot below is being continuously updated by periodic
+callbacks in a Bokeh server application. You can pan to rotate the figure,
+scroll or pinch to zoom.
+</p>

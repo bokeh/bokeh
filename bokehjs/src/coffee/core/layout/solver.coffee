@@ -23,6 +23,9 @@ class Solver
   constructor: () ->
     @solver = new kiwi.Solver()
 
+  clear: () ->
+    @solver = new kiwi.Solver()
+
   toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
 
   num_constraints: () ->

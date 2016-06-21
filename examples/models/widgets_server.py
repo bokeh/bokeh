@@ -13,7 +13,7 @@ from bokeh.models import (
 from bokeh.models.widgets import (
     Button, TableColumn, DataTable,
     DateEditor, DateFormatter, IntEditor)
-from bokeh.models.layouts import VBox
+from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
 session = push_session(document)
@@ -64,9 +64,9 @@ def make_layout():
     data_table = DataTable(source=source, columns=columns, width=400, height=400, editable=True)
     button = Button(label="Randomize data", button_type="success")
     button.on_click(click_handler)
-    buttons = VBox(children=[button])
-    vbox = VBox(children=[buttons, plot, data_table])
-    return vbox
+    buttons = WidgetBox(children=[button],width=800)
+    column = Column(children=[buttons, plot, data_table])
+    return column
 
 layout = make_layout()
 document.add_root(layout)
