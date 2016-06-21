@@ -121,9 +121,7 @@ class LayoutDOMView extends BokehView
 class LayoutDOM extends Model
   type: "LayoutDOM"
 
-  # Note this is a deliberate use of constructor, not initialize.
-  # See issue: https://github.com/bokeh/bokeh/issues/4606
-  constructor: (attrs, options) ->
+  initialize: (attrs, options) ->
     super(attrs, options)
     @_width = new Variable("_width #{@id}")
     @_height = new Variable("_height #{@id}")
