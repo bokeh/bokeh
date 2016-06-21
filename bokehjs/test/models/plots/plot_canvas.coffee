@@ -22,6 +22,12 @@ PlotCanvasView = utils.require("models/plots/plot_canvas").View
 Range1d = utils.require("models/ranges/range1d").Model
 Toolbar = utils.require("models/tools/toolbar").Model
 
+# Note: Throughout these tests we've chosen to make a new PlotCanvas, when one
+# has already been made on plot. So we could just as easily have said
+# plot_canvas = plot.plot_canvas.  My thinking is that this better isolates the
+# tests to just be working with a new PlotCanvas instead of having the greater
+# surface area of what happened during Plot initialization.
+
 describe "PlotCanvas.Model", ->
 
   beforeEach ->
@@ -32,7 +38,7 @@ describe "PlotCanvas.Model", ->
       toolbar: new Toolbar()
       title: null
     })
-    @plot.attach_document(@doc)
+    @doc.add_root(@plot)
     @plot_canvas = new PlotCanvas({ 'plot': @plot })
     @plot_canvas.attach_document(@doc)
 
@@ -57,7 +63,6 @@ describe "PlotCanvas.Model", ->
 
   it "should have axis panels in get_layoutable_children if axes added", ->
     plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
-    doc = new Document()
     above_axis = new LinearAxis()
     below_axis = new LinearAxis()
     left_axis = new LinearAxis()
@@ -66,9 +71,8 @@ describe "PlotCanvas.Model", ->
     plot.add_layout(below_axis, 'below')
     plot.add_layout(left_axis, 'left')
     plot.add_layout(right_axis, 'right')
-    plot.attach_document(doc)
-    plot_canvas = new PlotCanvas({ 'plot': plot })
-    plot_canvas.attach_document(doc)
+    @doc.add_root(plot)
+    plot_canvas = plot.plot_canvas
     layoutable_children = plot_canvas.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 10
     expect(_.contains(layoutable_children, above_axis.panel)).to.be.true
@@ -77,15 +81,15 @@ describe "PlotCanvas.Model", ->
     expect(_.contains(layoutable_children, right_axis.panel)).to.be.true
 
   it "should call get_edit_variables on layoutable children", ->
-    pp = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d()})
-    p = pp.plot_canvas
-    p.attach_document(new Document())
-    children = p.get_layoutable_children()
+    plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
+    @doc.add_root(plot)
+    plot_canvas = plot.plot_canvas
+    children = plot_canvas.get_layoutable_children()
     expect(children.length).to.be.equal 6
     for child in children
       child.get_edit_variables = sinon.spy()
       expect(child.get_edit_variables.callCount).to.be.equal 0
-    p.get_edit_variables()
+    plot_canvas.get_edit_variables()
     for child in children
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
@@ -93,16 +97,16 @@ describe "PlotCanvas.Model", ->
 describe "PlotCanvas.Model constraints", ->
 
   beforeEach ->
-    test_doc = new Document()
+    doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
       title: null
     })
-    plot.attach_document(test_doc)
+    doc.add_root(plot)
     @plot_canvas = new PlotCanvas({ 'plot': plot })
-    @plot_canvas.attach_document(test_doc)
+    @plot_canvas.attach_document(doc)
 
   it "should return 20 constraints from _get_constant_constraints", ->
     expect(@plot_canvas._get_constant_constraints().length).to.be.equal 20
@@ -195,7 +199,7 @@ describe "PlotCanvas.View render", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    plot.attach_document(doc)
+    doc.add_root(plot)
     plot_canvas = new PlotCanvas({ 'plot': plot })
     plot_canvas.attach_document(doc)
     @plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
@@ -230,7 +234,7 @@ describe "PlotCanvas.View resize", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    plot.attach_document(doc)
+    doc.add_root(plot)
     @plot_canvas = new PlotCanvas({ 'plot': plot })
     @plot_canvas.attach_document(doc)
     @plot_canvas._dom_left = {_value: dom_left}
@@ -295,7 +299,7 @@ describe "PlotCanvas.View update_constraints", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    plot.attach_document(doc)
+    doc.add_root(plot)
     @plot_canvas = new PlotCanvas({ 'plot': plot })
     @plot_canvas.attach_document(doc)
 
@@ -343,7 +347,7 @@ describe "PlotCanvas.View get_canvas_element", ->
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    plot.attach_document(doc)
+    doc.add_root(plot)
     plot_canvas = new PlotCanvas({ 'plot': plot })
     plot_canvas.attach_document(doc)
     @plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })

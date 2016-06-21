@@ -17,32 +17,59 @@ class LayoutDOMView extends BokehView
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.sizing_mode}")
+    @child_views = {}
+
+    # init_solver = false becuase we only need to init solver on subsequent
+    # children change. build_child_views calls bind_bokeh_events
+    @build_child_views(false)
+
+  build_child_views: (init_solver=true) ->
+    @unbind_bokeh_events()
+
+    if init_solver
+      # TODO (bird) Can't we put the call to invalidate_all_models in _init_solver
+      # surely its document's problem to know how to init a solver. Also _init_solver
+      # probably shouldn't be a private method if we're using it here.
+      @model.document._invalidate_all_models()
+      @model.document._init_solver()
 
     children = @model.get_layoutable_children()
     @child_views = {}
     build_views(@child_views, children)
 
+    @$el.empty()
+
     for child in children
-      # Look-up the child_view in @child_views and then append
-      # We can't just read from @child_views because then we
-      # don't get guaranteed ordering. Which is a problem in
-      # non-box layouts.
+      # Look-up the child_view in @child_views and then append We can't just
+      # read from @child_views because then we don't get guaranteed ordering.
+      # Which is a problem in non-box layouts.
       child_view = @child_views[child.id]
       @$el.append(child_view.$el)
 
     @bind_bokeh_events()
 
+  unbind_bokeh_events: () ->
+    @stopListening()
+    for id, view of @child_views
+      view.stopListening()
+      view.unbind_bokeh_events?()
+
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
-    # Note: `sizing_mode` update is not supported because changing the sizing_mode mode
-    # necessitates stripping out all the relevant constraints from solver and re-adding the new correct ones.
-    # We don't currently have a machinery for this. Other things with a similar problem are axes and title.
-    sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
-    @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
+
     if @model.sizing_mode == 'fixed'
       @listenToOnce(@model.document.solver(), 'resize', @render)
     else
       @listenTo(@model.document.solver(), 'resize', @render)
+
+    # Note: `sizing_mode` update is not supported because changing the
+    # sizing_mode mode necessitates stripping out all the relevant constraints
+    # from solver and re-adding the new correct ones.  We don't currently have
+    # a machinery for this. Other things with a similar problem are axes and
+    # title.
+    sizing_mode_msg = "Changing sizing_mode after initialization is not currently supported."
+    @listenTo(@model, 'change:sizing_mode', () -> logger.warn(sizing_mode_msg))
+
 
   render: () ->
     #logger.debug("#{@model} _dom_left: #{@model._dom_left._value}, _dom_top: #{@model._dom_top._value}")

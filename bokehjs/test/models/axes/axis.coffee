@@ -16,11 +16,12 @@ Toolbar = utils.require("models/tools/toolbar").Model
 describe "Axis.Model", ->
 
   it "should have a SidePanel after add_panel is called", ->
+    doc = new Document()
     p = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
     })
-    p.attach_document(new Document())
+    doc.add_root(p)
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
     axis = new Axis({
@@ -46,7 +47,8 @@ describe "Axis.Model", ->
       y_range: new Range1d({start: 0, end: 1})
     })
     p.add_layout(axis, 'left')
-    p.attach_document(new Document())
+    doc = new Document()
+    doc.add_root(p)
     expect(axis.panel).to.be.an.instanceOf(SidePanel)
 
 describe "Axis.View", ->
@@ -74,13 +76,11 @@ describe "Axis.View", ->
       toolbar: new Toolbar()
     })
     plot.add_layout(@axis, 'below')
-    plot.attach_document(doc)
-    plot_canvas = new PlotCanvas({ 'plot': plot })
-    plot_canvas.attach_document(doc)
-    plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
+    doc.add_root(plot)
+    plot_canvas_view = new plot.plot_canvas.default_view({ 'model': plot.plot_canvas })
     @axis_view = new @axis.default_view({
       model: @axis
-      plot_model: plot_canvas
+      plot_model: plot.plot_canvas
       plot_view: plot_canvas_view
     })
 

@@ -444,7 +444,7 @@ class PlotCanvasView extends Renderer.View
       logger.warn('could not set initial ranges')
 
   render: (force_canvas=false) ->
-    logger.trace("Plot.render(force_canvas=#{force_canvas})")
+    logger.trace("PlotCanvas.render(force_canvas=#{force_canvas}) for #{@model.id}")
 
     if not @model.document?
       return
@@ -714,7 +714,6 @@ class PlotCanvas extends LayoutDOM.Model
     return constraints
 
   _get_constant_constraints: () ->
-
     min_border_top    = @plot.min_border_top
     min_border_bottom = @plot.min_border_bottom
     min_border_left   = @plot.min_border_left

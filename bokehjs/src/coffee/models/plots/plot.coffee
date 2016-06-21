@@ -74,7 +74,6 @@ class Plot extends LayoutDOM.Model
 
   initialize: (options) ->
     super(options)
-
     for xr in _.values(@extra_x_ranges).concat(@x_range)
       plots = xr.get('plots')
       if _.isArray(plots)
@@ -108,10 +107,6 @@ class Plot extends LayoutDOM.Model
 
     @_plot_canvas = new PlotCanvas({plot: @})
 
-    @_set_orientation_variables(@)
-    @_set_orientation_variables(@toolbar)
-    @_set_orientation_variables(@plot_canvas)
-
     @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
     @plot_canvas.toolbar = @toolbar
@@ -133,6 +128,9 @@ class Plot extends LayoutDOM.Model
       for r in layout_renderers
         @plot_canvas.add_renderer_to_canvas_side(r, side)
     @plot_canvas.attach_document(@document)
+    @_set_orientation_variables(@)
+    @_set_orientation_variables(@toolbar)
+    @_set_orientation_variables(@plot_canvas)
 
   add_renderers: (new_renderers...) ->
     renderers = @get('renderers')
