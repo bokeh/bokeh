@@ -24,7 +24,7 @@ describe "LayoutDOM.View", ->
       utils.stub_solver()
       @test_layout = new LayoutDOM()
       @doc = new Document()
-      @test_layout.attach_document(@doc)
+      @doc.add_root(@test_layout)
 
     it "should set a class of 'bk-layout-fixed' is sizing_mode is fixed", ->
       @test_layout.sizing_mode = 'fixed'
@@ -68,7 +68,7 @@ describe "LayoutDOM.View", ->
       @solver_suggest = solver_stubs['suggest']
       @test_layout = new LayoutDOM()
       @doc = new Document()
-      @test_layout.attach_document(@doc)
+      @doc.add_root(@test_layout)
       @test_layout._dom_left = {_value: dom_left}
       @test_layout._dom_top = {_value: dom_top}
       @test_layout._width = {_value: width}
@@ -129,8 +129,8 @@ describe "LayoutDOM.View", ->
       @doc.solver().trigger('resize')
       @doc.solver().trigger('resize')
       @doc.solver().trigger('resize')
-      expect(render_spy.calledOnce).is.true
       LayoutDOMView.prototype.render.restore()
+      expect(render_spy.callCount).is.equal 1
 
     it "should keep listening to resize event if sizing_mode is not fixed", ->
       @test_layout.sizing_mode = 'scale_both'
@@ -139,8 +139,8 @@ describe "LayoutDOM.View", ->
       @doc.solver().trigger('resize')
       @doc.solver().trigger('resize')
       @doc.solver().trigger('resize')
-      expect(render_spy.calledThrice).is.true
       LayoutDOMView.prototype.render.restore()
+      expect(render_spy.callCount).is.equal 3
 
     it "should call suggest value with the value from get_height if sizing_mode is scale_width", ->
       @test_layout.sizing_mode = 'scale_width'
