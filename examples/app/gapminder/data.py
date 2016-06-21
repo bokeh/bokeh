@@ -30,4 +30,3 @@ def process_data():
     regions['region_color'] = regions.apply(get_color, axis=1)
 
     return fertility, life_expectancy, population_size, regions, years, regions_list
-
