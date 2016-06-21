@@ -27,12 +27,12 @@ from ..core.properties import abstract, Float, Color
 from ..core.properties import (
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
-from ..core.enums import Dimension, Location
+from ..core.enums import Dimension, Location, Anchor
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
-from .layouts import LayoutDOM
+from .layouts import LayoutDOM, Box
 
 
 class ToolEvents(Model):
@@ -54,25 +54,31 @@ class Tool(Model):
     The Plot that this tool will act on.
     """)
 
+
 @abstract
 class Action(Tool):
     pass
+
 
 @abstract
 class Drag(Tool):
     pass
 
+
 @abstract
 class Scroll(Tool):
     pass
+
 
 @abstract
 class Tap(Tool):
     pass
 
+
 @abstract
 class Inspection(Tool):
     pass
+
 
 @abstract
 class ToolbarBase(LayoutDOM):
@@ -95,6 +101,7 @@ class ToolbarBase(LayoutDOM):
     # orientation.
     sizing_mode = Override(default=None)
 
+
 class Toolbar(ToolbarBase):
     """ Hold tools to display for a single plot.
 
@@ -112,7 +119,8 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-class ToolbarBox(LayoutDOM):
+
+class ToolbarBox(Box):
     """ A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.
 
@@ -120,7 +128,7 @@ class ToolbarBox(LayoutDOM):
 
     toolbar_location = Enum(Location, default='right', help="""
         Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
-        edge of a plot. Default is `above`.
+        edge of a plot. Default is `right`.
     """)
 
     tools = List(Instance(Tool), help="""
@@ -129,6 +137,11 @@ class ToolbarBox(LayoutDOM):
 
     merge_tools = Bool(default=True, help="""
         Merge all the tools together so there is one tool to control all the plots.
+    """)
+
+    logo = Enum("normal", "grey", help="""
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
     """)
 
 
@@ -644,8 +657,8 @@ class HoverTool(Inspection):
     """)
 
     point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
-    Whether the tooltip position should snap to the "center" position of
-    the associated glyph, or always follow the current mouse cursor
+    Whether the tooltip position should snap to the "center" (or other anchor)
+    position of the associated glyph, or always follow the current mouse cursor
     position.
     """)
 
@@ -654,6 +667,15 @@ class HoverTool(Inspection):
     the "previous" or "next" points on the line, the nearest point to the
     current mouse position, or interpolate along the line to the current
     mouse position.
+    """)
+
+    anchor = Enum(Anchor, default="center", help="""
+    If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
+    point of a tooltip. The default is to attach to the center of a glyph.
+    """)
+
+    attachment = Enum("horizontal", "vertical", help="""
+    Whether tooltip's arrow should appear in the horizontal or vertical dimension.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."

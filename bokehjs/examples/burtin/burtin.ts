@@ -80,7 +80,8 @@ namespace Burtin {
     const small_angle = big_angle / 7
 
     const p = plt.figure({
-        title: "",
+        title: null,
+        toolbar_sticky: false,
         plot_width: width, plot_height: height,
         x_axis_type: null, y_axis_type: null,
         x_range: [-420, 420], y_range: [-420, 420],
@@ -88,9 +89,6 @@ namespace Burtin {
         outline_line_color: "black",
         background_fill_color: "#f0e1d2",
         border_fill_color: "#f0e1d2"})
-
-    p.xgrid.grid_line_color = null
-    p.ygrid.grid_line_color = null
 
     // annular wedges
     const angles = df.index.map((i) => Math.PI/2 - big_angle/2 - i*big_angle)

@@ -21,9 +21,9 @@ class TileRendererView extends Renderer.View
 
   _set_data: () ->
     @pool = new ImagePool()
-    @map_plot = @plot_view.model
+    @map_plot = @plot_model.plot
     @map_canvas = @plot_view.canvas_view.ctx
-    @map_frame = @plot_view.frame
+    @map_frame = @plot_model.frame
     @x_range = @map_plot.get('x_range')
     @x_mapper = this.map_frame.get('x_mappers')['default']
     @y_range = @map_plot.get('y_range')
@@ -157,7 +157,7 @@ class TileRendererView extends Renderer.View
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _set_rect:() ->
-    outline_width = @plot_model.properties.outline_line_width.value()
+    outline_width = @plot_model.plot.properties.outline_line_width.value()
     l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
     t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
     w = @map_frame.get('width') - outline_width

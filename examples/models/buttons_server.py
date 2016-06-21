@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.models.layouts import VBox
+from bokeh.models.layouts import WidgetBox
 from bokeh.models.widgets import (
     Icon, Button, Toggle, Dropdown, CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
@@ -58,10 +58,10 @@ checkbox_button_group.on_click(checkbox_button_group_handler)
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 radio_button_group.on_click(radio_button_group_handler)
 
-vbox = VBox(children=[button, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
+widgetBox = WidgetBox(children=[button, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
 
 document = Document()
-document.add_root(vbox)
+document.add_root(widgetBox)
 session = push_session(document)
 session.show()
 

@@ -1,15 +1,20 @@
 TextAnnotation = require "./text_annotation"
 p = require "../../core/properties"
+{Visuals} = require "../renderers/renderer"
 
 class TitleView extends TextAnnotation.View
+
   initialize: (options) ->
     super(options)
+    @visuals.text = new Visuals.text({obj: @model, prefix: ""})
 
     # Use side_panel heuristics to determine unset text props
     ctx = @plot_view.canvas_view.ctx
+    ctx.save()
     @model.panel.apply_label_text_heuristics(ctx, 'justified')
-    @mset('text_baseline', ctx.textBaseline)
-    @mset('text_align', @mget('align'))
+    @model.text_baseline = ctx.textBaseline
+    @model.text_align = @model.align
+    ctx.restore()
 
   _get_computed_location: () ->
     [width, height] = @_calculate_text_dimensions(@plot_view.canvas_view.ctx, @text)
@@ -68,21 +73,29 @@ class Title extends TextAnnotation.Model
 
   type: 'Title'
 
-  @mixins ['text', 'line:border_', 'fill:background_']
+  @mixins ['line:border_', 'fill:background_']
 
   @define {
-    text:             [ p.String,               ]
-    align:            [ p.TextAlign,   'left'   ]
-    offset:           [ p.Number,      0        ]
-    render_mode:      [ p.RenderMode,  'canvas' ]
+    text:            [ p.String,                   ]
+    text_font:       [ p.Font,         'helvetica' ]
+    text_font_size:  [ p.FontSizeSpec, '10pt'      ]
+    text_font_style: [ p.FontStyle,    'bold'      ]
+    text_color:      [ p.ColorSpec,    '#444444'   ]
+    text_alpha:      [ p.NumberSpec,   1.0         ]
+    align:           [ p.TextAlign,   'left'       ]
+    offset:          [ p.Number,      0            ]
+    render_mode:     [ p.RenderMode,  'canvas'     ]
   }
 
   @override {
     background_fill_color: null
     border_line_color: null
-    text_font_size: '10pt'
-    text_baseline: 'bottom'
-    text_font_style: 'bold'
+  }
+
+  # these are set by heuristics
+  @internal {
+    text_align:    [ p.TextAlign,     'left'  ]
+    text_baseline: [ p.TextBaseline, 'bottom' ]
   }
 
 module.exports =

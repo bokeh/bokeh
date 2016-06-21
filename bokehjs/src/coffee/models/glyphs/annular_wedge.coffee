@@ -107,6 +107,14 @@ class AnnularWedgeView extends Glyph.View
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)
 
+  _scxy: (i) ->
+    r = (@sinner_radius[i] + @souter_radius[i])/2
+    a = (@_start_angle[i]  + @_end_angle[i])   /2
+    return {x: @sx[i] + r*Math.cos(a), y: @sy[i] + r*Math.sin(a)}
+
+  scx: (i) -> @_scxy(i).x
+  scy: (i) -> @_scxy(i).y
+
 class AnnularWedge extends Glyph.Model
   default_view: AnnularWedgeView
 
