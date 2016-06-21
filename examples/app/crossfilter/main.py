@@ -82,4 +82,3 @@ controls = Row(x, y, color, size)
 layout = Column(controls, create_figure())
 
 doc = curdoc().add_root(layout)
-

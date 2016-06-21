@@ -22,12 +22,11 @@ PlotCanvasView = utils.require("models/plots/plot_canvas").View
 Range1d = utils.require("models/ranges/range1d").Model
 Toolbar = utils.require("models/tools/toolbar").Model
 
-# Note: Throughout these tests we've chosen
-# to make a new PlotCanvas, when one has already been made 
-# on plot. So we could just as easily have said plot_canvas = plot.plot_canvas.
-# My thinking is that this better isolates the tests to just be working with 
-# a new PlotCanvas instead of having the greater surface area of what happened 
-# during Plot initialization.
+# Note: Throughout these tests we've chosen to make a new PlotCanvas, when one
+# has already been made on plot. So we could just as easily have said
+# plot_canvas = plot.plot_canvas.  My thinking is that this better isolates the
+# tests to just be working with a new PlotCanvas instead of having the greater
+# surface area of what happened during Plot initialization.
 
 describe "PlotCanvas.Model", ->
 

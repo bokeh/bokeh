@@ -101,8 +101,8 @@ describe "WidgetBox", ->
       expect(spy.callCount).is.equal 1  # Expect one from initialization
       @widget_box.set('children', [child_widget])
       LayoutDOMView.prototype.build_child_views.restore()
-      # Expect another two: one from children changing event; 
-      # the other because we initialize the child_box
+      # Expect another two: one from children changing event; the other because
+      # we initialize the child_box
       expect(spy.callCount).is.equal 3
 
   describe "WidgetBox.Model", ->

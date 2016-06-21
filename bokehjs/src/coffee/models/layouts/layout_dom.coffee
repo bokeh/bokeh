@@ -18,7 +18,7 @@ class LayoutDOMView extends BokehView
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.sizing_mode}")
     @child_views = {}
-    
+
     # init_solver = false becuase we only need to init solver on subsequent
     # children change. build_child_views calls bind_bokeh_events
     @build_child_views(init_solver=false)

@@ -120,4 +120,3 @@ class Set
 module.exports =
   MultiDict: MultiDict
   Set: Set
-
