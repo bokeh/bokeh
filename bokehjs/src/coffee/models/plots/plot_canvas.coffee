@@ -358,8 +358,10 @@ class PlotCanvasView extends Renderer.View
     if not range_info?
       for name, rng of @frame.get('x_ranges')
         rng.reset()
+        rng.get('callback')?.execute(rng)
       for name, rng of @frame.get('y_ranges')
         rng.reset()
+        rng.get('callback')?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []
