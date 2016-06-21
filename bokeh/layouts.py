@@ -19,27 +19,17 @@ from .util._plot_arg_helpers import _convert_responsive
 # Common helper functions
 #-----------------------------------------------------------------------------
 def _handle_children(*args, **kwargs):
-    wrap = kwargs.get('wrap', True)
     children = kwargs.get('children')
 
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
 
-    if len(args) == 1:
-        if isinstance(args[0], list):
+    if not children:
+        if len(args) == 1 and isinstance(args[0], list):
             children = args[0]
         else:
-            if wrap:
-                children = list(args)
-            else:
-                children = args
-
-    if len(args) > 1:
-        if wrap:
             children = list(args)
-        else:
-            children = args
 
     return children
 
@@ -183,7 +173,7 @@ def widgetbox(*args, **kwargs):
     return WidgetBox(children=widget_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def layout(children=None, sizing_mode='fixed', responsive=None, *args):
+def layout(*args, **kwargs):
     """ Create a grid-based arrangement of Bokeh Layout objects. Forces all objects to
     have the same sizing mode, which is required for complex layouts to work.
 
@@ -213,6 +203,10 @@ def layout(children=None, sizing_mode='fixed', responsive=None, *args):
             )
 
     """
+    responsive = kwargs.pop('responsive', None)
+    sizing_mode = kwargs.pop('sizing_mode', 'fixed')
+    children = kwargs.pop('children', None)
+
     if responsive:
         sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
@@ -242,10 +236,7 @@ def chunks(l, n):
         yield l[i: i+n]
 
 
-def gridplot(
-    children=None, toolbar_location='above', sizing_mode='fixed',
-    responsive=None, toolbar_options=None, plot_width=None, plot_height=None,
-    ncols=None, *args):
+def gridplot(*args, **kwargs):
     """ Create a grid of plots rendered on separate canvases.
 
     Args:
@@ -289,20 +280,29 @@ def gridplot(
             )
 
     """
+    toolbar_location = kwargs.get('toolbar_location', 'above')
+    sizing_mode = kwargs.get('sizing_mode', 'fixed')
+    children = kwargs.get('children')
+    responsive = kwargs.get('responsive')
+    toolbar_options = kwargs.get('toolbar_options')
+    plot_width = kwargs.get('plot_width')
+    plot_height = kwargs.get('plot_height')
+    ncols = kwargs.get('ncols')
+
     # Integrity checks & set-up
     if responsive:
         sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
+
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
+
+    children = _handle_children(*args, children=children)
     if ncols:
-        children = _handle_children(*args, children=children, wrap=False)
         if any(isinstance(child, list) for child in children):
             raise ValueError("Cannot provide a nested list when using ncols")
         children = list(chunks(children, ncols))
-    else:
-        children = _handle_children(children, *args)
 
     # Additional children set-up for GridPlot
     if not children:
