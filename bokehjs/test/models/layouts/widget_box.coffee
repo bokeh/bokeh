@@ -7,6 +7,7 @@ sinon = require 'sinon'
 
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 LayoutDOM = utils.require("models/layouts/layout_dom").Model
+LayoutDOMView = utils.require("models/layouts/layout_dom").View
 Panel = utils.require("models/widgets/panel").Model
 Plot = utils.require("models/plots/plot").Model
 Tabs = utils.require("models/widgets/tabs").Model
@@ -26,7 +27,8 @@ describe "WidgetBox", ->
     beforeEach ->
       utils.stub_canvas()
       utils.stub_solver()
-      @widget_box.attach_document(new Document())
+      @doc = new Document()
+      @doc.add_root(@widget_box)
 
     it "render should set the appropriate positions and paddings on the element when it is mode box", ->
       dom_left = 12
@@ -91,6 +93,16 @@ describe "WidgetBox", ->
       }
       expect(widget_box_view.get_width()).to.be.equal 99 + 20
 
+    it "should call build_child_views if children change", ->
+      child_widget = new Tabs()
+      spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
+      new @widget_box.default_view({ model: @widget_box })
+      expect(spy.callCount).is.equal 1  # Expect one from initialization
+      @widget_box.set('children', [child_widget])
+      LayoutDOMView.prototype.build_child_views.restore()
+      # Expect another two: one from children changing event; the other because
+      # we initialize the child_box
+      expect(spy.callCount).is.equal 3
 
   describe "WidgetBox.Model", ->
     beforeEach ->

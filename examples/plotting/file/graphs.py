@@ -40,7 +40,7 @@ colors = symbols('red,green,blue')
 roots_of_unity = roots(Dummy()**3 - 1, multiple=True)
 color_map = dict(zip(roots_of_unity, colors))
 solutions = solve(Fx, *Vx)
-colorings = [ [ color_map[zeta] for zeta in solution ] for solution in solutions ]
+colorings = [ [ color_map.get(zeta) for zeta in solution ] for solution in solutions ]
 
 n, ncols = len(colorings), 2
 gs = GridSpec((n + 1)//ncols, 1 + ncols)

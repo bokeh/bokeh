@@ -369,31 +369,24 @@ class HasProps extends Backbone.Model
     return _.values(references)
 
   attach_document: (doc) ->
-    if @document != null
-      if @document != doc
-        throw new Error("models must be owned by only a single document")
-      else
-        @document._notify_attach(@)
-    else
-      @document = doc
-      @document._notify_attach(@)
+    # This should only be called by the Document implementation to set the document field
+    if @document != null and @document != doc
+      throw new Error("models must be owned by only a single document")
 
-      for ref in @_immediate_references()
-        ref.attach_document(@document)
+    @document = doc
 
-      # TODO (bev) is there are way to get rid of this?
-      for name, prop of @properties
-        prop.update()
+    # XXXXXXX not sure about the things below yet
 
-      if @_doc_attached?
-        @_doc_attached()
+    # TODO (bev) is there are way to get rid of this?
+    for name, prop of @properties
+      prop.update()
+
+    if @_doc_attached?
+      @_doc_attached()
 
   detach_document: () ->
-    if @document != null
-      if @document._notify_detach(@) == 0
-        @document = null
-        for c in @_immediate_references()
-          c.detach_document()
+    # This should only be called by the Document implementation to unset the document field
+    @document = null
 
   _tell_document_about_change: (attr, old, new_) ->
     if not @attribute_is_serializable(attr)
@@ -406,13 +399,20 @@ class HasProps extends Backbone.Model
       old_refs = {}
       HasProps._value_record_references(old, old_refs, false)
 
+      need_invalidate = false
       for new_id, new_ref of new_refs
         if new_id not of old_refs
-          new_ref.attach_document(@document)
+          need_invalidate = true
+          break
 
-      for old_id, old_ref of old_refs
-        if old_id not of new_refs
-          old_ref.detach_document()
+      if not need_invalidate
+        for old_id, old_ref of old_refs
+          if old_id not of new_refs
+            need_invalidate = true
+            break
+
+      if need_invalidate
+        @document._invalidate_all_models()
 
       @document._notify_change(@, attr, old, new_)
 
