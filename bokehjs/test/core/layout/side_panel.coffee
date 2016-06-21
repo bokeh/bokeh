@@ -74,7 +74,7 @@ describe "SidePanel.Model", ->
       })
       @axis = new Axis({ ticker: new BasicTicker(), formatter: new BasicTickFormatter() })
       plot.add_layout(@axis, 'below')
-      plot.attach_document(doc)
+      doc.add_root(plot)
       plot_view = new plot.default_view({ 'model': plot })
       @plot_canvas = new PlotCanvas({ 'plot': plot })
       @plot_canvas.attach_document(doc)

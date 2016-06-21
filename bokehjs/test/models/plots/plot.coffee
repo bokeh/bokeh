@@ -29,7 +29,8 @@ describe "Plot", ->
       utils.stub_canvas()
       solver_stubs = utils.stub_solver()
       @solver_suggest = solver_stubs['suggest']
-      @p.attach_document(new Document())
+      doc = new Document()
+      doc.add_root(@p)
 
     it "render should set the appropriate positions and paddings on the element when it is mode box", ->
       dom_left = 12
