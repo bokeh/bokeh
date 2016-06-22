@@ -670,7 +670,7 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Do we need to re-calculate segment data and cumsum?
       if Math.abs(@_scale_aspect - (sy / sx)) > Math.abs(1e-3 * @_scale_aspect)
-        mainGlGlyph.update_scale(sx, sy)
+        mainGlGlyph._update_scale(sx, sy)
         @_scale_aspect = sy / sx
 
       # Select buffers from main glyph
@@ -874,7 +874,7 @@ class LineGLGlyph extends BaseGLGlyph
         I[i*6+4] = 0 + 4*i
         I[i*6+5] = 3 + 4*i
 
-    update_scale: (sx, sy) ->
+    _update_scale: (sx, sy) ->
       # Update segment data and cumsum so the length along the line has the
       # scale aspect ratio in it. In the vertex shader we multiply with the
       # "isotropic part" of the scale.
