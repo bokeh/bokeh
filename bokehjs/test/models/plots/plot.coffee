@@ -59,7 +59,7 @@ describe "Plot", ->
       expect(@solver_suggest.args[0]).to.be.deep.equal [@p._width, 34]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@p._height, 77]
 
-    # TODO (bird) A number of these tests are skipped because of flakiness. 
+    # TODO (bird) A number of these tests are skipped because of flakiness.
     # We get kiwi unknown edit variable errors, although we shouldn't
     # because the solver should have been stubbed out.
 
