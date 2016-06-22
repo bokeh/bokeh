@@ -1,7 +1,7 @@
 import pandas as pd
 
 from bokeh.io import curdoc
-from bokeh.models import (ColumnDataSource, HoverTool, Text, Div, WidgetBox, Text, Circle,
+from bokeh.models import (ColumnDataSource, HoverTool, Text, Div, WidgetBox, Circle,
                           SingleIntervalTicker, Slider, Button, Row, Column, Label)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure

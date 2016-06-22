@@ -14,7 +14,7 @@ in your browser.
 
 import numpy as np
 
-from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
+from bokeh.models import BoxSelectTool, LassoSelectTool
 from bokeh.layouts import row, column
 from bokeh.models import Spacer
 from bokeh.plotting import figure, curdoc
