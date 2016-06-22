@@ -2,8 +2,8 @@ from os.path import dirname, join
 
 import pandas as pd
 
-from bokeh.plotting import ColumnDataSource
-from bokeh.models import CustomJS, Row, WidgetBox
+from bokeh.layouts import row, widgetbox
+from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.models.widgets import Slider, Button, DataTable, TableColumn, NumberFormatter
 from bokeh.io import curdoc
 
@@ -34,10 +34,10 @@ columns = [
 
 data_table = DataTable(source=source, columns=columns, width=800)
 
-controls = WidgetBox(slider, button)
-table = WidgetBox(data_table)
+controls = widgetbox(slider, button)
+table = widgetbox(data_table)
 
-curdoc().add_root(Row(controls, table))
+curdoc().add_root(row(controls, table))
 curdoc().title = "Export CSV"
 
 update()

@@ -4,8 +4,9 @@ import numpy as np
 import pandas.io.sql as psql
 import sqlite3 as sql
 
-from bokeh.plotting import Figure
-from bokeh.models import ColumnDataSource, HoverTool, HBox, VBox, VBoxForm, Div
+from bokeh.plotting import figure
+from bokeh.layouts import row, column, widgetbox
+from bokeh.models import ColumnDataSource, HoverTool, Div
 from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
@@ -58,7 +59,7 @@ hover = HoverTool(tooltips=[
     ("$", "@revenue")
 ])
 
-p = Figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tools=[hover])
+p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tools=[hover])
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 def select_movies():
@@ -80,7 +81,7 @@ def select_movies():
         selected = selected[selected.Cast.str.contains(cast_val)==True]
     return selected
 
-def update(attrname, old, new):
+def update():
     df = select_movies()
     x_name = axis_map[x_axis.value]
     y_name = axis_map[y_axis.value]
@@ -100,11 +101,11 @@ def update(attrname, old, new):
 
 controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cast, x_axis, y_axis]
 for control in controls:
-    control.on_change('value', update)
+    control.on_change('value', lambda attr, old, new: update())
 
-inputs = HBox(VBoxForm(*controls))
+inputs = row(widgetbox(*controls))
 
-update(None, None, None) # initial load of the data
+update() # initial load of the data
 
-curdoc().add_root(VBox(desc, HBox(inputs, p)))
+curdoc().add_root(column(desc, row(inputs, p)))
 curdoc().title = "Movies"

@@ -2,7 +2,8 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file, vplot
+from bokeh.layouts import gridplot
+from bokeh.plotting import figure, show, output_file
 
 def streamlines(x, y, u, v, density=1):
     ''' Return streamlines of a vector flow.
@@ -192,12 +193,12 @@ cm = np.array(["#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"]
 ix = ((length-length.min())/(length.max()-length.min())*5).astype('int')
 colors = cm[ix]
 
-p1 = figure()
+p1 = figure(x_range=(-3,3 ), y_range=(-3, 3))
 p1.segment(x0, y0, x1, y1, color=colors, line_width=2)
 
-p2 = figure()
+p2 = figure(x_range=p1.x_range, y_range=p1.y_range)
 p2.multi_line(xs, ys, color="#ee6666", line_width=2, line_alpha=0.8)
 
 output_file("vector.html", title="vector.py example")
 
-show(vplot(p1,p2))  # open a browser
+show(gridplot([[p1,p2]], plot_width=400, plot_height=400))  # open a browser

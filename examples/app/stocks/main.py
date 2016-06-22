@@ -35,7 +35,6 @@ from os.path import dirname, join
 
 import pandas as pd
 
-from bokeh.charts import Histogram
 from bokeh.io import curdoc
 from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource

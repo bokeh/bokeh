@@ -2,8 +2,9 @@ import numpy as np
 np.random.seed(0)
 
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, VBox, HBox, Select, Slider
-from bokeh.plotting import Figure
+from bokeh.layouts import widgetbox, row, column
+from bokeh.models import ColumnDataSource, Select, Slider
+from bokeh.plotting import figure
 from bokeh.palettes import Spectral6
 
 from sklearn import cluster, datasets
@@ -96,7 +97,7 @@ spectral = np.hstack([Spectral6] * 20)
 colors = [spectral[i] for i in y]
 
 # set up plot (styling in theme.yaml)
-plot = Figure(toolbar_location=None, title=algorithm)
+plot = figure(toolbar_location=None, title=algorithm)
 source = ColumnDataSource(data=dict(x=X[:, 0], y=X[:, 1], colors=colors))
 plot.circle('x', 'y', fill_color='colors', line_color=None, source=source)
 
@@ -178,9 +179,9 @@ dataset_select.on_change('value', update_samples_or_dataset)
 samples_slider.on_change('value', update_samples_or_dataset)
 
 # set up layout
-selects = HBox(dataset_select, algorithm_select)
-inputs = VBox(samples_slider, clusters_slider, selects)
+selects = row(dataset_select, algorithm_select)
+inputs = column(widgetbox(samples_slider, clusters_slider), selects)
 
 # add to document
-curdoc().add_root(HBox(inputs, plot, width=800))
+curdoc().add_root(row(inputs, plot, width=800))
 curdoc().title = "Clustering"

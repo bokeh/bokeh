@@ -3,7 +3,8 @@
 import numpy as np
 import scipy.special
 
-from bokeh.plotting import figure, show, output_file, vplot
+from bokeh.layouts import gridplot
+from bokeh.plotting import figure, show, output_file
 
 p1 = figure(title="Normal Distribution (μ=0, σ=0.5)",tools="save",
             background_fill_color="#E8DDCB")
@@ -121,4 +122,4 @@ p5.yaxis.axis_label = 'Pr(x)'
 
 output_file('histogram.html', title="histogram.py example")
 
-show(vplot(p1,p2,p3,p4,p5))
+show(gridplot(p1,p2,p3,p4,p5, ncols=2, plot_width=400, plot_height=400, toolbar_location=None))

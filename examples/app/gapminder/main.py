@@ -1,8 +1,9 @@
 import pandas as pd
 
 from bokeh.io import curdoc
-from bokeh.models import (ColumnDataSource, HoverTool, Text, Div, WidgetBox, Circle,
-                          SingleIntervalTicker, Slider, Button, Row, Column, Label)
+from bokeh.layouts import row, column, widgetbox
+from bokeh.models import (ColumnDataSource, HoverTool, Text, Div, Circle,
+                          SingleIntervalTicker, Slider, Button, Label)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 
@@ -87,7 +88,7 @@ footer = Div(text="""
     Or sit back and enjoy a great example of statistics communication.
     """, width=800)
 
-layout = Column(desc, Row(plot, WidgetBox(slider, button)), footer)
+layout = column(desc, row(plot, widgetbox(slider, button)), footer)
 
 curdoc().add_root(layout)
 curdoc().title = "Gapminder"

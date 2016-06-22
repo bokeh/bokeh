@@ -8,8 +8,8 @@ here:
 
 import numpy as np
 
-from bokeh.io import vform
-from bokeh.plotting import figure, hplot, output_file, show, ColumnDataSource
+from bokeh. layouts import row, widgetbox
+from bokeh.plotting import figure, output_file, show, ColumnDataSource
 from bokeh.models import CustomJS, Slider
 
 x = np.linspace(0, 10, 500)
@@ -50,9 +50,9 @@ offset_slider = Slider(start=-5, end=5, value=0, step=.1,
                        title="Offset", callback=callback)
 callback.args["offset"] = offset_slider
 
-layout = hplot(
+layout = row(
     plot,
-    vform(amp_slider, freq_slider, phase_slider, offset_slider),
+    widgetbox(amp_slider, freq_slider, phase_slider, offset_slider),
 )
 
 output_file("python_callback.html", title="python_callback.py example")

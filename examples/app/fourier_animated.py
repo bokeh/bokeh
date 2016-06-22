@@ -20,9 +20,10 @@ from collections import OrderedDict
 import numpy as np
 from numpy import pi
 
-from bokeh.io import vplot
+from bokeh.io import curdoc
+from bokeh.layouts import column
 from bokeh.models.sources import ColumnDataSource as CDS
-from bokeh.plotting import curdoc, figure
+from bokeh.plotting import figure
 from bokeh.driving import repeat
 
 N = 100
@@ -182,8 +183,7 @@ for k, p in fourier.items():
         p['fs'], 'Fourier First 4 Harmonics & Harmonic Circles', r = p['f'](period), cfoos = p['cfs']
     )
 
-layout = vplot(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
-
+layout = column(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
 
 @repeat(range(N))
 def cb(gind):
