@@ -87,4 +87,4 @@ distribution_select.on_change('value', update_plot)
 controls = column(city_select, distribution_select)
 
 curdoc().add_root(row(plot, controls))
-curdoc().title = "Weather Example"
+curdoc().title = "Weather"

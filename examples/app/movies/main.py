@@ -107,3 +107,4 @@ inputs = HBox(VBoxForm(*controls))
 update(None, None, None) # initial load of the data
 
 curdoc().add_root(VBox(desc, HBox(inputs, p)))
+curdoc().title = "Movies"

@@ -197,3 +197,4 @@ def cb(gind):
 
 curdoc().add_periodic_callback(cb, 100)
 curdoc().add_root(layout)
+curdoc().title = "Fourier Animated"

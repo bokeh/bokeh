@@ -34,4 +34,4 @@ def update(t):
     source.data = compute(t)
 
 curdoc().add_periodic_callback(update, 100)
-curdoc().title = "Surface3d Custom Extension"
+curdoc().title = "Surface3d"

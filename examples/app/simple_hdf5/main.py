@@ -47,3 +47,4 @@ inputs = VBoxForm(data_select, width=300)
 update_data(None, None, None)
 
 curdoc().add_root(HBox(inputs, p, width=1100))
+curdoc().title = "Simple HDF5"

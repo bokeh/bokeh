@@ -38,6 +38,6 @@ controls = WidgetBox(slider, button)
 table = WidgetBox(data_table)
 
 curdoc().add_root(Row(controls, table))
-curdoc().title = "CSV Export Demo"
+curdoc().title = "Export CSV"
 
 update()

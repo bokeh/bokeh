@@ -90,4 +90,4 @@ footer = Div(text="""
 layout = Column(desc, Row(plot, WidgetBox(slider, button)), footer)
 
 curdoc().add_root(layout)
-curdoc().title = "Bokeh Gapminder Example"
+curdoc().title = "Gapminder"

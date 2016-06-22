@@ -96,3 +96,4 @@ def update(t):
     source.stream(new_data, 300)
 
 curdoc().add_periodic_callback(update, 50)
+curdoc().title = "OHLC"
