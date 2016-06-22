@@ -415,9 +415,9 @@ class PlotCanvasView extends Renderer.View
     @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
-    @listenTo(@model.plot.document.solver(), 'layout_update', @request_render)
-    @listenTo(@model.plot.document.solver(), 'resize', @resize)
-    @listenTo(@canvas, 'change:pixel_ratio', @request_render)
+    @listenTo(@model.plot.document.solver(), 'layout_update', () => @request_render())
+    @listenTo(@model.plot.document.solver(), 'resize', () => @resize())
+    @listenTo(@canvas, 'change:pixel_ratio', () => @request_render())
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
