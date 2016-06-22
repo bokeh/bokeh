@@ -91,6 +91,6 @@ l = layout([
     bollinger(),
     slider(),
     linked_panning(),
-])
+], sizing_mode='stretch_both')
 
 show(l)

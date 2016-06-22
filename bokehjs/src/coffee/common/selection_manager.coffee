@@ -18,8 +18,6 @@ class SelectionManager extends HasProps
     @inspectors = {}
     @last_inspection_was_empty = {}
 
-  serializable_in_document: () -> false
-
   select: (tool, renderer_view, geometry, final, append=false) ->
     source = @get('source')
     if source != renderer_view.mget('data_source')

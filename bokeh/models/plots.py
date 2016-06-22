@@ -10,8 +10,8 @@ from ..core.query import find
 from ..core import validation
 from ..core.validation.errors import REQUIRED_RANGE
 from ..core.validation.warnings import (
-    MISSING_RENDERERS, NO_DATA_RENDERERS,
-    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
+    MISSING_RENDERERS, NO_DATA_RENDERERS, EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL,
+    SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..core.enums import Location
 from ..core.property_mixins import LineProps, TextProps, FillProps
 from ..model import Model
@@ -374,6 +374,15 @@ class Plot(LayoutDOM):
             field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
+
+    @validation.warning(SNAPPED_TOOLBAR_ANNOTATIONS)
+    def _check_snapped_toolbar_and_axis(self):
+        if not self.toolbar_sticky: return
+        if self.toolbar_location is None: return
+
+        objs = getattr(self, self.toolbar_location)
+        if len(objs) > 0:
+            return str(self)
 
     __deprecated_attributes__ = (
         'background_fill', 'border_fill', 'logo', 'tools',

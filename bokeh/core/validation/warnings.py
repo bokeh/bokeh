@@ -21,12 +21,13 @@
 '''
 
 codes = {
-    1000: ("MISSING_RENDERERS",         "Plot has no renderers"),
-    1001: ("NO_DATA_RENDERERS",         "Plot has no data renderers"),
-    1002: ("EMPTY_LAYOUT",              "Layout has no children"),
-    1003: ("MALFORMED_CATEGORY_LABEL",  "Category labels cannot contain colons"),
-    1004: ("BOTH_CHILD_AND_ROOT",       "Models should not be a document root if they are in a layout box"),
-    9999: ("EXT",                       "Custom extension reports warning"),
+    1000: ("MISSING_RENDERERS",           "Plot has no renderers"),
+    1001: ("NO_DATA_RENDERERS",           "Plot has no data renderers"),
+    1002: ("EMPTY_LAYOUT",                "Layout has no children"),
+    1003: ("MALFORMED_CATEGORY_LABEL",    "Category labels cannot contain colons"),
+    1004: ("BOTH_CHILD_AND_ROOT",         "Models should not be a document root if they are in a layout box"),
+    1005: ("SNAPPED_TOOLBAR_ANNOTATIONS", "Snapped toolbars and annotations on the same side MAY overlap visually"),
+    9999: ("EXT",                         "Custom extension reports warning"),
 }
 
 for code in codes:

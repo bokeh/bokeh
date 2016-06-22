@@ -3,6 +3,7 @@ utils = require "../../utils"
 
 {Document} = utils.require("document")
 
+Box = utils.require("models/layouts/box").Model
 ToolbarBox = utils.require("models/tools/toolbar_box").Model
 Toolbar = utils.require("models/tools/toolbar").Model
 
@@ -37,6 +38,12 @@ describe "ToolbarBox.View", ->
 
 
 describe "ToolbarBox.Model", ->
+
+  it "should be an instance of box", ->
+    # It's very important that ToolbarBox inherits from Box so
+    # the it gets correctly laid out in responsive views.
+    box = new ToolbarBox()
+    expect(box).to.be.an.instanceof(Box)
 
   it "should set _horizontal set to true if toolbar_location is left or right", ->
     box = new ToolbarBox({toolbar_location: 'left'})

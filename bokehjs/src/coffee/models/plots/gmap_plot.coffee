@@ -14,14 +14,9 @@ class GMapPlot extends Plot.Model
   default_view: GMapPlotView
 
   initialize: (options) ->
-    plot_options = _.omit(options, 'map_options')
-    super(plot_options)
-    @_plot_canvas = new GMapPlotCanvas.Model(options)
-    @_plot_canvas.toolbar = @toolbar
-    @_set_orientation_variables(@_plot_canvas)
-
-  _doc_attached: () ->
-    @_plot_canvas.attach_document(@document)
+    super(options)
+    @_plot_canvas = new GMapPlotCanvas.Model({plot: @})
+    @plot_canvas.toolbar = @toolbar
 
   # Set all the PlotCanvas properties as internal.
   # This seems to be necessary so that everything can initialize.

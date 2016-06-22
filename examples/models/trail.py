@@ -13,7 +13,7 @@ from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 from bokeh.models.glyphs import Line, Patches
-from bokeh.models.layouts import VBox
+from bokeh.models.layouts import Column
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     DataRange1d, ColumnDataSource,
@@ -127,7 +127,7 @@ data = prep_data(obiszow_mtb_xcm)
 trail = trail_map(data)
 altitude = altitude_profile(data)
 
-layout = VBox(children=[altitude, trail])
+layout = Column(children=[altitude, trail])
 
 doc = Document()
 doc.add_root(layout)

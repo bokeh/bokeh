@@ -22,6 +22,7 @@ class ToggleView extends Widget.View
         val.$el.detach()
 
     @$el.empty()
+    @$el.removeClass()
     @$el.addClass("bk-bs-btn")
     @$el.addClass("bk-bs-btn-" + @mget("button_type"))
     if @mget("disabled") then @$el.attr("disabled", "disabled")

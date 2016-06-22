@@ -35,12 +35,11 @@ from os.path import dirname, join
 
 import pandas as pd
 
-from bokeh.charts import Histogram
-from bokeh.models import ColumnDataSource, GridPlot, HBox, VBox
-from bokeh.models.widgets import PreText, Select
-from bokeh.plotting import Figure
-
 from bokeh.io import curdoc
+from bokeh.layouts import row, column
+from bokeh.models import ColumnDataSource
+from bokeh.models.widgets import PreText, Select
+from bokeh.plotting import figure
 
 DATA_DIR = join(dirname(__file__), 'daily')
 
@@ -69,38 +68,31 @@ def get_data(t1, t2):
     data['t2_returns'] = data[t2+'_returns']
     return data
 
-@lru_cache()
-def get_histogram(t):
-    t1, t2 = ticker1.value, ticker2.value
-    data = get_data(t1, t2)
-    h = Histogram(data[[t]], values=t)
-    h.toolbar_location = None
-    return h
-
 # set up widgets
 
-stats = PreText(text='', width=550)
+stats = PreText(text='', width=500)
 ticker1 = Select(value='AAPL', options=nix('GOOG', DEFAULT_TICKERS))
 ticker2 = Select(value='GOOG', options=nix('AAPL', DEFAULT_TICKERS))
 
 # set up plots
 
-source = ColumnDataSource(data=dict())
+source = ColumnDataSource(data=dict(date=[], t1=[], t2=[], t1_returns=[], t2_returns=[]))
+source_static = ColumnDataSource(data=dict(date=[], t1=[], t2=[], t1_returns=[], t2_returns=[]))
 tools = 'pan,wheel_zoom,xbox_select,reset'
 
-corr = Figure(plot_width=400, plot_height=400, title='',
-              title_text_font_size='10pt', tools='pan,wheel_zoom,box_select,reset')
+corr = figure(plot_width=350, plot_height=350,
+              tools='pan,wheel_zoom,box_select,reset')
 corr.circle('t1_returns', 't2_returns', size=2, source=source,
-            selection_color="orange", selection_alpha=0.5)
+            selection_color="orange", alpha=0.6, nonselection_alpha=0.1, selection_alpha=0.4)
 
-ts1 = Figure(plot_width=800, plot_height=200, title='', tools=tools,
-             x_axis_type='datetime', title_text_font_size='8pt')
-ts1.circle('date', 't1', size=2, source=source, selection_color="orange")
+ts1 = figure(plot_width=900, plot_height=200, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
+ts1.line('date', 't1', source=source_static)
+ts1.circle('date', 't1', size=1, source=source, color=None, selection_color="orange")
 
-ts2 = Figure(plot_width=800, plot_height=200, title='', tools=tools,
-             x_axis_type='datetime', title_text_font_size='8pt')
+ts2 = figure(plot_width=900, plot_height=200, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
 ts2.x_range = ts1.x_range
-ts2.circle('date', 't2', size=2, source=source, selection_color="orange")
+ts2.line('date', 't2', source=source_static)
+ts2.circle('date', 't2', size=1, source=source, color=None, selection_color="orange")
 
 # set up callbacks
 
@@ -117,11 +109,12 @@ def update(selected=None):
 
     data = get_data(t1, t2)
     source.data = source.from_df(data[['t1', 't2', 't1_returns', 't2_returns']])
+    source_static.data = source.data
 
     update_stats(data, t1, t2)
 
-    corr.title = '%s returns vs. %s returns' % (t1, t2)
-    ts1.title, ts2.title = t1, t2
+    corr.title.text = '%s returns vs. %s returns' % (t1, t2)
+    ts1.title.text, ts2.title.text = t1, t2
 
 def update_stats(data, t1, t2):
     stats.text = str(data[[t1, t2, t1+'_returns', t2+'_returns']].describe())
@@ -140,12 +133,13 @@ def selection_change(attrname, old, new):
 source.on_change('selected', selection_change)
 
 # set up layout
-stats_box = VBox(stats)
-input_box = VBox(ticker1, ticker2)
-main_row = HBox(input_box, corr, stats_box, width=1100)
-layout = VBox(main_row, GridPlot(children=[[ts1], [ts2]]))
+widgets = column(ticker1, ticker2, stats)
+main_row = row(corr, widgets)
+series = column(ts1, ts2)
+layout = column(main_row, series)
 
 # initialize
 update()
 
 curdoc().add_root(layout)
+curdoc().title = "Stocks"

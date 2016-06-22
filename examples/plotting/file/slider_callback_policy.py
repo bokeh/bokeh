@@ -1,5 +1,6 @@
 from bokeh.io import output_file, show
-from bokeh.models import CustomJS, Slider, Div, Column
+from bokeh.layouts import widgetbox
+from bokeh.models import CustomJS, Slider, Div
 
 # NOTE: the JS functions to forvide the format code for strings is found the answer
 # from the user fearphage at http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
@@ -25,9 +26,12 @@ callback = CustomJS(code="""
 
 para = Div(text="<h1>Slider Values:</h1><p>Slider 1: 0<p>Slider 2: 0<p>Slider 3: 0")
 
-s1 = Slider(title="Slider 1 (Continuous)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="continuous")
-s2 = Slider(title="Slider 2 (Throttle)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="throttle", callback_throttle=2000)
-s3 = Slider(title="Slider 3 (Mouse Up)", start=0, end=1000, value=0, step=1, callback=callback, callback_policy="mouseup")
+s1 = Slider(title="Slider 1 (Continuous)", start=0, end=1000, value=0, step=1,
+            callback=callback, callback_policy="continuous")
+s2 = Slider(title="Slider 2 (Throttle)", start=0, end=1000, value=0, step=1,
+            callback=callback, callback_policy="throttle", callback_throttle=1000)
+s3 = Slider(title="Slider 3 (Mouse Up)", start=0, end=1000, value=0, step=1,
+            callback=callback, callback_policy="mouseup")
 
 callback.args['para'] = para
 callback.args['slider1'] = s1
@@ -36,4 +40,4 @@ callback.args['slider3'] = s3
 
 output_file('slider_callback_policy.html')
 
-show(Column(s1, s2, s3, para))
+show(widgetbox(s1, s2, s3, para))

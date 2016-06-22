@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 from ..io import curdoc, curstate
 from ..models import Plot
 from ..models import glyphs, markers
-from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function
+from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
 from ..util._plot_arg_helpers import _convert_responsive
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
@@ -41,6 +41,10 @@ class Figure(Plot):
 
         title_text = kw.pop("title", None)
 
+        active_drag = kw.pop('active_drag', 'auto')
+        active_scroll = kw.pop('active_scroll', 'auto')
+        active_tap = kw.pop('active_tap', 'auto')
+
         super(Figure, self).__init__(*arg, **kw)
 
         self.title.text = title_text
@@ -51,8 +55,9 @@ class Figure(Plot):
         _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range, 0)
         _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range, 1)
 
-        tool_objs = _process_tools_arg(self, tools)
+        tool_objs, tool_map = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)
+        _process_active_tools(self.toolbar, tool_map, active_drag, active_scroll, active_tap)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 

@@ -8,11 +8,35 @@ sinon = require "sinon"
 {Document} = utils.require("document")
 Box = utils.require("models/layouts/box").Model
 BoxView = utils.require("models/layouts/box").View
+LayoutDOMView = utils.require("models/layouts/layout_dom").View
 
 describe "Box.View", ->
 
+  afterEach ->
+    utils.unstub_solver()
+
+  beforeEach ->
+    solver_stubs = utils.stub_solver()
+    @box = new Box()
+    @doc = new Document()
+    @doc.add_root(@box)
+
   it.skip "should have a test for get_height", ->
     null
+
+  it.skip "should have a test for get_width", ->
+    null
+
+  it "should call build_child_views if children change", ->
+    child_box = new Box()
+    spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
+    new @box.default_view({ model: @box })
+    expect(spy.callCount).is.equal 1  # Expect one from initialization
+    @box.set('children', [child_box])
+    LayoutDOMView.prototype.build_child_views.restore()
+    # Expect another two: one from children changing event; the other because
+    # we initialize the child_box
+    expect(spy.callCount).is.equal 3
 
 describe "Box.Model", ->
 

@@ -4,6 +4,9 @@ module.exports = {
   ## api/linalg.ts
   LinAlg:                                 require("./api/linalg")
 
+  ## api/charts.d.ts
+  Charts:                                 require("./api/charts")
+
   ## api/plotting.d.ts
   Plotting:                               require("./api/plotting")
 

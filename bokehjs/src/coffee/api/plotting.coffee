@@ -300,19 +300,17 @@ class Figure extends models.Plot
         else
           @y_mapper_type = 'log'
 
-      axis = new axiscls({plot: if axis_location? then this else null})
+      axis = new axiscls()
 
       if axis.ticker instanceof models.ContinuousTicker
         axis.ticker.num_minor_ticks = @_get_num_minor_ticks(axiscls, minor_ticks)
       if axis_label.length != 0
         axis.axis_label = axis_label
 
-      grid = new models.Grid({plot: this, dimension: dim, ticker: axis.ticker})
+      grid = new models.Grid({dimension: dim, ticker: axis.ticker})
 
-      if axis_location?
-        this[axis_location] = (this[axis_location] ? []).concat([axis])
-
-      @add_renderers(axis, grid)
+      @add_layout(axis, axis_location)
+      @add_layout(grid)
 
   _get_axis_class: (axis_type, range) ->
     if not axis_type?
@@ -392,9 +390,58 @@ show = (obj, target) ->
 
 color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
+gridplot = (children, options={}) ->
+  toolbar_location = if _.isUndefined(options.toolbar_location) then 'above' else options.toolbar_location
+  sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
+  toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
+
+  tools = []
+  rows = []
+
+  for row in children
+    row_tools = []
+    row_children = []
+    for item in row
+      if item instanceof models.Plot
+        row_tools = row_tools.concat(item.toolbar.tools)
+        item.toolbar_location = null
+      if item == null
+        for neighbor in row
+          if neighbor instanceof models.Plot
+            break
+        item = new models.Spacer({width: neighbor.plot_width, height: neighbor.plot_height})
+      if item instanceof models.LayoutDOM
+        item.sizing_mode = sizing_mode
+        row_children.push(item)
+      else
+        throw new Error("only LayoutDOM items can be inserted into Grid")
+    tools = tools.concat(row_tools)
+    row = new models.Row({children: row_children, sizing_mode: sizing_mode})
+    rows.push(row)
+
+  grid = new models.Column({children: rows, sizing_mode: sizing_mode})
+
+  layout = if toolbar_location
+    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: toolbar_sizing_mode, toolbar_location: toolbar_location})
+
+    switch toolbar_location
+      when 'above'
+        new models.Column({children: [toolbar, grid], sizing_mode: sizing_mode})
+      when 'below'
+        new models.Column({children: [grid, toolbar], sizing_mode: sizing_mode})
+      when 'left'
+        new models.Row({children: [toolbar, grid], sizing_mode: sizing_mode})
+      when 'right'
+        new models.Row({children: [grid, toolbar], sizing_mode: sizing_mode})
+  else
+    grid
+
+  return layout
+
 module.exports = {
   Figure: Figure
   figure: figure
   show  : show
   color : color
+  gridplot: gridplot
 }

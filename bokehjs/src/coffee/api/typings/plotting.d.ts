@@ -4,6 +4,12 @@ declare namespace Bokeh.Plotting {
 
     function color(r: number, g: number, b: number): string;
 
+    function gridplot(children: Array<Array<Plot>>, options?: IGridPlotOptions): Box;
+    export interface IGridPlotOptions {
+        toolbar_location?: Location;
+        sizing_mode?: SizingMode;
+    }
+
     type AxisType = "linear" | "log" | "datetime" | Auto;
 
     type ToolType =

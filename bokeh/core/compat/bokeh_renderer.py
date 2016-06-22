@@ -20,10 +20,12 @@ import matplotlib as mpl
 import numpy as np
 from six import string_types
 
+from ...layouts import gridplot
 from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
+                     Grid, LinearAxis, Plot, CategoricalAxis, Legend)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
+from ...models.annotations import Title
 from ...plotting import DEFAULT_TOOLS
 from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
@@ -59,7 +61,7 @@ class BokehRenderer(Renderer):
     def close_figure(self, fig):
         "Complete the plot: add tools."
         # Add tools
-        tool_objs = _process_tools_arg(self.plot, DEFAULT_TOOLS)
+        tool_objs, tools_map = _process_tools_arg(self.plot, DEFAULT_TOOLS)
         self.plot.add_tools(*tool_objs)
 
         # Simple or Grid plot setup
@@ -82,9 +84,9 @@ class BokehRenderer(Renderer):
                              plot_width=self.width,
                              plot_height=self.height)
 
-                _plot.title = ""
+                _plot.title.text = ''
                 # and add new tools
-                _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
+                _tool_objs, _tool_map = _process_tools_arg(_plot, DEFAULT_TOOLS)
                 _plot.add_tools(*_tool_objs)
                 # clean the plot ref from axis and grids
                 _plot_rends = subrends[i]
@@ -112,14 +114,14 @@ class BokehRenderer(Renderer):
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
-            grid = GridPlot(children=n.tolist())
+            grid = gridplot(n.tolist())
             self.fig = grid
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
         # Get axes, title and grid into class attributes.
         self.ax = ax
-        self.plot.title = ax.get_title()
+        self.plot.title.text = ax.get_title()
         # to avoid title conversion by draw_text later
 
         #Make sure that all information about the axes are passed to the properties
@@ -150,9 +152,9 @@ class BokehRenderer(Renderer):
         background_fill_color = convert_color(ax.get_axis_bgcolor())
         self.plot.background_fill_color = background_fill_color
         if self.xkcd:
-            self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
-            self.plot.title_text_font_style = "bold"
-            self.plot.title_text_color = "black"
+            self.plot.title.text_font = "Comic Sans MS, Textile, cursive"
+            self.plot.title.text_font_style = "bold"
+            self.plot.title.text_color = "black"
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         self._axes = getattr(self, "_axes", [0])
@@ -209,6 +211,7 @@ class BokehRenderer(Renderer):
         y = data[:, 1]
 
         marker_map = {
+            ".": Circle,
             "o": Circle,
             "s": Square,
             "+": Cross,
