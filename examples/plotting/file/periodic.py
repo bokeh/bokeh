@@ -1,5 +1,5 @@
 from bokeh.models import HoverTool, ColumnDataSource
-from bokeh.plotting import figure, save, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 
 romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
@@ -41,7 +41,7 @@ source = ColumnDataSource(
     )
 )
 
-p = figure(title="Periodic Table", tools="resize,hover,save",
+p = figure(title="Periodic Table", tools="hover,save",
            x_range=group_range, y_range=list(reversed(romans)))
 p.plot_width = 1200
 p.toolbar_location = None
