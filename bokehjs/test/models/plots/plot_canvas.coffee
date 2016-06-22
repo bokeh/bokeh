@@ -30,7 +30,13 @@ Toolbar = utils.require("models/tools/toolbar").Model
 
 describe "PlotCanvas.Model", ->
 
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
   beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -96,7 +102,13 @@ describe "PlotCanvas.Model", ->
 
 describe "PlotCanvas.Model constraints", ->
 
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
   beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -339,7 +351,8 @@ describe "PlotCanvas.View get_canvas_element", ->
 
   beforeEach ->
     utils.stub_canvas()
-    utils.stub_solver()
+    solver_stubs = utils.stub_solver()
+    @solver_suggest_stub = solver_stubs['suggest']  # This isn't necessary but an attempt to make tests more robust
 
     doc = new Document()
     plot = new Plot({

@@ -7,6 +7,14 @@ Range1d = utils.require("models/ranges/range1d").Model
 
 describe "customjs module", ->
 
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+
   describe "default creation", ->
     r = new CustomJS()
 
