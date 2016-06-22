@@ -5,6 +5,37 @@
     <title>Bokeh Gapminder Example</title>
     {{ bokeh_css }}
     {{ bokeh_js }}
+    <style>
+      h1 {
+          margin: 2em 0 0 0;
+          color: #2e484c;
+          font-family: 'Julius Sans One', sans-serif;
+          font-size: 1.8em;
+          text-transform: uppercase;
+      }
+      a:link {
+          font-weight: bold;
+          text-decoration: none;
+          color: #0d8ba1;
+      }
+      a:visited {
+          font-weight: bold;
+          text-decoration: none;
+          color: #1a5952;
+      }
+      a:hover, a:focus, a:active {
+          text-decoration: underline;
+          color: #9685BA;
+      }
+      p {
+          font: "Libre Baskerville", sans-serif;
+          text-align: justify;
+          text-justify: inter-word;
+      }
+      code {
+          color: #336699;
+      }
+    </style>
   </head>
   <body>
     {{ plot_div|indent(8) }}
@@ -16,9 +47,6 @@
           width="800" height="315"
           src="https://www.youtube.com/embed/hVimVzgtD6w?t=3m57s">
       </iframe>
-    </p>
-    <p>
-      You can skip ahead to 3m 58s to see him talking through the plot we've just made. Or sit back and enjoy a great example of statistics communication.
     </p>
   </body>
 </html>
