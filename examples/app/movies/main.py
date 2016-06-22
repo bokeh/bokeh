@@ -5,7 +5,7 @@ import pandas.io.sql as psql
 import sqlite3 as sql
 
 from bokeh.plotting import Figure
-from bokeh.models import ColumnDataSource, HoverTool, HBox, VBoxForm
+from bokeh.models import ColumnDataSource, HoverTool, HBox, VBox, VBoxForm, Div
 from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
@@ -33,6 +33,9 @@ axis_map = {
     "Year": "Year",
 }
 
+desc = Div(text=open(join(dirname(__file__), "description.html")).read(),
+        render_as_text=False, width=800)
+
 # Create Input controls
 reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
 min_year = Slider(title="Year released", start=1940, end=2014, value=1970, step=1)
@@ -47,7 +50,7 @@ x_axis = Select(title="X Axis", options=sorted(axis_map.keys()), value="Tomato M
 y_axis = Select(title="Y Axis", options=sorted(axis_map.keys()), value="Number of Reviews")
 
 # Create Column Data Source that will be used by the plot
-source = ColumnDataSource(data=dict(x=[], y=[], color=[], title=[], year=[], revenue=[]))
+source = ColumnDataSource(data=dict(x=[], y=[], color=[], title=[], year=[], revenue=[], alpha=[]))
 
 hover = HoverTool(tooltips=[
     ("Title","@title"),
@@ -55,7 +58,7 @@ hover = HoverTool(tooltips=[
     ("$", "@revenue")
 ])
 
-p = Figure(plot_height=600, plot_width=800, title="", toolbar_location=None, tools=[hover])
+p = Figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tools=[hover])
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 def select_movies():
@@ -84,7 +87,7 @@ def update(attrname, old, new):
 
     p.xaxis.axis_label = x_axis.value
     p.yaxis.axis_label = y_axis.value
-    p.title = "%d movies selected" % len(df)
+    p.title.text = "%d movies selected" % len(df)
     source.data = dict(
         x=df[x_name],
         y=df[y_name],
@@ -103,4 +106,4 @@ inputs = HBox(VBoxForm(*controls))
 
 update(None, None, None) # initial load of the data
 
-curdoc().add_root(HBox(inputs, p))
+curdoc().add_root(VBox(desc, HBox(inputs, p)))
