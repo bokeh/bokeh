@@ -21,7 +21,7 @@ def get_dataset(src, name, distribution):
     df['right'] = df.date + datetime.timedelta(days=0.5)
     df = df.set_index(['date'])
     df.sort_index(inplace=True)
-    if distribution == 'Smooth':
+    if distribution == 'Smoothed':
         window, order = 51, 3
         for key in STATISTICS:
             df[key] = savgol_filter(df[key], window, order)
@@ -86,4 +86,5 @@ distribution_select.on_change('value', update_plot)
 
 controls = column(city_select, distribution_select)
 
-curdoc().add_root(row(controls, plot))
+curdoc().add_root(row(plot, controls))
+curdoc().title = "Weather Example"
