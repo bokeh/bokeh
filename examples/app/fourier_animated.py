@@ -34,7 +34,12 @@ period = pi/2
 palette = ['#08519c', '#3182bd', '#6baed6', '#bdd7e7']
 
 def new_source():
-    return dict(curve=CDS(), lines=CDS(), circle_point=CDS(), circleds=CDS())
+    return dict(
+        curve=CDS(dict(x=[], base_x=[], y=[])),
+        lines=CDS(dict(line_x=[], line_y=[], radius_x=[], radius_y=[])),
+        circle_point=CDS(dict(x=[], y=[], r=[])),
+        circleds=CDS(dict(x=[], y=[]))
+    )
 
 def create_circle_glyphs(p, color, sources):
     p.circle('x', 'y', size=1., line_color=color, color=None, source=sources['circleds'])
@@ -46,7 +51,7 @@ def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
         y_range=[-2, 2]
 
     # create new figure
-    p = figure(title=title, width=800, height=300, x_range=[-2.5, 9], y_range=y_range)
+    p = figure(title=title, width=800, height=300, x_range=[-2, 9], y_range=y_range)
     p.xgrid.bounds = (-2, 2)
     p.xaxis.bounds = (-2, 2)
 
@@ -64,8 +69,7 @@ def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
             # replace the foo curve with the full fourier eq
             sources['curve'] = CDS(dict(x=x, base_x=base_x, y=full_y))
             # draw the line
-            p.line('base_x','y', color="orange", line_width=2, source=sources['curve'],
-                    legend="4sin(x)/pi + 4sin(3x)/3pi + 4sin(5x)/5pi + 4sin(7x)/7pi")
+            p.line('base_x','y', color="orange", line_width=2, source=sources['curve'])
 
         if i==len(foos)-1:
             # if it's the last foo let's draw a circle on the head of the curve
@@ -122,7 +126,7 @@ def update_centric_sources(sources, foos, newx, ind, cfoos):
         get_new_sources(newx, foo, sources[i], cfoos[i])
 
 def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, cfoos=None):
-    p = figure(title=title, width=800, height=300, x_range=[-1.5, 10.5], y_range=y_range)
+    p = figure(title=title, width=800, height=300, x_range=[-2, 9], y_range=y_range)
     p.xgrid.bounds = (-2, 2)
     p.xaxis.bounds = (-2, 2)
 
@@ -142,6 +146,12 @@ def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, c
                 source=sources['lines'], legend=legend)
 
         create_circle_glyphs(p, palette[i], sources)
+
+    p.legend.location = "top_right"
+    p.legend.orientation = "horizontal"
+    p.legend.legend_padding = 6
+    p.legend.legend_margin = 6
+    p.legend.legend_spacing = 6
 
     return p, _sources
 
