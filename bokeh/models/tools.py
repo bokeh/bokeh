@@ -125,6 +125,10 @@ class ToolbarBox(Box):
     can merge the tools into a single button for convenience.
 
     """
+    def _check_empty_layout(self):
+        # Overriding the children check from Box. As toolbarbox's children
+        # are normally set JS side.
+        return None
 
     toolbar_location = Enum(Location, default='right', help="""
         Should the toolbar be presented as if it was stuck to the `above`, `right`, `left`, `below`
