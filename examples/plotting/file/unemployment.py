@@ -33,7 +33,7 @@ source = ColumnDataSource(
     data=dict(month=month, year=year, color=color, rate=rate)
 )
 
-TOOLS = "resize,hover,save,pan,box_zoom,wheel_zoom"
+TOOLS = "hover,save,pan,box_zoom,wheel_zoom"
 
 p = figure(title="US Unemployment (1948 - 2013)",
            x_range=years, y_range=list(reversed(months)),

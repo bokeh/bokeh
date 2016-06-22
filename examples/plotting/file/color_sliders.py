@@ -1,9 +1,9 @@
 import colorsys
 import yaml
 
-from bokeh.io import vform
+from bokeh.layouts import column, row, widgetbox
 from bokeh.models import ColumnDataSource, HoverTool, CustomJS, Slider
-from bokeh.plotting import Figure, hplot, output_file, show, curdoc
+from bokeh.plotting import Figure, output_file, show, curdoc
 from bokeh.themes import Theme
 
 # for plot 2: create colour spectrum of resolution N and brightness I, return as list of decimal RGB value tuples
@@ -125,9 +125,9 @@ attrs:
         minor_tick_line_color: null
 """))
 
-layout = hplot(
-    vform(red_slider, green_slider, blue_slider),
-    vform(p1, p2)
+layout = row(
+    widgetbox(red_slider, green_slider, blue_slider),
+    column(p1, p2)
 )
 
 output_file("color_sliders.html", title="color_sliders.py example")

@@ -1,4 +1,5 @@
-from bokeh.plotting import figure, save, show
+from bokeh.palettes import Viridis6
+from bokeh.plotting import figure, show
 from bokeh.sampledata.us_counties import data as counties
 from bokeh.sampledata.us_states import data as states
 from bokeh.sampledata.unemployment import data as unemployment
@@ -14,8 +15,6 @@ state_ys = [states[code]["lats"] for code in states]
 county_xs=[counties[code]["lons"] for code in counties if counties[code]["state"] not in EXCLUDED]
 county_ys=[counties[code]["lats"] for code in counties if counties[code]["state"] not in EXCLUDED]
 
-colors = ["#F1EEF6", "#D4B9DA", "#C994C7", "#DF65B0", "#DD1C77", "#980043"]
-
 county_colors = []
 for county_id in counties:
     if counties[county_id]["state"] in EXCLUDED:
@@ -23,12 +22,14 @@ for county_id in counties:
     try:
         rate = unemployment[county_id]
         idx = int(rate/6)
-        county_colors.append(colors[idx])
+        county_colors.append(Viridis6[idx])
     except KeyError:
         county_colors.append("black")
 
 p = figure(title="US Unemployment 2009",
-           plot_width=1100, plot_height=700)
+           x_axis_location=None, y_axis_location=None,
+           plot_width=1000, plot_height=600)
+p.grid.grid_line_color = None
 
 p.patches(county_xs, county_ys,
           fill_color=county_colors, fill_alpha=0.7,
