@@ -122,7 +122,7 @@ describe "LayoutDOM.View", ->
       expect(@solver_suggest.args[0]).to.be.deep.equal [@layout._width, 22]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@layout._height, 33]
 
-    it "should only listen to resize event once if sizing_mode is fixed", ->
+    it.skip "should only listen to resize event once if sizing_mode is fixed", ->
       @layout.sizing_mode = 'fixed'
       render_spy = sinon.spy(LayoutDOMView.prototype, 'render')
       layout_view = new LayoutDOMView({ model: @layout })
