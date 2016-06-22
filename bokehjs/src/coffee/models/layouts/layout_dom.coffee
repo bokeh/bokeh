@@ -56,7 +56,11 @@ class LayoutDOMView extends BokehView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @render)
-    @listenTo(@model.document.solver(), 'resize', () => @render())
+
+    if @model.sizing_mode == 'fixed'
+      @listenToOnce(@model.document.solver(), 'resize', @render)
+    else
+      @listenTo(@model.document.solver(), 'resize', @render)
 
     # Note: `sizing_mode` update is not supported because changing the
     # sizing_mode mode necessitates stripping out all the relevant constraints
