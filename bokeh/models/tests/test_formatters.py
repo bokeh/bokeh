@@ -36,7 +36,7 @@ def test_functickformatter_from_py_func_with_args():
 
     function_wrapper = formatter.code.replace(js_code, '')
 
-    assert function_wrapper == "function (seconds) {return formatter(seconds)};"
+    assert function_wrapper == "function (seconds) {return formatter(seconds, x)};"
     assert formatter.args['x'] is slider
     assert formatter.lang == "javascript"
 

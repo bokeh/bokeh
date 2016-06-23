@@ -229,17 +229,18 @@ class FuncTickFormatter(TickFormatter):
         if (len(argspec[0]) - len(argspec[3] or [])) != 1:
             raise ValueError("Function `func` must have exactly one positional argument, but %d were supplied." % (len(argspec[0]) - len(argspec[3] or [])))
 
+        all_args = argspec[0].copy()
         func_arg = argspec[0].pop(0)
         func_kwargs = dict(zip(argspec[0], argspec[3] or []))
 
         # Set the transpiled functions as `formatter` so that we can call it
         code = pyscript.py2js(func, 'formatter')
+
         # We wrap the transpiled function into an anonymous function with a single
-        # arg that matches that of func.
-        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (func_arg, code, func_arg)
+        # arg that matches that of func and all args inside `formatter`
+        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (func_arg, code, ', '.join(all_args))
 
         return cls(code=wrapped_code, args=func_kwargs, lang='javascript')
-
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
