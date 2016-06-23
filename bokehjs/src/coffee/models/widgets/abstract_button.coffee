@@ -29,8 +29,12 @@ class AbstractButtonView extends Widget.View
     html = @template(@model.attributes)
     @$el.append(html)
 
+    $button = @$el.find('button')
+
     if icon?
-      @$el.find('button').prepend(@icon_views[icon.id].$el)
+      $button.prepend(@icon_views[icon.id].$el)
+
+    $button.prop("disabled", @model.disabled)
 
     return @
 
