@@ -224,18 +224,28 @@ class FuncTickFormatter(TickFormatter):
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
+        argspec = inspect.getargspec(func)
 
-        arg = inspect.getargspec(func)[0]
-        if len(arg) != 1:
-            raise ValueError("Function `func` can have only one argument, but %d were supplied." % len(arg))
+        if (len(argspec[0]) - len(argspec[3] or [])) != 1:
+            raise ValueError("Function `func` must have exactly one positional argument, but %d were supplied." % (len(argspec[0]) - len(argspec[3] or [])))
+
+        func_arg = argspec[0].pop(0)
+        func_kwargs = dict(zip(argspec[0], argspec[3] or []))
 
         # Set the transpiled functions as `formatter` so that we can call it
         code = pyscript.py2js(func, 'formatter')
         # We wrap the transpiled function into an anonymous function with a single
         # arg that matches that of func.
-        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (arg[0], code, arg[0])
+        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (func_arg, code, func_arg)
 
-        return cls(code=wrapped_code, lang='javascript')
+        return cls(code=wrapped_code, args=func_kwargs, lang='javascript')
+
+
+    args = Dict(String, Instance(Model), help="""
+    A mapping of names to Bokeh plot objects. These objects are made
+    available to the formatter code snippet as the values of named
+    parameters to the callback.
+    """)
 
     code = String(default="", help="""
     An anonymous JavaScript or CoffeeScript function expression to reformat a
