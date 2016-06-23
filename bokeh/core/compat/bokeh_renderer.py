@@ -20,8 +20,9 @@ import matplotlib as mpl
 import numpy as np
 from six import string_types
 
+from ...layouts import gridplot
 from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
+                     Grid, LinearAxis, Plot, CategoricalAxis, Legend)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ...models.annotations import Title
@@ -113,14 +114,14 @@ class BokehRenderer(Renderer):
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
-            grid = GridPlot(children=n.tolist())
+            grid = gridplot(n.tolist())
             self.fig = grid
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
         # Get axes, title and grid into class attributes.
         self.ax = ax
-        self.plot.title = ax.get_title()
+        self.plot.title.text = ax.get_title()
         # to avoid title conversion by draw_text later
 
         #Make sure that all information about the axes are passed to the properties
@@ -210,6 +211,7 @@ class BokehRenderer(Renderer):
         y = data[:, 1]
 
         marker_map = {
+            ".": Circle,
             "o": Circle,
             "s": Square,
             "+": Cross,

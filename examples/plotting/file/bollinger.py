@@ -13,12 +13,12 @@ band_y = np.append(lowerband, upperband[::-1])
 
 output_file('bollinger.html', title='Bollinger bands (file)')
 
-p = figure(x_axis_type='datetime')
-p.patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
-
-p.title = 'Bollinger Bands'
+p = figure(x_axis_type='datetime', title="Bollinger Bands")
+p.grid.grid_line_alpha = 0.4
+p.x_range.range_padding = 0
 p.plot_height = 600
 p.plot_width = 800
-p.grid.grid_line_alpha = 0.4
+
+p.patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
 
 show(p)

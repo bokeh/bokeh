@@ -1,6 +1,6 @@
-from bokeh.io import vplot
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
 from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
+from bokeh.models.layouts import Column
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
@@ -58,7 +58,7 @@ hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG",
 select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
 plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
-layout = vplot(plot, data_table)
+layout = Column(plot, data_table)
 
 if __name__ == "__main__":
     filename = "data_tables.html"

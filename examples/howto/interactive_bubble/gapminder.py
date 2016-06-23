@@ -8,6 +8,7 @@ from bokeh.models import (
     LinearAxis, HoverTool, Text,
     SingleIntervalTicker, CustomJS, Slider
 )
+from bokeh.models.annotations import Title
 from bokeh.palettes import Spectral6
 from bokeh.plotting import vplot
 from bokeh.resources import JSResources
@@ -40,12 +41,14 @@ ydr = Range1d(20, 100)
 plot = Plot(
     x_range=xdr,
     y_range=ydr,
-    title="",
+    title=Title(text=''),
     plot_width=800,
     plot_height=400,
     outline_line_color=None,
     toolbar_location=None,
+    min_border=20,
 )
+
 AXIS_FORMATS = dict(
     minor_tick_in=None,
     minor_tick_out=None,

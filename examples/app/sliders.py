@@ -16,10 +16,11 @@ in your browser.
 '''
 import numpy as np
 
-from bokeh.plotting import Figure
-from bokeh.models import ColumnDataSource, HBox, VBoxForm
-from bokeh.models.widgets import Slider, TextInput
 from bokeh.io import curdoc
+from bokeh.layouts import row, widgetbox
+from bokeh.models import ColumnDataSource
+from bokeh.models.widgets import Slider, TextInput
+from bokeh.plotting import figure
 
 # Set up data
 N = 200
@@ -29,7 +30,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 
 
 # Set up plot
-plot = Figure(plot_height=400, plot_width=400, title="my sine wave",
+plot = figure(plot_height=400, plot_width=400, title="my sine wave",
               tools="crosshair,pan,reset,resize,save,wheel_zoom",
               x_range=[0, 4*np.pi], y_range=[-2.5, 2.5])
 
@@ -69,6 +70,7 @@ for w in [offset, amplitude, phase, freq]:
 
 
 # Set up layouts and add to document
-inputs = VBoxForm(children=[text, offset, amplitude, phase, freq])
+inputs = widgetbox(text, offset, amplitude, phase, freq)
 
-curdoc().add_root(HBox(children=[inputs, plot], width=800))
+curdoc().add_root(row(inputs, plot, width=800))
+curdoc().title = "Sliders"

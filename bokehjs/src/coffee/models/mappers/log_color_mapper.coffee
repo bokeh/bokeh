@@ -25,7 +25,7 @@ class LogColorMapper extends ColorMapper.Model
     high = @get('high') ? _.max(data)
 
     N = @_palette.length - 1
-    scale = N / Math.log1p(high/low) #dividing by low substracts the offset
+    scale = N / (Math.log1p(high) - Math.log1p(low)) #substract the low offset
 
     if @_little_endian
       for i in [0...data.length]
@@ -36,7 +36,7 @@ class LogColorMapper extends ColorMapper.Model
         else if (d < low)
           d = low
 
-        log = Math.log1p(d/low) #dividing by low substracts the offset
+        log = Math.log1p(d) - Math.log1p(low) #substract the low offset
         value = @_palette[Math.floor(log * scale)]
 
         color[i] =
@@ -54,7 +54,7 @@ class LogColorMapper extends ColorMapper.Model
         else if (d < low)
           d = low
 
-        log = Math.log1p(d/low) #dividing by low substracts the offset
+        log = Math.log1p(d) - Math.log1p(low) #substract the low offset
         value = @_palette[Math.floor(log * scale)]
 
         color[i] = (value << 8) | 0xff                 # alpha

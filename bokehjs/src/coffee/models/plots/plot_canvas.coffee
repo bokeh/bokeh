@@ -358,8 +358,10 @@ class PlotCanvasView extends Renderer.View
     if not range_info?
       for name, rng of @frame.get('x_ranges')
         rng.reset()
+        rng.get('callback')?.execute(rng)
       for name, rng of @frame.get('y_ranges')
         rng.reset()
+        rng.get('callback')?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []
@@ -413,8 +415,9 @@ class PlotCanvasView extends Renderer.View
     @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
-    @listenTo(@model.plot.document.solver(), 'layout_update', @request_render)
-    @listenTo(@model.plot.document.solver(), 'resize', @resize)
+    @listenTo(@model.plot.document.solver(), 'layout_update', () => @request_render())
+    @listenTo(@model.plot.document.solver(), 'resize', () => @resize())
+    @listenTo(@canvas, 'change:pixel_ratio', () => @request_render())
 
   set_initial_range : () ->
     # check for good values for ranges before setting initial range
