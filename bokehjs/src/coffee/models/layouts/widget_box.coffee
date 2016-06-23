@@ -14,6 +14,10 @@ LayoutDOM = require "../layouts/layout_dom"
 class WidgetBoxView extends LayoutDOM.View
   className: "bk-widget-box"
 
+  initialize: (options) ->
+    super()
+    @render()
+
   bind_bokeh_events: () ->
     super()
     @listenTo(@model, 'change:children', @build_child_views)
