@@ -5,11 +5,7 @@ $2 = require "jquery-ui/spinner"
 
 p = require "../../core/properties"
 
-Model = require "../../model"
-
 Widget = require "./widget"
-
-class CellEditor extends Model
 
 class CellEditorView extends Widget.View
 
@@ -22,9 +18,9 @@ class CellEditorView extends Widget.View
   defaultValue: null
 
   initialize: (args) ->
-    super({})
     @args = args
     @model = @args.column.editor
+    super()
     @render()
 
   render: () ->
@@ -85,6 +81,15 @@ class CellEditorView extends Widget.View
     return { valid: true, msg: null }
 
   validate: () -> return @validateValue(@getValue())
+
+class CellEditor extends Widget.Model
+  type: "CellEditor"
+  default_view: CellEditorView
+
+  @define {
+    callback:    [ p.Instance          ]
+    icon:        [ p.Instance          ]
+  }
 
 class StringEditorView extends CellEditorView
 
