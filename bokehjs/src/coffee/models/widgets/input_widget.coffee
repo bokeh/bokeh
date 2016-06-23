@@ -5,9 +5,12 @@ p = require "../../core/properties"
 
 class InputWidgetView extends Widget.View
 
-  render:
+  render: () ->
     super()
     @$el.find('input').prop("disabled", @model.disabled)
+
+  change_input: () ->
+    @mget('callback')?.execute(@model)
 
 
 class InputWidget extends Widget.Model

@@ -14,10 +14,10 @@ class SelectView extends InputWidget.View
     "change select": "change_input"
 
   change_input: () ->
+    super()
     value = @$('select').val()
     logger.debug("selectbox: value = #{value}")
     @mset('value', value)
-    @mget('callback')?.execute(@model)
 
   initialize: (options) ->
     super(options)
@@ -39,10 +39,6 @@ class Select extends InputWidget.Model
   @define {
       value:   [ p.String, '' ]
       options: [ p.Any,    [] ] # TODO (bev) is this used?
-    }
-
-  @override {
-      height: 65
     }
 
 module.exports =

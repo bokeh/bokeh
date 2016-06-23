@@ -26,14 +26,15 @@ class TextInputView extends InputWidget.View
     super()
     @$el.html(@template(@model.attributes))
     # TODO - This 35 is a hack we should be able to compute it
-    @$el.find('input').height(@mget('height') - 35)
+    if @model.height
+      @$el.find('input').height(@mget('height') - 35)
     return @
 
   change_input: () ->
+    super()
     value = @$('input').val()
     logger.debug("widget/text_input: value = #{value}")
     @mset('value', value)
-    @mget('callback')?.execute(@model)
 
 class TextInput extends InputWidget.Model
   type: "TextInput"
@@ -41,10 +42,6 @@ class TextInput extends InputWidget.Model
 
   @define {
       value: [ p.String, "" ]
-    }
-
-  @override {
-      height: 65
     }
 
 module.exports =
