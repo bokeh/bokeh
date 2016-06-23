@@ -18,6 +18,7 @@ class AbstractButtonView extends Widget.View
 
   render: () ->
     super()
+
     icon = @model.icon
     if icon?
       build_views(@icon_views, [icon])
@@ -30,13 +31,11 @@ class AbstractButtonView extends Widget.View
 
     if icon?
       @$el.find('button').prepend(@icon_views[icon.id].$el)
-    @$el.find('button').prop("disabled", @model.disabled)
 
     return @
 
   change_input: () ->
-    if not @model.disabled
-      @model.callback?.execute(@model)
+    @model.callback?.execute(@model)
 
 
 class AbstractButton extends Widget.Model
