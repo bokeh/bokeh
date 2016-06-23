@@ -161,6 +161,8 @@ class DataTableView extends Widget.View
 
     if width?
       @$el.css(width: "#{@mget("width")}px")
+    else
+      @$el.css(width: "#{@mget("default_width")}px")
     if height? and height != "auto"
       @$el.css(height: "#{@mget("height")}px")
 
@@ -200,6 +202,10 @@ class DataTable extends TableWidget.Model
 
   @override {
     height: 400
+  }
+
+  @internal {
+    default_width:        [ p.Number, 600   ]
   }
 
 module.exports =
