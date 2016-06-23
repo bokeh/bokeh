@@ -10,7 +10,7 @@ Widget = require "./widget"
 slidertemplate = require "./slidertemplate"
 
 
-class SliderView extends Widget.View
+class SliderView extends InputWidget.View
   tagName: "div"
   template: slidertemplate
 

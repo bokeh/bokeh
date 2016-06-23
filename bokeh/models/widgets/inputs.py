@@ -58,6 +58,7 @@ class TextInput(InputWidget):
     widget by hitting Enter or clicking outside of the text box area.
     """)
 
+
 class AutocompleteInput(TextInput):
     """ Single-line input widget with auto-completion. """
 
@@ -66,7 +67,6 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
-    height = Override(default=65)
 
 class Select(InputWidget):
     """ Single-select widget.
@@ -85,8 +85,6 @@ class Select(InputWidget):
     A callback to run in the browser whenever the current Select dropdown
     value changes.
     """)
-
-    height = Override(default=65)
 
     @classmethod
     def create(self, *args, **kwargs):
