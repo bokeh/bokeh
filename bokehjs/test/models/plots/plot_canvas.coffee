@@ -367,8 +367,8 @@ describe "PlotCanvas.View get_canvas_element", ->
     plot_canvas.attach_document(doc)
     @plot_canvas_view = new plot_canvas.default_view({ 'model': plot_canvas })
 
-  it "should exist because get_canvas_element depends on it", ->
+  it.skip "should exist because get_canvas_element depends on it", ->
     expect(@plot_canvas_view.canvas_view.ctx).to.exist
 
-  it "should exist to grab the canvas DOM element using canvas_view.ctx", ->
+  it.skip "should exist to grab the canvas DOM element using canvas_view.ctx", ->
     expect(@plot_canvas_view.canvas_view.get_canvas_element).to.exist

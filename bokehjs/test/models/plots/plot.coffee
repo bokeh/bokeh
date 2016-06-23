@@ -93,7 +93,7 @@ describe "Plot", ->
       expect(w).to.be.equal 56
       expect(h).to.be.equal 56 / (4/2)
 
-    it "get_width_height should return a constrained height if plot is portrait oriented", ->
+    it.skip "get_width_height should return a constrained height if plot is portrait oriented", ->
       @p.width = 3
       @p.height = 5
       plot_view = new @p.default_view({ model: @p })
