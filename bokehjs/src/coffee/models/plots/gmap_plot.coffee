@@ -16,7 +16,6 @@ class GMapPlot extends Plot.Model
 
   initialize: (options) ->
     super(options)
-    console.log(@api_key)
     if not @api_key
       logger.error("key is required. Google Maps API now requires an API key: http://googlegeodevelopers.blogspot.mx/2016/06/building-for-scale-updates-to-google.html")
     @_plot_canvas = new GMapPlotCanvas.Model({plot: @})

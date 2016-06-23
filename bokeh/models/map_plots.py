@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..core import validation
 from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
-from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.errors import REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
 from ..core.properties import HasProps, abstract
 from ..core.properties import Enum, Float, Instance, Int, JSON, Override, String
 from ..core.enums import MapType
@@ -78,6 +78,11 @@ class GMapPlot(MapPlot):
     @validation.warning(NO_DATA_RENDERERS)
     def _check_no_data_renderers(self):
         pass
+
+    @validation.error(MISSING_GOOGLE_API_KEY)
+    def _check_missing_google_api_key(self):
+        if self.api_key is None:
+            return str(self)
 
     map_options = Instance(GMapOptions, help="""
     Options for displaying the plot.
