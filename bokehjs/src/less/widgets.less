@@ -46,7 +46,7 @@
 
 /* misc */
 .bk-widget button {
-  min-width: 50%;
+  min-width: 100%;
 }
 .bk-widget input[type="text"] {
   min-width: 90%;
@@ -59,7 +59,19 @@
 .bk-bs-dropdown-toggle .bk-bs-caret {
   margin-right: 5px;
   margin-bottom: 5px;
+  left: 0px;
   color: #A1A6A9;
+}
+
+.bk-bs-dropdown-toggle.bk-bs-btn-danger .bk-bs-caret,
+.bk-bs-dropdown-toggle.bk-bs-btn-warning .bk-bs-caret,
+.bk-bs-dropdown-toggle.bk-bs-btn-primary .bk-bs-caret,
+.bk-bs-dropdown-toggle.bk-bs-btn-success .bk-bs-caret {
+  color: white;
+}
+
+.bk-bs-dropdown-menu {
+  width: 100%;
 }
 
 /* tabs */
