@@ -20,10 +20,6 @@ class Button extends AbstractButton.Model
     clicks: [ p.Number, 0        ]
   }
 
-  @override {
-    height: 45
-  }
-
 module.exports =
   Model: Button
   View: ButtonView

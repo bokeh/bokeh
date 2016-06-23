@@ -138,7 +138,6 @@ class DataTableView extends Widget.View
     }
 
   render: () ->
-    super()
     columns = (column.toColumn() for column in @mget("columns"))
 
     if @mget("selectable") == "checkbox"

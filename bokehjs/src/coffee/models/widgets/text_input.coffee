@@ -7,10 +7,9 @@ p = require "../../core/properties"
 
 InputWidget = require "./input_widget"
 template = require "./text_input_template"
-Widget = require "./widget"
 
 
-class TextInputView extends Widget.View
+class TextInputView extends InputWidget.View
   tagName: "div"
   attributes:
      class: "bk-widget-form-group"

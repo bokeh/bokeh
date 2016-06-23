@@ -4,12 +4,11 @@ $ = require "underscore"
 p = require "../../core/properties"
 
 InputWidget = require "./input_widget"
-Widget = require "./widget"
 
 multiselecttemplate = require "./multiselecttemplate"
 
 
-class MultiSelectView extends Widget.View
+class MultiSelectView extends InputWidget.View
   tagName: "div"
   template: multiselecttemplate
   events:

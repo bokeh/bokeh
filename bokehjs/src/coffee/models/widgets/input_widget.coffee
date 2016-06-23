@@ -3,8 +3,16 @@ _ = require "underscore"
 Widget = require "./widget"
 p = require "../../core/properties"
 
+class InputWidgetView extends Widget.View
+
+  render:
+    super()
+    @$el.find('input').prop("disabled", @model.disabled)
+
+
 class InputWidget extends Widget.Model
   type: "InputWidget"
+  default_view: InputWidgetView
 
   @define {
       callback: [ p.Instance   ]
@@ -13,3 +21,4 @@ class InputWidget extends Widget.Model
 
 module.exports =
   Model: InputWidget
+  View: InputWidgetView

@@ -5,9 +5,9 @@ $1 = require "jqrangeslider/jQDateRangeSlider"
 p = require "../../core/properties"
 
 InputWidget = require "./input_widget"
-Widget = require "./widget"
 
-class DateRangeSliderView extends Widget.View
+
+class DateRangeSliderView extends InputWidget.View
 
   initialize: (options) ->
     super(options)
