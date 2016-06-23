@@ -60,6 +60,7 @@ class AbstractButton(Widget, ButtonLike):
     A callback to run in the browser whenever the button is activated.
     """)
 
+
 class Button(AbstractButton):
     """ A click button.
 
@@ -68,8 +69,6 @@ class Button(AbstractButton):
     clicks = Int(0, help="""
     A private property used to trigger ``on_click`` event handler.
     """)
-
-    height = Override(default=45)
 
     def on_click(self, handler):
         """ Set up a handler for button clicks.
@@ -82,6 +81,7 @@ class Button(AbstractButton):
 
         """
         self.on_change('clicks', lambda attr, old, new: handler())
+
 
 class Toggle(AbstractButton):
     """ A two-state toggle button.
