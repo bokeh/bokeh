@@ -15,51 +15,90 @@ class WidgetBoxView extends LayoutDOM.View
   className: "bk-widget-box"
 
   initialize: (options) ->
-    super()
+    super(options)
+    if not @model.document._unrendered_widgetboxes?
+      @model.document._unrendered_widgetboxes = {}  # poor man's set
+    @model.document._unrendered_widgetboxes[@id] = true
     @render()
 
   bind_bokeh_events: () ->
     super()
-    @listenTo(@model, 'change:children', @build_child_views)
+    @listenTo(@model, 'change:children', () => @build_child_views())
 
   render: () ->
-    super()
 
-    # Go through and make rendering tweaks because of margin
-    # TODO(bird) Make this configurable & less flaky
+    s = @model.document.solver()
 
-    if @model.sizing_mode is 'scale_width'
+    if @model.sizing_mode is 'fixed' or @model.sizing_mode == 'scale_height'
+      width = @get_width()
+      if @model._width._value != width
+        s.suggest_value(@model._width, width)
+        s.update_variables()
+
+    if @model.sizing_mode == 'fixed' or @model.sizing_mode == 'scale_width'
+      height = @get_height()
+      if @model._height._value != height
+        s.suggest_value(@model._height, height)
+        s.update_variables()
+
+    if @model._width._value - 20 > 0
+      css_width = @model._width._value - 20
+    else
+      css_width = "100%"
+
+    if @model.sizing_mode is 'stretch_both'
       @$el.css({
-        width: @model._width._value - 20
-        height: @model._height._value + 10
+        position: 'absolute'
+        left: @model._dom_left._value
+        top: @model._dom_top._value
+        width: @model._width._value
+        height: @model._height._value
+      })
+    else
+      @$el.css({
+        width: css_width
+        height: @model._height._value + 20
       })
 
-    if @model.sizing_mode is 'fixed'
-      @$el.css({
-        width: @model.width - 20  # for padding
-        height: @model.height + 10  # for padding
-      })
+    # As with plot_canvas, this is necessary to kick widget boxes into action
+    if @model.document._unrendered_widgetboxes?
+      delete @model.document._unrendered_widgetboxes[@id]
+      if _.isEmpty(@model.document._unrendered_widgetboxes)
+        @model.document._unrendered_widgetboxes = null
+        _.delay($.proxy(@model.document.resize, @model.document), 1)
 
   get_height: () ->
     height = 0
     # We have to add on 10px because widgets have a margin at the top.
     for own key, child_view of @child_views
-      height += child_view.el.scrollHeight + 10
-    return height + 10
+      height += child_view.el.scrollHeight
+    return height + 20
 
   get_width: () ->
-    width = @el.scrollWidth + 20
-    for own key, child_view of @child_views
-      # Take the max width of all the children as the constrainer.
-      child_width = child_view.el.scrollWidth
-      if child_width > width
-        width = child_width
-    return width
+    if @model.width?
+      return @model.width
+    else
+      width = @el.scrollWidth + 20
+      for own key, child_view of @child_views
+        # Take the max width of all the children as the constrainer.
+        child_width = child_view.el.scrollWidth
+        if child_width > width
+          width = child_width
+      return width
 
 
 class WidgetBox extends LayoutDOM.Model
   type: 'WidgetBox'
   default_view: WidgetBoxView
+
+  initialize: (options) ->
+    super(options)
+    if @sizing_mode == 'fixed' and @width == null
+      # Set a default for fixed.
+      @width = 300
+      logger.info("WidgetBox mode is fixed, but no width specified. Using default of 300.")
+    if @sizing_mode == 'scale_height'
+      logger.warn("sizing_mode `scale_height` is not experimental for WidgetBox. Please report your results to the bokeh dev team so we can improve.")
 
   get_edit_variables: () ->
     edit_variables = super()
