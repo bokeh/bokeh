@@ -78,6 +78,7 @@ describe "Axis.View", ->
     plot.add_layout(@axis, 'below')
     doc.add_root(plot)
     plot_canvas_view = new plot.plot_canvas.default_view({ 'model': plot.plot_canvas })
+    sinon.stub(plot_canvas_view, 'update_constraints')
     @axis_view = new @axis.default_view({
       model: @axis
       plot_model: plot.plot_canvas

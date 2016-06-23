@@ -25,3 +25,14 @@ describe "log_color_mapper module", ->
 
       buf8 = new Uint8ClampedArray(mapper.v_map_screen([20]))
       expect([buf8[0], buf8[1], buf8[2], buf8[3]]).to.be.deep.equal [254, 224, 139, 255]
+
+  describe "zero value handling of LogColorMapper", ->
+    mapper = new LogColorMapper({
+        low: 0
+        high: 10
+        palette: ["#3288bd", "#abdda4", "#fee08b"]
+      })
+
+    it "should map values along log scale", ->
+      buf8 = new Uint8ClampedArray(mapper.v_map_screen([0]))
+      expect([buf8[0], buf8[1], buf8[2], buf8[3]]).to.be.deep.equal [50, 136, 189, 255]
