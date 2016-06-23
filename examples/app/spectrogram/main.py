@@ -1,4 +1,3 @@
-from collections import defaultdict
 from math import ceil
 
 import numpy as np
@@ -6,16 +5,30 @@ import numpy as np
 from bokeh.io import curdoc
 from bokeh.layouts import row, column, widgetbox
 from bokeh.models import ColumnDataSource, Slider
+from bokeh.palettes import Viridis11
 from bokeh.plotting import figure
 
 import audio
 from audio import MAX_FREQ, TIMESLICE, NUM_BINS
-#from waterfall import Waterfall
+from waterfall import WaterfallSource
 
 MAX_FREQ_KHZ = MAX_FREQ*0.001
+NUM_GRAMS = 800
+GRAM_LENGTH = 512
+TILE_WIDTH = 200
 EQ_CLAMP = 20
 
 PLOTARGS = dict(tools="", toolbar_location=None, outline_line_color='#595959')
+
+waterfall_source = WaterfallSource(palette=Viridis11, num_grams=NUM_GRAMS,
+                                   gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH,
+                                   data=dict(x=[], image=[]))
+waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
+                        x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
+waterfall_plot.image_rgba(x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ_KHZ,
+                          cols=TILE_WIDTH, rows=GRAM_LENGTH,
+                          source=waterfall_source, dilate=True)
+
 
 signal_source = ColumnDataSource(data=dict(t=[], y=[]))
 signal_plot = figure(plot_width=600, plot_height=200,
@@ -53,6 +66,10 @@ gain = Slider(start=1, end=20, value=1, step=1, title="Gain")
 def update():
     signal, spectrum, bins = audio.data['values']
 
+    # seems to be a problem with Array property, using List for now
+    waterfall_source.latest = spectrum.tolist()
+    waterfall_plot.y_range.end = freq.value*0.001
+
     # the if-elses below are small optimization: avoid computing and sending
     # all the x-values, if the length has not changed
 
@@ -77,11 +94,11 @@ def update():
         alphas.append(a)
     eq_source.data['alpha'] = np.hstack(alphas)
 
-curdoc().add_periodic_callback(update, 40)
+curdoc().add_periodic_callback(update, 50)
 
 controls = widgetbox(freq, gain)
 
-plots = row(column(signal_plot, spectrum_plot), eq)
+plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
 
 curdoc().add_root(controls)
 curdoc().add_root(plots)

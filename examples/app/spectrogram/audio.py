@@ -15,10 +15,7 @@ NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
 MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
-NGRAMS = 800
-SPECTROGRAM_LENGTH = 512
-TILE_WIDTH = 200
-TIMESLICE = 40  # ms
+TIMESLICE = 50  # ms
 NUM_BINS = 16
 
 data = {'values': None}
@@ -46,6 +43,5 @@ def _get_audio_data():
             bins = [simps(a) for a in np.split(power, NUM_BINS)]
             data['values'] = signal, spectrum, bins
         except:
-            import sys
-            sys.exit(1)
-
+            print("FOOOOOOOOOOOOOOOOOOO")
+            continue
