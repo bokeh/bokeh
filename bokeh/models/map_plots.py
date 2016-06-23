@@ -7,7 +7,7 @@ from ..core import validation
 from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
 from ..core.validation.errors import REQUIRED_RANGE
 from ..core.properties import HasProps, abstract
-from ..core.properties import Enum, Float, Instance, Int, JSON, Override
+from ..core.properties import Enum, Float, Instance, Int, JSON, Override, String
 from ..core.enums import MapType
 
 from .plots import Plot
@@ -84,3 +84,8 @@ class GMapPlot(MapPlot):
     """)
 
     border_fill_color = Override(default="#ffffff")
+
+    api_key = String(help="""
+    Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
+    for more information on how to obtain your own.
+    """)
