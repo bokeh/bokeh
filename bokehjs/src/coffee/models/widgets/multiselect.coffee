@@ -44,7 +44,7 @@ class MultiSelectView extends InputWidget.View
     value = @$el.find('select').val()
     if value
       @model.value = value
-    else 
+    else
       @model.value = []
 
 class MultiSelect extends InputWidget.Model
