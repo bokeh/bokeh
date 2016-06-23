@@ -7,7 +7,7 @@ class PreTextView extends Markup.View
 
   render: () ->
     super()
-    $pre = $('<pre></pre>').text(@model.text)
+    $pre = $('<pre style="overflow: auto"></pre>').text(@model.text)
     @$el.find('.bk-markup').append($pre)
 
 class PreText extends Markup.Model
