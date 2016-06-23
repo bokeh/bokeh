@@ -58,7 +58,7 @@ class DataTables(object):
             TableColumn(field="cty",          title="City MPG",     editor=IntEditor()),
             TableColumn(field="hwy",          title="Highway MPG",  editor=IntEditor()),
         ]
-        data_table = DataTable(source=self.source, columns=columns, editable=True)
+        data_table = DataTable(source=self.source, columns=columns, editable=True, width=1300)
 
         plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
@@ -90,12 +90,9 @@ class DataTables(object):
         select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
         plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
-
-        controls = WidgetBox(children=[
-            manufacturer_select, model_select, transmission_select,
-             drive_select, class_select])
-        top_panel = Row(children=[controls, plot])
-        layout = Column(children=[top_panel, data_table])
+        controls = WidgetBox(manufacturer_select, model_select, transmission_select, drive_select, class_select)
+        top_panel = Row(controls, plot)
+        layout = Column(top_panel, data_table)
 
         return layout
 
