@@ -50,6 +50,7 @@ describe "SelectionManager", ->
   plot_model_stub = {
     use_map: false
     get: (param) -> 1 if param is 'lod_factor'
+    plot: {lod_factor: 0.1}
   }
 
   column_data_source = new ColumnDataSource({
