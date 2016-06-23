@@ -16,9 +16,6 @@ class WidgetBoxView extends LayoutDOM.View
 
   initialize: (options) ->
     super(options)
-    if not @model.document._unrendered_widgetboxes?
-      @model.document._unrendered_widgetboxes = {}  # poor man's set
-    @model.document._unrendered_widgetboxes[@id] = true
     @render()
 
   bind_bokeh_events: () ->
@@ -57,15 +54,11 @@ class WidgetBoxView extends LayoutDOM.View
     else
       @$el.css({
         width: css_width
-        height: @model._height._value + 20
+        # Note we DO NOT want to set a height (except in stretch_both). Widgets
+        # are happier sizing themselves. We've tried to tell the layout what
+        # the height is with the suggest_value. But that doesn't mean we need
+        # to put it in the dom.
       })
-
-    # As with plot_canvas, this is necessary to kick widget boxes into action
-    if @model.document._unrendered_widgetboxes?
-      delete @model.document._unrendered_widgetboxes[@id]
-      if _.isEmpty(@model.document._unrendered_widgetboxes)
-        @model.document._unrendered_widgetboxes = null
-        _.delay($.proxy(@model.document.resize, @model.document), 1)
 
   get_height: () ->
     height = 0

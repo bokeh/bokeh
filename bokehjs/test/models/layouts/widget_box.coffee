@@ -59,8 +59,8 @@ describe "WidgetBox", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
       widget_box_view.render()
-      # Note we do not set margin & padding on WidgetBox
-      expected_style = "width: #{width - 20}px; height: #{height + 10}px;"
+      # Note we do not set margin & padding or height on fixed WidgetBox
+      expected_style = "width: #{width - 20}px;"
       expect(widget_box_view.$el.attr('style')).to.be.equal expected_style
 
     it "get_height should return the height of the widget children plus 10 for margin + 10 overall", ->
@@ -74,9 +74,10 @@ describe "WidgetBox", ->
         'child_view_1': {'el': {'scrollHeight': 222}}
         'child_view_2': {'el': {'scrollHeight': 23}}
       }
-      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10 + 10
+      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10
 
     it "get_width should return the max of it and the children", ->
+      @widget_box.width = null  # Manually set to null to check calc
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
@@ -87,6 +88,7 @@ describe "WidgetBox", ->
       expect(widget_box_view.get_width()).to.be.equal 189
 
     it "get_width should return itself + 20 if no children", ->
+      @widget_box.width = null  # Manually set to null to check calc
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
