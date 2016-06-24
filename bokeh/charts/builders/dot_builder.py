@@ -67,7 +67,8 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
         .. bokeh-plot::
             :source-position: above
 
-            from bokeh.charts import Dot, output_file, show, hplot
+            from bokeh.charts import Dot, output_file, show
+            from bokeh.layouts import row
 
             # best support is with data in a format that is table-like
             data = {
@@ -85,7 +86,7 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
                        agg='mean', title="Python Interpreters", plot_width=400)
 
             output_file("Dot.html")
-            show(hplot(dot, dot2))
+            show(row(dot, dot2))
 
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
