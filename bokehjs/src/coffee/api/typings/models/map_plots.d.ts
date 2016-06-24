@@ -17,5 +17,6 @@ declare namespace Bokeh {
     export interface GMapPlot extends MapPlot, IGMapPlot {}
     export interface IGMapPlot extends IMapPlot {
         map_options?: GMapOptions;
+        api_key?: string;
     }
 }
