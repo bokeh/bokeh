@@ -1,7 +1,7 @@
 import pandas as pd
 
 from bokeh.charts import HeatMap, bins, output_file, show
-from bokeh.layouts import column
+from bokeh.layouts import column, gridplot
 from bokeh.palettes import RdYlGn6, RdYlGn9
 from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.unemployment1948 import data
@@ -43,8 +43,12 @@ hm8 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl',
 hm9 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
 
 hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
-              sort_dim={'x': False}, width=1000)
+              sort_dim={'x': False}, width=900, plot_height=500)
 
 output_file("heatmap.html", title="heatmap.py example")
 
-show(column(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9, hm10))
+show(column(
+  gridplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9,
+           ncols=2, plot_width=400, plot_height=400),
+  hm10)
+)
