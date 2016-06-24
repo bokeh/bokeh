@@ -25,11 +25,12 @@ from __future__ import print_function
 
 from numpy import pi
 
-from bokeh.document import Document
 from bokeh.client import push_session
+from bokeh.document import Document
 from bokeh.embed import autoload_server
+from bokeh.layouts import row, column
 from bokeh.models import (Plot, DataRange1d, LinearAxis, CategoricalAxis,
-                          Legend, HBox, VBox, ColumnDataSource, Grid, Line,
+                          Legend, ColumnDataSource, Grid, Line,
                           SingleIntervalTicker, Quad, Select, FactorRange)
 from bokeh.sampledata.population import load_population
 
@@ -150,8 +151,8 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = HBox(children=[year_select, location_select])
-    layout = VBox(children=[controls, pyramid(), population()])
+    controls = row(children=[year_select, location_select])
+    layout = column(children=[controls, pyramid(), population()])
 
     return layout
 

@@ -23,7 +23,7 @@ def sample_gear():
     xdr = Range1d(start=-30, end=30)
     ydr = Range1d(start=-30, end=30)
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
@@ -35,11 +35,7 @@ def classical_gear(module, large_teeth, small_teeth):
     xdr = Range1d(start=-300, end=150)
     ydr = Range1d(start=-100, end=100)
 
-    plot = Plot(
-        title=None,
-        x_range=xdr, y_range=ydr,
-        plot_width=800, plot_height=800
-    )
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
 
     radius = pitch_radius(module, large_teeth)
@@ -66,11 +62,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
     xdr = Range1d(start=-150, end=150)
     ydr = Range1d(start=-150, end=150)
 
-    plot = Plot(
-        title=None,
-        x_range=xdr, y_range=ydr,
-        plot_width=800, plot_height=800
-    )
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
 
     annulus_teeth = sun_teeth + 2*planet_teeth

@@ -14,15 +14,10 @@ y_range = Range1d(-80, 80)
 
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
-plot = GMapPlot(
-    x_range=x_range,
-    y_range=y_range,
-    plot_width=1000,
-    plot_height=500,
-    map_options=map_options,
-    title="Cities of the world with a population over 5,000 people.",
-    webgl=True,
-)
+plot = GMapPlot(x_range=x_range, y_range=y_range,
+                plot_width=1000, plot_height=500,
+                map_options=map_options, webgl=True)
+plot.title.text = "Cities of the world with a population over 5,000 people."
 
 circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
 plot.add_glyph(ColumnDataSource(data), circle)

@@ -3,7 +3,6 @@ import numpy as np
 from collections import OrderedDict
 
 from bokeh.charts import Area, show
-from bokeh.models import Range1d
 from bokeh.layouts import gridplot
 from bokeh.palettes import (Blues9, BrBG9, BuGn9, BuPu9, GnBu9, Greens9,
                             Greys9, OrRd9, Oranges9, PRGn9, PiYG9, PuBu9,

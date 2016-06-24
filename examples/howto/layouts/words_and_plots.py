@@ -1,5 +1,4 @@
 from bokeh.sampledata.glucose import data
-from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.iris import flowers
 
 from bokeh.charts import Scatter
