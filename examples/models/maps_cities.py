@@ -12,6 +12,10 @@ from bokeh.sampledata.world_cities import data
 x_range = Range1d(-160, 160)
 y_range = Range1d(-80, 80)
 
+# Google Maps now requires an API key. You can find out how to get one here:
+# https://developers.google.com/maps/documentation/javascript/get-api-key
+API_KEY = "XXXXXXXXXXX"
+
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
 plot = GMapPlot(
@@ -20,6 +24,7 @@ plot = GMapPlot(
     plot_width=1000,
     plot_height=500,
     map_options=map_options,
+    api_key=API_KEY,
     title="Cities of the world with a population over 5,000 people.",
     webgl=True,
 )
