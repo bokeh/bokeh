@@ -8,7 +8,7 @@ from bokeh.sampledata.degrees import data
 defaults.width = 500
 defaults.height = 300
 
-TOOLS='box_zoom,box_select,hover,crosshair,resize,reset'
+TOOLS='box_zoom,box_select,hover,crosshair,reset'
 
 TOOLTIPS = [ ("y", "$~y"), ("x", "$~x") ]
 
