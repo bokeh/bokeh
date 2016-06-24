@@ -80,8 +80,10 @@ containing tool shortcut names:
     tools = "pan,wheel_zoom,box_zoom,reset"
 
 However, this method does not allow setting properties of the tools.
-To use shortcut names but also add tools with properties, one can
-also call the ``add_tools`` method:
+
+Finally, it is also always possible to add new tools to a plot by passing
+a tool object to the ``add_tools`` method of a plot. This can also be done
+in conjunction with the ``tools`` keyword described above:
 
 .. code-block:: python
 
