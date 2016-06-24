@@ -395,11 +395,29 @@ Arrows
 
 Arrows can be used to connect glyphs and label annotations or to simply
 highlight plot regions. Arrows are compound annotations, meaning that their
-`start` and `end` attributes are `ArrowHead` annotations themselves. By
-default, the Arrow annotation is one-sided with the `end` set as an
-`OpenHead`-type arrow head (an open-backed wedge style) and the `start`
-property set to `None`. Double-sided arrows can be created by setting both the
-`start` and `end` properties as appropriate `ArrowHead` subclass instances.
+``start`` and ``end`` attributes are ``ArrowHead`` annotations themselves. By
+default, the Arrow annotation is one-sided with the ``end`` set as an
+``OpenHead``-type arrow head (an open-backed wedge style) and the ``start``
+property set to ``None``. Double-sided arrows can be created by setting both
+the ``start`` and ``end`` properties as appropriate `ArrowHead` subclass
+instances.
+
+Arrows have standard line properties to set the color and appearance of the
+arrow shaft:
+
+.. code-block:: python
+
+    my_arrow.line_color = "blue"
+    my_arrow.line_alpha = 0.6
+
+Arrows may also be configured to refer to additional non-default x- or
+y-ranges with the ``x_range`` and ``y_range`` properties, in the same way
+as :ref:`userguide_plotting_twin_axes`.
+
+Additionally any arrow head objects in ``start`` or ``end`` have a ``size``
+property to control how big the arrow head is, as well as both line and
+fill properties. The line properties control the outline of the arrow head,
+and the fill properties control the interior of the arrow head (if applicable).
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arrow.py
     :source-position: above
