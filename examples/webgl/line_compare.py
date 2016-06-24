@@ -1,16 +1,15 @@
 """ Compare WebGL with canvas line.
 
 """
-
 import numpy as np
 
 from bokeh.layouts import row, column
 from bokeh.models import Slider, Dropdown, CustomJS
-from bokeh.plotting import Figure, show, output_file
+from bokeh.plotting import figure, show, output_file
 
-p1 = Figure(title="Canvas", webgl=False)
+p1 = figure(title="Canvas", webgl=False)
 
-p2 = Figure(title="WebGL", webgl=True)
+p2 = figure(title="WebGL", webgl=True)
 
 ys = 10  # yscale, to increase anisotropy
 

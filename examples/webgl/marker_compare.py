@@ -6,13 +6,13 @@ switch to compare positioning and appearance.
 
 import numpy as np
 
-from bokeh.plotting import show, output_file, Figure
+from bokeh.plotting import show, output_file, figure
 from bokeh.models.widgets import Tabs, Panel
 from bokeh.sampledata.iris import flowers
 
 
 def make_tab(title, marker, webgl):
-    p = Figure(title=title, webgl=webgl)
+    p = figure(title=title, webgl=webgl)
     p.scatter(flowers["petal_length"], flowers["petal_width"],
               color='blue', fill_alpha=0.2, size=12, marker=marker)
     return Panel(child=p, title=title)

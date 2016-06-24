@@ -11,7 +11,7 @@ except ImportError:
     raise ImportError('This example requires scikit-learn (conda install sklearn)')
 
 from bokeh.layouts import row, column
-from bokeh.plotting import Figure, show, output_file
+from bokeh.plotting import figure, show, output_file
 
 N = 50000
 PLOT_SIZE = 400
@@ -49,7 +49,7 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     else:
         y_pred = algorithm.predict(X)
 
-    p = Figure(webgl=True, title=algorithm.__class__.__name__,
+    p = figure(webgl=True, title=algorithm.__class__.__name__,
                plot_width=PLOT_SIZE, plot_height=PLOT_SIZE)
 
     p.scatter(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1,)
