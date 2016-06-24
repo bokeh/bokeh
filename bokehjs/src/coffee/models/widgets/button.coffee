@@ -8,8 +8,8 @@ AbstractButton = require "./abstract_button"
 class ButtonView extends AbstractButton.View
 
   change_input: () ->
+    @model.clicks = @model.clicks + 1
     super()
-    @mset('clicks', @mget('clicks') + 1)
 
 
 class Button extends AbstractButton.Model
