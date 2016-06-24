@@ -1,7 +1,8 @@
 from datetime import date, timedelta
 import numpy as np
 from bokeh.charts import HeatMap
-from bokeh.io import output_file, show, vplot, hplot
+from bokeh.io import output_file, show
+from bokeh.layouts import row, column
 from bokeh.models import Range1d, LinearAxis
 from bokeh.plotting import figure
 from bokeh.sampledata.stocks import AAPL, GOOG
@@ -50,7 +51,8 @@ plot_range_un.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#043A8D')
 x_range = Range1d(3, 0, bounds=(-1, 3.5), min_interval=1.5)
 y_range = Range1d(3, 0, bounds=(-0.5, 4), min_interval=1.5)
 ###### -- end -- ########
-plot_range_rev = figure(tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_range, title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_range:1.5 (reverse ranges)")
+plot_range_rev = figure(tools='pan,wheel_zoom,reset', x_range=x_range, y_range=y_range,
+                        title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_range:1.5 (reverse ranges)")
 plot_range_rev.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#8CBEDB')
 
 
@@ -115,7 +117,8 @@ plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pi
 
 # Tweak the formats to make it all readable
 plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded, plot_extra]
-for plot in plots:
-    plot.title_text_font_size = '12pt'
 
-show(vplot(plot_default, hplot(plot_range, plot_range_un, plot_range_rev), hplot(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded), plot_extra))
+show(column(plot_default,
+            row(plot_range, plot_range_un, plot_range_rev),
+            row(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded),
+            plot_extra))

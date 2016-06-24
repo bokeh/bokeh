@@ -1,6 +1,7 @@
 import pandas as pd
 
-from bokeh.charts import HeatMap, bins, output_file, show, vplot
+from bokeh.charts import HeatMap, bins, output_file, show
+from bokeh.layouts import column
 from bokeh.palettes import RdYlGn6, RdYlGn9
 from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.unemployment1948 import data
@@ -46,4 +47,4 @@ hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
 
 output_file("heatmap.html", title="heatmap.py example")
 
-show(vplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9, hm10))
+show(column(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9, hm10))
