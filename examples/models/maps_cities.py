@@ -25,9 +25,9 @@ plot = GMapPlot(
     plot_height=500,
     map_options=map_options,
     api_key=API_KEY,
-    title="Cities of the world with a population over 5,000 people.",
     webgl=True,
 )
+plot.title.text = "Cities of the world with a population over 5,000 people."
 
 circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
 plot.add_glyph(ColumnDataSource(data), circle)

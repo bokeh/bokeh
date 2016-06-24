@@ -23,9 +23,9 @@ API_KEY = "XXXXXXXXXXX"
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
-    title="Austin",
     api_key=API_KEY,
 )
+plot.title.text = "Austin"
 
 source = ColumnDataSource(
     data=dict(

@@ -37,7 +37,7 @@ class CheckboxGroupView extends Widget.View
 
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
-    @mset('active', active)
+    @model.active = active
     @mget('callback')?.execute(@model)
 
 class CheckboxGroup extends Widget.Model

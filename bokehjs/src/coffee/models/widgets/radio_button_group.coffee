@@ -40,7 +40,7 @@ class RadioButtonGroupView extends Widget.View
 
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
-    @mset('active', active[0])
+    @model.active = active[0]
     @mget('callback')?.execute(@model)
 
 class RadioButtonGroup extends Widget.Model
