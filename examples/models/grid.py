@@ -5,11 +5,9 @@ from numpy import pi, sin, cos, linspace, tan
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
+from bokeh.layouts import gridplot
 from bokeh.models.glyphs import Line
-from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    PanTool, WheelZoomTool, GridPlot
-)
+from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool
 from bokeh.resources import INLINE
 
 x = linspace(-2*pi, 2*pi, 1000)
@@ -46,7 +44,7 @@ plot2 = make_plot(source, "x", "y2", "red", xdr=plot1.x_range)
 plot3 = make_plot(source, "x", "y3", "green")
 plot4 = make_plot(source, "x", "y4", "black")
 
-grid = GridPlot(children=[[plot1, plot2], [plot3, plot4]])
+grid = gridplot([[plot1, plot2], [plot3, plot4]], plot_width=300, plot_height=300)
 
 doc = Document()
 doc.add_root(grid)

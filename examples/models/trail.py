@@ -69,15 +69,15 @@ def prep_data(dataset):
 
     return df
 
-title = "Obiszów MTB XCM"
-
+name = "Obiszów MTB XCM"
 
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2
     lat = (min(data.lat) + max(data.lat)) / 2
 
     map_options = GMapOptions(lng=lon, lat=lat, zoom=13)
-    plot = GMapPlot(title="%s - Trail Map" % title, map_options=map_options, plot_width=800, plot_height=800)
+    plot = GMapPlot(map_options=map_options, plot_width=800, plot_height=800)
+    plot.title.text = "%s - Trail Map" % name
     plot.x_range = DataRange1d()
     plot.y_range = DataRange1d()
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
@@ -90,7 +90,8 @@ def trail_map(data):
 
 
 def altitude_profile(data):
-    plot = Plot(title="%s - Altitude Profile" % title, plot_width=800, plot_height=400)
+    plot = Plot(plot_width=800, plot_height=400)
+    plot.title.text = "%s - Altitude Profile" % name
     plot.x_range = DataRange1d()
     plot.y_range = DataRange1d(range_padding=0)
 
