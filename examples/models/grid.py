@@ -23,7 +23,7 @@ source = ColumnDataSource(data = dict(
 
 def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
     """ Returns a tuple (plot, [obj1...objN]); the former can be added
-    to a GridPlot, and the latter is added to the plotcontext.
+    to a gridplot
     """
     if xdr is None: xdr = DataRange1d()
     if ydr is None: ydr = DataRange1d()

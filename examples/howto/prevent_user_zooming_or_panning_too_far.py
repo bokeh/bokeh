@@ -1,7 +1,8 @@
 from datetime import date, timedelta
 import numpy as np
 from bokeh.charts import HeatMap
-from bokeh.io import output_file, show, vplot, hplot
+from bokeh.io import output_file, show
+from bokeh.layouts import row, column
 from bokeh.models import Range1d, LinearAxis
 from bokeh.plotting import figure
 from bokeh.sampledata.stocks import AAPL, GOOG
@@ -115,7 +116,8 @@ plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pi
 
 # Tweak the formats to make it all readable
 plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded, plot_extra]
-for plot in plots:
-    plot.title_text_font_size = '12pt'
 
-show(vplot(plot_default, hplot(plot_range, plot_range_un, plot_range_rev), hplot(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded), plot_extra))
+show(column(plot_default,
+            row(plot_range, plot_range_un, plot_range_rev),
+            row(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded),
+            plot_extra))

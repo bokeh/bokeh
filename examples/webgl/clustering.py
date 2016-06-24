@@ -10,7 +10,8 @@ try:
 except ImportError:
     raise ImportError('This example requires scikit-learn (conda install sklearn)')
 
-from bokeh.plotting import Figure, show, output_file, vplot, hplot
+from bokeh.layouts import row, column
+from bokeh.plotting import Figure, show, output_file
 
 N = 50000
 PLOT_SIZE = 400
@@ -56,7 +57,7 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     plots.append(p)
 
 # generate layout for the plots
-layout = vplot(hplot(*plots[:2]), hplot(*plots[2:]))
+layout = column(row(plots[:2]), row(plots[2:]))
 
 output_file("clustering.html", title="clustering with sklearn")
 

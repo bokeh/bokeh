@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bokeh.charts import Scatter, output_file, hplot, defaults, show
+from bokeh.charts import Scatter, output_file, defaults, show
 from bokeh.charts.operations import blend
 from bokeh.charts.utils import df_from_json
 from bokeh.layouts import gridplot
