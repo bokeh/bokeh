@@ -1,7 +1,7 @@
 import pandas as pd
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column, widgetbox
+from bokeh.layouts import layout, widgetbox
 from bokeh.models import (ColumnDataSource, HoverTool, Text, Div, Circle,
                           SingleIntervalTicker, Slider, Button, Label)
 from bokeh.palettes import Spectral6
@@ -40,9 +40,11 @@ of developing countries. Many advances have been made since our early notions of
 
 plot = figure(x_range=(1,9), y_range=(20,100), title='Gapminder Data', plot_height=300)
 plot.xaxis.ticker = SingleIntervalTicker(interval=1)
+plot.xaxis.axis_label = "Children per woman (total fertility)"
 plot.yaxis.ticker = SingleIntervalTicker(interval=20)
+plot.yaxis.axis_label = "Life expectancy at birth (years)"
 
-label = Label(x=1, y=20, text=str(years[0]), text_font_size='70pt', text_color='#aaaacc')
+label = Label(x=1.1, y=18, text=str(years[0]), text_font_size='70pt', text_color='#eeeeee')
 plot.add_layout(label)
 
 cr = plot.circle(x='fertility', y='life', size='population', source=sources[years[0]],
@@ -51,8 +53,8 @@ cr = plot.circle(x='fertility', y='life', size='population', source=sources[year
 
 plot.add_tools(HoverTool(tooltips="@index", renderers=[cr]))
 
-# this draws a custom legend
-tx, ty = 7, 95
+# This draws a custom legend.
+tx, ty = 7.3, 95
 for i, region in enumerate(regions):
     plot.add_glyph(Text(x=tx, y=ty, text=[region], text_font_size='10pt', text_color='#666666'))
     plot.add_glyph(Circle(x=tx-0.1, y=ty+2, fill_color=Spectral6[i], size=10, line_color=None, fill_alpha=0.8))
@@ -74,21 +76,20 @@ slider.on_change('value', slider_update)
 def animate ():
     if button.label == 'Start':
         button.label = 'Stop'
+        button.button_type = "danger"
         curdoc().add_periodic_callback(animate_update, 200)
     else:
         button.label = 'Start'
+        button.button_type = "success"
         curdoc().remove_periodic_callback(animate_update)
 
-button = Button(label='Start')
+button = Button(label='Start', button_type="success", width=100)
 button.on_click(animate)
 
-footer = Div(text="""
-    The full video is embedded below.
-    You can skip ahead to 3m 58s to see him talking through the plot we've just made.
-    Or sit back and enjoy a great example of statistics communication.
-    """, width=800)
-
-layout = column(desc, row(plot, widgetbox(slider, button)), footer)
+layout = layout([
+    [desc],
+    [plot],
+    [slider, button],
+], sizing_mode='scale_width')
 
 curdoc().add_root(layout)
-curdoc().title = "Gapminder"

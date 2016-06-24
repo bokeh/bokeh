@@ -6,6 +6,15 @@
     {{ bokeh_css }}
     {{ bokeh_js }}
     <style>
+      html {
+          width: 100%;
+          height: 100%;
+      }
+      body {
+          width: 90%;
+          height: 100%;
+          margin: auto;
+      }
       h1 {
           margin: 2em 0 0 0;
           color: #2e484c;
@@ -32,22 +41,11 @@
           text-align: justify;
           text-justify: inter-word;
       }
-      code {
-          color: #336699;
-      }
     </style>
   </head>
   <body>
     {{ plot_div|indent(8) }}
     {{ plot_script|indent(8) }}
-    <br />
-    <br />
-    <p>
-      <iframe
-          width="800" height="315"
-          src="https://www.youtube.com/embed/hVimVzgtD6w?t=3m57s">
-      </iframe>
-    </p>
   </body>
 </html>
 
