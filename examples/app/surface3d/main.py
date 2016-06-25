@@ -1,3 +1,5 @@
+from __future__ import division
+
 from os.path import dirname, join
 
 import numpy as np
@@ -8,8 +10,8 @@ from bokeh.models import ColumnDataSource, Div, Column
 
 from surface3d import Surface3d
 
-x = np.arange(0, 300, 10)
-y = np.arange(0, 300, 10)
+x = np.arange(0, 300, 20)
+y = np.arange(0, 300, 20)
 xx, yy = np.meshgrid(x, y)
 xx = xx.ravel()
 yy = yy.ravel()
