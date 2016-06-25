@@ -59,7 +59,9 @@ def TimeSeries(data=None, x=None, y=None, builder_type=LineBuilder, **kws):
         :source-position: above
 
         import pandas as pd
-        from bokeh.charts import TimeSeries, show, output_file, vplot
+
+        from bokeh.charts import TimeSeries, show, output_file
+        from bokeh.layouts import column
 
         # read in some stock data from the Yahoo Finance API
         AAPL = pd.read_csv(
@@ -92,7 +94,7 @@ def TimeSeries(data=None, x=None, y=None, builder_type=LineBuilder, **kws):
 
         output_file("timeseries.html")
 
-        show(vplot(tsline, tspoint))
+        show(column(tsline, tspoint))
 
     """
 
