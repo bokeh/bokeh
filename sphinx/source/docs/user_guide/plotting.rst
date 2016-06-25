@@ -378,8 +378,8 @@ and box annotations to highlight specific plot regions.
 Legends
 ~~~~~~~
 
-It is possible to create legends easily by specifying a legend argument to the
-glyph methods, when creating a plot.
+It is possible to create |Legend| annoatations easily by specifying a legend
+argument to the glyph methods, when creating a plot.
 
 .. note::
     This example depends on the open source NumPy library in order to more
@@ -393,14 +393,14 @@ glyph methods, when creating a plot.
 Arrows
 ~~~~~~
 
-Arrows can be used to connect glyphs and label annotations or to simply
-highlight plot regions. Arrows are compound annotations, meaning that their
-``start`` and ``end`` attributes are ``ArrowHead`` annotations themselves. By
-default, the Arrow annotation is one-sided with the ``end`` set as an
-``OpenHead``-type arrow head (an open-backed wedge style) and the ``start``
-property set to ``None``. Double-sided arrows can be created by setting both
-the ``start`` and ``end`` properties as appropriate `ArrowHead` subclass
-instances.
+|Arrow| annotations can be used to connect glyphs and label annotations or
+to simply highlight plot regions. Arrows are compound annotations, meaning
+that their``start`` and ``end`` attributes are themselves other |ArrowHead|
+annotations. By default, the |Arrow| annotation is one-sided with the ``end``
+set as an ``OpenHead``-type arrow head (an open-backed wedge style) and the
+``start`` property set to ``None``. Double-sided arrows can be created by
+setting both the ``start`` and ``end`` properties as appropriate |ArrowHead|
+subclass instances.
 
 Arrows have standard line properties to set the color and appearance of the
 arrow shaft:
@@ -427,9 +427,10 @@ and the fill properties control the interior of the arrow head (if applicable).
 Box Annotations
 ~~~~~~~~~~~~~~~
 
-Box annotations can be linked to either data or screen coordinates in order to
-emphasize desired plot regions. By default, box annotation dimensions (e.g.
-left or top) default will extend the annotation to the edge of the plot area.
+A |BoxAnnotation| can be linked to either data or screen coordinates in order
+to emphasize specific plot regions. By default, box annotation dimensions (e.g.
+``left`` or ``top``) default will extend the annotation to the edge of the
+plot area.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
     :source-position: above
@@ -442,6 +443,36 @@ Labels
 Labels are text elements that can be used to annotate either glyphs or plot
 regions.
 
+To create a single text label, use the |Label| annotation. This annotation
+is configured with a ``text`` property containing the text to be displayed,
+as well as ``x`` and ``y`` properties to set the position (in screen or data
+space units). Additionally a render mode ``"canvas"`` or ``"css"`` may be
+specified. Finally, labels have ``text``, ``border_line``, and
+``background_fill`` properties. These control the visual appearance of the
+text, as well as the border and background of the bounding box for the text:
+
+.. code-block:: python
+
+    Label(x=70, y=70, x_units='screen' text='Some Stuff', render_mode='css',
+          border_line_color='black', border_line_alpha=1.0,
+          background_fill_color='white', background_fill_alpha=1.0)
+
+To create several labels at once, possibly to easily annotate another existing
+glyph, use the |LabelSet| annotation, which is configured with a data
+source, with the ``text`` and ``x`` and ``y`` positions are given as column
+names. ``LabelSet`` objects can also have ``x_offset`` and ``y_offset``,
+which specify a distance in screen space units to offset the label positions
+from ``x`` and ``y``. Finally the render level may be controlled with the
+``level`` property, to place the label above or underneath other renderers:
+
+
+.. code-block:: python
+
+    LabelSet(x='x', y='y', text='names', level='glyph',
+             x_offset=5, y_offset=5, source=source)
+
+The following example illustrates the use of both:
+
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_label.py
     :source-position: above
 
@@ -450,8 +481,8 @@ regions.
 Spans
 ~~~~~
 
-Spans (line-type annotations) have a single dimension (width or height) and
-extend to the edge of the plot area.
+|Span| annotations are lines that have a single dimension (width or height)
+and extend to the edge of the plot area.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_span.py
     :source-position: above
@@ -463,6 +494,14 @@ extend to the edge of the plot area.
 .. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+.. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
+.. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
+.. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
+.. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
+.. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
+.. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
+.. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.Figure.annular_wedge`
 .. |annulus|           replace:: :func:`~bokeh.plotting.figure.Figure.annulus`
