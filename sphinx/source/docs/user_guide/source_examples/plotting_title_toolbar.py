@@ -1,4 +1,3 @@
-from bokeh.models import Title
 from bokeh.plotting import figure, show, output_file
 
 p = figure(title="Top Title with Toolbar", toolbar_location="above",
