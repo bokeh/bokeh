@@ -58,12 +58,12 @@ def create_figure():
     sz = 9
     if size.value != 'None':
         groups = pd.qcut(df[size.value].values, len(SIZES))
-        sz = [SIZES[x] for x in groups.codes]
+        sz = [SIZES[xx] for xx in groups.codes]
 
     c = "#31AADE"
     if color.value != 'None':
         groups = pd.qcut(df[color.value].values, len(COLORS))
-        c = [COLORS[x] for x in groups.codes]
+        c = [COLORS[xx] for xx in groups.codes]
     p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
