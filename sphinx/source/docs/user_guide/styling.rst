@@ -665,7 +665,7 @@ Legends
 -------
 
 Similar to the convenience methods for axes and grids, there is a
-|legend| method on |Plot| that can be used to obtain a plot's legend
+|legend| method on |Plot| that can be used to obtain a plot's |Legend|
 objects:
 
 .. code-block:: python
@@ -689,7 +689,13 @@ Location
 ~~~~~~~~
 
 The location of the legend labels is controlled by the ``location``
-property. Valid values for this property are either:
+property.
+
+Inside the Plot Area
+''''''''''''''''''''
+
+For legends in the to the central layout area, such as those created
+automatically by ``bokeh.plotting``, values for ``location``  can be:
 
 ``"top_left"``
 
@@ -715,10 +721,18 @@ or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_location.py
     :source-position: above
 
-.. note::
-    It is currently not possible to position a legend outside the plot area,
-    or in an optimal, automatically computed location within the canvas.
-    These and other improvements are planned.
+Outside the Plot Area
+'''''''''''''''''''''
+
+It is also possible to position a legend outside the central area, by using the
+``add_layout`` method of plots, but doing so requires creating the |Legend|
+object directly:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_location_outside.py
+    :source-position: above
+
+In this use-case, the location must be specified absolutely. Future releases
+will add additional options for laying out legend positions.
 
 Orientation
 ~~~~~~~~~~~
@@ -787,7 +801,7 @@ spacing, etc. of the legend components:
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
-
+.. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
