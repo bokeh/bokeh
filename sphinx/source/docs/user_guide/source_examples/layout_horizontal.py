@@ -1,4 +1,5 @@
-from bokeh.io import hplot, output_file, show
+from bokeh.io import output_file, show
+from bokeh.layouts import row
 from bokeh.plotting import figure
 
 output_file("layout.html")
@@ -20,8 +21,5 @@ s2.triangle(x, y1, size=10, color="firebrick", alpha=0.5)
 s3 = figure(width=250, height=250, title=None)
 s3.square(x, y2, size=10, color="olive", alpha=0.5)
 
-# put all the plots in an HBox
-p = hplot(s1, s2, s3)
-
-# show the results
-show(p)
+# put the results in a row and show
+show(row(s1, s2, s3))

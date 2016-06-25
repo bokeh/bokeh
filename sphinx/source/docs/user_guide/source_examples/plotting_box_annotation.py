@@ -21,7 +21,7 @@ p.add_layout(low_box)
 p.add_layout(mid_box)
 p.add_layout(high_box)
 
-p.title = "Glucose Range"
+p.title.text = "Glucose Range"
 p.xgrid[0].grid_line_color=None
 p.ygrid[0].grid_line_alpha=0.5
 p.xaxis.axis_label = 'Time'

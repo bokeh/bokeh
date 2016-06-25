@@ -220,8 +220,8 @@ Title
 ~~~~~
 
 The styling of the plot title is controlled by a set of `Text Properties`_
-on the |Plot|, that are prefixed with ``title_``. For instance, to set the
-color of the title text, use ``title_text_color``:
+on a |Title| annotation available as the ``.title`` property of the |Plot|.
+For instance, to set the color of the title text, use ``plot.title.text_color``:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_title.py
     :source-position: above
@@ -786,6 +786,7 @@ spacing, etc. of the legend components:
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
+.. |Title| replace:: :class:`~bokeh.models.annotations.Title`
 
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
