@@ -384,58 +384,23 @@ When using ``bokeh.plotting`` or ``bokeh.Charts``, the quickest way to add
 a basic title is to pass the text as the ``title`` parameter to |Figure| or
 any Chart function:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_basic.py
     :source-position: above
-
-    from bokeh.plotting import figure, show, output_file
-
-    p = figure(title="Basic Title", plot_width=300, plot_height=300)
-    p.circle([1,2], [3,4])
-
-    output_file("title.html")
-
-    show(p)
 
 The default title is normally on the top of a plot, aligned to the left. But
 which side of the plot the default title appears on can be controlled by the
 ``title_location`` parameter:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_location.py
     :source-position: above
-
-    from bokeh.plotting import figure, show, output_file
-
-    p = figure(title="Left Title", title_location="left",
-               plot_width=300, plot_height=300)
-    p.circle([1,2], [3,4])
-
-    output_file("title.html")
-
-    show(p)
 
 The default |Title| is accessible through the ``Plot.title`` property.
 Visual properties for font, border, background, and others can be set
 directly on ``.title``. Here is an example that sets font and background
 properties as well as the title text and title alignment using ``.title``:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_visuals.py
     :source-position: above
-
-    from bokeh.plotting import figure, show, output_file
-
-    p = figure(plot_width=300, plot_height=300)
-    p.circle([1,2], [3,4])
-
-    # configure visual properties on a plot's title attribute
-    p.title.text = "Title With Options"
-    p.title.align = "right"
-    p.title.text_color = "orange"
-    p.title.text_font_size = "25px"
-    p.title.background_fill_color = "#aaaaee"
-
-    output_file("title.html")
-
-    show(p)
 
 Note that the alignment is measured along the direction of text. For
 example for titles on the left side of a plot "left" will be in the
@@ -445,41 +410,17 @@ In addition to the default title, it is possible to create and add
 additional |Title| objects to plots using the ``add_layout`` method
 of Plots:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_additional.py
     :source-position: above
 
-    from bokeh.models import Title
-    from bokeh.plotting import figure, show, output_file
+If a title and a sticky toolbar are set to the same side, they will occupy
+the same space:
 
-    p = figure(title="Left Title", title_location="left",
-               plot_width=300, plot_height=300)
-    p.circle([1,2], [3,4])
-
-    # add extra titles with add_layout(...)
-    p.add_layout(Title(text="Bottom Centered Title", align="center"), "below")
-
-    output_file("title.html")
-
-    show(p)
-
-If a title and a sticky toolbar are set to the same side, note that they will
-occupy the same space:
-
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_toolbar.py
     :source-position: above
 
-    from bokeh.models import Title
-    from bokeh.plotting import figure, show, output_file
-
-    p = figure(title="Top Title with Toolbar", toolbar_location="above",
-               plot_width=600, plot_height=300)
-    p.circle([1,2], [3,4])
-
-    output_file("title.html")
-
-    show(p)
-
-Note that if the plot size is not large enough, the title and toolbar may
+If the plot size is large enough, this can result in a more compact plot.
+However if the plot size is not large enough, the title and toolbar may
 visually overlap in way that is not desirable.
 
 .. _userguide_plotting_legends:
