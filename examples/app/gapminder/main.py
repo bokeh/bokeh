@@ -42,7 +42,7 @@ cr = plot.circle(x='fertility', y='life', size='population', source=sources[year
 
 plot.add_tools(HoverTool(tooltips="@index", renderers=[cr]))
 
-# This draws a custom legend.
+# this draws a custom legend
 tx, ty = 6.3, 95
 for i, region in enumerate(regions):
     plot.add_glyph(Text(x=tx, y=ty, text=[region], text_font_size='10pt', text_color='#666666'))
