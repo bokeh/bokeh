@@ -19,7 +19,7 @@ s3 = figure()
 s3.square(x, y2, size=10, color=Viridis3[2])
 
 # make a grid
-grid = gridplot([s1, s2, None, s3], ncols=2, plot_width=250, plot_height=250)
+grid = gridplot([s1, s2, s3], ncols=2, plot_width=250, plot_height=250)
 
 # show the results
 show(grid)
