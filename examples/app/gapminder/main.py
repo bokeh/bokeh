@@ -34,9 +34,7 @@ desc = Div(text="""
 In Hans Rosling's <a href="http://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen">iconic TED Talk</a>
 he showed why our ongoing perceptions of a "first world" and a "third world" are wrong and that the world is now a spectrum
 of developing countries. Many advances have been made since our early notions of development from the 60s.
-</p>
-""", render_as_text=False, width=800
-)
+</p> """, render_as_text=False)
 
 plot = figure(x_range=(1,9), y_range=(20,100), title='Gapminder Data', plot_height=300)
 plot.xaxis.ticker = SingleIntervalTicker(interval=1)
@@ -54,7 +52,7 @@ cr = plot.circle(x='fertility', y='life', size='population', source=sources[year
 plot.add_tools(HoverTool(tooltips="@index", renderers=[cr]))
 
 # This draws a custom legend.
-tx, ty = 7.3, 95
+tx, ty = 7, 95
 for i, region in enumerate(regions):
     plot.add_glyph(Text(x=tx, y=ty, text=[region], text_font_size='10pt', text_color='#666666'))
     plot.add_glyph(Circle(x=tx-0.1, y=ty+2, fill_color=Spectral6[i], size=10, line_color=None, fill_alpha=0.8))
@@ -73,17 +71,16 @@ def slider_update (attrname, old, new):
 slider = Slider(start=years[0], end=years[-1], value=years[0], step=1, title="Year")
 slider.on_change('value', slider_update)
 
+
 def animate ():
-    if button.label == 'Start':
-        button.label = 'Stop'
-        button.button_type = "danger"
+    if button.label == '► Play':
+        button.label = '❚❚ Pause'
         curdoc().add_periodic_callback(animate_update, 200)
     else:
-        button.label = 'Start'
-        button.button_type = "success"
+        button.label = '► Play'
         curdoc().remove_periodic_callback(animate_update)
 
-button = Button(label='Start', button_type="success", width=100)
+button = Button(label='► Play', width=60)
 button.on_click(animate)
 
 layout = layout([
