@@ -56,6 +56,7 @@ the :ref:`devguide`.
     docs/reference/embed
     docs/reference/icons
     docs/reference/io
+    docs/reference/layouts
     docs/reference/model
     docs/reference/models
     docs/reference/mpl
