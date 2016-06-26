@@ -275,7 +275,7 @@ def _chunks(l, ncols):
 def gridplot(*args, **kwargs):
     """ Create a grid of plots rendered on separate canvases. ``gridplot`` builds a single toolbar
     for all the plots in the grid. ``gridplot`` is designed to layout a set of plots. For general
-    grid layout, use the ``layout`` function.
+    grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
         children (list of lists of :class:`~bokeh.models.plots.Plot` ): An
