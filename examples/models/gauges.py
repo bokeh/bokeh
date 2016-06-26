@@ -15,6 +15,7 @@ ydr = Range1d(start=-1.25, end=1.25)
 
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 plot.title.text = "Speedometer"
+plot.toolbar_location = None
 
 start_angle = pi + pi/4
 end_angle = -pi/4

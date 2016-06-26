@@ -71,13 +71,17 @@ def prep_data(dataset):
 
 name = "Obiszów MTB XCM"
 
+# Google Maps now requires an API key. You can find out how to get one here:
+# https://developers.google.com/maps/documentation/javascript/get-api-key
+API_KEY = "XXXXXXXXXXX"
+
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2
     lat = (min(data.lat) + max(data.lat)) / 2
 
     map_options = GMapOptions(lng=lon, lat=lat, zoom=13)
-    plot = GMapPlot(map_options=map_options, plot_width=800, plot_height=800)
-    plot.title.text = "%s - Trail Map" % name
+    plot = GMapPlot(title="%s - Trail Map" % name, map_options=map_options,
+                    plot_width=800, plot_height=800, api_key=API_KEY)
     plot.x_range = DataRange1d()
     plot.y_range = DataRange1d()
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())

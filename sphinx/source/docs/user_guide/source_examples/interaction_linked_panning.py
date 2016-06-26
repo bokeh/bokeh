@@ -1,4 +1,6 @@
-from bokeh.plotting import figure, gridplot, output_file, show
+from bokeh.io import output_file, show
+from bokeh.layouts import gridplot
+from bokeh.plotting import figure
 
 output_file("panning.html")
 

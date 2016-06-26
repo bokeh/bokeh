@@ -1,8 +1,9 @@
+from bokeh.io import output_file, show
+from bokeh.layouts import widgetbox
 from bokeh.models.widgets import Button
-from bokeh.io import output_file, show, vform
 
 output_file("button.html")
 
-button = Button(label="Foo", type="success")
+button = Button(label="Foo", button_type="success")
 
-show(vform(button))
+show(widgetbox(button))

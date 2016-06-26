@@ -1,5 +1,5 @@
 from bokeh.charts import Area, show, output_file, defaults
-from bokeh.layouts import column
+from bokeh.layouts import row
 
 defaults.width = 400
 defaults.height = 400
@@ -19,4 +19,4 @@ area2 = Area(data, title="Stacked Area Chart", legend="top_left",
 
 output_file("area.html", title="area.py example")
 
-show(column(area1, area2))
+show(row(area1, area2))
