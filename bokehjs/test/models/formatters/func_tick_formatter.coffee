@@ -14,15 +14,15 @@ describe "func_tick_formatter module", ->
     expect(labels).to.deep.equal([-100, -1.0, 0, 1, 100])
 
   it "should handle args appropriately", ->
-    rng = new Range1d()
+    rng = new Range1d({start: 5, end: 10})
 
     # checks that args doesn't cause undeclared var error
     obj = new formatter.Model
-      code: "function (x) {return x*10};"
+      code: "function (x) {return foo.get('start') + foo.get('end') + x};"
       args: {foo: rng}
 
     labels = obj.doFormat([-10, -0.1, 0, 0.1, 10])
-    expect(labels).to.deep.equal([-100, -1.0, 0, 1, 100])
+    expect(labels).to.deep.equal([5, 14.9, 15, 15.1, 25])
 
   it "should format categorical ticks appropriately", ->
     obj = new formatter.Model

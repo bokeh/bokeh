@@ -229,7 +229,7 @@ class FuncTickFormatter(TickFormatter):
         if (len(argspec[0]) - len(argspec[3] or [])) != 1:
             raise ValueError("Function `func` must have exactly one positional argument, but %d were supplied." % (len(argspec[0]) - len(argspec[3] or [])))
 
-        all_args = argspec[0].copy()
+        all_args = argspec[0][:]
         func_arg = argspec[0].pop(0)
         func_kwargs = dict(zip(argspec[0], argspec[3] or []))
 
