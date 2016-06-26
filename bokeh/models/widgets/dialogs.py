@@ -26,7 +26,7 @@ class Dialog(Widget):
     The title of the dialog widget.
     """)
 
-    content = Either(String(), Instance(Box), default="", help="""
+    content = Either(String(), Instance(Box), Instance(Widget), default="", help="""
     Either a message to be displayed by this dialog or a Box to be used
     as dialog body.
     """)
