@@ -21,5 +21,5 @@ s2.triangle(x, y1, size=10, color="firebrick", alpha=0.5)
 s3 = figure(width=250, height=250, title=None)
 s3.square(x, y2, size=10, color="olive", alpha=0.5)
 
-# put the results in a row and show
+# put the results in a row
 show(row(s1, s2, s3))

@@ -65,11 +65,17 @@ topic:
 :ref:`userguide_geo`
     Working with geographical data - Google Maps, GeoJSON, Tile Rendering.
 
+:ref:`userguide_bokehjs`
+    Create plots in JavaScript by using BokehJS directly.
+
+:ref:`userguide_extensions`
+    Adding new capability to Bokeh with custom user extensions.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
 
 :ref:`userguide_tutorials`
-    Bokeh tutorials
+    Tutorials on specific topics for using Bokeh.
 
 The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
