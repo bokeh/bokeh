@@ -5,4 +5,3 @@
 
 .. automodule:: bokeh.palettes
   :members:
-
