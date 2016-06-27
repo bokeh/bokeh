@@ -3,6 +3,6 @@
 ``bokeh.palettes``
 ==================
 
-Provide a collection of common and useful color palettes.
+.. automodule:: bokeh.palettes
+  :members:
 
-.. bokeh-palette:: unused.for.now
