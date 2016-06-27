@@ -1,4 +1,3 @@
-
 .. _userguide_extensions_examples_wrapping:
 
 Wrapping A JavaScript Library
