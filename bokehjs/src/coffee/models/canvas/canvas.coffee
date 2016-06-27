@@ -71,6 +71,7 @@ class CanvasView extends BokehView
       canvas_el.attr('height', height*ratio)
 
       logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
+      @model.pixel_ratio = @pixel_ratio
       @last_dims = [width, height, dpr]
 
   set_dims: (dims, trigger=true) ->
@@ -118,6 +119,7 @@ class Canvas extends LayoutCanvas.Model
     initial_width: [ p.Number ]
     initial_height: [ p.Number ]
     use_hidpi: [ p.Boolean, true ]
+    pixel_ratio: [ p.Number ]
   }
 
   initialize: (attrs, options) ->

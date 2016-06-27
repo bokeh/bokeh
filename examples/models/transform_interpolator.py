@@ -1,11 +1,6 @@
-import numpy as np
-
-from bokeh.core.properties import NumberSpec
-from bokeh.plotting import figure, show, output_file
-from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, Select
+from bokeh.models import CustomJS, Select, WidgetBox, Column, ColumnDataSource
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
-from bokeh.models.layouts import WidgetBox, Column
+from bokeh.plotting import figure, show, output_file
 
 N = 600
 

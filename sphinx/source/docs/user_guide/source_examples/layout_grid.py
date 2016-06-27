@@ -1,27 +1,25 @@
-from bokeh.io import gridplot, output_file, show
+from bokeh.io import output_file, show
+from bokeh.layouts import gridplot
+from bokeh.palettes import Viridis3
 from bokeh.plotting import figure
 
-output_file("layout.html")
+output_file("layout_grid.html")
 
 x = list(range(11))
 y0 = x
-y1 = [10-i for i in x]
-y2 = [abs(i-5) for i in x]
+y1 = [10 - i for i in x]
+y2 = [abs(i - 5) for i in x]
 
-# create a new plot
-s1 = figure(width=250, plot_height=250, title=None)
-s1.circle(x, y0, size=10, color="navy", alpha=0.5)
+# create three plots
+p1 = figure(width=250, plot_height=250, title=None)
+p1.circle(x, y0, size=10, color=Viridis3[0])
+p2 = figure(width=250, height=250, title=None)
+p2.triangle(x, y1, size=10, color=Viridis3[1])
+p3 = figure(width=250, height=250, title=None)
+p3.square(x, y2, size=10, color=Viridis3[2])
 
-# create another one
-s2 = figure(width=250, height=250, title=None)
-s2.triangle(x, y1, size=10, color="firebrick", alpha=0.5)
-
-# create and another
-s3 = figure(width=250, height=250, title=None)
-s3.square(x, y2, size=10, color="olive", alpha=0.5)
-
-# put all the plots in a grid layout
-p = gridplot([[s1, s2], [None, s3]])
+# make a grid
+grid = gridplot([[p1, p2], [None, p3]])
 
 # show the results
-show(p)
+show(grid)

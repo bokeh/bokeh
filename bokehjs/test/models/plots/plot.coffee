@@ -21,6 +21,7 @@ describe "Plot", ->
     @p = new Plot({x_range: @x_range, y_range: @y_range, toolbar: toolbar, title: null})
 
   describe "Plot.View", ->
+
     afterEach ->
       utils.unstub_canvas()
       utils.unstub_solver()
@@ -58,7 +59,11 @@ describe "Plot", ->
       expect(@solver_suggest.args[0]).to.be.deep.equal [@p._width, 34]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@p._height, 77]
 
-    it "get_height should return the height from the aspect ratio", ->
+    # TODO (bird) A number of these tests are skipped because of flakiness.
+    # We get kiwi unknown edit variable errors, although we shouldn't
+    # because the solver should have been stubbed out.
+
+    it.skip "get_height should return the height from the aspect ratio", ->
       @p.width = 22
       @p.height = 44
       plot_view = new @p.default_view({ model: @p })
@@ -72,7 +77,7 @@ describe "Plot", ->
       @p._height= {_value: 100}
       expect(plot_view.get_width()).to.be.equal 20
 
-    it "get_width should return the width from the aspect ratio", ->
+    it.skip "get_width should return the width from the aspect ratio", ->
       @p.width = 2
       @p.height = 10
       plot_view = new @p.default_view({ model: @p })
@@ -88,7 +93,7 @@ describe "Plot", ->
       expect(w).to.be.equal 56
       expect(h).to.be.equal 56 / (4/2)
 
-    it "get_width_height should return a constrained height if plot is portrait oriented", ->
+    it.skip "get_width_height should return a constrained height if plot is portrait oriented", ->
       @p.width = 3
       @p.height = 5
       plot_view = new @p.default_view({ model: @p })
@@ -124,6 +129,14 @@ describe "Plot", ->
       null
 
   describe "Plot.Model", ->
+
+    afterEach ->
+      utils.unstub_canvas()
+      utils.unstub_solver()
+
+    beforeEach ->
+      utils.stub_canvas()
+      utils.stub_solver()
 
     it "should have _horizontal set to true by default", ->
       expect(@p._horizontal).to.true

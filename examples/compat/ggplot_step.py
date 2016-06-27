@@ -13,7 +13,7 @@ df = pd.DataFrame({
 df.y = df.y.cumsum()
 
 g = ggplot(aes(x='x', y='y'), data=df) + geom_step()
-g.draw()
+g.make()
 
 plt.title("Step ggplot-based plot in Bokeh.")
 

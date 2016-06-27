@@ -5,7 +5,7 @@ import pandas.io.sql as psql
 import sqlite3 as sql
 
 from bokeh.plotting import figure
-from bokeh.layouts import row, column, widgetbox
+from bokeh.layouts import layout, widgetbox
 from bokeh.models import ColumnDataSource, HoverTool, Div
 from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
@@ -34,8 +34,7 @@ axis_map = {
     "Year": "Year",
 }
 
-desc = Div(text=open(join(dirname(__file__), "description.html")).read(),
-        render_as_text=False, width=800)
+desc = Div(text=open(join(dirname(__file__), "description.html")).read(), width=800)
 
 # Create Input controls
 reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
@@ -54,13 +53,14 @@ y_axis = Select(title="Y Axis", options=sorted(axis_map.keys()), value="Number o
 source = ColumnDataSource(data=dict(x=[], y=[], color=[], title=[], year=[], revenue=[], alpha=[]))
 
 hover = HoverTool(tooltips=[
-    ("Title","@title"),
+    ("Title", "@title"),
     ("Year", "@year"),
     ("$", "@revenue")
 ])
 
 p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tools=[hover])
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
+
 
 def select_movies():
     genre_val = genre.value
@@ -80,6 +80,7 @@ def select_movies():
     if (cast_val != ""):
         selected = selected[selected.Cast.str.contains(cast_val)==True]
     return selected
+
 
 def update():
     df = select_movies()
@@ -103,9 +104,15 @@ controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cas
 for control in controls:
     control.on_change('value', lambda attr, old, new: update())
 
-inputs = row(widgetbox(*controls))
+sizing_mode = 'fixed'  # 'scale_width' also looks nice with this example
 
-update() # initial load of the data
+inputs = widgetbox(*controls, sizing_mode=sizing_mode)
+l = layout([
+    [desc],
+    [inputs, p],
+], sizing_mode=sizing_mode)
 
-curdoc().add_root(column(desc, row(inputs, p)))
+update()  # initial load of the data
+
+curdoc().add_root(l)
 curdoc().title = "Movies"

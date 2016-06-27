@@ -122,23 +122,27 @@ datasets_names = [
 
 algorithm_select = Select(value='MiniBatchKMeans',
                           title='Select algorithm:',
+                          width=200,
                           options=clustering_algorithms)
 
 dataset_select = Select(value='Noisy Circles',
                         title='Select dataset:',
+                        width=200,
                         options=datasets_names)
 
 samples_slider = Slider(title="Number of samples",
                         value=1500.0,
                         start=1000.0,
                         end=3000.0,
-                        step=100)
+                        step=100,
+                        width=400)
 
 clusters_slider = Slider(title="Number of clusters",
                          value=2.0,
                          start=2.0,
                          end=10.0,
-                         step=1)
+                         step=1,
+                         width=400)
 
 # set up callbacks
 def update_algorithm_or_clusters(attrname, old, new):
@@ -179,9 +183,9 @@ dataset_select.on_change('value', update_samples_or_dataset)
 samples_slider.on_change('value', update_samples_or_dataset)
 
 # set up layout
-selects = row(dataset_select, algorithm_select)
-inputs = column(widgetbox(samples_slider, clusters_slider), selects)
+selects = row(dataset_select, algorithm_select, width=420)
+inputs = column(selects, widgetbox(samples_slider, clusters_slider))
 
 # add to document
-curdoc().add_root(row(inputs, plot, width=800))
+curdoc().add_root(row(inputs, plot))
 curdoc().title = "Clustering"

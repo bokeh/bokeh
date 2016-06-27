@@ -14,6 +14,14 @@ class TestObject extends HasProps
 
 describe "datarange1d module", ->
 
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+
   describe "default creation", ->
     r = new DataRange1d()
 

@@ -670,7 +670,7 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Do we need to re-calculate segment data and cumsum?
       if Math.abs(@_scale_aspect - (sy / sx)) > Math.abs(1e-3 * @_scale_aspect)
-        @_update_scale(sx, sy)
+        mainGlGlyph._update_scale(sx, sy)
         @_scale_aspect = sy / sx
 
       # Select buffers from main glyph
@@ -692,6 +692,7 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
 
+      @I_triangles = mainGlGlyph.I_triangles
       if @I_triangles.length < 65535
         # Data is small enough to draw in one pass
         @index_buffer.set_size(@I_triangles.length*2)

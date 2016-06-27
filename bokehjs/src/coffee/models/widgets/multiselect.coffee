@@ -4,12 +4,11 @@ $ = require "underscore"
 p = require "../../core/properties"
 
 InputWidget = require "./input_widget"
-Widget = require "./widget"
 
 multiselecttemplate = require "./multiselecttemplate"
 
 
-class MultiSelectView extends Widget.View
+class MultiSelectView extends InputWidget.View
   tagName: "div"
   template: multiselecttemplate
   events:
@@ -41,8 +40,12 @@ class MultiSelectView extends Widget.View
     )
 
   change_input: () ->
-    @mset('value', @$('select').val())
-    @mget('callback')?.execute(@model)
+    value = @$el.find('select').val()
+    if value
+      @model.value = value
+    else
+      @model.value = []
+    super()
 
 class MultiSelect extends InputWidget.Model
   type: "MultiSelect"

@@ -1,12 +1,14 @@
-from bokeh.models import HoverTool
-from bokeh.charts import Line, Scatter, vplot, hplot, show, output_file, defaults
 import pandas as pd
+
+from bokeh.charts import Line, Scatter, show, output_file, defaults
+from bokeh.layouts import gridplot
+from bokeh.models import HoverTool
 from bokeh.sampledata.degrees import data
 
 defaults.width = 500
 defaults.height = 300
 
-TOOLS='box_zoom,box_select,hover,crosshair,resize,reset'
+TOOLS='box_zoom,box_select,hover,crosshair,reset'
 
 TOOLTIPS = [ ("y", "$~y"), ("x", "$~x") ]
 
@@ -78,9 +80,6 @@ vhover.tooltips = hhover.tooltips = TOOLTIPS
 
 output_file("hover_span.html", title="hover_span.py example")
 
-show(vplot(
-    hplot(hline, vline),
-    hplot(int_hline, int_vline),
-    hplot(int_point_line, point_line),
-    hplot(scatter_point, scatter),
-))
+show(gridplot(hline, vline, int_hline, int_vline,
+              int_point_line, point_line, scatter_point, scatter,
+              ncols=2))

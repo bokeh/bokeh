@@ -1,4 +1,5 @@
-from bokeh.charts import Donut, show, output_file, vplot
+from bokeh.charts import Donut, show, output_file
+from bokeh.layouts import column
 from bokeh.sampledata.autompg import autompg
 
 import pandas as pd
@@ -43,4 +44,4 @@ d10 = Donut(autompg, label=['cyl', 'origin'],
 
 output_file("donut_multi.html", title="donut_multi.py example")
 
-show(vplot(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10))
+show(column(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10))

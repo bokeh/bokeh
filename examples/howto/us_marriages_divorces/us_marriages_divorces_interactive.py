@@ -60,7 +60,7 @@ hover = HoverTool(
     mode='vline')
 
 # Select the tools that will be available to the chart
-TOOLS = ['pan,wheel_zoom,box_zoom,reset,save,resize'] + [hover]
+TOOLS = ['pan,wheel_zoom,box_zoom,reset,save'] + [hover]
 
 bplot = figure(tools=TOOLS, width=800, height=500, x_axis_type=None)
 

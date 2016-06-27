@@ -5,7 +5,7 @@ from bokeh import mpl
 from bokeh.plotting import output_file, show
 
 g = ggplot(diamonds, aes(x='price', color='cut')) + geom_density()
-g.draw()
+g.make()
 
 plt.title("Density ggplot-based plot in Bokeh.")
 

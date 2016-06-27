@@ -79,7 +79,8 @@ markers = [
 ]
 
 def make_tab(title, glyph):
-    plot = Plot(title=title, x_range=xdr, y_range=ydr)
+    plot = Plot(x_range=xdr, y_range=ydr)
+    plot.title.text = title
 
     plot.add_glyph(source, glyph)
 
@@ -99,7 +100,7 @@ def make_tab(title, glyph):
     return tab
 
 def make_tabs(objs):
-    return Tabs(tabs=[ make_tab(title, obj) for title, obj in objs ])
+    return Tabs(tabs=[ make_tab(title, obj) for title, obj in objs ], width=600)
 
 layout = Column(children=[Paragraph(text="Only Image and ImageRGBA glyphs are not demonstrated."), make_tabs(glyphs), make_tabs(markers)])
 

@@ -32,18 +32,18 @@ def checkbox_button_group_handler(active):
 def radio_button_group_handler(active):
     print("radio_button_group_handler: %s" % active)
 
-button = Button(label="Push button", icon=Icon(icon_name="check"), button_type="primary")
+button = Button(label="Button (disabled) - still has click event", icon=Icon(icon_name="check"), button_type="primary", disabled=True)
 button.on_click(button_handler)
 
 toggle = Toggle(label="Toggle button", button_type="success")
 toggle.on_click(toggle_handler)
 
-menu = [("Item 1", "item_1"), ("Item 2", "item_2"), None, ("Item 3", "item_3")]
-dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
+menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
+dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu, default_value="item_1_value")
 dropdown.on_click(dropdown_handler)
 
-menu = [("Item 1", "foo"), ("Item 2", "bar"), None, ("Item 3", "baz")]
-split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="baz")
+split_menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
+split = Dropdown(label="Split button", button_type="danger", menu=split_menu)
 split.on_click(split_handler)
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])

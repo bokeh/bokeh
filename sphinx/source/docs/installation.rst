@@ -176,5 +176,5 @@ and
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _anaconda.org: http://anaconda.org
 .. _Continuum Analytics: http://continuum.io
-.. _npmjs: https://www.npmjs.org/package/bokehjs
+.. _npmjs.org: https://www.npmjs.org/package/bokehjs
 .. _redis: http://redis.io

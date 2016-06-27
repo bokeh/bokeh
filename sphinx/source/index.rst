@@ -44,6 +44,8 @@ the :ref:`devguide`.
     docs/user_guide/embed
     docs/user_guide/webgl
     docs/user_guide/geo
+    docs/user_guide/bokehjs
+    docs/user_guide/extensions
     docs/user_guide/info
     docs/user_guide/tutorials
     docs/reference
@@ -56,6 +58,7 @@ the :ref:`devguide`.
     docs/reference/embed
     docs/reference/icons
     docs/reference/io
+    docs/reference/layouts
     docs/reference/model
     docs/reference/models
     docs/reference/mpl
