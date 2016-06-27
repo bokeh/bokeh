@@ -119,6 +119,8 @@ The code above generates the following plot:
 .. image:: /_images/bokehjs_models.png
     :width: 400px
 
+.. _userguide_bokehjs_interfaces:
+
 Interfaces
 ----------
 
@@ -132,7 +134,7 @@ These higher level interfaces currently comprise  ``Bokeh.Plotting`` and
     however it is likely that in the future these interfaces will be split
     into separate files for distribution.
 
-.. _userguide_bokehjs_plotting:
+.. _userguide_bokehjs_interfaces_plotting:
 
 ``Bokeh.Plotting``
 ~~~~~~~~~~~~~~~~~~
@@ -190,7 +192,7 @@ The code above generates the following plot:
 .. image:: /_images/bokehjs_plotting.png
     :width: 400px
 
-.. _userguide_bokehjs_charts:
+.. _userguide_bokehjs_interfaces_charts:
 
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
@@ -200,8 +202,10 @@ charting that is unique to BokehJS. Generally, it does *not* share any
 similarity to the Python ``bokeh.charts`` interface. Currently , there are
 two high level charts supported: ``pie`` and ``bar``.
 
-``pie``
-'''''''
+.. _userguide_bokehjs_interfaces_charts_pie:
+
+``Bokeh.Charts.pie``
+''''''''''''''''''''
 
 To create pie charts using ``Bokeh.Charts.pie``, the basic usage is:
 
@@ -257,10 +261,12 @@ function, with the plot it generates shown below:
 .. image:: /_images/bokehjs_pie_charts.png
     :width: 100%
 
-``bar``
-'''''''
+.. _userguide_bokehjs_interfaces_charts_bar:
 
-To create b archarts using ``Bokeh.Charts.bar``, the basic usage is:
+``Bokeh.Charts.bar``
+''''''''''''''''''''
+
+To create bar charts using ``Bokeh.Charts.bar``, the basic usage is:
 
 .. code-block:: javascript
 

@@ -10,7 +10,7 @@ use these models directly, we recommend using the layout functions |row|,
 |column|, and |widgetbox|.
 
 The layout functions let you build a grid of plots and widgets. You can nest as
-many rows, columns, and plots together as you'd like. In addition, bokeh
+many rows, columns, and plots together as you'd like. In addition, Bokeh
 layouts support a number of "sizing modes". These sizing modes allow plots and
 widgets to resize based on the browser window.
 
@@ -29,7 +29,7 @@ Consistent sizing mode
     future releases.
 
 Widget boxes
-    Widgets are html objects like buttons, and dropdown menus. They
+    Widgets are HTML objects like buttons, and dropdown menus. They
     behave slightly differently to plots and and putting them in a widgetbox
     is necessary so that they can all work together. In fact, if you try and
     put a ``Widget`` in ``Row`` or ``Column`` it will be automatically put
