@@ -12,7 +12,38 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+""" Provide a collection of palettes for color mapping.
 
+Palettes are simple plain Python lists of (hex) RGB colors. This module
+containts the following sets of palettes:
+
+* All Brewer palettes
+* Magma
+* Inferno
+* Plasma
+* Viridis
+
+Every pre-built palette is available as a module attributes, e.g.
+``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of every
+all pre-built palettes can be found in the ``__palettes__`` module attribute.
+
+There are functions :func:`~bokeh.palettes.magma`,
+:func:`~bokeh.palettes.inferno`, :func:`~bokeh.palettes.plasma`,
+:func:`~bokeh.palettes.viridis` that can generate lists of colors of arbitrary
+size from those palettes.
+
+The Brewer palettes are also collected and grouped by name in a
+``brewer`` dictionary, e.g.: ``brewer['Spectral'][6]``
+
+Finally, all "small" palettes (i.e. excluding the 256 color ones) are
+collected and grouped similarly in a ``small_palettes`` attribute.
+The complete contents of ``small_palettes`` is show below.
+
+----
+
+.. bokeh-palette:: unused.for.now
+
+"""
 import math
 
 import numpy as np
@@ -414,7 +445,7 @@ __palettes__ = [
     "Magma3",     "Magma4",     "Magma5",     "Magma6",     "Magma7",     "Magma8",     "Magma9",     "Magma10",     "Magma11",     "Magma256",
     "Inferno3",   "Inferno4",   "Inferno5",   "Inferno6",   "Inferno7",   "Inferno8",   "Inferno9",   "Inferno10",   "Inferno11",   "Inferno256",
     "Plasma3",    "Plasma4",    "Plasma5",    "Plasma6",    "Plasma7",    "Plasma8",    "Plasma9",    "Plasma10",    "Plasma11",    "Plasma256",
-    "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis11",   "Viridis12",   "Viridis256",
+    "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis10",   "Viridis11",   "Viridis256",
 ]
 
 brewer = {
@@ -446,6 +477,14 @@ brewer = {
     "Spectral" : { 3: Spectral3, 4: Spectral4, 5: Spectral5, 6: Spectral6, 7: Spectral7, 8: Spectral8, 9: Spectral9,  10: Spectral10, 11: Spectral11 },
     "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
 }
+
+small_palettes = dict(brewer)
+small_palettes.update({
+    "Magma"   : { 3: Magma3,   4: Magma4,   5: Magma5,   6: Magma6,   7: Magma7,   8: Magma8,   9: Magma9,    10: Magma10,   11: Magma11   },
+    "Inferno" : { 3: Inferno3, 4: Inferno4, 5: Inferno5, 6: Inferno6, 7: Inferno7, 8: Inferno8, 9: Inferno9,  10: Inferno10, 11: Inferno11 },
+    "Plasma"  : { 3: Plasma3,  4: Plasma4,  5: Plasma5,  6: Plasma6,  7: Plasma7,  8: Plasma8,  9: Plasma9,   10: Plasma10,  11: Plasma11  },
+    "Viridis" : { 3: Viridis3, 4: Viridis4, 5: Viridis5, 6: Viridis6, 7: Viridis7, 8: Viridis8, 9: Viridis9,  10: Viridis10, 11: Viridis11 },
+})
 
 def _cmap_func_generator(name, cmap):
     def func(n):
