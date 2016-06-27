@@ -15,23 +15,20 @@ NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
 MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
-TIMESLICE = 50  # ms
+TIMESLICE = 100  # ms
 NUM_BINS = 16
 
 data = {'values': None}
 
 def _get_audio_data():
-    stream = None
-
-    if stream is None:
-        pa = pyaudio.PyAudio()
-        stream = pa.open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=SAMPLING_RATE,
-            input=True,
-            frames_per_buffer=NUM_SAMPLES
-        )
+    pa = pyaudio.PyAudio()
+    stream = pa.open(
+        format=pyaudio.paInt16,
+        channels=1,
+        rate=SAMPLING_RATE,
+        input=True,
+        frames_per_buffer=NUM_SAMPLES
+    )
 
     while True:
         try:
@@ -43,5 +40,4 @@ def _get_audio_data():
             bins = [simps(a) for a in np.split(power, NUM_BINS)]
             data['values'] = signal, spectrum, bins
         except:
-            print("FOOOOOOOOOOOOOOOOOOO")
-            continue
+            ontinue

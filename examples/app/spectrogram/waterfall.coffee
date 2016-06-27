@@ -1,10 +1,10 @@
 _ = require "underscore"
 
 p = require "core/properties"
-ColumnDataSource = require "models/sources/column_data_source"
+DataSource = require "models/sources/data_source"
 LinearColorMapper = require "models/mappers/linear_color_mapper"
 
-class WaterfallSource extends ColumnDataSource.Model
+class WaterfallSource extends DataSource.Model
   type: 'WaterfallSource'
 
   initialize: (attrs, options) ->
@@ -36,18 +36,24 @@ class WaterfallSource extends ColumnDataSource.Model
       @_images = [img].concat(@_images[0..])
       @_xs.pop()
       @_xs = [1-@tile_width].concat(@_xs[0..])
-      #@set('data', {image: @_images, x: @_xs}, {silent: true})
-      @get('data')['image'] = @_images
-      @get('data')['x'] = @_xs
+      @attributes.data = {image: @_images, x: @_xs}
 
     image32 = new Uint32Array(@_images[0])
     buf32 = new Uint32Array(buf)
 
     for i in [0...@gram_length]
       image32[i*@tile_width+@_col] = buf32[i]
+    @attributes.data = {image: @_images, x: @_xs}
 
-    @get('data')['x'] = @_xs
-    @trigger('change', true, 0)
+  columns: () ->
+    return _.keys(@data)
+
+  get_column: (colname) ->
+    return @data[colname] ? null
+
+  get_length: () ->
+    lengths = _.uniq((val.length for key, val of @data))
+    return lengths[0]
 
   @define {
     latest:      [ p.Any ]
@@ -55,6 +61,12 @@ class WaterfallSource extends ColumnDataSource.Model
     num_grams:   [ p.Int ]
     gram_length: [ p.Int ]
     tile_width:  [ p.Int ]
+  }
+
+  @internal {
+    data:         [ p.Any,   {} ]
+    column_names: [ p.Array, [] ]
+    inspected:    [ p.Any       ]
   }
 
  module.exports =

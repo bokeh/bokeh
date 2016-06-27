@@ -1,11 +1,11 @@
+from os.path import dirname, join
 from math import ceil
 
 import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import row, column, widgetbox
-from bokeh.models import ColumnDataSource, Slider
-from bokeh.palettes import Viridis11
+from bokeh.models import ColumnDataSource, Slider, Div
 from bokeh.plotting import figure
 
 import audio
@@ -18,9 +18,14 @@ GRAM_LENGTH = 512
 TILE_WIDTH = 200
 EQ_CLAMP = 20
 
+PALETTE = ['#081d58', '#253494', '#225ea8', '#1d91c0', '#41b6c4', '#7fcdbb', '#c7e9b4', '#edf8b1', '#ffffd9']
 PLOTARGS = dict(tools="", toolbar_location=None, outline_line_color='#595959')
 
-waterfall_source = WaterfallSource(palette=Viridis11, num_grams=NUM_GRAMS,
+filename = join(dirname(__file__), "description.html")
+desc = Div(text=open(filename).read(),
+           render_as_text=False, width=1000)
+
+waterfall_source = WaterfallSource(palette=PALETTE, num_grams=NUM_GRAMS,
                                    gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH,
                                    data=dict(x=[], image=[]))
 waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
@@ -31,13 +36,13 @@ waterfall_plot.image_rgba(x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ_
 
 
 signal_source = ColumnDataSource(data=dict(t=[], y=[]))
-signal_plot = figure(plot_width=600, plot_height=200,
+signal_plot = figure(plot_width=600, plot_height=200, title="Signal",
                      x_range=[0, TIMESLICE], y_range=[-0.8, 0.8], **PLOTARGS)
 signal_plot.line(x="t", y="y", line_color="#024768", source=signal_source)
 
 
 spectrum_source = ColumnDataSource(data=dict(f=[], y=[]))
-spectrum_plot = figure(plot_width=600, plot_height=200,
+spectrum_plot = figure(plot_width=600, plot_height=200, title="Power Spectrum",
                        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ_KHZ],
                        y_axis_type="log", **PLOTARGS)
 spectrum_plot.line(x="f", y="y", line_color="#024768", source=spectrum_source)
@@ -52,7 +57,7 @@ eq_data = dict(
     alpha=np.tile(np.zeros_like(eq_range), NUM_BINS),
 )
 eq_source = ColumnDataSource(data=eq_data)
-eq = figure(plot_width=300, plot_height=300,
+eq = figure(plot_width=400, plot_height=400,
             x_axis_type=None, y_axis_type=None,
             x_range=[-20, 20], y_range=[-20, 20], **PLOTARGS)
 eq.annular_wedge(x=0, y=0, fill_color="#024768", fill_alpha="alpha", line_color=None,
@@ -94,11 +99,12 @@ def update():
         alphas.append(a)
     eq_source.data['alpha'] = np.hstack(alphas)
 
-curdoc().add_periodic_callback(update, 50)
+curdoc().add_periodic_callback(update, 100)
 
-controls = widgetbox(freq, gain)
+controls = row(widgetbox(gain), widgetbox(freq))
 
 plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
 
+curdoc().add_root(desc)
 curdoc().add_root(controls)
 curdoc().add_root(plots)
