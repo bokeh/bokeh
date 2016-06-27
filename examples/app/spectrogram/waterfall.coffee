@@ -69,5 +69,5 @@ class WaterfallSource extends DataSource.Model
     inspected:    [ p.Any       ]
   }
 
- module.exports =
+module.exports =
   Model: WaterfallSource
