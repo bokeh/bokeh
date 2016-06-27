@@ -30,6 +30,8 @@ waterfall_source = WaterfallSource(palette=PALETTE, num_grams=NUM_GRAMS,
                                    data=dict(x=[], image=[]))
 waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
+waterfall_plot.grid.grid_line_color = None
+waterfall_plot.background_fill_color = "#024768"
 waterfall_plot.image_rgba(x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ_KHZ,
                           cols=TILE_WIDTH, rows=GRAM_LENGTH,
                           source=waterfall_source, dilate=True)
@@ -38,6 +40,7 @@ waterfall_plot.image_rgba(x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ_
 signal_source = ColumnDataSource(data=dict(t=[], y=[]))
 signal_plot = figure(plot_width=600, plot_height=200, title="Signal",
                      x_range=[0, TIMESLICE], y_range=[-0.8, 0.8], **PLOTARGS)
+signal_plot.background_fill_color = "#eaeaea"
 signal_plot.line(x="t", y="y", line_color="#024768", source=signal_source)
 
 
@@ -45,6 +48,7 @@ spectrum_source = ColumnDataSource(data=dict(f=[], y=[]))
 spectrum_plot = figure(plot_width=600, plot_height=200, title="Power Spectrum",
                        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ_KHZ],
                        y_axis_type="log", **PLOTARGS)
+spectrum_plot.background_fill_color = "#eaeaea"
 spectrum_plot.line(x="f", y="y", line_color="#024768", source=spectrum_source)
 
 eq_angle = 2*np.pi/NUM_BINS
@@ -60,6 +64,7 @@ eq_source = ColumnDataSource(data=eq_data)
 eq = figure(plot_width=400, plot_height=400,
             x_axis_type=None, y_axis_type=None,
             x_range=[-20, 20], y_range=[-20, 20], **PLOTARGS)
+eq.background_fill_color = "#eaeaea"
 eq.annular_wedge(x=0, y=0, fill_color="#024768", fill_alpha="alpha", line_color=None,
                  inner_radius="inner", outer_radius="outer", start_angle="start", end_angle="end",
                  source=eq_source)
