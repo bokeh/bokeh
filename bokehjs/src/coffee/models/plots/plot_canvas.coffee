@@ -516,7 +516,7 @@ class PlotCanvasView extends Renderer.View
       @visuals.outline_line.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
+    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
 
     if ctx.glcanvas
       # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
@@ -530,6 +530,7 @@ class PlotCanvasView extends Renderer.View
       ctx.scale(ratio, ratio)
       ctx.translate(0.5, 0.5)
 
+    @_render_levels(ctx, ['annotation'], frame_box)
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if not @initial_range_info?
