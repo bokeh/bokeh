@@ -10,7 +10,8 @@ Widget = require "./widget"
 class CellEditorView extends Widget.View
 
   tagName: "div"
-  className: "bk-cell-editor"
+  attributes:
+    class: "bk-cell-editor"
 
   input: null
 
@@ -85,11 +86,6 @@ class CellEditorView extends Widget.View
 class CellEditor extends Widget.Model
   type: "CellEditor"
   default_view: CellEditorView
-
-  @define {
-    callback:    [ p.Instance          ]
-    icon:        [ p.Instance          ]
-  }
 
 class StringEditorView extends CellEditorView
 
