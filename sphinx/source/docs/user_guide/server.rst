@@ -270,9 +270,10 @@ in more detail:
 
     import numpy as np
 
+    from bokeh.layouts import column
     from bokeh.models import Button
     from bokeh.palettes import RdYlBu3
-    from bokeh.plotting import figure, curdoc, vplot
+    from bokeh.plotting import figure, curdoc
 
     # create a plot and style its properties
     p = figure(x_range=(0, 100), y_range=(0, 100), toolbar_location=None)
@@ -304,7 +305,7 @@ in more detail:
     button.on_click(callback)
 
     # put the button and plot in a layout and add to the document
-    curdoc().add_root(vplot(button, p))
+    curdoc().add_root(column(button, p))
 
 Notice that we have not specified an output or connection method anywhere in
 this code. It is a simple script that creates and updates objects. The

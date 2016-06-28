@@ -385,7 +385,7 @@ class Plot(LayoutDOM):
             return str(self)
 
     __deprecated_attributes__ = (
-        'background_fill', 'border_fill', 'logo', 'tools',
+        'background_fill', 'border_fill', 'logo', 'tools', 'responsive',
         'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
         'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
     )
@@ -610,6 +610,31 @@ class Plot(LayoutDOM):
     #
     # DEPRECATED PROPERTIES
     #
+
+    @property
+    def responsive(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('responsive', 'Plot.sizing_mode'))
+        return self.sizing_mode != "fixed"
+
+    @responsive.setter
+    def responsive(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('responsive', 'Plot.sizing_mode'))
+        warnings.warn("""
+        The 'responsive' property has been deprecated in 0.12.0. It has been
+        replaced by 'sizing_mode' which accepts one of five modes:
+
+            fixed, scale_width, scale_height, scale_both, stretch_both
+
+        'responsive = False' is the equivalent of 'sizing_mode = "fixed"'
+
+        'responsive = True' is the equivalent of 'sizing_mode = "scale_width"'
+        """)
+        if value is True:
+            self.sizing_mode = "scale_width"
+        elif value is False:
+            self.sizing_mode = "fixed"
+        else:
+            raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
 
     @property
     def background_fill(self):

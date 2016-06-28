@@ -5,7 +5,7 @@ from bokeh import mpl
 from bokeh.plotting import output_file, show
 
 g = ggplot(aes(x='date', y='beef'), data=meat) + geom_line()
-g.draw()
+g.make()
 
 plt.title("Line ggplot-based plot in Bokeh.")
 

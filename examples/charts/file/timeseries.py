@@ -1,6 +1,7 @@
 import pandas as pd
 
-from bokeh.charts import TimeSeries, show, output_file, vplot
+from bokeh.charts import TimeSeries, show, output_file
+from bokeh.layouts import column
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -18,7 +19,7 @@ data = pd.DataFrame(data=dict(AAPL=AAPL['Adj Close'][:1000],
                               IBM=IBM['Adj Close'][:1000],
                               Date=AAPL['Date'][:1000])).set_index('Date')
 
-TOOLS="resize,pan,wheel_zoom,box_zoom,reset,save"
+TOOLS="pan,wheel_zoom,box_zoom,reset,save"
 
 # line simple
 tsline = TimeSeries(
@@ -48,4 +49,4 @@ tspoint = TimeSeries(
 
 output_file("timeseries.html", title="timeseries.py example")
 
-show(vplot(tsline, tsline2, tsstep, tspoint))
+show(column(tsline, tsline2, tsstep, tspoint))

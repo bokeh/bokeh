@@ -271,7 +271,8 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
         .. bokeh-plot::
             :source-position: above
 
-            from bokeh.charts import Bar, output_file, show, hplot
+            from bokeh.charts import Bar, output_file, show
+            from bokeh.layouts import row
 
             # best support is with data in a format that is table-like
             data = {
@@ -289,7 +290,7 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
                        agg='mean', title="Python Interpreters", plot_width=400)
 
             output_file("stacked_bar.html")
-            show(hplot(bar, bar2))
+            show(row(bar, bar2))
 
     """
     if continuous_range and not isinstance(continuous_range, Range1d):

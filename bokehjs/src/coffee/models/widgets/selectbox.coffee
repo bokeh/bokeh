@@ -13,12 +13,6 @@ class SelectView extends InputWidget.View
   events:
     "change select": "change_input"
 
-  change_input: () ->
-    super()
-    value = @$('select').val()
-    logger.debug("selectbox: value = #{value}")
-    @mset('value', value)
-
   initialize: (options) ->
     super(options)
     @render()
@@ -30,6 +24,12 @@ class SelectView extends InputWidget.View
     html = @template(@model.attributes)
     @$el.html(html)
     return @
+
+  change_input: () ->
+    value = @$('select').val()
+    logger.debug("selectbox: value = #{value}")
+    @model.value = value
+    super()
 
 
 class Select extends InputWidget.Model

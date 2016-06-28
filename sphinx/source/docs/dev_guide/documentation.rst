@@ -20,11 +20,17 @@ The following requirements are necessary for building Bokeh documentation:
 
 Install these requirements::
 
-    conda install sphinx seaborn pyyaml ggplot -c bokeh
-
+    conda install -c bokeh sphinx seaborn pyyaml ggplot
 
 We recommend using ``conda`` to install these requirements. Alternatively, you
 may use ``pip`` or install from the packages' source.
+
+Supported Output Formats
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The innate dependency of Bokeh on JavaScript means that attempting other formats
+besides HTML cannot not produce good or usable results. Only HTML output is
+supported.
 
 Install the sample data
 ~~~~~~~~~~~~~~~~~~~~~~~

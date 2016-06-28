@@ -35,4 +35,4 @@ plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 doc = Document()
 doc.add_root(plot)
 
-show(doc)
+show(plot)

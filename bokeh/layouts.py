@@ -46,17 +46,26 @@ def row(*args, **kwargs):
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children List(Instance(LayoutDOM)): An list containing any of the
-        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
-        are then assigned the sizing_mode of the layout.
+        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
+            the row. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
+            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.layouts.Row`,
+            :class:`~bokeh.models.layouts.Column`,
+            :class:`~bokeh.models.tools.ToolbarBox`,
+            :class:`~bokeh.models.layouts.Spacer`.
 
-        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
-        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
-        fill the available space.
+        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
+            will the items in the layout resize to fill the available space.
+            Default is ``"fixed"``. For more information on the different
+            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive ``True``, ``False``. True sets ``sizing_mode`` to
-        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
-        responsive will override sizing_mode.
+        responsive (``True``, ``False``): True sets ``sizing_mode`` to
+            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
+            responsive will override sizing_mode.
+
+    Returns:
+        Row: A row of LayoutDOM objects all with the same sizing_mode.
 
     Examples:
 
@@ -91,17 +100,26 @@ def column(*args, **kwargs):
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children List(Instance(LayoutDOM)): An list containing any of the
-        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
-        are then assigned the sizing_mode of the layout.
+        children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
+            the column. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
+            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.layouts.Row`,
+            :class:`~bokeh.models.layouts.Column`,
+            :class:`~bokeh.models.tools.ToolbarBox`,
+            :class:`~bokeh.models.layouts.Spacer`.
 
-        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
-        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
-        fill the available space.
+        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
+            will the items in the layout resize to fill the available space.
+            Default is ``"fixed"``. For more information on the different
+            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive ``True``, ``False``. True sets ``sizing_mode`` to
-        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
-        responsive will override sizing_mode.
+        responsive (``True``, ``False``): True sets ``sizing_mode`` to
+            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
+            responsive will override sizing_mode.
+
+    Returns:
+        Column: A column of LayoutDOM objects all with the same sizing_mode.
 
     Examples:
 
@@ -132,20 +150,25 @@ def column(*args, **kwargs):
 
 
 def widgetbox(*args, **kwargs):
-    """ Create a widgetbox of Bokeh widgets. Forces all to
+    """ Create a WidgetBox of Bokeh widgets. Forces all to
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children List(Instance(Widget)): An list of widgets. All tems in the grid
-        are then assigned the sizing_mode of the layout.
+        children (list of :class:`~bokeh.models.widgets.widget.Widget` ): A list
+        of widgets for the WidgetBox.
 
-        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
-        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
-        fill the available space.
+        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
+            will the items in the layout resize to fill the available space.
+            Default is ``"fixed"``. For more information on the different
+            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive ``True``, ``False``. True sets ``sizing_mode`` to
-        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
-        responsive will override sizing_mode.
+        responsive (``True``, ``False``): True sets ``sizing_mode`` to
+            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
+            responsive will override sizing_mode.
+
+    Returns:
+        WidgetBox: A WidgetBox of Widget instances all with the same sizing_mode.
 
     Examples:
 
@@ -177,20 +200,30 @@ def widgetbox(*args, **kwargs):
 
 def layout(*args, **kwargs):
     """ Create a grid-based arrangement of Bokeh Layout objects. Forces all objects to
-    have the same sizing mode, which is required for complex layouts to work.
+    have the same sizing mode, which is required for complex layouts to work. Returns a nested set
+    of Rows and Columns.
 
     Args:
-        children List(List(Instance(LayoutDOM))): An list of lists containing any of the
-        following: Plot, Widget, WidgetBox, Row, Column, ToolbarBox, Spacer. All items
-        in the grid are then assigned the sizing mode of the layout.
+        children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
+            for a grid layout. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
+            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.layouts.Row`,
+            :class:`~bokeh.models.layouts.Column`,
+            :class:`~bokeh.models.tools.ToolbarBox`,
+            :class:`~bokeh.models.layouts.Spacer`.
 
-        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
-        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the layout resize to
-        fill the available space.
+        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
+            will the items in the layout resize to fill the available space.
+            Default is ``"fixed"``. For more information on the different
+            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive ``True``, ``False``. True sets ``sizing_mode`` to
-        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
-        responsive will override sizing_mode.
+        responsive (``True``, ``False``): True sets ``sizing_mode`` to
+            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
+            responsive will override sizing_mode.
+
+    Returns:
+        Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
 
     Examples:
 
@@ -232,44 +265,56 @@ def layout(*args, **kwargs):
     return grid
 
 
-def chunks(l, n):
+def _chunks(l, ncols):
     """Yield successive n-sized chunks from list, l."""
-    for i in range(0, len(l), n):
-        yield l[i: i+n]
+    assert isinstance(ncols, int), "ncols must be an integer"
+    for i in range(0, len(l), ncols):
+        yield l[i: i+ncols]
 
 
 def gridplot(*args, **kwargs):
-    """ Create a grid of plots rendered on separate canvases.
+    """ Create a grid of plots rendered on separate canvases. ``gridplot`` builds a single toolbar
+    for all the plots in the grid. ``gridplot`` is designed to layout a set of plots. For general
+    grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
-        children List(List(Instance(Plot))): An array of plots to display in a
-        grid, given as a list of lists of Plot objects. To leave a position in
-        the grid empty, pass None for that position in the children list. OR
-        List(Instance(Plot)) if called with ncols. OR an instance of GridSpec.
+        children (list of lists of :class:`~bokeh.models.plots.Plot` ): An
+            array of plots to display in a grid, given as a list of lists of Plot
+            objects. To leave a position in the grid empty, pass None for that
+            position in the children list. OR list of :class:`~bokeh.models.plots.Plot` if called with
+            ncols. OR an instance of GridSpec.
 
-        toolbar_location ``above``, ``below``, ``left``, ``right``: Where the
-        toolbar will be located, with respect to the grid. Default is ``above``. If set to None,
-        no toolbar will be attached to the grid.
+        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
+            will the items in the layout resize to fill the available space.
+            Default is ``"fixed"``. For more information on the different
+            modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
+            description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        sizing_mode ``"fixed"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"``, and
-        ``"stretch_both"``. Default is ``"fixed"``. How will the items in the grid resize to
-        fill the available space.
+        toolbar_location (``above``, ``below``, ``left``, ``right`` ): Where the
+            toolbar will be located, with respect to the grid. Default is
+            ``above``. If set to None, no toolbar will be attached to the grid.
 
         ncols ``Int`` (optional): Specify the number of columns you would like in your grid.
-        You must only pass a list of plots (not a list of lists) when using ncols.
+            You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
+            when using ncols.
 
-        responsive ``Bool`` (optional). True sets ``sizing_mode`` to
-        ``"width_ar"``. ``False`` sets ``sizing_mode`` to ``"fixed"``. Using
-        responsive will override sizing_mode.
+        responsive (``True``, ``False``): True sets ``sizing_mode`` to
+            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
+            responsive will override sizing_mode.
 
-        plot_width ``Int`` (optional): The width you would like all your plots to be
+        plot_width (int, optional): The width you would like all your plots to be
 
-        plot_height ``Int`` (optional): The height you would like all your plots to be.
+        plot_height (int, optional): The height you would like all your plots to be.
 
-        toolbar_options ``Dict`` (optional) : A dictionary of options that will be
-        used to construct the toolbar (an instance of
-        class::bokeh.models.tools.ToolbarBox). If none is supplied,
-        ToolbarBox's defaults will be used.
+        toolbar_options (dict, optional) : A dictionary of options that will be
+            used to construct the grid's toolbar (an instance of
+            :class:`~bokeh.models.tools.ToolbarBox`). If none is supplied,
+            ToolbarBox's defaults will be used.
+
+    Returns:
+        Row or Column: A row or column containing the grid toolbar and the grid
+            of plots (depending on whether the toolbar is left/right or
+            above/below. The grid is always a Column of Rows of plots.
 
     Examples:
 
@@ -305,7 +350,7 @@ def gridplot(*args, **kwargs):
     if ncols:
         if any(isinstance(child, list) for child in children):
             raise ValueError("Cannot provide a nested list when using ncols")
-        children = list(chunks(children, ncols))
+        children = list(_chunks(children, ncols))
 
     # Additional children set-up for GridPlot
     if not children:

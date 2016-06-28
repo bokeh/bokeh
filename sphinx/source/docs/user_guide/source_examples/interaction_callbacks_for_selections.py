@@ -1,6 +1,8 @@
 from random import random
+
+from bokeh.layouts import row
 from bokeh.models import CustomJS, ColumnDataSource
-from bokeh.plotting import hplot, figure, output_file, show
+from bokeh.plotting import figure, output_file, show
 
 output_file("callback.html")
 
@@ -29,6 +31,6 @@ s1.callback = CustomJS(args=dict(s2=s2), code="""
         s2.trigger('change');
     """)
 
-layout = hplot(p1, p2)
+layout = row(p1, p2)
 
 show(layout)

@@ -1,4 +1,4 @@
-from bokeh.io import vform
+from bokeh.layouts import column
 from bokeh.models import CustomJS, ColumnDataSource, Slider
 from bokeh.plotting import Figure, output_file, show
 
@@ -25,6 +25,6 @@ callback = CustomJS(args=dict(source=source), code="""
 
 slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", callback=callback)
 
-layout = vform(slider, plot)
+layout = column(slider, plot)
 
 show(layout)

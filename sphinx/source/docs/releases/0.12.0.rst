@@ -1,0 +1,124 @@
+0.12.0 (Jun 2016)
+=================
+
+Bokeh Version ``0.12.0`` is a large release with many new
+improvements:
+
+* Responsive layout and styling improvements throughout
+* BokehJS plotting and charts APIs for pure JS dev
+* Legends can be placed outside / next to the central plot area
+* Expanded WebGL support to all markers, fixed webgl bugs
+* New color palettes: Viridis, Magma, Inferno, and Plasma
+* New model types:
+
+  - Arrow, Title, and Label annotations
+  - LogColorMapper for scaled color mapping
+  - FuncTickFormatter for simpler custom ticking
+
+* Support for computed transforms (e.g. Jitter) on data columns
+* Documentation improvements:
+
+  - re-done user gude sections for layout
+  - new user guide sections for JS APIs
+  - new user guide sections for custom extensions
+
+* Server features:
+
+  - unlocked callbacks for use with threads
+  - "--num-threads" option for simpler deployment
+  - new index landing page listing installed aps
+
+* UX improvements
+
+  - toolbar moved to the right, and made sticky, by default
+  - left aligned title, closer in, by default
+  - smaller, italic axes labels
+
+* New hosted demos at https://demo.bokehplots.com
+* Many small bug fixes
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features.
+
+Known Issues
+------------
+
+Currently the most reliable sizing modes for layouts are "fixed" and
+"scale_width". Other modes may work, or may produce undesired effects.
+Work on layout is still ongoing. Support for "mixes" sizing modes
+will come in a future release. Additionally, the ``ResizeTool`` does
+not function reliably with responsive layout, and will most likely
+be deprecated in a future release.
+
+Migration Guide
+---------------
+
+Google Maps
+~~~~~~~~~~~
+
+Google has made a change to their terms of use for google maps, and
+"effective immediately", ALL google maps API calls MUST have an API key,
+or they will not function:
+
+    http://googlegeodevelopers.blogspot.mx/2016/06/building-for-scale-updates-to-google.html
+
+All Bokeh ``GMapPlot`` models must have their ``api_key`` property set,
+or they will not function properly. PLEASE NOTE: all previously created
+GMap plots from *any* previous version of Bokeh are affect by this TOS
+change.
+
+Examples
+~~~~~~~~
+
+All WebGL examples have been moved under ``examples/webgl``. The
+``timeout.py`` and ``random_tiles`` app examples have been removed
+in favor of new, better examples. Several examples of new layout
+capability are under ``examples/howto/layout``.
+
+BokehJS
+~~~~~~~
+
+The mechanism for declaring properties on BokehJS has changed, with the
+addition of the ``@define``, ``@override`` and ``@internal`` methods.
+This may affect existing custom extesnions. Until now, BokehJS details
+were considered an internal implementation detail. In the future, more
+attention will be given to BokehJS stability.
+
+Deprecations and Compatibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The new layout work was a large undertaking. As a result, there are many
+deprecations, including `hplot`, `vplot`, etc. Almost all old functions
+will continue to function, while issuing deprecation  warnings. However,
+there are newer functions that should be preferred. The most up-to-date
+guidance for layout going forward is at:
+
+    http://bokeh.pydata.org/en/latest/docs/user_guide/layout.html
+
+In most cases it was possible to move forward with a deprecation, for the
+time being, but there are two small hard compatibility breaks that could
+not be avoided:
+
+``Plot.title``
+''''''''''''''
+
+This attribute is now a ``Title`` object. It is no longer possible to set, e.g.
+``p.title = "some text"`` as a string value. Instead, you must do:
+
+    p.title.text = "some_text"
+
+It is still possible to pass the `title`` keyword argument a string value
+to ``figure`` and Charts, as a convenience. Additionally all other title
+related properties on ``Plot``, e.g ``title_text_color`` continue to work
+for now, while issuing deprecation warnings.
+
+``session.show``
+''''''''''''''''
+
+The ``ClientSession.show`` method must now be explicitly passed the thing to
+be shown. It is no longer possible to call, e.g. ``session.show()`` without
+a parameter. Instead, you must do:
+
+    session.show(plot)

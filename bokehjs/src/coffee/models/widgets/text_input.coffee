@@ -31,10 +31,10 @@ class TextInputView extends InputWidget.View
     return @
 
   change_input: () ->
-    super()
     value = @$('input').val()
     logger.debug("widget/text_input: value = #{value}")
-    @mset('value', value)
+    @model.value = value
+    super()
 
 class TextInput extends InputWidget.Model
   type: "TextInput"

@@ -70,7 +70,6 @@ from os import makedirs
 from os.path import basename, dirname, exists, isdir, join, relpath
 import re
 from shutil import copy
-import sys
 from tempfile import mkdtemp
 import webbrowser
 
@@ -82,6 +81,7 @@ import jinja2
 
 from sphinx.locale import _
 from sphinx.util.compat import Directive
+from sphinx.errors import SphinxError
 
 from .utils import out_of_date
 from .. import io
@@ -159,12 +159,8 @@ class BokehPlotDirective(Directive):
 
         try:
             source = self._get_source()
-        except Exception:
-            app.warn("Unable to generate Bokeh plot at %s:%d:" % (basename(rst_source), self.lineno)),
-            node = nodes.error(None,
-                               nodes.paragraph(text="Unable to generate Bokeh plot at %s:%d:" % (basename(rst_source), self.lineno)),
-                               nodes.paragraph(text=str(sys.exc_info()[1])))
-            return [node]
+        except Exception as e:
+            raise SphinxError("Unable to read source for Bokeh plot at %s:%d:%s" % (basename(rst_source), self.lineno, e))
 
         source_position = self.options.get('source-position', 'below')
 
@@ -299,12 +295,8 @@ def html_visit_bokeh_plot(self, node):
 
         html = SCRIPT_TEMPLATE.render(script=script)
         self.body.append(html)
-    except Exception:
-        err_node = nodes.error(None,
-                               nodes.paragraph(text="Unable to generate Bokeh plot at %s:%d:" % (node['rst_source'], node['rst_lineno'])),
-                               nodes.paragraph(text=str(sys.exc_info()[1])))
-        node.children.append(err_node)
-        raise nodes.SkipDeparture
+    except Exception as e:
+        raise SphinxError("Unable to generate Bokeh plot at %s:%d:%s" % (node['rst_source'], node['rst_lineno'], e))
     else:
         raise nodes.SkipNode
 
