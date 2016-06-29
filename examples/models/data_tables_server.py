@@ -1,6 +1,9 @@
 from __future__ import print_function
 
+from pandas import DataFrame
+
 from bokeh.client import push_session
+from bokeh.io import curdoc
 from bokeh.document import Document
 from bokeh.models import (
     ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid,
@@ -11,6 +14,7 @@ from bokeh.models.widgets import (
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
 from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.sampledata.autompg2 import autompg2 as mpg
+
 
 class DataTables(object):
 
@@ -23,10 +27,14 @@ class DataTables(object):
         self.class_filter = None
 
         self.source = ColumnDataSource()
+        # A bit hacky, but now we have an index column that will carry through our slicing
+        self.df = DataFrame.from_dict(ColumnDataSource.from_df(mpg))
+        self.df.set_index('index', inplace=True)
         self.update_data()
-
-        self.document.add_root((self.create()))
-        self.session = push_session(self.document)
+        self.source.on_change('data', self.update_from_table_change)
+        # XXX: I haven't had much luck running the server in this style
+        # self.document.add_root((self.create()))
+        # self.session = push_session(self.document)
 
     def create(self):
         manufacturers = sorted(mpg["manufacturer"].unique())
@@ -60,7 +68,7 @@ class DataTables(object):
         ]
         data_table = DataTable(source=self.source, columns=columns, editable=True, width=1300)
 
-        plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
+        plot = Plot(title=None, x_range=DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
         # Set up x & y axis
         plot.add_layout(LinearAxis(), 'below')
@@ -116,8 +124,14 @@ class DataTables(object):
         self.class_filter = None if value == "All" else value
         self.update_data()
 
+    def update_from_table_change(self, attr, _, new):
+        update_df = DataFrame.from_dict(new)
+        update_df.set_index('index', inplace=True)
+        self.df.update(update_df)
+
     def update_data(self):
-        df = mpg
+        df = self.df
+
         if self.manufacturer_filter:
             df = df[df["manufacturer"] == self.manufacturer_filter]
         if self.model_filter:
@@ -135,6 +149,9 @@ class DataTables(object):
             self.session.show()
 
         self.session.loop_until_closed()
+
+data_tables = DataTables()
+curdoc().add_root(data_tables.create())
 
 if __name__ == "__main__":
     data_tables = DataTables()
