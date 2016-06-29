@@ -455,7 +455,7 @@ __palettes__ = [
     "Greens3",    "Greens4",    "Greens5",    "Greens6",    "Greens7",    "Greens8",    "Greens9",
     "Oranges3",   "Oranges4",   "Oranges5",   "Oranges6",   "Oranges7",   "Oranges8",   "Oranges9",
     "Reds3",      "Reds4",      "Reds5",      "Reds6",      "Reds7",      "Reds8",      "Reds9",
-    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",                                   "Greys256"
+    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",     "Greys256",
     "PuOr3",      "PuOr4",      "PuOr5",      "PuOr6",      "PuOr7",      "PuOr8",      "PuOr9",      "PuOr10",      "PuOr11",
     "BrBG3",      "BrBG4",      "BrBG5",      "BrBG6",      "BrBG7",      "BrBG8",      "BrBG9",      "BrBG10",      "BrBG11",
     "PRGn3",      "PRGn4",      "PRGn5",      "PRGn6",      "PRGn7",      "PRGn8",      "PRGn9",      "PRGn10",      "PRGn11",
