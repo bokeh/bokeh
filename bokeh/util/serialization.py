@@ -64,12 +64,12 @@ def transform_array(obj):
     ## For compatibility with PyPy that doesn't have datetime64
     except AttributeError as e:
         if e.args == ("'module' object has no attribute 'datetime64'",):
-                import sys
-                 if 'PyPy' in sys.version:
-                     legacy_datetime64 = False
-                     pass
-                 else:
-                     raise e
+            import sys
+            if 'PyPy' in sys.version:
+                legacy_datetime64 = False
+                pass
+            else:
+                raise e
         else:
             raise e
 
