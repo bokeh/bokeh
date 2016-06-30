@@ -57,9 +57,14 @@ def transform_array(obj):
     nans and infs with strings
     """
     # Check for astype failures (putative Numpy < 1.7)
-    dt2001 = np.datetime64('2001')
-    legacy_datetime64 = (dt2001.astype('int64') ==
-                         dt2001.astype('datetime64[ms]').astype('int64'))
+    try:
+        dt2001 = np.datetime64('2001')
+        legacy_datetime64 = (dt2001.astype('int64') ==
+                             dt2001.astype('datetime64[ms]').astype('int64'))
+    ## For compatibility with PyPy that doesn't have datetime64
+    except AttributeError:
+        legacy_datetime64 = False
+        pass
     ## not quite correct, truncates to ms..
     if obj.dtype.kind == 'M':
         if legacy_datetime64:
