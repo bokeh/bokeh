@@ -17,7 +17,6 @@ import itertools
 import warnings
 
 import matplotlib as mpl
-from matplotlib.colors import ColorConverter
 import numpy as np
 from six import string_types
 
