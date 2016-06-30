@@ -1576,7 +1576,7 @@ class TimeDelta(PropertyDescriptor):
         try:
             import numpy as np
             timedelta_types += (np.timedelta64,)
-        except ImportError:
+        except (ImportError, AttributeError):
             pass
 
         if (isinstance(value, timedelta_types)):
