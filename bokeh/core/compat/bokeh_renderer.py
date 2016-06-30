@@ -17,6 +17,7 @@ import itertools
 import warnings
 
 import matplotlib as mpl
+from matplotlib.colors import ColorConverter
 import numpy as np
 from six import string_types
 
@@ -191,7 +192,6 @@ class BokehRenderer(Renderer):
         source = ColumnDataSource()
         line.x = source.add(x)
         line.y = source.add(y)
-
         line.line_color = convert_color(style['color'])
         line.line_width = style['linewidth']
         line.line_alpha = style['alpha']
@@ -246,7 +246,32 @@ class BokehRenderer(Renderer):
 
     def draw_path(self, data, coordinates, pathcodes, style,
                   offset=None, offset_coordinates="data", mplobj=None):
+        warnings.warn("Path drawing skipped due to performance issues, please use a mpl PathCollection instead")
         pass
+
+    def draw_path_collection(self, paths, path_coordinates, path_transforms,
+                             offsets, offset_coordinates, offset_order,
+                             styles, mplobj=None):
+        "Given a mpl PathCollection instance create a Bokeh Marker glyph."
+        x = offsets[:, 0]
+        y = offsets[:, 1]
+        style = styles
+
+        warnings.warn("Path markers currently do not handled, defaulting to Circle")
+        marker = Circle()
+        source = ColumnDataSource()
+        marker.x = source.add(x)
+        marker.y = source.add(y)
+
+        marker.line_color = convert_color(tuple(map(tuple,style['edgecolor']))[0])
+        marker.fill_color = convert_color(tuple(map(tuple,style['facecolor']))[0])
+        marker.line_width = style['linewidth'][0]
+        marker.size = 10#style['markersize']
+        marker.fill_alpha = marker.line_alpha = style['alpha']
+
+        r = self.plot.add_glyph(source, marker)
+        self.zorder[r._id] = style['zorder']
+        self.handles[id(mplobj)] = r
 
     def draw_text(self, text, position, coordinates, style,
                   text_type=None, mplobj=None):
