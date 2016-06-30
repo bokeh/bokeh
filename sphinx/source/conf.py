@@ -166,7 +166,7 @@ html_context = {
         ('Releases', 'releases/%s' % version),
         ('Developer Guide', 'dev_guide'),
     ),
-    'ALL_VERSIONS': ['0.11.1', '0.11.1', '0.11.0', '0.10.0', '0.9.3', '0.8.2'],
+    'ALL_VERSIONS': ['0.12.0', '0.11.1', '0.11.0', '0.10.0', '0.9.3', '0.8.2'],
     'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 
