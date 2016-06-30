@@ -1552,7 +1552,7 @@ class Datetime(PropertyDescriptor):
                     pass
                 else:
                     raise e
-            else:        
+            else:
                 pass
 
         if (isinstance(value, datetime_types)):
