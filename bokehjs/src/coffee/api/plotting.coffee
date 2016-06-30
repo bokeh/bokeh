@@ -3,6 +3,7 @@ $ = require("jquery")
 sprintf = require("sprintf")
 {Document} = require("../document")
 embed = require("../embed")
+{BOKEH_CSS_CLASS_NAME} = require("../embed")
 models = require("./models")
 
 _default_tooltips = [
@@ -378,7 +379,7 @@ show = (obj, target) ->
     for _obj in obj
       doc.add_root(_obj)
 
-  div = $("<div class='bk-root'>")
+  div = $("<div class=#{BOKEH_CSS_CLASS_NAME}>")
   $(target ? "body").append(div)
 
   views = embed.add_document_standalone(doc, div)

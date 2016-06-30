@@ -8,6 +8,8 @@ base = require "./base"
 {logger, set_log_level} = require "./core/logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
 
+BOKEH_CSS_CLASS_NAME = "bk-root"
+
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
   # @ is bound to the doc
@@ -168,7 +170,7 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
 
     if elem.prop("tagName") == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
-      container = $('<div>', {class: 'bk-root'})
+      container = $('<div>', {class: BOKEH_CSS_CLASS_NAME})
       elem.replaceWith(container)
       elem = container
 
@@ -204,4 +206,5 @@ module.exports = {
   add_document_standalone: add_document_standalone
   inject_css: inject_css
   inject_raw_css: inject_raw_css
+  BOKEH_CSS_CLASS_NAME: BOKEH_CSS_CLASS_NAME
 }
