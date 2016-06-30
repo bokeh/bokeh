@@ -8,7 +8,9 @@ base = require "./base"
 {logger, set_log_level} = require "./core/logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
 
-BOKEH_CSS_CLASS_NAME = "bk-root"
+# Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
+# with this var prevents user configurations where css styling is unset.
+BOKEH_ROOT = "bk-root"
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
@@ -170,7 +172,7 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
 
     if elem.prop("tagName") == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
-      container = $('<div>', {class: BOKEH_CSS_CLASS_NAME})
+      container = $('<div>', {class: BOKEH_ROOT})
       elem.replaceWith(container)
       elem = container
 
@@ -206,5 +208,5 @@ module.exports = {
   add_document_standalone: add_document_standalone
   inject_css: inject_css
   inject_raw_css: inject_raw_css
-  BOKEH_CSS_CLASS_NAME: BOKEH_CSS_CLASS_NAME
+  BOKEH_ROOT: BOKEH_ROOT
 }
