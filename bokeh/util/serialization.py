@@ -62,9 +62,17 @@ def transform_array(obj):
         legacy_datetime64 = (dt2001.astype('int64') ==
                              dt2001.astype('datetime64[ms]').astype('int64'))
     ## For compatibility with PyPy that doesn't have datetime64
-    except AttributeError:
-        legacy_datetime64 = False
-        pass
+    except AttributeError as e:
+        if e.args == ("'module' object has no attribute 'datetime64'",):
+                import sys
+                 if 'PyPy' in sys.version:
+                     legacy_datetime64 = False
+                     pass
+                 else:
+                     raise e
+        else:
+            raise e
+
     ## not quite correct, truncates to ms..
     if obj.dtype.kind == 'M':
         if legacy_datetime64:
