@@ -168,7 +168,7 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
 
     if elem.prop("tagName") == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
-      container = $('<div>', {class: 'bokeh-container'})
+      container = $('<div>', {class: 'bk-root'})
       elem.replaceWith(container)
       elem = container
 
