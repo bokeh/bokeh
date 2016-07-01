@@ -9,6 +9,7 @@ sinon = require "sinon"
 js_version = utils.require "version"
 {Models} = utils.require "base"
 Model = utils.require "model"
+logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
 class AnotherModel extends Model
@@ -541,6 +542,7 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     d.set_title("Foo")
 
+    logging.set_log_level("warn")
     json = d.to_json_string()
     parsed = JSON.parse(json)
     parsed['version'] = "0.0.1"
@@ -548,7 +550,7 @@ describe "Document", ->
     expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (0.0.1)\n"
 
     parsed['version'] = "#{js_version}-foo"
-    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    out = stdoutTrap -> Document.from_json_string(JSON.stringify(parsed))
     expect(out).to.be.equal ""
 
   it "can serialize with one model in it", ->
