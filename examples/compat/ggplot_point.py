@@ -12,5 +12,5 @@ import pdb; pdb.set_trace()
 plt.title("Point ggplot-based plot in Bokeh.")
 
 output_file("ggplot_point.html", title="ggplot_point.py example")
-#plt.show()
+
 show(mpl.to_bokeh())
