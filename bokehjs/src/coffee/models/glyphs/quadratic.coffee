@@ -33,7 +33,7 @@ class QuadraticView extends Glyph.View
       [x0, x1] = _qbb(@_x0[i], @_cx[i], @_x1[i])
       [y0, y1] = _qbb(@_y0[i], @_cy[i], @_y1[i])
 
-      pts.push([x0, y0, x1, y1, {'i': i}])
+      pts.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
 
     index.load(pts)
     return index

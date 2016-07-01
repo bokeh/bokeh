@@ -92,7 +92,7 @@
     "jquery-ui": "^1.10.5",
     "jsnlog": "^2.7.5",
     "mathutils": "0.0.1",
-    "rbush": "^1.3.5",
+    "rbush": "^2.0.1",
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",

@@ -5,17 +5,17 @@ bbox = utils.require "core/util/bbox"
 
 describe "bbox module", ->
 
-  describe "empty", ->
+  describe "EMPTY", ->
 
-    it "should return an unbounded box", ->
-      expect(bbox.empty()).to.deep.equal [[Infinity, -Infinity], [Infinity, -Infinity]]
+    it "should be an unbounded box", ->
+      expect(bbox.EMPTY).to.deep.equal {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY:-Infinity}
 
   describe "union", ->
-    empty    = bbox.empty()
-    outside  = [[0, 10], [0, 10]]
-    inside   = [[4, 5], [4, 5]]
-    overlaps = [[-5, 5], [-5, 5]]
-    disjoint = [[-5, -1], [-5, -1]]
+    empty    = bbox.EMPTY
+    outside  = { minX: 0, maxX: 10, minY:  0, maxY: 10 }
+    inside   = { minX: 4, maxX:  5, minY:  4, maxY: 5  }
+    overlaps = { minX:-5, maxX:  5, minY: -5, maxY: 5  }
+    disjoint = { minX:-5, maxX: -1, minY: -5, maxY: -1 }
 
     it "should return empty when inputs are empty", ->
       expect(bbox.union(empty, empty)).to.deep.equal empty
@@ -29,9 +29,9 @@ describe "bbox module", ->
       expect(bbox.union(outside, inside)).to.deep.equal outside
 
     it "should return the envelope of overlapping bboxes", ->
-      expect(bbox.union(overlaps, outside)).to.deep.equal [[-5, 10,], [-5, 10]]
-      expect(bbox.union(outside, overlaps)).to.deep.equal [[-5, 10,], [-5, 10]]
+      expect(bbox.union(overlaps, outside)).to.deep.equal { minX: -5, maxX: 10, minY: -5, maxY: 10}
+      expect(bbox.union(outside, overlaps)).to.deep.equal { minX: -5, maxX: 10, minY: -5, maxY: 10}
 
     it "should return the envelope of disjoint bboxes", ->
-      expect(bbox.union(overlaps, outside)).to.deep.equal [[-5, 10,], [-5, 10]]
-      expect(bbox.union(outside, overlaps)).to.deep.equal [[-5, 10,], [-5, 10]]
+      expect(bbox.union(overlaps, outside)).to.deep.equal { minX: -5, maxX: 10, minY: -5, maxY: 10}
+      expect(bbox.union(outside, overlaps)).to.deep.equal { minX: -5, maxX: 10, minY: -5, maxY: 10}
