@@ -8,7 +8,7 @@ from bokeh.plotting import output_file, show
 
 g = ggplot(mtcars, aes(x='wt', y='mpg', color='qsec')) + geom_point()
 g.make()
-import pdb; pdb.set_trace()
+
 plt.title("Point ggplot-based plot in Bokeh.")
 
 output_file("ggplot_point.html", title="ggplot_point.py example")
