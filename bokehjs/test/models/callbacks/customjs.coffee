@@ -35,7 +35,9 @@ describe "customjs module", ->
       d = new Document()
       d.add_root(r)
       json = d.to_json_string()
-      copy = Document.from_json_string(json)
+      parsed = JSON.parse(json)
+      parsed['version'] = js_version
+      copy = Document.from_json_string(JSON.stringify(parsed))
       r_copy = copy.get_model_by_id(r.id)
       rng_copy = copy.get_model_by_id(rng.id)
       expect(r.get('values')).to.be.deep.equal [rng]
