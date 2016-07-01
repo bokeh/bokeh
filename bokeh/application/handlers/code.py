@@ -10,6 +10,14 @@ from bokeh.io import set_curdoc, curdoc
 from .code_runner import _CodeRunner
 from .handler import Handler
 
+class _MockSession(object):
+
+    def loop_until_closed(*args, **kw): pass
+    def show(*args, **kw): pass
+
+def _mock_push_session(*args, **kw):
+    return _MockSession()
+
 class CodeHandler(Handler):
     """ Run source code which modifies a Document
 
@@ -64,6 +72,7 @@ class CodeHandler(Handler):
         old_doc = curdoc()
         set_curdoc(doc)
         old_io = self._monkeypatch_io()
+        old_client = self._monkeypatch_client()
 
         try:
             def post_check():
@@ -74,6 +83,7 @@ class CodeHandler(Handler):
             self._runner.run(module, post_check)
         finally:
             self._unmonkeypatch_io(old_io)
+            self._unmonkeypatch_client(old_client)
             set_curdoc(old_doc)
 
     # subclassess must define self._logger_text
@@ -91,13 +101,23 @@ class CodeHandler(Handler):
         for f in CodeHandler._io_functions:
             old[f] = getattr(io, f)
             setattr(io, f, self._loggers[f])
+        return old
 
+    def _monkeypatch_client(self):
+        import bokeh.client as client
+        old = {}
+        old['push_session'] = client.push_session
+        client.push_session = _mock_push_session
         return old
 
     def _unmonkeypatch_io(self, old):
         import bokeh.io as io
         for f in old:
             setattr(io, f, old[f])
+
+    def _unmonkeypatch_client(self, old):
+        import bokeh.client as client
+        setattr(client, 'push_session', old['push_session'])
 
     @property
     def failed(self):

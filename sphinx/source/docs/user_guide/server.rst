@@ -100,11 +100,15 @@ possible with the Bokeh server, but often involves integrating a Bokeh
 server with other web application frameworks. See a complete example at
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
+.. _userguide_server_ways_to_use:
+
+Ways to Use the Bokeh Server
+----------------------------
 
 .. _userguide_server_output_server:
 
 Specifying ``output_server``
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With the previous Flask-based Bokeh server, there was a function
 :func:`bokeh.io.output_server` that could be used to load Bokeh documents
@@ -155,12 +159,16 @@ to the correct URL to view the document, which in this case is:
 
 .. code-block:: none
 
-    http://localhost:5006/?bokeh-session-id=hover
+    http://localhost:5006/?bokeh-session-id=hovero
+
+.. warning::
+    The ``output_server`` method is generally only useful for local,
+    individual exploration, and not for "deployment" scenarios.
 
 .. _userguide_server_bokeh_client:
 
 Connecting with ``bokeh.client``
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With the new Tornado and websocket-based server introduced in Bokeh 0.11,
 there is also a proper client API for interacting directly with a Bokeh
@@ -247,14 +255,32 @@ and the server, there is network traffic between the python client and the
 server as well. Depending on the particular usage, this could be a
 significant consideration.
 
+.. _userguide_server_bokeh_applications:
+
+Bokeh Applications
+~~~~~~~~~~~~~~~~~~
+
+By far the most flexible way to create interactive data visualizations using
+the Bokeh server is to create Bokeh Applications, and serve them with the
+``bokeh serve`` command. This typically looks like:
+
+.. code-block:: sh
+
+    bokeh serve --show myapp.py
+
+where ``myapp.py`` is a simple Python script that sets up the widgets and
+plots that you need. The Bokeh server is designed to be horizontally
+scalable, so running applications in this way is suitable for individual
+or exploratory usage, as well as for deploying rich interactive web
+apps to a wider audience in a scalable way.
+
 .. _userguide_server_applications:
 
 Building Bokeh Applications
 ---------------------------
 
-By far the most flexible way to create interactive data visualizations using
-the Bokeh server is to create Bokeh Applications, and serve them with the
-``bokeh serve`` command.
+There are various different formats that can be used to create Bokeh
+applications.
 
 .. _userguide_server_applications_single_module:
 
@@ -435,7 +461,6 @@ In this case you might have code similar to:
 And similar code to load the JavaScript implementation for a custom model
 from ``models/custom.js``
 
-
 .. _userguide_server_applications_callbacks:
 
 Callbacks and Events
@@ -450,7 +475,8 @@ JavaScript Callbacks in the Browser
 
 Regardless of whether there is a Bokeh Server involved, it is possible to
 create callbacks that execute in the browser, using ``CustomJS`` and other
-methods. See :ref:`userguide_interaction_actions` for more detailed information and examples.
+methods. See :ref:`userguide_interaction_actions` for more detailed information
+and examples.
 
 It is critical to note that **no python code is ever executed when a CustomJS
 callback is used**. This is true even when the call back is supplied as python
@@ -661,6 +687,52 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
+.. _userguide_server_notebook_applications:
+
+Creating Applications from Notebooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to use a Bokeh server in conjunction with a running Jupyter
+notebook. In this case, code will need to use the methods described in
+:ref:`userguide_server_bokeh_client` inside the notebook. You will need
+to create your ``session`` in the following way:
+
+.. code-block:: python
+
+    session = push_session(curdoc(), session_id='default')
+
+
+
+The Bokeh server itself will need to be started in a way that allows
+connections from the notebook. Typically, if the notebook is running
+locally on its default port 8888, this is:
+
+.. code-block:: sh
+
+    bokeh serve --allow-websocket-origin=localhost:8888
+
+Then Bokeh widgets and plots will appear inline in your notebook cells,
+but be connected to the running Bokeh server, triggering callbacks and
+events.
+
+.. note::
+    We hope to automate the startup/shutdown of a properly configured
+    Bokeh server for user with the notebook in future work.
+
+A full example notebook demonstrating thee techniques can be seen at:
+:bokeh-tree:`examples/howto/server_animated.ipynb`
+
+The method described above can be useful for local exploration, or
+prototyping. However it may be desirable to turn a notebook into a full
+Bokeh app that runs directly in the Bokeh server. Fortunatetly this is as
+simple as running the notebook, unmodified, with the Bokeh server, e.g.:
+``bokeh serve myfile.ipynb``. In this context, the Bokeh server will ignore
+any ``bokeh.client`` code that was used to enable interactions while
+working directly in the notebook. It is also possible to use all the features
+of a :ref:`userguide_server_applications_directory` application, by naming
+the notebook ``main.ipynb``. An app created by running the server on a
+notebook is scalable and deployable in the same way as any other Bokeh
+application.
 
 .. _userguide_server_deployment:
 
@@ -679,7 +751,8 @@ Standalone Bokeh Server
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 First, it is possible to simply run the Bokeh server on a network for users
-to interact with directly. Depending on the computational burden of your application code, the number of users, the power of the machine used to run
+to interact with directly. Depending on the computational burden of your
+application code, the number of users, the power of the machine used to run
 on, etc., this could be a simple and immediate option for deployment an
 internal network.
 
@@ -691,9 +764,12 @@ these considerations.
 SSH Tunnels
 '''''''''''
 
-It may be convenient or necessary to run a standalone instance of the Bokeh server on a host to which direct access cannot be allowed. In such cases, ssh can be used to "tunnel" to the server.
+It may be convenient or necessary to run a standalone instance of the Bokeh
+server on a host to which direct access cannot be allowed. In such cases,
+ssh can be used to "tunnel" to the server.
 
-In the simplest scenario, the Bokeh server will run on one host and will be accessed from another location, e.g., a laptop, with no intermediary machines.
+In the simplest scenario, the Bokeh server will run on one host and will be
+accessed from another location, e.g., a laptop, with no intermediary machines.
 
 Run the server as usual on the **remote host**:
 
@@ -701,32 +777,49 @@ Run the server as usual on the **remote host**:
 
     bokeh server
 
-Next, issue the following command on the **local machine** to establish an ssh tunnel to the remote host:
+Next, issue the following command on the **local machine** to establish an ssh
+tunnel to the remote host:
 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006  user@remote.host
 
-Replace *user* with your username on the remote host and *remote.host* with the hostname/IP address of the system hosting the Bokeh server. You may be prompted for login credentials for the remote system. After the connection is set up you will be able to navigate to ``localhost:5006`` as though the Bokeh server were running on the local machine.
+Replace *user* with your username on the remote host and *remote.host* with
+the hostname/IP address of the system hosting the Bokeh server. You may be
+prompted for login credentials for the remote system. After the connection
+is set up you will be able to navigate to ``localhost:5006`` as though the
+Bokeh server were running on the local machine.
 
-The second, slightly more complicated case occurs when there is a gateway between the server and the local machine.  In that situation a reverse tunnel must be estabished from the server to the gateway. Additionally the tunnel from the local machine will also point to the gateway.
+The second, slightly more complicated case occurs when there is a gateway
+between the server and the local machine.  In that situation a reverse tunnel
+must be estabished from the server to the gateway. Additionally the tunnel
+from the local machine will also point to the gateway.
 
-Issue the following commands on the **remote host** where the Bokeh server will run:
+Issue the following commands on the **remote host** where the Bokeh server
+will run:
 
 .. code-block:: sh
 
     nohup bokeh server &
     ssh -NfR 5006:localhost:5006 user@gateway.host
 
-Replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You may be prompted for login credentials for the gateway.
+Replace *user* with your username on the gateway and *gateway.host* with
+the hostname/IP address of the gateway. You may be prompted for login
+credentials for the gateway.
 
-Now set up the other half of the tunnel, from the local machine to the gateway. On the **local machine**:
+Now set up the other half of the tunnel, from the local machine to the
+gateway. On the **local machine**:
 
 .. code-block:: sh
 
     ssh -NfL localhost:5006:localhost:5006 user@gateway.host
 
-Again, replace *user* with your username on the gateway and *gateway.host* with the hostname/IP address of the gateway. You should now be able to access the Bokeh server from the local machine by navigating to ``localhost:5006`` on the local machine, as if the Bokeh server were running on the local machine. You can even set up client connections from a Jupyter notebook running on the local machine.
+Again, replace *user* with your username on the gateway and *gateway.host*
+with the hostname/IP address of the gateway. You should now be able to access
+the Bokeh server from the local machine by navigating to ``localhost:5006`` on
+the local machine, as if the Bokeh server were running on the local machine.
+You can even set up client connections from a Jupyter notebook running on the
+local machine.
 
 .. note::
     We intend to expand this section with more guidance for other tools and

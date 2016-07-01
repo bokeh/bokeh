@@ -327,7 +327,6 @@ def _show_file_with_state(obj, state, new, controller):
 
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
-        push(state=state)
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
