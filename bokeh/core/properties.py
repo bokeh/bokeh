@@ -1545,8 +1545,15 @@ class Datetime(PropertyDescriptor):
         try:
             import numpy as np
             datetime_types += (np.datetime64,)
-        except ImportError:
-            pass
+        except (ImportError, AttributeError) as e:
+            if e.args == ("'module' object has no attribute 'datetime64'",):
+                import sys
+                if 'PyPy' in sys.version:
+                    pass
+                else:
+                    raise e
+            else:
+                pass
 
         if (isinstance(value, datetime_types)):
             return
@@ -1576,8 +1583,15 @@ class TimeDelta(PropertyDescriptor):
         try:
             import numpy as np
             timedelta_types += (np.timedelta64,)
-        except ImportError:
-            pass
+        except (ImportError, AttributeError) as e:
+            if e.args == ("'module' object has no attribute 'timedelta64'",):
+                import sys
+                if 'PyPy' in sys.version:
+                    pass
+                else:
+                    raise e
+            else:
+                pass
 
         if (isinstance(value, timedelta_types)):
             return
