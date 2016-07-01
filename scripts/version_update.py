@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     os.chdir('../')
 
-    files_to_update = ['bokehjs/src/coffee/main.coffee', 'bokehjs/package.json']
+    files_to_update = ['bokehjs/src/coffee/version.coffee', 'bokehjs/package.json']
     files_to_add = ['sphinx/source/conf.py']
     updated_version = sys.argv[1]
     last_version = sys.argv[2]
