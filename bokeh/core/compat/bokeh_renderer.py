@@ -245,7 +245,7 @@ class BokehRenderer(Renderer):
 
     def draw_path(self, data, coordinates, pathcodes, style,
                   offset=None, offset_coordinates="data", mplobj=None):
-        # warnings.warn("Path drawing has performance issues")
+        warnings.warn("Path drawing has performance issues, please use mpl PathCollection instead")
         pass
 
     def draw_path_collection(self, paths, path_coordinates, path_transforms,
