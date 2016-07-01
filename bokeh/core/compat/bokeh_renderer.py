@@ -17,7 +17,6 @@ import itertools
 import warnings
 
 import matplotlib as mpl
-from matplotlib.colors import ColorConverter
 import numpy as np
 from six import string_types
 
@@ -246,7 +245,7 @@ class BokehRenderer(Renderer):
 
     def draw_path(self, data, coordinates, pathcodes, style,
                   offset=None, offset_coordinates="data", mplobj=None):
-        warnings.warn("Path drawing skipped due to performance issues, please use a mpl PathCollection instead")
+        # warnings.warn("Path drawing has performance issues")
         pass
 
     def draw_path_collection(self, paths, path_coordinates, path_transforms,
@@ -257,16 +256,43 @@ class BokehRenderer(Renderer):
         y = offsets[:, 1]
         style = styles
 
-        warnings.warn("Path markers currently do not handled, defaulting to Circle")
+        warnings.warn("Path marker shapes currently not handled, defaulting to Circle")
         marker = Circle()
         source = ColumnDataSource()
         marker.x = source.add(x)
         marker.y = source.add(y)
 
-        marker.line_color = convert_color(tuple(map(tuple,style['edgecolor']))[0])
-        marker.fill_color = convert_color(tuple(map(tuple,style['facecolor']))[0])
-        marker.line_width = style['linewidth'][0]
-        marker.size = 10#style['markersize']
+        if len(style['facecolor']) > 1:
+            fill_color = []
+            for color in style['facecolor']:
+                # Apparently there is an issue with ColumnDataSources and rgb/a tuples, converting to hex
+                fill_color.append('#%02x%02x%02x' % convert_color(tuple(map(tuple,[color]))[0]))
+            marker.fill_color = source.add(fill_color)
+        else:
+            marker.fill_color = convert_color(tuple(map(tuple,style['facecolor']))[0])
+
+        if len(style['edgecolor']) > 1:
+            edge_color = []
+            for color in style['edgecolor']:
+                # Apparently there is an issue with ColumnDataSources, line_color, and rgb/a tuples, converting to hex
+                edge_color.append('#%02x%02x%02x' % convert_color(tuple(map(tuple,[color]))[0]))
+            marker.line_color = source.add(edge_color)
+        else:
+            marker.line_color = convert_color(tuple(map(tuple,style['edgecolor']))[0])
+
+        if len(style['linewidth']) > 1:
+            line_width = []
+            for width in style['linewidth']:
+                line_width.append(width)
+            marker.line_width = source.add(line_width)
+        else:
+            marker.line_width = style['linewidth'][0]
+
+        if len(mplobj.get_axes().collections) > 1:
+            warnings.warn("Path marker sizes support is limited and may not display as expected")
+            marker.size = mplobj.get_sizes()[0]/mplobj.get_axes().collections[-1].get_sizes()[0]*20
+        else:
+            marker.size = 5
         marker.fill_alpha = marker.line_alpha = style['alpha']
 
         r = self.plot.add_glyph(source, marker)
