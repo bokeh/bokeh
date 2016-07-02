@@ -74,7 +74,6 @@ def test_custom_color(custom_palette_builder):
     assert custom_palette_builder.attributes['color'].iterable == CUSTOM_PALETTE
 
 def test_legend_sort(test_data):
-    sort_legend = [('color', False)]
     col1, col2, col3 = Mock(), Mock(), Mock()
     legends = [('col1', col1), ('col3', col3), ('col2', col2)]
     items = [('col1', Mock()), ('col2', Mock()), ('col3', Mock())]

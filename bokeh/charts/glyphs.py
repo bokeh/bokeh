@@ -4,7 +4,6 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.core.enums import DashPattern
