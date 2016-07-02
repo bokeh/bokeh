@@ -204,7 +204,7 @@ respectively.
 ResizeTool
 ''''''''''
 
-* name: ``'resize_select'``
+* name: ``'resize'``
 * icon: |resize_icon|
 
 The resize tool allows the user to left-drag a mouse or drag a finger to resize
