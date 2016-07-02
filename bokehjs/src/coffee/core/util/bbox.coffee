@@ -1,4 +1,3 @@
-
 union = (a, b) ->
   r = {}
   r.minX = Math.min(a.minX, b.minX)
