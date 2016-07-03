@@ -4,6 +4,8 @@ from os import walk, sep, pardir
 from os.path import split, join, isabs, abspath, relpath, exists, isfile, basename
 from glob import glob
 
+import pytest
+
 TOP_PATH = abspath(join(split(__file__)[0], pardir))
 
 MAX_LINE_LENGTH = 160
@@ -98,7 +100,7 @@ def collect_errors():
     check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
     check_tree('examples',     ['*.py', '*.ipynb'])
     check_tree('scripts',      ['*.py', '*.sh'])
-    check_tree('sphinx',       ['*.rst', '*.py', '*.html', '*.json'], ['_build', 'source/docs/gallery'])
+    check_tree('sphinx',       ['*.rst', '*.py'], ['_build', 'source/docs/gallery'])
     check_tree('tests',        ['*.py', '*.js'])
 
     return errors
@@ -106,6 +108,7 @@ def collect_errors():
 def bad_files():
     return " ".join(sorted(set([ file for (_, file, _) in collect_errors() ])))
 
+@pytest.mark.quality
 def test_files():
     def format_message(msg, fname, line_no):
         return msg % (relpath(fname, TOP_PATH), line_no)

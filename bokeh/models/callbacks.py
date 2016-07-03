@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 
-import sys
 from types import FunctionType
 from ..model import Model
 from ..util.dependencies import import_required

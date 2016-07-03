@@ -72,6 +72,7 @@ test:
     - jupyter
     - matplotlib
     - sympy
+    - scikit-learn
     - ggplot
     - seaborn
     - networkx

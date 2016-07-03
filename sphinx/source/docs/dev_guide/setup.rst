@@ -28,8 +28,57 @@ This will create a ``bokeh`` directory at your location. This ``bokeh``
 directory is referred to as the "source checkout" for the remainder of
 this document.
 
-.. _devguide_building_bokehjs:
+.. _devguide_suggested_git_hooks:
 
+Git Hooks
+---------
+
+In order to help prevent some accidental situations, here are two git hooks
+that may be useful. The scripts below should be places in the ``.git/hooks``
+directory, and be marked executable with e.g. ``chmod +x pre-commit``. For
+more information on git hooks, see `this reference`_.
+
+
+``pre-commit``
+~~~~~~~~~~~~~~
+
+This git hook runs the code quality tests before allowing a commit to
+proceed. Note that all the standard testing dependencies musts be installed
+in order for this hook to function.
+
+.. code-block:: sh
+
+    #!/bin/bash
+
+    py.test -m quality
+    exit $?
+
+``pre-push``
+~~~~~~~~~~~~
+
+This git hook prevents accidental pushes to ``master`` on GitHub.
+
+.. code-block:: sh
+
+    #!/bin/bash
+
+    protected_branch='master'
+    current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+    if [ $protected_branch = $current_branch ]
+    then
+        read -p "You're about to push master, is that what you intended? [y|n] " -n 1 -r < /dev/tty
+        echo
+        if echo $REPLY | grep -E '^[Yy]$' > /dev/null
+        then
+            exit 0 # push will execute
+        fi
+        exit 1 # push will not execute
+    else
+        exit 0 # push will execute
+    fi
+
+.. _devguide_building_bokehjs:
 
 Building BokehJS
 ----------------
@@ -296,3 +345,4 @@ For Bokeh server examples, add ``BOKEH_DEV=true`` to the server invocation:
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
+.. _this reference: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks
