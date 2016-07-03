@@ -1,5 +1,3 @@
-import sys
-
 from pytest import raises
 from bokeh.models import CustomJS, Slider
 
