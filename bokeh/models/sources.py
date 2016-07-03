@@ -228,7 +228,9 @@ class ColumnDataSource(DataSource):
             missing = oldkeys - newkeys
             extra = newkeys - oldkeys
             if missing and extra:
-                raise ValueError("Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra))))
+                raise ValueError(
+                    "Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra)))
+                )
             elif missing:
                 raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
             else:

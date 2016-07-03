@@ -50,7 +50,11 @@ class Jitter(Transform):
 class Interpolator(Transform):
     ''' Base class for interpolator transforms.
 
-    Interpolators return the value of a function which has been evalauted between pre-sepcified (x, y) pairs of data.  As an example, if two control point pairs were provided to the interpolator, a linear interpolaction at a specific value of 'x' would result in the value of 'y' which existed on the line conneting the two control points.
+    Interpolators return the value of a function which has been evaluated
+    between specified (x, y) pairs of data.  As an example, if two control
+    point pairs were provided to the interpolator, a linear interpolaction
+    at a specific value of 'x' would result in the value of 'y' which existed
+    on the line conneting the two control points.
 
     The control point pairs for the interpolators can be specified through either
 
@@ -67,7 +71,10 @@ class Interpolator(Transform):
         interp = Interpolator(x="year", y="earnings", data=jewlery_prices))
 
 
-    This is the base class and is not intended to end use.  Please see the documentation for the final derived classes (Jitter, LineraInterpolator, StepInterpolator) for mor information on their specific methods of interpolation.
+    This is the base class and is not intended to end use.  Please see the
+    documentation for the final derived classes (Jitter, LineraInterpolator,
+    StepInterpolator) for mor information on their specific methods of
+    interpolation.
     '''
     x = Either(String, Seq(Float), help="""
     Independant coordiante denoting the location of a point.

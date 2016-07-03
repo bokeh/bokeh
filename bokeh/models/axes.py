@@ -8,7 +8,6 @@ from ..core.properties import abstract
 from ..core.properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
                           Tuple, Either, Include, Override)
 from ..core.property_mixins import LineProps, TextProps
-from ..core.enums import Location
 
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker

@@ -13,8 +13,8 @@ from ..core.validation.warnings import (
     EMPTY_LAYOUT,
     BOTH_CHILD_AND_ROOT,
 )
-from ..core.enums import Location, SizingMode
-from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Override
+from ..core.enums import SizingMode
+from ..core.properties import abstract, Bool, Enum, Int, Instance, List
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated

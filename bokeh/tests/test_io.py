@@ -427,6 +427,6 @@ def _test_layout_added_to_root(layout_generator, children=None):
 def _test_children_removed_from_root(layout_generator, children=None):
     component = Plot()
     io.curdoc().add_root(component if children is None else children[0][0])
-    layout = layout_generator(component if children is None else children)
+    layout_generator(component if children is None else children)
     assert component not in io.curdoc().roots
     io.curdoc().clear()
