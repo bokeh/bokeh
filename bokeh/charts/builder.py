@@ -34,7 +34,7 @@ from ..models.sources import ColumnDataSource
 from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either, Enum)
 from ..core.enums import SortDirection
-from ..io import curdoc, curstate
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------

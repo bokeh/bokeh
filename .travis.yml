@@ -69,7 +69,7 @@ script:
     #
     # Run (JS and Python) unit tests on all python versions
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -s -m js; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc; fi  # Run the not examples or js tests (we can eat stdout for this one)
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi
@@ -78,7 +78,8 @@ script:
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -z "${SAUCELABS}" ]]; then py.test -m integration --driver Firefox; fi
     #
     # Flake/docs testing only once (Py 2.7)
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then py.test -m quality ; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( cd sphinx; make all ) ; fi
     #
     # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery

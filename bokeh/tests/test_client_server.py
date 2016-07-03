@@ -87,13 +87,13 @@ class TestClientServer(unittest.TestCase):
             session.loop_until_closed()
 
     def check_http_gets_fail(self, server, host=None):
-        with (self.assertRaises(HTTPError)) as manager:
+        with (self.assertRaises(HTTPError)):
             http_get(server.io_loop, url(server), host)
-        with (self.assertRaises(HTTPError)) as manager:
+        with (self.assertRaises(HTTPError)):
             http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo", host)
 
     def check_connect_session_fails(self, server, origin, host=None):
-        with (self.assertRaises(HTTPError)) as manager:
+        with (self.assertRaises(HTTPError)):
             websocket_open(server.io_loop,
                            ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
                            origin=origin,
@@ -518,7 +518,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = doc.add_timeout_callback(cb, 10)
+            doc.add_timeout_callback(cb, 10)
 
             client_session.loop_until_closed()
 
@@ -546,7 +546,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = doc.add_timeout_callback(cb, 10)
+            doc.add_timeout_callback(cb, 10)
 
             client_session = push_session(doc,
                                           session_id='test_client_session_timeout_async',
@@ -587,7 +587,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = server_session.document.add_timeout_callback(cb, 10)
+            server_session.document.add_timeout_callback(cb, 10)
 
             client_session.loop_until_closed()
 
@@ -620,7 +620,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = doc.add_next_tick_callback(cb)
+            doc.add_next_tick_callback(cb)
 
             client_session.loop_until_closed()
 
@@ -648,7 +648,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = doc.add_next_tick_callback(cb)
+            doc.add_next_tick_callback(cb)
 
             client_session = push_session(doc,
                                           session_id='test_client_session_next_tick_async',
@@ -689,7 +689,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = server_session.document.add_next_tick_callback(cb)
+            server_session.document.add_next_tick_callback(cb)
 
             client_session.loop_until_closed()
 
@@ -722,7 +722,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = doc.add_periodic_callback(cb, 10)
+            doc.add_periodic_callback(cb, 10)
 
             client_session.loop_until_closed()
 
@@ -748,7 +748,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = doc.add_periodic_callback(cb, 10)
+            doc.add_periodic_callback(cb, 10)
 
             client_session = push_session(doc,
                                           session_id='test_client_session_periodic_async',
@@ -787,7 +787,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            callback = server_session.document.add_periodic_callback(cb, 10)
+            server_session.document.add_periodic_callback(cb, 10)
 
             client_session.loop_until_closed()
 

@@ -13,7 +13,6 @@
 
 from __future__ import absolute_import
 
-import itertools
 import warnings
 
 import matplotlib as mpl
@@ -25,7 +24,6 @@ from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis,
                      Grid, LinearAxis, Plot, CategoricalAxis, Legend)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
-from ...models.annotations import Title
 from ...plotting import DEFAULT_TOOLS
 from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
