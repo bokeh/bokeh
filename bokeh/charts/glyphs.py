@@ -4,7 +4,6 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.core.enums import DashPattern
@@ -412,8 +411,8 @@ class HorizonGlyph(AreaGlyph):
 
         # transform clipped data so it always starts and ends at its base value
         if len(ys) > 0:
-            xs, ys = map(list, zip(*[generate_patch_base(x, y, base=base) for
-                                     x, y in zip(xs, ys)]))
+            xs, ys = map(list, zip(*[generate_patch_base(xx, yy, base=base) for
+                                     xx, yy in zip(xs, ys)]))
 
         return xs, ys
 

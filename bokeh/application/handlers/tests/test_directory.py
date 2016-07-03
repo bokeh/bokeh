@@ -219,7 +219,6 @@ some.foo = 57
 
         assert not doc.roots
 
-        handler = result['handler']
         assert isinstance(doc.template, jinja2.Template)
 
     def test_directory_without_template(self):
@@ -238,5 +237,4 @@ some.foo = 57
 
         assert not doc.roots
 
-        handler = result['handler']
         assert doc.template is FILE

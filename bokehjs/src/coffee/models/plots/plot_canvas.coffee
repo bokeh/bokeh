@@ -131,6 +131,7 @@ class PlotCanvasView extends Renderer.View
     return @canvas_view.ctx.canvas
 
   init_webgl: () ->
+    ctx = @canvas_view.ctx
 
     # We use a global invisible canvas and gl context. By having a global context,
     # we avoid the limitation of max 16 contexts that most browsers have.
@@ -143,10 +144,47 @@ class PlotCanvasView extends Renderer.View
     # If WebGL is available, we store a reference to the gl canvas on
     # the ctx object, because that's what gets passed everywhere.
     if glcanvas.gl?
-      @canvas_view.ctx.glcanvas = glcanvas
+      ctx.glcanvas = glcanvas
     else
       logger.warn('WebGL is not supported, falling back to 2D canvas.')
       # Do not set @canvas_view.ctx.glcanvas
+
+  prepare_webgl: (ratio, frame_box) ->
+    # Prepare WebGL for a drawing pass
+    ctx = @canvas_view.ctx
+    canvas = @canvas_view.get_canvas_element()
+    if ctx.glcanvas
+      # Sync canvas size
+      ctx.glcanvas.width = canvas.width
+      ctx.glcanvas.height = canvas.height
+      # Prepare GL for drawing
+      gl = ctx.glcanvas.gl
+      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+      # Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
+      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
+      # Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
+      #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
+
+  blit_webgl: (ratio) ->
+    # This should be called when the ctx has no state except the HIDPI transform
+    ctx = @canvas_view.ctx
+    if ctx.glcanvas
+      # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      # to remove the hidpi transform, then blit, then restore.
+      # ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+      logger.debug('drawing with WebGL')
+      ctx.restore()
+      ctx.drawImage(ctx.glcanvas, 0, 0)
+      # Set back hidpi transform
+      ctx.save()
+      ctx.scale(ratio, ratio)
+      ctx.translate(0.5, 0.5)
 
   update_dataranges: () ->
     # Update any DataRange1ds here
@@ -493,43 +531,15 @@ class PlotCanvasView extends Renderer.View
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
 
-    if ctx.glcanvas
-      # Sync canvas size
-      canvas = @canvas_view.get_canvas_element()
-      ctx.glcanvas.width = canvas.width
-      ctx.glcanvas.height = canvas.height
-      # Prepare GL for drawing
-      gl = ctx.glcanvas.gl
-      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
-      # Clipping
-      gl.enable(gl.SCISSOR_TEST)
-      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
-      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
-      # Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
-      #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
+    @prepare_webgl(ratio, frame_box)
 
     if @visuals.outline_line.doit
       @visuals.outline_line.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
-
-    if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      # to remove the hidpi transform, then blit, then restore.
-      # ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('drawing with WebGL')
-      ctx.restore()
-      ctx.drawImage(ctx.glcanvas, 0, 0)
-      # Set back hidpi transform
-      ctx.save()
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
-
+    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    @blit_webgl(ratio)
+    @_render_levels(ctx, ['annotation'], frame_box)
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if not @initial_range_info?
