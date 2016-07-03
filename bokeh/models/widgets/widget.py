@@ -6,7 +6,7 @@ these widgets.
 """
 from __future__ import absolute_import
 
-from ...core.properties import abstract, Override
+from ...core.properties import abstract
 from ..layouts import LayoutDOM
 
 
