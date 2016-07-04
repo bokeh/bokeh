@@ -33,13 +33,13 @@ ts = require 'gulp-typescript'
 gulp.task "scripts:coffee", () ->
   gulp.src('./src/coffee/**/*.coffee')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(coffee({bare: true}).on('error', gutil.log))
+      .pipe(coffee({bare: true}))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:eco", () ->
   gulp.src('./src/coffee/**/*.eco')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(eco().on('error', gutil.log))
+      .pipe(eco())
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 tsOpts = {
