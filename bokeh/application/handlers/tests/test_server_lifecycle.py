@@ -4,7 +4,21 @@ import unittest
 
 from bokeh.application.handlers import ServerLifecycleHandler
 from bokeh.document import Document
-from bokeh.util.testing import with_file_contents
+
+def _with_temp_file(func):
+    import tempfile
+    f = tempfile.NamedTemporaryFile()
+    try:
+        func(f)
+    finally:
+        f.close()
+
+def _with_script_contents(contents, func):
+    def with_file_object(f):
+        f.write(contents.encode("UTF-8"))
+        f.flush()
+        func(f.name)
+    _with_temp_file(with_file_object)
 
 script_adds_four_handlers = """
 def on_server_loaded(server_context):
@@ -30,7 +44,7 @@ class TestServerLifecycle(unittest.TestCase):
             handler.on_session_destroyed(None)
             if handler.failed:
                 raise RuntimeError(handler.error)
-        with_file_contents("# This script does nothing", load)
+        _with_script_contents("# This script does nothing", load)
 
         assert not doc.roots
 
@@ -39,7 +53,7 @@ class TestServerLifecycle(unittest.TestCase):
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
-        with_file_contents("This is a syntax error", load)
+        _with_script_contents("This is a syntax error", load)
 
         handler = result['handler']
         assert handler.error is not None
@@ -50,7 +64,7 @@ class TestServerLifecycle(unittest.TestCase):
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
-        with_file_contents("raise RuntimeError('nope')", load)
+        _with_script_contents("raise RuntimeError('nope')", load)
 
         handler = result['handler']
         assert handler.error is not None
@@ -61,7 +75,7 @@ class TestServerLifecycle(unittest.TestCase):
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
-        with_file_contents("""
+        _with_script_contents("""
 def on_server_loaded(a,b):
     pass
 """, load)
@@ -76,7 +90,7 @@ def on_server_loaded(a,b):
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
-        with_file_contents("""
+        _with_script_contents("""
 def on_server_unloaded(a,b):
     pass
 """, load)
@@ -91,7 +105,7 @@ def on_server_unloaded(a,b):
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
-        with_file_contents("""
+        _with_script_contents("""
 def on_session_created(a,b):
     pass
 """, load)
@@ -106,7 +120,7 @@ def on_session_created(a,b):
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
             result['handler'] = handler
-        with_file_contents("""
+        _with_script_contents("""
 def on_session_destroyed(a,b):
     pass
 """, load)
@@ -122,7 +136,7 @@ def on_session_destroyed(a,b):
             handler = result['handler'] = ServerLifecycleHandler(filename=filename)
             if handler.failed:
                 raise RuntimeError(handler.error)
-        with_file_contents(script_adds_four_handlers, load)
+        _with_script_contents(script_adds_four_handlers, load)
 
         handler = result['handler']
         assert "on_server_loaded" == handler.on_server_loaded(None)

@@ -167,7 +167,7 @@ def test__lifecycle_hooks():
     application = Application()
     handler = HookTestHandler()
     application.add(handler)
-    with ManagedServerLoop(application, check_unused_sessions_milliseconds=25) as server:
+    with ManagedServerLoop(application, check_unused_sessions_milliseconds=20) as server:
         # wait for server callbacks to run before we mix in the
         # session, this keeps the test deterministic
         def check_done():

@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
-import os
 import tempfile
 
 from bokeh.document import Document
@@ -18,26 +17,15 @@ class ThemedModel(Model):
 class SubOfThemedModel(ThemedModel):
     another_string = String("world")
 
-FILE_CONTENTS = """
-attrs:
-    ThemedModel:
-        number: 57
-    SubOfThemedModel:
-        another_string: "boo"
-""".encode('utf-8')
-
 class TestThemes(unittest.TestCase):
 
     def test_construct_empty_theme_from_file(self):
-        # windows will throw permissions error with auto-delete
-        with (tempfile.NamedTemporaryFile(delete=False)) as file:
+        with (tempfile.NamedTemporaryFile()) as file:
             # create and apply empty theme with no exception thrown
             file.file.write("".encode('utf-8'))
             file.file.flush()
             theme = Theme(filename=file.name)
             theme.apply_to_model(ThemedModel())
-        file.close()
-        os.remove(file.name)
 
     def test_construct_empty_theme_from_json(self):
         # create and apply empty theme with no exception thrown
@@ -67,16 +55,19 @@ class TestThemes(unittest.TestCase):
         self.assertTrue("should be a dictionary of properties" in repr(manager.exception))
 
     def test_construct_nonempty_theme_from_file(self):
-        # windows will throw permissions error with auto-delete
-        with (tempfile.NamedTemporaryFile(delete=False)) as file:
+        with (tempfile.NamedTemporaryFile()) as file:
             # create and apply empty theme with no exception thrown
-            file.file.write(FILE_CONTENTS)
+            file.file.write("""
+attrs:
+    ThemedModel:
+        number: 57
+    SubOfThemedModel:
+        another_string: "boo"
+            """.encode('utf-8'))
             file.file.flush()
             theme = Theme(filename=file.name)
             self.assertDictEqual(dict(number=57), theme._for_class(ThemedModel))
             self.assertDictEqual(dict(number=57, another_string="boo"), theme._for_class(SubOfThemedModel))
-        file.close()
-        os.remove(file.name)
 
     def test_theming_a_model(self):
         theme = Theme(json={

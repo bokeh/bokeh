@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-from os.path import join
-
 import bokeh.command.subcommands.info as scinfo
 from bokeh.command.bootstrap import main
 
@@ -42,4 +40,4 @@ def test_run_static(capsys):
     main(["bokeh", "info", "--static"])
     out, err = capsys.readouterr()
     assert err == ""
-    assert out.endswith(join('bokeh', 'server', 'static') + '\n')
+    assert out.endswith('/bokeh/server/static\n')
