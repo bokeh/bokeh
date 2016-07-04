@@ -22,7 +22,7 @@ class TestBokehJS(unittest.TestCase):
         out, errs = proc.communicate()
         msg = out.decode('utf-8', errors='ignore')
         print(msg)
-        if result != 0:
+        if proc.returncode != 0:
             assert False
 
 if __name__ == "__main__":
