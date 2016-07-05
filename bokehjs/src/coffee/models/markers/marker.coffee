@@ -41,7 +41,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
@@ -57,7 +57,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (x[4].i for x in @index.search(bbox))
+    candidates = (x.i for x in @index.search(bbox))
 
     hits = []
     for i in candidates
@@ -77,7 +77,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search(bbox))
+    result['1d'].indices = (x.i for x in @index.search(bbox))
     return result
 
   _hit_poly: (geometry) ->

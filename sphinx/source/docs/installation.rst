@@ -37,8 +37,8 @@ For basic usage, have the following libraries installed:
 To use the Bokeh server with python 2.7, you also need to install Futures
 package.
 
-Additionally the ``bokeh.charts`` interface as well as various examples
-depend on the Pandas library, which is recommended to be installed.
+Additionally the ``bokeh.charts`` interface and various examples
+depend on the Pandas library; it is recommended to install Pandas version 0.16.1 or later.
 
 .. _install_packages:
 
