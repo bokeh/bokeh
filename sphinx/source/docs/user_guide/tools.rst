@@ -47,6 +47,9 @@ that the toolbar position clashes with the default axes, in this case
 setting the ``toolbar_sticky`` option to ``False`` will move the toolbar
 to outside of the region where the axis is drawn.
 
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar_clash.py
+    :source-position: above
+
 .. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
     :source-position: above
 
