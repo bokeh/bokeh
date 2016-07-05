@@ -45,7 +45,6 @@ The complete contents of ``small_palettes`` is show below.
 
 """
 import math
-import warnings
 import numpy as np
 
 YlGn3       = ["#31a354", "#addd8e", "#f7fcb9"]
