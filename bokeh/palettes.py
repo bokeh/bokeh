@@ -512,10 +512,15 @@ small_palettes.update({
 
 def _linear_cmap_func_generator(name, cmap):
     def func(n):
-        if n>256: raise ValueError("Cannot return more than 256 unique colors")
+        if n>len(cmap): raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % {'r':n,'l':len(cmap)})
         return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
     func.__name__ = name
     return func
+
+def grey_func(n):
+    cmap = Greys256
+    if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
+    return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
 
 
 _cmaps = {name: _linear_cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
@@ -528,5 +533,5 @@ magma = _cmaps['magma']
 inferno = _cmaps['inferno']
 plasma = _cmaps['plasma']
 viridis = _cmaps['viridis']
-grey = _cmaps['grey']
+grey = grey_func
 gray = grey
