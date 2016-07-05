@@ -42,7 +42,7 @@ def version_update(new_ver, file_array):
     if early_ver:
         print("Version number changed from %s to %s in \n%s" % (early_ver, new_ver, replaced))
 
-def version_add(old_ver, file_array):
+def version_add(new_ver, file_array):
     """Add last version number in an array of files
     with a user-supplied last version number"""
     for ver_file in file_array:
@@ -52,11 +52,11 @@ def version_add(old_ver, file_array):
                 if "ALL_VERSIONS" in line:
                     all_vers = flines[i]
                     begin, end = all_vers.split("[")
-                    all_vers = begin + "['{}', ".format(old_ver) + end
+                    all_vers = begin + "['{}', ".format(new_ver) + end
                     flines[i] = all_vers
         with open(ver_file, "w") as f:
             f.writelines(flines)
-        print("Version number {old_ver} added in {ver_file}".format(old_ver=old_ver, ver_file=ver_file))
+        print("Version number {new_ver} added in {ver_file}".format(new_ver=new_ver, ver_file=ver_file))
 
 if __name__ == '__main__':
     if not len(sys.argv) == 3:
@@ -74,4 +74,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     version_update(updated_version, files_to_update)
-    version_add(last_version, files_to_add)
+    version_add(updated_version, files_to_add)
