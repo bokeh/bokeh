@@ -526,8 +526,7 @@ def grey_func(n):
 _cmaps = {name: _linear_cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
                                                                     ('inferno', Inferno256),
                                                                     ('plasma', Plasma256),
-                                                                    ('viridis', Viridis256),
-                                                                    ('grey', Greys256),)}
+                                                                    ('viridis', Viridis256))}
 
 magma = _cmaps['magma']
 inferno = _cmaps['inferno']
