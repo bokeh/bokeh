@@ -2,6 +2,7 @@ import re
 from types import FunctionType
 
 import bokeh.palettes as pal
+from bokeh.palettes import viridis, Viridis256, gray, grey, Greys256, magma, Magma256, plasma, Plasma256, inferno, Inferno256
 
 # Keys for Natural Sorting
 def ret_ns_key (string):
@@ -21,20 +22,19 @@ def test_palette_lengths():
     for palstr in palettes:
         assert len(getattr(pal,palstr)) == int(re.findall('\d+',palstr)[0])
 
-def test_cmap_generator_functions():
-    funcs = [x for x in dir(pal) if isinstance(getattr(pal,x),FunctionType)]
-    # First value is _cmap_func_generator and that should not be directly tested
-    funcs = funcs[1:]
-    for func in funcs:
-        if (func != 'gray'):
-            pal_two_five_six = func
-            if func not in ['inferno', 'magma', 'viridis', 'plasma']:
-                pal_two_five_six += 's'
-            pal_two_five_six = pal_two_five_six.capitalize()
-            pal_two_five_six += '256'
-            assert getattr(pal,func)(256) == getattr(pal,pal_two_five_six)
-        else:
-            assert getattr(pal,func)(256) == pal.Greys256
+def test_cmap_generator_function():
+    funcs = [x for x in dir(pal) if isinstance(getattr(pal, x), FunctionType)]
+    # _cmap_func_generator and grey_func should not be directly tested
+    funcs.remove('_linear_cmap_func_generator')
+    funcs.remove('_linear_grey_cmap_func_generator')
+    cmap_functions = {viridis: Viridis256, gray: Greys256, grey: Greys256, magma: Magma256,
+        plasma: Plasma256, inferno: Inferno256}
+    # check that you're testing all of the cmap funcs (and that there aren't any extra)
+    keys = [y.__name__ for y in cmap_functions.keys()]
+    assert sorted(keys) == sorted(funcs)
+    # check that they all create what's expected
+    for k, v in cmap_functions.items():
+        assert k(256)==v
 
 def test_palette_contents_hard():
     # THIS TEST WILL FAIL WITH ANY UPDATES TO BOKEH PALETTES
