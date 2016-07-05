@@ -519,7 +519,7 @@ def _linear_cmap_func_generator(name, cmap):
 
 def grey_func(n):
     cmap = Greys256
-    if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
+    if n>256: raise ValueError("Gray scale only supports up to 256 shades")
     return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
 
 
