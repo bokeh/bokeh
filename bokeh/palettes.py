@@ -512,7 +512,8 @@ small_palettes.update({
 
 def _linear_cmap_func_generator(name, cmap):
     def func(n):
-        if n>len(cmap): raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % {'r':n,'l':len(cmap)})
+        if n>len(cmap): raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % 
+            {'r':n,'l':len(cmap)})
         return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
     func.__name__ = name
     return func
