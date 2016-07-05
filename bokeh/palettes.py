@@ -518,10 +518,13 @@ def _linear_cmap_func_generator(name, cmap):
     func.__name__ = name
     return func
 
-def grey_func(n):
-    cmap = Greys256
-    if n>256: raise ValueError("Gray scale only supports up to 256 shades")
-    return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
+def _linear_grey_cmap_func_generator(name, cmap):
+    def func(n):
+        cmap = Greys256
+        if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
+        return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
+    func.__name__ = name
+    return func
 
 
 _cmaps = {name: _linear_cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
@@ -533,5 +536,5 @@ magma = _cmaps['magma']
 inferno = _cmaps['inferno']
 plasma = _cmaps['plasma']
 viridis = _cmaps['viridis']
-grey = grey_func
-gray = grey
+grey = _linear_grey_cmap_func_generator('grey', Greys256)
+gray = _linear_grey_cmap_func_generator('gray', Greys256)
