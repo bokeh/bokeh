@@ -58,7 +58,7 @@ def collect_errors():
                 errors.append((message_eof, fname, line_no))
 
     def test(fname):
-        with open(fname, "rb") as test_file:
+        with open(fname, "Urb") as test_file:
             test_this_file(fname, test_file)
 
     def canonicalize(path):

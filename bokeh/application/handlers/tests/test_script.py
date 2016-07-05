@@ -4,21 +4,7 @@ import unittest
 
 from bokeh.application.handlers import ScriptHandler
 from bokeh.document import Document
-
-def _with_temp_file(func):
-    import tempfile
-    f = tempfile.NamedTemporaryFile()
-    try:
-        func(f)
-    finally:
-        f.close()
-
-def _with_script_contents(contents, func):
-    def with_file_object(f):
-        f.write(contents.encode("UTF-8"))
-        f.flush()
-        func(f.name)
-    _with_temp_file(with_file_object)
+from bokeh.util.testing import with_file_contents
 
 class TestScriptHandler(unittest.TestCase):
 
@@ -31,7 +17,7 @@ class TestScriptHandler(unittest.TestCase):
             handler.modify_document(doc)
             result['handler'] = handler
             result['filename'] = filename
-        _with_script_contents(source, load)
+        with_file_contents(source, load)
 
         assert result['handler']._runner.path == result['filename']
         assert result['handler']._runner.source == source
