@@ -2,6 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 
 {Models} = require "./base"
+js_version = require("./version")
 {EQ, Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
@@ -567,8 +568,17 @@ class Document
     Document.from_json(json)
 
   @from_json : (json) ->
+    logger.debug("Creating Document from JSON")
     if typeof json != 'object'
       throw new Error("JSON object has wrong type #{typeof json}")
+    py_version = json['version']
+    versions_string = "Library versions: JS (#{js_version})  /  Python (#{py_version})"
+    if js_version.split('-')[0] != py_version.split('-')[0]
+      logger.warn("JS/Python version mismatch")
+      logger.warn(versions_string)
+    else
+      logger.debug(versions_string)
+
     roots_json = json['roots']
     root_ids = roots_json['root_ids']
     references_json = roots_json['references']

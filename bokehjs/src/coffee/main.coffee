@@ -2,7 +2,7 @@ _ = require("underscore")
 
 Bokeh = {}
 Bokeh.require = require
-Bokeh.version = '0.12.0'
+Bokeh.version = require("./version")
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
