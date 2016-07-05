@@ -52,7 +52,7 @@ validate_bbox_coords = ([x0, x1], [y0, y1]) ->
   # rbush expects x0, y0 to be min, x1, y1 max
   if x0 > x1 then [x0, x1] = [x1, x0]
   if y0 > y1 then [y0, y1] = [y1, y0]
-  return [x0, y0, x1, y1]
+  return {minX: x0, minY: y0, maxX: x1, maxY: y1}
 
 sqr = (x) -> x * x
 dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)
