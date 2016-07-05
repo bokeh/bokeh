@@ -1,3 +1,10 @@
+empty = () -> {
+  minX:  Infinity,
+  minY:  Infinity,
+  maxX: -Infinity,
+  maxY: -Infinity
+}
+
 union = (a, b) ->
   r = {}
   r.minX = Math.min(a.minX, b.minX)
@@ -7,5 +14,5 @@ union = (a, b) ->
   return r
 
 module.exports =
-  EMPTY: {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY:-Infinity}
+  empty: empty
   union: union

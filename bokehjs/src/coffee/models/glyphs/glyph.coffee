@@ -61,7 +61,7 @@ class GlyphView extends Renderer.View
 
   bounds: () ->
     if not @index?
-      return bbox.EMPTY
+      return bbox.empty()
     d = @index.data
     bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
     return @_bounds(bb)
