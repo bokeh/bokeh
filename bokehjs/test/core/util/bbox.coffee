@@ -5,13 +5,13 @@ bbox = utils.require "core/util/bbox"
 
 describe "bbox module", ->
 
-  describe "EMPTY", ->
+  describe "empty", ->
 
     it "should be an unbounded box", ->
-      expect(bbox.EMPTY).to.deep.equal {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY:-Infinity}
+      expect(bbox.empty()).to.deep.equal {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY:-Infinity}
 
   describe "union", ->
-    empty    = bbox.EMPTY
+    empty    = bbox.empty()
     outside  = { minX: 0, maxX: 10, minY:  0, maxY: 10 }
     inside   = { minX: 4, maxX:  5, minY:  4, maxY: 5  }
     overlaps = { minX:-5, maxX:  5, minY: -5, maxY: 5  }
