@@ -81,11 +81,13 @@ class ImageRGBAView extends Glyph.View
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    bb = @index.data.bbox
-    return [
-      [bb[0], bb[2]+@max_dw],
-      [bb[1], bb[3]+@max_dh]
-    ]
+    d = @index.data
+    return {
+      minX: d.minX,
+      minY: d.minY,
+      maxX: d.maxX + @max_dw,
+      maxY: d.maxY + @max_dh
+    }
 
 class ImageRGBA extends Glyph.Model
   default_view: ImageRGBAView
