@@ -518,7 +518,7 @@ def _linear_cmap_func_generator(name, cmap):
     func.__name__ = name
     return func
 
-def _linear_grey_cmap_func_generator(name, cmap):
+def _linear_grey_cmap_func_generator(name):
     def func(n):
         cmap = Greys256
         if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
@@ -536,5 +536,5 @@ magma = _cmaps['magma']
 inferno = _cmaps['inferno']
 plasma = _cmaps['plasma']
 viridis = _cmaps['viridis']
-grey = _linear_grey_cmap_func_generator('grey', Greys256)
-gray = _linear_grey_cmap_func_generator('gray', Greys256)
+grey = _linear_grey_cmap_func_generator('grey')
+gray = _linear_grey_cmap_func_generator('gray')
