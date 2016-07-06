@@ -4,7 +4,7 @@ from bokeh.plotting import figure, show, output_file
 factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
 x =  [50, 40, 65, 10, 25, 37, 80, 60]
 
-dot = figure(title="Catgorical Dot Plot", tools="", toolbar_location=None,
+dot = figure(title="Categorical Dot Plot", tools="", toolbar_location=None,
             y_range=factors, x_range=[0,100])
 
 dot.segment(0, factors, x, factors, line_width=2, line_color="green", )
