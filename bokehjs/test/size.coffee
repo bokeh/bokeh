@@ -7,11 +7,11 @@ build_dir = path.normalize("#{__dirname}/../build")
 console.log(build_dir)
 
 LIMITS = {
-  "css/bokeh-widgets.min.css": 515
-  "css/bokeh.min.css":         69
-  "js/bokeh-compiler.min.js":  175
-  "js/bokeh-widgets.min.js":   284
-  "js/bokeh.min.js":           887
+  "css/bokeh-widgets.min.css": 527
+  "css/bokeh.min.css":         74
+  "js/bokeh-compiler.min.js":  178
+  "js/bokeh-widgets.min.js":   290
+  "js/bokeh.min.js":           907
 }
 
 for filename, maxsize of LIMITS
