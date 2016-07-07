@@ -311,7 +311,7 @@ def gridplot(*args, **kwargs):
             :class:`~bokeh.models.tools.ToolbarBox`). If none is supplied,
             ToolbarBox's defaults will be used.
 
-        coalesce_tools (``True``, ``False``): Combine tools from all child plots into
+        merge_tools (``True``, ``False``): Combine tools from all child plots into
             a single toolbar.
 
     Returns:
@@ -339,7 +339,7 @@ def gridplot(*args, **kwargs):
     plot_width = kwargs.get('plot_width')
     plot_height = kwargs.get('plot_height')
     ncols = kwargs.get('ncols')
-    coalesce_tools = kwargs.get('coalesce_tools', True)
+    merge_tools = kwargs.get('merge_tools', True)
 
     # Integrity checks & set-up
     if responsive:
@@ -368,7 +368,7 @@ def gridplot(*args, **kwargs):
         row_tools = []
         row_children = []
         for item in row:
-            if coalesce_tools and isinstance(item, Plot):
+            if merge_tools and isinstance(item, Plot):
                 row_tools = row_tools + item.toolbar.tools
                 item.toolbar_location = None
             if item is None:
@@ -391,7 +391,7 @@ def gridplot(*args, **kwargs):
 
     grid = Column(children=rows, sizing_mode=sizing_mode)
 
-    if not coalesce_tools:
+    if not merge_tools:
         return grid
 
     # Make the toolbar
