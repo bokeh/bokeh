@@ -36,7 +36,7 @@ class QuadView extends Glyph.View
       b = bottom[i]
       if isNaN(b) or not isFinite(b)
         continue
-      pts.push([l, b, r, t, {'i': i}])
+      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
     index.load(pts)
     return index
@@ -61,7 +61,7 @@ class QuadView extends Glyph.View
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    hits = (x[4].i for x in @index.search([x, y, x, y]))
+    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits

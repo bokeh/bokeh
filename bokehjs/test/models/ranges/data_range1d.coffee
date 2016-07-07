@@ -199,7 +199,7 @@ describe "datarange1d module", ->
     it "should compute max/min for dimension of a single plot_bounds", ->
       r = new DataRange1d()
       bds = {
-        1: [[0, 10], [5, 6]]
+        1: {minX: 0, maxX: 10, minY: 5, maxY:6}
       }
       expect(r._compute_min_max(bds, 0)).to.be.deep.equal [0, 10]
       expect(r._compute_min_max(bds, 1)).to.be.deep.equal [5, 6]
@@ -207,16 +207,16 @@ describe "datarange1d module", ->
     it "should compute max/min for dimension of multiple plot_bounds", ->
       r = new DataRange1d()
       bds = {
-        1: [[0, 10], [5, 6]]
-        2: [[0, 15], [5.5, 5.6]]
+        1: {minX: 0, maxX: 10, minY: 5, maxY: 6}
+        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6}
       }
       expect(r._compute_min_max(bds, 0)).to.be.deep.equal [0, 15]
       expect(r._compute_min_max(bds, 1)).to.be.deep.equal [5, 6]
 
       bds = {
-        1: [[0, 10], [5, 6]]
-        2: [[0, 15], [5.5, 5.6]]
-        3: [[-10, 15], [0, 2]]
+        1: {minX: 0, maxX: 10, minY: 5, maxY: 6}
+        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6}
+        3: {minX: -10, maxX: 15, minY: 0, maxY: 2}
       }
       expect(r._compute_min_max(bds, 0)).to.be.deep.equal [-10, 15]
       expect(r._compute_min_max(bds, 1)).to.be.deep.equal [0, 6]
@@ -232,10 +232,10 @@ describe "datarange1d module", ->
       g2.id = 2
 
       bds = {
-        1: [[0, 10], [5, 6]]
-        2: [[0, 15], [5.5, 5.6]]
-        3: [[-10, 15], [0, 2]]
+        1: {minX: 0, maxX: 10, minY: 5, maxY: 6}
+        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6}
+        3: {minX: -10, maxX: 15, minY: 0, maxY: 2}
       }
 
-      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal [[0, 10], [5, 6]]
-      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal [[0, 15], [5, 6]]
+      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal {minX: 0, maxX: 10, minY: 5, maxY: 6}
+      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal {minX: 0, maxX: 15, minY: 5, maxY: 6}

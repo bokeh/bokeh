@@ -76,7 +76,7 @@ class AnnularWedgeView extends Glyph.View
     candidates = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt[4].i for pt in @index.search(bbox))
+    for i in (pt.i for pt in @index.search(bbox))
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)

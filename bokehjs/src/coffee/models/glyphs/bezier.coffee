@@ -75,7 +75,7 @@ class BezierView extends Glyph.View
 
       [x0, y0, x1, y1] = _cbb(@_x0[i], @_y0[i], @_x1[i], @_y1[i], @_cx0[i], @_cy0[i], @_cx1[i], @_cy1[i])
 
-      pts.push([x0, y0, x1, y1, {'i': i}])
+      pts.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
 
     index.load(pts)
     return index

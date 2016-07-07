@@ -62,11 +62,9 @@ class GlyphView extends Renderer.View
   bounds: () ->
     if not @index?
       return bbox.empty()
-    bb = @index.data.bbox
-    return @_bounds([
-      [bb[0], bb[2]],
-      [bb[1], bb[3]]
-    ])
+    d = @index.data
+    bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
+    return @_bounds(bb)
 
   get_anchor_point: (anchor, i, [sx, sy]) ->
     switch anchor
@@ -99,7 +97,7 @@ class GlyphView extends Renderer.View
       y = yy[i]
       if isNaN(y) or not isFinite(y)
         continue
-      pts.push([x, y, x, y, {'i': i}])
+      pts.push({minX: x, minY: y, maxX: x, maxY: y, i: i})
 
     index.load(pts)
     return index
