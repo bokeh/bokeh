@@ -96,6 +96,9 @@ and
 
 are equivalent. In addition, you can pass in ``plot_width`` and
 ``plot_height`` arguments, and this will set the size of all your plots.
+By default, ``gridplot`` will merge all tools within each child plot
+to a single toolbar attached to the grid. To disable this behavior,
+you can set the option ``merge_tools`` to ``False``.
 
 .. note::
     You cannot use ``None`` with the ``ncols`` argument. It must only be a list
