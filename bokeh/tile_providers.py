@@ -46,3 +46,21 @@ STAMEN_TERRAIN = WMTSTileSource(
         '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
     )
 )
+
+CARTODBPOSITRON = WMTSTileSource(
+    url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    attribution=(
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        'contributors,'
+        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
+    )
+)
+
+CARTODBPOSITRON_RETINA = WMTSTileSource(
+    url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+    attribution=(
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        'contributors,'
+        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
+    )
+)
