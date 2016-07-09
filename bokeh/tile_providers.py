@@ -1,5 +1,7 @@
 ''' Pre-configured tile sources with urls and attribution for common 3rd-party tile services.
-    Additional Stamen tile service information available at: http://maps.stamen.com/
+    Additional information available at:
+        Stamen tile service - http://maps.stamen.com/
+        CartoDB tile service - https://carto.com/location-data-services/basemaps/
 '''
 from .models.tiles import WMTSTileSource
 
@@ -44,5 +46,25 @@ STAMEN_TERRAIN = WMTSTileSource(
         'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
         'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under '
         '<a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
+    )
+)
+
+#: Tile Source for CartoDB Tile Service
+CARTODBPOSITRON = WMTSTileSource(
+    url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    attribution=(
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        ' contributors,'
+        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
+    )
+)
+
+#: Tile Source for CartoDB Tile Service (tiles at 'retina' resolution)
+CARTODBPOSITRON_RETINA = WMTSTileSource(
+    url='http://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+    attribution=(
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        ' contributors,'
+        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
     )
 )
