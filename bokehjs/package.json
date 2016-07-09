@@ -89,7 +89,7 @@
     "es6-promise":"3.0.2",
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
-    "jquery-ui": "^1.10.5",
+    "jquery-ui": "~1.10.5",
     "jsnlog": "^2.7.5",
     "mathutils": "0.0.1",
     "rbush": "^2.0.1",
