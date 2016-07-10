@@ -309,57 +309,6 @@ class Chart(Plot):
 
         return grid
 
-
-    @property
-    def filename(self):
-        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_file
-        output_file("default.html")
-
-    @filename.setter
-    def filename(self, filename):
-        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_file
-        output_file(filename)
-
-    @property
-    def server(self):
-        warnings.warn("Chart property 'server' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_server
-        output_server("default")
-
-    @server.setter
-    def server(self, session_id):
-        warnings.warn("Chart property 'server' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_server
-        if session_id:
-            if isinstance(session_id, bool):
-                session_id='default'
-            output_server(session_id)
-
-    @property
-    def notebook(self):
-        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_notebook
-        output_notebook()
-
-    @notebook.setter
-    def notebook(self, flag):
-        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_notebook
-        output_notebook()
-
-    @deprecated("Bokeh 0.11", "bokeh.io.show")
-    def show(self):
-        import bokeh.io
-        bokeh.io.show(self)
-
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
     annulus = _glyph_function(glyphs.Annulus)
