@@ -246,7 +246,7 @@ class Plot(LayoutDOM):
             getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
-        ''' Adds an tools to the plot.
+        ''' Adds tools to the plot.
 
         Args:
             *tools (Tool) : the tools to add to the Plot
