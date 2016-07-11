@@ -330,8 +330,9 @@ def _show_file_with_state(obj, state, new, controller):
 _NB_LOAD_WARNING = """
 
 BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
-may be due to a slow or bad network connection. To attempt to fix:
+may be due to a slow or bad network connection. Possible fixes:
 
+* ALWAYS run `output_notebook()` in a cell BY ITSELF, AT THE TOP, with no other code
 * re-rerun `output_notebook()` to attempt to load from CDN again, or
 * use INLINE resources instead, as so:
 
