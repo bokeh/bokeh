@@ -349,6 +349,27 @@ class Test_ShowWithState(DefaultStateTester):
         self._check_func_called(mock__show_server_with_state, ("obj", s, "new", "controller"), {})
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
+    @patch('warnings.warn')
+    @patch('bokeh.util.browser.get_browser_controller')
+    def test_ShowNotebookWithState_bokehjs_load_failed(self, mock_get_browser_controller, mock_warn):
+        mock_get_browser_controller.return_value = "controller"
+        s = io.State()
+        s.output_notebook()
+        io._show_with_state("obj", s, "browser", "new")
+        self.assertTrue(mock_warn.called)
+        self.assertEqual(mock_warn.call_args[0], ("""
+
+BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
+may be due to a slow or bad network connection. To attempt to fix:
+
+* re-rerun `output_notebook()` to attempt to load from CDN again, or
+* use INLINE resources instead, as so:
+
+    from bokeh.resources import INLINE
+    output_notebook(resources=INLINE)
+""",))
+        self.assertEqual(mock_warn.call_args[1], {})
+
 class Test_ShowFileWithState(DefaultStateTester):
 
     @patch('os.path.abspath')
@@ -389,7 +410,9 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         s = io.State()
         mock_notebook_div.return_value = "notebook_div"
 
+        io._nb_loaded = True
         io._show_notebook_with_state("obj", s)
+        io._nb_loaded = False
         self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
 
 class Test_ShowServerWithState(DefaultStateTester):

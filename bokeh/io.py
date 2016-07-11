@@ -47,6 +47,8 @@ _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
 
+_nb_loaded = False
+
 #-----------------------------------------------------------------------------
 # Local utilities
 #-----------------------------------------------------------------------------
@@ -325,12 +327,27 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
+_NB_LOAD_WARNING = """
+
+BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
+may be due to a slow or bad network connection. To attempt to fix:
+
+* re-rerun `output_notebook()` to attempt to load from CDN again, or
+* use INLINE resources instead, as so:
+
+    from bokeh.resources import INLINE
+    output_notebook(resources=INLINE)
+"""
+
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
         push(state=state)
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
+        if not _nb_loaded:
+            warnings.warn(_NB_LOAD_WARNING)
+            return
         comms_target = make_id()
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
