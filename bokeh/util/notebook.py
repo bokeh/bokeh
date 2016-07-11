@@ -32,8 +32,10 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
 
 FINALIZE_JS = """
 Bokeh.$("#%s").text("BokehJS successfully loaded");
-var kernel = IPython.notebook.kernel
-kernel.execute("import bokeh.io; bokeh.io._nb_loaded = True");
+var kernel = Jupyter.notebook.kernel
+if (kernel.execute !== undefined) {
+    kernel.execute("import bokeh.io; bokeh.io._nb_loaded = True");
+}
 """
 
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
