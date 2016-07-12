@@ -66,6 +66,15 @@ class GlyphView extends Renderer.View
     bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
     return @_bounds(bb)
 
+  # this is available for subclasses to use, if appropriate.
+  max_wh2_bounds: (bds) ->
+    return {
+        minX: bds.minX - @max_w2,
+        maxX: bds.maxX + @max_w2,
+        minY: bds.minY - @max_h2,
+        maxY: bds.maxY + @max_h2,
+    }
+
   get_anchor_point: (anchor, i, [sx, sy]) ->
     switch anchor
       when "center" then {x: @scx(i, sx, sy), y: @scy(i, sx, sy)}

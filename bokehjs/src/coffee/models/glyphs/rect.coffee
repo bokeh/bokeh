@@ -134,12 +134,7 @@ class RectView extends Glyph.View
     @_generic_area_legend(ctx, x0, x1, y0, y1)
 
   _bounds: (bds) ->
-    return {
-      minX: bds.minX - @max_w2,
-      maxX: bds.maxX + @max_w2,
-      minY: bds.minY - @max_h2,
-      maxY: bds.maxY + @max_h2,
-    }
+    return @max_wh2_bounds(bds)
 
 class Rect extends Glyph.Model
   default_view: RectView
