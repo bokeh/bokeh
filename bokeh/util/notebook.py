@@ -30,6 +30,14 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     publish_display_data({'text/html': html})
     publish_display_data({'application/javascript': js})
 
+FINALIZE_JS = """
+Bokeh.$("#%s").text("BokehJS successfully loaded");
+var kernel = Jupyter.notebook.kernel
+if (kernel.execute !== undefined) {
+    kernel.execute("import bokeh.io; bokeh.io._nb_loaded = True");
+}
+"""
+
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
     global _notebook_loaded
 
@@ -67,13 +75,12 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
         hide_banner   = hide_banner,
     )
 
-    finalize_js = """Bokeh.$("#%s").text("BokehJS successfully loaded");""" % element_id
-
     js = AUTOLOAD_JS.render(
         js_urls  = resources.js_files,
         css_urls = resources.css_files,
-        js_raw   = resources.js_raw + [finalize_js],
+        js_raw   = resources.js_raw + [FINALIZE_JS % element_id],
         css_raw  = resources.css_raw_str,
+        force    = 1,
     )
 
     return html, js
