@@ -34,6 +34,7 @@ the :ref:`devguide`.
     docs/user_guide/plotting
     docs/user_guide/charts
     docs/user_guide/compat
+    docs/user_guide/annotations
     docs/user_guide/styling
     docs/user_guide/tools
     docs/user_guide/layout
