@@ -30,7 +30,7 @@ topic:
     using `HoloViews`_.
 
 :ref:`userguide_annotations`
-    Add informational annotations, such as labels, arrows, and legends to 
+    Add informational annotations, such as labels, arrows, and legends to
     plots.
 
 :ref:`userguide_styling`

@@ -369,7 +369,7 @@ below:
 Adding Annotations
 ------------------
 
-The section on adding annotations to plots has moved.  Please see 
+The section on adding annotations to plots has moved.  Please see
 :ref:`userguide_annotations`
 
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.Figure.annular_wedge`
