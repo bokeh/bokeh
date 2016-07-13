@@ -139,7 +139,7 @@ class LineGLGlyph extends BaseGLGlyph
 
           // Attributes and uniforms to varyings
           v_color = u_color;
-          v_linewidth = u_linewidth * u_pixel_ratio;
+          v_linewidth = u_linewidth;
           v_segment = a_segment * u_scale_length;
           v_length = u_length * u_scale_length;
 
