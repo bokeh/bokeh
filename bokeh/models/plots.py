@@ -282,7 +282,7 @@ class Plot(LayoutDOM):
             Glyph initializer.
 
         Returns:
-            Glyph
+            GlyphRenderer
 
         '''
         if glyph is not None:
