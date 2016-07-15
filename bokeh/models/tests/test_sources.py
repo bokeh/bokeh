@@ -124,5 +124,29 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo"))
         self.assertEqual(stuff['kw'], {})
 
+    def test_patch_bad_data(self):
+        ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(3, 100)]))
+        self.assertEqual(str(cm.exception), "Out-of bounds index (3) in patch for column: a")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(c=[(0, 100)]))
+        self.assertEqual(str(cm.exception), "Can only patch existing columns (extra: c)")
+        with self.assertRaises(ValueError) as cm:
+            ds.patch(dict(a=[(0,100)], c=[(0, 100)], d=[(0, 100)]))
+        self.assertEqual(str(cm.exception), "Can only patch existing columns (extra: c, d)")
+
+    def test_patch_good_data(self):
+        ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
+        ds._document = "doc"
+        stuff = {}
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._patch = mock
+        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]))
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)])))
+        self.assertEqual(stuff['kw'], {})
+
 if __name__ == "__main__":
     unittest.main()
