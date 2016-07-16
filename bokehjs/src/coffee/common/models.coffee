@@ -57,6 +57,7 @@ module.exports = {
   Rect:                     require '../models/glyphs/rect'
   Segment:                  require '../models/glyphs/segment'
   Text:                     require '../models/glyphs/text'
+  VBar:                     require '../models/glyphs/vbar'
   Wedge:                    require '../models/glyphs/wedge'
 
   Grid:                     require '../models/grids/grid'
