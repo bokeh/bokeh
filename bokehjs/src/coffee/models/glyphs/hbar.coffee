@@ -20,24 +20,28 @@ class HBarView extends Glyph.View
 
   _map_data: () ->
     # Vectorize map to target, map all data space coordinates to screen space
-    @sy = @renderer.xmapper.v_map_to_target(@_y)
-    vright = @renderer.ymapper.v_map_to_target(@_right)
-    vleft = (@renderer.ymapper.v_map_to_target(@_left))
+    vy = @renderer.ymapper.v_map_to_target(@_y)
+    @sy = @plot_view.canvas.v_vy_to_sy(vy)
 
-    @stop = @plot_view.canvas.v_vy_to_sy(vright)
-    @sbottom = @plot_view.canvas.v_vy_to_sy(vleft)
+    @sright = @renderer.ymapper.v_map_to_target(@_right)
+    @sleft = (@renderer.ymapper.v_map_to_target(@_left))
 
-    @sleft = []
-    @sright = []
-    @sw = @sdist(@renderer.xmapper, @_y, @_height, 'center')
+    @stop = []
+    @sbottom = []
+    @sh = @sdist(@renderer.xmapper, @_y, @_height, 'center')
     for i in [0...@sy.length]
-      @sleft.push(@sy[i] - @sw[i]/2)
-      @sright.push(@sy[i] + @sw[i]/2)
+      @stop.push(@sy[i] - @sh[i]/2)
+      @sbottom.push(@sy[i] + @sh[i]/2)
     return null
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
+    console.log(sleft)
+    console.log(sright)
+    console.log(stop)
+    console.log(sbottom)
     for i in indices
-      if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
+      # console.log(sleft[i], stop[i], sright[i], sbottom[i])
+      if isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i])
         continue
 
       if @visuals.fill.doit
