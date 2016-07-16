@@ -18,7 +18,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - nodejs >=4.1  [unix]
+    - nodejs >=4.1
     - six
     - python-dateutil
     - numpy
