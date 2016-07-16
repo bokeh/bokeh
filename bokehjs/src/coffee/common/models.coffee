@@ -43,6 +43,7 @@ module.exports = {
   Circle:                   require '../models/glyphs/circle'
   Ellipse:                  require '../models/glyphs/ellipse'
   Gear:                     require '../models/glyphs/gear'
+  HBar:                     require '../models/glyphs/hbar'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
   ImageURL:                 require '../models/glyphs/image_url'
