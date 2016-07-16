@@ -18,15 +18,23 @@ class VBarView extends Quad.View
   #   return index
 
   _map_data: () ->
+    # debugger
     # Vectorize map to target, map all data space coordinates to screen space
-    @sx = @renderer.xmapper.v_map_to_target(@x)
-    @stop = @renderer.ymapper.v_map_to_target(@top)
-    @sbottom = @renderer.ymapper.v_map_to_target(@bottom)
+    @sx = @renderer.xmapper.v_map_to_target(@_x)
+    @stop = @renderer.ymapper.v_map_to_target(@_top)
+    @sbottom = @renderer.ymapper.v_map_to_target(@_bottom)
     # Gets the width.
-    @sw = @sdist(@renderer.xmapper, @x, @width, 'center')
-    for i in [0...@sw.length]
+    @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
+    debugger
+    for i in [0...@sx.length]
       @sleft[i] = @sx[i] - @sw[i]/2
       @sright[i] = @sx[i] + @sw[i]/2
+    return null
+
+  _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
+    debugger
+    super(ctx, indices, {sleft, sright, stop, sbottom})
+
 
 class VBar extends Quad.Model
   default_view: VBarView
@@ -35,13 +43,16 @@ class VBar extends Quad.Model
   # Mixins automatically provide additional properties associated with
   # lines - width, transparency, color, etc.
   # fill - alpha, color, etc.
-  @mixins ['line', 'fill']
+  # Quad.View already has this, so do not uncomment the next line.
+  # @mixins ['line', 'fill']
   # These should match the Python API closely (more or less).
   @define {
       x:      [ p.NumberSpec   ]
       width:  [ p.DistanceSpec ]
-      top:    [ p.NumberSpec   ]
-      bottom: [ p.NumberSpec   ]
+      # top and bottom are already defined, so no need to re-define.
+      # do not uncomment the next two lines.
+      # top:    [ p.NumberSpec   ]
+      # bottom: [ p.NumberSpec   ]
     }
 
 module.exports =
