@@ -290,6 +290,69 @@ class Gear(Glyph):
     The %s values for the gears.
     """)
 
+
+class Hexagon(Glyph):
+    """ Render hexagon markers. """
+
+    __example__ = "tests/glyphs/Hexagon.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'size', 'angle')
+
+    x = NumberSpec(help="""
+    The x-axis coordinates for the center of the markers.
+    """)
+
+    y = NumberSpec(help="""
+    The y-axis coordinates for the center of the markers.
+    """)
+
+    size = ScreenDistanceSpec(default=4, help="""
+    The size (diameter) values for the markers in screen space units.
+    """)
+
+    angle = AngleSpec(default=0.0, help="""
+    The angles to rotate the markers.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+    diagonal = DistanceSpec(None, help="""
+    The diagonal values for hexagon markers (in "data space" units, by default).
+
+    .. note::
+        Hexagon markers are slightly unusual in that they support specifying
+        a diagonal in addition to a size. Only one of ``diagonal`` or ``size``
+        should be given.
+
+    .. warning::
+        # SH NOT SURE WHAT TO DO WITH THIS?!?!
+        Note that ``Hexagon`` glyphs are always drawn as hexagons on the screen,
+        even in cases where the data space aspect ratio is not 1-1. In all
+        cases where diagonal values are specified, the "distance" for the
+        diagonal is measured along the dimension specified by
+        ``diagonal_dimension``. If the aspect ratio is very large or small, the
+        drawn hexagons may appear much larger or smaller than expected. 
+        See :bokeh-issue:`626` for more information.
+
+    """)
+
+    diagonal_dimension = Enum(enumeration('x', 'y'), help="""
+    What dimension to measure hexagon diagonal along.
+
+    When the data space aspect ratio is not 1-1, then the size of the drawn
+    circles depends on what direction is used to measure the "distance" of
+    the radius. This property allows that direction to be controlled.
+    """)
+
+
 class Image(Glyph):
     """ Render images given as scalar data together with a color mapper. """
 

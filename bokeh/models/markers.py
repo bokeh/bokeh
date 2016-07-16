@@ -94,6 +94,7 @@ class Circle(Marker):
     the radius. This property allows that direction to be controlled.
     """)
 
+
 class CircleCross(Marker):
     """ Render circle markers with a '+' cross through the center. """
 
