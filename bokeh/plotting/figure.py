@@ -194,11 +194,7 @@ Examples:
 
 """)
 
-<<<<<<< HEAD
     hbar = _glyph_function(glyphs.HBar, """
-=======
-    ellipse = _glyph_function(glyphs.Ellipse, """
->>>>>>> bokeh/master
 Examples:
 
     .. bokeh-plot::
@@ -207,12 +203,22 @@ Examples:
         from bokeh.plotting import figure, output_file, show
 
         plot = figure(width=300, height=300)
-<<<<<<< HEAD
         plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
-=======
+
+        show(plot)
+""")
+
+    ellipse = _glyph_function(glyphs.Ellipse, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
         plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
                      color="#386CB0", fill_color=None, line_width=2)
->>>>>>> bokeh/master
 
         show(plot)
 
