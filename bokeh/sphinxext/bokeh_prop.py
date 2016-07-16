@@ -30,6 +30,7 @@ import importlib
 
 from docutils import nodes
 from docutils.statemachine import ViewList
+from docutils.core import publish_parts
 
 import textwrap
 
@@ -92,6 +93,14 @@ class BokehPropDirective(Directive):
             type_info=type_info,
             doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
         )
+
+        # Set this to True to hunt for Sphynx warning (e.g. unexpected indentation)
+        if False and prop.__doc__:
+            print('--', prop_name)
+            try:
+                publish_parts(doc)
+            except Exception as err:
+                print('Error in docstring: ' + str(err))
 
         result = ViewList()
         for line in rst_text.split("\n"):
