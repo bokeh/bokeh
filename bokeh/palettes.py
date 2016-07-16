@@ -587,7 +587,7 @@ brewer = {
     "Accent"   : { 3: Accent3,   4: Accent4,   5: Accent5,   6: Accent6,   7: Accent7,   8: Accent8 },
     "Dark"     : { 3: Dark3,     4: Dark4,     5: Dark5,     6: Dark6,     7: Dark7,     8: Dark8 },
     "Paired"   : { 3: Paired3,   4: Paired4,   5: Paired5,   6: Paired6,   7: Paired7,   8: Paired8,   9: Paired9,    10: Paired10,   11: Paired11,    12: Paired12 },
-    "Pastel1"  : { 3: Pastel1_3, 4: Pastel1_4, 5: Pastel1_5, 6: Pastel1_6, 7: Pastel1_7, 8: Pastel1_8, 9: Pastel1_9 }, 
+    "Pastel1"  : { 3: Pastel1_3, 4: Pastel1_4, 5: Pastel1_5, 6: Pastel1_6, 7: Pastel1_7, 8: Pastel1_8, 9: Pastel1_9 },
     "Pastel2"  : { 3: Pastel2_3, 4: Pastel2_4, 5: Pastel2_5, 6: Pastel2_6, 7: Pastel2_7, 8: Pastel2_8 },
     "Set1"     : { 3: Set1_3,    4: Set1_4,    5: Set1_5,    6: Set1_6,    7: Set1_7,    8: Set1_8,    9: Set1_9 },
     "Set2"     : { 3: Set2_3 ,   4: Set2_4,    5: Set2_5,    6: Set2_6,    7: Set2_7,    8: Set2_8 },
