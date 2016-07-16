@@ -49,7 +49,7 @@ for high-performance rendering of larger data sets. Its interface is declarative
 in the style of Protovis_, but its implementation consists of a reactive scene
 graph (similar to Chaco_).
 
-The full BokehJS interface is described detail in :doc:`../reference/bokehjs`
+More information is available at :ref:`userguide_bokehjs`.
 
 .. _Chaco: http://code.enthought.com/chaco/
 .. _JSFiddle: http://jsfiddle.net/

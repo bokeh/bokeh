@@ -34,6 +34,7 @@ the :ref:`devguide`.
     docs/user_guide/plotting
     docs/user_guide/charts
     docs/user_guide/compat
+    docs/user_guide/annotations
     docs/user_guide/styling
     docs/user_guide/tools
     docs/user_guide/layout
@@ -44,6 +45,8 @@ the :ref:`devguide`.
     docs/user_guide/embed
     docs/user_guide/webgl
     docs/user_guide/geo
+    docs/user_guide/bokehjs
+    docs/user_guide/extensions
     docs/user_guide/info
     docs/user_guide/tutorials
     docs/reference
@@ -56,6 +59,7 @@ the :ref:`devguide`.
     docs/reference/embed
     docs/reference/icons
     docs/reference/io
+    docs/reference/layouts
     docs/reference/model
     docs/reference/models
     docs/reference/mpl
@@ -69,7 +73,7 @@ the :ref:`devguide`.
     docs/reference/themes
     docs/reference/tile_providers
     docs/reference/util
-    docs/reference/bokehjs
+    docs/releases/0.12.0
     docs/releases/0.11.1
     docs/releases/0.11.0
     docs/releases/0.10.0

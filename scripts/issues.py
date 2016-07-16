@@ -242,17 +242,18 @@ def get_data(query_func, load_data=False, save_data=False):
 #######################################
 def check_issue(issue, after):
     labels = issue.get('labels', [])
-    if not any(label['name'].startswith('type: ') for label in labels):
-        logging.warn('issue with no type label: {}'.format(issue_line((issue))))
-
-    if closed_issue(issue, after):
-        if not any(label['name'].startswith('reso: ') for label in labels):
-            if not any(label['name'] in IGNORE_ISSUE_TYPE for label in labels):
-                logging.warn('closed issue with no reso label: {}'.format(issue_line((issue))))
-
     if 'pull_request' in issue:
         if not any(label['name'].startswith('status: ') for label in labels):
             logging.warn('pull request without status label: {}'.format(issue_line(issue)))
+
+    else:
+        if not any(label['name'].startswith('type: ') for label in labels):
+            logging.warn('issue with no type label: {}'.format(issue_line((issue))))
+
+        if closed_issue(issue, after):
+            if not any(label['name'].startswith('reso: ') for label in labels):
+                if not any(label['name'] in IGNORE_ISSUE_TYPE for label in labels):
+                    logging.warn('closed issue with no reso label: {}'.format(issue_line((issue))))
 
 
 def check_issues(issues, after=None):

@@ -1,17 +1,17 @@
-_ = require "underscore"
+$ = require "jquery"
 
 Markup = require "./markup"
 p = require "../../core/properties"
 
 class DivView extends Markup.View
-  tagName: "div"
 
   render: () ->
     super()
-    if @mget('render_as_text') == true
-      @$el.text(@mget('text'))
+    if @model.render_as_text == true
+      $content = $('<div></div>').text(@model.text)
     else
-      @$el.html(@mget('text'))
+      $content = $('<div></div>').html(@model.text)
+    @$el.find('.bk-markup').append($content)
     return @
 
 class Div extends Markup.Model

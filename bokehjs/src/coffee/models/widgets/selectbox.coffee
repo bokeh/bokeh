@@ -4,21 +4,14 @@ _ = require "underscore"
 p = require "../../core/properties"
 
 InputWidget = require "./input_widget"
-Widget = require "./widget"
 
 template = require "./selecttemplate"
 
 
-class SelectView extends Widget.View
+class SelectView extends InputWidget.View
   template: template
   events:
     "change select": "change_input"
-
-  change_input: () ->
-    value = @$('select').val()
-    logger.debug("selectbox: value = #{value}")
-    @mset('value', value)
-    @mget('callback')?.execute(@model)
 
   initialize: (options) ->
     super(options)
@@ -32,6 +25,12 @@ class SelectView extends Widget.View
     @$el.html(html)
     return @
 
+  change_input: () ->
+    value = @$('select').val()
+    logger.debug("selectbox: value = #{value}")
+    @model.value = value
+    super()
+
 
 class Select extends InputWidget.Model
   type: "Select"
@@ -40,10 +39,6 @@ class Select extends InputWidget.Model
   @define {
       value:   [ p.String, '' ]
       options: [ p.Any,    [] ] # TODO (bev) is this used?
-    }
-
-  @override {
-      height: 65
     }
 
 module.exports =

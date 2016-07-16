@@ -143,8 +143,9 @@ class HeatMapBuilder(XYBuilder):
 
         # sort the legend by the color selection, reversed compared to how the values
         # were assigned to color
-        if len(self.sort_legend) == 0:
-            self.sort_legend = [('color', True)]
+        if self.legend_sort_field is None:
+            self.legend_sort_field = 'color'
+            self.legend_sort_direction = "ascending"
 
         # find any bin operations applied to get the bin width and height
         for op in self._data.operations:

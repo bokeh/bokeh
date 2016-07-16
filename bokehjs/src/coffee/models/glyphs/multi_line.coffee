@@ -13,11 +13,13 @@ class MultiLineView extends Glyph.View
       ys = (y for y in @_ys[i] when not _.isNaN(y))
       if xs.length == 0
         continue
-      pts.push([
-        _.min(xs), _.min(ys),
-        _.max(xs), _.max(ys),
-        {'i': i}
-      ])
+      pts.push({
+        minX: _.min(xs),
+        minY: _.min(ys),
+        maxX: _.max(xs),
+        maxY: _.max(ys),
+        i: i
+      })
     index.load(pts)
     return index
 

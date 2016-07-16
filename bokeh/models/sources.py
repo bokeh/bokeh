@@ -114,7 +114,6 @@ class ColumnDataSource(DataSource):
         return new_data
 
     @classmethod
-    @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
     def from_df(cls, data):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
@@ -126,8 +125,6 @@ class ColumnDataSource(DataSource):
             dict(str, list)
 
         """
-        import warnings
-        warnings.warn("Method deprecated in Bokeh 0.9.3")
         return cls._data_from_df(data)
 
     def to_df(self):
@@ -231,7 +228,9 @@ class ColumnDataSource(DataSource):
             missing = oldkeys - newkeys
             extra = newkeys - oldkeys
             if missing and extra:
-                raise ValueError("Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra))))
+                raise ValueError(
+                    "Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra)))
+                )
             elif missing:
                 raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
             else:

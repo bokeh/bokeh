@@ -153,7 +153,7 @@ class ApplicationContext(object):
                                                   self.server_context,
                                                   doc)
             try:
-                result = yield yield_for_all_futures(self._application.on_session_created(session_context))
+                yield yield_for_all_futures(self._application.on_session_created(session_context))
             except Exception as e:
                 log.error("Failed to run session creation hooks %r", e, exc_info=True)
 

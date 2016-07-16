@@ -5,9 +5,9 @@ $1 = require "jquery-ui/datepicker"
 p = require "../../core/properties"
 
 InputWidget = require "./input_widget"
-Widget = require "./widget"
 
-class DatePickerView extends Widget.View
+
+class DatePickerView extends InputWidget.View
 
   initialize: (options) ->
     super(options)

@@ -32,7 +32,7 @@ def pyramid():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600, toolbar_location=None)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=500, toolbar_location=None)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
@@ -59,7 +59,7 @@ def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200, toolbar_location=None)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=150, toolbar_location=None)
 
     plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
@@ -130,7 +130,7 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = WidgetBox(children=[year_select, location_select],height=150,width=600)
+    controls = WidgetBox(children=[year_select, location_select], height=150, width=600)
     layout = Column(children=[controls, pyramid(), population()])
 
     return layout

@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import six
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance, Override
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
 from ...core.enums import SliderCallbackPolicy
@@ -58,6 +58,7 @@ class TextInput(InputWidget):
     widget by hitting Enter or clicking outside of the text box area.
     """)
 
+
 class AutocompleteInput(TextInput):
     """ Single-line input widget with auto-completion. """
 
@@ -66,7 +67,6 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
-    height = Override(default=65)
 
 class Select(InputWidget):
     """ Single-select widget.
@@ -85,8 +85,6 @@ class Select(InputWidget):
     A callback to run in the browser whenever the current Select dropdown
     value changes.
     """)
-
-    height = Override(default=65)
 
     @classmethod
     def create(self, *args, **kwargs):
@@ -162,11 +160,11 @@ class Slider(InputWidget):
     """)
 
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    An enumeration which controls the method by which the callback is initated.  This parameter can take on only one of three options.
+    When the callback is initiated. This parameter can take on only one of three options:
 
-       "continuous": Implies that the callback will be initiated immediatly for each movement of the slider
-       "throttle": Implies that the callback will be executed while the slider is being moved but not more often than what is specified in the `callback_throttle` time in miliseconds.
-       "mouseup": Implies that the callback will be executed only once when the slider is released.
+       "continuous": the callback will be executed immediately for each movement of the slider
+       "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
+       "mouseup": the callback will be executed only once when the slider is released.
 
        The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
     """)

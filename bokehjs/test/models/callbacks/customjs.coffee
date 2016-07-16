@@ -4,8 +4,17 @@ utils = require "../../utils"
 CustomJS = utils.require("models/callbacks/customjs").Model
 Range1d = utils.require("models/ranges/range1d").Model
 {Document} = utils.require "document"
+js_version = utils.require "version"
 
 describe "customjs module", ->
+
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
 
   describe "default creation", ->
     r = new CustomJS()
@@ -27,7 +36,9 @@ describe "customjs module", ->
       d = new Document()
       d.add_root(r)
       json = d.to_json_string()
-      copy = Document.from_json_string(json)
+      parsed = JSON.parse(json)
+      parsed['version'] = js_version
+      copy = Document.from_json_string(JSON.stringify(parsed))
       r_copy = copy.get_model_by_id(r.id)
       rng_copy = copy.get_model_by_id(rng.id)
       expect(r.get('values')).to.be.deep.equal [rng]

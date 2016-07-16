@@ -19,6 +19,7 @@ a serialized version of the model looks like.
    :maxdepth: 2
 
    models/annotations
+   models/arrow_heads
    models/axes
    models/callbacks
    models/formatters

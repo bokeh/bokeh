@@ -108,7 +108,9 @@ class TestColumnDataSource(unittest.TestCase):
 
         with self.assertRaises(ValueError) as cm:
             ds.stream(dict(a=[10], b=np.ones((1,1))))
-        self.assertEqual(str(cm.exception), "stream(...) only supports 1d sequences, got ndarray with size (1, 1)")
+        self.assertTrue(
+            str(cm.exception).startswith("stream(...) only supports 1d sequences, got ndarray with size (")
+        )
 
     def test_stream_good_data(self):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))

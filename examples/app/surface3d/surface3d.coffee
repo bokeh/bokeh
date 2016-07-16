@@ -46,7 +46,7 @@ class Surface3dView extends LayoutDOM.View
 
   initialize: (options) ->
     super(options)
-    # Sreate a new Graph3s using the vis.js API. This assumes the vis.js has
+    # Create a new Graph3s using the vis.js API. This assumes the vis.js has
     # already been loaded (e.g. in a custom app template). In the future Bokeh
     # models will be able to specify and load external scripts automatically.
     #

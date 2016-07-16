@@ -12,9 +12,39 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+""" Provide a collection of palettes for color mapping.
 
+Palettes are simple plain Python lists of (hex) RGB colors. This module
+containts the following sets of palettes:
+
+* All Brewer palettes
+* Magma
+* Inferno
+* Plasma
+* Viridis
+
+Every pre-built palette is available as a module attributes, e.g.
+``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of every
+all pre-built palettes can be found in the ``__palettes__`` module attribute.
+
+There are functions :func:`~bokeh.palettes.magma`,
+:func:`~bokeh.palettes.inferno`, :func:`~bokeh.palettes.plasma`,
+:func:`~bokeh.palettes.viridis` that can generate lists of colors of arbitrary
+size from those palettes.
+
+The Brewer palettes are also collected and grouped by name in a
+``brewer`` dictionary, e.g.: ``brewer['Spectral'][6]``
+
+Finally, all "small" palettes (i.e. excluding the 256 color ones) are
+collected and grouped similarly in a ``small_palettes`` attribute.
+The complete contents of ``small_palettes`` is show below.
+
+----
+
+.. bokeh-palette:: unused.for.now
+
+"""
 import math
-
 import numpy as np
 
 YlGn3       = ["#31a354", "#addd8e", "#f7fcb9"]
@@ -160,6 +190,31 @@ Greys6      = ["#252525", "#636363", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7"]
 Greys7      = ["#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7"]
 Greys8      = ["#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
 Greys9      = ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
+Greys10     = ['#000000', '#1c1c1c', '#383838', '#555555', '#717171', '#8d8d8d', '#aaaaaa', '#c6c6c6', '#e2e2e2', '#ffffff']
+Greys11     = ['#000000', '#191919', '#333333', '#4c4c4c', '#666666', '#7f7f7f', '#999999', '#b2b2b2', '#cccccc', '#e5e5e5', '#ffffff']
+Greys256    = [
+    "#000000", "#010101", "#020202", "#030303", "#040404", "#050505", "#060606", "#070707", "#080808", "#090909", "#0a0a0a", "#0b0b0b",
+    "#0c0c0c", "#0d0d0d", "#0e0e0e", "#0f0f0f", "#101010", "#111111", "#121212", "#131313", "#141414", "#151515", "#161616", "#171717",
+    "#181818", "#191919", "#1a1a1a", "#1b1b1b", "#1c1c1c", "#1d1d1d", "#1e1e1e", "#1f1f1f", "#202020", "#212121", "#222222", "#232323",
+    "#242424", "#252525", "#262626", "#272727", "#282828", "#292929", "#2a2a2a", "#2b2b2b", "#2c2c2c", "#2d2d2d", "#2e2e2e", "#2f2f2f",
+    "#303030", "#313131", "#323232", "#333333", "#343434", "#353535", "#363636", "#373737", "#383838", "#393939", "#3a3a3a", "#3b3b3b",
+    "#3c3c3c", "#3d3d3d", "#3e3e3e", "#3f3f3f", "#404040", "#414141", "#424242", "#434343", "#444444", "#454545", "#464646", "#474747",
+    "#484848", "#494949", "#4a4a4a", "#4b4b4b", "#4c4c4c", "#4d4d4d", "#4e4e4e", "#4f4f4f", "#505050", "#515151", "#525252", "#535353",
+    "#545454", "#555555", "#565656", "#575757", "#585858", "#595959", "#5a5a5a", "#5b5b5b", "#5c5c5c", "#5d5d5d", "#5e5e5e", "#5f5f5f",
+    "#606060", "#616161", "#626262", "#636363", "#646464", "#656565", "#666666", "#676767", "#686868", "#696969", "#6a6a6a", "#6b6b6b",
+    "#6c6c6c", "#6d6d6d", "#6e6e6e", "#6f6f6f", "#707070", "#717171", "#727272", "#737373", "#747474", "#757575", "#767676", "#777777",
+    "#787878", "#797979", "#7a7a7a", "#7b7b7b", "#7c7c7c", "#7d7d7d", "#7e7e7e", "#7f7f7f", "#808080", "#818181", "#828282", "#838383",
+    "#848484", "#858585", "#868686", "#878787", "#888888", "#898989", "#8a8a8a", "#8b8b8b", "#8c8c8c", "#8d8d8d", "#8e8e8e", "#8f8f8f",
+    "#909090", "#919191", "#929292", "#939393", "#949494", "#959595", "#969696", "#979797", "#989898", "#999999", "#9a9a9a", "#9b9b9b",
+    "#9c9c9c", "#9d9d9d", "#9e9e9e", "#9f9f9f", "#a0a0a0", "#a1a1a1", "#a2a2a2", "#a3a3a3", "#a4a4a4", "#a5a5a5", "#a6a6a6", "#a7a7a7",
+    "#a8a8a8", "#a9a9a9", "#aaaaaa", "#ababab", "#acacac", "#adadad", "#aeaeae", "#afafaf", "#b0b0b0", "#b1b1b1", "#b2b2b2", "#b3b3b3",
+    "#b4b4b4", "#b5b5b5", "#b6b6b6", "#b7b7b7", "#b8b8b8", "#b9b9b9", "#bababa", "#bbbbbb", "#bcbcbc", "#bdbdbd", "#bebebe", "#bfbfbf",
+    "#c0c0c0", "#c1c1c1", "#c2c2c2", "#c3c3c3", "#c4c4c4", "#c5c5c5", "#c6c6c6", "#c7c7c7", "#c8c8c8", "#c9c9c9", "#cacaca", "#cbcbcb",
+    "#cccccc", "#cdcdcd", "#cecece", "#cfcfcf", "#d0d0d0", "#d1d1d1", "#d2d2d2", "#d3d3d3", "#d4d4d4", "#d5d5d5", "#d6d6d6", "#d7d7d7",
+    "#d8d8d8", "#d9d9d9", "#dadada", "#dbdbdb", "#dcdcdc", "#dddddd", "#dedede", "#dfdfdf", "#e0e0e0", "#e1e1e1", "#e2e2e2", "#e3e3e3",
+    "#e4e4e4", "#e5e5e5", "#e6e6e6", "#e7e7e7", "#e8e8e8", "#e9e9e9", "#eaeaea", "#ebebeb", "#ececec", "#ededed", "#eeeeee", "#efefef",
+    "#f0f0f0", "#f1f1f1", "#f2f2f2", "#f3f3f3", "#f4f4f4", "#f5f5f5", "#f6f6f6", "#f7f7f7", "#f8f8f8", "#f9f9f9", "#fafafa", "#fbfbfb",
+    "#fcfcfc", "#fdfdfd", "#fefefe", "#ffffff"]
 
 PuOr3       = ["#998ec3", "#f7f7f7", "#f1a340"]
 PuOr4       = ["#5e3c99", "#b2abd2", "#fdb863", "#e66101"]
@@ -401,7 +456,7 @@ __palettes__ = [
     "Greens3",    "Greens4",    "Greens5",    "Greens6",    "Greens7",    "Greens8",    "Greens9",
     "Oranges3",   "Oranges4",   "Oranges5",   "Oranges6",   "Oranges7",   "Oranges8",   "Oranges9",
     "Reds3",      "Reds4",      "Reds5",      "Reds6",      "Reds7",      "Reds8",      "Reds9",
-    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",
+    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",     "Greys10",     "Greys11",     "Greys256",
     "PuOr3",      "PuOr4",      "PuOr5",      "PuOr6",      "PuOr7",      "PuOr8",      "PuOr9",      "PuOr10",      "PuOr11",
     "BrBG3",      "BrBG4",      "BrBG5",      "BrBG6",      "BrBG7",      "BrBG8",      "BrBG9",      "BrBG10",      "BrBG11",
     "PRGn3",      "PRGn4",      "PRGn5",      "PRGn6",      "PRGn7",      "PRGn8",      "PRGn9",      "PRGn10",      "PRGn11",
@@ -414,7 +469,7 @@ __palettes__ = [
     "Magma3",     "Magma4",     "Magma5",     "Magma6",     "Magma7",     "Magma8",     "Magma9",     "Magma10",     "Magma11",     "Magma256",
     "Inferno3",   "Inferno4",   "Inferno5",   "Inferno6",   "Inferno7",   "Inferno8",   "Inferno9",   "Inferno10",   "Inferno11",   "Inferno256",
     "Plasma3",    "Plasma4",    "Plasma5",    "Plasma6",    "Plasma7",    "Plasma8",    "Plasma9",    "Plasma10",    "Plasma11",    "Plasma256",
-    "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis11",   "Viridis12",   "Viridis256",
+    "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis10",   "Viridis11",   "Viridis256",
 ]
 
 brewer = {
@@ -447,14 +502,32 @@ brewer = {
     "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
 }
 
-def _cmap_func_generator(name, cmap):
+small_palettes = dict(brewer)
+small_palettes.update({
+    "Magma"   : { 3: Magma3,   4: Magma4,   5: Magma5,   6: Magma6,   7: Magma7,   8: Magma8,   9: Magma9,    10: Magma10,   11: Magma11   },
+    "Inferno" : { 3: Inferno3, 4: Inferno4, 5: Inferno5, 6: Inferno6, 7: Inferno7, 8: Inferno8, 9: Inferno9,  10: Inferno10, 11: Inferno11 },
+    "Plasma"  : { 3: Plasma3,  4: Plasma4,  5: Plasma5,  6: Plasma6,  7: Plasma7,  8: Plasma8,  9: Plasma9,   10: Plasma10,  11: Plasma11  },
+    "Viridis" : { 3: Viridis3, 4: Viridis4, 5: Viridis5, 6: Viridis6, 7: Viridis7, 8: Viridis8, 9: Viridis9,  10: Viridis10, 11: Viridis11 },
+})
+
+def _linear_cmap_func_generator(name, cmap):
     def func(n):
-        """Return a palette of n equally spaced colors."""
+        if n>len(cmap): raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)"
+            %{'r':n,'l':len(cmap)})
         return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
     func.__name__ = name
     return func
 
-_cmaps = {name: _cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
+def _linear_grey_cmap_func_generator(name):
+    def func(n):
+        cmap = Greys256
+        if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
+        return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
+    func.__name__ = name
+    return func
+
+
+_cmaps = {name: _linear_cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
                                                                     ('inferno', Inferno256),
                                                                     ('plasma', Plasma256),
                                                                     ('viridis', Viridis256))}
@@ -463,3 +536,5 @@ magma = _cmaps['magma']
 inferno = _cmaps['inferno']
 plasma = _cmaps['plasma']
 viridis = _cmaps['viridis']
+grey = _linear_grey_cmap_func_generator('grey')
+gray = _linear_grey_cmap_func_generator('gray')

@@ -6,7 +6,6 @@ from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
 from bokeh.model import Model
 from bokeh.core.properties import Int, Instance
-from bokeh.core.templates import FILE, PLOT_DIV
 
 class AnotherModelInTestApplication(Model):
     bar = Int(1)
