@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 import json
-from os import makedirs
+from os import makedirs, listdir, remove
 from os.path import abspath, dirname, exists, join
 
 from docutils import nodes
@@ -65,7 +65,8 @@ class BokehGalleryDirective(Directive):
         env.note_reread()
 
         dest_dir = join(dirname(self.state_machine.node.source), "gallery")
-        if not exists (dest_dir): makedirs(dest_dir)
+        if not exists(dest_dir):
+            makedirs(dest_dir)
 
         target_id = "bokeh-plot-%d" % env.new_serialno('bokeh-plot')
         target_node = nodes.target('', '', ids=[target_id])
@@ -117,5 +118,11 @@ def env_updated_handler(app, env):
     return getattr(env, 'gallery_names', [])
 
 def setup(app):
+    
+    # Clear gallery before generating a new one
+    dirname = 'source/docs/gallery'
+    for fname in listdir(dirname):
+        remove(join(dirname, fname))
+    
     app.connect('env-updated', env_updated_handler)
     app.add_directive('bokeh-gallery', BokehGalleryDirective)
