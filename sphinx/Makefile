@@ -26,6 +26,7 @@ all: html
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -rf source/docs/gallery/*
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
