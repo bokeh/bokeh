@@ -15,6 +15,7 @@ class DashAtlas
     @tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     @tex.set_interpolation(gl.NEAREST, gl.NEAREST)
     @tex.set_size([@_height, @_width], gl.RGBA)
+    @tex.set_data([0, 0], [@_height, @_width], new Uint8Array(@_height * @_width * 4))
     # Init with solid line (index 0 is reserved for this)
     @get_atlas_data([1])
 
