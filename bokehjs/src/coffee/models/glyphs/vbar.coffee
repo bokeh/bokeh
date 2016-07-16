@@ -5,8 +5,9 @@ Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 p = require "../../core/properties"
 
-class VBarView extends Quad.View
+class VBarView extends Glyph.View
 
+  # Temporarily commented out. To be put back later.
   # _index_data: () ->
   #   index = rbush()
   #   pts = []
@@ -18,41 +19,47 @@ class VBarView extends Quad.View
   #   return index
 
   _map_data: () ->
-    # debugger
     # Vectorize map to target, map all data space coordinates to screen space
     @sx = @renderer.xmapper.v_map_to_target(@_x)
-    @stop = @renderer.ymapper.v_map_to_target(@_top)
-    @sbottom = @renderer.ymapper.v_map_to_target(@_bottom)
-    # Gets the width.
+    vtop = @renderer.ymapper.v_map_to_target(@_top)
+    vbottom = (@renderer.ymapper.v_map_to_target(@_bottom))
+
+    @stop = @plot_view.canvas.v_vy_to_sy(vtop)
+    @sbottom = @plot_view.canvas.v_vy_to_sy(vbottom)
+
+    @sleft = []
+    @sright = []
     @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center')
-    debugger
     for i in [0...@sx.length]
-      @sleft[i] = @sx[i] - @sw[i]/2
-      @sright[i] = @sx[i] + @sw[i]/2
+      @sleft.push(@sx[i] - @sw[i]/2)
+      @sright.push(@sx[i] + @sw[i]/2)
     return null
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
-    debugger
-    super(ctx, indices, {sleft, sright, stop, sbottom})
+    for i in indices
+      if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
+        continue
 
+      if @visuals.fill.doit
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
 
-class VBar extends Quad.Model
+      if @visuals.line.doit
+        ctx.beginPath()
+        ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
+
+class VBar extends Glyph.Model
   default_view: VBarView
   type: 'VBar'
 
-  # Mixins automatically provide additional properties associated with
-  # lines - width, transparency, color, etc.
-  # fill - alpha, color, etc.
-  # Quad.View already has this, so do not uncomment the next line.
-  # @mixins ['line', 'fill']
-  # These should match the Python API closely (more or less).
+  @mixins ['line', 'fill']
   @define {
       x:      [ p.NumberSpec   ]
       width:  [ p.DistanceSpec ]
-      # top and bottom are already defined, so no need to re-define.
-      # do not uncomment the next two lines.
-      # top:    [ p.NumberSpec   ]
-      # bottom: [ p.NumberSpec   ]
+      top:    [ p.NumberSpec   ]
+      bottom: [ p.NumberSpec   ]
     }
 
 module.exports =
