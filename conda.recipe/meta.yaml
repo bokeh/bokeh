@@ -45,7 +45,6 @@ requirements:
 test:
   requires:
     # docs
-    - graphviz
     - pygments
     - sphinx >=1.3.1
 
