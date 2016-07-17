@@ -98,7 +98,7 @@ class BokehPropDirective(Directive):
         if False and prop.__doc__:
             print('--', prop_name)
             try:
-                publish_parts(doc)
+                publish_parts(prop.__doc__)
             except Exception as err:
                 print('Error in docstring: ' + str(err))
 
