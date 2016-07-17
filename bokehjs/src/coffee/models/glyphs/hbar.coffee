@@ -37,12 +37,7 @@ class HBarView extends Glyph.View
     return null
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
-    console.log('left', sleft)
-    console.log('right', sright)
-    console.log('top', stop)
-    console.log('bottom', sbottom)
     for i in indices
-      # console.log(sleft[i], stop[i], sright[i], sbottom[i])
       if isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i])
         continue
 
