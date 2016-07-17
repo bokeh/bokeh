@@ -65,9 +65,7 @@ class BokehGalleryDirective(Directive):
         env.note_reread()
 
         dest_dir = join(dirname(self.state_machine.node.source), "gallery")
-        if not exists(dest_dir):
-            makedirs(dest_dir)
-
+        
         target_id = "bokeh-plot-%d" % env.new_serialno('bokeh-plot')
         target_node = nodes.target('', '', ids=[target_id])
         result = [target_node]
@@ -121,6 +119,8 @@ def setup(app):
     
     # Clear gallery before generating a new one
     dirname = 'source/docs/gallery'
+    if not exists(dirname):
+        makedirs(dirname)
     for fname in listdir(dirname):
         remove(join(dirname, fname))
     
