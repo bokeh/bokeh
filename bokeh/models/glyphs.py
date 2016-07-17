@@ -5,11 +5,12 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..core.enums import Direction, Anchor
+from ..core.enums import Direction, Anchor, enumeration
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
-                          Include, Instance, Int, NumberSpec, StringSpec)
+                          Include, Instance, Int, NumberSpec, StringSpec,
+                          ScreenDistanceSpec)
 
 from .mappers import ColorMapper, LinearColorMapper
 
@@ -309,7 +310,7 @@ class Hexagon(Glyph):
     """)
 
     size = ScreenDistanceSpec(default=4, help="""
-    The size (diameter) values for the markers in screen space units.
+    The size (diagonal) values for the markers in screen space units.
     """)
 
     angle = AngleSpec(default=0.0, help="""
@@ -339,7 +340,7 @@ class Hexagon(Glyph):
         cases where diagonal values are specified, the "distance" for the
         diagonal is measured along the dimension specified by
         ``diagonal_dimension``. If the aspect ratio is very large or small, the
-        drawn hexagons may appear much larger or smaller than expected. 
+        drawn hexagons may appear much larger or smaller than expected.
         See :bokeh-issue:`626` for more information.
 
     """)
