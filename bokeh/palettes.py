@@ -1,4 +1,5 @@
-### License regarding the Viridis, Magma, Plasma and Inferno color maps ###
+###########################################################################
+# License regarding the Viridis, Magma, Plasma and Inferno color maps:
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
@@ -12,6 +13,12 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+###########################################################################
+# This product includes color specifications and designs developed by
+# Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
+# licensed under the Apache v2 license. You may obtain a copy of the
+# License at http://www.apache.org/licenses/LICENSE-2.0
+###########################################################################
 """ Provide a collection of palettes for color mapping.
 
 Palettes are simple plain Python lists of (hex) RGB colors. This module
