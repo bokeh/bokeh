@@ -454,12 +454,12 @@ Accent7 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#b
 Accent8 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
 
 # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
-Dark3 = ['#1b9e77', '#d95f02', '#7570b3']
-Dark4 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
-Dark5 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
-Dark6 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
-Dark7 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
-Dark8 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+Dark2_3 = ['#1b9e77', '#d95f02', '#7570b3']
+Dark2_4 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+Dark2_5 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+Dark2_6 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
+Dark2_7 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
+Dark2_8 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
 
 # http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
 Paired3 = ['#a6cee3', '#1f78b4', '#b2df8a']
@@ -553,7 +553,7 @@ __palettes__ = [
     "Plasma3",    "Plasma4",    "Plasma5",    "Plasma6",    "Plasma7",    "Plasma8",    "Plasma9",    "Plasma10",    "Plasma11",    "Plasma256",
     "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis10",   "Viridis11",   "Viridis256",
     "Accent3",    "Accent4",    "Accent5",    "Accent6",    "Accent7",    "Accent8",
-    "Dark3",      "Dark4",      "Dark5",      "Dark6",      "Dark7",      "Dark8",
+    "Dark2_3",    "Dark2_4",    "Dark2_5",    "Dark2_6",    "Dark2_7",    "Dark2_8",
     "Paired3",    "Paired4",    "Paired5",    "Paired6",    "Paired7",    "Paired8",    "Paired9",    "Paired10",    "Paired11",    "Paired12",
     "Pastel1_3",  "Pastel1_4",  "Pastel1_5",  "Pastel1_6",  "Pastel1_7",  "Pastel1_8",  "Pastel1_9",
     "Pastel2_3",  "Pastel2_4",  "Pastel2_5",  "Pastel2_6",  "Pastel2_7",  "Pastel2_8",
@@ -592,7 +592,7 @@ brewer = {
     "Spectral" : { 3: Spectral3, 4: Spectral4, 5: Spectral5, 6: Spectral6, 7: Spectral7, 8: Spectral8, 9: Spectral9,  10: Spectral10, 11: Spectral11 },
     "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
     "Accent"   : { 3: Accent3,   4: Accent4,   5: Accent5,   6: Accent6,   7: Accent7,   8: Accent8 },
-    "Dark"     : { 3: Dark3,     4: Dark4,     5: Dark5,     6: Dark6,     7: Dark7,     8: Dark8 },
+    "Dark2"   : { 3: Dark2_3,   4: Dark2_4,   5: Dark2_5,   6: Dark2_6,   7: Dark2_7,   8: Dark2_8 },
     "Paired"   : { 3: Paired3,   4: Paired4,   5: Paired5,   6: Paired6,   7: Paired7,   8: Paired8,   9: Paired9,    10: Paired10,   11: Paired11,
                    12: Paired12 },
     "Pastel1"  : { 3: Pastel1_3, 4: Pastel1_4, 5: Pastel1_5, 6: Pastel1_6, 7: Pastel1_7, 8: Pastel1_8, 9: Pastel1_9 },
