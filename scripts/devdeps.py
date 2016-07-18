@@ -72,7 +72,6 @@ if __name__ == '__main__':
     depend_check('Dev', *dev_deps)
 
     docs_deps = [
-        'graphviz',
         'sphinx',
         'pygments',
     ]

@@ -1,7 +1,9 @@
-''' Pre-configured tile sources with urls and attribution for common 3rd-party tile services.
-    Additional information available at:
-        Stamen tile service - http://maps.stamen.com/
-        CartoDB tile service - https://carto.com/location-data-services/basemaps/
+'''
+Pre-configured tile sources with urls and attribution for common 3rd-party tile services.
+Additional information available at:
+
+* Stamen tile service - http://maps.stamen.com/
+* CartoDB tile service - https://carto.com/location-data-services/basemaps/
 '''
 from .models.tiles import WMTSTileSource
 

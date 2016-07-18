@@ -45,12 +45,6 @@ and property mixins. Property classes provide automatic validation and
 serialization for a large collection of useful types. Mixin and container
 classes provide for easy bulk addition of properties to model classes.
 
-Below is the full class inheritance diagram for all standard Bokeh property
-types. Click on any node to be taken to the corresponding documentation.
-
-.. inheritance-diagram:: bokeh.core.properties
-  :parts: 1
-
 .. automodule:: bokeh.core.properties
     :members:
 
