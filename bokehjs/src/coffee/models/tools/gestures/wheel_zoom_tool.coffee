@@ -115,9 +115,11 @@ class WheelZoomTool extends GestureTool.Model
 
   @define {
       dimensions: [ p.Array, ["width", "height"] ]
-      speed: [ p.Number, 1/600 ]
     }
 
+  @internal {
+    speed: [ p.Number, 1/600 ]
+  }
 
 module.exports =
   Model: WheelZoomTool
