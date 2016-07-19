@@ -316,11 +316,11 @@ class HBar(Glyph):
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    The %s values for the horizontal bars.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    The %s values for the horizontal bars.
     """)
 
 class Image(Glyph):
@@ -952,11 +952,11 @@ class VBar(Glyph):
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    The %s values for the vertical bars.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    The %s values for the vertical bars.
     """)
 
 class Wedge(Glyph):
