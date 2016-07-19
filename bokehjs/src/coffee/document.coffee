@@ -668,6 +668,16 @@ class Document
         rollover = event_json['rollover']
         column_source.stream(data, rollover)
 
+      else if event_json['kind'] == 'ColumnsPatched'
+        column_source_id = event_json['column_source']['id']
+        if column_source_id not of @_all_models
+          throw new Error("Cannot patch #{column_source_id} which is not in the document")
+        column_source = @_all_models[column_source_id]
+        if column_source not instanceof ColumnDataSource.Model
+          throw new Error("Cannot patch non-ColumnDataSource")
+        patches = event_json['patches']
+        column_source.patch(patches)
+
       else if event_json['kind'] == 'RootAdded'
         root_id = event_json['model']['id']
         root_obj = references[root_id]

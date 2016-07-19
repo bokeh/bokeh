@@ -54,6 +54,7 @@ class GlyphRendererView extends Renderer.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
+    @listenTo(@mget('data_source'), 'patch', @set_data)
     @listenTo(@mget('data_source'), 'stream', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
     if @hover_glyph?
