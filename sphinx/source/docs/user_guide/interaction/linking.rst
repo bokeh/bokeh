@@ -35,3 +35,9 @@ two different |figure| calls.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_linked_brushing.py
     :source-position: above
+
+
+
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

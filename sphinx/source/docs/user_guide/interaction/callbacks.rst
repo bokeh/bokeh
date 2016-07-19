@@ -105,9 +105,6 @@ interactions such as a box zoom, wheel scroll or pan.
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_range_update.py
     :source-position: above
 
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. _userguide_interaction_actions_in_python:
 
