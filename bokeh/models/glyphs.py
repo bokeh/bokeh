@@ -300,7 +300,7 @@ class HBar(Glyph):
     _args = ('y', 'height', 'left', 'right')
 
     y = NumberSpec(help="""
-    The y-coordinates of the centers of the bars.
+    The y-coordinates of the centers of the horizontal bars.
     """)
 
     height = NumberSpec(help="""
@@ -936,7 +936,7 @@ class VBar(Glyph):
     _args = ('x', 'width', 'top', 'bottom')
 
     x = NumberSpec(help="""
-    The x-coordinates of the centers of the bars.
+    The x-coordinates of the centers of the vertical bars.
     """)
 
     width = NumberSpec(help="""
