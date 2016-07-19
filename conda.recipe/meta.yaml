@@ -16,7 +16,6 @@ extra:
 requirements:
   build:
     - python
-    - distribute
     - setuptools
     - nodejs >=4.1
     - six
