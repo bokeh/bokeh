@@ -9,11 +9,7 @@ N = 9
 x = np.linspace(-2, 2, N)
 y = x**2
 
-source = ColumnDataSource(dict(
-        x=x,
-        top=y,
-    )
-)
+source = ColumnDataSource(dict(x=x,top=y,))
 
 xdr = DataRange1d()
 ydr = DataRange1d()
