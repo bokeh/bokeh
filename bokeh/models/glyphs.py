@@ -307,9 +307,9 @@ class HBar(Glyph):
     The heights of the vertical bars.
     """)
 
-    left = NumberSpec(help="""
+    left = NumberSpec(default=0, help="""
     The x-coordinates of the left edges.
-    """, default=0)
+    """)
 
     right = NumberSpec(help="""
     The x-coordinates of the right edges.
@@ -943,9 +943,9 @@ class VBar(Glyph):
     The widths of the vertical bars.
     """)
 
-    bottom = NumberSpec(help="""
+    bottom = NumberSpec(default=0, help="""
     The y-coordinates of the bottom edges.
-    """, default=0)
+    """)
 
     top = NumberSpec(help="""
     The y-coordinates of the top edges.
