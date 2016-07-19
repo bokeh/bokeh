@@ -126,13 +126,13 @@ class CircleView extends Glyph.View
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      [xb, yb] = this.bounds()
+      {minX, minY, maxX, maxY} = this.bounds()
       result = hittest.create_hit_test_result()
 
       if geometry.direction == 'h'
         # use circle bounds instead of current pointer y coordinates
-        y0 = yb[0]
-        y1 = yb[1]
+        y0 = minY
+        y1 = maxY
         if @_radius? and @model.properties.radius.units == "data"
           vx0 = vx - @max_radius
           vx1 = vx + @max_radius
@@ -144,8 +144,8 @@ class CircleView extends Glyph.View
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
       else
         # use circle bounds instead of current pointer x coordinates
-        x0 = xb[0]
-        x1 = xb[1]
+        x0 = minX
+        x1 = maxX
         if @_radius? and @model.properties.radius.units == "data"
           vy0 = vy - @max_radius
           vy1 = vy + @max_radius
