@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import six
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
 from ...core.enums import SliderCallbackPolicy
