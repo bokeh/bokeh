@@ -29,9 +29,7 @@ import os
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.graphviz',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.inheritance_diagram',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',

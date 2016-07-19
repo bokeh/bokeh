@@ -372,6 +372,11 @@ Adding Annotations
 The section on adding annotations to plots has moved.  Please see
 :ref:`userguide_annotations`
 
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
+
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.Figure.annular_wedge`
 .. |annulus|           replace:: :func:`~bokeh.plotting.figure.Figure.annulus`
 .. |arc|               replace:: :func:`~bokeh.plotting.figure.Figure.arc`

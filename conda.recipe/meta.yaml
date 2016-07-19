@@ -16,7 +16,6 @@ extra:
 requirements:
   build:
     - python
-    - distribute
     - setuptools
     - nodejs >=4.1
     - six
@@ -45,7 +44,6 @@ requirements:
 test:
   requires:
     # docs
-    - graphviz
     - pygments
     - sphinx >=1.3.1
 
