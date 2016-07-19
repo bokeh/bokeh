@@ -7,17 +7,6 @@ p = require "../../core/properties"
 
 class HBarView extends Glyph.View
 
-  # Temporarily commented out. To be put back later.
-  # _index_data: () ->
-  #   index = rbush()
-  #   pts = []
-  #   for i in [0...@x.length]
-  #     if not isNaN(@x[i] + @height[i] + @top[i] + @bottom[i])
-  #       w2 = @height[i]/2
-  #       pts.push([@x[i]-w2, @bottom[i], @x[i]+w2, @top[i], {'i': i}])
-  #   index.load(pts)
-  #   return index
-
   _map_data: () ->
     # Vectorize map to target, map all data space coordinates to screen space
     vy = @renderer.ymapper.v_map_to_target(@_y)
