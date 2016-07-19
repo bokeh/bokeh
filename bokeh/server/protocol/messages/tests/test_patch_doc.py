@@ -127,3 +127,25 @@ class TestPatchDocument(unittest.TestCase):
             document.ModelChangedEvent(sample, root, 'data', 10, None, None,
                                        hint=document.ColumnsStreamedEvent(sample, other_root, {}, None))
         )
+
+        # ColumnsPatched
+        event8 = document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                            hint=document.ColumnsPatchedEvent(sample, root, {"a": [(0, 11)]}))
+        msg8 = Protocol("1.0").create("PATCH-DOC", [event8])
+        assert msg8.should_suppress_on_change(event8)
+        assert not msg8.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsPatchedEvent(sample, root, {}))
+        )
+        assert not msg8.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsPatchedEvent(sample, root, {"a": [(0, 10)]}))
+        )
+        assert msg8.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsPatchedEvent(sample, root, {"a": [(0, 11)]}))
+        )
+        assert not msg8.should_suppress_on_change(
+            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
+                                       hint=document.ColumnsPatchedEvent(sample, other_root, {}))
+        )

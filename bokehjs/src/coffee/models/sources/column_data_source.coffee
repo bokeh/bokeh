@@ -57,5 +57,14 @@ class ColumnDataSource extends DataSource.Model
     @set('data', data, {silent: true})
     @trigger('stream')
 
+  patch: (patches) ->
+    data = @get('data')
+    for k, patch of patches
+      for i in [0...patch.length]
+        [ind, value] = patch[i]
+        data[k][ind] = value
+    @set('data', data, {silent: true})
+    @trigger('patch')
+
 module.exports =
   Model: ColumnDataSource

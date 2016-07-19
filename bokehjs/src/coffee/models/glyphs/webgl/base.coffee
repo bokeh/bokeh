@@ -61,16 +61,16 @@ attach_float = (prog, vbo, att_name, n, visual, name) ->
     # otherwise use VBO to apply array.
     if not visual.doit
       vbo.used = false
-      prog.set_attribute(att_name, 'float', null, 0)
+      prog.set_attribute(att_name, 'float', [0])
     else if visual_prop_is_singular(visual, name)
       vbo.used = false
-      prog.set_attribute(att_name, 'float', null, visual[name].value())
+      prog.set_attribute(att_name, 'float', visual[name].value())
     else
       vbo.used = true
       a = new Float32Array(visual.cache[name + '_array'])
       vbo.set_size(n*4)
       vbo.set_data(0, a)
-      prog.set_attribute(att_name, 'float', [vbo, 0, 0])
+      prog.set_attribute(att_name, 'float', vbo)
 
 attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     # Attach the color attribute to the program. If there's just one color,
@@ -83,12 +83,12 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     if not visual.doit
       # Don't draw (draw transparent)
       vbo.used = false
-      prog.set_attribute(att_name, 'vec4', null, [0,0,0,0])
+      prog.set_attribute(att_name, 'vec4', [0,0,0,0])
     else if visual_prop_is_singular(visual, colorname) and visual_prop_is_singular(visual, alphaname)
       # Nice and simple; both color and alpha are singular
       vbo.used = false
       rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
-      prog.set_attribute(att_name, 'vec4', null, rgba)
+      prog.set_attribute(att_name, 'vec4', rgba)
     else
       # Use vbo; we need an array for both the color and the alpha
       vbo.used = true
@@ -111,7 +111,7 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
       # Attach vbo
       vbo.set_size(n*m*4)
       vbo.set_data(0, a)
-      prog.set_attribute(att_name, 'vec4', [vbo, 0, 0])
+      prog.set_attribute(att_name, 'vec4', vbo)
 
 
 module.exports = {

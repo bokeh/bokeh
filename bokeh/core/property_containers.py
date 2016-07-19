@@ -162,6 +162,9 @@ class PropertyValueDict(PropertyValueContainer, dict):
 
     # notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None):
+
+        # NOTE: assumes stream data validity has already been verified
+
         old = self._saved_copy()
 
         import numpy as np
@@ -182,3 +185,19 @@ class PropertyValueDict(PropertyValueContainer, dict):
 
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover))
+
+    # notifies owners explicitly
+    def _patch(self, doc, source, patches):
+
+        # NOTE: assumes patch validity has already been verified
+
+        old = self._saved_copy()
+
+        for name, patch in patches.items():
+            for ind, value in patch:
+                self[name][ind] = value
+
+        from ..document import ColumnsPatchedEvent
+
+        self._notify_owners(old,
+                            hint=ColumnsPatchedEvent(doc, source, patches))

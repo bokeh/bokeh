@@ -29,6 +29,7 @@ if "%1" == "help" (
 if "%1" == "clean" (
 	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
 	del /q /s %BUILDDIR%\*
+	del /q /s source\docs\gallery\*
 	goto end
 )
 

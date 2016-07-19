@@ -120,13 +120,13 @@ class MarkerGLGlyph extends BaseGLGlyph
     @prog.set_shaders(@VERT, frag)
     # Real attributes
     @vbo_x = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_x', 'float', [@vbo_x, 0, 0])
+    @prog.set_attribute('a_x', 'float', @vbo_x)
     @vbo_y = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_y', 'float', [@vbo_y, 0, 0])
+    @prog.set_attribute('a_y', 'float', @vbo_y)
     @vbo_s = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_size', 'float', [@vbo_s, 0, 0])
+    @prog.set_attribute('a_size', 'float', @vbo_s)
     @vbo_a = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_angle', 'float', [@vbo_a, 0, 0])
+    @prog.set_attribute('a_angle', 'float', @vbo_a)
     # VBO's for attributes (they may not be used if value is singleton)
     @vbo_linewidth = new gloo2.VertexBuffer(gl)
     @vbo_fg_color = new gloo2.VertexBuffer(gl)
@@ -166,10 +166,10 @@ class MarkerGLGlyph extends BaseGLGlyph
 
     # Select buffers from main glyph
     # (which may be this glyph but maybe not if this is a (non)selection glyph)
-    @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, 0])
-    @prog.set_attribute('a_y', 'float', [mainGlGlyph.vbo_y, 0, 0])
-    @prog.set_attribute('a_size', 'float', [mainGlGlyph.vbo_s, 0, 0])
-    @prog.set_attribute('a_angle', 'float', [mainGlGlyph.vbo_a, 0, 0])
+    @prog.set_attribute('a_x', 'float', mainGlGlyph.vbo_x)
+    @prog.set_attribute('a_y', 'float', mainGlGlyph.vbo_y)
+    @prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s)
+    @prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a)
 
     # Draw directly or using indices. Do not handle indices if they do not
     # fit in a uint16; WebGL 1.0 does not support uint32.
@@ -205,16 +205,16 @@ class MarkerGLGlyph extends BaseGLGlyph
         offset = chunk * chunksize * 4
         if these_indices.length == 0
           continue
-        @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, offset])
-        @prog.set_attribute('a_y', 'float', [mainGlGlyph.vbo_y, 0, offset])
-        @prog.set_attribute('a_size', 'float', [mainGlGlyph.vbo_s, 0, offset])
-        @prog.set_attribute('a_angle', 'float', [mainGlGlyph.vbo_a, 0, offset])
+        @prog.set_attribute('a_x', 'float', mainGlGlyph.vbo_x, 0, offset)
+        @prog.set_attribute('a_y', 'float', mainGlGlyph.vbo_y, 0, offset)
+        @prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s, 0, offset)
+        @prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a, 0, offset)
         if @vbo_linewidth.used
-          @prog.set_attribute('a_linewidth', 'float', [@vbo_linewidth, 0, offset])
+          @prog.set_attribute('a_linewidth', 'float', @vbo_linewidth, 0, offset)
         if @vbo_fg_color.used
-          @prog.set_attribute('a_fg_color', 'vec4', [@vbo_fg_color, 0, offset * 4])
+          @prog.set_attribute('a_fg_color', 'vec4', @vbo_fg_color, 0, offset * 4)
         if @vbo_bg_color.used
-          @prog.set_attribute('a_bg_color', 'vec4', [@vbo_bg_color, 0, offset * 4])
+          @prog.set_attribute('a_bg_color', 'vec4', @vbo_bg_color, 0, offset * 4)
         # The actual drawing
         @index_buffer.set_size(these_indices.length*2)
         @index_buffer.set_data(0, these_indices)
