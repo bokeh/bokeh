@@ -309,7 +309,7 @@ class HBar(Glyph):
 
     left = NumberSpec(help="""
     The x-coordinates of the left edges.
-    """)
+    """, default=0)
 
     right = NumberSpec(help="""
     The x-coordinates of the right edges.
@@ -945,7 +945,7 @@ class VBar(Glyph):
 
     bottom = NumberSpec(help="""
     The y-coordinates of the bottom edges.
-    """)
+    """, default=0)
 
     top = NumberSpec(help="""
     The y-coordinates of the top edges.
