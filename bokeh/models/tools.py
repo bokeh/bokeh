@@ -392,6 +392,41 @@ class BoxZoomTool(Drag):
 
     """)
 
+class ZoomInTool(Action):
+    """ *toolbar icon*: |zoom_in_icon|
+
+    The zoom-in tool allows users to click a button to zoom in
+    by a fixed amount.
+
+    .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+        :height: 18pt
+
+    """
+    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
+    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    Which dimensions the zoom-in tool is constrained to act in. By
+    default the zoom-in zoom tool will zoom in any dimension, but can be
+    configured to only zoom horizontally across the width of the plot, or
+    vertically across the height of the plot.
+    """)
+
+class ZoomOutTool(Action):
+    """ *toolbar icon*: |zoom_out_icon|
+
+    The zoom-out tool allows users to click a button to zoom out
+    by a fixed amount.
+
+    .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
+        :height: 18pt
+
+    """
+    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    Which dimensions the zoom-out tool is constrained to act in. By
+    default the zoom-out tool will zoom in any dimension, but can be
+    configured to only zoom horizontally across the width of the plot, or
+    vertically across the height of the plot.
+    """)
+
 
 class BoxSelectTool(Drag):
     """ *toolbar icon*: |box_select_icon|

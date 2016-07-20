@@ -13,7 +13,7 @@ from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
-    LogAxis, PanTool, PolySelectTool, ContinuousTicker,
+    LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
@@ -203,6 +203,12 @@ _known_tools = {
     "wheel_zoom": lambda: WheelZoomTool(dimensions=["width", "height"]),
     "xwheel_zoom": lambda: WheelZoomTool(dimensions=["width"]),
     "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
+    "zoom_in": lambda: ZoomInTool(dimensions=["width", "height"]),
+    "xzoom_in": lambda: ZoomInTool(dimensions=["width"]),
+    "yzoom_in": lambda: ZoomInTool(dimensions=["height"]),
+    "zoom_out": lambda: ZoomOutTool(dimensions=["width", "height"]),
+    "xzoom_out": lambda: ZoomOutTool(dimensions=["width"]),
+    "yzoom_out": lambda: ZoomOutTool(dimensions=["height"]),
     "resize": lambda: ResizeTool(),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),

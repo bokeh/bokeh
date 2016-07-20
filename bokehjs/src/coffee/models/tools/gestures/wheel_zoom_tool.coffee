@@ -25,9 +25,19 @@ class WheelZoomToolView extends GestureTool.View
     vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
 
+    # if wheel-scroll events happen outside frame restrict scaling to axis in bounds
     if vx < hr.get('start') or vx > hr.get('end')
       v_axis_only = true
     if vy < vr.get('start') or vy > vr.get('end')
+      h_axis_only = true
+
+    dims = @mget('dimensions')
+
+    # restrict to axi0kw5
+    # s configured in tool's dimensions property
+    if dims.indexOf('width') == -1
+      v_axis_only = true
+    if dims.indexOf('height') == -1
       h_axis_only = true
 
     # we need a browser-specific multiplier to have similar experiences
@@ -43,52 +53,14 @@ class WheelZoomToolView extends GestureTool.View
 
     factor  = @mget('speed') * delta
 
-    # clamp the  magnitude of factor, if it is > 1 bad things happen
-    if factor > 0.9
-      factor = 0.9
-    else if factor < -0.9
-      factor = -0.9
-
-    vx_low  = hr.get('start')
-    vx_high = hr.get('end')
-
-    vy_low  = vr.get('start')
-    vy_high = vr.get('end')
-
-    dims = @mget('dimensions')
-
-    if dims.indexOf('width') > -1 and not v_axis_only
-      sx0 = vx_low  - (vx_low  - vx)*factor
-      sx1 = vx_high - (vx_high - vx)*factor
-    else
-      sx0 = vx_low
-      sx1 = vx_high
-
-    if dims.indexOf('height') > -1 and not h_axis_only
-      sy0 = vy_low  - (vy_low  - vy)*factor
-      sy1 = vy_high - (vy_high - vy)*factor
-    else
-      sy0 = vy_low
-      sy1 = vy_high
-
-    xrs = {}
-    for name, mapper of frame.get('x_mappers')
-      [start, end] = mapper.v_map_from_target([sx0, sx1], true)
-      xrs[name] = {start: start, end: end}
-
-    yrs = {}
-    for name, mapper of frame.get('y_mappers')
-      [start, end] = mapper.v_map_from_target([sy0, sy1], true)
-      yrs[name] = {start: start, end: end}
-
-    # OK this sucks we can't set factor independently in each direction. It is used
-    # for GMap plots, and GMap plots always preserve aspect, so effective the value
-    # of 'dimensions' is ignored.
-    zoom_info = {
-      xrs: xrs
-      yrs: yrs
+    zoom_info = ZoomToolUtil.scale_range({
+      frame: frame
       factor: factor
-    }
+      center: [vx, vy]
+      v_axis_only: v_axis_only
+      h_axis_only: h_axis_only
+    })
+
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
     @plot_view.interactive_timestamp = Date.now()
