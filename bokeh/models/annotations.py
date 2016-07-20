@@ -21,7 +21,7 @@ deprecatedModuleAttribute('0.12.1',
                           'Legend')
 del deprecatedModuleAttribute
 # Makes Legend available in this module during deprecation cycle
-from bokeh.models.guides import Legend
+from bokeh.models.guides import Legend # NOQA
 
 from .renderers import Renderer
 from .sources import DataSource, ColumnDataSource
