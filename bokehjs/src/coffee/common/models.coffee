@@ -5,6 +5,7 @@ module.exports = {
 
   Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'
+  ColorBar:                 require '../models/annotations/color_bar'
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
@@ -100,8 +101,6 @@ module.exports = {
   Range1d:                  require '../models/ranges/range1d'
 
   GlyphRenderer:            require '../models/renderers/glyph_renderer'
-
-  ColorBar:                 require '../models/scales/color_bar'
 
   AjaxDataSource:           require '../models/sources/ajax_data_source'
   ColumnDataSource:         require '../models/sources/column_data_source'

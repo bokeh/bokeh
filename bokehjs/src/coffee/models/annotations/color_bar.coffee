@@ -29,14 +29,17 @@ class ColorBarView extends Renderer.View
     buf = cmap.v_map_screen(b)
     buf8 = new Uint8ClampedArray(buf)
     image_data.data.set(buf8)
-
     ctx.putImageData(image_data, 0, 0)
     @image_data = canvas
 
-    ctx.save()
+    ctx2 = @plot_view.canvas_view.ctx
+    ctx2.save()
     # ctx.translate(300, 300)
-    ctx.drawImage(@image_data, 0, 0, 300, 300)
-    ctx.restore()
+    # ctx2.scale(1, -1)
+    ctx2.drawImage(@image_data, 25, 575, 550, 575)
+    # ctx2.scale(1, -1)
+    ctx2.restore()
+    
     return
 
 class ColorBar extends GuideRenderer.Model

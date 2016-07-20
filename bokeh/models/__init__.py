@@ -17,7 +17,6 @@ from .mappers import *
 from .plots import *
 from .ranges import *
 from .renderers import *
-from .scales import *
 from .sources import *
 from .tickers import *
 from .tiles import *
