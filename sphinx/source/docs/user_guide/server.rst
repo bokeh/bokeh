@@ -270,7 +270,7 @@ in more detail:
 
     # myapp.py
 
-    import numpy as np
+    from random import random
 
     from bokeh.layouts import column
     from bokeh.models import Button
@@ -296,15 +296,14 @@ in more detail:
     def callback():
         global i
 
-        # BEST PRACTICE --- shallow copy and update .data in one step
-        new_data = dict(ds.data)
-        new_data['x'].append(np.random.random()*70 + 15)
-        new_data['y'].append(np.random.random()*70 + 15)
-        new_data['text_color'].append(RdYlBu3[i%3])
-        new_data['text'].append(str(i))
-
+        # BEST PRACTICE --- update .data in one step with a new dict
+        new_data = dict()
+        new_data['x'] = ds.data['x'] + [random()*70 + 15]
+        new_data['y'] = ds.data['y'] + [random()*70 + 15]
+        new_data['text_color'] = ds.data['text_color'] + [RdYlBu3[i%3]]
+        new_data['text'] = ds.data['text'] + [str(i)]
         ds.data = new_data
-        ds.trigger('data', ds.data, ds.data)
+
         i = i + 1
 
     # add a button widget and configure with the call back
