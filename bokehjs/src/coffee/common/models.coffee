@@ -42,6 +42,7 @@ module.exports = {
   Circle:                   require '../models/glyphs/circle'
   Ellipse:                  require '../models/glyphs/ellipse'
   Gear:                     require '../models/glyphs/gear'
+  HBar:                     require '../models/glyphs/hbar'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
   ImageURL:                 require '../models/glyphs/image_url'
@@ -56,6 +57,7 @@ module.exports = {
   Rect:                     require '../models/glyphs/rect'
   Segment:                  require '../models/glyphs/segment'
   Text:                     require '../models/glyphs/text'
+  VBar:                     require '../models/glyphs/vbar'
   Wedge:                    require '../models/glyphs/wedge'
 
   Grid:                     require '../models/grids/grid'
