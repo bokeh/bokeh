@@ -151,7 +151,7 @@ class ColumnDataSource(DataSource):
         Args:
             data (seq) : new data to add
             name (str, optional) : column name to use.
-                If not supplied, generate a name go the form "Series ####"
+                If not supplied, generate a name of the form "Series ####"
 
         Returns:
             str:  the column name used
