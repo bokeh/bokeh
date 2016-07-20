@@ -123,7 +123,6 @@ MAIN_SITE = '//bokehplots.com'
 
 html_context = {
     'SITEMAP_BASE_URL': 'http://bokeh.pydata.org/en/', # Trailing slash is needed
-    'SITENAME': 'Bokeh Docs',
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
     'VERSION': version,
