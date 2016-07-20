@@ -10,7 +10,7 @@ from ..core.enums import (
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract, value
 from ..core.properties import (
-    Bool, Int, String, Enum, Instance, Include, NumberSpec, Either, Auto,
+    Bool, String, Enum, Instance, Include, NumberSpec, Either, Auto,
     Float, Override, Seq, StringSpec, AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
