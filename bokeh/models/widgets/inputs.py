@@ -87,7 +87,7 @@ class Select(InputWidget):
     """)
 
     @classmethod
-    def create(self, *args, **kwargs):
+    def create(cls, *args, **kwargs):
         options = kwargs.pop('options', [])
         new_options = []
         for opt in options:
@@ -116,7 +116,7 @@ class MultiSelect(InputWidget):
     """)
 
     @classmethod
-    def create(self, *args, **kwargs):
+    def create(cls, *args, **kwargs):
         options = kwargs.pop('options', [])
         new_options = []
         for opt in options:

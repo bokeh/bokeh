@@ -154,7 +154,7 @@ def streamlines(x, y, u, v, density=1):
             return
         if blank[yb, xb] == 0:
             t = rk4_integrate(xb*bx_spacing, yb*by_spacing)
-            if t != None:
+            if t is not None:
                 trajectories.append(t)
 
     ## Now we build up the trajectory set. I've found it best to look
