@@ -172,14 +172,14 @@ def test_HBar():
     assert glyph.height is None
     assert glyph.left == 0
     assert glyph.right is None
-    yield check_fill, glyph
-    yield check_line, glyph
-    yield (check_props, glyph, [
+    yield check_fill_properties, glyph
+    yield check_line_properties, glyph
+    yield (check_properties_existence, glyph, [
         "y",
         "height",
         "left",
         "right",
-    ], FILL, LINE)
+    ], FILL, LINE, GLYPH)
 
 def test_Image():
     glyph = Image()
@@ -424,14 +424,14 @@ def test_VBar():
     assert glyph.width is None
     assert glyph.top is None
     assert glyph.bottom == 0
-    yield check_fill, glyph
-    yield check_line, glyph
-    yield (check_props, glyph, [
+    yield check_fill_properties, glyph
+    yield check_line_properties, glyph
+    yield (check_properties_existence, glyph, [
         "x",
         "width",
         "top",
         "bottom",
-    ], FILL, LINE)
+    ], FILL, LINE, GLYPH)
 
 def test_Wedge():
     glyph = Wedge()
