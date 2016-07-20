@@ -212,7 +212,7 @@ class _MultiValuedDict(object):
             raise ValueError("Can't put None in this dict")
         if isinstance(value, set):
             raise ValueError("Can't put sets in this dict")
-        existing = self._dict.get(key, None)
+        existing = self._dict.get(key)
         if existing is None:
             self._dict[key] = value
         elif isinstance(existing, set):
@@ -223,7 +223,7 @@ class _MultiValuedDict(object):
     def remove_value(self, key, value):
         if key is None:
             raise ValueError("Key is None")
-        existing = self._dict.get(key, None)
+        existing = self._dict.get(key)
         if isinstance(existing, set):
             existing.discard(value)
             if len(existing) == 0:
@@ -234,7 +234,7 @@ class _MultiValuedDict(object):
             pass
 
     def get_one(self, k, duplicate_error):
-        existing = self._dict.get(k, None)
+        existing = self._dict.get(k)
         if isinstance(existing, set):
             if len(existing) == 1:
                 return next(iter(existing))
@@ -244,7 +244,7 @@ class _MultiValuedDict(object):
             return existing
 
     def get_all(self, k):
-        existing = self._dict.get(k, None)
+        existing = self._dict.get(k)
         if existing is None:
             return []
         elif isinstance(existing, set):
@@ -448,7 +448,7 @@ class Document(object):
 
     def get_model_by_id(self, model_id):
         ''' Get the model object for the given ID or None if not found'''
-        return self._all_models.get(model_id, None)
+        return self._all_models.get(model_id)
 
     def get_model_by_name(self, name):
         ''' Get the model object for the given name or None if not found'''
@@ -672,8 +672,8 @@ class Document(object):
                                                                value_refs))
 
         for key in shared:
-            old_value = from_obj['attributes'].get(key, None)
-            new_value = to_obj['attributes'].get(key, None)
+            old_value = from_obj['attributes'].get(key)
+            new_value = to_obj['attributes'].get(key)
 
             if old_value is None and new_value is None:
                 continue

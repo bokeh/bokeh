@@ -81,7 +81,7 @@ class _SessionCoordinates(object):
         if self._app_path != '/' and self._app_path.endswith("/"):
             self._app_path = self._app_path[:-1] # chop off trailing slash
 
-        self._session_id = kwargs.get('session_id', None)
+        self._session_id = kwargs.get('session_id')
         # we lazy-generate the session_id so we can generate
         # it server-side when appropriate
 
