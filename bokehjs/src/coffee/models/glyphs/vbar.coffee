@@ -45,10 +45,10 @@ class VBar extends Glyph.Model
 
   @mixins ['line', 'fill']
   @define {
-      x:      [ p.NumberSpec   ]
-      width:  [ p.DistanceSpec ]
-      top:    [ p.NumberSpec   ]
-      bottom: [ p.NumberSpec   ]
+      x:      [ p.NumberSpec    ]
+      width:  [ p.DistanceSpec  ]
+      top:    [ p.NumberSpec    ]
+      bottom: [ p.NumberSpec, 0 ]
     }
 
 module.exports =

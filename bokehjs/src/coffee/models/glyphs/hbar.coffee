@@ -46,10 +46,10 @@ class HBar extends Glyph.Model
 
   @mixins ['line', 'fill']
   @define {
-      y:      [ p.NumberSpec   ]
-      height: [ p.DistanceSpec ]
-      left:   [ p.NumberSpec   ]
-      right:  [ p.NumberSpec   ]
+      y:      [ p.NumberSpec    ]
+      height: [ p.DistanceSpec  ]
+      left:   [ p.NumberSpec, 0 ]
+      right:  [ p.NumberSpec    ]
     }
 
 module.exports =
