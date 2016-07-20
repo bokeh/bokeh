@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import six
 
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
 from ...core.enums import SliderCallbackPolicy
@@ -73,8 +73,11 @@ class Select(InputWidget):
 
     """
 
-    options = List(Either(String, Dict(String, String)), help="""
-    Available selection options.
+    options = List(Either(String, Tuple(String, String)), help="""
+    Available selection options. Options may be provided either as a list of
+    possible string values, or as a list of tuples, each of the form
+    ``(value, label)``. In the latter case, the visible widget text for each
+    value will be corresponding given label.
     """)
 
     value = String(default="", help="""
@@ -102,8 +105,11 @@ class MultiSelect(InputWidget):
 
     """
 
-    options = List(Either(String, Dict(String, String)), help="""
-    Available selection options.
+    options = List(Either(String, Tuple(String, String)), help="""
+    Available selection options. Options may be provided either as a list of
+    possible string values, or as a list of tuples, each of the form
+    ``(value, label)``. In the latter case, the visible widget text for each
+    value will be corresponding given label.
     """)
 
     value = List(String, help="""

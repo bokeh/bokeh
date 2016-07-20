@@ -5,6 +5,6 @@ from bokeh.models.widgets import MultiSelect
 output_file("multi_select.html")
 
 multi_select = MultiSelect(title="Option:", value=["foo", "quux"],
-                           options=["foo", "bar", "baz", "quux"])
+                           options=[("foo", "Foo"), ("bar", "BAR"), ("baz", "bAz"), ("quux", "quux")])
 
 show(widgetbox(multi_select))
