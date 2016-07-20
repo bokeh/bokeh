@@ -66,10 +66,7 @@ class EllipseView extends Glyph.View
     @_render(ctx, indices, data)
 
   _bounds: (bds) ->
-    return [
-      [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
-      [bds[1][0]-@max_h2, bds[1][1]+@max_h2]
-    ]
+    return @max_wh2_bounds(bds)
 
 class Ellipse extends Glyph.Model
   default_view: EllipseView

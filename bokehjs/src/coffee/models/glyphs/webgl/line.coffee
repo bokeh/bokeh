@@ -15,6 +15,7 @@ class DashAtlas
     @tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     @tex.set_interpolation(gl.NEAREST, gl.NEAREST)
     @tex.set_size([@_height, @_width], gl.RGBA)
+    @tex.set_data([0, 0], [@_height, @_width], new Uint8Array(@_height * @_width * 4))
     # Init with solid line (index 0 is reserved for this)
     @get_atlas_data([1])
 
@@ -139,7 +140,7 @@ class LineGLGlyph extends BaseGLGlyph
 
           // Attributes and uniforms to varyings
           v_color = u_color;
-          v_linewidth = u_linewidth * u_pixel_ratio;
+          v_linewidth = u_linewidth;
           v_segment = a_segment * u_scale_length;
           v_length = u_length * u_scale_length;
 
@@ -670,16 +671,16 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Do we need to re-calculate segment data and cumsum?
       if Math.abs(@_scale_aspect - (sy / sx)) > Math.abs(1e-3 * @_scale_aspect)
-        @_update_scale(sx, sy)
+        mainGlGlyph._update_scale(sx, sy)
         @_scale_aspect = sy / sx
 
       # Select buffers from main glyph
       # (which may be this glyph but maybe not if this is a (non)selection glyph)
-      @prog.set_attribute('a_position', 'vec2', [mainGlGlyph.vbo_position, 0, 0])
-      @prog.set_attribute('a_tangents', 'vec4', [mainGlGlyph.vbo_tangents, 0, 0])
-      @prog.set_attribute('a_segment', 'vec2', [mainGlGlyph.vbo_segment, 0, 0])
-      @prog.set_attribute('a_angles', 'vec2', [mainGlGlyph.vbo_angles, 0, 0])
-      @prog.set_attribute('a_texcoord', 'vec2', [mainGlGlyph.vbo_texcoord, 0, 0])
+      @prog.set_attribute('a_position', 'vec2', mainGlGlyph.vbo_position)
+      @prog.set_attribute('a_tangents', 'vec4', mainGlGlyph.vbo_tangents)
+      @prog.set_attribute('a_segment', 'vec2', mainGlGlyph.vbo_segment)
+      @prog.set_attribute('a_angles', 'vec2', mainGlGlyph.vbo_angles)
+      @prog.set_attribute('a_texcoord', 'vec2', mainGlGlyph.vbo_texcoord)
       #
       @prog.set_uniform('u_length', 'float', [mainGlGlyph.cumsum])
       @prog.set_texture('u_dash_atlas', @dash_atlas.tex)
@@ -692,6 +693,7 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
 
+      @I_triangles = mainGlGlyph.I_triangles
       if @I_triangles.length < 65535
         # Data is small enough to draw in one pass
         @index_buffer.set_size(@I_triangles.length*2)
@@ -717,11 +719,11 @@ class LineGLGlyph extends BaseGLGlyph
           offset = chunk * chunksize * 4
           if these_indices.length == 0
             continue
-          @prog.set_attribute('a_position', 'vec2', [mainGlGlyph.vbo_position, 0, offset * 2])
-          @prog.set_attribute('a_tangents', 'vec4', [mainGlGlyph.vbo_tangents, 0, offset * 4])
-          @prog.set_attribute('a_segment', 'vec2', [mainGlGlyph.vbo_segment, 0, offset * 2])
-          @prog.set_attribute('a_angles', 'vec2', [mainGlGlyph.vbo_angles, 0, offset * 2])
-          @prog.set_attribute('a_texcoord', 'vec2', [mainGlGlyph.vbo_texcoord, 0, offset * 2])
+          @prog.set_attribute('a_position', 'vec2', mainGlGlyph.vbo_position, 0, offset * 2)
+          @prog.set_attribute('a_tangents', 'vec4', mainGlGlyph.vbo_tangents, 0, offset * 4)
+          @prog.set_attribute('a_segment', 'vec2', mainGlGlyph.vbo_segment, 0, offset * 2)
+          @prog.set_attribute('a_angles', 'vec2', mainGlGlyph.vbo_angles, 0, offset * 2)
+          @prog.set_attribute('a_texcoord', 'vec2', mainGlGlyph.vbo_texcoord, 0, offset * 2)
           # The actual drawing
           @index_buffer.set_size(these_indices.length*2)
           @index_buffer.set_data(0, these_indices)

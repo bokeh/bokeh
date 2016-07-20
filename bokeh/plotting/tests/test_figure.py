@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 import unittest
 
-import pytest
-
 from bokeh.models import (
     LinearAxis, PanTool, BoxZoomTool, LassoSelectTool, ResetTool, ResizeTool)
 

@@ -5,11 +5,13 @@ $1 = require "bootstrap/button"
 Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
+template = require "./button_group_template"
+
 
 class CheckboxButtonGroupView extends Widget.View
-  tagName: "div"
   events:
     "change input": "change_input"
+  template: template
 
   initialize: (options) ->
     super(options)
@@ -18,27 +20,28 @@ class CheckboxButtonGroupView extends Widget.View
 
   render: () ->
     super()
+
     @$el.empty()
+    html = @template()
+    @$el.append(html)
 
-    @$el.addClass("bk-bs-btn-group")
-    @$el.attr("data-bk-bs-toggle", "buttons")
-
-    active = @mget("active")
-    for label, i in @mget("labels")
+    active = @model.active
+    for label, i in @model.labels
       $input = $('<input type="checkbox">').attr(value: "#{i}")
       if i in active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
       $label.addClass("bk-bs-btn-" + @mget("button_type"))
       if i in active then $label.addClass("bk-bs-active")
-      @$el.append($label)
+      @$el.find('.bk-bs-btn-group').append($label)
 
     return @
 
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
-    @mset('active', active)
+    @model.active = active
     @mget('callback')?.execute(@model)
+
 
 class CheckboxButtonGroup extends Widget.Model
   type: "CheckboxButtonGroup"

@@ -29,9 +29,7 @@ import os
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.graphviz',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.inheritance_diagram',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',
@@ -166,7 +164,7 @@ html_context = {
         ('Releases', 'releases/%s' % version),
         ('Developer Guide', 'dev_guide'),
     ),
-    'ALL_VERSIONS': ['0.11.1', '0.11.0', '0.10.0', '0.9.3', '0.8.2'],
+    'ALL_VERSIONS': ['0.12.0', '0.11.0', '0.10.0', '0.9.3', '0.8.2'],
     'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 

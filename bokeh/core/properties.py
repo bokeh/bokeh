@@ -1545,8 +1545,15 @@ class Datetime(PropertyDescriptor):
         try:
             import numpy as np
             datetime_types += (np.datetime64,)
-        except ImportError:
-            pass
+        except (ImportError, AttributeError) as e:
+            if e.args == ("'module' object has no attribute 'datetime64'",):
+                import sys
+                if 'PyPy' in sys.version:
+                    pass
+                else:
+                    raise e
+            else:
+                pass
 
         if (isinstance(value, datetime_types)):
             return
@@ -1576,8 +1583,15 @@ class TimeDelta(PropertyDescriptor):
         try:
             import numpy as np
             timedelta_types += (np.timedelta64,)
-        except ImportError:
-            pass
+        except (ImportError, AttributeError) as e:
+            if e.args == ("'module' object has no attribute 'timedelta64'",):
+                import sys
+                if 'PyPy' in sys.version:
+                    pass
+                else:
+                    raise e
+            else:
+                pass
 
         if (isinstance(value, timedelta_types)):
             return
@@ -1630,7 +1644,10 @@ class DataSpecProperty(BasicProperty):
 
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
-        super(DataSpec, self).__init__(String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)), typ, default=default, help=help)
+        super(DataSpec, self).__init__(
+            String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)),
+            typ, default=default, help=help
+        )
         self._type = self._validate_type_param(typ)
 
     # TODO (bev) add stricter validation on keys

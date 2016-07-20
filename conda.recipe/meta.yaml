@@ -16,9 +16,8 @@ extra:
 requirements:
   build:
     - python
-    - distribute
     - setuptools
-    - nodejs >=4.1  [unix]
+    - nodejs >=4.1
     - six
     - python-dateutil
     - numpy
@@ -45,7 +44,6 @@ requirements:
 test:
   requires:
     # docs
-    - graphviz
     - pygments
     - sphinx >=1.3.1
 
@@ -72,6 +70,7 @@ test:
     - jupyter
     - matplotlib
     - sympy
+    - scikit-learn
     - ggplot
     - seaborn
     - networkx

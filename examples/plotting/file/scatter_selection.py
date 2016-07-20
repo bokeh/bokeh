@@ -6,7 +6,7 @@ from bokeh.plotting import figure, show, output_file, gridplot
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)
 
-TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
+TOOLS = "wheel_zoom,save,box_select,lasso_select"
 
 opts = dict(tools=TOOLS, plot_width=350, plot_height=350)
 

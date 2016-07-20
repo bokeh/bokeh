@@ -29,11 +29,15 @@ stub_canvas = () ->
   sinon.stub(CanvasView.prototype, 'get_ctx', () -> MockCanvasContext)
 
 stub_solver = () ->
-  # Stub solver methods
+  # Stub solver methods we want to count
   suggest_stub = sinon.stub(Solver.prototype, 'suggest_value')
   add_stub = sinon.stub(Solver.prototype, 'add_constraint')
   remove_stub = sinon.stub(Solver.prototype, 'remove_constraint')
   update_stub = sinon.stub(Solver.prototype, 'update_variables')
+  # Stub other solver methods
+  sinon.stub(Solver.prototype, 'clear')
+  sinon.stub(Solver.prototype, 'add_edit_variable')
+  sinon.stub(Solver.prototype, 'remove_edit_variable')
   return {'add': add_stub, 'remove': remove_stub, 'suggest': suggest_stub, 'update': update_stub}
 
 unstub_canvas = () ->
@@ -44,6 +48,9 @@ unstub_solver = () ->
     Solver.prototype.add_constraint.restore()
     Solver.prototype.remove_constraint.restore()
     Solver.prototype.update_variables.restore()
+    Solver.prototype.clear.restore()
+    Solver.prototype.add_edit_variable.restore()
+    Solver.prototype.remove_edit_variable.restore()
 
 module.exports = {
   require: moduleRequire

@@ -30,9 +30,8 @@ from ..models import (
     Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg, _glyph_function
-from ..core.properties import Auto, Either, Enum, String, Override
-from ..util.deprecate import deprecated
+from ..plotting.helpers import _process_tools_arg, _glyph_function, _process_active_tools
+from ..core.properties import Auto, Either, Enum, String
 from ..util._plot_arg_helpers import _convert_responsive
 
 #-----------------------------------------------------------------------------
@@ -128,6 +127,10 @@ class Chart(Plot):
             kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
             del kwargs['responsive']
 
+        self._active_drag = kwargs.pop('active_drag', 'auto')
+        self._active_scroll = kwargs.pop('active_scroll', 'auto')
+        self._active_tap = kwargs.pop('active_tap', 'auto')
+
         title_text = kwargs.pop("title", None)
 
         super(Chart, self).__init__(*args, **kwargs)
@@ -156,7 +159,7 @@ class Chart(Plot):
         self._tooltips = []
 
         if hasattr(self, '_tools'):
-            self.create_tools(self._tools)
+            self.create_tools(self._tools, self._active_drag, self._active_scroll, self._active_tap)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -194,7 +197,7 @@ class Chart(Plot):
         if ygrid:
             self.make_grid(1, self._yaxis.ticker)
 
-    def create_tools(self, tools):
+    def create_tools(self, tools, active_drag, active_scroll, active_tap):
         """Create tools if given tools=True input.
 
         Only adds tools if given boolean and does not already have
@@ -209,8 +212,9 @@ class Chart(Plot):
 
         if len(self.toolbar.tools) == 0:
             # if no tools customization let's create the default tools
-            tool_objs = _process_tools_arg(self, tools)
+            tool_objs, tool_map = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
+            _process_active_tools(self.toolbar, tool_map, self._active_drag, self._active_scroll, self._active_tap)
 
     def start_plot(self):
         """Add the axis, grids and tools
@@ -219,7 +223,7 @@ class Chart(Plot):
         self.create_grids(self._xgrid, self._ygrid)
 
         if self.toolbar.tools:
-            self.create_tools(self._tools)
+            self.create_tools(self._tools, self._active_drag, self._active_scroll, self._active_tap)
 
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))
@@ -303,57 +307,6 @@ class Chart(Plot):
         self.add_layout(grid)
 
         return grid
-
-
-    @property
-    def filename(self):
-        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_file
-        output_file("default.html")
-
-    @filename.setter
-    def filename(self, filename):
-        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_file
-        output_file(filename)
-
-    @property
-    def server(self):
-        warnings.warn("Chart property 'server' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_server
-        output_server("default")
-
-    @server.setter
-    def server(self, session_id):
-        warnings.warn("Chart property 'server' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_server
-        if session_id:
-            if isinstance(session_id, bool):
-                session_id='default'
-            output_server(session_id)
-
-    @property
-    def notebook(self):
-        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_notebook
-        output_notebook()
-
-    @notebook.setter
-    def notebook(self, flag):
-        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_notebook
-        output_notebook()
-
-    @deprecated("Bokeh 0.11", "bokeh.io.show")
-    def show(self):
-        import bokeh.io
-        bokeh.io.show(self)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 

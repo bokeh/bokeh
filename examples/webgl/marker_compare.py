@@ -1,18 +1,15 @@
-"""
-Compare WebGL markers with canvas markers. This covers all markers
-supported by scatter. The plots are put in tabs, so that you can easily
-switch to compare positioning and appearance.
-"""
+""" Compare WebGL markers with canvas markers.
 
-import numpy as np
+This covers all markers supported by scatter. The plots are put in tabs,
+so that you can easily switch to compare positioning and appearance.
 
-from bokeh.plotting import show, output_file, Figure
+"""
+from bokeh.plotting import show, output_file, figure
 from bokeh.models.widgets import Tabs, Panel
 from bokeh.sampledata.iris import flowers
 
-
 def make_tab(title, marker, webgl):
-    p = Figure(title=title, webgl=webgl)
+    p = figure(title=title, webgl=webgl)
     p.scatter(flowers["petal_length"], flowers["petal_width"],
               color='blue', fill_alpha=0.2, size=12, marker=marker)
     return Panel(child=p, title=title)
@@ -28,4 +25,5 @@ for marker in markers:
     tabs.append(make_tab(marker + ' GL', marker, True))
 
 output_file("marker_compare.html", title="Compare regular and WebGL markers")
+
 show(Tabs(tabs=tabs))

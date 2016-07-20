@@ -1,6 +1,7 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 /// <reference path="./typings/bokeh.d.ts" />
+/// <reference path="./typings/charts.d.ts" />
 /// <reference path="./typings/colors.d.ts" />
 /// <reference path="./typings/document.d.ts" />
 /// <reference path="./typings/enums.d.ts" />
@@ -31,4 +32,5 @@
 /// <reference path="./typings/models/sources.d.ts" />
 /// <reference path="./typings/models/tickers.d.ts" />
 /// <reference path="./typings/models/tiles.d.ts" />
+/// <reference path="./typings/models/toolbars.d.ts" />
 /// <reference path="./typings/models/tools.d.ts" />

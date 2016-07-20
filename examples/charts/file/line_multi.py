@@ -1,6 +1,7 @@
 import pandas as pd
 
-from bokeh.charts import Line, show, output_file, vplot, hplot, defaults
+from bokeh.layouts import gridplot
+from bokeh.charts import Line, show, output_file, defaults
 
 defaults.plot_width = 450
 defaults.plot_height = 400
@@ -29,13 +30,11 @@ line1 = Line(df, x='date', y=['python', 'pypy', 'jython'],
 line2 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash=['python', 'pypy', 'jython'],
              title="Interpreters (x='date', y, dash=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
-line2.title_text_font_size = '11pt'
 
 line3 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash=['python', 'pypy', 'jython'],
              color=['python', 'pypy', 'jython'],
              title="Interpreters (x='date', y, dash, color=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
-line3.title_text_font_size = '11pt'
 
 line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash='test',
@@ -45,9 +44,4 @@ line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
 
 output_file("line_multi.html", title="line examples")
 
-show(vplot(
-    hplot(line),
-    hplot(line0, line1),
-    hplot(line2, line3),
-    hplot(line4)
-))
+show(gridplot(line, line0, line1, line2, line3, line4, ncols=2))

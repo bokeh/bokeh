@@ -62,11 +62,23 @@ class GlyphView extends Renderer.View
   bounds: () ->
     if not @index?
       return bbox.empty()
-    bb = @index.data.bbox
-    return @_bounds([
-      [bb[0], bb[2]],
-      [bb[1], bb[3]]
-    ])
+    d = @index.data
+    bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
+    return @_bounds(bb)
+
+  # this is available for subclasses to use, if appropriate.
+  max_wh2_bounds: (bds) ->
+    return {
+        minX: bds.minX - @max_w2,
+        maxX: bds.maxX + @max_w2,
+        minY: bds.minY - @max_h2,
+        maxY: bds.maxY + @max_h2,
+    }
+
+  get_anchor_point: (anchor, i, [sx, sy]) ->
+    switch anchor
+      when "center" then {x: @scx(i, sx, sy), y: @scy(i, sx, sy)}
+      else               null
 
   # glyphs that need more sophisticated "snap to data" behaviour (like
   # snapping to a patch centroid, e.g, should override these
@@ -94,7 +106,7 @@ class GlyphView extends Renderer.View
       y = yy[i]
       if isNaN(y) or not isFinite(y)
         continue
-      pts.push([x, y, x, y, {'i': i}])
+      pts.push({minX: x, minY: y, maxX: x, maxY: y, i: i})
 
     index.load(pts)
     return index

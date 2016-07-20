@@ -13,8 +13,8 @@ from ..core.validation.warnings import (
     EMPTY_LAYOUT,
     BOTH_CHILD_AND_ROOT,
 )
-from ..core.enums import Location, SizingMode
-from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Override
+from ..core.enums import SizingMode
+from ..core.properties import abstract, Bool, Enum, Int, Instance, List
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecate import deprecated
@@ -197,23 +197,33 @@ class Column(Box):
     """
 
 
+def HBox(*args, **kwargs):
+    """ Lay out child components in a single horizontal row.
+
+    Children can be specified as positional arguments, as a single argument
+    that is a sequence, or using the ``children`` keyword argument.
+
+    Returns a Row instance.
+    """
+    return Row(*args, **kwargs)
+
+
+def VBox(*args, **kwargs):
+    """ Lay out child components in a single vertical row.
+
+    Children can be specified as positional arguments, as a single argument
+    that is a sequence, or using the ``children`` keyword argument.
+
+    Returns a Column instance.
+    """
+    return Column(*args, **kwargs)
+
 # ---- DEPRECATIONS
 
 @deprecated("Bokeh 0.12.0", "bokeh.layouts.gridplot")
 def GridPlot(*args, **kwargs):
     from bokeh.layouts import gridplot
     return gridplot(*args, **kwargs)
-
-
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
-def HBox(*args, **kwargs):
-    return Row(*args, **kwargs)
-
-
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
-def VBox(*args, **kwargs):
-    return Column(*args, **kwargs)
-
 
 @deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def VBoxForm(*args, **kwargs):

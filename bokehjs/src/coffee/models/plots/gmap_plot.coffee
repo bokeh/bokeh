@@ -1,6 +1,7 @@
 _ = require "underscore"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
+{logger} = require "../../core/logging"
 
 GMapPlotCanvas = require "./gmap_plot_canvas"
 Plot = require "./plot"
@@ -14,14 +15,11 @@ class GMapPlot extends Plot.Model
   default_view: GMapPlotView
 
   initialize: (options) ->
-    plot_options = _.omit(options, 'map_options')
-    super(plot_options)
-    @_plot_canvas = new GMapPlotCanvas.Model(options)
-    @_plot_canvas.toolbar = @toolbar
-    @_set_orientation_variables(@_plot_canvas)
-
-  _doc_attached: () ->
-    @_plot_canvas.attach_document(@document)
+    super(options)
+    if not @api_key
+      logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
+    @_plot_canvas = new GMapPlotCanvas.Model({plot: @})
+    @plot_canvas.toolbar = @toolbar
 
   # Set all the PlotCanvas properties as internal.
   # This seems to be necessary so that everything can initialize.
@@ -29,6 +27,7 @@ class GMapPlot extends Plot.Model
   # to handle something like this situation.
   @define {
     map_options: [ p.Any ]
+    api_key: [ p.String ]
   }
 
 module.exports =

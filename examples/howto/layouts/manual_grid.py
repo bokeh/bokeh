@@ -2,8 +2,7 @@ import numpy as np
 from bokeh.plotting import figure
 from bokeh.models import Spacer, Paragraph
 from bokeh.layouts import row, column, widgetbox
-from bokeh.io import curdoc, show
-
+from bokeh.io import show
 
 N = 10
 x = np.linspace(0, 4 * np.pi, N)

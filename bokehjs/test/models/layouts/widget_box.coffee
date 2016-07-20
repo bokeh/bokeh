@@ -7,6 +7,7 @@ sinon = require 'sinon'
 
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 LayoutDOM = utils.require("models/layouts/layout_dom").Model
+LayoutDOMView = utils.require("models/layouts/layout_dom").View
 Panel = utils.require("models/widgets/panel").Model
 Plot = utils.require("models/plots/plot").Model
 Tabs = utils.require("models/widgets/tabs").Model
@@ -26,7 +27,8 @@ describe "WidgetBox", ->
     beforeEach ->
       utils.stub_canvas()
       utils.stub_solver()
-      @widget_box.attach_document(new Document())
+      @doc = new Document()
+      @doc.add_root(@widget_box)
 
     it "render should set the appropriate positions and paddings on the element when it is mode box", ->
       dom_left = 12
@@ -57,8 +59,8 @@ describe "WidgetBox", ->
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.child_views = {'child_view_1': {'el': {'scrollHeight': 222}}}
       widget_box_view.render()
-      # Note we do not set margin & padding on WidgetBox
-      expected_style = "width: #{width - 20}px; height: #{height + 10}px;"
+      # Note we do not set margin & padding or height on fixed WidgetBox
+      expected_style = "width: #{width - 20}px;"
       expect(widget_box_view.$el.attr('style')).to.be.equal expected_style
 
     it "get_height should return the height of the widget children plus 10 for margin + 10 overall", ->
@@ -72,9 +74,10 @@ describe "WidgetBox", ->
         'child_view_1': {'el': {'scrollHeight': 222}}
         'child_view_2': {'el': {'scrollHeight': 23}}
       }
-      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10 + 10
+      expect(widget_box_view.get_height()).to.be.equal 222 + 10 + 23 + 10
 
     it "get_width should return the max of it and the children", ->
+      @widget_box.width = null  # Manually set to null to check calc
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
@@ -85,12 +88,23 @@ describe "WidgetBox", ->
       expect(widget_box_view.get_width()).to.be.equal 189
 
     it "get_width should return itself + 20 if no children", ->
+      @widget_box.width = null  # Manually set to null to check calc
       widget_box_view = new @widget_box.default_view({ model: @widget_box })
       widget_box_view.el = {'scrollWidth': 99}
       widget_box_view.child_views = {
       }
       expect(widget_box_view.get_width()).to.be.equal 99 + 20
 
+    it "should call build_child_views if children change", ->
+      child_widget = new Tabs()
+      spy = sinon.spy(LayoutDOMView.prototype, 'build_child_views')
+      new @widget_box.default_view({ model: @widget_box })
+      expect(spy.callCount).is.equal 1  # Expect one from initialization
+      @widget_box.set('children', [child_widget])
+      LayoutDOMView.prototype.build_child_views.restore()
+      # Expect another two: one from children changing event; the other because
+      # we initialize the child_box
+      expect(spy.callCount).is.equal 3
 
   describe "WidgetBox.Model", ->
     beforeEach ->

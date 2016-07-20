@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Gapminder Example</title>
+    {{ bokeh_css }}
+    {{ bokeh_js }}
+    <style>
+      {% include 'styles.css' %}
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <h1>A Reproduction of Gapminder</h1>
+
+      <p>In Hans Rosling's <a href="http://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen">
+      iconic TED Talk</a> he shows us that many advances have been made since the 60s, when our
+      notions of development were established. The engaging infographic illustrates how our 
+      ongoing perceptions of a "first world" and a "third world" are wrong, and that the 
+      world has become a spectrum of developing countries.</p>
+
+      {{ plot_div|indent(8) }}
+
+      <p>You can skip ahead to 3m 58s to see him talking through the plot we've
+      just made. Or sit back and enjoy a great example of statistics
+      communication.</p>
+
+      <div class="videoWrapper">
+        <iframe width="420" height="315" src="https://www.youtube.com/embed/hVimVzgtD6w" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
+    {{ plot_script|indent(8) }}
+  </body>
+</html>

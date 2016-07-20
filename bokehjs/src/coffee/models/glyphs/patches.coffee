@@ -54,11 +54,13 @@ class PatchesView extends Glyph.View
         ys = yss[i][j]
         if xs.length == 0
           continue
-        pts.push([
-          _.min(xs), _.min(ys),
-          _.max(xs), _.max(ys),
-          {'i': i}
-        ])
+        pts.push({
+          minX: _.min(xs),
+          minY: _.min(ys),
+          maxX: _.max(xs),
+          maxY: _.max(ys),
+          i: i
+        })
     index.load(pts)
     return index
 
@@ -70,7 +72,7 @@ class PatchesView extends Glyph.View
     [y0, y1] = [yr.get('min'), yr.get('max')]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
@@ -126,7 +128,7 @@ class PatchesView extends Glyph.View
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    candidates = (x[4].i for x in @index.search([x, y, x, y]))
+    candidates = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
 
     hits = []
     for i in [0...candidates.length]

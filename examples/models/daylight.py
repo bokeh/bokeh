@@ -55,12 +55,9 @@ text_source = ColumnDataSource(dict(
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-title = "Daylight Hours - Warsaw, Poland"
-plot = Plot(
-    title=title,
-    x_range=xdr, y_range=ydr,
-    plot_width=800, plot_height=400
-)
+plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
+plot.title.text = "Daylight Hours - Warsaw, Poland"
+plot.toolbar_location = None
 
 patch1 = Patch(x="dates", y="times", fill_color="skyblue", fill_alpha=0.8)
 plot.add_glyph(patch1_source, patch1)

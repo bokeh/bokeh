@@ -287,9 +287,10 @@ def _process_tools_arg(plot, tools):
             function. I.e.: `wheel_zoom,box_zoom,reset`.
 
     Returns:
-        list of Tools objects added to plot
+        list of Tools objects added to plot, map of supplied string names to tools
     """
     tool_objs = []
+    tool_map = {}
     temp_tool_str = ""
     repeated_tools = []
 
@@ -310,6 +311,7 @@ def _process_tools_arg(plot, tools):
 
         tool_obj = _tool_from_string(tool)
         tool_objs.append(tool_obj)
+        tool_map[tool] = tool_obj
 
     for typename, group in itertools.groupby(
             sorted([tool.__class__.__name__ for tool in tool_objs])):
@@ -319,7 +321,46 @@ def _process_tools_arg(plot, tools):
     if repeated_tools:
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
 
-    return tool_objs
+    return tool_objs, tool_map
+
+
+def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_tap):
+    """ Adds tools to the plot object
+
+    Args:
+        toolbar (Toolbar): instance of a Toolbar object
+        tools_map (dict[str]|Tool): tool_map from _process_tools_arg
+        active_drag (str or Tool): the tool to set active for drag
+        active_scroll (str or Tool): the tool to set active for scroll
+        active_tap (str or Tool): the tool to set active for tap
+
+    Returns:
+        None
+
+    Note:
+        This function sets properties on Toolbar
+    """
+    if active_drag in ['auto', None] or isinstance(active_drag, Tool):
+        toolbar.active_drag = active_drag
+    elif active_drag in tool_map:
+        toolbar.active_drag = tool_map[active_drag]
+    else:
+        raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
+
+    if active_scroll in ['auto', None] or isinstance(active_scroll, Tool):
+        toolbar.active_scroll = active_scroll
+    elif active_scroll in tool_map:
+        toolbar.active_scroll = tool_map[active_scroll]
+    else:
+        raise ValueError("Got unknown %r for 'active_scroll', which was not a string supplied in 'tools' argument" % active_scroll)
+
+    if active_tap in ['auto', None] or isinstance(active_tap, Tool):
+        toolbar.active_tap = active_tap
+    elif active_tap in tool_map:
+        toolbar.active_tap = tool_map[active_tap]
+    else:
+        raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
+
 
 _arg_template = "    %s (%s) : %s (default %r)"
 _doc_template = """ Configure and add %s glyphs to this Figure.

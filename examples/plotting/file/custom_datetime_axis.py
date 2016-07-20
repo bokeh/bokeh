@@ -53,9 +53,7 @@ w = 0.5
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
-p = figure(tools=TOOLS, plot_width=1000)
-
-p.title = "MSFT Candlestick with custom x axis"
+p = figure(tools=TOOLS, plot_width=1000, title="MSFT Candlestick with Custom X-Axis")
 p.xaxis.major_label_orientation = pi/4
 p.grid[0].ticker.desired_num_ticks = 6
 

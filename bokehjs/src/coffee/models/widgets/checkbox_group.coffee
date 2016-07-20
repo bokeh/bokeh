@@ -5,8 +5,8 @@ Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
 
-class CheckboxGroupView extends BokehView
-  tagName: "div"
+
+class CheckboxGroupView extends Widget.View
   events:
     "change input": "change_input"
 
@@ -16,6 +16,7 @@ class CheckboxGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     active = @mget("active")
@@ -36,7 +37,7 @@ class CheckboxGroupView extends BokehView
 
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
-    @mset('active', active)
+    @model.active = active
     @mget('callback')?.execute(@model)
 
 class CheckboxGroup extends Widget.Model

@@ -76,7 +76,7 @@ class AnnularWedgeView extends Glyph.View
     candidates = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt[4].i for pt in @index.search(bbox))
+    for i in (pt.i for pt in @index.search(bbox))
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)
@@ -106,6 +106,14 @@ class AnnularWedgeView extends Glyph.View
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)
+
+  _scxy: (i) ->
+    r = (@sinner_radius[i] + @souter_radius[i])/2
+    a = (@_start_angle[i]  + @_end_angle[i])   /2
+    return {x: @sx[i] + r*Math.cos(a), y: @sy[i] + r*Math.sin(a)}
+
+  scx: (i) -> @_scxy(i).x
+  scy: (i) -> @_scxy(i).y
 
 class AnnularWedge extends Glyph.Model
   default_view: AnnularWedgeView

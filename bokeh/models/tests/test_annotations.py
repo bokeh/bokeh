@@ -6,9 +6,7 @@ from bokeh.models.annotations import (
     Legend, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
 from bokeh.models import ColumnDataSource, ArrowHead
-from bokeh.core.enums import (
-    NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign
-)
+from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap, TextAlign
 
 FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",

@@ -12,7 +12,7 @@ from bokeh.models import (
 )
 from bokeh.sampledata.population import load_population
 from bokeh.models.widgets import Select
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
 session = push_session(document)
@@ -32,7 +32,7 @@ def pyramid():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=500, toolbar_location=None)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
@@ -59,7 +59,7 @@ def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=150, toolbar_location=None)
 
     plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
@@ -130,8 +130,8 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = HBox(children=[year_select, location_select])
-    layout = VBox(children=[controls, pyramid(), population()])
+    controls = WidgetBox(children=[year_select, location_select], height=150, width=600)
+    layout = Column(children=[controls, pyramid(), population()])
 
     return layout
 

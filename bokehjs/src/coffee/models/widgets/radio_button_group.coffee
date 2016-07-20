@@ -5,12 +5,13 @@ $1 = require "bootstrap/button"
 p = require "../../core/properties"
 
 Widget = require "./widget"
+template = require "./button_group_template"
 
 
 class RadioButtonGroupView extends Widget.View
-  tagName: "div"
   events:
     "change input": "change_input"
+  template: template
 
   initialize: (options) ->
     super(options)
@@ -19,10 +20,10 @@ class RadioButtonGroupView extends Widget.View
 
   render: () ->
     super()
-    @$el.empty()
 
-    @$el.addClass("bk-bs-btn-group")
-    @$el.attr("data-bk-bs-toggle", "buttons")
+    @$el.empty()
+    html = @template()
+    @$el.append(html)
 
     name = _.uniqueId("RadioButtonGroup")
     active = @mget("active")
@@ -33,12 +34,13 @@ class RadioButtonGroupView extends Widget.View
       $label.text(label).prepend($input)
       $label.addClass("bk-bs-btn-" + @mget("button_type"))
       if i == active then $label.addClass("bk-bs-active")
-      @$el.append($label)
+      @$el.find('.bk-bs-btn-group').append($label)
+
     return @
 
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
-    @mset('active', active[0])
+    @model.active = active[0]
     @mget('callback')?.execute(@model)
 
 class RadioButtonGroup extends Widget.Model

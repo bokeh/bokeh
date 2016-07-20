@@ -3,7 +3,7 @@ _ = require "underscore"
 Glyph = require "../glyphs/glyph"
 LinearColorMapper = require "../mappers/linear_color_mapper"
 p = require "../../core/properties"
-{Greys9} = require '../../palettes/palettes'
+{Greys} = require '../../palettes/palettes'
 
 class ImageView extends Glyph.View
 
@@ -78,11 +78,13 @@ class ImageView extends Glyph.View
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    bb = @index.data.bbox
-    return [
-      [bb[0], bb[2]+@max_dw],
-      [bb[1], bb[3]+@max_dh]
-    ]
+    d = @index.data
+    return {
+      minX: d.minX,
+      minY: d.minY,
+      maxX: d.maxX + @max_dw,
+      maxY: d.maxY + @max_dh
+    }
 
 class Image extends Glyph.Model
   default_view: ImageView
@@ -96,7 +98,7 @@ class Image extends Glyph.Model
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]
       dilate:       [ p.Bool,      false ]
-      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys9) ]
+      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys.Greys9) ]
   }
 
 module.exports =

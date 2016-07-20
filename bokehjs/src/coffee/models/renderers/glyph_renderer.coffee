@@ -54,6 +54,7 @@ class GlyphRendererView extends Renderer.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
+    @listenTo(@mget('data_source'), 'patch', @set_data)
     @listenTo(@mget('data_source'), 'stream', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
     if @hover_glyph?
@@ -95,7 +96,7 @@ class GlyphRendererView extends Renderer.View
     length = 1 if not length?
     @all_indices = [0...length]
 
-    lod_factor = @plot_model.get('lod_factor')
+    lod_factor = @plot_model.plot.lod_factor
     @decimated = []
     for i in [0...Math.floor(@all_indices.length/lod_factor)]
       @decimated.push(@all_indices[i*lod_factor])
@@ -153,7 +154,7 @@ class GlyphRendererView extends Renderer.View
       else
         inspected = []
 
-    lod_threshold = @plot_model.get('lod_threshold')
+    lod_threshold = @plot_model.plot.lod_threshold
     if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
       # Render decimated during interaction if too many elements and not using GL
       indices = @decimated

@@ -8,7 +8,6 @@ declare namespace Bokeh {
     export type TextAlign = "left" | "right" | "center";
     export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging";
     export type Direction = "clock" | "anticlock";
-    export type Side = "left" | "right";
     export type Units = "screen" | "data";
     export type SpatialUnits = Units;
     export type AngleUnits = "deg" | "rad";
@@ -30,6 +29,7 @@ declare namespace Bokeh {
     export type ScriptingLanguage = "javascript" | "coffeescript";
     export type StartEnd = "start" | "end";
     export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup";
+    export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed";
 
     export type Logo = "normal" | "grey";
     export type HoverMode = "mouse" | "hline" | "vline";

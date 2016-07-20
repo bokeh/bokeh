@@ -6,14 +6,7 @@ import nbformat
 
 from bokeh.application.handlers import NotebookHandler
 from bokeh.document import Document
-
-def _with_temp_file(func):
-    import tempfile
-    f = tempfile.NamedTemporaryFile()
-    try:
-        func(f)
-    finally:
-        f.close()
+from bokeh.util.testing import with_temporary_file
 
 def _with_script_contents(contents, func):
     def with_file_object(f):
@@ -21,7 +14,7 @@ def _with_script_contents(contents, func):
         f.write(nbsource.encode("UTF-8"))
         f.flush()
         func(f.name)
-    _with_temp_file(with_file_object)
+    with_temporary_file(with_file_object)
 
 class TestNotebookHandler(unittest.TestCase):
 

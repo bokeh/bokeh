@@ -26,5 +26,5 @@ namespace LinkedBrushingAndPanning {
     const s3 = plt.figure({width: 350, height: 350, tools: tools, x_range: s1.x_range})
     s3.circle(x, y3, {source: source, color: "olive", size: 8, alpha: 0.5})
 
-    plt.show(Bokeh.GridPlot([[s1, s2, s3]]))
+    plt.show(plt.gridplot([[s1, s2, s3]]))
 }

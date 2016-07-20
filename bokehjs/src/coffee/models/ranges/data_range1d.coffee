@@ -65,7 +65,7 @@ class DataRange1d extends DataRange.Model
     return renderers
 
   _compute_plot_bounds: (renderers, bounds) ->
-    result = new bbox.empty()
+    result = bbox.empty()
 
     for r in renderers
       if bounds[r.id]?
@@ -74,11 +74,14 @@ class DataRange1d extends DataRange.Model
     return result
 
   _compute_min_max: (plot_bounds, dimension) ->
-    overall = new bbox.empty()
+    overall = bbox.empty()
     for k, v of plot_bounds
       overall = bbox.union(overall, v)
 
-    [min, max] = overall[dimension]
+    if dimension == 0
+      [min, max] = [overall.minX, overall.maxX]
+    else
+      [min, max] = [overall.minY, overall.maxY]
 
     return [min, max]
 

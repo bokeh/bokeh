@@ -24,20 +24,23 @@ from .core.templates import (
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from .model import Model, _ModelInDocument
+from .model import Model, _ModelInDocument, _ModelInEmptyDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
+
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
+
 def _wrap_in_onload(code):
     # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'document.addEventListener("DOMContentLoaded", function(event) {\n%s\n});' % code
+
 
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
@@ -228,6 +231,7 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     return bokeh_js, bokeh_css
 
+
 def notebook_div(model, notebook_comms_target=None):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
@@ -250,7 +254,7 @@ def notebook_div(model, notebook_comms_target=None):
     '''
     model = _check_one_model(model)
 
-    with _ModelInDocument(model):
+    with _ModelInEmptyDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]

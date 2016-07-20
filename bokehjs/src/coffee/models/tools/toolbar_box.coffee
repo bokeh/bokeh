@@ -5,7 +5,6 @@ ActionTool = require "./actions/action_tool"
 HelpTool = require "./actions/help_tool"
 GestureTool = require "./gestures/gesture_tool"
 InspectTool = require "./inspectors/inspect_tool"
-LayoutDOM = require "../layouts/layout_dom"
 ToolbarBase = require "./toolbar_base"
 {ToolProxy} = require "./tool_proxy"
 
@@ -96,13 +95,15 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
           @gestures[event_type].tools.push(proxy)
           @listenTo(proxy, 'change:active', _.bind(@_active_change, proxy))
 
+    @actions = []
     for tool_type, tools of actions
       if tools.length > 0
-        @actions = [make_proxy(tools)]
+        @actions.push(make_proxy(tools))
 
+    @inspectors = []
     for tool_type, tools of inspectors
       if tools.length > 0
-        @inspectors = [make_proxy(tools, active=true)]
+        @inspectors.push(make_proxy(tools, active=true))
 
     for et of @gestures
       tools = @gestures[et].tools
@@ -128,7 +129,7 @@ class ToolbarBoxView extends Box.View
     return 30
 
 
-class ToolbarBox extends LayoutDOM.Model
+class ToolbarBox extends Box.Model
   type: 'ToolbarBox'
   default_view: ToolbarBoxView
 
@@ -151,7 +152,8 @@ class ToolbarBox extends LayoutDOM.Model
   @define {
     toolbar_location: [ p.Location, "right"  ]
     merge_tools:      [ p.Bool,     true     ]
-    tools:            [ p.Any,  []   ]
+    tools:            [ p.Any,      []       ]
+    logo:             [ p.String,   "normal" ]
   }
 
 

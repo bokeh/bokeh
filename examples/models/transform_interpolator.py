@@ -1,11 +1,6 @@
-import numpy as np
-
-from bokeh.io import vplot, hplot
-from bokeh.core.properties import NumberSpec
-from bokeh.plotting import figure, show, output_file
-from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, Select
+from bokeh.models import CustomJS, Select, WidgetBox, Column, ColumnDataSource
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
+from bokeh.plotting import figure, show, output_file
 
 N = 600
 
@@ -49,7 +44,6 @@ mode = Select(
     value='None',
     options=['None', 'Linear', 'Step (before)', 'Step (center)', 'Step (after)'],
     callback=callback)
-
 output_file("transform_interpolator.html", title="Example Transforms")
 
-show(vplot(hplot(mode), p))
+show(Column(WidgetBox(mode,width=300), p))

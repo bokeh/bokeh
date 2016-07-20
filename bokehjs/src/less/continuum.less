@@ -47,11 +47,6 @@
   margin-right: 5px;
 }
 
-.bk-banner > span {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .bk-logo-small {
   width: 20px;
   height: 20px;
@@ -158,13 +153,14 @@
   background-repeat: no-repeat;
 }
 
+.bk-button-bar-list li:hover .bk-toolbar-button .tip:before {
+  display: inline-block;  // Can this be merged with above
+}
+
 .bk-button-bar-list li::hover .bk-toolbar-button {
   background: transparent !important;
 }
 
-.bk-button-bar-list li:hover .bk-toolbar-button .tip:before {
-  display: inline-block;
-}
 
 .bk-button-bar-list li:hover .bk-toolbar-button .tip {
   z-index: 100;
@@ -340,10 +336,10 @@
 .bk-toolbar-right {
   right: -30px;
 }
-.bk-toolbar-box.bk-layout-box .bk-toolbar-right {
+.bk-toolbar-box .bk-toolbar-right {
+  top: -1px;
   right: 0px;
 }
-
 .bk-toolbar-right .bk-button-bar .bk-button-bar-list .bk-bs-dropdown-menu {
   left: -180px;
 }
@@ -368,4 +364,15 @@
   border-top: 4px solid;
   border-right: 4px solid transparent;
   border-left: 4px solid transparent;
+}
+
+// Override the toolbar dropdown box
+
+.bk-button-bar-list .bk-bs-dropdown-menu {
+  z-index: 100;
+  background-color: #fff;
+  opacity: 0.95;
+  border: #e5e5e5 solid 1px;
+  border-radius: inherit;
+  box-shadow: none;
 }

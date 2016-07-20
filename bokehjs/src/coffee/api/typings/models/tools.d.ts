@@ -129,6 +129,8 @@ declare namespace Bokeh {
         mode?: HoverMode;
         point_policy?: PointPolicy;
         line_policy?: LinePolicy;
+        anchor?: Anchor;
+        attachment?: "horizontal" | "vertical";
     }
 
     export var HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };
