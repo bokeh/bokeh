@@ -207,7 +207,7 @@ def test_HBar():
     glyph = HBar()
     assert glyph.y is None
     assert glyph.height is None
-    assert glyph.left is None
+    assert glyph.left == 0
     assert glyph.right is None
     yield check_fill, glyph
     yield check_line, glyph
@@ -460,7 +460,7 @@ def test_VBar():
     assert glyph.x is None
     assert glyph.width is None
     assert glyph.top is None
-    assert glyph.bottom is None
+    assert glyph.bottom == 0
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
