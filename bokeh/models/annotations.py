@@ -14,6 +14,15 @@ from ..core.properties import (
     Float, Override, Seq, StringSpec, AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
+from ..util.deprecate import deprecatedModuleAttribute
+deprecatedModuleAttribute('0.12.1',
+                          'use bokeh.models.guides.Legend instead',
+                          'bokeh.models.annotations',
+                          'Legend')
+del deprecatedModuleAttribute
+# Makes Legend available in this module during deprecation cycle
+from bokeh.models.guides import Legend
+
 from .renderers import Renderer
 from .sources import DataSource, ColumnDataSource
 
