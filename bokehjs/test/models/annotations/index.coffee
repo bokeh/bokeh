@@ -1,2 +1,1 @@
 require "./annotation"
-require "./legend"

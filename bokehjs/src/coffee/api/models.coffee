@@ -7,7 +7,6 @@ module.exports = {
   BoxAnnotation:                          require("../models/annotations/box_annotation").Model
   Label:                                  require("../models/annotations/label").Model
   LabelSet:                               require("../models/annotations/label_set").Model
-  Legend:                                 require("../models/annotations/legend").Model
   PolyAnnotation:                         require("../models/annotations/poly_annotation").Model
   Span:                                   require("../models/annotations/span").Model
   Title:                                  require("../models/annotations/title").Model
@@ -62,6 +61,9 @@ module.exports = {
 
   ## api/typings/models/grids.d.ts
   Grid:                                   require("../models/grids/grid").Model
+
+  ## api/typings/models/guides.d.ts
+  Legend:                                 require("../models/guides/legend").Model
 
   ## api/typings/models/images.d.ts
   ImageSource:                            require("../models/tiles/image_source").Model

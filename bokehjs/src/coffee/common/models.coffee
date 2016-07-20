@@ -7,7 +7,6 @@ module.exports = {
   BoxAnnotation:            require '../models/annotations/box_annotation'
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
-  Legend:                   require '../models/annotations/legend'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
   Title:                    require '../models/annotations/title'
@@ -60,6 +59,8 @@ module.exports = {
   Wedge:                    require '../models/glyphs/wedge'
 
   Grid:                     require '../models/grids/grid'
+
+  Legend:                   require '../models/guides/legend'
 
   Column:                   require '../models/layouts/column'
   Row:                      require '../models/layouts/row'

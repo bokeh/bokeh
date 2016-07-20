@@ -1,10 +1,11 @@
 _ = require "underscore"
 
-Annotation = require "./annotation"
+GuideRenderer = require "../renderers/guide_renderer"
+Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 {get_text_height} = require "../../core/util/text"
 
-class LegendView extends Annotation.View
+class LegendView extends Renderer.View
   initialize: (options) ->
     super(options)
 
@@ -149,7 +150,7 @@ class LegendView extends Annotation.View
     y = @model.panel._top._value
     return {x: x, y: -y}
 
-class Legend extends Annotation.Model
+class Legend extends GuideRenderer.Model
   default_view: LegendView
 
   type: 'Legend'
