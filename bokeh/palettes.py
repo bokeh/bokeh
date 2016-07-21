@@ -1,4 +1,5 @@
-### License regarding the Viridis, Magma, Plasma and Inferno color maps ###
+###########################################################################
+# License regarding the Viridis, Magma, Plasma and Inferno color maps:
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
@@ -12,6 +13,12 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+###########################################################################
+# This product includes color specifications and designs developed by
+# Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
+# licensed under the Apache v2 license. You may obtain a copy of the
+# License at http://www.apache.org/licenses/LICENSE-2.0
+###########################################################################
 """ Provide a collection of palettes for color mapping.
 
 Palettes are simple plain Python lists of (hex) RGB colors. This module
@@ -438,6 +445,81 @@ Viridis256  = [
     '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
     '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
 
+# http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
+Accent3 = ['#7fc97f', '#beaed4', '#fdc086']
+Accent4 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99']
+Accent5 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0']
+Accent6 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f']
+Accent7 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17']
+Accent8 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
+Dark2_3 = ['#1b9e77', '#d95f02', '#7570b3']
+Dark2_4 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+Dark2_5 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+Dark2_6 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
+Dark2_7 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
+Dark2_8 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
+Paired3 = ['#a6cee3', '#1f78b4', '#b2df8a']
+Paired4 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
+Paired5 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99']
+Paired6 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c']
+Paired7 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f']
+Paired8 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']
+Paired9 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6']
+Paired10 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a']
+Paired11 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99']
+Paired12 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
+Pastel1_3 = ['#fbb4ae', '#b3cde3', '#ccebc5']
+Pastel1_4 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4']
+Pastel1_5 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6']
+Pastel1_6 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc']
+Pastel1_7 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd']
+Pastel1_8 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec']
+Pastel1_9 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
+Pastel2_3 = ['#b3e2cd', '#fdcdac', '#cbd5e8']
+Pastel2_4 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4']
+Pastel2_5 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9']
+Pastel2_6 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae']
+Pastel2_7 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc']
+Pastel2_8 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
+Set1_3 = ['#e41a1c', '#377eb8', '#4daf4a']
+Set1_4 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
+Set1_5 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00']
+Set1_6 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33']
+Set1_7 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628']
+Set1_8 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
+Set1_9 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
+Set2_3 = ['#66c2a5', '#fc8d62', '#8da0cb']
+Set2_4 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
+Set2_5 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854']
+Set2_6 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
+Set2_7 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494']
+Set2_8 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
+Set3_3 = ['#8dd3c7', '#ffffb3', '#bebada']
+Set3_4 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
+Set3_5 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
+Set3_6 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462']
+Set3_7 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69']
+Set3_8 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5']
+Set3_9 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9']
+Set3_10 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd']
+Set3_11 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
+Set3_12 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+
+
 __palettes__ = [
     "YlGn3",      "YlGn4",      "YlGn5",      "YlGn6",      "YlGn7",      "YlGn8",      "YlGn9",
     "YlGnBu3",    "YlGnBu4",    "YlGnBu5",    "YlGnBu6",    "YlGnBu7",    "YlGnBu8",    "YlGnBu9",
@@ -470,7 +552,16 @@ __palettes__ = [
     "Inferno3",   "Inferno4",   "Inferno5",   "Inferno6",   "Inferno7",   "Inferno8",   "Inferno9",   "Inferno10",   "Inferno11",   "Inferno256",
     "Plasma3",    "Plasma4",    "Plasma5",    "Plasma6",    "Plasma7",    "Plasma8",    "Plasma9",    "Plasma10",    "Plasma11",    "Plasma256",
     "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis10",   "Viridis11",   "Viridis256",
+    "Accent3",    "Accent4",    "Accent5",    "Accent6",    "Accent7",    "Accent8",
+    "Dark2_3",    "Dark2_4",    "Dark2_5",    "Dark2_6",    "Dark2_7",    "Dark2_8",
+    "Paired3",    "Paired4",    "Paired5",    "Paired6",    "Paired7",    "Paired8",    "Paired9",    "Paired10",    "Paired11",    "Paired12",
+    "Pastel1_3",  "Pastel1_4",  "Pastel1_5",  "Pastel1_6",  "Pastel1_7",  "Pastel1_8",  "Pastel1_9",
+    "Pastel2_3",  "Pastel2_4",  "Pastel2_5",  "Pastel2_6",  "Pastel2_7",  "Pastel2_8",
+    "Set1_3",     "Set1_4",     "Set1_5",     "Set1_6",     "Set1_7",     "Set1_8",     "Set1_9",
+    "Set2_3",     "Set2_4",     "Set2_5",     "Set2_6",     "Set2_7",     "Set2_8",
+    "Set3_3",     "Set3_4",     "Set3_5",     "Set3_6",     "Set3_7",     "Set3_8",     "Set3_9",     "Set3_10",     "Set3_11",     "Set3_12"
 ]
+
 
 brewer = {
     "YlGn"     : { 3: YlGn3,     4: YlGn4,     5: YlGn5,     6: YlGn6,     7: YlGn7,     8: YlGn8,     9: YlGn9 },
@@ -500,6 +591,16 @@ brewer = {
     "RdYlBu"   : { 3: RdYlBu3,   4: RdYlBu4,   5: RdYlBu5,   6: RdYlBu6,   7: RdYlBu7,   8: RdYlBu8,   9: RdYlBu9,    10: RdYlBu10,   11: RdYlBu11 },
     "Spectral" : { 3: Spectral3, 4: Spectral4, 5: Spectral5, 6: Spectral6, 7: Spectral7, 8: Spectral8, 9: Spectral9,  10: Spectral10, 11: Spectral11 },
     "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
+    "Accent"   : { 3: Accent3,   4: Accent4,   5: Accent5,   6: Accent6,   7: Accent7,   8: Accent8 },
+    "Dark2"   : { 3: Dark2_3,   4: Dark2_4,   5: Dark2_5,   6: Dark2_6,   7: Dark2_7,   8: Dark2_8 },
+    "Paired"   : { 3: Paired3,   4: Paired4,   5: Paired5,   6: Paired6,   7: Paired7,   8: Paired8,   9: Paired9,    10: Paired10,   11: Paired11,
+                   12: Paired12 },
+    "Pastel1"  : { 3: Pastel1_3, 4: Pastel1_4, 5: Pastel1_5, 6: Pastel1_6, 7: Pastel1_7, 8: Pastel1_8, 9: Pastel1_9 },
+    "Pastel2"  : { 3: Pastel2_3, 4: Pastel2_4, 5: Pastel2_5, 6: Pastel2_6, 7: Pastel2_7, 8: Pastel2_8 },
+    "Set1"     : { 3: Set1_3,    4: Set1_4,    5: Set1_5,    6: Set1_6,    7: Set1_7,    8: Set1_8,    9: Set1_9 },
+    "Set2"     : { 3: Set2_3 ,   4: Set2_4,    5: Set2_5,    6: Set2_6,    7: Set2_7,    8: Set2_8 },
+    "Set3"     : { 3: Set3_3,    4: Set3_4,    5: Set3_5,    6: Set3_6,    7: Set3_7,    8: Set3_8,    9: Set3_9,     10: Set3_10,    11: Set3_11,
+                   12: Set3_12 },
 }
 
 small_palettes = dict(brewer)
