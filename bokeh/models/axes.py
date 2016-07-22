@@ -5,7 +5,7 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.properties import abstract
-from ..core.properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
+from ..core.properties import (Int, Float, String, Enum, Datetime, Auto, Instance,
                           Tuple, Either, Include, Override)
 from ..core.property_mixins import LineProps, TextProps
 
