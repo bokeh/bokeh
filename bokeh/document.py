@@ -296,6 +296,7 @@ class Document(object):
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = {}
         self._session_callbacks = {}
+        self._request_args = None
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
@@ -415,6 +416,10 @@ class Document(object):
         self._theme = theme
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
+
+    @property
+    def request_args(self):
+        return self._request_args
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.

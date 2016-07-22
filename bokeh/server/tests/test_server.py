@@ -226,6 +226,31 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
 
+def test__request_args():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "?foo=10")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        assert len(server_doc.request_args) == 1
+        assert server_doc.request_args['foo'] == [b'10']
+
+def test__no_request_args():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server))
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        assert len(server_doc.request_args) == 0
+
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
