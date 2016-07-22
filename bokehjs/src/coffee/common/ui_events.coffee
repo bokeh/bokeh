@@ -85,7 +85,7 @@ class UIEvents extends Backbone.Model
     if tool_view._doubletap?
       logger.debug("Registering tool: #{type} for event 'doubletap'")
       tool_view.listenTo(@, "doubletap", tool_view._doubletap)
-      
+
     # Dual touch hack part 1/2
     # This is a hack for laptops with touch screen who may be pinching or scrolling
     # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
