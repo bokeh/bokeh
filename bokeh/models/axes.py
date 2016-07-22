@@ -21,10 +21,6 @@ class Axis(GuideRenderer):
 
     """
 
-    visible = Bool(True, help="""
-    Ability to hide the entire axis from the plot.
-    """)
-
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
     entire plot in the given dimension.

@@ -28,6 +28,10 @@ class Renderer(Model):
     Specifies the level in which to paint this renderer.
     """)
 
+    visible = Bool(default=True, help="""
+    Is the renderer visible. Default: True
+    """)
+
 @abstract
 class DataRenderer(Renderer):
     """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
