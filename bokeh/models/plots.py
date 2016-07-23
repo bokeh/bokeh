@@ -178,7 +178,7 @@ class Plot(LayoutDOM):
 
     @property
     def legend(self):
-        """Splattable list of :class:`~bokeh.models.guides.Legend` objects.
+        """Splattable list of :class:`~bokeh.models.legend.Legend` objects.
 
         """
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]

@@ -671,7 +671,7 @@ objects:
 .. code-block:: python
 
     >>> p.legend
-    [<bokeh.models.guides.Legend at 0x106fa2278>]
+    [<bokeh.models.legends.Legend at 0x106fa2278>]
 
 This method also returns a splattable list, so that you can set an attribute
 on the list, as if it was a single object, and the attribute is changed
@@ -787,13 +787,13 @@ Dimensions
 There are several properties that can be used to control the layout,
 spacing, etc. of the legend components:
 
-.. bokeh-prop:: bokeh.models.guides.Legend.label_standoff
-.. bokeh-prop:: bokeh.models.guides.Legend.label_width
-.. bokeh-prop:: bokeh.models.guides.Legend.label_height
-.. bokeh-prop:: bokeh.models.guides.Legend.glyph_width
-.. bokeh-prop:: bokeh.models.guides.Legend.glyph_height
-.. bokeh-prop:: bokeh.models.guides.Legend.legend_padding
-.. bokeh-prop:: bokeh.models.guides.Legend.legend_spacing
+.. bokeh-prop:: bokeh.models.legends.Legend.label_standoff
+.. bokeh-prop:: bokeh.models.legends.Legend.label_width
+.. bokeh-prop:: bokeh.models.legends.Legend.label_height
+.. bokeh-prop:: bokeh.models.legends.Legend.glyph_width
+.. bokeh-prop:: bokeh.models.legends.Legend.glyph_height
+.. bokeh-prop:: bokeh.models.legends.Legend.legend_padding
+.. bokeh-prop:: bokeh.models.legends.Legend.legend_spacing
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_dimensions.py
     :source-position: above
@@ -801,7 +801,7 @@ spacing, etc. of the legend components:
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
-.. |Legend| replace:: :class:`~bokeh.models.guides.Legend`
+.. |Legend| replace:: :class:`~bokeh.models.legends.Legend`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 

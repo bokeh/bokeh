@@ -1,4 +1,4 @@
-from bokeh.models.guides import Legend
+from bokeh.models.legends import Legend
 
 from .utils.property_utils import (
     FILL, LINE, TEXT, prefix,

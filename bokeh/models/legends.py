@@ -1,4 +1,4 @@
-""" Renderers for various kinds of guides that can be added to
+""" Renderers for various kinds of legends that can be added to
 Bokeh plots
 
 """

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 ### Deprecation note:
 ### bokeh.models.annotations.Legend was deprecated in 0.12.1 in favor of
-### bokeh.models.guides.Legend and is awaiting removal. This following Imports
+### bokeh.models.legends.Legend and is awaiting removal. This following Imports
 ### will load all of the annotations except Legend (which is imported into
 ### that modules for backwards compatibility) in order to prevent raising
 ### a deprecation warning
