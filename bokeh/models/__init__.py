@@ -17,8 +17,8 @@ from .callbacks import *
 from .formatters import *
 from .glyphs import *
 from .grids import *
-from .guides import *
 from .layouts import *
+from .legends import *
 from .images import *
 from .map_plots import *
 from .markers import *

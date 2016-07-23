@@ -23,7 +23,7 @@ from .annotations import Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .guides import Legend
+from .legends import Legend
 from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource

@@ -62,8 +62,8 @@ module.exports = {
   ## api/typings/models/grids.d.ts
   Grid:                                   require("../models/grids/grid").Model
 
-  ## api/typings/models/guides.d.ts
-  Legend:                                 require("../models/guides/legend").Model
+  ## api/typings/models/legends.d.ts
+  Legend:                                 require("../models/legends/legend").Model
 
   ## api/typings/models/images.d.ts
   ImageSource:                            require("../models/tiles/image_source").Model

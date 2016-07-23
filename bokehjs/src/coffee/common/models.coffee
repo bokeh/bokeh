@@ -62,12 +62,12 @@ module.exports = {
 
   Grid:                     require '../models/grids/grid'
 
-  Legend:                   require '../models/guides/legend'
-
   Column:                   require '../models/layouts/column'
   Row:                      require '../models/layouts/row'
   Spacer:                   require '../models/layouts/spacer'
   WidgetBox:                require '../models/layouts/widget_box'
+
+  Legend:                   require '../models/legends/legend'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
