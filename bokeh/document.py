@@ -10,7 +10,7 @@ logger = logging.getLogger(__file__)
 
 # There is a problem with using @wraps decorator in combination with functools.partial.
 # This issue is not present in Python 3.
-# This redefinition will be triggered only if issue affects user, 
+# This redefinition will be triggered only if issue affects user,
 # otherwise regular definition of @wraps will be used.
 #
 # this code snippet was originally posted in followig stack overflow discussion:
