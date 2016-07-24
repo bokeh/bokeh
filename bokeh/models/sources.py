@@ -151,7 +151,7 @@ class ColumnDataSource(DataSource):
         Args:
             data (seq) : new data to add
             name (str, optional) : column name to use.
-                If not supplied, generate a name go the form "Series ####"
+                If not supplied, generate a name of the form "Series ####"
 
         Returns:
             str:  the column name used
@@ -220,6 +220,45 @@ class ColumnDataSource(DataSource):
 
 
     def stream(self, new_data, rollover=None):
+        ''' Efficiently update data source columns with new append-only data.
+
+        In cases where it is necessary to update data columns in, this method
+        can efficiently send only the new data, instead of requiring the
+        entire data set to be re-sent.
+
+        Args:
+            new_data (dict[str, seq]) : a mapping of column names to sequences of
+                new data to append to each column.
+
+                All columns of the data source must be present in ``new_data``,
+                with identical-length append data.
+
+            rollover (int, optional) : A maximum column size, above which data
+                from the start of the column begins to be discarded. If None,
+                then columns will continue to grow unbounded (default: None)
+
+        Returns:
+            None
+
+        Raises:
+            ValueError
+
+        Example:
+
+
+        .. code-block:: python
+
+            source = ColumnDataSource(data=dict(foo=[], bar=[]))
+
+            # has new, identical-length updates for all columns in source
+            new_data = {
+                'foo' : [10, 20],
+                'bar' : [100, 200],
+            }
+
+            source.stream(new_data)
+
+        '''
         import numpy as np
 
         newkeys = set(new_data.keys())
@@ -249,6 +288,52 @@ class ColumnDataSource(DataSource):
             raise ValueError("All streaming column updates must be the same length")
 
         self.data._stream(self.document, self, new_data, rollover)
+
+    def patch(self, patches):
+        ''' Efficiently update data source columns at specific locations
+
+        If it is only necessary to update a small subset of data in a
+        ColumnDataSource, this method can be used to efficiently update only
+        the subset, instead of requiring the entire data set to be sent.
+
+        This method should be passed a dictionary that maps column names to
+        lists of tuples, each of the form ``(index, new_value)``. The value
+        at the given index for that column will be updated with the new value.
+
+        Args:
+            patches (dict[str, list[tuple]]) : lists of patches for each column.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError
+
+        Example:
+
+        .. code-block:: python
+
+            source = ColumnDataSource(data=dict(foo=[10, 20], bar=[100, 200]))
+
+            patches = {
+                'foo' : [ (0, 1) ],
+                'bar' : [ (0, 101), (1, 201) ],
+            }
+
+            source.patch(patches)
+
+        '''
+        extra = set(patches.keys()) - set(self.data.keys())
+
+        if extra:
+            raise ValueError("Can only patch existing columns (extra: %s)" % ", ".join(sorted(extra)))
+
+        for name, patch in patches.items():
+            max_ind = max(x[0] for x in patch)
+            if max_ind >= len(self.data[name]):
+                raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
+
+        self.data._patch(self.document, self, patches)
 
 class GeoJSONDataSource(ColumnDataSource):
 

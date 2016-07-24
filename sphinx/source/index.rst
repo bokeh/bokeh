@@ -34,11 +34,15 @@ the :ref:`devguide`.
     docs/user_guide/plotting
     docs/user_guide/charts
     docs/user_guide/compat
+    docs/user_guide/annotations
     docs/user_guide/styling
     docs/user_guide/tools
     docs/user_guide/layout
     docs/user_guide/notebook
     docs/user_guide/interaction
+    docs/user_guide/interaction/linking
+    docs/user_guide/interaction/widgets
+    docs/user_guide/interaction/callbacks
     docs/user_guide/cli
     docs/user_guide/server
     docs/user_guide/embed

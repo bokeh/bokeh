@@ -290,6 +290,39 @@ class Gear(Glyph):
     The %s values for the gears.
     """)
 
+class HBar(Glyph):
+    """ Render horizontal bars, given a center coordinate, height and (left, right) coordinates. """
+
+    __example__ = "tests/glyphs/HBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('y', 'height', 'left', 'right')
+
+    y = NumberSpec(help="""
+    The y-coordinates of the centers of the horizontal bars.
+    """)
+
+    height = NumberSpec(help="""
+    The heights of the vertical bars.
+    """)
+
+    left = NumberSpec(default=0, help="""
+    The x-coordinates of the left edges.
+    """)
+
+    right = NumberSpec(help="""
+    The x-coordinates of the right edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
 class Image(Glyph):
     """ Render images given as scalar data together with a color mapper. """
 
@@ -891,6 +924,39 @@ class Text(Glyph):
 
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
+    """)
+
+class VBar(Glyph):
+    """ Render vertical bars, given a center coordinate, width and (top, bottom) coordinates. """
+
+    __example__ = "tests/glyphs/VBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'width', 'top', 'bottom')
+
+    x = NumberSpec(help="""
+    The x-coordinates of the centers of the vertical bars.
+    """)
+
+    width = NumberSpec(help="""
+    The widths of the vertical bars.
+    """)
+
+    bottom = NumberSpec(default=0, help="""
+    The y-coordinates of the bottom edges.
+    """)
+
+    top = NumberSpec(help="""
+    The y-coordinates of the top edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
     """)
 
 class Wedge(Glyph):

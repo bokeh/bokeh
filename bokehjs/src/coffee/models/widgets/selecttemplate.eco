@@ -4,7 +4,7 @@
     <% if typeof option is "string": %>
       <option <%= if option == @value: %>selected="selected"<% end %> value="<%= option %>"><%= option %></option>
     <% else: %>
-      <option <%= if option.value == @value: %>selected="selected"<% end %> value="<%= option.value %>"><%= option.name %></option>
+      <option <%= if option[0] == @value: %>selected="selected"<% end %> value="<%= option[0] %>"><%= option[1] %></option>
     <% end %>
   <% end %>
 </select>

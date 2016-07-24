@@ -125,6 +125,17 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_streamed'):
             receiver._columns_streamed(self)
 
+class ColumnsPatchedEvent(DocumentPatchedEvent):
+    def __init__(self, document, column_source, patches):
+        super(ColumnsPatchedEvent, self).__init__(document)
+        self.column_source = column_source
+        self.patches = patches
+
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_columns_patched'):
+            receiver._columns_patched(self)
+
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
@@ -859,6 +870,11 @@ class Document(object):
                                          'column_source' : event.hint.column_source.ref,
                                          'data' : event.hint.data,
                                          'rollover' : event.hint.rollover })
+
+                elif isinstance(event.hint, ColumnsPatchedEvent):
+                    json_events.append({ 'kind' : 'ColumnsPatched',
+                                         'column_source' : event.hint.column_source.ref,
+                                         'patches' : event.hint.patches })
                 else:
                     value = event.serializable_new
 
@@ -940,11 +956,18 @@ class Document(object):
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
-                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
+                    raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json['rollover']
                 source.stream(data, rollover)
+            elif event_json['kind'] == 'ColumnsPatched':
+                source_id = event_json['column_source']['id']
+                if source_id not in self._all_models:
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
+                source = self._all_models[source_id]
+                patches = event_json['patches']
+                source.patch(patches)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]

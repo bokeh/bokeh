@@ -328,6 +328,36 @@ class TestDocument(unittest.TestCase):
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
+    def test_patch_notification(self):
+        d = document.Document()
+        assert not d.roots
+        m = ColumnDataSource(data=dict(a=[10,11], b=[20,21]))
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert curdoc() is not d
+        events = []
+        curdoc_from_listener = []
+        def listener(event):
+            curdoc_from_listener.append(curdoc())
+            events.append(event)
+        d.on_change(listener)
+        m.patch(dict(a=[(0, 1)], b=[(0,0), (1,1)]))
+        assert events
+        event = events[0]
+        assert isinstance(event, document.ModelChangedEvent)
+        assert isinstance(event.hint, document.ColumnsPatchedEvent)
+        assert event.document == d
+        assert event.model == m
+        assert event.hint.column_source == m
+        assert event.hint.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
+        assert event.attr == 'data'
+        # old == new because stream events update in-place
+        assert event.old == dict(a=[1, 11], b=[0, 1])
+        assert event.new == dict(a=[1, 11], b=[0, 1])
+        assert len(curdoc_from_listener) == 1
+        assert curdoc_from_listener[0] is d
+
+
     def test_change_notification_removal(self):
         d = document.Document()
         assert not d.roots

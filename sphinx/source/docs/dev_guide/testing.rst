@@ -193,6 +193,6 @@ The examples.log link does not get reported in the POOR MAN LOGGER. To find it,
 either search for ``EXAMPLES LOG SUCCESSFULLY UPLOADED`` in the test log, or
 just click on the html report and then change html for log.
 
-.. _custom_markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
+.. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _SauceLabs: http://saucelabs.com/
 .. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp

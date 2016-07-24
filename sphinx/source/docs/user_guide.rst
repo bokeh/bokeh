@@ -29,6 +29,10 @@ topic:
     `pandas`_, or `ggplot.py`_ as Bokeh plots, or build Bokeh plots
     using `HoloViews`_.
 
+:ref:`userguide_annotations`
+    Add informational annotations, such as labels, arrows, and legends to
+    plots.
+
 :ref:`userguide_styling`
     Customize every visual aspect of Bokeh plots---axes, grids, labels,
     glyphs, and more.
