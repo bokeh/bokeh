@@ -11,8 +11,10 @@ class GridView extends Renderer.View
     @_y_range_name = @mget('y_range_name')
 
   render: () ->
-    ctx = @plot_view.canvas_view.ctx
+    if @model.visible == false
+      return
 
+    ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @_draw_regions(ctx)
     @_draw_minor_grids(ctx)

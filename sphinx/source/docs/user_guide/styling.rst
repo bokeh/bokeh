@@ -65,6 +65,16 @@ Text Properties
 
 .. _userguide_styling_colors:
 
+Visible property
+~~~~~~~~~~~~~~~~
+
+Glyph renderers, axes, and grids all have a visible property that can be used to turn them on
+and off. This can be particulartly useful in interactive examples with bokeh server or CustomJS.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_visible_property.py
+    :source-position: above
+
+
 Specifying Colors
 ~~~~~~~~~~~~~~~~~
 
