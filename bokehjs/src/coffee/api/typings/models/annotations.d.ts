@@ -3,7 +3,7 @@ declare namespace Bokeh {
     export interface IAnnotation extends IRenderer, IBackRef {
         level?: RenderLevel;
     }
-    
+
     export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: ModelOpts): BoxAnnotation };
     export interface BoxAnnotation extends Annotation, IBoxAnnotation {}
     export interface IBoxAnnotation extends IAnnotation, LineProps, FillProps {
