@@ -11,6 +11,7 @@ from ..core.properties import (
     Float, Override,
 )
 
+from .mappers import ColorMapper
 from .renderers import GuideRenderer, GlyphRenderer
 
 class Legend(GuideRenderer):
@@ -98,3 +99,41 @@ class Legend(GuideRenderer):
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
+
+class ColorBar(GuideRenderer):
+    """ Render a colobar based on a color mapper for a plot.
+
+    """
+
+    orientation = Enum(Orientation, default="vertical", help="""
+    Whether the legend entries should be placed vertically or horizontally
+    when they are layed out.
+    """)
+
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
+    """)
+
+    legend_height = Int(400, help="""
+    The height (in pixels) that the rendered legend glyph should occupy.
+    """)
+
+    legend_width = Int(50, help="""
+    The width (in pixels) that the rendered legend glyph should occupy.
+    """)
+
+    border_props = Include(LineProps, help="""
+    The %s for the colorbar border outline.
+    """)
+
+    border_line_color = Override(default="#e5e5e5")
+
+    border_line_alpha = Override(default=0.5)
+
+    background_props = Include(FillProps, help="""
+    The %s for the colorbar background style.
+    """)
+
+    background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=0.95)

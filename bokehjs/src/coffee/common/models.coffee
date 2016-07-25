@@ -67,6 +67,7 @@ module.exports = {
   Spacer:                   require '../models/layouts/spacer'
   WidgetBox:                require '../models/layouts/widget_box'
 
+  ColorBar:                 require '../models/legends/color_bar'
   Legend:                   require '../models/legends/legend'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
