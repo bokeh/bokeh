@@ -29,6 +29,7 @@ def test_Arrow():
     yield (check_properties_existence, arrow, [
         "plot",
         "level",
+        "visible",
         "x_start",
         "y_start",
         "start_units",
@@ -61,6 +62,7 @@ def test_BoxAnnotation():
     yield (check_properties_existence, box, [
         "render_mode",
         "plot",
+        "visible",
         "left",
         "left_units",
         "right",
@@ -96,6 +98,7 @@ def test_Label():
     yield (check_properties_existence, label, [
         "plot",
         "level",
+        "visible",
         "x",
         "y",
         "x_units",
@@ -135,6 +138,7 @@ def test_LabelSet():
     yield check_line_properties, label_set, "border_", None, 1.0, 1.0
     yield (check_properties_existence, label_set, [
         "plot",
+        "visible",
         "level",
         "x",
         "y",
@@ -167,6 +171,7 @@ def test_Span():
     yield check_line_properties, line, "", 'black', 1.0
     yield (check_properties_existence, line, [
         "plot",
+        "visible",
         "location",
         "location_units",
         "dimension",
@@ -192,6 +197,7 @@ def test_Title():
     yield check_line_properties, title, "border_", None, 1.0, 1.0
     yield (check_properties_existence, title, [
         "plot",
+        "visible",
         "level",
         "text",
         "align",

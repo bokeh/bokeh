@@ -23,6 +23,7 @@ def test_Legend():
     yield check_fill_properties, legend, "background_", "#ffffff", 0.95
     yield (check_properties_existence, legend, [
         "plot",
+        "visible",
         "location",
         "orientation",
         "label_standoff",

@@ -110,6 +110,9 @@ class GlyphRendererView extends Renderer.View
       @request_render()
 
   render: () ->
+    if @model.visible == false
+      return
+
     t0 = Date.now()
 
     glsupport = @glyph.glglyph
