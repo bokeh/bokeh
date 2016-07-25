@@ -226,10 +226,10 @@ class Plot extends LayoutDOM.Model
       if @toolbar_location is 'below'
         # (3) stack: plot_canvas._dom_top = toolbar._bottom - toolbar._height
         if @toolbar_sticky is false
-          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom))
+          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom, [-1, @toolbar._height]))
         if @toolbar_sticky is true
           constraints.push(GE(@plot_canvas.below_panel._height, [-1, @toolbar._height]))
-          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height, @toolbar._height))
+          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height))
 
       if @toolbar_location is 'left'
         # (3) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
@@ -239,10 +239,10 @@ class Plot extends LayoutDOM.Model
       if @toolbar_location is 'right'
         # (3) stack: plot_canvas._dom_left = plot_canvas._right - toolbar._width
         if @toolbar_sticky is false
-          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right))
+          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right, [-1, @toolbar._width]))
         if @toolbar_sticky is true
           constraints.push(GE(@plot_canvas.right_panel._width, [-1, @toolbar._width]))
-          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width, @toolbar._width))
+          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width))
 
       if @toolbar_location in ['above', 'below']
         # (4) toolbar_width = full_width - plot_canvas._right
