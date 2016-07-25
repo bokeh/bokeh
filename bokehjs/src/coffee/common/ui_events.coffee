@@ -90,7 +90,7 @@ class UIEvents extends Backbone.Model
     # This is a hack for laptops with touch screen who may be pinching or scrolling
     # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
     # will be linked to pinch. But we also want to trigger in the case of a scroll.
-    if 'ontouchstart' of window or navigator.maxTouchPoints
+    if 'ontouchstart' of window or navigator.maxTouchPoints > 0
       if et == 'pinch'
         logger.debug("Registering scroll on touch screen")
         tool_view.listenTo(@, "scroll:#{id}", tool_view["_scroll"])
