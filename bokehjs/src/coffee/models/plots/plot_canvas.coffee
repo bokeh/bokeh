@@ -269,7 +269,15 @@ class PlotCanvasView extends Renderer.View
       @canvas_view.set_dims([info.dimensions.width, info.dimensions.height])
 
   reset_dimensions: () ->
-    @canvas_view.set_dims([@canvas.initial_width, @canvas.initial_height])
+    @update_dimensions(@canvas.initial_width, @canvas.initial_height)
+
+  update_dimensions: (width, height) ->
+    @pause()
+    @model.plot.width = width
+    @model.plot.height = height
+    @model.document.resize()
+    @unpause()
+
 
   get_selection: () ->
     selection = []
