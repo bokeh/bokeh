@@ -35,7 +35,13 @@ class HitTestResult
       indices: []
     }
     # 2d for all for multilines and multi patches
-    @['2d'] = {indices: []}
+    @['2d'] = {
+      # index of the glyph in the multiglyph
+      indices: []
+      # object containing glyph_index: [point_index] of the nearest
+      # point to the crossed segment
+      point_indices: {}
+    }
 
   Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
   Object.defineProperty(this.prototype, '_1d', { get: () -> @['1d'] })

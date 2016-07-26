@@ -168,6 +168,48 @@ class HoverToolView extends InspectTool.View
 
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
+    for pair in _.pairs(indices['2d'].point_indices)
+      [i, j] = [pair[0], pair[1][0]]
+      data_x = renderer.glyph._xs[i][j]
+      data_y = renderer.glyph._ys[i][j]
+
+      if @model.line_policy == "interp" # and renderer.get_interpolation_hit?
+        [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, j, geometry)
+        rx = xmapper.map_to_target(data_x)
+        ry = ymapper.map_to_target(data_y)
+
+      else if @model.line_policy == "prev"
+        rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j])
+        ry = canvas.sy_to_vy(renderer.glyph.sys[i][j])
+
+      else if @model.line_policy == "next"
+        rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j+1])
+        ry = canvas.sy_to_vy(renderer.glyph.sys[i][j+1])
+
+      else if @model.line_policy == "nearest"
+        d1x = renderer.glyph.sx[i][j]
+        d1y = renderer.glyph.sy[i][j]
+        dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
+
+        d2x = renderer.glyph.sx[i][j+1]
+        d2y = renderer.glyph.sy[i][j+1]
+        dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+
+        if dist1 < dist2
+          [sdatax, sdatay] = [d1x, d1y]
+        else
+          [sdatax, sdatay] = [d2x, d2y]
+          j = j+1
+
+        data_x = renderer.glyph._x[i][j]
+        data_y = renderer.glyph._y[i][j]
+        rx = canvas.sx_to_vx(sdatax)
+        ry = canvas.sy_to_vy(sdatay)
+
+      vars = {index: i, point_index:j, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+
+      tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+
     return null
 
   _emit_callback: (geometry) ->
