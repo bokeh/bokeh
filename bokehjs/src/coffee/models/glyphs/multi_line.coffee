@@ -43,18 +43,6 @@ class MultiLineView extends Glyph.View
       ctx.stroke()
 
   _hit_point: (geometry) ->
-    ### Check if the point geometry hits this multi_line glyph and return an
-    object that describes the hit result:
-      Args:
-        * geometry (object): object with the following keys
-          * vx (float): view x coordinate of the point
-          * vy (float): view y coordinate of the point
-          * type (str): type of geometry (in this case it's a point)
-      Output:
-        Object with the following keys:
-          * 0d (bool): whether the point hits the glyph or not
-          * 1d (array(int)): array with the indices hit by the point
-    ###
     result = hittest.create_hit_test_result()
     point =
       x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
@@ -101,7 +89,7 @@ class MultiLineView extends Glyph.View
 
     result['2d'].indices = _.keys(hits)
     result['2d'].point_indices = hits
-    
+
     return result
 
   get_interpolation_hit: (i, point_i, geometry)->
