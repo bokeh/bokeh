@@ -90,11 +90,18 @@ class MultiLineView extends Glyph.View
       val = @renderer.xmapper.map_from_target(vx)
       values = @_xs
 
+    hits = {}
     for i in [0...values.length]
+      points = []
       for j in [0...values[i].length-1]
-        if values[i][j] <= val <= values[i+1]
-          result['2d'].indices.push(i)
+        if values[i][j] <= val <= values[i][j+1]
+          points.push(j)
+      if points.length > 0
+        hits[i] = points
 
+    result['2d'].indices = _.keys(hits)
+    result['2d'].point_indices = hits
+    
     return result
 
   get_interpolation_hit: (i, point_i, geometry)->
