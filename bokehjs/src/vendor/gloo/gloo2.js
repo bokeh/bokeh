@@ -653,7 +653,7 @@
     Texture2D.prototype._class_name = "Texture2D";
     
     Texture2D.prototype._target = 3553;
-    Texture2D.prototype._types = {"Int8Array": 5120, "Uint8Array": 5121, "Int16Array": 5122, "Uint16Array": 5123, "Int32Array": 5124, "Int32Array": 5125, "Float32Array": 5126};
+    Texture2D.prototype._types = {"Int8Array": 5120, "Uint8Array": 5121, "Int16Array": 5122, "Uint16Array": 5123, "Int32Array": 5124, "Uint32Array": 5125, "Float32Array": 5126};
     Texture2D.prototype._create = function () {
         this.handle = this._gl.createTexture();
         this._shape_format = null;
