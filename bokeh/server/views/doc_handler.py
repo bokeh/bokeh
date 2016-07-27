@@ -24,13 +24,17 @@ class DocHandler(SessionHandler):
 
     @gen.coroutine
     def get(self, *args, **kwargs):
+        # generate a session for each get request
         session = yield self.get_session()
-
+        # parse the url arguments
         websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
-        page = server_html_page_for_session(session.id, self.application.resources(self.request),
-                                            title=session.document.title,
-                                            template=session.document.template,
-                                            websocket_url=websocket_url)
+        page = server_html_page_for_session(
+            session.id,
+            self.application.resources(self.request),
+            title=session.document.title,
+            template=session.document.template,
+            websocket_url=websocket_url
+        )
 
         self.set_header("Content-Type", 'text/html')
         self.write(page)
