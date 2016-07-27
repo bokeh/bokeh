@@ -61,7 +61,7 @@ class ServerSession(object):
 
     '''
 
-    def __init__(self, session_id, document, io_loop=None, request=None):
+    def __init__(self, session_id, document, io_loop=None):
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
@@ -69,7 +69,6 @@ class ServerSession(object):
         self._id = session_id
         self._document = document
         self._loop = io_loop
-        self._request = request
         self._subscribed_connections = set()
         self._last_unsubscribe_time = current_time()
         self._lock = locks.Lock()
