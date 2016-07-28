@@ -553,6 +553,10 @@ describe "Document", ->
     out = stdoutTrap -> Document.from_json_string(JSON.stringify(parsed))
     expect(out).to.be.equal ""
 
+    parsed['version'] = "#{js_version}rc123"
+    out = stdoutTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
   it "can serialize with one model in it", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
