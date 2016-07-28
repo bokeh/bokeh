@@ -299,15 +299,6 @@ def generate_changelog(issues, after, heading, rtag=False):
             content = f.read()
             f.seek(0)
             write(f.write, '\n', content)
-        # Insert the summary points from the <tag>.rst file into the CHANGELOG
-        flines = []
-        with open("../CHANGELOG", "r") as f:
-            flines = f.readlines()
-        with open("../sphinx/source/docs/releases/" + rtag + ".rst", "r") as f:
-            starters = ("*", "  -", "  ")
-            flines[2:2] = ["  " + line for line in f.readlines() if line.startswith(starters)]
-        with open("../CHANGELOG", "w") as f:
-            f.writelines(flines)
     else:
         write(print)
 
