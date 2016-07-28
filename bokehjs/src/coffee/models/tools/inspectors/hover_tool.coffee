@@ -206,7 +206,7 @@ class HoverToolView extends InspectTool.View
         rx = canvas.sx_to_vx(sdatax)
         ry = canvas.sy_to_vy(sdatay)
 
-      vars = {index: i, point_index:j, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+      vars = {index: i, point_index: j, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
