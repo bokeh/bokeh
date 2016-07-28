@@ -62,8 +62,8 @@ class MultiLineView extends Glyph.View
       if points
         hits[i] = points
 
-    result['2d'].indices = _.keys(hits)
-    result['2d'].point_indices = hits
+    result['1d'].indices = _.keys(hits)
+    result['2d'] = hits
 
     return result
 
@@ -87,8 +87,8 @@ class MultiLineView extends Glyph.View
       if points.length > 0
         hits[i] = points
 
-    result['2d'].indices = _.keys(hits)
-    result['2d'].point_indices = hits
+    result['1d'].indices = _.keys(hits)
+    result['2d'] = hits
 
     return result
 

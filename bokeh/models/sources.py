@@ -22,7 +22,7 @@ class DataSource(Model):
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
-        '2d': {'indices': [], 'point_indices': {}}
+        '2d': {}
     }, help="""
     A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
 
