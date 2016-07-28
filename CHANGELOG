@@ -1,3 +1,84 @@
+2016-07-28   0.12.1:
+--------------------
+  * bugfixes:
+    - #1277 Syncing two input widgets without infinite callback loop
+    - #1618 Toolbar buttons do not work on updating server plots
+    - #1716 Help tool: hard/impossible to click "learn more" link
+    - #2289 Glyph/buttons_server.py dropdown red button looking bad (cut) in chrome
+    - #2291 [component: bokehjs] Gyphs/widget_server.py column size
+    - #2488 Building the conda recipe does not work on windows
+    - #3041 [component: examples] [component: tests] Scikit-learn is needed by examples/plotting/file/clustering.py
+    - #3188 [component: build] Installing dev build through pip, receiving standard release instead
+    - #3509 Image glyph does not work with server
+    - #3639 Bokeh occasionally not working with jupyter notebook
+    - #3771 Bokehjs - get_model_by_name() - multiple name error
+    - #4329 [component: tests] Test defaults does not report correct mismatched defaults
+    - #4525 Shout louder on bokehjs build fails
+    - #4560 Resize tool mostly broken
+    - #4679 [component: bokehjs] [webgl] Draw legend after webgl glyphs
+    - #4692 [component: docs] Docs version dropdown has extra 0.11.1
+    - #4693 [regression] Incorrect rendering of embedded bokeh server app in 0.12
+    - #4716 [API: models] Typo in bokeh.models.tools.taptool `behavior` attr default
+    - #4727 [component: docs] First example in quickstart missing output_file
+    - #4730 [component: tests] [regression] Restore real flake8 test failure
+    - #4731 [component: docs] Fix documented name for resizetool
+    - #4753 [component: examples] Typo in categorical example plot title
+    - #4759 Reset button no longer appears on gridplots
+    - #4760 [component: bokehjs] Rbush 2.0.1 bug on image render
+    - #4766 [component: docs] Bokeh.client example in user guide has a bug
+    - #4781 Remove unused import
+    - #4783 [component: server] Using functools.partial in combination with add_next_tick_callback() throws exception in py2
+    - #4788 [component: docs] Stocks example github link is broken in gallery.rst
+    - #4791 [component: docs] Docstring of ``add_tools`` not correct
+    - #4793 [component: bokehjs] [regression] Ellipse glyph missing rbush bounds format update
+    - #4795 [component: bokehjs] [webgl] Webgl line thickness scales inappropriately with browser zoom level
+    - #4800 [component: bokehjs] [widgets] Multiselect not rendering correctly if `options` is `list(dict)` 
+    - #4806 [component: docs] Update add_glyph docstring 
+    - #4814 Add npm install to win build; add nodejs to win build deps
+    - #4816 [component: docs] Docs fail to build on windows
+    - #4834 [component: bokehjs] [regression] Hoover example from tutorials doesn't work
+    - #4839 Error when using hovertool and taptool with taptool in "inspect" behavior
+    - #4842 [component: docs] Fixes typo: "go" -> "of"
+    - #4853 [layout] Hovertool does not show tooltip of last glyph
+    - #4862 Wheel zoom not working on chrome on touchscreen laptops, when using scroll wheel
+    - #4878 [component: bokehjs] Inline from bokeh.resources has broken js?
+    - #4884 Bokehjs fails to load for inline in notebook due to duplicated int32array
+  * features:
+    - #673 Trim bokehjs size and reduce code duplication
+    - #1191 [starter] Deprecate `notebook=true` 
+    - #1944 Bokehjs should validate values on `@set(value)`
+    - #2610 [component: examples] Improve les mis example
+    - #3347 Larger color ranges (particularly gray scale)
+    - #3423 [API: models] [component: bokehjs] [component: examples] Add vbar and hbar glyphs
+    - #4758 Bokeh.palettes missing qualitative brewer color maps
+    - #4775 [feature] add cartodb positron tile provider
+    - #4808 [component: bokehjs] [component: server] Add .patch method for efficient partial data source updates
+    - #4866 Add visible property to glyph renderer
+  * tasks:
+    - #2193 [component: server] Bokeh server deployment: generic linux server
+    - #2683 [component: bokehjs] [webgl] Our webgl support does not work very well on safari
+    - #2933 [component: bokehjs] Use only `div` and `canvas` in the generated html
+    - #3006 [component: tests] Conda install test dependencies for osx
+    - #3008 [starter] Warn about version mismatches
+    - #3078 [component: docs] Move annotations section of user guide into it's own page
+    - #3383 [API: charts] Remove io logic from charts
+    - #3511 [component: tests] [starter] Get basic tests working on windows
+    - #3528 [component: bokehjs] [component: build] [component: tests] [starter] Add a test to make sure that bokeh*.js don't increase significantly in size
+    - #4533 Run test_code_quality with flake8 group
+    - #4691 [component: bokehjs] Update rbush version
+    - #4701 Improve pypy compatibility
+    - #4743 [component: docs] Bokeh docs heatmap example broken
+    - #4755 Feature request: make tool coalescence optional in gridplot
+    - #4779 [component: bokehjs] Jqui 1.12 breaks everything, pin to old version
+    - #4809 [component: docs] Split interaction.rst into three sections
+    - #4831 Revert "moved the wheel speed zoom from internal to defined."
+    - #4845 [component: docs] Remove 0.8 and 0.9 links in docs dropdown
+    - #4846 [component: docs] Only update cds .data "all at once" in docs
+    - #4849 [component: docs] [starter] Docs should have descriptive page titles
+    - #4889 [component: build] Simplify changelog
+    - #4895 [component: docs] Made a couple copy edits to user guide pages
+    - #4896 [component: docs] 0.12.1 release notes
+
 2016-06-27   0.12.0:
 --------------------
   * bugfixes:
