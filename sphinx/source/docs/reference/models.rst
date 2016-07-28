@@ -26,6 +26,7 @@ a serialized version of the model looks like.
    models/glyphs
    models/grids
    models/layouts
+   models/legends
    models/map_plots
    models/mappers
    models/markers
