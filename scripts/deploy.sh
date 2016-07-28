@@ -84,18 +84,18 @@ elif [[ ! -z "$dtag" && ! -z "$ptag" && -z "$rtag" ]]; then
     # Merge branch into master and push to origin
     git checkout master
     git pull origin
-    git merge --no-ff release_$rtag -m "Merge branch devel_$rtag"
+    git merge --no-ff devel_$dtag -m "Merge branch devel_$dtag"
     git push origin master
-    git branch -d release_$rtag
+    git branch -d devel_$dtag
 
     # Tag the version locally.
-    git tag -a $dtag -m "New devel[rc] build $dtag."
-    git push origin $rtag
+    git tag -a $dtag -m "New devel/rc build $dtag."
+    git push origin $dtag
 
     echo "The new devel build was triggered."
 
 else
-    echo "You must pass a -d tag (dev build) OR -r tags (for releases) and a -p tag (previous version)."
+    echo "You must pass a a -d tag and a -p tag OR a -r tag and -p tag."
     echo "Run ./deploy.sh -h to get some more help with the args to pass."
     exit 0
 fi
