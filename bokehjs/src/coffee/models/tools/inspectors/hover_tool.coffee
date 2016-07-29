@@ -259,6 +259,7 @@ class HoverTool extends InspectTool.Model
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ] # TODO (bev) "follow_mouse", "none"
       line_policy:  [ p.String, 'prev'         ] # TODO (bev) "next", "nearest", "interp", "none"
+      show_arrow:   [ p.Boolean, true          ]
       anchor:       [ p.String, 'center'       ] # TODO: enum
       attachment:   [ p.String, 'horizontal'   ] # TODO: enum
       callback:     [ p.Any                    ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
@@ -294,6 +295,7 @@ class HoverTool extends InspectTool.Model
             tooltip = new Tooltip.Model({
               custom: _.isString(tooltips) or _.isFunction(tooltips)
               attachment: @attachment
+              show_arrow: @show_arrow
             })
             ttmodels[r.id] = tooltip
 
