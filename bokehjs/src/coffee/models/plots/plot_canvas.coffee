@@ -631,14 +631,13 @@ class PlotCanvasView extends Renderer.View
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
+    ctx.clearRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
       ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
-      ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)
       ctx.fillRect(frame_box...)
-
 
 class PlotCanvas extends LayoutDOM.Model
   type: 'PlotCanvas'
