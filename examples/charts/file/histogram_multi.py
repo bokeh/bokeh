@@ -1,4 +1,5 @@
-from bokeh.charts import Histogram, defaults, vplot, hplot, show, output_file
+from bokeh.charts import Histogram, defaults, show, output_file
+from bokeh.layouts import gridplot
 from bokeh.sampledata.autompg import autompg as df
 
 defaults.plot_width = 400
@@ -19,8 +20,5 @@ hist6 = Histogram(df, values='mpg', bins=[10, 15, 25, 100], tooltips=[('Bin', "@
 
 output_file("histogram_multi.html", title="histogram_multi.py example")
 
-show(vplot(
-    hplot(hist, hist2),
-    hplot(hist3, hist4),
-    hplot(hist5, hist6)
-))
+show(gridplot(hist,  hist2, hist3, hist4,
+              hist5, hist6, ncols=2))

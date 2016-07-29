@@ -10,11 +10,10 @@ from ..core.query import find
 from ..core import validation
 from ..core.validation.errors import REQUIRED_RANGE
 from ..core.validation.warnings import (
-    MISSING_RENDERERS, NO_DATA_RENDERERS, EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL,
+    MISSING_RENDERERS, NO_DATA_RENDERERS, MALFORMED_CATEGORY_LABEL,
     SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..core.enums import Location
-from ..core.property_mixins import LineProps, TextProps, FillProps
-from ..model import Model
+from ..core.property_mixins import LineProps, FillProps
 from ..core.properties import (
     Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override, TitleProp)
@@ -247,7 +246,7 @@ class Plot(LayoutDOM):
             getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
-        ''' Adds an tools to the plot.
+        ''' Adds tools to the plot.
 
         Args:
             *tools (Tool) : the tools to add to the Plot
@@ -283,7 +282,7 @@ class Plot(LayoutDOM):
             Glyph initializer.
 
         Returns:
-            Glyph
+            GlyphRenderer
 
         '''
         if glyph is not None:
@@ -385,7 +384,7 @@ class Plot(LayoutDOM):
             return str(self)
 
     __deprecated_attributes__ = (
-        'background_fill', 'border_fill', 'logo', 'tools',
+        'background_fill', 'border_fill', 'logo', 'tools', 'responsive',
         'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
         'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
     )
@@ -610,6 +609,31 @@ class Plot(LayoutDOM):
     #
     # DEPRECATED PROPERTIES
     #
+
+    @property
+    def responsive(self):
+        warnings.warn(DEP_MSG_0_12_0 % ('responsive', 'Plot.sizing_mode'))
+        return self.sizing_mode != "fixed"
+
+    @responsive.setter
+    def responsive(self, value):
+        warnings.warn(DEP_MSG_0_12_0 % ('responsive', 'Plot.sizing_mode'))
+        warnings.warn("""
+        The 'responsive' property has been deprecated in 0.12.0. It has been
+        replaced by 'sizing_mode' which accepts one of five modes:
+
+            fixed, scale_width, scale_height, scale_both, stretch_both
+
+        'responsive = False' is the equivalent of 'sizing_mode = "fixed"'
+
+        'responsive = True' is the equivalent of 'sizing_mode = "scale_width"'
+        """)
+        if value is True:
+            self.sizing_mode = "scale_width"
+        elif value is False:
+            self.sizing_mode = "fixed"
+        else:
+            raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
 
     @property
     def background_fill(self):

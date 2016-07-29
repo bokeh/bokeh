@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ...core.properties import abstract
-from ...core.properties import String, Bool, Override
+from ...core.properties import String, Bool
 from .widget import Widget
 
 

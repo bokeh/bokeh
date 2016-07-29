@@ -168,7 +168,7 @@ class Exporter(object):
                             and child.get_text() == 'None'):
                         self.draw_text(ax, child, force_trans=ax.transAxes)
                 elif isinstance(child, matplotlib.lines.Line2D):
-                    self.draw_line(ax, child, force_trans=ax.transAxes)
+                    warnings.warn("Legend element %s not implemented" % child)
                 elif isinstance(child, matplotlib.collections.Collection):
                     self.draw_collection(ax, child,
                                          force_pathtrans=ax.transAxes)

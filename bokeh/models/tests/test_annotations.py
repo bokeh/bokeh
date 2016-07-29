@@ -6,9 +6,7 @@ from bokeh.models.annotations import (
     Legend, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
 from bokeh.models import ColumnDataSource, ArrowHead
-from bokeh.core.enums import (
-    NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign
-)
+from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap, TextAlign
 
 FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
@@ -16,7 +14,7 @@ LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
 TEXT = ["text_font", "text_font_size", "text_font_style", "text_color",
         "text_alpha", "text_align", "text_baseline"]
 ANGLE = ["angle", "angle_units"]
-PROPS = ["name", "tags"]
+PROPS = ["name", "tags", "visible"]
 
 def prefix(prefix, props):
     return [prefix + p for p in props]

@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 from bokeh.charts.models import CompositeGlyph
-from bokeh.charts.glyphs import (AreaGlyph, LineGlyph, PointGlyph, StepGlyph,
-                                 BarGlyph, BoxGlyph, BarGlyph)
+from bokeh.charts.glyphs import (AreaGlyph, LineGlyph, PointGlyph, StepGlyph, BoxGlyph, BarGlyph)
 from bokeh.charts.operations import stack
 from bokeh.charts.stats import stats
 

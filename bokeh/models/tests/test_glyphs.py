@@ -5,6 +5,7 @@ from bokeh.models.glyphs import (
     Bezier,
     Circle,
     Gear,
+    HBar,
     Image, ImageRGBA, ImageURL,
     Line,
     MultiLine,
@@ -14,6 +15,7 @@ from bokeh.models.glyphs import (
     Rect,
     Segment,
     Text,
+    VBar,
     Wedge)
 
 from bokeh.models.glyphs import (
@@ -199,6 +201,21 @@ def test_Gear():
         "pressure_angle",
         "shaft_size",
         "internal",
+    ], FILL, LINE)
+
+def test_HBar():
+    glyph = HBar()
+    assert glyph.y is None
+    assert glyph.height is None
+    assert glyph.left == 0
+    assert glyph.right is None
+    yield check_fill, glyph
+    yield check_line, glyph
+    yield (check_props, glyph, [
+        "y",
+        "height",
+        "left",
+        "right",
     ], FILL, LINE)
 
 def test_Image():
@@ -437,6 +454,21 @@ def test_Text():
         "x_offset",
         "y_offset"
     ], TEXT)
+
+def test_VBar():
+    glyph = VBar()
+    assert glyph.x is None
+    assert glyph.width is None
+    assert glyph.top is None
+    assert glyph.bottom == 0
+    yield check_fill, glyph
+    yield check_line, glyph
+    yield (check_props, glyph, [
+        "x",
+        "width",
+        "top",
+        "bottom",
+    ], FILL, LINE)
 
 def test_Wedge():
     glyph = Wedge()

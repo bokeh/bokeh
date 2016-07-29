@@ -40,12 +40,12 @@ class MultiSelectView extends InputWidget.View
     )
 
   change_input: () ->
-    super()
     value = @$el.find('select').val()
     if value
       @model.value = value
     else
       @model.value = []
+    super()
 
 class MultiSelect extends InputWidget.Model
   type: "MultiSelect"

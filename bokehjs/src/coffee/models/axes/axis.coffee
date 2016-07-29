@@ -15,8 +15,9 @@ class AxisView extends Renderer.View
     @_y_range_name = @mget('y_range_name')
 
   render: () ->
-    if not @mget('visible')
+    if @model.visible == false
       return
+
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @_draw_rule(ctx)
@@ -219,7 +220,6 @@ class Axis extends GuideRenderer.Model
   ]
 
   @define {
-      visible:        [ p.Bool,     true      ]
       bounds:         [ p.Any,      'auto'    ] # TODO (bev)
       ticker:         [ p.Instance, null      ]
       formatter:      [ p.Instance, null      ]

@@ -48,7 +48,7 @@ def Area(data=None, x=None, y=None, **kws):
     .. bokeh-plot::
         :source-position: above
 
-        from bokeh.charts import Area, show, vplot, output_file
+        from bokeh.charts import Area, show, output_file
 
         # create some example data
         data = dict(

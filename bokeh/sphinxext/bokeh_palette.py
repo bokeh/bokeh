@@ -12,29 +12,38 @@ import jinja2
 from sphinx.locale import _
 from sphinx.util.compat import Directive
 
-from bokeh.palettes import brewer
+from bokeh.palettes import small_palettes
 
-BREWER_TEMPLATE = jinja2.Template(u"""
-<table>
+PALETTE_TEMPLATE = jinja2.Template(u"""
+<div class="col-md-4" style="min-height: 230px;">
+    <table>
+      <tr>
+        <th colspan="2"> {{ name }} </th>
+      </tr>
 
-  <tr>
-    <th> {{ name }} </th>
-  </tr>
+      {% for number in numbers %}
+      <tr>
 
-  {% for number in numbers %}
-  <tr>
+        <td height='20px' width='30px'> {{ number }} </td>
 
-    <td height='20px' width='30px'> {{ number }} </td>
+        {% for color in palette[number] %}
+        <td height="20px" width="20px" style="background-color: {{ color }};"/>
+        {% endfor %}
 
-    {% for color in palette[number] %}
-    <td height="20px" width="20px" style="background-color: {{ color }};"/>
-    {% endfor %}
-
-  </tr>
-  {% endfor %}
-
-</table>
+      </tr>
+      {% endfor %}
+    </table>
+</div>
 """)
+
+CSS = """
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+"""
+
+JS = """
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+"""
 
 
 class bokeh_palette(nodes.General, nodes.Element):
@@ -53,13 +62,17 @@ class BokehPaletteDirective(Directive):
 
 def html_visit_bokeh_palette(self, node):
     # NOTE: currently only handles the existing Brewer palettes
-    names = sorted(brewer)
+    names = sorted(small_palettes)
+    self.body.append(CSS)
+    self.body.append('<div class="container-fluid"><div class="row">"')
     for name in names:
-        palette = brewer[name]
+        palette = small_palettes[name]
         numbers = sorted(palette)
 
-        html = BREWER_TEMPLATE.render(name=name, numbers=numbers, palette=palette)
+        html = PALETTE_TEMPLATE.render(name=name, numbers=numbers, palette=palette)
         self.body.append(html)
+    self.body.append('</div></div>')
+    self.body.append(JS)
     raise nodes.SkipNode
 
 def latex_visit_bokeh_palette(self, node):

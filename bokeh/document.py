@@ -8,7 +8,22 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-from functools import wraps
+# There is a problem with using @wraps decorator in combination with functools.partial.
+# This issue is not present in Python 3.
+# This redefinition will be triggered only if issue affects user,
+# otherwise regular definition of @wraps will be used.
+#
+# this code snippet was originally posted in followig stack overflow discussion:
+# http://stackoverflow.com/a/28752007
+
+from functools import wraps, partial, WRAPPER_ASSIGNMENTS
+try:
+    wraps(partial(wraps))(wraps)
+except AttributeError:
+    @wraps(wraps)
+    def wraps(obj, attr_names=WRAPPER_ASSIGNMENTS, wraps=wraps):
+        return wraps(obj, assigned=(name for name in attr_names if hasattr(obj, name)))
+
 from json import loads
 
 import jinja2
@@ -109,6 +124,17 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         super(ModelChangedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_columns_streamed'):
             receiver._columns_streamed(self)
+
+class ColumnsPatchedEvent(DocumentPatchedEvent):
+    def __init__(self, document, column_source, patches):
+        super(ColumnsPatchedEvent, self).__init__(document)
+        self.column_source = column_source
+        self.patches = patches
+
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_columns_patched'):
+            receiver._columns_patched(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
@@ -844,6 +870,11 @@ class Document(object):
                                          'column_source' : event.hint.column_source.ref,
                                          'data' : event.hint.data,
                                          'rollover' : event.hint.rollover })
+
+                elif isinstance(event.hint, ColumnsPatchedEvent):
+                    json_events.append({ 'kind' : 'ColumnsPatched',
+                                         'column_source' : event.hint.column_source.ref,
+                                         'patches' : event.hint.patches })
                 else:
                     value = event.serializable_new
 
@@ -925,11 +956,18 @@ class Document(object):
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
-                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
+                    raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json['rollover']
                 source.stream(data, rollover)
+            elif event_json['kind'] == 'ColumnsPatched':
+                source_id = event_json['column_source']['id']
+                if source_id not in self._all_models:
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
+                source = self._all_models[source_id]
+                patches = event_json['patches']
+                source.patch(patches)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]

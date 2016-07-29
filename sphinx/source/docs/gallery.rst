@@ -27,7 +27,7 @@ can be processed to trigger more visual updates.
 
     <div class="row">
 
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/movies">
@@ -45,7 +45,7 @@ can be processed to trigger more visual updates.
       </div>
     </div>
 
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/selection_histogram">
@@ -54,7 +54,7 @@ can be processed to trigger more visual updates.
         </div>
         <div class="col-sm-6">
           <p>
-            Shows axis histograms for selected <em>and</em> nonselected points in a scatter plot
+            Shows axis histograms for selected <em>and</em> non-selected points in a scatter plot
           </p>
           <p>
             <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/selection_histogram.py">selection_histogram</a>
@@ -63,10 +63,7 @@ can be processed to trigger more visual updates.
       </div>
     </div>
 
-    </div>
-
-
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/weather">
@@ -84,9 +81,11 @@ can be processed to trigger more visual updates.
       </div>
     </div>
 
+    </div>
+
     <div class="row">
 
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
           <a target="_blank" href="//demo.bokehplots.com/apps/sliders">
@@ -104,45 +103,101 @@ can be processed to trigger more visual updates.
       </div>
     </div>
 
-    </div>
-
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/timeout">
-            <img src="http://bokeh.pydata.org/static/timeout_t.png" class="img-responsive img-thumbnail">
+          <a target="_blank" href="//demo.bokehplots.com/apps/crossfilter">
+            <img src="http://bokeh.pydata.org/static/crossfilter_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
           <p>
-            An updating plot that demonstrates using timeout callbacks in Bokeh server apps
+            Explore the "autompg" data set by selecting and highlighting different dimensions
           </p>
           <p>
-            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/timeout.py">timeout.py</a>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/crossfilter">crossfilter</a>
           </p>
         </div>
       </div>
     </div>
 
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/random_tiles">
-            <img src="http://bokeh.pydata.org/static/random_tiles_t.png" class="img-responsive img-thumbnail"></img>
+          <a target="_blank" href="//demo.bokehplots.com/apps/gapminder">
+            <img src="http://bokeh.pydata.org/static/gapminder_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
           <p>
-            A user-defined extension showing randomized tiles.
+            A reproduction of the famous Gapminder demo, with embedded video added using a custom page template
           </p>
           <p>
-            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/random_tiles">random_tiles</a>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/gapminder">gapminder</a>
           </p>
         </div>
       </div>
     </div>
 
+    </div
 
+     <div class="row">
+
+    <div class="col-sm-4">
+      <div class="row">
+        <div class="col-sm-6">
+          <a target="_blank" href="//demo.bokehplots.com/apps/stocks">
+            <img src="http://bokeh.pydata.org/static/stocks_t.png" class="img-responsive img-thumbnail"></img>
+          </a>
+        </div>
+        <div class="col-sm-6">
+          <p>
+            Linked plots, summary statistics, and correlations for market data
+          </p>
+          <p>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/tree/master/examples/app/stocks">stocks</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="row">
+        <div class="col-sm-6">
+          <a target="_blank" href="//demo.bokehplots.com/apps/export_csv">
+            <img src="http://bokeh.pydata.org/static/export_csv_t.png" class="img-responsive img-thumbnail">
+          </a>
+        </div>
+        <div class="col-sm-6">
+          <p>
+            Explore the "autompg" data set by selecting and highlighting different dimensions
+          </p>
+          <p>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/export_csv">export_csv</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="row">
+        <div class="col-sm-6">
+          <a target="_blank" href="//demo.bokehplots.com/apps/surface3d">
+            <img src="http://bokeh.pydata.org/static/surface3d_t.png" class="img-responsive img-thumbnail"></img>
+          </a>
+        </div>
+        <div class="col-sm-6">
+          <p>
+            An updating 3d plot that demonstrates using using Bokeh custom extensions to wrap third-party JavaScript libraries
+          </p>
+          <p>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/surface3d">surface3d</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    </div>
 
 .. _gallery_notebook_examples:
 

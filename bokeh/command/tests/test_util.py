@@ -14,4 +14,4 @@ def test_die(capsys):
 def test_build_single_handler_application_unknown_file():
     with pytest.raises(ValueError):
         f = tempfile.NamedTemporaryFile(suffix=".bad")
-        app = util.build_single_handler_application(f.name)
+        util.build_single_handler_application(f.name)

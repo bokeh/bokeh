@@ -39,8 +39,8 @@ installation effort on all platforms and configurations, including Windows,
 and also installs the examples into the ``examples/`` subdirectory of your
 Anaconda or Miniconda installation directory.
 
-If you are confident that you have installed all needed dependencies such as
-NumPy you may instead use ``pip`` at the command line:
+If you are confident that you have installed all needed dependencies, such as
+NumPy, you may instead use ``pip`` at the command line:
 
 .. code-block:: sh
 
@@ -54,12 +54,12 @@ Getting Started
 ===============
 
 Bokeh is a large library that exposes many capabilities, so this section is
-only a quick tour of some common Bokeh use-cases and workflows. For more
+only a quick tour of some common Bokeh use cases and workflows. For more
 detailed information please consult the full :ref:`userguide`.
 
 Let's begin with some examples.
 
-Plotting some data in basic Python lists as a line chart including zoom,
+Plotting data in basic Python lists as a line chart including zoom,
 pan, resize, save, and other tools is simple and straightforward:
 
 .. bokeh-plot::
@@ -70,6 +70,9 @@ pan, resize, save, and other tools is simple and straightforward:
     # prepare some data
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 2, 4, 5]
+
+    # output to static HTML file
+    output_file("lines.html")
 
     # create a new plot with a title and axis labels
     p = figure(title="simple line example", x_axis_label='x', y_axis_label='y')
@@ -327,7 +330,9 @@ things to look out for in this example:
     :source-position: above
 
     import numpy as np
-    from bokeh.plotting import *
+
+    from bokeh.layouts import gridplot
+    from bokeh.plotting import figure, output_file, show
 
     # prepare some data
     N = 100
@@ -448,7 +453,7 @@ of interest to look out for in this example:
     p.line(aapl_dates, aapl_avg, color='navy', legend='avg')
 
     # NEW: customize by setting attributes
-    p.title = "AAPL One-Month Average"
+    p.title.text = "AAPL One-Month Average"
     p.legend.location = "top_left"
     p.grid.grid_line_alpha=0
     p.xaxis.axis_label = 'Date'
@@ -572,9 +577,7 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |Figure.square|   replace:: :func:`Figure.square <bokeh.plotting.Figure.square>`
 .. |Figure.triangle| replace:: :func:`Figure.triangle <bokeh.plotting.Figure.triangle>`
 
-.. |gridplot| replace:: :func:`~bokeh.io.gridplot`
-.. |hplot|    replace:: :func:`~bokeh.io.hplot`
-.. |vplot|    replace:: :func:`~bokeh.io.vplot`
+.. |gridplot| replace:: :func:`~bokeh.layouts.gridplot`
 
 .. |line_props| replace:: :ref:`userguide_styling_line_properties`
 .. |fill_props| replace:: :ref:`userguide_styling_fill_properties`

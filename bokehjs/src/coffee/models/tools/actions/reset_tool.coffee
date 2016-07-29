@@ -10,7 +10,6 @@ class ResetToolView extends ActionTool.View
     @plot_view.reset_selection()
     if @model.reset_size
       @plot_view.reset_dimensions()
-      @model.document.solver().trigger('resize')
 
 class ResetTool extends ActionTool.Model
   default_view: ResetToolView

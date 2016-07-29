@@ -5,8 +5,9 @@ from pandas.util.testing import assert_frame_equal
 from bokeh.client import push_session
 from bokeh.charts import Line, Bar
 from bokeh.charts.operations import blend
+from bokeh.io import curdoc
+from bokeh.layouts import row, column
 from bokeh.models import Paragraph
-from bokeh.io import curdoc, hplot, vplot
 
 wb = xw.Workbook()  # Creates a connection with a new workbook
 # write example data to notebook
@@ -74,8 +75,8 @@ It opens this plots window and an excel spreadsheet instance with the
 values being plotted. When user changes the values on the excel spreadsheet
 the plots will be updated accordingly. It's not required to save the spreadsheet for the plots to update.
 """)
-plots_box = hplot(line, bar)
-layout = vplot(desc1, desc2, desc3, plots_box)
+plots_box = row(line, bar)
+layout = column(desc1, desc2, desc3, plots_box)
 curdoc().add_root(layout)
 curdoc().add_periodic_callback(update, 500)
 

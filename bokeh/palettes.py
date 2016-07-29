@@ -1,4 +1,5 @@
-### License regarding the Viridis, Magma, Plasma and Inferno color maps ###
+###########################################################################
+# License regarding the Viridis, Magma, Plasma and Inferno color maps:
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
@@ -12,9 +13,45 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+###########################################################################
+# This product includes color specifications and designs developed by
+# Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
+# licensed under the Apache v2 license. You may obtain a copy of the
+# License at http://www.apache.org/licenses/LICENSE-2.0
+###########################################################################
+""" Provide a collection of palettes for color mapping.
 
+Palettes are simple plain Python lists of (hex) RGB colors. This module
+containts the following sets of palettes:
+
+* All Brewer palettes
+* Magma
+* Inferno
+* Plasma
+* Viridis
+
+Every pre-built palette is available as a module attributes, e.g.
+``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of every
+all pre-built palettes can be found in the ``__palettes__`` module attribute.
+
+There are functions :func:`~bokeh.palettes.magma`,
+:func:`~bokeh.palettes.inferno`, :func:`~bokeh.palettes.plasma`,
+:func:`~bokeh.palettes.viridis` that can generate lists of colors of arbitrary
+size from those palettes.
+
+The Brewer palettes are also collected and grouped by name in a
+``brewer`` dictionary, e.g.: ``brewer['Spectral'][6]``
+
+Finally, all "small" palettes (i.e. excluding the 256 color ones) are
+collected and grouped similarly in a ``small_palettes`` attribute.
+The complete contents of ``small_palettes`` is show below.
+
+----
+
+.. bokeh-palette:: unused.for.now
+
+"""
 import math
-
 import numpy as np
 
 YlGn3       = ["#31a354", "#addd8e", "#f7fcb9"]
@@ -160,6 +197,31 @@ Greys6      = ["#252525", "#636363", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7"]
 Greys7      = ["#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7"]
 Greys8      = ["#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
 Greys9      = ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
+Greys10     = ['#000000', '#1c1c1c', '#383838', '#555555', '#717171', '#8d8d8d', '#aaaaaa', '#c6c6c6', '#e2e2e2', '#ffffff']
+Greys11     = ['#000000', '#191919', '#333333', '#4c4c4c', '#666666', '#7f7f7f', '#999999', '#b2b2b2', '#cccccc', '#e5e5e5', '#ffffff']
+Greys256    = [
+    "#000000", "#010101", "#020202", "#030303", "#040404", "#050505", "#060606", "#070707", "#080808", "#090909", "#0a0a0a", "#0b0b0b",
+    "#0c0c0c", "#0d0d0d", "#0e0e0e", "#0f0f0f", "#101010", "#111111", "#121212", "#131313", "#141414", "#151515", "#161616", "#171717",
+    "#181818", "#191919", "#1a1a1a", "#1b1b1b", "#1c1c1c", "#1d1d1d", "#1e1e1e", "#1f1f1f", "#202020", "#212121", "#222222", "#232323",
+    "#242424", "#252525", "#262626", "#272727", "#282828", "#292929", "#2a2a2a", "#2b2b2b", "#2c2c2c", "#2d2d2d", "#2e2e2e", "#2f2f2f",
+    "#303030", "#313131", "#323232", "#333333", "#343434", "#353535", "#363636", "#373737", "#383838", "#393939", "#3a3a3a", "#3b3b3b",
+    "#3c3c3c", "#3d3d3d", "#3e3e3e", "#3f3f3f", "#404040", "#414141", "#424242", "#434343", "#444444", "#454545", "#464646", "#474747",
+    "#484848", "#494949", "#4a4a4a", "#4b4b4b", "#4c4c4c", "#4d4d4d", "#4e4e4e", "#4f4f4f", "#505050", "#515151", "#525252", "#535353",
+    "#545454", "#555555", "#565656", "#575757", "#585858", "#595959", "#5a5a5a", "#5b5b5b", "#5c5c5c", "#5d5d5d", "#5e5e5e", "#5f5f5f",
+    "#606060", "#616161", "#626262", "#636363", "#646464", "#656565", "#666666", "#676767", "#686868", "#696969", "#6a6a6a", "#6b6b6b",
+    "#6c6c6c", "#6d6d6d", "#6e6e6e", "#6f6f6f", "#707070", "#717171", "#727272", "#737373", "#747474", "#757575", "#767676", "#777777",
+    "#787878", "#797979", "#7a7a7a", "#7b7b7b", "#7c7c7c", "#7d7d7d", "#7e7e7e", "#7f7f7f", "#808080", "#818181", "#828282", "#838383",
+    "#848484", "#858585", "#868686", "#878787", "#888888", "#898989", "#8a8a8a", "#8b8b8b", "#8c8c8c", "#8d8d8d", "#8e8e8e", "#8f8f8f",
+    "#909090", "#919191", "#929292", "#939393", "#949494", "#959595", "#969696", "#979797", "#989898", "#999999", "#9a9a9a", "#9b9b9b",
+    "#9c9c9c", "#9d9d9d", "#9e9e9e", "#9f9f9f", "#a0a0a0", "#a1a1a1", "#a2a2a2", "#a3a3a3", "#a4a4a4", "#a5a5a5", "#a6a6a6", "#a7a7a7",
+    "#a8a8a8", "#a9a9a9", "#aaaaaa", "#ababab", "#acacac", "#adadad", "#aeaeae", "#afafaf", "#b0b0b0", "#b1b1b1", "#b2b2b2", "#b3b3b3",
+    "#b4b4b4", "#b5b5b5", "#b6b6b6", "#b7b7b7", "#b8b8b8", "#b9b9b9", "#bababa", "#bbbbbb", "#bcbcbc", "#bdbdbd", "#bebebe", "#bfbfbf",
+    "#c0c0c0", "#c1c1c1", "#c2c2c2", "#c3c3c3", "#c4c4c4", "#c5c5c5", "#c6c6c6", "#c7c7c7", "#c8c8c8", "#c9c9c9", "#cacaca", "#cbcbcb",
+    "#cccccc", "#cdcdcd", "#cecece", "#cfcfcf", "#d0d0d0", "#d1d1d1", "#d2d2d2", "#d3d3d3", "#d4d4d4", "#d5d5d5", "#d6d6d6", "#d7d7d7",
+    "#d8d8d8", "#d9d9d9", "#dadada", "#dbdbdb", "#dcdcdc", "#dddddd", "#dedede", "#dfdfdf", "#e0e0e0", "#e1e1e1", "#e2e2e2", "#e3e3e3",
+    "#e4e4e4", "#e5e5e5", "#e6e6e6", "#e7e7e7", "#e8e8e8", "#e9e9e9", "#eaeaea", "#ebebeb", "#ececec", "#ededed", "#eeeeee", "#efefef",
+    "#f0f0f0", "#f1f1f1", "#f2f2f2", "#f3f3f3", "#f4f4f4", "#f5f5f5", "#f6f6f6", "#f7f7f7", "#f8f8f8", "#f9f9f9", "#fafafa", "#fbfbfb",
+    "#fcfcfc", "#fdfdfd", "#fefefe", "#ffffff"]
 
 PuOr3       = ["#998ec3", "#f7f7f7", "#f1a340"]
 PuOr4       = ["#5e3c99", "#b2abd2", "#fdb863", "#e66101"]
@@ -383,6 +445,81 @@ Viridis256  = [
     '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
     '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
 
+# http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
+Accent3 = ['#7fc97f', '#beaed4', '#fdc086']
+Accent4 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99']
+Accent5 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0']
+Accent6 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f']
+Accent7 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17']
+Accent8 = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
+Dark2_3 = ['#1b9e77', '#d95f02', '#7570b3']
+Dark2_4 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+Dark2_5 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+Dark2_6 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
+Dark2_7 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
+Dark2_8 = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
+Paired3 = ['#a6cee3', '#1f78b4', '#b2df8a']
+Paired4 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
+Paired5 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99']
+Paired6 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c']
+Paired7 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f']
+Paired8 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']
+Paired9 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6']
+Paired10 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a']
+Paired11 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99']
+Paired12 = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
+Pastel1_3 = ['#fbb4ae', '#b3cde3', '#ccebc5']
+Pastel1_4 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4']
+Pastel1_5 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6']
+Pastel1_6 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc']
+Pastel1_7 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd']
+Pastel1_8 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec']
+Pastel1_9 = ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
+Pastel2_3 = ['#b3e2cd', '#fdcdac', '#cbd5e8']
+Pastel2_4 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4']
+Pastel2_5 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9']
+Pastel2_6 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae']
+Pastel2_7 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc']
+Pastel2_8 = ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
+Set1_3 = ['#e41a1c', '#377eb8', '#4daf4a']
+Set1_4 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
+Set1_5 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00']
+Set1_6 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33']
+Set1_7 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628']
+Set1_8 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
+Set1_9 = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
+Set2_3 = ['#66c2a5', '#fc8d62', '#8da0cb']
+Set2_4 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
+Set2_5 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854']
+Set2_6 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
+Set2_7 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494']
+Set2_8 = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
+
+# http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
+Set3_3 = ['#8dd3c7', '#ffffb3', '#bebada']
+Set3_4 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
+Set3_5 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
+Set3_6 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462']
+Set3_7 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69']
+Set3_8 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5']
+Set3_9 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9']
+Set3_10 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd']
+Set3_11 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
+Set3_12 = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+
+
 __palettes__ = [
     "YlGn3",      "YlGn4",      "YlGn5",      "YlGn6",      "YlGn7",      "YlGn8",      "YlGn9",
     "YlGnBu3",    "YlGnBu4",    "YlGnBu5",    "YlGnBu6",    "YlGnBu7",    "YlGnBu8",    "YlGnBu9",
@@ -401,7 +538,7 @@ __palettes__ = [
     "Greens3",    "Greens4",    "Greens5",    "Greens6",    "Greens7",    "Greens8",    "Greens9",
     "Oranges3",   "Oranges4",   "Oranges5",   "Oranges6",   "Oranges7",   "Oranges8",   "Oranges9",
     "Reds3",      "Reds4",      "Reds5",      "Reds6",      "Reds7",      "Reds8",      "Reds9",
-    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",
+    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",     "Greys10",     "Greys11",     "Greys256",
     "PuOr3",      "PuOr4",      "PuOr5",      "PuOr6",      "PuOr7",      "PuOr8",      "PuOr9",      "PuOr10",      "PuOr11",
     "BrBG3",      "BrBG4",      "BrBG5",      "BrBG6",      "BrBG7",      "BrBG8",      "BrBG9",      "BrBG10",      "BrBG11",
     "PRGn3",      "PRGn4",      "PRGn5",      "PRGn6",      "PRGn7",      "PRGn8",      "PRGn9",      "PRGn10",      "PRGn11",
@@ -414,8 +551,17 @@ __palettes__ = [
     "Magma3",     "Magma4",     "Magma5",     "Magma6",     "Magma7",     "Magma8",     "Magma9",     "Magma10",     "Magma11",     "Magma256",
     "Inferno3",   "Inferno4",   "Inferno5",   "Inferno6",   "Inferno7",   "Inferno8",   "Inferno9",   "Inferno10",   "Inferno11",   "Inferno256",
     "Plasma3",    "Plasma4",    "Plasma5",    "Plasma6",    "Plasma7",    "Plasma8",    "Plasma9",    "Plasma10",    "Plasma11",    "Plasma256",
-    "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis11",   "Viridis12",   "Viridis256",
+    "Viridis3",   "Viridis4",   "Viridis5",   "Viridis6",   "Viridis7",   "Viridis8",   "Viridis9",   "Viridis10",   "Viridis11",   "Viridis256",
+    "Accent3",    "Accent4",    "Accent5",    "Accent6",    "Accent7",    "Accent8",
+    "Dark2_3",    "Dark2_4",    "Dark2_5",    "Dark2_6",    "Dark2_7",    "Dark2_8",
+    "Paired3",    "Paired4",    "Paired5",    "Paired6",    "Paired7",    "Paired8",    "Paired9",    "Paired10",    "Paired11",    "Paired12",
+    "Pastel1_3",  "Pastel1_4",  "Pastel1_5",  "Pastel1_6",  "Pastel1_7",  "Pastel1_8",  "Pastel1_9",
+    "Pastel2_3",  "Pastel2_4",  "Pastel2_5",  "Pastel2_6",  "Pastel2_7",  "Pastel2_8",
+    "Set1_3",     "Set1_4",     "Set1_5",     "Set1_6",     "Set1_7",     "Set1_8",     "Set1_9",
+    "Set2_3",     "Set2_4",     "Set2_5",     "Set2_6",     "Set2_7",     "Set2_8",
+    "Set3_3",     "Set3_4",     "Set3_5",     "Set3_6",     "Set3_7",     "Set3_8",     "Set3_9",     "Set3_10",     "Set3_11",     "Set3_12"
 ]
+
 
 brewer = {
     "YlGn"     : { 3: YlGn3,     4: YlGn4,     5: YlGn5,     6: YlGn6,     7: YlGn7,     8: YlGn8,     9: YlGn9 },
@@ -445,16 +591,44 @@ brewer = {
     "RdYlBu"   : { 3: RdYlBu3,   4: RdYlBu4,   5: RdYlBu5,   6: RdYlBu6,   7: RdYlBu7,   8: RdYlBu8,   9: RdYlBu9,    10: RdYlBu10,   11: RdYlBu11 },
     "Spectral" : { 3: Spectral3, 4: Spectral4, 5: Spectral5, 6: Spectral6, 7: Spectral7, 8: Spectral8, 9: Spectral9,  10: Spectral10, 11: Spectral11 },
     "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
+    "Accent"   : { 3: Accent3,   4: Accent4,   5: Accent5,   6: Accent6,   7: Accent7,   8: Accent8 },
+    "Dark2"   : { 3: Dark2_3,   4: Dark2_4,   5: Dark2_5,   6: Dark2_6,   7: Dark2_7,   8: Dark2_8 },
+    "Paired"   : { 3: Paired3,   4: Paired4,   5: Paired5,   6: Paired6,   7: Paired7,   8: Paired8,   9: Paired9,    10: Paired10,   11: Paired11,
+                   12: Paired12 },
+    "Pastel1"  : { 3: Pastel1_3, 4: Pastel1_4, 5: Pastel1_5, 6: Pastel1_6, 7: Pastel1_7, 8: Pastel1_8, 9: Pastel1_9 },
+    "Pastel2"  : { 3: Pastel2_3, 4: Pastel2_4, 5: Pastel2_5, 6: Pastel2_6, 7: Pastel2_7, 8: Pastel2_8 },
+    "Set1"     : { 3: Set1_3,    4: Set1_4,    5: Set1_5,    6: Set1_6,    7: Set1_7,    8: Set1_8,    9: Set1_9 },
+    "Set2"     : { 3: Set2_3 ,   4: Set2_4,    5: Set2_5,    6: Set2_6,    7: Set2_7,    8: Set2_8 },
+    "Set3"     : { 3: Set3_3,    4: Set3_4,    5: Set3_5,    6: Set3_6,    7: Set3_7,    8: Set3_8,    9: Set3_9,     10: Set3_10,    11: Set3_11,
+                   12: Set3_12 },
 }
 
-def _cmap_func_generator(name, cmap):
+small_palettes = dict(brewer)
+small_palettes.update({
+    "Magma"   : { 3: Magma3,   4: Magma4,   5: Magma5,   6: Magma6,   7: Magma7,   8: Magma8,   9: Magma9,    10: Magma10,   11: Magma11   },
+    "Inferno" : { 3: Inferno3, 4: Inferno4, 5: Inferno5, 6: Inferno6, 7: Inferno7, 8: Inferno8, 9: Inferno9,  10: Inferno10, 11: Inferno11 },
+    "Plasma"  : { 3: Plasma3,  4: Plasma4,  5: Plasma5,  6: Plasma6,  7: Plasma7,  8: Plasma8,  9: Plasma9,   10: Plasma10,  11: Plasma11  },
+    "Viridis" : { 3: Viridis3, 4: Viridis4, 5: Viridis5, 6: Viridis6, 7: Viridis7, 8: Viridis8, 9: Viridis9,  10: Viridis10, 11: Viridis11 },
+})
+
+def _linear_cmap_func_generator(name, cmap):
     def func(n):
-        """Return a palette of n equally spaced colors."""
+        if n>len(cmap): raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)"
+            %{'r':n,'l':len(cmap)})
         return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
     func.__name__ = name
     return func
 
-_cmaps = {name: _cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
+def _linear_grey_cmap_func_generator(name):
+    def func(n):
+        cmap = Greys256
+        if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
+        return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
+    func.__name__ = name
+    return func
+
+
+_cmaps = {name: _linear_cmap_func_generator(name, cmap) for name, cmap in (('magma', Magma256),
                                                                     ('inferno', Inferno256),
                                                                     ('plasma', Plasma256),
                                                                     ('viridis', Viridis256))}
@@ -463,3 +637,5 @@ magma = _cmaps['magma']
 inferno = _cmaps['inferno']
 plasma = _cmaps['plasma']
 viridis = _cmaps['viridis']
+grey = _linear_grey_cmap_func_generator('grey')
+gray = _linear_grey_cmap_func_generator('gray')

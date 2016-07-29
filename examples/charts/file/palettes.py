@@ -3,14 +3,14 @@ import numpy as np
 from collections import OrderedDict
 
 from bokeh.charts import Area, show
-from bokeh.models import Range1d
 from bokeh.layouts import gridplot
 from bokeh.palettes import (Blues9, BrBG9, BuGn9, BuPu9, GnBu9, Greens9,
                             Greys9, OrRd9, Oranges9, PRGn9, PiYG9, PuBu9,
                             PuBuGn9, PuOr9, PuRd9, Purples9, RdBu9, RdGy9,
                             RdPu9, RdYlBu9, RdYlGn9, Reds9, Spectral9, YlGn9,
                             YlGnBu9, YlOrBr9, YlOrRd9, Inferno9, Magma9,
-                            Plasma9, Viridis9)
+                            Plasma9, Viridis9, Accent8, Dark2_8, Paired9,
+                            Pastel1_9, Pastel2_8, Set1_9, Set2_8, Set3_9)
 
 standard_palettes = OrderedDict([("Blues9", Blues9), ("BrBG9", BrBG9),
                                  ("BuGn9", BuGn9), ("BuPu9", BuPu9),
@@ -27,7 +27,11 @@ standard_palettes = OrderedDict([("Blues9", Blues9), ("BrBG9", BrBG9),
                                  ("YlGnBu9", YlGnBu9), ("YlOrBr9", YlOrBr9),
                                  ("YlOrRd9", YlOrRd9), ("Inferno9", Inferno9),
                                  ("Magma9", Magma9), ("Plasma9", Plasma9),
-                                 ("Viridis9", Viridis9)])
+                                 ("Viridis9", Viridis9), ("Accent8", Accent8),
+                                 ("Dark2_8", Dark2_8), ("Paired9", Paired9),
+                                 ("Pastel1_9", Pastel1_9),
+                                 ("Pastel2_8", Pastel2_8), ("Set1_9", Set1_9),
+                                 ("Set2_8", Set2_8), ("Set3_9", Set3_9)])
 
 
 def create_area_chart(data, palette):

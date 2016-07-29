@@ -99,7 +99,7 @@ class WheelZoomTool extends GestureTool.Model
   type: "WheelZoomTool"
   tool_name: "Wheel Zoom"
   icon: "bk-tool-icon-wheel-zoom"
-  event_type: if 'ontouchstart' of window.document then 'pinch' else 'scroll'
+  event_type: if ('ontouchstart' of window or navigator.maxTouchPoints > 0) then 'pinch' else 'scroll'
   default_order: 10
 
   initialize: (attrs, options) ->

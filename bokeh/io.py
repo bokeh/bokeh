@@ -29,8 +29,8 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.layouts import LayoutDOM, Row, Column, WidgetBox, VBoxForm
-from .layouts import gridplot, GridSpec
+from .models.layouts import LayoutDOM, Row, Column, VBoxForm
+from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .model import _ModelInDocument
 from .util.deprecate import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
@@ -46,6 +46,8 @@ from .client import DEFAULT_SESSION_ID, push_session, show_session
 _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
+
+_nb_loaded = False
 
 #-----------------------------------------------------------------------------
 # Local utilities
@@ -325,12 +327,28 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
+_NB_LOAD_WARNING = """
+
+BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
+may be due to a slow or bad network connection. Possible fixes:
+
+* ALWAYS run `output_notebook()` in a cell BY ITSELF, AT THE TOP, with no other code
+* re-rerun `output_notebook()` to attempt to load from CDN again, or
+* use INLINE resources instead, as so:
+
+    from bokeh.resources import INLINE
+    output_notebook(resources=INLINE)
+"""
+
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
         push(state=state)
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
+        if not _nb_loaded:
+            warnings.warn(_NB_LOAD_WARNING)
+            return
         comms_target = make_id()
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
@@ -388,7 +406,6 @@ def _detect_filename(ext):
     """
     import inspect
     from os.path import isfile, dirname, basename, splitext, join
-    from inspect import currentframe
 
     frame = inspect.currentframe()
     while frame.f_back and frame.f_globals.get('name') != '__main__':

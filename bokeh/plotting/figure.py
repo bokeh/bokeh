@@ -3,7 +3,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-from ..io import curdoc, curstate
 from ..models import Plot
 from ..models import glyphs, markers
 from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
@@ -193,6 +192,20 @@ Examples:
 
         show(plot)
 
+""")
+
+    hbar = _glyph_function(glyphs.HBar, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
+
+        show(plot)
 """)
 
     ellipse = _glyph_function(glyphs.Ellipse, """
@@ -458,6 +471,21 @@ Examples:
         plot = figure(width=300, height=300)
         plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
                      color="#99D594", line_width=2)
+
+        show(plot)
+
+""")
+
+    vbar = _glyph_function(glyphs.VBar, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.vbar(x=[1, 2, 3], width=0.5, bottom=0, top=[1,2,3], color="#CAB2D6")
 
         show(plot)
 

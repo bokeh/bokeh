@@ -1,0 +1,22 @@
+0.12.1 (Jul 2016)
+=================
+
+Bokeh Version ``0.12.1`` is a minor, incremental update that adds a few new
+small features and fixes several bugs. Some of the highlights include:
+
+* Add ``.patch`` method to ``ColumnDataSource`` for efficient partial updates.
+* Add ``.visible`` property to all glyphs for easy on/off capability.
+* Add qualitative Brewer colormapps to ``bokeh.palettes``.
+* Add new ``VBar`` and ``HBar`` glyph types.
+* Update BokehJS to use use RBush 2.0.1 for more efficient spatial indexing.
+* Restore ``ResizeTool`` functionality for simple layouts.
+* Fix Windows support for conda build, docs build, and running unit tests.
+* Fix a bug in the HTML template for ``autoload_server`` causing incorrect layouts.
+* Fix a bug in the toolbar CSS, causing it to interfere with hit testing and selection.
+* Fix WebGL support for Safari, and WebGL bug affecting line thickness.
+* Fix intermittent issues with BokehJS loading in Jupyter notebooks.
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features.

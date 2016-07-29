@@ -197,12 +197,13 @@ individually:
 
     @cosine(w=0.03)
     def update(step):
+        # updating a single column of the the *same length* is OK
         r2.data_source.data["y"] = y * step
         r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
     curdoc().add_periodic_callback(update, 50)
 
-    session.show() # open the document in a browser
+    session.show(p) # open the document in a browser
 
     session.loop_until_closed() # run forever
 
@@ -223,6 +224,7 @@ every 50 milliseconds:
 
     @cosine(w=0.03)
     def update(step):
+        # updating a single column of the the *same length* is OK
         r2.data_source.data["y"] = y * step
         r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
@@ -268,11 +270,12 @@ in more detail:
 
     # myapp.py
 
-    import numpy as np
+    from random import random
 
+    from bokeh.layouts import column
     from bokeh.models import Button
     from bokeh.palettes import RdYlBu3
-    from bokeh.plotting import figure, curdoc, vplot
+    from bokeh.plotting import figure, curdoc
 
     # create a plot and style its properties
     p = figure(x_range=(0, 100), y_range=(0, 100), toolbar_location=None)
@@ -292,11 +295,15 @@ in more detail:
     # create a callback that will add a number in a random location
     def callback():
         global i
-        ds.data['x'].append(np.random.random()*70 + 15)
-        ds.data['y'].append(np.random.random()*70 + 15)
-        ds.data['text_color'].append(RdYlBu3[i%3])
-        ds.data['text'].append(str(i))
-        ds.trigger('data', ds.data, ds.data)
+
+        # BEST PRACTICE --- update .data in one step with a new dict
+        new_data = dict()
+        new_data['x'] = ds.data['x'] + [random()*70 + 15]
+        new_data['y'] = ds.data['y'] + [random()*70 + 15]
+        new_data['text_color'] = ds.data['text_color'] + [RdYlBu3[i%3]]
+        new_data['text'] = ds.data['text'] + [str(i)]
+        ds.data = new_data
+
         i = i + 1
 
     # add a button widget and configure with the call back
@@ -304,7 +311,7 @@ in more detail:
     button.on_click(callback)
 
     # put the button and plot in a layout and add to the document
-    curdoc().add_root(vplot(button, p))
+    curdoc().add_root(column(button, p))
 
 Notice that we have not specified an output or connection method anywhere in
 this code. It is a simple script that creates and updates objects. The

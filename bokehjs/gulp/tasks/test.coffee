@@ -32,4 +32,8 @@ gulp.task "test:common", ["defaults:generate"], ->
   gulp.src ["./test", "./test/common"], read: false
     .pipe mocha()
 
+gulp.task "test:size", ->
+  gulp.src ["./test", "./test/size.coffee"], read: false
+    .pipe mocha()
+
 utils.buildWatchTask "test", paths.test.watchSources

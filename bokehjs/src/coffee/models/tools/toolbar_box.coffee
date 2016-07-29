@@ -95,13 +95,15 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
           @gestures[event_type].tools.push(proxy)
           @listenTo(proxy, 'change:active', _.bind(@_active_change, proxy))
 
+    @actions = []
     for tool_type, tools of actions
       if tools.length > 0
-        @actions = [make_proxy(tools)]
+        @actions.push(make_proxy(tools))
 
+    @inspectors = []
     for tool_type, tools of inspectors
       if tools.length > 0
-        @inspectors = [make_proxy(tools, active=true)]
+        @inspectors.push(make_proxy(tools, active=true))
 
     for et of @gestures
       tools = @gestures[et].tools

@@ -31,7 +31,8 @@ def make_plot():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot.title.text = "Product downloads"
 
     line = Line(x="dates", y="downloads", line_color="blue")
     plot.add_glyph(source, line)
@@ -64,7 +65,7 @@ def make_layout():
     data_table = DataTable(source=source, columns=columns, width=400, height=400, editable=True)
     button = Button(label="Randomize data", button_type="success")
     button.on_click(click_handler)
-    buttons = WidgetBox(children=[button],width=800)
+    buttons = WidgetBox(children=[button], width=400)
     column = Column(children=[buttons, plot, data_table])
     return column
 

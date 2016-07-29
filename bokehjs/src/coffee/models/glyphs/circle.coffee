@@ -50,7 +50,7 @@ class CircleView extends Glyph.View
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
 
@@ -94,7 +94,7 @@ class CircleView extends Glyph.View
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (pt[4].i for pt in @index.search(bbox))
+    candidates = (pt.i for pt in @index.search(bbox))
 
     hits = []
     if @_radius? and @model.properties.radius.units == "data"
@@ -126,13 +126,13 @@ class CircleView extends Glyph.View
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      [xb, yb] = this.bounds()
+      {minX, minY, maxX, maxY} = this.bounds()
       result = hittest.create_hit_test_result()
 
       if geometry.direction == 'h'
         # use circle bounds instead of current pointer y coordinates
-        y0 = yb[0]
-        y1 = yb[1]
+        y0 = minY
+        y1 = maxY
         if @_radius? and @model.properties.radius.units == "data"
           vx0 = vx - @max_radius
           vx1 = vx + @max_radius
@@ -144,8 +144,8 @@ class CircleView extends Glyph.View
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
       else
         # use circle bounds instead of current pointer x coordinates
-        x0 = xb[0]
-        x1 = xb[1]
+        x0 = minX
+        x1 = maxX
         if @_radius? and @model.properties.radius.units == "data"
           vy0 = vy - @max_radius
           vy1 = vy + @max_radius
@@ -157,7 +157,7 @@ class CircleView extends Glyph.View
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      hits = (xx[4].i for xx in @index.search(bbox))
+      hits = (xx.i for xx in @index.search(bbox))
 
       result['1d'].indices = hits
       return result
@@ -167,7 +167,7 @@ class CircleView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search(bbox))
+    result['1d'].indices = (x.i for x in @index.search(bbox))
     return result
 
   _hit_poly: (geometry) ->

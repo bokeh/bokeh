@@ -75,15 +75,16 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     .. bokeh-plot::
         :source-position: above
 
+        from bokeh.charts import Histogram, output_file, show
+        from bokeh.layouts import row
         from bokeh.sampledata.autompg import autompg as df
-        from bokeh.charts import Histogram, output_file, show, hplot
 
         hist = Histogram(df, values='mpg', title="Auto MPG Histogram", plot_width=400)
         hist2 = Histogram(df, values='mpg', label='cyl', color='cyl', legend='top_right',
                           title="MPG Histogram by Cylinder Count", plot_width=400)
 
         output_file('hist.html')
-        show(hplot(hist, hist2))
+        show(row(hist, hist2))
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(

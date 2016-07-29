@@ -6,6 +6,10 @@ utils = require "../../utils"
 Box = utils.require("models/layouts/box").Model
 ToolbarBox = utils.require("models/tools/toolbar_box").Model
 Toolbar = utils.require("models/tools/toolbar").Model
+ResetTool = utils.require("models/tools/actions/reset_tool").Model
+SaveTool = utils.require("models/tools/actions/save_tool").Model
+CrosshairTool = utils.require("models/tools/inspectors/crosshair_tool").Model
+HoverTool = utils.require("models/tools/inspectors/hover_tool").Model
 
 describe "ToolbarBox.View", ->
 
@@ -72,3 +76,19 @@ describe "ToolbarBox.Model", ->
   it "should return the toolbar as its children", ->
     box = new ToolbarBox()
     expect(box.get_layoutable_children()).to.be.deep.equal [box._toolbar]
+
+  it "should correctly merge multiple actions", ->
+    reset1 = new ResetTool()
+    reset2 = new ResetTool()
+    save1 = new SaveTool()
+    save2 = new SaveTool()
+    box = new ToolbarBox({tools: [reset1, reset2, save1, save2]})
+    expect(box._toolbar.actions.length).equal 2
+
+  it "should correctly merge multiple inspectors", ->
+    hover1 = new HoverTool()
+    hover2 = new HoverTool()
+    crosshair1 = new CrosshairTool()
+    crosshair2 = new CrosshairTool()
+    box = new ToolbarBox({tools: [hover1, hover2, crosshair1, crosshair2]})
+    expect(box._toolbar.inspectors.length).equal 2
