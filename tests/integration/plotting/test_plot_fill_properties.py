@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import io
+import os
 
 from jinja2 import Template
 
@@ -57,8 +58,11 @@ def test_no_border_or_background_fill(output_file_url, selenium, screenshot):
 
     html = file_html(plot, INLINE, template=template)
 
-    # filename has to match test function + '.html'
-    with io.open("test_no_border_or_background_fill.html", "w", encoding="utf-8") as f:
+    # filename has to match test function + '.html' light
+    filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "test_no_border_or_background_fill.html")
+
+    with io.open(filepath, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
     selenium.get(output_file_url)
