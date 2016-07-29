@@ -33,7 +33,7 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
 
     # version number updates
     python version_update.py $rtag $ptag
-    git add ../bokehjs/src/coffee/main.coffee
+    git add ../bokehjs/src/coffee/version.coffee
     git add ../bokehjs/package.json
     git add ../sphinx/source/conf.py
     git commit -m "Updating version to $rtag."
