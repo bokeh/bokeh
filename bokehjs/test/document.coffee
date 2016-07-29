@@ -545,16 +545,32 @@ describe "Document", ->
     logging.set_log_level("warn")
     json = d.to_json_string()
     parsed = JSON.parse(json)
-    parsed['version'] = "0.0.1"
+    parsed['version'] = "#{js_version}"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (0.0.1)\n"
-
-    parsed['version'] = "#{js_version}-foo"
-    out = stdoutTrap -> Document.from_json_string(JSON.stringify(parsed))
     expect(out).to.be.equal ""
 
+    parsed['version'] = "0.0.1"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+
     parsed['version'] = "#{js_version}rc123"
-    out = stdoutTrap -> Document.from_json_string(JSON.stringify(parsed))
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+
+    parsed['version'] = "#{js_version}dev123"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+
+    parsed['version'] = "#{js_version}-foo"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
+    parsed['version'] = "#{js_version}rc123-foo"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
+    parsed['version'] = "#{js_version}dev123-bar"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
     expect(out).to.be.equal ""
 
   it "can serialize with one model in it", ->
