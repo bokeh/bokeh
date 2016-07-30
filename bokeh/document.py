@@ -287,6 +287,7 @@ class Document(object):
         self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
+        self._request = kwargs.pop('request', None)
         self._template = FILE
 
         # TODO (bev) add vars, stores
@@ -383,6 +384,11 @@ class Document(object):
         if self._title != title:
             self._title = title
             self._trigger_on_change(TitleChangedEvent(self, title))
+
+    @property
+    def request(self):
+        """the request that was used to create this document (server mode)"""
+        return self._request
 
     @property
     def template(self):

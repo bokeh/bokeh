@@ -137,7 +137,7 @@ class ApplicationContext(object):
         self.server_context._remove_all_callbacks()
 
     @gen.coroutine
-    def create_session_if_needed(self, session_id):
+    def create_session_if_needed(self, session_id, request=None):
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -147,7 +147,7 @@ class ApplicationContext(object):
            session_id not in self._pending_sessions:
             future = self._pending_sessions[session_id] = gen.Future()
 
-            doc = Document()
+            doc = Document(request=request)
 
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,
