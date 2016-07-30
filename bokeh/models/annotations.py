@@ -16,6 +16,7 @@ from ..core.properties import (
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
+from .mappers import ColorMapper, LinearColorMapper
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 
@@ -122,6 +123,28 @@ class Legend(Annotation):
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
+
+class ColorBar(Annotation):
+    """ Render color scale for a plot.
+
+    """
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
+    The location where the colorbar should draw itself. It's either one of
+    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
+    """)
+
+    orientation = Enum(Orientation, default="vertical", help="""
+    Whether the legend entries should be placed vertically or horizontally
+    when they are layed out.
+    """)
+
+    mapper = Instance(ColorMapper, help="""
+    A color mapper to do stuff
+    """)
 
 def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead
