@@ -236,7 +236,8 @@ def test__request_args():
 
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
-        assert len(server_doc.request_args) == 1
+        session_context = server_doc.session_context
+        assert len(session_context.request_args) == 1
         assert server_doc.request_args['foo'] == [b'10']
 
 def test__no_request_args():
@@ -249,7 +250,8 @@ def test__no_request_args():
 
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
-        assert len(server_doc.request_args) == 0
+        session_context = server_doc.session_context
+        assert len(session_context.request_args) == 0
 
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"

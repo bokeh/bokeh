@@ -58,6 +58,8 @@ class BokehSessionContext(SessionContext):
         self._session = None
         super(BokehSessionContext, self).__init__(server_context,
                                                   session_id)
+        # request arguments used to instantiate this session
+        self._request_args = None
 
     def _set_session(self, session):
         self._session = session
@@ -78,6 +80,11 @@ class BokehSessionContext(SessionContext):
             return False
         else:
             return self._session.destroyed
+
+    @property
+    def request_args(self):
+        return self._request_args
+
 
 class ApplicationContext(object):
     ''' Server-side holder for bokeh.application.Application plus any associated data.
@@ -149,12 +156,17 @@ class ApplicationContext(object):
 
             doc = Document()
 
-            # using private attr so users only have access to a read-only property
-            doc._request_args = request_arguments or {}
 
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,
                                                   doc)
+            # using private attr so users only have access to a read-only property
+            session_context._request_args = request_arguments or {}
+
+            # expose the session context to the document
+            doc.session_context = session_context
+
+
             try:
                 yield yield_for_all_futures(self._application.on_session_created(session_context))
             except Exception as e:

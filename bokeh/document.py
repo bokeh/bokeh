@@ -121,10 +121,16 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_patched'):
             receiver._columns_patched(self)
 
+class SessionContextChangedEvent(DocumentPatchedEvent):
+    def __init__(self, document, session_context):
+        super(SessionContextChangedEvent, self).__init__(document)
+        self.session_context = session_context
+
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
+
 
 class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
@@ -281,7 +287,7 @@ class Document(object):
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = {}
         self._session_callbacks = {}
-        self._request_args = None
+        self._session_context = None
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
@@ -359,6 +365,16 @@ class Document(object):
         return list(self._roots)
 
     @property
+    def session_context(self):
+        return self._session_context
+
+    @session_context.setter
+    def session_context(self, session_context):
+        if self._session_context != session_context:
+            self._session_context = session_context
+            self._trigger_on_change(SessionContextChangedEvent(self, session_context))
+
+    @property
     def title(self):
         return self._title
 
@@ -402,9 +418,6 @@ class Document(object):
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
-    @property
-    def request_args(self):
-        return self._request_args
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
