@@ -238,7 +238,7 @@ def test__request_args():
         server_doc = server_session.document
         session_context = server_doc.session_context
         assert len(session_context.request_args) == 1
-        assert server_doc.request_args['foo'] == [b'10']
+        assert session_context.request_args['foo'] == [b'10']
 
 def test__no_request_args():
     application = Application()
