@@ -3,12 +3,12 @@
 User Guide
 ==========
 
-This user guide is intended to guide you through many common tasks that
+This user guide is intended to walk you through many common tasks that
 you might want to accomplish using Bokeh. The guide is arranged by
 topic:
 
 :ref:`userguide_quickstart`
-    Quickstart guide to Bokeh
+    Read the Quickstart guide to Bokeh to get up and running fast.
 
 :ref:`userguide_setup`
     Install Bokeh and verify your installation is working correctly.
@@ -79,7 +79,7 @@ topic:
     See where to go next for more information and examples.
 
 :ref:`userguide_tutorials`
-    Tutorials on specific topics for using Bokeh.
+    Read tutorials on specific topics for using Bokeh.
 
 The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
