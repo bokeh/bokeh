@@ -275,9 +275,7 @@ class BaseResources(object):
         return paths
 
     def _collect_external_resources(self, resource_attr):
-        """ Collect external resources set on resource_attr attribute (expected
-        to be "__external_js_resources__" or "__external_css_resources__") of models.
-        """
+        """ Collect external resources set on resource_attr attribute of all models."""
 
         external_resources = []
 

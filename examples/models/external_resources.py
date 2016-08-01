@@ -70,8 +70,7 @@ p.line(x, y)
 latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
                    x=35, y=445, x_units='screen', y_units='screen',
                    render_mode='css', text_font_size='16pt',
-                   background_fill_color='#ffffff'
-                   )
+                   background_fill_color='#ffffff')
 
 p.add_layout(latex)
 
