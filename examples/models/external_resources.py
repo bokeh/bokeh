@@ -1,6 +1,11 @@
+""" The LaTex example was derived from: http://matplotlib.org/users/usetex.html
+"""
+
 from bokeh.core.properties import Override
 from bokeh.models import Label
 from bokeh.plotting import output_file, figure, show
+
+import numpy as np
 
 output_file('external_resources.html')
 
@@ -56,9 +61,17 @@ module.exports =
   View: LatexLabelView
 """
 
-latex = LatexLabel(x=7, y=7, text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!", render_mode='css')
+x = np.arange(0.0, 1.0 + 0.01, 0.01)
+y = np.cos(2*2*np.pi*x) + 2
 
-p = figure(x_range=(0,10), y_range=(0,10))
+p = figure(title="LaTex Demonstration", width=500, height=500)
+p.line(x, y)
+
+latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
+                   x=35, y=445, x_units='screen', y_units='screen',
+                   render_mode='css', text_font_size='16pt',
+                   background_fill_color='#ffffff'
+                   )
 
 p.add_layout(latex)
 
