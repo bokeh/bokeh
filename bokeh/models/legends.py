@@ -11,8 +11,10 @@ from ..core.properties import (
     Float, Override,
 )
 
+from .formatters import TickFormatter
 from .mappers import ColorMapper
 from .renderers import GuideRenderer, GlyphRenderer
+from .tickers import Ticker, AdaptiveTicker
 
 class Legend(GuideRenderer):
     """ Render informational legends for a plot.
@@ -110,10 +112,6 @@ class ColorBar(GuideRenderer):
     when they are layed out.
     """)
 
-    color_mapper = Instance(ColorMapper, help="""
-    A color mapper containing a color palette to render.
-    """)
-
     legend_height = Int(400, help="""
     The height (in pixels) that the rendered legend glyph should occupy.
     """)
@@ -122,13 +120,54 @@ class ColorBar(GuideRenderer):
     The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
+    ticker = Instance(Ticker, default=lambda: AdaptiveTicker(), help="""
+    A Ticker to use for computing locations of axis components.
+    """)
+
+    formatter = Instance(TickFormatter, help="""
+    A TickFormatter to use for formatting the visual appearance
+    of ticks.
+    """)
+
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
+    """)
+
+    major_label_props = Include(TextProps, help="""
+    The %s of the major tick labels.
+    """)
+
+    major_tick_props = Include(LineProps, help="""
+    The %s of the major ticks.
+    """)
+
+    major_tick_in = Int(default=2, help="""
+    The distance in pixels that major ticks should extend into the
+    main plot area.
+    """)
+
+    major_tick_out = Int(default=6, help="""
+    The distance in pixels that major ticks should extend out of the
+    main plot area.
+    """)
+
+    minor_tick_props = Include(LineProps, help="""
+    The %s of the minor ticks.
+    """)
+
+    minor_tick_in = Int(default=0, help="""
+    The distance in pixels that minor ticks should extend into the
+    main plot area.
+    """)
+
+    minor_tick_out = Int(default=4, help="""
+    The distance in pixels that major ticks should extend out of the
+    main plot area.
+    """)
+
     border_props = Include(LineProps, help="""
     The %s for the colorbar border outline.
     """)
-
-    border_line_color = Override(default="#e5e5e5")
-
-    border_line_alpha = Override(default=0.5)
 
     background_props = Include(FillProps, help="""
     The %s for the colorbar background style.
