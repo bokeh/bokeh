@@ -49,7 +49,7 @@ class LatexLabelView extends Label.View
       sy += panel_offset.y
 
     latex = katex.renderToString(@mget('text'), {displayMode: true})
-    console.log(latex)
+
     @_css_text(ctx, latex, sx + @mget('x_offset'), sy - @mget('y_offset'), angle)
 
 class LatexLabel extends Label.Model
