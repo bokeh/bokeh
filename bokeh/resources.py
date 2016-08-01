@@ -19,6 +19,8 @@ import json
 from os.path import basename, join, relpath
 import re
 
+from six import string_types
+
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
@@ -282,7 +284,7 @@ class BaseResources(object):
         for cls in Model.model_class_reverse_map.values():
             external = getattr(cls, resource_attr, None)
 
-            if isinstance(external, str):
+            if isinstance(external, string_types):
                 external_resources.append(external)
             elif isinstance(external, list):
                 external_resources.extend(external)
