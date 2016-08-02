@@ -100,6 +100,7 @@ class ColorBarView extends Renderer.View
     @_draw_major_ticks(ctx)
     @_draw_minor_ticks(ctx)
     @_draw_major_labels(ctx)
+    @_draw_title(ctx)
 
   _draw_image: (ctx) ->
     geom = @_get_scale_coords()
@@ -195,12 +196,18 @@ class ColorBarView extends Renderer.View
                    Math.round(sy[i]+ny*@mget('label_standoff')))
     ctx.restore()
 
+  _draw_title: (ctx) ->
+    geom = @_get_scale_coords()
+    @visuals.title_text.set_value(ctx)
+    ctx.fillText(@mget('title'), geom.sx, geom.sy)
+
 class ColorBar extends GuideRenderer.Model
   default_view: ColorBarView
 
   type: 'ColorBar'
 
   @mixins ['text:major_label_',
+           'text:title_',
            'line:major_tick_',
            'line:minor_tick_',
            'line:border_',
@@ -210,13 +217,14 @@ class ColorBar extends GuideRenderer.Model
   @define {
       location:       [ p.Any,            'top_right' ]
       orientation:    [ p.Orientation,    'vertical'  ]
+      title:          [ p.String,         ""          ]
       legend_height:  [ p.Number,         400         ]
       legend_width:   [ p.Number,         50          ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
-      legend_margin:  [ p.Number,         20          ]
+      legend_margin:  [ p.Number,         30          ]
       legend_padding: [ p.Number,         10          ]
       # legend_spacing: [ p.Number,         3           ]
       major_tick_in:  [ p.Number,         2           ]

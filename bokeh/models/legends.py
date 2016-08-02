@@ -120,6 +120,14 @@ class ColorBar(GuideRenderer):
     when they are layed out.
     """)
 
+    title = String(help="""
+    The text value to render.
+    """)
+
+    title_text_props = Include(TextProps, help="""
+    The %s values for the text.
+    """)
+
     legend_height = Int(400, help="""
     The height (in pixels) that the rendered legend glyph should occupy.
     """)
@@ -141,7 +149,7 @@ class ColorBar(GuideRenderer):
     A color mapper containing a color palette to render.
     """)
 
-    legend_margin = Int(10, help="""
+    legend_margin = Int(30, help="""
     Amount of margin around the legend.
     """)
 
