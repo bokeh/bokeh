@@ -11,10 +11,10 @@ from ..core.properties import (
     Float, Override,
 )
 
-from .formatters import TickFormatter
+from .formatters import TickFormatter, BasicTickFormatter
 from .mappers import ColorMapper
 from .renderers import GuideRenderer, GlyphRenderer
-from .tickers import Ticker, AdaptiveTicker
+from .tickers import Ticker, BasicTicker
 
 class Legend(GuideRenderer):
     """ Render informational legends for a plot.
@@ -107,6 +107,14 @@ class ColorBar(GuideRenderer):
 
     """
 
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
+    The location where the legend should draw itself. It's either one of
+    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
+    """)
+
     orientation = Enum(Orientation, default="vertical", help="""
     Whether the legend entries should be placed vertically or horizontally
     when they are layed out.
@@ -120,11 +128,11 @@ class ColorBar(GuideRenderer):
     The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
-    ticker = Instance(Ticker, default=lambda: AdaptiveTicker(), help="""
+    ticker = Instance(Ticker, default=lambda: BasicTicker(), help="""
     A Ticker to use for computing locations of axis components.
     """)
 
-    formatter = Instance(TickFormatter, help="""
+    formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
     A TickFormatter to use for formatting the visual appearance
     of ticks.
     """)
@@ -133,9 +141,31 @@ class ColorBar(GuideRenderer):
     A color mapper containing a color palette to render.
     """)
 
+    legend_margin = Int(10, help="""
+    Amount of margin around the legend.
+    """)
+
+    legend_padding = Int(10, help="""
+    Amount of padding around the contents of the legend.
+    """)
+
+    # legend_spacing = Int(3, help="""
+    # Amount of spacing between legend entries.
+    # """)
+
+    label_standoff = Int(5, help="""
+    The distance (in pixels) to separate the label from its associated glyph.
+    """)
+
     major_label_props = Include(TextProps, help="""
     The %s of the major tick labels.
     """)
+
+    major_label_text_align = Override(default="center")
+
+    major_label_text_baseline = Override(default="middle")
+
+    major_label_text_font_size = Override(default={'value': "8pt"})
 
     major_tick_props = Include(LineProps, help="""
     The %s of the major ticks.
