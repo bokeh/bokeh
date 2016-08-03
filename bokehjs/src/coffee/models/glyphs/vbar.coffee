@@ -39,6 +39,17 @@ class VBarView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
+  _hit_point: (geometry) ->
+    [vx, vy] = [geometry.vx, geometry.vy]
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
+
+    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
+
 class VBar extends Glyph.Model
   default_view: VBarView
   type: 'VBar'
