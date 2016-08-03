@@ -2,7 +2,35 @@ import ast, os
 import yaml
 
 
-__all__ = ["api_crawler"]
+__all__ = ["api_crawler", "differ"]
+
+
+def differ(old_version, new_version):
+    with open(old_version, "r") as f:
+        old = f.read()
+    with open(new_version, "r") as f:
+        new = f.read()
+    old_version = yaml.load(old)
+    new_version = yaml.load(new)
+
+    # Crawl using this
+    files = set(old_version) & set(new_version)
+    file_difference = set(old_version) - set(new_version)
+
+    # Classes
+    old_classes = {x: list(old_version[x]["classes"].keys()) for x in files}
+    new_classes = {x: list(new_version[x]["classes"].keys()) for x in files}
+    classes = {}
+    class_difference = {}
+    pruned_difference = {}
+    for x in files:
+        classes[x] = set(old_classes[x]) & set(new_classes[x])
+        class_difference[x] = set(old_classes[x]) - set(new_classes[x])
+    for x in class_difference.keys():
+        if class_difference[x]:
+            pruned_difference[x] = class_difference[x]
+
+    return {"files": file_difference, "classes": pruned_difference}
 
 
 class APICrawler(object):
