@@ -175,9 +175,12 @@ def _use_widgets(objs):
 
 def _use_compiler(objs):
     from .models.callbacks import CustomJS
+    from .models.formatters import FuncTickFormatter
 
     def _needs_compiler(obj):
-        return hasattr(obj, "__implementation__") or (isinstance(obj, CustomJS) and obj.lang == "coffeescript")
+        return hasattr(obj, "__implementation__") or \
+                (isinstance(obj, CustomJS) and obj.lang == "coffeescript") or \
+               (isinstance(obj, FuncTickFormatter) and obj.lang == "coffeescript")
 
     for obj in objs:
         if isinstance(obj, Document):
