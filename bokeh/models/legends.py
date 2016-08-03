@@ -124,7 +124,7 @@ class ColorBar(GuideRenderer):
     The text value to render.
     """)
 
-    title_text_props = Include(TextProps, help="""
+    title_props = Include(TextProps, help="""
     The %s values for the text.
     """)
 

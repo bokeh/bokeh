@@ -8,12 +8,25 @@ BasicTickFormatter = require "../formatters/basic_tick_formatter"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
+SidePanel = require "../../core/layout/side_panel"
 
 class ColorBarView extends Renderer.View
   initialize: (options) ->
     super(options)
     @_set_data()
-    debugger;
+
+  _get_panel_offset: () ->
+    # Sub-classes may have to implement _get_panel_offset themselves
+    # because different renderers draw themselves differently so
+    # need the individual classes to determine the correct offset.
+    x = @model.panel._left._value
+    y = @model.panel._top._value
+    console.log(x, y)
+    return {x: x, y: -y}
+
+  _get_size: () ->
+    # Sub-classes should implement _get_size if they want layout on side panels to work.
+    return 100
 
   _set_data: () ->
     if @mget('orientation') == 'vertical'
@@ -93,14 +106,19 @@ class ColorBarView extends Renderer.View
     if @model.visible == false
       return
 
-    loc = @_get_scale_coords()
-
     ctx = @plot_view.canvas_view.ctx
+    ctx.save()
+
+    if @model.panel?
+      panel_offset = @_get_panel_offset()
+      ctx.translate(panel_offset.x, panel_offset.y)
+
     @_draw_image(ctx)
     @_draw_major_ticks(ctx)
     @_draw_minor_ticks(ctx)
     @_draw_major_labels(ctx)
     @_draw_title(ctx)
+    ctx.restore()
 
   _draw_image: (ctx) ->
     geom = @_get_scale_coords()
@@ -241,6 +259,12 @@ class ColorBar extends GuideRenderer.Model
     major_label_text_baseline: "middle"
     major_label_text_font_size: "8pt"
   }
+
+  add_panel: (side) ->
+    @panel = new SidePanel.Model({side: side})
+    @panel.attach_document(@document)
+    # If the annotation is in a side panel, we need to set level to overlay, so it is visible.
+    @level = 'overlay'
 
   initialize: (attrs, options) ->
     super(attrs, options)
