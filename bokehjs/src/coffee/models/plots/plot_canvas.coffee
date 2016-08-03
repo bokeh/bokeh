@@ -635,6 +635,7 @@ class PlotCanvasView extends Renderer.View
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
       ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+      ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)
       ctx.fillRect(frame_box...)
