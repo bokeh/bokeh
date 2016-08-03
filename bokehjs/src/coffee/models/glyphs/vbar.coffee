@@ -2,6 +2,7 @@ _ = require "underscore"
 rbush = require "rbush"
 Quad = require "./quad"
 Glyph = require "./glyph"
+CategoricalMapper = require "../mappers/categorical_mapper"
 hittest = require "../../common/hittest"
 p = require "../../core/properties"
 
@@ -23,6 +24,40 @@ class VBarView extends Glyph.View
       @sleft.push(@sx[i] - @sw[i]/2)
       @sright.push(@sx[i] + @sw[i]/2)
     return null
+
+  _index_data: () ->
+    map_to_synthetic = (mapper, array) ->
+      if mapper instanceof CategoricalMapper.Model
+        mapper.v_map_to_target(array, true)
+      else
+        array
+
+    x = map_to_synthetic(@renderer.xmapper, @_x)
+    width = map_to_synthetic(@renderer.xmapper, @_width)
+
+    top = map_to_synthetic(@renderer.ymapper, @_top)
+    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+
+    index = rbush()
+    pts = []
+
+    for i in [0...x.length]
+      l = x[i] - 0.5 * width[i]
+      if isNaN(l) or not isFinite(l)
+        continue
+      r = x[i] + 0.5 * width[i]
+      if isNaN(r) or not isFinite(r)
+        continue
+      t = top[i]
+      if isNaN(t) or not isFinite(t)
+        continue
+      b = bottom[i]
+      if isNaN(b) or not isFinite(b)
+        continue
+      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
+
+    index.load(pts)
+    return index
 
   _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
