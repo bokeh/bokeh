@@ -200,9 +200,9 @@ class AreaGlyph(LineGlyph):
     base = Float(default=0.0, help="""Lower bound of area.""")
 
     def __init__(self, **kwargs):
-        line_color = kwargs.get('line_color', None)
-        fill_color = kwargs.get('fill_color', None)
-        color = kwargs.get('color', None)
+        line_color = kwargs.get('line_color')
+        fill_color = kwargs.get('fill_color')
+        color = kwargs.get('color')
 
         if color is not None:
             # apply color to line and fill
@@ -805,7 +805,7 @@ class BoxGlyph(AggregateGlyph):
     def __init__(self, label, values, outliers=True, **kwargs):
         width = kwargs.pop('width', None)
 
-        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color', None) or self.lookup('bar_color').class_default()
+        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color') or self.lookup('bar_color').class_default()
 
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label

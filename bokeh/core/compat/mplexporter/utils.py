@@ -57,7 +57,7 @@ def get_dasharray(obj):
     dasharray : string
         The HTML/SVG dasharray code associated with the object.
     """
-    if obj.__dict__.get('_dashSeq', None) is not None:
+    if obj.__dict__.get('_dashSeq') is not None:
         return ','.join(map(str, obj._dashSeq))
     else:
         ls = obj.get_linestyle()
