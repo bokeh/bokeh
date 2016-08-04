@@ -26,8 +26,7 @@ desc = Div(text=open(filename).read(),
            render_as_text=False, width=1000)
 
 waterfall_source = WaterfallSource(palette=PALETTE, num_grams=NUM_GRAMS,
-                                   gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH,
-                                   data=dict(x=[], image=[]))
+                                   gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
 waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
 waterfall_plot.grid.grid_line_color = None
