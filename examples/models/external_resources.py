@@ -17,8 +17,8 @@ class LatexLabel(Label):
     Only the render method of LabelView is overwritten to perform the
     text -> latex (via katex) conversion
     """
-    __external_js_resources__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
-    __external_css_resources__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
+    __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
+    __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
     __implementation__ = """
 Label = require "models/annotations/label"
 

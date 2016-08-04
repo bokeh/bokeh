@@ -230,8 +230,8 @@ def test_external_js_and_css_resource_embedding():
 
     # External resources can be defined as a string or list of strings
     class CustomModel(Model):
-        __external_js_resources__ = "external_js_1"
-        __external_css_resources__ = ["external_css_1", "external_css_2"]
+        __javascript__ = "external_js_1"
+        __css__ = ["external_css_1", "external_css_2"]
 
     r = resources.Resources()
     print(r.js_files)
