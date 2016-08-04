@@ -12,25 +12,28 @@ def differ(old_version, new_version):
         new = f.read()
     old_version = yaml.load(old)
     new_version = yaml.load(new)
+    union = []
+    diff = []
 
-    # Crawl using this
-    files = set(old_version) & set(new_version)
-    file_difference = set(old_version) - set(new_version)
+    files_union = set(old_version) & set(new_version)
+    files_diff = set(old_version) - set(new_version)
 
-    # Classes
-    old_classes = {x: list(old_version[x]["classes"].keys()) for x in files}
-    new_classes = {x: list(new_version[x]["classes"].keys()) for x in files}
-    classes = {}
-    class_difference = {}
-    pruned_difference = {}
-    for x in files:
-        classes[x] = set(old_classes[x]) & set(new_classes[x])
-        class_difference[x] = set(old_classes[x]) - set(new_classes[x])
-    for x in class_difference.keys():
-        if class_difference[x]:
-            pruned_difference[x] = class_difference[x]
+    union += list(files_union)
+    diff += list(files_diff)
 
-    return {"files": file_difference, "classes": pruned_difference}
+    classes_old = [{x: {"classes": list(old_version[x]["classes"].keys())}} for x in files_union]
+    classes_new = [{x: {"classes": list(new_version[x]["classes"].keys())}} for x in files_union]
+    for x, y in zip(classes_old, classes_new):
+        assert(x.keys() == y.keys())
+        old_value = list(x.values())[0]["classes"]
+        new_value = list(y.values())[0]["classes"]
+        x[list(x.keys())[0]] = list(set(old_value) & set(new_value))
+        y[list(y.keys())[0]] = list(set(old_value) - set(new_value))
+    classes_union = [x for x in classes_old if list(x.values())[0]]
+    classes_diff = [x for x in classes_new if list(x.values())[0]]
+    union += classes_union
+    diff += classes_diff
+    return diff
 
 
 class APICrawler(object):
