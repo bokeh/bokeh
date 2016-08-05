@@ -1,4 +1,4 @@
-import ast, os
+import ast, os, copy
 import yaml
 
 
@@ -8,34 +8,54 @@ __all__ = ["api_crawler", "differ"]
 def differ(old_version, new_version):
     with open(old_version, "r") as f:
         old = f.read()
+        old = yaml.load(old)
     with open(new_version, "r") as f:
         new = f.read()
-    old_version = yaml.load(old)
-    new_version = yaml.load(new)
-    union = []
-    diff = []
+        new = yaml.load(new)
+    combined = copy.deepcopy(old)
+    combined.update(new)
 
-    files_union = set(old_version) & set(new_version)
-    files_diff = set(old_version) - set(new_version)
+    diff = {}
+    union = {}
+    files_union = set(old) & set(new)
+    files_diff = set(old) - set(new)
 
-    union += list(files_union)
-    diff += list(files_diff)
+    # Diff files
+    for x in combined.keys():
+        if x in files_diff:
+            diff[x] = combined[x]
+            diff[x] = {}
+        else:
+            union[x] = combined[x]
 
-    classes_old = [{x: {"classes": list(old_version[x]["classes"].keys())}} for x in files_union]
-    classes_new = [{x: {"classes": list(new_version[x]["classes"].keys())}} for x in files_union]
-    for x, y in zip(classes_old, classes_new):
-        assert(x.keys() == y.keys())
-        old_value = list(x.values())[0]["classes"]
-        new_value = list(y.values())[0]["classes"]
-        x[list(x.keys())[0]] = dict(classes=list(set(old_value) & set(new_value)))
-        y[list(y.keys())[0]] = dict(classes=list(set(old_value) - set(new_value)))
-    classes_union = [x for x in classes_old if list(x.values())[0]["classes"]]
-    classes_diff = [x for x in classes_new if list(x.values())[0]["classes"]]
-    union += classes_union
-    diff += classes_diff
+    # Diff functions and classes
+    for x in union.keys():
+        old_items = old.get(x, None)
+        new_items = new.get(x, None)
+        if old_items and new_items:
+            function_diff = set(old_items["functions"]) - set(new_items["functions"])
+            class_diff = set(list(old_items["classes"].keys())) - set(list(new_items["classes"].keys()))
+            if function_diff or list(class_diff):
+                diff[x]= copy.deepcopy(union[x])
+                assert(id(diff[x]) != id(union[x]))
+                if list(class_diff):
+                    diff_dict = {y: {"methods": []} for y in class_diff}
+                    diff[x]["classes"] = diff_dict
+                else:
+                    diff[x]["classes"] = {}
 
-    with open("diff.yaml", "w") as stream:
-        yaml.dump(diff, stream, default_flow_style=False)
+                if function_diff:
+                    diff[x]["functions"] = list(function_diff)
+                else:
+                    diff[x]["functions"] = []
+
+    # Diff methods
+    for x in union.keys():
+        old_classes = old[x].get("classes", None) if old.get(x, None) else {}
+        new_classes = new[x].get("classes", None) if new.get(x, None) else {}
+        if old_classes and new_classes:
+            pass
+
     return diff
 
 
