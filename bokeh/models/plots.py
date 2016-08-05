@@ -19,10 +19,11 @@ from ..core.properties import (
     List, Dict, Include, Override, TitleProp)
 from ..util.string import nice_join
 
-from .annotations import Legend, Title
+from .annotations import Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
+from .legends import Legend
 from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
@@ -177,7 +178,7 @@ class Plot(LayoutDOM):
 
     @property
     def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        """Splattable list of :class:`~bokeh.models.legend.Legend` objects.
 
         """
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
