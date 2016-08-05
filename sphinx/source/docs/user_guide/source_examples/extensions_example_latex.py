@@ -13,7 +13,8 @@ Label = require "models/annotations/label"
 class LatexLabelView extends Label.View
   render: () ->
 
-    ### Copied directly from the ``Label.render`` implementation
+    # Start of copied section from ``Label.render`` implementation
+    
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
@@ -38,7 +39,7 @@ class LatexLabelView extends Label.View
       sx += panel_offset.x
       sy += panel_offset.y
 
-    ### End of copied section ``Label.render`` implementation
+    # End of copied section from ``Label.render`` implementation
 
     # ``katex`` is loaded into the global window at runtime
     # katex.renderToString returns a html ``span`` element
