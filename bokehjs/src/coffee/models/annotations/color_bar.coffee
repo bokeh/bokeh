@@ -15,7 +15,7 @@ SidePanel = require "../../core/layout/side_panel"
 class ColorBarView extends Annotation.View
   initialize: (options) ->
     super(options)
-    @_set_data()
+    @_set_image_data()
 
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
@@ -24,24 +24,26 @@ class ColorBarView extends Annotation.View
     return {x: x, y: -y}
 
   _get_size: () ->
-    bbox = @compute_legend_bbox()
+    geom = @compute_legend_bbox()
     side = @model.panel.side
     if side == 'above' or side == 'below'
-      return bbox.bbox_height
+      return geom.height
     if side == 'left' or side == 'right'
-      return bbox.bbox_width
+      return geom.width
 
-  _set_data: () ->
+  _set_image_data: () ->
+    [w, h] = [10, 10]
+
     if @mget('orientation') == 'vertical'
-      gradient = [_.map([0...10], () -> return i) for i in [0...10]]
+      gradient = [_.map([0...h], () -> return i) for i in [0...w]]
     else
-      gradient = [[0...10] for i in [0...10]]
+      gradient = [[0...w] for i in [0...h]]
 
     canvas = document.createElement('canvas')
-    canvas.width = 10
-    canvas.height = 10
+    canvas.width = w
+    canvas.height = h
     image_ctx = canvas.getContext('2d')
-    image_data = image_ctx.getImageData(0, 0, 10, 10)
+    image_data = image_ctx.getImageData(0, 0, w, h)
 
     cmap = @mget('color_mapper')
     buf = cmap.v_map_screen(_.flatten(gradient))
@@ -54,30 +56,57 @@ class ColorBarView extends Annotation.View
   compute_legend_bbox: () ->
     legend_margin = @mget('legend_margin')
     legend_padding = @mget('legend_padding')
-    # legend_spacing = @mget('legend_spacing') # I don't think this is relevant
     label_standoff =  @mget('label_standoff')
+    major_tick_out = @mget('major_tick_out')
 
     title_height = if @mget('title') then get_text_height(@visuals.title_text.font_value()).height else 0
 
-    coords = @mget('tick_coords').major
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @visuals.major_label_text.set_value(ctx)
 
     if @mget("orientation") == "vertical"
-      labels = @mget('formatter').doFormat(coords[1])
-      labels_lens = _.max((ctx.measureText(label.toString()).width for label in labels))
-      legend_height = @mget('legend_height')
-      legend_width = @mget('legend_width')
+      formatted_labels = @mget('formatter').doFormat(@mget('tick_coords').major[1])
+      label_width = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
 
-      bbox_height = legend_height + title_height + @mget('legend_padding') * 2
-      bbox_width = legend_width + @mget('major_tick_out') + @mget('label_standoff') + labels_lens + @mget('legend_padding') * 2
+      # legend_height = @mget('legend_height')
+      # legend_width = @mget('legend_width')
+      #
+      # bbox_height = legend_height + title_height + legend_padding * 2
+      # bbox_width = legend_width + major_tick_out + label_standoff + label_width + legend_padding * 2
+
+      image_height = @mget('legend_height')
+      image_width = @mget('legend_width')
+
+      legend_height = image_height + title_height + legend_padding * 2
+      legend_width = image_width + major_tick_out + label_standoff + label_width + legend_padding * 2
+
+      # legend_height = @mget('legend_height')
+      # legend_width = @mget('legend_width')
+      #
+      # image_height = legend_height - title_height - legend_padding * 2
+      # image_width = legend_width - major_tick_out - label_standoff - label_width - legend_padding * 2
+
     else
-      legend_height = @mget('legend_width')
-      legend_width = @mget('legend_height')
+      label_height = get_text_height(@visuals.major_label_text.font_value()).height
 
-      bbox_height = title_height + legend_height + @mget('major_tick_out') + @mget('label_standoff') + get_text_height(@visuals.major_label_text.font_value()).height + @mget('legend_padding') * 2
-      bbox_width = legend_width + @mget('legend_padding') * 2
+      # legend_height = @mget('legend_width')
+      # legend_width = @mget('legend_height')
+      #
+      # bbox_height = legend_height + title_height + major_tick_out + label_standoff + label_height + legend_padding * 2
+      # bbox_width = legend_width + legend_padding * 2
+
+      image_height = @mget('legend_width')
+      image_width = @mget('legend_height')
+
+      legend_height = image_height + title_height + major_tick_out + label_standoff + label_height + legend_padding * 2
+      legend_width = image_width + legend_padding * 2
+
+      # legend_height = @mget('legend_width')
+      # legend_width = @mget('legend_height')
+      #
+      # image_height = legend_height - title_height - major_tick_out - label_standoff - label_height - legend_padding * 2
+      # image_width = legend_width - legend_padding * 2
 
     ctx.restore()
 
@@ -120,10 +149,10 @@ class ColorBarView extends Annotation.View
     sx = @plot_view.canvas.vx_to_sx(x)
     sy = @plot_view.canvas.vy_to_sy(y)
 
-    image_sx = sx + @mget('legend_padding')
-    image_sy = sy + @mget('legend_padding') + title_height
+    image_sx = sx + legend_padding
+    image_sy = sy + legend_padding + title_height
 
-    return {sx: sx, sy: sy, width: legend_width, height: legend_height, bbox_width: bbox_width, bbox_height: bbox_height, image_sx: image_sx, image_sy: image_sy}
+    return {sx: sx, sy: sy, width: legend_width, height: legend_height, image_sx: image_sx, image_sy: image_sy, image_width: image_width, image_height: image_height}
 
   render: () ->
     if @model.visible == false
@@ -145,19 +174,22 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_bbox: (ctx) ->
+    if not @visuals.background_fill.doit
+      return
+
     geom = @compute_legend_bbox()
-    console.log(geom)
     @visuals.background_fill.set_value(ctx)
     ctx.save()
-    ctx.fillRect(geom.sx, geom.sy, geom.bbox_width, geom.bbox_height)
+    ctx.fillRect(geom.sx, geom.sy, geom.width, geom.height)
     ctx.restore()
 
   _draw_image: (ctx) ->
     geom = @compute_legend_bbox()
     @visuals.border_line.set_value(ctx)
     ctx.save()
-    ctx.drawImage(@image_data, geom.image_sx, geom.image_sy, geom.width, geom.height)
-    ctx.rect(geom.image_sx, geom.image_sy, geom.width, geom.height)
+    ctx.setImageSmoothingEnabled(@mget('smooth_scale'))
+    ctx.drawImage(@image_data, geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
+    ctx.rect(geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
     ctx.stroke()
     ctx.restore()
 
@@ -166,7 +198,6 @@ class ColorBarView extends Annotation.View
       return
 
     geom = @compute_legend_bbox()
-
     coords = @mget('tick_coords').major
 
     [sx, sy] = [coords[0], coords[1]]
@@ -175,7 +206,7 @@ class ColorBarView extends Annotation.View
     tin = @mget('major_tick_in')
     tout = @mget('major_tick_out')
 
-    [x_offset, y_offset] = [geom.image_sx + geom.width * nx, geom.image_sy + geom.height * ny]
+    [x_offset, y_offset] = [geom.image_sx + geom.image_width * nx, geom.image_sy + geom.image_height * ny]
 
     ctx.save()
     ctx.translate(x_offset, y_offset)
@@ -192,7 +223,6 @@ class ColorBarView extends Annotation.View
       return
 
     geom = @compute_legend_bbox()
-
     coords = @mget('tick_coords').minor
 
     [sx, sy] = [coords[0], coords[1]]
@@ -201,11 +231,10 @@ class ColorBarView extends Annotation.View
     tin = @mget('minor_tick_in')
     tout = @mget('minor_tick_out')
 
-    [x_offset, y_offset] = [geom.image_sx + geom.width * nx, geom.image_sy + geom.height * ny]
+    [x_offset, y_offset] = [geom.image_sx + geom.image_width * nx, geom.image_sy + geom.image_height * ny]
 
     ctx.save()
     ctx.translate(x_offset, y_offset)
-
     @visuals.minor_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
@@ -215,15 +244,16 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_major_labels: (ctx) ->
+    if not @visuals.major_label_text.doit
+      return
 
     geom = @compute_legend_bbox()
-
     coords = @mget('tick_coords').major
 
     [sx, sy] = [coords[0], coords[1]]
     [nx, ny] = @mget('normals')
 
-    [x_offset, y_offset] = [geom.image_sx + geom.width * nx, geom.image_sy + geom.height * ny]
+    [x_offset, y_offset] = [geom.image_sx + geom.image_width * nx, geom.image_sy + geom.image_height * ny]
 
     standoff = (@mget('label_standoff') + @mget('major_tick_out'))
     [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
@@ -244,6 +274,9 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_title: (ctx) ->
+    if not @visuals.title_text.doit
+      return
+
     geom = @compute_legend_bbox()
     @visuals.title_text.set_value(ctx)
     ctx.fillText(@mget('title'), geom.image_sx, geom.image_sy)
@@ -264,16 +297,16 @@ class ColorBar extends Annotation.Model
   @define {
       location:       [ p.Any,            'top_right' ]
       orientation:    [ p.Orientation,    'vertical'  ]
+      smooth_scale:   [ p.Bool,           true        ]
       title:          [ p.String,         ""          ]
       legend_height:  [ p.Number,         400         ]
-      legend_width:   [ p.Number,         50          ]
+      legend_width:   [ p.Number,         40          ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
-      legend_margin:  [ p.Number,         0          ]
+      legend_margin:  [ p.Number,         30          ]
       legend_padding: [ p.Number,         10          ]
-      # legend_spacing: [ p.Number,         3           ]
       major_tick_in:  [ p.Number,         2           ]
       major_tick_out: [ p.Number,         6           ]
       minor_tick_in:  [ p.Number,         0           ]
@@ -282,7 +315,7 @@ class ColorBar extends Annotation.Model
   }
 
   @override {
-    background_fill_color: "#FAEBD7"
+    background_fill_color: "#F5F5DC"
     background_fill_alpha: 0.95
     major_label_text_align: "center"
     major_label_text_baseline: "middle"

@@ -143,6 +143,10 @@ class ColorBar(Annotation):
     when they are layed out.
     """)
 
+    smooth_scale = Bool(default=True, help="""
+    Whether to convert the color scale transitions into a smooth gradient.
+    """)
+
     legend_height = Int(400, help="""
     The height (in pixels) that the rendered legend should occupy.
     """)
@@ -179,10 +183,6 @@ class ColorBar(Annotation):
     legend_padding = Int(10, help="""
     Amount of padding around the contents of the legend.
     """)
-
-    # legend_spacing = Int(3, help="""
-    # Amount of spacing between legend entries.
-    # """)
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
