@@ -27,12 +27,15 @@ def differ(old_version, new_version):
         assert(x.keys() == y.keys())
         old_value = list(x.values())[0]["classes"]
         new_value = list(y.values())[0]["classes"]
-        x[list(x.keys())[0]] = list(set(old_value) & set(new_value))
-        y[list(y.keys())[0]] = list(set(old_value) - set(new_value))
-    classes_union = [x for x in classes_old if list(x.values())[0]]
-    classes_diff = [x for x in classes_new if list(x.values())[0]]
+        x[list(x.keys())[0]] = dict(classes=list(set(old_value) & set(new_value)))
+        y[list(y.keys())[0]] = dict(classes=list(set(old_value) - set(new_value)))
+    classes_union = [x for x in classes_old if list(x.values())[0]["classes"]]
+    classes_diff = [x for x in classes_new if list(x.values())[0]["classes"]]
     union += classes_union
     diff += classes_diff
+
+    with open("diff.yaml", "w") as stream:
+        yaml.dump(diff, stream, default_flow_style=False)
     return diff
 
 
