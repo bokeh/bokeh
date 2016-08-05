@@ -5,6 +5,7 @@ module.exports = {
 
   Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'
+  ColorBar:                 require '../models/annotations/color_bar'
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
