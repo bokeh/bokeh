@@ -13,17 +13,17 @@ from bokeh.models import CheckboxGroup, CustomJS
 output_file("line_on_off.html", title="line_on_off.py example")
 
 code = """
-    if (0 in checkbox.active) {
+    if (checkbox.active.includes(0)) {
         l0.visible = true
     } else {
         l0.visible = false
     }
-    if (1 in checkbox.active) {
+    if (checkbox.active.includes(1)) {
         l1.visible = true
     } else {
         l1.visible = false
     }
-    if (2 in checkbox.active) {
+    if (checkbox.active.includes(2)) {
         l2.visible = true
     } else {
         l2.visible = false
