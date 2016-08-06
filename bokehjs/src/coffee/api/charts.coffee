@@ -272,7 +272,10 @@ bar = (data, opts={}) ->
   hover = new models.HoverTool({
     renderers: renderers,
     tooltips: tooltip,
-    point_policy: "snap_to_data", anchor: anchor, attachment: attachment,
+    point_policy: "snap_to_data",
+    anchor: anchor,
+    attachment: attachment,
+    show_arrow: opts.show_arrow
   })
   plot.add_tools(hover)
 
