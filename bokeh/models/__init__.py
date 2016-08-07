@@ -2,7 +2,15 @@ from __future__ import absolute_import
 
 # This file is excluded from flake8 checking in setup.cfg
 
-from .annotations import *
+### Deprecation note:
+### bokeh.models.annotations.Legend was deprecated in 0.12.1 in favor of
+### bokeh.models.legends.Legend and is awaiting removal. This following Imports
+### will load all of the annotations except Legend (which is imported into
+### that modules for backwards compatibility) in order to prevent raising
+### a deprecation warning
+from .annotations import (
+    Arrow, BoxAnnotation, Label, LabelSet, PolyAnnotation, Span, Title, Tooltip
+)
 from .arrow_heads import *
 from .axes import *
 from .callbacks import *
@@ -10,6 +18,7 @@ from .formatters import *
 from .glyphs import *
 from .grids import *
 from .layouts import *
+from .legends import *
 from .images import *
 from .map_plots import *
 from .markers import *

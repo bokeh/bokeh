@@ -7,7 +7,6 @@ module.exports = {
   BoxAnnotation:            require '../models/annotations/box_annotation'
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
-  Legend:                   require '../models/annotations/legend'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
   Title:                    require '../models/annotations/title'
@@ -67,6 +66,8 @@ module.exports = {
   Row:                      require '../models/layouts/row'
   Spacer:                   require '../models/layouts/spacer'
   WidgetBox:                require '../models/layouts/widget_box'
+
+  Legend:                   require '../models/legends/legend'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'

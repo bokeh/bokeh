@@ -1,7 +1,7 @@
 .. _userguide_annotations:
 
-Adding Annotations
-==================
+Adding Annotations and Legends
+==============================
 
 Bokeh includes several different types of annotations to allow users to add
 supplemental information to their visualizations.
@@ -62,8 +62,8 @@ visually overlap in way that is not desirable.
 Legends
 ~~~~~~~
 
-It is possible to create |Legend| annotations easily by specifying a legend
-argument to the glyph methods, when creating a plot.
+It is possible to create a |Legend| easily by specifying a legend argument to
+the glyph methods, when creating a plot.
 
 .. note::
     This example depends on the open source NumPy library in order to more
@@ -184,6 +184,6 @@ and extend to the edge of the plot area.
 .. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
-.. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
+.. |Legend|        replace:: :class:`~bokeh.models.legends.Legend`

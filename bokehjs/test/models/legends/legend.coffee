@@ -6,8 +6,8 @@ SidePanel = utils.require("core/layout/side_panel").Model
 
 {Document} = utils.require "document"
 
-Legend = utils.require("models/annotations/legend").Model
-LegendView = utils.require("models/annotations/legend").View
+Legend = utils.require("models/legends/legend").Model
+LegendView = utils.require("models/legends/legend").View
 
 HEIGHT = 333
 WIDTH = 222
