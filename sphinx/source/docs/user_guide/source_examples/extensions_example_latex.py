@@ -14,7 +14,7 @@ class LatexLabelView extends Label.View
   render: () ->
 
     # Start of copied section from ``Label.render`` implementation
-    
+
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
