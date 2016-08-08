@@ -147,11 +147,11 @@ class ColorBar(Annotation):
     Whether to convert the color scale transitions into a smooth gradient.
     """)
 
-    legend_height = Int(400, help="""
+    legend_height = Either(Auto, Int(), help="""
     The height (in pixels) that the rendered legend should occupy.
     """)
 
-    legend_width = Int(50, help="""
+    legend_width = Either(Auto, Int(), help="""
     The width (in pixels) that the rendered legend should occupy.
     """)
 
