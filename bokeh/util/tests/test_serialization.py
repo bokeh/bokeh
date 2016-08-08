@@ -36,5 +36,11 @@ class TestTraverseData(unittest.TestCase):
     def test_without_numpy(self):
         self.assertTrue(traverse_data(self.testing, False) == self.expected)
 
+    def test_sets(self):
+        self.assertTrue(traverse_data({1, 2, 3}, is_numpy=True)) == [1, 2, 3]
+        self.assertTrue(traverse_data({1, 2, frozenset([1, 2, 3])}, is_numpy=True)) == [1, 2, 3]
+        self.assertTrue(traverse_data({1, 2, 3}, is_numpy=False)) == [1, 2, 3]
+        self.assertTrue(traverse_data({1, 2, frozenset([1, 2, 3])}, is_numpy=False)) == [1, 2, 3]
+
 if __name__ == "__main__":
     unittest.main()
