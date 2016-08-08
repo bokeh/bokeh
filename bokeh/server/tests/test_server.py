@@ -226,7 +226,7 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
 
-def test__request_args():
+def test__request_in_session_context():
     application = Application()
     with ManagedServerLoop(application) as server:
         response = http_get(server.io_loop,
@@ -237,10 +237,25 @@ def test__request_args():
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
         session_context = server_doc.session_context
-        assert len(session_context.request_args) == 1
-        assert session_context.request_args['foo'] == [b'10']
+        # do we have a request
+        assert session_context.request is not None
 
-def test__no_request_args():
+
+def test__request_in_session_context_has_arguments():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "?foo=10")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # test if we can get the argument from the request
+        assert session_context.request.arguments['foo'] == [b'10']
+
+def test__no_request_arguments_in_session_context():
     application = Application()
     with ManagedServerLoop(application) as server:
         response = http_get(server.io_loop,
@@ -251,7 +266,9 @@ def test__no_request_args():
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
         session_context = server_doc.session_context
-        assert len(session_context.request_args) == 0
+        # if we do not pass any arguments to the url, the request arguments
+        # should be empty
+        assert len(session_context.request.arguments) == 0
 
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"

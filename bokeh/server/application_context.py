@@ -59,7 +59,7 @@ class BokehSessionContext(SessionContext):
         super(BokehSessionContext, self).__init__(server_context,
                                                   session_id)
         # request arguments used to instantiate this session
-        self._request_args = None
+        self._request = None
 
     def _set_session(self, session):
         self._session = session
@@ -82,8 +82,8 @@ class BokehSessionContext(SessionContext):
             return self._session.destroyed
 
     @property
-    def request_args(self):
-        return self._request_args
+    def request(self):
+        return self._request
 
 
 class ApplicationContext(object):
@@ -144,7 +144,7 @@ class ApplicationContext(object):
         self.server_context._remove_all_callbacks()
 
     @gen.coroutine
-    def create_session_if_needed(self, session_id, request_arguments=None):
+    def create_session_if_needed(self, session_id, request=None):
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -161,10 +161,11 @@ class ApplicationContext(object):
                                                   self.server_context,
                                                   doc)
             # using private attr so users only have access to a read-only property
-            session_context._request_args = request_arguments or {}
+            session_context._request = request
 
             # expose the session context to the document
-            doc.session_context = session_context
+            # use the _attribute to set the public property .session_context
+            doc._session_context = session_context
 
 
             try:

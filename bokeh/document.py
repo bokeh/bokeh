@@ -121,11 +121,6 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_patched'):
             receiver._columns_patched(self)
 
-class SessionContextChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, session_context):
-        super(SessionContextChangedEvent, self).__init__(document)
-        self.session_context = session_context
-
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
@@ -367,12 +362,6 @@ class Document(object):
     @property
     def session_context(self):
         return self._session_context
-
-    @session_context.setter
-    def session_context(self, session_context):
-        if self._session_context != session_context:
-            self._session_context = session_context
-            self._trigger_on_change(SessionContextChangedEvent(self, session_context))
 
     @property
     def title(self):
