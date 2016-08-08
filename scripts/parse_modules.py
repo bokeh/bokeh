@@ -30,15 +30,15 @@ def diff_modules(old_version, new_version):
 
     # Diff functions and classes
     for x in union.keys():
-        old_items = old.get(x, None)
-        new_items = new.get(x, None)
+        old_items = old.get(x)
+        new_items = new.get(x)
         if old_items and new_items:
             function_diff = set(old_items["functions"]) - set(new_items["functions"])
             class_diff = set(list(old_items["classes"].keys())) - set(list(new_items["classes"].keys()))
             if function_diff or list(class_diff):
                 diff[x]= copy.deepcopy(union[x])
                 if list(class_diff):
-                    diff_dict = {y: {"methods": []} for y in class_diff}
+                    diff_dict = {y: {} for y in class_diff}
                     diff[x]["classes"] = diff_dict
                 else:
                     diff[x]["classes"] = {}
@@ -50,13 +50,14 @@ def diff_modules(old_version, new_version):
 
     # Diff methods
     for x in union.keys():
-        old_classes = old[x].get("classes", None) if old.get(x, None) else {}
-        new_classes = new[x].get("classes", None) if new.get(x, None) else {}
+        old_classes = old[x].get("classes") if old.get(x) else {}
+        new_classes = new[x].get("classes") if new.get(x) else {}
         if old_classes and new_classes:
             for y in union[x]["classes"]:
-                old_methods = old[x]["classes"].get(y, None)
-                new_methods = new[x]["classes"].get(y, None)
-                if old_methods and new_methods:
+                # Prevent NoneType errors by returning empty dict.
+                old_methods = old[x]["classes"].get(y, {})
+                new_methods = new[x]["classes"].get(y, {})
+                if old_methods.get("methods") and new_methods.get("methods"):
                     methods_diff = list(set(list(old_methods.values())[0]) - set(list(new_methods.values())[0]))
                     if methods_diff:
                         diff[x] = union[x]
@@ -74,22 +75,13 @@ class APICrawler(object):
         self.directory = directory
 
     def is_public(self, name):
-        if name.startswith("_", 0, 1) and name != "__init__":
-            return False
-        else:
-            return True
+        return not name.startswith("_", 0, 1) or name == "__init__"
 
     def is_function(self, ast_node):
-        if isinstance(ast_node, ast.FunctionDef) and ast_node.col_offset == 0:
-            return True
-        else:
-            return False
+        return isinstance(ast_node, ast.FunctionDef) and ast_node.col_offset == 0
 
     def is_class(self, ast_node):
-        if isinstance(ast_node, ast.ClassDef):
-            return True
-        else:
-            return False
+        return isinstance(ast_node, ast.ClassDef)
 
     def get_classes(self, source):
         parsed = ast.parse(source)
@@ -99,7 +91,7 @@ class APICrawler(object):
             class_defs[x.name] = {}
             methods = []
             for y in x.body:
-                if type(y) == ast.FunctionDef and self.is_public(y.name):
+                if isinstance(y, ast.FunctionDef) and self.is_public(y.name):
                     methods.append(y.name)
             class_defs[x.name]["methods"] = methods
         return class_defs
@@ -120,7 +112,7 @@ class APICrawler(object):
             else:
                 for name in filenames:
                     if name.endswith(".py") and not name.startswith("_"):
-                        files.append(dirpath + "/" + name)
+                        files.append(os.path.join(dirpath, name))
         return files
 
     def get_files_dict(self, filenames):
