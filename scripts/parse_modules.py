@@ -2,10 +2,10 @@ import ast, os, copy
 import yaml
 
 
-__all__ = ["api_crawler", "differ"]
+__all__ = ["api_crawler", "diff_modules"]
 
 
-def differ(old_version, new_version):
+def diff_modules(old_version, new_version):
     with open(old_version, "r") as f:
         old = f.read()
         old = yaml.load(old)
@@ -37,7 +37,6 @@ def differ(old_version, new_version):
             class_diff = set(list(old_items["classes"].keys())) - set(list(new_items["classes"].keys()))
             if function_diff or list(class_diff):
                 diff[x]= copy.deepcopy(union[x])
-                assert(id(diff[x]) != id(union[x]))
                 if list(class_diff):
                     diff_dict = {y: {"methods": []} for y in class_diff}
                     diff[x]["classes"] = diff_dict
@@ -54,8 +53,17 @@ def differ(old_version, new_version):
         old_classes = old[x].get("classes", None) if old.get(x, None) else {}
         new_classes = new[x].get("classes", None) if new.get(x, None) else {}
         if old_classes and new_classes:
-            pass
+            for y in union[x]["classes"]:
+                old_methods = old[x]["classes"].get(y, None)
+                new_methods = new[x]["classes"].get(y, None)
+                if old_methods and new_methods:
+                    methods_diff = list(set(list(old_methods.values())[0]) - set(list(new_methods.values())[0]))
+                    if methods_diff:
+                        diff[x] = union[x]
+                        diff[x]["classes"][y]["methods"] = methods_diff
 
+    with open("diff.yaml", "w") as f:
+        yaml.dump(diff, f, default_flow_style=False)
     return diff
 
 
