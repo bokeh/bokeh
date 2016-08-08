@@ -2,6 +2,7 @@ _ = require "underscore"
 
 Annotation = require "./annotation"
 LinearMapper = require "../mappers/linear_mapper"
+LinearColorMapper = require "../mappers/linear_color_mapper"
 LogMapper = require "../mappers/log_mapper"
 Range1d = require "../ranges/range1d"
 BasicTicker = require "../tickers/basic_ticker"
@@ -33,12 +34,11 @@ class ColorBarView extends Annotation.View
     return size
 
   _set_image_data: () ->
-    [w, h] = [10, 10]
+    palette = @model.color_mapper.palette
 
-    if @model.orientation == 'vertical'
-      gradient = [_.map([0...h], () -> return i) for i in [0...w]]
-    else
-      gradient = [[0...w] for i in [0...h]]
+    switch @model.orientation
+      when "vertical" then [w, h] = [1, palette.length]
+      when "horizontal" then [w, h] = [palette.length, 1]
 
     canvas = document.createElement('canvas')
     canvas.width = w
@@ -46,8 +46,11 @@ class ColorBarView extends Annotation.View
     image_ctx = canvas.getContext('2d')
     image_data = image_ctx.getImageData(0, 0, w, h)
 
-    cmap = @model.color_mapper
-    buf = cmap.v_map_screen(_.flatten(gradient))
+    # We want to map the entire palette linearly, so we create a new
+    # LinearColorMapper instance and map a range of values with length = palette.length
+    # to get each unique color
+    cmap = new LinearColorMapper.Model({palette: palette})
+    buf = cmap.v_map_screen([0...palette.length])
     buf8 = new Uint8ClampedArray(buf)
     image_data.data.set(buf8)
 
@@ -63,12 +66,11 @@ class ColorBarView extends Annotation.View
     title_height = if @model.title then get_text_height(@visuals.title_text.font_value()).height else 0
 
     dimensions = @mget('computed_dimensions')
+    legend_height = dimensions.height
+    legend_width = dimensions.width
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
-
-    legend_height = dimensions.height
-    legend_width = dimensions.width
 
     if @model.orientation == "vertical"
       formatted_labels = @model.formatter.doFormat(@mget('tick_coords').major_labels)
@@ -327,7 +329,7 @@ class ColorBar extends Annotation.Model
     switch @.orientation
       when "vertical"
         height = if @.legend_height == 'auto' then this.plot.height else @.legend_height
-        width = if @.legend_width == 'auto' then 50 else @.legend_width
+        width = if @.legend_width == 'auto' then 55 else @.legend_width
       when "horizontal"
         height = if @.legend_height == 'auto' then 72 else @.legend_height
         width = if @.legend_width == 'auto' then this.plot.width else @.legend_width
@@ -366,7 +368,7 @@ class ColorBar extends Annotation.Model
 
     [start, end] = [@.color_mapper.low, @.color_mapper.high]
 
-    ticks = @.ticker.get_ticks(start, end, null, 10)
+    ticks = @.ticker.get_ticks(start, end, null, @.ticker.desired_num_ticks)
 
     majors = ticks.major
     minors = ticks.minor
