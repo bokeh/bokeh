@@ -62,6 +62,8 @@ class ColorBarView extends Annotation.View
 
     title_height = if @model.title then get_text_height(@visuals.title_text.font_value()).height else 0
 
+    dimensions = @mget('computed_dimensions')
+
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @visuals.major_label_text.set_value(ctx)
@@ -70,8 +72,8 @@ class ColorBarView extends Annotation.View
       formatted_labels = @model.formatter.doFormat(@mget('tick_coords').major_labels)
       label_width = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
 
-      legend_height = @model.legend_height
-      legend_width = @model.legend_width
+      legend_height = dimensions.height
+      legend_width = dimensions.width
 
       image_height = legend_height - title_height - legend_padding * 2
       image_width = legend_width - major_tick_out - label_standoff - label_width - legend_padding * 2
@@ -79,8 +81,8 @@ class ColorBarView extends Annotation.View
     else
       label_height = get_text_height(@visuals.major_label_text.font_value()).height
 
-      legend_height = @mget('legend_width')
-      legend_width = @mget('legend_height')
+      legend_height = dimensions.width
+      legend_width = dimensions.height
 
       image_height = legend_height - title_height - major_tick_out - label_standoff - label_height - legend_padding * 2
       image_width = legend_width - legend_padding * 2
@@ -151,23 +153,24 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_bbox: (ctx) ->
-    if not @visuals.background_fill.doit
-      return
-
     geom = @compute_legend_bbox()
-    @visuals.background_fill.set_value(ctx)
     ctx.save()
-    ctx.fillRect(geom.sx, geom.sy, geom.width, geom.height)
+    if @visuals.background_fill.doit
+      @visuals.background_fill.set_value(ctx)
+      ctx.fillRect(geom.sx, geom.sy, geom.width, geom.height)
+    if @visuals.border_line.doit
+      @visuals.border_line.set_value(ctx)
+      ctx.strokeRect(geom.sx, geom.sy, geom.width, geom.height)
     ctx.restore()
 
   _draw_image: (ctx) ->
     geom = @compute_legend_bbox()
-    @visuals.border_line.set_value(ctx)
     ctx.save()
-    ctx.setImageSmoothingEnabled(@model.smooth_scale)
+    ctx.setImageSmoothingEnabled(false)
     ctx.drawImage(@image_data, geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
-    ctx.rect(geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
-    ctx.stroke()
+    if @visuals.scale_line.doit
+        @visuals.scale_line.set_value(ctx)
+        ctx.strokeRect(geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
     ctx.restore()
 
   _draw_major_ticks: (ctx) ->
@@ -266,16 +269,16 @@ class ColorBar extends Annotation.Model
       'line:major_tick_',
       'line:minor_tick_',
       'line:border_',
+      'line:scale_',
       'fill:background_',
   ]
 
   @define {
       location:       [ p.Any,            'top_right' ]
       orientation:    [ p.Orientation,    'vertical'  ]
-      smooth_scale:   [ p.Bool,           true        ]
-      title:          [ p.String,         ""          ]
-      legend_height:  [ p.Number,         400         ]
-      legend_width:   [ p.Number,         100          ]
+      title:          [ p.String,                     ]
+      legend_height:  [ p.Any,            'auto'      ]
+      legend_width:   [ p.Any,            'auto'      ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
@@ -290,8 +293,10 @@ class ColorBar extends Annotation.Model
   }
 
   @override {
-      background_fill_color: "#F5F5DC"
+      background_fill_color: "#ffffff"
       background_fill_alpha: 0.95
+      border_line_color: "#e5e5e5"
+      border_line_alpha: 0.5
       major_label_text_align: "center"
       major_label_text_baseline: "middle"
       major_label_text_font_size: "8pt"
@@ -302,8 +307,12 @@ class ColorBar extends Annotation.Model
 
     @define_computed_property('normals', @_normals, true)
 
+    @define_computed_property('computed_dimensions', @_computed_dimensions, true)
+    @add_dependencies('computed_dimensions', this, ['legend_width', 'legend_height'])
+    @add_dependencies('computed_dimensions', @get('plot'), ['height', 'width'])
+
     @define_computed_property('value_mapper', @_value_mapper, true)
-    @add_dependencies('value_mapper', this, ['legend_dims'])
+    @add_dependencies('value_mapper', this, ['computed_dimensions'])
 
     @define_computed_property('tick_coords', @_tick_coords, true)
     @add_dependencies('tick_coords', this, ['value_mapper', 'normals'])
@@ -315,13 +324,26 @@ class ColorBar extends Annotation.Model
       [i, j] = [0, 1]
     return [i, j]
 
+  _computed_dimensions: () ->
+    switch @.orientation
+      when "vertical"
+        height = if @.legend_height == 'auto' then this.plot.height else @.legend_height
+        width = if @.legend_width == 'auto' then 50 else @.legend_height
+      when "horizontal"
+        height = if @.legend_height == 'auto' then 50 else @.legend_height
+        width = if @.legend_width == 'auto' then this.plot.width else @.legend_height
+
+    return {"height": height, "width": width}
+
   _value_mapper: () ->
     font_value = this.title_text_font + " " + this.title_text_font_size + " " + this.title_text_font_style
-    text_height = get_text_height(font_value).height
+    title_height = if @.title then get_text_height(font_value).height else 0
+
+    legend_height = @get("computed_dimensions").height
 
     switch @.orientation
-      when "vertical" then target_range_end = @.legend_height - text_height - 2 * @.legend_padding
-      when "horizontal" then target_range_end = @.legend_height - 2 * @.legend_padding
+      when "vertical" then target_range_end = legend_height - title_height - 2 * @.legend_padding
+      when "horizontal" then target_range_end = legend_height - 2 * @.legend_padding
 
     mapping = {
       'source_range': new Range1d.Model({

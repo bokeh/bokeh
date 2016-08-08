@@ -143,10 +143,6 @@ class ColorBar(Annotation):
     when they are layed out.
     """)
 
-    smooth_scale = Bool(default=True, help="""
-    Whether to convert the color scale transitions into a smooth gradient.
-    """)
-
     legend_height = Either(Auto, Int(), help="""
     The height (in pixels) that the rendered legend should occupy.
     """)
@@ -226,9 +222,17 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
+    scale_props = Include(LineProps, help="""
+    The %s for the colorbar scale outline.
+    """)
+
     border_props = Include(LineProps, help="""
     The %s for the colorbar border outline.
     """)
+
+    border_line_color = Override(default="#e5e5e5")
+
+    border_line_alpha = Override(default=0.5)
 
     background_props = Include(FillProps, help="""
     The %s for the colorbar background style.
@@ -237,6 +241,7 @@ class ColorBar(Annotation):
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
 
 def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead
