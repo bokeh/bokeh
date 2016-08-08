@@ -67,47 +67,23 @@ class ColorBarView extends Annotation.View
     @visuals.major_label_text.set_value(ctx)
 
     if @model.orientation == "vertical"
-      formatted_labels = @model.formatter.doFormat(@mget('tick_coords').major[1])
+      formatted_labels = @model.formatter.doFormat(@mget('tick_coords').major_labels)
       label_width = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
 
-      # legend_height = @mget('legend_height')
-      # legend_width = @mget('legend_width')
-      #
-      # bbox_height = legend_height + title_height + legend_padding * 2
-      # bbox_width = legend_width + major_tick_out + label_standoff + label_width + legend_padding * 2
+      legend_height = @model.legend_height
+      legend_width = @model.legend_width
 
-      image_height = @model.legend_height
-      image_width = @model.legend_width
-
-      legend_height = image_height + title_height + legend_padding * 2
-      legend_width = image_width + major_tick_out + label_standoff + label_width + legend_padding * 2
-
-      # legend_height = @mget('legend_height')
-      # legend_width = @mget('legend_width')
-      #
-      # image_height = legend_height - title_height - legend_padding * 2
-      # image_width = legend_width - major_tick_out - label_standoff - label_width - legend_padding * 2
+      image_height = legend_height - title_height - legend_padding * 2
+      image_width = legend_width - major_tick_out - label_standoff - label_width - legend_padding * 2
 
     else
       label_height = get_text_height(@visuals.major_label_text.font_value()).height
 
-      # legend_height = @mget('legend_width')
-      # legend_width = @mget('legend_height')
-      #
-      # bbox_height = legend_height + title_height + major_tick_out + label_standoff + label_height + legend_padding * 2
-      # bbox_width = legend_width + legend_padding * 2
+      legend_height = @mget('legend_width')
+      legend_width = @mget('legend_height')
 
-      image_height = @model.legend_width
-      image_width = @model.legend_height
-
-      legend_height = image_height + title_height + major_tick_out + label_standoff + label_height + legend_padding * 2
-      legend_width = image_width + legend_padding * 2
-
-      # legend_height = @mget('legend_width')
-      # legend_width = @mget('legend_height')
-      #
-      # image_height = legend_height - title_height - major_tick_out - label_standoff - label_height - legend_padding * 2
-      # image_width = legend_width - legend_padding * 2
+      image_height = legend_height - title_height - major_tick_out - label_standoff - label_height - legend_padding * 2
+      image_width = legend_width - legend_padding * 2
 
     ctx.restore()
 
@@ -259,9 +235,7 @@ class ColorBarView extends Annotation.View
     standoff = (@model.label_standoff + @model.major_tick_out)
     [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
 
-    switch @model.orientation
-      when "vertical" then labels = coords[1]
-      when "horizontal" then labels = coords[0]
+    labels = @mget('tick_coords').major_labels
     labels = @mget('formatter').doFormat(labels)
 
     @visuals.major_label_text.set_value(ctx)
@@ -301,7 +275,7 @@ class ColorBar extends Annotation.Model
       smooth_scale:   [ p.Bool,           true        ]
       title:          [ p.String,         ""          ]
       legend_height:  [ p.Number,         400         ]
-      legend_width:   [ p.Number,         50          ]
+      legend_width:   [ p.Number,         100          ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
@@ -326,7 +300,6 @@ class ColorBar extends Annotation.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    # @define_computed_property('legend_dims', @_legend_dims, true)
     @define_computed_property('normals', @_normals, true)
 
     @define_computed_property('value_mapper', @_value_mapper, true)
@@ -334,12 +307,6 @@ class ColorBar extends Annotation.Model
 
     @define_computed_property('tick_coords', @_tick_coords, true)
     @add_dependencies('tick_coords', this, ['value_mapper', 'normals'])
-
-  # _legend_dims: () ->
-  #   if @.panel?
-  #
-  #
-  #   return {'height': 300, 'width': 50}
 
   _normals: () ->
     if @.orientation == 'vertical'
@@ -349,6 +316,13 @@ class ColorBar extends Annotation.Model
     return [i, j]
 
   _value_mapper: () ->
+    font_value = this.title_text_font + " " + this.title_text_font_size + " " + this.title_text_font_style
+    text_height = get_text_height(font_value).height
+
+    switch @.orientation
+      when "vertical" then target_range_end = @.legend_height - text_height - 2 * @.legend_padding
+      when "horizontal" then target_range_end = @.legend_height - 2 * @.legend_padding
+
     mapping = {
       'source_range': new Range1d.Model({
         start: @.color_mapper.low
@@ -356,7 +330,7 @@ class ColorBar extends Annotation.Model
       })
       'target_range': new Range1d.Model({
         start: 0
-        end: @get('legend_height')})
+        end: target_range_end})
     }
 
     switch @.color_mapper.type
@@ -391,6 +365,8 @@ class ColorBar extends Annotation.Model
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(0)
 
+    major_labels = major_coords[i]
+
     major_coords[0] = mapper.v_map_to_target(major_coords[0])
     major_coords[1] = mapper.v_map_to_target(major_coords[1])
 
@@ -400,6 +376,7 @@ class ColorBar extends Annotation.Model
     return {
       "major": major_coords
       "minor": minor_coords
+      "major_labels": major_labels
     }
 
 module.exports =
