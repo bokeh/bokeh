@@ -147,7 +147,8 @@ class ColorBarView extends Annotation.View
     @_draw_major_ticks(ctx)
     @_draw_minor_ticks(ctx)
     @_draw_major_labels(ctx)
-    @_draw_title(ctx)
+    if @model.title
+      @_draw_title(ctx)
     ctx.restore()
 
   _draw_bbox: (ctx) ->
@@ -250,10 +251,12 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_title: (ctx) ->
-    if @visuals.title_text.doit and @model.title?
-      geom = @compute_legend_bbox()
-      @visuals.title_text.set_value(ctx)
-      ctx.fillText(@model.title, geom.image_sx, geom.image_sy)
+    if not @visuals.title_text.doit
+      return
+
+    geom = @compute_legend_bbox()
+    @visuals.title_text.set_value(ctx)
+    ctx.fillText(@model.title, geom.image_sx, geom.image_sy)
 
 class ColorBar extends Annotation.Model
   default_view: ColorBarView
