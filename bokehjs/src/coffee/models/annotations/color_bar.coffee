@@ -66,23 +66,21 @@ class ColorBarView extends Annotation.View
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
-    @visuals.major_label_text.set_value(ctx)
+
+    legend_height = dimensions.height
+    legend_width = dimensions.width
 
     if @model.orientation == "vertical"
       formatted_labels = @model.formatter.doFormat(@mget('tick_coords').major_labels)
+      @visuals.major_label_text.set_value(ctx)
       label_width = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
-
-      legend_height = dimensions.height
-      legend_width = dimensions.width
 
       image_height = legend_height - title_height - legend_padding * 2
       image_width = legend_width - major_tick_out - label_standoff - label_width - legend_padding * 2
 
     else
+      @visuals.major_label_text.set_value(ctx)
       label_height = get_text_height(@visuals.major_label_text.font_value()).height
-
-      legend_height = dimensions.width
-      legend_width = dimensions.height
 
       image_height = legend_height - title_height - major_tick_out - label_standoff - label_height - legend_padding * 2
       image_width = legend_width - legend_padding * 2
@@ -252,12 +250,10 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_title: (ctx) ->
-    if not @visuals.title_text.doit
-      return
-
-    geom = @compute_legend_bbox()
-    @visuals.title_text.set_value(ctx)
-    ctx.fillText(@model.title, geom.image_sx, geom.image_sy)
+    if @visuals.title_text.doit and @model.title?
+      geom = @compute_legend_bbox()
+      @visuals.title_text.set_value(ctx)
+      ctx.fillText(@model.title, geom.image_sx, geom.image_sy)
 
 class ColorBar extends Annotation.Model
   default_view: ColorBarView
@@ -328,10 +324,10 @@ class ColorBar extends Annotation.Model
     switch @.orientation
       when "vertical"
         height = if @.legend_height == 'auto' then this.plot.height else @.legend_height
-        width = if @.legend_width == 'auto' then 50 else @.legend_height
+        width = if @.legend_width == 'auto' then 50 else @.legend_width
       when "horizontal"
-        height = if @.legend_height == 'auto' then 50 else @.legend_height
-        width = if @.legend_width == 'auto' then this.plot.width else @.legend_height
+        height = if @.legend_height == 'auto' then 72 else @.legend_height
+        width = if @.legend_width == 'auto' then this.plot.width else @.legend_width
 
     return {"height": height, "width": width}
 
@@ -339,11 +335,11 @@ class ColorBar extends Annotation.Model
     font_value = this.title_text_font + " " + this.title_text_font_size + " " + this.title_text_font_style
     title_height = if @.title then get_text_height(font_value).height else 0
 
-    legend_height = @get("computed_dimensions").height
+    legend_dimensions = @get("computed_dimensions")
 
     switch @.orientation
-      when "vertical" then target_range_end = legend_height - title_height - 2 * @.legend_padding
-      when "horizontal" then target_range_end = legend_height - 2 * @.legend_padding
+      when "vertical" then target_range_end = legend_dimensions.height - title_height - 2 * @.legend_padding
+      when "horizontal" then target_range_end = legend_dimensions.width - 2 * @.legend_padding
 
     mapping = {
       'source_range': new Range1d.Model({
