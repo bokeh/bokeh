@@ -10,7 +10,7 @@ not make it into the core library, either because they are too specialized, or
 for lack of resources. Fortunately, it is possible to extend Bokeh by creating
 custom user extensions.
 
-* Modify the behaviour of existing Bokeh models
+* Modify the behavior of existing Bokeh models
 * Add new models to connect third-party JavaScript libraries to Python
 * Create highly specialized models for domain specific use-cases.
 
@@ -70,7 +70,7 @@ JavaScript side requires code to implement the model. When appropriate, code
 for a corresponding view must also be provided. Currently BokehJS models and
 views are subclasses of Models and View from the Backbone JavaScript library.
 
-Below is an annotated JavaScript implemenation for ``Custom`` and its
+Below is an annotated JavaScript implementation for ``Custom`` and its
 ``CustomView``. For built-in models, this code is included directly in the
 final ``bokeh.js`` library. We will see how to connect this code to custom
 extensions in the next section.
@@ -194,6 +194,37 @@ the special header update as the slider moves:
 .. bokeh-plot:: source/docs/user_guide/source_examples/extensions_putting_together.py
     :source-position: none
 
+.. _userguide_extensions_supplying_external_resources:
+
+Supplying External Resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As part of implementing a custom model in Bokeh, there may be the need to
+include third-party javascript libraries or css resources. Bokeh supports
+supplying external resources through the Python class attributes
+``__javascript__`` and ``__css__`` of custom models.
+
+Including the URL paths to external resources will causes Bokeh to add
+the resources to the html document head, causing the Javascript library to be
+available in the global namespace and the custom CSS styling to be applied.
+
+One example is including the JS and CSS files for `KaTex`_ (a
+Javascript-based typesetting library that supports LaTex) in order to create
+a ``LaTexLabel`` custom model.
+
+.. code-block:: python
+
+    class LatexLabel(Label):
+        """A subclass of the Bokeh built-in `Label` that supports rendering
+        LaTex using the KaTex typesetting library.
+        """
+        __javascript__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"
+        __css__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"
+        __implementation__ = "..."
+
+See the LaTex example in the extensions gallery below to see the full
+implementation and resulting output.
+
 .. _userguide_extensions_structure_server_integration:
 
 Integration with Bokeh Server
@@ -226,6 +257,7 @@ and improvements to this section for future users.
     extensions_gallery/ticking
     extensions_gallery/tool
     extensions_gallery/wrapping
+    extensions_gallery/latex
 
 :ref:`userguide_extensions_examples_ticking`
     Subclass built-in Bokeh models for axis ticking to customize their
@@ -238,4 +270,8 @@ and improvements to this section for future users.
     Connect Python to a third-party JavaScript library by wrapping it with
     a Bokeh custom extension.
 
+:ref:`userguide_extensions_examples_latex`
+    Include a third-party JavaScript library in order to render LaTex.
+
 .. _CoffeeScript: http://coffeescript.org
+.. _KaTex: https://khan.github.io/KaTeX/

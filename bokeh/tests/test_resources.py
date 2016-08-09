@@ -5,6 +5,7 @@ import unittest
 import os
 
 import bokeh.resources as resources
+from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls, websocket_url_for_server_url
 
 
@@ -217,3 +218,31 @@ class TestResources(unittest.TestCase):
 
         for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
             self.assertRaises(ValueError, resources.Resources, mode, root_url="foo")
+
+
+## Test external resources
+
+def test_external_js_and_css_resource_embedding():
+    """ This test method has to be at the end of the test modules because
+    subclassing a Model causes the CustomModel to be added as a Viewable and
+    messes up the Resources state for the other tests.
+    """
+
+    # External resources can be defined as a string or list of strings
+    class CustomModel1(Model):
+        __javascript__ = "external_js_1"
+        __css__ = "external_css_1"
+
+    class CustomModel2(Model):
+        __javascript__ =["external_js_2", "external_js_3"]
+        __css__ = ["external_css_2", "external_css_3"]
+
+    r = resources.Resources()
+
+    assert "external_js_1" in r.js_files
+    assert "external_css_1" in r.css_files
+
+    assert "external_js_2" in r.js_files
+    assert "external_js_3" in r.js_files
+    assert "external_css_2" in r.css_files
+    assert "external_css_3" in r.css_files

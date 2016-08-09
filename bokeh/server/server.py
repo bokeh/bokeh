@@ -83,7 +83,7 @@ class Server(object):
                                                         'stats_log_frequency_milliseconds']
                            if key in kwargs }
 
-        prefix = kwargs.get('prefix', None)
+        prefix = kwargs.get('prefix')
         if prefix is None:
             prefix = ""
         prefix = prefix.strip("/")
@@ -95,8 +95,8 @@ class Server(object):
         if 'port' in kwargs:
             self._port = kwargs['port']
 
-        tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host', None), self._port)
-        tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin', None), self._port)
+        tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
+        tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
         tornado_kwargs['use_index'] = kwargs.get('use_index', True)
         tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 

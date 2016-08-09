@@ -662,3 +662,7 @@ class Tooltip(Annotation):
     inner_only = Bool(default=True, help="""
     Whether to display outside a central plot frame area.
     """)
+
+    show_arrow = Bool(default=True, help="""
+    Whether tooltip's arrow should be showed.
+    """)
