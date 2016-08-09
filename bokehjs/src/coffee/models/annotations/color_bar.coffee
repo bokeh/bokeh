@@ -63,7 +63,7 @@ class ColorBarView extends Annotation.View
     label_standoff =  @model.label_standoff
     major_tick_out = @model.major_tick_out
 
-    title_height = if @model.title then get_text_height(@visuals.title_text.font_value()).height else 0
+    title_height = @mget('title_height')
 
     dimensions = @mget('computed_dimensions')
     image_height = dimensions.height
@@ -258,7 +258,7 @@ class ColorBarView extends Annotation.View
 
     geom = @compute_legend_bbox()
     @visuals.title_text.set_value(ctx)
-    ctx.fillText(@model.title, geom.image_sx, geom.image_sy)
+    ctx.fillText(@model.title, geom.image_sx, geom.image_sy - @model.title_standoff)
 
 class ColorBar extends Annotation.Model
   default_view: ColorBarView
@@ -278,6 +278,7 @@ class ColorBar extends Annotation.Model
       location:       [ p.Any,            'top_right' ]
       orientation:    [ p.Orientation,    'vertical'  ]
       title:          [ p.String,                     ]
+      title_standoff: [ p.Number,         2           ]
       legend_height:  [ p.Any,            'auto'      ]
       legend_width:   [ p.Any,            'auto'      ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
@@ -290,7 +291,6 @@ class ColorBar extends Annotation.Model
       major_tick_out: [ p.Number,         6           ]
       minor_tick_in:  [ p.Number,         0           ]
       minor_tick_out: [ p.Number,         4           ]
-
   }
 
   @override {
@@ -307,6 +307,7 @@ class ColorBar extends Annotation.Model
     super(attrs, options)
 
     @define_computed_property('normals', @_normals, true)
+    @define_computed_property('title_height', @_title_height, true)
 
     @define_computed_property('computed_dimensions', @_computed_dimensions, true)
     @add_dependencies('computed_dimensions', this, ['legend_width', 'legend_height'])
@@ -325,23 +326,65 @@ class ColorBar extends Annotation.Model
       [i, j] = [0, 1]
     return [i, j]
 
+  _title_height: () ->
+    font_value = @.title_text_font + " " + @.title_text_font_size + " " + @.title_text_font_style
+    title_height = if @.title then get_text_height(font_value).height else 0
+    return title_height + @.title_standoff
+
   _computed_dimensions: () ->
-    default_dim = 25
-    size_pct = 0.8
+    ###
+    Heuristics to determine ColorBar dimensions if set to "auto"
+
+    If the short dimension (the width of a vertical bar or height of a
+    horizontal bar) is set to "auto", the resulting dimension will be set to
+    25 px.
+
+    For a ColorBar in a side panel with the long dimension (the height of a
+    vertical bar or width of a horizontal bar) set to "auto", the
+    resulting dimension will be as long as the adjacent frame edge, so that the
+    bar "fits" to the plot.
+
+    For a ColorBar in the plot frame with the long dimension set to "auto", the
+    resulting dimension will be the greater of:
+      * The length of the color palette * 25px
+      * The parallel plot dimension * 0.30
+        (i.e the plot height for a vertical ColorBar)
+    But not greater than:
+      * The parallel plot dimension * 0.80
+    ###
+
+    DEFAULT_SHORT_DIM = 25
+    DEFAULT_LONG_DIM_MIN_SCALAR = 0.3
+    if this.panel?
+      DEFAULT_LONG_DIM_MAX_SCALAR = 1.0
+    else
+      DEFAULT_LONG_DIM_MAX_SCALAR = 0.8
 
     switch @.orientation
       when "vertical"
-        height = if @.legend_height == 'auto' then this.plot.height * size_pct else @.legend_height
-        width = if @.legend_width == 'auto' then default_dim else @.legend_width
+        if @.legend_height == 'auto'
+          height = _.max([@.color_mapper.palette.length * DEFAULT_SHORT_DIM,
+                          @.plot.height * DEFAULT_LONG_DIM_MIN_SCALAR])
+          height = _.min([height, @.plot.height * DEFAULT_LONG_DIM_MAX_SCALAR - 2 * @.legend_padding - @.get('title_height')])
+        else
+          height = @.legend_height
+
+        width = if @.legend_width == 'auto' then DEFAULT_SHORT_DIM else @.legend_width
+
       when "horizontal"
-        height = if @.legend_height == 'auto' then default_dim else @.legend_height
-        width = if @.legend_width == 'auto' then this.plot.width * size_pct else @.legend_width
+        height = if @.legend_height == 'auto' then DEFAULT_SHORT_DIM else @.legend_height
+
+        if @.legend_width == 'auto'
+          width = _.max([@.color_mapper.palette.length * DEFAULT_SHORT_DIM,
+                         @.plot.width * DEFAULT_LONG_DIM_MIN_SCALAR])
+          width = _.min([width, @.plot.width * DEFAULT_LONG_DIM_MAX_SCALAR])
+        else
+          width = @.legend_width
 
     return {"height": height, "width": width}
 
   _value_mapper: () ->
-    font_value = this.title_text_font + " " + this.title_text_font_size + " " + this.title_text_font_style
-    title_height = if @.title then get_text_height(font_value).height else 0
+    title_height = @get('title_height')
 
     legend_dimensions = @get("computed_dimensions")
 
@@ -385,8 +428,10 @@ class ColorBar extends Annotation.Model
       major_coords[i].push(majors[ii])
       major_coords[j].push(0)
 
+    [major_min, major_max] = [_.min(major_coords[i]), _.max(major_coords[i])]
+
     for ii in [0...minors.length]
-      if minors[ii] < start or minors[ii] > end
+      if minors[ii] < major_min or minors[ii] > major_max
         continue
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(0)
