@@ -682,6 +682,10 @@ class HoverTool(Inspection):
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.
     """)
 
+    show_arrow = Bool(default=True, help="""
+    Whether tooltip's arrow should be showed.
+    """)
+
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 

@@ -131,6 +131,7 @@ declare namespace Bokeh {
         line_policy?: LinePolicy;
         anchor?: Anchor;
         attachment?: "horizontal" | "vertical";
+        show_arrow?: boolean;
     }
 
     export var HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };

@@ -3,8 +3,6 @@
 """
 from __future__ import absolute_import
 
-import six
-
 from ...core.properties import abstract
 from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Tuple, Either, Instance
 from ..callbacks import Callback
@@ -33,18 +31,6 @@ class InputWidget(Widget):
             return str(val)
         else:
             return val
-
-    @classmethod
-    def create(cls, *args, **kwargs):
-        """ Only called the first time we make an object,
-        whereas __init__ is called every time it's loaded
-
-        """
-        if kwargs.get('title') is None:
-            kwargs['title'] = kwargs['name']
-        if kwargs.get('value') is not None:
-            kwargs['value'] = cls.coerce_value(kwargs.get('value'))
-        return cls(**kwargs)
 
 class TextInput(InputWidget):
     """ Single-line input widget. """
@@ -89,17 +75,6 @@ class Select(InputWidget):
     value changes.
     """)
 
-    @classmethod
-    def create(self, *args, **kwargs):
-        options = kwargs.pop('options', [])
-        new_options = []
-        for opt in options:
-            if isinstance(opt, six.string_types):
-                opt = {'name' : opt, 'value' : opt}
-            new_options.append(opt)
-        kwargs['options'] = new_options
-        return super(Select, self).create(*args, **kwargs)
-
 class MultiSelect(InputWidget):
     """ Multi-select widget.
 
@@ -120,17 +95,6 @@ class MultiSelect(InputWidget):
     A callback to run in the browser whenever the current dropdown value
     changes.
     """)
-
-    @classmethod
-    def create(self, *args, **kwargs):
-        options = kwargs.pop('options', [])
-        new_options = []
-        for opt in options:
-            if isinstance(opt, six.string_types):
-                opt = {'name' : opt, 'value' : opt}
-            new_options.append(opt)
-        kwargs['options'] = new_options
-        return super(Select, self).create(*args, **kwargs)
 
 class Slider(InputWidget):
     """ Slider-based number selection widget.

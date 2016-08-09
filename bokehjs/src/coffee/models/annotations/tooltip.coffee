@@ -81,6 +81,9 @@ class TooltipView extends Annotation.View
         top = sy - @$el.outerHeight() - arrow_size
         left = Math.round(sx - @$el.outerWidth()/2)
 
+    if @model.show_arrow
+        @$el.addClass("bk-tooltip-arrow")
+
     # TODO (bev) this is not currently bulletproof. If there are
     # two hits, not colocated and one is off the screen, that can
     # be problematic
@@ -96,6 +99,7 @@ class Tooltip extends Annotation.Model
   @define {
     attachment: [ p.String, 'horizontal' ] # TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
     inner_only: [ p.Bool,   true         ]
+    show_arrow: [ p.Bool,   true         ]
   }
 
   @override {

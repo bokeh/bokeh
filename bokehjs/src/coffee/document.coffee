@@ -573,7 +573,7 @@ class Document
       throw new Error("JSON object has wrong type #{typeof json}")
     py_version = json['version']
     versions_string = "Library versions: JS (#{js_version})  /  Python (#{py_version})"
-    if js_version.split('-')[0] != py_version.split('-')[0]
+    if py_version.indexOf('-') < 0 and js_version != py_version
       logger.warn("JS/Python version mismatch")
       logger.warn(versions_string)
     else
