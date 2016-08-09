@@ -19,6 +19,8 @@ import json
 from os.path import basename, join, relpath
 import re
 
+from six import string_types
+
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
@@ -274,6 +276,23 @@ class BaseResources(object):
         paths = [ join(bokehjs_dir, kind, file) for file in files ]
         return paths
 
+    def _collect_external_resources(self, resource_attr):
+        """ Collect external resources set on resource_attr attribute of all models."""
+
+        external_resources = []
+
+        for cls in Model.model_class_reverse_map.values():
+            external = getattr(cls, resource_attr, None)
+
+            if isinstance(external, string_types):
+                external_resources.append(external)
+            elif isinstance(external, list):
+                external_resources.extend(external)
+
+        # Return only unique external resources
+        return list(set(external_resources))
+
+
     def _cdn_urls(self):
         return _get_cdn_urls(self.components, self.version, self.minified)
 
@@ -361,6 +380,10 @@ class JSResources(BaseResources):
     @property
     def js_files(self):
         files, _ = self._resolve('js')
+
+        external_resources = self._collect_external_resources('__javascript__')
+        files.extend(external_resources)
+
         return files
 
     @property
@@ -513,6 +536,10 @@ class CSSResources(BaseResources):
     @property
     def css_files(self):
         files, _ = self._resolve('css')
+
+        external_resources = self._collect_external_resources("__css__")
+        files.extend(external_resources)
+
         return files
 
     @property
