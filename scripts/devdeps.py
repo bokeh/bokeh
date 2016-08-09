@@ -67,7 +67,9 @@ if __name__ == '__main__':
         'pytest_cov',
         'pytest_selenium',
         'mock',
-        'websocket'
+        'websocket',
+        'flake8',
+        'boto'
     ]
     depend_check('Dev', *dev_deps)
 
