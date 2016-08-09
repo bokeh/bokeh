@@ -1,3 +1,8 @@
+2016-08-05   0.13.0:
+----------------------
+  * features:
+    * #4828 Expose session context in document and request in session context
+
 2016-06-27   0.12.0:
 --------------------
   * Responsive layout and styling improvements throughout
@@ -57,7 +62,7 @@
     - #3134 When plotting pandas dataframe in ipython notebook, mpl.to_bokeh(), dates on axis are displayed as numbers
     - #3215 Bokeh + ipython widgets: push_notebook() error?
     - #3226 [component: bokehjs] Text_color does not respect `none`
-    - #3252 Button or toggle.disabled=true does not gray out the button or toggle 
+    - #3252 Button or toggle.disabled=true does not gray out the button or toggle
     - #3303 Layout can allow plots to overlap
     - #3329 [component: docs] Docs suggest that add_tools() takes shorthand strings, but it doesn't
     - #3434 [component: bokehjs] [starter] Band fill color issue display
@@ -116,7 +121,7 @@
     - #4075 When used with `stat=none`, `heatmap` modifies original dataframe
     - #4080 [component: bokehjs] Don't attach document multiple times when traversing the graph
     - #4086 [component: bokehjs] [widgets] Datatable `getformatter not a function` bug
-    - #4090 [component: build] Build not succeeding because path problem looking for the noarch package 
+    - #4090 [component: build] Build not succeeding because path problem looking for the noarch package
     - #4092 [component: docs] Unclear how to run bokeh command when exe not available
     - #4103 Update crossfilter for new typescript api spelling
     - #4104 Crossfilter example: type is not a function error
@@ -134,7 +139,7 @@
     - #4219 [component: bokehjs] New strict js property updates broke datetimetickformatter
     - #4224 Extra_x_ranges should allow range not only range1d
     - #4246 Weird left toolbar in gridplots in dev build and master
-    - #4248 [webgl] Line plot scaling issue when webgl is used 
+    - #4248 [webgl] Line plot scaling issue when webgl is used
     - #4254 [notebook] [regression] Notebook rendering is broken
     - #4265 [regression] [webgl] Webgl broken because public props do not exist anymore on the glyph
     - #4275 [component: bokehjs] Remove problem styles for sass/autoprefixer support
@@ -168,7 +173,7 @@
     - #4543 Movies example has sliders under plot
     - #4554 Layouts got slightly broken during sizing_mode change
     - #4569 [notebook] [regression] Logo missing from notebook resource load
-    - #4572 [component: bokehjs] [widgets] Changing a toggle button's type is broken 
+    - #4572 [component: bokehjs] [widgets] Changing a toggle button's type is broken
     - #4578 Gridplot toolbar broken
     - #4581 Gridplots broken except for fixed
     - #4583 Using gridplot now gives a warning
@@ -242,7 +247,7 @@
     - #4380 Titles should align with the edge of the frame not the edge of the canvas
     - #4384 New layout api - bokeh.layouts - layout, row, column, gridplot
     - #4412 [component: server] [starter] Redirect from `/` to `/app_name`
-    - #4425 Improve server index page 
+    - #4425 Improve server index page
     - #4462 Adding a funcformatter for ticks based on pyscript
     - #4548 [component: bokehjs] Add viridis and other new color maps
   * tasks:
@@ -266,7 +271,7 @@
     - #3146 Document breaks with roots that are also in non-root layouts
     - #3232 [component: tests] Screenshot testing for selenium tests
     - #3390 Known pending issues/tasks for 0.11 release
-    - #3514 [starter] Rename bokeh.client.connection 
+    - #3514 [starter] Rename bokeh.client.connection
     - #3571 Missing bokeh entry point (otherwise bokeh.bat) for windows
     - #3575 [component: server] Bokeh server should display bokeh version on startup
     - #3582 [component: docs] [component: server] Embed docs out of date
@@ -346,7 +351,7 @@
     - #4358 Revert "make hidpi work for webgl"
     - #4360 Merges the hipdi work into the layout pr
     - #4381 Api issue: title_standoff, title_padding, title_offset
-    - #4382 Is title padding working? 
+    - #4382 Is title padding working?
     - #4383 Is min_border working?
     - #4387 [component: docs] Layout documentation
     - #4396 Api - name the responsive modes
@@ -386,7 +391,7 @@
     - #4629 Small styling tweaks
     - #4654 Examples tweaks
     - #4655 Skip 3 more flaky js tests
-    - #4662 Examples cleanup 
+    - #4662 Examples cleanup
     - #4669 [component: docs] Arrowhead documentation
     - #4670 Clean up notebook examples
     - #4675 Undeprecate .from_df
