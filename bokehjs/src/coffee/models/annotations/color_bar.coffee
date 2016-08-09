@@ -313,11 +313,11 @@ class ColorBar extends Annotation.Model
     @add_dependencies('computed_dimensions', this, ['legend_width', 'legend_height'])
     @add_dependencies('computed_dimensions', @get('plot'), ['height', 'width'])
 
-    @define_computed_property('value_mapper', @_value_mapper, true)
-    @add_dependencies('value_mapper', this, ['computed_dimensions'])
+    @define_computed_property('tick_coordinate_mapper', @_tick_coordinate_mapper, true)
+    @add_dependencies('tick_coordinate_mapper', this, ['computed_dimensions'])
 
     @define_computed_property('tick_coords', @_tick_coords, true)
-    @add_dependencies('tick_coords', this, ['value_mapper', 'normals'])
+    @add_dependencies('tick_coords', this, ['tick_coordinate_mapper', 'normals'])
 
   _normals: () ->
     if @.orientation == 'vertical'
@@ -334,6 +334,9 @@ class ColorBar extends Annotation.Model
   _computed_dimensions: () ->
     ###
     Heuristics to determine ColorBar dimensions if set to "auto"
+
+    Note: Returns the height/width values for the ColorBar's scale image, not
+    the dimensions of the entire ColorBar.
 
     If the short dimension (the width of a vertical bar or height of a
     horizontal bar) is set to "auto", the resulting dimension will be set to
@@ -353,44 +356,57 @@ class ColorBar extends Annotation.Model
       * The parallel plot dimension * 0.80
     ###
 
-    DEFAULT_SHORT_DIM = 25
-    DEFAULT_LONG_DIM_MIN_SCALAR = 0.3
-    if this.panel?
-      DEFAULT_LONG_DIM_MAX_SCALAR = 1.0
-    else
-      DEFAULT_LONG_DIM_MAX_SCALAR = 0.8
+    SHORT_DIM = 25
+    LONG_DIM_MIN_SCALAR = 0.3
+    LONG_DIM_MAX_SCALAR = 0.8
 
     switch @.orientation
       when "vertical"
         if @.legend_height == 'auto'
-          height = _.max([@.color_mapper.palette.length * DEFAULT_SHORT_DIM,
-                          @.plot.height * DEFAULT_LONG_DIM_MIN_SCALAR])
-          height = _.min([height, @.plot.height * DEFAULT_LONG_DIM_MAX_SCALAR - 2 * @.legend_padding - @.get('title_height')])
+          if @.panel?
+            height = @.plot.height - 2 * @.legend_padding - @.get('title_height')
+          else
+            height = _.max([@.color_mapper.palette.length * SHORT_DIM,
+                            @.plot.height * LONG_DIM_MIN_SCALAR])
+            height = _.min([height,
+                            @.plot.height * LONG_DIM_MAX_SCALAR - 2 * @.legend_padding - @.get('title_height')])
         else
           height = @.legend_height
 
-        width = if @.legend_width == 'auto' then DEFAULT_SHORT_DIM else @.legend_width
+        width = if @.legend_width == 'auto' then SHORT_DIM else @.legend_width
 
       when "horizontal"
-        height = if @.legend_height == 'auto' then DEFAULT_SHORT_DIM else @.legend_height
+        height = if @.legend_height == 'auto' then SHORT_DIM else @.legend_height
 
         if @.legend_width == 'auto'
-          width = _.max([@.color_mapper.palette.length * DEFAULT_SHORT_DIM,
-                         @.plot.width * DEFAULT_LONG_DIM_MIN_SCALAR])
-          width = _.min([width, @.plot.width * DEFAULT_LONG_DIM_MAX_SCALAR])
+          if @.panel?
+            width = @.plot.width - 2 * @.legend_padding
+          else
+            width = _.max([@.color_mapper.palette.length * SHORT_DIM,
+                           @.plot.width * LONG_DIM_MIN_SCALAR])
+            width = _.min([width,
+                           @.plot.width * LONG_DIM_MAX_SCALAR - 2 * @.legend_padding])
         else
           width = @.legend_width
 
     return {"height": height, "width": width}
 
-  _value_mapper: () ->
-    title_height = @get('title_height')
+  _tick_coordinate_mapper: () ->
+    ###
+    Creates and returns a mapper instance that maps the `color_mapper` range
+    (low to high) to a screen space range equal to the length of the ColorBar's
+    scale image. The mapper is used to calculate the tick coordinates in screen
+    coordinates for plotting purposes.
 
-    legend_dimensions = @get("computed_dimensions")
+    Note: the type of color_mapper has to match the type of mapper (i.e.
+    a LinearColorMapper will require a corresponding LinearMapper instance).
+    ###
+
+    scale_dimensions = @get("computed_dimensions")
 
     switch @.orientation
-      when "vertical" then target_range_end = legend_dimensions.height
-      when "horizontal" then target_range_end = legend_dimensions.width
+      when "vertical" then target_range_end = scale_dimensions.height
+      when "horizontal" then target_range_end = scale_dimensions.width
 
     mapping = {
       'source_range': new Range1d.Model({
@@ -410,7 +426,7 @@ class ColorBar extends Annotation.Model
 
   _tick_coords: () ->
     [i, j] = @get('normals')
-    mapper = @get('value_mapper')
+    mapper = @get('tick_coordinate_mapper')
 
     [start, end] = [@.color_mapper.low, @.color_mapper.high]
 
