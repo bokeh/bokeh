@@ -2,70 +2,8 @@ import ast, os, copy
 import yaml
 
 
-__all__ = ["api_crawler", "diff_modules"]
+__all__ = ["api_crawler"]
 
-
-def diff_modules(old_version, new_version):
-    with open(old_version, "r") as f:
-        old = f.read()
-        old = yaml.load(old)
-    with open(new_version, "r") as f:
-        new = f.read()
-        new = yaml.load(new)
-    combined = copy.deepcopy(old)
-    combined.update(new)
-
-    diff = {}
-    union = {}
-    files_union = set(old) & set(new)
-    files_diff = set(old) - set(new)
-
-    # Diff files
-    for x in combined.keys():
-        if x in files_diff:
-            diff[x] = combined[x]
-            diff[x] = {}
-        else:
-            union[x] = combined[x]
-
-    # Diff functions and classes
-    for x in union.keys():
-        old_items = old.get(x)
-        new_items = new.get(x)
-        if old_items and new_items:
-            function_diff = set(old_items["functions"]) - set(new_items["functions"])
-            class_diff = set(list(old_items["classes"].keys())) - set(list(new_items["classes"].keys()))
-            if function_diff or list(class_diff):
-                diff[x]= copy.deepcopy(union[x])
-                if list(class_diff):
-                    diff_dict = {y: {} for y in class_diff}
-                    diff[x]["classes"] = diff_dict
-                else:
-                    diff[x]["classes"] = {}
-
-                if function_diff:
-                    diff[x]["functions"] = list(function_diff)
-                else:
-                    diff[x]["functions"] = []
-
-    # Diff methods
-    for x in union.keys():
-        old_classes = old[x].get("classes") if old.get(x) else {}
-        new_classes = new[x].get("classes") if new.get(x) else {}
-        if old_classes and new_classes:
-            for y in union[x]["classes"]:
-                # Prevent NoneType errors by returning empty dict.
-                old_methods = old[x]["classes"].get(y, {})
-                new_methods = new[x]["classes"].get(y, {})
-                if old_methods.get("methods") and new_methods.get("methods"):
-                    methods_diff = list(set(list(old_methods.values())[0]) - set(list(new_methods.values())[0]))
-                    if methods_diff:
-                        diff[x] = union[x]
-                        diff[x]["classes"][y]["methods"] = methods_diff
-
-    with open("diff.yaml", "w") as f:
-        yaml.dump(diff, f, default_flow_style=False)
-    return diff
 
 
 class APICrawler(object):
@@ -130,6 +68,88 @@ class APICrawler(object):
         files_dict = self.get_files_dict(files)
         with open(output_file, "w") as stream:
             yaml.dump(files_dict, stream, default_flow_style=False)
+
+    @staticmethod
+    def diff_modules(former, latter):
+        combined = copy.deepcopy(former)
+        combined.update(latter)
+
+        diff = {}
+        union = {}
+        files_union = set(former) & set(latter)
+        files_diff = set(former) - set(latter)
+
+        # Diff files
+        for x in combined.keys():
+            if x in files_diff:
+                diff[x] = combined[x]
+                diff[x] = {}
+            else:
+                union[x] = combined[x]
+
+        # Diff functions and classes
+        for x in union.keys():
+            former_items = former.get(x)
+            latter_items = latter.get(x)
+            if former_items and latter_items:
+                function_diff = set(former_items["functions"]) - set(latter_items["functions"])
+                class_diff = set(list(former_items["classes"].keys())) - set(list(latter_items["classes"].keys()))
+                if function_diff or list(class_diff):
+                    diff[x]= copy.deepcopy(union[x])
+                    if list(class_diff):
+                        diff_dict = {y: {} for y in class_diff}
+                        diff[x]["classes"] = diff_dict
+                    else:
+                        diff[x]["classes"] = {}
+
+                    if function_diff:
+                        diff[x]["functions"] = list(function_diff)
+                    else:
+                        diff[x]["functions"] = []
+
+        # Diff methods
+        for x in union.keys():
+            former_classes = former[x].get("classes") if former.get(x) else {}
+            latter_classes = latter[x].get("classes") if latter.get(x) else {}
+            if former_classes and latter_classes:
+                for y in union[x]["classes"]:
+                    # Prevent NoneType errors by returning empty dict.
+                    former_methods = former[x]["classes"].get(y, {})
+                    latter_methods = latter[x]["classes"].get(y, {})
+                    if former_methods.get("methods") and latter_methods.get("methods"):
+                        methods_diff = list(set(list(former_methods.values())[0]) - set(list(latter_methods.values())[0]))
+                        if methods_diff:
+                            diff[x] = union[x]
+                            diff[x]["classes"][y]["methods"] = methods_diff
+
+        return diff
+
+    @staticmethod
+    def parse_diff(diff, added=False):
+        parsed_diff = []
+        if added:
+            method = "ADDED"
+        else:
+            method = "DELETED"
+        for x in diff.keys():
+            formatted_string = "%s %s" % (method, os.path.splitext(x.replace("/", "."))[0])
+            if diff[x].values():
+                for y in diff[x].values():
+                    if isinstance(y, dict) and y:
+                        for z in y.keys():
+                            if not y[z].values():
+                                parsed_diff.append("%s.%s" % (formatted_string, z))
+                            else:
+                                for a in y[z].values():
+                                    for b in a:
+                                        parsed_diff.append("%s.%s.%s" % (formatted_string, z, b))
+                    elif isinstance(y, list) and y:
+                        for z in y:
+                            class_string = "%s" % z
+                            parsed_diff.append("%s.%s" % (formatted_string, class_string))
+            else:
+                parsed_diff.insert(0, formatted_string)
+        return parsed_diff
 
 
 api_crawler = APICrawler
