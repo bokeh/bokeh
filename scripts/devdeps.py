@@ -9,15 +9,15 @@ except ImportError:
     def blue(text) : return text
     def red(text) : return text
 
-npm_missing = """
-npm packages do not appear to be installed.
-Please navigate to the bokehjs directory and type 'npm install'\n
-"""
 
 def npm_check():
     """Check that the bokehjs/node_modules directory exists, as its absence
     is the best indication that npm is not installed."""
 
+    npm_missing = """
+    npm packages do not appear to be installed.
+    Please navigate to the bokehjs directory and type 'npm install'\n
+    """
 
     if not path.exists('../bokehjs/node_modules'):
         print(red(npm_missing))
@@ -33,10 +33,9 @@ def depend_check(deps_name, *args):
             __import__(dependency)
         except ImportError:
             missing.append(dependency)
-            found = False
 
     print('-'*80)
-    if len(missing):
+    if missing:
         print(red("You are missing the following %s dependencies:") % deps_name)
 
         for dep in missing:
@@ -47,6 +46,7 @@ def depend_check(deps_name, *args):
     else:
         print(blue("All %s dependencies installed!  You are good to go!\n") % deps_name)
         return True
+
 
 if __name__ == '__main__':
 
