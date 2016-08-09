@@ -159,6 +159,10 @@ class ColorBar(Annotation):
     The %s values for the title text.
     """)
 
+    title_standoff = Int(2, help="""
+    The distance (in pixels) to separate the title from the ColorBar.
+    """)
+
     ticker = Instance(Ticker, default=lambda: BasicTicker(), help="""
     A Ticker to use for computing locations of axis components.
     """)
