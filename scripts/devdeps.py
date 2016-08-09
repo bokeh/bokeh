@@ -35,6 +35,7 @@ def depend_check(deps_name, *args):
             missing.append(dependency)
 
     print('-'*80)
+
     if missing:
         print(red("You are missing the following %s dependencies:") % deps_name)
 
@@ -42,10 +43,10 @@ def depend_check(deps_name, *args):
             name = pkg_info_dict.get(dep, dep)
             print(" * ", name)
         print()
-        return False
+
     else:
         print(blue("All %s dependencies installed!  You are good to go!\n") % deps_name)
-        return True
+
 
 
 if __name__ == '__main__':
