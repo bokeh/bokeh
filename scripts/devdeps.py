@@ -58,6 +58,9 @@ if __name__ == '__main__':
         'websocket': 'websocket-client',
         'pytest_selenium': 'pytest-selenium',
         'pytest_cov': 'pytest-cov',
+        # 'mkl': 'mkl',
+        'dateutil': 'python-dateutil',
+        # 'yaml': 'pyyaml'
     }
 
     dev_deps = [
@@ -78,3 +81,18 @@ if __name__ == '__main__':
         'pygments',
     ]
     depend_check('Docs', *docs_deps)
+
+    base_deps = [
+        'backports_abc',
+        'jinja2',
+        'markupsafe',
+        # 'mkl',
+        'numpy',
+        'dateutil',
+        # 'pyyaml',
+        'requests',
+        'six',
+        'tornado',
+        'yaml'
+    ]
+    depend_check('Base', *base_deps)
