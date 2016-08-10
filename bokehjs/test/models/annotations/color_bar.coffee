@@ -5,6 +5,9 @@ proxyquire = require "proxyquire"
 
 SidePanel = utils.require("core/layout/side_panel").Model
 LinearColorMapper = utils.require("models/mappers/linear_color_mapper").Model
+LinearMapper = utils.require("models/mappers/linear_mapper").Model
+LogColorMapper = utils.require("models/mappers/log_color_mapper").Model
+LogMapper = utils.require("models/mappers/log_mapper").Model
 {Viridis} = utils.require("palettes/palettes")
 Plot = utils.require("models/plots/plot").Model
 Range1d = utils.require("models/ranges/range1d").Model
@@ -57,8 +60,6 @@ describe "ColorBar.Model", ->
       beforeEach ->
         @color_bar = new ColorBar.Model({
           orientation: 'vertical'
-          # legend_width: 'auto'
-          # legend_height: 'auto'
         })
 
       it "Should use set `legend_width` and `legend_height` if set", ->
@@ -66,11 +67,11 @@ describe "ColorBar.Model", ->
 
         @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
         @color_bar.legend_width = 100
-        @color_bar.legend_height = 100
+        @color_bar.legend_height = 200
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(100)
-        expect(image_dimensions.height).to.be.equal(100)
+        expect(image_dimensions.height).to.be.equal(200)
 
       it "Should return height = 0.30 * plot.height for 'short' palette", ->
         @plot.add_layout(@color_bar)
@@ -81,7 +82,7 @@ describe "ColorBar.Model", ->
         expect(image_dimensions.width).to.be.equal(25)
         expect(image_dimensions.height).to.be.equal(150)
 
-      it "Should return height = palette.length * 25 or 'medium' palette", ->
+      it "Should return height = palette.length * 25 for 'medium' palette", ->
         @plot.add_layout(@color_bar)
 
         @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
@@ -105,77 +106,105 @@ describe "ColorBar.Model", ->
         document.add_root(@plot)
 
         @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.title = "I'm a title"
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(25)
-        # height = 500 (plot.height) - 2 * 10 (color_bar.legend_padding) - 0 (title_height)
-        expect(image_dimensions.height).to.be.equal(480)
+        # height = 500 (plot.height) - 2 * 10 (color_bar.legend_padding) - 17 (title_height)
+        expect(image_dimensions.height).to.be.equal(463)
+
+    describe "ColorBar.orientation = 'horizontal'", ->
+
+      beforeEach ->
+        @color_bar = new ColorBar.Model({
+          orientation: 'horizontal'
+        })
+
+      it "Should use set `legend_width` and `legend_height` if set", ->
+        @plot.add_layout(@color_bar)
+
+        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.legend_width = 100
+        @color_bar.legend_height = 200
+
+        image_dimensions = @color_bar._computed_image_dimensions()
+        expect(image_dimensions.width).to.be.equal(100)
+        expect(image_dimensions.height).to.be.equal(200)
+
+      it "Should return width = 0.30 * plot.width for 'short' palette", ->
+        @plot.add_layout(@color_bar)
+
+        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+
+        image_dimensions = @color_bar._computed_image_dimensions()
+        expect(image_dimensions.width).to.be.equal(150)
+        expect(image_dimensions.height).to.be.equal(25)
+
+      it "Should return width = palette.length * 25 for 'medium' palette", ->
+        @plot.add_layout(@color_bar)
+
+        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
+
+        image_dimensions = @color_bar._computed_image_dimensions()
+        expect(image_dimensions.width).to.be.equal(250)
+        expect(image_dimensions.height).to.be.equal(25)
+
+      it "Should return width = 0.80 * plot.width for 'long' palette", ->
+        @plot.add_layout(@color_bar)
 
         @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis256})
-        @color_bar.title = "I'm a title"
-        expect(image_dimensions.width).to.be.equal(25)
-        # height = 500 (plot.height) - 2 * 10 (color_bar.legend_padding) - 0 (title_height)
-        expect(image_dimensions.height).to.be.equal(480)
 
-  #   describe "ColorBar.orientation = 'horizontal'", ->
-  #
-  #     beforeEach ->
-  #       @color_bar = new ColorBar({
-  #         orientation: 'horizontal'
-  #         # legend_width: 'auto'
-  #         # legend_height: 'auto'
-  #       })
-  #
-  #     it "should use set `legend_width` and `legend_height` if set", ->
-  #       @plot.add_layout(@color_bar)
-  #       # document = new Document()
-  #       # document.add_root(@plot)
-  #
-  #       @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
-  #       @color_bar.legend_width = 100
-  #       @color_bar.legend_height = 100
-  #
-  #       image_dimensions = @color_bar._computed_image_dimensions()
-  #       expect(image_dimensions.width).to.be.equal(100)
-  #       expect(image_dimensions.height).to.be.equal(100)
-  #
-  #     it "short palette in frame should be 0.30 * plot width", ->
-  #       @plot.add_layout(@color_bar)
-  #
-  #       @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
-  #
-  #       image_dimensions = @color_bar._computed_image_dimensions()
-  #       expect(image_dimensions.width).to.be.equal(150)
-  #       expect(image_dimensions.height).to.be.equal(25)
-  #
-  #     it "long palette in frame should be 25 * palette.length", ->
-  #       @plot.add_layout(@color_bar)
-  #
-  #       @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
-  #
-  #       image_dimensions = @color_bar._computed_image_dimensions()
-  #       expect(image_dimensions.width).to.be.equal(250)
-  #       expect(image_dimensions.height).to.be.equal(25)
-  #
-  #     it "super long palette in frame should be 0.8 * plot height", ->
-  #       @plot.add_layout(@color_bar)
-  #
-  #       @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis256})
-  #
-  #       image_dimensions = @color_bar._computed_image_dimensions()
-  #       # width = 500 (plot.width) * 0.8 - 2 * 10 (color_bar.legend_padding)
-  #       expect(image_dimensions.width).to.be.equal(380)
-  #       expect(image_dimensions.height).to.be.equal(25)
-  #
-  #     it "long palette in side panel should be 25 * palette.length", ->
-  #        # Add to right side panel
-  #       @plot.add_layout(@color_bar, 'below')
-  #       document = new Document()
-  #       document.add_root(@plot)
-  #
-  #       @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
-  #
-  #       image_dimensions = @color_bar._computed_image_dimensions()
-  #       # width = 500 (plot.width) - 2 * 10 (color_bar.legend_padding)
-  #       expect(image_dimensions.width).to.be.equal(480)
-  #       expect(image_dimensions.height).to.be.equal(25)
+        image_dimensions = @color_bar._computed_image_dimensions()
+        # width = 500 (plot.width) * 0.8 - 2 * 10 (color_bar.legend_padding)
+        expect(image_dimensions.width).to.be.equal(380)
+        expect(image_dimensions.height).to.be.equal(25)
+
+      it "Should return width = plot.width - 2 * legend_padding for any palette in side panel", ->
+         # Add to right side panel
+        @plot.add_layout(@color_bar, 'below')
+        document = new Document()
+        document.add_root(@plot)
+
+        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
+        @color_bar.title = "I'm a title"
+
+        image_dimensions = @color_bar._computed_image_dimensions()
+        # width = 500 (plot.width) - 2 * 10 (color_bar.legend_padding)
+        expect(image_dimensions.width).to.be.equal(480)
+        expect(image_dimensions.height).to.be.equal(25)
+
+  describe "ColorBar.Model._tick_coordinate_mapper method", ->
+
+    beforeEach ->
+      @color_bar = new ColorBar.Model({
+        legend_height: 100
+        legend_width: 25
+      })
+
+    it "LinearColorMapper should yield LinearMapper instance", ->
+      @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 10, palette: Viridis.Viridis10})
+      mapper = @color_bar._tick_coordinate_mapper()
+      expect(mapper).to.be.instanceof(LinearMapper)
+
+    it "LogColorMapper should yield LogMapper instance", ->
+      @color_bar.color_mapper = new LogColorMapper({low: 1, high: 10, palette: Viridis.Viridis10})
+      mapper = @color_bar._tick_coordinate_mapper()
+      expect(mapper).to.be.instanceof(LogMapper)
+
+  describe "ColorBar.Model._tick_coordinates method", ->
+
+    beforeEach ->
+      @color_bar = new ColorBar.Model({
+        legend_height: 100
+        legend_width: 25
+        color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
+      })
+
+    it "Should get right ticks, right?", ->
+      tick_coords = @color_bar._tick_coordinates()
+
+      expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([0, 0, 0, 0, 0, 0]))
+      expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
+      expect(tick_coords.minor[0]).to.be.deep.equal(new Float64Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
+      expect(tick_coords.minor[1]).to.be.deep.equal(new Float64Array([0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100]))
+      # expect(tick_coords.major_labels).to.be.equal()
