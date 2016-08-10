@@ -15,7 +15,7 @@ text_util = require "../../core/util/text"
 class ColorBarView extends Annotation.View
   initialize: (options) ->
     super(options)
-    @_set_image_data()
+    @_set_canvas_image()
 
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
@@ -32,7 +32,7 @@ class ColorBarView extends Annotation.View
         size = geom.width
     return size
 
-  _set_image_data: () ->
+  _set_canvas_image: () ->
     palette = @model.color_mapper.palette
 
     switch @model.orientation
@@ -53,7 +53,7 @@ class ColorBarView extends Annotation.View
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
 
-    @image_data = canvas
+    @image = canvas
 
   compute_legend_bbox: () ->
     legend_margin = @model.legend_margin
@@ -66,6 +66,7 @@ class ColorBarView extends Annotation.View
     image_height = image_dimensions.height
     image_width = image_dimensions.width
 
+    # this is to measure text properties
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
@@ -163,9 +164,10 @@ class ColorBarView extends Annotation.View
 
   _draw_image: (ctx) ->
     geom = @compute_legend_bbox()
+
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
-    ctx.drawImage(@image_data, geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
+    ctx.drawImage(@image, geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)
     if @visuals.scale_line.doit
         @visuals.scale_line.set_value(ctx)
         ctx.strokeRect(geom.image_sx, geom.image_sy, geom.image_width, geom.image_height)

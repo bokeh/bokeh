@@ -65,7 +65,7 @@ describe "ColorBar.Model", ->
       it "Should use set `legend_width` and `legend_height` if set", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis3})
         @color_bar.legend_width = 100
         @color_bar.legend_height = 200
 
@@ -76,7 +76,7 @@ describe "ColorBar.Model", ->
       it "Should return height = 0.30 * plot.height for 'short' palette", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis3})
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(25)
@@ -85,7 +85,7 @@ describe "ColorBar.Model", ->
       it "Should return height = palette.length * 25 for 'medium' palette", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis10})
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(25)
@@ -94,7 +94,7 @@ describe "ColorBar.Model", ->
       it "Should return height = 0.80 * plot.height for 'long' palette", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis256})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis256})
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(25)
@@ -105,7 +105,7 @@ describe "ColorBar.Model", ->
         document = new Document()
         document.add_root(@plot)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis3})
         @color_bar.title = "I'm a title"
 
         image_dimensions = @color_bar._computed_image_dimensions()
@@ -123,7 +123,7 @@ describe "ColorBar.Model", ->
       it "Should use set `legend_width` and `legend_height` if set", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis3})
         @color_bar.legend_width = 100
         @color_bar.legend_height = 200
 
@@ -134,7 +134,7 @@ describe "ColorBar.Model", ->
       it "Should return width = 0.30 * plot.width for 'short' palette", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis3})
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(150)
@@ -143,7 +143,7 @@ describe "ColorBar.Model", ->
       it "Should return width = palette.length * 25 for 'medium' palette", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis10})
 
         image_dimensions = @color_bar._computed_image_dimensions()
         expect(image_dimensions.width).to.be.equal(250)
@@ -152,7 +152,7 @@ describe "ColorBar.Model", ->
       it "Should return width = 0.80 * plot.width for 'long' palette", ->
         @plot.add_layout(@color_bar)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis256})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis256})
 
         image_dimensions = @color_bar._computed_image_dimensions()
         # width = 500 (plot.width) * 0.8 - 2 * 10 (color_bar.legend_padding)
@@ -165,7 +165,7 @@ describe "ColorBar.Model", ->
         document = new Document()
         document.add_root(@plot)
 
-        @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 100, palette: Viridis.Viridis10})
         @color_bar.title = "I'm a title"
 
         image_dimensions = @color_bar._computed_image_dimensions()
