@@ -254,8 +254,10 @@ class ColorBarView extends Annotation.View
       return
 
     geom = @compute_legend_bbox()
+    ctx.save()
     @visuals.title_text.set_value(ctx)
     ctx.fillText(@model.title, geom.image_sx, geom.image_sy - @model.title_standoff)
+    ctx.restore()
 
 class ColorBar extends Annotation.Model
   default_view: ColorBarView
