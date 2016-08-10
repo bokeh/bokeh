@@ -1,8 +1,7 @@
-import ast, os, copy
-import yaml
+import ast, os, copy, subprocess
 
 
-__all__ = ["api_crawler"]
+__all__ = ["api_crawler", "diff_versions"]
 
 
 
@@ -63,11 +62,10 @@ class APICrawler(object):
                 files_dict[x]["functions"] = self.get_functions(source)
         return files_dict
 
-    def dump_yaml(self, output_file):
+    def get_crawl_dict(self):
         files = self.get_filenames(self.directory)
         files_dict = self.get_files_dict(files)
-        with open(output_file, "w") as stream:
-            yaml.dump(files_dict, stream, default_flow_style=False)
+        return files_dict
 
     @staticmethod
     def diff_modules(former, latter):
@@ -150,6 +148,26 @@ class APICrawler(object):
             else:
                 parsed_diff.insert(0, formatted_string)
         return parsed_diff
+
+
+def diff_versions(old_version, new_version):
+    subprocess.call("git checkout tags/%s -- bokeh" % old_version, shell=True)
+    old = api_crawler("bokeh").get_crawl_dict()
+    subprocess.call("git checkout tags/%s -- bokeh" % new_version, shell=True)
+    new = api_crawler("bokeh").get_crawl_dict()
+
+    # Reset HEAD to initial state.
+    subprocess.call("git checkout HEAD -- bokeh", shell=True)
+    subprocess.call("git reset HEAD -- bokeh", shell=True)
+
+    # Combine items removed and added into a single text file.
+    removed = api_crawler.diff_modules(old, new)
+    added = api_crawler.diff_modules(new, old)
+    diff = api_crawler.parse_diff(removed) + api_crawler.parse_diff(added, added=True)
+
+    with open("../script_diff.txt", "w") as f:
+        for x in diff:
+            f.write("%s\n" % x)
 
 
 api_crawler = APICrawler
