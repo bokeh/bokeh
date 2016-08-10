@@ -443,10 +443,10 @@ class ColorBar extends Annotation.Model
       major_coords[i].push(majors[ii])
       major_coords[j].push(0)
 
-    [major_min, major_max] = [_.min(major_coords[i]), _.max(major_coords[i])]
+    # [major_min, major_max] = [_.min(major_coords[i]), _.max(major_coords[i])]
 
     for ii in [0...minors.length]
-      if minors[ii] < major_min or minors[ii] > major_max
+      if minors[ii] < start or minors[ii] > end
         continue
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(0)

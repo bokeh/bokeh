@@ -178,33 +178,41 @@ describe "ColorBar.Model", ->
     beforeEach ->
       @color_bar = new ColorBar.Model({
         legend_height: 100
-        legend_width: 25
       })
 
-    it "LinearColorMapper should yield LinearMapper instance", ->
-      @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 10, palette: Viridis.Viridis10})
+    it "LinearColorMapper should yield LinearMapper instance with correct state", ->
+      @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
       mapper = @color_bar._tick_coordinate_mapper()
       expect(mapper).to.be.instanceof(LinearMapper)
+      expect(mapper.get('mapper_state')).to.be.deep.equal [10, 0]
 
-    it "LogColorMapper should yield LogMapper instance", ->
-      @color_bar.color_mapper = new LogColorMapper({low: 1, high: 10, palette: Viridis.Viridis10})
+    it "LogColorMapper should yield LogMapper instance with correct state", ->
+      @color_bar.color_mapper = new LogColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
       mapper = @color_bar._tick_coordinate_mapper()
       expect(mapper).to.be.instanceof(LogMapper)
+      expect(mapper.get('mapper_state')).to.be.deep.equal [100, 0, 2.302585092994046, 0]
 
   describe "ColorBar.Model._tick_coordinates method", ->
 
-    beforeEach ->
+    it "Should correctly determine tick coords and labels for LinearColorMapper", ->
       @color_bar = new ColorBar.Model({
         legend_height: 100
         legend_width: 25
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
       })
 
-    it "Should get right ticks, right?", ->
       tick_coords = @color_bar._tick_coordinates()
 
-      expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([0, 0, 0, 0, 0, 0]))
       expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
-      expect(tick_coords.minor[0]).to.be.deep.equal(new Float64Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
-      expect(tick_coords.minor[1]).to.be.deep.equal(new Float64Array([0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100]))
-      # expect(tick_coords.major_labels).to.be.equal()
+      expect(tick_coords.major_labels).to.be.deep.equal([0, 2, 4, 6, 8, 10])
+
+    it "Should correctly determine tick coords and labels for LogColorMapper", ->
+      @color_bar = new ColorBar.Model({
+        legend_height: 100
+        legend_width: 25
+        color_mapper: new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
+      })
+
+      tick_coords = @color_bar._tick_coordinates()
+      expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([0, 76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
+      expect(tick_coords.major_labels).to.be.deep.equal([0, 200, 400, 600, 800, 1000])
