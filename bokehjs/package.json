@@ -48,6 +48,7 @@
     "mocha-jsdom": "^1.0.0",
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs-prebuilt": "2.1.7",
+    "proxyquire": "1.7.10",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "sinon": "^1.15.4",

@@ -10,7 +10,7 @@ Range1d = require "../ranges/range1d"
 SidePanel = require "../../core/layout/side_panel"
 
 p = require "../../core/properties"
-{get_text_height} = require "../../core/util/text"
+text_util = require "../../core/util/text"
 
 class ColorBarView extends Annotation.View
   initialize: (options) ->
@@ -79,7 +79,7 @@ class ColorBarView extends Annotation.View
 
     else
       @visuals.major_label_text.set_value(ctx)
-      label_height = get_text_height(@visuals.major_label_text.font_value()).height
+      label_height = text_util.get_text_height(@visuals.major_label_text.font_value()).height
 
       legend_height = image_height + title_height + major_tick_out + label_standoff + label_height + legend_padding * 2
       legend_width = image_width + legend_padding * 2
@@ -304,10 +304,12 @@ class ColorBar extends Annotation.Model
     super(attrs, options)
 
     @define_computed_property('normals', @_normals, true)
+
     @define_computed_property('title_height', @_title_height, true)
+    # @add_dependencies('title_height', this, ['title_text_font', 'title_text_font_size', 'title_text_font_style', 'title', 'title_standoff'])
 
     @define_computed_property('computed_image_dimensions', @_computed_image_dimensions, true)
-    @add_dependencies('computed_image_dimensions', this, ['legend_width', 'legend_height'])
+    @add_dependencies('computed_image_dimensions', this, ['legend_width', 'legend_height', 'orientation', 'title_height'])
     @add_dependencies('computed_image_dimensions', @get('plot'), ['height', 'width'])
 
     @define_computed_property('tick_coordinate_mapper', @_tick_coordinate_mapper, true)
@@ -325,7 +327,7 @@ class ColorBar extends Annotation.Model
 
   _title_height: () ->
     font_value = @.title_text_font + " " + @.title_text_font_size + " " + @.title_text_font_style
-    title_height = if @.title then get_text_height(font_value).height + @.title_standoff else 0
+    title_height = if @.title then text_util.get_text_height(font_value).height + @.title_standoff else 0
     return title_height
 
   _computed_image_dimensions: () ->
