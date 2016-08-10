@@ -325,8 +325,8 @@ class ColorBar extends Annotation.Model
 
   _title_height: () ->
     font_value = @.title_text_font + " " + @.title_text_font_size + " " + @.title_text_font_style
-    title_height = if @.title then get_text_height(font_value).height else 0
-    return title_height + @.title_standoff
+    title_height = if @.title then get_text_height(font_value).height + @.title_standoff else 0
+    return title_height
 
   _computed_image_dimensions: () ->
     ###
