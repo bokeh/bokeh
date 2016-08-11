@@ -28,19 +28,12 @@ class ColorBarView extends Annotation.View
     return {x: x, y: -y}
 
   _get_size: () ->
-    label_extent = @_get_label_extent()
-    major_tick_out = @model.major_tick_out
-    label_standoff = @model.label_standoff
-
-    switch @model.orientation
-      when "vertical"
-        image_size = if @model.legend_width == 'auto' then SHORT_DIM else @model.legend_width
-        size = image_size + major_tick_out + label_standoff + label_extent + 2 * @model.legend_padding
-      when "horizontal"
-        image_size = if @model.legend_height == 'auto' then SHORT_DIM else @model.legend_height
-        size = image_size + @mget('title_height') + major_tick_out + label_standoff + label_extent + 2 * @model.legend_padding
-
-    return size
+    bbox = @compute_legend_bbox()
+    side = @model.panel.side
+    if side == 'above' or side == 'below'
+      return bbox.height
+    if side == 'left' or side == 'right'
+      return bbox.width
 
   _set_canvas_image: () ->
     palette = @model.color_mapper.palette
@@ -66,25 +59,28 @@ class ColorBarView extends Annotation.View
     @image = canvas
 
   compute_legend_bbox: () ->
-    legend_margin = @model.legend_margin
-    legend_padding = @model.legend_padding
-    label_standoff =  @model.label_standoff
-    major_tick_out = @model.major_tick_out
-    title_height = @mget('title_height')
-
     image_dimensions = @mget('computed_image_dimensions')
-    image_height = image_dimensions.height
-    image_width = image_dimensions.width
-
+    [image_height, image_width] = [image_dimensions.height, image_dimensions.width]
     label_extent = @_get_label_extent()
+    title_extent = @mget('title_extent')
+    legend_padding = @model.legend_padding
+    major_tick_out = @model.major_tick_out
+    label_standoff = @model.label_standoff
 
-    if @model.orientation == "vertical"
-      legend_height = image_height + title_height + legend_padding * 2
-      legend_width = image_width + major_tick_out + label_standoff + label_extent + legend_padding * 2
+    switch @model.orientation
+      when "vertical"
+        legend_height = image_height + title_extent + legend_padding * 2
+        legend_width = image_width + major_tick_out + label_standoff + label_extent + legend_padding * 2
+      when "horizontal"
+        legend_height = image_height + title_extent + major_tick_out + label_standoff + label_extent + legend_padding * 2
+        legend_width = image_width + legend_padding * 2
 
-    else
-      legend_height = image_height + title_height + major_tick_out + label_standoff + label_extent + legend_padding * 2
-      legend_width = image_width + legend_padding * 2
+    return {height: legend_height, width: legend_width}
+
+  compute_legend_geometries: () ->
+    legend_margin = @model.legend_margin
+    legend_dimensions = @compute_legend_bbox()
+    [legend_height, legend_width] = [legend_dimensions.height, legend_dimensions.width]
 
     location = @model.location
     h_range = @plot_view.frame.get('h_range')
@@ -125,8 +121,12 @@ class ColorBarView extends Annotation.View
     sx = @plot_view.canvas.vx_to_sx(x)
     sy = @plot_view.canvas.vy_to_sy(y)
 
-    image_sx = sx + legend_padding
-    image_sy = sy + legend_padding + title_height
+    image_sx = sx + @model.legend_padding
+    image_sy = sy + @model.legend_padding + @mget('title_extent')
+
+    # Here as a convenience
+    image_dimensions = @mget('computed_image_dimensions')
+    [image_height, image_width] = [image_dimensions.height, image_dimensions.width]
 
     return {sx: sx, sy: sy, image_sx: image_sx, image_sy: image_sy, width: legend_width, height: legend_height, image_width: image_width, image_height: image_height}
 
@@ -153,7 +153,7 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_bbox: (ctx) ->
-    geom = @compute_legend_bbox()
+    geom = @compute_legend_geometries()
     ctx.save()
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)
@@ -164,7 +164,7 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_image: (ctx) ->
-    geom = @compute_legend_bbox()
+    geom = @compute_legend_geometries()
 
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
@@ -178,7 +178,7 @@ class ColorBarView extends Annotation.View
     if not @visuals.major_tick_line.doit
       return
 
-    geom = @compute_legend_bbox()
+    geom = @compute_legend_geometries()
     coords = @mget('tick_coordinates').major
 
     [sx, sy] = [coords[0], coords[1]]
@@ -203,7 +203,7 @@ class ColorBarView extends Annotation.View
     if not @visuals.minor_tick_line.doit
       return
 
-    geom = @compute_legend_bbox()
+    geom = @compute_legend_geometries()
     coords = @mget('tick_coordinates').minor
 
     [sx, sy] = [coords[0], coords[1]]
@@ -228,7 +228,7 @@ class ColorBarView extends Annotation.View
     if not @visuals.major_label_text.doit
       return
 
-    geom = @compute_legend_bbox()
+    geom = @compute_legend_geometries()
     coords = @mget('tick_coordinates').major
 
     [sx, sy] = [coords[0], coords[1]]
@@ -256,7 +256,7 @@ class ColorBarView extends Annotation.View
     if not @visuals.title_text.doit
       return
 
-    geom = @compute_legend_bbox()
+    geom = @compute_legend_geometries()
     ctx.save()
     @visuals.title_text.set_value(ctx)
     ctx.fillText(@model.title, geom.image_sx, geom.image_sy - @model.title_standoff)
@@ -334,13 +334,8 @@ class ColorBar extends Annotation.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('normals', @_normals, true)
-
-    @define_computed_property('title_height', @_title_height, true)
-    # @add_dependencies('title_height', this, ['title_text_font', 'title_text_font_size', 'title_text_font_style', 'title', 'title_standoff'])
-
     @define_computed_property('computed_image_dimensions', @_computed_image_dimensions, false)
-    # @add_dependencies('computed_image_dimensions', this, ['legend_width', 'legend_height', 'orientation', 'title_height'])
+    # @add_dependencies('computed_image_dimensions', this, ['legend_width', 'legend_height', 'orientation', 'title_extent'])
     # @add_dependencies('computed_image_dimensions', @get('plot'), ['height', 'width'])
 
     # @define_computed_property('tick_coordinate_mapper', @_tick_coordinate_mapper, true)
@@ -349,6 +344,11 @@ class ColorBar extends Annotation.Model
     @define_computed_property('tick_coordinates', @_tick_coordinates, false)
     @add_dependencies('tick_coordinates', this, ['tick_coordinate_mapper', 'normals'])
 
+    @define_computed_property('title_extent', @_title_extent, true)
+    @add_dependencies('title_extent', this, ['title_text_font', 'title_text_font_size', 'title_text_font_style', 'title', 'title_standoff'])
+
+    @define_computed_property('normals', @_normals, true)
+
   _normals: () ->
     if @.orientation == 'vertical'
       [i, j] = [1, 0]
@@ -356,10 +356,10 @@ class ColorBar extends Annotation.Model
       [i, j] = [0, 1]
     return [i, j]
 
-  _title_height: () ->
-    font_value = @.title_text_font + " " + @.title_text_font_size + " " + @.title_text_font_style
-    title_height = if @.title then text_util.get_text_height(font_value).height + @.title_standoff else 0
-    return title_height
+  _title_extent: () ->
+    font_value = @title_text_font + " " + @title_text_font_size + " " + @title_text_font_style
+    title_extent = if @title then text_util.get_text_height(font_value).height + @title_standoff else 0
+    return title_extent
 
   _computed_image_dimensions: () ->
     ###
@@ -380,10 +380,10 @@ class ColorBar extends Annotation.Model
     For a ColorBar in the plot frame with the long dimension set to "auto", the
     resulting dimension will be the greater of:
       * The length of the color palette * 25px
-      * The parallel plot dimension * 0.30
-        (i.e the plot height for a vertical ColorBar)
+      * The parallel frame dimension * 0.30
+        (i.e the frame height for a vertical ColorBar)
     But not greater than:
-      * The parallel plot dimension * 0.80
+      * The parallel frame dimension * 0.80
     ###
 
     frame_height = @plot.plot_canvas.frame.get('height')
@@ -393,13 +393,12 @@ class ColorBar extends Annotation.Model
       when "vertical"
         if @legend_height == 'auto'
           if @panel?
-            # height = @plot.plot_canvas.frame.get('height') - 2 * @legend_padding - @get('title_height')
-            height = frame_height - 2 * @legend_padding - @get('title_height')
+            height = frame_height - 2 * @legend_padding - @get('title_extent')
           else
             height = _.max([@color_mapper.palette.length * SHORT_DIM,
                             frame_height * LONG_DIM_MIN_SCALAR])
             height = _.min([height,
-                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @legend_padding - @get('title_height')])
+                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @legend_padding - @get('title_extent')])
         else
           height = @legend_height
 
@@ -421,7 +420,7 @@ class ColorBar extends Annotation.Model
 
     return {"height": height, "width": width}
 
-  _tick_coordinate_mapper: (target_range_end) ->
+  _tick_coordinate_mapper: (scale_length) ->
     ###
     Creates and returns a mapper instance that maps the `color_mapper` range
     (low to high) to a screen space range equal to the length of the ColorBar's
@@ -432,42 +431,35 @@ class ColorBar extends Annotation.Model
     a LinearColorMapper will require a corresponding LinearMapper instance).
     ###
 
-    # scale_dimensions = @get("computed_image_dimensions")
-    #
-    # switch @.orientation
-    #   when "vertical" then target_range_end = scale_dimensions.height
-    #   when "horizontal" then target_range_end = scale_dimensions.width
-
     mapping = {
       'source_range': new Range1d.Model({
-        start: @.color_mapper.low
-        end: @.color_mapper.high
+        start: @color_mapper.low
+        end: @color_mapper.high
       })
       'target_range': new Range1d.Model({
         start: 0
-        end: target_range_end})
+        end: scale_length})
     }
 
-    switch @.color_mapper.type
+    switch @color_mapper.type
       when "LinearColorMapper" then mapper = new LinearMapper.Model(mapping)
       when "LogColorMapper" then mapper = new LogMapper.Model(mapping)
 
     return mapper
 
   _tick_coordinates: () ->
-
     dimensions = @get('computed_image_dimensions')
     switch @orientation
-      when "vertical" then target_range_end = dimensions.height
-      when "horizontal" then target_range_end = dimensions.width
+      when "vertical" then scale_length = dimensions.height
+      when "horizontal" then scale_length = dimensions.width
 
-    mapper = @_tick_coordinate_mapper(target_range_end)
+    mapper = @_tick_coordinate_mapper(scale_length)
 
     [i, j] = @get('normals')
 
-    [start, end] = [@.color_mapper.low, @.color_mapper.high]
+    [start, end] = [@color_mapper.low, @color_mapper.high]
 
-    ticks = @.ticker.get_ticks(start, end, null, @.ticker.desired_num_ticks)
+    ticks = @ticker.get_ticks(start, end, null, @ticker.desired_num_ticks)
 
     majors = ticks.major
     minors = ticks.minor
@@ -480,8 +472,6 @@ class ColorBar extends Annotation.Model
         continue
       major_coords[i].push(majors[ii])
       major_coords[j].push(0)
-
-    # [major_min, major_max] = [_.min(major_coords[i]), _.max(major_coords[i])]
 
     for ii in [0...minors.length]
       if minors[ii] < start or minors[ii] > end
