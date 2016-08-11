@@ -1,7 +1,7 @@
+from __future__ import absolute_import
 import ast, os, copy, subprocess
 
 from bokeh.util.api_crawler import api_crawler
-
 
 
 def diff_versions(old_version, new_version, output_file):
