@@ -342,7 +342,7 @@ class ColorBar extends Annotation.Model
     @define_computed_property('normals', @_normals, true)
 
   _normals: () ->
-    if @.orientation == 'vertical'
+    if @orientation == 'vertical'
       [i, j] = [1, 0]
     else
       [i, j] = [0, 1]
