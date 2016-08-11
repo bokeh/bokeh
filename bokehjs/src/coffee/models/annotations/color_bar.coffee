@@ -12,6 +12,10 @@ SidePanel = require "../../core/layout/side_panel"
 p = require "../../core/properties"
 text_util = require "../../core/util/text"
 
+SHORT_DIM = 25
+LONG_DIM_MIN_SCALAR = 0.3
+LONG_DIM_MAX_SCALAR = 0.8
+
 class ColorBarView extends Annotation.View
   initialize: (options) ->
     super(options)
@@ -24,12 +28,18 @@ class ColorBarView extends Annotation.View
     return {x: x, y: -y}
 
   _get_size: () ->
-    geom = @compute_legend_bbox()
-    switch @model.panel.side
-      when 'above', 'below'
-        size = geom.height
-      when 'left', 'right'
-        size = geom.width
+    label_extent = @_get_label_extent()
+    major_tick_out = @model.major_tick_out
+    label_standoff = @model.label_standoff
+
+    switch @model.orientation
+      when "vertical"
+        image_size = if @model.legend_width == 'auto' then SHORT_DIM else @model.legend_width
+        size = image_size + major_tick_out + label_standoff + label_extent + 2 * @model.legend_padding
+      when "horizontal"
+        image_size = if @model.legend_height == 'auto' then SHORT_DIM else @model.legend_height
+        size = image_size + @mget('title_height') + major_tick_out + abel_standoff + label_extent + 2 * @model.legend_padding
+
     return size
 
   _set_canvas_image: () ->
@@ -66,26 +76,15 @@ class ColorBarView extends Annotation.View
     image_height = image_dimensions.height
     image_width = image_dimensions.width
 
-    # this is to measure text properties
-    ctx = @plot_view.canvas_view.ctx
-    ctx.save()
+    label_extent = @_get_label_extent()
 
     if @model.orientation == "vertical"
-      formatted_labels = @model.formatter.doFormat(@mget('tick_coordinates').major_labels)
-      @visuals.major_label_text.set_value(ctx)
-      label_width = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
-
       legend_height = image_height + title_height + legend_padding * 2
-      legend_width = image_width + major_tick_out + label_standoff + label_width + legend_padding * 2
+      legend_width = image_width + major_tick_out + label_standoff + label_extent + legend_padding * 2
 
     else
-      @visuals.major_label_text.set_value(ctx)
-      label_height = text_util.get_text_height(@visuals.major_label_text.font_value()).height
-
-      legend_height = image_height + title_height + major_tick_out + label_standoff + label_height + legend_padding * 2
+      legend_height = image_height + title_height + major_tick_out + label_standoff + label_extent + legend_padding * 2
       legend_width = image_width + legend_padding * 2
-
-    ctx.restore()
 
     location = @model.location
     h_range = @plot_view.frame.get('h_range')
@@ -261,6 +260,21 @@ class ColorBarView extends Annotation.View
     ctx.fillText(@model.title, geom.image_sx, geom.image_sy - @model.title_standoff)
     ctx.restore()
 
+  _get_label_extent: () ->
+    ctx = @plot_view.canvas_view.ctx
+    ctx.save()
+    @visuals.major_label_text.set_value(ctx)
+
+    switch @model.orientation
+      when "vertical"
+        formatted_labels = @model.formatter.doFormat(@mget('tick_coordinates').major_labels)
+        label_extent = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
+      when "horizontal"
+        label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
+
+    ctx.restore()
+    return label_extent
+
 class ColorBar extends Annotation.Model
   default_view: ColorBarView
   type: 'ColorBar'
@@ -359,38 +373,34 @@ class ColorBar extends Annotation.Model
       * The parallel plot dimension * 0.80
     ###
 
-    SHORT_DIM = 25
-    LONG_DIM_MIN_SCALAR = 0.3
-    LONG_DIM_MAX_SCALAR = 0.8
-
-    switch @.orientation
+    switch @orientation
       when "vertical"
-        if @.legend_height == 'auto'
-          if @.panel?
-            height = @.plot.height - 2 * @.legend_padding - @.get('title_height')
+        if @legend_height == 'auto'
+          if @panel?
+            height = @plot.height - 2 * @legend_padding - @get('title_height')
           else
-            height = _.max([@.color_mapper.palette.length * SHORT_DIM,
-                            @.plot.height * LONG_DIM_MIN_SCALAR])
+            height = _.max([@color_mapper.palette.length * SHORT_DIM,
+                            @plot.height * LONG_DIM_MIN_SCALAR])
             height = _.min([height,
-                            @.plot.height * LONG_DIM_MAX_SCALAR - 2 * @.legend_padding - @.get('title_height')])
+                            @plot.height * LONG_DIM_MAX_SCALAR - 2 * @legend_padding - @get('title_height')])
         else
-          height = @.legend_height
+          height = @legend_height
 
-        width = if @.legend_width == 'auto' then SHORT_DIM else @.legend_width
+        width = if @legend_width == 'auto' then SHORT_DIM else @legend_width
 
       when "horizontal"
-        height = if @.legend_height == 'auto' then SHORT_DIM else @.legend_height
+        height = if @legend_height == 'auto' then SHORT_DIM else @legend_height
 
-        if @.legend_width == 'auto'
-          if @.panel?
-            width = @.plot.width - 2 * @.legend_padding
+        if @legend_width == 'auto'
+          if @panel?
+            width = @plot.width - 2 * @legend_padding
           else
-            width = _.max([@.color_mapper.palette.length * SHORT_DIM,
-                           @.plot.width * LONG_DIM_MIN_SCALAR])
+            width = _.max([@color_mapper.palette.length * SHORT_DIM,
+                           @plot.width * LONG_DIM_MIN_SCALAR])
             width = _.min([width,
-                           @.plot.width * LONG_DIM_MAX_SCALAR - 2 * @.legend_padding])
+                           @plot.width * LONG_DIM_MAX_SCALAR - 2 * @legend_padding])
         else
-          width = @.legend_width
+          width = @legend_width
 
     return {"height": height, "width": width}
 
