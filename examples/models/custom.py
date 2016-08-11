@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from bokeh.core.properties import String
+from bokeh.core.properties import String, Int, Color
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
@@ -9,57 +9,69 @@ from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanToo
 from bokeh.models.layouts import Row
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
+from bokeh.util.compiling import CoffeeScript
 
 class Popup(Callback):
 
-    __implementation__ = """
-_ = require "underscore"
-Util = require "util/util"
-Model = require "model"
-p = require "core/properties"
-
-class Popup extends Model
-  type: "Popup"
-
-  execute: (data_source) ->
-    for i in Util.get_indices(data_source)
-      message = Util.replace_placeholders(@get("message"), data_source, i)
-      window.alert(message)
-    null
-
-  @define {
-    message: [ p.String, "" ]
-  }
-
-module.exports =
-  Model: Popup
-"""
+    __implementation__ = "popup.coffee"
 
     message = String("", help="""
     Message to display in a popup window. This can be a template string,
     which will be formatted with data from the data source.
     """)
 
-
 class MyRow(Row):
 
     __implementation__ = """
 Row = require "models/layouts/row"
+p = require "core/properties"
+require "./custom"
 
 class MyRowView extends Row.View
   render: () ->
     super()
-    @$el.css({border: "5px solid black"})
+    @$el.addClass("bk-my-row")
+    @$el.css({
+      borderWidth: "#{@model.border_width}px"
+      borderColor: "#{@model.border_color}"
+    })
 
 class MyRow extends Row.Model
   type: "MyRow"
   default_view: MyRowView
+
+  @define {
+    border_width: [ p.Number, 3 ]
+    border_color: [ p.Color, "black" ]
+  }
 
 module.exports = {
   Model: MyRow
   View: MyRowView
 }
 """
+
+    border_width = Int(3)
+    border_color = Color("black")
+
+class MyRow2(MyRow):
+
+    __implementation__ = CoffeeScript("""
+MyRow = require "custom/my_row"
+
+class MyRow2View extends MyRow.View
+  render: () ->
+    super()
+
+class MyRow2 extends MyRow.Model
+  type: "MyRow2"
+  default_view: MyRow2View
+
+module.exports = {
+  Model: MyRow2
+  View: MyRow2View
+}
+""")
 
 source = ColumnDataSource(
     data = dict(
@@ -84,7 +96,7 @@ tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected colo
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add_root(MyRow(children=[plot]))
+doc.add_root(MyRow2(children=[plot]))
 
 if __name__ == "__main__":
     filename = "custom.html"

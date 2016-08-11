@@ -64,7 +64,9 @@
     "jsdom": "^5.6.1",
     "websocket":"^1.0.22",
     "typings": "^0.7.9",
-    "typings-core": "^0.2.11"
+    "typings-core": "^0.2.11",
+    "detective": "^4.3.1",
+    "jslint": "^0.10.3"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",

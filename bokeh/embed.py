@@ -173,22 +173,6 @@ def _use_widgets(objs):
     else:
         return False
 
-def _use_compiler(objs):
-    from .models.callbacks import CustomJS
-
-    def _needs_compiler(obj):
-        return hasattr(obj, "__implementation__") or (isinstance(obj, CustomJS) and obj.lang == "coffeescript")
-
-    for obj in objs:
-        if isinstance(obj, Document):
-            if _use_compiler(obj.roots):
-                return True
-        else:
-            if any(_needs_compiler(ref) for ref in obj.references()):
-                return True
-    else:
-        return False
-
 def _bundle_for_objs_and_resources(objs, resources):
     if isinstance(resources, BaseResources):
         js_resources = css_resources = resources
@@ -207,14 +191,11 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets =  _use_widgets(objs) if objs else True
-    use_compiler = _use_compiler(objs) if objs else True
 
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.components:
             js_resources.components.remove("bokeh-widgets")
-        if not use_compiler and "bokeh-compiler" in js_resources.components:
-            js_resources.components.remove("bokeh-compiler")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None
@@ -223,8 +204,6 @@ def _bundle_for_objs_and_resources(objs, resources):
         css_resources = deepcopy(css_resources)
         if not use_widgets and "bokeh-widgets" in css_resources.components:
             css_resources.components.remove("bokeh-widgets")
-        if not use_compiler and "bokeh-compiler" in css_resources.components:
-            css_resources.components.remove("bokeh-compiler")
         bokeh_css = css_resources.render_css()
     else:
         bokeh_css = None

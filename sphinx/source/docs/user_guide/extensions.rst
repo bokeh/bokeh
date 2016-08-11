@@ -162,7 +162,7 @@ then the complete Python class might look like:
 
     class Custom(LayoutDOM):
 
-        __implementation__ = open("custom.coffee").read()
+        __implementation__ = "custom.coffee"
 
         text = String(default="Custom text")
 

@@ -27,14 +27,14 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
-customjs = CustomJS(args=dict(source=source), lang="coffeescript", code="""
+customjs = CustomJS(args=dict(source=source), code=CoffeeScript("""
   Util = require "util/util"
   data = source.get('data')
 
   for i in Util.get_indices(source)
     color = data['color'][i]
     window.alert("Selected color: #{color}")
-""")
+"""))
 
 tap = TapTool(renderers=[circle_renderer], callback=customjs)
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
