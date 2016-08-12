@@ -31,7 +31,7 @@ def create_horizontal_color_bar_with_linear_cmap(height='auto', width='auto'):
                          legend_width=width)
     return color_bar
 
-# @pytest.mark.screenshot
+@pytest.mark.screenshot
 def test_color_bar_placement_and_render(output_file_url, selenium, screenshot):
     plot = Plot(height=HEIGHT, width=WIDTH,
                 x_range=Range1d(0,10), y_range=Range1d(0,10),
