@@ -66,14 +66,26 @@ class APICrawler(object):
         files_dict = self.get_files_dict(files)
         return files_dict
 
-    def diff_modules(self, former, latter):
+    def diff_operation(self, a, b):
+        # Returns items removed
+        return list(a - b)
+
+    def combinaton_diff_operation(self, a, b):
+        # Returns items added
+        return list((a ^ b) - a)
+
+    def diff_modules(self, former, latter, added=False):
+        if added:
+            operation = self.combinaton_diff_operation
+        else:
+            operation = self.diff_operation
+
         combined = copy.deepcopy(former)
         combined.update(latter)
-
         diff = {}
-        union = {}
-        files_union = set(former) & set(latter)
-        files_diff = set(former) - set(latter)
+        intersection = {}
+        files_intersection = set(former) & set(latter)
+        files_diff = operation(set(former), set(latter))
 
         # Diff files
         for x in combined.keys():
@@ -81,17 +93,17 @@ class APICrawler(object):
                 diff[x] = combined[x]
                 diff[x] = {}
             else:
-                union[x] = combined[x]
+                intersection[x] = combined[x]
 
         # Diff functions and classes
-        for x in union.keys():
+        for x in intersection.keys():
             former_items = former.get(x)
             latter_items = latter.get(x)
             if former_items and latter_items:
-                function_diff = set(former_items["functions"]) - set(latter_items["functions"])
-                class_diff = set(list(former_items["classes"].keys())) - set(list(latter_items["classes"].keys()))
+                function_diff = operation(set(former_items["functions"]), set(latter_items["functions"]))
+                class_diff = operation(set(list(former_items["classes"].keys())), set(list(latter_items["classes"].keys())))
                 if function_diff or list(class_diff):
-                    diff[x]= copy.deepcopy(union[x])
+                    diff[x]= copy.deepcopy(intersection[x])
                     if list(class_diff):
                         diff_dict = {y: {} for y in class_diff}
                         diff[x]["classes"] = diff_dict
@@ -104,20 +116,21 @@ class APICrawler(object):
                         diff[x]["functions"] = []
 
         # Diff methods
-        for x in union.keys():
+        for x in intersection.keys():
             former_classes = former[x].get("classes") if former.get(x) else {}
             latter_classes = latter[x].get("classes") if latter.get(x) else {}
             if former_classes and latter_classes:
-                for y in union[x]["classes"]:
+                for y in intersection[x]["classes"]:
                     # Prevent NoneType errors by returning empty dict.
                     former_methods = former[x]["classes"].get(y, {})
                     latter_methods = latter[x]["classes"].get(y, {})
                     if former_methods.get("methods") and latter_methods.get("methods"):
-                        methods_diff = list(set(list(former_methods.values())[0]) - set(list(latter_methods.values())[0]))
+                        former_values = set(list(former_methods.values())[0])
+                        latter_values = set(list(latter_methods.values())[0])
+                        methods_diff = operation(former_values, latter_values)
                         if methods_diff:
-                            diff[x]["classes"].update(union[x]["classes"])
+                            diff[x]["classes"][y] = copy.deepcopy(intersection[x]["classes"][y])
                             diff[x]["classes"][y]["methods"] = methods_diff
-
         return diff
 
     def parse_diff(self, diff, added=False):

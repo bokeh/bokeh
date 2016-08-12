@@ -30,7 +30,7 @@ old_version = {
             "Radiohead": {
                 "methods": ["thom", "jonny", "colin", "ed", "phil"]
             },
-            "Apple": {
+            "Beatles": {
                 "methods": ["Here Comes the Sun"]
             }
         },
@@ -43,7 +43,8 @@ new_version = {
         "classes": {
             "Radiohead": {
                 "methods": ["thom", "colin", "ed", "phil"]
-            }
+            },
+            "Pixies": {"methods": ["debaser"]}
         },
         "functions": ["john", "paul", "george"]
     }
@@ -56,9 +57,18 @@ expected_diff = {
             "Radiohead": {
                 "methods": ["jonny"]
             },
-            "Apple": {}
+            "Beatles": {}
         },
         "functions": ["ringo"]
+    }
+}
+
+expected_additions = {
+    'bands': {
+        'classes': {
+            'Pixies': {}
+        },
+        'functions': ['george']
     }
 }
 
@@ -67,8 +77,8 @@ class TestApiCrawler(object):
     crawler = api_crawler("./")
 
     def test_get_crawl_dict(self):
-        self.crawl_dict = self.crawler.get_crawl_dict()
-        assert self.crawl_dict
+        crawl_dict = self.crawler.get_crawl_dict()
+        assert crawl_dict
 
     def test_name_is_public(self):
         filename = "_apple"
@@ -105,5 +115,16 @@ class TestApiCrawler(object):
         assert "SampleClass" in classes
 
     def test_accurate_diff(self):
-        diff_dict = self.crawler.diff_modules(old_version, new_version)
-        assert diff_dict == expected_diff
+        raw_diff = self.crawler.diff_modules(old_version, new_version)
+        assert raw_diff == expected_diff
+
+    def test_diff_added(self):
+        raw_diff = self.crawler.diff_modules(old_version, new_version, added=True)
+        assert raw_diff == expected_additions
+
+    def test_diff_parsing(self):
+        raw_diff = self.crawler.diff_modules(old_version, new_version)
+        raw_diff = self.crawler.parse_diff(raw_diff)
+        expected_parsed = ['DELETED models', 'DELETED bands.Radiohead.jonny', 'DELETED bands.Apple', 'DELETED bands.ringo', 'DELETED bands.Beatles']
+        for x in raw_diff:
+            assert x in expected_parsed
