@@ -35,16 +35,17 @@ class HitTestResult
       indices: []
     }
     # 2d for all for multilines and multi patches
-    @['2d'] = {indices: []}
+    @['2d'] = {
+      # mapping of indices of the multiglyph to array of glyph indices that were hit
+      # e.g. {3: [5, 6], 4, [5]}
+    }
 
   Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
   Object.defineProperty(this.prototype, '_1d', { get: () -> @['1d'] })
   Object.defineProperty(this.prototype, '_2d', { get: () -> @['2d'] })
 
   is_empty: () ->
-    @_0d.indices.length == 0 &&
-    @_1d.indices.length == 0 &&
-    @_2d.indices.length == 0
+    @_0d.indices.length == 0 && @_1d.indices.length == 0
 
 create_hit_test_result = () -> new HitTestResult()
 

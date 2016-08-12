@@ -10,6 +10,12 @@ class FunctionHandler(Handler):
         super(FunctionHandler, self).__init__()
         _check_callback(func, ('doc',))
         self._func = func
+        self._safe_to_fork = True
 
     def modify_document(self, doc):
         self._func(doc)
+        self._safe_to_fork = False
+
+    @property
+    def safe_to_fork(self):
+        return self._safe_to_fork
