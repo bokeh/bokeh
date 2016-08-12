@@ -290,7 +290,7 @@ class BaseResources(object):
                 external_resources.extend(external)
 
         # Return only unique external resources
-        return list(set(external_resources))
+        return list(external_resources)
 
 
     def _cdn_urls(self):
