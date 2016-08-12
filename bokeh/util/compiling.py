@@ -60,6 +60,12 @@ _style_template = \
 }());
 """
 
+_export_template = \
+"""%(name)s: require("%(module)s")"""
+
+_module_template = \
+""""%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""
+
 class AttrDict(dict):
     def __getattr__(self, key):
         return self[key]
@@ -212,13 +218,9 @@ def gen_custom_models_static():
 
     extra_modules = {}
 
-    def add_module(name, code, deps):
-        template = '"%s": [function(require, module, exports) {\n%s\n}, %s]'
-        modules.append(template % (name, code, json.dumps(deps)))
-
-    def resolve_modules(modules, root):
+    def resolve_modules(to_resolve, root):
         resolved = {}
-        for module in modules:
+        for module in to_resolve:
             if module.startswith(("./", "../")):
                 def mkpath(ext):
                     return abspath(join(root, *module.split("/")) + "." + ext)
@@ -250,7 +252,7 @@ def gen_custom_models_static():
 
                 if sig not in extra_modules:
                     extra_modules[sig] = True
-                    add_module(sig, code, deps_map)
+                    modules.append((sig, code, deps_map))
             else:
                 raise RuntimeError("no such module: %s" % module)
 
@@ -265,10 +267,16 @@ def gen_custom_models_static():
         compiled = custom_impls[model.full_name]
         deps_map = resolve_deps(compiled.deps, model.path)
 
-        exports.append('%s: require("%s")' % (model.name, model.module))
-        add_module(model.module, compiled.code, deps_map)
+        exports.append((model.name, model.module))
+        modules.append((model.module, compiled.code, deps_map))
 
-    exports = ",\n".join(exports)
-    modules = ",\n".join(modules)
+    # sort everything by module name
+    exports = sorted(exports, key=lambda spec: spec[1])
+    modules = sorted(modules, key=lambda spec: spec[0])
+
+    sep = ",\n"
+
+    exports = sep.join([ _export_template % dict(name=name, module=module) for (name, module) in exports ])
+    modules = sep.join([ _module_template % dict(module=module, code=code, deps=json.dumps(deps)) for (module, code, deps) in modules ])
 
     return _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
