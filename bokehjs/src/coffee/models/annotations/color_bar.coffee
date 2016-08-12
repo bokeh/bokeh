@@ -330,11 +330,10 @@ class ColorBar extends Annotation.Model
     super(attrs, options)
 
     @define_computed_property('computed_image_dimensions', @_computed_image_dimensions, false)
-    # @add_dependencies('computed_image_dimensions', this, ['legend_width', 'legend_height', 'orientation', 'title_extent'])
-    # @add_dependencies('computed_image_dimensions', @get('plot'), ['height', 'width'])
+    # @add_dependencies('computed_image_dimensions', this, ['orientation', 'legend_height', 'title_extent', 'legend_width', 'color_mapper'])
 
     @define_computed_property('tick_coordinates', @_tick_coordinates, false)
-    @add_dependencies('tick_coordinates', this, ['tick_coordinate_mapper', 'normals'])
+    # @add_dependencies('tick_coordinates', this, ['computed_image_dimensions', 'orientation', 'color_mapper', 'normals', 'ticker'])
 
     @define_computed_property('title_extent', @_title_extent, true)
     @add_dependencies('title_extent', this, ['title_text_font', 'title_text_font_size', 'title_text_font_style', 'title', 'title_standoff'])
