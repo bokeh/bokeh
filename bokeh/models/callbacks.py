@@ -51,6 +51,7 @@ class CustomJS(Callback):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
+        """ Create a ``CustomJS`` instance from CoffeeScript code. """
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
@@ -70,4 +71,7 @@ class CustomJS(Callback):
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the HoverTool).
+
+    .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
+
     """)
