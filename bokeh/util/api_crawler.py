@@ -66,8 +66,7 @@ class APICrawler(object):
         files_dict = self.get_files_dict(files)
         return files_dict
 
-    @staticmethod
-    def diff_modules(former, latter):
+    def diff_modules(self, former, latter):
         combined = copy.deepcopy(former)
         combined.update(latter)
 
@@ -116,13 +115,12 @@ class APICrawler(object):
                     if former_methods.get("methods") and latter_methods.get("methods"):
                         methods_diff = list(set(list(former_methods.values())[0]) - set(list(latter_methods.values())[0]))
                         if methods_diff:
-                            diff[x] = union[x]
+                            diff[x]["classes"].update(union[x]["classes"])
                             diff[x]["classes"][y]["methods"] = methods_diff
 
         return diff
 
-    @staticmethod
-    def parse_diff(diff, added=False):
+    def parse_diff(self, diff, added=False):
         parsed_diff = []
         if added:
             method = "ADDED"
