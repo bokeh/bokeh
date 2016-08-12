@@ -399,13 +399,13 @@ describe "PlotCanvas.View dimensions", ->
     @plot_canvas.attach_document(@doc)
     @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
 
-  it.skip "reset_dimensions should call document resize", ->
+  it "reset_dimensions should call document resize", ->
     spy = sinon.spy(@doc, 'resize')
     expect(spy.callCount).to.be.equal 0
     @plot_canvas_view.reset_dimensions()
     expect(spy.callCount).to.be.equal 1
 
-  it.skip "reset_dimensions should set plot width and height to initial width and height", ->
+  it "reset_dimensions should set plot width and height to initial width and height", ->
     # Explicitly set to 1 to make sure they're being set
     @plot_canvas.plot.width = 1
     @plot_canvas.plot.height = 1
@@ -413,13 +413,13 @@ describe "PlotCanvas.View dimensions", ->
     expect(@plot_canvas.plot.width).to.be.equal 444 # Comes from plot_width
     expect(@plot_canvas.plot.height).to.be.equal 555
 
-  it.skip "update_dimensions should call document resize", ->
+  it "update_dimensions should call document resize", ->
     spy = sinon.spy(@doc, 'resize')
     expect(spy.callCount).to.be.equal 0
     @plot_canvas_view.update_dimensions(1, 2)
     expect(spy.callCount).to.be.equal 1
 
-  it.skip "update_dimensions should set plot width and height to requested width and height", ->
+  it "update_dimensions should set plot width and height to requested width and height", ->
     @plot_canvas_view.update_dimensions(22, 33)
     expect(@plot_canvas.plot.width).to.be.equal 22
     expect(@plot_canvas.plot.height).to.be.equal 33
