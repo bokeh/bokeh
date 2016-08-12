@@ -1,9 +1,11 @@
 from __future__ import  absolute_import
 
 from bokeh.models.annotations import (
-    Legend, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
+    Legend, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
-from bokeh.models import ColumnDataSource, ArrowHead
+from bokeh.models import (
+    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter
+)
 
 from .utils.property_utils import (
     FILL, LINE, TEXT, ANGLE, prefix,
@@ -44,6 +46,61 @@ def test_Legend():
         prefix('label_', TEXT),
         prefix('border_', LINE),
         prefix('background_', FILL))
+
+def test_ColorBar():
+    color_bar = ColorBar()
+    assert color_bar.plot is None
+    assert color_bar.location == 'top_right'
+    assert color_bar.orientation == 'vertical'
+    assert color_bar.legend_height == 'auto'
+    assert color_bar.legend_width == 'auto'
+    assert color_bar.title is None
+    assert color_bar.title_standoff == 2
+    assert isinstance(color_bar.ticker, BasicTicker)
+    assert isinstance(color_bar.formatter, BasicTickFormatter)
+    assert color_bar.color_mapper is None
+    assert color_bar.legend_margin == 30
+    assert color_bar.legend_padding == 10
+    assert color_bar.label_standoff == 5
+    assert color_bar.major_tick_in == 2
+    assert color_bar.major_tick_out == 6
+    assert color_bar.minor_tick_in == 0
+    assert color_bar.minor_tick_out == 4
+    yield check_text_properties, color_bar, "title_"
+    yield check_text_properties, color_bar, "major_label_", "8pt", "middle", "normal", "center"
+    yield check_line_properties, color_bar, "major_tick_"
+    yield check_line_properties, color_bar, "minor_tick_"
+    yield check_line_properties, color_bar, "scale_"
+    yield check_line_properties, color_bar, "border_", "#e5e5e5", 1.0, 0.5
+    yield check_fill_properties, color_bar, "background_", "#ffffff", 0.95
+    yield (check_properties_existence, color_bar, [
+        "plot",
+        "level",
+        "visible",
+        "location",
+        "orientation",
+        "legend_height",
+        "legend_width",
+        "title",
+        "title_standoff",
+        "ticker",
+        "formatter",
+        "color_mapper",
+        "legend_margin",
+        "legend_padding",
+        "label_standoff",
+        "major_tick_in",
+        "major_tick_out",
+        "minor_tick_in",
+        "minor_tick_out"],
+        prefix('title_', TEXT),
+        prefix('major_label_', TEXT),
+        prefix('major_tick_', LINE),
+        prefix('minor_tick_', LINE),
+        prefix('scale_', LINE),
+        prefix('border_', LINE),
+        prefix('background_', FILL)
+    )
 
 def test_Arrow():
     arrow = Arrow()

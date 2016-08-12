@@ -1,6 +1,6 @@
 from itertools import chain
 
-from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap, TextAlign
+from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap
 
 # enums
 FILL = ["fill_color", "fill_alpha"]
@@ -37,13 +37,13 @@ def check_line_properties(model, prefix="", line_color=Color.black, line_width=1
     assert getattr(model, prefix + "line_dash") == []
     assert getattr(model, prefix + "line_dash_offset") == 0
 
-def check_text_properties(model, prefix="", font_size='12pt', baseline='bottom', font_style='normal'):
+def check_text_properties(model, prefix="", font_size='12pt', baseline='bottom', font_style='normal', align="left"):
     assert getattr(model, prefix + "text_font") == "helvetica"
     assert getattr(model, prefix + "text_font_size") == {"value": font_size}
     assert getattr(model, prefix + "text_font_style") == font_style
     assert getattr(model, prefix + "text_color") == "#444444"
     assert getattr(model, prefix + "text_alpha") == 1.0
-    assert getattr(model, prefix + "text_align") == TextAlign.left
+    assert getattr(model, prefix + "text_align") == align
     assert getattr(model, prefix + "text_baseline") == baseline
 
 def check_marker_properties(marker):
