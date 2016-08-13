@@ -1,5 +1,5 @@
 ActionTool = require "./action_tool"
-ZoomToolUtil = require "../zoom_util"
+ZoomUtil = require "../../../util/zoom"
 {logger} = require "../../../core/logging"
 
 p = require "../../../core/properties"
@@ -16,7 +16,7 @@ class ZoomInToolView extends ActionTool.View
     if dims.indexOf('height') == -1
       h_axis_only = true
 
-    zoom_info = ZoomToolUtil.scale_range({
+    zoom_info = ZoomUtil.scale_range({
       frame: frame
       factor: @model.factor
       v_axis_only: v_axis_only

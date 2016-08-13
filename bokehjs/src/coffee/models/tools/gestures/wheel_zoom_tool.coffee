@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 GestureTool = require "./gesture_tool"
+ZoomUtil = require "../../../util/zoom"
 p = require "../../../core/properties"
 
 # Here for testing purposes
@@ -53,7 +54,7 @@ class WheelZoomToolView extends GestureTool.View
 
     factor  = @mget('speed') * delta
 
-    zoom_info = ZoomToolUtil.scale_range({
+    zoom_info = ZoomUtil.scale_range({
       frame: frame
       factor: factor
       center: [vx, vy]
