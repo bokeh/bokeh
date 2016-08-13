@@ -1,16 +1,12 @@
-scale_range = (args) ->
+scale_range = ({frame, factor, center, h_axis_only = false, v_axis_only = false}) ->
   # Util for Tools to Scale ranges of a frame for use by PlotCanvasView.update_range()
   #
-  # args passed as an object:
-  # * args.frame
-  # * args.factor      - scaling factor (clamped: -0.9 < args.factor < 0.9)
-  # * args.center      - center point for scaling
-  # * args.v_axis_only - if true only scale the vertical axis
-  # * args.h_axis_only - if true only scale the horizontal axis
-  frame = args.frame
-  factor = args.factor
-  v_axis_only = args?.v_axis_only ? false
-  h_axis_only = args?.h_axis_only ? false
+  # Parameters:
+  # * frame
+  # * factor      - scaling factor (clamped: -0.9 < args.factor < 0.9)
+  # * center      - center point for scaling
+  # * v_axis_only - if true only scale the vertical axis
+  # * h_axis_only - if true only scale the horizontal axis
 
   # TODO (tsnyder) should we assert or thow if v_axis_only && h_axis_only?
 
@@ -36,10 +32,10 @@ scale_range = (args) ->
   }
 
 
-  # if args.center or either dimension args.center.x,y
+  # if center or either dimension center.x,y
   # isn't given, use the frame_center
-  vx = args?.center?.x ? frame_center.x
-  vy = args?.center?.y ? frame_center.y
+  vx = center?.x ? frame_center.x
+  vy = center?.y ? frame_center.y
 
 
   if vx < vx_low or vx > vx_high
