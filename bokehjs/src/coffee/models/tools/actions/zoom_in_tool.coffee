@@ -18,7 +18,7 @@ class ZoomInToolView extends ActionTool.View
 
     zoom_info = ZoomToolUtil.scale_range({
       frame: frame
-      factor: 0.1
+      factor: @model.factor
       v_axis_only: v_axis_only
       h_axis_only: h_axis_only
     })
@@ -46,7 +46,7 @@ class ZoomInTool extends ActionTool.Model
     @add_dependencies('tooltip', this, ['dimensions'])
 
   @define {
-    # TODO add a factor attribute
+    factor: [ p.Percent, 0.1 ]
     dimensions: [ p.Array, ["width", "height"] ]
   }
 

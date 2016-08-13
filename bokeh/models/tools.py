@@ -23,8 +23,8 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..model import Model
-from ..core.properties import abstract, Float, Color
 from ..core.properties import (
+    abstract, Float, Color, Percent,
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
 from ..core.enums import Dimension, Location, Anchor
@@ -410,6 +410,10 @@ class ZoomInTool(Action):
     vertically across the height of the plot.
     """)
 
+    factor = Percent(default=0.1, help="""
+    Percentage to zoom for each click of the zoom-in tool.
+    """)
+
 class ZoomOutTool(Action):
     """ *toolbar icon*: |zoom_out_icon|
 
@@ -425,6 +429,10 @@ class ZoomOutTool(Action):
     default the zoom-out tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
+    """)
+
+    factor = Percent(default=0.1, help="""
+    Percentage to zoom for each click of the zoom-in tool.
     """)
 
 

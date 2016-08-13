@@ -18,7 +18,7 @@ class ZoomOutToolView extends ActionTool.View
 
     zoom_info = ZoomToolUtil.scale_range({
       frame: frame
-      factor: -0.1
+      factor: -@model.factor  # zooming out requires a negative factor to scale_range
       v_axis_only: v_axis_only
       h_axis_only: h_axis_only
     })
@@ -46,7 +46,7 @@ class ZoomOutTool extends ActionTool.Model
     @add_dependencies('tooltip', this, ['dimensions'])
 
   @define {
-    # TODO add a factor attribute
+    factor: [ p.Percent, 0.1 ]
     dimensions: [ p.Array, ["width", "height"] ]
   }
 
