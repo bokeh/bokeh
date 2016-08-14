@@ -8,8 +8,6 @@ scale_range = ({frame, factor, center, h_axis_only = false, v_axis_only = false}
   # * v_axis_only - if true only scale the vertical axis
   # * h_axis_only - if true only scale the horizontal axis
 
-  # TODO (tsnyder) should we assert or thow if v_axis_only && h_axis_only?
-
   hr = frame.get('h_range')
   vr = frame.get('v_range')
 
