@@ -115,16 +115,33 @@ class TestApiCrawler(object):
         assert "SampleClass" in classes
 
     def test_accurate_diff(self):
+        setattr(self.crawler, "added", False)
         raw_diff = self.crawler.diff_modules(old_version, new_version)
         assert raw_diff == expected_diff
 
     def test_diff_added(self):
-        raw_diff = self.crawler.diff_modules(old_version, new_version, added=True)
+        setattr(self.crawler, "added", True)
+        raw_diff = self.crawler.diff_modules(old_version, new_version)
         assert raw_diff == expected_additions
 
-    def test_diff_parsing(self):
+    def test_removed_parsing(self):
+        setattr(self.crawler, "added", False)
         raw_diff = self.crawler.diff_modules(old_version, new_version)
         raw_diff = self.crawler.parse_diff(raw_diff)
         expected_parsed = ['DELETED models', 'DELETED bands.Radiohead.jonny', 'DELETED bands.Apple', 'DELETED bands.ringo', 'DELETED bands.Beatles']
         for x in raw_diff:
             assert x in expected_parsed
+
+    def test_added_parsing(self):
+        setattr(self.crawler, "added", True)
+        raw_diff = self.crawler.diff_modules(old_version, new_version)
+        raw_diff = self.crawler.parse_diff(raw_diff)
+        expected_parsed = ['ADDED bands.george', 'ADDED bands.Pixies']
+        for x in raw_diff:
+            assert x in expected_parsed
+
+    def test_operators(self):
+        a = {"one", "two", "three", "four"}
+        b = {"one", "two", "three", "five"}
+        assert self.crawler.diff_operation(a, b) == ["four"]
+        assert self.crawler.combinaton_diff_operation(a, b) == ["five"]
