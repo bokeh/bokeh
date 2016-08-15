@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from types import FunctionType
 from ..model import Model
 from ..util.dependencies import import_required
-from ..util.compiling import nodejs_compile, CompilationError
+from ..util.compiler import nodejs_compile, CompilationError
 
 from ..core.properties import abstract
 from ..core.properties import Dict, Instance, String, Enum

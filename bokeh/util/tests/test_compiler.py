@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from bokeh.util.compiling import nodejs_compile
+from bokeh.util.compiler import nodejs_compile
 
 def test_nodejs_compile_coffeescript():
     assert nodejs_compile("""(a, b) -> a + b""", "coffeescript", "some.coffee") == \

@@ -28,7 +28,7 @@ from .settings import settings
 from .util.paths import bokehjsdir
 from .util.string import snakify
 from .util.session_id import generate_session_id
-from .util.compiling import gen_custom_models_static
+from .util.compiler import gen_custom_models_static
 from .model import Model
 
 DEFAULT_SERVER_HOST = "localhost"

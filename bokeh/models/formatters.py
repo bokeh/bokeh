@@ -14,7 +14,7 @@ from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
     Either, Instance)
 from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
 from ..util.dependencies import import_required
-from ..util.compiling import nodejs_compile, CompilationError
+from ..util.compiler import nodejs_compile, CompilationError
 
 @abstract
 class TickFormatter(Model):

@@ -9,7 +9,7 @@ from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanToo
 from bokeh.models.layouts import Row
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.util.compiling import CoffeeScript
+from bokeh.util.compiler import CoffeeScript
 
 class Popup(Callback):
 
