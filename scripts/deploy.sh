@@ -33,7 +33,7 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
 
     # version number updates
     python version_update.py $rtag $ptag
-    git add ../bokehjs/src/coffee/main.coffee
+    git add ../bokehjs/src/coffee/version.coffee
     git add ../bokehjs/package.json
     git add ../sphinx/source/conf.py
     git commit -m "Updating version to $rtag."
@@ -59,8 +59,18 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
     git tag -a $rtag -m "Release $rtag".
     git push origin $rtag
 
-elif [[ ! -z "$dtag" && -z "$ptag" && -z "$rtag" ]]; then
+elif [[ ! -z "$dtag" && ! -z "$ptag" && -z "$rtag" ]]; then
     echo "You have triggered the devel build process"
+
+    # create a new branch
+    git checkout -b devel_$dtag
+
+    # version number updates
+    python version_update.py $dtag $ptag
+    git add ../bokehjs/src/coffee/version.coffee
+    git add ../bokehjs/package.json
+    git add ../sphinx/source/conf.py
+    git commit -m "Updating version to $dtag."
 
     # check the tag
     taglist=`git tag --list --sort=version:refname`
@@ -71,15 +81,21 @@ elif [[ ! -z "$dtag" && -z "$ptag" && -z "$rtag" ]]; then
         exit 1
     fi
 
-    # tag it locally
-    git tag -a $dtag -m "New devel[rc] build $dtag."
+    # Merge branch into master and push to origin
+    git checkout master
+    git pull origin
+    git merge --no-ff devel_$dtag -m "Merge branch devel_$dtag"
+    git push origin master
+    git branch -d devel_$dtag
 
-    # and push the tag
+    # Tag the version locally.
+    git tag -a $dtag -m "New devel/rc build $dtag."
     git push origin $dtag
+
     echo "The new devel build was triggered."
 
 else
-    echo "You have to pass a -d tag (dev build) OR -p and -r tags (for releases)."
+    echo "You must pass a a -d tag and a -p tag OR a -r tag and -p tag."
     echo "Run ./deploy.sh -h to get some more help with the args to pass."
     exit 0
 fi

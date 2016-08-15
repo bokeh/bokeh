@@ -27,7 +27,7 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
-customjs = CustomJS(args=dict(source=source), lang="coffeescript", code="""
+customjs = CustomJS.from_coffeescript(args=dict(source=source), code="""
   Util = require "util/util"
   data = source.get('data')
 

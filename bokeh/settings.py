@@ -168,7 +168,7 @@ class Settings(object):
         Bokeh source tree.
 
         '''
-        if self.debugjs:
+        if self._is_dev or self.debugjs:
             bokehjssrcdir = abspath(join(ROOT_DIR, '..', 'bokehjs', 'src'))
 
             if isdir(bokehjssrcdir):
@@ -180,7 +180,7 @@ class Settings(object):
         '''
 
         '''
-        return bokehjsdir(self.debugjs)
+        return bokehjsdir(self._is_dev or self.debugjs)
 
     def js_files(self):
         ''' The JS files in the BokehJS directory.

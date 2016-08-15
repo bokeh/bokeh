@@ -15,7 +15,6 @@ def test_functickformatter_from_py_func_no_args():
     function_wrapper = formatter.code.replace(js_code, '')
 
     assert function_wrapper == "function (seconds) {return formatter(seconds)};"
-    assert formatter.lang == "javascript"
 
 def test_functickformatter_from_py_func_with_args():
 
@@ -31,7 +30,6 @@ def test_functickformatter_from_py_func_with_args():
 
     assert function_wrapper == "function (seconds) {return formatter(seconds, x)};"
     assert formatter.args['x'] is slider
-    assert formatter.lang == "javascript"
 
 def test_functickformatter_bad_pyfunc_formats():
     def missing_positional_arg():

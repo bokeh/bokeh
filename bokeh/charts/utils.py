@@ -343,7 +343,7 @@ def derive_aggregation(dim_cols, agg_col, agg):
     to charts, such as not specifying dimensions to aggregate on, not specifying an
     aggregation, and/or not specifying a column to aggregate on.
     """
-    if dim_cols == 'index' or agg_col == 'index' or dim_cols == None:
+    if dim_cols == 'index' or agg_col == 'index' or dim_cols is None:
         agg = None
         agg_col = None
     elif agg_col is None:
