@@ -16,10 +16,26 @@ class APICrawler(object):
 
 
     # Point the crawler at this directory.
-    def __init__(self, directory, added=False):
+    def __init__(self, directory, additions=False):
         self.directory = directory
-        self.added = added
-        self._operation = None
+        self._additions = additions
+        if additions:
+            self._operation = self.combinaton_diff_operation
+        else:
+            self._operation = self.diff_operation
+
+    @property
+    def additions(self):
+        return self._additions
+
+    @additions.setter
+    def additions(self, value):
+        # If measuring additions instead of deletions, automatically change operator.
+        self._additions = value
+        if value:
+            self._operation = self.combinaton_diff_operation
+        else:
+            self._operation = self.diff_operation
 
     def is_public(self, name):
         # Determines whether a given function or class is public or private. Names
@@ -101,7 +117,7 @@ class APICrawler(object):
 
     def combinaton_diff_operation(self, a, b):
         # Use a combination of symmetric_difference and difference to return a list
-        # of items added through the crawl. Allows you to get added items instead of
+        # of items additions through the crawl. Allows you to get additions items instead of
         # removed items. Would produce the same result if you switched the
         # positions of the former and latter versions. Much more natural and
         # easy control using the different set operators.
@@ -149,6 +165,7 @@ class APICrawler(object):
                         diff[x]["functions"] = list(function_diff)
                     else:
                         diff[x]["functions"] = []
+        return diff
 
     def diff_methods(self, diff, intersection, former, latter):
         for x in intersection.keys():
@@ -166,13 +183,9 @@ class APICrawler(object):
                         if methods_diff:
                             diff[x]["classes"][y] = copy.deepcopy(intersection[x]["classes"][y])
                             diff[x]["classes"][y]["methods"] = methods_diff
+        return diff
 
     def diff_modules(self, former, latter):
-        if self.added:
-            setattr(self, "_operation", self.combinaton_diff_operation)
-        else:
-            setattr(self, "_operation", self.diff_operation)
-
         intersection, diff = self.diff_files(former, latter)
         self.diff_functions_classes(diff, intersection, former, latter)
         self.diff_methods(diff, intersection, former, latter)
@@ -181,7 +194,7 @@ class APICrawler(object):
 
     def parse_diff(self, diff):
         parsed_diff = []
-        if self.added:
+        if self.additions:
             method = "ADDED"
         else:
             method = "DELETED"
@@ -205,9 +218,7 @@ class APICrawler(object):
                 parsed_diff.insert(0, formatted_string)
         return parsed_diff
 
-    def get_diff(self, added=False):
-        if added:
-            setattr(self, "added", True)
+    def get_diff(self):
         potato = self.get_crawl_dict()
         potato = self.parse_diff(potato)
         return potato

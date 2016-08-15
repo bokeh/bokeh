@@ -115,25 +115,25 @@ class TestApiCrawler(object):
         assert "SampleClass" in classes
 
     def test_accurate_diff(self):
-        setattr(self.crawler, "added", False)
+        self.crawler.additions = False
         raw_diff = self.crawler.diff_modules(old_version, new_version)
         assert raw_diff == expected_diff
 
-    def test_diff_added(self):
-        setattr(self.crawler, "added", True)
+    def test_diff_additions(self):
+        self.crawler.additions = True
         raw_diff = self.crawler.diff_modules(old_version, new_version)
         assert raw_diff == expected_additions
 
     def test_removed_parsing(self):
-        setattr(self.crawler, "added", False)
+        self.crawler.additions = False
         raw_diff = self.crawler.diff_modules(old_version, new_version)
         raw_diff = self.crawler.parse_diff(raw_diff)
         expected_parsed = ['DELETED models', 'DELETED bands.Radiohead.jonny', 'DELETED bands.Apple', 'DELETED bands.ringo', 'DELETED bands.Beatles']
         for x in raw_diff:
             assert x in expected_parsed
 
-    def test_added_parsing(self):
-        setattr(self.crawler, "added", True)
+    def test_additions_parsing(self):
+        self.crawler.additions = True
         raw_diff = self.crawler.diff_modules(old_version, new_version)
         raw_diff = self.crawler.parse_diff(raw_diff)
         expected_parsed = ['ADDED bands.george', 'ADDED bands.Pixies']
@@ -145,3 +145,34 @@ class TestApiCrawler(object):
         b = {"one", "two", "three", "five"}
         assert self.crawler.diff_operation(a, b) == ["four"]
         assert self.crawler.combinaton_diff_operation(a, b) == ["five"]
+
+    def test_diff_files(self):
+        self.crawler.additions = False
+        intersection, diff = self.crawler.diff_files(old_version, new_version)
+        assert diff.keys() == ["models"]
+        assert intersection.keys() == ["bands"]
+        self.crawler.additions = True
+        intersection, diff = self.crawler.diff_files(old_version, new_version)
+        assert diff.keys() == []
+        for x in intersection.keys():
+            assert x in ["models", "bands"]
+
+    def test_diff_classes_functions(self):
+        self.crawler.additions = False
+        intersection, diff = self.crawler.diff_files(old_version, new_version)
+        diff = self.crawler.diff_functions_classes(diff, intersection, old_version, new_version)
+        assert diff["bands"]["functions"] == ["ringo"]
+        for x in diff["bands"]["classes"].keys():
+            assert x in expected_diff["bands"]["classes"].keys()
+        self.crawler.additions = True
+        intersection, diff = self.crawler.diff_files(old_version, new_version)
+        diff = self.crawler.diff_functions_classes(diff, intersection, old_version, new_version)
+        assert diff["bands"]["functions"] == ["george"]
+        assert diff["bands"]["classes"].keys() == ["Pixies"]
+
+    def test_diff_methods(self):
+        self.crawler.additions = False
+        intersection, diff = self.crawler.diff_files(old_version, new_version)
+        diff = self.crawler.diff_functions_classes(diff, intersection, old_version, new_version)
+        diff = self.crawler.diff_methods(diff, intersection, old_version, new_version)
+        assert diff["bands"]["classes"]["Radiohead"]["methods"] == ["jonny"]
