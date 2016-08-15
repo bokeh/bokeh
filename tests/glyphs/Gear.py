@@ -2,10 +2,9 @@ from __future__ import print_function
 
 from math import pi
 
-from bokeh.document import Document
 from bokeh.models import ColumnDataSource, Range1d, Plot
 from bokeh.models.glyphs import Gear
-from bokeh.plotting import show
+from bokeh.io import curdoc, show
 
 def pitch_radius(module, teeth):
     return float(module*teeth)/2
@@ -56,7 +55,6 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
 
     return plot
 
-doc = Document()
 
 epicyclic = epicyclic_gear(5, 24, 12)
 
