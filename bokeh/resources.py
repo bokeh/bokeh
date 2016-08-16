@@ -285,9 +285,12 @@ class BaseResources(object):
             external = getattr(cls, resource_attr, None)
 
             if isinstance(external, string_types):
-                external_resources.append(external)
+                if external not in external_resources:
+                    external_resources.append(external)
             elif isinstance(external, list):
-                external_resources.extend(external)
+                for e in external:
+                    if e not in external_resources:
+                        external_resources.append(e)
 
         return external_resources
 

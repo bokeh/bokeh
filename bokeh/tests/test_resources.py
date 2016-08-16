@@ -237,6 +237,10 @@ def test_external_js_and_css_resource_embedding():
         __javascript__ = ["external_js_2", "external_js_3"]
         __css__ = ["external_css_2", "external_css_3"]
 
+    class CustomModel3(Model):
+        __javascript__ = ["external_js_1", "external_js_3"]
+        __css__ = ["external_css_1", "external_css_2"]
+
     r = resources.Resources()
 
     assert "external_js_1" in r.js_files
@@ -250,3 +254,11 @@ def test_external_js_and_css_resource_embedding():
     # Ordering of resources is important
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
+
+    # Deduplication should keep the first instance of every file
+    assert r.css_files.count("external_css_1") == 1
+    assert r.css_files.count("external_css_2") == 1
+    assert r.js_files.count("external_js_3") == 1
+    assert r.js_files.count("external_js_1") == 1
+    assert r.css_files.index("external_css_1") > r.css_files.index("external_css_2")
+    assert r.js_files.index("external_js_1") > r.js_files.index("external_js_3")
