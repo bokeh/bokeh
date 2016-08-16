@@ -186,6 +186,9 @@ class Differ(object):
                         latter_values = set(list(latter_methods.values())[0])
                         methods_diff = self._operation(former_values, latter_values)
                         if methods_diff:
+                            if not diff.get(x):
+                                diff[x] = {}
+                                diff[x]["classes"] = {}
                             diff[x]["classes"][y] = copy.deepcopy(intersection[x]["classes"][y])
                             diff[x]["classes"][y]["methods"] = methods_diff
         return diff

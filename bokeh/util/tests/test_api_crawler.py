@@ -23,6 +23,49 @@ def sample_function(self):
     pass
 """
 
+
+class TestApiCrawler(object):
+    crawler = api_crawler("./")
+
+    def test_get_crawl_dict(self):
+        crawl_dict = self.crawler.get_crawl_dict()
+        assert crawl_dict
+
+    def test_name_is_public(self):
+        filename = "_apple"
+        assert not self.crawler.is_public(filename)
+        filename = "__init__"
+        assert self.crawler.is_public(filename)
+        filename = "apple"
+        assert self.crawler.is_public(filename)
+
+    def test_filename_is_public(self):
+        # Should not crawl __init__.py files
+        filename = "__init__.py"
+        assert not self.crawler.is_public(filename)
+
+        filename = "_apple.py"
+        assert not self.crawler.is_public(filename)
+        filename = "apple.py"
+        assert self.crawler.is_public(filename)
+
+    def test_is_function(self):
+        parsed_function = ast.parse(sample_function).body[0]
+        assert self.crawler.is_function(parsed_function)
+
+    def test_is_class(self):
+        parsed_class = ast.parse(sample_class).body[0]
+        assert self.crawler.is_class(parsed_class)
+
+    def test_get_functions(self):
+        functions = self.crawler.get_functions(sample_code)
+        assert "sample_function" in functions
+
+    def test_get_classes(self):
+        classes = self.crawler.get_classes(sample_code)
+        assert "SampleClass" in classes
+
+
 old_version = {
     "models": {},
     "bands": {
@@ -85,63 +128,45 @@ expected_parsed_additions = [
     'ADDED bands.Pixies'
 ]
 
+single_class_old = {
+    "bands": {"functions": [], "classes": {"Radiohead": {"methods": ["thom", "jonny", "colin", "ed", "phil"]}}}
+}
 
-class TestApiCrawler(object):
-    crawler = api_crawler("./")
+single_class_new = {
+    "bands": {"functions": [], "classes": {"Radiohead": {"methods": ["thom", "colin", "ed", "phil"]}}}
+}
 
-    def test_get_crawl_dict(self):
-        crawl_dict = self.crawler.get_crawl_dict()
-        assert crawl_dict
-
-    def test_name_is_public(self):
-        filename = "_apple"
-        assert not self.crawler.is_public(filename)
-        filename = "__init__"
-        assert self.crawler.is_public(filename)
-        filename = "apple"
-        assert self.crawler.is_public(filename)
-
-    def test_filename_is_public(self):
-        # Should not crawl __init__.py files
-        filename = "__init__.py"
-        assert not self.crawler.is_public(filename)
-
-        filename = "_apple.py"
-        assert not self.crawler.is_public(filename)
-        filename = "apple.py"
-        assert self.crawler.is_public(filename)
-
-    def test_is_function(self):
-        parsed_function = ast.parse(sample_function).body[0]
-        assert self.crawler.is_function(parsed_function)
-
-    def test_is_class(self):
-        parsed_class = ast.parse(sample_class).body[0]
-        assert self.crawler.is_class(parsed_class)
-
-    def test_get_functions(self):
-        functions = self.crawler.get_functions(sample_code)
-        assert "sample_function" in functions
-
-    def test_get_classes(self):
-        classes = self.crawler.get_classes(sample_code)
-        assert "SampleClass" in classes
+expected_single_class = {
+    "bands": {"classes": {"Radiohead": {"methods": ["jonny"]}}}
+}
 
 
 class TestDiffer(object):
     differ = differ(old_version, new_version)
+
+    def test_diff_pipeline(self):
+        pass
 
     def test_accurate_diff(self):
         self.differ.additions = False
         raw_diff = self.differ.diff_modules()
         assert raw_diff == expected_diff
 
+    def test_catch_key_error(self):
+        self.differ.additions = False
+        self.differ.former = single_class_old
+        self.differ.latter = single_class_new
+        raw_diff = self.differ.diff_modules()
+        assert raw_diff == expected_single_class
+
+        self.differ.former = old_version
+        self.differ.latter = new_version
+
     def test_get_diff(self):
         diff = self.differ.get_diff()
         expected_diff = expected_parsed_diff + expected_parsed_additions
         for x in diff:
             assert x in expected_diff
-
 
     def test_diff_additions(self):
         self.differ.additions = True
