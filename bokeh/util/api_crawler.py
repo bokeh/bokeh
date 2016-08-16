@@ -1,7 +1,7 @@
 import ast, os, copy, subprocess
 
 
-__all__ = ["api_crawler"]
+__all__ = ["api_crawler", "differ"]
 
 
 class APICrawler(object):
@@ -16,26 +16,8 @@ class APICrawler(object):
 
 
     # Point the crawler at this directory.
-    def __init__(self, directory, additions=False):
+    def __init__(self, directory):
         self.directory = directory
-        self._additions = additions
-        if additions:
-            self._operation = self.combinaton_diff_operation
-        else:
-            self._operation = self.diff_operation
-
-    @property
-    def additions(self):
-        return self._additions
-
-    @additions.setter
-    def additions(self, value):
-        # If measuring additions instead of deletions, automatically change operator.
-        self._additions = value
-        if value:
-            self._operation = self.combinaton_diff_operation
-        else:
-            self._operation = self.diff_operation
 
     def is_public(self, name):
         # Determines whether a given function or class is public or private. Names
@@ -109,6 +91,29 @@ class APICrawler(object):
         files_dict = self.get_files_dict(files)
         return files_dict
 
+
+class Differ(object):
+
+    def __init__(self, former, latter):
+        self.former = former
+        self.latter = latter
+        self._additions = False
+        self._operation = self.diff_operation
+
+    @property
+    def additions(self):
+        return self._additions
+
+    @additions.setter
+    def additions(self, value):
+        # If measuring additions instead of deletions, automatically change operator.
+        self._additions = value
+        if value:
+            self._operation = self.combinaton_diff_operation
+        else:
+            self._operation = self.diff_operation
+
+
     def diff_operation(self, a, b):
         # Use this function to find the sifference between two sets of dictionary
         # keys. Uses the set difference operation. Called by the diff_modules
@@ -123,13 +128,13 @@ class APICrawler(object):
         # easy control using the different set operators.
         return list((a ^ b) - a)
 
-    def diff_files(self, former, latter):
-        combined = copy.deepcopy(former)
-        combined.update(latter)
+    def diff_files(self):
+        combined = copy.deepcopy(self.former)
+        combined.update(self.former)
         diff = {}
         intersection = {}
-        files_intersection = set(former) & set(latter)
-        files_diff = self._operation(set(former), set(latter))
+        files_intersection = set(self.former) & set(self.latter)
+        files_diff = self._operation(set(self.former), set(self.latter))
 
         # Diff files
         for x in combined.keys():
@@ -140,10 +145,10 @@ class APICrawler(object):
                 intersection[x] = combined[x]
         return intersection, diff
 
-    def diff_functions_classes(self, diff, intersection, former, latter):
+    def diff_functions_classes(self, diff, intersection):
         for x in intersection.keys():
-            former_items = former.get(x)
-            latter_items = latter.get(x)
+            former_items = self.former.get(x)
+            latter_items = self.latter.get(x)
             if former_items and latter_items:
                 function_diff = self._operation(
                     set(former_items["functions"]),
@@ -167,15 +172,15 @@ class APICrawler(object):
                         diff[x]["functions"] = []
         return diff
 
-    def diff_methods(self, diff, intersection, former, latter):
+    def diff_methods(self, diff, intersection):
         for x in intersection.keys():
-            former_classes = former[x].get("classes") if former.get(x) else {}
-            latter_classes = latter[x].get("classes") if latter.get(x) else {}
+            former_classes = self.former[x].get("classes") if self.former.get(x) else {}
+            latter_classes = self.latter[x].get("classes") if self.latter.get(x) else {}
             if former_classes and latter_classes:
                 for y in intersection[x]["classes"]:
                     # Prevent NoneType errors by returning empty dict.
-                    former_methods = former[x]["classes"].get(y, {})
-                    latter_methods = latter[x]["classes"].get(y, {})
+                    former_methods = self.former[x]["classes"].get(y, {})
+                    latter_methods = self.latter[x]["classes"].get(y, {})
                     if former_methods.get("methods") and latter_methods.get("methods"):
                         former_values = set(list(former_methods.values())[0])
                         latter_values = set(list(latter_methods.values())[0])
@@ -185,11 +190,10 @@ class APICrawler(object):
                             diff[x]["classes"][y]["methods"] = methods_diff
         return diff
 
-    def diff_modules(self, former, latter):
-        intersection, diff = self.diff_files(former, latter)
-        self.diff_functions_classes(diff, intersection, former, latter)
-        self.diff_methods(diff, intersection, former, latter)
-
+    def diff_modules(self):
+        intersection, diff = self.diff_files()
+        diff = self.diff_functions_classes(diff, intersection)
+        diff = self.diff_methods(diff, intersection)
         return diff
 
     def parse_diff(self, diff):
@@ -219,8 +223,12 @@ class APICrawler(object):
         return parsed_diff
 
     def get_diff(self):
-        potato = self.get_crawl_dict()
-        potato = self.parse_diff(potato)
-        return potato
+        self.additions = False
+        removed = self.parse_diff(self.diff_modules())
+        self.additions = True
+        added = self.parse_diff(self.diff_modules())
+        return removed + added
+
 
 api_crawler = APICrawler
+differ = Differ
