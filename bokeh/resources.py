@@ -289,8 +289,7 @@ class BaseResources(object):
             elif isinstance(external, list):
                 external_resources.extend(external)
 
-        # Return only unique external resources
-        return list(external_resources)
+        return external_resources
 
 
     def _cdn_urls(self):

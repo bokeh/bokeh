@@ -234,7 +234,7 @@ def test_external_js_and_css_resource_embedding():
         __css__ = "external_css_1"
 
     class CustomModel2(Model):
-        __javascript__ =["external_js_2", "external_js_3"]
+        __javascript__ = ["external_js_2", "external_js_3"]
         __css__ = ["external_css_2", "external_css_3"]
 
     r = resources.Resources()
@@ -246,3 +246,7 @@ def test_external_js_and_css_resource_embedding():
     assert "external_js_3" in r.js_files
     assert "external_css_2" in r.css_files
     assert "external_css_3" in r.css_files
+
+    # Ordering of resources is important
+    assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
+    assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
