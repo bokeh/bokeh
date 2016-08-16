@@ -9,11 +9,13 @@ class ImageView extends Glyph.View
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model.color_mapper, 'change', () ->
-      # Only reset data for images that have been already initialized
-      if @image_data?
-        @_set_data()
-        @plot_view.request_render())
+    @listenTo(@model.color_mapper, 'change', @_update_image)
+
+  _update_image: () ->
+    # Only reset image_data if already initialized
+    if @image_data?
+      @_set_data()
+      @plot_view.request_render()
 
   _index_data: () ->
     @_xy_index()
