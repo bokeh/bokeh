@@ -164,7 +164,7 @@ class PatchesView extends Glyph.View
     return null
 
   scy: (i, sx, sy) ->
-    if @syss[i].length is 1
+    if @renderer.syss[i].length is 1
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sys[i])
     else
