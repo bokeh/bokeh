@@ -31,14 +31,13 @@ _burst_into_flames = (error) ->
   button.style.width = "auto"
   button.style.cursor = "pointer"
 
-  rule = document.createElement("hr")
-
   message.appendChild(title)
-  message.appendChild(document.createTextNode(" \u2014 #{error.message ? error}"))
+  message.innerHTML += " &mdash; "
+  message.appendChild(document.createTextNode(error.message ? error))
   message.appendChild(document.createElement("br"))
   message.appendChild(button)
   box.appendChild(message)
-  box.appendChild(rule)
+  box.appendChild(document.createElement("hr"))
 
   body = document.getElementsByTagName("body")[0]
   body.insertBefore(box, body.firstChild)
