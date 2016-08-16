@@ -11,10 +11,12 @@ class SampleClass:
     def __init__(self):
         pass
 """
+
 sample_function = """
 def sample_function(self):
     pass
 """
+
 sample_code = """
 class SampleClass:
     def __init__(self):
@@ -25,7 +27,7 @@ def sample_function(self):
 
 
 class TestApiCrawler(object):
-    crawler = api_crawler("./")
+    crawler = api_crawler("bokeh")
 
     def test_get_crawl_dict(self):
         crawl_dict = self.crawler.get_crawl_dict()
@@ -196,11 +198,11 @@ class TestDiffer(object):
     def test_diff_files(self):
         self.differ.additions = False
         intersection, diff = self.differ.diff_files()
-        assert diff.keys() == ["models"]
-        assert intersection.keys() == ["bands"]
+        assert list(diff.keys()) == ["models"]
+        assert list(intersection.keys()) == ["bands"]
         self.differ.additions = True
         intersection, diff = self.differ.diff_files()
-        assert diff.keys() == []
+        assert list(diff.keys()) == []
         for x in intersection.keys():
             assert x in ["models", "bands"]
 
