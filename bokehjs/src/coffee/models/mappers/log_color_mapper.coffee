@@ -17,6 +17,9 @@ class LogColorMapper extends ColorMapper.Model
     @_little_endian = @_is_little_endian()
     @_palette       = @_build_palette(@get('palette'))
 
+    @listenTo(this, 'change', () ->
+      @_palette = @_build_palette(@get('palette')))
+
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)

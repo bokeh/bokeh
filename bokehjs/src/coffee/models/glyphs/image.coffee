@@ -7,6 +7,13 @@ p = require "../../core/properties"
 
 class ImageView extends Glyph.View
 
+  initialize: (options) ->
+    super(options)
+    @listenTo(@model.color_mapper, 'change', () ->
+      if @_image?
+        @_set_data()
+        @plot_view.request_render())
+
   _index_data: () ->
     @_xy_index()
 

@@ -22,6 +22,9 @@ class LinearColorMapper extends ColorMapper.Model
       @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @_reserve_val   = @get('reserve_val')
 
+    @listenTo(this, 'change', () ->
+      @_palette = @_build_palette(@get('palette')))
+
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)
