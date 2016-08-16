@@ -263,17 +263,12 @@ is to install Bokeh via ``conda install`` or ``pip install`` before running
 ``setup.py``.  Alternatively, you can download them indivually. The
 dependencies include:
 
-* backports_abc
 * jinja2
-* markupsafe
-* mkl
 * numpy
 * dateutil
 * pyyaml
 * requests
-* six
 * tornado
-* yaml
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 
