@@ -273,4 +273,3 @@ def test_external_js_and_css_resource_ordering():
     # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
-
