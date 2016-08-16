@@ -251,14 +251,26 @@ def test_external_js_and_css_resource_embedding():
     assert "external_css_2" in r.css_files
     assert "external_css_3" in r.css_files
 
-    # Ordering of resources is important
-    assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
-    assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
-
     # Deduplication should keep the first instance of every file
     assert r.css_files.count("external_css_1") == 1
     assert r.css_files.count("external_css_2") == 1
     assert r.js_files.count("external_js_3") == 1
     assert r.js_files.count("external_js_1") == 1
-    assert r.css_files.index("external_css_1") < r.css_files.index("external_css_2")
-    assert r.js_files.index("external_js_1") < r.js_files.index("external_js_3")
+
+
+def test_external_js_and_css_resource_ordering():
+    class ZClass(Model):
+        __javascript__ = "z_class"
+
+    class AClass(Model):
+        __javascript__ = "a_class"
+
+    r = resources.Resources()
+
+    # a_class is before z_class because they're sorted alphabetically
+    assert r.js_files.index("a_class") < r.js_files.index("z_class")
+
+    # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
+    assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
+    assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
+

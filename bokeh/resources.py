@@ -281,7 +281,7 @@ class BaseResources(object):
 
         external_resources = []
 
-        for cls in Model.model_class_reverse_map.values():
+        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external = getattr(cls, resource_attr, None)
 
             if isinstance(external, string_types):
