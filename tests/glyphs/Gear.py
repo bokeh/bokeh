@@ -58,6 +58,6 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
 
 epicyclic = epicyclic_gear(5, 24, 12)
 
-doc.add_root(epicyclic)
+curdoc().add_root(epicyclic)
 
 show(epicyclic)
