@@ -260,5 +260,5 @@ def test_external_js_and_css_resource_embedding():
     assert r.css_files.count("external_css_2") == 1
     assert r.js_files.count("external_js_3") == 1
     assert r.js_files.count("external_js_1") == 1
-    assert r.css_files.index("external_css_1") > r.css_files.index("external_css_2")
-    assert r.js_files.index("external_js_1") > r.js_files.index("external_js_3")
+    assert r.css_files.index("external_css_1") < r.css_files.index("external_css_2")
+    assert r.js_files.index("external_js_1") < r.js_files.index("external_js_3")
