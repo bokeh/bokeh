@@ -9,21 +9,15 @@ class LinearColorMapper extends ColorMapper.Model
   @define {
       high:          [ p.Number           ]
       low:           [ p.Number           ]
-      palette:       [ p.Any              ] # TODO (bev)
       reserve_val:   [ p.Number           ]
       reserve_color: [ p.Color, '#ffffff' ]
     }
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @_little_endian = @_is_little_endian()
-    @_palette       = @_build_palette(@get('palette'))
     if @get('reserve_color')?
       @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @_reserve_val   = @get('reserve_val')
-
-    @listenTo(this, 'change', () ->
-      @_palette = @_build_palette(@get('palette')))
 
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)

@@ -1,12 +1,22 @@
 _ = require "underscore"
+p = require "../../core/properties"
 
 Model = require "../../model"
 
 class ColorMapper extends Model
   type: "ColorMapper"
 
+  @define {
+      palette:       [ p.Any              ] # TODO (bev)
+    }
+
   initialize: (attrs, options) ->
     super(attrs, options)
+    @_little_endian = @_is_little_endian()
+    @_palette       = @_build_palette(@get('palette'))
+
+    @listenTo(this, 'change', () ->
+      @_palette = @_build_palette(@get('palette')))
 
   v_map_screen: (data) ->
     return null
