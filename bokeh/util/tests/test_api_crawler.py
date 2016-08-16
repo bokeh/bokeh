@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import ast
 
-import pytest, yaml
+import pytest
 
 from ..api_crawler import api_crawler, differ
 
@@ -146,9 +146,6 @@ expected_single_class = {
 class TestDiffer(object):
     differ = differ(old_version, new_version)
 
-    def test_diff_pipeline(self):
-        pass
-
     def test_accurate_diff(self):
         self.differ.additions = False
         raw_diff = self.differ.diff_modules()
@@ -217,7 +214,7 @@ class TestDiffer(object):
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
         assert diff["bands"]["functions"] == ["george"]
-        assert diff["bands"]["classes"].keys() == ["Pixies"]
+        assert list(diff["bands"]["classes"].keys()) == ["Pixies"]
 
     def test_diff_methods(self):
         self.differ.additions = False
