@@ -25,12 +25,10 @@ class FuncTickFormatter extends TickFormatter.Model
     return _.values(@get("args"))
 
   _make_func: () ->
-    # wrap the `code` fxn inside a function and make it a callable
-    # add the `args` to the parent closure so that they're available in namespace
-    return new Function("tick", _.keys(@get("args"))..., "var func = " + @code + "return func(tick)")
+    return new Function("tick", _.keys(@get("args"))..., "require", @code)
 
   doFormat: (ticks) ->
-    return (@get('func')(tick, @get('values')...) for tick in ticks)
+    return (@get('func')(tick, @get('values')..., require) for tick in ticks)
 
 module.exports =
   Model: FuncTickFormatter
