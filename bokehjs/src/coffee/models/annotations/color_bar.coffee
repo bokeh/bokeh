@@ -59,10 +59,10 @@ class ColorBarView extends Annotation.View
     @image = canvas
 
   compute_legend_dimensions: () ->
-    image_dimensions = @mget('computed_image_dimensions')
+    image_dimensions = @model._computed_image_dimensions()
     [image_height, image_width] = [image_dimensions.height, image_dimensions.width]
     label_extent = @_get_label_extent()
-    title_extent = @mget('title_extent')
+    title_extent = @model._title_extent()
     legend_padding = @model.legend_padding
     major_tick_out = @model.major_tick_out
     label_standoff = @model.label_standoff
@@ -163,7 +163,7 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _draw_image: (ctx) ->
-    image = @mget('computed_image_dimensions')
+    image = @model._computed_image_dimensions()
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
     ctx.drawImage(@image, 0, 0, image.width, image.height)
@@ -176,11 +176,11 @@ class ColorBarView extends Annotation.View
     if not @visuals.major_tick_line.doit
       return
 
-    [nx, ny] = @mget('normals')
-    image = @mget('computed_image_dimensions')
+    [nx, ny] = @model._normals()
+    image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
-    [sx, sy] = @mget('tick_coordinates').major
+    [sx, sy] = @model._tick_coordinates().major
     tin = @model.major_tick_in
     tout = @model.major_tick_out
 
@@ -198,11 +198,11 @@ class ColorBarView extends Annotation.View
     if not @visuals.minor_tick_line.doit
       return
 
-    [nx, ny] = @mget('normals')
-    image = @mget('computed_image_dimensions')
+    [nx, ny] = @model._normals()
+    image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
-    [sx, sy] = @mget('tick_coordinates').minor
+    [sx, sy] = @model._tick_coordinates().minor
     tin = @model.minor_tick_in
     tout = @model.minor_tick_out
 
@@ -220,15 +220,15 @@ class ColorBarView extends Annotation.View
     if not @visuals.major_label_text.doit
       return
 
-    [nx, ny] = @mget('normals')
-    image = @mget('computed_image_dimensions')
+    [nx, ny] = @model._normals()
+    image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
     standoff = (@model.label_standoff + @model.major_tick_out)
     [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
 
-    [sx, sy] = @mget('tick_coordinates').major
+    [sx, sy] = @model._tick_coordinates().major
 
-    labels = @mget('tick_coordinates').major_labels
+    labels = @model._tick_coordinates().major_labels
     formatted_labels = @mget('formatter').doFormat(labels)
 
     @visuals.major_label_text.set_value(ctx)
@@ -257,7 +257,7 @@ class ColorBarView extends Annotation.View
 
     switch @model.orientation
       when "vertical"
-        formatted_labels = @model.formatter.doFormat(@mget('tick_coordinates').major_labels)
+        formatted_labels = @model.formatter.doFormat(@model._tick_coordinates().major_labels)
         label_extent = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
       when "horizontal"
         label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
@@ -280,7 +280,7 @@ class ColorBarView extends Annotation.View
   _get_image_offset: () ->
     # Returns image offset relative to legend bounding box
     x = @model.legend_padding
-    y = @model.legend_padding + @mget('title_extent')
+    y = @model.legend_padding + @model._title_extent()
     return {x: x, y: y}
 
 class ColorBar extends Annotation.Model
@@ -329,17 +329,6 @@ class ColorBar extends Annotation.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('computed_image_dimensions', @_computed_image_dimensions, false)
-    # @add_dependencies('computed_image_dimensions', this, ['orientation', 'legend_height', 'title_extent', 'legend_width', 'color_mapper'])
-
-    @define_computed_property('tick_coordinates', @_tick_coordinates, false)
-    # @add_dependencies('tick_coordinates', this, ['computed_image_dimensions', 'orientation', 'color_mapper', 'normals', 'ticker'])
-
-    @define_computed_property('title_extent', @_title_extent, true)
-    @add_dependencies('title_extent', this, ['title_text_font', 'title_text_font_size', 'title_text_font_style', 'title', 'title_standoff'])
-
-    @define_computed_property('normals', @_normals, true)
-
   _normals: () ->
     if @orientation == 'vertical'
       [i, j] = [1, 0]
@@ -379,17 +368,18 @@ class ColorBar extends Annotation.Model
 
     frame_height = @plot.plot_canvas.frame.get('height')
     frame_width = @plot.plot_canvas.frame.get('width')
+    title_extent = @_title_extent()
 
     switch @orientation
       when "vertical"
         if @legend_height == 'auto'
           if @panel?
-            height = frame_height - 2 * @legend_padding - @get('title_extent')
+            height = frame_height - 2 * @legend_padding - title_extent
           else
             height = _.max([@color_mapper.palette.length * SHORT_DIM,
                             frame_height * LONG_DIM_MIN_SCALAR])
             height = _.min([height,
-                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @legend_padding - @get('title_extent')])
+                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @legend_padding - title_extent])
         else
           height = @legend_height
 
@@ -439,14 +429,14 @@ class ColorBar extends Annotation.Model
     return mapper
 
   _tick_coordinates: () ->
-    image_dimensions = @get('computed_image_dimensions')
+    image_dimensions = @_computed_image_dimensions()
     switch @orientation
       when "vertical" then scale_length = image_dimensions.height
       when "horizontal" then scale_length = image_dimensions.width
 
     mapper = @_tick_coordinate_mapper(scale_length)
 
-    [i, j] = @get('normals')
+    [i, j] = @_normals()
 
     [start, end] = [@color_mapper.low, @color_mapper.high]
     ticks = @ticker.get_ticks(start, end, null, @ticker.desired_num_ticks)
