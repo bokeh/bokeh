@@ -206,6 +206,8 @@ class Settings(object):
                     js_files.append(join(root, fname))
         return js_files
 
+    def nodejs_path(self, default=None):
+        return self._get_str("NODEJS_PATH", default)
 
 #: A global settings object that other parts of Bokeh can refer to.
 #:

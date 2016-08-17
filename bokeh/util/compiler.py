@@ -85,21 +85,40 @@ class CompilationError(RuntimeError):
 
 bokehjs_dir = settings.bokehjsdir()
 
-def nodejs_compile(code, lang="javascript", file=None):
-    compilejs_script = join(bokehjs_dir, "js", "compile.js")
+def _detect_nodejs():
+    if settings.nodejs_path() is not None:
+        nodejs_paths = [settings.nodejs_path()]
+    else:
+        nodejs_paths = ["xnodejs", "node"]
 
-    try:
-        proc = Popen(["nodejs", compilejs_script], stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    except OSError:
+    for nodejs_path in nodejs_paths:
+        try:
+            proc = Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
+        except OSError:
+            pass
+        else:
+            return nodejs_path
+    else:
+        return None
+
+_nodejs = _detect_nodejs()
+
+def _run_nodejs(script, input):
+    if _nodejs is None:
         raise RuntimeError('node.js is needed to allow compilation of custom models ' +
                            '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
 
-    (stdout, errout) = proc.communicate(input=json.dumps(dict(code=code, lang=lang, file=file)))
+    proc = Popen([_nodejs, script], stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    (stdout, errout) = proc.communicate(input=json.dumps(input).encode())
 
     if len(errout) > 0:
         raise RuntimeError(errout)
     else:
         return AttrDict(json.loads(stdout.decode()))
+
+def nodejs_compile(code, lang="javascript", file=None):
+    compilejs_script = join(bokehjs_dir, "js", "compile.js")
+    return _run_nodejs(compilejs_script, dict(code=code, lang=lang, file=file))
 
 class Implementation(object):
     pass
