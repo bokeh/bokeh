@@ -21,6 +21,14 @@ class ColorBarView extends Annotation.View
     super(options)
     @_set_canvas_image()
 
+  bind_bokeh_events: () ->
+    @listenTo(@model.ticker, 'change', @plot_view.request_render)
+    @listenTo(@model.formatter, 'change', @plot_view.request_render)
+    @listenTo(@model.color_mapper, 'change', () ->
+      @_set_canvas_image()
+      @plot_view.request_render()
+      )
+
   _get_panel_offset: () ->
     # ColorBars draw from the top down, so set the y_panel_offset to _top
     x = @model.panel._left._value

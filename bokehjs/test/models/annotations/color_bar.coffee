@@ -8,6 +8,7 @@ LinearColorMapper = utils.require("models/mappers/linear_color_mapper").Model
 LinearMapper = utils.require("models/mappers/linear_mapper").Model
 LogColorMapper = utils.require("models/mappers/log_color_mapper").Model
 LogMapper = utils.require("models/mappers/log_mapper").Model
+LogTicker = utils.require("models/tickers/log_ticker").Model
 {Viridis} = utils.require("palettes/palettes")
 Plot = utils.require("models/plots/plot").Model
 Range1d = utils.require("models/ranges/range1d").Model
@@ -227,6 +228,12 @@ describe "ColorBar module", ->
         plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
       })
+
+    it "Should reset scale image if color_mapper changes", ->
+      # Reset spy count to zero (method was called during view initialization)
+      @_set_canvas_image_stub.reset()
+      @color_bar.color_mapper.set('palette', Viridis.Viridis3)
+      expect(@_set_canvas_image_stub.called).to.be.true
 
     it "ColorBar.View._get_image_offset method", ->
       @color_bar.title = "I'm a title"
