@@ -16,6 +16,17 @@ class ColorMapper(Model):
 
     """
 
+    palette = Seq(Color, help="""
+    A sequence of colors to use as the target palette for mapping.
+
+    This property can also be set as a ``String``, to the name of
+    any of the palettes shown in :ref:`bokeh.palettes`.
+    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
+
+    def __init__(self, palette=None, **kwargs):
+        if palette is not None: kwargs['palette'] = palette
+        super(ColorMapper, self).__init__(**kwargs)
+
 class LinearColorMapper(ColorMapper):
     """ Map numbers in a range [*low*, *high*] linearly into a
     sequence of colors (a palette).
@@ -31,13 +42,6 @@ class LinearColorMapper(ColorMapper):
        99 >= x      : 'blue'    # values > high are clamped
 
     """
-
-    palette = Seq(Color, help="""
-    A sequence of colors to use as the target palette for mapping.
-
-    This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh.palettes`.
-    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     low = Float(help="""
     The minimum value of the range to map into the palette. Values below
@@ -60,10 +64,6 @@ class LinearColorMapper(ColorMapper):
     Used by Abstract Rendering.
     """)
 
-    def __init__(self, palette=None, **kwargs):
-        if palette is not None: kwargs['palette'] = palette
-        super(LinearColorMapper, self).__init__(**kwargs)
-
 class LogColorMapper(ColorMapper):
     """ Map numbers in a range [*low*, *high*] into a
     sequence of colors (a palette) on a natural logarithm scale.
@@ -84,13 +84,6 @@ class LogColorMapper(ColorMapper):
 
     """
 
-    palette = Seq(Color, help="""
-    A sequence of colors to use as the target palette for mapping.
-
-    This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh.palettes`.
-    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
-
     low = Float(help="""
     The minimum value of the range to map into the palette. Values below
     this are clamped to ``low``.
@@ -100,7 +93,3 @@ class LogColorMapper(ColorMapper):
     The maximum value of the range to map into the palette. Values above
     this are clamped to ``high``.
     """)
-
-    def __init__(self, palette=None, **kwargs):
-        if palette is not None: kwargs['palette'] = palette
-        super(LogColorMapper, self).__init__(**kwargs)
