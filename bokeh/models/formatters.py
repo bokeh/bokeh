@@ -246,13 +246,13 @@ class FuncTickFormatter(TickFormatter):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        wrapped_code = "formatter = () -> %s" % (code,)
+        wrapped_code = "formatter = (%s) -> %s" % (', '.join(args.keys()), code,)
 
         compiled = nodejs_compile(wrapped_code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
         else:
-            wrapped_compiled_code = "%s\nreturn formatter()" % (compiled.code,)
+            wrapped_compiled_code = "%s\nreturn formatter(%s)" % (compiled.code, ', '.join(args.keys()))
             return cls(code=wrapped_compiled_code, args=args)
 
     args = Dict(String, Instance(Model), help="""
