@@ -6,32 +6,20 @@ Range1d = utils.require("models/ranges/range1d").Model
 
 describe "func_tick_formatter module", ->
 
-  describe "values computed property", ->
-    rng1 = new Range1d()
-    formatter = new FuncTickFormatter({args: {foo: rng1}})
-
-    it "should contain the args values", ->
-      expect(formatter.get('values')).to.be.deep.equal([rng1])
-
-    it "should update when args changes", ->
-      rng2 = new Range1d()
-      formatter.set('args', {foo: rng2})
-      expect(formatter.get('values')).to.be.deep.equal([rng2])
-
-  describe "func computed property", ->
+  describe "FuncTickFormatter._make_func method", ->
     formatter = new FuncTickFormatter({code: "return 10"})
     it "should return a Function", ->
-      expect(formatter.get('func')).to.be.an.instanceof(Function)
+      expect(formatter._make_func()).to.be.an.instanceof(Function)
 
     it "should have code property as function body", ->
       func = new Function("tick", "require", "return 10")
-      expect(formatter.get('func').toString()).to.be.equal(func.toString())
+      expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
     it "should have values as function args", ->
       rng = new Range1d()
       formatter.set('args', {foo: rng.ref()})
       func = new Function("tick", "foo", "require", "return 10")
-      expect(formatter.get('func').toString()).to.be.equal(func.toString())
+      expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
   describe "doFormat method", ->
     it "should format numerical ticks appropriately", ->

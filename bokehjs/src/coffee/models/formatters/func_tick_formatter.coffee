@@ -15,20 +15,12 @@ class FuncTickFormatter extends TickFormatter.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('values', @_make_values, true)
-    @add_dependencies('values', @, ['args'])
-
-    @define_computed_property('func', @_make_func, true)
-    @add_dependencies('func', @, ['args', 'code'])
-
-  _make_values: () ->
-    return _.values(@get("args"))
-
   _make_func: () ->
-    return new Function("tick", _.keys(@get("args"))..., "require", @code)
+    return new Function("tick", _.keys(@args)..., "require", @code)
 
   doFormat: (ticks) ->
-    return (@get('func')(tick, @get('values')..., require) for tick in ticks)
+    func = @_make_func()
+    return (func(tick, _.values(@args)..., require) for tick in ticks)
 
 module.exports =
   Model: FuncTickFormatter

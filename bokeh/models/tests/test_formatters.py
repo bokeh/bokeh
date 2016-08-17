@@ -48,23 +48,26 @@ def test_functickformatter_bad_pyfunc_formats():
         FuncTickFormatter.from_py_func(has_non_Model_keyword_argument)
 
 def test_functickformatter_from_coffeescript_no_arg():
-    code = """
+    coffee_code = """
     square = (x) -> x * x
     return square(tick)
     """
 
-    expected = """var formatter;\n\nformatter = function() {\n  var square;\n  square = \
-function(x) {\n    return x * x;\n  };\n  return square(tick);\n};\n\nreturn formatter()"""
+    js_code = "\n  var square;\n  square = function(x) {\n    return x * x;\n  };\n  return square(tick);\n"
 
-    formatter = FuncTickFormatter.from_coffeescript(code=code)
-    assert formatter.code == expected
+    formatter = FuncTickFormatter.from_coffeescript(code=coffee_code)
+    function_wrapper = formatter.code.replace(js_code, "")
+
+    assert function_wrapper == "var formatter;\n\nformatter = function() {};\n\nreturn formatter()"
     assert formatter.args == {}
 
 def test_functickformatter_from_coffeescript_with_args():
-    code = "return slider.get('value') + tick"
-    expected = """var formatter;\n\nformatter = function() {\n  return slider.get('value') \
-+ tick;\n};\n\nreturn formatter()"""
+    coffee_code = "return slider.get('value') + tick"
+    js_code = "\n  return slider.get('value') + tick;\n"
+
     slider = Slider()
-    formatter = FuncTickFormatter.from_coffeescript(code=code, args={"slider": slider})
-    assert formatter.code == expected
+    formatter = FuncTickFormatter.from_coffeescript(code=coffee_code, args={"slider": slider})
+
+    function_wrapper = formatter.code.replace(js_code, "")
+    assert function_wrapper == "var formatter;\n\nformatter = function() {};\n\nreturn formatter()"
     assert formatter.args == {"slider": slider}
