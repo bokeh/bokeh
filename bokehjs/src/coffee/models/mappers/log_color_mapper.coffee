@@ -17,11 +17,12 @@ class LogColorMapper extends ColorMapper.Model
 
     low = @get('low') ? _.min(data)
     high = @get('high') ? _.max(data)
+    palette = @get('computed_palette')
 
-    N = @_palette.length - 1
+    N = palette.length - 1
     scale = N / (Math.log1p(high) - Math.log1p(low)) #substract the low offset
 
-    if @_little_endian
+    if @get('little_endian')
       for i in [0...data.length]
         d = data[i]
 
@@ -31,7 +32,7 @@ class LogColorMapper extends ColorMapper.Model
           d = low
 
         log = Math.log1p(d) - Math.log1p(low) #substract the low offset
-        value = @_palette[Math.floor(log * scale)]
+        value = palette[Math.floor(log * scale)]
 
         color[i] =
           (0xff << 24)               | # alpha
@@ -49,7 +50,7 @@ class LogColorMapper extends ColorMapper.Model
           d = low
 
         log = Math.log1p(d) - Math.log1p(low) #substract the low offset
-        value = @_palette[Math.floor(log * scale)]
+        value = palette[Math.floor(log * scale)]
 
         color[i] = (value << 8) | 0xff                 # alpha
     return buf
