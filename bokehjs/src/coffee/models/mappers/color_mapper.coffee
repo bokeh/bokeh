@@ -12,9 +12,11 @@ class ColorMapper extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @define_computed_property('little_endian', @_is_little_endian, true)
-    @define_computed_property('computed_palette', @_build_palette, true)
-    @add_dependencies('computed_palette', @, ['palette'])
+    @_little_endian = @_is_little_endian()
+    @_palette       = @_build_palette(@get('palette'))
+
+    @listenTo(this, 'change', () ->
+      @_palette = @_build_palette(@get('palette')))
 
   v_map_screen: (data) ->
     return null
@@ -30,16 +32,16 @@ class ColorMapper extends Model
       little_endian = false
     return little_endian
 
-  _build_palette: () ->
-    new_palette = new Uint32Array(@palette.length+1)
+  _build_palette: (palette) ->
+    new_palette = new Uint32Array(palette.length+1)
     _convert = (value) ->
       if _.isNumber(value)
         return value
       else
         return parseInt(value.slice(1), 16)
-    for i in [0...@palette.length]
-      new_palette[i] = _convert(@palette[i])
-    new_palette[new_palette.length-1] = _convert(@palette[@palette.length-1])
+    for i in [0...palette.length]
+      new_palette[i] = _convert(palette[i])
+    new_palette[new_palette.length-1] = _convert(palette[palette.length-1])
     return new_palette
 
 module.exports =

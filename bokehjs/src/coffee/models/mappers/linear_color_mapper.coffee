@@ -25,13 +25,12 @@ class LinearColorMapper extends ColorMapper.Model
 
     low = @get('low') ? _.min(data)
     high = @get('high') ? _.max(data)
-    palette = @get('computed_palette')
 
-    N = palette.length - 1
+    N = @_palette.length - 1
     scale = N/(high-low)
     offset = -scale*low
 
-    if @get('little_endian')
+    if @_little_endian
       for i in [0...data.length]
         d = data[i]
 
@@ -42,7 +41,7 @@ class LinearColorMapper extends ColorMapper.Model
             d = high
           if (d < low)
             d = low
-          value = palette[Math.floor(d*scale+offset)]
+          value = @_palette[Math.floor(d*scale+offset)]
 
         color[i] =
           (0xff << 24)               | # alpha
@@ -61,7 +60,7 @@ class LinearColorMapper extends ColorMapper.Model
             d = high
           if (d < low)
             d = low
-          value = palette[Math.floor(d*scale+offset)] # rgb
+          value = @_palette[Math.floor(d*scale+offset)] # rgb
 
         color[i] = (value << 8) | 0xff               # alpha
 
