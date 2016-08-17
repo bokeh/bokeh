@@ -19,18 +19,17 @@ describe "func_tick_formatter module", ->
       expect(formatter.get('values')).to.be.deep.equal([rng2])
 
   describe "func computed property", ->
+    formatter = new FuncTickFormatter({code: "return 10"})
     it "should return a Function", ->
-      formatter = new FuncTickFormatter({code: "return 10"})
       expect(formatter.get('func')).to.be.an.instanceof(Function)
 
     it "should have code property as function body", ->
-      formatter = new FuncTickFormatter({code: "return 10"})
       func = new Function("tick", "require", "return 10")
       expect(formatter.get('func').toString()).to.be.equal(func.toString())
 
     it "should have values as function args", ->
       rng = new Range1d()
-      formatter = new FuncTickFormatter({args: {foo: rng.ref()}, code: "return 10"})
+      formatter.set('args', {foo: rng.ref()})
       func = new Function("tick", "foo", "require", "return 10")
       expect(formatter.get('func').toString()).to.be.equal(func.toString())
 
