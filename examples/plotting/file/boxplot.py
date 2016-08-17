@@ -27,14 +27,15 @@ def outliers(group):
 out = groups.apply(outliers).dropna()
 
 # prepare outlier data for plotting, we need coordinates for every outlier.
-outx = []
-outy = []
-for cat in cats:
-    # only add outliers if they exist
-    if not out.loc[cat].empty:
-        for value in out[cat]:
-            outx.append(cat)
-            outy.append(value)
+if not out.empty:
+    outx = []
+    outy = []
+    for cat in cats:
+        # only add outliers if they exist
+        if not out.loc[cat].empty:
+            for value in out[cat]:
+                outx.append(cat)
+                outy.append(value)
 
 p = figure(tools="save", background_fill_color="#EFE8E2", title="", x_range=cats)
 
@@ -59,7 +60,8 @@ p.rect(cats, lower.score, 0.2, 0.01, line_color="black")
 p.rect(cats, upper.score, 0.2, 0.01, line_color="black")
 
 # outliers
-p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
+if not out.empty:
+    p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
 
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = "white"
