@@ -51,4 +51,11 @@ def test_functickformatter_from_coffeescript_no_arg():
     code = "square = (x) -> x * x; return square(tick)"
     formatter = FuncTickFormatter.from_coffeescript(code=code)
     assert formatter.args == {}
-    assert formatter.code == ""
+    assert formatter.code == """var square;\n\nsquare = function(x) {\n  x * x;\n  return square(tick);\n};\n"""
+
+def test_functickformatter_from_coffeescript_with_args():
+    slider = Slider()
+    code = "slider.get('value') + tick"
+    formatter = FuncTickFormatter.from_coffeescript(code=code, args={"slider": slider})
+    assert formatter.args == {"slider": slider}
+    assert formatter.code == "slider.get('value') + tick;\n"
