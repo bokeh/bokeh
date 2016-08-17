@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 import ast
 
-import pytest
 
 from ..api_crawler import api_crawler, differ
 

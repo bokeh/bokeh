@@ -1,5 +1,4 @@
-import ast, os, copy, subprocess
-
+import ast, os, copy
 
 __all__ = ["api_crawler", "differ"]
 
@@ -133,7 +132,6 @@ class Differ(object):
         combined.update(self.former)
         diff = {}
         intersection = {}
-        files_intersection = set(self.former) & set(self.latter)
         files_diff = self._operation(set(self.former), set(self.latter))
 
         # Diff files
