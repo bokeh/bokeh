@@ -46,3 +46,9 @@ def test_functickformatter_bad_pyfunc_formats():
         return None
     with pytest.raises(ValueError):
         FuncTickFormatter.from_py_func(has_non_Model_keyword_argument)
+
+def test_functickformatter_from_coffeescript_no_arg():
+    code = "square = (x) -> x * x; return square(tick)"
+    formatter = FuncTickFormatter.from_coffeescript(code=code)
+    assert formatter.args == {}
+    assert formatter.code == ""
