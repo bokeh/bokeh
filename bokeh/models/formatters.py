@@ -227,21 +227,22 @@ class FuncTickFormatter(TickFormatter):
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
         argspec = inspect.getargspec(func)
 
-        if (len(argspec[0]) - len(argspec[3] or [])) != 1:
-            raise ValueError("Function `func` must have exactly one positional argument, but %d were supplied." % (len(argspec[0]) - len(argspec[3] or [])))
+        default_names = argspec.args
+        default_values = argspec.defaults or []
 
-        all_args = argspec[0][:]
-        func_arg = argspec[0].pop(0)
-        func_kwargs = dict(zip(argspec[0], argspec[3] or []))
+        if len(default_names) - len(default_values) != 0:
+            raise ValueError("Function `func` may only contain keyword arguments.")
 
-        # Set the transpiled functions as `formatter` so that we can call it
-        code = pyscript.py2js(func, 'formatter')
+        if default_values and not any([isinstance(value, Model) for value in default_values]):
+            raise ValueError("Default value must be a plot object.")
 
-        # We wrap the transpiled function into an anonymous function with a single
-        # arg that matches that of func and all args inside `formatter`
-        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (func_arg, code, ', '.join(all_args))
+        func_kwargs = dict(zip(default_names, default_values))
 
-        return cls(code=wrapped_code, args=func_kwargs)
+        # Wrap the code attr in a function named `formatter` and call it
+        # with arguments that match the `args` attr
+        code = pyscript.py2js(func, 'formatter') + 'formatter(%s);\n' % ', '.join(default_names)
+
+        return cls(code=code, args=func_kwargs)
 
     @classmethod
     def from_coffeescript(cls, code, args={}):

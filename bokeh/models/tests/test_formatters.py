@@ -6,43 +6,43 @@ flexx = pytest.importorskip("flexx")
 
 def test_functickformatter_from_py_func_no_args():
 
-    def convert_to_minutes(seconds):
-        return seconds * 60
+    def convert_to_minutes():
+        return tick * 60 # noqa
 
     formatter = FuncTickFormatter.from_py_func(convert_to_minutes)
     js_code = flexx.pyscript.py2js(convert_to_minutes, 'formatter')
 
     function_wrapper = formatter.code.replace(js_code, '')
 
-    assert function_wrapper == "function (seconds) {return formatter(seconds)};"
+    assert function_wrapper == "formatter();\n"
 
 def test_functickformatter_from_py_func_with_args():
 
     slider = Slider()
 
-    def convert_to_minutes(seconds, x=slider):
-        return seconds * 60
+    def convert_to_minutes(x=slider):
+        return tick * 60 # noqa
 
     formatter = FuncTickFormatter.from_py_func(convert_to_minutes)
     js_code = flexx.pyscript.py2js(convert_to_minutes, 'formatter')
 
     function_wrapper = formatter.code.replace(js_code, '')
 
-    assert function_wrapper == "function (seconds) {return formatter(seconds, x)};"
+    assert function_wrapper == "formatter(x);\n"
     assert formatter.args['x'] is slider
 
 def test_functickformatter_bad_pyfunc_formats():
-    def missing_positional_arg():
+    def has_positional_arg(x):
         return None
     with pytest.raises(ValueError):
-        FuncTickFormatter.from_py_func(missing_positional_arg)
+        FuncTickFormatter.from_py_func(has_positional_arg)
 
-    def missing_positional_arg_with_kwargs(x=5):
+    def has_positional_arg_with_kwargs(y, x=5):
         return None
     with pytest.raises(ValueError):
-        FuncTickFormatter.from_py_func(missing_positional_arg_with_kwargs)
+        FuncTickFormatter.from_py_func(has_positional_arg_with_kwargs)
 
-    def too_many_positional_arguments(x, y):
+    def has_non_Model_keyword_argument(x=10):
         return None
     with pytest.raises(ValueError):
-        FuncTickFormatter.from_py_func(missing_positional_arg)
+        FuncTickFormatter.from_py_func(has_non_Model_keyword_argument)
