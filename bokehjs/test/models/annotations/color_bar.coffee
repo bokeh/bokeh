@@ -62,6 +62,15 @@ describe "ColorBar module", ->
         title_height = @color_bar._title_extent()
         expect(title_height).to.be.equal(20)
 
+    describe "ColorBar.Model._tick_extent method", ->
+      it "Should return zero if either low or high are unset", ->
+        @color_bar.color_mapper = new LinearColorMapper({palette: Viridis.Viridis10})
+        expect(@color_bar._tick_extent()).to.be.equal(0)
+
+      it "Should return major_tick_out if both low and high are set", ->
+        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
+        expect(@color_bar._tick_extent()).to.be.equal(6)
+
     describe "ColorBar.Model._tick_coordinate_mapper method", ->
 
       it "LinearColorMapper should yield LinearMapper instance with correct state", ->
@@ -241,11 +250,11 @@ describe "ColorBar module", ->
 
     it "ColorBar.View._get_label_extent method (orientation='vertical')", ->
       # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils
-      expect(@color_bar_view._get_label_extent()).to.be.equal(1)
+      expect(@color_bar_view._get_label_extent()).to.be.equal(6)
 
     it "ColorBar.View._get_label_extent method (orientation='horizontal')", ->
       @color_bar_view.model.orientation = "horizontal"
-      expect(@color_bar_view._get_label_extent()).to.be.equal(15)
+      expect(@color_bar_view._get_label_extent()).to.be.equal(20)
 
     it "ColorBar.View.compute_legend_dimensions method (orientation='vertical')", ->
       # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils

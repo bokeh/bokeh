@@ -69,18 +69,18 @@ class ColorBarView extends Annotation.View
   compute_legend_dimensions: () ->
     image_dimensions = @model._computed_image_dimensions()
     [image_height, image_width] = [image_dimensions.height, image_dimensions.width]
+
     label_extent = @_get_label_extent()
     title_extent = @model._title_extent()
+    tick_extent = @model._tick_extent()
     legend_padding = @model.legend_padding
-    major_tick_out = @model.major_tick_out
-    label_standoff = @model.label_standoff
 
     switch @model.orientation
       when "vertical"
         legend_height = image_height + title_extent + legend_padding * 2
-        legend_width = image_width + major_tick_out + label_standoff + label_extent + legend_padding * 2
+        legend_width = image_width + tick_extent + label_extent + legend_padding * 2
       when "horizontal"
-        legend_height = image_height + title_extent + major_tick_out + label_standoff + label_extent + legend_padding * 2
+        legend_height = image_height + title_extent + tick_extent + label_extent + legend_padding * 2
         legend_width = image_width + legend_padding * 2
 
     return {height: legend_height, width: legend_width}
@@ -152,9 +152,12 @@ class ColorBarView extends Annotation.View
     ctx.translate(image_offset.x, image_offset.y)
 
     @_draw_image(ctx)
-    @_draw_major_ticks(ctx)
-    @_draw_minor_ticks(ctx)
-    @_draw_major_labels(ctx)
+
+    if @model.color_mapper.low? and @model.color_mapper.high?
+      @_draw_major_ticks(ctx)
+      @_draw_minor_ticks(ctx)
+      @_draw_major_labels(ctx)
+
     if @model.title
       @_draw_title(ctx)
     ctx.restore()
@@ -231,7 +234,7 @@ class ColorBarView extends Annotation.View
     [nx, ny] = @model._normals()
     image = @model._computed_image_dimensions()
     [x_offset, y_offset] = [image.width * nx, image.height * ny]
-    standoff = (@model.label_standoff + @model.major_tick_out)
+    standoff = (@model.label_standoff + @model._tick_extent())
     [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
 
     [sx, sy] = @model._tick_coordinates().major
@@ -259,18 +262,22 @@ class ColorBarView extends Annotation.View
     ctx.restore()
 
   _get_label_extent: () ->
-    ctx = @plot_view.canvas_view.ctx
-    ctx.save()
-    @visuals.major_label_text.set_value(ctx)
+    if @model.color_mapper.low? and @model.color_mapper.high?
+      ctx = @plot_view.canvas_view.ctx
+      ctx.save()
+      @visuals.major_label_text.set_value(ctx)
 
-    switch @model.orientation
-      when "vertical"
-        formatted_labels = @model.formatter.doFormat(@model._tick_coordinates().major_labels)
-        label_extent = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
-      when "horizontal"
-        label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
+      switch @model.orientation
+        when "vertical"
+          formatted_labels = @model.formatter.doFormat(@model._tick_coordinates().major_labels)
+          label_extent = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
+        when "horizontal"
+          label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
 
-    ctx.restore()
+      label_extent += @model.label_standoff
+      ctx.restore()
+    else
+      label_extent = 0
     return label_extent
 
   _get_frame_offset: () ->
@@ -348,6 +355,13 @@ class ColorBar extends Annotation.Model
     font_value = @title_text_font + " " + @title_text_font_size + " " + @title_text_font_style
     title_extent = if @title then text_util.get_text_height(font_value).height + @title_standoff else 0
     return title_extent
+
+  _tick_extent: () ->
+    if @color_mapper.low? and @color_mapper.high?
+      tick_extent = _.max([@major_tick_out, @minor_tick_out])
+    else
+      tick_extent = 0
+    return tick_extent
 
   _computed_image_dimensions: () ->
     ###
