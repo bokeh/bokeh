@@ -174,6 +174,10 @@ class ColorBar(Annotation):
 
     color_mapper = Instance(ColorMapper, help="""
     A color mapper containing a color palette to render.
+
+    .. warning::
+        If the `low` and `high` attributes of the ColorMapper aren't set, ticks
+        and tick labels won't be rendered.
     """)
 
     legend_margin = Int(30, help="""
