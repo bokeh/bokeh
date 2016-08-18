@@ -159,6 +159,10 @@ class ColorBar(Annotation):
     The %s values for the title text.
     """)
 
+    title_text_font_size = Override(default={'value': "10pt"})
+
+    title_text_font_style = Override(default="italic")
+
     title_standoff = Int(2, help="""
     The distance (in pixels) to separate the title from the ColorBar.
     """)

@@ -66,7 +66,7 @@ def test_ColorBar():
     assert color_bar.major_tick_out == 6
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 4
-    yield check_text_properties, color_bar, "title_"
+    yield check_text_properties, color_bar, "title_", "10pt", "bottom", "italic"
     yield check_text_properties, color_bar, "major_label_", "8pt", "middle", "normal", "center"
     yield check_line_properties, color_bar, "major_tick_"
     yield check_line_properties, color_bar, "minor_tick_"

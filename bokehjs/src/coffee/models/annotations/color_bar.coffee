@@ -339,6 +339,8 @@ class ColorBar extends Annotation.Model
       major_label_text_align: "center"
       major_label_text_baseline: "middle"
       major_label_text_font_size: "8pt"
+      title_text_font_size: "10pt"
+      title_text_font_style: "italic"
   }
 
   initialize: (attrs, options) ->
