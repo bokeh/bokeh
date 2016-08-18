@@ -11,11 +11,13 @@ class LogColorMapper extends ColorMapper.Model
       low:           [ p.Number           ]
     }
 
-  _get_values: (data, palette) ->
+  _get_values: (data, palette, n) ->
+     if not n?
+       n = palette.length - 1
+
      low = @get('low') ? _.min(data)
      high = @get('high') ? _.max(data)
-     N = @_palette.length - 1
-     scale = N / (Math.log1p(high) - Math.log1p(low))  # subtract the low offset
+     scale = n / (Math.log1p(high) - Math.log1p(low))  # subtract the low offset
      values = []
 
      for i in [0...data.length]

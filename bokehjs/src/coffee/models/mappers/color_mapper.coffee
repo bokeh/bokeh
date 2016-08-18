@@ -43,7 +43,7 @@ class ColorMapper extends Model
     return null
 
   v_compute: (xs) ->
-    values = @_get_values(xs, @palette)
+    values = @_get_values(xs, @palette, n=@palette.length)
     return values
 
   _get_values: (data, palette) ->

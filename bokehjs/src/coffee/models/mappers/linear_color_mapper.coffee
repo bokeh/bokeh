@@ -19,12 +19,14 @@ class LinearColorMapper extends ColorMapper.Model
       @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @_reserve_val   = @get('reserve_val')
 
-  _get_values: (data, palette) ->
+  _get_values: (data, palette, n) ->
+     if not n?
+       n = palette.length - 1
+
      low = @get('low') ? _.min(data)
      high = @get('high') ? _.max(data)
 
-     N = palette.length - 1
-     scale = N/(high-low)
+     scale = n/(high-low)
      offset = -scale*low
      values = []
 
