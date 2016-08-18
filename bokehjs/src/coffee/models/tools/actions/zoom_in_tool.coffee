@@ -7,8 +7,8 @@ p = require "../../../core/properties"
 class ZoomInToolView extends ActionTool.View
 
   do: () ->
-    frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    frame = @plot_model.frame
+    dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property
     if dims.indexOf('width') == -1
@@ -40,7 +40,7 @@ class ZoomInTool extends ActionTool.Model
     @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           @tool_name,
-          @_check_dims(@get('dimensions'), "zoom-in tool")
+          @_check_dims(@dimensions, "zoom-in tool")
         )
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])

@@ -19,7 +19,7 @@ class WheelZoomToolView extends GestureTool.View
     @_scroll(e)
 
   _scroll: (e) ->
-    frame = @plot_model.get('frame')
+    frame = @plot_model.frame
     hr = frame.get('h_range')
     vr = frame.get('v_range')
 
@@ -27,12 +27,12 @@ class WheelZoomToolView extends GestureTool.View
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
 
     # if wheel-scroll events happen outside frame restrict scaling to axis in bounds
-    if vx < hr.get('start') or vx > hr.get('end')
+    if vx < hr.start or vx > hr.end
       v_axis_only = true
-    if vy < vr.get('start') or vy > vr.get('end')
+    if vy < vr.start or vy > vr.end
       h_axis_only = true
 
-    dims = @mget('dimensions')
+    dims = @model.dimensions
 
     # restrict to axi0kw5
     # s configured in tool's dimensions property
@@ -52,7 +52,7 @@ class WheelZoomToolView extends GestureTool.View
     else
       delta = e.bokeh.delta
 
-    factor  = @mget('speed') * delta
+    factor  = @model.speed * delta
 
     zoom_info = ZoomUtil.scale_range({
       frame: frame
@@ -81,7 +81,7 @@ class WheelZoomTool extends GestureTool.Model
     @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           @tool_name,
-          @_check_dims(@get('dimensions'), "wheel zoom tool")
+          @_check_dims(@dimensions, "wheel zoom tool")
         )
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
