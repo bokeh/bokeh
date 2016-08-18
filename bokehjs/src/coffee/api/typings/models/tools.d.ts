@@ -33,6 +33,20 @@ declare namespace Bokeh {
         dimensions?: Array<Dimension>;
     }
 
+    export var ZoomInTool: { new(attributes?: IZoomInTool, options?: ModelOpts): ZoomInTool };
+    export interface ZoomInTool extends Tool, IZoomInTool {}
+    export interface IZoomInTool extends ITool {
+        factor?: Percent;
+        dimensions?: Array<Dimension>;
+    }
+
+    export var ZoomOutTool: { new(attributes?: IZoomOutTool, options?: ModelOpts): ZoomOutTool };
+    export interface ZoomOutTool extends Tool, IZoomOutTool {}
+    export interface IZoomOutTool extends ITool {
+        factor?: Percent;
+        dimensions?: Array<Dimension>;
+    }
+
     export var SaveTool: { new(attributes?: ISaveTool, options?: ModelOpts): SaveTool };
     export interface SaveTool extends Tool, ISaveTool {}
     export interface ISaveTool extends ITool {}
