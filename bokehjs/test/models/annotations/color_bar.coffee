@@ -69,6 +69,7 @@ describe "ColorBar module", ->
 
       it "Should return major_tick_out if both low and high are set", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
+        @color_bar.major_tick_out = 6
         expect(@color_bar._tick_extent()).to.be.equal(6)
 
     describe "ColorBar.Model._tick_coordinate_mapper method", ->
@@ -261,14 +262,14 @@ describe "ColorBar module", ->
       @color_bar.legend_height = 100
       @color_bar.legend_width = 25
 
-      expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 120, width: 57 })
+      expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 120, width: 51 })
 
     it "ColorBar.View.compute_legend_dimensions method (orientation='horizontal')", ->
       @color_bar.orientation = "horizontal"
       @color_bar.legend_height = 25
       @color_bar.legend_width = 100
 
-      expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 71, width: 120 })
+      expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 65, width: 120 })
 
     it "ColorBar.View._get_size method", ->
-      expect(@color_bar_view._get_size()).to.be.equal(57)
+      expect(@color_bar_view._get_size()).to.be.equal(51)

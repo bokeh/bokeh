@@ -62,16 +62,16 @@ def test_ColorBar():
     assert color_bar.legend_margin == 30
     assert color_bar.legend_padding == 10
     assert color_bar.label_standoff == 5
-    assert color_bar.major_tick_in == 2
-    assert color_bar.major_tick_out == 6
+    assert color_bar.major_tick_in == 5
+    assert color_bar.major_tick_out == 0
     assert color_bar.minor_tick_in == 0
-    assert color_bar.minor_tick_out == 4
+    assert color_bar.minor_tick_out == 0
     yield check_text_properties, color_bar, "title_", "10pt", "bottom", "italic"
     yield check_text_properties, color_bar, "major_label_", "8pt", "middle", "normal", "center"
-    yield check_line_properties, color_bar, "major_tick_"
-    yield check_line_properties, color_bar, "minor_tick_"
-    yield check_line_properties, color_bar, "bar_"
-    yield check_line_properties, color_bar, "border_", "#e5e5e5", 1.0, 0.5
+    yield check_line_properties, color_bar, "major_tick_", "#ffffff"
+    yield check_line_properties, color_bar, "minor_tick_", None
+    yield check_line_properties, color_bar, "bar_", None
+    yield check_line_properties, color_bar, "border_", None
     yield check_fill_properties, color_bar, "background_", "#ffffff", 0.95
     yield (check_properties_existence, color_bar, [
         "plot",

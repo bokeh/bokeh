@@ -325,20 +325,22 @@ class ColorBar extends Annotation.Model
       label_standoff: [ p.Number,         5           ]
       legend_margin:  [ p.Number,         30          ]
       legend_padding: [ p.Number,         10          ]
-      major_tick_in:  [ p.Number,         2           ]
-      major_tick_out: [ p.Number,         6           ]
+      major_tick_in:  [ p.Number,         5           ]
+      major_tick_out: [ p.Number,         0           ]
       minor_tick_in:  [ p.Number,         0           ]
-      minor_tick_out: [ p.Number,         4           ]
+      minor_tick_out: [ p.Number,         0           ]
   }
 
   @override {
       background_fill_color: "#ffffff"
       background_fill_alpha: 0.95
-      border_line_color: "#e5e5e5"
-      border_line_alpha: 0.5
+      bar_line_color: null
+      border_line_color: null
       major_label_text_align: "center"
       major_label_text_baseline: "middle"
       major_label_text_font_size: "8pt"
+      major_tick_line_color: "#ffffff"
+      minor_tick_line_color: null
       title_text_font_size: "10pt"
       title_text_font_style: "italic"
   }

@@ -210,12 +210,14 @@ class ColorBar(Annotation):
     The %s of the major ticks.
     """)
 
-    major_tick_in = Int(default=2, help="""
+    major_tick_line_color = Override(default="#ffffff")
+
+    major_tick_in = Int(default=5, help="""
     The distance in pixels that major ticks should extend into the
     main plot area.
     """)
 
-    major_tick_out = Int(default=6, help="""
+    major_tick_out = Int(default=0, help="""
     The distance in pixels that major ticks should extend out of the
     main plot area.
     """)
@@ -224,12 +226,14 @@ class ColorBar(Annotation):
     The %s of the minor ticks.
     """)
 
+    minor_tick_line_color = Override(default=None)
+
     minor_tick_in = Int(default=0, help="""
     The distance in pixels that minor ticks should extend into the
     main plot area.
     """)
 
-    minor_tick_out = Int(default=4, help="""
+    minor_tick_out = Int(default=0, help="""
     The distance in pixels that major ticks should extend out of the
     main plot area.
     """)
@@ -238,13 +242,13 @@ class ColorBar(Annotation):
     The %s for the colorbar outline.
     """)
 
+    bar_line_color = Override(default=None)
+
     border_props = Include(LineProps, help="""
     The %s for the colorbar border outline.
     """)
 
-    border_line_color = Override(default="#e5e5e5")
-
-    border_line_alpha = Override(default=0.5)
+    border_line_color = Override(default=None)
 
     background_props = Include(FillProps, help="""
     The %s for the colorbar background style.
