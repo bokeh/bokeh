@@ -78,8 +78,9 @@ Color Bars
 ~~~~~~~~~~
 
 Users can use a |ColorMapper| instance, which contain a color palette,
-to create a ColorBar. Both on and off-plot ColorBars are supported. Users just
-need to specify their desired location when adding the ColorBar to the plot.
+to create a |ColorBar|. Both on and off-plot color bars are supported, users
+just need to specify their desired location when adding the ColorBar to the
+plot.
 
 .. note::
     This example depends on the open source NumPy and matplotlib libraries in
@@ -201,6 +202,7 @@ and extend to the edge of the plot area.
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
 .. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
+.. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
 .. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
