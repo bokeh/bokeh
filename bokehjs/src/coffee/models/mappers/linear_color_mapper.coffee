@@ -19,52 +19,27 @@ class LinearColorMapper extends ColorMapper.Model
       @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @_reserve_val   = @get('reserve_val')
 
-  v_map_screen: (data) ->
-    buf = new ArrayBuffer(data.length * 4)
-    color = new Uint32Array(buf)
+  _get_values: (data, palette) ->
+     low = @get('low') ? _.min(data)
+     high = @get('high') ? _.max(data)
 
-    low = @get('low') ? _.min(data)
-    high = @get('high') ? _.max(data)
+     N = palette.length - 1
+     scale = N/(high-low)
+     offset = -scale*low
+     values = []
 
-    N = @_palette.length - 1
-    scale = N/(high-low)
-    offset = -scale*low
+     for i in [0...data.length]
+       d = data[i]
 
-    if @_little_endian
-      for i in [0...data.length]
-        d = data[i]
-
-        if (d == @_reserve_val)
-          value = @_reserve_color
-        else
-          if (d > high)
-            d = high
-          if (d < low)
-            d = low
-          value = @_palette[Math.floor(d*scale+offset)]
-
-        color[i] =
-          (0xff << 24)               | # alpha
-          ((value & 0xff0000) >> 16) | # blue
-          (value & 0xff00)           | # green
-          ((value & 0xff) << 16);      # red
-
-    else
-      for i in [0...data.length]
-        d = data[i]
-
-        if (d == @_reserve_val)
-          value = @_reserve_color
-        else
-          if (d > high)
-            d = high
-          if (d < low)
-            d = low
-          value = @_palette[Math.floor(d*scale+offset)] # rgb
-
-        color[i] = (value << 8) | 0xff               # alpha
-
-    return buf
+       if (d == @_reserve_val)
+         value = @_reserve_color
+       else
+         if (d > high)
+           d = high
+         if (d < low)
+           d = low
+         values[i] = palette[Math.floor(d*scale+offset)]
+     return values
 
 module.exports =
   Model: LinearColorMapper
