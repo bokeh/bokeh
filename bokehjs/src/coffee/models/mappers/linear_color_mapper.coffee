@@ -23,7 +23,7 @@ class LinearColorMapper extends ColorMapper.Model
      low = @get('low') ? _.min(data)
      high = @get('high') ? _.max(data)
 
-     N = palette.length
+     N = palette.length - 1
      scale = N/(high-low)
      offset = -scale*low
      values = []
