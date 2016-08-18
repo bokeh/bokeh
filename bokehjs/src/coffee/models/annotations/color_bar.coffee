@@ -178,8 +178,8 @@ class ColorBarView extends Annotation.View
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
     ctx.drawImage(@image, 0, 0, image.width, image.height)
-    if @visuals.scale_line.doit
-        @visuals.scale_line.set_value(ctx)
+    if @visuals.bar_line.doit
+        @visuals.bar_line.set_value(ctx)
         ctx.strokeRect(0, 0, image.width, image.height)
     ctx.restore()
 
@@ -308,7 +308,7 @@ class ColorBar extends Annotation.Model
       'line:major_tick_',
       'line:minor_tick_',
       'line:border_',
-      'line:scale_',
+      'line:bar_',
       'fill:background_',
   ]
 

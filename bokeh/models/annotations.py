@@ -193,7 +193,7 @@ class ColorBar(Annotation):
     """)
 
     label_standoff = Int(5, help="""
-    The distance (in pixels) to separate the label from its associated glyph.
+    The distance (in pixels) to separate the tick labels from the ColorBar.
     """)
 
     major_label_props = Include(TextProps, help="""
@@ -234,8 +234,8 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
-    scale_props = Include(LineProps, help="""
-    The %s for the colorbar scale outline.
+    bar_props = Include(LineProps, help="""
+    The %s for the colorbar outline.
     """)
 
     border_props = Include(LineProps, help="""

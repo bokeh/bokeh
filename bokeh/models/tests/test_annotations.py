@@ -70,7 +70,7 @@ def test_ColorBar():
     yield check_text_properties, color_bar, "major_label_", "8pt", "middle", "normal", "center"
     yield check_line_properties, color_bar, "major_tick_"
     yield check_line_properties, color_bar, "minor_tick_"
-    yield check_line_properties, color_bar, "scale_"
+    yield check_line_properties, color_bar, "bar_"
     yield check_line_properties, color_bar, "border_", "#e5e5e5", 1.0, 0.5
     yield check_fill_properties, color_bar, "background_", "#ffffff", 0.95
     yield (check_properties_existence, color_bar, [
@@ -97,7 +97,7 @@ def test_ColorBar():
         prefix('major_label_', TEXT),
         prefix('major_tick_', LINE),
         prefix('minor_tick_', LINE),
-        prefix('scale_', LINE),
+        prefix('bar_', LINE),
         prefix('border_', LINE),
         prefix('background_', FILL)
     )
