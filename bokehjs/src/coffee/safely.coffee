@@ -2,45 +2,49 @@
 # arrived here, it means we should trust no one and need to act properly.
 
 _burst_into_flames = (error) ->
+  # Make box
   box = document.createElement("div")
-  box.style.textAlign = "center"
+  box.style["background-color"] = "#f2dede"
+  box.style["padding"] = "5px 5px 5px 10px"
+  box.style["border"] = "1px solid #a94442"
+  box.style["border-radius"] = "4px"
+  box.style["margin-top"] = "5px"
+  box.style["font-family"] = "sans-serif"
 
-  title = document.createElement("b")
-  title.appendChild(document.createTextNode("bokeh error"))
-
-  message = document.createElement("div")
-  message.style.display = "inline-block"
-  message.style.textAlign = "center"
-  message.style.padding = ".8em 1.6em"
-  message.style.border = "3px solid #dd0000"
-  message.style.backgroundColor = "#fff8f8"
-  message.style.color = "#aa0000"
-  message.style.fontSize = "small"
-  message.style.width = "auto"
-
+  # Make button
   button = document.createElement("span")
-  button.appendChild(document.createTextNode("Hide this message"))
-  button.addEventListener("click", () -> body.removeChild(box))
-  button.style.display = "inline-block"
-  button.style.margin = ".8em 0 0 0"
-  button.style.padding = "0px 5px 2px 5px"
-  button.style.border = "2px outset"
-  button.style.backgroundColor = "#e8e8e8"
-  button.style.color = "black"
-  button.style.fontSize = "80%"
-  button.style.width = "auto"
-  button.style.cursor = "pointer"
+  button.style["float"] = "right"
+  button.style["background-color"] = "#a94442"
+  button.style["border-radius"] = "4px"
+  button.style["padding"] = "5px"
+  button_text = document.createElement("a")
+  button_text.style["color"] = "white"
+  button_text.style["font-size"] = "0.8em"
+  button_text.href = "#"
+  button_text.appendChild(document.createTextNode("hide"))
+  button_text.addEventListener("click", () -> body.removeChild(box))
+  button.appendChild(button_text)
 
-  message.appendChild(title)
-  message.innerHTML += " &mdash; "
+  # Make title
+  title = document.createElement("h3")
+  title.style["padding"] = "0px"
+  title.style["margin"] = "8px 0px 0px 0px"
+  title.style["color"] = "#a94442"
+  title.appendChild(document.createTextNode("Bokeh Error"))
+
+  # Make message
+  message = document.createElement("pre")
   message.appendChild(document.createTextNode(error.message ? error))
-  message.appendChild(document.createElement("br"))
-  message.appendChild(button)
-  box.appendChild(message)
-  box.appendChild(document.createElement("hr"))
 
+  # Add pieces to box
+  box.appendChild(button)
+  box.appendChild(title)
+  box.appendChild(message)
+
+  # Put box in doc
   body = document.getElementsByTagName("body")[0]
   body.insertBefore(box, body.firstChild)
+
 
 safely = (fn, silent=false) ->
   try
