@@ -5,31 +5,32 @@ _burst_into_flames = (error) ->
   # Make box
   box = document.createElement("div")
   box.style["background-color"] = "#f2dede"
-  box.style["padding"] = "5px 5px 5px 10px"
   box.style["border"] = "1px solid #a94442"
   box.style["border-radius"] = "4px"
-  box.style["margin-top"] = "5px"
   box.style["font-family"] = "sans-serif"
+  box.style["margin-top"] = "5px"
+  box.style["padding"] = "5px 5px 5px 10px"
 
   # Make button
   button = document.createElement("span")
-  button.style["float"] = "right"
   button.style["background-color"] = "#a94442"
-  button.style["border-radius"] = "4px"
-  button.style["padding"] = "5px"
-  button_text = document.createElement("a")
-  button_text.style["color"] = "white"
-  button_text.style["font-size"] = "0.8em"
-  button_text.href = "#"
-  button_text.appendChild(document.createTextNode("hide"))
-  button_text.addEventListener("click", () -> body.removeChild(box))
-  button.appendChild(button_text)
+  button.style["border-radius"] = "0px 4px 0px 0px"
+  button.style["color"] = "white"
+  button.style["cursor"] = "pointer"
+  button.style["float"] = "right"
+  button.style["font-size"] = "0.8em"
+  button.style["margin"] = "-6px -6px 0px 0px"
+  button.style["padding"] = "2px 5px 4px 5px"
+  button.title = "close"
+  button.setAttribute("aria-label", "close")
+  button.appendChild(document.createTextNode("x"))
+  button.addEventListener("click", () -> body.removeChild(box))
 
   # Make title
   title = document.createElement("h3")
-  title.style["padding"] = "0px"
-  title.style["margin"] = "8px 0px 0px 0px"
   title.style["color"] = "#a94442"
+  title.style["margin"] = "8px 0px 0px 0px"
+  title.style["padding"] = "0px"
   title.appendChild(document.createTextNode("Bokeh Error"))
 
   # Make message
