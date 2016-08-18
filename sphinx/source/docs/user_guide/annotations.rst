@@ -72,6 +72,23 @@ argument to the glyph methods, when creating a plot.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
     :source-position: above
 
+.. _userguide_plotting_color_bars:
+
+Color Bars
+~~~~~~~~~~
+
+Users can use a |ColorMapper| instance, which contain a color palette,
+to create a ColorBar. Both on and off-plot ColorBars are supported. Users just
+need to specify their desired location when adding the ColorBar to the plot.
+
+.. note::
+    This example depends on the open source NumPy and matplotlib libraries in
+    order to more easily generate better data suitable for demonstrating
+    legends.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_color_bars.py
+    :source-position: above
+
 .. _userguide_plotting_arrows:
 
 Arrows
@@ -178,6 +195,8 @@ and extend to the edge of the plot area.
 .. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+.. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
