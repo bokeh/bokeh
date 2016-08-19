@@ -41,6 +41,9 @@ class ImageURLView extends Glyph.View
       img.src = @_url[i]
 
   _map_data: () ->
+    @_w = if @model.properties.w.units == "data" then @_w else @model.w
+    @_h = if @model.properties.h.units == "data" then @_h else @model.h
+
     # XXX: remove this when `null` handling is improved.
     ws = (if @_w? then @_w else NaN for x in @_x)
     hs = (if @_h? then @_h else NaN for x in @_x)
@@ -114,8 +117,8 @@ class ImageURL extends Glyph.Model
       anchor:         [ p.Anchor,    'top_left' ]
       global_alpha:   [ p.Number,    1.0        ]
       angle:          [ p.AngleSpec, 0          ]
-      w:              [ p.NumberSpec            ]
-      h:              [ p.NumberSpec            ]
+      w:              [ p.DistanceSpec          ]
+      h:              [ p.DistanceSpec          ]
       dilate:         [ p.Bool,      false      ]
       retry_attempts: [ p.Number,    0          ]
       retry_timeout:  [ p.Number,    0          ]
