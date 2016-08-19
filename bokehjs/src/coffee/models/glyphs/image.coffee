@@ -62,6 +62,9 @@ class ImageView extends Glyph.View
       @_xy_index()
 
   _map_data: () ->
+    @_dw = if @model.properties.dw.units == "data" then @_dw else @model.dw
+    @_dh = if @model.properties.dh.units == "data" then @_dh else @model.dh
+
     @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
 
@@ -105,8 +108,8 @@ class Image extends Glyph.Model
   @mixins []
   @define {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
-      dw:           [ p.NumberSpec       ]
-      dh:           [ p.NumberSpec       ]
+      dw:           [ p.DistanceSpec     ]
+      dh:           [ p.DistanceSpec     ]
       dilate:       [ p.Bool,      false ]
       color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys.Greys9) ]
   }

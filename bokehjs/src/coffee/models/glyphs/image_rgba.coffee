@@ -56,6 +56,9 @@ class ImageRGBAView extends Glyph.View
         @max_dh = _.max(@_dh)
 
   _map_data: () ->
+    @_dw = if @model.properties.dw.units == "data" then @_dw else @model.dw
+    @_dh = if @model.properties.dh.units == "data" then @_dh else @model.dh
+
     @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
 
@@ -100,8 +103,8 @@ class ImageRGBA extends Glyph.Model
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
       rows:   [ p.NumberSpec       ]
       cols:   [ p.NumberSpec       ]
-      dw:     [ p.NumberSpec       ]
-      dh:     [ p.NumberSpec       ]
+      dw:     [ p.DistanceSpec     ]
+      dh:     [ p.DistanceSpec     ]
       dilate: [ p.Bool,      false ]
   }
 
