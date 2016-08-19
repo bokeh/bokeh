@@ -7,7 +7,6 @@ LinearColorMapper = require "../mappers/linear_color_mapper"
 LinearMapper = require "../mappers/linear_mapper"
 LogMapper = require "../mappers/log_mapper"
 Range1d = require "../ranges/range1d"
-SidePanel = require "../../core/layout/side_panel"
 
 p = require "../../core/properties"
 text_util = require "../../core/util/text"
@@ -22,6 +21,7 @@ class ColorBarView extends Annotation.View
     @_set_canvas_image()
 
   bind_bokeh_events: () ->
+    @listenTo(@model, 'change:visible', @plot_view.request_render)
     @listenTo(@model.ticker, 'change', @plot_view.request_render)
     @listenTo(@model.formatter, 'change', @plot_view.request_render)
     @listenTo(@model.color_mapper, 'change', () ->
