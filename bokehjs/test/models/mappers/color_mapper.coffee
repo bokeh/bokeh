@@ -39,8 +39,7 @@ describe "ColorMapper module", ->
       spy.restore()
 
   describe "ColorMapper.v_map_screen method", ->
-    it "should call get_values without palette length", ->
-      # Default n of palette.length -1 will be used
+    it "should call get_values with data and palette", ->
       spy = sinon.spy(ColorMapper.prototype, "_get_values")
       palette =  ["blue", "red", "green", "pink", "black"]
       data = [1, 2, 3, 4, 5]
@@ -48,7 +47,7 @@ describe "ColorMapper module", ->
       @color_mapper.v_map_screen(data)
       expect(spy.withArgs(data, palette).calledOnce).to.be.true
       spy.restore()
-  
+
   describe "ColorMapper.compute method", ->
     it "should return null", ->
       # single value transform does not make sense for color mapper

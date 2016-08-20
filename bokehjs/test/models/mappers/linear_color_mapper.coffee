@@ -9,7 +9,7 @@ describe "LinearColorMapper._get_values method", ->
   it "Should correctly map values along linear scale with high/low unset", ->
     palette = ["red", "green", "blue"]
     color_mapper = new LinearColorMapper({
-        palette: palette 
+        palette: palette
       })
 
     vals = color_mapper._get_values([99.999, 67, 50, 32, 0.0001], palette)
@@ -41,7 +41,7 @@ describe "LinearColorMapper._get_values method", ->
     color_mapper = new LinearColorMapper({
         low: 1
         high: 3
-        palette: palette 
+        palette: palette
       })
 
     vals = color_mapper._get_values([1, 2, 3], palette)
@@ -52,7 +52,7 @@ describe "LinearColorMapper._get_values method", ->
     color_mapper = new LinearColorMapper({
         low: 3
         high: 1
-        palette: palette 
+        palette: palette
       })
 
     vals = color_mapper._get_values([1, 2, 3], palette)
