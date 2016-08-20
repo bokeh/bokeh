@@ -56,11 +56,11 @@ describe "ColorMapper module", ->
       expect(val).to.be.null
 
   describe "ColorMapper.v_compute method", ->
-    it "should call get_values with palette length", ->
+    it "should call get_values with palette", ->
       spy = sinon.spy(ColorMapper.prototype, "_get_values")
       palette =  ["blue", "red", "green", "pink", "black"]
       data = [1, 2, 3, 4, 5]
       @color_mapper.palette = palette
       @color_mapper.v_compute(data)
-      expect(spy.withArgs(data, palette, palette.length).calledOnce).to.be.true
+      expect(spy.withArgs(data, palette).calledOnce).to.be.true
       spy.restore()
