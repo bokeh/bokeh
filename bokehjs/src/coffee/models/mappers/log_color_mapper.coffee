@@ -11,48 +11,22 @@ class LogColorMapper extends ColorMapper.Model
       low:           [ p.Number           ]
     }
 
-  v_map_screen: (data) ->
-    buf = new ArrayBuffer(data.length * 4)
-    color = new Uint32Array(buf)
+  _get_values: (data, palette) ->
+     n = palette.length
+     low = @get('low') ? _.min(data)
+     high = @get('high') ? _.max(data)
+     scale = n / (Math.log1p(high) - Math.log1p(low))  # subtract the low offset
+     values = []
 
-    low = @get('low') ? _.min(data)
-    high = @get('high') ? _.max(data)
-
-    N = @_palette.length - 1
-    scale = N / (Math.log1p(high) - Math.log1p(low)) #substract the low offset
-
-    if @_little_endian
-      for i in [0...data.length]
-        d = data[i]
-
-        if (d > high)
-          d = high
-        else if (d < low)
-          d = low
-
-        log = Math.log1p(d) - Math.log1p(low) #substract the low offset
-        value = @_palette[Math.floor(log * scale)]
-
-        color[i] =
-          (0xff << 24)               | # alpha
-          ((value & 0xff0000) >> 16) | # blue
-          (value & 0xff00)           | # green
-          ((value & 0xff) << 16);      # red
-
-    else
-      for i in [0...data.length]
-        d = data[i]
-
-        if (d > high)
-          d = high
-        else if (d < low)
-          d = low
-
-        log = Math.log1p(d) - Math.log1p(low) #substract the low offset
-        value = @_palette[Math.floor(log * scale)]
-
-        color[i] = (value << 8) | 0xff                 # alpha
-    return buf
+     for i in [0...data.length]
+       d = data[i]
+       if (d > high)
+         d = high
+       else if (d < low)
+         d = low
+       log = Math.log1p(d) - Math.log1p(low)  # subtract the low offset
+       values[i] = palette[Math.floor(log * scale)]
+     return values
 
 module.exports =
   Model: LogColorMapper
