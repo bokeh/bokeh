@@ -12,6 +12,7 @@ stub_canvas = () ->
     beginPath: () -> null
     clearRect: () -> null
     clip: () -> null
+    drawImage: () -> null
     fillRect: () -> null
     fillText: () -> null
     lineTo: () -> null
