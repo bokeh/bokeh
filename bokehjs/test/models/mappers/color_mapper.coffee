@@ -21,8 +21,8 @@ describe "ColorMapper module", ->
 
   describe "ColorMapper._build_palette method", ->
 
-    it "should convert palette to Uint32Array with duplicate last value", ->
-      expected = { '0': 3253076, '1': 11394446, '2': 16252089, '3': 16252089 }
+    it "should convert palette to Uint32Array", ->
+      expected = { '0': 3253076, '1': 11394446, '2': 16252089 }
       expect(@color_mapper._build_palette([0x31a354, 0xaddd8e, 0xf7fcb9])).to.be.deep.equal(expected)
 
   describe "Changing palette model attr should reset _build_palette private attr", ->
@@ -34,7 +34,7 @@ describe "ColorMapper module", ->
       @color_mapper.palette = new_palette
 
       expect(spy.withArgs(new_palette).calledOnce).to.be.true
-      expect(@color_mapper._palette).to.be.deep.equal({ '0': 4432586, '1': 11066805, '2': 14742491, '3': 14742491 })
+      expect(@color_mapper._palette).to.be.deep.equal({ '0': 4432586, '1': 11066805, '2': 14742491 })
 
       spy.restore()
 
