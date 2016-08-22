@@ -216,6 +216,9 @@ those parameters will be used to calculate the initial aspect ratio for your
 plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
+For more precise control over how the plot scales to fill its container,
+see the documentation on the :ref:`~bokeh.models.layouts.LayoutDOM.sizing_mode` parameter.
+
 .. warning::
     This feature is known not to work when combined with HBox.
     This is a new feature and may have other issues when used in different circumstances.
