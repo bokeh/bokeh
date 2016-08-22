@@ -41,14 +41,17 @@ class ImageURLView extends Glyph.View
       img.src = @_url[i]
 
   _map_data: () ->
-    @_w = if @model.properties.w.units == "data" then @_w else @model.w
-    @_h = if @model.properties.h.units == "data" then @_h else @model.h
-
     # XXX: remove this when `null` handling is improved.
     ws = (if @_w? then @_w else NaN for x in @_x)
     hs = (if @_h? then @_h else NaN for x in @_x)
-    @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
+
+    switch @model.properties.w.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
+      when "screen" then @sw = @model.w
+
+    switch @model.properties.h.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
+      when "screen" then @sh = @model.h
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
 

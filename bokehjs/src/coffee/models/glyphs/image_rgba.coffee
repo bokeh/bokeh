@@ -56,11 +56,13 @@ class ImageRGBAView extends Glyph.View
         @max_dh = _.max(@_dh)
 
   _map_data: () ->
-    @_dw = if @model.properties.dw.units == "data" then @_dw else @model.dw
-    @_dh = if @model.properties.dh.units == "data" then @_dh else @model.dh
+    switch @model.properties.w.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+      when "screen" then @sw = @model.dw
 
-    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+    switch @model.properties.h.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+      when "screen" then @sh = @model.dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
