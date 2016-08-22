@@ -12,8 +12,7 @@ class LabelSetView extends TextAnnotation.View
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
     @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
-    @set_data(@mget('source'))
-    @set_visuals(@mget('source'))
+    @set_data()
 
     if @mget('render_mode') == 'css'
       for i in [0...@_text.length]
@@ -24,18 +23,22 @@ class LabelSetView extends TextAnnotation.View
     if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', () ->
-        @set_data(@mget('source'))
+        @set_data()
         @render())
       @listenTo(@mget('source'), 'change', () ->
-        @set_data(@mget('source'))
+        @set_data()
         @render())
     else
       @listenTo(@model, 'change', () ->
-        @set_data(@mget('source'))
+        @set_data()
         @plot_view.request_render())
       @listenTo(@mget('source'), 'change', () ->
-        @set_data(@mget('source'))
+        @set_data()
         @plot_view.request_render())
+
+  set_data: () ->
+    super(@mget('source'))
+    @set_visuals(@mget('source'))
 
   _map_data: () ->
     if @mget('x_units') == "data"
