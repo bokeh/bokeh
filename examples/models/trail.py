@@ -138,6 +138,7 @@ doc = Document()
 doc.add_root(layout)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Trail map and altitude profile"))

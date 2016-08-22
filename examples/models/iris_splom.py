@@ -79,6 +79,7 @@ doc = Document()
 doc.add_root(grid)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "iris_splom.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Iris Data SPLOM"))

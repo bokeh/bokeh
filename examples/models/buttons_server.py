@@ -66,4 +66,5 @@ session = push_session(document)
 session.show()
 
 if __name__ == "__main__":
+    doc.validate()
     session.loop_until_closed()

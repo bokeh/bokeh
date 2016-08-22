@@ -75,5 +75,6 @@ document.add_root(layout)
 session.show(layout)
 
 if __name__ == "__main__":
+    document.validate()
     print("\npress ctrl-C to exit")
     session.loop_until_closed()
