@@ -195,7 +195,8 @@ class TestDiffer(object):
         self.differ.additions = False
         intersection, diff = self.differ.diff_files()
         assert list(diff.keys()) == ["models"]
-        assert list(intersection.keys()) == ["bands"]
+        for x in intersection.keys():
+            assert x in ["models", "bands"]
         self.differ.additions = True
         intersection, diff = self.differ.diff_files()
         assert list(diff.keys()) == []

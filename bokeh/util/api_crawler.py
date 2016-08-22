@@ -63,7 +63,7 @@ class APICrawler(object):
         tree = os.walk(directory, topdown=True, followlinks=False)
         for dirpath, dirnames, filenames in tree:
             for folder in self.exclude:
-                if folder in dirpath:
+                if folder is dirpath:
                     break
             else:
                 for name in filenames:
@@ -114,7 +114,7 @@ class Differ(object):
 
 
     def diff_operation(self, a, b):
-        # Use this function to find the sifference between two sets of dictionary
+        # Use this function to find the difference between two sets of dictionary
         # keys. Uses the set difference operation. Called by the diff_modules
         # function.
         return list(a - b)
@@ -128,19 +128,17 @@ class Differ(object):
         return list((a ^ b) - a)
 
     def diff_files(self):
-        combined = copy.deepcopy(self.former)
-        combined.update(self.former)
         diff = {}
         intersection = {}
+
+        intersection.update(self.latter)
+        intersection.update(self.former)
         files_diff = self._operation(set(self.former), set(self.latter))
 
         # Diff files
-        for x in combined.keys():
+        for x in intersection.keys():
             if x in files_diff:
-                diff[x] = combined[x]
                 diff[x] = {}
-            else:
-                intersection[x] = combined[x]
         return intersection, diff
 
     def diff_functions_classes(self, diff, intersection):
