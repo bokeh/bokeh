@@ -54,6 +54,7 @@ def test_ColorBar():
     assert color_bar.orientation == 'vertical'
     assert color_bar.legend_height == 'auto'
     assert color_bar.legend_width == 'auto'
+    assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
     assert isinstance(color_bar.ticker, BasicTicker)
@@ -81,6 +82,7 @@ def test_ColorBar():
         "orientation",
         "legend_height",
         "legend_width",
+        "scale_alpha",
         "title",
         "title_standoff",
         "ticker",
