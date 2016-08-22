@@ -487,11 +487,8 @@ class ColorBar extends Annotation.Model
 
     major_labels = major_coords[i].slice(0) # make deep copy
 
-    major_coords[0] = mapper.v_map_to_target(major_coords[0])
-    major_coords[1] = mapper.v_map_to_target(major_coords[1])
-
-    minor_coords[0] = mapper.v_map_to_target(minor_coords[0])
-    minor_coords[1] = mapper.v_map_to_target(minor_coords[1])
+    major_coords[i] = mapper.v_map_to_target(major_coords[i])
+    minor_coords[i] = mapper.v_map_to_target(minor_coords[i])
 
     return {
       "major": major_coords
