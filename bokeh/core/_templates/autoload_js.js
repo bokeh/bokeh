@@ -103,8 +103,12 @@ calls it with the rendered model.
   ];
 
   function run_inline_js() {
-    for (var i = 0; i < inline_js.length; i++) {
-      inline_js[i](window.Bokeh);
+    if (window.Bokeh !== undefined || force === "1") {
+      for (var i = 0; i < inline_js.length; i++) {
+        inline_js[i](window.Bokeh);
+      }
+    } else {
+      setTimeout(run_inline_js, 500);
     }
   }
 
