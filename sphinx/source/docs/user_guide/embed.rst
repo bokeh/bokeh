@@ -134,7 +134,11 @@ For example, to use version ``0.12.0``, including widgets support:
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
-    browsers and the page will typically not render without it.
+    browsers and the page will typically not render without it. You may also
+    encounter a situation in which the browser will not load your page due to
+    an "unsafe" script. In this case, you may need to replace the above URLs
+    with "https" versus "http". That is, CDN resources are also available
+    via HTTPS URLS
 
 The |components| function takes either a single Bokeh Model a list/tuple of
 Models, or a dictionary of keys and Models. Each returns a corresponding
@@ -246,7 +250,8 @@ Then inserting the script and div elements into this boilerplate:
     </html>
 
 Note that above we have not included the ``"-widgets"`` JS and CSS files, since the
-document does not use Bokeh widgets.
+document does not use Bokeh widgets. If required, the CDN resources are available as HTTPS
+URLs as well.
 
 You can see an example by running:
 
