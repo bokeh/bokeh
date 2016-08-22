@@ -46,6 +46,9 @@ class ColorBarView extends Annotation.View
   _set_canvas_image: () ->
     palette = @model.color_mapper.palette
 
+    if @model.orientation == 'vertical'
+      palette = palette.slice(0).reverse()
+
     switch @model.orientation
       when "vertical" then [w, h] = [1, palette.length]
       when "horizontal" then [w, h] = [palette.length, 1]
@@ -438,14 +441,16 @@ class ColorBar extends Annotation.Model
     a LinearColorMapper will require a corresponding LinearMapper instance).
     ###
 
+    switch @orientation
+      when "vertical" then target_range = new Range1d.Model({start: 0, end: scale_length})
+      when "horizontal" then target_range = new Range1d.Model({start: scale_length, end: 0})
+
     mapping = {
       'source_range': new Range1d.Model({
-        start: @color_mapper.low
-        end: @color_mapper.high
+        start: @color_mapper.high
+        end: @color_mapper.low
       })
-      'target_range': new Range1d.Model({
-        start: 0
-        end: scale_length})
+      'target_range': target_range
     }
 
     switch @color_mapper.type
