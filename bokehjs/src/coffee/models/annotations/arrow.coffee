@@ -19,7 +19,7 @@ class ArrowView extends Annotation.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
     @listenTo(@mget('source'), 'change', () ->
-      set_data()
+      @set_data()
       @plot_view.request_render())
 
   set_data: () ->
