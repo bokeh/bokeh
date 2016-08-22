@@ -200,13 +200,14 @@ describe "ColorBar module", ->
         @plot.add_layout(@color_bar)
 
       it "Should correctly determine tick coords and labels for LinearColorMapper", ->
-        @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
+        @color_bar.color_mapper = new LinearColorMapper({low: 10, high: 20, palette: Viridis.Viridis10})
         @color_bar.legend_height = 100
 
         tick_coords = @color_bar._tick_coordinates()
 
+        expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
         expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
-        expect(tick_coords.major_labels).to.be.deep.equal([0, 2, 4, 6, 8, 10])
+        expect(tick_coords.major_labels).to.be.deep.equal([10, 12, 14, 16, 18, 20])
 
       it "Should correctly determine tick coords and labels for LogColorMapper", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
@@ -214,6 +215,7 @@ describe "ColorBar module", ->
 
         tick_coords = @color_bar._tick_coordinates()
 
+        expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
         expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([0, 76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
         expect(tick_coords.major_labels).to.be.deep.equal([0, 200, 400, 600, 800, 1000])
 
