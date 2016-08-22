@@ -74,6 +74,8 @@ def test_color_bar_with_scale_alpha(output_file_url, selenium, screenshot):
     bar_vertical_in_frame = create_vertical_color_bar_with_log_cmap()
     bar_vertical_in_frame.scale_alpha = 0.5
 
+    plot.add_layout(bar_vertical_in_frame)
+
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
