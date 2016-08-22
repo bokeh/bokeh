@@ -97,7 +97,7 @@ def _detect_nodejs():
     if settings.nodejs_path() is not None:
         nodejs_paths = [settings.nodejs_path()]
     else:
-        nodejs_paths = ["xnodejs", "node"]
+        nodejs_paths = ["nodejs", "node"]
 
     for nodejs_path in nodejs_paths:
         try:
