@@ -37,3 +37,14 @@ class TestFunctionHandler(unittest.TestCase):
         if handler.failed:
             raise RuntimeError(handler.error)
         assert len(doc.roots) == 2
+
+    def test_safe_to_fork(self):
+        def noop(doc):
+            pass
+        handler = FunctionHandler(noop)
+        doc = Document()
+        assert handler.safe_to_fork
+        handler.modify_document(doc)
+        if handler.failed:
+            raise RuntimeError(handler.error)
+        assert not handler.safe_to_fork

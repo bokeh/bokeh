@@ -1645,8 +1645,17 @@ class DataSpecProperty(BasicProperty):
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
         super(DataSpec, self).__init__(
-            String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)),
-            typ, default=default, help=help
+            String,
+            Dict(
+                String,
+                Either(
+                    String,
+                    Instance('bokeh.models.transforms.Transform'),
+                    Instance('bokeh.models.mappers.ColorMapper'),
+                    typ)),
+            typ,
+            default=default,
+            help=help
         )
         self._type = self._validate_type_param(typ)
 

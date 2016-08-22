@@ -77,8 +77,8 @@ class PatchesView extends Glyph.View
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
     # This is the earliest we can build them, and only build them once
-    @sxss = @_build_discontinuous_object(sxs)
-    @syss = @_build_discontinuous_object(sys)
+    @renderer.sxss = @_build_discontinuous_object(sxs)
+    @renderer.syss = @_build_discontinuous_object(sys)
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
@@ -133,8 +133,8 @@ class PatchesView extends Glyph.View
     hits = []
     for i in [0...candidates.length]
       idx = candidates[i]
-      sxs = @sxss[idx]
-      sys = @syss[idx]
+      sxs = @renderer.sxss[idx]
+      sys = @renderer.syss[idx]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           hits.push(idx)
@@ -150,28 +150,28 @@ class PatchesView extends Glyph.View
       return sum / array.length
 
   scx: (i, sx, sy) ->
-    if @sxss[i].length is 1
+    if @renderer.sxss[i].length is 1
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sxs[i])
     else
       # We have discontinuous objects, so we need to find which
       # one we're in, we can use point_in_poly again
-      sxs = @sxss[i]
-      sys = @syss[i]
+      sxs = @renderer.sxss[i]
+      sys = @renderer.syss[i]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           return @_get_snap_coord(sxs[j])
     return null
 
   scy: (i, sx, sy) ->
-    if @syss[i].length is 1
+    if @renderer.syss[i].length is 1
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sys[i])
     else
       # We have discontinuous objects, so we need to find which
       # one we're in, we can use point_in_poly again
-      sxs = @sxss[i]
-      sys = @syss[i]
+      sxs = @renderer.sxss[i]
+      sys = @renderer.syss[i]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           return @_get_snap_coord(sys[j])

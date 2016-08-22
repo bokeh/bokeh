@@ -441,6 +441,39 @@ In this case you might have code similar to:
 And similar code to load the JavaScript implementation for a custom model
 from ``models/custom.js``
 
+.. _userguide_server_session_request:
+
+Accessing the HTTP Request
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a session is created for a Bokeh application, the session context is made
+available as ``curdoc().session_context``. The most useful function of the
+session context is to make the Tornado HTTP request object available to the
+application as ``session_context.request``. The request object has a number of
+fields, such as ``arguments``, ``cookies``, ``protocol``, etc. See the
+documentation for `HTTPServerRequest`_ for full details.
+
+As an example, the following code will access the request ``arguments`` to set
+a value for a variable ``N`` (perhaps controlling the number of points in a
+plot):
+
+.. code-block:: python
+
+  # request.arguments is a dict that maps argument names to lists of strings,
+  # e.g, the query string ?N=10 will result in {'N': [b'10']}
+
+  args = curdoc().session_context.request.arguments
+
+  try:
+    N = int(args.get('N')[0])
+  except:
+    N = 200
+
+.. warning::
+  The request object is provided so that values such as ``arguments`` may be
+  easily inspected. Calling any of the Tornado methods such as ``finish()`` or
+  writing directly to ``request.connection`` is unsupported and will result in
+  undefined behavior.
 
 .. _userguide_server_applications_callbacks:
 
@@ -1115,6 +1148,7 @@ minor modifications, this machinery should work on many linux variants.
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/
 .. _contact us on the mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
 .. _Puppet: https://puppetlabs.com
 .. _SaltStack: http://saltstack.com
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
