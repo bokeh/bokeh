@@ -260,9 +260,11 @@ def notebook_div(model, notebook_comms_target=None):
     item = render_items[0]
     item['notebook_comms_target'] = notebook_comms_target
 
-    script = _script_for_notebook_render_items(docs_json, render_items,
-                                               notebook_comms_target,
-                                               wrap_script=False)
+    script = _wrap_in_function(NOTEBOOK_JS.render(
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items),
+        comms_target=notebook_comms_target
+    ))
     resources = EMPTY
 
     js = AUTOLOAD_JS.render(
@@ -452,26 +454,11 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items,
-                             websocket_url=None, wrap_script=True):
+def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
     plot_js = _wrap_in_function(DOC_JS.render(
         websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
-    ))
-
-    if wrap_script:
-        return SCRIPT_TAG.render(js_code=plot_js)
-    else:
-        return plot_js
-
-
-def _script_for_notebook_render_items(docs_json, render_items, notebook_comms_target=None,
-                                      wrap_script=True):
-    plot_js = _wrap_in_function(NOTEBOOK_JS.render(
-        docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items),
-        comms_target=notebook_comms_target
     ))
 
     if wrap_script:
