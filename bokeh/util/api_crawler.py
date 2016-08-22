@@ -52,8 +52,7 @@ class APICrawler(object):
     def get_functions(self, source):
         # For a given source, look for functions and return those functions as a list.
         parsed = ast.parse(source)
-        functions = [node for node in ast.walk(parsed) if self.is_function(node) and self.is_public(node.name)]
-        functions = [x.name for x in functions]
+        functions = [node.name for node in ast.walk(parsed) if self.is_function(node) and self.is_public(node.name)]
         return functions
 
     def get_filenames(self, directory):
