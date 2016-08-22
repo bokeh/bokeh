@@ -82,6 +82,7 @@ def test_ColorBar():
         "orientation",
         "legend_height",
         "legend_width",
+        "scale_alpha",
         "title",
         "title_standoff",
         "ticker",
