@@ -177,6 +177,7 @@ class ColorBarView extends Annotation.View
     image = @model._computed_image_dimensions()
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
+    ctx.globalAlpha = @model.scale_alpha
     ctx.drawImage(@image, 0, 0, image.width, image.height)
     if @visuals.bar_line.doit
         @visuals.bar_line.set_value(ctx)
@@ -319,6 +320,7 @@ class ColorBar extends Annotation.Model
       title_standoff: [ p.Number,         2           ]
       legend_height:  [ p.Any,            'auto'      ]
       legend_width:   [ p.Any,            'auto'      ]
+      scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
