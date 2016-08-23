@@ -16,7 +16,7 @@ class LogColorMapper extends ColorMapper.Model
 
     for d in data
       # Check NaN
-      if _.isNaN(d)
+      if isNaN(d)
         values.push(@nan_color)
         continue
       # Clamp the data

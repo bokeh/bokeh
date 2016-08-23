@@ -16,7 +16,7 @@ class LinearColorMapper extends ColorMapper.Model
     normed_interval = 1 / palette.length
 
     for d in data
-      if _.isNaN(d)
+      if isNaN(d)
         values.push(@nan_color)
         continue
 
