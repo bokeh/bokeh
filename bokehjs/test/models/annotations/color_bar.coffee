@@ -201,29 +201,40 @@ describe "ColorBar module", ->
         @lin_expected = new Float64Array([0, 20, 40, 60, 80, 100])
         @log_expected = new Float64Array([0, 76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100])
 
-      it "Should correctly determine tick coords and labels for LinearColorMapper", ->
+      it "Should correctly tick coords and labels for LinearColorMapper if orientation='vertical'", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 10, high: 20, palette: Viridis.Viridis10})
-        @color_bar.legend_width = 100
-        @color_bar.orientation = 'horizontal'
+        @color_bar.legend_height = 100
+        @color_bar.orientation = 'vertical'
 
         tick_coords = @color_bar._tick_coordinates()
 
-        expect(tick_coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.major[0]).to.be.deep.equal(@lin_expected)
+        expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
+        expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
         expect(tick_coords.major_labels).to.be.deep.equal([10, 12, 14, 16, 18, 20])
 
-      it "Should reverse tick coords and labels for LinearColorMapper if orientation='vertical'", ->
+      it "Should correctly determine tick coords and labels for LinearColorMapperif orientation='horizontal'", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 10, high: 20, palette: Viridis.Viridis10})
+        @color_bar.legend_width = 100
+        @color_bar.orientation = 'horizontal'
+
+        tick_coords = @color_bar._tick_coordinates()
+
+        expect(tick_coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
+        expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
+        expect(tick_coords.major_labels).to.be.deep.equal([10, 12, 14, 16, 18, 20])
+
+      it "Should correctly determine tick coords and labels for LogColorMapper if orientation='vertical'", ->
+        @color_bar.color_mapper = new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
         @color_bar.legend_height = 100
         @color_bar.orientation = 'vertical'
 
         tick_coords = @color_bar._tick_coordinates()
 
         expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.major[1]).to.be.deep.equal(@lin_expected.reverse())
-        expect(tick_coords.major_labels).to.be.deep.equal([10, 12, 14, 16, 18, 20].reverse())
+        expect(tick_coords.major[1]).to.be.deep.equal(new Float64Array([100, 23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
+        expect(tick_coords.major_labels).to.be.deep.equal([0, 200, 400, 600, 800, 1000])
 
-      it "Should correctly determine tick coords and labels for LogColorMapper", ->
+      it "Should correctly determine tick coords and labels for LogColorMapper if orientation='vertical'", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
         @color_bar.legend_width = 100
         @color_bar.orientation = 'horizontal'
@@ -231,19 +242,8 @@ describe "ColorBar module", ->
         tick_coords = @color_bar._tick_coordinates()
 
         expect(tick_coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.major[0]).to.be.deep.equal(@log_expected)
+        expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([0, 76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
         expect(tick_coords.major_labels).to.be.deep.equal([0, 200, 400, 600, 800, 1000])
-
-      it "Should reverse tick coords and labels for LogColorMapper if orientation='vertical'", ->
-        @color_bar.color_mapper = new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
-        @color_bar.legend_height = 100
-        @color_bar.orientation = 'vertical'
-
-        tick_coords = @color_bar._tick_coordinates()
-
-        expect(tick_coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.major[1]).to.be.deep.equal(@log_expected.reverse())
-        expect(tick_coords.major_labels).to.be.deep.equal([0, 200, 400, 600, 800, 1000].reverse())
 
   describe "ColorBar.View", ->
 

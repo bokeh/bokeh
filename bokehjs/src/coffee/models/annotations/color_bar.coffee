@@ -488,14 +488,15 @@ class ColorBar extends Annotation.Model
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(0)
 
-    if @orientation == 'vertical'
-      major_coords[i] = major_coords[i].reverse()
-      minor_coords[i] = minor_coords[i].reverse()
-
     major_labels = major_coords[i].slice(0) # make deep copy
 
     major_coords[i] = mapper.v_map_to_target(major_coords[i])
     minor_coords[i] = mapper.v_map_to_target(minor_coords[i])
+
+    # Because we want the scale to be reversed
+    if @orientation == 'vertical'
+      major_coords[i] = major_coords[i].map((coord) -> return scale_length - coord)
+      minor_coords[i] = minor_coords[i].map((coord) -> return scale_length - coord)
 
     return {
       "major": major_coords
