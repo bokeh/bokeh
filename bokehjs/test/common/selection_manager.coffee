@@ -3,7 +3,7 @@ utils = require "../utils"
 
 SelectionManager = utils.require "common/selection_manager"
 
-SomeMarker = utils.require("models/markers/circle_x").Model
+SomeMarker = utils.require("models/markers/index").CircleX.Model
 GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
 GlyphRendererView = utils.require("models/renderers/glyph_renderer").View
 ColumnDataSource = utils.require("models/sources/column_data_source").Model

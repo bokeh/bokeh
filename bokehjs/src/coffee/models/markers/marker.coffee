@@ -24,6 +24,26 @@ class MarkerView extends Glyph.View
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
 
+  _render: (ctx, indices, {sx, sy, _size, _angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+_size[i]+_angle[i])
+        continue
+
+      r = _size[i]/2
+
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
+
+      if _angle[i]
+        ctx.rotate(_angle[i])
+
+      @_render_one(ctx, i, sx[i], sy[i], r, @visuals.line, @visuals.fill)
+
+      if _angle[i]
+        ctx.rotate(-_angle[i])
+
+      ctx.translate(-sx[i], -sy[i])
+
   _index_data: () ->
     @_xy_index()
 
@@ -105,6 +125,7 @@ class Marker extends Glyph.Model
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
     angle: [ p.AngleSpec,    0                             ]
   }
+
 
 module.exports =
   Model: Marker
