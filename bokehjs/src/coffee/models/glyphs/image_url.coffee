@@ -6,8 +6,8 @@ p = require "../../core/properties"
 
 class ImageURLView extends Glyph.View
 
-  initialize: (options) ->
-    super(options)
+  bind_bokeh_events: () ->
+    super()
     @listenTo(@model, 'change:global_alpha', @renderer.request_render)
 
   _index_data: () ->
