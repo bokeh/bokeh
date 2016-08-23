@@ -64,32 +64,3 @@ describe "ImageURL module", ->
       image_url_view.map_data()
       expect(image_url_view.sw).to.be.deep.equal([100])
       expect(image_url_view.sh).to.be.deep.equal([200])
-
-
-
-      # beforeEach ->
-        # @image_url = new ImageURL.Model({
-        #   x: 1
-        #   y: 2
-        #   w: 10
-        #   h: 20
-        #   url: 'https://upload.wikimedia.org/wikipedia/commons/b/be/Tree_example_IR.jpg'
-        # })
-
-      # it "should do stuff", ->
-      #   @image_url.properties.w.units = "screen"
-      #   image_url_view = create_glyph_view(@image_url)
-      #   image_url_view.map_data()
-      #   expect(image_url_view.sw).to.be.equal 5
-
-      # it "should do other stuff", ->
-      #   image_url_view = create_glyph_view(@image_url)
-      #   expect(image_url_view.image[0].src).to.be.equal 5
-      #   # expect(image_url_view.image[0].onerror).to.be.equal(5)
-      #
-      # it "should image stuff", ->
-      #   @image_url.retry_attempts = 1
-      #   image_url_view = create_glyph_view(@image_url)
-      #   # spy = sinon.spy(Image.prototype, 'onerror')
-      #   # expect(spy.calledOnce).to.be.true
-      #   # expect(Image).to.be.equal(5)
