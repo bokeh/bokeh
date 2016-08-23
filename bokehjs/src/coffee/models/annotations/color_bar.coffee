@@ -46,6 +46,9 @@ class ColorBarView extends Annotation.View
   _set_canvas_image: () ->
     palette = @model.color_mapper.palette
 
+    if @model.orientation == 'vertical'
+      palette = palette.slice(0).reverse()
+
     switch @model.orientation
       when "vertical" then [w, h] = [1, palette.length]
       when "horizontal" then [w, h] = [palette.length, 1]
@@ -491,6 +494,11 @@ class ColorBar extends Annotation.Model
 
     major_coords[i] = mapper.v_map_to_target(major_coords[i])
     minor_coords[i] = mapper.v_map_to_target(minor_coords[i])
+
+    # Because we want the scale to be reversed
+    if @orientation == 'vertical'
+      major_coords[i] = major_coords[i].map((coord) -> return scale_length - coord)
+      minor_coords[i] = minor_coords[i].map((coord) -> return scale_length - coord)
 
     return {
       "major": major_coords
