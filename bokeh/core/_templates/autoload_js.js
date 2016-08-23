@@ -34,6 +34,8 @@ calls it with the rendered model.
   if (typeof (window._bokeh_onload_callbacks) === "undefined" || force !== "") {
     window._bokeh_onload_callbacks = [];
     window._bokeh_is_loading = undefined;
+    window._bokeh_init_load = Date.now();
+    window._bokeh_failed_load = false;
   }
 
   function run_callbacks() {
@@ -107,9 +109,12 @@ calls it with the rendered model.
       for (var i = 0; i < inline_js.length; i++) {
         inline_js[i](window.Bokeh);
       }
-    } else {
+    } else if (Date.now() < (window._bokeh_init_load+10000)) {
       setTimeout(run_inline_js, 500);
-    }
+    } else if (!window._bokeh_failed_load) {
+	  console.log("Bokeh: BokehJS failed to load within specified timeout.");
+	  window._bokeh_failed_load = true;
+	}
   }
 
   if (window._bokeh_is_loading === 0) {
