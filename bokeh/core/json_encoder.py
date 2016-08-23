@@ -11,12 +11,11 @@ import decimal
 import json
 import time
 
-import numpy as np
-
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.serialization import transform_series, transform_array
 
+np = import_optional('numpy')
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
 
@@ -32,11 +31,11 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Pandas Timestamp
         if pd and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / 10**6.0  #nanosecond to millisecond
-        elif np.issubdtype(type(obj), np.float):
+        elif np and np.issubdtype(type(obj), np.float):
             return float(obj)
-        elif np.issubdtype(type(obj), np.int):
+        elif np and np.issubdtype(type(obj), np.int):
             return int(obj)
-        elif np.issubdtype(type(obj), np.bool_):
+        elif np and np.issubdtype(type(obj), np.bool_):
             return bool(obj)
         # Datetime (datetime is a subclass of date)
         elif isinstance(obj, dt.datetime):
@@ -48,7 +47,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, dt.date):
             return time.mktime(obj.timetuple()) * 1000.
         # Numpy datetime64
-        elif isinstance(obj, np.datetime64):
+        elif np and isinstance(obj, np.datetime64):
             epoch_delta = obj - np.datetime64('1970-01-01T00:00:00Z')
             return (epoch_delta / np.timedelta64(1, 'ms'))
         # Time
@@ -71,7 +70,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         ## array types
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return transform_series(obj)
-        elif isinstance(obj, np.ndarray):
+        elif np and isinstance(obj, np.ndarray):
             return transform_array(obj)
         elif isinstance(obj, Model):
             return obj.ref

@@ -4,18 +4,12 @@ Bokeh objects.
 """
 from __future__ import absolute_import
 
+import math
 from six import iterkeys
 
 from .dependencies import import_optional
 
-is_numpy = None
-
-try:
-    import numpy as np
-    is_numpy = True
-except ImportError:
-    is_numpy = False
-
+np = import_optional('numpy')
 pd = import_optional('pandas')
 
 import logging
@@ -100,31 +94,38 @@ def transform_numerical_array(obj):
         transformed[np.isneginf(obj)] = '-Infinity'
         return transformed.tolist()
 
-def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
+def traverse_data(datum, use_numpy=True):
     """recursively dig until a flat list is found
     if numpy is available convert the flat list to a numpy array
     and send off to transform_array() to handle nan, inf, -inf
     otherwise iterate through items in array converting non-json items
 
     Args:
-        datum (list) : a list of values or lists
-        is_numpy: True if numpy is present (see imports)
-        use_numpy: toggle numpy as a dependency for testing purposes
+        datum (list)     : a list of values or lists
+        use_numpy (bool) : set to ``False`` to disable NumPy even if available
     """
-    is_numpy = is_numpy and use_numpy
-    if is_numpy and not any(isinstance(el, (list, tuple)) for el in datum):
+    use_numpy = use_numpy and np
+    if use_numpy and not any(isinstance(el, (list, tuple)) for el in datum):
         return transform_array(np.asarray(datum))
     datum_copy = []
     for item in datum:
         if isinstance(item, (list, tuple)):
             datum_copy.append(traverse_data(item))
         elif isinstance(item, float):
-            if np.isnan(item):
-                item = 'NaN'
-            elif np.isposinf(item):
-                item = 'Infinity'
-            elif np.isneginf(item):
-                item = '-Infinity'
+            if use_numpy:
+                if np.isnan(item):
+                    item = 'NaN'
+                elif np.isposinf(item):
+                    item = 'Infinity'
+                elif np.isneginf(item):
+                    item = '-Infinity'
+            else:
+                if math.isnan(item):
+                    item = 'NaN'
+                elif math.isinf(item):
+                    item = 'Infinity'
+                elif math.isinf(item) and item < 0:
+                    item = '-Infinity'
             datum_copy.append(item)
         else:
             datum_copy.append(item)
@@ -138,7 +139,7 @@ def transform_column_source_data(data):
     for key in iterkeys(data):
         if pd and isinstance(data[key], (pd.Series, pd.Index)):
             data_copy[key] = transform_series(data[key])
-        elif isinstance(data[key], np.ndarray):
+        elif np and isinstance(data[key], np.ndarray):
             data_copy[key] = transform_array(data[key])
         else:
             data_copy[key] = traverse_data(data[key])
