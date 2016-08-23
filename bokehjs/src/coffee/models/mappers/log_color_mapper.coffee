@@ -1,32 +1,40 @@
 _ = require "underscore"
 
 ColorMapper = require "./color_mapper"
-p = require "../../core/properties"
+
 
 class LogColorMapper extends ColorMapper.Model
   type: "LogColorMapper"
 
-  @define {
-      high:          [ p.Number           ]
-      low:           [ p.Number           ]
-    }
-
   _get_values: (data, palette) ->
-     n = palette.length
-     low = @get('low') ? _.min(data)
-     high = @get('high') ? _.max(data)
-     scale = n / (Math.log1p(high) - Math.log1p(low))  # subtract the low offset
-     values = []
+    n = palette.length
+    low = @get('low') ? _.min(data)
+    high = @get('high') ? _.max(data)
+    scale = n / (Math.log1p(high) - Math.log1p(low))  # subtract the low offset
+    max_key = palette.length - 1
+    values = []
 
-     for i in [0...data.length]
-       d = data[i]
-       if (d > high)
-         d = high
-       else if (d < low)
-         d = low
-       log = Math.log1p(d) - Math.log1p(low)  # subtract the low offset
-       values[i] = palette[Math.floor(log * scale)]
-     return values
+    for d in data
+      # Check NaN
+      if _.isNaN(d)
+        values.push(@nan_color)
+        continue
+      # Clamp the data
+      if d > high
+        d = high
+      if d < low
+        d = low
+
+      # Get the key
+      log = Math.log1p(d) - Math.log1p(low)  # subtract the low offset
+      key = Math.floor(log * scale)
+
+      # Deal with upper bound
+      if key > max_key
+        key = max_key
+
+      values.push(palette[key])
+    return values
 
 module.exports =
   Model: LogColorMapper

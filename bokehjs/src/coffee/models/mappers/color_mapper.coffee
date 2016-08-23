@@ -3,11 +3,15 @@ p = require "../../core/properties"
 
 Model = require "../../model"
 
+
 class ColorMapper extends Model
   type: "ColorMapper"
 
   @define {
       palette:       [ p.Any              ] # TODO (bev)
+      high:          [ p.Number           ]
+      low:           [ p.Number           ]
+      nan_color:     [ p.Color, "gray"    ]
     }
 
   initialize: (attrs, options) ->
