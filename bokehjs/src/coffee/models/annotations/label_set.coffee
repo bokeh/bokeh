@@ -37,8 +37,8 @@ class LabelSetView extends TextAnnotation.View
         @plot_view.request_render())
 
   set_data: () ->
-    super(@mget('source'))
-    @set_visuals(@mget('source'))
+    super(@model.source)
+    @set_visuals(@model.source)
 
   _map_data: () ->
     if @mget('x_units') == "data"
