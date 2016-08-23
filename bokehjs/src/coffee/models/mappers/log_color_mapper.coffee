@@ -15,7 +15,10 @@ class LogColorMapper extends ColorMapper.Model
 
      for i in [0...data.length]
        d = data[i]
-       if (d > high)
+       if _.isNaN(d)
+         values[i] = @nan_color
+         continue
+       else if (d > high)
          d = high
        else if (d < low)
          d = low

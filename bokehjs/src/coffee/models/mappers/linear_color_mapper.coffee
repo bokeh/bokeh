@@ -16,9 +16,12 @@ class LinearColorMapper extends ColorMapper.Model
     for d in data
       normed_d = (d - min) / (max - min)
       key = Math.floor(normed_d / interval)
-      if key < 0
+      if _.isNaN(d)
+        values.push(@nan_color)
+        continue
+      else if key < 0
         key = 0
-      if key >= max_key
+      else if key >= max_key
         key = max_key
       values.push(palette[key])
     return values
