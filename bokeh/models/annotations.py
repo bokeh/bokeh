@@ -151,6 +151,10 @@ class ColorBar(Annotation):
     The width (in pixels) that the rendered legend should occupy.
     """)
 
+    scale_alpha = Float(1.0, help="""
+    The alpha with which to render the color scale.
+    """)
+
     title = String(help="""
     The title text to render.
     """)
