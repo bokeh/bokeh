@@ -5,9 +5,8 @@ Glyph = require "./glyph"
 p = require "../../core/properties"
 
 class ImageURLView extends Glyph.View
-
-  bind_bokeh_events: () ->
-    super()
+  initialize: (options) ->
+    super(options)
     @listenTo(@model, 'change:global_alpha', @renderer.request_render)
 
   _index_data: () ->
@@ -16,8 +15,8 @@ class ImageURLView extends Glyph.View
     if not @image? or @image.length != @_url.length
       @image = (null for img in @_url)
 
-    retry_attempts = @mget('retry_attempts')
-    retry_timeout = @mget('retry_timeout')
+    retry_attempts = @model.retry_attempts
+    retry_timeout = @model.retry_timeout
 
     @retries = (retry_attempts for img in @_url)
 
@@ -46,12 +45,12 @@ class ImageURLView extends Glyph.View
     hs = (if @_h? then @_h else NaN for x in @_x)
 
     switch @model.properties.w.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
-      when "screen" then @sw = @model.w
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @model.dilate)
+      when "screen" then @sw = ws
 
     switch @model.properties.h.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
-      when "screen" then @sh = @model.h
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @model.dilate)
+      when "screen" then @sh = hs
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
 
@@ -91,12 +90,12 @@ class ImageURLView extends Glyph.View
     if isNaN(sw[i]) then sw[i] = image.width
     if isNaN(sh[i]) then sh[i] = image.height
 
-    anchor = @mget('anchor')
+    anchor = @model.anchor
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
     ctx.save()
 
-    ctx.globalAlpha = @mget("global_alpha")
+    ctx.globalAlpha = @model.global_alpha
 
     if angle[i]
       ctx.translate(sx, sy)
