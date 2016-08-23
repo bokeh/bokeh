@@ -1,15 +1,10 @@
 _ = require "underscore"
 
 ColorMapper = require "./color_mapper"
-p = require "../../core/properties"
+
 
 class LogColorMapper extends ColorMapper.Model
   type: "LogColorMapper"
-
-  @define {
-      high:          [ p.Number           ]
-      low:           [ p.Number           ]
-    }
 
   _get_values: (data, palette) ->
      n = palette.length

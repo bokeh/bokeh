@@ -1,23 +1,10 @@
 _ = require "underscore"
 
 ColorMapper = require "./color_mapper"
-p = require "../../core/properties"
+
 
 class LinearColorMapper extends ColorMapper.Model
   type: "LinearColorMapper"
-
-  @define {
-      high:          [ p.Number           ]
-      low:           [ p.Number           ]
-      reserve_val:   [ p.Number           ]
-      reserve_color: [ p.Color, '#ffffff' ]
-    }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    if @get('reserve_color')?
-      @_reserve_color = parseInt(@get('reserve_color').slice(1), 16)
-      @_reserve_val   = @get('reserve_val')
 
   _get_values: (data, palette) ->
     min = @get('low') ? _.min(data)
