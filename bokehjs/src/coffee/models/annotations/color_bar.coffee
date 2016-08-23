@@ -441,16 +441,14 @@ class ColorBar extends Annotation.Model
     a LinearColorMapper will require a corresponding LinearMapper instance).
     ###
 
-    switch @orientation
-      when "vertical" then target_range = new Range1d.Model({start: 0, end: scale_length})
-      when "horizontal" then target_range = new Range1d.Model({start: scale_length, end: 0})
-
     mapping = {
       'source_range': new Range1d.Model({
-        start: @color_mapper.high
-        end: @color_mapper.low
+        start: @color_mapper.low
+        end: @color_mapper.high
       })
-      'target_range': target_range
+      'target_range': new Range1d.Model({
+        start: 0
+        end: scale_length})
     }
 
     switch @color_mapper.type
@@ -490,13 +488,14 @@ class ColorBar extends Annotation.Model
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(0)
 
+    if @orientation == 'vertical'
+      major_coords[i] = major_coords[i].reverse()
+      minor_coords[i] = minor_coords[i].reverse()
+
     major_labels = major_coords[i].slice(0) # make deep copy
 
-    major_coords[0] = mapper.v_map_to_target(major_coords[0])
-    major_coords[1] = mapper.v_map_to_target(major_coords[1])
-
-    minor_coords[0] = mapper.v_map_to_target(minor_coords[0])
-    minor_coords[1] = mapper.v_map_to_target(minor_coords[1])
+    major_coords[i] = mapper.v_map_to_target(major_coords[i])
+    minor_coords[i] = mapper.v_map_to_target(minor_coords[i])
 
     return {
       "major": major_coords
