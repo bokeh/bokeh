@@ -265,13 +265,13 @@ class TestShow(DefaultStateTester):
     def test_default_args(self, mock__show_with_state):
         default_kwargs = dict(browser=None, new="tab")
         io.show("obj", **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", io._state, None, "tab"), {})
+        self._check_func_called(mock__show_with_state, ("obj", io._state, None, "tab", False), {})
 
     @patch('bokeh.io._show_with_state')
     def test_explicit_args(self, mock__show_with_state):
         default_kwargs = dict(browser="browser", new="new")
         io.show("obj", **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {})
+        self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new", False), {})
 
 
 @patch('bokeh.io._show_with_state')
@@ -304,19 +304,19 @@ class Test_ShowWithState(DefaultStateTester):
         mock_get_browser_controller.return_value = "controller"
         s = io.State()
         s.output_notebook()
-        io._show_with_state("obj", s, "browser", "new")
+        io._show_with_state("obj", s, "browser", "new", False)
         self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
         self.assertFalse(mock__show_server_with_state.called)
         self.assertFalse(mock__show_file_with_state.called)
 
         s.output_file("foo.html")
-        io._show_with_state("obj", s, "browser", "new")
+        io._show_with_state("obj", s, "browser", "new", False)
         self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
         s._session = Mock
-        io._show_with_state("obj", s, "browser", "new")
+        io._show_with_state("obj", s, "browser", "new", False)
         self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
@@ -335,7 +335,7 @@ class Test_ShowWithState(DefaultStateTester):
         s = io.State()
 
         s.output_file("foo.html")
-        io._show_with_state("obj", s, "browser", "new")
+        io._show_with_state("obj", s, "browser", "new", False)
         self.assertFalse(mock__show_notebook_with_state.called)
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
@@ -344,10 +344,23 @@ class Test_ShowWithState(DefaultStateTester):
                                                      url="http://example.com",
                                                      app_path='/'))
         s._server_enabled = True
-        io._show_with_state("obj", s, "browser", "new")
+        io._show_with_state("obj", s, "browser", "new", False)
         self.assertFalse(mock__show_notebook_with_state.called)
         self._check_func_called(mock__show_server_with_state, ("obj", s, "new", "controller"), {})
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
+
+    @patch('bokeh.io._show_notebook_with_state')
+    @patch('bokeh.util.browser.get_browser_controller')
+    def test_ShowNotebook_return_handle_arg(self, mock_get_browser_controller,
+            mock__show_notebook_with_state):
+        mock__show_notebook_with_state.return_value = "comms"
+        s = io.State()
+        s.output_notebook()
+        comms_handle = io._show_with_state("obj", s, "browser", "new", False)
+        self.assertEqual(comms_handle, None)
+
+        comms_handle = io._show_with_state("obj", s, "browser", "new", True)
+        self.assertEqual(comms_handle, "comms")
 
     @patch('warnings.warn')
     @patch('bokeh.util.browser.get_browser_controller')
@@ -355,7 +368,7 @@ class Test_ShowWithState(DefaultStateTester):
         mock_get_browser_controller.return_value = "controller"
         s = io.State()
         s.output_notebook()
-        io._show_with_state("obj", s, "browser", "new")
+        io._show_with_state("obj", s, "browser", "new", False)
         self.assertTrue(mock_warn.called)
         self.assertEqual(mock_warn.call_args[0], ("""
 

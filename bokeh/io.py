@@ -265,7 +265,7 @@ def curstate():
     '''
     return _state
 
-def show(obj, browser=None, new="tab"):
+def show(obj, browser=None, new="tab", return_handle=False):
     ''' Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
@@ -290,9 +290,14 @@ def show(obj, browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
 
+        return_handle (bool, optional) : whether to return a notebook
+            comms handle that can be used by ``push_notebook`` (default:
+            False). If ``output_notebook`` is not enabled, this argument is
+            ignored.
+
     Returns:
-        when in a a jupyter notebook (with ``output_notebook`` enabled), returns
-        a handle that can be used by ``push_notebook``, None otherwise.
+        If `return_handle=True` and ``output_notebook`` is enabled, returns a
+        jupyter notebook comms handle, None otherwise.
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
@@ -301,17 +306,20 @@ def show(obj, browser=None, new="tab"):
     '''
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
-    return _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new, return_handle)
 
 
-def _show_with_state(obj, state, browser, new):
+def _show_with_state(obj, state, browser, new, return_handle):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state)
+        if return_handle:
+            comms_handle = _show_notebook_with_state(obj, state)
+        else:
+            _ = _show_notebook_with_state(obj, state) # NOQA
         shown = True
 
     elif state.server_enabled:
