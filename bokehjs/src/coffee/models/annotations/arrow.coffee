@@ -33,8 +33,8 @@ class ArrowView extends Annotation.View
                                        y_name=@mget('y_range_name')
                                        )
     else
-      start = [@canvas.v_vx_to_sx(@_x_start.slice(0)),
-               @canvas.v_vy_to_sy(@_y_start.slice(0))]
+      start = [@canvas.v_vx_to_sx(@_x_start),
+               @canvas.v_vy_to_sy(@_y_start)]
 
     if @mget('end_units') == 'data'
       end = @plot_view.map_to_screen(@_x_end, @_y_end,
@@ -42,8 +42,8 @@ class ArrowView extends Annotation.View
                                      y_name=@mget('y_range_name')
                                      )
     else
-      end = [@canvas.v_vx_to_sx(@_x_end.slice(0)),
-             @canvas.v_vy_to_sy(@_y_end.slice(0))]
+      end = [@canvas.v_vx_to_sx(@_x_end),
+             @canvas.v_vy_to_sy(@_y_end)]
 
     return [start, end]
 
