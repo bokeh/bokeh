@@ -74,6 +74,8 @@ class State(object):
 
         notebook (bool) : whether to generate notebook output
 
+        return_handle (bool) : whether to return the notebook comms handle after `show`
+
         session_id (str) : a default session ID for Bokeh server output
 
         autoadd (bool) : whether certain functions automatically add roots to the document
@@ -105,6 +107,10 @@ class State(object):
     @property
     def notebook(self):
         return self._notebook
+
+    @property
+    def return_handle(self):
+        return self._return_handle
 
     @property
     def server_enabled(self):
@@ -151,6 +157,7 @@ class State(object):
     def _reset_keeping_doc(self):
         self._file = None
         self._notebook = False
+        self._return_handle = False
         self._session_coords = _SessionCoordinates(dict())
         self._server_enabled = False
         self._autosave = False
@@ -215,7 +222,7 @@ class State(object):
         if os.path.isfile(filename):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
-    def output_notebook(self):
+    def output_notebook(self, return_handle=False):
         """Generate output in Jupyter/IPython notebook cells.
 
         This does not clear the effects of output_file() or
@@ -225,11 +232,16 @@ class State(object):
         will be loaded from a Bokeh server; otherwise, Bokeh
         publishes HTML to the notebook directly.
 
+        Args:
+            return_handle (bool) : Whether to return the notebook comms
+                handle from `show`.
+
         Returns:
             None
 
         """
         self._notebook = True
+        self._return_handle = return_handle
 
     def output_server(self, session_id=DEFAULT_SESSION_ID, url="default",
                       app_path='/', autopush=False):
