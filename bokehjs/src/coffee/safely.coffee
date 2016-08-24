@@ -7,8 +7,10 @@ _burst_into_flames = (error) ->
   box.style["background-color"] = "#f2dede"
   box.style["border"] = "1px solid #a94442"
   box.style["border-radius"] = "4px"
+  box.style["display"] = "inline-block"
   box.style["font-family"] = "sans-serif"
   box.style["margin-top"] = "5px"
+  box.style["min-width"] = "200px"
   box.style["padding"] = "5px 5px 5px 10px"
 
   # Make button
@@ -35,6 +37,7 @@ _burst_into_flames = (error) ->
 
   # Make message
   message = document.createElement("pre")
+  message.style["white-space"] = "unset"
   message.appendChild(document.createTextNode(error.message ? error))
 
   # Add pieces to box
