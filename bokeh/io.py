@@ -147,7 +147,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False):
+def output_notebook(resources=None, verbose=False, hide_banner=False, return_handle=False):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
 
@@ -165,6 +165,10 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         hide_banner (bool, optional):
             whether to hide the Bokeh banner (default: False)
 
+        return_handle (bool, optional):
+            whether to return the notebook comms handle from the `show` method
+            (default: False)
+
     Returns:
         None
 
@@ -174,7 +178,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
 
     '''
     load_notebook(resources, verbose, hide_banner)
-    _state.output_notebook()
+    _state.output_notebook(return_handle=return_handle)
 
 # usually we default session_id to "generate a random one" but
 # here we default to a hardcoded one. This is to support local
@@ -311,7 +315,9 @@ def _show_with_state(obj, state, browser, new):
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state)
+        handle = _show_notebook_with_state(obj, state)
+        if state.return_handle:
+            comms_handle = handle
         shown = True
 
     elif state.server_enabled:
@@ -354,6 +360,7 @@ def _show_notebook_with_state(obj, state):
         handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
         state.last_comms_handle = handle
         return handle
+
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)

@@ -57,11 +57,16 @@ class TestState(unittest.TestCase):
             ("Session output file 'foo.html' already exists, will be overwritten.",)
         )
 
-    def test_output_notebook_noarg(self):
+    def test_output_notebook(self):
         s = state.State()
         s.output_notebook()
         self.assertEqual(GENERATED_SESSION_ID_LEN, len(s.session_id))
         self.assertEqual(s.notebook, True)
+        self.assertEqual(s.return_handle, False)
+        s.output_notebook(return_handle=True)
+        self.assertEqual(GENERATED_SESSION_ID_LEN, len(s.session_id))
+        self.assertEqual(s.notebook, True)
+        self.assertEqual(s.return_handle, True)
 
     def test_output_server(self):
         s = state.State()
