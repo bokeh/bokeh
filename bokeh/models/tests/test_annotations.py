@@ -52,16 +52,16 @@ def test_ColorBar():
     assert color_bar.plot is None
     assert color_bar.location == 'top_right'
     assert color_bar.orientation == 'vertical'
-    assert color_bar.legend_height == 'auto'
-    assert color_bar.legend_width == 'auto'
+    assert color_bar.height == 'auto'
+    assert color_bar.width == 'auto'
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
     assert isinstance(color_bar.ticker, BasicTicker)
     assert isinstance(color_bar.formatter, BasicTickFormatter)
     assert color_bar.color_mapper is None
-    assert color_bar.legend_margin == 30
-    assert color_bar.legend_padding == 10
+    assert color_bar.margin == 30
+    assert color_bar.padding == 10
     assert color_bar.label_standoff == 5
     assert color_bar.major_tick_in == 5
     assert color_bar.major_tick_out == 0
@@ -80,16 +80,16 @@ def test_ColorBar():
         "visible",
         "location",
         "orientation",
-        "legend_height",
-        "legend_width",
+        "height",
+        "width",
         "scale_alpha",
         "title",
         "title_standoff",
         "ticker",
         "formatter",
         "color_mapper",
-        "legend_margin",
-        "legend_padding",
+        "margin",
+        "padding",
         "label_standoff",
         "major_tick_in",
         "major_tick_out",

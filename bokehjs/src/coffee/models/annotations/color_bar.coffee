@@ -76,15 +76,15 @@ class ColorBarView extends Annotation.View
     label_extent = @_get_label_extent()
     title_extent = @model._title_extent()
     tick_extent = @model._tick_extent()
-    legend_padding = @model.legend_padding
+    padding = @model.padding
 
     switch @model.orientation
       when "vertical"
-        legend_height = image_height + title_extent + legend_padding * 2
-        legend_width = image_width + tick_extent + label_extent + legend_padding * 2
+        legend_height = image_height + title_extent + padding * 2
+        legend_width = image_width + tick_extent + label_extent + padding * 2
       when "horizontal"
-        legend_height = image_height + title_extent + tick_extent + label_extent + legend_padding * 2
-        legend_width = image_width + legend_padding * 2
+        legend_height = image_height + title_extent + tick_extent + label_extent + padding * 2
+        legend_width = image_width + padding * 2
 
     return {height: legend_height, width: legend_width}
 
@@ -92,7 +92,7 @@ class ColorBarView extends Annotation.View
     legend_dimensions = @compute_legend_dimensions()
     [legend_height, legend_width] = [legend_dimensions.height, legend_dimensions.width]
 
-    legend_margin = @model.legend_margin
+    legend_margin = @model.margin
     location = @model.location
     h_range = @plot_view.frame.get('h_range')
     v_range = @plot_view.frame.get('v_range')
@@ -298,8 +298,8 @@ class ColorBarView extends Annotation.View
 
   _get_image_offset: () ->
     # Returns image offset relative to legend bounding box
-    x = @model.legend_padding
-    y = @model.legend_padding + @model._title_extent()
+    x = @model.padding
+    y = @model.padding + @model._title_extent()
     return {x: x, y: y}
 
 class ColorBar extends Annotation.Model
@@ -321,15 +321,15 @@ class ColorBar extends Annotation.Model
       orientation:    [ p.Orientation,    'vertical'  ]
       title:          [ p.String,                     ]
       title_standoff: [ p.Number,         2           ]
-      legend_height:  [ p.Any,            'auto'      ]
-      legend_width:   [ p.Any,            'auto'      ]
+      height:  [ p.Any,            'auto'      ]
+      width:   [ p.Any,            'auto'      ]
       scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
-      legend_margin:  [ p.Number,         30          ]
-      legend_padding: [ p.Number,         10          ]
+      margin:  [ p.Number,         30          ]
+      padding: [ p.Number,         10          ]
       major_tick_in:  [ p.Number,         5           ]
       major_tick_out: [ p.Number,         0           ]
       minor_tick_in:  [ p.Number,         0           ]
@@ -403,32 +403,32 @@ class ColorBar extends Annotation.Model
 
     switch @orientation
       when "vertical"
-        if @legend_height == 'auto'
+        if @height == 'auto'
           if @panel?
-            height = frame_height - 2 * @legend_padding - title_extent
+            height = frame_height - 2 * @padding - title_extent
           else
             height = _.max([@color_mapper.palette.length * SHORT_DIM,
                             frame_height * LONG_DIM_MIN_SCALAR])
             height = _.min([height,
-                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @legend_padding - title_extent])
+                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @padding - title_extent])
         else
-          height = @legend_height
+          height = @height
 
-        width = if @legend_width == 'auto' then SHORT_DIM else @legend_width
+        width = if @width == 'auto' then SHORT_DIM else @width
 
       when "horizontal"
-        height = if @legend_height == 'auto' then SHORT_DIM else @legend_height
+        height = if @height == 'auto' then SHORT_DIM else @height
 
-        if @legend_width == 'auto'
+        if @width == 'auto'
           if @panel?
-            width = frame_width - 2 * @legend_padding
+            width = frame_width - 2 * @padding
           else
             width = _.max([@color_mapper.palette.length * SHORT_DIM,
                            frame_width * LONG_DIM_MIN_SCALAR])
             width = _.min([width,
-                           frame_width * LONG_DIM_MAX_SCALAR - 2 * @legend_padding])
+                           frame_width * LONG_DIM_MAX_SCALAR - 2 * @padding])
         else
-          width = @legend_width
+          width = @width
 
     return {"height": height, "width": width}
 

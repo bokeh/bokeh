@@ -5,6 +5,7 @@ module.exports = {
   NormalHead:                             require("../models/annotations/arrow_head").NormalHead
   VeeHead:                                require("../models/annotations/arrow_head").VeeHead
   BoxAnnotation:                          require("../models/annotations/box_annotation").Model
+  ColorBar:                               require("../models/annotations/color_bar").Model
   Label:                                  require("../models/annotations/label").Model
   LabelSet:                               require("../models/annotations/label_set").Model
   Legend:                                 require("../models/annotations/legend").Model

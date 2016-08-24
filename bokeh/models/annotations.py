@@ -132,23 +132,26 @@ class ColorBar(Annotation):
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float),
         default="top_right", help="""
-    The location where the ColorBar should draw itself. It's either one of
+    The location where the color bar should draw itself. It's either one of
     ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
+
+    .. warning::
+        If the color bar is placed in a side panel, the location will likely
+        have to be set to `(0,0)`.
     """)
 
     orientation = Enum(Orientation, default="vertical", help="""
-    Whether the legend entries should be placed vertically or horizontally
-    when they are layed out.
+    Whether the color bar should be oriented vertically or horizontally.
     """)
 
-    legend_height = Either(Auto, Int(), help="""
-    The height (in pixels) that the rendered legend should occupy.
+    height = Either(Auto, Int(), help="""
+    The height (in pixels) that the color scale should occupy.
     """)
 
-    legend_width = Either(Auto, Int(), help="""
-    The width (in pixels) that the rendered legend should occupy.
+    width = Either(Auto, Int(), help="""
+    The width (in pixels) that the color scale should occupy.
     """)
 
     scale_alpha = Float(1.0, help="""
@@ -168,7 +171,7 @@ class ColorBar(Annotation):
     title_text_font_style = Override(default="italic")
 
     title_standoff = Int(2, help="""
-    The distance (in pixels) to separate the title from the ColorBar.
+    The distance (in pixels) to separate the title from the color bar.
     """)
 
     ticker = Instance(Ticker, default=lambda: BasicTicker(), help="""
@@ -176,8 +179,7 @@ class ColorBar(Annotation):
     """)
 
     formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
-    A TickFormatter to use for formatting the visual appearance
-    of ticks.
+    A TickFormatter to use for formatting the visual appearance of ticks.
     """)
 
     color_mapper = Instance(ColorMapper, help="""
@@ -188,16 +190,12 @@ class ColorBar(Annotation):
         and tick labels won't be rendered.
     """)
 
-    legend_margin = Int(30, help="""
-    Amount of margin around the legend.
+    margin = Int(30, help="""
+    Amount of margin (in pixels) around the outside of the color bar.
     """)
 
-    legend_padding = Int(10, help="""
-    Amount of padding around the contents of the legend.
-    """)
-
-    label_standoff = Int(5, help="""
-    The distance (in pixels) to separate the tick labels from the ColorBar.
+    padding = Int(10, help="""
+    Amount of padding (in pixels) between the color scale and color bar border.
     """)
 
     major_label_props = Include(TextProps, help="""
@@ -210,6 +208,10 @@ class ColorBar(Annotation):
 
     major_label_text_font_size = Override(default={'value': "8pt"})
 
+    label_standoff = Int(5, help="""
+    The distance (in pixels) to separate the tick labels from the color bar.
+    """)
+
     major_tick_props = Include(LineProps, help="""
     The %s of the major ticks.
     """)
@@ -217,12 +219,12 @@ class ColorBar(Annotation):
     major_tick_line_color = Override(default="#ffffff")
 
     major_tick_in = Int(default=5, help="""
-    The distance in pixels that major ticks should extend into the
+    The distance (in pixels) that major ticks should extend into the
     main plot area.
     """)
 
     major_tick_out = Int(default=0, help="""
-    The distance in pixels that major ticks should extend out of the
+    The distance (in pixels) that major ticks should extend out of the
     main plot area.
     """)
 
@@ -233,29 +235,29 @@ class ColorBar(Annotation):
     minor_tick_line_color = Override(default=None)
 
     minor_tick_in = Int(default=0, help="""
-    The distance in pixels that minor ticks should extend into the
+    The distance (in pixels) that minor ticks should extend into the
     main plot area.
     """)
 
     minor_tick_out = Int(default=0, help="""
-    The distance in pixels that major ticks should extend out of the
+    The distance (in pixels) that major ticks should extend out of the
     main plot area.
     """)
 
     bar_props = Include(LineProps, help="""
-    The %s for the colorbar outline.
+    The %s for the color scale bar outline.
     """)
 
     bar_line_color = Override(default=None)
 
     border_props = Include(LineProps, help="""
-    The %s for the colorbar border outline.
+    The %s for the color bar border outline.
     """)
 
     border_line_color = Override(default=None)
 
     background_props = Include(FillProps, help="""
-    The %s for the colorbar background style.
+    The %s for the color bar background style.
     """)
 
     background_fill_color = Override(default="#ffffff")

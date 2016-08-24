@@ -17,8 +17,8 @@ def create_vertical_color_bar_with_log_cmap(height='auto', width='auto'):
     color_mapper = LogColorMapper(low=1, high=100000, palette='Viridis256')
     color_bar = ColorBar(orientation='vertical',
                          color_mapper=color_mapper,
-                         legend_height=height,
-                         legend_width=width,
+                         height=height,
+                         width=width,
                          ticker=LogTicker(),
                          label_standoff=12)
     return color_bar
@@ -27,8 +27,8 @@ def create_horizontal_color_bar_with_linear_cmap(height='auto', width='auto'):
     color_mapper = LinearColorMapper(low=0, high=100, palette='Spectral10')
     color_bar = ColorBar(orientation='horizontal',
                          color_mapper=color_mapper,
-                         legend_height=height,
-                         legend_width=width)
+                         height=height,
+                         width=width)
     return color_bar
 
 @pytest.mark.screenshot

@@ -93,10 +93,10 @@ describe "ColorBar module", ->
           beforeEach ->
             @plot.add_layout(@color_bar)
 
-          it "Should use set `legend_width` and `legend_height` if set", ->
+          it "Should use set `width` and `height` if set", ->
             @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
-            @color_bar.legend_width = 100
-            @color_bar.legend_height = 200
+            @color_bar.width = 100
+            @color_bar.height = 200
 
             image_dimensions = @color_bar._computed_image_dimensions()
             expect(image_dimensions.width).to.be.equal(100)
@@ -130,14 +130,14 @@ describe "ColorBar module", ->
             document = new Document()
             document.add_root(@plot)
 
-          it "Should return height = plot.height - 2 * legend_padding for any palette in side panel", ->
+          it "Should return height = plot.height - 2 * padding for any palette in side panel", ->
 
             @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
             @color_bar.title = "I'm a title"
 
             image_dimensions = @color_bar._computed_image_dimensions()
             expect(image_dimensions.width).to.be.equal(25)
-            # height = 500 (plot.height) - 2 * 10 (color_bar.legend_padding) - 17 (title_height)
+            # height = 500 (plot.height) - 2 * 10 (color_bar.padding) - 17 (title_height)
             expect(image_dimensions.height).to.be.equal(463)
 
         describe "ColorBar.orientation = 'horizontal'", ->
@@ -146,10 +146,10 @@ describe "ColorBar module", ->
             @color_bar.orientation = 'horizontal'
             @plot.add_layout(@color_bar)
 
-          it "Should use set `legend_width` and `legend_height` if set", ->
+          it "Should use set `width` and `height` if set", ->
             @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis3})
-            @color_bar.legend_width = 100
-            @color_bar.legend_height = 200
+            @color_bar.width = 100
+            @color_bar.height = 200
 
             image_dimensions = @color_bar._computed_image_dimensions()
             expect(image_dimensions.width).to.be.equal(100)
@@ -173,7 +173,7 @@ describe "ColorBar module", ->
             @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis256})
 
             image_dimensions = @color_bar._computed_image_dimensions()
-            # width = 500 (plot.width) * 0.8 - 2 * 10 (color_bar.legend_padding)
+            # width = 500 (plot.width) * 0.8 - 2 * 10 (color_bar.padding)
             expect(image_dimensions.width).to.be.equal(380)
             expect(image_dimensions.height).to.be.equal(25)
 
@@ -185,12 +185,12 @@ describe "ColorBar module", ->
             document = new Document()
             document.add_root(@plot)
 
-          it "Should return width = plot.width - 2 * legend_padding for any palette in side panel", ->
+          it "Should return width = plot.width - 2 * padding for any palette in side panel", ->
             @color_bar.color_mapper = new LinearColorMapper({low: 1, high: 100, palette: Viridis.Viridis10})
             @color_bar.title = "I'm a title"
 
             image_dimensions = @color_bar._computed_image_dimensions()
-            # width = 500 (plot.width) - 2 * 10 (color_bar.legend_padding)
+            # width = 500 (plot.width) - 2 * 10 (color_bar.padding)
             expect(image_dimensions.width).to.be.equal(480)
             expect(image_dimensions.height).to.be.equal(25)
 
@@ -203,7 +203,7 @@ describe "ColorBar module", ->
 
       it "Should correctly tick coords and labels for LinearColorMapper if orientation='vertical'", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 10, high: 20, palette: Viridis.Viridis10})
-        @color_bar.legend_height = 100
+        @color_bar.height = 100
         @color_bar.orientation = 'vertical'
 
         tick_coords = @color_bar._tick_coordinates()
@@ -214,7 +214,7 @@ describe "ColorBar module", ->
 
       it "Should correctly determine tick coords and labels for LinearColorMapperif orientation='horizontal'", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 10, high: 20, palette: Viridis.Viridis10})
-        @color_bar.legend_width = 100
+        @color_bar.width = 100
         @color_bar.orientation = 'horizontal'
 
         tick_coords = @color_bar._tick_coordinates()
@@ -225,7 +225,7 @@ describe "ColorBar module", ->
 
       it "Should correctly determine tick coords and labels for LogColorMapper if orientation='vertical'", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
-        @color_bar.legend_height = 100
+        @color_bar.height = 100
         @color_bar.orientation = 'vertical'
 
         tick_coords = @color_bar._tick_coordinates()
@@ -236,7 +236,7 @@ describe "ColorBar module", ->
 
       it "Should correctly determine tick coords and labels for LogColorMapper if orientation='vertical'", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 1000, palette: Viridis.Viridis10})
-        @color_bar.legend_width = 100
+        @color_bar.width = 100
         @color_bar.orientation = 'horizontal'
 
         tick_coords = @color_bar._tick_coordinates()
@@ -287,15 +287,15 @@ describe "ColorBar module", ->
 
     it "ColorBar.View.compute_legend_dimensions method (orientation='vertical')", ->
       # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils
-      @color_bar.legend_height = 100
-      @color_bar.legend_width = 25
+      @color_bar.height = 100
+      @color_bar.width = 25
 
       expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 120, width: 51 })
 
     it "ColorBar.View.compute_legend_dimensions method (orientation='horizontal')", ->
       @color_bar.orientation = "horizontal"
-      @color_bar.legend_height = 25
-      @color_bar.legend_width = 100
+      @color_bar.height = 25
+      @color_bar.width = 100
 
       expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 65, width: 120 })
 
