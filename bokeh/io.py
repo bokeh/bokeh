@@ -152,7 +152,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False):
+def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
 
@@ -170,6 +170,9 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         hide_banner (bool, optional):
             whether to hide the Bokeh banner (default: False)
 
+        load_timeout (int, optional) :
+            Timeout in milliseconds when plots assume load timed out (default: 5000)
+
     Returns:
         None
 
@@ -178,7 +181,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         session or the top of a script.
 
     '''
-    load_notebook(resources, verbose, hide_banner)
+    load_notebook(resources, verbose, hide_banner, load_timeout)
     _state.output_notebook()
 
 # usually we default session_id to "generate a random one" but

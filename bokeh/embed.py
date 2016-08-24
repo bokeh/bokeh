@@ -19,8 +19,9 @@ from warnings import warn
 from six import string_types
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, FILE, NOTEBOOK_JS,
-    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
+    AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
+    FILE, NOTEBOOK_JS, NOTEBOOK_DIV, PLOT_DIV,
+    DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -267,7 +268,7 @@ def notebook_div(model, notebook_comms_target=None):
     ))
     resources = EMPTY
 
-    js = AUTOLOAD_JS.render(
+    js = AUTOLOAD_NB_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],

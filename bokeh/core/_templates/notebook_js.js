@@ -8,7 +8,7 @@ var comms_target = "{{ comms_target }}";
     if (window.Jupyter !== undefined) {
       Jupyter.notebook.kernel.execute("import bokeh; bokeh.io._comms_handles['"+comms_target+"'].init()");
 	}
-  } else if (Date.now() < (window._bokeh_init_load+10000)) {
-    setTimeout(run_inline_js, 500);
+  } else if (Date.now() < (window._bokeh_init_load)) {
+    setTimeout(run_inline_js, 100);
   }
 })();
