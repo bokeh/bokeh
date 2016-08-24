@@ -84,7 +84,6 @@
     "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
-    "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
     "gloo2": "./src/vendor/gloo/gloo2.js"
   },

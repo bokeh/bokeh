@@ -70,6 +70,7 @@ arc_to_bezier = (ox, oy, radx, rady, rotateX, large, sweep, x, y) ->
 
   return result
 
-module.exports =
+module.exports = {
   arc_to_bezier: arc_to_bezier
   segment_to_bezier: segment_to_bezier
+}

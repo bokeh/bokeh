@@ -58,7 +58,6 @@ module.exports = {
   Segment:                                require("../models/glyphs/segment").Model
   Text:                                   require("../models/glyphs/text").Model
   Wedge:                                  require("../models/glyphs/wedge").Model
-  Gear:                                   require("../models/glyphs/gear").Model
 
   ## api/typings/models/grids.d.ts
   Grid:                                   require("../models/grids/grid").Model
