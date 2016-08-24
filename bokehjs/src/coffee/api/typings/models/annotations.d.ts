@@ -54,6 +54,96 @@ declare namespace Bokeh {
         legends?: Array<[string, Array<GlyphRenderer>]>;
     }
 
+    export var ColorBar: { new(attributes?: IColorBar, options?: ModelOpts): ColorBar };
+    export interface ColorBar extends Annotation, IColorBar {}
+    export interface IColorBar extends IAnnotation {
+        location?: LegendLocation;
+        orientation?: Orientation;
+
+        legend_height?: Int;
+        legend_width?: Int;
+        scale_alpha?: Int;
+        title?: string;
+
+        // {{{ title = include[TextProps]
+        title_text_font?: string;
+        title_text_font_size?: FontSize;
+        title_text_font_style?: FontStyle;
+        title_text_color?: Color;
+        title_text_alpha?: Percent;
+        title_text_align?: TextAlign;
+        title_text_baseline?: TextBaseline;
+        // }}}
+
+        title_standoff?: Int;
+        ticker?: Ticker;
+        formatter?: TickFormatter;
+        color_mapper?: ColorMapper;
+        legend_margin?: Int;
+        legend_padding?: Int;
+        legend_standoff?: Int;
+
+        // {{{ major_label = include[TextProps]
+        major_label_text_font?: string;
+        major_label_text_font_size?: FontSize;
+        major_label_text_font_style?: FontStyle;
+        major_label_text_color?: Color;
+        major_label_text_alpha?: Percent;
+        major_label_text_align?: TextAlign;
+        major_label_text_baseline?: TextBaseline;
+        // }}}
+
+        // {{{ major_tick = include[LineProps]
+        major_tick_line_color?: Color;
+        major_tick_line_width?: number;
+        major_tick_line_alpha?: Percent;
+        major_tick_line_join?: LineJoin;
+        major_tick_line_cap?: LineCap;
+        major_tick_line_dash?: DashPattern;
+        major_tick_line_dash_offset?: Int;
+        // }}}
+
+        // {{{ minor_tick = include[LineProps]
+        minor_tick_line_color?: Color;
+        minor_tick_line_width?: number;
+        minor_tick_line_alpha?: Percent;
+        minor_tick_line_join?: LineJoin;
+        minor_tick_line_cap?: LineCap;
+        minor_tick_line_dash?: DashPattern;
+        minor_tick_line_dash_offset?: Int;
+        // }}}
+
+        // {{{ bar = include[LineProps]
+        bar_line_color?: Color;
+        bar_line_width?: number;
+        bar_line_alpha?: Percent;
+        bar_line_join?: LineJoin;
+        bar_line_cap?: LineCap;
+        bar_line_dash?: DashPattern;
+        bar_line_dash_offset?: Int;
+        // }}}
+
+        // {{{ border = include[LineProps]
+        border_line_color?: Color;
+        border_line_width?: number;
+        border_line_alpha?: Percent;
+        border_line_join?: LineJoin;
+        border_line_cap?: LineCap;
+        border_line_dash?: DashPattern;
+        border_line_dash_offset?: Int;
+        // }}}
+
+        // {{{ background = include[FillProps]
+        background_fill_color?: Color;
+        background_fill_width?: number;
+        background_fill_alpha?: Percent;
+        background_fill_join?: LineJoin;
+        background_fill_cap?: LineCap;
+        background_fill_dash?: DashPattern;
+        background_fill_dash_offset?: Int;
+        // }}}
+    }
+
     export var BoxAnnotation: { new(attributes?: IBoxAnnotation, options?: ModelOpts): BoxAnnotation };
     export interface BoxAnnotation extends Annotation, IBoxAnnotation {}
     export interface IBoxAnnotation extends IAnnotation, LineProps, FillProps {
