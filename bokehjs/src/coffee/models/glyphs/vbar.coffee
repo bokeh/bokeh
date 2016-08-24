@@ -9,11 +9,10 @@ p = require "../../core/properties"
 class VBarView extends Glyph.View
 
   _map_data: () ->
-    # Vectorize map to target, map all data space coordinates to screen space
     @sx = @renderer.xmapper.v_map_to_target(@_x)
+
     vtop = @renderer.ymapper.v_map_to_target(@_top)
     vbottom = (@renderer.ymapper.v_map_to_target(@_bottom))
-
     @stop = @plot_view.canvas.v_vy_to_sy(vtop)
     @sbottom = @plot_view.canvas.v_vy_to_sy(vbottom)
 
@@ -42,17 +41,11 @@ class VBarView extends Glyph.View
     pts = []
 
     for i in [0...x.length]
-      l = x[i] - 0.5 * width[i]
-      if isNaN(l) or not isFinite(l)
-        continue
-      r = x[i] + 0.5 * width[i]
-      if isNaN(r) or not isFinite(r)
-        continue
+      l = x[i] - width[i]/2
+      r = x[i] + width[i]/2
       t = top[i]
-      if isNaN(t) or not isFinite(t)
-        continue
       b = bottom[i]
-      if isNaN(b) or not isFinite(b)
+      if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
       pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
@@ -84,6 +77,8 @@ class VBarView extends Glyph.View
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
     return result
+
+  scy: (i) -> return (@stop[i] + @sbottom[i])/2
 
 class VBar extends Glyph.Model
   default_view: VBarView

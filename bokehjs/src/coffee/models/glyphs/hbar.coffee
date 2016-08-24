@@ -2,15 +2,16 @@ _ = require "underscore"
 rbush = require "rbush"
 Quad = require "./quad"
 Glyph = require "./glyph"
+CategoricalMapper = require "../mappers/categorical_mapper"
 hittest = require "../../common/hittest"
 p = require "../../core/properties"
 
 class HBarView extends Glyph.View
 
   _map_data: () ->
-    # Vectorize map to target, map all data space coordinates to screen space
     vy = @renderer.ymapper.v_map_to_target(@_y)
     @sy = @plot_view.canvas.v_vy_to_sy(vy)
+
     vright = @renderer.xmapper.v_map_to_target(@_right)
     vleft = @renderer.xmapper.v_map_to_target(@_left)
 
@@ -36,23 +37,17 @@ class HBarView extends Glyph.View
     right = map_to_synthetic(@renderer.xmapper, @_right)
 
     y = map_to_synthetic(@renderer.ymapper, @_y)
-    bottom = map_to_synthetic(@renderer.ymapper, @_bottom)
+    height = map_to_synthetic(@renderer.ymapper, @_height)
 
     index = rbush()
     pts = []
 
-    for i in [0...left.length]
+    for i in [0...y.length]
       l = left[i]
-      if isNaN(l) or not isFinite(l)
-        continue
       r = right[i]
-      if isNaN(r) or not isFinite(r)
-        continue
       t = y[i] + 0.5 * height[i]
-      if isNaN(t) or not isFinite(t)
-        continue
-      b = t = y[i] - 0.5 * height[i]
-      if isNaN(b) or not isFinite(b)
+      b = y[i] - 0.5 * height[i]
+      if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
       pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
@@ -84,6 +79,8 @@ class HBarView extends Glyph.View
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
     return result
+
+  scx: (i) -> return (@sleft[i] + @sright[i])/2
 
 class HBar extends Glyph.Model
   default_view: HBarView
