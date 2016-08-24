@@ -5,7 +5,6 @@ Glyph = require "./glyph"
 p = require "../../core/properties"
 
 class ImageURLView extends Glyph.View
-
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change:global_alpha', @renderer.request_render)
@@ -16,8 +15,8 @@ class ImageURLView extends Glyph.View
     if not @image? or @image.length != @_url.length
       @image = (null for img in @_url)
 
-    retry_attempts = @mget('retry_attempts')
-    retry_timeout = @mget('retry_timeout')
+    retry_attempts = @model.retry_attempts
+    retry_timeout = @model.retry_timeout
 
     @retries = (retry_attempts for img in @_url)
 
@@ -44,8 +43,14 @@ class ImageURLView extends Glyph.View
     # XXX: remove this when `null` handling is improved.
     ws = (if @_w? then @_w else NaN for x in @_x)
     hs = (if @_h? then @_h else NaN for x in @_x)
-    @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
+
+    switch @model.properties.w.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @model.dilate)
+      when "screen" then @sw = ws
+
+    switch @model.properties.h.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @model.dilate)
+      when "screen" then @sh = hs
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
 
@@ -85,12 +90,12 @@ class ImageURLView extends Glyph.View
     if isNaN(sw[i]) then sw[i] = image.width
     if isNaN(sh[i]) then sh[i] = image.height
 
-    anchor = @mget('anchor')
+    anchor = @model.anchor
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
     ctx.save()
 
-    ctx.globalAlpha = @mget("global_alpha")
+    ctx.globalAlpha = @model.global_alpha
 
     if angle[i]
       ctx.translate(sx, sy)
@@ -114,8 +119,8 @@ class ImageURL extends Glyph.Model
       anchor:         [ p.Anchor,    'top_left' ]
       global_alpha:   [ p.Number,    1.0        ]
       angle:          [ p.AngleSpec, 0          ]
-      w:              [ p.NumberSpec            ]
-      h:              [ p.NumberSpec            ]
+      w:              [ p.DistanceSpec          ]
+      h:              [ p.DistanceSpec          ]
       dilate:         [ p.Bool,      false      ]
       retry_attempts: [ p.Number,    0          ]
       retry_timeout:  [ p.Number,    0          ]
