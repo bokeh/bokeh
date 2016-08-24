@@ -315,7 +315,9 @@ def _show_with_state(obj, state, browser, new):
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state)
+        handle = _show_notebook_with_state(obj, state)
+        if state.return_handle:
+            comms_handle = handle
         shown = True
 
     elif state.server_enabled:
@@ -357,10 +359,8 @@ def _show_notebook_with_state(obj, state):
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
         state.last_comms_handle = handle
-        if state.return_handle:
-            return handle
-        else:
-            return
+        return handle
+
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
