@@ -10,6 +10,7 @@ associated value:
 '''
 from __future__ import absolute_import
 
+import io
 import csv
 import xml.etree.cElementTree as et
 from os.path import join
@@ -20,7 +21,8 @@ data_dir = _data_dir()
 nan = float('NaN')
 
 data = {}
-with open(join(data_dir, 'US_Counties.csv')) as f:
+
+with io.open(join(data_dir, 'US_Counties.csv'), encoding = 'utf-8') as f:
     next(f)
     reader = csv.reader(f, delimiter=',', quotechar='"')
     for row in reader:
