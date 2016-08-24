@@ -37,6 +37,8 @@ class TestApiCrawler(object):
         assert not self.crawler.is_public(filename)
         filename = "__init__"
         assert self.crawler.is_public(filename)
+        filename = "__getattribute__"
+        assert self.crawler.is_public(filename)
         filename = "apple"
         assert self.crawler.is_public(filename)
 
@@ -50,9 +52,9 @@ class TestApiCrawler(object):
         filename = "apple.py"
         assert self.crawler.is_public(filename)
 
-    def test_is_function(self):
+    def test_is_toplevel_function(self):
         parsed_function = ast.parse(sample_function).body[0]
-        assert self.crawler.is_function(parsed_function)
+        assert self.crawler.is_toplevel_function(parsed_function)
 
     def test_is_class(self):
         parsed_class = ast.parse(sample_class).body[0]
@@ -174,14 +176,14 @@ class TestDiffer(object):
     def test_removed_parsing(self):
         self.differ.additions = False
         raw_diff = self.differ.diff_modules()
-        raw_diff = self.differ.parse_diff(raw_diff)
+        raw_diff = self.differ.pretty_diff(raw_diff)
         for x in raw_diff:
             assert x in expected_parsed_diff
 
     def test_additions_parsing(self):
         self.differ.additions = True
         raw_diff = self.differ.diff_modules()
-        raw_diff = self.differ.parse_diff(raw_diff)
+        raw_diff = self.differ.pretty_diff(raw_diff)
         for x in raw_diff:
             assert x in expected_parsed_additions
 

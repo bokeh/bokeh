@@ -21,9 +21,10 @@ class APICrawler(object):
     def is_public(self, name):
         # Determines whether a given function or class is public or private. Names
         # with underscores are not allowed unless the name is "__init__"
-        return not name.startswith("_", 0, 1) or name == "__init__"
+        return not name.startswith("_", 0, 1) or (name.startswith("__") and
+                name.endswith("__"))
 
-    def is_function(self, ast_node):
+    def is_toplevel_function(self, ast_node):
         # Checks whether a node is a top level function. Checks whether it is an AST
         # function instance. Also uses column offset, i.e. whether the function has
         # any tabs or spaces before it.
@@ -52,7 +53,7 @@ class APICrawler(object):
     def get_functions(self, source):
         # For a given source, look for functions and return those functions as a list.
         parsed = ast.parse(source)
-        functions = [node.name for node in ast.walk(parsed) if self.is_function(node) and self.is_public(node.name)]
+        functions = [node.name for node in ast.walk(parsed) if self.is_toplevel_function(node) and self.is_public(node.name)]
         return functions
 
     def get_filenames(self, directory):
@@ -62,7 +63,7 @@ class APICrawler(object):
         tree = os.walk(directory, topdown=True, followlinks=False)
         for dirpath, dirnames, filenames in tree:
             for folder in self.exclude:
-                if folder is dirpath:
+                if folder in dirpath:
                     break
             else:
                 for name in filenames:
@@ -194,7 +195,7 @@ class Differ(object):
         diff = self.diff_methods(diff, intersection)
         return diff
 
-    def parse_diff(self, diff):
+    def pretty_diff(self, diff):
         parsed_diff = []
         if self.additions:
             method = "ADDED"
@@ -222,9 +223,9 @@ class Differ(object):
 
     def get_diff(self):
         self.additions = False
-        removed = self.parse_diff(self.diff_modules())
+        removed = self.pretty_diff(self.diff_modules())
         self.additions = True
-        added = self.parse_diff(self.diff_modules())
+        added = self.pretty_diff(self.diff_modules())
         return removed + added
 
 
