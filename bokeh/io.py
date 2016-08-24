@@ -335,18 +335,6 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-_NB_LOAD_WARNING = """
-
-BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
-may be due to a slow or bad network connection. Possible fixes:
-
-* ALWAYS run `output_notebook()` in a cell BY ITSELF, AT THE TOP, with no other code
-* re-rerun `output_notebook()` to attempt to load from CDN again, or
-* use INLINE resources instead, as so:
-
-    from bokeh.resources import INLINE
-    output_notebook(resources=INLINE)
-"""
 
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
