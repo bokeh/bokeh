@@ -69,6 +69,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
     preludePath: preludePath
     prelude: preludeText
   }
+
   bokehjs = browserify(bokehjsOpts)
   labels = {}
 

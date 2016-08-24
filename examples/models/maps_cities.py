@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from bokeh.document import Document
 from bokeh.util.browser import view
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
@@ -33,9 +34,13 @@ circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick
 plot.add_glyph(ColumnDataSource(data), circle)
 plot.add_tools(PanTool(), WheelZoomTool())
 
+doc = Document()
+doc.add_root(plot)
+
 if __name__ == "__main__":
+    doc.validate()
     filename = "maps_cities.html"
     with open(filename, "w") as f:
-        f.write(file_html(plot, INLINE, "Google Maps - World cities Example"))
+        f.write(file_html(doc, INLINE, "Google Maps - World cities Example"))
     print("Wrote %s" % filename)
     view(filename)

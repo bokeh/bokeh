@@ -107,6 +107,7 @@ doc.add_root(classical)
 doc.add_root(epicyclic)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "gears.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Gears"))

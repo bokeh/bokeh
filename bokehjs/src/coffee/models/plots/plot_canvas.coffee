@@ -541,9 +541,11 @@ class PlotCanvasView extends Renderer.View
 
     @prepare_webgl(ratio, frame_box)
 
+    ctx.save()
     if @visuals.outline_line.doit
       @visuals.outline_line.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
+    ctx.restore()
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
     @blit_webgl(ratio)

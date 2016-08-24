@@ -64,3 +64,22 @@ def test_color_bar_placement_and_render(output_file_url, selenium, screenshot):
 
     # Take screenshot
     assert screenshot.is_valid()
+
+@pytest.mark.screenshot
+def test_color_bar_with_scale_alpha(output_file_url, selenium, screenshot):
+    plot = Plot(height=HEIGHT, width=WIDTH,
+                x_range=Range1d(0,10), y_range=Range1d(0,10),
+                outline_line_alpha=0.0, toolbar_location=None)
+
+    bar_vertical_in_frame = create_vertical_color_bar_with_log_cmap()
+    bar_vertical_in_frame.scale_alpha = 0.5
+
+    plot.add_layout(bar_vertical_in_frame)
+
+    # Save the plot and start the test
+    save(plot)
+    selenium.get(output_file_url)
+    assert has_no_console_errors(selenium)
+
+    # Take screenshot
+    assert screenshot.is_valid()

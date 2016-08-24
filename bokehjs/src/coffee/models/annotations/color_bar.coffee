@@ -46,6 +46,9 @@ class ColorBarView extends Annotation.View
   _set_canvas_image: () ->
     palette = @model.color_mapper.palette
 
+    if @model.orientation == 'vertical'
+      palette = palette.slice(0).reverse()
+
     switch @model.orientation
       when "vertical" then [w, h] = [1, palette.length]
       when "horizontal" then [w, h] = [palette.length, 1]
@@ -177,6 +180,7 @@ class ColorBarView extends Annotation.View
     image = @model._computed_image_dimensions()
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
+    ctx.globalAlpha = @model.scale_alpha
     ctx.drawImage(@image, 0, 0, image.width, image.height)
     if @visuals.bar_line.doit
         @visuals.bar_line.set_value(ctx)
@@ -319,6 +323,7 @@ class ColorBar extends Annotation.Model
       title_standoff: [ p.Number,         2           ]
       legend_height:  [ p.Any,            'auto'      ]
       legend_width:   [ p.Any,            'auto'      ]
+      scale_alpha:    [ p.Number,         1.0         ]
       ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
       formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
       color_mapper:   [ p.Instance                    ]
@@ -487,11 +492,13 @@ class ColorBar extends Annotation.Model
 
     major_labels = major_coords[i].slice(0) # make deep copy
 
-    major_coords[0] = mapper.v_map_to_target(major_coords[0])
-    major_coords[1] = mapper.v_map_to_target(major_coords[1])
+    major_coords[i] = mapper.v_map_to_target(major_coords[i])
+    minor_coords[i] = mapper.v_map_to_target(minor_coords[i])
 
-    minor_coords[0] = mapper.v_map_to_target(minor_coords[0])
-    minor_coords[1] = mapper.v_map_to_target(minor_coords[1])
+    # Because we want the scale to be reversed
+    if @orientation == 'vertical'
+      major_coords[i] = major_coords[i].map((coord) -> return scale_length - coord)
+      minor_coords[i] = minor_coords[i].map((coord) -> return scale_length - coord)
 
     return {
       "major": major_coords

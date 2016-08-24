@@ -107,6 +107,7 @@ doc = Document()
 doc.add_root(layout)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "glyphs.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Glyphs"))
