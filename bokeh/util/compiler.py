@@ -46,7 +46,11 @@ _plugin_template = \
 %(prelude)s
 ({
   "custom/main": [function(require, module, exports) {
-    module.exports = { %(exports)s };
+    module.exports = {
+      models: {
+        %(exports)s
+      }
+    };
   }, {}],
   %(modules)s
 }, {}, ["custom/main"]);
