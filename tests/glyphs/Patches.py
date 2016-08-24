@@ -1,9 +1,8 @@
 import numpy as np
 
-from bokeh.document import Document
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import Patches
-from bokeh.plotting import show
+from bokeh.io import curdoc, show
 
 N = 9
 x = np.linspace(-2, 2, N)
@@ -37,7 +36,6 @@ plot.add_layout(yaxis, 'left')
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
-doc = Document()
-doc.add_root(plot)
+curdoc().add_root(plot)
 
 show(plot)

@@ -1,53 +1,17 @@
 from __future__ import  absolute_import
 
-from itertools import chain
-
 from bokeh.models.annotations import (
-    Legend, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
+    Legend, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
-from bokeh.models import ColumnDataSource, ArrowHead
-from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap, TextAlign
+from bokeh.models import (
+    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter
+)
 
-FILL = ["fill_color", "fill_alpha"]
-LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
-        "line_dash", "line_dash_offset"]
-TEXT = ["text_font", "text_font_size", "text_font_style", "text_color",
-        "text_alpha", "text_align", "text_baseline"]
-ANGLE = ["angle", "angle_units"]
-PROPS = ["name", "tags", "visible"]
-
-def prefix(prefix, props):
-    return [prefix + p for p in props]
-
-def check_props(annotation, *props):
-    expected = set(chain(PROPS, *props))
-    found = set(annotation.properties())
-    missing = expected.difference(found)
-    extra = found.difference(expected)
-    assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
-    assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
-
-def check_fill(annotation, prefix="", fill_color='#ffffff', fill_alpha=1.0):
-    assert getattr(annotation, prefix + "fill_color") == fill_color
-    assert getattr(annotation, prefix + "fill_alpha") == fill_alpha
-
-def check_line(annotation, prefix="", line_color=Color.black, line_width=1.0, line_alpha=1.0):
-    assert getattr(annotation, prefix + "line_color") == line_color
-    assert getattr(annotation, prefix + "line_width") == line_width
-    assert getattr(annotation, prefix + "line_alpha") == line_alpha
-    assert getattr(annotation, prefix + "line_join") == LineJoin.miter
-    assert getattr(annotation, prefix + "line_cap") == LineCap.butt
-    assert getattr(annotation, prefix + "line_dash") == []
-    assert getattr(annotation, prefix + "line_dash_offset") == 0
-
-def check_text(annotation, prefix="", font_size='12pt', baseline='bottom', font_style='normal'):
-    assert getattr(annotation, prefix + "text_font") == "helvetica"
-    assert getattr(annotation, prefix + "text_font_size") == {"value": font_size}
-    assert getattr(annotation, prefix + "text_font_style") == font_style
-    assert getattr(annotation, prefix + "text_color") == "#444444"
-    assert getattr(annotation, prefix + "text_alpha") == 1.0
-    assert getattr(annotation, prefix + "text_align") == TextAlign.left
-    assert getattr(annotation, prefix + "text_baseline") == baseline
+from .utils.property_utils import (
+    FILL, LINE, TEXT, ANGLE, prefix,
+    check_properties_existence, check_fill_properties,
+    check_line_properties, check_text_properties
+)
 
 def test_Legend():
     legend = Legend()
@@ -61,11 +25,12 @@ def test_Legend():
     assert legend.legend_padding == 10
     assert legend.legend_spacing == 3
     assert legend.legends == []
-    yield check_line, legend, "border_", "#e5e5e5", 1.0, 0.5
-    yield check_text, legend, "label_", "10pt", "middle"
-    yield check_fill, legend, "background_", "#ffffff", 0.95
-    yield (check_props, legend, [
+    yield check_line_properties, legend, "border_", "#e5e5e5", 1.0, 0.5
+    yield check_text_properties, legend, "label_", "10pt", "middle"
+    yield check_fill_properties, legend, "background_", "#ffffff", 0.95
+    yield (check_properties_existence, legend, [
         "plot",
+        "visible",
         "location",
         "orientation",
         "label_standoff",
@@ -82,6 +47,63 @@ def test_Legend():
         prefix('border_', LINE),
         prefix('background_', FILL))
 
+def test_ColorBar():
+    color_bar = ColorBar()
+    assert color_bar.plot is None
+    assert color_bar.location == 'top_right'
+    assert color_bar.orientation == 'vertical'
+    assert color_bar.legend_height == 'auto'
+    assert color_bar.legend_width == 'auto'
+    assert color_bar.scale_alpha == 1.0
+    assert color_bar.title is None
+    assert color_bar.title_standoff == 2
+    assert isinstance(color_bar.ticker, BasicTicker)
+    assert isinstance(color_bar.formatter, BasicTickFormatter)
+    assert color_bar.color_mapper is None
+    assert color_bar.legend_margin == 30
+    assert color_bar.legend_padding == 10
+    assert color_bar.label_standoff == 5
+    assert color_bar.major_tick_in == 5
+    assert color_bar.major_tick_out == 0
+    assert color_bar.minor_tick_in == 0
+    assert color_bar.minor_tick_out == 0
+    yield check_text_properties, color_bar, "title_", "10pt", "bottom", "italic"
+    yield check_text_properties, color_bar, "major_label_", "8pt", "middle", "normal", "center"
+    yield check_line_properties, color_bar, "major_tick_", "#ffffff"
+    yield check_line_properties, color_bar, "minor_tick_", None
+    yield check_line_properties, color_bar, "bar_", None
+    yield check_line_properties, color_bar, "border_", None
+    yield check_fill_properties, color_bar, "background_", "#ffffff", 0.95
+    yield (check_properties_existence, color_bar, [
+        "plot",
+        "level",
+        "visible",
+        "location",
+        "orientation",
+        "legend_height",
+        "legend_width",
+        "scale_alpha",
+        "title",
+        "title_standoff",
+        "ticker",
+        "formatter",
+        "color_mapper",
+        "legend_margin",
+        "legend_padding",
+        "label_standoff",
+        "major_tick_in",
+        "major_tick_out",
+        "minor_tick_in",
+        "minor_tick_out"],
+        prefix('title_', TEXT),
+        prefix('major_label_', TEXT),
+        prefix('major_tick_', LINE),
+        prefix('minor_tick_', LINE),
+        prefix('bar_', LINE),
+        prefix('border_', LINE),
+        prefix('background_', FILL)
+    )
+
 def test_Arrow():
     arrow = Arrow()
     assert arrow.plot is None
@@ -96,10 +118,11 @@ def test_Arrow():
     assert arrow.source is None
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
-    yield check_line, arrow
-    yield (check_props, arrow, [
+    yield check_line_properties, arrow
+    yield (check_properties_existence, arrow, [
         "plot",
         "level",
+        "visible",
         "x_start",
         "y_start",
         "start_units",
@@ -127,11 +150,12 @@ def test_BoxAnnotation():
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
     assert box.level == 'annotation'
-    yield check_line, box, "", '#cccccc', 1, 0.3
-    yield check_fill, box, "", "#fff9ba", 0.4
-    yield (check_props, box, [
+    yield check_line_properties, box, "", '#cccccc', 1, 0.3
+    yield check_fill_properties, box, "", "#fff9ba", 0.4
+    yield (check_properties_existence, box, [
         "render_mode",
         "plot",
+        "visible",
         "left",
         "left_units",
         "right",
@@ -161,12 +185,13 @@ def test_Label():
     assert label.render_mode == 'canvas'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
-    yield check_text, label
-    yield check_fill, label, "background_", None, 1.0
-    yield check_line, label, "border_", None, 1.0, 1.0
-    yield (check_props, label, [
+    yield check_text_properties, label
+    yield check_fill_properties, label, "background_", None, 1.0
+    yield check_line_properties, label, "border_", None, 1.0, 1.0
+    yield (check_properties_existence, label, [
         "plot",
         "level",
+        "visible",
         "x",
         "y",
         "x_units",
@@ -201,11 +226,12 @@ def test_LabelSet():
     assert label_set.y_range_name == 'default'
     assert isinstance(label_set.source, ColumnDataSource)
     assert label_set.source.data == {}
-    yield check_text, label_set
-    yield check_fill, label_set, "background_", None, 1.0
-    yield check_line, label_set, "border_", None, 1.0, 1.0
-    yield (check_props, label_set, [
+    yield check_text_properties, label_set
+    yield check_fill_properties, label_set, "background_", None, 1.0
+    yield check_line_properties, label_set, "border_", None, 1.0, 1.0
+    yield (check_properties_existence, label_set, [
         "plot",
+        "visible",
         "level",
         "x",
         "y",
@@ -235,9 +261,10 @@ def test_Span():
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
     assert line.render_mode == 'canvas'
-    yield check_line, line, "", 'black', 1.0
-    yield (check_props, line, [
+    yield check_line_properties, line, "", 'black', 1.0
+    yield (check_properties_existence, line, [
         "plot",
+        "visible",
         "location",
         "location_units",
         "dimension",
@@ -259,10 +286,11 @@ def test_Title():
     assert title.text_font_style == 'bold'
     assert title.text_color == '#444444'
     assert title.text_alpha == 1.0
-    yield check_fill, title, "background_", None, 1.0
-    yield check_line, title, "border_", None, 1.0, 1.0
-    yield (check_props, title, [
+    yield check_fill_properties, title, "background_", None, 1.0
+    yield check_line_properties, title, "border_", None, 1.0, 1.0
+    yield (check_properties_existence, title, [
         "plot",
+        "visible",
         "level",
         "text",
         "align",

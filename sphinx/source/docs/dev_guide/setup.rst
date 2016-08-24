@@ -226,8 +226,8 @@ With either mode, you will be prompted for how to install BokehJS, e.g.:
 You may skip this prompt by supplying the appropriate command line option
 to ``setup.py``:
 
-* ``--build_js``
-* ``--install_js``
+* ``--build-js``
+* ``--install-js``
 
 If you have any problems with the steps here, please `contact the developers`_.
 
@@ -249,11 +249,26 @@ which include:
 * pytest-selenium >= 1.0
 * mock
 * websocket-client
+* flake8
+* boto
 
 Both the build and test dependencies can potentially change between releases
 and be out of sync with the hosted Bokeh site documentation, so the best way
 to view the current required packages is the review the meta.yaml_ file included
 in the Github repository.
+
+In addition to the build and test dependencies, you must also have the base
+dependencies for Bokeh installed. A simple way to install these dependencies
+is to install Bokeh via ``conda install`` or ``pip install`` before running
+``setup.py``.  Alternatively, you can download them indivually. The
+dependencies include:
+
+* jinja2
+* numpy
+* dateutil
+* pyyaml
+* requests
+* tornado
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 

@@ -22,8 +22,6 @@ Bokeh.safely            = require("./safely")
 
 Bokeh.Models            = require("./base").Models
 
-_.extend(Bokeh, require("./api"))
-
 # Here for backwards capability?
 Bokeh.Bokeh = Bokeh
 module.exports = Bokeh

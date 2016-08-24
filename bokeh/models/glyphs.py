@@ -333,15 +333,6 @@ class Image(Glyph):
             # Use a palette (given or default)
             palette = kwargs.pop('palette', 'Greys9')
             mapper = LinearColorMapper(palette)
-
-            reserve_val = kwargs.pop('reserve_val', None)
-            if reserve_val is not None:
-                mapper.reserve_val = reserve_val
-
-            reserve_color = kwargs.pop('reserve_color', None)
-            if reserve_color is not None:
-                mapper.reserve_color = reserve_color
-
             kwargs['color_mapper'] = mapper
 
         super(Image, self).__init__(**kwargs)
