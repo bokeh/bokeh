@@ -62,13 +62,13 @@ class ImageView extends Glyph.View
       @_xy_index()
 
   _map_data: () ->
-    switch @model.properties.w.units
+    switch @model.properties.dw.units
       when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
-      when "screen" then @sw = @model.dw
+      when "screen" then @sw = @_dw
 
-    switch @model.properties.h.units
+    switch @model.properties.dh.units
       when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
-      when "screen" then @sh = @model.dh
+      when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()

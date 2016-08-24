@@ -1,26 +1,46 @@
 {expect} = require "chai"
-sinon = require "sinon"
 utils = require "../../utils"
+sinon = require "sinon"
 
-Image = utils.require("models/glyphs/image").Model
-ImageView = utils.require("models/glyphs/image").View
-{Blues} = utils.require("palettes/palettes")
+{create_glyph_view} = require("./glyph_utils")
+Image = utils.require('models/glyphs/image')
 
-describe "image module", ->
+describe "Image module", ->
 
-  describe "ImageView._events", ->
+  describe "ImageView", ->
 
-    it "Changing color_mapper attr should call `_update_image` method on view", ->
-      spy = sinon.spy(ImageView.prototype, "_update_image")
+    afterEach ->
+      utils.unstub_canvas()
+      utils.unstub_solver()
+      @stub.restore()
 
-      image = new Image()
+    beforeEach ->
+      utils.stub_canvas()
+      utils.stub_solver()
+      @stub = sinon.stub(Image.View.prototype, '_set_data')
 
-      image_view = new image.default_view({
-        model: image
-        plot_model: null
-        plot_view: null
-      })
+      @image = new Image.Model()
 
-      image.color_mapper.palette = Blues.Blues9
+    it "`_map_data` should correctly map data if w and h units are 'data'", ->
+      # ImageView._map_data is called by ImageView.map_data
+      @image.dw = 100
+      @image.dh = 200
+      image_view = create_glyph_view(@image)
 
-      expect(spy.called).to.be.true
+      image_view.map_data()
+      # sw and sh will be equal to zero because the mapper state isn't complete
+      # this is ok - it just shouldn't be equal to the initial values
+      expect(image_view.sw).to.be.deep.equal([0])
+      expect(image_view.sh).to.be.deep.equal([0])
+
+    it "`_map_data` should correctly map data if w and h units are 'screen'", ->
+      # ImageView._map_data is called by ImageView.map_data
+      @image.dw = 100
+      @image.dh = 200
+      @image.properties.dw.units = "screen"
+      @image.properties.dh.units = "screen"
+      image_view = create_glyph_view(@image)
+
+      image_view.map_data()
+      expect(image_view.sw).to.be.deep.equal([100])
+      expect(image_view.sh).to.be.deep.equal([200])
