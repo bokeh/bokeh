@@ -59,11 +59,17 @@ declare namespace Bokeh {
     export interface IColorBar extends IAnnotation {
         location?: LegendLocation;
         orientation?: Orientation;
-
-        legend_height?: Int;
-        legend_width?: Int;
+        height?: Int;
+        width?: Int;
         scale_alpha?: Int;
         title?: string;
+        title_standoff?: Int;
+        label_standoff?: Int;
+        ticker?: Ticker;
+        formatter?: TickFormatter;
+        color_mapper?: ColorMapper;
+        margin?: Int;
+        padding?: Int;
 
         // {{{ title = include[TextProps]
         title_text_font?: string;
@@ -74,14 +80,6 @@ declare namespace Bokeh {
         title_text_align?: TextAlign;
         title_text_baseline?: TextBaseline;
         // }}}
-
-        title_standoff?: Int;
-        ticker?: Ticker;
-        formatter?: TickFormatter;
-        color_mapper?: ColorMapper;
-        legend_margin?: Int;
-        legend_padding?: Int;
-        legend_standoff?: Int;
 
         // {{{ major_label = include[TextProps]
         major_label_text_font?: string;
