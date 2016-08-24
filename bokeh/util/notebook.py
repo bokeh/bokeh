@@ -42,7 +42,7 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
     global _notebook_loaded
 
     from .. import __version__
-    from ..core.templates import AUTOLOAD_JS, NOTEBOOK_LOAD
+    from ..core.templates import AUTOLOAD_NB_JS, NOTEBOOK_LOAD
     from ..util.serialization import make_id
     from ..resources import CDN
 
@@ -75,7 +75,7 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
         hide_banner   = hide_banner,
     )
 
-    js = AUTOLOAD_JS.render(
+    js = AUTOLOAD_NB_JS.render(
         js_urls  = resources.js_files,
         css_urls = resources.css_files,
         js_raw   = resources.js_raw + [FINALIZE_JS % element_id],

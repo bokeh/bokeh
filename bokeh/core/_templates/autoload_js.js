@@ -32,11 +32,13 @@ calls it with the rendered model.
   var force = "{{ force }}";
 
   if (typeof (window._bokeh_onload_callbacks) === "undefined" || force !== "") {
-    {% block init_window %}
     window._bokeh_onload_callbacks = [];
     window._bokeh_is_loading = undefined;
-    {% endblock %}
   }
+
+
+  {% block autoload_init %}
+  {% endblock %}
 
   function run_callbacks() {
     window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
