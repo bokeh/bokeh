@@ -133,38 +133,35 @@ class Canvas extends LayoutCanvas.Model
     # Note: +1 to account for 1px canvas dilation
     return @_height._value - (y + 1)
 
-  # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
+  # vectorized versions of vx_to_sx/vy_to_sy
   v_vx_to_sx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
-    return xx
+    return new Float64Array(xx)
 
   v_vy_to_sy: (yy) ->
+    _yy = new Float64Array(yy.length)
     height = @_height._value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = height - (y + 1)
-    return yy
+      _yy[idx] = height - (y + 1)
+    return _yy
 
-  # transform underlying screen coordinates to view coordinates
   sx_to_vx: (x) -> x
 
   sy_to_vy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @get('height') - (y + 1)
+    return @_height._value - (y + 1)
 
-  # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
+  # vectorized versions of sx_to_vx/sy_to_vy
   v_sx_to_vx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
-    return xx
+    return new Float64Array(xx)
 
   v_sy_to_vy: (yy) ->
+    _yy = new Float64Array(yy.length)
     height = @_height._value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = height - (y + 1)
-    return yy
+      _yy[idx] = height - (y + 1)
+    return _yy
 
   get_constraints: () ->
     constraints = super()
