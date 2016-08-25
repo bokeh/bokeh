@@ -61,9 +61,6 @@ def get_full_signature(source):
         full_signature.update(get_signature(x))
     return full_signature
 
-def diff_function(old, new):
-    pass
-
 def diff_signatures(old, new):
     old_signature = get_full_signature(old)
     new_signature = get_full_signature(new)
@@ -72,7 +69,12 @@ def diff_signatures(old, new):
     difference = list(set(old_signature) - set(new_signature))
     diff.update({x: {} for x in difference})
     for x in intersection:
-        pass
+        arguments_diff = []
+        for y in old_signature[x]:
+            if y not in new_signature[x]:
+                arguments_diff.append(y)
+        if arguments_diff:
+            diff.update({x: arguments_diff})
     return diff
 
 
@@ -107,7 +109,6 @@ def test_get_full_signature_new():
 def test_diff_signatures():
     expected = {
         "__init__": ["john"],
-        "apple": ["potato"],
         "potato": {}
     }
     assert expected == diff_signatures(source, new_source)
