@@ -25,8 +25,9 @@
   function display_loaded() {
     if (window.Bokeh !== undefined) {
       Bokeh.$("#{{ elementid }}").text("BokehJS successfully loaded.");
-    } else if (Date.now() < window._bokeh_timeout)
+    } else if (Date.now() < window._bokeh_timeout) {
       setTimeout(display_loaded, 100)
+    }
   }
 {% endblock %}
 
@@ -46,5 +47,5 @@
     } else if (!force) {
       var cell = $("#{{ elementid }}").parents('.cell').data().cell;
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
-	}
+    }
 {% endblock %}
