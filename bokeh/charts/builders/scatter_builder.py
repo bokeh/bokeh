@@ -21,7 +21,7 @@ from __future__ import absolute_import
 from bokeh.charts.builder import create_and_build, XYBuilder
 from bokeh.charts.glyphs import PointGlyph
 from bokeh.charts.attributes import MarkerAttr, ColorAttr
-
+from bokeh.charts.utils import add_tooltips_columns
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -95,4 +95,8 @@ class ScatterBuilder(XYBuilder):
             self.add_glyph(group, glyph)
 
             for renderer in glyph.renderers:
+
+                if self.tooltips:
+                    renderer = add_tooltips_columns(renderer, self.tooltips, group)
+
                 yield renderer
