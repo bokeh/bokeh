@@ -10,7 +10,7 @@
 
   var NB_LOAD_WARNING = {'data': {'text/html':
      "<div style='background-color: #fdd'>\n"+
-	 "<p>\n"+
+     "<p>\n"+
      "BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this \n"+
      "may be due to a slow or bad network connection. Possible fixes:\n"+
      "</p>\n"+
@@ -19,9 +19,9 @@
      "<li>use INLINE resources instead, as so:</li>\n"+
      "</ul>\n"+
      "<code>\n"+
-	 "from bokeh.resources import INLINE\n"+
+     "from bokeh.resources import INLINE\n"+
      "output_notebook(resources=INLINE)\n"+
-	 "</code>\n"+
+     "</code>\n"+
      "</div>"}};
 
   function display_loaded() {
