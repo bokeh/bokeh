@@ -9,12 +9,12 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @mget('computed_renderers')
+      for r in @model._get_selectable_renderers()
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.clear()
 
-  _save_geometry: (geometry, final, append) ->
+  _save_geometry: (geometry, append) ->
     g = _.clone(geometry)
     xm = @plot_view.frame.get('x_mappers')['default']
     ym = @plot_view.frame.get('y_mappers')['default']
@@ -35,49 +35,33 @@ class SelectToolView extends GestureTool.View
     else
       logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
-    if final
-      tool_events = @plot_model.plot.tool_events
-      if append
-        geoms = tool_events.get('geometries')
-        geoms.push(g)
-      else
-        geoms = [g]
+    tool_events = @plot_model.plot.tool_events
 
-      tool_events.set("geometries", geoms)
+    if append
+      geoms = tool_events.get('geometries')
+      geoms.push(g)
+    else
+      geoms = [g]
+
+    tool_events.set("geometries", geoms)
     return null
 
 class SelectTool extends GestureTool.Model
+  default_view: SelectToolView
 
   @define {
       renderers: [ p.Array, [] ]
       names:     [ p.Array, [] ]
     }
 
-  @internal {
-    multi_select_modifier: [ p.String, "shift" ]
-  }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('computed_renderers',
-      () ->
-        renderers = @get('renderers')
-        names = @get('names')
-
-        if renderers.length == 0
-          all_renderers = @get('plot').get('renderers')
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
-
-        if names.length > 0
-          renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
-
-        return renderers
-      , true)
-    @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
-    @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
-
-    return null
+  _get_selectable_renderers: () ->
+    renderers = @renderers
+    names = @names
+    if renderers.length == 0
+      renderers = (r for r in @plot.renderers when r instanceof GlyphRenderer.Model)
+    if names.length > 0
+      renderers = (r for r in renderers when r.name in names)
+    return renderers
 
 module.exports =
   Model: SelectTool
