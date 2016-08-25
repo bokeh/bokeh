@@ -6,6 +6,8 @@
     window._bokeh_failed_load = false;
   }
 
+  var NB_LOADED_MSG = {'data': {'text/html': 'Bokeh loaded.'}};
+
   var NB_LOAD_WARNING = {'data': {'text/html':
      "<div style='background-color: #fdd'>\n"+
 	 "<p>\n"+
@@ -13,7 +15,6 @@
      "may be due to a slow or bad network connection. Possible fixes:\n"+
      "</p>\n"+
      "<ul>\n"+
-     "<li>ALWAYS run `output_notebook()` in a cell <b>BY ITSELF</b>, <b>AT THE TOP</b>, with no other code</li>\n"+
      "<li>re-rerun `output_notebook()` to attempt to load from CDN again, or</li>\n"+
      "<li>use INLINE resources instead, as so:</li>\n"+
      "</ul>\n"+
@@ -21,7 +22,15 @@
 	 "from bokeh.resources import INLINE\n"+
      "output_notebook(resources=INLINE)\n"+
 	 "</code>\n"+
-     "</div>"}}
+     "</div>"}};
+
+  function display_loaded() {
+	if (window.Bokeh !== undefined) {
+      var cell = $("#{{ elementid }}").parents('.cell').data().cell;
+      cell.output_area.append_execute_result(NB_LOADED_MSG)
+    } else if (Date.now() < window._bokeh_timeout)
+      setTimeout(display_loaded, 100)
+  }
 {% endblock %}
 
 {% block run_inline_js %}
@@ -29,13 +38,16 @@
       for (var i = 0; i < inline_js.length; i++) {
         inline_js[i](window.Bokeh);
       }
+      if (force === "1") {
+        display_loaded();
+      }
     } else if (Date.now() < window._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!window._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
-		window._bokeh_failed_load = true;
+      window._bokeh_failed_load = true;
     } else if (!force) {
-		cell = $("#{{ elementid }}").parents('.cell').data().cell;
-		cell.output_area.append_execute_result(NB_LOAD_WARNING)
+      var cell = $("#{{ elementid }}").parents('.cell').data().cell;
+      cell.output_area.append_execute_result(NB_LOAD_WARNING)
 	}
 {% endblock %}
