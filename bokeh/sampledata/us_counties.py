@@ -22,12 +22,12 @@ nan = float('NaN')
 
 data = {}
 
-
 # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
-if sys.version_info[0] < 3: 
-    f = open(join(data_dir, 'US_Counties.csv'), 'rb')
+filename = join(data_dir, 'US_Counties.csv')
+if sys.version_info[0] < 3:
+    f = open(filename, 'rb')
 else:
-    f = open(join(data_dir, 'US_Counties.csv'), 'r', newline='', encoding='utf8')
+    f = open(filename, 'r', newline='', encoding='utf8')
 
 with  f:
     next(f)

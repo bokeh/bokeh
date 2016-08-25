@@ -29,7 +29,14 @@ def _load_stock(filename):
         'volume' : [],
         'adj_close': [],
     }
-    with open(filename) as f:
+
+    # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
+    if sys.version_info[0] < 3:
+        f = open(filename, 'rb')
+    else:
+        f = open(filename, 'r', newline='', encoding='utf8')
+
+    with f:
         next(f)
         reader = csv.reader(f, delimiter=',')
         for row in reader:
