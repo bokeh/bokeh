@@ -6,8 +6,6 @@
     window._bokeh_failed_load = false;
   }
 
-  var NB_LOADED_MSG = {'data': {'text/html': 'Bokeh loaded.'}};
-
   var NB_LOAD_WARNING = {'data': {'text/html':
      "<div style='background-color: #fdd'>\n"+
      "<p>\n"+
@@ -25,9 +23,8 @@
      "</div>"}};
 
   function display_loaded() {
-	if (window.Bokeh !== undefined) {
-      var cell = $("#{{ elementid }}").parents('.cell').data().cell;
-      cell.output_area.append_execute_result(NB_LOADED_MSG)
+    if (window.Bokeh !== undefined) {
+      Bokeh.$("#{{ elementid }}").text("BokehJS successfully loaded.");
     } else if (Date.now() < window._bokeh_timeout)
       setTimeout(display_loaded, 100)
   }
