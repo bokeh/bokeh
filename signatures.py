@@ -8,27 +8,26 @@ class Potato(object):
     def __init__(self, john, paul, george=True, ringo=[1, 2, 3]):
         self.apple = apple
         self.potato = potato
-        self.john = john
 
 def apple(potato):
     return potato
+
+def potato(apple):
+    return apple
 """
-old_source ="""
+new_source = """
 class Potato(object):
-    def __init__(self, john, paul, george=True, ringo=[1, 2, 3]):
+    def __init__(self, paul, george=True, ringo=[1, 2, 3]):
         self.apple = apple
         self.potato = potato
-        self.john = john
 
 def apple(potato):
     return potato
 """
 
 if sys.version_info > (3, 0):
-    print("Yay!")
     arg_name = "arg"
 else:
-    print("Aww...")
     arg_name = "id"
 
 
@@ -36,11 +35,11 @@ def get_arguments(function):
     arguments = function.args.args
     defaults = function.args.defaults
     if defaults:
-        default_names = [getattr(x, arg_name) for x in arguments[len(defaults) + 1:]]
-        arguments = [getattr(x, arg_name) for x in arguments[:len(defaults) + 1]]
+        argument_names = [getattr(x, arg_name) for x in arguments[:len(arguments) - len(defaults)]]
+        default_names = [getattr(x, arg_name) for x in arguments[len(arguments) - len(defaults):]]
         for x in range(len(default_names)):
-            arguments.append({default_names[x]: ast.literal_eval(defaults[x])})
-        return arguments
+            argument_names.append({default_names[x]: ast.literal_eval(defaults[x])})
+        return argument_names
     else:
         return [getattr(x, arg_name) for x in arguments]
 
@@ -68,7 +67,13 @@ def diff_function(old, new):
 def diff_signatures(old, new):
     old_signature = get_full_signature(old)
     new_signature = get_full_signature(new)
-    print(old_signature, new_signature)
+    diff = {}
+    intersection = list(set(old_signature) & set(new_signature))
+    difference = list(set(old_signature) - set(new_signature))
+    diff.update({x: {} for x in difference})
+    for x in intersection:
+        pass
+    return diff
 
 
 """
@@ -76,24 +81,34 @@ Tests
 """
 def test_get_arguments():
     expected = ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}]
-    assert expected == get_arguments(parse_source(source)[1])
+    assert expected == get_arguments(parse_source(source)[2])
 
 def test_single_signature():
     expected = {
         "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
     }
-    assert expected == get_signature(parse_source(source)[1])
+    assert expected == get_signature(parse_source(source)[2])
 
 def test_get_full_signature():
     expected = {
         "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
-        "apple": ["potato"]
+        "apple": ["potato"],
+        "potato": ["apple"]
     }
-    pprint(get_full_signature(source))
     assert expected == get_full_signature(source)
+
+def test_get_full_signature_new():
+    expected = {
+        "__init__": ["self", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
+        "apple": ["potato"],
+    }
+    assert expected == get_full_signature(new_source)
 
 def test_diff_signatures():
     expected = {
-        "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
-        "apple": ["potato"]
+        "__init__": ["john"],
+        "apple": ["potato"],
+        "potato": {}
     }
+    assert expected == diff_signatures(source, new_source)
+
