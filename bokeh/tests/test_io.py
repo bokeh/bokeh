@@ -66,14 +66,14 @@ class TestOutputNotebook(DefaultStateTester):
 
     @patch('bokeh.io.load_notebook')
     def test_noarg(self, mock_load_notebook):
-        default_load_notebook_args = (None, False, False)
+        default_load_notebook_args = (None, False, False, 5000)
         io.output_notebook()
         self._check_func_called(io._state.output_notebook, (), {})
         self._check_func_called(mock_load_notebook, default_load_notebook_args, {})
 
     @patch('bokeh.io.load_notebook')
     def test_args(self, mock_load_notebook):
-        load_notebook_args = (Resources(), True, True)
+        load_notebook_args = (Resources(), True, True, 1000)
         io.output_notebook(*load_notebook_args)
         self._check_func_called(io._state.output_notebook, (), {})
         self._check_func_called(mock_load_notebook, load_notebook_args, {})
@@ -348,28 +348,6 @@ class Test_ShowWithState(DefaultStateTester):
         self.assertFalse(mock__show_notebook_with_state.called)
         self._check_func_called(mock__show_server_with_state, ("obj", s, "new", "controller"), {})
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
-
-    @patch('warnings.warn')
-    @patch('bokeh.util.browser.get_browser_controller')
-    def test_ShowNotebookWithState_bokehjs_load_failed(self, mock_get_browser_controller, mock_warn):
-        mock_get_browser_controller.return_value = "controller"
-        s = io.State()
-        s.output_notebook()
-        io._show_with_state("obj", s, "browser", "new")
-        self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ("""
-
-BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
-may be due to a slow or bad network connection. Possible fixes:
-
-* ALWAYS run `output_notebook()` in a cell BY ITSELF, AT THE TOP, with no other code
-* re-rerun `output_notebook()` to attempt to load from CDN again, or
-* use INLINE resources instead, as so:
-
-    from bokeh.resources import INLINE
-    output_notebook(resources=INLINE)
-""",))
-        self.assertEqual(mock_warn.call_args[1], {})
 
 class Test_ShowFileWithState(DefaultStateTester):
 
