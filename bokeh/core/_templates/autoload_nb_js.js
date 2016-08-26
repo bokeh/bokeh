@@ -36,9 +36,11 @@
       for (var i = 0; i < inline_js.length; i++) {
         inline_js[i](window.Bokeh);
       }
-      if ((force === "1"){%- if elementid -%} && element{%- endif -%}) {
+      {%- if elementid -%}
+      if (force === "1") {
         display_loaded();
       }
+      {%- endif -%}
     } else if (Date.now() < window._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!window._bokeh_failed_load) {
