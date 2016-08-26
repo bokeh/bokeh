@@ -653,6 +653,7 @@ def color_in_equal_space(hue, saturation=0.55, value=2.3):
     hue %= 1
     return '#{:02X}{:02X}{:02X}'.format(*tuple(int(a*100) for a in hsv_to_rgb(hue, saturation, value)))
 
+
 def add_tooltips_columns(renderer, tooltips, group):
     """
 
@@ -680,7 +681,9 @@ def add_tooltips_columns(renderer, tooltips, group):
         
         if column in current_columns:
             continue
-        
+        elif '$' in column:
+            continue
+
         renderer.data_source.add(group.get_values(column), column)
 
     return renderer

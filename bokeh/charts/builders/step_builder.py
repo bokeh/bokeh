@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from ..builder import create_and_build
 from .line_builder import LineBuilder
 from ..glyphs import StepGlyph
-
+from ..utils import add_tooltips_columns
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -112,4 +112,10 @@ class StepBuilder(LineBuilder):
 
             # yield each renderer produced by composite glyph
             for renderer in glyph.renderers:
+                
+                #TODO: Half of the graph goes transparent following this code
+                #      being implemented
+                #if self.tooltips:
+                #    renderer = add_tooltips_columns(renderer, self.tooltips, group)
+
                 yield renderer

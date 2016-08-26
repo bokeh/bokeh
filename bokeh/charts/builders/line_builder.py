@@ -26,6 +26,7 @@ from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
 from ...core.properties import Bool, String, List
 from ..operations import Stack, Dodge
+from ..utils import add_tooltips_columns
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -237,6 +238,10 @@ class LineBuilder(XYBuilder):
 
             # yield each renderer produced by composite glyph
             for renderer in glyph.renderers:
+
+                if self.tooltips:
+                    renderer = add_tooltips_columns(renderer, self.tooltips, group)
+                
                 yield renderer
 
         if self.stack:
