@@ -17,7 +17,7 @@ def potato(apple):
 """
 new_source = """
 class Potato(object):
-    def __init__(self, paul, george=True, ringo=[1, 2, 3]):
+    def __init__(self, paul, george=False, ringo=[1, 2]):
         self.apple = apple
         self.potato = potato
 
@@ -71,11 +71,17 @@ def diff_signatures(old, new):
     for x in intersection:
         arguments_diff = []
         for y in old_signature[x]:
-            if y not in new_signature[x]:
+            if isinstance(y, dict):
+                for z in new_signature[x]:
+                    if isinstance(z, dict) and y.keys() == z.keys():
+                        if y != z:
+                            arguments_diff.append(z)
+            elif y not in new_signature[x]:
                 arguments_diff.append(y)
         if arguments_diff:
             diff.update({x: arguments_diff})
     return diff
+diff_signatures(source, new_source)
 
 
 """
@@ -101,14 +107,14 @@ def test_get_full_signature():
 
 def test_get_full_signature_new():
     expected = {
-        "__init__": ["self", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
+        "__init__": ["self", "paul", {"george": False}, {"ringo": [1, 2]}],
         "apple": ["potato"],
     }
     assert expected == get_full_signature(new_source)
 
 def test_diff_signatures():
     expected = {
-        "__init__": ["john"],
+        "__init__": ["john", {"george": False}, {"ringo": [1, 2]}],
         "potato": {}
     }
     assert expected == diff_signatures(source, new_source)
