@@ -7,7 +7,7 @@ unemployment rate (2009) as the associated value.
 from __future__ import absolute_import
 
 import csv
-import sys
+import six
 from os.path import join
 from . import _data_dir
 
@@ -17,7 +17,7 @@ data = {}
 
 # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
 filename = join(data_dir, 'unemployment09.csv')
-if sys.version_info[0] < 3:
+if six.PY2:
     f = open(filename, 'rb')
 else:
     f = open(filename, 'r', newline='', encoding='utf8')

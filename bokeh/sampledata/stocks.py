@@ -16,6 +16,7 @@ from __future__ import absolute_import
 
 import csv
 from os.path import exists, isfile, join
+import six
 import sys
 from . import _data_dir
 
@@ -31,7 +32,7 @@ def _load_stock(filename):
     }
 
     # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
-    if sys.version_info[0] < 3:
+    if six.PY2:
         f = open(filename, 'rb')
     else:
         f = open(filename, 'r', newline='', encoding='utf8')
