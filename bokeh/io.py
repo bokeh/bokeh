@@ -273,7 +273,7 @@ def curstate():
     '''
     return _state
 
-def show(obj, browser=None, new="tab"):
+def show(obj, browser=None, new="tab", notebook_handle=False):
     ''' Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
@@ -298,9 +298,13 @@ def show(obj, browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
 
+        notebook_handle (bool, optional): create notebook interaction handle (default: False)
+            For notebook output, toggles whether a handle which can be
+            used with``push_notebook`` is returned.
     Returns:
-        when in a a jupyter notebook (with ``output_notebook`` enabled), returns
-        a handle that can be used by ``push_notebook``, None otherwise.
+        when in a jupyter notebook (with ``output_notebook`` enabled)
+        and notebook_handle=True, returns a handle that can be used by
+        ``push_notebook``, None otherwise.
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
@@ -309,17 +313,17 @@ def show(obj, browser=None, new="tab"):
     '''
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
-    return _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 
-def _show_with_state(obj, state, browser, new):
+def _show_with_state(obj, state, browser, new, notebook_handle=None):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state)
+        comms_handle = _show_notebook_with_state(obj, state, notebook_handle)
         shown = True
 
     elif state.server_enabled:
@@ -335,20 +339,20 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-
-def _show_notebook_with_state(obj, state):
+def _show_notebook_with_state(obj, state, notebook_handle):
     if state.server_enabled:
         push(state=state)
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        comms_target = make_id()
+        comms_target = make_id() if notebook_handle else None
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
-        handle = _CommsHandle(comms_target, state.document,
-                              state.document.to_json())
-        _comms_handles[comms_target] = handle
-        state.last_comms_handle = handle
-        return handle
+        if comms_target:
+            handle = _CommsHandle(comms_target, state.document,
+                                  state.document.to_json())
+            _comms_handles[comms_target] = handle
+            state.last_comms_handle = handle
+            return handle
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)

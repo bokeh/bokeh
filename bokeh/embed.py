@@ -258,7 +258,10 @@ def notebook_div(model, notebook_comms_target=None):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
-    item['notebook_comms_target'] = notebook_comms_target
+    if notebook_comms_target:
+        item['notebook_comms_target'] = notebook_comms_target
+    else:
+        notebook_comms_target = ''
 
     script = _wrap_in_function(DOC_JS.render(
         docs_json=serialize_json(docs_json),
