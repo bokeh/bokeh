@@ -67,34 +67,15 @@ class BoxSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
+    expanded_geom = @_get_expanded_geometry(geometry)
+
     if @mget('callback')?
-      @_emit_callback(geometry)
+      @_emit_callback(expanded_geom)
 
     if final
-      @_save_geometry(geometry, append)
+      @_save_geometry(expanded_geom, append)
 
     return null
-
-  _emit_callback: (geometry) ->
-    r = @model._get_selectable_renderers()[0]
-    canvas = @plot_model.get('canvas')
-    frame = @plot_model.get('frame')
-
-    geometry['sx0'] = canvas.vx_to_sx(geometry.vx0)
-    geometry['sx1'] = canvas.vx_to_sx(geometry.vx1)
-    geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
-    geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
-
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
-    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
-    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
-    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
-    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
-
-    @mget('callback').execute(@model, {geometry: geometry})
-
-    return
 
 DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
@@ -122,7 +103,6 @@ class BoxSelectTool extends SelectTool.Model
   @define {
       dimensions:             [ p.Array,    ["width", "height"] ]
       select_every_mousemove: [ p. Bool,    false               ]
-      callback:               [ p.Instance                      ]
       overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
     }
 
