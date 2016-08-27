@@ -77,45 +77,54 @@ describe "SelectTool module", ->
           plot_view: @plot_view
         })
 
-      it "should do stuff", ->
-        # expect(select_tool_view._save_geometry).to.be.instanceof(Function)
-        @select_tool_view._save_geometry({
-          type: "point"
-          vx: 0
-          vy: 0
-        }, true, false)
-        expect(@plot.tool_events.geometries.length).to.be.equal(1)
-        expect(@plot.tool_events.geometries[0]).to.have.all.keys([
-          'type', 'vx', 'vy', 'x', 'y'
-        ])
+      describe "SelectToolView._get_expanded_geometry method", ->
 
-      it "should do other stuff", ->
-        @select_tool_view._save_geometry({
-          type: "rect"
-          vx0: 0
-          vy0: 0
-          vx1: 100
-          vy1: 100
-        }, true, false)
-        expect(@plot.tool_events.geometries.length).to.be.equal(1)
-        expect(@plot.tool_events.geometries[0]).to.have.all.keys([
-          'type', 'vx0', 'vy0', 'vx1', 'vy1', 'x0', 'y0', 'x1', 'y1'
-        ])
+        it "shouldn't mutate the `geometry` argument", ->
+          initial = {type: "point", vx: 0, vy:0}
+          _ = @select_tool_view._get_expanded_geometry(initial)
+          expect(initial).to.be.deep.equal({type: "point", vx: 0, vy:0})
 
-      it "should do last stuff", ->
-        @select_tool_view._save_geometry({
-          type: "poly"
-          vx: [0]
-          vy: [0]
-        }, true, false)
-        expect(@plot.tool_events.geometries.length).to.be.equal(1)
-        expect(@plot.tool_events.geometries[0]).to.have.all.keys([
-          'type', 'vx', 'vy', 'x', 'y'
-        ])
-        expect(@plot.tool_events.geometries[0].x).to.be.instanceof(Array)
-        expect(@plot.tool_events.geometries[0].y).to.be.instanceof(Array)
+        it "should add the correct elements based on if type='point'", ->
+          geom = @select_tool_view._get_expanded_geometry({
+            type: "point"
+            vx: 0
+            vy: 0
+          }, true, false)
+          expect(geom).to.have.all.keys([
+            'type', 'vx', 'vy', 'x', 'y', 'sx', 'sy'
+          ])
 
-      it "should append or something", ->
-        @select_tool_view._save_geometry({type: "point", vx: 0, vy: 0}, true, false)
-        @select_tool_view._save_geometry({type: "point", vx: 0, vy: 0}, true, true)
-        expect(@plot.tool_events.geometries.length).to.be.equal(2)
+        it "should add the correct elements based on if type='rect'", ->
+          geom = @select_tool_view._get_expanded_geometry({
+            type: "rect"
+            vx0: 0
+            vy0: 0
+            vx1: 100
+            vy1: 100
+          }, true, false)
+          expect(geom).to.have.all.keys([
+            'type', 'vx0', 'vy0', 'vx1', 'vy1', 'x0', 'y0', 'x1', 'y1', 'sx0', 'sy0', 'sx1', 'sy1'
+          ])
+
+        it "should add the correct elements based on if type='poly'", ->
+          geom = @select_tool_view._get_expanded_geometry({
+            type: "poly"
+            vx: [0]
+            vy: [0]
+          }, true, false)
+          expect(geom).to.have.all.keys([
+            'type', 'vx', 'vy', 'x', 'y', 'sx', 'sy'
+          ])
+
+      describe "SelectToolView._save_geometry", ->
+        geom = {type: "point", vx: 0, vy: 0, x: 0, y: 0, sx: 0, sy: 0}
+
+        it "should append when append is false", ->
+            @select_tool_view._save_geometry(geom, false)
+            @select_tool_view._save_geometry(geom, false)
+            expect(@plot.tool_events.geometries.length).to.be.equal(1)
+
+        it "should append when append is true", ->
+            @select_tool_view._save_geometry(geom, true)
+            @select_tool_view._save_geometry(geom, true)
+            expect(@plot.tool_events.geometries.length).to.be.equal(2)
