@@ -582,6 +582,9 @@ def push_notebook(document=None, state=None, handle=None):
         msg = dict(doc=to_json)
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
+
+    if handle.comms is None:
+        handle.init()
     handle.comms.send(json.dumps(msg))
     handle.update(document, to_json)
 

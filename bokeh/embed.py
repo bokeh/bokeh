@@ -20,8 +20,7 @@ from six import string_types
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
-    FILE, NOTEBOOK_JS, NOTEBOOK_DIV, PLOT_DIV,
-    DOC_JS, SCRIPT_TAG
+    FILE, NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -261,19 +260,19 @@ def notebook_div(model, notebook_comms_target=None):
     item = render_items[0]
     item['notebook_comms_target'] = notebook_comms_target
 
-    script = _wrap_in_function(NOTEBOOK_JS.render(
+    script = _wrap_in_function(DOC_JS.render(
         docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items),
-        comms_target=notebook_comms_target
+        render_items=serialize_json(render_items)
     ))
     resources = EMPTY
 
     js = AUTOLOAD_NB_JS.render(
+        comms_target=notebook_comms_target,
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
-        elementid = item['elementid'],
+        elementid = item['elementid']
     )
     div = _div_for_render_item(item)
 

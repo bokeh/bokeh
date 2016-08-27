@@ -27,7 +27,6 @@ SCRIPT_TAG = _env.get_template("script_tag.html")
 PLOT_DIV = _env.get_template("plot_div.html")
 
 DOC_JS = _env.get_template("doc_js.js")
-NOTEBOOK_JS = _env.get_template("notebook_js.js")
 
 FILE = _env.get_template("file.html")
 

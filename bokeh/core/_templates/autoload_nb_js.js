@@ -29,6 +29,13 @@
       setTimeout(display_loaded, 100)
     }
   }
+
+  {%- if comms_target -%}
+  if (window.Jupyter !== undefined) {
+    comm_manager = Jupyter.notebook.kernel.comm_manager
+    comm_manager.register_target("{{ comms_target }}", function () {});
+  }
+  {%- endif -%}
 {% endblock %}
 
 {% block run_inline_js %}
