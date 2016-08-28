@@ -47,8 +47,6 @@ _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
 
-_comms_handles = {}
-
 #-----------------------------------------------------------------------------
 # Local utilities
 #-----------------------------------------------------------------------------
@@ -61,7 +59,7 @@ class _CommsHandle(object):
 
     _json = {}
 
-    def __init__(self, comms_target, doc, json):
+    def __init__(self, comms, doc, json):
         self._cellno = None
         try:
             from IPython import get_ipython
@@ -72,8 +70,7 @@ class _CommsHandle(object):
         except Exception as e:
             logger.debug("Could not get Notebook cell number, reason: %s", e)
 
-        self._comms_target = comms_target
-        self._comms = None
+        self._comms = comms
         self._doc = doc
         self._json[doc] = json
 
@@ -99,9 +96,6 @@ class _CommsHandle(object):
         self._doc = doc
         self._json[doc] = json
 
-    def init(self):
-        if self._comms is None:
-            self._comms = get_comms(self._comms_target)
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -348,9 +342,8 @@ def _show_notebook_with_state(obj, state, notebook_handle):
         comms_target = make_id() if notebook_handle else None
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         if comms_target:
-            handle = _CommsHandle(comms_target, state.document,
+            handle = _CommsHandle(get_comms(comms_target), state.document,
                                   state.document.to_json())
-            _comms_handles[comms_target] = handle
             state.last_comms_handle = handle
             return handle
 
@@ -587,8 +580,6 @@ def push_notebook(document=None, state=None, handle=None):
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
 
-    if handle.comms is None:
-        handle.init()
     handle.comms.send(json.dumps(msg))
     handle.update(document, to_json)
 
