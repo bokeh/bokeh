@@ -193,53 +193,25 @@ class Differ(object):
                             diff[x]["classes"][y]["methods"] = methods_diff
         return diff
 
-    def get_arguments(self, function):
-        arguments = function.args.args
-        defaults = function.args.defaults
-        if defaults:
-            argument_names = [getattr(x, self.arg_name) for x in arguments[:len(arguments) - len(defaults)]]
-            default_names = [getattr(x, self.arg_name) for x in arguments[len(arguments) - len(defaults):]]
-            for x in range(len(default_names)):
-                argument_names.append({default_names[x]: ast.literal_eval(defaults[x])})
-            return argument_names
-        else:
-            return [getattr(x, self.arg_name) for x in arguments]
+    def diff_single_signature(self, old, new):
+        arguments_diff = []
+        for x in old:
+            if isinstance(x, dict):
+                for y in new:
+                    if isinstance(y, dict) and x.keys() == y.keys():
+                        if x != y:
+                            arguments_diff.append(y)
+            elif x not in new:
+                arguments_diff.append(x)
+        return arguments_diff
 
-    def get_signature(self, function):
-        arguments = self.get_arguments(function)
-        return {
-            function.name: self.get_arguments(function)
-        }
-
-    def parse_source(self, source):
-        parsed = ast.parse(source)
-        parsed = [node for node in ast.walk(parsed) if isinstance(node, ast.FunctionDef)]
-        return parsed
-
-    def get_full_signature(self, source):
-        full_signature = {}
-        functions = self.parse_source(source)
-        for x in functions:
-            full_signature.update(self.get_signature(x))
-        return full_signature
-
-    def diff_signatures(self, old, new):
-        old_signature = self.get_full_signature(old)
-        new_signature = self.get_full_signature(new)
+    def diff_signatures(self, old_signature, new_signature):
         diff = {}
         intersection = list(set(old_signature) & set(new_signature))
         difference = list(set(old_signature) - set(new_signature))
-        diff.update({x: {} for x in difference})
+        diff.update({x: [] for x in difference})
         for x in intersection:
-            arguments_diff = []
-            for y in old_signature[x]:
-                if isinstance(y, dict):
-                    for z in new_signature[x]:
-                        if isinstance(z, dict) and y.keys() == z.keys():
-                            if y != z:
-                                arguments_diff.append(z)
-                elif y not in new_signature[x]:
-                    arguments_diff.append(y)
+            arguments_diff = self.diff_single_signature(old_signature[x], new_signature[x])
             if arguments_diff:
                 diff.update({x: arguments_diff})
         return diff

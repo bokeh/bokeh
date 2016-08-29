@@ -143,28 +143,15 @@ expected_single_class = {
     "bands": {"classes": {"Radiohead": {"methods": ["jonny"]}}}
 }
 
-source = """
-class Potato(object):
-    def __init__(self, john, paul, george=True, ringo=[1, 2, 3]):
-        self.apple = apple
-        self.potato = potato
+old_signature = {
+    "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
+    "radiohead": ["self", "thom", "jonny"]
+}
 
-def apple(potato):
-    return potato
-
-def potato(apple):
-    return apple
-"""
-new_source = """
-class Potato(object):
-    def __init__(self, paul, george=False, ringo=[1, 2]):
-        self.apple = apple
-        self.potato = potato
-
-def apple(potato):
-    return potato
-"""
-
+new_signature = {
+    "__init__": ["self", "paul", "pete", {"george": False}, {"ringo": [1, 2]}],
+    "pixies": []
+}
 
 class TestDiffer(object):
     differ = differ(old_version, new_version)
@@ -247,35 +234,22 @@ class TestDiffer(object):
         diff = self.differ.diff_methods(diff, intersection)
         assert diff["bands"]["classes"]["Radiohead"]["methods"] == ["jonny"]
 
-    def test_get_arguments(self):
-        expected = ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}]
-        assert expected == self.differ.get_arguments(self.differ.parse_source(source)[2])
+    def test_diff_single_signature(self):
+        expected = ["john", {"george": False}, {"ringo": [1, 2]}]
+        assert expected == self.differ.diff_single_signature(old_signature["__init__"], new_signature["__init__"])
 
-    def test_single_signatue(self):
-        expected = {
-            "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
-        }
-        assert expected == self.differ.get_signature(self.differ.parse_source(source)[2])
-
-    def test_get_full_signature(self):
-        expected = {
-            "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
-            "apple": ["potato"],
-            "potato": ["apple"]
-        }
-        assert expected == self.differ.get_full_signature(source)
-
-    def test_get_full_signature_new(self):
-        expected = {
-            "__init__": ["self", "paul", {"george": False}, {"ringo": [1, 2]}],
-            "apple": ["potato"],
-        }
-        assert expected == self.differ.get_full_signature(new_source)
-
-    def test_diff_signatures(self):
+    def test_diff_full_signature(self):
         expected = {
             "__init__": ["john", {"george": False}, {"ringo": [1, 2]}],
-            "potato": {}
+            "radiohead": []
         }
-        assert expected == self.differ.diff_signatures(source, new_source)
+        assert expected == self.differ.diff_signatures(old_signature, new_signature)
+
+    def test_diff_signature_added(self):
+        expected = {
+            "__init__": ["pete", {"george": True}, {"ringo": [1, 2, 3]}],
+            "pixies": []
+        }
+        assert expected == self.differ.diff_signatures(new_signature, old_signature)
+
 
