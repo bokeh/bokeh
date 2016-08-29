@@ -69,7 +69,8 @@
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
     "acorn": "^3.3.0",
-    "less": "^2.7.1"
+    "less": "^2.7.1",
+    "request": "^2.74.0"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
