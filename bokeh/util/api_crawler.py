@@ -167,9 +167,9 @@ class Differ(object):
                         diff[x]["classes"] = {}
 
                     if function_diff:
-                        diff[x]["functions"] = list(function_diff)
+                        diff[x]["functions"] = {x: [] for x in function_diff}
                     else:
-                        diff[x]["functions"] = []
+                        diff[x]["functions"] = {}
         return diff
 
     def diff_methods(self, diff, intersection):
@@ -190,7 +190,13 @@ class Differ(object):
                                 diff[x] = {}
                                 diff[x]["classes"] = {}
                             diff[x]["classes"][y] = copy.deepcopy(intersection[x]["classes"][y])
-                            diff[x]["classes"][y]["methods"] = methods_diff
+                            diff[x]["classes"][y]["methods"] = {x: [] for x in methods_diff}
+                            # diff[x]["classes"][y]["methods"] = {
+                            #     x: self.diff_signatures(former_methods["methods"],
+                            #         latter_methods["methods"]) for x in methods_diff
+                            # }
+                        else:
+                            pass
         return diff
 
     def diff_single_signature(self, old, new):
@@ -206,15 +212,15 @@ class Differ(object):
         return arguments_diff
 
     def diff_signatures(self, old_signature, new_signature):
-        diff = {}
+        arguments = {}
         intersection = list(set(old_signature) & set(new_signature))
         difference = list(set(old_signature) - set(new_signature))
-        diff.update({x: [] for x in difference})
+        arguments.update({x: [] for x in difference})
         for x in intersection:
             arguments_diff = self.diff_single_signature(old_signature[x], new_signature[x])
             if arguments_diff:
-                diff.update({x: arguments_diff})
-        return diff
+                arguments.update({x: arguments_diff})
+        return arguments
 
     def diff_modules(self):
         intersection, diff = self.diff_files()
