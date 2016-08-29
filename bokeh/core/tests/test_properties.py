@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import datetime
 import unittest
 import numpy as np
+import pandas as pd
 from copy import copy
 
 from bokeh.core.properties import (
@@ -1063,6 +1064,10 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({1, 2}))
         self.assertFalse(prop.is_valid({1: 2}))
         self.assertFalse(prop.is_valid(Foo()))
+
+        df = pd.DataFrame([1, 2])
+        self.assertTrue(prop.is_valid(df.index))
+        self.assertTrue(prop.is_valid(df.iloc[0]))
 
     def test_List(self):
         with self.assertRaises(TypeError):
