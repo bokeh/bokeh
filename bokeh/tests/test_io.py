@@ -263,15 +263,15 @@ class TestShow(DefaultStateTester):
 
     @patch('bokeh.io._show_with_state')
     def test_default_args(self, mock__show_with_state):
-        default_kwargs = dict(browser=None, new="tab")
+        default_kwargs = dict(browser=None, new="tab", notebook_handle=False)
         io.show("obj", **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", io._state, None, "tab"), {})
+        self._check_func_called(mock__show_with_state, ("obj", io._state, None, "tab"), {'notebook_handle': False})
 
     @patch('bokeh.io._show_with_state')
     def test_explicit_args(self, mock__show_with_state):
-        default_kwargs = dict(browser="browser", new="new")
+        default_kwargs = dict(browser="browser", new="new", notebook_handle=True)
         io.show("obj", **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {})
+        self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {'notebook_handle': True})
 
 
 @patch('bokeh.io._show_with_state')
@@ -305,19 +305,19 @@ class Test_ShowWithState(DefaultStateTester):
         s = io.State()
         s.output_notebook()
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_server_with_state.called)
         self.assertFalse(mock__show_file_with_state.called)
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
         s._session = Mock
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
@@ -377,7 +377,7 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         s._server_enabled = True
         mock_autoload_server.return_value = "snippet"
 
-        io._show_notebook_with_state("obj", s)
+        io._show_notebook_with_state("obj", s, True)
         self._check_func_called(mock_push, (), {"state": s})
         self._check_func_called(mock_publish_display_data, ({"text/html":"snippet"},), {})
 
@@ -390,7 +390,7 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         mock_notebook_div.return_value = "notebook_div"
 
         io._nb_loaded = True
-        io._show_notebook_with_state("obj", s)
+        io._show_notebook_with_state("obj", s, True)
         io._nb_loaded = False
         self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
 

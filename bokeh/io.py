@@ -310,7 +310,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False):
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 
-def _show_with_state(obj, state, browser, new, notebook_handle=None):
+def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
