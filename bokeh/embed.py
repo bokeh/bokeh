@@ -19,8 +19,8 @@ from warnings import warn
 from six import string_types
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
+    AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
+    FILE, NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -258,17 +258,24 @@ def notebook_div(model, notebook_comms_target=None):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
-    item['notebook_comms_target'] = notebook_comms_target
+    if notebook_comms_target:
+        item['notebook_comms_target'] = notebook_comms_target
+    else:
+        notebook_comms_target = ''
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    script = _wrap_in_function(DOC_JS.render(
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
+    ))
     resources = EMPTY
 
-    js = AUTOLOAD_JS.render(
+    js = AUTOLOAD_NB_JS.render(
+        comms_target=notebook_comms_target,
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
-        elementid = item['elementid'],
+        elementid = item['elementid']
     )
     div = _div_for_render_item(item)
 

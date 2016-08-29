@@ -47,8 +47,6 @@ _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
 
-_nb_loaded = False
-
 #-----------------------------------------------------------------------------
 # Local utilities
 #-----------------------------------------------------------------------------
@@ -97,6 +95,7 @@ class _CommsHandle(object):
     def update(self, doc, json):
         self._doc = doc
         self._json[doc] = json
+
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -147,7 +146,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False):
+def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
 
@@ -165,6 +164,9 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         hide_banner (bool, optional):
             whether to hide the Bokeh banner (default: False)
 
+        load_timeout (int, optional) :
+            Timeout in milliseconds when plots assume load timed out (default: 5000)
+
     Returns:
         None
 
@@ -173,7 +175,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         session or the top of a script.
 
     '''
-    load_notebook(resources, verbose, hide_banner)
+    load_notebook(resources, verbose, hide_banner, load_timeout)
     _state.output_notebook()
 
 # usually we default session_id to "generate a random one" but
@@ -265,7 +267,7 @@ def curstate():
     '''
     return _state
 
-def show(obj, browser=None, new="tab"):
+def show(obj, browser=None, new="tab", notebook_handle=False):
     ''' Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
@@ -290,9 +292,13 @@ def show(obj, browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
 
+        notebook_handle (bool, optional): create notebook interaction handle (default: False)
+            For notebook output, toggles whether a handle which can be
+            used with``push_notebook`` is returned.
     Returns:
-        when in a a jupyter notebook (with ``output_notebook`` enabled), returns
-        a handle that can be used by ``push_notebook``, None otherwise.
+        when in a jupyter notebook (with ``output_notebook`` enabled)
+        and notebook_handle=True, returns a handle that can be used by
+        ``push_notebook``, None otherwise.
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
@@ -301,17 +307,17 @@ def show(obj, browser=None, new="tab"):
     '''
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
-    return _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 
-def _show_with_state(obj, state, browser, new):
+def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state)
+        comms_handle = _show_notebook_with_state(obj, state, notebook_handle)
         shown = True
 
     elif state.server_enabled:
@@ -327,33 +333,19 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-_NB_LOAD_WARNING = """
-
-BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
-may be due to a slow or bad network connection. Possible fixes:
-
-* ALWAYS run `output_notebook()` in a cell BY ITSELF, AT THE TOP, with no other code
-* re-rerun `output_notebook()` to attempt to load from CDN again, or
-* use INLINE resources instead, as so:
-
-    from bokeh.resources import INLINE
-    output_notebook(resources=INLINE)
-"""
-
-def _show_notebook_with_state(obj, state):
+def _show_notebook_with_state(obj, state, notebook_handle):
     if state.server_enabled:
         push(state=state)
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        if not _nb_loaded:
-            warnings.warn(_NB_LOAD_WARNING)
-            return
-        comms_target = make_id()
+        comms_target = make_id() if notebook_handle else None
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
-        handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
-        state.last_comms_handle = handle
-        return handle
+        if comms_target:
+            handle = _CommsHandle(get_comms(comms_target), state.document,
+                                  state.document.to_json())
+            state.last_comms_handle = handle
+            return handle
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
@@ -587,6 +579,7 @@ def push_notebook(document=None, state=None, handle=None):
         msg = dict(doc=to_json)
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
+
     handle.comms.send(json.dumps(msg))
     handle.update(document, to_json)
 
