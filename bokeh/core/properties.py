@@ -1025,12 +1025,18 @@ class ContainerProperty(ParameterizedPropertyDescriptor):
         return False
 
 class Seq(ContainerProperty):
-    """ Sequence (list, tuple) type property.
+    """ An ordered sequence of values (list, tuple, (nd)array). """
 
-    """
+    @classmethod
+    def _is_seq(cls, value):
+        return ((isinstance(value, collections.Sequence) or cls._is_seq_like(value)) and
+                not isinstance(value, string_types))
 
-    def _is_seq(self, value):
-        return isinstance(value, collections.Container) and not isinstance(value, collections.Mapping)
+    @classmethod
+    def _is_seq_like(cls, value):
+        return (isinstance(value, (collections.Container, collections.Sized, collections.Iterable))
+                and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
+                and not isinstance(value, collections.Mapping))
 
     def _new_instance(self, value):
         return value
@@ -1079,6 +1085,7 @@ class List(Seq):
         # optional values. Also in Dict.
         super(List, self).__init__(item_type, default=default, help=help)
 
+    @classmethod
     def _is_seq(self, value):
         return isinstance(value, list)
 
@@ -1087,6 +1094,7 @@ class Array(Seq):
 
     """
 
+    @classmethod
     def _is_seq(self, value):
         import numpy as np
         return isinstance(value, np.ndarray)
