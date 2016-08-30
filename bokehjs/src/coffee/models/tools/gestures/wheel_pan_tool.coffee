@@ -41,8 +41,8 @@ class WheelPanToolView extends GestureTool.View
         sy1 = vy_high + vy_range * factor
       when "width"
         vx_range = Math.abs(vx_high - vx_low)
-        sx0 = vx_low + vx_range * factor
-        sx1 = vx_high + vx_range * factor
+        sx0 = vx_low - vx_range * factor
+        sx1 = vx_high - vx_range * factor
         sy0 = vy_low
         sy1 = vy_high
 
