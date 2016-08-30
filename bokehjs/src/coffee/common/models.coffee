@@ -151,6 +151,7 @@ module.exports = {
   SelectTool:               require '../models/tools/gestures/select_tool'
   ResizeTool:               require '../models/tools/gestures/resize_tool'
   TapTool:                  require '../models/tools/gestures/tap_tool'
+  WheelPanTool:            require '../models/tools/gestures/wheel_pan_tool'
   WheelZoomTool:            require '../models/tools/gestures/wheel_zoom_tool'
 
   CrosshairTool:            require '../models/tools/inspectors/crosshair_tool'
