@@ -148,5 +148,21 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)])))
         self.assertEqual(stuff['kw'], {})
 
+    def test_data_column_lengths(self):
+        with self.assertRaises(ValueError):
+            ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
+
+        ds = ColumnDataSource()
+        with self.assertRaises(ValueError):
+            ds.data = dict(a=[10, 11], b=[20, 21, 22])
+
+        ds = ColumnDataSource(data=dict(a=[10, 11]))
+        with self.assertRaises(ValueError):
+            ds.data["b"] = [20, 21, 22]
+
+        ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
+        with self.assertRaises(ValueError):
+            ds.data.update(dict(a=[10, 11, 12]))
+
 if __name__ == "__main__":
     unittest.main()

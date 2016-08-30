@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-from ..core import validation
-from ..core.validation.errors import COLUMN_LENGTHS
 from ..core.properties import abstract
 from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
@@ -66,7 +64,8 @@ class ColumnDataSource(DataSource):
     data = Dict(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
-    """)
+    """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
+                 "ColumnDataSource's columns must be of the same length")
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
@@ -211,13 +210,6 @@ class ColumnDataSource(DataSource):
         """
         from bokeh.io import push_notebook
         push_notebook()
-
-    @validation.error(COLUMN_LENGTHS)
-    def _check_column_lengths(self):
-        lengths = set(len(x) for x in self.data.values())
-        if len(lengths) > 1:
-            return str(self)
-
 
     def stream(self, new_data, rollover=None):
         ''' Efficiently update data source columns with new append-only data.
