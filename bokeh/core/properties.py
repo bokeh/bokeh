@@ -159,6 +159,7 @@ class PropertyDescriptor(PropertyFactory):
         self._default = default
         self.__doc__ = help
         self.alternatives = []
+        self.assertions = []
 
         # "fail early" when a default is invalid
         self.validate(self._raw_default())
@@ -260,7 +261,7 @@ class PropertyDescriptor(PropertyFactory):
         else:
             return value
 
-    def prepare_value(self, cls, name, value):
+    def prepare_value(self, obj_or_cls, name, value):
         try:
             self.validate(value)
         except ValueError as e:
@@ -273,6 +274,18 @@ class PropertyDescriptor(PropertyFactory):
         else:
             value = self.transform(value)
 
+        if isinstance(obj_or_cls, HasProps):
+            obj = obj_or_cls
+
+            for fn, msg in self.assertions:
+                result = fn(obj, value)
+
+                if isinstance(result, bool):
+                    if not result:
+                        raise ValueError(msg)
+                elif result is not None:
+                    raise ValueError(msg % result)
+
         return self._wrap_container(value)
 
     @property
@@ -282,6 +295,10 @@ class PropertyDescriptor(PropertyFactory):
     def accepts(self, tp, converter):
         tp = ParameterizedPropertyDescriptor._validate_type_param(tp)
         self.alternatives.append((tp, converter))
+        return self
+
+    def asserts(self, fn, msg):
+        self.assertions.append((fn, msg))
         return self
 
     def __or__(self, other):
@@ -452,7 +469,8 @@ class BasicProperty(Property):
             # Initial values should be passed in to __init__, not set directly
             raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
                                (self.name, obj.__class__.__name__))
-        value = self.descriptor.prepare_value(obj.__class__, self.name, value)
+
+        value = self.descriptor.prepare_value(obj, self.name, value)
 
         old = self.__get__(obj)
         self._real_set(obj, old, value)
@@ -467,7 +485,7 @@ class BasicProperty(Property):
 
         # re-validate because the contents of 'old' have changed,
         # in some cases this could give us a new object for the value
-        value = self.descriptor.prepare_value(obj.__class__, self.name, value)
+        value = self.descriptor.prepare_value(obj, self.name, value)
 
         self._real_set(obj, old, value, hint)
 
