@@ -140,11 +140,25 @@ expected_parsed_additions = [
 ]
 
 single_class_old = {
-    "bands": {"functions": [], "classes": {"Radiohead": {"methods": ["thom", "jonny", "colin", "ed", "phil"]}}}
+    "bands": {
+        "functions": [],
+        "classes": {
+            "Radiohead": {
+                "methods": {"jonny": ["self"], "thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
+            }
+        }
+    }
 }
 
 single_class_new = {
-    "bands": {"functions": [], "classes": {"Radiohead": {"methods": ["thom", "colin", "ed", "phil"]}}}
+    "bands": {
+        "functions": [],
+        "classes": {
+                "Radiohead": {
+                "methods": {"thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
+            }
+        }
+    }
 }
 
 expected_single_class = {
@@ -247,9 +261,13 @@ class TestDiffer(object):
 
     def test_diff_single_signature(self):
         expected = ["john", {"george": False}, {"ringo": [1, 2]}]
-        assert expected == self.differ.diff_single_signature(old_signature["__init__"], new_signature["__init__"])
+        assert expected == self.differ.diff_single_signature(
+            old_signature["__init__"],
+            new_signature["__init__"]
+        )
 
     def test_diff_full_signature(self):
+        self.differ.additions = False
         expected = {
             "__init__": ["john", {"george": False}, {"ringo": [1, 2]}],
             "radiohead": []
@@ -257,10 +275,11 @@ class TestDiffer(object):
         assert expected == self.differ.diff_signatures(old_signature, new_signature)
 
     def test_diff_signature_added(self):
+        self.differ.additions = True
         expected = {
             "__init__": ["pete", {"george": True}, {"ringo": [1, 2, 3]}],
             "pixies": []
         }
-        assert expected == self.differ.diff_signatures(new_signature, old_signature)
+        assert expected == self.differ.diff_signatures(old_signature, new_signature)
 
 

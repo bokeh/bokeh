@@ -182,21 +182,11 @@ class Differ(object):
                     former_methods = self.former[x]["classes"].get(y, {})
                     latter_methods = self.latter[x]["classes"].get(y, {})
                     if former_methods.get("methods") and latter_methods.get("methods"):
-                        former_values = set(list(former_methods.values())[0])
-                        latter_values = set(list(latter_methods.values())[0])
-                        methods_diff = self._operation(former_values, latter_values)
+                        methods_diff = self.diff_signatures(former_methods["methods"], latter_methods["methods"])
                         if methods_diff:
                             if not diff.get(x):
-                                diff[x] = {}
-                                diff[x]["classes"] = {}
-                            diff[x]["classes"][y] = copy.deepcopy(intersection[x]["classes"][y])
-                            diff[x]["classes"][y]["methods"] = {x: [] for x in methods_diff}
-                            # diff[x]["classes"][y]["methods"] = {
-                            #     x: self.diff_signatures(former_methods["methods"],
-                            #         latter_methods["methods"]) for x in methods_diff
-                            # }
-                        else:
-                            pass
+                                diff[x] = {"classes": {}}
+                            diff[x]["classes"][y] = {"methods": methods_diff}
         return diff
 
     def diff_single_signature(self, old, new):
@@ -214,10 +204,19 @@ class Differ(object):
     def diff_signatures(self, old_signature, new_signature):
         arguments = {}
         intersection = list(set(old_signature) & set(new_signature))
-        difference = list(set(old_signature) - set(new_signature))
+        difference = self._operation(set(old_signature), set(new_signature))
         arguments.update({x: [] for x in difference})
         for x in intersection:
-            arguments_diff = self.diff_single_signature(old_signature[x], new_signature[x])
+            if self.additions:
+                arguments_diff = self.diff_single_signature(
+                    new_signature[x],
+                    old_signature[x]
+                )
+            else:
+                arguments_diff = self.diff_single_signature(
+                    old_signature[x],
+                    new_signature[x]
+                )
             if arguments_diff:
                 arguments.update({x: arguments_diff})
         return arguments
