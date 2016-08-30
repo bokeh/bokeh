@@ -14,7 +14,7 @@ class SelectToolView extends GestureTool.View
         sm = ds.get('selection_manager')
         sm.clear()
 
-  _get_expanded_geometry: (geometry) ->
+  _get_cb_data: (geometry) ->
     g = _.clone(geometry)
     xm = @plot_view.frame.get('x_mappers')['default']
     ym = @plot_view.frame.get('y_mappers')['default']

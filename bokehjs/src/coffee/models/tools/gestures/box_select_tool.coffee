@@ -67,13 +67,13 @@ class BoxSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
-    expanded_geom = @_get_expanded_geometry(geometry)
+    cb_data = @_get_cb_data(geometry)
 
     if @mget('callback')?
-      @_emit_callback(expanded_geom)
+      @_emit_callback(cb_data)
 
     if final
-      @_save_geometry(expanded_geom, append)
+      @_save_geometry(cb_data, append)
 
     return null
 

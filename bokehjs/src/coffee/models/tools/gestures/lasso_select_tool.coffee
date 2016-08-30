@@ -54,11 +54,14 @@ class LassoSelectToolView extends SelectTool.View
       append = e.srcEvent.shiftKey ? false
       @_select(@data.vx, @data.vy, false, append)
 
+    return null
+
   _pan_end: (e) ->
     @_clear_overlay()
     append = e.srcEvent.shiftKey ? false
     @_select(@data.vx, @data.vy, true, append)
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
+    return null
 
   _clear_overlay: () ->
     @mget('overlay').update({xs:[], ys:[]})
@@ -75,13 +78,13 @@ class LassoSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
-    expanded_geom = @_get_expanded_geometry(geometry)
+    cb_data = @_get_cb_data(geometry)
 
     if @mget('callback')?
-      @_emit_callback(expanded_geom)
+      @_emit_callback(cb_data)
 
     if final
-      @_save_geometry(expanded_geom, append)
+      @_save_geometry(cb_data, append)
 
     return null
 

@@ -77,15 +77,15 @@ describe "SelectTool module", ->
           plot_view: @plot_view
         })
 
-      describe "SelectToolView._get_expanded_geometry method", ->
+      describe "SelectToolView._get_cb_data method", ->
 
         it "shouldn't mutate the `geometry` argument", ->
           initial = {type: "point", vx: 0, vy:0}
-          _ = @select_tool_view._get_expanded_geometry(initial)
+          _ = @select_tool_view._get_cb_data(initial)
           expect(initial).to.be.deep.equal({type: "point", vx: 0, vy:0})
 
         it "should add the correct elements based on if type='point'", ->
-          geom = @select_tool_view._get_expanded_geometry({
+          geom = @select_tool_view._get_cb_data({
             type: "point"
             vx: 0
             vy: 0
@@ -95,7 +95,7 @@ describe "SelectTool module", ->
           ])
 
         it "should add the correct elements based on if type='rect'", ->
-          geom = @select_tool_view._get_expanded_geometry({
+          geom = @select_tool_view._get_cb_data({
             type: "rect"
             vx0: 0
             vy0: 0
@@ -107,7 +107,7 @@ describe "SelectTool module", ->
           ])
 
         it "should add the correct elements based on if type='poly'", ->
-          geom = @select_tool_view._get_expanded_geometry({
+          geom = @select_tool_view._get_cb_data({
             type: "poly"
             vx: [0]
             vy: [0]
