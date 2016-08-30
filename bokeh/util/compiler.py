@@ -7,13 +7,12 @@ import six
 import json
 import inspect
 import hashlib
-from os.path import basename, dirname, join, abspath, relpath, exists
+from os.path import dirname, join, abspath, exists
 from subprocess import Popen, PIPE
 
 from ..model import Model
 from ..settings import settings
 from .string import snakify
-from .paths import bokehjsdir
 
 # XXX: this is the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
@@ -105,7 +104,7 @@ def _detect_nodejs():
 
     for nodejs_path in nodejs_paths:
         try:
-            proc = Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
+            Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
         except OSError:
             pass
         else:

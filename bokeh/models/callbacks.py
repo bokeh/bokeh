@@ -8,7 +8,7 @@ from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
 
 from ..core.properties import abstract
-from ..core.properties import Dict, Instance, String, Enum
+from ..core.properties import Dict, Instance, String
 
 
 @abstract
