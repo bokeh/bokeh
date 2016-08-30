@@ -16,9 +16,9 @@ from __future__ import absolute_import
 
 import csv
 from os.path import exists, isfile, join
-import six
 import sys
 from . import _data_dir
+from . import _open_csv_file
 
 def _load_stock(filename):
     data = {
@@ -30,14 +30,7 @@ def _load_stock(filename):
         'volume' : [],
         'adj_close': [],
     }
-
-    # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
-    if six.PY2:
-        f = open(filename, 'rb')
-    else:
-        f = open(filename, 'r', newline='', encoding='utf8')
-
-    with f:
+    with _open_csv_file(filename) as f:
         next(f)
         reader = csv.reader(f, delimiter=',')
         for row in reader:

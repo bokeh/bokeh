@@ -11,25 +11,17 @@ associated value:
 from __future__ import absolute_import
 
 import csv
-import six
 import xml.etree.cElementTree as et
 from os.path import join
 from . import _data_dir
+from . import _open_csv_file
 
 data_dir = _data_dir()
 
 nan = float('NaN')
 
 data = {}
-
-# csv differs in Python 2.x and Python 3.x. Open the file differently in each.
-filename = join(data_dir, 'US_Counties.csv')
-if six.PY2:
-    f = open(filename, 'rb')
-else:
-    f = open(filename, 'r', newline='', encoding='utf8')
-
-with  f:
+with _open_csv_file(join(data_dir, 'US_Counties.csv')) as f:
     next(f)
     reader = csv.reader(f, delimiter=',', quotechar='"')
     for row in reader:
