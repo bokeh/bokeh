@@ -72,7 +72,7 @@ _style_template = \
 """
 
 _export_template = \
-"""%(name)s: require("%(module)s")"""
+""""%(name)s": require("%(module)s")"""
 
 _module_template = \
 """"%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""
