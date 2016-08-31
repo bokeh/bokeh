@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import io
 import os
 import six
 import json
@@ -162,7 +163,7 @@ class Less(Inline):
 class FromFile(Implementation):
 
     def __init__(self, path):
-        with open(path, "rb") as f:
+        with io.open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
 
@@ -239,7 +240,7 @@ def gen_custom_models_static():
     exports = []
     modules = []
 
-    with open(join(bokehjs_dir, "js", "modules.json")) as f:
+    with io.open(join(bokehjs_dir, "js", "modules.json"), encoding="utf-8") as f:
         known_modules = json.loads(f.read())
 
     known_modules = set(known_modules["bokehjs"] + known_modules["widgets"])
@@ -284,7 +285,7 @@ def gen_custom_models_static():
                     code = compiled.code
                     deps = compiled.deps
 
-                sig = hashlib.sha256(code).hexdigest()
+                sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
                 resolved[module] = sig
 
                 deps_map = resolve_deps(deps, dirname(path))
