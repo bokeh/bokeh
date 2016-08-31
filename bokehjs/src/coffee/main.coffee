@@ -18,6 +18,7 @@ Bokeh.set_log_level     = logging.set_log_level
 
 Bokeh.index             = require("./base").index
 Bokeh.embed             = require("./embed")
+Bokeh.safely            = require("./safely")
 
 Bokeh.Models            = require("./base").Models
 
