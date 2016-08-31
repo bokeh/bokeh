@@ -25,13 +25,16 @@ class TapToolView extends SelectTool.View
     cb_data =
       geometries: @plot_model.plot.tool_events.get('geometries')
 
+    if not append
+      @model._clear_current_selection()
+
     for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
 
       view = @plot_view.renderer_views[r.id]
       if @model.behavior == "select"
-        did_hit = sm.select(@, view, geometry, final, append)
+        did_hit = sm.select(@, view, geometry, final, true)
       else
         did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
 
@@ -45,6 +48,7 @@ class TapToolView extends SelectTool.View
       @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
     return null
+
 
 class TapTool extends SelectTool.Model
   default_view: TapToolView

@@ -54,10 +54,13 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
+    if not append
+      @model._clear_current_selection()
+
     for r in @mget('computed_renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
+      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
 
     @_save_geometry(geometry, final, append)
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})

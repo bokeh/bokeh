@@ -79,6 +79,14 @@ class SelectTool extends GestureTool.Model
 
     return null
 
+  _clear_current_selection: () ->
+    computed_renderers = @get('computed_renderers')
+
+    for renderer in _.uniq(computed_renderers, false, (r) -> r.data_source)
+      renderer.data_source.selection_manager.clear()
+
+    return null
+
 module.exports =
   Model: SelectTool
   View: SelectToolView
