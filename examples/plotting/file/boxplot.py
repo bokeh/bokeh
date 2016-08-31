@@ -23,7 +23,7 @@ lower = q1 - 1.5*iqr
 # find the outliers for each category
 def outliers(group):
     cat = group.name
-    return group[(group.score > upper.loc[cat][0]) | (group.score < lower.loc[cat][0])]['score']
+    return group[(group.score > upper.loc[cat]['score']) | (group.score < lower.loc[cat]['score'])]['score']
 out = groups.apply(outliers).dropna()
 
 # prepare outlier data for plotting, we need coordinates for every outlier.
