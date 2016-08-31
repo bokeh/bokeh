@@ -65,6 +65,8 @@ The inline example code above produces the following output:
 """
 from __future__ import absolute_import
 
+import sys
+import types
 import hashlib
 from os import makedirs
 from os.path import basename, dirname, exists, isdir, join, relpath
@@ -235,13 +237,17 @@ io.save = _save
 io.show = _show
 
 
-def _render_plot(source, symbol):
+def _render_plot(source, path=None, symbol=None):
     io._state._document = Document()
     namespace = {}
+    if path is not None:
+        sys.modules["fake"] = types.ModuleType("fake")
+        sys.modules["fake"].__file__ = path
+        namespace["__name__"] = "fake"
     # need to remove any encoding comment before compiling unicode
     pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
     source = pat.sub("", source)
-    code = compile(source, "<string>", mode="exec")
+    code = compile(source, path or "<string>", mode="exec")
     eval(code, namespace)
     # TODO (bev) remove this crap
     if symbol is not None:
@@ -271,7 +277,7 @@ def html_visit_bokeh_plot(self, node):
 
             if out_of_date(path, cached_path) or not exists(cached_path+".script"):
                 self.builder.app.verbose("generating new plot for '%s'" % path)
-                plot = _render_plot(node['source'], node.get('symbol'))
+                plot = _render_plot(node['source'], path, node.get('symbol'))
                 js, script = autoload_static(plot, resources, filename)
                 with open(cached_path, "w") as f:
                     f.write(js)
@@ -287,7 +293,7 @@ def html_visit_bokeh_plot(self, node):
             filename = node['target_id'] + ".js"
             if not exists(dest_dir): makedirs(dest_dir)
             dest_path = join(dest_dir, filename)
-            plot = _render_plot(node['source'], None)
+            plot = _render_plot(node['source'])
             js, script = autoload_static(plot, resources, filename)
             self.builder.app.verbose("saving inline plot at: %s" % dest_path)
             with open(dest_path, "w") as f:
