@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 p = require "../../core/properties"
+{logger} = require "../../core/logging"
 
 ActionTool = require "./actions/action_tool"
 HelpTool = require "./actions/help_tool"

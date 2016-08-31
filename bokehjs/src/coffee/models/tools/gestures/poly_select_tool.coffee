@@ -22,8 +22,9 @@ class PolySelectToolView extends SelectTool.View
   _doubletap: (e)->
     append = e.srcEvent.shiftKey ? false
     @_select(@data.vx, @data.vy, true, append)
-
+    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
     @_clear_data()
+    return null
 
   _clear_data: () ->
     @data = null
@@ -42,10 +43,9 @@ class PolySelectToolView extends SelectTool.View
     @data.vy.push(vy)
 
     overlay = @mget('overlay')
-    new_data = {}
-    new_data.vx = _.clone(@data.vx)
-    new_data.vy = _.clone(@data.vy)
     overlay.update({xs: @data.vx, ys: @data.vy})
+
+    return null
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -54,13 +54,18 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('computed_renderers')
+    for r in @model._get_selectable_renderers()
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
-    @_save_geometry(geometry, final, append)
-    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
+    cb_data = @_get_cb_data(geometry)
+
+    if @mget('callback')?
+      @_emit_callback(cb_data)
+
+    if final
+      @_save_geometry(cb_data, append)
 
     return null
 
