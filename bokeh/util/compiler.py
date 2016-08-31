@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import os
 import six
 import json
 import inspect
@@ -189,11 +190,19 @@ class CustomModel(object):
 
     @property
     def file(self):
-        return abspath(inspect.getfile(self.cls))
+        try:
+            file = inspect.getfile(self.cls)
+        except TypeError:
+            return None
+        else:
+            return abspath(file)
 
     @property
     def path(self):
-        return dirname(self.file)
+        if self.file is None:
+            return os.getcwd()
+        else:
+            return dirname(self.file)
 
     @property
     def implementation(self):
@@ -206,7 +215,7 @@ class CustomModel(object):
                 impl = CoffeeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
-            impl = impl.__class__(impl.code, self.file + ":" + self.name)
+            impl = impl.__class__(impl.code, (self.file or "<string>") + ":" + self.name)
 
         return impl
 

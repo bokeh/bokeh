@@ -9,14 +9,14 @@ mkCoffeescriptError = (error, file) ->
   message = error.message
 
   if not error.location?
-    text = [file ? "<stdin>", message].join(":")
+    text = [file ? "<string>", message].join(":")
   else
     location = error.location
 
     line = location.first_line + 1
     column = location.first_column + 1
 
-    text = [file ? "<stdin>", line, column, message].join(":")
+    text = [file ? "<string>", line, column, message].join(":")
 
     markerLen = 2
     if location.first_line == location.last_line
@@ -43,7 +43,7 @@ mkLessError = (error, file) ->
   message = error.message
   line = error.line
   column = error.column + 1
-  text = [file ? "<stdin>", line, column, message].join(":")
+  text = [file ? "<string>", line, column, message].join(":")
   extract = error.extract[line]
   annotated = [text, "  " + extract].join("\n")
 
@@ -60,7 +60,7 @@ mkAcornError = (error, file) ->
   message = error.message.replace(/\s*\(\d+:\d+\)\s*$/, "")
   line = error.loc.line
   column = error.loc.column
-  text = [file ? "<stdin>", line, column, message].join(":")
+  text = [file ? "<string>", line, column, message].join(":")
 
   return {
     message: message
