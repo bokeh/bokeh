@@ -497,8 +497,8 @@ class ColorBar extends Annotation.Model
 
     # Because we want the scale to be reversed
     if @orientation == 'vertical'
-      major_coords[i] = major_coords[i].map((coord) -> return scale_length - coord)
-      minor_coords[i] = minor_coords[i].map((coord) -> return scale_length - coord)
+      major_coords[i] = new Float64Array((scale_length - coord for coord in major_coords[i]))
+      minor_coords[i] = new Float64Array((scale_length - coord for coord in minor_coords[i]))
 
     return {
       "major": major_coords
