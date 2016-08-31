@@ -42,8 +42,8 @@ p = figure(tools="save", background_fill_color="#EFE8E2", title="", x_range=cats
 # if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
 qmin = groups.quantile(q=0.00)
 qmax = groups.quantile(q=1.00)
-upper.score = [min([x,y]) for (x,y) in zip(list(qmax.loc[:,'score']),upper.score) ]
-lower.score = [max([x,y]) for (x,y) in zip(list(qmin.loc[:,'score']),lower.score) ]
+upper.score = [min([x,y]) for (x,y) in zip(list(qmax.loc[:,'score']),upper.score)]
+lower.score = [max([x,y]) for (x,y) in zip(list(qmin.loc[:,'score']),lower.score)]
 
 # stems
 p.segment(cats, upper.score, cats, q3.score, line_width=2, line_color="black")
