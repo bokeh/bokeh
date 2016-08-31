@@ -6,6 +6,15 @@ hittest = require "../../common/hittest"
 
 class PatchesView extends Glyph.View
 
+  _map_data: () ->
+    # @sxss and @syss are used by _hit_point and sxc, syc
+    
+    # Call super first so that @sxs and @sys are available
+    super()
+    @renderer.sxss = @_build_discontinuous_object(@sxs)
+    @renderer.syss = @_build_discontinuous_object(@sys)
+
+
   _build_discontinuous_object: (nanned_qs) ->
     # _s is @xs, @ys, @sxs, @sys
     # an object of n 1-d arrays in either data or screen units
@@ -75,10 +84,6 @@ class PatchesView extends Glyph.View
     return (x.i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sxs, sys}) ->
-    # @sxss and @syss are used by _hit_point and sxc, syc
-    # This is the earliest we can build them, and only build them once
-    @renderer.sxss = @_build_discontinuous_object(sxs)
-    @renderer.syss = @_build_discontinuous_object(sys)
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
