@@ -234,12 +234,6 @@ class BarBuilder(Builder):
         
         for i in range(len(self.comp_glyphs)):
             for sub_renderer in self.comp_glyphs[i].renderers:
-
-                if self.tooltips:
-                    sub_renderer = add_tooltips_columns(sub_renderer,
-                                                        self.tooltips,
-                                                        groups[i])
-                
                 yield sub_renderer
 
 

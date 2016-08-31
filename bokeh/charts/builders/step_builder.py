@@ -112,10 +112,4 @@ class StepBuilder(LineBuilder):
 
             # yield each renderer produced by composite glyph
             for renderer in glyph.renderers:
-                
-                #TODO: Half of the graph goes transparent following this code
-                #      being implemented
-                #if self.tooltips:
-                #    renderer = add_tooltips_columns(renderer, self.tooltips, group)
-
                 yield renderer
