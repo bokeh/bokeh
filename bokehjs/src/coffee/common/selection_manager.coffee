@@ -9,7 +9,7 @@ class SelectionManager extends HasProps
   type: 'SelectionManager'
 
   @internal {
-    source: [ p.Any ]
+    source: [ p.Instance ]
   }
 
   initialize: (attrs, options) ->
@@ -84,12 +84,12 @@ class SelectionManager extends HasProps
     @get('source').set({ "selected": hittest.create_hit_test_result()})
 
   _get_selector: (rview) ->
-    _.setdefault(@selectors, rview.model.id, new Selector())
-    return @selectors[rview.model.id]
+    _.setdefault(@selectors, rview.model.data_source.id, new Selector())
+    return @selectors[rview.model.data_source.id]
 
   _get_inspector: (rview) ->
-    _.setdefault(@inspectors, rview.model.id, new Selector())
-    return @inspectors[rview.model.id]
+    _.setdefault(@inspectors, rview.model.data_source.id, new Selector())
+    return @inspectors[rview.model.data_source.id]
 
 
 module.exports = SelectionManager
