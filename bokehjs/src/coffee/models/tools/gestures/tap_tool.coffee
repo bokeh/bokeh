@@ -56,7 +56,6 @@ class TapTool extends SelectTool.Model
 
   @define {
     behavior: [ p.String, "select" ] # TODO: Enum("select", "inspect")
-    callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
 
 module.exports =
