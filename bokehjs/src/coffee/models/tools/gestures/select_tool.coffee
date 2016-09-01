@@ -9,10 +9,7 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @mget('computed_renderers')
-        ds = r.get('data_source')
-        sm = ds.get('selection_manager')
-        sm.clear()
+      @model._clear_current_selection()
 
   _save_geometry: (geometry, final, append) ->
     g = _.clone(geometry)
