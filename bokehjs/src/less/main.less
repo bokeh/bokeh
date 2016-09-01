@@ -30,25 +30,24 @@
   z-index: -5;
 }
 
-@defaultTooltipBorder: #1E4B6C;
-@defaultTooltipColor: #1E4B6C;
+@tooltipBorder: #e5e5e5;  /* Same border color used everywhere */
+@tooltipColor: white;
 
-@customTooltipBorder: black;
-@customTooltipColor: white;
-
+@tooltipArrowColor: #909599;  /* Gray of icons */
 @tooltipArrowWidth: 10px;
-@tooltipArrowHalfHeight: 7px;
-
 @tooltipArrowHeight: 10px;
 @tooltipArrowHalfWidth: 7px;
+@tooltipArrowHalfHeight: 7px;
 
 .bk-tooltip {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300;
   position: absolute;
   padding: 5px;
-  border: 1px solid @defaultTooltipBorder;
-  background-color: @defaultTooltipColor;
-  border-radius: 5px;
+  border: 1px solid @tooltipBorder;
+  background-color: @tooltipColor;
   pointer-events: none;
+  opacity: 0.95;
 }
 
 .bk-tooltip-arrow-horizontal() {
@@ -81,72 +80,45 @@
   .bk-tooltip-arrow-horizontal();
   left: -@tooltipArrowWidth;
   border-right-width: @tooltipArrowWidth;
-  border-right-color: @defaultTooltipBorder;
+  border-right-color: @tooltipArrowColor;
 }
 
 .bk-tooltip.bk-left::before {
   left: -@tooltipArrowWidth;
   border-right-width: @tooltipArrowWidth;
-  border-right-color: @defaultTooltipBorder;
+  border-right-color: @tooltipArrowColor;
 }
 
 .bk-tooltip.bk-right.bk-tooltip-arrow::after {
   .bk-tooltip-arrow-horizontal();
   right: -@tooltipArrowWidth;
   border-left-width: @tooltipArrowWidth;
-  border-left-color: @defaultTooltipBorder;
+  border-left-color: @tooltipArrowColor;
 }
 
 .bk-tooltip.bk-right::after {
   right: -@tooltipArrowWidth;
   border-left-width: @tooltipArrowWidth;
-  border-left-color: @defaultTooltipBorder;
+  border-left-color: @tooltipArrowColor;
 }
 
 .bk-tooltip.bk-above::before {
   .bk-tooltip-arrow-vertical();
   top: -@tooltipArrowHeight;
   border-bottom-width: @tooltipArrowHeight;
-  border-bottom-color: @defaultTooltipBorder;
+  border-bottom-color: @tooltipArrowColor;
 }
 
 .bk-tooltip.bk-below::after {
   .bk-tooltip-arrow-vertical();
   bottom: -@tooltipArrowHeight;
   border-top-width: @tooltipArrowHeight;
-  border-top-color: @defaultTooltipBorder;
-}
-
-.bk-tooltip.bk-tooltip-custom.bk-left::before {
-  border-right-color: @customTooltipBorder;
-}
-
-.bk-tooltip.bk-tooltip-custom.bk-right::after {
-  border-left-color: @customTooltipBorder;
-}
-
-.bk-tooltip.bk-tooltip-custom.bk-above::before {
-  border-bottom-color: @customTooltipBorder;
-}
-
-.bk-tooltip.bk-tooltip-custom.bk-below::after {
-  border-top-color: @customTooltipBorder;
-}
-
-.bk-tooltip.bk-tooltip-custom {
-  border-color: @customTooltipBorder;
-  background-color: @customTooltipColor;
+  border-top-color: @tooltipArrowColor;
 }
 
 .bk-tooltip-row-label {
-  color: #9ab9b1;
-  font-family: Helvetica, sans-serif;
   text-align: right;
-}
-
-.bk-tooltip-row-value {
-  color: #e2ddbd;
-  font-family: Helvetica, sans-serif;
+  color: #26aae1;  /* blue from toolbar highlighting */
 }
 
 .bk-tooltip-color-block {
