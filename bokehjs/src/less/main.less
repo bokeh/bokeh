@@ -42,6 +42,7 @@
 .bk-tooltip {
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: 300;
+  font-size: 12px;
   position: absolute;
   padding: 5px;
   border: 1px solid @tooltipBorder;
@@ -125,6 +126,10 @@
 .bk-tooltip-row-label {
   text-align: right;
   color: #26aae1;  /* blue from toolbar highlighting */
+}
+
+.bk-tooltip-row-value {
+  color: default; /* seems to be necessary for notebook */
 }
 
 .bk-tooltip-color-block {
