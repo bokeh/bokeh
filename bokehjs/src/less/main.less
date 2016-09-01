@@ -50,6 +50,12 @@
   opacity: 0.95;
 }
 
+.bk-tooltip > div:not(:first-child) {
+  /* gives space when multiple elements are being hovered over */
+  margin-top: 5px;
+  border-top: @tooltipBorder 1px dashed;
+}
+
 .bk-tooltip-arrow-horizontal() {
   position: absolute;
   margin: -@tooltipArrowHalfHeight 0 0 0;
