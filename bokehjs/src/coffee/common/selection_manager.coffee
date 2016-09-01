@@ -25,7 +25,7 @@ class SelectionManager extends HasProps
 
     if indices?
       @selector.update(indices, final, append)
-      @source.set({ "selected": @selector.get('indices') }, {"silent": true })
+      @source.set({ "selected": @selector.get('indices') })
 
       @source.trigger('select')
       @source.trigger('select-' + renderer_view.mget('id'))
