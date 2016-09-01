@@ -80,7 +80,7 @@ module.exports = {
   Jitter:                   require '../models/transforms/jitter'
   Interpolator:             require '../models/transforms/interpolator'
   LinearInterpolator:       require '../models/transforms/linear_interpolator'
-  StepInterpolator:       require '../models/transforms/step_interpolator'
+  StepInterpolator:         require '../models/transforms/step_interpolator'
 
   Asterisk:                 require('../models/markers/index').Asterisk
   CircleCross:              require('../models/markers/index').CircleCross
@@ -151,7 +151,7 @@ module.exports = {
   SelectTool:               require '../models/tools/gestures/select_tool'
   ResizeTool:               require '../models/tools/gestures/resize_tool'
   TapTool:                  require '../models/tools/gestures/tap_tool'
-  WheelPanTool:            require '../models/tools/gestures/wheel_pan_tool'
+  WheelPanTool:             require '../models/tools/gestures/wheel_pan_tool'
   WheelZoomTool:            require '../models/tools/gestures/wheel_zoom_tool'
 
   CrosshairTool:            require '../models/tools/inspectors/crosshair_tool'

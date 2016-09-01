@@ -59,20 +59,20 @@ class WheelPanToolView extends GestureTool.View
     # OK this sucks we can't set factor independently in each direction. It is used
     # for GMap plots, and GMap plots always preserve aspect, so effective the value
     # of 'dimensions' is ignored.
-    zoom_info = {
+    pan_info = {
       xrs: xrs
       yrs: yrs
       factor: factor
     }
-    @plot_view.push_state('wheel_pan', {range: zoom_info})
-    @plot_view.update_range(zoom_info, false, true)
+    @plot_view.push_state('wheel_pan', {range: pan_info})
+    @plot_view.update_range(pan_info, false, true)
     @plot_view.interactive_timestamp = Date.now()
     return null
 
 class WheelPanTool extends GestureTool.Model
   type: 'WheelPanTool'
   default_view: WheelPanToolView
-  tool_name: "Wheel Pan Zoom"
+  tool_name: "Wheel Pan"
   icon: "bk-tool-icon-wheel-pan"
   event_type: 'scroll'
   default_order: 12
@@ -83,7 +83,7 @@ class WheelPanTool extends GestureTool.Model
     @override_computed_property('tooltip', () ->
         @_get_dim_tooltip(
           @tool_name,
-          @_check_dims(@get('dimension'), "wheel zoom tool")
+          @_check_dims(@get('dimension'), "wheel pan tool")
         )
       , false)
     @add_dependencies('tooltip', this, ['dimension'])
