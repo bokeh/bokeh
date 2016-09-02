@@ -5,9 +5,10 @@ $2 = require "jquery-ui/spinner"
 
 p = require "../../core/properties"
 
-Widget = require "./widget"
+BokehView = require "../../core/bokeh_view"
+Model = require "../../model"
 
-class CellEditorView extends Widget.View
+class CellEditorView extends BokehView
 
   tagName: "div"
   attributes:
@@ -84,7 +85,7 @@ class CellEditorView extends Widget.View
 
   validate: () -> return @validateValue(@getValue())
 
-class CellEditor extends Widget.Model
+class CellEditor extends Model
   type: "CellEditor"
   default_view: CellEditorView
 
