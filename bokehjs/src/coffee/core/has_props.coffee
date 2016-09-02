@@ -17,7 +17,7 @@ class HasProps extends Backbone.Model
         if this.prototype.props[name]?
           throw new Error("attempted to redefine property '#{this.name}.#{name}'")
 
-        if this.prototype[name]? and name != "url" # TODO: remove when we drop backbone
+        if this.prototype[name]?
           throw new Error("attempted to redefine attribute '#{this.name}.#{name}'")
 
         Object.defineProperty(this.prototype, name, {
