@@ -264,15 +264,6 @@ class HasProps extends Backbone.Model
         attrs[name] = value
     return attrs
 
-  # JSON serialization requires special measures to deal with cycles,
-  # which means objects can't be serialized independently but only
-  # as a whole object graph. This catches mistakes where we accidentally
-  # try to serialize an object in the wrong place (for example if
-  # we leave an object instead of a ref in a message we try to send
-  # over the websocket, or if we try to use Backbone's sync stuff)
-  toJSON: (options) ->
-    throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
-
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps
       value.ref()

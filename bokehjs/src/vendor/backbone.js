@@ -309,11 +309,6 @@
     // initialization logic.
     initialize: function(){},
 
-    // Return a copy of the model's `attributes` object.
-    toJSON: function(options) {
-      return _.clone(this.attributes);
-    },
-
     // Get the value of an attribute.
     get: function(attr) {
       return this.attributes[attr];
