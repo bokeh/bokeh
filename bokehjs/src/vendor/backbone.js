@@ -8,8 +8,6 @@
   var _ = require('underscore');
   var $ = require('jquery');
 
-  Backbone = {};
-
   // Backbone.Events
   // ---------------
 
@@ -23,7 +21,7 @@
   //     object.on('expand', function(){ alert('expanded'); });
   //     object.trigger('expand');
   //
-  var Events = Backbone.Events = {};
+  var Events = {};
 
   // Regular expression used to split event strings.
   var eventSplitter = /\s+/;
@@ -281,7 +279,7 @@
 
   // Create a new model with the specified attributes. A client id (`cid`)
   // is automatically generated and assigned for you.
-  var Model = Backbone.Model = function(attributes, options) {
+  var Model = function(attributes, options) {
     var attrs = attributes || {};
     options || (options = {});
     this.cid = _.uniqueId(this.cidPrefix);
@@ -521,7 +519,7 @@
 
   // Creating a Backbone.View creates its initial element outside of the DOM,
   // if an existing element is not provided...
-  var View = Backbone.View = function(options) {
+  var View = function(options) {
     this.cid = _.uniqueId('view');
     _.extend(this, _.pick(options, viewOptions));
     this._ensureElement();
@@ -671,4 +669,8 @@
 
   });
 
-module.exports = Backbone;
+module.exports = {
+  Events: Events,
+  Model: Model,
+  View: View
+}
