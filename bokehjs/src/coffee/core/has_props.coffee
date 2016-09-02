@@ -88,9 +88,6 @@ class HasProps extends Backbone.Model
         throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
-    if options.parse
-      attrs = this.parse(attrs, options) || {}
-
     # Bokeh specific
     this._set_after_defaults = {}
 

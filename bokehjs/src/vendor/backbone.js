@@ -284,7 +284,6 @@
     options || (options = {});
     this.cid = _.uniqueId(this.cidPrefix);
     this.attributes = {};
-    if (options.parse) attrs = this.parse(attrs, options) || {};
     var defaults = _.result(this, 'defaults');
     attrs = _.defaults(_.extend({}, defaults, attrs), defaults);
     this.set(attrs, options);
@@ -297,9 +296,6 @@
 
     // A hash of attributes whose current and previous value differ.
     changed: null,
-
-    // The value returned during the last failed validation.
-    validationError: null,
 
     // The default name for the JSON `id` attribute is `"id"`. MongoDB and
     // CouchDB users may want to set this to `"_id"`.
@@ -323,20 +319,10 @@
       return this.attributes[attr];
     },
 
-    // Get the HTML-escaped value of an attribute.
-    escape: function(attr) {
-      return _.escape(this.get(attr));
-    },
-
     // Returns `true` if the attribute contains a value that is not null
     // or undefined.
     has: function(attr) {
       return this.get(attr) != null;
-    },
-
-    // Special-cased proxy to underscore's `_.matches` method.
-    matches: function(attrs) {
-      return !!_.iteratee(attrs, this)(this.attributes);
     },
 
     // Set a hash of model attributes on the object, firing `"change"`. This is
@@ -355,9 +341,6 @@
       }
 
       options || (options = {});
-
-      // Run validation.
-      if (!this._validate(attrs, options)) return false;
 
       // Extract attributes and options.
       var unset      = options.unset;
@@ -472,12 +455,6 @@
       model.trigger('destroy', model, null, options);
     },
 
-    // **parse** converts a response into the hash of attributes to be `set` on
-    // the model. The default implementation is just to pass the response along.
-    parse: function(resp, options) {
-      return resp;
-    },
-
     // Create a new model with identical attributes to this one.
     clone: function() {
       return new this.constructor(this.attributes);
@@ -486,22 +463,6 @@
     // A model is new if it has never been saved to the server, and lacks an id.
     isNew: function() {
       return !this.has(this.idAttribute);
-    },
-
-    // Check if the model is currently in a valid state.
-    isValid: function(options) {
-      return this._validate({}, _.extend({}, options, {validate: true}));
-    },
-
-    // Run validation against the next complete set of model attributes,
-    // returning `true` if all is well. Otherwise, fire an `"invalid"` event.
-    _validate: function(attrs, options) {
-      if (!options.validate || !this.validate) return true;
-      attrs = _.extend({}, this.attributes, attrs);
-      var error = this.validationError = this.validate(attrs, options) || null;
-      if (!error) return true;
-      this.trigger('invalid', this, error, _.extend(options, {validationError: error}));
-      return false;
     }
 
   });
