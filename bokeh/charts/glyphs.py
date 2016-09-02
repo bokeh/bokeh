@@ -633,7 +633,7 @@ class Interval(AggregateGlyph):
 
         return dict(x=x, y=y, width=width, height=height, color=color,
                     fill_alpha=fill_alpha, line_color=line_color,
-                    line_alpha=line_alpha, label=label)
+                    line_alpha=line_alpha)
 
     @property
     def x_max(self):

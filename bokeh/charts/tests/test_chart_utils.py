@@ -97,4 +97,3 @@ def test_comp_glyph_to_df():
     df = comp_glyphs_to_df(bar1, bar2)
 
     assert len(df.index) == 2
-    assert 'chart_index' in df.columns
