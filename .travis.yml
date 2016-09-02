@@ -52,13 +52,9 @@ before_install:
     - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
     - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+    # We only want to use saucelabs when it's not an external contributor.
     - if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External committer, not using saucelabs"; else export SAUCELABS=True; fi
-    # We don't use the travis saucelabs add on because it installs on every test run, but we can manually use travis' saucelabs start/stop commands
-    # Furthermore, we only want to use it when it's not an external contributor.
     - if [[ -n "${SAUCELABS}" ]]; then source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh); fi
-    - if [[ -z "${SAUCELABS}" ]]; then export DISPLAY=:99.0; fi
-    - if [[ -z "${SAUCELABS}" ]]; then sh -e /etc/init.d/xvfb start; fi
-
 
 install:
     - scripts/travis_install
@@ -75,7 +71,6 @@ script:
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload; fi  # Run the integration tests on saucelabs
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_stop_sauce_connect; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -z "${SAUCELABS}" ]]; then py.test -m integration --driver Firefox; fi
     #
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then py.test -m quality ; fi
