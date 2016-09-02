@@ -947,6 +947,11 @@ class String(PrimitiveProperty):
     """ String type property. """
     _underlying_type = string_types
 
+class Scalar(PrimitiveProperty):
+
+    _underlying_type = bool_types + integer_types + float_types + complex_types + \
+        string_types + date_types + datetime_types + timedelta_types
+
 class Regex(String):
     """ Regex type property validates that text values match the
     given regular expression.
