@@ -28,7 +28,6 @@ class CellEditorView extends BokehView
   render: () ->
     super()
     @$el.appendTo(@args.container)
-    @$el.attr('style', 'margin-top: -3px; margin-left: -2px;')
     @$input = $(@input)
     @$el.append(@$input)
     @renderEditor()
@@ -93,7 +92,7 @@ class StringEditorView extends CellEditorView
 
   emptyValue: ""
 
-  input: '<input type="text" style="min-width: inherit; width: 94%" />'
+  input: '<input type="text" />'
 
   renderEditor: () ->
     completions = @model.get("completions")
@@ -122,7 +121,7 @@ class TextEditor extends CellEditor
 
 class SelectEditorView extends CellEditorView
 
-  input: '<select style="min-width: inherit; width: 100%;"/>'
+  input: '<select />'
 
   renderEditor: () ->
     for option in @model.get("options")
@@ -165,7 +164,7 @@ class CheckboxEditor extends CellEditor
 
 class IntEditorView extends CellEditorView
 
-  input: '<input type="text" style="min-width: inherit; width: 70%;" />'
+  input: '<input type="text" />'
 
   renderEditor: () ->
     @$input.spinner(step: @model.get("step"))
@@ -198,12 +197,11 @@ class IntEditor extends CellEditor
 
 class NumberEditorView extends CellEditorView
 
-  input: '<input type="text" style="min-width: inherit; width: 70%;" />'
+  input: '<input type="text" />'
 
   renderEditor: () ->
     @$input.spinner(step: @model.get("step"))
     @$input.focus().select()
-
 
   remove: () ->
     @$input.spinner("destroy")
