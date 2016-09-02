@@ -251,10 +251,6 @@ class HasProps extends Backbone.Model
   set_subtype: (subtype) ->
     @_subtype = subtype
 
-  sync: (method, model, options) ->
-    # make this a no-op, we sync the whole document never individual models
-    return options.success(model.attributes, null, {})
-
   defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   attribute_is_serializable: (attr) ->
