@@ -72,11 +72,6 @@ class HasProps extends Backbone.Model
 
   toString: () -> "#{@type}(#{@id})"
 
-  destroy: (options)->
-    # calls super, also unbinds any events bound by listenTo
-    super(options)
-    @stopListening()
-
   constructor : (attributes, options) ->
     @document = null
 
