@@ -154,7 +154,7 @@ describe "Defaults", ->
       if name not of widget_locations
         missing.push(name)
     for m in missing
-      console.log("'widget.locations.#{m}' not found but there's a Python model '#{m}'")
+      console.log("'#{m}' not found but there's a Python model '#{m}'")
     expect(missing.length).to.equal 0
 
   it "have all view models from Python in registered locations", ->
