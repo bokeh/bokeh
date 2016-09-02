@@ -290,7 +290,6 @@
     options || (options = {});
     this.cid = _.uniqueId(this.cidPrefix);
     this.attributes = {};
-    if (options.collection) this.collection = options.collection;
     if (options.parse) attrs = this.parse(attrs, options) || {};
     var defaults = _.result(this, 'defaults');
     attrs = _.defaults(_.extend({}, defaults, attrs), defaults);
@@ -476,7 +475,7 @@
       var model = this;
 
       model.stopListening();
-      model.trigger('destroy', model, model.collection, options);
+      model.trigger('destroy', model, null, options);
     },
 
     // **parse** converts a response into the hash of attributes to be `set` on
@@ -537,7 +536,7 @@
   var delegateEventSplitter = /^(\S+)\s*(.*)$/;
 
   // List of view options to be set as properties.
-  var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
+  var viewOptions = ['model', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
   // Set up all inheritable **Backbone.View** properties and methods.
   _.extend(View.prototype, Events, {
