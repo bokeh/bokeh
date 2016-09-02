@@ -1,6 +1,4 @@
 _ = require "underscore"
-proj4 = require "proj4"
-toProjection = proj4.defs('GOOGLE')
 {logger} = require "../../core/logging"
 
 GMapPlotCanvas = require "./gmap_plot_canvas"
