@@ -71,8 +71,8 @@ class DataTables(object):
         plot = Plot(title=None, x_range=DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
         # Set up x & y axis
-        plot.add_layout(LinearAxis(), 'below')
-        yaxis = LinearAxis()
+        plot.add_layout(LinearAxis(axis_label='Car ID'), 'below')
+        yaxis = LinearAxis(axis_label='MPG')
         plot.add_layout(yaxis, 'left')
         plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
