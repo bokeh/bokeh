@@ -1051,15 +1051,12 @@ class Seq(ContainerProperty):
         super(Seq, self).validate(value)
 
         if value is not None:
-            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
-                if self._is_seq(value):
-                    invalid = []
-                    for item in value:
-                        if not self.item_type.is_valid(item):
-                            invalid.append(item)
-                    raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
-                else:
-                    raise ValueError("expected an element of %s, got %r" % (self, value))
+            if not self._is_seq(value):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
+            elif any(not self.item_type.is_valid(item) for item in value):
+                #invalid = [ item for item in value if self.item_type.is_valid(item) ]
+                #raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
+                raise ValueError("expected an element of %s, got seq with invalid items" % self)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
