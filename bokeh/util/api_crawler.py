@@ -151,25 +151,33 @@ class Differ(object):
             latter_items = self.latter.get(x)
             if former_items and latter_items:
                 function_diff = self._operation(
-                    set(former_items["functions"]),
-                    set(latter_items["functions"])
+                    set(list(former_items["functions"].keys())),
+                    set(list(latter_items["functions"].keys()))
                 )
                 class_diff = self._operation(
                     set(list(former_items["classes"].keys())),
                     set(list(latter_items["classes"].keys()))
                 )
-                if function_diff or list(class_diff):
-                    diff[x]= copy.deepcopy(intersection[x])
+
+
+                if list(class_diff) or list(function_diff):
+                    diff[x] = copy.deepcopy(intersection[x])
                     if list(class_diff):
+                        diff[x] = copy.deepcopy(intersection[x])
                         diff_dict = {y: {} for y in class_diff}
                         diff[x]["classes"] = diff_dict
                     else:
                         diff[x]["classes"] = {}
 
-                    if function_diff:
-                        diff[x]["functions"] = {x: [] for x in function_diff}
+                    if list(function_diff):
+                        arguments_diff = self.diff_signatures(
+                            former_items["functions"],
+                            latter_items["functions"]
+                        )
+                        diff[x]["functions"] = arguments_diff
                     else:
                         diff[x]["functions"] = {}
+
         return diff
 
     def diff_methods(self, diff, intersection):
@@ -227,6 +235,19 @@ class Differ(object):
         diff = self.diff_methods(diff, intersection)
         return diff
 
+    def pretty_function_signatures(self, arg_dict):
+        arg_string = []
+        for x in arg_dict:
+            if isinstance(x, dict):
+                arg_string.append("%s=%s" % (x, str(arg_dict[x])))
+            else:
+                arg_string.append("%s" % x)
+        if arg_string:
+            return "(" + " ".join(arg_string) + ")"
+        else:
+            return ""
+
+
     def pretty_diff(self, diff):
         parsed_diff = []
         if self.additions:
@@ -237,17 +258,23 @@ class Differ(object):
             formatted_string = "%s %s" % (method, os.path.splitext(x.replace("/", "."))[0])
             if diff[x].values():
                 for y in diff[x].values():
-                    if isinstance(y, dict) and y:
+                    if diff[x]["classes"] == y:
                         for z in y.keys():
                             if not y[z].values():
                                 parsed_diff.append("%s.%s" % (formatted_string, z))
                             else:
-                                for a in y[z].values():
-                                    for b in a:
-                                        parsed_diff.append("%s.%s.%s" % (formatted_string, z, b))
-                    elif isinstance(y, list) and y:
+                                for i in y[z]["methods"]:
+                                    parsed_diff.append("%s.%s.%s" % (
+                                        formatted_string,
+                                        z,
+                                        i + self.pretty_function_signatures(y[z]["methods"][i]
+                                    )))
+                    if diff[x]["functions"] == y:
                         for z in y:
-                            class_string = "%s" % z
+                            class_string = "%s%s" % (
+                                z,
+                                self.pretty_function_signatures(y[z])
+                            )
                             parsed_diff.append("%s.%s" % (formatted_string, class_string))
             else:
                 parsed_diff.insert(0, formatted_string)

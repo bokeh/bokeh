@@ -77,7 +77,7 @@ old_version = {
         "classes": {
             "Radiohead": {
                 "methods": {
-                    "thom": ["self"],
+                    "thom": ["self", "guitar"],
                     "jonny": ["self"],
                     "colin": ["self"],
                     "ed": ["self"],
@@ -85,10 +85,10 @@ old_version = {
                 }
             },
             "Beatles": {
-                "methods": {"Here Comes the Sun": []}
+                "methods": {"here_comes_the_sun": []}
             }
         },
-        "functions": {"john": [], "paul": [], "ringo": []}
+        "functions": {"john": [], "paul": ["bass"], "ringo": []}
     }
 }
 
@@ -109,11 +109,11 @@ expected_diff = {
     "bands": {
         "classes": {
             "Radiohead": {
-                "methods": {"jonny": []}
+                "methods": {"jonny": [], "thom": ["guitar"]}
             },
             "Beatles": {}
         },
-        "functions": {"ringo": []}
+        "functions": {"ringo": [], "paul": ["bass"]}
     }
 }
 
@@ -129,8 +129,9 @@ expected_additions = {
 expected_parsed_diff = [
     'DELETED models',
     'DELETED bands.Radiohead.jonny',
-    'DELETED bands.Apple',
+    'DELETED bands.Radiohead.thom(guitar)',
     'DELETED bands.ringo',
+    'DELETED bands.paul(bass)',
     'DELETED bands.Beatles'
 ]
 
@@ -141,7 +142,7 @@ expected_parsed_additions = [
 
 single_class_old = {
     "bands": {
-        "functions": [],
+        "functions": {},
         "classes": {
             "Radiohead": {
                 "methods": {"jonny": ["self"], "thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
@@ -152,7 +153,7 @@ single_class_old = {
 
 single_class_new = {
     "bands": {
-        "functions": [],
+        "functions": {},
         "classes": {
                 "Radiohead": {
                 "methods": {"thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
@@ -193,7 +194,6 @@ class TestDiffer(object):
         self.differ.former = old_version
         self.differ.latter = new_version
 
-    @xfail
     def test_get_diff(self):
         diff = self.differ.get_diff()
         expected_diff = expected_parsed_diff + expected_parsed_additions
@@ -205,21 +205,19 @@ class TestDiffer(object):
         raw_diff = self.differ.diff_modules()
         assert raw_diff == expected_additions
 
-    @xfail
     def test_removed_parsing(self):
         self.differ.additions = False
         raw_diff = self.differ.diff_modules()
         raw_diff = self.differ.pretty_diff(raw_diff)
-        for x in raw_diff:
-            assert x in expected_parsed_diff
+        for x in expected_parsed_diff:
+            assert x in raw_diff
 
-    @xfail
     def test_additions_parsing(self):
         self.differ.additions = True
         raw_diff = self.differ.diff_modules()
         raw_diff = self.differ.pretty_diff(raw_diff)
-        for x in raw_diff:
-            assert x in expected_parsed_additions
+        for x in expected_parsed_additions:
+            assert x in raw_diff
 
     def test_operators(self):
         a = {"one", "two", "three", "four"}
@@ -243,7 +241,7 @@ class TestDiffer(object):
         self.differ.additions = False
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
-        assert diff["bands"]["functions"] == {"ringo": []}
+        assert diff["bands"]["functions"] == {"ringo": [], "paul": ["bass"]}
         for x in diff["bands"]["classes"].keys():
             assert x in expected_diff["bands"]["classes"].keys()
         self.differ.additions = True
@@ -257,7 +255,8 @@ class TestDiffer(object):
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
         diff = self.differ.diff_methods(diff, intersection)
-        assert diff["bands"]["classes"]["Radiohead"]["methods"] == {"jonny": []}
+        assert diff["bands"]["classes"]["Radiohead"]["methods"] == {"jonny": [],
+                "thom": ["guitar"]}
 
     def test_diff_single_signature(self):
         expected = ["john", {"george": False}, {"ringo": [1, 2]}]
