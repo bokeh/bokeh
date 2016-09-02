@@ -36,6 +36,10 @@ gulp.task "scripts:coffee", () ->
       .pipe(coffee({bare: true}))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
+gulp.task "scripts:js", () ->
+  gulp.src('./src/coffee/**/*.js')
+      .pipe(gulp.dest(paths.buildDir.jsTree))
+
 gulp.task "scripts:eco", () ->
   gulp.src('./src/coffee/**/*.eco')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
@@ -56,7 +60,7 @@ gulp.task "scripts:ts", () ->
       .pipe(ts(tsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
-gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco", "scripts:ts"]
+gulp.task "scripts:compile", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"]
 
 gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")

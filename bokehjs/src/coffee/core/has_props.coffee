@@ -1,6 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "./backbone"
 
 {logger} = require "./logging"
 property_mixins = require "./property_mixins"

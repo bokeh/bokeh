@@ -1,5 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "../backbone"
 kiwi = require "kiwi"
 
 {Variable, Expression, Constraint, Operator, Strength} = kiwi
