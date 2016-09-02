@@ -8,9 +8,6 @@ Bokeh.version = require("./version")
 Bokeh._                 = require("underscore")
 Bokeh.$                 = require("jquery")
 
-Bokeh.Backbone          = require("backbone")
-Bokeh.Backbone.$        = Bokeh.$
-
 # set up logger
 logging = require("./core/logging")
 Bokeh.logger            = logging.logger
