@@ -19,10 +19,6 @@
   // Current version of the library. Keep in sync with `package.json`.
   Backbone.VERSION = '1.3.3';
 
-  // For Backbone's purposes, jQuery, Zepto, Ender, or My Library (kidding) owns
-  // the `$` variable.
-  Backbone.$ = $;
-
   // Turn on `emulateHTTP` to support legacy HTTP servers. Setting this option
   // will fake `"PATCH"`, `"PUT"` and `"DELETE"` requests via the `_method` parameter and
   // set a `X-Http-Method-Override` header.
@@ -672,7 +668,7 @@
     // alternative DOM manipulation API and are only required to set the
     // `this.el` property.
     _setElement: function(el) {
-      this.$el = el instanceof Backbone.$ ? el : Backbone.$(el);
+      this.$el = el instanceof $ ? el : $(el);
       this.el = this.$el[0];
     },
 
