@@ -10,20 +10,17 @@ from ...core.enums import FontStyle, TextAlign, DateFormat, RoundingFunction, Nu
 from ..sources import DataSource
 from .widget import Widget
 
-
 @abstract
 class CellFormatter(Model):
     """ Abstract base class for data table's cell formatters.
 
     """
 
-
 @abstract
-class CellEditor(Widget):
+class CellEditor(Model):
     """ Abstract base class for data table's cell editors.
 
     """
-
 
 class StringFormatter(CellFormatter):
     """ Basic string cell formatter.
@@ -42,7 +39,6 @@ class StringFormatter(CellFormatter):
     An optional text color. See :class:`bokeh.core.properties.Color` for
     details.
     """)
-
 
 class NumberFormatter(StringFormatter):
     """ Number cell formatter.
@@ -133,7 +129,6 @@ class NumberFormatter(StringFormatter):
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)
 
-
 class BooleanFormatter(CellFormatter):
     """ Boolean (check mark) cell formatter.
 
@@ -142,7 +137,6 @@ class BooleanFormatter(CellFormatter):
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
     The icon visualizing the check mark.
     """)
-
 
 class DateFormatter(CellFormatter):
     """ Date cell formatter.
@@ -201,7 +195,6 @@ class DateFormatter(CellFormatter):
         single quote
     """)
 
-
 class HTMLTemplateFormatter(CellFormatter):
     """ HTML formatter using a template.
     This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
@@ -226,7 +219,6 @@ class HTMLTemplateFormatter(CellFormatter):
     Template string to be used by Underscore's template method.
     """)
 
-
 class StringEditor(CellEditor):
     """ Basic string cell editor with auto-completion.
 
@@ -236,12 +228,10 @@ class StringEditor(CellEditor):
     An optional list of completion strings.
     """)
 
-
 class TextEditor(CellEditor):
     """ Multi-line string cell editor.
 
     """
-
 
 class SelectEditor(CellEditor):
     """ Select cell editor.
@@ -252,18 +242,15 @@ class SelectEditor(CellEditor):
     The list of options to select from.
     """)
 
-
 class PercentEditor(CellEditor):
     """ ``IntEditor`` optimized for editing percentages.
 
     """
 
-
 class CheckboxEditor(CellEditor):
     """ Boolean value cell editor.
 
     """
-
 
 class IntEditor(CellEditor):
     """ Spinner-based integer cell editor.
@@ -274,7 +261,6 @@ class IntEditor(CellEditor):
     The major step value.
     """)
 
-
 class NumberEditor(CellEditor):
     """ Spinner-based number cell editor.
 
@@ -284,18 +270,15 @@ class NumberEditor(CellEditor):
     The major step value.
     """)
 
-
 class TimeEditor(CellEditor):
     """ Spinner-based time cell editor.
 
     """
 
-
 class DateEditor(CellEditor):
     """ Calendar-based date cell editor.
 
     """
-
 
 class TableColumn(Model):
     """ Table column widget.
@@ -335,7 +318,6 @@ class TableColumn(Model):
     The default sorting order. By default ``ascending`` order is used.
     """)
 
-
 @abstract
 class TableWidget(Widget):
     """ Abstract base class for data table (data grid) widgets.
@@ -345,7 +327,6 @@ class TableWidget(Widget):
     source = Instance(DataSource, help="""
     The source of data for the widget.
     """)
-
 
 class DataTable(TableWidget):
     """ Two dimensional grid for visualisation and editing large amounts
