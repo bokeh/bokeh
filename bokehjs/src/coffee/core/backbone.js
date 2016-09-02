@@ -277,12 +277,10 @@ Events.unbind = Events.off;
 // A discrete chunk of data and a bunch of useful, related methods for
 // performing computations and transformations on that data.
 
-// Create a new model with the specified attributes. A client id (`cid`)
-// is automatically generated and assigned for you.
+// Create a new model with the specified attributes.
 var Model = function(attributes, options) {
   var attrs = attributes || {};
   options || (options = {});
-  this.cid = _.uniqueId(this.cidPrefix);
   this.attributes = {};
   var defaults = _.result(this, 'defaults');
   attrs = _.defaults(_.extend({}, defaults, attrs), defaults);
@@ -300,10 +298,6 @@ _.extend(Model.prototype, Events, {
   // The default name for the JSON `id` attribute is `"id"`. MongoDB and
   // CouchDB users may want to set this to `"_id"`.
   idAttribute: 'id',
-
-  // The prefix is used to create the client id which is used to identify models locally.
-  // You may want to override this if you're experiencing name clashes with model ids.
-  cidPrefix: 'c',
 
   // Initialize is an empty function by default. Override it with your own
   // initialization logic.
@@ -476,7 +470,6 @@ _.extend(Model.prototype, Events, {
 // Creating a Backbone.View creates its initial element outside of the DOM,
 // if an existing element is not provided...
 var View = function(options) {
-  this.cid = _.uniqueId('view');
   _.extend(this, _.pick(options, viewOptions));
   this._ensureElement();
   this.initialize.apply(this, arguments);
@@ -576,7 +569,7 @@ _.extend(View.prototype, Events, {
   // using `selector`). This only works for delegate-able events: not `focus`,
   // `blur`, and not `change`, `submit`, and `reset` in Internet Explorer.
   delegate: function(eventName, selector, listener) {
-    this.$el.on(eventName + '.delegateEvents' + this.cid, selector, listener);
+    this.$el.on(eventName + '.delegateEvents' + this.id, selector, listener);
     return this;
   },
 
@@ -584,14 +577,14 @@ _.extend(View.prototype, Events, {
   // You usually don't need to use this, but may wish to if you have multiple
   // Backbone views attached to the same DOM element.
   undelegateEvents: function() {
-    if (this.$el) this.$el.off('.delegateEvents' + this.cid);
+    if (this.$el) this.$el.off('.delegateEvents' + this.id);
     return this;
   },
 
   // A finer-grained `undelegateEvents` for removing a single delegated event.
   // `selector` and `listener` are both optional.
   undelegate: function(eventName, selector, listener) {
-    this.$el.off(eventName + '.delegateEvents' + this.cid, selector, listener);
+    this.$el.off(eventName + '.delegateEvents' + this.id, selector, listener);
     return this;
   },
 

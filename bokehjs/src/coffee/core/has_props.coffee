@@ -79,7 +79,6 @@ class HasProps extends Backbone.Model
     attrs = attributes || {}
     if not options
       options = {}
-    this.cid = _.uniqueId('c')
     this.attributes = {}
 
     @properties = {}
