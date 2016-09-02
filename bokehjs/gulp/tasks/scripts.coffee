@@ -33,13 +33,13 @@ ts = require 'gulp-typescript'
 gulp.task "scripts:coffee", () ->
   gulp.src('./src/coffee/**/*.coffee')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(coffee({bare: true}).on('error', gutil.log))
+      .pipe(coffee({bare: true}))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:eco", () ->
   gulp.src('./src/coffee/**/*.eco')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(eco().on('error', gutil.log))
+      .pipe(eco())
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 tsOpts = {
@@ -70,30 +70,8 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
     prelude: preludeText
   }
 
-  preludePath = path.resolve("./src/js/plugin-prelude.js")
-  preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
-
-  widgetsOpts = {
-    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'models/widgets/main.js'))]
-    extensions: [".js"]
-    debug: true
-    preludePath: preludePath
-    prelude: preludeText
-  }
-
-  compilerOpts = {
-    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'compiler/main.js'))]
-    extensions: [".js"]
-    debug: true
-    preludePath: preludePath
-    prelude: preludeText
-  }
-
   bokehjs = browserify(bokehjsOpts)
   bokehjs.exclude("coffee-script")
-
-  widgets = browserify(widgetsOpts)
-  compiler = browserify(compilerOpts)
 
   labels = {}
 
@@ -117,52 +95,49 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
 
-  buildWidgets = (next) ->
-    if argv.verbose then util.log("Building widgets")
-    namedLabeler(widgets, labels)
-    for own file, name of labels
-      widgets.external(file) if name != "_process"
-    widgets
-      .bundle()
-      .pipe(source(paths.coffee.widgets.destination.full))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({loadMaps: true}))
-      # This solves a conflict when requirejs is loaded on the page. Backbone
-      # looks for `define` before looking for `module.exports`, which eats up
-      # our backbone.
-      .pipe change (content) ->
-        "(function() { var define = undefined; return #{content} })()"
-      .pipe(insert.append(license))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest(paths.buildDir.js))
-      .on 'end', () -> next()
+  pluginPreludePath = path.resolve("./src/js/plugin-prelude.js")
+  pluginPreludeText = fs.readFileSync(pluginPreludePath, { encoding: 'utf8' })
 
-  buildCompiler = (next) ->
-    if argv.verbose then util.log("Building compiler")
-    namedLabeler(compiler, labels)
-    for own file, name of labels
-      compiler.external(file) if name != "_process"
-    compiler
-      .bundle()
-      .pipe(source(paths.coffee.compiler.destination.full))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({loadMaps: true}))
-      # This solves a conflict when requirejs is loaded on the page. Backbone
-      # looks for `define` before looking for `module.exports`, which eats up
-      # our backbone.
-      .pipe change (content) ->
-        "(function() { var define = undefined; return #{content} })()"
-      .pipe(replace("function lex\(\) \{", "var lex = function foo\(\) \{"))
-      .pipe(insert.append(license))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest(paths.buildDir.js))
-      .on 'end', () -> next()
+  mkBuildPlugin = (plugin_name, main) ->
+    return (next) ->
+      if argv.verbose then util.log("Building #{plugin_name}")
+      pluginOpts = {
+        entries: [path.resolve(path.join(paths.buildDir.jsTree, main))]
+        extensions: [".js"]
+        debug: true
+        preludePath: pluginPreludePath
+        prelude: pluginPreludeText
+      }
+      plugin = browserify(pluginOpts)
+      namedLabeler(plugin, labels)
+      for own file, name of labels
+        plugin.external(file) if name != "_process"
+      plugin
+        .bundle()
+        .pipe(source(paths.coffee[plugin_name].destination.full))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+        # This solves a conflict when requirejs is loaded on the page. Backbone
+        # looks for `define` before looking for `module.exports`, which eats up
+        # our backbone.
+        .pipe change (content) ->
+          "(function() { var define = undefined; return #{content} })()"
+        .pipe(insert.append(license))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest(paths.buildDir.js))
+        .on 'end', () -> next()
 
-  buildBokehjs(() -> buildWidgets(() -> buildCompiler(cb)))
+  buildAPI = mkBuildPlugin("api", "api.js")
+
+  buildWidgets = mkBuildPlugin("widgets", 'models/widgets/main.js')
+
+  buildCompiler = mkBuildPlugin("compiler", 'compiler/main.js')
+
+  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> buildCompiler(cb))))
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  tasks = [paths.coffee.bokehjs, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
+  tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))

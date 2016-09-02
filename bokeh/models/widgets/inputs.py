@@ -3,10 +3,8 @@
 """
 from __future__ import absolute_import
 
-import six
-
 from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance, Override
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
 from ...core.enums import SliderCallbackPolicy
@@ -33,18 +31,6 @@ class InputWidget(Widget):
             return str(val)
         else:
             return val
-
-    @classmethod
-    def create(cls, *args, **kwargs):
-        """ Only called the first time we make an object,
-        whereas __init__ is called every time it's loaded
-
-        """
-        if kwargs.get('title') is None:
-            kwargs['title'] = kwargs['name']
-        if kwargs.get('value') is not None:
-            kwargs['value'] = cls.coerce_value(kwargs.get('value'))
-        return cls(**kwargs)
 
 class TextInput(InputWidget):
     """ Single-line input widget. """
@@ -73,8 +59,11 @@ class Select(InputWidget):
 
     """
 
-    options = List(Either(String, Dict(String, String)), help="""
-    Available selection options.
+    options = List(Either(String, Tuple(String, String)), help="""
+    Available selection options. Options may be provided either as a list of
+    possible string values, or as a list of tuples, each of the form
+    ``(value, label)``. In the latter case, the visible widget text for each
+    value will be corresponding given label.
     """)
 
     value = String(default="", help="""
@@ -86,24 +75,16 @@ class Select(InputWidget):
     value changes.
     """)
 
-    @classmethod
-    def create(self, *args, **kwargs):
-        options = kwargs.pop('options', [])
-        new_options = []
-        for opt in options:
-            if isinstance(opt, six.string_types):
-                opt = {'name' : opt, 'value' : opt}
-            new_options.append(opt)
-        kwargs['options'] = new_options
-        return super(Select, self).create(*args, **kwargs)
-
 class MultiSelect(InputWidget):
     """ Multi-select widget.
 
     """
 
-    options = List(Either(String, Dict(String, String)), help="""
-    Available selection options.
+    options = List(Either(String, Tuple(String, String)), help="""
+    Available selection options. Options may be provided either as a list of
+    possible string values, or as a list of tuples, each of the form
+    ``(value, label)``. In the latter case, the visible widget text for each
+    value will be corresponding given label.
     """)
 
     value = List(String, help="""
@@ -114,17 +95,6 @@ class MultiSelect(InputWidget):
     A callback to run in the browser whenever the current dropdown value
     changes.
     """)
-
-    @classmethod
-    def create(self, *args, **kwargs):
-        options = kwargs.pop('options', [])
-        new_options = []
-        for opt in options:
-            if isinstance(opt, six.string_types):
-                opt = {'name' : opt, 'value' : opt}
-            new_options.append(opt)
-        kwargs['options'] = new_options
-        return super(Select, self).create(*args, **kwargs)
 
 class Slider(InputWidget):
     """ Slider-based number selection widget.
@@ -160,11 +130,11 @@ class Slider(InputWidget):
     """)
 
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    An enumeration which controls the method by which the callback is initated.  This parameter can take on only one of three options.
+    When the callback is initiated. This parameter can take on only one of three options:
 
-       "continuous": Implies that the callback will be initiated immediatly for each movement of the slider
-       "throttle": Implies that the callback will be executed while the slider is being moved but not more often than what is specified in the `callback_throttle` time in miliseconds.
-       "mouseup": Implies that the callback will be executed only once when the slider is released.
+       "continuous": the callback will be executed immediately for each movement of the slider
+       "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
+       "mouseup": the callback will be executed only once when the slider is released.
 
        The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
     """)

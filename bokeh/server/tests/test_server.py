@@ -9,7 +9,6 @@ import mock
 from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
-import tornado.process
 
 import bokeh.server.server as server
 
@@ -168,7 +167,7 @@ def test__lifecycle_hooks():
     application = Application()
     handler = HookTestHandler()
     application.add(handler)
-    with ManagedServerLoop(application, check_unused_sessions_milliseconds=20) as server:
+    with ManagedServerLoop(application, check_unused_sessions_milliseconds=30) as server:
         # wait for server callbacks to run before we mix in the
         # session, this keeps the test deterministic
         def check_done():
@@ -226,6 +225,50 @@ def test__lifecycle_hooks():
     # we shut down at that point.
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
+
+def test__request_in_session_context():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "?foo=10")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # do we have a request
+        assert session_context.request is not None
+
+
+def test__request_in_session_context_has_arguments():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "?foo=10")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # test if we can get the argument from the request
+        assert session_context.request.arguments['foo'] == [b'10']
+
+def test__no_request_arguments_in_session_context():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server))
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # if we do not pass any arguments to the url, the request arguments
+        # should be empty
+        assert len(session_context.request.arguments) == 0
 
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
@@ -398,8 +441,7 @@ def test__reject_unsigned_session_doc():
 
         expected = 'foo'
         with (pytest.raises(HTTPError)) as info:
-            response = http_get(server.io_loop,
-                                url(server) + "?bokeh-session-id=" + expected)
+            http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
         assert 'Invalid session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
@@ -428,8 +470,7 @@ def test__no_generate_session_autoload():
         assert 0 == len(sessions)
 
         with (pytest.raises(HTTPError)) as info:
-            http_get(server.io_loop,
-                     autoload_url(server))
+            http_get(server.io_loop, autoload_url(server))
         assert 'No bokeh-session-id provided' in repr(info.value)
 
         sessions = server.get_sessions('/')
@@ -442,8 +483,7 @@ def test__no_generate_session_doc():
         assert 0 == len(sessions)
 
         with (pytest.raises(HTTPError)) as info:
-            response = http_get(server.io_loop,
-                                url(server))
+            http_get(server.io_loop, url(server))
         assert 'No bokeh-session-id provided' in repr(info.value)
 
         sessions = server.get_sessions('/')
@@ -452,14 +492,14 @@ def test__no_generate_session_doc():
 def test__server_multiple_processes():
     with mock.patch('tornado.process.fork_processes') as tornado_fp:
         application = Application()
-        with ManagedServerLoop(application, num_procs=3) as server:
+        with ManagedServerLoop(application, num_procs=3):
             pass
 
         tornado_fp.assert_called_with(3)
 
 def test__existing_ioloop_with_multiple_processes_exception():
     application = Application()
-    ioloop_instance = IOLoop.instance()
+    ioloop_instance = IOLoop.instance() ; ioloop_instance # silence flake8
     with pytest.raises(RuntimeError):
-        with ManagedServerLoop(application, num_procs=3) as server:
+        with ManagedServerLoop(application, num_procs=3):
             pass

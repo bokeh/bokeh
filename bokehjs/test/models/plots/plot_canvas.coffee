@@ -372,3 +372,54 @@ describe "PlotCanvas.View get_canvas_element", ->
 
   it.skip "should exist to grab the canvas DOM element using canvas_view.ctx", ->
     expect(@plot_canvas_view.canvas_view.get_canvas_element).to.exist
+
+
+describe "PlotCanvas.View dimensions", ->
+
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+
+    @doc = new Document()
+    plot = new Plot({
+      x_range: new Range1d({start: 0, end: 1})
+      y_range: new Range1d({start: 0, end: 1})
+      toolbar: new Toolbar()
+      plot_width: 444
+      plot_height: 555
+    })
+    @doc.add_root(plot)
+    @plot_canvas = new PlotCanvas({
+      plot: plot
+    })
+    @plot_canvas.attach_document(@doc)
+    @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
+
+  it "reset_dimensions should call document resize", ->
+    spy = sinon.spy(@doc, 'resize')
+    expect(spy.callCount).to.be.equal 0
+    @plot_canvas_view.reset_dimensions()
+    expect(spy.callCount).to.be.equal 1
+
+  it "reset_dimensions should set plot width and height to initial width and height", ->
+    # Explicitly set to 1 to make sure they're being set
+    @plot_canvas.plot.width = 1
+    @plot_canvas.plot.height = 1
+    @plot_canvas_view.reset_dimensions()
+    expect(@plot_canvas.plot.width).to.be.equal 444 # Comes from plot_width
+    expect(@plot_canvas.plot.height).to.be.equal 555
+
+  it "update_dimensions should call document resize", ->
+    spy = sinon.spy(@doc, 'resize')
+    expect(spy.callCount).to.be.equal 0
+    @plot_canvas_view.update_dimensions(1, 2)
+    expect(spy.callCount).to.be.equal 1
+
+  it "update_dimensions should set plot width and height to requested width and height", ->
+    @plot_canvas_view.update_dimensions(22, 33)
+    expect(@plot_canvas.plot.width).to.be.equal 22
+    expect(@plot_canvas.plot.height).to.be.equal 33

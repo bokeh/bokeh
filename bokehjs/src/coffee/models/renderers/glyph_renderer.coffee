@@ -54,6 +54,7 @@ class GlyphRendererView extends Renderer.View
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
+    @listenTo(@mget('data_source'), 'patch', @set_data)
     @listenTo(@mget('data_source'), 'stream', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
     if @hover_glyph?
@@ -109,6 +110,9 @@ class GlyphRendererView extends Renderer.View
       @request_render()
 
   render: () ->
+    if @model.visible == false
+      return
+
     t0 = Date.now()
 
     glsupport = @glyph.glglyph
@@ -135,8 +139,6 @@ class GlyphRendererView extends Renderer.View
         selected = indices
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
-      else if selected['2d'].indices.length > 0
-        selected = selected['2d'].indices
       else
         selected = []
 
@@ -148,8 +150,6 @@ class GlyphRendererView extends Renderer.View
         inspected = indices
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
-      else if inspected['2d'].indices.length > 0
-        inspected = inspected['2d'].indices
       else
         inspected = []
 

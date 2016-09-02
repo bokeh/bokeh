@@ -5,6 +5,7 @@ module.exports = {
   NormalHead:                             require("../models/annotations/arrow_head").NormalHead
   VeeHead:                                require("../models/annotations/arrow_head").VeeHead
   BoxAnnotation:                          require("../models/annotations/box_annotation").Model
+  ColorBar:                               require("../models/annotations/color_bar").Model
   Label:                                  require("../models/annotations/label").Model
   LabelSet:                               require("../models/annotations/label_set").Model
   Legend:                                 require("../models/annotations/legend").Model
@@ -42,6 +43,7 @@ module.exports = {
   Annulus:                                require("../models/glyphs/annulus").Model
   Arc:                                    require("../models/glyphs/arc").Model
   Bezier:                                 require("../models/glyphs/bezier").Model
+  Circle:                                 require("../models/glyphs/circle").Model
   Ellipse:                                require("../models/glyphs/ellipse").Model
   ImageRGBA:                              require("../models/glyphs/image_rgba").Model
   Image:                                  require("../models/glyphs/image").Model
@@ -81,20 +83,7 @@ module.exports = {
   LinearColorMapper:                      require("../models/mappers/linear_color_mapper").Model
 
   ## api/typings/models/markers.d.ts
-  Marker:                                 require("../models/markers/marker").Model
-  Asterisk:                               require("../models/markers/asterisk").Model
-  Circle:                                 require("../models/glyphs/circle").Model
-  CircleCross:                            require("../models/markers/circle_cross").Model
-  CircleX:                                require("../models/markers/circle_x").Model
-  Cross:                                  require("../models/markers/cross").Model
-  Diamond:                                require("../models/markers/diamond").Model
-  DiamondCross:                           require("../models/markers/diamond_cross").Model
-  InvertedTriangle:                       require("../models/markers/inverted_triangle").Model
-  Square:                                 require("../models/markers/square").Model
-  SquareCross:                            require("../models/markers/square_cross").Model
-  SquareX:                                require("../models/markers/square_x").Model
-  Triangle:                               require("../models/markers/triangle").Model
-  X:                                      require("../models/markers/x").Model
+  markers:                                [require('../models/markers/index')]
 
   ## api/typings/models/model.d.ts
   Model:                                  require("../model").Model

@@ -68,7 +68,6 @@ class PolyAnnotation extends Annotation.Model
     fill_alpha: 0.4
     line_color: "#cccccc"
     line_alpha: 0.3
-    line_alpha: 0.3
   }
 
   update:({xs, ys}) ->

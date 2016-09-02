@@ -27,7 +27,7 @@ from bokeh.models import (
 from bokeh.models.ranges import FactorRange
 from bokeh.models.tools import (
     BoxZoomTool, HelpTool, LassoSelectTool, PanTool, SaveTool, ResetTool,
-    ResizeTool, WheelZoomTool)
+    WheelZoomTool)
 
 #-----------------------------------------------------------------------------
 # Classes and functions

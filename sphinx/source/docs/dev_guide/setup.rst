@@ -28,8 +28,57 @@ This will create a ``bokeh`` directory at your location. This ``bokeh``
 directory is referred to as the "source checkout" for the remainder of
 this document.
 
-.. _devguide_building_bokehjs:
+.. _devguide_suggested_git_hooks:
 
+Git Hooks
+---------
+
+In order to help prevent some accidental situations, here are two git hooks
+that may be useful. The scripts below should be places in the ``.git/hooks``
+directory, and be marked executable with e.g. ``chmod +x pre-commit``. For
+more information on git hooks, see `this reference`_.
+
+
+``pre-commit``
+~~~~~~~~~~~~~~
+
+This git hook runs the code quality tests before allowing a commit to
+proceed. Note that all the standard testing dependencies musts be installed
+in order for this hook to function.
+
+.. code-block:: sh
+
+    #!/bin/bash
+
+    py.test -m quality
+    exit $?
+
+``pre-push``
+~~~~~~~~~~~~
+
+This git hook prevents accidental pushes to ``master`` on GitHub.
+
+.. code-block:: sh
+
+    #!/bin/bash
+
+    protected_branch='master'
+    current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+    if [ $protected_branch = $current_branch ]
+    then
+        read -p "You're about to push master, is that what you intended? [y|n] " -n 1 -r < /dev/tty
+        echo
+        if echo $REPLY | grep -E '^[Yy]$' > /dev/null
+        then
+            exit 0 # push will execute
+        fi
+        exit 1 # push will not execute
+    else
+        exit 0 # push will execute
+    fi
+
+.. _devguide_building_bokehjs:
 
 Building BokehJS
 ----------------
@@ -177,8 +226,8 @@ With either mode, you will be prompted for how to install BokehJS, e.g.:
 You may skip this prompt by supplying the appropriate command line option
 to ``setup.py``:
 
-* ``--build_js``
-* ``--install_js``
+* ``--build-js``
+* ``--install-js``
 
 If you have any problems with the steps here, please `contact the developers`_.
 
@@ -200,11 +249,26 @@ which include:
 * pytest-selenium >= 1.0
 * mock
 * websocket-client
+* flake8
+* boto
 
 Both the build and test dependencies can potentially change between releases
 and be out of sync with the hosted Bokeh site documentation, so the best way
 to view the current required packages is the review the meta.yaml_ file included
 in the Github repository.
+
+In addition to the build and test dependencies, you must also have the base
+dependencies for Bokeh installed. A simple way to install these dependencies
+is to install Bokeh via ``conda install`` or ``pip install`` before running
+``setup.py``.  Alternatively, you can download them indivually. The
+dependencies include:
+
+* jinja2
+* numpy
+* dateutil
+* pyyaml
+* requests
+* tornado
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 
@@ -296,3 +360,4 @@ For Bokeh server examples, add ``BOKEH_DEV=true`` to the server invocation:
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
+.. _this reference: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks

@@ -10,7 +10,13 @@ class SegmentView extends Glyph.View
     pts = []
     for i in [0...@_x0.length]
       if not isNaN(@_x0[i] + @_x1[i] + @_y0[i] + @_y1[i])
-        pts.push([@_x0[i], @_y0[i], @_x1[i], @_y1[i], {'i': i}])
+        pts.push({
+          minX: Math.min(@_x0[i], @_x1[i]),
+          minY: Math.min(@_y0[i], @_y1[i]),
+          maxX: Math.max(@_x0[i], @_x1[i]),
+          maxY: Math.max(@_y0[i], @_y1[i]),
+          i: i
+        })
     index.load(pts)
     return index
 

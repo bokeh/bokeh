@@ -8,6 +8,10 @@ base = require "./base"
 {logger, set_log_level} = require "./core/logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
 
+# Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
+# with this var prevents user configurations where css styling is unset.
+BOKEH_ROOT = "bk-root"
+
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
   # @ is bound to the doc
@@ -19,10 +23,18 @@ _handle_notebook_comms = (msg) ->
   else
     throw new Error("handling notebook comms message: ", msg)
 
+_update_comms_callback = (target, doc, comm) ->
+  if target == comm.target_name
+    comm.on_msg(_.bind(_handle_notebook_comms, doc))
+
 _init_comms = (target, doc) ->
   if Jupyter?
+    logger.info("Registering Jupyter comms for target #{target}")
+    comm_manager = Jupyter.notebook.kernel.comm_manager
+    update_comms = _.partial(_update_comms_callback, target, doc)
+    for id, promise of comm_manager.comms
+      promise.then(update_comms)
     try
-      comm_manager = Jupyter.notebook.kernel.comm_manager
       comm_manager.register_target(target, (comm, msg) ->
         logger.info("Registering Jupyter comms for target #{target}")
         comm.on_msg(_.bind(_handle_notebook_comms, doc))
@@ -30,7 +42,7 @@ _init_comms = (target, doc) ->
     catch e
       logger.warn("Jupyter comms failed to register. push_notebook() will not function. (exception reported: #{e})")
   else
-    console.warn('Juptyer notebooks comms not available. push_notebook() will not function');
+    console.warn('Jupyter notebooks comms not available. push_notebook() will not function');
 
 _create_view = (model) ->
   view = new model.default_view({model : model})
@@ -168,7 +180,7 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
 
     if elem.prop("tagName") == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
-      container = $('<div>', {class: 'bokeh-container'})
+      container = $('<div>', {class: BOKEH_ROOT})
       elem.replaceWith(container)
       elem = container
 
@@ -204,4 +216,5 @@ module.exports = {
   add_document_standalone: add_document_standalone
   inject_css: inject_css
   inject_raw_css: inject_raw_css
+  BOKEH_ROOT: BOKEH_ROOT
 }

@@ -14,7 +14,7 @@ To run just the python unit tests, run either command:
 
 .. code-block:: sh
 
-    py.test -m 'not (js or examples or integration)'
+    py.test -m 'not (js or examples or integration or quality)'
 
     python -c 'import bokeh; bokeh.test()'
 
@@ -31,7 +31,6 @@ Or, in the `bokehjs` subdirectory of the source checkout.
 
     gulp test
 
-
 You can run all available tests (python and JS unit tests, as well as example
 and integration tests) **from the top level directory** by executing:
 
@@ -44,8 +43,7 @@ and integration tests) **from the top level directory** by executing:
 
 
 To learn more about marking test functions and selecting/deselecting them for
-a run, please consult the pytest documentation about `custom markers
-<http://pytest.org/latest/example/markers.html#working-with-custom-markers>`_.
+a run, please consult the pytest documentation for `custom markers`_.
 
 To help the test script choose the appropriate test runner, there are some
 naming conventions that examples should adhere to. Non-IPython notebook
@@ -99,16 +97,17 @@ In addition, the examples tests generate a log file, examples.log which you
 can view at ``examples.log`` in the same level you ran the tests from.
 
 .. warning::
-    - The server examples do get run, but phantomJS cannot currently capture
-      the output, so they are always blank in the test results
-    - The tests do not fail if the images are different - you should check the
-      test report.
+    Server examples do get run, but phantomJS cannot currently capture
+    the output, so they are always blank in the test results
+
+.. warning::
+    The tests do not currently fail if the images are different, the test
+    report must be inspected manually.
 
 Integration tests
 -----------------
 
-The integration tests use selenium webdriver (http://docs.seleniumhq.org/docs/03_webdriver.jsp)
-to test bokeh in the browser.
+The integration tests use `selenium webdriver`_ to test bokeh in the browser.
 
 To run just the integration tests, run the command:
 
@@ -121,8 +120,8 @@ be generated on TravisCI.
 
 Many of these tests can be run locally, and you will see browser windows open
 and close on your machine as you run them. When we run the tests on TravisCI we
-use the selenium service [SauceLabs](http://saucelabs.com/) which provides free
-testing for open source projects.
+use the selenium service SauceLabs_ which provides free testing for open source
+projects.
 
 It is strongly recommended to run ``python setup.py develop`` before running
 the integration tests to make sure that the latest version of bokehjs, which you are
@@ -136,8 +135,8 @@ the bokehplot and compare it against a reference image that is stored in the
 repository.
 
 In addition, because all machines and browsers are slightly different, the
-screenshot tests must be run on [SauceLabs](http://saucelabs.com/) so that we
-can be confident that any changes are real.
+screenshot tests must be run on SauceLabs_ so that we can be confident that
+any changes are real.
 
 To run the integration tests on SauceLabs, run the command:
 
@@ -193,3 +192,7 @@ report names currently used are: ``examples.html``, ``examples.log``,
 The examples.log link does not get reported in the POOR MAN LOGGER. To find it,
 either search for ``EXAMPLES LOG SUCCESSFULLY UPLOADED`` in the test log, or
 just click on the html report and then change html for log.
+
+.. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
+.. _SauceLabs: http://saucelabs.com/
+.. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp

@@ -23,16 +23,22 @@ calls it with the rendered model.
 :param css_urls: CSS urls to inject
 :type css_urls: list
 
-
 #}
 (function(global) {
   function now() {
     return new Date();
   }
 
-  if (typeof (window._bokeh_onload_callbacks) === "undefined") {
+  var force = "{{ force }}";
+
+  if (typeof (window._bokeh_onload_callbacks) === "undefined" || force !== "") {
     window._bokeh_onload_callbacks = [];
+    window._bokeh_is_loading = undefined;
   }
+
+
+  {% block autoload_init %}
+  {% endblock %}
 
   function run_callbacks() {
     window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
@@ -101,9 +107,11 @@ calls it with the rendered model.
   ];
 
   function run_inline_js() {
+    {% block run_inline_js %}
     for (var i = 0; i < inline_js.length; i++) {
       inline_js[i](window.Bokeh);
     }
+    {% endblock %}
   }
 
   if (window._bokeh_is_loading === 0) {

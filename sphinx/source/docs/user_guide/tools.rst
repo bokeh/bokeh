@@ -44,6 +44,13 @@ If you would like to hide the toolbar entirely, pass ``None``.
 Below is some code that positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_location`` value.
 
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar_clash.py
+    :source-position: above
+
+Note that the toolbar position clashes with the default axes, in this case
+setting the ``toolbar_sticky`` option to ``False`` will move the toolbar
+to outside of the region where the axis is drawn.
+
 .. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
     :source-position: above
 
@@ -204,7 +211,7 @@ respectively.
 ResizeTool
 ''''''''''
 
-* name: ``'resize_select'``
+* name: ``'resize'``
 * icon: |resize_icon|
 
 The resize tool allows the user to left-drag a mouse or drag a finger to resize

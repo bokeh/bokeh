@@ -2,6 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 
 {Models} = require "./base"
+js_version = require("./version")
 {EQ, Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
 HasProps = require "./core/has_props"
@@ -567,8 +568,17 @@ class Document
     Document.from_json(json)
 
   @from_json : (json) ->
+    logger.debug("Creating Document from JSON")
     if typeof json != 'object'
       throw new Error("JSON object has wrong type #{typeof json}")
+    py_version = json['version']
+    versions_string = "Library versions: JS (#{js_version})  /  Python (#{py_version})"
+    if py_version.indexOf('-') < 0 and js_version != py_version
+      logger.warn("JS/Python version mismatch")
+      logger.warn(versions_string)
+    else
+      logger.debug(versions_string)
+
     roots_json = json['roots']
     root_ids = roots_json['root_ids']
     references_json = roots_json['references']
@@ -657,6 +667,16 @@ class Document
         data = event_json['data']
         rollover = event_json['rollover']
         column_source.stream(data, rollover)
+
+      else if event_json['kind'] == 'ColumnsPatched'
+        column_source_id = event_json['column_source']['id']
+        if column_source_id not of @_all_models
+          throw new Error("Cannot patch #{column_source_id} which is not in the document")
+        column_source = @_all_models[column_source_id]
+        if column_source not instanceof ColumnDataSource.Model
+          throw new Error("Cannot patch non-ColumnDataSource")
+        patches = event_json['patches']
+        column_source.patch(patches)
 
       else if event_json['kind'] == 'RootAdded'
         root_id = event_json['model']['id']

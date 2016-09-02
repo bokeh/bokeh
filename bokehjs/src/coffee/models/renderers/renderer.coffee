@@ -288,6 +288,7 @@ class Renderer extends Model
 
   @define {
     level: [ p.RenderLevel, null ]
+    visible: [ p.Bool, true ]
   }
 
 module.exports =

@@ -56,8 +56,13 @@ class ImageRGBAView extends Glyph.View
         @max_dh = _.max(@_dh)
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+    switch @model.properties.dw.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+      when "screen" then @sw = @_dw
+
+    switch @model.properties.dh.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+      when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
@@ -81,11 +86,13 @@ class ImageRGBAView extends Glyph.View
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    bb = @index.data.bbox
-    return [
-      [bb[0], bb[2]+@max_dw],
-      [bb[1], bb[3]+@max_dh]
-    ]
+    d = @index.data
+    return {
+      minX: d.minX,
+      minY: d.minY,
+      maxX: d.maxX + @max_dw,
+      maxY: d.maxY + @max_dh
+    }
 
 class ImageRGBA extends Glyph.Model
   default_view: ImageRGBAView
@@ -98,8 +105,8 @@ class ImageRGBA extends Glyph.Model
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
       rows:   [ p.NumberSpec       ]
       cols:   [ p.NumberSpec       ]
-      dw:     [ p.NumberSpec       ]
-      dh:     [ p.NumberSpec       ]
+      dw:     [ p.DistanceSpec     ]
+      dh:     [ p.DistanceSpec     ]
       dilate: [ p.Bool,      false ]
   }
 

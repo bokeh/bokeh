@@ -43,6 +43,7 @@ doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "customjs.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Demonstration of custom callback written in CoffeeScript"))

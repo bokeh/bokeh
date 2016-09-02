@@ -35,16 +35,17 @@ class HitTestResult
       indices: []
     }
     # 2d for all for multilines and multi patches
-    @['2d'] = {indices: []}
+    @['2d'] = {
+      # mapping of indices of the multiglyph to array of glyph indices that were hit
+      # e.g. {3: [5, 6], 4, [5]}
+    }
 
   Object.defineProperty(this.prototype, '_0d', { get: () -> @['0d'] })
   Object.defineProperty(this.prototype, '_1d', { get: () -> @['1d'] })
   Object.defineProperty(this.prototype, '_2d', { get: () -> @['2d'] })
 
   is_empty: () ->
-    @_0d.indices.length == 0 &&
-    @_1d.indices.length == 0 &&
-    @_2d.indices.length == 0
+    @_0d.indices.length == 0 && @_1d.indices.length == 0
 
 create_hit_test_result = () -> new HitTestResult()
 
@@ -52,7 +53,7 @@ validate_bbox_coords = ([x0, x1], [y0, y1]) ->
   # rbush expects x0, y0 to be min, x1, y1 max
   if x0 > x1 then [x0, x1] = [x1, x0]
   if y0 > y1 then [y0, y1] = [y1, y0]
-  return [x0, y0, x1, y1]
+  return {minX: x0, minY: y0, maxX: x1, maxY: y1}
 
 sqr = (x) -> x * x
 dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)

@@ -14,8 +14,8 @@ def has_no_console_errors(selenium):
     Helper function to detect console errors.
     """
     logs = selenium.get_log('browser')
-    severe_errors = [l for l in logs if l['level'] == 'SEVERE']
-    non_network_errors = [l for l in severe_errors if l['type'] != 'network']
+    severe_errors = [l for l in logs if l.get('level') == 'SEVERE']
+    non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
     if len(non_network_errors) == 0:
         return True
     else:

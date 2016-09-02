@@ -10,11 +10,10 @@ from ..core.query import find
 from ..core import validation
 from ..core.validation.errors import REQUIRED_RANGE
 from ..core.validation.warnings import (
-    MISSING_RENDERERS, NO_DATA_RENDERERS, EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL,
+    MISSING_RENDERERS, NO_DATA_RENDERERS, MALFORMED_CATEGORY_LABEL,
     SNAPPED_TOOLBAR_ANNOTATIONS)
 from ..core.enums import Location
-from ..core.property_mixins import LineProps, TextProps, FillProps
-from ..model import Model
+from ..core.property_mixins import LineProps, FillProps
 from ..core.properties import (
     Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override, TitleProp)
@@ -247,7 +246,7 @@ class Plot(LayoutDOM):
             getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
-        ''' Adds an tools to the plot.
+        ''' Adds tools to the plot.
 
         Args:
             *tools (Tool) : the tools to add to the Plot
@@ -283,7 +282,7 @@ class Plot(LayoutDOM):
             Glyph initializer.
 
         Returns:
-            Glyph
+            GlyphRenderer
 
         '''
         if glyph is not None:

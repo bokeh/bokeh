@@ -58,6 +58,8 @@ class BokehSessionContext(SessionContext):
         self._session = None
         super(BokehSessionContext, self).__init__(server_context,
                                                   session_id)
+        # request arguments used to instantiate this session
+        self._request = None
 
     def _set_session(self, session):
         self._session = session
@@ -78,6 +80,11 @@ class BokehSessionContext(SessionContext):
             return False
         else:
             return self._session.destroyed
+
+    @property
+    def request(self):
+        return self._request
+
 
 class ApplicationContext(object):
     ''' Server-side holder for bokeh.application.Application plus any associated data.
@@ -137,7 +144,7 @@ class ApplicationContext(object):
         self.server_context._remove_all_callbacks()
 
     @gen.coroutine
-    def create_session_if_needed(self, session_id):
+    def create_session_if_needed(self, session_id, request=None):
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -149,11 +156,20 @@ class ApplicationContext(object):
 
             doc = Document()
 
+
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,
                                                   doc)
+            # using private attr so users only have access to a read-only property
+            session_context._request = request
+
+            # expose the session context to the document
+            # use the _attribute to set the public property .session_context
+            doc._session_context = session_context
+
+
             try:
-                result = yield yield_for_all_futures(self._application.on_session_created(session_context))
+                yield yield_for_all_futures(self._application.on_session_created(session_context))
             except Exception as e:
                 log.error("Failed to run session creation hooks %r", e, exc_info=True)
 

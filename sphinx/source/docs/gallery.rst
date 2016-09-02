@@ -155,7 +155,7 @@ can be processed to trigger more visual updates.
             Linked plots, summary statistics, and correlations for market data
           </p>
           <p>
-            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/stocks.py">stocks</a>
+            <em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/tree/master/examples/app/stocks">stocks</a>
           </p>
         </div>
       </div>

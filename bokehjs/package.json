@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.0",
+  "version": "0.12.2dev8",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -48,6 +48,7 @@
     "mocha-jsdom": "^1.0.0",
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs-prebuilt": "2.1.7",
+    "proxyquire": "1.7.10",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "sinon": "^1.15.4",
@@ -89,10 +90,10 @@
     "es6-promise":"3.0.2",
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
-    "jquery-ui": "^1.10.5",
+    "jquery-ui": "~1.10.5",
     "jsnlog": "^2.7.5",
     "mathutils": "0.0.1",
-    "rbush": "^1.3.5",
+    "rbush": "^2.0.1",
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",

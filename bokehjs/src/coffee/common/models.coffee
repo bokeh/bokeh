@@ -5,6 +5,7 @@ module.exports = {
 
   Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'
+  ColorBar:                 require '../models/annotations/color_bar'
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
@@ -43,6 +44,7 @@ module.exports = {
   Circle:                   require '../models/glyphs/circle'
   Ellipse:                  require '../models/glyphs/ellipse'
   Gear:                     require '../models/glyphs/gear'
+  HBar:                     require '../models/glyphs/hbar'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
   ImageURL:                 require '../models/glyphs/image_url'
@@ -57,6 +59,7 @@ module.exports = {
   Rect:                     require '../models/glyphs/rect'
   Segment:                  require '../models/glyphs/segment'
   Text:                     require '../models/glyphs/text'
+  VBar:                     require '../models/glyphs/vbar'
   Wedge:                    require '../models/glyphs/wedge'
 
   Grid:                     require '../models/grids/grid'
@@ -79,18 +82,18 @@ module.exports = {
   LinearInterpolator:       require '../models/transforms/linear_interpolator'
   StepInterpolator:       require '../models/transforms/step_interpolator'
 
-  Asterisk:                 require '../models/markers/asterisk'
-  CircleCross:              require '../models/markers/circle_cross'
-  CircleX:                  require '../models/markers/circle_x'
-  Cross:                    require '../models/markers/cross'
-  Diamond:                  require '../models/markers/diamond'
-  DiamondCross:             require '../models/markers/diamond_cross'
-  InvertedTriangle:         require '../models/markers/inverted_triangle'
-  Square:                   require '../models/markers/square'
-  SquareCross:              require '../models/markers/square_cross'
-  SquareX:                  require '../models/markers/square_x'
-  Triangle:                 require '../models/markers/triangle'
-  X:                        require '../models/markers/x'
+  Asterisk:                 require('../models/markers/index').Asterisk
+  CircleCross:              require('../models/markers/index').CircleCross
+  CircleX:                  require('../models/markers/index').CircleX
+  Cross:                    require('../models/markers/index').Cross
+  Diamond:                  require('../models/markers/index').Diamond
+  DiamondCross:             require('../models/markers/index').DiamondCross
+  InvertedTriangle:         require('../models/markers/index').InvertedTriangle
+  Square:                   require('../models/markers/index').Square
+  SquareCross:              require('../models/markers/index').SquareCross
+  SquareX:                  require('../models/markers/index').SquareX
+  Triangle:                 require('../models/markers/index').Triangle
+  X:                        require('../models/markers/index').X
 
   Plot:                     require '../models/plots/plot'
   GMapPlot:                 require '../models/plots/gmap_plot'

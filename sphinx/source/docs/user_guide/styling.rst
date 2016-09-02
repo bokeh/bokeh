@@ -65,6 +65,16 @@ Text Properties
 
 .. _userguide_styling_colors:
 
+Visible property
+~~~~~~~~~~~~~~~~
+
+Glyph renderers, axes, and grids all have a visible property that can be used to turn them on
+and off. This can be particulartly useful in interactive examples with bokeh server or CustomJS.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_visible_property.py
+    :source-position: above
+
+
 Specifying Colors
 ~~~~~~~~~~~~~~~~~
 
@@ -205,6 +215,9 @@ immediately change when a plot is rendered to fill the container. However,
 those parameters will be used to calculate the initial aspect ratio for your
 plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
+
+For more precise control over how the plot scales to fill its container,
+see the documentation on the :ref:`~bokeh.models.layouts.LayoutDOM.sizing_mode` parameter.
 
 .. warning::
     This feature is known not to work when combined with HBox.

@@ -2,11 +2,14 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "./utils"
 sinon = require "sinon"
+{ stdoutTrap, stderrTrap } = require 'logtrap'
 
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
+js_version = utils.require "version"
 {Models} = utils.require "base"
 Model = utils.require "model"
+logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
 class AnotherModel extends Model
@@ -531,6 +534,45 @@ describe "Document", ->
     # does not reset title
     expect(d.title()).to.equal 'Foo'
 
+  it "checks for versions matching", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    root1 = new SomeModel()
+    d.add_root(root1)
+    expect(d.roots().length).to.equal 1
+    d.set_title("Foo")
+
+    logging.set_log_level("warn")
+    json = d.to_json_string()
+    parsed = JSON.parse(json)
+    parsed['version'] = "#{js_version}"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
+    parsed['version'] = "0.0.1"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+
+    parsed['version'] = "#{js_version}rc123"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+
+    parsed['version'] = "#{js_version}dev123"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+
+    parsed['version'] = "#{js_version}-foo"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
+    parsed['version'] = "#{js_version}rc123-foo"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
+    parsed['version'] = "#{js_version}dev123-bar"
+    out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
+    expect(out).to.be.equal ""
+
   it "can serialize with one model in it", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
@@ -540,7 +582,9 @@ describe "Document", ->
     d.set_title("Foo")
 
     json = d.to_json_string()
-    copy = Document.from_json_string(json)
+    parsed = JSON.parse(json)
+    parsed['version'] = js_version
+    copy = Document.from_json_string(JSON.stringify(parsed))
 
     expect(copy.roots().length).to.equal 1
     expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
@@ -556,7 +600,8 @@ describe "Document", ->
 
     json = d.to_json_string(include_defaults=false)
     parsed = JSON.parse(json)
-    copy = Document.from_json_string(json)
+    parsed['version'] = js_version
+    copy = Document.from_json_string(JSON.stringify(parsed))
 
     expect(copy.roots().length).to.equal 1
     expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
@@ -682,7 +727,9 @@ describe "Document", ->
     d.add_root(root1)
 
     json = d.to_json_string()
-    copy = Document.from_json_string(json)
+    parsed = JSON.parse(json)
+    parsed['version'] = js_version
+    copy = Document.from_json_string(JSON.stringify(parsed))
 
     root1_copy = copy.get_model_by_id(root1.id)
 
@@ -707,7 +754,9 @@ describe "Document", ->
     d.add_root(root1)
 
     json = d.to_json_string()
-    copy = Document.from_json_string(json)
+    parsed = JSON.parse(json)
+    parsed['version'] = js_version
+    copy = Document.from_json_string(JSON.stringify(parsed))
 
     patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 
@@ -740,11 +789,13 @@ describe "Document", ->
 
     d.add_root(root1)
 
-    json = d.to_json_string()
     # in computing this, we will construct a
     # ComplicatedModelWithConstructTimeChanges which will set
     # stuff in initialize(), overwriting serialized_values above.
-    copy = Document.from_json_string(json)
+    json = d.to_json_string()
+    parsed = JSON.parse(json)
+    parsed['version'] = js_version
+    copy = Document.from_json_string(JSON.stringify(parsed))
 
     patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 

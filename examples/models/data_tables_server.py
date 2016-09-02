@@ -155,4 +155,5 @@ curdoc().add_root(data_tables.create())
 
 if __name__ == "__main__":
     data_tables = DataTables()
+    data_tables.document.validate()
     data_tables.run(True)

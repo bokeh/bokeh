@@ -40,4 +40,4 @@ def _get_audio_data():
             bins = [simps(a) for a in np.split(power, NUM_BINS)]
             data['values'] = signal, spectrum, bins
         except:
-            ontinue
+            continue

@@ -25,18 +25,12 @@ class QuadView extends Glyph.View
 
     for i in [0...left.length]
       l = left[i]
-      if isNaN(l) or not isFinite(l)
-        continue
       r = right[i]
-      if isNaN(r) or not isFinite(r)
-        continue
       t = top[i]
-      if isNaN(t) or not isFinite(t)
-        continue
       b = bottom[i]
-      if isNaN(b) or not isFinite(b)
+      if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
-      pts.push([l, b, r, t, {'i': i}])
+      pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
     index.load(pts)
     return index
@@ -61,7 +55,7 @@ class QuadView extends Glyph.View
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    hits = (x[4].i for x in @index.search([x, y, x, y]))
+    hits = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits

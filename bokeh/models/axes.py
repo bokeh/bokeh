@@ -5,10 +5,9 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.properties import abstract
-from ..core.properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
+from ..core.properties import (Int, Float, String, Enum, Datetime, Auto, Instance,
                           Tuple, Either, Include, Override)
 from ..core.property_mixins import LineProps, TextProps
-from ..core.enums import Location
 
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
@@ -21,10 +20,6 @@ class Axis(GuideRenderer):
     ``Axis`` is not generally useful to instantiate on its own.
 
     """
-
-    visible = Bool(True, help="""
-    Ability to hide the entire axis from the plot.
-    """)
 
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the

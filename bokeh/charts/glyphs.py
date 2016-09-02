@@ -4,7 +4,6 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.core.enums import DashPattern
@@ -201,9 +200,9 @@ class AreaGlyph(LineGlyph):
     base = Float(default=0.0, help="""Lower bound of area.""")
 
     def __init__(self, **kwargs):
-        line_color = kwargs.get('line_color', None)
-        fill_color = kwargs.get('fill_color', None)
-        color = kwargs.get('color', None)
+        line_color = kwargs.get('line_color')
+        fill_color = kwargs.get('fill_color')
+        color = kwargs.get('color')
 
         if color is not None:
             # apply color to line and fill
@@ -412,8 +411,8 @@ class HorizonGlyph(AreaGlyph):
 
         # transform clipped data so it always starts and ends at its base value
         if len(ys) > 0:
-            xs, ys = map(list, zip(*[generate_patch_base(x, y, base=base) for
-                                     x, y in zip(xs, ys)]))
+            xs, ys = map(list, zip(*[generate_patch_base(xx, yy, base=base) for
+                                     xx, yy in zip(xs, ys)]))
 
         return xs, ys
 
@@ -806,7 +805,7 @@ class BoxGlyph(AggregateGlyph):
     def __init__(self, label, values, outliers=True, **kwargs):
         width = kwargs.pop('width', None)
 
-        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color', None) or self.lookup('bar_color').class_default()
+        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color') or self.lookup('bar_color').class_default()
 
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label

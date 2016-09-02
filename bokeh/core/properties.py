@@ -1025,12 +1025,18 @@ class ContainerProperty(ParameterizedPropertyDescriptor):
         return False
 
 class Seq(ContainerProperty):
-    """ Sequence (list, tuple) type property.
+    """ An ordered sequence of values (list, tuple, (nd)array). """
 
-    """
+    @classmethod
+    def _is_seq(cls, value):
+        return ((isinstance(value, collections.Sequence) or cls._is_seq_like(value)) and
+                not isinstance(value, string_types))
 
-    def _is_seq(self, value):
-        return isinstance(value, collections.Container) and not isinstance(value, collections.Mapping)
+    @classmethod
+    def _is_seq_like(cls, value):
+        return (isinstance(value, (collections.Container, collections.Sized, collections.Iterable))
+                and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
+                and not isinstance(value, collections.Mapping))
 
     def _new_instance(self, value):
         return value
@@ -1079,6 +1085,7 @@ class List(Seq):
         # optional values. Also in Dict.
         super(List, self).__init__(item_type, default=default, help=help)
 
+    @classmethod
     def _is_seq(self, value):
         return isinstance(value, list)
 
@@ -1087,6 +1094,7 @@ class Array(Seq):
 
     """
 
+    @classmethod
     def _is_seq(self, value):
         import numpy as np
         return isinstance(value, np.ndarray)
@@ -1545,8 +1553,15 @@ class Datetime(PropertyDescriptor):
         try:
             import numpy as np
             datetime_types += (np.datetime64,)
-        except ImportError:
-            pass
+        except (ImportError, AttributeError) as e:
+            if e.args == ("'module' object has no attribute 'datetime64'",):
+                import sys
+                if 'PyPy' in sys.version:
+                    pass
+                else:
+                    raise e
+            else:
+                pass
 
         if (isinstance(value, datetime_types)):
             return
@@ -1576,8 +1591,15 @@ class TimeDelta(PropertyDescriptor):
         try:
             import numpy as np
             timedelta_types += (np.timedelta64,)
-        except ImportError:
-            pass
+        except (ImportError, AttributeError) as e:
+            if e.args == ("'module' object has no attribute 'timedelta64'",):
+                import sys
+                if 'PyPy' in sys.version:
+                    pass
+                else:
+                    raise e
+            else:
+                pass
 
         if (isinstance(value, timedelta_types)):
             return
@@ -1630,7 +1652,19 @@ class DataSpecProperty(BasicProperty):
 
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
-        super(DataSpec, self).__init__(String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)), typ, default=default, help=help)
+        super(DataSpec, self).__init__(
+            String,
+            Dict(
+                String,
+                Either(
+                    String,
+                    Instance('bokeh.models.transforms.Transform'),
+                    Instance('bokeh.models.mappers.ColorMapper'),
+                    typ)),
+            typ,
+            default=default,
+            help=help
+        )
         self._type = self._validate_type_param(typ)
 
     # TODO (bev) add stricter validation on keys

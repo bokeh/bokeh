@@ -59,9 +59,14 @@ class ResizeToolView extends GestureTool.View
     })
 
   _update: (dx, dy) ->
-    @plot_view.pause()
-    @plot_view.canvas_view.set_dims([@cw+dx, @ch+dy])
-    @plot_view.unpause()
+    new_width = @cw + dx
+    new_height = @cw + dy
+    if new_width < 100 or new_height < 100
+      # TODO (bird) This should probably be more intelligent, so that resize can
+      # go as small as possible without breaking, but 100 x 100 seems reasonable
+      # as a hardcoded value for now.
+      return
+    @plot_view.update_dimensions(new_width, new_height)
     return
 
 class ResizeTool extends GestureTool.Model

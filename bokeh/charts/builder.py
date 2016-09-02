@@ -34,7 +34,7 @@ from ..models.sources import ColumnDataSource
 from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either, Enum)
 from ..core.enums import SortDirection
-from ..io import curdoc, curstate
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -341,7 +341,7 @@ class Builder(HasProps):
                 attributes[attr_name] = attr
 
             # if we are given columns, use those
-            elif isinstance(attr, str) or isinstance(attr, list):
+            elif isinstance(attr, (str, list)):
                 attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
                 # override palette if available

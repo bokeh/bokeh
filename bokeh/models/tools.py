@@ -274,7 +274,7 @@ class TapTool(Tap):
     defaults to all renderers on a plot.
     """)
 
-    behavior = Enum("select", "inspect", defult="select", help="""
+    behavior = Enum("select", "inspect", default="select", help="""
     This tool can be configured to either make selections or inspections
     on associated data sources. The difference is that selection changes
     propagate across bokeh and other components (e.g. selection glyph)
@@ -680,6 +680,10 @@ class HoverTool(Inspection):
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.
+    """)
+
+    show_arrow = Bool(default=True, help="""
+    Whether tooltip's arrow should be showed.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."

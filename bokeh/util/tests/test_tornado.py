@@ -25,7 +25,7 @@ def _make_invocation_counter(loop, stop_after=1):
 def run(loop):
     try:
         loop.start()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         print("Keyboard interrupt")
         pass
 
@@ -287,7 +287,7 @@ def test__yield_for_all_futures():
 
     try:
         loop.start()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         print("keyboard interrupt")
 
     assert 6 == result['value']

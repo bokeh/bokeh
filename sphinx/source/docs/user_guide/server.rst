@@ -197,12 +197,13 @@ individually:
 
     @cosine(w=0.03)
     def update(step):
+        # updating a single column of the the *same length* is OK
         r2.data_source.data["y"] = y * step
         r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
     curdoc().add_periodic_callback(update, 50)
 
-    session.show() # open the document in a browser
+    session.show(p) # open the document in a browser
 
     session.loop_until_closed() # run forever
 
@@ -223,6 +224,7 @@ every 50 milliseconds:
 
     @cosine(w=0.03)
     def update(step):
+        # updating a single column of the the *same length* is OK
         r2.data_source.data["y"] = y * step
         r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
@@ -268,7 +270,7 @@ in more detail:
 
     # myapp.py
 
-    import numpy as np
+    from random import random
 
     from bokeh.layouts import column
     from bokeh.models import Button
@@ -293,11 +295,15 @@ in more detail:
     # create a callback that will add a number in a random location
     def callback():
         global i
-        ds.data['x'].append(np.random.random()*70 + 15)
-        ds.data['y'].append(np.random.random()*70 + 15)
-        ds.data['text_color'].append(RdYlBu3[i%3])
-        ds.data['text'].append(str(i))
-        ds.trigger('data', ds.data, ds.data)
+
+        # BEST PRACTICE --- update .data in one step with a new dict
+        new_data = dict()
+        new_data['x'] = ds.data['x'] + [random()*70 + 15]
+        new_data['y'] = ds.data['y'] + [random()*70 + 15]
+        new_data['text_color'] = ds.data['text_color'] + [RdYlBu3[i%3]]
+        new_data['text'] = ds.data['text'] + [str(i)]
+        ds.data = new_data
+
         i = i + 1
 
     # add a button widget and configure with the call back
@@ -435,6 +441,39 @@ In this case you might have code similar to:
 And similar code to load the JavaScript implementation for a custom model
 from ``models/custom.js``
 
+.. _userguide_server_session_request:
+
+Accessing the HTTP Request
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a session is created for a Bokeh application, the session context is made
+available as ``curdoc().session_context``. The most useful function of the
+session context is to make the Tornado HTTP request object available to the
+application as ``session_context.request``. The request object has a number of
+fields, such as ``arguments``, ``cookies``, ``protocol``, etc. See the
+documentation for `HTTPServerRequest`_ for full details.
+
+As an example, the following code will access the request ``arguments`` to set
+a value for a variable ``N`` (perhaps controlling the number of points in a
+plot):
+
+.. code-block:: python
+
+  # request.arguments is a dict that maps argument names to lists of strings,
+  # e.g, the query string ?N=10 will result in {'N': [b'10']}
+
+  args = curdoc().session_context.request.arguments
+
+  try:
+    N = int(args.get('N')[0])
+  except:
+    N = 200
+
+.. warning::
+  The request object is provided so that values such as ``arguments`` may be
+  easily inspected. Calling any of the Tornado methods such as ``finish()`` or
+  writing directly to ``request.connection`` is unsupported and will result in
+  undefined behavior.
 
 .. _userguide_server_applications_callbacks:
 
@@ -1109,6 +1148,7 @@ minor modifications, this machinery should work on many linux variants.
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/
 .. _contact us on the mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
 .. _Puppet: https://puppetlabs.com
 .. _SaltStack: http://saltstack.com
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html

@@ -9,15 +9,15 @@ except ImportError:
     def blue(text) : return text
     def red(text) : return text
 
-npm_missing = """
-npm packages do not appear to be installed.
-Please navigate to the bokehjs directory and type 'npm install'\n
-"""
 
 def npm_check():
     """Check that the bokehjs/node_modules directory exists, as its absence
     is the best indication that npm is not installed."""
 
+    npm_missing = """
+    npm packages do not appear to be installed.
+    Please navigate to the bokehjs directory and type 'npm install'\n
+    """
 
     if not path.exists('../bokehjs/node_modules'):
         print(red(npm_missing))
@@ -33,20 +33,20 @@ def depend_check(deps_name, *args):
             __import__(dependency)
         except ImportError:
             missing.append(dependency)
-            found = False
 
     print('-'*80)
-    if len(missing):
+
+    if missing:
         print(red("You are missing the following %s dependencies:") % deps_name)
 
         for dep in missing:
             name = pkg_info_dict.get(dep, dep)
             print(" * ", name)
         print()
-        return False
+
     else:
         print(blue("All %s dependencies installed!  You are good to go!\n") % deps_name)
-        return True
+
 
 if __name__ == '__main__':
 
@@ -58,6 +58,8 @@ if __name__ == '__main__':
         'websocket': 'websocket-client',
         'pytest_selenium': 'pytest-selenium',
         'pytest_cov': 'pytest-cov',
+        'dateutil': 'python-dateutil',
+        'yaml': 'pyyaml',
     }
 
     dev_deps = [
@@ -67,13 +69,24 @@ if __name__ == '__main__':
         'pytest_cov',
         'pytest_selenium',
         'mock',
-        'websocket'
+        'websocket',
+        'flake8',
+        'boto',
     ]
     depend_check('Dev', *dev_deps)
 
     docs_deps = [
-        'graphviz',
         'sphinx',
         'pygments',
     ]
     depend_check('Docs', *docs_deps)
+
+    base_deps = [
+        'jinja2',
+        'numpy',
+        'dateutil',
+        'requests',
+        'tornado',
+        'yaml',
+    ]
+    depend_check('Base', *base_deps)

@@ -24,6 +24,26 @@ class MarkerView extends Glyph.View
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
 
+  _render: (ctx, indices, {sx, sy, _size, _angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+_size[i]+_angle[i])
+        continue
+
+      r = _size[i]/2
+
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
+
+      if _angle[i]
+        ctx.rotate(_angle[i])
+
+      @_render_one(ctx, i, sx[i], sy[i], r, @visuals.line, @visuals.fill)
+
+      if _angle[i]
+        ctx.rotate(-_angle[i])
+
+      ctx.translate(-sx[i], -sy[i])
+
   _index_data: () ->
     @_xy_index()
 
@@ -41,7 +61,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
@@ -57,7 +77,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (x[4].i for x in @index.search(bbox))
+    candidates = (x.i for x in @index.search(bbox))
 
     hits = []
     for i in candidates
@@ -77,7 +97,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search(bbox))
+    result['1d'].indices = (x.i for x in @index.search(bbox))
     return result
 
   _hit_poly: (geometry) ->
@@ -105,6 +125,7 @@ class Marker extends Glyph.Model
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
     angle: [ p.AngleSpec,    0                             ]
   }
+
 
 module.exports =
   Model: Marker
