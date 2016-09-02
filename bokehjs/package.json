@@ -68,6 +68,7 @@
     "typings-core": "^0.2.11"
   },
   "browser": {
+    "backbone": "./src/vendor/backbone.js",
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
     "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown.js",
     "bootstrap/modal": "./src/vendor/bootstrap-3.1.1/js/modal.js",
@@ -86,7 +87,6 @@
   },
   "dependencies": {
     "underscore": "^1.5.2",
-    "backbone": "^1.1.0",
     "es6-promise":"3.0.2",
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
