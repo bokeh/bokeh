@@ -59,20 +59,30 @@ class _CommsHandle(object):
 
     _json = {}
 
-    def __init__(self, comms, doc, json):
+    def __init__(self, target, doc, json):
         self._cellno = None
+        self.target = target
+
+        from IPython import get_ipython
+        ip = get_ipython()
+        self.manager = ip.kernel.comm_manager
+        self.manager.register_target(self.target, self._handle_open)
+
         try:
-            from IPython import get_ipython
-            ip = get_ipython()
             hm = ip.history_manager
             p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
             self._cellno = p_prompt
         except Exception as e:
             logger.debug("Could not get Notebook cell number, reason: %s", e)
 
-        self._comms = comms
         self._doc = doc
         self._json[doc] = json
+        self._comms = None
+
+
+    def _handle_open(self, comms, msg):
+        self._comms = comms
+
 
     def _repr_html_(self):
         if self._cellno is not None:
@@ -82,6 +92,8 @@ class _CommsHandle(object):
 
     @property
     def comms(self):
+        if not self._comms:
+            raise ValueError('Comm has not been initialized')
         return self._comms
 
     @property
@@ -95,6 +107,16 @@ class _CommsHandle(object):
     def update(self, doc, json):
         self._doc = doc
         self._json[doc] = json
+
+    def send(self, data):
+        """
+        Pushes data across comm socket, if the frontend has opened
+        the comm.
+        """
+        if not self._comms:
+            return
+        self.comms.send(data)
+
 
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
@@ -342,7 +364,7 @@ def _show_notebook_with_state(obj, state, notebook_handle):
         comms_target = make_id() if notebook_handle else None
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         if comms_target:
-            handle = _CommsHandle(get_comms(comms_target), state.document,
+            handle = _CommsHandle(comms_target, state.document,
                                   state.document.to_json())
             state.last_comms_handle = handle
             return handle
@@ -580,7 +602,7 @@ def push_notebook(document=None, state=None, handle=None):
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
 
-    handle.comms.send(json.dumps(msg))
+    handle.send(json.dumps(msg))
     handle.update(document, to_json)
 
 def reset_output(state=None):
