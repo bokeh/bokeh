@@ -21,7 +21,7 @@ describe "Selector module", ->
 
     it "should set `indices` attribute as empty HitTestResult", ->
       s = new Selector()
-      expect(s.get('indices')).to.deep.equal empty_selection
+      expect(s.indices).to.deep.equal empty_selection
 
   describe "Selector.update method", ->
 
@@ -67,4 +67,4 @@ describe "Selector module", ->
       s.set('indices', @hit_indices_1)
 
       s.clear()
-      expect(s.get('indices')).to.deep.equal empty_selection
+      expect(s.indices).to.deep.equal empty_selection

@@ -65,7 +65,7 @@ describe "SelectionManager", ->
         did_hit = @sm.select('tool', @glyph_renderer_view, 'geometry', true)
 
         expect(@sm.selector.indices).to.be.deep.equal(full_selection)
-        expect(@sm.get('source').get('selected')).to.be.deep.equal(full_selection)
+        expect(@sm.source.selected).to.be.deep.equal(full_selection)
         expect(did_hit).to.be.true
 
     describe "SelectionManager.inspect", ->
@@ -74,7 +74,7 @@ describe "SelectionManager", ->
         did_hit = @sm.inspect('tool', @glyph_renderer_view, 'geometry', true)
 
         expect(@sm.inspector.indices).to.be.deep.equal(full_selection)
-        expect(@sm.get('source').get('inspected')).to.be.deep.equal(full_selection)
+        expect(@sm.source.inspected).to.be.deep.equal(full_selection)
         expect(did_hit).to.be.true
 
     describe "SelectionManager.clear", ->
@@ -84,4 +84,4 @@ describe "SelectionManager", ->
         @sm.clear()
 
         expect(@sm.selector.indices).to.be.deep.equal(empty_selection)
-        expect(@sm.get('source').get('selected')).to.be.deep.equal(empty_selection)
+        expect(@sm.source.selected).to.be.deep.equal(empty_selection)
