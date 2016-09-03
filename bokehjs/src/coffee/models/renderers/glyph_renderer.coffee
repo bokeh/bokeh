@@ -215,12 +215,8 @@ class GlyphRendererView extends Renderer.View
   map_to_screen: (x, y) ->
     @plot_view.map_to_screen(x, y, @mget("x_range_name"), @mget("y_range_name"))
 
-  get_reference_point: () ->
-    index = 0  # This is the default to return
-    return index
-
   draw_legend: (ctx, x0, x1, y0, y1) ->
-    index = @get_reference_point()
+    index = @model.get_reference_point()
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
@@ -230,6 +226,16 @@ class GlyphRenderer extends Renderer.Model
   default_view: GlyphRendererView
 
   type: 'GlyphRenderer'
+
+  get_reference_point: (field, value) ->
+    index = 0  # This is the default to return
+    if field? and @data_source.get_column?
+      data = @data_source.get_column(field)
+      if data
+        i = data.indexOf(value)
+        if i > 0
+          index = i
+    return index
 
   @define {
       x_range_name:       [ p.String,      'default' ]
