@@ -18,31 +18,31 @@ class SelectionManager extends HasProps
     @inspector = new Selector()
 
   select: (tool, renderer_view, geometry, final, append=false) ->
-    if @source != renderer_view.mget('data_source')
+    if @source != renderer_view.model.data_source
       logger.warn('select called with mis-matched data sources')
 
     indices = renderer_view.hit_test(geometry)
 
     if indices?
       @selector.update(indices, final, append)
-      @source.set({ "selected": @selector.get('indices') })
+      @source.set({ "selected": @selector.indices })
 
       @source.trigger('select')
-      @source.trigger('select-' + renderer_view.mget('id'))
+      @source.trigger('select-' + renderer_view.model.id)
 
       return not indices.is_empty()
     else
       return false
 
   inspect: (tool, renderer_view, geometry, data) ->
-    if @source != renderer_view.mget('data_source')
+    if @source != renderer_view.model.data_source
       logger.warn('inspect called with mis-matched data sources')
 
     indices = renderer_view.hit_test(geometry)
 
     if indices?
       @inspector.update(indices, true, false, true)
-      @source.set({ "inspected": @inspector.get('indices')}, {"silent": true })
+      @source.set({ "inspected": @inspector.indices}, {"silent": true })
 
       @source.trigger(
         'inspect', indices, tool, renderer_view, @source, data
