@@ -89,20 +89,18 @@ class AnnulusView extends Glyph.View
       .value()
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
-    indices = [reference_point]
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
 
     r = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.5
     sinner_radius = { }
-    sinner_radius[reference_point] = r*0.4
+    sinner_radius[index] = r*0.4
     souter_radius = { }
-    souter_radius[reference_point] = r*0.8
+    souter_radius[index] = r*0.8
 
     data = {sx: sx, sy: sy, sinner_radius: sinner_radius, souter_radius: souter_radius}
 

@@ -46,8 +46,8 @@ class PatchView extends Glyph.View
       ctx.closePath()
       ctx.stroke()
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
 class Patch extends Glyph.Model
   default_view: PatchView
