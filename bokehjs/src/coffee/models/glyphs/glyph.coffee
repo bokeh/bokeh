@@ -172,6 +172,7 @@ class GlyphView extends Renderer.View
 class Glyph extends Model
   @define {
       visible: [ p.Bool, true ]
+      label:   [ p.StringSpec ]
     }
 
   @internal {
