@@ -21,11 +21,6 @@ class Glyph(Model):
     Whether the glyph should render or not.
     """)
 
-    # TODO(bird)
-    # Will be used by Legend to:
-    # (a) simplify specifying legends
-    # (b) provide a way of making more than one legend for a glyph
-    # Will be used by LabelSet to make it quicker to label a series of points
     label = StringSpec(default=None, help="""
     A label for this glyph. Can be a string, or a column of a ColumnDataSource.
     """)
