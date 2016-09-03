@@ -30,4 +30,4 @@ def process_data():
         return Spectral6[regions_list.index(r.Group)]
     regions['region_color'] = regions.apply(get_color, axis=1)
 
-    return fertility, life_expectancy, population_size, regions, years, regions_list
+    return fertility, life_expectancy, population_size, regions, years
