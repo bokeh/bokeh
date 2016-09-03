@@ -8,14 +8,15 @@ class LegendView extends Annotation.View
   initialize: (options) ->
     super(options)
 
+
   compute_legend_bbox: () ->
-    legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
+    legend_names = @model.get_legend_names()
 
-    glyph_height = @mget('glyph_height')
-    glyph_width = @mget('glyph_width')
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
 
-    label_height = @mget('label_height')
-    label_width = @mget('label_width')
+    label_height = @model.label_height
+    label_width = @model.label_width
 
     @max_label_height = _.max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
@@ -32,12 +33,12 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
-    legend_margin = @mget('legend_margin')
-    legend_padding = @mget('legend_padding')
-    legend_spacing = @mget('legend_spacing')
-    label_standoff =  @mget('label_standoff')
+    legend_margin = @model.legend_margin
+    legend_padding = @model.legend_padding
+    legend_spacing = @model.legend_spacing
+    label_standoff =  @model.label_standoff
 
-    if @mget("orientation") == "vertical"
+    if @model.orientation == "vertical"
       legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
       legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
@@ -46,7 +47,7 @@ class LegendView extends Annotation.View
         legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    location = @mget('location')
+    location = @model.location
     h_range = @plot_view.frame.get('h_range')
     v_range = @plot_view.frame.get('v_range')
 
@@ -87,19 +88,8 @@ class LegendView extends Annotation.View
 
     return {x: x, y: y, width: legend_width, height: legend_height}
 
-  render: () ->
-    if @model.legends.length == 0
-      return
-
-    bbox = @compute_legend_bbox()
-
-    glyph_height = @mget('glyph_height')
-    glyph_width = @mget('glyph_width')
-    orientation = @mget('orientation')
-
-    ctx = @plot_view.canvas_view.ctx
+  _draw_legend_box: (ctx, bbox) ->
     ctx.save()
-
     if @model.panel?
       panel_offset = @_get_panel_offset()
       ctx.translate(panel_offset.x, panel_offset.y)
@@ -112,12 +102,24 @@ class LegendView extends Annotation.View
     if @visuals.border_line.doit
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
+    ctx.restore()
 
-    N = @mget("legends").length
-    legend_spacing = @mget('legend_spacing')
-    label_standoff = @mget('label_standoff')
-    xoffset = yoffset = @mget('legend_padding')
-    for [legend_name, glyphs], idx in @mget("legends")
+  render: () ->
+    if @model.legends.length == 0
+      return
+
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    orientation = @model.orientation
+    legend_spacing = @model.legend_spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.legend_padding
+    ctx = @plot_view.canvas_view.ctx
+
+    bbox = @compute_legend_bbox()
+    @_draw_legend_box(ctx, bbox)
+
+    for [legend_name, glyph_renderers], idx in @model.legends
       x1 = bbox.x + xoffset
       y1 = bbox.y + yoffset
       x2 = x1 + glyph_width
@@ -129,7 +131,7 @@ class LegendView extends Annotation.View
 
       @visuals.label_text.set_value(ctx)
       ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
-      for renderer in glyphs
+      for renderer in glyph_renderers
         view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
 
@@ -153,6 +155,10 @@ class Legend extends Annotation.Model
   default_view: LegendView
 
   type: 'Legend'
+
+  get_legend_names: () ->
+    legend_names = (legend_name for [legend_name, glyphs] in @legends)
+    return legend_names
 
   @mixins ['text:label_', 'line:border_', 'fill:background_']
 
