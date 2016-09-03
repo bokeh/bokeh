@@ -14,7 +14,7 @@ HEIGHT = 333
 WIDTH = 222
 
 describe "Legend.Model", ->
-  
+
   describe "get_legend_names", ->
 
     it "should return the first item of tuple when legends is legend spec style", ->

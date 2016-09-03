@@ -130,7 +130,7 @@ class LegendView extends Annotation.View
 
       if labels.length == 0
         continue
-      
+
       for label in labels
         x1 = bbox.x + xoffset
         y1 = bbox.y + yoffset

@@ -91,5 +91,3 @@ describe "GlyphRenderer Model", ->
       @gr.glyph = glyph
       field = @gr.get_field_from_glyph_label_prop()
       expect(field).to.be.equal 'milk'
-
-
