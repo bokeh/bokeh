@@ -51,8 +51,8 @@ class QuadraticView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
 class Quadratic extends Glyph.Model
   default_view: QuadraticView

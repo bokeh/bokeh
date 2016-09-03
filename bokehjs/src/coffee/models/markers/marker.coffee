@@ -6,20 +6,18 @@ p = require "../../core/properties"
 
 class MarkerView extends Glyph.View
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     # using objects like this seems a little wonky, since the keys are coerced to
     # stings, but it works
-    indices = [reference_point]
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
     size = { }
-    size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+    size[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
     angle = { }
-    angle[reference_point] = 0
+    angle[index] = 0
 
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)

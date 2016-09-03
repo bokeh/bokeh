@@ -6,7 +6,7 @@ from bokeh.embed import file_html
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource, Plot, Circle, Range1d, LinearAxis, HoverTool, Text,
-    SingleIntervalTicker, CustomJS, Slider, CategoricalColorMapper,
+    SingleIntervalTicker, CustomJS, Slider, CategoricalColorMapper, Legend
 )
 from bokeh.models.annotations import Title
 from bokeh.palettes import Spectral6
@@ -15,12 +15,12 @@ from bokeh.util.browser import view
 
 from data import process_data
 
-fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions = process_data()
+fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
 
 sources = {}
 
-region_names = regions_df['Group']
-region_names.name = 'region'
+region_name = regions_df.Group
+region_name.name = 'region'
 
 for year in years:
     fertility = fertility_df[year]
@@ -29,7 +29,7 @@ for year in years:
     life.name = 'life'
     population = population_df_size[year]
     population.name = 'population'
-    new_df = pd.concat([fertility, life, population, region_names], axis=1)
+    new_df = pd.concat([fertility, life, population, region_name], axis=1)
     sources['_' + str(year)] = ColumnDataSource(new_df)
 
 dictionary_of_sources = dict(zip([x for x in years], ['_%s' % x for x in years]))
@@ -79,10 +79,10 @@ text = Text(x=2, y=35, text='year', text_font_size='150pt', text_color='#EEEEEE'
 plot.add_glyph(text_source, text)
 
 # Add the circle
-color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions)
+color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions_list)
 renderer_source = sources['_%s' % years[0]]
 circle_glyph = Circle(
-    x='fertility', y='life', size='population',
+    x='fertility', y='life', size='population', label='region',
     fill_color={'field': 'region', 'transform': color_mapper},
     fill_alpha=0.8,
     line_color='#7c7e71', line_width=0.5, line_alpha=0.5)
@@ -91,15 +91,7 @@ circle_renderer = plot.add_glyph(renderer_source, circle_glyph)
 # Add the hover (only against the circle and not other plot elements)
 tooltips = "@index"
 plot.add_tools(HoverTool(tooltips=tooltips, renderers=[circle_renderer]))
-
-
-# Add the legend
-text_x = 7
-text_y = 95
-for i, region in enumerate(regions):
-    plot.add_glyph(Text(x=text_x, y=text_y, text=[region], text_font_size='10pt', text_color='#666666'))
-    plot.add_glyph(Circle(x=text_x - 0.1, y=text_y + 2, fill_color=Spectral6[i], size=10, line_color=None, fill_alpha=0.8))
-    text_y = text_y - 5
+plot.add_layout(Legend(legends=[circle_renderer]))
 
 # Add the slider
 code = """

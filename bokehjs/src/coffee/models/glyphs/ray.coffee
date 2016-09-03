@@ -38,8 +38,8 @@ class RayView extends Glyph.View
         ctx.rotate(-_angle[i])
         ctx.translate(-sx[i], -sy[i])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
 class Ray extends Glyph.Model
   default_view: RayView
