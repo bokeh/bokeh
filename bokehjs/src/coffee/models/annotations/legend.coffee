@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+GlyphRenderer = require "../renderers/glyph_renderer"
 p = require "../../core/properties"
 {get_text_height} = require "../../core/util/text"
 
@@ -88,54 +89,78 @@ class LegendView extends Annotation.View
 
     return {x: x, y: y, width: legend_width, height: legend_height}
 
-  _draw_legend_box: (ctx, bbox) ->
-    ctx.save()
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      ctx.translate(panel_offset.x, panel_offset.y)
-
-    ctx.beginPath()
-    ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-
-    @visuals.background_fill.set_value(ctx)
-    ctx.fill()
-    if @visuals.border_line.doit
-      @visuals.border_line.set_value(ctx)
-      ctx.stroke()
-    ctx.restore()
 
   render: () ->
     if @model.legends.length == 0
       return
 
+    ctx = @plot_view.canvas_view.ctx
+    bbox = @compute_legend_bbox()
+
+    ctx.save()
+    @_draw_legend_box(ctx, bbox)
+    @visuals.label_text.set_value(ctx)
+    if @model.legends[0] instanceof GlyphRenderer.Model
+      @_draw_legends_from_renderers(ctx, bbox)
+    else
+      @_draw_legends_from_legends_spec(ctx, bbox)
+    ctx.restore()
+
+  _draw_legend_box: (ctx, bbox) ->
+    if @model.panel?
+      panel_offset = @_get_panel_offset()
+      ctx.translate(panel_offset.x, panel_offset.y)
+    ctx.beginPath()
+    ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
+    @visuals.background_fill.set_value(ctx)
+    ctx.fill()
+    if @visuals.border_line.doit
+      @visuals.border_line.set_value(ctx)
+      ctx.stroke()
+
+  _draw_legends_from_renderers: (ctx, bbox) ->
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
-    orientation = @model.orientation
     legend_spacing = @model.legend_spacing
     label_standoff = @model.label_standoff
     xoffset = yoffset = @model.legend_padding
-    ctx = @plot_view.canvas_view.ctx
 
-    bbox = @compute_legend_bbox()
-    @_draw_legend_box(ctx, bbox)
+    for glyph_renderer in @model.legends
+      label = glyph_renderer.glyph.label.value
+      x1 = bbox.x + xoffset
+      y1 = bbox.y + yoffset
+      x2 = x1 + glyph_width
+      y2 = y1 + glyph_height
+      if @model.orientation == "vertical"
+        yoffset += @max_label_height + legend_spacing
+      else
+        xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+      ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
+      view = @plot_view.renderer_views[glyph_renderer.id]
+      view.draw_legend(ctx, x1, x2, y1, y2)
+
+  _draw_legends_from_legends_spec: (ctx, bbox) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    legend_spacing = @model.legend_spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.legend_padding
 
     for [legend_name, glyph_renderers], idx in @model.legends
       x1 = bbox.x + xoffset
       y1 = bbox.y + yoffset
       x2 = x1 + glyph_width
       y2 = y1 + glyph_height
-      if orientation == "vertical"
+      if @model.orientation == "vertical"
         yoffset += @max_label_height + legend_spacing
       else
         xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
 
-      @visuals.label_text.set_value(ctx)
       ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
       for renderer in glyph_renderers
         view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
-
-    ctx.restore()
 
   _get_size: () ->
     bbox = @compute_legend_bbox()
