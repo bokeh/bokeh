@@ -99,7 +99,6 @@ class LegendView extends Annotation.View
 
     ctx.save()
     @_draw_legend_box(ctx, bbox)
-    @visuals.label_text.set_value(ctx)
     if @model.legends[0] instanceof GlyphRenderer.Model
       @_draw_legends_from_renderers(ctx, bbox)
     else
@@ -125,20 +124,27 @@ class LegendView extends Annotation.View
     label_standoff = @model.label_standoff
     xoffset = yoffset = @model.legend_padding
 
-    for glyph_renderer in @model.legends
-      label = glyph_renderer.glyph.label.value
-      x1 = bbox.x + xoffset
-      y1 = bbox.y + yoffset
-      x2 = x1 + glyph_width
-      y2 = y1 + glyph_height
-      if @model.orientation == "vertical"
-        yoffset += @max_label_height + legend_spacing
-      else
-        xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+    for renderer in @model.legends
+      labels = renderer.get_labels_from_glyph_label_prop()
+      field = renderer.get_field_from_glyph_label_prop()
 
-      ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
-      view = @plot_view.renderer_views[glyph_renderer.id]
-      view.draw_legend(ctx, x1, x2, y1, y2)
+      if labels.length == 0
+        continue
+      
+      for label in labels
+        x1 = bbox.x + xoffset
+        y1 = bbox.y + yoffset
+        x2 = x1 + glyph_width
+        y2 = y1 + glyph_height
+        if @model.orientation == "vertical"
+          yoffset += @max_label_height + legend_spacing
+        else
+          xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+        @visuals.label_text.set_value(ctx)
+        ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
+        view = @plot_view.renderer_views[renderer.id]
+        view.draw_legend(ctx, x1, x2, y1, y2, field, label)
 
   _draw_legends_from_legends_spec: (ctx, bbox) ->
     glyph_height = @model.glyph_height
@@ -157,6 +163,7 @@ class LegendView extends Annotation.View
       else
         xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
 
+      @visuals.label_text.set_value(ctx)
       ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
       for renderer in glyph_renderers
         view = @plot_view.renderer_views[renderer.id]
@@ -182,7 +189,13 @@ class Legend extends Annotation.Model
   type: 'Legend'
 
   get_legend_names: () ->
-    legend_names = (legend_name for [legend_name, glyphs] in @legends)
+    legend_names = []
+    for item in @legends
+      if item instanceof GlyphRenderer.Model
+        labels = item.get_labels_from_glyph_label_prop()
+        legend_names = legend_names.concat(labels)
+      else
+        legend_names.push(item[0])
     return legend_names
 
   @mixins ['text:label_', 'line:border_', 'fill:background_']
