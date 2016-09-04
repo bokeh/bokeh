@@ -6,7 +6,6 @@ import itertools
 import re
 import warnings
 
-import numpy as np
 from six import string_types
 
 from ..models import (
@@ -18,7 +17,10 @@ from ..models import (
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime
+from ..util.dependencies import import_optional
 from ..util.string import nice_join
+
+np = import_optional('numpy')
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -118,7 +120,7 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
 
-        if isinstance(val, np.ndarray) and val.ndim != 1:
+        if np and isinstance(val, np.ndarray) and val.ndim != 1:
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
         source.add(val, name=var)

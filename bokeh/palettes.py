@@ -52,7 +52,6 @@ The complete contents of ``small_palettes`` is show below.
 
 """
 import math
-import numpy as np
 
 YlGn3       = ["#31a354", "#addd8e", "#f7fcb9"]
 YlGn4       = ["#238443", "#78c679", "#c2e699", "#ffffcc"]
@@ -613,6 +612,7 @@ small_palettes.update({
 
 def _linear_cmap_func_generator(name, cmap):
     def func(n):
+        import numpy as np
         if n>len(cmap): raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)"
             %{'r':n,'l':len(cmap)})
         return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]
@@ -621,6 +621,7 @@ def _linear_cmap_func_generator(name, cmap):
 
 def _linear_grey_cmap_func_generator(name):
     def func(n):
+        import numpy as np
         cmap = Greys256
         if n>256: raise ValueError("Hexidecimals support only up to 256 shades of grey")
         return [cmap[int(math.floor(i))] for i in np.linspace(0, len(cmap)-1, num=n)]

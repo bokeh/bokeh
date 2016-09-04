@@ -72,6 +72,7 @@ from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 from . import enums
 
+np = import_optional('numpy')
 pd = import_optional('pandas')
 
 def field(name):
@@ -119,11 +120,9 @@ def value(val):
     return dict(value=val)
 
 bokeh_bool_types = (bool,)
-try:
-    import numpy as np
+
+if np:
     bokeh_bool_types += (np.bool8,)
-except ImportError:
-    pass
 
 bokeh_integer_types = (numbers.Integral,)
 
@@ -1550,20 +1549,20 @@ class Datetime(PropertyDescriptor):
         super(Datetime, self).validate(value)
 
         datetime_types = (datetime.datetime, datetime.date)
-        try:
-            import numpy as np
-            datetime_types += (np.datetime64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'datetime64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
+        if np:
+            try:
+                datetime_types += (np.datetime64,)
+            except AttributeError as e:
+                if e.args == ("'module' object has no attribute 'datetime64'",):
+                    import sys
+                    if 'PyPy' in sys.version:
+                        pass
+                    else:
+                        raise e
                 else:
-                    raise e
-            else:
-                pass
+                    pass
 
-        if (isinstance(value, datetime_types)):
+        if isinstance(value, datetime_types):
             return
 
         if pd and isinstance(value, (pd.Timestamp)):
@@ -1588,20 +1587,20 @@ class TimeDelta(PropertyDescriptor):
         super(TimeDelta, self).validate(value)
 
         timedelta_types = (datetime.timedelta,)
-        try:
-            import numpy as np
-            timedelta_types += (np.timedelta64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'timedelta64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
+        if np:
+            try:
+                timedelta_types += (np.timedelta64,)
+            except AttributeError as e:
+                if e.args == ("'module' object has no attribute 'timedelta64'",):
+                    import sys
+                    if 'PyPy' in sys.version:
+                        pass
+                    else:
+                        raise e
                 else:
-                    raise e
-            else:
-                pass
+                    pass
 
-        if (isinstance(value, timedelta_types)):
+        if isinstance(value, timedelta_types):
             return
 
         if pd and isinstance(value, (pd.Timedelta)):
