@@ -298,8 +298,8 @@ class Axis extends GuideRenderer.Model
     j = (i + 1) % 2
     frame = @plot.plot_canvas.get('frame')
     ranges = [
-      frame.get('x_ranges')[@get('x_range_name')],
-      frame.get('y_ranges')[@get('y_range_name')]
+      frame.x_ranges[@get('x_range_name')],
+      frame.y_ranges[@get('y_range_name')]
     ]
     return [ranges[i], ranges[j]]
 

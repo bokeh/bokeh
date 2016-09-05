@@ -83,8 +83,8 @@ class PlotCanvasView extends Renderer.View
 
     # compat, to be removed
     @frame = @mget('frame')
-    @x_range = @frame.get('x_ranges')['default']
-    @y_range = @frame.get('y_ranges')['default']
+    @x_range = @frame.x_ranges['default']
+    @y_range = @frame.y_ranges['default']
     @xmapper = @frame.get('x_mappers')['default']
     @ymapper = @frame.get('y_mappers')['default']
 
@@ -198,14 +198,14 @@ class PlotCanvasView extends Renderer.View
     follow_enabled = false
     has_bounds = false
 
-    for xr in _.values(frame.get('x_ranges'))
+    for xr in _.values(frame.x_ranges)
       if xr instanceof DataRange1d.Model
         xr.update(bounds, 0, @model.id)
         if xr.get('follow')
           follow_enabled = true
       has_bounds = true if xr.get('bounds')?
 
-    for yr in _.values(frame.get('y_ranges'))
+    for yr in _.values(frame.y_ranges)
       if yr instanceof DataRange1d.Model
         yr.update(bounds, 1, @model.id)
         if yr.get('follow')
@@ -214,9 +214,9 @@ class PlotCanvasView extends Renderer.View
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.get('x_ranges'))
+      for xr in _.values(frame.x_ranges)
         xr.set('bounds', null)
-      for yr in _.values(frame.get('y_ranges'))
+      for yr in _.values(frame.y_ranges)
         yr.set('bounds', null)
 
     @range_update_timestamp = Date.now()
@@ -402,18 +402,18 @@ class PlotCanvasView extends Renderer.View
   update_range: (range_info, is_panning, is_scrolling) ->
     @pause
     if not range_info?
-      for name, rng of @frame.get('x_ranges')
+      for name, rng of @frame.x_ranges
         rng.reset()
         rng.get('callback')?.execute(rng)
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         rng.reset()
         rng.get('callback')?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []
-      for name, rng of @frame.get('x_ranges')
+      for name, rng of @frame.x_ranges
         range_info_iter.push([rng, range_info.xrs[name]])
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         range_info_iter.push([rng, range_info.yrs[name]])
       if is_scrolling
         @_update_ranges_together(range_info_iter)  # apply interval bounds while keeping aspect
@@ -453,9 +453,9 @@ class PlotCanvasView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @model.frame.get('x_ranges')
+    for name, rng of @model.frame.x_ranges
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @model.frame.get('y_ranges')
+    for name, rng of @model.frame.y_ranges
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model.plot, 'change:renderers', @build_levels)
     @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
@@ -469,7 +469,7 @@ class PlotCanvasView extends Renderer.View
     # check for good values for ranges before setting initial range
     good_vals = true
     xrs = {}
-    for name, rng of @frame.get('x_ranges')
+    for name, rng of @frame.x_ranges
       if (not rng.get('start')? or not rng.get('end')? or
           _.isNaN(rng.get('start') + rng.get('end')))
         good_vals = false
@@ -477,7 +477,7 @@ class PlotCanvasView extends Renderer.View
       xrs[name] = { start: rng.get('start'), end: rng.get('end') }
     if good_vals
       yrs = {}
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         if (not rng.get('start')? or not rng.get('end')? or
             _.isNaN(rng.get('start') + rng.get('end')))
           good_vals = false
