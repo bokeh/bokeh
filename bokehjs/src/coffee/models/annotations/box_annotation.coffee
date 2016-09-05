@@ -32,10 +32,10 @@ class BoxAnnotationView extends Annotation.View
     @xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
     @ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
 
-    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.get('h_range').get('start')))
-    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.get('h_range').get('end')))
-    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.get('v_range').get('start')))
-    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.get('v_range').get('end')))
+    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.h_range.get('start')))
+    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.h_range.get('end')))
+    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.v_range.get('start')))
+    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.v_range.get('end')))
 
     if @mget('render_mode') == 'css'
       @_css_box(sleft, sright, sbottom, stop)

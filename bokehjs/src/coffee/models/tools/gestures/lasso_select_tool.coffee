@@ -32,8 +32,8 @@ class LassoSelectToolView extends SelectTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
 
-    h_range = @plot_model.get('frame').get('h_range')
-    v_range = @plot_model.get('frame').get('v_range')
+    h_range = @plot_model.get('frame').h_range
+    v_range = @plot_model.get('frame').v_range
     if vx > h_range.get('end')
       vx = h_range.get('end')
     if vx < h_range.get('start')

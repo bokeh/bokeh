@@ -47,8 +47,8 @@ class LegendView extends Annotation.View
       legend_height = @max_label_height + 2 * legend_padding
 
     location = @mget('location')
-    h_range = @plot_view.frame.get('h_range')
-    v_range = @plot_view.frame.get('v_range')
+    h_range = @plot_view.frame.h_range
+    v_range = @plot_view.frame.v_range
 
     if _.isString(location)
       switch location

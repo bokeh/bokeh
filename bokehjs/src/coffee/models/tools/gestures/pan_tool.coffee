@@ -13,8 +13,8 @@ class PanToolView extends GestureTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
     if not frame.contains(vx, vy)
-      hr = frame.get('h_range')
-      vr = frame.get('v_range')
+      hr = frame.h_range
+      vr = frame.v_range
       if vx < hr.get('start') or vx > hr.get('end')
         @v_axis_only = true
       if vy < vr.get('start') or vy > vr.get('end')
@@ -39,11 +39,11 @@ class PanToolView extends GestureTool.View
     new_dx = dx - @last_dx
     new_dy = dy - @last_dy
 
-    hr = _.clone(frame.get('h_range'))
+    hr = _.clone(frame.h_range)
     sx_low  = hr.get('start') - new_dx
     sx_high = hr.get('end') - new_dx
 
-    vr = _.clone(frame.get('v_range'))
+    vr = _.clone(frame.v_range)
     sy_low  = vr.get('start') - new_dy
     sy_high = vr.get('end') - new_dy
 

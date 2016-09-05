@@ -18,8 +18,17 @@ class CartesianFrame extends LayoutCanvas.Model
     x_ranges: () -> @_get_ranges('x')
     y_ranges: () -> @_get_ranges('y')
 
-    x_mappers: () -> @_get_mappers('x', @x_ranges, @get('h_range'))
-    y_mappers: () -> @_get_mappers('y', @y_ranges, @get('v_range'))
+    x_mappers: () -> @_get_mappers('x', @x_ranges, @h_range)
+    y_mappers: () -> @_get_mappers('y', @y_ranges, @v_range)
+
+    h_range: () ->
+      @_h_range.set('start', @get('left'))
+      @_h_range.set('end',   @get('left') + @get('width'))
+      return @_h_range
+    v_range: () ->
+      @_v_range.set('start', @get('bottom'))
+      @_v_range.set('end',   @get('bottom') + @get('height'))
+      return @_v_range
   }
 
   initialize: (attrs, options) ->
@@ -39,25 +48,11 @@ class CartesianFrame extends LayoutCanvas.Model
       start: @get('left'),
       end:   @get('left') + @get('width')
     })
-    @define_computed_property('h_range',
-        () =>
-          @_h_range.set('start', @get('left'))
-          @_h_range.set('end',   @get('left') + @get('width'))
-          return @_h_range
-      , false)
-    @add_dependencies('h_range', this, ['left', 'width'])
 
     @_v_range = new Range1d.Model({
       start: @get('bottom'),
       end:   @get('bottom') + @get('height')
     })
-    @define_computed_property('v_range',
-        () =>
-          @_v_range.set('start', @get('bottom'))
-          @_v_range.set('end',   @get('bottom') + @get('height'))
-          return @_v_range
-      , false)
-    @add_dependencies('v_range', this, ['bottom', 'height'])
     return null
 
   _doc_attached: () ->
@@ -108,9 +103,9 @@ class CartesianFrame extends LayoutCanvas.Model
 
   _update_mappers: () ->
     for name, mapper of @x_mappers
-      mapper.set('target_range', @get('h_range'))
+      mapper.set('target_range', @h_range)
     for name, mapper of @y_mappers
-      mapper.set('target_range', @get('v_range'))
+      mapper.set('target_range', @v_range)
     return null
 
   @internal {

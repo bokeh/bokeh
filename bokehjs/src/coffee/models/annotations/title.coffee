@@ -21,15 +21,15 @@ class TitleView extends TextAnnotation.View
     switch @model.panel.side
       when 'left'
         vx = 0
-        vy = @_get_text_location(@mget('align'), @frame.get('v_range')) + @mget('offset')
+        vy = @_get_text_location(@mget('align'), @frame.v_range) + @mget('offset')
       when 'right'
         vx = @canvas.get('right') - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.get('height') - @_get_text_location(@mget('align'), @frame.get('v_range')) - @mget('offset')
+        vy = @canvas.get('height') - @_get_text_location(@mget('align'), @frame.v_range) - @mget('offset')
       when 'above'
-        vx = @_get_text_location(@mget('align'), @frame.get('h_range')) + @mget('offset')
+        vx = @_get_text_location(@mget('align'), @frame.h_range) + @mget('offset')
         vy = @canvas.get('top') - 10 # Corresponds to the +10 added in get_size
       when 'below'
-        vx = @_get_text_location(@mget('align'), @frame.get('h_range')) + @mget('offset')
+        vx = @_get_text_location(@mget('align'), @frame.h_range) + @mget('offset')
         vy = 0
 
     sx = @canvas.vx_to_sx(vx)

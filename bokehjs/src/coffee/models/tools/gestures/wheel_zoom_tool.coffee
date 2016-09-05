@@ -19,8 +19,8 @@ class WheelZoomToolView extends GestureTool.View
 
   _scroll: (e) ->
     frame = @plot_model.get('frame')
-    hr = frame.get('h_range')
-    vr = frame.get('v_range')
+    hr = frame.h_range
+    vr = frame.v_range
 
     vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)

@@ -81,14 +81,14 @@ class Tool extends Model
   # utility function to get limits along both dimensions, given
   # optional dimensional constraints
   _get_dim_limits: ([vx0, vy0], [vx1, vy1], frame, dims) ->
-    hr = frame.get('h_range')
+    hr = frame.h_range
     if dims.indexOf('width') >= 0
       vxlim = [_.min([vx0, vx1]), _.max([vx0, vx1])]
       vxlim = [_.max([vxlim[0], hr.min]), _.min([vxlim[1], hr.max])]
     else
       vxlim = [hr.min, hr.max]
 
-    vr = frame.get('v_range')
+    vr = frame.v_range
     if dims.indexOf('height') >= 0
       vylim = [_.min([vy0, vy1]), _.max([vy0, vy1])]
       vylim = [_.max([vylim[0], vr.min]), _.min([vylim[1], vr.max])]

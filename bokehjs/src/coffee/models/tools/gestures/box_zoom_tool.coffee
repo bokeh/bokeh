@@ -9,10 +9,10 @@ class BoxZoomToolView extends GestureTool.View
   _match_aspect: (basepoint, curpoint, frame) ->
 
     # aspect ratio of plot frame
-    hend = frame.get('h_range').get('end')
-    hstart = frame.get('h_range').get('start')
-    vend = frame.get('v_range').get('end')
-    vstart = frame.get('v_range').get('start')
+    hend = frame.h_range.get('end')
+    hstart = frame.h_range.get('start')
+    vend = frame.v_range.get('end')
+    vstart = frame.v_range.get('start')
     w = hend - hstart
     h = vend - vstart
     a = w/h

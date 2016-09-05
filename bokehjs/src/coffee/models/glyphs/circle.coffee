@@ -23,8 +23,8 @@ class CircleView extends Glyph.View
       @sradius = (s/2 for s in @_size)
 
   _mask_data: (all_indices) ->
-    hr = @renderer.plot_view.frame.get('h_range')
-    vr = @renderer.plot_view.frame.get('v_range')
+    hr = @renderer.plot_view.frame.h_range
+    vr = @renderer.plot_view.frame.v_range
 
     # check for radius first
     if @_radius? and @model.properties.radius.units == "data"
