@@ -25,4 +25,4 @@ describe "Crosshair Tool", ->
       crosshair = new CrosshairTool({plot: @p})
       spans = [crosshair.spans.width, crosshair.spans.height]
       # Plot canvas should now have the two cross hair span renderers
-      expect(crosshair._computed.synthetic_renderers.getter()).to.be.deep.equal spans
+      expect(crosshair.synthetic_renderers).to.be.deep.equal spans
