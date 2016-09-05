@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Float, Color, Enum, Seq
+from ..core.properties import Color, Enum, Seq, Either, List, String, Int, Float, Date, Datetime
 from ..core.enums import Palette
 from .. import palettes
 
@@ -24,16 +24,6 @@ class ColorMapper(Model):
     any of the palettes shown in :ref:`bokeh.palettes`.
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
-    """)
-
-    high = Float(help="""
-    The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
-    """)
-
     nan_color = Color(default="gray", help="""
     Color to be used if data is NaN. Default: 'gray'
     """)
@@ -42,6 +32,18 @@ class ColorMapper(Model):
         if palette is not None:
             kwargs['palette'] = palette
         super(ColorMapper, self).__init__(**kwargs)
+
+
+class CategoricalColorMapper(ColorMapper):
+    """ Map categories to colors. Values that are passed to
+    this mapper that aren't in factors will be assigned the nan_color.
+
+    """
+
+    factors = Either(List(String), List(Int), List(Float), List(Datetime), List(Date), help="""
+    A list of string or integer factors (categories) to comprise
+    this categorical range.
+    """)
 
 
 class LinearColorMapper(ColorMapper):
@@ -59,6 +61,16 @@ class LinearColorMapper(ColorMapper):
        99 >= x      : 'blue'    # values > high are clamped
 
     """
+
+    low = Float(help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
+    """)
+
+    high = Float(help="""
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
+    """)
 
 
 class LogColorMapper(ColorMapper):
@@ -80,3 +92,13 @@ class LogColorMapper(ColorMapper):
         non-negative.
 
     """
+
+    low = Float(help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
+    """)
+
+    high = Float(help="""
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
+    """)

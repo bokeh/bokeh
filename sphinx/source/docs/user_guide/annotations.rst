@@ -72,6 +72,12 @@ argument to the glyph methods, when creating a plot.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
     :source-position: above
 
+It is also possible to create multiple legend items for the same glyph when
+if needed by passing a legend that is the column of the column data source.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends_by_source.py
+    :source-position: above
+
 .. _userguide_plotting_color_bars:
 
 Color Bars

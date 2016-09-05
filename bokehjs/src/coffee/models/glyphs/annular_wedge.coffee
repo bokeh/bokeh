@@ -104,8 +104,8 @@ class AnnularWedgeView extends Glyph.View
       .value()
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
   _scxy: (i) ->
     r = (@sinner_radius[i] + @souter_radius[i])/2

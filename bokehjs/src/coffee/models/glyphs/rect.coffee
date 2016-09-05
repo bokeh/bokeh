@@ -130,8 +130,8 @@ class RectView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
