@@ -426,7 +426,7 @@ class PlotCanvasView extends Renderer.View
   build_levels: () ->
     renderer_models = @model.plot.renderers
     for tool_model in @model.plot.toolbar.tools
-      synthetic = tool_model.get("synthetic_renderers")
+      synthetic = tool_model.synthetic_renderers
       renderer_models = renderer_models.concat(synthetic)
 
     # should only bind events on NEW views and tools

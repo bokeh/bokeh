@@ -171,21 +171,15 @@ class BoxZoomTool extends GestureTool.Model
   event_type: "pan"
   default_order: 20
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimensions'), "box zoom tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "box zoom tool"))
+  }
 
   @define {
-      dimensions:   [ p.Array,    ["width", "height"] ]
-      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
-      match_aspect: [ p.Bool,     false               ]
-    }
+    dimensions:   [ p.Array,    ["width", "height"] ]
+    overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
+    match_aspect: [ p.Bool,     false               ]
+  }
 
 module.exports =
   Model: BoxZoomTool

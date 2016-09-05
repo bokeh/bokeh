@@ -99,19 +99,12 @@ class PanTool extends GestureTool.Model
   default_order: 10
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
-    }
+    dimensions: [ p.Array, ["width", "height"] ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          "Pan",
-          @_check_dims(@get('dimensions'), "pan tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip("Pan", @_check_dims(@dimensions, "pan tool"))
+  }
 
 module.exports =
   Model: PanTool

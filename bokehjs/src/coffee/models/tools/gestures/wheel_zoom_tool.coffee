@@ -102,20 +102,13 @@ class WheelZoomTool extends GestureTool.Model
   event_type: if ('ontouchstart' of window or navigator.maxTouchPoints > 0) then 'pinch' else 'scroll'
   default_order: 10
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimensions'), "wheel zoom tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "wheel zoom tool"))
+  }
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
-    }
+    dimensions: [ p.Array, ["width", "height"] ]
+  }
 
   @internal {
     speed: [ p.Number, 1/600 ]

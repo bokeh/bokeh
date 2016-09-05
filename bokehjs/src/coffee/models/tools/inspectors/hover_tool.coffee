@@ -33,7 +33,7 @@ class HoverToolView extends InspectTool.View
 
     @_inspect(Infinity, Infinity)
 
-    for rid, tt of @mget('ttmodels')
+    for rid, tt of @model.ttmodels
       tt.clear()
 
   _move: (e) ->
@@ -78,7 +78,7 @@ class HoverToolView extends InspectTool.View
     return
 
   _update: (indices, tool, renderer, ds, {geometry}) ->
-    tooltip = @mget('ttmodels')[renderer.model.id] ? null
+    tooltip = @model.ttmodels[renderer.model.id] ? null
     if not tooltip?
       return
     tooltip.clear()
@@ -329,26 +329,23 @@ class HoverTool extends InspectTool.Model
     @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
     @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
-    @define_computed_property('ttmodels',
-      () ->
-        ttmodels = {}
-        tooltips = @get("tooltips")
+  @getters {
+    ttmodels: () ->
+      ttmodels = {}
+      tooltips = @tooltips
 
-        if tooltips?
-          for r in @get('computed_renderers')
-            tooltip = new Tooltip.Model({
-              custom: _.isString(tooltips) or _.isFunction(tooltips)
-              attachment: @attachment
-              show_arrow: @show_arrow
-            })
-            ttmodels[r.id] = tooltip
+      if tooltips?
+        for r in @computed_renderers
+          tooltip = new Tooltip.Model({
+            custom: _.isString(tooltips) or _.isFunction(tooltips)
+            attachment: @attachment
+            show_arrow: @show_arrow
+          })
+          ttmodels[r.id] = tooltip
 
-        return ttmodels
-      , true)
-    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
-
-    @override_computed_property('synthetic_renderers', (() -> _.values(@get("ttmodels"))), true)
-    @add_dependencies('synthetic_renderers', this, ['ttmodels'])
+      return ttmodels
+    synthetic_renderers: () -> _.values(@ttmodels)
+  }
 
 module.exports =
   Model: HoverTool

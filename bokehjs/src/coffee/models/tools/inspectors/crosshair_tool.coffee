@@ -46,16 +46,13 @@ class CrosshairTool extends InspectTool.Model
     spans:          [ p.Any ]
   }
 
+  @getters {
+    tooltip: () -> @_get_dim_tooltip("Crosshair", @_check_dims(@dimensions, "crosshair tool"))
+    synthetic_renderers: () -> _.values(@spans)
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          "Crosshair",
-          @_check_dims(@get('dimensions'), "crosshair tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
 
     @spans = {
       width: new Span.Model({
@@ -77,8 +74,6 @@ class CrosshairTool extends InspectTool.Model
         line_alpha: @get('line_alpha')
       })
     }
-
-    @override_computed_property('synthetic_renderers', (() => _.values(@get("spans"))), true)
 
 module.exports =
   Model: CrosshairTool

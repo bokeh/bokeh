@@ -23,13 +23,13 @@ class ToolView extends Renderer.View
 
 class Tool extends Model
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('synthetic_renderers', (() -> []), true)
+  @getters {
+    synthetic_renderers: () -> []
+  }
 
   @define {
-      plot: [ p.Instance ]
-    }
+    plot: [ p.Instance ]
+  }
 
   @internal {
     level: [ p.RenderLevel, 'overlay' ]
