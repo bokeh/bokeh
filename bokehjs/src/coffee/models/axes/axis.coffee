@@ -309,7 +309,7 @@ class Axis extends GuideRenderer.Model
     [range, cross_range] = @get('ranges')
 
     user_bounds = @get('bounds') ? 'auto'
-    range_bounds = [range.get('min'), range.get('max')]
+    range_bounds = [range.min, range.max]
 
     if user_bounds == 'auto'
       return range_bounds
@@ -341,8 +341,8 @@ class Axis extends GuideRenderer.Model
 
     loc = @_get_loc(cross_range)
 
-    coords[i][0] = Math.max(start, range.get('min'))
-    coords[i][1] = Math.min(end, range.get('max'))
+    coords[i][0] = Math.max(start, range.min)
+    coords[i][1] = Math.min(end, range.max)
     if coords[i][0] > coords[i][1]
       coords[i][0] = coords[i][1] = NaN
 
@@ -376,7 +376,7 @@ class Axis extends GuideRenderer.Model
         coords[i].push(majors[ii])
         coords[j].push(loc)
     else
-      [range_min, range_max] = [range.get('min'), range.get('max')]
+      [range_min, range_max] = [range.min, range.max]
 
       for ii in [0...majors.length]
         if majors[ii] < range_min or majors[ii] > range_max

@@ -97,7 +97,7 @@ class Grid extends GuideRenderer.Model
     [range, cross_range] = @ranges()
 
     user_bounds = @get('bounds')
-    range_bounds = [range.get('min'), range.get('max')]
+    range_bounds = [range.min, range.max]
 
     if _.isArray(user_bounds)
       start = Math.min(user_bounds[0], user_bounds[1])
@@ -128,11 +128,11 @@ class Grid extends GuideRenderer.Model
 
     ticks = @get('ticker').get_ticks(start, end, range, {})[location]
 
-    min = range.get('min')
-    max = range.get('max')
+    min = range.min
+    max = range.max
 
-    cmin = cross_range.get('min')
-    cmax = cross_range.get('max')
+    cmin = cross_range.min
+    cmax = cross_range.max
 
     coords = [[], []]
     for ii in [0...ticks.length]

@@ -84,16 +84,16 @@ class Tool extends Model
     hr = frame.get('h_range')
     if dims.indexOf('width') >= 0
       vxlim = [_.min([vx0, vx1]), _.max([vx0, vx1])]
-      vxlim = [_.max([vxlim[0], hr.get('min')]), _.min([vxlim[1], hr.get('max')])]
+      vxlim = [_.max([vxlim[0], hr.min]), _.min([vxlim[1], hr.max])]
     else
-      vxlim = [hr.get('min'), hr.get('max')]
+      vxlim = [hr.min, hr.max]
 
     vr = frame.get('v_range')
     if dims.indexOf('height') >= 0
       vylim = [_.min([vy0, vy1]), _.max([vy0, vy1])]
-      vylim = [_.max([vylim[0], vr.get('min')]), _.min([vylim[1], vr.get('max')])]
+      vylim = [_.max([vylim[0], vr.min]), _.min([vylim[1], vr.max])]
     else
-      vylim = [vr.get('min'), vr.get('max')]
+      vylim = [vr.min, vr.max]
 
     return [vxlim, vylim]
 
