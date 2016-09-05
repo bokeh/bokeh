@@ -36,10 +36,10 @@ class AxisView extends Renderer.View
   _draw_rule: (ctx) ->
     if not @visuals.axis_line.doit
       return
-    [x, y] = coords = @mget('rule_coords')
+    [x, y] = coords = @model.rule_coords
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @mget('normals')
-    [xoff, yoff]  = @mget('offsets')
+    [nx, ny] = @model.normals
+    [xoff, yoff]  = @model.offsets
     @visuals.axis_line.set_value(ctx)
     ctx.beginPath()
     ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
@@ -50,11 +50,11 @@ class AxisView extends Renderer.View
   _draw_major_ticks: (ctx) ->
     if not @visuals.major_tick_line.doit
       return
-    coords = @mget('tick_coords')
+    coords = @model.tick_coords
     [x, y] = coords.major
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @mget('normals')
-    [xoff, yoff]  = @mget('offsets')
+    [nx, ny] = @model.normals
+    [xoff, yoff]  = @model.offsets
 
     tin = @mget('major_tick_in')
     tout = @mget('major_tick_out')
@@ -68,11 +68,11 @@ class AxisView extends Renderer.View
   _draw_minor_ticks: (ctx) ->
     if not @visuals.minor_tick_line.doit
       return
-    coords = @mget('tick_coords')
+    coords = @model.tick_coords
     [x, y] = coords.minor
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @mget('normals')
-    [xoff, yoff]  = @mget('offsets')
+    [nx, ny] = @model.normals
+    [xoff, yoff]  = @model.offsets
     tin = @mget('minor_tick_in')
     tout = @mget('minor_tick_out')
     @visuals.minor_tick_line.set_value(ctx)
@@ -83,12 +83,12 @@ class AxisView extends Renderer.View
       ctx.stroke()
 
   _draw_major_labels: (ctx) ->
-    coords = @mget('tick_coords')
+    coords = @model.tick_coords
     [x, y] = coords.major
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @mget('normals')
-    [xoff, yoff]  = @mget('offsets')
-    dim = @mget('dimension')
+    [nx, ny] = @model.normals
+    [xoff, yoff]  = @model.offsets
+    dim = @model.dimension
     side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     if _.isString(orient)
@@ -114,10 +114,10 @@ class AxisView extends Renderer.View
     label = @mget('axis_label')
     if not label?
       return
-    [x, y] = @mget('rule_coords')
+    [x, y] = @model.rule_coords
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
-    [nx, ny] = @mget('normals')
-    [xoff, yoff]  = @mget('offsets')
+    [nx, ny] = @model.normals
+    [xoff, yoff]  = @model.offsets
     side = @mget('panel_side')
     orient = 'parallel'
     angle = @model.panel.get_label_angle_heuristic(orient)
@@ -149,8 +149,8 @@ class AxisView extends Renderer.View
     extent = 0
     ctx = @plot_view.canvas_view.ctx
 
-    dim = @mget('dimension')
-    coords = @mget('tick_coords').major
+    dim = @model.dimension
+    coords = @model.tick_coords.major
     side = @mget('panel_side')
     orient = @mget('major_label_orientation')
     labels = @mget('formatter').doFormat(coords[dim])
@@ -260,16 +260,14 @@ class Axis extends GuideRenderer.Model
     @add_dependencies('computed_bounds', this, ['bounds'])
     @add_dependencies('computed_bounds', @get('plot'), ['x_range', 'y_range'])
 
-    @define_computed_property('rule_coords', @_rule_coords, false)
-    @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
-
-    @define_computed_property('tick_coords', @_tick_coords, false)
-    @add_dependencies('tick_coords', this, ['computed_bounds', 'panel_side'])
-
-    @define_computed_property('ranges', @_ranges, true)
-    @define_computed_property('normals', (() -> @panel._normals), true)
-    @define_computed_property('dimension', (() -> @panel._dim), true)
-    @define_computed_property('offsets', @_offsets, true)
+  @getters {
+    rule_coords: () -> @_rule_coords()
+    tick_coords: () -> @_tick_coords()
+    ranges: () -> @_ranges()
+    normals: () -> @panel._normals
+    dimension: () -> @panel._dim
+    offsets: () -> @_offsets()
+  }
 
   add_panel: (side) ->
     @panel = new SidePanel.Model({side: side})
@@ -296,7 +294,7 @@ class Axis extends GuideRenderer.Model
     return [xoff, yoff]
 
   _ranges: () ->
-    i = @get('dimension')
+    i = @dimension
     j = (i + 1) % 2
     frame = @plot.plot_canvas.get('frame')
     ranges = [
@@ -306,7 +304,7 @@ class Axis extends GuideRenderer.Model
     return [ranges[i], ranges[j]]
 
   _computed_bounds: () ->
-    [range, cross_range] = @get('ranges')
+    [range, cross_range] = @ranges
 
     user_bounds = @get('bounds') ? 'auto'
     range_bounds = [range.min, range.max]
@@ -330,9 +328,9 @@ class Axis extends GuideRenderer.Model
     return null
 
   _rule_coords: () ->
-    i = @get('dimension')
+    i = @dimension
     j = (i + 1) % 2
-    [range, cross_range] = @get('ranges')
+    [range, cross_range] = @ranges
     [start, end] = @get('computed_bounds')
 
     xs = new Array(2)
@@ -352,9 +350,9 @@ class Axis extends GuideRenderer.Model
     return coords
 
   _tick_coords: () ->
-    i = @get('dimension')
+    i = @dimension
     j = (i + 1) % 2
-    [range, cross_range] = @get('ranges')
+    [range, cross_range] = @ranges
     [start, end] = @get('computed_bounds')
 
     ticks = @get('ticker').get_ticks(start, end, range, {})
