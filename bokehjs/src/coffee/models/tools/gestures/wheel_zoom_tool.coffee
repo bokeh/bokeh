@@ -72,12 +72,12 @@ class WheelZoomToolView extends GestureTool.View
       sy1 = vy_high
 
     xrs = {}
-    for name, mapper of frame.get('x_mappers')
+    for name, mapper of frame.x_mappers
       [start, end] = mapper.v_map_from_target([sx0, sx1], true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of frame.get('y_mappers')
+    for name, mapper of frame.y_mappers
       [start, end] = mapper.v_map_from_target([sy0, sy1], true)
       yrs[name] = {start: start, end: end}
 

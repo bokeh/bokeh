@@ -90,8 +90,8 @@ class LassoSelectToolView extends SelectTool.View
     geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.v_vy_to_sy(geometry.vy)
 
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    xmapper = frame.x_mappers[r.get('x_range_name')]
+    ymapper = frame.y_mappers[r.get('y_range_name')]
     geometry['x'] = xmapper.v_map_from_target(geometry.vx)
     geometry['y'] = ymapper.v_map_from_target(geometry.vy)
 

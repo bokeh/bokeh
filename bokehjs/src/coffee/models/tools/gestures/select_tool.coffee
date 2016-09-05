@@ -16,8 +16,8 @@ class SelectToolView extends GestureTool.View
 
   _save_geometry: (geometry, final, append) ->
     g = _.clone(geometry)
-    xm = @plot_view.frame.get('x_mappers')['default']
-    ym = @plot_view.frame.get('y_mappers')['default']
+    xm = @plot_view.frame.x_mappers['default']
+    ym = @plot_view.frame.y_mappers['default']
     if g.type == 'point'
       g.x = xm.map_from_target(g.vx)
       g.y = ym.map_from_target(g.vy)

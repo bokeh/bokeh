@@ -85,8 +85,8 @@ class PlotCanvasView extends Renderer.View
     @frame = @mget('frame')
     @x_range = @frame.x_ranges['default']
     @y_range = @frame.y_ranges['default']
-    @xmapper = @frame.get('x_mappers')['default']
-    @ymapper = @frame.get('y_mappers')['default']
+    @xmapper = @frame.x_mappers['default']
+    @ymapper = @frame.y_mappers['default']
 
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})

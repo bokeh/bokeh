@@ -29,8 +29,8 @@ class BoxAnnotationView extends Annotation.View
 
     @frame = @plot_model.get('frame')
     @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
+    @ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
 
     sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.get('h_range').get('start')))
     sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.get('h_range').get('end')))

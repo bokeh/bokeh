@@ -131,12 +131,12 @@ class BoxZoomToolView extends GestureTool.View
       return
 
     xrs = {}
-    for name, mapper of @plot_view.frame.get('x_mappers')
+    for name, mapper of @plot_view.frame.x_mappers
       [start, end] = mapper.v_map_from_target(vx, true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of @plot_view.frame.get('y_mappers')
+    for name, mapper of @plot_view.frame.y_mappers
       [start, end] = mapper.v_map_from_target(vy, true)
       yrs[name] = {start: start, end: end}
 

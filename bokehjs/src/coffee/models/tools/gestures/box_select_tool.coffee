@@ -84,8 +84,8 @@ class BoxSelectToolView extends SelectTool.View
     geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
     geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
 
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    xmapper = frame.x_mappers[r.get('x_range_name')]
+    ymapper = frame.y_mappers[r.get('y_range_name')]
     geometry['x0'] = xmapper.map_from_target(geometry.vx0)
     geometry['x1'] = xmapper.map_from_target(geometry.vx1)
     geometry['y0'] = ymapper.map_from_target(geometry.vy0)

@@ -17,19 +17,14 @@ class CartesianFrame extends LayoutCanvas.Model
   @getters {
     x_ranges: () -> @_get_ranges('x')
     y_ranges: () -> @_get_ranges('y')
+
+    x_mappers: () -> @_get_mappers('x', @x_ranges, @get('h_range'))
+    y_mappers: () -> @_get_mappers('y', @y_ranges, @get('v_range'))
   }
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @panel = @
-
-    @define_computed_property('x_mappers',
-        () -> @_get_mappers('x', @x_ranges, @get('h_range'))
-      , true)
-
-    @define_computed_property('y_mappers',
-        () -> @_get_mappers('y', @y_ranges, @get('v_range'))
-      , true)
 
     @define_computed_property('mapper',
       () ->
@@ -76,10 +71,10 @@ class CartesianFrame extends LayoutCanvas.Model
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
-    vx = @get('x_mappers')[x_name].v_map_to_target(x)
+    vx = @x_mappers[x_name].v_map_to_target(x)
     sx = canvas.v_vx_to_sx(vx)
 
-    vy = @get('y_mappers')[y_name].v_map_to_target(y)
+    vy = @y_mappers[y_name].v_map_to_target(y)
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 
@@ -112,9 +107,9 @@ class CartesianFrame extends LayoutCanvas.Model
     return mappers
 
   _update_mappers: () ->
-    for name, mapper of @get('x_mappers')
+    for name, mapper of @x_mappers
       mapper.set('target_range', @get('h_range'))
-    for name, mapper of @get('y_mappers')
+    for name, mapper of @y_mappers
       mapper.set('target_range', @get('v_range'))
     return null
 

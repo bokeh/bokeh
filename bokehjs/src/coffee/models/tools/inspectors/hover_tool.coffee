@@ -95,8 +95,8 @@ class HoverToolView extends InspectTool.View
     sx = canvas.vx_to_sx(vx)
     sy = canvas.vy_to_sy(vy)
 
-    xmapper = frame.get('x_mappers')[renderer.mget('x_range_name')]
-    ymapper = frame.get('y_mappers')[renderer.mget('y_range_name')]
+    xmapper = frame.x_mappers[renderer.mget('x_range_name')]
+    ymapper = frame.y_mappers[renderer.mget('y_range_name')]
     x = xmapper.map_from_target(vx)
     y = ymapper.map_from_target(vy)
 
@@ -224,8 +224,8 @@ class HoverToolView extends InspectTool.View
     geometry['sx'] = canvas.vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.vy_to_sy(geometry.vy)
 
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    xmapper = frame.x_mappers[r.get('x_range_name')]
+    ymapper = frame.y_mappers[r.get('y_range_name')]
     geometry['x'] = xmapper.map_from_target(geometry.vx)
     geometry['y'] = ymapper.map_from_target(geometry.vy)
 

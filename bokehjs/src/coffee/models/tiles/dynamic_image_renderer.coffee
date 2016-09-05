@@ -18,9 +18,9 @@ class DynamicImageView extends Renderer.View
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_view.frame
     @x_range = @map_plot.get('x_range')
-    @x_mapper = this.map_frame.get('x_mappers')['default']
+    @x_mapper = this.map_frame.x_mappers['default']
     @y_range = @map_plot.get('y_range')
-    @y_mapper = this.map_frame.get('y_mappers')['default']
+    @y_mapper = this.map_frame.y_mappers['default']
     @lastImage = undefined
     @extent = @get_extent()
 
