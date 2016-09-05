@@ -13,18 +13,13 @@ class BasicTickFormatter extends TickFormatter.Model
       power_limit_low:  [ p.Number, -3     ]
     }
 
+  @getters {
+    scientific_limit_low: () -> Math.pow(10.0, @power_limit_low)
+    scientific_limit_high: () -> Math.pow(10.0, @power_limit_high)
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
-    @define_computed_property('scientific_limit_low',
-        () -> Math.pow(10.0, @get('power_limit_low'))
-      , true)
-    @add_dependencies('scientific_limit_low', this, ['power_limit_low'])
-
-    @define_computed_property('scientific_limit_high',
-        () -> Math.pow(10.0, @get('power_limit_high'))
-      , true)
-    @add_dependencies('scientific_limit_high', this, ['power_limit_high'])
-
     @last_precision = 3
 
   doFormat: (ticks) ->
@@ -40,8 +35,8 @@ class BasicTickFormatter extends TickFormatter.Model
       for tick in ticks
         tick_abs = Math.abs(tick)
         if (tick_abs > zero_eps and
-            (tick_abs >= @get('scientific_limit_high') or
-            tick_abs <= @get('scientific_limit_low')))
+            (tick_abs >= @scientific_limit_high or
+            tick_abs <= @scientific_limit_low))
           need_sci = true
           break
 
