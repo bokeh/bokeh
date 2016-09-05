@@ -1,3 +1,3 @@
-version = '0.12.2dev8'
+version = '0.12.2rc3'
 
 module.exports = version
