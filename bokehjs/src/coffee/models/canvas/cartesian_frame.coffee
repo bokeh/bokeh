@@ -21,6 +21,12 @@ class CartesianFrame extends LayoutCanvas.Model
     x_mappers: () -> @_get_mappers('x', @x_ranges, @h_range)
     y_mappers: () -> @_get_mappers('y', @y_ranges, @v_range)
 
+    mapper: () ->
+      new GridMapper.Model({
+        domain_mapper: @get('x_mapper')
+        codomain_mapper: @get('y_mapper')
+      })
+
     h_range: () ->
       @_h_range.set('start', @get('left'))
       @_h_range.set('end',   @get('left') + @get('width'))
@@ -34,15 +40,6 @@ class CartesianFrame extends LayoutCanvas.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @panel = @
-
-    @define_computed_property('mapper',
-      () ->
-        new GridMapper.Model({
-          domain_mapper: @get('x_mapper')
-          codomain_mapper: @get('y_mapper')
-        })
-      , true)
-    @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
     @_h_range = new Range1d.Model({
       start: @get('left'),
