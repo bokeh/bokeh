@@ -40,8 +40,8 @@ class ResizeToolView extends GestureTool.View
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @ch = canvas.get('height')
-    @cw = canvas.get('width')
+    @ch = canvas.height
+    @cw = canvas.width
     @plot_view.interactive_timestamp = Date.now()
     return null
 
@@ -53,8 +53,8 @@ class ResizeToolView extends GestureTool.View
   _pan_end: (e) ->
     @plot_view.push_state("resize", {
       dimensions: {
-        width: @plot_view.canvas.get("width")
-        height: @plot_view.canvas.get("height")
+        width: @plot_view.canvas.width
+        height: @plot_view.canvas.height
       }
     })
 

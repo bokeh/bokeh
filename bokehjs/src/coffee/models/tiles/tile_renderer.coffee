@@ -41,8 +41,8 @@ class TileRendererView extends Renderer.View
       else
         border_width = @map_plot.get('outline_line_width')
         bottom_offset = @map_plot.get('min_border_bottom') + border_width
-        right_offset = @map_frame.get('right') - @map_frame.get('width')
-        max_width = @map_frame.get('width') - border_width
+        right_offset = @map_frame.right - @map_frame.width
+        max_width = @map_frame.width - border_width
         @attributionEl = $('<div>')
           .html(attribution)
           .addClass('bk-tile-attribution')
@@ -61,8 +61,8 @@ class TileRendererView extends Renderer.View
 
   _map_data: () ->
     @initial_extent = @get_extent()
-    zoom_level = @mget('tile_source').get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
-    new_extent = @mget('tile_source').snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+    zoom_level = @mget('tile_source').get_level_by_extent(@initial_extent, @map_frame.height, @map_frame.width)
+    new_extent = @mget('tile_source').snap_to_zoom(@initial_extent, @map_frame.height, @map_frame.width, zoom_level)
     @x_range.set('start', new_extent[0])
     @y_range.set('start', new_extent[1])
     @x_range.set('end', new_extent[2])
@@ -112,15 +112,15 @@ class TileRendererView extends Renderer.View
 
   _enforce_aspect_ratio: () ->
     # brute force way of handling resize or sizing_mode event -------------------------------------------------------------
-    if @_last_height != @map_frame.get('height') or @_last_width != @map_frame.get('width')
+    if @_last_height != @map_frame.height or @_last_width != @map_frame.width
       extent = @get_extent()
-      zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
-      new_extent = @mget('tile_source').snap_to_zoom(extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+      zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.height, @map_frame.width)
+      new_extent = @mget('tile_source').snap_to_zoom(extent, @map_frame.height, @map_frame.width, zoom_level)
       @x_range.set({start:new_extent[0], end: new_extent[2]})
       @y_range.set({start:new_extent[1], end: new_extent[3]})
       @extent = new_extent
-      @_last_height = @map_frame.get('height')
-      @_last_width = @map_frame.get('width')
+      @_last_height = @map_frame.height
+      @_last_width = @map_frame.width
       return true
     return false
 
@@ -158,10 +158,10 @@ class TileRendererView extends Renderer.View
 
   _set_rect:() ->
     outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
-    t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
-    w = @map_frame.get('width') - outline_width
-    h = @map_frame.get('height') - outline_width
+    l = @plot_view.canvas.vx_to_sx(@map_frame.left) + (outline_width/2)
+    t = @plot_view.canvas.vy_to_sy(@map_frame.top) + (outline_width/2)
+    w = @map_frame.width - outline_width
+    h = @map_frame.height - outline_width
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
@@ -176,8 +176,8 @@ class TileRendererView extends Renderer.View
   _prefetch_tiles: () =>
     tile_source = @mget('tile_source')
     extent = @get_extent()
-    h = @map_frame.get('height')
-    w = @map_frame.get('width')
+    h = @map_frame.height
+    w = @map_frame.width
     zoom_level = @mget('tile_source').get_level_by_extent(extent, h, w)
     tiles = @mget('tile_source').get_tiles_by_extent(extent, zoom_level)
     for t in [0..Math.min(10, tiles.length)] by 1
@@ -204,8 +204,8 @@ class TileRendererView extends Renderer.View
     tile_source.update()
     extent = @get_extent()
     zooming_out = @extent[2] - @extent[0] < extent[2] - extent[0]
-    h = @map_frame.get('height')
-    w = @map_frame.get('width')
+    h = @map_frame.height
+    w = @map_frame.width
     zoom_level = tile_source.get_level_by_extent(extent, h, w)
     snap_back = false
 

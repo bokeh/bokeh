@@ -76,8 +76,8 @@ class PlotCanvasView extends Renderer.View
       range: null                     # set later by set_initial_range()
       selection: {}                   # XXX: initial selection?
       dimensions: {
-        width: @mget("canvas").get("width")
-        height: @mget("canvas").get("height")
+        width: @mget("canvas").width
+        height: @mget("canvas").height
       }
     }
 
@@ -530,10 +530,10 @@ class PlotCanvasView extends Renderer.View
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame.get('left')),
-      @canvas.vy_to_sy(@frame.get('top')),
-      @frame.get('width'),
-      @frame.get('height'),
+      @canvas.vx_to_sx(@frame.left),
+      @canvas.vy_to_sy(@frame.top),
+      @frame.width,
+      @frame.height,
     ]
 
     @_map_hook(ctx, frame_box)
@@ -598,8 +598,8 @@ class PlotCanvasView extends Renderer.View
     s = @model.document.solver()
 
     # Note: -1 to effectively dilate the canvas by 1px
-    s.suggest_value(@frame._width, @canvas.get('width') - 1)
-    s.suggest_value(@frame._height, @canvas.get('height') - 1)
+    s.suggest_value(@frame._width, @canvas.width - 1)
+    s.suggest_value(@frame._height, @canvas.height - 1)
 
     for model_id, view of @renderer_views
       if view.model.panel?
@@ -633,10 +633,10 @@ class PlotCanvasView extends Renderer.View
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.clearRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+    ctx.clearRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
-      ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+      ctx.fillRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
       ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)

@@ -28,12 +28,12 @@ class CartesianFrame extends LayoutCanvas.Model
       })
 
     h_range: () ->
-      @_h_range.set('start', @get('left'))
-      @_h_range.set('end',   @get('left') + @get('width'))
+      @_h_range.set('start', @left)
+      @_h_range.set('end',   @left + @width)
       return @_h_range
     v_range: () ->
-      @_v_range.set('start', @get('bottom'))
-      @_v_range.set('end',   @get('bottom') + @get('height'))
+      @_v_range.set('start', @bottom)
+      @_v_range.set('end',   @bottom + @height)
       return @_v_range
   }
 
@@ -42,13 +42,13 @@ class CartesianFrame extends LayoutCanvas.Model
     @panel = @
 
     @_h_range = new Range1d.Model({
-      start: @get('left'),
-      end:   @get('left') + @get('width')
+      start: @left,
+      end:   @left + @width
     })
 
     @_v_range = new Range1d.Model({
-      start: @get('bottom'),
-      end:   @get('bottom') + @get('height')
+      start: @bottom,
+      end:   @bottom + @height
     })
     return null
 
@@ -58,8 +58,8 @@ class CartesianFrame extends LayoutCanvas.Model
 
   contains: (vx, vy) ->
     return (
-      vx >= @get('left') and vx <= @get('right') and
-      vy >= @get('bottom') and vy <= @get('top')
+      vx >= @left and vx <= @right and
+      vy >= @bottom and vy <= @top
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->

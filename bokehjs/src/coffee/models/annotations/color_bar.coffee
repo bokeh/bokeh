@@ -291,8 +291,8 @@ class ColorBarView extends Annotation.View
     frame = @plot_view.frame
 
     switch panel.side
-      when "left", "right" then yoff = Math.abs(panel.get("top") - frame.get("top"))
-      when "above", "below" then xoff = Math.abs(frame.get("left"))
+      when "left", "right" then yoff = Math.abs(panel.top - frame.top)
+      when "above", "below" then xoff = Math.abs(frame.left)
 
     return {x: xoff, y: yoff}
 
@@ -397,8 +397,8 @@ class ColorBar extends Annotation.Model
       * The parallel frame dimension * 0.80
     ###
 
-    frame_height = @plot.plot_canvas.frame.get('height')
-    frame_width = @plot.plot_canvas.frame.get('width')
+    frame_height = @plot.plot_canvas.frame.height
+    frame_width = @plot.plot_canvas.frame.width
     title_extent = @_title_extent()
 
     switch @orientation

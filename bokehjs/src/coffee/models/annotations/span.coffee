@@ -40,14 +40,14 @@ class SpanView extends Annotation.View
 
     if @mget('dimension') == 'width'
       stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
-      sleft = canvas.vx_to_sx(frame.get('left'))
-      width = frame.get('width')
+      sleft = canvas.vx_to_sx(frame.left)
+      width = frame.width
       height = @model.properties.line_width.value()
     else
-      stop = canvas.vy_to_sy(frame.get('top'))
+      stop = canvas.vy_to_sy(frame.top)
       sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
       width = @model.properties.line_width.value()
-      height = frame.get('height')
+      height = frame.height
 
     if @mget("render_mode") == "css"
       @$el.css({
