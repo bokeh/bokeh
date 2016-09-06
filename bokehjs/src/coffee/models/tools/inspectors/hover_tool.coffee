@@ -330,6 +330,7 @@ class HoverTool extends InspectTool.Model
     @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
   @getters {
+    computed_renderers: () -> @_get_computed('computed_renderers')
     ttmodels: () ->
       ttmodels = {}
       tooltips = @tooltips

@@ -77,7 +77,9 @@ class SelectTool extends GestureTool.Model
     @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
     @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
-    return null
+  @getters {
+    computed_renderers: () -> @_get_computed('computed_renderers')
+  }
 
 module.exports =
   Model: SelectTool

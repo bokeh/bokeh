@@ -194,10 +194,10 @@ class HasProps extends Backbone.Model
       if prop_spec['use_cache']
         old_val = prop_spec.cache
         prop_spec.cache = undefined
-        new_val = @get(prop_name)
+        new_val = @_get_computed(prop_name)
         firechange = new_val != old_val
       if firechange
-        @trigger('change:' + prop_name, this, @get(prop_name))
+        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
         @trigger('change', this)
 
     prop_spec =
@@ -216,16 +216,15 @@ class HasProps extends Backbone.Model
     return prop_spec
 
   get: (prop_name) ->
-    if _.has(@_computed, prop_name)
-      return @_get_prop(prop_name)
+    if not (prop_name == "id" or @props[prop_name])
+      throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
     else
-      if not (prop_name == "id" or @props[prop_name])
-        throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
-
       return super(prop_name)
 
-  _get_prop: (prop_name) ->
+  _get_computed: (prop_name) ->
     prop_spec = @_computed[prop_name]
+    if not prop_spec?
+      throw new Error("computed property #{@type}.#{prop_name} wasn't declared")
     if prop_spec.use_cache and prop_spec.cache
       return prop_spec.cache
     else

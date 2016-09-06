@@ -261,6 +261,7 @@ class Axis extends GuideRenderer.Model
     @add_dependencies('computed_bounds', @get('plot'), ['x_range', 'y_range'])
 
   @getters {
+    computed_bounds: () -> @_get_computed('computed_bounds')
     rule_coords: () -> @_rule_coords()
     tick_coords: () -> @_tick_coords()
     ranges: () -> @_ranges()

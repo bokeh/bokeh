@@ -10,6 +10,10 @@ class LogMapper extends Model
     @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
     @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
 
+  @getters {
+    mapper_state: () -> @_get_computed('mapper_state')
+  }
+
   map_to_target: (x) ->
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
 
