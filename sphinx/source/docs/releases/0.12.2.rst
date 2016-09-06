@@ -1,5 +1,5 @@
 0.12.2 (Sept 2016)
-=================
+==================
 
 We're pleased to announce the release of Bokeh 0.12.2! This minor update
 adds a few "small in footprint, but big in impact" features and several bug
@@ -38,6 +38,7 @@ order, you'll have to add ``notebook_handle=True`` to your ``show`` invocations
 like below:
 
 .. code-block:: python
+
     from bokeh.plotting import figure
     from bokeh.io import output_notebook, push_notebook, show
     output_notebook()
