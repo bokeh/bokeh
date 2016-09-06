@@ -62,34 +62,6 @@ describe "has_properties module", ->
       obj = new SubclassWithMultipleMixins()
       expect(_.keys(obj.properties)).to.be.deep.equal _.keys(_.extend mixins.line(""), mixins.text("bar_"))
 
-  # it "should support computed properties", ->
-  #   model = new TestObject({'a': 1, 'b': 1})
-  #   model.define_computed_property 'c', ->
-  #   @get('a') + @get('b')
-  #   model.add_dependencies('c', model, ['a', 'b'])
-
-  #   expect(model.get "c").to.equal 2
-
-  # describe "cached properties", ->
-  #   model = null
-  #   before ->
-  #     model = new TestObject({a: 1, b: 1})
-  #     model.define_computed_property 'c', ->
-  #         @get('a') + @get('b')
-  #       , true
-  #     model.add_dependencies('c', model, ['a', 'b'])
-
-  #   it "should be computed", ->
-  #     expect(model.get "c").to.equal(2)
-
-  #   it "should store computed values in cache", ->
-  #     expect(model._computed["c"].cache).to.not.be.undefined
-
-  #   it "should invalidate cached values on changes", ->
-  #     model.set('a', 10)
-
-  #     expect(model.get "c").to.equal(11)
-
   # describe "arrays of references", ->
   #   [model1, model2, model3, model4, doc] = [null, null, null, null, null]
   #   before ->
