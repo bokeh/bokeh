@@ -30,7 +30,7 @@ describe "customjs module", ->
     r = new CustomJS({args: {foo: rng }})
 
     it "should contain the args values", ->
-      expect(r.get('values')).to.be.deep.equal [rng]
+      expect(r.values).to.be.deep.equal [rng]
 
     it "should round-trip through document serialization", ->
       d = new Document()
@@ -41,30 +41,30 @@ describe "customjs module", ->
       copy = Document.from_json_string(JSON.stringify(parsed))
       r_copy = copy.get_model_by_id(r.id)
       rng_copy = copy.get_model_by_id(rng.id)
-      expect(r.get('values')).to.be.deep.equal [rng]
-      expect(r_copy.get('values')).to.be.deep.equal [rng_copy]
+      expect(r.values).to.be.deep.equal [rng]
+      expect(r_copy.values).to.be.deep.equal [rng_copy]
 
     it "should update when args changes", ->
       rng2 = new Range1d()
       r.set('args', {foo: rng2 })
-      expect(r.get('values')).to.be.deep.equal [rng2]
+      expect(r.values).to.be.deep.equal [rng2]
 
   describe "func property", ->
 
     it "should return a Function", ->
       r = new CustomJS()
-      expect(r.get('func')).to.be.an.instanceof Function
+      expect(r.func).to.be.an.instanceof Function
 
     it "should have code property as function body", ->
       r = new CustomJS({code: "return 10"})
       f = new Function("cb_obj", "cb_data", "require", "return 10")
-      expect(r.get('func').toString()).to.be.equal f.toString()
+      expect(r.func.toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = new Range1d()
       r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
       f = new Function("foo", "cb_obj", "cb_data", "require", "return 10")
-      expect(r.get('func').toString()).to.be.equal f.toString()
+      expect(r.func.toString()).to.be.equal f.toString()
 
   describe "execute method", ->
 
