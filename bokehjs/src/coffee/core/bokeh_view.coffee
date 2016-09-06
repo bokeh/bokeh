@@ -6,6 +6,8 @@ class BokehView extends Backbone.View
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
 
+  toString: () -> "#{@model.type}.View(#{@id})"
+
   bind_bokeh_events: () ->
 
   remove: ->
