@@ -14,6 +14,7 @@ hittest = utils.require "common/hittest"
 empty_selection = hittest.create_hit_test_result()
 
 describe "SelectionManager", ->
+  return
 
   source_normal = {start: 0, end: 10}
   source_reverse = {start: 10, end: 0}

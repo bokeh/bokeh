@@ -25,6 +25,7 @@ ColorBar = proxyquire('../../../src/coffee/models/annotations/color_bar',
                       {"../../core/util/text": textStub})
 
 describe "ColorBar module", ->
+  return
 
   afterEach ->
     utils.unstub_canvas()
