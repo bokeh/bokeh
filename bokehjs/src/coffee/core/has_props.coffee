@@ -215,22 +215,6 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
-  override_computed_property: (prop_name, getter, use_cache=true) ->
-    if _.has(@_computed, prop_name)
-      @_remove_computed_property(prop_name)
-    @define_computed_property(prop_name, getter, use_cache)
-
-  _remove_computed_property: (prop_name) ->
-    # removes the property, unbinding all callbacks that implemented it
-    prop_spec = @_computed[prop_name]
-    dependencies = prop_spec.dependencies
-    for dep in dependencies
-      obj = dep.obj
-      for fld in dep['fields']
-        obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
-    @off("changedep:" + dep)
-    delete @_computed[prop_name]
-
   get: (prop_name) ->
     if _.has(@_computed, prop_name)
       return @_get_prop(prop_name)
