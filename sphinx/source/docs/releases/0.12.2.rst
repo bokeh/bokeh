@@ -1,0 +1,22 @@
+0.12.2 (Sept 2016)
+=================
+
+We're pleased to announce the release of Bokeh 0.12.2! This minor update
+adds a few "small in footprint, but big in impact" features and several bug
+fixes including:
+
+* Color mapping support for all glyphs
+* New color bar annotation (to visualize your color mapped data, obviously)
+* Added support for loading external resources in custom models (including LaTeX example)
+* Hit-testing support for MultiLine glyphs
+* Improved tooltip default styling for HoverTool
+* Addition of the Brewer qualitative color palettes
+* Split of the Bokeh JS API into a stand-alone file
+* Fix bug in LassoSelectTool selection area rendering
+* Fix intermittent issues with BokehJS loading in Jupyter notebooks.
+* Fix MultiSelect widget to allow values or values and labels
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features.
