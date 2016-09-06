@@ -23,8 +23,8 @@ class TitleView extends TextAnnotation.View
         vx = 0
         vy = @_get_text_location(@mget('align'), @frame.v_range) + @mget('offset')
       when 'right'
-        vx = @canvas.get('right') - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.get('height') - @_get_text_location(@mget('align'), @frame.v_range) - @mget('offset')
+        vx = @canvas.right - 1 #fudge factor due to error in text height measurement
+        vy = @canvas.height - @_get_text_location(@mget('align'), @frame.v_range) - @mget('offset')
       when 'above'
         vx = @_get_text_location(@mget('align'), @frame.h_range) + @mget('offset')
         vy = @canvas.top - 10 # Corresponds to the +10 added in get_size

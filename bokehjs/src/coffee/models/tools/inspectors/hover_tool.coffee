@@ -335,7 +335,7 @@ class HoverTool extends InspectTool.Model
       tooltips = @tooltips
 
       if tooltips?
-        for r in @computed_renderers
+        for r in @get('computed_renderers')
           tooltip = new Tooltip.Model({
             custom: _.isString(tooltips) or _.isFunction(tooltips)
             attachment: @attachment
