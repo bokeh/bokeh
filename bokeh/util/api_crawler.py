@@ -150,17 +150,12 @@ class Differ(object):
             former_items = self.former.get(x)
             latter_items = self.latter.get(x)
             if former_items and latter_items:
-                function_diff = self._operation(
-                    set(list(former_items["functions"].keys())),
-                    set(list(latter_items["functions"].keys()))
-                )
                 class_diff = self._operation(
                     set(list(former_items["classes"].keys())),
                     set(list(latter_items["classes"].keys()))
                 )
 
-
-                if list(class_diff) or list(function_diff):
+                if list(class_diff):
                     diff[x] = copy.deepcopy(intersection[x])
                     if list(class_diff):
                         diff[x] = copy.deepcopy(intersection[x])
@@ -169,14 +164,14 @@ class Differ(object):
                     else:
                         diff[x]["classes"] = {}
 
-                    if list(function_diff):
-                        arguments_diff = self.diff_signatures(
-                            former_items["functions"],
-                            latter_items["functions"]
-                        )
-                        diff[x]["functions"] = arguments_diff
-                    else:
-                        diff[x]["functions"] = {}
+                function_diff = self.diff_signatures(
+                    former_items["functions"],
+                    latter_items["functions"]
+                )
+                if function_diff:
+                    if not diff.get(x):
+                        diff[x] = {"functions": {}}
+                    diff[x]["functions"] = function_diff
 
         return diff
 
@@ -200,12 +195,7 @@ class Differ(object):
     def diff_single_signature(self, old, new):
         arguments_diff = []
         for x in old:
-            if isinstance(x, dict):
-                for y in new:
-                    if isinstance(y, dict) and x.keys() == y.keys():
-                        if x != y:
-                            arguments_diff.append(y)
-            elif x not in new:
+            if x not in new:
                 arguments_diff.append(x)
         return arguments_diff
 
@@ -239,14 +229,15 @@ class Differ(object):
         arg_string = []
         for x in arg_dict:
             if isinstance(x, dict):
-                arg_string.append("%s=%s" % (x, str(arg_dict[x])))
+                arg_string.append("%s=%s" % (str(list(x.keys())[0]), str(list(x.values())[0])))
+            elif isinstance(x, list):
+                arg_string.append("%s=%s" % (str(x), str(list(x.values())[0])))
             else:
                 arg_string.append("%s" % x)
         if arg_string:
-            return "(" + " ".join(arg_string) + ")"
+            return "(" + ", ".join(arg_string) + ")"
         else:
             return ""
-
 
     def pretty_diff(self, diff):
         parsed_diff = []

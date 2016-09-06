@@ -79,16 +79,16 @@ old_version = {
                 "methods": {
                     "thom": ["self", "guitar"],
                     "jonny": ["self"],
-                    "colin": ["self"],
+                    "colin": ["self", {"bass": [1, 2, 3]}],
                     "ed": ["self"],
-                    "phil": ["self"]
+                    "phil": ["self", "song", {"drums": [1, 2, 3]}, {"solo": False}]
                 }
             },
             "Beatles": {
                 "methods": {"here_comes_the_sun": []}
             }
         },
-        "functions": {"john": [], "paul": ["bass"], "ringo": []}
+        "functions": {"john": [], "paul": ["bass"], "ringo": [{"beat":[1, 2, 3]}]}
     }
 }
 
@@ -96,11 +96,15 @@ new_version = {
     "bands": {
         "classes": {
             "Radiohead": {
-                "methods": {"thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
+                "methods": {
+                    "thom": ["self"],
+                    "colin": ["self"],
+                    "ed": ["self"],
+                    "phil": ["self"]},
             },
             "Pixies": {"methods": {"debaser": []}}
         },
-        "functions": {"john": [], "paul": [], "george": []}
+        "functions": {"john": [], "paul": [], "george": [], "ringo": [{"beat":[1, 2]}]}
     }
 }
 
@@ -109,11 +113,16 @@ expected_diff = {
     "bands": {
         "classes": {
             "Radiohead": {
-                "methods": {"jonny": [], "thom": ["guitar"]}
+                "methods":{
+                    "jonny": [],
+                    "thom": ["guitar"],
+                    "colin": [{"bass": [1, 2, 3]}],
+                    "phil": ["song", {"drums": [1, 2, 3]}, {"solo": False}]
+                }
             },
             "Beatles": {}
         },
-        "functions": {"ringo": [], "paul": ["bass"]}
+        "functions": {"ringo": [{"beat":[1, 2, 3]}], "paul": ["bass"]}
     }
 }
 
@@ -122,7 +131,7 @@ expected_additions = {
         'classes': {
             'Pixies': {}
         },
-        'functions': {"george":[]}
+        'functions': {"george": [], "ringo": [{"beat":[1, 2]}]}
     }
 }
 
@@ -130,14 +139,17 @@ expected_parsed_diff = [
     'DELETED models',
     'DELETED bands.Radiohead.jonny',
     'DELETED bands.Radiohead.thom(guitar)',
-    'DELETED bands.ringo',
+    'DELETED bands.Radiohead.colin(bass=[1, 2, 3])',
+    'DELETED bands.Radiohead.phil(song, drums=[1, 2, 3], solo=False)',
+    'DELETED bands.ringo(beat=[1, 2, 3])',
     'DELETED bands.paul(bass)',
     'DELETED bands.Beatles'
 ]
 
 expected_parsed_additions = [
     'ADDED bands.george',
-    'ADDED bands.Pixies'
+    'ADDED bands.Pixies',
+    'ADDED bands.ringo(beat=[1, 2])',
 ]
 
 single_class_old = {
@@ -241,13 +253,13 @@ class TestDiffer(object):
         self.differ.additions = False
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
-        assert diff["bands"]["functions"] == {"ringo": [], "paul": ["bass"]}
+        assert diff["bands"]["functions"] == {"ringo": [{"beat":[1, 2, 3]}], "paul": ["bass"]}
         for x in diff["bands"]["classes"].keys():
             assert x in expected_diff["bands"]["classes"].keys()
         self.differ.additions = True
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
-        assert diff["bands"]["functions"] == {"george": []}
+        assert diff["bands"]["functions"] == {"george": [], "ringo": [{"beat":[1, 2]}]}
         assert list(diff["bands"]["classes"].keys()) == ["Pixies"]
 
     def test_diff_methods(self):
@@ -256,10 +268,12 @@ class TestDiffer(object):
         diff = self.differ.diff_functions_classes(diff, intersection)
         diff = self.differ.diff_methods(diff, intersection)
         assert diff["bands"]["classes"]["Radiohead"]["methods"] == {"jonny": [],
-                "thom": ["guitar"]}
+                "thom": ["guitar"], "colin": [{"bass": [1, 2, 3]}],
+                "phil": ["song", {"drums": [1, 2, 3]}, {"solo": False}]
+        }
 
     def test_diff_single_signature(self):
-        expected = ["john", {"george": False}, {"ringo": [1, 2]}]
+        expected = ["john", {"george": True}, {"ringo": [1, 2, 3]}]
         assert expected == self.differ.diff_single_signature(
             old_signature["__init__"],
             new_signature["__init__"]
@@ -268,7 +282,7 @@ class TestDiffer(object):
     def test_diff_full_signature(self):
         self.differ.additions = False
         expected = {
-            "__init__": ["john", {"george": False}, {"ringo": [1, 2]}],
+            "__init__": ["john", {"george": True}, {"ringo": [1, 2, 3]}],
             "radiohead": []
         }
         assert expected == self.differ.diff_signatures(old_signature, new_signature)
@@ -276,7 +290,7 @@ class TestDiffer(object):
     def test_diff_signature_added(self):
         self.differ.additions = True
         expected = {
-            "__init__": ["pete", {"george": True}, {"ringo": [1, 2, 3]}],
+            "__init__": ["pete", {"george": False}, {"ringo": [1, 2]}],
             "pixies": []
         }
         assert expected == self.differ.diff_signatures(old_signature, new_signature)
