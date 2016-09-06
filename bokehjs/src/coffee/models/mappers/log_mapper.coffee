@@ -15,7 +15,7 @@ class LogMapper extends Model
   }
 
   map_to_target: (x) ->
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
 
     result = 0
 
@@ -32,7 +32,7 @@ class LogMapper extends Model
     return result
 
   v_map_to_target: (xs) ->
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
 
     result = new Float64Array(xs.length)
 
@@ -52,7 +52,7 @@ class LogMapper extends Model
     return result
 
   map_from_target: (xprime) ->
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
     intermediate = (xprime - offset) / scale
     intermediate = Math.exp(inter_scale * intermediate + inter_offset)
 
@@ -60,7 +60,7 @@ class LogMapper extends Model
 
   v_map_from_target: (xprimes) ->
     result = new Float64Array(xprimes.length)
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
     intermediate = xprimes.map (i) -> (i - offset) / scale
     for x, idx in xprimes
       result[idx] = Math.exp(inter_scale * intermediate[idx] + inter_offset)

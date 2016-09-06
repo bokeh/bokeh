@@ -9,7 +9,7 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @mget('computed_renderers')
+      for r in @model.computed_renderers
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.clear()

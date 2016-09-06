@@ -15,22 +15,22 @@ class LinearMapper extends Model
   }
 
   map_to_target: (x) ->
-    [scale, offset] = @get('mapper_state')
+    [scale, offset] = @mapper_state
     return scale * x + offset
 
   v_map_to_target: (xs) ->
-    [scale, offset] = @get('mapper_state')
+    [scale, offset] = @mapper_state
     result = new Float64Array(xs.length)
     for x, idx in xs
       result[idx] = scale * x + offset
     return result
 
   map_from_target: (xprime) ->
-    [scale, offset] = @get('mapper_state')
+    [scale, offset] = @mapper_state
     return (xprime - offset) / scale
 
   v_map_from_target: (xprimes) ->
-    [scale, offset] = @get('mapper_state')
+    [scale, offset] = @mapper_state
     result = new Float64Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = (xprime - offset) / scale

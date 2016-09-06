@@ -24,7 +24,7 @@ _color_to_hex = (color) ->
 class HoverToolView extends InspectTool.View
 
   bind_bokeh_events: () ->
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
 
     @plot_view.canvas_view.$el.css('cursor', 'crosshair')
@@ -68,7 +68,7 @@ class HoverToolView extends InspectTool.View
     hovered_indexes = []
     hovered_renderers = []
 
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       sm = r.data_source.get('selection_manager')
       sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
@@ -215,7 +215,7 @@ class HoverToolView extends InspectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('computed_renderers')[0]
+    r = @model.computed_renderers[0]
     indices = @plot_view.renderer_views[r.id].hit_test(geometry)
 
     canvas = @plot_model.canvas
@@ -336,7 +336,7 @@ class HoverTool extends InspectTool.Model
       tooltips = @tooltips
 
       if tooltips?
-        for r in @get('computed_renderers')
+        for r in @computed_renderers
           tooltip = new Tooltip.Model({
             custom: _.isString(tooltips) or _.isFunction(tooltips)
             attachment: @attachment

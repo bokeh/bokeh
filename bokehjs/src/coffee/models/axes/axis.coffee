@@ -332,7 +332,7 @@ class Axis extends GuideRenderer.Model
     i = @dimension
     j = (i + 1) % 2
     [range, cross_range] = @ranges
-    [start, end] = @get('computed_bounds')
+    [start, end] = @computed_bounds
 
     xs = new Array(2)
     ys = new Array(2)
@@ -354,7 +354,7 @@ class Axis extends GuideRenderer.Model
     i = @dimension
     j = (i + 1) % 2
     [range, cross_range] = @ranges
-    [start, end] = @get('computed_bounds')
+    [start, end] = @computed_bounds
 
     ticks = @get('ticker').get_ticks(start, end, range, {})
     majors = ticks.major

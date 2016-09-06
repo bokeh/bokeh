@@ -54,7 +54,7 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)

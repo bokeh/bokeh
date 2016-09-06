@@ -25,7 +25,7 @@ class TapToolView extends SelectTool.View
     cb_data =
       geometries: @plot_model.plot.tool_events.get('geometries')
 
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
 

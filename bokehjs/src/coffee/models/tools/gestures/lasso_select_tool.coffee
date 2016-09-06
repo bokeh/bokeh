@@ -70,7 +70,7 @@ class LassoSelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
@@ -83,7 +83,7 @@ class LassoSelectToolView extends SelectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('computed_renderers')[0]
+    r = @model.computed_renderers[0]
     canvas = @plot_model.get('canvas')
     frame = @plot_model.get('frame')
 
