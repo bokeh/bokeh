@@ -5,7 +5,7 @@ We're pleased to announce the release of Bokeh 0.12.2! This minor update
 adds a few "small in footprint, but big in impact" features and several bug
 fixes including:
 
-* Color mapping support for all glyphs
+* Client-side color mapping support for all glyphs
 * New color bar annotation
 * Support for loading external resources in custom models
   - Check out the new LaTeX example at: `LaTeX`_
