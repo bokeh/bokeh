@@ -12,10 +12,10 @@ class SpanView extends Annotation.View
     @$el.hide()
 
   bind_bokeh_events: () ->
-    if @mget('for_hover')
+    if @model.get('for_hover')
       @listenTo(@model, 'change:computed_location', @_draw_span)
     else
-      if @mget('render_mode') == 'canvas'
+      if @model.get('render_mode') == 'canvas'
         @listenTo(@model, 'change:location', @plot_view.request_render)
       else
         @listenTo(@model, 'change:location', @_draw_span)
@@ -24,10 +24,10 @@ class SpanView extends Annotation.View
     @_draw_span()
 
   _draw_span: () ->
-    if @mget('for_hover')
-      loc = @mget('computed_location')
+    if @model.get('for_hover')
+      loc = @model.get('computed_location')
     else
-      loc = @mget('location')
+      loc = @model.get('location')
 
     if not loc?
       @$el.hide()
@@ -35,10 +35,10 @@ class SpanView extends Annotation.View
 
     frame = @plot_model.get('frame')
     canvas = @plot_model.get('canvas')
-    xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
-    ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
+    xmapper = @plot_view.frame.x_mappers[@model.get("x_range_name")]
+    ymapper = @plot_view.frame.y_mappers[@model.get("y_range_name")]
 
-    if @mget('dimension') == 'width'
+    if @model.get('dimension') == 'width'
       stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
       sleft = canvas.vx_to_sx(frame.left)
       width = frame.width
@@ -49,7 +49,7 @@ class SpanView extends Annotation.View
       width = @model.properties.line_width.value()
       height = frame.height
 
-    if @mget("render_mode") == "css"
+    if @model.get("render_mode") == "css"
       @$el.css({
         'top': stop,
         'left': sleft,
@@ -61,14 +61,14 @@ class SpanView extends Annotation.View
       })
       @$el.show()
 
-    else if @mget("render_mode") == "canvas"
+    else if @model.get("render_mode") == "canvas"
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
       ctx.beginPath()
       @visuals.line.set_value(ctx)
       ctx.moveTo(sleft, stop)
-      if @mget('dimension') == "width"
+      if @model.get('dimension') == "width"
         ctx.lineTo(sleft + width, stop)
       else
         ctx.lineTo(sleft, stop + height)
@@ -77,7 +77,7 @@ class SpanView extends Annotation.View
       ctx.restore()
 
   _calc_dim: (location, mapper) ->
-      if @mget('location_units') == 'data'
+      if @model.get('location_units') == 'data'
         vdim = mapper.map_to_target(location)
       else
         vdim = location

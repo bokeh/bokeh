@@ -27,20 +27,20 @@ class LatexLabelView extends Label.View
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
-    switch @mget('angle_units')
-      when "rad" then angle = -1 * @mget('angle')
-      when "deg" then angle = -1 * @mget('angle') * Math.PI/180.0
+    switch @model.get('angle_units')
+      when "rad" then angle = -1 * @model.get('angle')
+      when "deg" then angle = -1 * @model.get('angle') * Math.PI/180.0
 
-    if @mget('x_units') == "data"
-      vx = @xmapper.map_to_target(@mget('x'))
+    if @model.get('x_units') == "data"
+      vx = @xmapper.map_to_target(@model.get('x'))
     else
-      vx = @mget('x')
+      vx = @model.get('x')
     sx = @canvas.vx_to_sx(vx)
 
-    if @mget('y_units') == "data"
-      vy = @ymapper.map_to_target(@mget('y'))
+    if @model.get('y_units') == "data"
+      vy = @ymapper.map_to_target(@model.get('y'))
     else
-      vy = @mget('y')
+      vy = @model.get('y')
     sy = @canvas.vy_to_sy(vy)
 
     if @model.panel?
@@ -48,9 +48,9 @@ class LatexLabelView extends Label.View
       sx += panel_offset.x
       sy += panel_offset.y
 
-    latex = katex.renderToString(@mget('text'), {displayMode: true})
+    latex = katex.renderToString(@model.get('text'), {displayMode: true})
 
-    @_css_text(ctx, latex, sx + @mget('x_offset'), sy - @mget('y_offset'), angle)
+    @_css_text(ctx, latex, sx + @model.get('x_offset'), sy - @model.get('y_offset'), angle)
 
 class LatexLabel extends Label.Model
   type: 'LatexLabel'

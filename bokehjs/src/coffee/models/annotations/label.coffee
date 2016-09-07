@@ -5,8 +5,8 @@ class LabelView extends TextAnnotation.View
   initialize: (options) ->
     super(options)
     @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
+    @xmapper = @plot_view.frame.x_mappers[@model.get("x_range_name")]
+    @ymapper = @plot_view.frame.y_mappers[@model.get("y_range_name")]
 
     for name, prop of @visuals
       prop.warm_cache(null)
@@ -17,30 +17,30 @@ class LabelView extends TextAnnotation.View
 
     side = @model.panel.side
     if side == "above" or side == "below"
-      height = ctx.measureText(@mget('text')).ascent
+      height = ctx.measureText(@model.get('text')).ascent
       return height
     if side == 'left' or side == 'right'
-      width = ctx.measureText(@mget('text')).width
+      width = ctx.measureText(@model.get('text')).width
       return width
 
   render: () ->
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
-    switch @mget('angle_units')
-      when "rad" then angle = -1 * @mget('angle')
-      when "deg" then angle = -1 * @mget('angle') * Math.PI/180.0
+    switch @model.get('angle_units')
+      when "rad" then angle = -1 * @model.get('angle')
+      when "deg" then angle = -1 * @model.get('angle') * Math.PI/180.0
 
-    if @mget('x_units') == "data"
-      vx = @xmapper.map_to_target(@mget('x'))
+    if @model.get('x_units') == "data"
+      vx = @xmapper.map_to_target(@model.get('x'))
     else
-      vx = @mget('x')
+      vx = @model.get('x')
     sx = @canvas.vx_to_sx(vx)
 
-    if @mget('y_units') == "data"
-      vy = @ymapper.map_to_target(@mget('y'))
+    if @model.get('y_units') == "data"
+      vy = @ymapper.map_to_target(@model.get('y'))
     else
-      vy = @mget('y')
+      vy = @model.get('y')
     sy = @canvas.vy_to_sy(vy)
 
     if @model.panel?
@@ -48,10 +48,10 @@ class LabelView extends TextAnnotation.View
       sx += panel_offset.x
       sy += panel_offset.y
 
-    if @mget('render_mode') == 'canvas'
-      @_canvas_text(ctx, @mget('text'), sx + @mget('x_offset'), sy - @mget('y_offset'), angle)
+    if @model.get('render_mode') == 'canvas'
+      @_canvas_text(ctx, @model.get('text'), sx + @model.get('x_offset'), sy - @model.get('y_offset'), angle)
     else
-      @_css_text(ctx, @mget('text'), sx + @mget('x_offset'), sy - @mget('y_offset'), angle)
+      @_css_text(ctx, @model.get('text'), sx + @model.get('x_offset'), sy - @model.get('y_offset'), angle)
 
 class Label extends TextAnnotation.Model
   default_view: LabelView

@@ -9,13 +9,13 @@ class LegendView extends Annotation.View
     super(options)
 
   compute_legend_bbox: () ->
-    legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
+    legend_names = (legend_name for [legend_name, glyphs] in @model.get("legends"))
 
-    glyph_height = @mget('glyph_height')
-    glyph_width = @mget('glyph_width')
+    glyph_height = @model.get('glyph_height')
+    glyph_width = @model.get('glyph_width')
 
-    label_height = @mget('label_height')
-    label_width = @mget('label_width')
+    label_height = @model.get('label_height')
+    label_width = @model.get('label_width')
 
     @max_label_height = _.max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
@@ -32,12 +32,12 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
-    legend_margin = @mget('legend_margin')
-    legend_padding = @mget('legend_padding')
-    legend_spacing = @mget('legend_spacing')
-    label_standoff =  @mget('label_standoff')
+    legend_margin = @model.get('legend_margin')
+    legend_padding = @model.get('legend_padding')
+    legend_spacing = @model.get('legend_spacing')
+    label_standoff =  @model.get('label_standoff')
 
-    if @mget("orientation") == "vertical"
+    if @model.get("orientation") == "vertical"
       legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
       legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
@@ -46,7 +46,7 @@ class LegendView extends Annotation.View
         legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    location = @mget('location')
+    location = @model.get('location')
     h_range = @plot_view.frame.h_range
     v_range = @plot_view.frame.v_range
 
@@ -93,9 +93,9 @@ class LegendView extends Annotation.View
 
     bbox = @compute_legend_bbox()
 
-    glyph_height = @mget('glyph_height')
-    glyph_width = @mget('glyph_width')
-    orientation = @mget('orientation')
+    glyph_height = @model.get('glyph_height')
+    glyph_width = @model.get('glyph_width')
+    orientation = @model.get('orientation')
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
@@ -113,11 +113,11 @@ class LegendView extends Annotation.View
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
-    N = @mget("legends").length
-    legend_spacing = @mget('legend_spacing')
-    label_standoff = @mget('label_standoff')
-    xoffset = yoffset = @mget('legend_padding')
-    for [legend_name, glyphs], idx in @mget("legends")
+    N = @model.get("legends").length
+    legend_spacing = @model.get('legend_spacing')
+    label_standoff = @model.get('label_standoff')
+    xoffset = yoffset = @model.get('legend_padding')
+    for [legend_name, glyphs], idx in @model.get("legends")
       x1 = bbox.x + xoffset
       y1 = bbox.y + yoffset
       x2 = x1 + glyph_width

@@ -41,7 +41,7 @@ class WheelZoomToolView extends GestureTool.View
     else
       delta = e.bokeh.delta
 
-    factor  = @mget('speed') * delta
+    factor  = @model.get('speed') * delta
 
     # clamp the  magnitude of factor, if it is > 1 bad things happen
     if factor > 0.9
@@ -55,7 +55,7 @@ class WheelZoomToolView extends GestureTool.View
     vy_low  = vr.get('start')
     vy_high = vr.get('end')
 
-    dims = @mget('dimensions')
+    dims = @model.get('dimensions')
 
     if dims.indexOf('width') > -1 and not v_axis_only
       sx0 = vx_low  - (vx_low  - vx)*factor

@@ -12,7 +12,7 @@ class LassoSelectToolView extends SelectTool.View
     @data = null
 
   _active_change: () ->
-    if not @mget('active')
+    if not @model.get('active')
       @_clear_overlay()
 
   _keyup: (e) ->
@@ -47,10 +47,10 @@ class LassoSelectToolView extends SelectTool.View
     @data.vx.push(vx)
     @data.vy.push(vy)
 
-    overlay = @mget('overlay')
+    overlay = @model.get('overlay')
     overlay.update({xs: @data.vx, ys: @data.vy})
 
-    if @mget('select_every_mousemove')
+    if @model.get('select_every_mousemove')
       append = e.srcEvent.shiftKey ? false
       @_select(@data.vx, @data.vy, false, append)
 
@@ -61,7 +61,7 @@ class LassoSelectToolView extends SelectTool.View
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
-    @mget('overlay').update({xs:[], ys:[]})
+    @model.get('overlay').update({xs:[], ys:[]})
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -75,7 +75,7 @@ class LassoSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
-    if @mget('callback')?
+    if @model.get('callback')?
       @_emit_callback(geometry)
 
     @_save_geometry(geometry, final, append)
@@ -95,7 +95,7 @@ class LassoSelectToolView extends SelectTool.View
     geometry['x'] = xmapper.v_map_from_target(geometry.vx)
     geometry['y'] = ymapper.v_map_from_target(geometry.vy)
 
-    @mget('callback').execute(@model, {geometry: geometry})
+    @model.get('callback').execute(@model, {geometry: geometry})
 
     return
 

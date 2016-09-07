@@ -92,14 +92,14 @@ class BoxZoomToolView extends GestureTool.View
       canvas.sy_to_vy(e.bokeh.sy)
     ]
     frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    dims = @model.get('dimensions')
 
-    if @mget('match_aspect') and dims.length == 2
+    if @model.get('match_aspect') and dims.length == 2
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
-    @mget('overlay').update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
+    @model.get('overlay').update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
 
     return null
 
@@ -110,16 +110,16 @@ class BoxZoomToolView extends GestureTool.View
       canvas.sy_to_vy(e.bokeh.sy)
     ]
     frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    dims = @model.get('dimensions')
 
-    if @mget('match_aspect') and dims.length == 2
+    if @model.get('match_aspect') and dims.length == 2
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
     @_update(vx, vy)
 
-    @mget('overlay').update({left: null, right: null, top: null, bottom: null})
+    @model.get('overlay').update({left: null, right: null, top: null, bottom: null})
     @_baseboint = null
     return null
 

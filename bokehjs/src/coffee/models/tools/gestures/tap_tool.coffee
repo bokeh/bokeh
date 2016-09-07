@@ -19,7 +19,7 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    callback = @mget("callback")
+    callback = @model.get("callback")
     @_save_geometry(geometry, final, append)
 
     cb_data =

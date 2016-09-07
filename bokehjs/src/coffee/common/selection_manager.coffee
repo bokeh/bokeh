@@ -20,7 +20,7 @@ class SelectionManager extends HasProps
 
   select: (tool, renderer_view, geometry, final, append=false) ->
     source = @get('source')
-    if source != renderer_view.mget('data_source')
+    if source != renderer_view.model.get('data_source')
       logger.warn('select called with mis-matched data sources')
 
     indices = renderer_view.hit_test(geometry)
@@ -32,7 +32,7 @@ class SelectionManager extends HasProps
       @get('source').set({ "selected": selector.get('indices') })
 
       source.trigger('select')
-      source.trigger('select-' + renderer_view.mget('id'))
+      source.trigger('select-' + renderer_view.model.get('id'))
 
       return not indices.is_empty()
     else
@@ -40,7 +40,7 @@ class SelectionManager extends HasProps
 
   inspect: (tool, renderer_view, geometry, data) ->
     source = @get('source')
-    if source != renderer_view.mget('data_source')
+    if source != renderer_view.model.get('data_source')
       logger.warn('inspect called with mis-matched data sources')
 
     indices = renderer_view.hit_test(geometry)
@@ -67,7 +67,7 @@ class SelectionManager extends HasProps
         'inspect', indices, tool, renderer_view, source, data
       )
       source.trigger(
-        "inspect#{renderer_view.mget('id')}", indices, tool, renderer_view,
+        "inspect#{renderer_view.model.get('id')}", indices, tool, renderer_view,
         source, data
       )
       return not indices.is_empty()

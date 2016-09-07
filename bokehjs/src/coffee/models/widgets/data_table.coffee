@@ -96,17 +96,17 @@ class DataTableView extends Widget.View
     super(options)
     DOMUtil.waitForElement(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
-    source = @mget("source")
+    source = @model.get("source")
     @listenTo(source, 'change:data', () => @updateGrid())
     @listenTo(source, 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
-    @data = new DataProvider(@mget("source"))
+    @data = new DataProvider(@model.get("source"))
     @grid.setData(@data)
     @grid.render()
 
   updateSelection: () ->
-    selected = @mget("source").get("selected")
+    selected = @model.get("source").get("selected")
     indices = selected['1d'].indices
     @grid.setSelectedRows(indices)
     # If the selection is not in the current slickgrid viewport, scroll the
@@ -117,7 +117,7 @@ class DataTableView extends Widget.View
     # console.log("DataTableView::updateSelection",
     #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @mget("scroll_to_selection") and not _.any(_.map(indices, (index) ->
+    if @model.get("scroll_to_selection") and not _.any(_.map(indices, (index) ->
         cur_grid_range["top"] <= index and index <= cur_grid_range["bottom"]))
       # console.log("DataTableView::updateSelection", min_index, indices)
       min_index = Math.max(0, Math.min.apply(null, indices) - 1)
@@ -138,35 +138,35 @@ class DataTableView extends Widget.View
     }
 
   render: () ->
-    columns = (column.toColumn() for column in @mget("columns"))
+    columns = (column.toColumn() for column in @model.get("columns"))
 
-    if @mget("selectable") == "checkbox"
+    if @model.get("selectable") == "checkbox"
       checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
       columns.unshift(checkboxSelector.getColumnDefinition())
 
-    if @mget("row_headers") and @mget("source").get_column("index")?
+    if @model.get("row_headers") and @model.get("source").get_column("index")?
       columns.unshift(@newIndexColumn())
 
-    width = @mget("width")
-    height = @mget("height")
+    width = @model.get("width")
+    height = @model.get("height")
 
     options =
-      enableCellNavigation: @mget("selectable") != false
+      enableCellNavigation: @model.get("selectable") != false
       enableColumnReorder: true
-      forceFitColumns: @mget("fit_columns")
+      forceFitColumns: @model.get("fit_columns")
       autoHeight: height == "auto"
-      multiColumnSort: @mget("sortable")
-      editable: @mget("editable")
+      multiColumnSort: @model.get("sortable")
+      editable: @model.get("editable")
       autoEdit: false
 
     if width?
-      @$el.css(width: "#{@mget("width")}px")
+      @$el.css(width: "#{@model.get("width")}px")
     else
-      @$el.css(width: "#{@mget("default_width")}px")
+      @$el.css(width: "#{@model.get("default_width")}px")
     if height? and height != "auto"
-      @$el.css(height: "#{@mget("height")}px")
+      @$el.css(height: "#{@model.get("height")}px")
 
-    @data = new DataProvider(@mget("source"))
+    @data = new DataProvider(@model.get("source"))
     @grid = new SlickGrid(@el, @data, columns, options)
 
     @grid.onSort.subscribe (event, args) =>
@@ -175,14 +175,14 @@ class DataTableView extends Widget.View
       @grid.invalidate()
       @grid.render()
 
-    if @mget("selectable") != false
+    if @model.get("selectable") != false
       @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
       if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
 
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = args.rows
-        @mget("source").set("selected", selected)
+        @model.get("source").set("selected", selected)
 
     return @
 

@@ -12,12 +12,12 @@ class TextAnnotationView extends Annotation.View
     @canvas = @plot_model.get('canvas')
     @frame = @plot_model.get('frame')
 
-    if @mget('render_mode') == 'css'
+    if @model.get('render_mode') == 'css'
       @$el.addClass('bk-annotation')
       @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
 
   bind_bokeh_events: () ->
-    if @mget('render_mode') == 'css'
+    if @model.get('render_mode') == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
     else
@@ -50,7 +50,7 @@ class TextAnnotationView extends Annotation.View
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx
     @visuals.text.set_value(ctx)
-    return ctx.measureText(@mget('text')).ascent
+    return ctx.measureText(@model.get('text')).ascent
 
   render: () ->
     return null

@@ -149,7 +149,7 @@ update_constraints = (view) ->
   v = view
 
   if v.model.props.visible?
-    if v.mget('visible') is false
+    if v.model.get('visible') is false
       # if not visible, avoid applying constraints until visible again
       return
 

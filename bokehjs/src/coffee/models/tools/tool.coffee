@@ -9,7 +9,7 @@ class ToolView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:active', () =>
-      if @mget('active')
+      if @model.get('active')
         @activate()
       else
         @deactivate()

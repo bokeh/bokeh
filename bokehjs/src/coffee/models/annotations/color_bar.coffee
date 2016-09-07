@@ -244,7 +244,7 @@ class ColorBarView extends Annotation.View
     [sx, sy] = @model._tick_coordinates().major
 
     labels = @model._tick_coordinates().major_labels
-    formatted_labels = @mget('formatter').doFormat(labels)
+    formatted_labels = @model.get('formatter').doFormat(labels)
 
     @visuals.major_label_text.set_value(ctx)
 

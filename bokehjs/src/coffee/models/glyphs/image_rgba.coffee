@@ -57,11 +57,11 @@ class ImageRGBAView extends Glyph.View
 
   _map_data: () ->
     switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.get('dilate'))
       when "screen" then @sw = @_dw
 
     switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.get('dilate'))
       when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->

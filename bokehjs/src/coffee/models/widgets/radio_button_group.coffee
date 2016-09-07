@@ -26,13 +26,13 @@ class RadioButtonGroupView extends Widget.View
     @$el.append(html)
 
     name = _.uniqueId("RadioButtonGroup")
-    active = @mget("active")
-    for label, i in @mget("labels")
+    active = @model.get("active")
+    for label, i in @model.get("labels")
       $input = $('<input type="radio">').attr(name: name, value: "#{i}")
       if i == active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("button_type"))
+      $label.addClass("bk-bs-btn-" + @model.get("button_type"))
       if i == active then $label.addClass("bk-bs-active")
       @$el.find('.bk-bs-btn-group').append($label)
 
@@ -41,7 +41,7 @@ class RadioButtonGroupView extends Widget.View
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
     @model.active = active[0]
-    @mget('callback')?.execute(@model)
+    @model.get('callback')?.execute(@model)
 
 class RadioButtonGroup extends Widget.Model
   type: "RadioButtonGroup"

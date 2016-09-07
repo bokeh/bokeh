@@ -7,14 +7,14 @@ p = require "../../../core/properties"
 class CrosshairToolView extends InspectTool.View
 
   _move: (e) ->
-    if not @mget('active')
+    if not @model.get('active')
       return
     frame = @plot_model.get('frame')
     canvas = @plot_model.get('canvas')
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    for dim in @mget('dimensions')
-      span = @mget('spans')[dim]
+    for dim in @model.get('dimensions')
+      span = @model.get('spans')[dim]
       if not frame.contains(vx, vy)
         span.unset('computed_location')
       else
@@ -24,8 +24,8 @@ class CrosshairToolView extends InspectTool.View
           span.set('computed_location', vx)
 
   _move_exit: (e)->
-    for dim in @mget('dimensions')
-      span = @mget('spans')[dim]
+    for dim in @model.get('dimensions')
+      span = @model.get('spans')[dim]
       span.unset('computed_location')
 
 class CrosshairTool extends InspectTool.Model

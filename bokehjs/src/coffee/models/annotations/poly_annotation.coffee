@@ -12,8 +12,8 @@ class PolyAnnotationView extends Annotation.View
     @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: (ctx) ->
-    xs = @mget('xs')
-    ys = @mget('ys')
+    xs = @model.get('xs')
+    ys = @model.get('ys')
 
     if xs.length != ys.length
       return null
@@ -25,9 +25,9 @@ class PolyAnnotationView extends Annotation.View
     ctx = @plot_view.canvas_view.ctx
 
     for i in [0...xs.length]
-      if @mget('xs_units') == 'screen'
+      if @model.get('xs_units') == 'screen'
         vx = xs[i]
-      if @mget('ys_units') == 'screen'
+      if @model.get('ys_units') == 'screen'
         vy = ys[i]
       sx = canvas.vx_to_sx(vx)
       sy = canvas.vy_to_sy(vy)

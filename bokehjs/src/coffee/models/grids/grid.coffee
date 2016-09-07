@@ -7,8 +7,8 @@ p = require "../../core/properties"
 class GridView extends Renderer.View
   initialize: (attrs, options) ->
     super(attrs, options)
-    @_x_range_name = @mget('x_range_name')
-    @_y_range_name = @mget('y_range_name')
+    @_x_range_name = @model.get('x_range_name')
+    @_y_range_name = @model.get('y_range_name')
 
   render: () ->
     if @model.visible == false

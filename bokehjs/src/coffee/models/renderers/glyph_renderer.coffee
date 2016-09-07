@@ -10,7 +10,7 @@ class GlyphRendererView extends Renderer.View
   initialize: (options) ->
     super(options)
 
-    base_glyph = @mget("glyph")
+    base_glyph = @model.get("glyph")
     has_fill = _.contains(base_glyph.mixins, "fill")
     has_line = _.contains(base_glyph.mixins, "line")
     glyph_attrs = _.omit(_.clone(base_glyph.attributes), 'id')
@@ -23,50 +23,50 @@ class GlyphRendererView extends Renderer.View
 
     @glyph = @build_glyph_view(base_glyph)
 
-    selection_glyph = @mget("selection_glyph")
+    selection_glyph = @model.get("selection_glyph")
     if not selection_glyph?
       selection_glyph = mk_glyph(@model.selection_defaults)
     @selection_glyph = @build_glyph_view(selection_glyph)
 
-    nonselection_glyph = @mget("nonselection_glyph")
+    nonselection_glyph = @model.get("nonselection_glyph")
     if not nonselection_glyph?
       nonselection_glyph = mk_glyph(@model.nonselection_defaults)
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
-    hover_glyph = @mget("hover_glyph")
+    hover_glyph = @model.get("hover_glyph")
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
 
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
 
-    @xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
+    @xmapper = @plot_view.frame.x_mappers[@model.get("x_range_name")]
+    @ymapper = @plot_view.frame.y_mappers[@model.get("y_range_name")]
 
     @set_data(false)
 
-    if @mget('data_source') instanceof RemoteDataSource.Model
-      @mget('data_source').setup(@plot_view, @glyph)
+    if @model.get('data_source') instanceof RemoteDataSource.Model
+      @model.get('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
     new model.default_view({model: model, renderer: @, plot_view: @plot_view, plot_model: @plot_model})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
-    @listenTo(@mget('data_source'), 'change', @set_data)
-    @listenTo(@mget('data_source'), 'patch', @set_data)
-    @listenTo(@mget('data_source'), 'stream', @set_data)
-    @listenTo(@mget('data_source'), 'select', @request_render)
+    @listenTo(@model.get('data_source'), 'change', @set_data)
+    @listenTo(@model.get('data_source'), 'patch', @set_data)
+    @listenTo(@model.get('data_source'), 'stream', @set_data)
+    @listenTo(@model.get('data_source'), 'select', @request_render)
     if @hover_glyph?
-      @listenTo(@mget('data_source'), 'inspect', @request_render)
+      @listenTo(@model.get('data_source'), 'inspect', @request_render)
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
     # be better to make this more fine grained in terms of setting visuals
     # and also could potentially be improved by making proper models out
     # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@mget('glyph'), 'propchange', () ->
-        @glyph.set_visuals(@mget('data_source'))
+    @listenTo(@model.get('glyph'), 'propchange', () ->
+        @glyph.set_visuals(@model.get('data_source'))
         @request_render()
     )
 
@@ -77,11 +77,11 @@ class GlyphRendererView extends Renderer.View
   # for image, e.g.)
   set_data: (request_render=true, arg) ->
     t0 = Date.now()
-    source = @mget('data_source')
+    source = @model.get('data_source')
 
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
-    @glyph.model.set({x_range_name: @mget('x_range_name'), y_range_name: @mget('y_range_name')}, {silent: true})
+    @glyph.model.set({x_range_name: @model.get('x_range_name'), y_range_name: @model.get('y_range_name')}, {silent: true})
     @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)
@@ -131,7 +131,7 @@ class GlyphRendererView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    selected = @mget('data_source').get('selected')
+    selected = @model.get('data_source').get('selected')
     if !selected or selected.length == 0
       selected = []
     else
@@ -142,7 +142,7 @@ class GlyphRendererView extends Renderer.View
       else
         selected = []
 
-    inspected = @mget('data_source').get('inspected')
+    inspected = @model.get('data_source').get('inspected')
     if !inspected or inspected.length == 0
       inspected = []
     else
@@ -213,7 +213,7 @@ class GlyphRendererView extends Renderer.View
     ctx.restore()
 
   map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @mget("x_range_name"), @mget("y_range_name"))
+    @plot_view.map_to_screen(x, y, @model.get("x_range_name"), @model.get("y_range_name"))
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @glyph.draw_legend(ctx, x0, x1, y0, y1)

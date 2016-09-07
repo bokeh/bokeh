@@ -26,19 +26,19 @@ class TooltipView extends Annotation.View
     @$el.empty()
     @$el.hide()
 
-    @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
+    @$el.toggleClass("bk-tooltip-custom", @model.get("custom"))
 
     if _.isEmpty(data)
       return
 
     for val in data
       [vx, vy, content] = val
-      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
+      if @model.get('inner_only') and not @plot_view.frame.contains(vx, vy)
           continue
       tip = $('<div />').appendTo(@$el)
       tip.append(content)
-    sx = @plot_view.mget('canvas').vx_to_sx(vx)
-    sy = @plot_view.mget('canvas').vy_to_sy(vy)
+    sx = @plot_view.model.get('canvas').vx_to_sx(vx)
+    sy = @plot_view.model.get('canvas').vy_to_sy(vy)
 
     attachment = @model.attachment
     switch attachment

@@ -37,7 +37,7 @@ class HoverToolView extends InspectTool.View
       tt.clear()
 
   _move: (e) ->
-    if not @mget('active')
+    if not @model.get('active')
       return
     canvas = @plot_view.canvas
     vx = canvas.sx_to_vx(e.bokeh.sx)
@@ -72,7 +72,7 @@ class HoverToolView extends InspectTool.View
       sm = r.data_source.get('selection_manager')
       sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
 
-    if @mget('callback')?
+    if @model.get('callback')?
       @_emit_callback(geometry)
 
     return
@@ -95,8 +95,8 @@ class HoverToolView extends InspectTool.View
     sx = canvas.vx_to_sx(vx)
     sy = canvas.vy_to_sy(vy)
 
-    xmapper = frame.x_mappers[renderer.mget('x_range_name')]
-    ymapper = frame.y_mappers[renderer.mget('y_range_name')]
+    xmapper = frame.x_mappers[renderer.model.get('x_range_name')]
+    ymapper = frame.y_mappers[renderer.model.get('y_range_name')]
     x = xmapper.map_from_target(vx)
     y = ymapper.map_from_target(vy)
 
@@ -240,7 +240,7 @@ class HoverToolView extends InspectTool.View
     return
 
   _render_tooltips: (ds, i, vars) ->
-    tooltips = @mget("tooltips")
+    tooltips = @model.get("tooltips")
     if _.isString(tooltips)
       return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
     else if _.isFunction(tooltips)

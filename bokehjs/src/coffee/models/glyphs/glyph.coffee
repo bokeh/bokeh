@@ -28,7 +28,7 @@ class GlyphView extends Renderer.View
 
   render: (ctx, indices, data) ->
 
-    if @mget("visible")
+    if @model.get("visible")
       ctx.beginPath();
 
       if @glglyph?
@@ -133,7 +133,7 @@ class GlyphView extends Renderer.View
 
   get_reference_point: () ->
     return undefined
-    #reference_point = @mget('reference_point')
+    #reference_point = @model.get('reference_point')
     #ret = if _.isNumber(reference_point)
     #  @data[reference_point]
     #else

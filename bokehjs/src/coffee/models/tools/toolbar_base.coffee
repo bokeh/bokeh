@@ -29,7 +29,7 @@ class ToolbarBaseView extends LayoutDOM.View
       })
     location = if @model.toolbar_location? then @model.toolbar_location else 'above'
     sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
-    @$el.html(@template({logo: @mget("logo"), location: location, sticky: sticky}))
+    @$el.html(@template({logo: @model.get("logo"), location: location, sticky: sticky}))
 
     inspectors = @model.get('inspectors')
     button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")

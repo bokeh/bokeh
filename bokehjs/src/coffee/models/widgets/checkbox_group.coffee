@@ -19,14 +19,14 @@ class CheckboxGroupView extends Widget.View
     super()
     @$el.empty()
 
-    active = @mget("active")
-    for label, i in @mget("labels")
+    active = @model.get("active")
+    for label, i in @model.get("labels")
       $input = $('<input type="checkbox">').attr(value: "#{i}")
-      if @mget("disabled") then $input.prop("disabled", true)
+      if @model.get("disabled") then $input.prop("disabled", true)
       if i in active then $input.prop("checked", true)
 
       $label = $('<label></label>').text(label).prepend($input)
-      if @mget("inline")
+      if @model.get("inline")
           $label.addClass("bk-bs-checkbox-inline")
           @$el.append($label)
       else
@@ -38,7 +38,7 @@ class CheckboxGroupView extends Widget.View
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @model.active = active
-    @mget('callback')?.execute(@model)
+    @model.get('callback')?.execute(@model)
 
 class CheckboxGroup extends Widget.Model
   type: "CheckboxGroup"

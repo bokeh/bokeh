@@ -15,9 +15,9 @@ class TabsView extends Widget.View
       val.$el.detach()
     @$el.empty()
 
-    tabs = @mget('tabs')
-    active = @mget('active')
-    children = @mget('children')
+    tabs = @model.get('tabs')
+    active = @model.get('active')
+    children = @model.get('children')
 
     html = $(tabs_template({
       tabs: tabs

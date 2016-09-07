@@ -12,7 +12,7 @@ class PolySelectToolView extends SelectTool.View
     @data = null
 
   _active_change: () ->
-    if not @mget('active')
+    if not @model.get('active')
       @_clear_data()
 
   _keyup: (e) ->
@@ -27,7 +27,7 @@ class PolySelectToolView extends SelectTool.View
 
   _clear_data: () ->
     @data = null
-    @mget('overlay').update({xs:[], ys:[]})
+    @model.get('overlay').update({xs:[], ys:[]})
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -41,7 +41,7 @@ class PolySelectToolView extends SelectTool.View
     @data.vx.push(vx)
     @data.vy.push(vy)
 
-    overlay = @mget('overlay')
+    overlay = @model.get('overlay')
     new_data = {}
     new_data.vx = _.clone(@data.vx)
     new_data.vy = _.clone(@data.vy)

@@ -47,7 +47,7 @@ class PanToolView extends GestureTool.View
     sy_low  = vr.get('start') - new_dy
     sy_high = vr.get('end') - new_dy
 
-    dims = @mget('dimensions')
+    dims = @model.get('dimensions')
 
     if dims.indexOf('width') > -1 and not @v_axis_only
       sx0 = sx_low

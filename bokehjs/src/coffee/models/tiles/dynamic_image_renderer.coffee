@@ -39,7 +39,7 @@ class DynamicImageView extends Renderer.View
   _on_image_error: (e) =>
     logger.error('Error loading image: #{e.target.src}')
     image_data = e.target.image_data
-    @mget('image_source').remove_image(image_data)
+    @model.get('image_source').remove_image(image_data)
 
   _create_image: (bounds) ->
     image = new Image()
@@ -51,8 +51,8 @@ class DynamicImageView extends Renderer.View
       loaded : false
       cache_key : bounds.join(':')
 
-    @mget('image_source').add_image(image.image_data)
-    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.height), Math.ceil(@map_frame.width))
+    @model.get('image_source').add_image(image.image_data)
+    image.src = @model.get('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.height), Math.ceil(@map_frame.width))
     return image
 
   render: (ctx, indices, args) ->
@@ -67,7 +67,7 @@ class DynamicImageView extends Renderer.View
     if @render_timer
       clearTimeout(@render_timer)
 
-    image_obj = @mget('image_source').images[extent.join(':')]
+    image_obj = @model.get('image_source').images[extent.join(':')]
     if image_obj? and image_obj.loaded
       @_draw_image(extent.join(':'))
       return
@@ -79,11 +79,11 @@ class DynamicImageView extends Renderer.View
       @render_timer = setTimeout((=> @_create_image(extent)), 125)
 
   _draw_image: (image_key) ->
-    image_obj = @mget('image_source').images[image_key]
+    image_obj = @model.get('image_source').images[image_key]
     if image_obj?
       @map_canvas.save()
       @_set_rect()
-      @map_canvas.globalAlpha = @mget('alpha')
+      @map_canvas.globalAlpha = @model.get('alpha')
       [sxmin, symin] = @plot_view.frame.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]], @plot_view.canvas)
       [sxmax, symax] = @plot_view.frame.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]], @plot_view.canvas)
       sxmin = sxmin[0]

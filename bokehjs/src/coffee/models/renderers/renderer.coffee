@@ -281,7 +281,7 @@ class RendererView extends BokehView
     return result
 
   map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @mget("x_range_name"), @mget("y_range_name"))
+    @plot_view.map_to_screen(x, y, @model.get("x_range_name"), @model.get("y_range_name"))
 
 class Renderer extends Model
   type: "Renderer"

@@ -21,12 +21,12 @@ class BoxSelectToolView extends SelectTool.View
       canvas.sy_to_vy(e.bokeh.sy)
     ]
     frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    dims = @model.get('dimensions')
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-    @mget('overlay').update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
+    @model.get('overlay').update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
-    if @mget('select_every_mousemove')
+    if @model.get('select_every_mousemove')
       append = e.srcEvent.shiftKey ? false
       @_select(vxlim, vylim, false, append)
 
@@ -39,13 +39,13 @@ class BoxSelectToolView extends SelectTool.View
       canvas.sy_to_vy(e.bokeh.sy)
     ]
     frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    dims = @model.get('dimensions')
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
     @_select(vxlim, vylim, true, append)
 
-    @mget('overlay').update({left: null, right: null, top: null, bottom: null})
+    @model.get('overlay').update({left: null, right: null, top: null, bottom: null})
 
     @_baseboint = null
 
@@ -67,7 +67,7 @@ class BoxSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
-    if @mget('callback')?
+    if @model.get('callback')?
       @_emit_callback(geometry)
 
     @_save_geometry(geometry, final, append)
@@ -91,7 +91,7 @@ class BoxSelectToolView extends SelectTool.View
     geometry['y0'] = ymapper.map_from_target(geometry.vy0)
     geometry['y1'] = ymapper.map_from_target(geometry.vy1)
 
-    @mget('callback').execute(@model, {geometry: geometry})
+    @model.get('callback').execute(@model, {geometry: geometry})
 
     return
 

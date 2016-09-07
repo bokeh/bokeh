@@ -76,19 +76,19 @@ class PlotCanvasView extends Renderer.View
       range: null                     # set later by set_initial_range()
       selection: {}                   # XXX: initial selection?
       dimensions: {
-        width: @mget("canvas").width
-        height: @mget("canvas").height
+        width: @model.get("canvas").width
+        height: @model.get("canvas").height
       }
     }
 
     # compat, to be removed
-    @frame = @mget('frame')
+    @frame = @model.get('frame')
     @x_range = @frame.x_ranges['default']
     @y_range = @frame.y_ranges['default']
     @xmapper = @frame.x_mappers['default']
     @ymapper = @frame.y_mappers['default']
 
-    @canvas = @mget('canvas')
+    @canvas = @model.get('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
     @$el.append(@canvas_view.el)
     @canvas_view.render(true)
@@ -106,7 +106,7 @@ class PlotCanvasView extends Renderer.View
     @model.document._unrendered_plots[@id] = true
 
     @ui_event_bus = new UIEvents({
-      toolbar: @mget('toolbar')
+      toolbar: @model.get('toolbar')
       hit_area: @canvas_view.$el
     })
 
@@ -440,12 +440,12 @@ class PlotCanvasView extends Renderer.View
     tool_views = build_views(@tool_views, @model.plot.toolbar.tools, @view_options())
 
     for v in views
-      level = v.mget('level')
+      level = v.model.get('level')
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
 
     for tool_view in tool_views
-      level = tool_view.mget('level')
+      level = tool_view.model.get('level')
       @levels[level][tool_view.model.id] = tool_view
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
