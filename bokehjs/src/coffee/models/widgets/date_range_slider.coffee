@@ -1,6 +1,13 @@
 _ = require "underscore"
 $ = require "jquery"
-$1 = require "jqrangeslider/jQDateRangeSlider"
+$1 = require "jqrangeslider/jQRangeSlider"
+$6 = require "jqrangeslider/jQRangeSliderMouseTouch"
+$3 = require "jqrangeslider/jQRangeSliderDraggable"
+$2 = require "jqrangeslider/jQRangeSliderBar"
+$4 = require "jqrangeslider/jQRangeSliderHandle"
+$5 = require "jqrangeslider/jQRangeSliderLabel"
+$7 = require "jqrangeslider/jQDateRangeSlider"
+$8 = require "jqrangeslider/jQDateRangeSliderHandle"
 
 p = require "../../core/properties"
 
@@ -11,18 +18,12 @@ class DateRangeSliderView extends InputWidget.View
 
   initialize: (options) ->
     super(options)
-    @render()
-    @listenTo(@model, 'change', () => @render)
-
-  render: () ->
-    super()
     @$el.empty()
-
     [value_min, value_max] = @mget("value")
     [range_min, range_max] = @mget("range")
     [bounds_min, bounds_max] = @mget("bounds")
 
-    @$el.dateRangeSlider({
+    @slider = $("<div>").dateRangeSlider({
       defaultValues: { min: new Date(value_min), max: new Date(value_max) },
       bounds: { min: new Date(bounds_min), max: new Date(bounds_max) },
       range: {
@@ -39,9 +40,10 @@ class DateRangeSliderView extends InputWidget.View
     })
 
     @$el.on "userValuesChanged", (event, data) =>
-      @mset('value', [data.values.min, data.values.max])
+      @mset('value', [Date(data.values.min), Date(data.values.max)])
       @mget('callback')?.execute(@model)
 
+    @$el.append([@slider])
     return @
 
 class DateRangeSlider extends InputWidget.Model

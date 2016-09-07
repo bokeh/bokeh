@@ -42,7 +42,7 @@ module.exports = {
         minified: "bokeh-widgets.min.js"
     sources: [
         "./src/coffee/main.coffee"
-        "./src/coffee/widget/main.coffee"
+        "./src/coffee/models/widgets/main.coffee"
     ]
     watchSources: [
       "./src/coffee/**/**"

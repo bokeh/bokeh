@@ -27,7 +27,7 @@
 			$(document)
 				.unbind('touchmove.' + this.widgetName, this._touchMoveDelegate)
 				.unbind('touchend.' + this.widgetName, this._touchEndDelegate);
-			
+
 			$.ui.mouse.prototype._mouseDestroy.apply(this);
 		},
 
@@ -41,7 +41,7 @@
 
 		destroy: function(){
 			this._mouseDestroy();
-			
+
 			$.ui.mouse.prototype.destroy.apply(this);
 
 			this._mouseInit = null;
@@ -116,4 +116,4 @@
 			event.pageY = touch.pageY;
 		}
 	});
-}(jQuery));
+}(Bokeh.$));
