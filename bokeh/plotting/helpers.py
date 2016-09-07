@@ -106,7 +106,7 @@ def _process_legend_kwargs(kwargs):
     legend = kwargs.pop('legend', None)
     source = kwargs.get('source')
     if legend:
-        if isinstance(legend, str):
+        if isinstance(legend, string_types):
             # Try and do something intelligent with a legend string:
             # * value if it's not in column data source
             # * field if it is
