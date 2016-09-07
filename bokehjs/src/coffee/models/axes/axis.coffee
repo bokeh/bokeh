@@ -399,12 +399,9 @@ class Axis extends GuideRenderer.Model
     cend = cross_range.end
     side = @panel_side
 
-    if side == 'left' or side == 'below'
-      loc = 'start'
-    else if side == 'right' or side == 'above'
-      loc = 'end'
-
-    return cross_range.get(loc)
+    return switch side
+      when 'left', 'below' then cross_range.start
+      when 'right', 'above' then cross_range.end
 
 module.exports =
   Model: Axis
