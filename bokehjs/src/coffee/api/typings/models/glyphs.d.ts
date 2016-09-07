@@ -203,17 +203,4 @@ declare namespace Bokeh {
         end_angle?: Angular;
         direction?: Direction;
     }
-
-    export var Gear: { new(attributes?: IGear, options?: ModelOpts): Gear };
-    export interface Gear extends Glyph, IGear {}
-    export interface IGear extends IGlyph, LineProps, FillProps {
-        x?: Numerical | Categorical;
-        y?: Numerical | Categorical;
-        angle?: Angular;
-        module?: Vectorized<number>;
-        teeth?: Vectorized<Int>;
-        pressure_angle?: Angular;
-        shaft_size?: Vectorized<number>;
-        internal?: Vectorized<boolean>;
-    }
 }

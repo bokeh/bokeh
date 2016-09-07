@@ -4,7 +4,7 @@ from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, 
 from bokeh.models.widgets import Tabs, Panel, Paragraph
 from bokeh.models.layouts import Column
 from bokeh.models.glyphs import (
-    AnnularWedge, Annulus, Arc, Bezier, Gear, Circle, ImageURL, Line, MultiLine, Oval,
+    AnnularWedge, Annulus, Arc, Bezier, Circle, ImageURL, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross, X
 )
@@ -46,7 +46,6 @@ glyphs = [
     ("annulus", Annulus(x="x", y="y", inner_radius=screen(10), outer_radius=screen(20), fill_color="#7FC97F")),
     ("arc", Arc(x="x", y="y", radius=screen(20), start_angle=0.6, end_angle=4.1, line_color="#BEAED4", line_width=3)),
     ("bezier", Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#D95F02", line_width=2)),
-    ("gear", Gear(x="x", y="y", module=0.1, teeth=8, angle=0, shaft_size=0.02, fill_color="#FDF6E3", line_color="#D95F02")),
     ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="http://bokeh.pydata.org/en/latest/_static/images/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),

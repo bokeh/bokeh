@@ -1,9 +1,10 @@
 _ = require "underscore"
-Glyph = require "./glyph"
-GearUtils = require "gear_utils"
 
-p = require "../../core/properties"
-Bezier = require "../../util/bezier"
+p = require "core/properties"
+Glyph = require "models/glyphs/glyph"
+
+Bezier = require "./bezier"
+GearUtils = require "./gear_utils"
 
 class GearView extends Glyph.View
 
@@ -130,6 +131,7 @@ class Gear extends Glyph.Model
       internal:       [ p.NumberSpec, false ] # TODO (bev) bool
     }
 
-module.exports =
+module.exports = {
   Model: Gear
   View: GearView
+}

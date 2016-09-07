@@ -1,3 +1,62 @@
+2016-09-06   0.12.2:
+--------------------
+  * bugfixes:
+    - #4612 Updating of image colormapper
+    - #4855 No fill for background and border doesn't work
+    - #4903 [component: build] [regression] Deploy.sh needs explicit list of files updated
+    - #4936 [component: bokehjs] Lasso select is broken with non-circle markers
+    - #4949 Specifying a selection doesn't work with patches when hit testing tools are present
+    - #4950 Non-deterministic ordering of css resources for external resource loading
+    - #4960 [component: examples] Examples/models/* aren't validated
+    - #4970 [API: charts] Box plot example fails if no outliers exist in data
+    - #4984 [component: bokehjs] H_units="screen" and w_units="screen" not respected in imageurl
+    - #4987 [notebook] [regression] Problem with 'run all' in jupyter notebooks with bokeh 0.12.1
+    - #4992 Colorbar places axis labels incorrectly in some circumstances
+    - #4993 Colorbar - setting outline_line_alpha=0 on plot causes bar to not appear
+    - #4996 Labelset's text color not updating properly on changing column data source
+    - #4998 [component: bokehjs] Typo in arrow.coffee
+    - #5006 [component: docs] Remove trailing whitespace
+    - #5010 Colormapping - support nan's and data lower than low
+    - #5035 [component: bokehjs] Auto-range on vbar and hbar doesn't work
+    - #5040 Rendered notebooks not working on nbviewer
+    - #5056 Colorbar not working in safari
+    - #5074 [component: build] [component: server] Bokeh-0.12.1-py27_0 conda package from defaults missing server/views/app_index.html
+    - #5081 [notebook] Plots do not load upon reopening a notebook if notebook handle created
+    - #5084 Conda-build 2.0.0 doesn't build noarch packages
+  * features:
+    - #1441 Colorbar axis
+    - #2270 [component: examples] Hide/show image layers
+    - #3110 [component: bokehjs] Multi_line and selection callback
+    - #4127 [component: bokehjs] Specifying external urls for resources
+    - #4828 [component: server] Feature: make get arguments available for bokeh server apps
+    - #4906 New feature: hide tooltip arrow
+    - #4924 [component: bokehjs] Tooltips unavailable for `vbar` and `hbar` glyphs
+    - #4961 [component: bokehjs] Don't end up with white screen under an unhandled exception
+    - #4981 Support a colormapper as a data transform
+    - #4990 Colorbar default direction should be reversed
+  * tasks:
+    - #3859 [component: docs] Update technical vision part of docs to reference new data shader repo
+    - #3927 [component: tests] More gracefully handle running integration tests for external contributors
+    - #4737 [component: examples] Spectrogram example improvements
+    - #4824 [component: tests] Devdeps.py doesn't check for test dependencies
+    - #4840 Implement quantifiedcode suggestions
+    - #4869 [component: docs] [starter] User guide "responsive dimensions" needs updating
+    - #4882 [component: bokehjs] Fixed version in version.coffee causes constant "version mismatch" warning
+    - #4891 [component: build] Crawl and list all public functions, classes, methods
+    - #4892 [component: build] Compare public api across versions
+    - #4928 Checkbox example is not working as expected
+    - #4938 [component: docs] "getting set up" section of documentation does not mention the base dependencies of bokeh
+    - #4959 [component: tests] Imageurl example fails
+    - #4976 [component: bokehjs] [component: build] Split off bokehjs js/ts api
+    - #4989 Add colorbar public js api definition
+    - #5001 [component: docs] Availability of cdn resources via https
+    - #5008 Make default hover styling match other default styling
+    - #5016 Remove unused reserve_val, reserve_color
+    - #5042 [API: models] Disallow set type in `columndatasource.data`
+    - #5061 Minor: box plot example indexing
+    - #5077 [component: tests] Disable integration tests for external contributors
+    - #5096 [component: docs] [notebook] Notebook comms and push_notebook docs are not up to date
+
 2016-07-28   0.12.1:
 --------------------
   * bugfixes:

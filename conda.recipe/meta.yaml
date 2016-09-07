@@ -65,6 +65,7 @@ test:
     - pillow
     - boto
     - pdiff                 [unix]
+    - nodejs >=4.1
 
     # examples
     - jupyter
