@@ -3,6 +3,12 @@ import ast, os, copy, sys
 __all__ = ["api_crawler", "differ"]
 
 
+if sys.version_info > (3, 0):
+    arg_name = "arg"
+else:
+    arg_name = "id"
+
+
 class APICrawler(object):
     """
     Api Crawler: Given a directory, it will use AST to crawl through each of the
@@ -43,18 +49,48 @@ class APICrawler(object):
         class_defs = {}
         for x in classes:
             class_defs[x.name] = {}
-            methods = []
-            for y in x.body:
-                if isinstance(y, ast.FunctionDef) and self.is_public(y.name):
-                    methods.append(y.name)
+            methods = [node for node in x.body if self.is_toplevel_function(node) and self.is_public(node.name)]
+            methods = self.get_full_signature(methods)
             class_defs[x.name]["methods"] = methods
         return class_defs
 
     def get_functions(self, source):
         # For a given source, look for functions and return those functions as a list.
         parsed = ast.parse(source)
-        functions = [node.name for node in ast.walk(parsed) if self.is_toplevel_function(node) and self.is_public(node.name)]
+        functions = [node for node in ast.walk(parsed) if self.is_toplevel_function(node) and self.is_public(node.name)]
+        functions = self.get_full_signature(functions)
         return functions
+
+    def get_full_signature(self, functions):
+        full_signature = {}
+        for x in functions:
+            full_signature.update(self.get_signature(x))
+        return full_signature
+
+    def get_signature(self, function):
+        return {
+            function.name: self.get_arguments(function)
+        }
+
+    def get_arguments(self, function):
+        arguments = function.args.args
+        defaults = function.args.defaults
+        if defaults:
+            argument_names = [getattr(x, arg_name) for x in arguments[:len(arguments) - len(defaults)]]
+            default_names = [getattr(x, arg_name) for x in arguments[len(arguments) - len(defaults):]]
+            for x in range(len(default_names)):
+                try:
+                    argument_names.append({default_names[x]: ast.literal_eval(defaults[x])})
+                except ValueError:
+                    if isinstance(defaults[x], ast.Lambda):
+                        argument_names.append({default_names[x]: "lambda function"})
+                    elif isinstance(defaults[x], ast.Call):
+                        argument_names.append({default_names[x]: "function call"})
+                    else:
+                        argument_names.append({default_names[x]: defaults[x].id})
+            return argument_names
+        else:
+            return [getattr(x, arg_name) for x in arguments]
 
     def get_filenames(self, directory):
         # Go through the file tree and grab the filnames for each file found.
@@ -79,6 +115,8 @@ class APICrawler(object):
             with open(x, "r") as f:
                 source = f.read()
                 files_dict[x] = {"classes": {}, "functions": []}
+                if x == "bokeh/embed.py":
+                    pass
                 files_dict[x]["classes"] = self.get_classes(source)
                 files_dict[x]["functions"] = self.get_functions(source)
         return files_dict
@@ -98,10 +136,6 @@ class Differ(object):
         self.latter = latter
         self._additions = False
         self._operation = self.diff_operation
-        if sys.version_info > (3, 0):
-            self.arg_name = "arg"
-        else:
-            self.arg_name = "id"
 
     @property
     def additions(self):

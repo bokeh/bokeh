@@ -7,10 +7,20 @@ xfail = pytest.mark.xfail
 from ..api_crawler import api_crawler, differ
 
 
-sample_class = """
-class SampleClass:
-    def __init__(self):
+source = """
+class Beatles(object):
+    def __init__(self, john, paul, george=True, ringo=[1, 2, 3]):
+        self.apple = apple
+        self.potato = potato
+
+    def strawberry_fields_forever(self, fields, eyes_closed=True):
         pass
+
+def john(guitar, song="imagine"):
+    return guitar
+
+def ringo(drums, beat=[1, 2, 3]):
+    return drums
 """
 
 sample_function = """
@@ -18,12 +28,10 @@ def sample_function(self):
     pass
 """
 
-sample_code = """
+sample_class = """
 class SampleClass:
     def __init__(self):
         pass
-def sample_function(self):
-    pass
 """
 
 
@@ -63,12 +71,23 @@ class TestApiCrawler(object):
         assert self.crawler.is_class(parsed_class)
 
     def test_get_functions(self):
-        functions = self.crawler.get_functions(sample_code)
+        functions = self.crawler.get_functions(sample_function)
         assert "sample_function" in functions
 
     def test_get_classes(self):
-        classes = self.crawler.get_classes(sample_code)
+        classes = self.crawler.get_classes(sample_class)
         assert "SampleClass" in classes
+
+    def test_get_arguments(self):
+        expected = ["drums", {"beat": [1, 2, 3]}]
+        assert expected == self.crawler.get_functions(source)["ringo"]
+
+    def test_get_full_signature(self):
+        expected = {
+            "john": ["guitar", {"song": "imagine"}],
+            "ringo": ["drums", {"beat": [1, 2, 3]}]
+        }
+        assert expected == self.crawler.get_functions(source)
 
 
 old_version = {
@@ -294,5 +313,3 @@ class TestDiffer(object):
             "pixies": []
         }
         assert expected == self.differ.diff_signatures(old_signature, new_signature)
-
-
