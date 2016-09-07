@@ -12,7 +12,7 @@ from .. import palettes
 
 @abstract
 class ColorMapper(Model):
-    """ Base class for color mapper types. `ColorMapper`` is not
+    """ Base class for color mapper types. ``ColorMapper`` is not
     generally useful to instantiate on its own.
 
     """
@@ -46,7 +46,25 @@ class CategoricalColorMapper(ColorMapper):
     """)
 
 
-class LinearColorMapper(ColorMapper):
+@abstract
+class ContinuousColorMapper(ColorMapper):
+    """ Base class for cotinuous color mapper types. ``ContinuousColorMapper`` is not
+    generally useful to instantiate on its own.
+
+    """
+
+    low = Float(help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
+    """)
+
+    high = Float(help="""
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
+    """)
+
+
+class LinearColorMapper(ContinuousColorMapper):
     """ Map numbers in a range [*low*, *high*] linearly into a
     sequence of colors (a palette).
 
@@ -62,18 +80,8 @@ class LinearColorMapper(ColorMapper):
 
     """
 
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
-    """)
 
-    high = Float(help="""
-    The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
-    """)
-
-
-class LogColorMapper(ColorMapper):
+class LogColorMapper(ContinuousColorMapper):
     """ Map numbers in a range [*low*, *high*] into a
     sequence of colors (a palette) on a natural logarithm scale.
 
@@ -92,13 +100,3 @@ class LogColorMapper(ColorMapper):
         non-negative.
 
     """
-
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
-    """)
-
-    high = Float(help="""
-    The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
-    """)
