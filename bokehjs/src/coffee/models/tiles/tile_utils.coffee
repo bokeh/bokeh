@@ -1,4 +1,4 @@
-proj4 = require "proj4"
+proj4 = require "../../common/proj4"
 mercator = proj4.defs('GOOGLE')
 wgs84 = proj4.defs('WGS84')
 

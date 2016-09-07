@@ -1,5 +1,5 @@
 _ = require "underscore"
-proj4 = require "proj4"
+proj4 = require "../../common/proj4"
 toProjection = proj4.defs('GOOGLE')
 Backbone = require "../../core/backbone"
 
