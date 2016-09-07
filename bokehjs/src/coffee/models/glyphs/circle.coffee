@@ -171,7 +171,7 @@ class CircleView extends Glyph.View
     return result
 
   _hit_poly: (geometry) ->
-    [vx, vy] = [_.clone(geometry.vx), _.clone(geometry.vy)]
+    [vx, vy] = [geometry.vx, geometry.vy]
     sx = @renderer.plot_view.canvas.v_vx_to_sx(vx)
     sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 

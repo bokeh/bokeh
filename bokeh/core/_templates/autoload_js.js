@@ -36,6 +36,10 @@ calls it with the rendered model.
     window._bokeh_is_loading = undefined;
   }
 
+
+  {% block autoload_init %}
+  {% endblock %}
+
   function run_callbacks() {
     window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
     delete window._bokeh_onload_callbacks
@@ -103,9 +107,11 @@ calls it with the rendered model.
   ];
 
   function run_inline_js() {
+    {% block run_inline_js %}
     for (var i = 0; i < inline_js.length; i++) {
       inline_js[i](window.Bokeh);
     }
+    {% endblock %}
   }
 
   if (window._bokeh_is_loading === 0) {

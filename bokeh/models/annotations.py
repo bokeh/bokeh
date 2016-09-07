@@ -16,8 +16,11 @@ from ..core.properties import (
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 
+from .formatters import TickFormatter, BasicTickFormatter
+from .mappers import ColorMapper
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
+from .tickers import Ticker, BasicTicker
 
 @abstract
 class Annotation(Renderer):
@@ -122,6 +125,145 @@ class Legend(Annotation):
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
+
+class ColorBar(Annotation):
+    """ Render a color bar based on a color mapper for a plot.
+    """
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
+    The location where the color bar should draw itself. It's either one of
+    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
+
+    .. warning::
+        If the color bar is placed in a side panel, the location will likely
+        have to be set to `(0,0)`.
+    """)
+
+    orientation = Enum(Orientation, default="vertical", help="""
+    Whether the color bar should be oriented vertically or horizontally.
+    """)
+
+    height = Either(Auto, Int(), help="""
+    The height (in pixels) that the color scale should occupy.
+    """)
+
+    width = Either(Auto, Int(), help="""
+    The width (in pixels) that the color scale should occupy.
+    """)
+
+    scale_alpha = Float(1.0, help="""
+    The alpha with which to render the color scale.
+    """)
+
+    title = String(help="""
+    The title text to render.
+    """)
+
+    title_props = Include(TextProps, help="""
+    The %s values for the title text.
+    """)
+
+    title_text_font_size = Override(default={'value': "10pt"})
+
+    title_text_font_style = Override(default="italic")
+
+    title_standoff = Int(2, help="""
+    The distance (in pixels) to separate the title from the color bar.
+    """)
+
+    ticker = Instance(Ticker, default=lambda: BasicTicker(), help="""
+    A Ticker to use for computing locations of axis components.
+    """)
+
+    formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
+    A TickFormatter to use for formatting the visual appearance of ticks.
+    """)
+
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
+
+    .. warning::
+        If the `low` and `high` attributes of the ColorMapper aren't set, ticks
+        and tick labels won't be rendered.
+    """)
+
+    margin = Int(30, help="""
+    Amount of margin (in pixels) around the outside of the color bar.
+    """)
+
+    padding = Int(10, help="""
+    Amount of padding (in pixels) between the color scale and color bar border.
+    """)
+
+    major_label_props = Include(TextProps, help="""
+    The %s of the major tick labels.
+    """)
+
+    major_label_text_align = Override(default="center")
+
+    major_label_text_baseline = Override(default="middle")
+
+    major_label_text_font_size = Override(default={'value': "8pt"})
+
+    label_standoff = Int(5, help="""
+    The distance (in pixels) to separate the tick labels from the color bar.
+    """)
+
+    major_tick_props = Include(LineProps, help="""
+    The %s of the major ticks.
+    """)
+
+    major_tick_line_color = Override(default="#ffffff")
+
+    major_tick_in = Int(default=5, help="""
+    The distance (in pixels) that major ticks should extend into the
+    main plot area.
+    """)
+
+    major_tick_out = Int(default=0, help="""
+    The distance (in pixels) that major ticks should extend out of the
+    main plot area.
+    """)
+
+    minor_tick_props = Include(LineProps, help="""
+    The %s of the minor ticks.
+    """)
+
+    minor_tick_line_color = Override(default=None)
+
+    minor_tick_in = Int(default=0, help="""
+    The distance (in pixels) that minor ticks should extend into the
+    main plot area.
+    """)
+
+    minor_tick_out = Int(default=0, help="""
+    The distance (in pixels) that major ticks should extend out of the
+    main plot area.
+    """)
+
+    bar_props = Include(LineProps, help="""
+    The %s for the color scale bar outline.
+    """)
+
+    bar_line_color = Override(default=None)
+
+    border_props = Include(LineProps, help="""
+    The %s for the color bar border outline.
+    """)
+
+    border_line_color = Override(default=None)
+
+    background_props = Include(FillProps, help="""
+    The %s for the color bar background style.
+    """)
+
+    background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=0.95)
+
 
 def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead

@@ -220,7 +220,9 @@ a ``LaTexLabel`` custom model.
         """
         __javascript__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"
         __css__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"
-        __implementation__ = "..."
+        __implementation__ = """
+        # do something here
+        """
 
 See the LaTex example in the extensions gallery below to see the full
 implementation and resulting output.

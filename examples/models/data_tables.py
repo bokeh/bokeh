@@ -1,3 +1,4 @@
+from bokeh.document import Document
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
 from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
 from bokeh.models.layouts import Column
@@ -60,9 +61,13 @@ plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
 layout = Column(plot, data_table)
 
+doc = Document()
+doc.add_root(layout)
+
 if __name__ == "__main__":
+    doc.validate()
     filename = "data_tables.html"
     with open(filename, "w") as f:
-        f.write(file_html(layout, INLINE, "Data Tables"))
+        f.write(file_html(doc, INLINE, "Data Tables"))
     print("Wrote %s" % filename)
     view(filename)

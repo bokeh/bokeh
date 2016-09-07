@@ -88,3 +88,12 @@ class TestCodeHandler(unittest.TestCase):
 
         assert handler.error is not None
         assert "argv: ['test_filename', 10, 20, 30]" in handler.error
+
+    def test_safe_to_fork(self):
+        doc = Document()
+        handler = CodeHandler(source="# This script does nothing", filename="/test_filename")
+        assert handler.safe_to_fork
+        handler.modify_document(doc)
+        if handler.failed:
+            raise RuntimeError(handler.error)
+        assert not handler.safe_to_fork

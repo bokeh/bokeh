@@ -23,26 +23,27 @@ lower = q1 - 1.5*iqr
 # find the outliers for each category
 def outliers(group):
     cat = group.name
-    return group[(group.score > upper.loc[cat][0]) | (group.score < lower.loc[cat][0])]['score']
+    return group[(group.score > upper.loc[cat]['score']) | (group.score < lower.loc[cat]['score'])]['score']
 out = groups.apply(outliers).dropna()
 
 # prepare outlier data for plotting, we need coordinates for every outlier.
-outx = []
-outy = []
-for cat in cats:
-    # only add outliers if they exist
-    if not out.loc[cat].empty:
-        for value in out[cat]:
-            outx.append(cat)
-            outy.append(value)
+if not out.empty:
+    outx = []
+    outy = []
+    for cat in cats:
+        # only add outliers if they exist
+        if not out.loc[cat].empty:
+            for value in out[cat]:
+                outx.append(cat)
+                outy.append(value)
 
 p = figure(tools="save", background_fill_color="#EFE8E2", title="", x_range=cats)
 
 # if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
 qmin = groups.quantile(q=0.00)
 qmax = groups.quantile(q=1.00)
-upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
-lower.score = [max([x,y]) for (x,y) in zip(list(qmin.iloc[:,0]),lower.score) ]
+upper.score = [min([x,y]) for (x,y) in zip(list(qmax.loc[:,'score']),upper.score)]
+lower.score = [max([x,y]) for (x,y) in zip(list(qmin.loc[:,'score']),lower.score)]
 
 # stems
 p.segment(cats, upper.score, cats, q3.score, line_width=2, line_color="black")
@@ -59,7 +60,8 @@ p.rect(cats, lower.score, 0.2, 0.01, line_color="black")
 p.rect(cats, upper.score, 0.2, 0.01, line_color="black")
 
 # outliers
-p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
+if not out.empty:
+    p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
 
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = "white"

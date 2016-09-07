@@ -99,6 +99,7 @@ doc = Document()
 doc.add_root(MyRow2(children=[plot]))
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "custom.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Demonstration of user-defined models"))

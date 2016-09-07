@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.2dev1",
+  "version": "0.12.2",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -48,6 +48,7 @@
     "mocha-jsdom": "^1.0.0",
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs-prebuilt": "2.1.7",
+    "proxyquire": "1.7.10",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "sinon": "^1.15.4",
@@ -68,7 +69,8 @@
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
     "acorn": "^3.3.0",
-    "less": "^2.7.1"
+    "less": "^2.7.1",
+    "request": "^2.74.0"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -83,19 +85,16 @@
     "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
-    "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
     "gloo2": "./src/vendor/gloo/gloo2.js"
   },
   "dependencies": {
     "underscore": "^1.5.2",
-    "backbone": "^1.1.0",
     "es6-promise":"3.0.2",
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "~1.10.5",
     "jsnlog": "^2.7.5",
-    "mathutils": "0.0.1",
     "rbush": "^2.0.1",
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",

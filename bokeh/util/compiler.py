@@ -3,6 +3,8 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import io
+import os
 import six
 import json
 import inspect
@@ -19,12 +21,20 @@ _plugin_prelude = \
 """
 (function outer(modules, cache, entry) {
   if (typeof Bokeh !== "undefined") {
+    var _ = Bokeh._;
+
     for (var name in modules) {
       Bokeh.require.modules[name] = modules[name];
     }
 
     for (var i = 0; i < entry.length; i++) {
-        Bokeh.Models.register_locations(Bokeh.require(entry[i]));
+        var exports = Bokeh.require(entry[i]);
+
+        if (_.isObject(exports.models)) {
+          Bokeh.Models.register_locations(exports.models);
+        }
+
+        _.extend(Bokeh, _.omit(exports, "models"));
     }
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
@@ -37,7 +47,11 @@ _plugin_template = \
 %(prelude)s
 ({
   "custom/main": [function(require, module, exports) {
-    module.exports = { %(exports)s };
+    module.exports = {
+      models: {
+        %(exports)s
+      }
+    };
   }, {}],
   %(modules)s
 }, {}, ["custom/main"]);
@@ -60,7 +74,7 @@ _style_template = \
 """
 
 _export_template = \
-"""%(name)s: require("%(module)s")"""
+""""%(name)s": require("%(module)s")"""
 
 _module_template = \
 """"%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""
@@ -84,21 +98,40 @@ class CompilationError(RuntimeError):
 
 bokehjs_dir = settings.bokehjsdir()
 
-def nodejs_compile(code, lang="javascript", file=None):
-    compilejs_script = join(bokehjs_dir, "js", "compile.js")
+def _detect_nodejs():
+    if settings.nodejs_path() is not None:
+        nodejs_paths = [settings.nodejs_path()]
+    else:
+        nodejs_paths = ["nodejs", "node"]
 
-    try:
-        proc = Popen(["nodejs", compilejs_script], stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    except OSError:
+    for nodejs_path in nodejs_paths:
+        try:
+            Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
+        except OSError:
+            pass
+        else:
+            return nodejs_path
+    else:
+        return None
+
+_nodejs = _detect_nodejs()
+
+def _run_nodejs(script, input):
+    if _nodejs is None:
         raise RuntimeError('node.js is needed to allow compilation of custom models ' +
                            '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
 
-    (stdout, errout) = proc.communicate(input=json.dumps(dict(code=code, lang=lang, file=file)))
+    proc = Popen([_nodejs, script], stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    (stdout, errout) = proc.communicate(input=json.dumps(input).encode())
 
     if len(errout) > 0:
         raise RuntimeError(errout)
     else:
         return AttrDict(json.loads(stdout.decode()))
+
+def nodejs_compile(code, lang="javascript", file=None):
+    compilejs_script = join(bokehjs_dir, "js", "compile.js")
+    return _run_nodejs(compilejs_script, dict(code=code, lang=lang, file=file))
 
 class Implementation(object):
     pass
@@ -130,7 +163,7 @@ class Less(Inline):
 class FromFile(Implementation):
 
     def __init__(self, path):
-        with open(path, "rb") as f:
+        with io.open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
 
@@ -158,11 +191,19 @@ class CustomModel(object):
 
     @property
     def file(self):
-        return abspath(inspect.getfile(self.cls))
+        try:
+            file = inspect.getfile(self.cls)
+        except TypeError:
+            return None
+        else:
+            return abspath(file)
 
     @property
     def path(self):
-        return dirname(self.file)
+        if self.file is None:
+            return os.getcwd()
+        else:
+            return dirname(self.file)
 
     @property
     def implementation(self):
@@ -175,7 +216,7 @@ class CustomModel(object):
                 impl = CoffeeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
-            impl = impl.__class__(impl.code, self.file + ":" + self.name)
+            impl = impl.__class__(impl.code, (self.file or "<string>") + ":" + self.name)
 
         return impl
 
@@ -199,7 +240,7 @@ def gen_custom_models_static():
     exports = []
     modules = []
 
-    with open(join(bokehjs_dir, "js", "modules.json")) as f:
+    with io.open(join(bokehjs_dir, "js", "modules.json"), encoding="utf-8") as f:
         known_modules = json.loads(f.read())
 
     known_modules = set(known_modules["bokehjs"] + known_modules["widgets"])
@@ -244,7 +285,7 @@ def gen_custom_models_static():
                     code = compiled.code
                     deps = compiled.deps
 
-                sig = hashlib.sha256(code).hexdigest()
+                sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
                 resolved[module] = sig
 
                 deps_map = resolve_deps(deps, dirname(path))

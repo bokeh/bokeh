@@ -7,6 +7,16 @@ p = require "../../core/properties"
 
 class ImageView extends Glyph.View
 
+  initialize: (options) ->
+    super(options)
+    @listenTo(@model.color_mapper, 'change', @_update_image)
+
+  _update_image: () ->
+    # Only reset image_data if already initialized
+    if @image_data?
+      @_set_data()
+      @plot_view.request_render()
+
   _index_data: () ->
     @_xy_index()
 
@@ -52,8 +62,13 @@ class ImageView extends Glyph.View
       @_xy_index()
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+    switch @model.properties.dw.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+      when "screen" then @sw = @_dw
+
+    switch @model.properties.dh.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+      when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
@@ -95,8 +110,8 @@ class Image extends Glyph.Model
   @mixins []
   @define {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
-      dw:           [ p.NumberSpec       ]
-      dh:           [ p.NumberSpec       ]
+      dw:           [ p.DistanceSpec     ]
+      dh:           [ p.DistanceSpec     ]
       dilate:       [ p.Bool,      false ]
       color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys.Greys9) ]
   }

@@ -10,7 +10,6 @@ declare namespace Bokeh {
         low?: number;
         high?: number;
 
-        reserve_color?: Color;
-        reserve_val?: number;
+        nan_color?: Color;
     }
 }

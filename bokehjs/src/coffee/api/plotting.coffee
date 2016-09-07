@@ -121,7 +121,6 @@ class Figure extends models.Plot
   arc:               (args...) -> @_glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args)
   bezier:            (args...) -> @_glyph(models.Bezier,       "x0,y0,x1,y1,cx0,cy0,cx1,cy1",                         args)
   ellipse:           (args...) -> @_glyph(models.Ellipse,      "x,y,width,height",                                    args)
-  gear:              (args...) -> @_glyph(models.Gear,         "x,y,module,teeth",                                    args)
   image:             (args...) -> @_glyph(models.Image,        "color_mapper,image,rows,cols,x,y,dw,dh",              args)
   image_rgba:        (args...) -> @_glyph(models.ImageRGBA,    "image,rows,cols,x,y,dw,dh",                           args)
   image_url:         (args...) -> @_glyph(models.ImageURL,     "url,x,y,w,h",                                         args)

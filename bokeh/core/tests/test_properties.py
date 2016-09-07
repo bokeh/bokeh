@@ -3,11 +3,12 @@ from __future__ import absolute_import
 import datetime
 import unittest
 import numpy as np
+import pandas as pd
 from copy import copy
 
 from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
-    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
+    Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
     DistanceSpec, Override, Include, MinMaxBounds, TitleProp)
 
@@ -1036,6 +1037,37 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Seq(self):
+        with self.assertRaises(TypeError):
+            prop = Seq()
+
+        prop = Seq(Int)
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertTrue(prop.is_valid(()))
+        self.assertTrue(prop.is_valid([]))
+        self.assertTrue(prop.is_valid(np.array([])))
+        self.assertFalse(prop.is_valid(set([])))
+        self.assertFalse(prop.is_valid({}))
+        self.assertTrue(prop.is_valid((1, 2)))
+        self.assertTrue(prop.is_valid([1, 2]))
+        self.assertTrue(prop.is_valid(np.array([1, 2])))
+        self.assertFalse(prop.is_valid({1, 2}))
+        self.assertFalse(prop.is_valid({1: 2}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        df = pd.DataFrame([1, 2])
+        self.assertTrue(prop.is_valid(df.index))
+        self.assertTrue(prop.is_valid(df.iloc[0]))
 
     def test_List(self):
         with self.assertRaises(TypeError):

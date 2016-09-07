@@ -19,8 +19,8 @@ from warnings import warn
 from six import string_types
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
+    AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
+    FILE, NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
@@ -29,18 +29,23 @@ from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
 
+def _prefix(text, prefix):
+    return "\n".join([ prefix + line for line in text.split("\n") ])
+
+def _indent(text):
+    return _prefix(text, "    ")
+
+def _wrap(pre, text, post):
+    return '%s%s%s' % (pre, _indent(text), post)
 
 def _wrap_in_function(code):
-    # indent and wrap Bokeh function def around
-    code = "\n".join(["    " + line for line in code.split("\n")])
-    return 'Bokeh.$(function() {\n%s\n});' % code
+    return _wrap('Bokeh.$(function() {\n', code, '\n});')
 
+def _wrap_in_safely(code):
+    return _wrap('Bokeh.safely(function() {\n', code, '\n});')
 
 def _wrap_in_onload(code):
-    # indent and wrap Bokeh function def around
-    code = "\n".join(["    " + line for line in code.split("\n")])
-    return 'document.addEventListener("DOMContentLoaded", function(event) {\n%s\n});' % code
-
+    return _wrap('document.addEventListener("DOMContentLoaded", function(event) {\n', code, '\n});')
 
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
@@ -237,17 +242,24 @@ def notebook_div(model, notebook_comms_target=None):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
-    item['notebook_comms_target'] = notebook_comms_target
+    if notebook_comms_target:
+        item['notebook_comms_target'] = notebook_comms_target
+    else:
+        notebook_comms_target = ''
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    script = _wrap_in_function(DOC_JS.render(
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
+    ))
     resources = EMPTY
 
-    js = AUTOLOAD_JS.render(
+    js = AUTOLOAD_NB_JS.render(
+        comms_target=notebook_comms_target,
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
-        elementid = item['elementid'],
+        elementid = item['elementid']
     )
     div = _div_for_render_item(item)
 
@@ -430,11 +442,11 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
-    plot_js = _wrap_in_function(DOC_JS.render(
+    plot_js = _wrap_in_function(_wrap_in_safely(DOC_JS.render(
         websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
-    ))
+    )))
 
     if wrap_script:
         return SCRIPT_TAG.render(js_code=plot_js)
