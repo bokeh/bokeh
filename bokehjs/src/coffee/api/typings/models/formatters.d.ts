@@ -29,7 +29,6 @@ declare namespace Bokeh {
     export interface FuncTickFormatter extends TickFormatter, IFuncTickFormatter {}
     export interface IFuncTickFormatter extends ITickFormatter {
         code?: string;
-        lang?: ScriptingLanguage;
     }
 
     export var NumeralTickFormatter: { new(attributes?: INumeralTickFormatter, options?: ModelOpts): NumeralTickFormatter };

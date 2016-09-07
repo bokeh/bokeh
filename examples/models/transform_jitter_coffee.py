@@ -28,19 +28,17 @@ label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data, ren
                      text_baseline="top", text_align='center')
 p.add_layout(label_set)
 
-callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
-    var data = source.get('data');
-    for (var i = 0; i < data['y'].length; i++) {
-        data['xn'][i] = normal.compute(data['x'][i] + 1);
-    }
-    for (var i = 0; i < data['y'].length; i++) {
-        data['xu'][i] = uniform.compute(data['x'][i] + 2);
-    }
-    source.trigger('change');
+callback=CustomJS.from_coffeescript(args=dict(source=source, normal=normal, uniform=uniform), code="""
+    data = source.get 'data'
+    for i in [0...data['y'].length]
+        data['xn'][i] = normal.compute(data['x'][i] + 1)
+    for i in [0...data['y'].length]
+        data['xu'][i] = uniform.compute(data['x'][i] + 2)
+    source.trigger 'change'
 """)
 
 button = Button(label='Press to apply Jitter!', callback=callback)
 
-output_file("transform_jitter.html", title="Example Jitter Transform")
+output_file("transform_jitter_coffee.html", title="Example Jitter Transform (CoffeeScript callback)")
 
 show(Column(WidgetBox(button,width=300), p))

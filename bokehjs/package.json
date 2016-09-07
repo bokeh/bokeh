@@ -65,7 +65,12 @@
     "jsdom": "^5.6.1",
     "websocket":"^1.0.22",
     "typings": "^0.7.9",
-    "typings-core": "^0.2.11"
+    "typings-core": "^0.2.11",
+    "detective": "^4.3.1",
+    "jslint": "^0.10.3",
+    "acorn": "^3.3.0",
+    "less": "^2.7.1",
+    "request": "^2.74.0"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -80,7 +85,6 @@
     "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
-    "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
     "gloo2": "./src/vendor/gloo/gloo2.js"
   },
