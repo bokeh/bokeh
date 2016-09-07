@@ -87,8 +87,8 @@ class WedgeView extends Glyph.View
       .value()
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
 class Wedge extends Glyph.Model
   default_view: WedgeView

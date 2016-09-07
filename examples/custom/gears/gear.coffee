@@ -112,8 +112,8 @@ class GearView extends Glyph.View
 
     return
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
 class Gear extends Glyph.Model
   default_view: GearView

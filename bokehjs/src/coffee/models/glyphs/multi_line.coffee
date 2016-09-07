@@ -110,8 +110,8 @@ class MultiLineView extends Glyph.View
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
     return [res.x, res.y]
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
 class MultiLine extends Glyph.Model
   default_view: MultiLineView
