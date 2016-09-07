@@ -17,10 +17,11 @@ from ..core.properties import (
 )
 
 from .formatters import TickFormatter, BasicTickFormatter
-from .mappers import ColorMapper
+from .mappers import ContinuousColorMapper
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tickers import Ticker, BasicTicker
+
 
 @abstract
 class Annotation(Renderer):
@@ -182,8 +183,8 @@ class ColorBar(Annotation):
     A TickFormatter to use for formatting the visual appearance of ticks.
     """)
 
-    color_mapper = Instance(ColorMapper, help="""
-    A color mapper containing a color palette to render.
+    color_mapper = Instance(ContinuousColorMapper, help="""
+    A continuous color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ColorMapper aren't set, ticks

@@ -9,8 +9,6 @@ class ColorMapper extends Model
 
   @define {
       palette:       [ p.Any              ] # TODO (bev)
-      high:          [ p.Number           ]
-      low:           [ p.Number           ]
       nan_color:     [ p.Color, "gray"    ]
     }
 
