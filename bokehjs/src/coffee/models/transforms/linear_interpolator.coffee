@@ -4,9 +4,6 @@ Interpolator = require "./interpolator"
 
 class LinearInterpolator extends Interpolator.Model
 
-  defaults: ->
-    return _.extend({}, super())
-
   compute: (x) ->
     # Apply the transform to a single value
     @sort(descending = false)

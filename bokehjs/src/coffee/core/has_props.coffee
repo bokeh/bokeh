@@ -1,6 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "./backbone"
 
 {logger} = require "./logging"
 property_mixins = require "./property_mixins"
@@ -17,7 +17,7 @@ class HasProps extends Backbone.Model
         if this.prototype.props[name]?
           throw new Error("attempted to redefine property '#{this.name}.#{name}'")
 
-        if this.prototype[name]? and name != "url" # TODO: remove when we drop backbone
+        if this.prototype[name]?
           throw new Error("attempted to redefine attribute '#{this.name}.#{name}'")
 
         Object.defineProperty(this.prototype, name, {
@@ -72,11 +72,6 @@ class HasProps extends Backbone.Model
 
   toString: () -> "#{@type}(#{@id})"
 
-  destroy: (options)->
-    # calls super, also unbinds any events bound by listenTo
-    super(options)
-    @stopListening()
-
   constructor : (attributes, options) ->
     @document = null
 
@@ -84,7 +79,6 @@ class HasProps extends Backbone.Model
     attrs = attributes || {}
     if not options
       options = {}
-    this.cid = _.uniqueId('c')
     this.attributes = {}
 
     @properties = {}
@@ -92,9 +86,6 @@ class HasProps extends Backbone.Model
       if not type?
         throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
-
-    if options.parse
-      attrs = this.parse(attrs, options) || {}
 
     # Bokeh specific
     this._set_after_defaults = {}
@@ -251,10 +242,6 @@ class HasProps extends Backbone.Model
   set_subtype: (subtype) ->
     @_subtype = subtype
 
-  sync: (method, model, options) ->
-    # make this a no-op, we sync the whole document never individual models
-    return options.success(model.attributes, null, {})
-
   defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   attribute_is_serializable: (attr) ->
@@ -275,15 +262,6 @@ class HasProps extends Backbone.Model
       if @attribute_is_serializable(name)
         attrs[name] = value
     return attrs
-
-  # JSON serialization requires special measures to deal with cycles,
-  # which means objects can't be serialized independently but only
-  # as a whole object graph. This catches mistakes where we accidentally
-  # try to serialize an object in the wrong place (for example if
-  # we leave an object instead of a ref in a message we try to send
-  # over the websocket, or if we try to use Backbone's sync stuff)
-  toJSON: (options) ->
-    throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
 
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps

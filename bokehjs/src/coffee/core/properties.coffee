@@ -1,5 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "./backbone"
 
 enums = require "./enums"
 svg_colors = require "./util/svg_colors"
