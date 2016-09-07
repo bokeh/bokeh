@@ -17,40 +17,24 @@ class CompositeTicker extends ContinuousTicker.Model
   # if S comes before T, then it should be the case that
   # S.get_max_interval() < T.get_min_interval().
   # FIXME Enforce this automatically.
-  initialize: (attrs, options) ->
-    super(attrs, options)
 
-    tickers = @get('tickers')
-    @define_computed_property('min_intervals',
-        () -> _.invoke(tickers, 'get_min_interval')
-      , true)
-    @add_dependencies('min_intervals', this, ['tickers'])
-
-    @define_computed_property('max_intervals',
-        () -> _.invoke(tickers, 'get_max_interval')
-      , true)
-    @add_dependencies('max_intervals', this, ['tickers'])
-
-    @define_computed_property('min_interval',
-        () -> _.first(@get('min_intervals'))
-      , true)
-    @add_dependencies('min_interval', this, ['min_intervals'])
-
-    @define_computed_property('max_interval',
-        () -> _.first(@get('max_intervals'))
-      , true)
-    @add_dependencies('max_interval', this, ['max_interval'])
+  @getters {
+    min_intervals: () -> _.invoke(@tickers, 'get_min_interval')
+    max_intervals: () -> _.invoke(@tickers, 'get_max_interval')
+    min_interval: () -> _.first(@min_intervals)
+    max_interval: () -> _.first(@max_intervals)
+  }
 
   get_best_ticker: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low
     ideal_interval = @get_ideal_interval(data_low, data_high,
                                          desired_n_ticks)
     ticker_ndxs = [
-      _.sortedIndex(@get('min_intervals'), ideal_interval) - 1,
-      _.sortedIndex(@get('max_intervals'), ideal_interval)
+      _.sortedIndex(@min_intervals, ideal_interval) - 1,
+      _.sortedIndex(@max_intervals, ideal_interval)
     ]
-    intervals = [@get('min_intervals')[ticker_ndxs[0]],
-                 @get('max_intervals')[ticker_ndxs[1]]]
+    intervals = [@min_intervals[ticker_ndxs[0]],
+                 @max_intervals[ticker_ndxs[1]]]
     errors = intervals.map((interval) ->
       return Math.abs(desired_n_ticks - (data_range / interval)))
 

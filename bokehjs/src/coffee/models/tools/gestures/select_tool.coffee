@@ -9,15 +9,15 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @mget('computed_renderers')
+      for r in @model.computed_renderers
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.clear()
 
   _save_geometry: (geometry, final, append) ->
     g = _.clone(geometry)
-    xm = @plot_view.frame.get('x_mappers')['default']
-    ym = @plot_view.frame.get('y_mappers')['default']
+    xm = @plot_view.frame.x_mappers['default']
+    ym = @plot_view.frame.y_mappers['default']
     if g.type == 'point'
       g.x = xm.map_from_target(g.vx)
       g.y = ym.map_from_target(g.vy)
@@ -77,7 +77,9 @@ class SelectTool extends GestureTool.Model
     @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
     @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
 
-    return null
+  @getters {
+    computed_renderers: () -> @_get_computed('computed_renderers')
+  }
 
 module.exports =
   Model: SelectTool

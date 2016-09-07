@@ -33,11 +33,11 @@ describe "datarange1d module", ->
 
     # Math.min(null, null) == 0
     it "should have min = 0", ->
-      expect(r.get('min')).to.be.equal 0
+      expect(r.min).to.be.equal 0
 
     # Math.max(null, null) == 0
     it "should have max = 0", ->
-      expect(r.get('max')).to.be.equal 0
+      expect(r.max).to.be.equal 0
 
     it "should have flipped = false", ->
       expect(r.get('flipped')).to.be.equal false
@@ -64,10 +64,10 @@ describe "datarange1d module", ->
       expect(r.get('end')).to.be.equal 20
 
     it "should have min = 10", ->
-      expect(r.get('min')).to.be.equal 10
+      expect(r.min).to.be.equal 10
 
     it "should have max = 20", ->
-      expect(r.get('max')).to.be.equal 20
+      expect(r.max).to.be.equal 20
 
   describe "reset", ->
 

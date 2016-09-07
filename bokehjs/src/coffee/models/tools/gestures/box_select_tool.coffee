@@ -62,7 +62,7 @@ class BoxSelectToolView extends SelectTool.View
       vy1: vy1
     }
 
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
@@ -75,7 +75,7 @@ class BoxSelectToolView extends SelectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('computed_renderers')[0]
+    r = @model.computed_renderers[0]
     canvas = @plot_model.get('canvas')
     frame = @plot_model.get('frame')
 
@@ -84,8 +84,8 @@ class BoxSelectToolView extends SelectTool.View
     geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
     geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
 
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    xmapper = frame.x_mappers[r.get('x_range_name')]
+    ymapper = frame.y_mappers[r.get('y_range_name')]
     geometry['x0'] = xmapper.map_from_target(geometry.vx0)
     geometry['x1'] = xmapper.map_from_target(geometry.vx1)
     geometry['y0'] = ymapper.map_from_target(geometry.vy0)
@@ -119,21 +119,15 @@ class BoxSelectTool extends SelectTool.Model
   default_order: 30
 
   @define {
-      dimensions:             [ p.Array,    ["width", "height"] ]
-      select_every_mousemove: [ p. Bool,    false               ]
-      callback:               [ p.Instance                      ]
-      overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
-    }
+    dimensions:             [ p.Array,    ["width", "height"] ]
+    select_every_mousemove: [ p. Bool,    false               ]
+    callback:               [ p.Instance                      ]
+    overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimensions'), "box select tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "box select tool"))
+  }
 
 module.exports =
   Model: BoxSelectTool

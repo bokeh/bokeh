@@ -9,10 +9,10 @@ class BoxZoomToolView extends GestureTool.View
   _match_aspect: (basepoint, curpoint, frame) ->
 
     # aspect ratio of plot frame
-    hend = frame.get('h_range').get('end')
-    hstart = frame.get('h_range').get('start')
-    vend = frame.get('v_range').get('end')
-    vstart = frame.get('v_range').get('start')
+    hend = frame.h_range.get('end')
+    hstart = frame.h_range.get('start')
+    vend = frame.v_range.get('end')
+    vstart = frame.v_range.get('start')
     w = hend - hstart
     h = vend - vstart
     a = w/h
@@ -131,12 +131,12 @@ class BoxZoomToolView extends GestureTool.View
       return
 
     xrs = {}
-    for name, mapper of @plot_view.frame.get('x_mappers')
+    for name, mapper of @plot_view.frame.x_mappers
       [start, end] = mapper.v_map_from_target(vx, true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of @plot_view.frame.get('y_mappers')
+    for name, mapper of @plot_view.frame.y_mappers
       [start, end] = mapper.v_map_from_target(vy, true)
       yrs[name] = {start: start, end: end}
 
@@ -171,21 +171,15 @@ class BoxZoomTool extends GestureTool.Model
   event_type: "pan"
   default_order: 20
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimensions'), "box zoom tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "box zoom tool"))
+  }
 
   @define {
-      dimensions:   [ p.Array,    ["width", "height"] ]
-      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
-      match_aspect: [ p.Bool,     false               ]
-    }
+    dimensions:   [ p.Array,    ["width", "height"] ]
+    overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
+    match_aspect: [ p.Bool,     false               ]
+  }
 
 module.exports =
   Model: BoxZoomTool

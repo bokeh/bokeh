@@ -19,8 +19,8 @@ class WheelZoomToolView extends GestureTool.View
 
   _scroll: (e) ->
     frame = @plot_model.get('frame')
-    hr = frame.get('h_range')
-    vr = frame.get('v_range')
+    hr = frame.h_range
+    vr = frame.v_range
 
     vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
@@ -72,12 +72,12 @@ class WheelZoomToolView extends GestureTool.View
       sy1 = vy_high
 
     xrs = {}
-    for name, mapper of frame.get('x_mappers')
+    for name, mapper of frame.x_mappers
       [start, end] = mapper.v_map_from_target([sx0, sx1], true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of frame.get('y_mappers')
+    for name, mapper of frame.y_mappers
       [start, end] = mapper.v_map_from_target([sy0, sy1], true)
       yrs[name] = {start: start, end: end}
 
@@ -102,20 +102,13 @@ class WheelZoomTool extends GestureTool.Model
   event_type: if ('ontouchstart' of window or navigator.maxTouchPoints > 0) then 'pinch' else 'scroll'
   default_order: 10
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimensions'), "wheel zoom tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "wheel zoom tool"))
+  }
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
-    }
+    dimensions: [ p.Array, ["width", "height"] ]
+  }
 
   @internal {
     speed: [ p.Number, 1/600 ]

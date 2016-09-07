@@ -76,17 +76,17 @@ class PlotCanvasView extends Renderer.View
       range: null                     # set later by set_initial_range()
       selection: {}                   # XXX: initial selection?
       dimensions: {
-        width: @mget("canvas").get("width")
-        height: @mget("canvas").get("height")
+        width: @mget("canvas").width
+        height: @mget("canvas").height
       }
     }
 
     # compat, to be removed
     @frame = @mget('frame')
-    @x_range = @frame.get('x_ranges')['default']
-    @y_range = @frame.get('y_ranges')['default']
-    @xmapper = @frame.get('x_mappers')['default']
-    @ymapper = @frame.get('y_mappers')['default']
+    @x_range = @frame.x_ranges['default']
+    @y_range = @frame.y_ranges['default']
+    @xmapper = @frame.x_mappers['default']
+    @ymapper = @frame.y_mappers['default']
 
     @canvas = @mget('canvas')
     @canvas_view = new @canvas.default_view({'model': @canvas})
@@ -198,14 +198,14 @@ class PlotCanvasView extends Renderer.View
     follow_enabled = false
     has_bounds = false
 
-    for xr in _.values(frame.get('x_ranges'))
+    for xr in _.values(frame.x_ranges)
       if xr instanceof DataRange1d.Model
         xr.update(bounds, 0, @model.id)
         if xr.get('follow')
           follow_enabled = true
       has_bounds = true if xr.get('bounds')?
 
-    for yr in _.values(frame.get('y_ranges'))
+    for yr in _.values(frame.y_ranges)
       if yr instanceof DataRange1d.Model
         yr.update(bounds, 1, @model.id)
         if yr.get('follow')
@@ -214,9 +214,9 @@ class PlotCanvasView extends Renderer.View
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.get('x_ranges'))
+      for xr in _.values(frame.x_ranges)
         xr.set('bounds', null)
-      for yr in _.values(frame.get('y_ranges'))
+      for yr in _.values(frame.y_ranges)
         yr.set('bounds', null)
 
     @range_update_timestamp = Date.now()
@@ -402,18 +402,18 @@ class PlotCanvasView extends Renderer.View
   update_range: (range_info, is_panning, is_scrolling) ->
     @pause
     if not range_info?
-      for name, rng of @frame.get('x_ranges')
+      for name, rng of @frame.x_ranges
         rng.reset()
         rng.get('callback')?.execute(rng)
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         rng.reset()
         rng.get('callback')?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []
-      for name, rng of @frame.get('x_ranges')
+      for name, rng of @frame.x_ranges
         range_info_iter.push([rng, range_info.xrs[name]])
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         range_info_iter.push([rng, range_info.yrs[name]])
       if is_scrolling
         @_update_ranges_together(range_info_iter)  # apply interval bounds while keeping aspect
@@ -426,7 +426,7 @@ class PlotCanvasView extends Renderer.View
   build_levels: () ->
     renderer_models = @model.plot.renderers
     for tool_model in @model.plot.toolbar.tools
-      synthetic = tool_model.get("synthetic_renderers")
+      synthetic = tool_model.synthetic_renderers
       renderer_models = renderer_models.concat(synthetic)
 
     # should only bind events on NEW views and tools
@@ -453,9 +453,9 @@ class PlotCanvasView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @model.frame.get('x_ranges')
+    for name, rng of @model.frame.x_ranges
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @model.frame.get('y_ranges')
+    for name, rng of @model.frame.y_ranges
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model.plot, 'change:renderers', @build_levels)
     @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
@@ -469,7 +469,7 @@ class PlotCanvasView extends Renderer.View
     # check for good values for ranges before setting initial range
     good_vals = true
     xrs = {}
-    for name, rng of @frame.get('x_ranges')
+    for name, rng of @frame.x_ranges
       if (not rng.get('start')? or not rng.get('end')? or
           _.isNaN(rng.get('start') + rng.get('end')))
         good_vals = false
@@ -477,7 +477,7 @@ class PlotCanvasView extends Renderer.View
       xrs[name] = { start: rng.get('start'), end: rng.get('end') }
     if good_vals
       yrs = {}
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         if (not rng.get('start')? or not rng.get('end')? or
             _.isNaN(rng.get('start') + rng.get('end')))
           good_vals = false
@@ -530,10 +530,10 @@ class PlotCanvasView extends Renderer.View
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame.get('left')),
-      @canvas.vy_to_sy(@frame.get('top')),
-      @frame.get('width'),
-      @frame.get('height'),
+      @canvas.vx_to_sx(@frame.left),
+      @canvas.vy_to_sy(@frame.top),
+      @frame.width,
+      @frame.height,
     ]
 
     @_map_hook(ctx, frame_box)
@@ -598,8 +598,8 @@ class PlotCanvasView extends Renderer.View
     s = @model.document.solver()
 
     # Note: -1 to effectively dilate the canvas by 1px
-    s.suggest_value(@frame._width, @canvas.get('width') - 1)
-    s.suggest_value(@frame._height, @canvas.get('height') - 1)
+    s.suggest_value(@frame._width, @canvas.width - 1)
+    s.suggest_value(@frame._height, @canvas.height - 1)
 
     for model_id, view of @renderer_views
       if view.model.panel?
@@ -633,10 +633,10 @@ class PlotCanvasView extends Renderer.View
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.clearRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+    ctx.clearRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
-      ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+      ctx.fillRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
       ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)

@@ -32,8 +32,8 @@ class LassoSelectToolView extends SelectTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
 
-    h_range = @plot_model.get('frame').get('h_range')
-    v_range = @plot_model.get('frame').get('v_range')
+    h_range = @plot_model.get('frame').h_range
+    v_range = @plot_model.get('frame').v_range
     if vx > h_range.get('end')
       vx = h_range.get('end')
     if vx < h_range.get('start')
@@ -70,7 +70,7 @@ class LassoSelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('computed_renderers')
+    for r in @model.computed_renderers
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
@@ -83,15 +83,15 @@ class LassoSelectToolView extends SelectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('computed_renderers')[0]
+    r = @model.computed_renderers[0]
     canvas = @plot_model.get('canvas')
     frame = @plot_model.get('frame')
 
     geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.v_vy_to_sy(geometry.vy)
 
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    xmapper = frame.x_mappers[r.get('x_range_name')]
+    ymapper = frame.y_mappers[r.get('y_range_name')]
     geometry['x'] = xmapper.v_map_from_target(geometry.vx)
     geometry['y'] = ymapper.v_map_from_target(geometry.vy)
 

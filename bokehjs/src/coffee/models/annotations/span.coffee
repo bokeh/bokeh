@@ -35,19 +35,19 @@ class SpanView extends Annotation.View
 
     frame = @plot_model.get('frame')
     canvas = @plot_model.get('canvas')
-    xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
+    ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
 
     if @mget('dimension') == 'width'
       stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
-      sleft = canvas.vx_to_sx(frame.get('left'))
-      width = frame.get('width')
+      sleft = canvas.vx_to_sx(frame.left)
+      width = frame.width
       height = @model.properties.line_width.value()
     else
-      stop = canvas.vy_to_sy(frame.get('top'))
+      stop = canvas.vy_to_sy(frame.top)
       sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
       width = @model.properties.line_width.value()
-      height = frame.get('height')
+      height = frame.height
 
     if @mget("render_mode") == "css"
       @$el.css({

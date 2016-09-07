@@ -13,8 +13,8 @@ class PanToolView extends GestureTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
     if not frame.contains(vx, vy)
-      hr = frame.get('h_range')
-      vr = frame.get('v_range')
+      hr = frame.h_range
+      vr = frame.v_range
       if vx < hr.get('start') or vx > hr.get('end')
         @v_axis_only = true
       if vy < vr.get('start') or vy > vr.get('end')
@@ -39,11 +39,11 @@ class PanToolView extends GestureTool.View
     new_dx = dx - @last_dx
     new_dy = dy - @last_dy
 
-    hr = _.clone(frame.get('h_range'))
+    hr = _.clone(frame.h_range)
     sx_low  = hr.get('start') - new_dx
     sx_high = hr.get('end') - new_dx
 
-    vr = _.clone(frame.get('v_range'))
+    vr = _.clone(frame.v_range)
     sy_low  = vr.get('start') - new_dy
     sy_high = vr.get('end') - new_dy
 
@@ -71,12 +71,12 @@ class PanToolView extends GestureTool.View
     @last_dy = dy
 
     xrs = {}
-    for name, mapper of frame.get('x_mappers')
+    for name, mapper of frame.x_mappers
       [start, end] = mapper.v_map_from_target([sx0, sx1], true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of frame.get('y_mappers')
+    for name, mapper of frame.y_mappers
       [start, end] = mapper.v_map_from_target([sy0, sy1], true)
       yrs[name] = {start: start, end: end}
 
@@ -99,19 +99,12 @@ class PanTool extends GestureTool.Model
   default_order: 10
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
-    }
+    dimensions: [ p.Array, ["width", "height"] ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          "Pan",
-          @_check_dims(@get('dimensions'), "pan tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip("Pan", @_check_dims(@dimensions, "pan tool"))
+  }
 
 module.exports =
   Model: PanTool

@@ -11,17 +11,13 @@ class CustomJS extends Model
       code: [ p.String,  ''           ]
     }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @define_computed_property('values', @_make_values, true)
-    @add_dependencies('values', @, ['args'])
-
-    @define_computed_property('func', @_make_func, true)
-    @add_dependencies('func', @, ['args', 'code'])
+  @getters {
+    values: () -> @_make_values()
+    func: () -> @_make_func()
+  }
 
   execute: (cb_obj, cb_data) ->
-    @get('func')(@get('values')..., cb_obj, cb_data, require)
+    @func(@values..., cb_obj, cb_data, require)
 
   _make_values: () ->
     _.values(@get("args"))

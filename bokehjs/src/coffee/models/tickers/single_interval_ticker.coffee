@@ -10,23 +10,15 @@ class SingleIntervalTicker extends ContinuousTicker.Model
   type: 'SingleIntervalTicker'
 
   @define {
-      interval: [ p.Number ]
-    }
+    interval: [ p.Number ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('min_interval',
-        () -> @get('interval')
-      , true)
-    @add_dependencies('min_interval', this, ['interval'])
+  @getters {
+    min_interval: () -> @interval
+    max_interval: () -> @interval
+  }
 
-    @define_computed_property('max_interval',
-        () -> @get('interval')
-      , true)
-    @add_dependencies('max_interval', this, ['interval'])
-
-  get_interval: (data_low, data_high, n_desired_ticks) ->
-    return @get('interval')
+  get_interval: (data_low, data_high, n_desired_ticks) -> @interval
 
 module.exports =
   Model: SingleIntervalTicker

@@ -119,7 +119,7 @@ class Plot extends LayoutDOM.Model
     if not @height?
       @height = @plot_height
 
-  Object.defineProperty(this.prototype, "plot_canvas", { get: () -> @_plot_canvas })
+  @getter("plot_canvas", () -> @_plot_canvas)
 
   _doc_attached: () ->
     # Setup side renderers

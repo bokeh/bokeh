@@ -18,9 +18,9 @@ class DynamicImageView extends Renderer.View
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_view.frame
     @x_range = @map_plot.get('x_range')
-    @x_mapper = this.map_frame.get('x_mappers')['default']
+    @x_mapper = this.map_frame.x_mappers['default']
     @y_range = @map_plot.get('y_range')
-    @y_mapper = this.map_frame.get('y_mappers')['default']
+    @y_mapper = this.map_frame.y_mappers['default']
     @lastImage = undefined
     @extent = @get_extent()
 
@@ -52,7 +52,7 @@ class DynamicImageView extends Renderer.View
       cache_key : bounds.join(':')
 
     @mget('image_source').add_image(image.image_data)
-    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.get('height')), Math.ceil(@map_frame.get('width')))
+    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.height), Math.ceil(@map_frame.width))
     return image
 
   render: (ctx, indices, args) ->
@@ -99,10 +99,10 @@ class DynamicImageView extends Renderer.View
 
   _set_rect:() ->
     outline_width = @plot_model.plot.properties.outline_line_width.value()
-    l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
-    t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
-    w = @map_frame.get('width') - outline_width
-    h = @map_frame.get('height') - outline_width
+    l = @plot_view.canvas.vx_to_sx(@map_frame.left) + (outline_width/2)
+    t = @plot_view.canvas.vy_to_sy(@map_frame.top) + (outline_width/2)
+    w = @map_frame.width - outline_width
+    h = @map_frame.height - outline_width
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 

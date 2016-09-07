@@ -22,33 +22,33 @@ describe "factor_range module", ->
 
     it "should return values from synthetic range", ->
 
-      expect(r.get('min')).to.be.equal 0.5
-      expect(r.get('max')).to.be.equal 1.5
+      expect(r.min).to.be.equal 0.5
+      expect(r.max).to.be.equal 1.5
 
     it "should update when factors update", ->
       r.set('factors', ['FOO', 'BAR'])
 
-      expect(r.get('min')).to.be.equal 0.5
-      expect(r.get('max')).to.be.equal 2.5
+      expect(r.min).to.be.equal 0.5
+      expect(r.max).to.be.equal 2.5
 
       r.set('factors', ['A', 'B', 'C'])
 
-      expect(r.get('min')).to.be.equal 0.5
-      expect(r.get('max')).to.be.equal 3.5
+      expect(r.min).to.be.equal 0.5
+      expect(r.max).to.be.equal 3.5
 
     it "min should equal start", ->
-      expect(r.get('min')).to.be.equal r.get('start')
+      expect(r.min).to.be.equal r.get('start')
 
     it "max should equal end", ->
-      expect(r.get('max')).to.be.equal r.get('end')
+      expect(r.max).to.be.equal r.get('end')
 
   describe "offset property", ->
     r = new FactorRange({factors: ['FOO'], offset: -1})
 
     it "should be applied to other properties", ->
 
-      expect(r.get('min')).to.be.equal -0.5
-      expect(r.get('max')).to.be.equal 0.5
+      expect(r.min).to.be.equal -0.5
+      expect(r.max).to.be.equal 0.5
 
       expect(r.get('start')).to.be.equal -0.5
       expect(r.get('end')).to.be.equal 0.5

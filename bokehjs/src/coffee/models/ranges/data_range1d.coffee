@@ -24,16 +24,6 @@ class DataRange1d extends DataRange.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('min',
-        () -> Math.min(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('min', this, ['start', 'end'])
-
-    @define_computed_property('max',
-        () -> Math.max(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('max', this, ['start', 'end'])
-
     @plot_bounds = {}
 
     @have_updated_interactively = false
@@ -43,6 +33,11 @@ class DataRange1d extends DataRange.Model
     @_initial_follow = @get('follow')
     @_initial_follow_interval = @get('follow_interval')
     @_initial_default_span = @get('default_span')
+
+  @getters {
+    min: () -> Math.min(@start, @end)
+    max: () -> Math.max(@start, @end)
+  }
 
   computed_renderers: () ->
     # TODO (bev) check that renderers actually configured with this range

@@ -8,18 +8,15 @@ class GeoJSONDataSource extends ColumnDataSource.Model
   type: 'GeoJSONDataSource'
 
   @define {
-      geojson: [ p.Any     ] # TODO (bev)
-    }
-
-  # TODO (bev) investigate, exists on python side
-  # nonserializable_attribute_names: () ->
-  #   super().concat(['data'])
+    geojson: [ p.Any     ] # TODO (bev)
+  }
 
   initialize: (options) ->
     super(options)
-    @geojson_to_column_data() # this just validates the initial geojson value
-    @define_computed_property('data', @geojson_to_column_data, true)
-    @add_dependencies('data', this, ['geojson'])
+    @_update_data()
+    @listenTo(@, 'change:geojson', () => @_update_data())
+
+  _update_data: () -> @data = @geojson_to_column_data()
 
   _get_new_list_array: (length) ->
     array = new Array(length)
@@ -32,7 +29,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
     return nan_array
 
   _flatten_function: (accumulator, currentItem) ->
-      return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem)
+    return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem)
 
   _add_properties: (item, data, i, item_count) ->
     for property of item.properties

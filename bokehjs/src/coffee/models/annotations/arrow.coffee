@@ -12,8 +12,8 @@ class ArrowView extends Annotation.View
     if not @mget('source')?
       this.mset('source', new ColumnDataSource.Model())
     @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @xmapper = @plot_view.frame.x_mappers[@mget("x_range_name")]
+    @ymapper = @plot_view.frame.y_mappers[@mget("y_range_name")]
     @set_data()
 
   bind_bokeh_events: () ->

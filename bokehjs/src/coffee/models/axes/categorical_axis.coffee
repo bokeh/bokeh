@@ -21,7 +21,7 @@ class CategoricalAxis extends Axis.Model
     [range, cross_range] = @get('ranges')
 
     user_bounds = @get('bounds') ? 'auto'
-    range_bounds = [range.get('min'), range.get('max')]
+    range_bounds = [range.min, range.max]
 
     if user_bounds != 'auto'
       logger.warn("Categorical Axes only support user_bounds='auto', ignoring")

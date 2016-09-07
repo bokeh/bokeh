@@ -14,62 +14,42 @@ p = require "../../core/properties"
 class CartesianFrame extends LayoutCanvas.Model
   type: 'CartesianFrame'
 
+  @getters {
+    x_ranges: () -> @_get_ranges('x')
+    y_ranges: () -> @_get_ranges('y')
+
+    x_mappers: () -> @_get_mappers('x', @x_ranges, @h_range)
+    y_mappers: () -> @_get_mappers('y', @y_ranges, @v_range)
+
+    mapper: () ->
+      new GridMapper.Model({
+        domain_mapper: @get('x_mapper')
+        codomain_mapper: @get('y_mapper')
+      })
+
+    h_range: () ->
+      @_h_range.set('start', @left)
+      @_h_range.set('end',   @left + @width)
+      return @_h_range
+    v_range: () ->
+      @_v_range.set('start', @bottom)
+      @_v_range.set('end',   @bottom + @height)
+      return @_v_range
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @panel = @
 
-    @define_computed_property('x_ranges',
-        () -> @_get_ranges('x')
-      , true)
-    @add_dependencies('x_ranges', this, ['x_range', 'extra_x_ranges'])
-
-    @define_computed_property('y_ranges',
-        () -> @_get_ranges('y')
-      , true)
-    @add_dependencies('y_ranges', this, ['y_range', 'extra_y_ranges'])
-
-    @define_computed_property('x_mappers',
-        () -> @_get_mappers('x', @get('x_ranges'), @get('h_range'))
-      , true)
-    @add_dependencies('x_ranges', this, ['x_ranges', 'h_range'])
-
-    @define_computed_property('y_mappers',
-        () -> @_get_mappers('y', @get('y_ranges'), @get('v_range'))
-      , true)
-    @add_dependencies('y_ranges', this, ['y_ranges', 'v_range'])
-
-    @define_computed_property('mapper',
-      () ->
-        new GridMapper.Model({
-          domain_mapper: @get('x_mapper')
-          codomain_mapper: @get('y_mapper')
-        })
-      , true)
-    @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
-
     @_h_range = new Range1d.Model({
-      start: @get('left'),
-      end:   @get('left') + @get('width')
+      start: @left,
+      end:   @left + @width
     })
-    @define_computed_property('h_range',
-        () =>
-          @_h_range.set('start', @get('left'))
-          @_h_range.set('end',   @get('left') + @get('width'))
-          return @_h_range
-      , false)
-    @add_dependencies('h_range', this, ['left', 'width'])
 
     @_v_range = new Range1d.Model({
-      start: @get('bottom'),
-      end:   @get('bottom') + @get('height')
+      start: @bottom,
+      end:   @bottom + @height
     })
-    @define_computed_property('v_range',
-        () =>
-          @_v_range.set('start', @get('bottom'))
-          @_v_range.set('end',   @get('bottom') + @get('height'))
-          return @_v_range
-      , false)
-    @add_dependencies('v_range', this, ['bottom', 'height'])
     return null
 
   _doc_attached: () ->
@@ -78,15 +58,15 @@ class CartesianFrame extends LayoutCanvas.Model
 
   contains: (vx, vy) ->
     return (
-      vx >= @get('left') and vx <= @get('right') and
-      vy >= @get('bottom') and vy <= @get('top')
+      vx >= @left and vx <= @right and
+      vy >= @bottom and vy <= @top
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
-    vx = @get('x_mappers')[x_name].v_map_to_target(x)
+    vx = @x_mappers[x_name].v_map_to_target(x)
     sx = canvas.v_vx_to_sx(vx)
 
-    vy = @get('y_mappers')[y_name].v_map_to_target(y)
+    vy = @y_mappers[y_name].v_map_to_target(y)
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 
@@ -119,10 +99,10 @@ class CartesianFrame extends LayoutCanvas.Model
     return mappers
 
   _update_mappers: () ->
-    for name, mapper of @get('x_mappers')
-      mapper.set('target_range', @get('h_range'))
-    for name, mapper of @get('y_mappers')
-      mapper.set('target_range', @get('v_range'))
+    for name, mapper of @x_mappers
+      mapper.set('target_range', @h_range)
+    for name, mapper of @y_mappers
+      mapper.set('target_range', @v_range)
     return null
 
   @internal {

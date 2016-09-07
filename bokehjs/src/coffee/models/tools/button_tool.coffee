@@ -32,9 +32,9 @@ class ButtonToolView extends Tool.View
 class ButtonTool extends Tool.Model
   icon: null
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('tooltip', () -> @tool_name)
+  @getters {
+    tooltip: () -> @tool_name
+  }
 
   @internal {
     disabled: [ p.Boolean, false ]
