@@ -39,11 +39,11 @@ class PanToolView extends GestureTool.View
     new_dx = dx - @last_dx
     new_dy = dy - @last_dy
 
-    hr = _.clone(frame.h_range)
+    hr = frame.h_range
     sx_low  = hr.start - new_dx
     sx_high = hr.end - new_dx
 
-    vr = _.clone(frame.v_range)
+    vr = frame.v_range
     sy_low  = vr.start - new_dy
     sy_high = vr.end - new_dy
 
