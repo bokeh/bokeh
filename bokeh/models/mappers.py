@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Color, Enum, Seq, Either, List, String, Int, Float, Date, Datetime
+from ..core.properties import Color, Enum, Seq, Either, String, Int, Float, Date, Datetime
 from ..core.enums import Palette
 from .. import palettes
 
@@ -40,7 +40,7 @@ class CategoricalColorMapper(ColorMapper):
 
     """
 
-    factors = Either(List(String), List(Int), List(Float), List(Datetime), List(Date), help="""
+    factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
     A list of string or integer factors (categories) to comprise
     this categorical range.
     """)
