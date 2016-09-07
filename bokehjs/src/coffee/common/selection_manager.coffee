@@ -29,7 +29,7 @@ class SelectionManager extends HasProps
       selector = @_get_selector(renderer_view)
       selector.update(indices, final, append)
 
-      @source.set({ "selected": selector.indices })
+      @source.selected = selector.indices
 
       source.trigger('select')
       source.trigger('select-' + renderer_view.model.id)
@@ -81,7 +81,7 @@ class SelectionManager extends HasProps
     else
       for k, s of @selectors
         s.clear()
-    @source.set({ "selected": hittest.create_hit_test_result()})
+    @source.selected = hittest.create_hit_test_result()
 
   _get_selector: (rview) ->
     _.setdefault(@selectors, rview.model.id, new Selector())

@@ -222,15 +222,15 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 0
     m = new SomeModel()
     m2 = new AnotherModel()
-    m.set({ child: m2 })
+    m.child = m2
     expect(m.child).to.equal m2
     d.add_root(m)
     expect(d.roots().length).to.equal 1
     expect(Object.keys(d._all_models).length).to.equal 2
 
-    m.set({ child: null })
+    m.child = null
     expect(Object.keys(d._all_models).length).to.equal 1
-    m.set({ child: m2 })
+    m.child = m2
     expect(Object.keys(d._all_models).length).to.equal 2
     d.remove_root(m)
     expect(d.roots().length).to.equal 0
@@ -242,7 +242,7 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 0
     m = new SomeModelWithChildren()
     m2 = new AnotherModel()
-    m.set({ children: [ m2 ] })
+    m.children = [m2]
     expect(m.children).to.deep.equal [ m2 ]
     # check that we get the right all_models on initial add_root
     d.add_root(m)
@@ -250,11 +250,11 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 2
 
     # check that removing children list drops the models beneath it
-    m.set({ children: [] })
+    m.children = []
     expect(Object.keys(d._all_models).length).to.equal 1
 
     # check that adding children back re-adds the models
-    m.set({ children: [ m2 ] })
+    m.children = [m2]
     expect(Object.keys(d._all_models).length).to.equal 2
 
     # check that removing root removes the models
@@ -269,7 +269,7 @@ describe "Document", ->
     m = new SomeModelWithChildren()
     m3 = new AnotherModel()
     m2 = new SomeModel({ child: m3 })
-    m.set({ children: [ m2 ] })
+    m.children = [m2]
     expect(m.children).to.deep.equal [ m2 ]
 
     # check that we get the right all_models on initial add_root
@@ -278,11 +278,11 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 3
 
     # check that removing children list drops the models beneath it
-    m.set({ children: [] })
+    m.children = []
     expect(Object.keys(d._all_models).length).to.equal 1
 
     # check that adding children back re-adds the models
-    m.set({ children: [ m2 ] })
+    m.children = [m2]
     expect(Object.keys(d._all_models).length).to.equal 3
 
     # check that removing root removes the models
@@ -294,7 +294,7 @@ describe "Document", ->
     d = new Document()
     m = new SomeModel()
     m2 = new AnotherModel()
-    m.set({ child: m2 })
+    m.child = m2
     d.add_root(m)
     expect(d.get_model_by_id(m.id)).to.equal(m)
     expect(d.get_model_by_id(m2.id)).to.equal(m2)
@@ -304,7 +304,7 @@ describe "Document", ->
     d = new Document()
     m = new SomeModel({ name : "foo" })
     m2 = new AnotherModel({ name : "bar" })
-    m.set({ child: m2 })
+    m.child = m2
     d.add_root(m)
     expect(d.get_model_by_name(m.name)).to.equal(m)
     expect(d.get_model_by_name(m2.name)).to.equal(m2)
@@ -316,7 +316,7 @@ describe "Document", ->
     d.add_root(m)
     expect(d.get_model_by_name("foo")).to.equal(m)
     expect(d.get_model_by_name("bar")).to.equal(null)
-    m.set({ name : "bar" })
+    m.name = "bar"
     expect(d.get_model_by_name("foo")).to.equal(null)
     expect(d.get_model_by_name("bar")).to.equal(m)
 
@@ -723,7 +723,8 @@ describe "Document", ->
 
     root1 = new ModelWithConstructTimeChanges()
     # change it so it doesn't match what initialize() does
-    root1.set({ foo: 3, child: null })
+    root1.foo = 3
+    root1.child = null
     d.add_root(root1)
 
     json = d.to_json_string()
@@ -750,7 +751,8 @@ describe "Document", ->
 
     root1 = new ModelWithConstructTimeChanges()
     # change it so it doesn't match what initialize() does
-    root1.set({ foo: 3, child: null })
+    root1.foo = 3
+    root1.child = null
     d.add_root(root1)
 
     json = d.to_json_string()
