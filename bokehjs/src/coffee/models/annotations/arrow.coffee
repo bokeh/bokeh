@@ -10,7 +10,7 @@ class ArrowView extends Annotation.View
   initialize: (options) ->
     super(options)
     if not @model.get('source')?
-      this.mset('source', new ColumnDataSource.Model())
+      this.model.set('source', new ColumnDataSource.Model())
     @canvas = @plot_model.get('canvas')
     @xmapper = @plot_view.frame.x_mappers[@model.get("x_range_name")]
     @ymapper = @plot_view.frame.y_mappers[@model.get("y_range_name")]

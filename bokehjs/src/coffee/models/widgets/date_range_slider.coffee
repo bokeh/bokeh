@@ -39,7 +39,7 @@ class DateRangeSliderView extends InputWidget.View
     })
 
     @$el.on "userValuesChanged", (event, data) =>
-      @mset('value', [data.values.min, data.values.max])
+      @model.set('value', [data.values.min, data.values.max])
       @model.get('callback')?.execute(@model)
 
     return @

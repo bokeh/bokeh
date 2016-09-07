@@ -59,7 +59,7 @@ class SliderView extends InputWidget.View
     value = ui.value
     logger.debug("slide value = #{value}")
     @$( "##{ @model.get('id') }" ).val( ui.value )
-    @mset('value', value)
+    @model.set('value', value)
     if @callbackWrapper then @callbackWrapper()
 
 class Slider extends InputWidget.Model
