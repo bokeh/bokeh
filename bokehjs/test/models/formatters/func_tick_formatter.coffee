@@ -18,11 +18,3 @@ describe "func_tick_formatter module", ->
 
     labels = obj.doFormat(["a", "b", "c", "d", "e"])
     expect(labels).to.deep.equal(["a_lat", "b_lat", "c_lat", "d_lat", "e_lat"])
-
-  it "should compile coffeescript to javascript correctly", ->
-    obj = new formatter.Model
-      code: "(tick) -> return tick*10"
-      lang: "coffeescript"
-
-    labels = obj.doFormat([-10, -0.1, 0, 0.1, 10])
-    expect(labels).to.deep.equal([-100, -1.0, 0, 1, 100])

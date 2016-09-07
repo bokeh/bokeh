@@ -26,7 +26,6 @@ declare namespace Bokeh {
     export type RenderLevel = "image" | "underlay" | "glyph" | "annotation" | "overlay" | "tool";
     export type RenderMode = "canvas" | "css";
     export type Aggregation = "sum" | "mean" | "count" | "nunique" | "median" | "min" | "max";
-    export type ScriptingLanguage = "javascript" | "coffeescript";
     export type StartEnd = "start" | "end";
     export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup";
     export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed";

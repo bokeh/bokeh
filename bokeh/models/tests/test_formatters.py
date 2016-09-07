@@ -20,4 +20,3 @@ def test_functickformatter_from_py_func():
     function_wrapper = formatter.code.replace(js_code, '')
 
     assert function_wrapper == "function (seconds) {return formatter(seconds)};"
-    assert formatter.lang == "javascript"

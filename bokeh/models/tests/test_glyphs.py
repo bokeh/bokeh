@@ -10,7 +10,6 @@ from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc,
     Bezier,
     Circle,
-    Gear,
     HBar,
     Image, ImageRGBA, ImageURL,
     Line,
@@ -141,30 +140,6 @@ def test_Bezier():
         "cx1",
         "cy1",
     ], LINE, GLYPH)
-
-def test_Gear():
-    glyph = Gear()
-    assert glyph.x is None
-    assert glyph.y is None
-    assert glyph.angle == 0
-    assert glyph.module is None
-    assert glyph.teeth is None
-    assert glyph.pressure_angle == 20
-    assert glyph.shaft_size == 0.3
-    assert glyph.internal == False
-    yield check_fill_properties, glyph
-    yield check_line_properties, glyph
-    yield (check_properties_existence, glyph, [
-        "x",
-        "y",
-        "angle",
-        "angle_units",
-        "module",
-        "teeth",
-        "pressure_angle",
-        "shaft_size",
-        "internal",
-    ], FILL, LINE, GLYPH)
 
 def test_HBar():
     glyph = HBar()
