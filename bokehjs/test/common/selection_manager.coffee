@@ -83,11 +83,11 @@ describe "SelectionManager", ->
 
   selector = null
 
-  it "should add a selector when encountering a new renderer", ->
+  it "should add a selector when encountering a new data source", ->
     utils.require("core/util/underscore").patch()
     selector = sm._get_selector(glyph_renderer_view_normal)
     expect(Object.keys(sm.selectors)).to.have.lengthOf(1)
-    expect(sm.selectors).to.have.property glyph_renderer_view_normal.model.id
+    expect(sm.selectors).to.have.property glyph_renderer_view_normal.model.data_source.id
 
   it "should create a selector with an empty selection", ->
     expect(selector.get('indices')).to.deep.equal empty_selection
