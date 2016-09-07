@@ -12,8 +12,9 @@ from ..model import Model
 from ..core.properties import abstract
 from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
     Either, Instance)
-from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage, ScriptingLanguage
+from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
 from ..util.dependencies import import_required
+from ..util.compiler import nodejs_compile, CompilationError
 
 @abstract
 class TickFormatter(Model):
@@ -235,10 +236,18 @@ class FuncTickFormatter(TickFormatter):
         # arg that matches that of func.
         wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (arg[0], code, arg[0])
 
-        return cls(code=wrapped_code, lang='javascript')
+        return cls(code=wrapped_code)
+
+    @classmethod
+    def from_coffeescript(cls, code, args={}):
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        if "error" in compiled:
+            raise CompilationError(compiled.error)
+        else:
+            return cls(code=compiled.code) # TODO: args=args
 
     code = String(default="", help="""
-    An anonymous JavaScript or CoffeeScript function expression to reformat a
+    An anonymous JavaScript function expression to reformat a
     single tick to the desired format.
 
     Example:
@@ -256,13 +265,6 @@ class FuncTickFormatter(TickFormatter):
         The function can have only a single positional argument and return
         a single value.
 
-    """)
-
-    lang = Enum(ScriptingLanguage, default="javascript", help="""
-    The implementation scripting language of the snippet. This can be either
-    raw JavaScript or CoffeeScript. In CoffeeScript's case, the snippet will
-    be compiled at runtime (in a web browser), so you don't need to have
-    node.js/io.js, etc. installed.
     """)
 
 DEFAULT_DATETIME_FORMATS = lambda : {

@@ -1,5 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "./backbone"
 
 class BokehView extends Backbone.View
   initialize: (options) ->

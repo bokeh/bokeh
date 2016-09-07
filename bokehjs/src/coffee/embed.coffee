@@ -1,6 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "./core/backbone"
 {Promise} = require "es6-promise"
 
 base = require "./base"
@@ -28,7 +28,7 @@ _update_comms_callback = (target, doc, comm) ->
     comm.on_msg(_.bind(_handle_notebook_comms, doc))
 
 _init_comms = (target, doc) ->
-  if Jupyter?
+  if Jupyter? and Jupyter.notebook.kernel?
     logger.info("Registering Jupyter comms for target #{target}")
     comm_manager = Jupyter.notebook.kernel.comm_manager
     update_comms = _.partial(_update_comms_callback, target, doc)

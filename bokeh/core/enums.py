@@ -158,9 +158,6 @@ RenderMode = enumeration("canvas", "css")
 #: Specify an aggregation type for different charts
 Aggregation = enumeration("sum", "mean", "count", "nunique", "median", "min", "max")
 
-#: Specify the language used in a CustomJS callback
-ScriptingLanguage = enumeration("javascript", "coffeescript")
-
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")
 

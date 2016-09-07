@@ -1,5 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "../../core/backbone"
 
 Tool = require "./tool"
 button_tool_template = require "./button_tool_template"
