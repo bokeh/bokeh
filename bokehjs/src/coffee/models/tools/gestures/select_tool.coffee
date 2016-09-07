@@ -43,7 +43,7 @@ class SelectToolView extends GestureTool.View
       else
         geoms = [g]
 
-      tool_events.set("geometries", geoms)
+      tool_events.geometries = geoms
     return null
 
 class SelectTool extends GestureTool.Model

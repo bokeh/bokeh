@@ -271,7 +271,7 @@ describe "ColorBar module", ->
     it "Should reset scale image if color_mapper changes", ->
       # Reset spy count to zero (method was called during view initialization)
       @_set_canvas_image_stub.reset()
-      @color_bar.color_mapper.set('palette', Viridis.Viridis3)
+      @color_bar.color_mapper.palette = Viridis.Viridis3
       expect(@_set_canvas_image_stub.called).to.be.true
 
     it "ColorBar.View._get_image_offset method", ->

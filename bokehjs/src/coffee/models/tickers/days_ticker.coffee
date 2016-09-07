@@ -49,7 +49,7 @@ class DaysTicker extends SingleIntervalTicker.Model
         (days[1] - days[0]) * ONE_DAY
       else
         31 * ONE_DAY
-    @set('interval', interval)
+    @interval = interval
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
     month_dates = date_range_by_month(data_low, data_high)

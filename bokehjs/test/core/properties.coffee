@@ -249,13 +249,13 @@ describe "properties module", ->
         prop = new properties.Property({obj: obj, attr: 'a'})
         stuff = {called: false}
         prop.listenTo(prop, 'change', () -> stuff.called = true)
-        obj.set('a', {value: "bar"})
+        obj.a = {value: "bar"}
         expect(stuff.called).to.be.true
 
       it "should update the spec", ->
         obj = new SomeHasProps(a: {value: "foo"})
         prop = new properties.Property({obj: obj, attr: 'a'})
-        obj.set('a', {value: "bar"})
+        obj.a = {value: "bar"}
         expect(prop.spec).to.be.deep.equal {value: "bar"}
 
   describe "Anchor", ->

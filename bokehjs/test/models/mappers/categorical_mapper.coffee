@@ -161,7 +161,7 @@ describe "categorical mapper module", ->
   describe "source updates", ->
     new_factors = ['a', 'b', 'c', 'd']
     mapper = generate_mapper()
-    mapper.source_range.set('factors', new_factors)
+    mapper.source_range.factors = new_factors
 
     test_mapping = (key, expected) ->
       expect(mapper.map_to_target key).to.equal expected

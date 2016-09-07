@@ -49,7 +49,7 @@ class TileSource extends Model
     url = url.replace('{ymin}','{YMIN}')
     url = url.replace('{xmax}','{XMAX}')
     url = url.replace('{ymax}','{YMAX}')
-    @set('url', url)
+    @url = url
 
   update: () ->
     logger.debug("TileSource: tile cache count: #{Object.keys(@tiles).length}")

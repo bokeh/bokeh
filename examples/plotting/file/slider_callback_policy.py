@@ -21,7 +21,7 @@ callback = CustomJS(code="""
       };
     }
 
-    para.set('text', "<h1>Slider Values</h1><p>Slider 1: {0}<p>Slider 2: {1}<p>Slider 3: {2}".format(s1, s2, s3))
+    para.text = "<h1>Slider Values</h1><p>Slider 1: {0}<p>Slider 2: {1}<p>Slider 3: {2}".format(s1, s2, s3);
 """)
 
 para = Div(text="<h1>Slider Values:</h1><p>Slider 1: 0<p>Slider 2: 0<p>Slider 3: 0")

@@ -78,12 +78,12 @@ class Plot extends LayoutDOM.Model
       plots = xr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        xr.set('plots', plots)
+        xr.plots = plots
     for yr in _.values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        yr.set('plots', plots)
+        yr.plots = plots
 
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
@@ -135,7 +135,7 @@ class Plot extends LayoutDOM.Model
   add_renderers: (new_renderers...) ->
     renderers = @renderers
     renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
+    @renderers = renderers
 
   add_layout: (renderer, side="center") ->
     # For non-center renderers, this method can only be used before

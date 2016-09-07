@@ -15,8 +15,7 @@ class ToggleView extends AbstractButton.View
 
   change_input: () ->
     super()
-    @model.set('active', not @model.active)
-
+    @model.active = not @model.active
 
 class Toggle extends AbstractButton.Model
   type: "Toggle"

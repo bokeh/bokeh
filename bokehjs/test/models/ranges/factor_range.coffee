@@ -26,12 +26,12 @@ describe "factor_range module", ->
       expect(r.max).to.be.equal 1.5
 
     it "should update when factors update", ->
-      r.set('factors', ['FOO', 'BAR'])
+      r.factors = ['FOO', 'BAR']
 
       expect(r.min).to.be.equal 0.5
       expect(r.max).to.be.equal 2.5
 
-      r.set('factors', ['A', 'B', 'C'])
+      r.factors = ['A', 'B', 'C']
 
       expect(r.min).to.be.equal 0.5
       expect(r.max).to.be.equal 3.5
@@ -57,7 +57,7 @@ describe "factor_range module", ->
     r = new FactorRange({factors: ['FOO']})
 
     it "should update when offset updates", ->
-      r.set('offset', -1)
+      r.offset = -1
 
       expect(r.start).to.be.equal -0.5
       expect(r.end).to.be.equal 0.5

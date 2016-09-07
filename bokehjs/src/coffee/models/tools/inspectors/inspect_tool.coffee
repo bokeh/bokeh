@@ -20,7 +20,7 @@ class InspectToolListItemView extends Backbone.View
 
   _clicked: (e) ->
     active = @model.active
-    @model.set('active', not active)
+    @model.active = not active
 
 class InspectToolView extends Tool.View
 

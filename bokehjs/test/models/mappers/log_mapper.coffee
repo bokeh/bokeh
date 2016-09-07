@@ -55,32 +55,32 @@ describe "log_mapper module", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
-        mapper.set('source_range', new Range1d({start: -10, end: 20}))
+        mapper.source_range = new Range1d({start: -10, end: 20})
         expect(mapper.mapper_state).to.be.deep.equal [ 100, 10, 2.995732273553991, 0 ]
 
       it "should update on range start update", ->
         mapper = generate_mapper()
-        mapper.source_range.set('start', -10)
+        mapper.source_range.start = -10
         expect(mapper.mapper_state).to.be.deep.equal [ 100, 10, 9.210340371976184, 0 ]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
-        mapper.source_range.set('end', 20)
+        mapper.source_range.end = 20
         expect(mapper.mapper_state).to.be.deep.equal [ 100, 10, 2.995732273553991, 0 ]
 
     describe "update target range1d", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
-        mapper.set('target_range', new Range1d({start: 0, end: 100}))
+        mapper.target_range = new Range1d({start: 0, end: 100})
         expect(mapper.mapper_state).to.be.deep.equal [ 100, 0, 9.210340371976184, 0 ]
 
       it "should update on range start update", ->
         mapper = generate_mapper()
-        mapper.target_range.set('start', 0)
+        mapper.target_range.start = 0
         expect(mapper.mapper_state).to.be.deep.equal [ 110, 0, 9.210340371976184, 0 ]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
-        mapper.target_range.set('end', 100)
+        mapper.target_range.end = 100
         expect(mapper.mapper_state).to.be.deep.equal [ 90, 10, 9.210340371976184, 0 ]

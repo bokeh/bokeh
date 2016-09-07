@@ -23,7 +23,7 @@ class DatePickerView extends InputWidget.View
 
   onSelect: (dateText, ui) =>
     d = new Date(dateText)
-    @model.set('value', d.toString())
+    @model.value = d.toString()
     @model.callback?.execute(@model)
 
 class DatePicker extends InputWidget.Model

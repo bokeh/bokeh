@@ -50,32 +50,32 @@ describe "linear_mapper module", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
-        mapper.set('source_range', new Range1d({start: -10, end: 20}))
+        mapper.source_range = new Range1d({start: -10, end: 20})
         expect(mapper.mapper_state).to.be.deep.equal [2, 40]
 
       it "should update on range start update", ->
         mapper = generate_mapper()
-        mapper.source_range.set('start', -10)
+        mapper.source_range.start = -10
         expect(mapper.mapper_state).to.be.deep.equal [3, 50]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
-        mapper.source_range.set('end', 20)
+        mapper.source_range.end = 20
         expect(mapper.mapper_state).to.be.deep.equal [3, 20]
 
     describe "update target range1d", ->
 
       it "should update on whole range replacement", ->
         mapper = generate_mapper()
-        mapper.set('target_range', new Range1d({start: 0, end: 100}))
+        mapper.target_range = new Range1d({start: 0, end: 100})
         expect(mapper.mapper_state).to.be.deep.equal [10, 0]
 
       it "should update on range start update", ->
         mapper = generate_mapper()
-        mapper.target_range.set('start', 0)
+        mapper.target_range.start = 0
         expect(mapper.mapper_state).to.be.deep.equal [8, 0]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
-        mapper.target_range.set('end', 100)
+        mapper.target_range.end = 100
         expect(mapper.mapper_state).to.be.deep.equal [8, 20]

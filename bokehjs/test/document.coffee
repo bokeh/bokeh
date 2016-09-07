@@ -45,8 +45,8 @@ class ModelWithConstructTimeChanges extends Model
 
   initialize: (attributes, options) ->
     super(attributes, options)
-    @set('foo', 4)
-    @set('child', new AnotherModel())
+    @foo = 4
+    @child = new AnotherModel()
 
   @define {
     foo:   [ p.Number, 2 ]
@@ -60,10 +60,10 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 
   initialize: (attributes, options) ->
     super(attributes, options)
-    @set('list_prop', [new AnotherModel()])
-    @set('dict_prop', { foo: new AnotherModel() })
-    @set('obj_prop', new ModelWithConstructTimeChanges())
-    @set('dict_of_list_prop', { foo: [new AnotherModel()] })
+    @list_prop = [new AnotherModel()]
+    @dict_prop = { foo: new AnotherModel() }
+    @obj_prop = new ModelWithConstructTimeChanges()
+    @dict_of_list_prop = { foo: [new AnotherModel()] }
 
   @define {
     list_prop:         [ p.Array ]
@@ -342,23 +342,23 @@ describe "Document", ->
     root1 = new SomeModel()
     root2 = new SomeModel()
     child1 = new AnotherModel()
-    root1.set('child', child1)
-    root2.set('child', child1)
+    root1.child = child1
+    root2.child = child1
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
     expect(_.size(d._all_models)).to.equal 3
 
-    root1.set('child', null)
+    root1.child = null
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('child', null)
+    root2.child = null
     expect(_.size(d._all_models)).to.equal 2
 
-    root1.set('child', child1)
+    root1.child = child1
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('child', child1)
+    root2.child = child1
     expect(_.size(d._all_models)).to.equal 3
 
     d.remove_root(root1)
@@ -375,21 +375,21 @@ describe "Document", ->
     root1 = new SomeModel()
     root2 = new SomeModel()
     child1 = new SomeModel()
-    root1.set('child', child1)
-    root2.set('child', child1)
-    child1.set('child', root1)
+    root1.child = child1
+    root2.child = child1
+    child1.child = root1
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
     expect(_.size(d._all_models)).to.equal 3
 
-    root1.set('child', null)
+    root1.child = null
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('child', null)
+    root2.child = null
     expect(_.size(d._all_models)).to.equal 2
 
-    root1.set('child', child1)
+    root1.child = child1
     expect(_.size(d._all_models)).to.equal 3
 
   it "can have all_models with cycles through lists", ->
@@ -400,21 +400,21 @@ describe "Document", ->
     root1 = new SomeModelWithChildren()
     root2 = new SomeModelWithChildren()
     child1 = new SomeModelWithChildren()
-    root1.set('children', [child1])
-    root2.set('children', [child1])
-    child1.set('children', [root1])
+    root1.children = [child1]
+    root2.children = [child1]
+    child1.children = [root1]
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
     expect(_.size(d._all_models)).to.equal 3
 
-    root1.set('children', [])
+    root1.children = []
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('children', [])
+    root2.children = []
     expect(_.size(d._all_models)).to.equal 2
 
-    root1.set('children', [child1])
+    root1.children = [child1]
     expect(_.size(d._all_models)).to.equal 3
 
   it "can notify on changes", ->
@@ -433,7 +433,7 @@ describe "Document", ->
       events.push(event)
     d.on_change(listener)
 
-    m.set('bar', 42)
+    m.bar = 42
     expect(events.length).to.equal 1
     expect(events[0]).is.instanceof ModelChangedEvent
     expect(events[0].document).to.equal d
@@ -457,13 +457,13 @@ describe "Document", ->
       events.push(event)
     d.on_change(listener)
 
-    m.set('bar', 42)
+    m.bar = 42
 
     expect(events.length).to.equal 1
     expect(events[0].new_).to.equal 42
 
     d.remove_on_change(listener)
-    m.set('bar', 43)
+    m.bar = 43
 
     expect(events.length).to.equal 1
 
@@ -594,7 +594,7 @@ describe "Document", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
     root1 = new SomeModel()
-    root1.set('name', 'bar')
+    root1.name = 'bar'
     d.add_root(root1)
     expect(d.roots().length).to.equal 1
 

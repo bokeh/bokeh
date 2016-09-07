@@ -215,9 +215,9 @@ class PlotCanvasView extends Renderer.View
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
       for xr in _.values(frame.x_ranges)
-        xr.set('bounds', null)
+        xr.bounds = null
       for yr in _.values(frame.y_ranges)
-        yr.set('bounds', null)
+        yr.bounds = null
 
     @range_update_timestamp = Date.now()
 
@@ -294,7 +294,7 @@ class PlotCanvasView extends Renderer.View
       ds = renderer.data_source
       if selection?
         if renderer.id in selection
-          ds.set("selected", selection[renderer.id])
+          ds.selected = selection[renderer.id]
       else
         ds.selection_manager.clear()
 

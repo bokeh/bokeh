@@ -19,9 +19,9 @@ class CrosshairToolView extends InspectTool.View
         span.unset('computed_location')
       else
         if dim == "width"
-          span.set('computed_location', vy)
+          span.computed_location = vy
         else
-          span.set('computed_location', vx)
+          span.computed_location = vx
 
   _move_exit: (e)->
     for dim in @model.dimensions

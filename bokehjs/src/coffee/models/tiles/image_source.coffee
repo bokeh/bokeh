@@ -26,7 +26,7 @@ class ImageSource extends Model
     url = url.replace('{ymax}','{YMAX}')
     url = url.replace('{height}','{HEIGHT}')
     url = url.replace('{width}','{WIDTH}')
-    @set('url', url)
+    @url = url
 
   string_lookup_replace: (str, lookup) ->
     result_str = str

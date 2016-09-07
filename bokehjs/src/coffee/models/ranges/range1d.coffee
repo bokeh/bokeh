@@ -18,7 +18,7 @@ class Range1d extends Range.Model
     if @bounds == 'auto'
       min = Math.min(@_initial_start, @_initial_end)
       max = Math.max(@_initial_start, @_initial_end)
-      @set('bounds', [min, max])
+      @bounds = [min, max]
 
   constructor: () ->
     # new Range1d({start: start, end: end}) or Range1d(start, end)

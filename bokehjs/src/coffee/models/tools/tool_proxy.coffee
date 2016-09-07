@@ -32,7 +32,7 @@ class ToolProxy extends Model
 
   _clicked: () ->
     active = @model.active
-    @model.set('active', not active)
+    @model.active = not active
 
 module.exports =
   ToolProxy: ToolProxy

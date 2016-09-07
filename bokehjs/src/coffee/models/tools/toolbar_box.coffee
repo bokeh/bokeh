@@ -111,7 +111,7 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
         continue
       @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
-        @gestures[et].tools[0].set('active', true)
+        @gestures[et].tools[0].active = true
 
 
 class ToolbarBoxView extends Box.View

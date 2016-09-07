@@ -28,12 +28,12 @@ class CartesianFrame extends LayoutCanvas.Model
       })
 
     h_range: () ->
-      @_h_range.set('start', @left)
-      @_h_range.set('end',   @left + @width)
+      @_h_range.start = @left
+      @_h_range.end   = @left + @width
       return @_h_range
     v_range: () ->
-      @_v_range.set('start', @bottom)
-      @_v_range.set('end',   @bottom + @height)
+      @_v_range.start = @bottom
+      @_v_range.end   = @bottom + @height
       return @_v_range
   }
 
@@ -100,9 +100,9 @@ class CartesianFrame extends LayoutCanvas.Model
 
   _update_mappers: () ->
     for name, mapper of @x_mappers
-      mapper.set('target_range', @h_range)
+      mapper.target_range = @h_range
     for name, mapper of @y_mappers
-      mapper.set('target_range', @v_range)
+      mapper.target_range = @v_range
     return null
 
   @internal {

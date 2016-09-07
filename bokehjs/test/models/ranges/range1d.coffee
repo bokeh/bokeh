@@ -22,7 +22,7 @@ describe "range1d module", ->
 
   describe "update start, less than end", ->
     r = new Range1d()
-    r.set('start', -1)
+    r.start = -1
 
     it "should have min = -1", ->
       expect(r.min).to.be.equal -1
@@ -32,7 +32,7 @@ describe "range1d module", ->
 
   describe "update start, greater than end", ->
     r = new Range1d()
-    r.set('start', 2)
+    r.start = 2
 
     it "should have min = 1", ->
       expect(r.min).to.be.equal 1
@@ -42,7 +42,7 @@ describe "range1d module", ->
 
   describe "update end, greater than start", ->
     r = new Range1d()
-    r.set('end', 2)
+    r.end = 2
 
     it "should have min = 0", ->
       expect(r.min).to.be.equal 0
@@ -52,7 +52,7 @@ describe "range1d module", ->
 
   describe "update end, less than start", ->
     r = new Range1d()
-    r.set('end', -1.1)
+    r.end = -1.1
 
     it "should have min = -1.1", ->
       expect(r.min).to.be.equal -1.1
@@ -62,8 +62,8 @@ describe "range1d module", ->
 
   describe "update both, positive", ->
     r = new Range1d()
-    r.set('end', 1.1)
-    r.set('start', 2.1)
+    r.end = 1.1
+    r.start = 2.1
 
     it "should have min = 1.1", ->
       expect(r.min).to.be.equal 1.1
@@ -73,8 +73,8 @@ describe "range1d module", ->
 
   describe "update both, negative", ->
     r = new Range1d()
-    r.set('end', -1.1)
-    r.set('start', -2.1)
+    r.end = -1.1
+    r.start = -2.1
 
     it "should have min = -2.1", ->
       expect(r.min).to.be.equal -2.1
@@ -86,8 +86,8 @@ describe "range1d module", ->
 
     it "should reset to initial values", ->
       r = new Range1d({start: 10, end: 20})
-      r.set('end', -1.1)
-      r.set('start', -2.1)
+      r.end = -1.1
+      r.start = -2.1
       r.reset()
       expect(r.start).to.be.equal 10
       expect(r.end).to.be.equal 20

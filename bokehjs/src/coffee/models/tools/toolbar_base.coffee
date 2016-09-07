@@ -83,11 +83,11 @@ class ToolbarBase extends LayoutDOM.Model
     currently_active_tool = gestures[event_type].active
     if currently_active_tool? and currently_active_tool != tool
       logger.debug("Toolbar: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
-      currently_active_tool.set('active', false)
+      currently_active_tool.active = false
 
     # Update the gestures with the new active tool
     gestures[event_type].active = tool
-    @set('gestures', gestures)
+    @gestures = gestures
     logger.debug("Toolbar: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 

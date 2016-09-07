@@ -41,12 +41,12 @@ class AjaxDataSource extends RemoteDataSource.Model
       headers : @http_headers
     ).done((data) =>
       if mode == 'replace'
-        @set('data', data)
+        @data = data
       else if mode == 'append'
         original_data = @data
         for column in @columns()
           data[column] = original_data[column].concat(data[column])[-max_size..]
-        @set('data', data)
+        @data = data
       else
         logger.error("unsupported mode: " + mode)
       logger.trace(data)

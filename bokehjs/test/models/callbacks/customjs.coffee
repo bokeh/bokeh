@@ -46,7 +46,7 @@ describe "customjs module", ->
 
     it "should update when args changes", ->
       rng2 = new Range1d()
-      r.set('args', {foo: rng2 })
+      r.args = {foo: rng2 }
       expect(r.values).to.be.deep.equal [rng2]
 
   describe "func property", ->

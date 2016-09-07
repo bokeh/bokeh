@@ -18,9 +18,9 @@ class Selector extends HasProps
     @set('indices', indices, {silent: silent})
 
   clear: () ->
-    @set('timestamp', new Date())
-    @set('final', true)
-    @set('indices', hittest.create_hit_test_result())
+    @timestamp = new Date()
+    @final = true
+    @indices = hittest.create_hit_test_result()
 
   @internal {
     indices:   [ p.Any, () -> hittest.create_hit_test_result() ]

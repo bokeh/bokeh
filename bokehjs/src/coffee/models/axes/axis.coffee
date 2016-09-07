@@ -273,7 +273,7 @@ class Axis extends GuideRenderer.Model
   add_panel: (side) ->
     @panel = new SidePanel.Model({side: side})
     @panel.attach_document(@document)
-    @set('panel_side', side)
+    @panel_side = side
 
   _offsets: () ->
     side = @panel_side

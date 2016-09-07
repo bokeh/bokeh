@@ -37,7 +37,7 @@ for (i=0; i < indices.length; i++) {
         data['y1'].push(cdata.y[ind1]);
     }
 }
-segment.set('data', data);
+segment.data = data;
 """ % links
 
 callback = CustomJS(args={'circle': cr.data_source, 'segment': sr.data_source}, code=code)

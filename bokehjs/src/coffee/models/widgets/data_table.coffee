@@ -53,7 +53,7 @@ class DataProvider
     @updateSource()
 
   updateSource: () ->
-    # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
+    # XXX: We should say `@source.data = @data`, but data was updated in-place,
     # so that would be a no-op. We have to trigger change events manually instead.
     @source.trigger("change:data", @, @source.attributes['data'])
 
@@ -182,7 +182,7 @@ class DataTableView extends Widget.View
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = args.rows
-        @model.source.set("selected", selected)
+        @model.source.selected = selected
 
     return @
 

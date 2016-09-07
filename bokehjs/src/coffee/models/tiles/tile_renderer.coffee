@@ -63,10 +63,10 @@ class TileRendererView extends Renderer.View
     @initial_extent = @get_extent()
     zoom_level = @model.tile_source.get_level_by_extent(@initial_extent, @map_frame.height, @map_frame.width)
     new_extent = @model.tile_source.snap_to_zoom(@initial_extent, @map_frame.height, @map_frame.width, zoom_level)
-    @x_range.set('start', new_extent[0])
-    @y_range.set('start', new_extent[1])
-    @x_range.set('end', new_extent[2])
-    @y_range.set('end', new_extent[3])
+    @x_range.start = new_extent[0]
+    @y_range.start = new_extent[1]
+    @x_range.end = new_extent[2]
+    @y_range.end = new_extent[3]
     @_add_attribution()
 
   _on_tile_load: (e) =>

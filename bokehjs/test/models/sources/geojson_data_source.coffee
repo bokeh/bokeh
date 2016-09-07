@@ -62,7 +62,7 @@ describe "geojson_data_source module", ->
           }
         ]
       }"""
-      geo.set('geojson', new_geojson)
+      geo.geojson = new_geojson
       expected_data = {'x': [125.6], 'y': [22], 'z': [NaN], 'xs': [[]], 'ys': [[]], 'zs': [[]]}
       expect(geo.data).to.be.deep.equal(expected_data)
 

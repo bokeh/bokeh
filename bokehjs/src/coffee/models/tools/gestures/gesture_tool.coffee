@@ -5,7 +5,7 @@ class GestureToolButtonView extends ButtonTool.ButtonView
 
   _clicked: () ->
     active = @model.active
-    @model.set('active', not active)
+    @model.active = not active
 
 class GestureToolView extends ButtonTool.View
 

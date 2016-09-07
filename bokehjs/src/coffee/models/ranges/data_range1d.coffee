@@ -140,7 +140,7 @@ class DataRange1d extends DataRange.Model
       @set(new_range)
 
     if @bounds == 'auto'
-      @set('bounds', [start, end])
+      @bounds = [start, end]
 
   reset: () ->
     @have_updated_interactively = false

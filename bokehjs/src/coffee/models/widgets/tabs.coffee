@@ -33,7 +33,7 @@ class TabsView extends Widget.View
       panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
         return panel.id == panelId
       ))
-      that.model.set('active', panelIdx)
+      that.model.active = panelIdx
       that.model.callback?.execute(that.model)
 
     $panels = html.children(".bk-bs-tab-pane")

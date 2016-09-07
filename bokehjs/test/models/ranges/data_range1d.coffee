@@ -73,10 +73,10 @@ describe "datarange1d module", ->
 
     it "should reset configuration to initial values", ->
       r = new DataRange1d()
-      r.set('range_padding', 0.2)
-      r.set('follow', 'end')
-      r.set('follow_interval', 10)
-      r.set('default_span', 10)
+      r.range_padding = 0.2
+      r.follow = 'end'
+      r.follow_interval = 10
+      r.default_span = 10
       r.reset()
       expect(r.range_padding).to.be.equal 0.1
       expect(r.follow).to.be.null
@@ -86,8 +86,8 @@ describe "datarange1d module", ->
     # something must call update(...) to update (start, end)
     it "should not reset (start, end)", ->
       r = new DataRange1d()
-      r.set('start', 4)
-      r.set('end', 10)
+      r.start = 4
+      r.end = 10
       r.reset()
       expect(r.start).to.be.equal 4
       expect(r.end).to.be.equal 10
@@ -99,15 +99,15 @@ describe "datarange1d module", ->
       p = new TestObject()
       g = new TestObject()
       g.type = "GlyphRenderer"
-      p.set('renderers', [g])
-      r.set('plots', [p])
+      p.renderers = [g]
+      r.plots = [p]
       expect(r.computed_renderers()).to.be.deep.equal [g]
 
       r = new DataRange1d()
       g2 = new TestObject()
       g2.type = "GlyphRenderer"
-      p.set('renderers', [g, g2])
-      r.set('plots', [p])
+      p.renderers = [g, g2]
+      r.plots = [p]
       expect(r.computed_renderers()).to.be.deep.equal [g, g2]
 
 
@@ -116,14 +116,14 @@ describe "datarange1d module", ->
       p = new TestObject()
       g = new TestObject()
       g.type = "GlyphRenderer"
-      p.set('renderers', [g])
+      p.renderers = [g]
 
       p2 = new TestObject()
       g2 = new TestObject()
       g2.type = "GlyphRenderer"
-      p2.set('renderers', [g2])
+      p2.renderers = [g2]
 
-      r.set('plots', [p, p2])
+      r.plots = [p, p2]
       expect(r.computed_renderers()).to.be.deep.equal [g, g2]
 
     it "should respect user-set renderers", ->
@@ -131,15 +131,15 @@ describe "datarange1d module", ->
       p = new TestObject()
       g = new TestObject()
       g.type = "GlyphRenderer"
-      p.set('renderers', [g])
+      p.renderers = [g]
 
       p2 = new TestObject()
       g2 = new TestObject()
       g2.type = "GlyphRenderer"
-      p2.set('renderers', [g2])
+      p2.renderers = [g2]
 
-      r.set('plots', [p, p2])
-      r.set('renderers', [g2])
+      r.plots = [p, p2]
+      r.renderers = [g2]
       expect(r.computed_renderers()).to.be.deep.equal [g2]
 
   describe "_compute_range", ->
@@ -147,51 +147,51 @@ describe "datarange1d module", ->
     it "should use default_span when max=min", ->
       r = new DataRange1d()
       expect(r._compute_range(3, 3)).to.be.deep.equal [2, 4]
-      r.set('default_span', 4)
+      r.default_span = 4
       expect(r._compute_range(3, 3)).to.be.deep.equal [1, 5]
 
     it "should swap max, min when flipped", ->
       r = new DataRange1d()
-      r.set('flipped', true)
+      r.flipped = true
       expect(r._compute_range(3, 3)).to.be.deep.equal [4, 2]
 
     it "should follow min when follow=start and not flipped", ->
       r = new DataRange1d()
-      r.set('range_padding', 0)
-      r.set('follow', 'start')
-      r.set('follow_interval', 4)
+      r.range_padding = 0
+      r.follow = 'start'
+      r.follow_interval = 4
       expect(r._compute_range(1, 3)).to.be.deep.equal [1, 3]
       expect(r._compute_range(1, 7)).to.be.deep.equal [1, 5]
 
     it "should follow max when follow=start and flipped", ->
       r = new DataRange1d()
-      r.set('range_padding', 0)
-      r.set('follow', 'start')
-      r.set('follow_interval', 4)
-      r.set('flipped', true)
+      r.range_padding = 0
+      r.follow = 'start'
+      r.follow_interval = 4
+      r.flipped = true
       expect(r._compute_range(1, 3)).to.be.deep.equal [3, 1]
       expect(r._compute_range(1, 7)).to.be.deep.equal [7, 3]
 
     it "should follow max when follow=end and not flipped", ->
       r = new DataRange1d()
-      r.set('range_padding', 0)
-      r.set('follow', 'end')
-      r.set('follow_interval', 4)
+      r.range_padding = 0
+      r.follow = 'end'
+      r.follow_interval = 4
       expect(r._compute_range(1, 3)).to.be.deep.equal [1, 3]
       expect(r._compute_range(1, 7)).to.be.deep.equal [3, 7]
 
     it "should follow min when follow=end and flipped", ->
       r = new DataRange1d()
-      r.set('range_padding', 0)
-      r.set('follow', 'end')
-      r.set('follow_interval', 4)
-      r.set('flipped', true)
+      r.range_padding = 0
+      r.follow = 'end'
+      r.follow_interval = 4
+      r.flipped = true
       expect(r._compute_range(1, 3)).to.be.deep.equal [3, 1]
       expect(r._compute_range(1, 7)).to.be.deep.equal [5, 1]
 
     it "should apply range_padding", ->
       r = new DataRange1d()
-      r.set('range_padding', 0.5)
+      r.range_padding = 0.5
       expect(r._compute_range(1, 3)).to.be.deep.equal [0.5, 3.5]
 
   describe "_compute_min_max", ->
