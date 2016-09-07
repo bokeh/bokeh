@@ -18,8 +18,8 @@ class CartesianFrame extends LayoutCanvas.Model
     x_ranges: () -> @_get_ranges('x')
     y_ranges: () -> @_get_ranges('y')
 
-    x_mappers: () -> @_get_mappers('x', @x_ranges, @h_range)
-    y_mappers: () -> @_get_mappers('y', @y_ranges, @v_range)
+    x_mappers: () -> @_get_mappers(@x_mapper_type, @x_ranges, @h_range)
+    y_mappers: () -> @_get_mappers(@y_mapper_type, @y_ranges, @v_range)
 
     mapper: () ->
       new GridMapper.Model({
@@ -79,20 +79,20 @@ class CartesianFrame extends LayoutCanvas.Model
         ranges[name] = range
     return ranges
 
-  _get_mappers: (dim, ranges, frame_range) ->
+  _get_mappers: (mapper_type, ranges, frame_range) ->
     mappers = {}
     for name, range of ranges
       if range.type == "Range1d" or range.type == "DataRange1d"
-        if @get("#{dim}_mapper_type") == "log"
-          mapper_type = LogMapper.Model
+        if mapper_type == "log"
+          mapper_model = LogMapper.Model
         else
-          mapper_type = LinearMapper.Model
+          mapper_model = LinearMapper.Model
       else if range.type == "FactorRange"
-        mapper_type = CategoricalMapper.Model
+        mapper_model = CategoricalMapper.Model
       else
         logger.warn("unknown range type for range '#{name}': #{range}")
         return null
-      mappers[name] = new mapper_type({
+      mappers[name] = new mapper_model({
         source_range: range
         target_range: frame_range
       })
