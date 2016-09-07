@@ -5,9 +5,9 @@ from bokeh.models import CustomJS, Slider, Div
 # NOTE: the JS functions to forvide the format code for strings is found the answer
 # from the user fearphage at http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
 callback = CustomJS(code="""
-    var s1 = slider1.get('value')
-    var s2 = slider2.get('value')
-    var s3 = slider3.get('value')
+    var s1 = slider1.value;
+    var s2 = slider2.value;
+    var s3 = slider3.value;
 
     if (!String.prototype.format) {
       String.prototype.format = function() {

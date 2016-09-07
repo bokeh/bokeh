@@ -14,11 +14,11 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 callback = CustomJS(args=dict(source=source), code="""
-    var data = source.get('data');
-    var A = amp.get('value')
-    var k = freq.get('value')
-    var phi = phase.get('value')
-    var B = offset.get('value')
+    var data = source.data;
+    var A = amp.value;
+    var k = freq.value;
+    var phi = phase.value;
+    var B = offset.value;
     x = data['x']
     y = data['y']
     for (i = 0; i < x.length; i++) {

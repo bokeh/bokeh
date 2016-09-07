@@ -99,9 +99,9 @@ for i, region in enumerate(regions):
 
 # Add the slider
 code = """
-    var year = slider.get('value'),
+    var year = slider.value,
         sources = %s,
-        new_source_data = sources[year].get('data');
+        new_source_data = sources[year].data;
     renderer_source.set('data', new_source_data);
     text_source.set('data', {'year': [String(year)]});
 """ % js_source_array

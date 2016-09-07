@@ -61,12 +61,12 @@ callback = CustomJS(args=dict(source=source), code="""
     function rgbToHex(r, g, b) {
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
-    var data = source.get('data');
+    var data = source.data;
     color = data['color'];
     text_color = data['text_color'];
-    var R = red_slider.get('value');
-    var G = green_slider.get('value');
-    var B = blue_slider.get('value');
+    var R = red_slider.value;
+    var G = green_slider.value;
+    var B = blue_slider.value;
     color[0] = rgbToHex(R, G, B);
     text_color[0] = '#ffffff';
     if ((R > 127) || (G > 127) || (B > 127)) {

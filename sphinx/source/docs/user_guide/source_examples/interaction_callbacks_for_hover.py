@@ -25,7 +25,7 @@ cr = p.circle(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hove
 code = """
 var links = %s;
 var data = {'x0': [], 'y0': [], 'x1': [], 'y1': []};
-var cdata = circle.get('data');
+var cdata = circle.data;
 var indices = cb_data.index['1d'].indices;
 for (i=0; i < indices.length; i++) {
     ind0 = indices[i]

@@ -15,8 +15,8 @@ p.circle(x='x', y='y', source=controls, size=15, alpha=0.5, color="firebrick")
 p.circle(x='x', y='y', source=source, size=1, alpha=0.2, color="navy")
 
 callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
-    var mode = cb_obj.get('value');
-    var data = source.get('data');
+    var mode = cb_obj.value;
+    var data = source.data;
     var dx = 6 / %d;
 
     if (mode == 'None') {
