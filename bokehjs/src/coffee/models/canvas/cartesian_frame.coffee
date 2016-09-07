@@ -15,8 +15,8 @@ class CartesianFrame extends LayoutCanvas.Model
   type: 'CartesianFrame'
 
   @getters {
-    x_ranges: () -> @_get_ranges('x')
-    y_ranges: () -> @_get_ranges('y')
+    x_ranges: () -> @_get_ranges(@x_range, @extra_x_ranges)
+    y_ranges: () -> @_get_ranges(@y_range, @extra_y_ranges)
 
     x_mappers: () -> @_get_mappers(@x_mapper_type, @x_ranges, @h_range)
     y_mappers: () -> @_get_mappers(@y_mapper_type, @y_ranges, @v_range)
@@ -70,13 +70,12 @@ class CartesianFrame extends LayoutCanvas.Model
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 
-  _get_ranges: (dim) ->
+  _get_ranges: (range, extra_ranges) ->
     ranges = {}
-    ranges['default'] = @get("#{dim}_range")
-    extra_ranges = @get("extra_#{dim}_ranges")
+    ranges['default'] = range
     if extra_ranges?
-      for name, range of extra_ranges
-        ranges[name] = range
+      for name, extra_range of extra_ranges
+        ranges[name] = extra_range
     return ranges
 
   _get_mappers: (mapper_type, ranges, frame_range) ->
