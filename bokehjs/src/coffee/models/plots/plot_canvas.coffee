@@ -711,15 +711,19 @@ class PlotCanvas extends LayoutDOM.Model
     children = [
       @above_panel, @below_panel,
       @left_panel, @right_panel,
-      @canvas, @frame
+      @canvas, @frame,
     ]
 
-    # Return all the panels for any side renderers
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @plot.get(side)
+    collect_panels = (layout_renderers) ->
       for r in layout_renderers
         if r.panel?
           children.push(r.panel)
+
+    collect_panels(@plot.above)
+    collect_panels(@plot.below)
+    collect_panels(@plot.left)
+    collect_panels(@plot.right)
+
     return children
 
   get_edit_variables: () ->
