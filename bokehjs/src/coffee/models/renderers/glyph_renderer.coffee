@@ -215,8 +215,13 @@ class GlyphRendererView extends Renderer.View
   map_to_screen: (x, y) ->
     @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
+  get_reference_point: () ->
+    index = 0  # This is the default to return
+    return index
+
   draw_legend: (ctx, x0, x1, y0, y1) ->
-    @glyph.draw_legend(ctx, x0, x1, y0, y1)
+    index = @get_reference_point()
+    @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)

@@ -176,8 +176,8 @@ class PatchesView extends Glyph.View
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           return @_get_snap_coord(sys[j])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
 class Patches extends Glyph.Model
   default_view: PatchesView
