@@ -1,5 +1,7 @@
 import numpy as np
 
+from bokeh.palettes import Spectral6
+
 
 def process_data():
     from bokeh.sampledata.gapminder import fertility, life_expectancy, population, regions
@@ -23,5 +25,9 @@ def process_data():
     # Use pandas categories and categorize & color the regions
     regions.Group = regions.Group.astype('category')
     regions_list = list(regions.Group.cat.categories)
+
+    def get_color(r):
+        return Spectral6[regions_list.index(r.Group)]
+    regions['region_color'] = regions.apply(get_color, axis=1)
 
     return fertility, life_expectancy, population_size, regions, years, regions_list
