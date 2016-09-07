@@ -781,30 +781,27 @@ class PlotCanvas extends LayoutDOM.Model
 
   _get_side_constraints: () ->
     constraints = []
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @plot.get(side)
+    sides = [['above', @plot.above], ['below', @plot.below],
+             ['left', @plot.left], ['right', @plot.right]]
+    for [side, layout_renderers] in sides
       last = @frame
       for r in layout_renderers
         # Stack together the renderers
-        if side == "above"
-          constraints.push(EQ(last.panel._top, [-1, r.panel._bottom]))
-        if side == "below"
-          constraints.push(EQ(last.panel._bottom, [-1, r.panel._top]))
-        if side == "left"
-          constraints.push(EQ(last.panel._left, [-1, r.panel._right]))
-        if side == "right"
-          constraints.push(EQ(last.panel._right, [-1, r.panel._left]))
+        constraint = switch side
+          when "above" then EQ(last.panel._top, [-1, r.panel._bottom])
+          when "below" then EQ(last.panel._bottom, [-1, r.panel._top])
+          when "left"  then EQ(last.panel._left, [-1, r.panel._right])
+          when "right" then EQ(last.panel._right, [-1, r.panel._left])
+        constraints.push(constraint)
         last = r
       if layout_renderers.length != 0
         # Set panel extent to match the side renderers (e.g. axes)
-        if side == "above"
-          constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
-        if side == "below"
-          constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
-        if side == "left"
-          constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
-        if side == "right"
-          constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
+        constraint = switch side
+          when "above" then EQ(last.panel._top, [-1, @above_panel._top])
+          when "below" then EQ(last.panel._bottom, [-1, @below_panel._bottom])
+          when "left"  then EQ(last.panel._left, [-1, @left_panel._left])
+          when "right" then EQ(last.panel._right, [-1, @right_panel._right])
+        constraints.push(constraint)
     return constraints
 
   # TODO: This is less than awesome - this is here purely for tests to pass. Need to
