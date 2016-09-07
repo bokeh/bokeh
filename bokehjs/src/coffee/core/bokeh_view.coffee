@@ -17,8 +17,4 @@ class BokehView extends Backbone.View
     @trigger('remove', this)
     super()
 
-  mget: ()-> @model.get.apply(@model, arguments)
-
-  mset: ()-> return @model.set.apply(@model, arguments)
-
 module.exports = BokehView
