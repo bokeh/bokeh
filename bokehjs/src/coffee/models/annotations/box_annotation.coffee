@@ -32,14 +32,13 @@ class BoxAnnotationView extends Annotation.View
     @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
     @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.h_range.start))
-    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.h_range.end))
-    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.v_range.start))
-    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.v_range.end))
+    sleft   = @canvas.vx_to_sx(@_calc_dim(@model.left,   @model.left_units,   @xmapper, @frame.h_range.start))
+    sright  = @canvas.vx_to_sx(@_calc_dim(@model.right,  @model.right_units,  @xmapper, @frame.h_range.end))
+    sbottom = @canvas.vy_to_sy(@_calc_dim(@model.bottom, @model.bottom_units, @ymapper, @frame.v_range.start))
+    stop    = @canvas.vy_to_sy(@_calc_dim(@model.top,    @model.top_units,    @ymapper, @frame.v_range.end))
 
     if @model.render_mode == 'css'
       @_css_box(sleft, sright, sbottom, stop)
-
     else
       @_canvas_box(sleft, sright, sbottom, stop)
 
@@ -79,12 +78,12 @@ class BoxAnnotationView extends Annotation.View
 
     ctx.restore()
 
-  _calc_dim: (dim, mapper, frame_extrema) ->
-    if @model.get(dim)?
-      if @model.get(dim+'_units') == 'data'
-        vdim = mapper.map_to_target(@model.get(dim))
+  _calc_dim: (dim, dim_units, mapper, frame_extrema) ->
+    if dim?
+      if dim_units == 'data'
+        vdim = mapper.map_to_target(dim)
       else
-        vdim = @model.get(dim)
+        vdim = dim
     else
       vdim = frame_extrema
     return vdim
