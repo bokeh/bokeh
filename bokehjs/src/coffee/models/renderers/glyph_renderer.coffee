@@ -222,6 +222,7 @@ class GlyphRendererView extends Renderer.View
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
+
 class GlyphRenderer extends Renderer.Model
   default_view: GlyphRendererView
 
