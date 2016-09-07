@@ -92,8 +92,8 @@ describe "tile sources", ->
         x_origin_offset : 0
         y_origin_offset : 0
       offset_source = new TileSource(tile_options)
-      expect(offset_source.get('x_origin_offset')).to.be.equal(0)
-      expect(offset_source.get('y_origin_offset')).to.be.equal(0)
+      expect(offset_source.x_origin_offset).to.be.equal(0)
+      expect(offset_source.y_origin_offset).to.be.equal(0)
 
     it "should successfully set extra_url_vars property", ->
 
@@ -107,8 +107,8 @@ describe "tile sources", ->
 
       tile_source = new TileSource(tile_options)
       expect_url = 'http://test_value/test_value2/0/0/0.png'
-      expect(tile_source.get('extra_url_vars')).to.have.any.keys('test_key')
-      expect(tile_source.get('extra_url_vars')).to.have.any.keys('test_key2')
+      expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
+      expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
       formatted_url = tile_source.get_image_url(0,0,0)
       expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
 
@@ -152,8 +152,8 @@ describe "tile sources", ->
         x_origin_offset : 0
         y_origin_offset : 0
       offset_source = new TMSTileSource.Model(tile_options)
-      expect(offset_source.get('x_origin_offset')).to.be.equal(0)
-      expect(offset_source.get('y_origin_offset')).to.be.equal(0)
+      expect(offset_source.x_origin_offset).to.be.equal(0)
+      expect(offset_source.y_origin_offset).to.be.equal(0)
 
     it "should account of x_origin_offset and y_origin_offset", ->
       tile_options =

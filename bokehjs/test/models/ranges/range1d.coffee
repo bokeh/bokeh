@@ -9,10 +9,10 @@ describe "range1d module", ->
     r = new Range1d()
 
     it "should have start = 0", ->
-      expect(r.get('start')).to.be.equal 0
+      expect(r.start).to.be.equal 0
 
     it "should have end = 1", ->
-      expect(r.get('end')).to.be.equal 1
+      expect(r.end).to.be.equal 1
 
     it "should have min = 0", ->
       expect(r.min).to.be.equal 0
@@ -89,5 +89,5 @@ describe "range1d module", ->
       r.set('end', -1.1)
       r.set('start', -2.1)
       r.reset()
-      expect(r.get('start')).to.be.equal 10
-      expect(r.get('end')).to.be.equal 20
+      expect(r.start).to.be.equal 10
+      expect(r.end).to.be.equal 20

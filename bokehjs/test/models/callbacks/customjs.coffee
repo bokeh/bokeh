@@ -20,10 +20,10 @@ describe "customjs module", ->
     r = new CustomJS()
 
     it "should have empty args", ->
-      expect(r.get('args')).to.be.deep.equal {}
+      expect(r.args).to.be.deep.equal {}
 
     it "should have empty code", ->
-      expect(r.get('code')).to.be.equal ""
+      expect(r.code).to.be.equal ""
 
   describe "values property", ->
     rng = new Range1d()

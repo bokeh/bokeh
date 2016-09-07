@@ -75,12 +75,12 @@ class Plot extends LayoutDOM.Model
   initialize: (options) ->
     super(options)
     for xr in _.values(@extra_x_ranges).concat(@x_range)
-      plots = xr.get('plots')
+      plots = xr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
         xr.set('plots', plots)
     for yr in _.values(@extra_y_ranges).concat(@y_range)
-      plots = yr.get('plots')
+      plots = yr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
         yr.set('plots', plots)
@@ -133,7 +133,7 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@plot_canvas)
 
   add_renderers: (new_renderers...) ->
-    renderers = @get('renderers')
+    renderers = @renderers
     renderers = renderers.concat(new_renderers)
     @set('renderers', renderers)
 

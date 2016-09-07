@@ -20,12 +20,12 @@ class CustomJS extends Model
     @func(@values..., cb_obj, cb_data, require)
 
   _make_values: () ->
-    _.values(@get("args"))
+    _.values(@args)
 
   _make_func: () ->
     # this relies on _.keys(args) and _.values(args) returning keys and values
     # in the same order
-    new Function(_.keys(@get("args"))..., "cb_obj", "cb_data", "require", @code)
+    new Function(_.keys(@args)..., "cb_obj", "cb_data", "require", @code)
 
 module.exports =
   Model: CustomJS

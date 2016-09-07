@@ -7,8 +7,8 @@ p = require "../../core/properties"
 class GridView extends Renderer.View
   initialize: (attrs, options) ->
     super(attrs, options)
-    @_x_range_name = @model.get('x_range_name')
-    @_y_range_name = @model.get('y_range_name')
+    @_x_range_name = @model.x_range_name
+    @_y_range_name = @model.y_range_name
 
   render: () ->
     if @model.visible == false
@@ -84,19 +84,19 @@ class Grid extends GuideRenderer.Model
   }
 
   ranges: () ->
-    i = @get('dimension')
+    i = @dimension
     j = (i + 1) % 2
-    frame = @plot.plot_canvas.get('frame')
+    frame = @plot.plot_canvas.frame
     ranges = [
-      frame.x_ranges[@get('x_range_name')],
-      frame.y_ranges[@get('y_range_name')]
+      frame.x_ranges[@x_range_name],
+      frame.y_ranges[@y_range_name]
     ]
     return [ranges[i], ranges[j]]
 
    computed_bounds: () ->
     [range, cross_range] = @ranges()
 
-    user_bounds = @get('bounds')
+    user_bounds = @bounds
     range_bounds = [range.min, range.max]
 
     if _.isArray(user_bounds)
@@ -116,7 +116,7 @@ class Grid extends GuideRenderer.Model
     return [start, end]
 
   grid_coords: (location, exclude_ends=true) ->
-    i = @get('dimension')
+    i = @dimension
     j = (i + 1) % 2
     [range, cross_range] = @ranges()
 
@@ -126,7 +126,7 @@ class Grid extends GuideRenderer.Model
     end = Math.max(start, end)
     start = tmp
 
-    ticks = @get('ticker').get_ticks(start, end, range, {})[location]
+    ticks = @ticker.get_ticks(start, end, range, {})[location]
 
     min = range.min
     max = range.max

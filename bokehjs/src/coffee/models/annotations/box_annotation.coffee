@@ -13,7 +13,7 @@ class BoxAnnotationView extends Annotation.View
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
-    if @model.get('render_mode') == 'css'
+    if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
       @listenTo(@model, 'data_update', @render)
@@ -23,21 +23,21 @@ class BoxAnnotationView extends Annotation.View
 
   render: () ->
     # don't render if *all* position are null
-    if not @model.get('left')? and not @model.get('right')? and not @model.get('top')? and not @model.get('bottom')?
+    if not @model.left? and not @model.right? and not @model.top? and not @model.bottom?
       @$el.hide()
       return null
 
-    @frame = @plot_model.get('frame')
-    @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.x_mappers[@model.get("x_range_name")]
-    @ymapper = @plot_view.frame.y_mappers[@model.get("y_range_name")]
+    @frame = @plot_model.frame
+    @canvas = @plot_model.canvas
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.h_range.get('start')))
-    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.h_range.get('end')))
-    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.v_range.get('start')))
-    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.v_range.get('end')))
+    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.h_range.start))
+    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.h_range.end))
+    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.v_range.start))
+    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.v_range.end))
 
-    if @model.get('render_mode') == 'css'
+    if @model.render_mode == 'css'
       @_css_box(sleft, sright, sbottom, stop)
 
     else
@@ -47,13 +47,13 @@ class BoxAnnotationView extends Annotation.View
     sw = Math.abs(sright-sleft)
     sh = Math.abs(sbottom-stop)
 
-    lw = @model.get("line_width").value
-    lc = @model.get("line_color").value
-    bc = @model.get("fill_color").value
-    ba = @model.get("fill_alpha").value
+    lw = @model.line_width.value
+    lc = @model.line_color.value
+    bc = @model.fill_color.value
+    ba = @model.fill_alpha.value
     style = "left:#{sleft}px; width:#{sw}px; top:#{stop}px; height:#{sh}px; border-width:#{lw}px; border-color:#{lc}; background-color:#{bc}; opacity:#{ba};"
     # try our best to honor line dashing in some way, if we can
-    ld = @model.get("line_dash")
+    ld = @model.line_dash
     if _.isArray(ld)
       if ld.length < 2
         ld = "solid"

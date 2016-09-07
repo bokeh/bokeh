@@ -9,37 +9,37 @@ p = require "../../core/properties"
 class ArrowView extends Annotation.View
   initialize: (options) ->
     super(options)
-    if not @model.get('source')?
+    if not @model.source?
       this.model.set('source', new ColumnDataSource.Model())
-    @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.x_mappers[@model.get("x_range_name")]
-    @ymapper = @plot_view.frame.y_mappers[@model.get("y_range_name")]
+    @canvas = @plot_model.canvas
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
     @set_data()
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
-    @listenTo(@model.get('source'), 'change', () ->
+    @listenTo(@model.source, 'change', () ->
       @set_data()
       @plot_view.request_render())
 
   set_data: () ->
-    super(@model.get('source'))
-    @set_visuals(@model.get('source'))
+    super(@model.source)
+    @set_visuals(@model.source)
 
   _map_data: () ->
-    if @model.get('start_units') == 'data'
+    if @model.start_units == 'data'
       start = @plot_view.map_to_screen(@_x_start, @_y_start,
-                                       x_name=@model.get('x_range_name')
-                                       y_name=@model.get('y_range_name')
+                                       x_name=@model.x_range_name
+                                       y_name=@model.y_range_name
                                        )
     else
       start = [@canvas.v_vx_to_sx(@_x_start),
                @canvas.v_vy_to_sy(@_y_start)]
 
-    if @model.get('end_units') == 'data'
+    if @model.end_units == 'data'
       end = @plot_view.map_to_screen(@_x_end, @_y_end,
-                                     x_name=@model.get('x_range_name')
-                                     y_name=@model.get('y_range_name')
+                                     x_name=@model.x_range_name
+                                     y_name=@model.y_range_name
                                      )
     else
       end = [@canvas.v_vx_to_sx(@_x_end),
@@ -50,8 +50,8 @@ class ArrowView extends Annotation.View
   render: () ->
     [@start, @end] = @_map_data()
     @_draw_arrow_body()
-    if @model.get('end')? then @_draw_arrow_head(@model.get('end'), @start, @end)
-    if @model.get('start')? then @_draw_arrow_head(@model.get('start'), @end, @start)
+    if @model.end? then @_draw_arrow_head(@model.end, @start, @end)
+    if @model.start? then @_draw_arrow_head(@model.start, @end, @start)
 
   _draw_arrow_body: () ->
     ctx = @plot_view.canvas_view.ctx

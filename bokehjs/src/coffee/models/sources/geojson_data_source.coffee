@@ -101,7 +101,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
     return count
 
   geojson_to_column_data: () ->
-    geojson = JSON.parse(@get('geojson'))
+    geojson = JSON.parse(@geojson)
 
     if geojson.type not in ['GeometryCollection', 'FeatureCollection']
       throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level')

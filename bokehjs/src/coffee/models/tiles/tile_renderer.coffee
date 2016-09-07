@@ -17,30 +17,30 @@ class TileRendererView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
 
   get_extent: () ->
-    return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
+    return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]
 
   _set_data: () ->
     @pool = new ImagePool()
     @map_plot = @plot_model.plot
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_model.frame
-    @x_range = @map_plot.get('x_range')
+    @x_range = @map_plot.x_range
     @x_mapper = this.map_frame.x_mappers['default']
-    @y_range = @map_plot.get('y_range')
+    @y_range = @map_plot.y_range
     @y_mapper = this.map_frame.y_mappers['default']
     @extent = @get_extent()
     @_last_height = undefined
     @_last_width = undefined
 
   _add_attribution: () =>
-    attribution = @model.get('tile_source').get('attribution')
+    attribution = @model.tile_source.attribution
 
     if _.isString(attribution) and attribution.length > 0
       if @attributionEl?
         @attributionEl.html(attribution)
       else
-        border_width = @map_plot.get('outline_line_width')
-        bottom_offset = @map_plot.get('min_border_bottom') + border_width
+        border_width = @map_plot.outline_line_width
+        bottom_offset = @map_plot.min_border_bottom + border_width
         right_offset = @map_frame.right - @map_frame.width
         max_width = @map_frame.width - border_width
         @attributionEl = $('<div>')
@@ -61,8 +61,8 @@ class TileRendererView extends Renderer.View
 
   _map_data: () ->
     @initial_extent = @get_extent()
-    zoom_level = @model.get('tile_source').get_level_by_extent(@initial_extent, @map_frame.height, @map_frame.width)
-    new_extent = @model.get('tile_source').snap_to_zoom(@initial_extent, @map_frame.height, @map_frame.width, zoom_level)
+    zoom_level = @model.tile_source.get_level_by_extent(@initial_extent, @map_frame.height, @map_frame.width)
+    new_extent = @model.tile_source.snap_to_zoom(@initial_extent, @map_frame.height, @map_frame.width, zoom_level)
     @x_range.set('start', new_extent[0])
     @y_range.set('start', new_extent[1])
     @x_range.set('end', new_extent[2])
@@ -85,7 +85,7 @@ class TileRendererView extends Renderer.View
     return ''
 
   _create_tile: (x, y, z, bounds, cache_only=false) ->
-    normalized_coords = @model.get('tile_source').normalize_xyz(x, y, z)
+    normalized_coords = @model.tile_source.normalize_xyz(x, y, z)
     tile = @pool.pop()
 
     if cache_only
@@ -99,23 +99,23 @@ class TileRendererView extends Renderer.View
     tile.tile_data =
       tile_coords : [x, y, z]
       normalized_coords : normalized_coords
-      quadkey : @model.get('tile_source').tile_xyz_to_quadkey(x, y, z)
-      cache_key : @model.get('tile_source').tile_xyz_to_key(x, y, z)
+      quadkey : @model.tile_source.tile_xyz_to_quadkey(x, y, z)
+      cache_key : @model.tile_source.tile_xyz_to_key(x, y, z)
       bounds : bounds
       loaded : false
       x_coord : bounds[0]
       y_coord : bounds[3]
 
-    @model.get('tile_source').tiles[tile.tile_data.cache_key] = tile.tile_data
-    tile.src = @model.get('tile_source').get_image_url(normalized_coords...)
+    @model.tile_source.tiles[tile.tile_data.cache_key] = tile.tile_data
+    tile.src = @model.tile_source.get_image_url(normalized_coords...)
     return tile
 
   _enforce_aspect_ratio: () ->
     # brute force way of handling resize or sizing_mode event -------------------------------------------------------------
     if @_last_height != @map_frame.height or @_last_width != @map_frame.width
       extent = @get_extent()
-      zoom_level = @model.get('tile_source').get_level_by_extent(extent, @map_frame.height, @map_frame.width)
-      new_extent = @model.get('tile_source').snap_to_zoom(extent, @map_frame.height, @map_frame.width, zoom_level)
+      zoom_level = @model.tile_source.get_level_by_extent(extent, @map_frame.height, @map_frame.width)
+      new_extent = @model.tile_source.snap_to_zoom(extent, @map_frame.height, @map_frame.width, zoom_level)
       @x_range.set({start:new_extent[0], end: new_extent[2]})
       @y_range.set({start:new_extent[1], end: new_extent[3]})
       @extent = new_extent
@@ -142,7 +142,7 @@ class TileRendererView extends Renderer.View
 
 
   _draw_tile: (tile_key) ->
-    tile_obj = @model.get('tile_source').tiles[tile_key]
+    tile_obj = @model.tile_source.tiles[tile_key]
     if tile_obj?
       [sxmin, symin] = @plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @plot_view.canvas)
       [sxmax, symax] = @plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]], @plot_view.canvas)
@@ -168,21 +168,21 @@ class TileRendererView extends Renderer.View
   _render_tiles: (tile_keys) ->
     @map_canvas.save()
     @_set_rect()
-    @map_canvas.globalAlpha = @model.get('alpha')
+    @map_canvas.globalAlpha = @model.alpha
     for tile_key in tile_keys
       @_draw_tile(tile_key)
     @map_canvas.restore()
 
   _prefetch_tiles: () =>
-    tile_source = @model.get('tile_source')
+    tile_source = @model.tile_source
     extent = @get_extent()
     h = @map_frame.height
     w = @map_frame.width
-    zoom_level = @model.get('tile_source').get_level_by_extent(extent, h, w)
-    tiles = @model.get('tile_source').get_tiles_by_extent(extent, zoom_level)
+    zoom_level = @model.tile_source.get_level_by_extent(extent, h, w)
+    tiles = @model.tile_source.get_tiles_by_extent(extent, zoom_level)
     for t in [0..Math.min(10, tiles.length)] by 1
       [x, y, z, bounds] = t
-      children = @model.get('tile_source').children_by_tile_xyz(x, y, z)
+      children = @model.tile_source.children_by_tile_xyz(x, y, z)
       for c in children
         [cx, cy, cz, cbounds] = c
         if tile_source.tile_xyz_to_key(cx, cy, cz) of tile_source.tiles
@@ -196,10 +196,10 @@ class TileRendererView extends Renderer.View
       @_create_tile(x, y, z, bounds)
 
   _update: () =>
-    tile_source = @model.get('tile_source')
+    tile_source = @model.tile_source
 
-    min_zoom = tile_source.get('min_zoom')
-    max_zoom = tile_source.get('max_zoom')
+    min_zoom = tile_source.min_zoom
+    max_zoom = tile_source.max_zoom
 
     tile_source.update()
     extent = @get_extent()
@@ -238,7 +238,7 @@ class TileRendererView extends Renderer.View
       if tile? and tile.loaded == true
         cached.push(key)
       else
-        if @model.get('render_parents')
+        if @model.render_parents
           [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
           parent_key = tile_source.tile_xyz_to_key(px, py, pz)
           parent_tile = tile_source.tiles[parent_key]

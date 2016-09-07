@@ -18,9 +18,9 @@ class CategoricalAxis extends Axis.Model
   }
 
   _computed_bounds: () ->
-    [range, cross_range] = @get('ranges')
+    [range, cross_range] = @ranges
 
-    user_bounds = @get('bounds') ? 'auto'
+    user_bounds = @bounds ? 'auto'
     range_bounds = [range.min, range.max]
 
     if user_bounds != 'auto'

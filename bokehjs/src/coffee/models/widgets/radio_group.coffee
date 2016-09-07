@@ -21,14 +21,14 @@ class RadioGroupView extends Widget.View
     @$el.empty()
 
     name = _.uniqueId("RadioGroup")
-    active = @model.get("active")
-    for label, i in @model.get("labels")
+    active = @model.active
+    for label, i in @model.labels
       $input = $('<input type="radio">').attr(name: name, value: "#{i}")
-      if @model.get("disabled") then $input.prop("disabled", true)
+      if @model.disabled then $input.prop("disabled", true)
       if i == active then $input.prop("checked", true)
 
       $label = $('<label></label>').text(label).prepend($input)
-      if @model.get("inline")
+      if @model.inline
           $label.addClass("bk-bs-radio-inline")
           @$el.append($label)
       else
@@ -39,7 +39,7 @@ class RadioGroupView extends Widget.View
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
     @model.active = active[0]
-    @model.get('callback')?.execute(@model)
+    @model.callback?.execute(@model)
 
 
 class RadioGroup extends Widget.Model

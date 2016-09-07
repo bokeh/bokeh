@@ -4,7 +4,7 @@ ButtonTool = require "../button_tool"
 class GestureToolButtonView extends ButtonTool.ButtonView
 
   _clicked: () ->
-    active = @model.get('active')
+    active = @model.active
     @model.set('active', not active)
 
 class GestureToolView extends ButtonTool.View

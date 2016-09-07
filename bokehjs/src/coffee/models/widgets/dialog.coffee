@@ -23,7 +23,7 @@ class DialogView extends Widget.View
     if @content_view?
       @content_view.remove()
 
-    content = @model.get('content')
+    content = @model.content
     if content?
       if typeof content is 'object'
         @content_view = new content.default_view(model: content)
@@ -37,7 +37,7 @@ class DialogView extends Widget.View
   render_buttons: () ->
     if @buttons_box_view?
       @buttons_box_view.remove()
-    buttons_box = @model.get('buttons_box')
+    buttons_box = @model.buttons_box
     if buttons_box?
       @buttons_box_view = new buttons_box.default_view(model: buttons_box)
       @$el.find('.bk-dialog-buttons_box').empty()
@@ -47,7 +47,7 @@ class DialogView extends Widget.View
   render: () ->
     super()
     @$modal = $(dialog_template(@model.attributes))
-    @$modal.modal({show: @model.get("visible")})
+    @$modal.modal({show: @model.visible})
     @$modal.on('hidden.bk-bs.modal', @onHide)
     @$el.html(@$modal)
     return @
@@ -56,7 +56,7 @@ class DialogView extends Widget.View
     @model.set("visible", false, {silent: true})
 
   change_visibility: () =>
-    @$modal.modal(if @model.get("visible") then "show" else "hide")
+    @$modal.modal(if @model.visible then "show" else "hide")
 
   change_content: () =>
     @render_content()

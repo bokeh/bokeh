@@ -16,7 +16,7 @@ class CanvasView extends BokehView
   initialize: (options) ->
     super(options)
 
-    html = @template({ map: @model.get('map') })
+    html = @template({ map: @model.map })
     @$el.html(html)
 
     # create the canvas context that gets passed around for drawing
@@ -61,7 +61,7 @@ class CanvasView extends BokehView
       })
 
       # Scale the canvas (this resets the context's state)
-      @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.get('use_hidpi'))
+      @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
       canvas_el = @$('.bk-canvas')
       canvas_el.css({
         width: width

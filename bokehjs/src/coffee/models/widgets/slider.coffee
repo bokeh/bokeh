@@ -21,25 +21,25 @@ class SliderView extends InputWidget.View
     html = @template(@model.attributes)
     @$el.html(html)
     @callbackWrapper = null
-    if @model.get('callback_policy') == 'continuous'
+    if @model.callback_policy == 'continuous'
       @callbackWrapper = () ->
-        @model.get('callback')?.execute(@model)
-    if @model.get('callback_policy') == 'throttle' and @model.get('callback')
+        @model.callback?.execute(@model)
+    if @model.callback_policy == 'throttle' and @model.callback
       @callbackWrapper = _.throttle(() ->
-        @model.get('callback')?.execute(@model)
-      , @model.get('callback_throttle'))
+        @model.callback?.execute(@model)
+      , @model.callback_throttle)
     @render()
 
   render: () ->
     super()
-    max = @model.get('end')
-    min = @model.get('start')
-    step = @model.get('step') or ((max - min)/50)
+    max = @model.end
+    min = @model.start
+    step = @model.step or ((max - min)/50)
     logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
     opts = {
-      orientation: @model.get('orientation'),
+      orientation: @model.orientation,
       animate: "fast",
-      value: @model.get('value'),
+      value: @model.value,
       min: min,
       max: max,
       step: step,
@@ -47,18 +47,18 @@ class SliderView extends InputWidget.View
       slide: @slide
     }
     @$el.find('.slider').slider(opts)
-    @$( "##{ @model.get('id') }" ).val( @$('.slider').slider('value') )
-    @$el.find('.bk-slider-parent').height(@model.get('height'))
+    @$( "##{ @model.id }" ).val( @$('.slider').slider('value') )
+    @$el.find('.bk-slider-parent').height(@model.height)
     return @
 
   slidestop: (event, ui) =>
-    if @model.get('callback_policy') == 'mouseup' or @model.get('callback_policy') == 'throttle'
-      @model.get('callback')?.execute(@model)
+    if @model.callback_policy == 'mouseup' or @model.callback_policy == 'throttle'
+      @model.callback?.execute(@model)
 
   slide: (event, ui) =>
     value = ui.value
     logger.debug("slide value = #{value}")
-    @$( "##{ @model.get('id') }" ).val( ui.value )
+    @$( "##{ @model.id }" ).val( ui.value )
     @model.set('value', value)
     if @callbackWrapper then @callbackWrapper()
 

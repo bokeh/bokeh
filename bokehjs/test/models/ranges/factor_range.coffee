@@ -9,13 +9,13 @@ describe "factor_range module", ->
     r = new FactorRange()
 
     it "should have empty factors", ->
-      expect(r.get('factors')).to.be.deep.equal []
+      expect(r.factors).to.be.deep.equal []
 
     it "should have start=0.5", ->
-      expect(r.get('start')).to.be.equal 0.5
+      expect(r.start).to.be.equal 0.5
 
     it "should have offset=0.0", ->
-      expect(r.get('offset')).to.be.equal 0.0
+      expect(r.offset).to.be.equal 0.0
 
   describe "min/max properties", ->
     r = new FactorRange({factors: ['FOO']})
@@ -37,10 +37,10 @@ describe "factor_range module", ->
       expect(r.max).to.be.equal 3.5
 
     it "min should equal start", ->
-      expect(r.min).to.be.equal r.get('start')
+      expect(r.min).to.be.equal r.start
 
     it "max should equal end", ->
-      expect(r.max).to.be.equal r.get('end')
+      expect(r.max).to.be.equal r.end
 
   describe "offset property", ->
     r = new FactorRange({factors: ['FOO'], offset: -1})
@@ -50,8 +50,8 @@ describe "factor_range module", ->
       expect(r.min).to.be.equal -0.5
       expect(r.max).to.be.equal 0.5
 
-      expect(r.get('start')).to.be.equal -0.5
-      expect(r.get('end')).to.be.equal 0.5
+      expect(r.start).to.be.equal -0.5
+      expect(r.end).to.be.equal 0.5
 
   describe "start/end properties", ->
     r = new FactorRange({factors: ['FOO']})
@@ -59,5 +59,5 @@ describe "factor_range module", ->
     it "should update when offset updates", ->
       r.set('offset', -1)
 
-      expect(r.get('start')).to.be.equal -0.5
-      expect(r.get('end')).to.be.equal 0.5
+      expect(r.start).to.be.equal -0.5
+      expect(r.end).to.be.equal 0.5

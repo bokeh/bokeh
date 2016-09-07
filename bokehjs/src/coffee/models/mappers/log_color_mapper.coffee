@@ -8,8 +8,8 @@ class LogColorMapper extends ColorMapper.Model
 
   _get_values: (data, palette) ->
     n = palette.length
-    low = @get('low') ? _.min(data)
-    high = @get('high') ? _.max(data)
+    low = @low ? _.min(data)
+    high = @high ? _.max(data)
     scale = n / (Math.log1p(high) - Math.log1p(low))  # subtract the low offset
     max_key = palette.length - 1
     values = []

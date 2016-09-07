@@ -73,12 +73,12 @@ describe "properties module", ->
       it "should set undefined property attr value to null if no default is given", ->
         obj = new SomeHasProps(a: {})
         p = new properties.Property({obj: obj, attr: 'b'})
-        expect(obj.get('b')).to.be.equal null
+        expect(obj.b).to.be.equal null
 
       #it "should set undefined property attr value if a default is given", ->
       #  obj = new SomeHasProps(a: {})
       #  p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
-      #  expect(obj.get('b')).to.be.equal 10
+      #  expect(obj.b).to.be.equal 10
 
       # it "should throw an Error for missing specifications", ->
       #   fn = ->

@@ -91,7 +91,7 @@ describe "SelectionManager", ->
     expect(sm.selectors).to.have.property glyph_renderer_view_normal.model.id
 
   it "should create a selector with an empty selection", ->
-    expect(selector.get('indices')).to.deep.equal empty_selection
+    expect(selector.indices).to.deep.equal empty_selection
 
   it "should return the right selector", ->
     selector2 = sm._get_selector(glyph_renderer_view_normal)
@@ -110,9 +110,9 @@ describe "SelectionManager", ->
 
     it "should update its data source's selected property", ->
       sm = new SelectionManager({'source': column_data_source})
-      expect(sm.get('source').get('selected')).to.deep.equal empty_selection
+      expect(sm.source.selected).to.deep.equal empty_selection
       sm.select('tool', glyph_renderer_view_normal, geometry, true)
-      expect(sm.get('source').get('selected')).to.not.deep.equal empty_selection
+      expect(sm.source.selected).to.not.deep.equal empty_selection
 
     it "should update its selectors", ->
       sm = new SelectionManager({'source': column_data_source})
@@ -122,5 +122,5 @@ describe "SelectionManager", ->
     it "should work when mappers are reversed", ->
       sm = new SelectionManager({'source': column_data_source})
       sm.select('tool', glyph_renderer_view_reverse, geometry, true)
-      expect(sm.get('source').get('selected')).to.not.deep.equal empty_selection
+      expect(sm.source.selected).to.not.deep.equal empty_selection
       expect(sm.selectors[glyph_renderer_view_reverse.model.id]).to.not.deep.equal empty_selection

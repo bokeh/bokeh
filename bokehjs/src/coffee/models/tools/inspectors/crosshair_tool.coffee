@@ -7,14 +7,14 @@ p = require "../../../core/properties"
 class CrosshairToolView extends InspectTool.View
 
   _move: (e) ->
-    if not @model.get('active')
+    if not @model.active
       return
-    frame = @plot_model.get('frame')
-    canvas = @plot_model.get('canvas')
+    frame = @plot_model.frame
+    canvas = @plot_model.canvas
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    for dim in @model.get('dimensions')
-      span = @model.get('spans')[dim]
+    for dim in @model.dimensions
+      span = @model.spans[dim]
       if not frame.contains(vx, vy)
         span.unset('computed_location')
       else
@@ -24,8 +24,8 @@ class CrosshairToolView extends InspectTool.View
           span.set('computed_location', vx)
 
   _move_exit: (e)->
-    for dim in @model.get('dimensions')
-      span = @model.get('spans')[dim]
+    for dim in @model.dimensions
+      span = @model.spans[dim]
       span.unset('computed_location')
 
 class CrosshairTool extends InspectTool.Model
@@ -58,20 +58,20 @@ class CrosshairTool extends InspectTool.Model
       width: new Span.Model({
         for_hover: true
         dimension: "width",
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
+        render_mode: @render_mode
+        location_units: @location_units
+        line_color: @line_color
+        line_width: @line_width
+        line_alpha: @line_alpha
       }),
       height: new Span.Model({
         for_hover: true
         dimension: "height"
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
+        render_mode: @render_mode
+        location_units: @location_units
+        line_color: @line_color
+        line_width: @line_width
+        line_alpha: @line_alpha
       })
     }
 

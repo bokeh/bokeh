@@ -21,15 +21,15 @@ class TitleView extends TextAnnotation.View
     switch @model.panel.side
       when 'left'
         vx = 0
-        vy = @_get_text_location(@model.get('align'), @frame.v_range) + @model.get('offset')
+        vy = @_get_text_location(@model.align, @frame.v_range) + @model.offset
       when 'right'
         vx = @canvas.right - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.height - @_get_text_location(@model.get('align'), @frame.v_range) - @model.get('offset')
+        vy = @canvas.height - @_get_text_location(@model.align, @frame.v_range) - @model.offset
       when 'above'
-        vx = @_get_text_location(@model.get('align'), @frame.h_range) + @model.get('offset')
+        vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
         vy = @canvas.top - 10 # Corresponds to the +10 added in get_size
       when 'below'
-        vx = @_get_text_location(@model.get('align'), @frame.h_range) + @model.get('offset')
+        vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
         vy = 0
 
     sx = @canvas.vx_to_sx(vx)
@@ -39,11 +39,11 @@ class TitleView extends TextAnnotation.View
   _get_text_location: (alignment, range) ->
     switch alignment
       when 'left'
-        text_location = range.get('start')
+        text_location = range.start
       when 'center'
-        text_location = (range.get('end') + range.get('start'))/2
+        text_location = (range.end + range.start)/2
       when 'right'
-        text_location = range.get('end')
+        text_location = range.end
     return text_location
 
   render: () ->

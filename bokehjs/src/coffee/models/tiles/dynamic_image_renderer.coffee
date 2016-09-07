@@ -11,15 +11,15 @@ class DynamicImageView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
 
   get_extent: () ->
-    return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
+    return [@x_range.start, @y_range.start, @x_range.end, @y_range.end]
 
   _set_data: () ->
     @map_plot = @plot_view.model.plot
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_view.frame
-    @x_range = @map_plot.get('x_range')
+    @x_range = @map_plot.x_range
     @x_mapper = this.map_frame.x_mappers['default']
-    @y_range = @map_plot.get('y_range')
+    @y_range = @map_plot.y_range
     @y_mapper = this.map_frame.y_mappers['default']
     @lastImage = undefined
     @extent = @get_extent()
@@ -39,7 +39,7 @@ class DynamicImageView extends Renderer.View
   _on_image_error: (e) =>
     logger.error('Error loading image: #{e.target.src}')
     image_data = e.target.image_data
-    @model.get('image_source').remove_image(image_data)
+    @model.image_source.remove_image(image_data)
 
   _create_image: (bounds) ->
     image = new Image()
@@ -51,8 +51,8 @@ class DynamicImageView extends Renderer.View
       loaded : false
       cache_key : bounds.join(':')
 
-    @model.get('image_source').add_image(image.image_data)
-    image.src = @model.get('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.height), Math.ceil(@map_frame.width))
+    @model.image_source.add_image(image.image_data)
+    image.src = @model.image_source.get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.height), Math.ceil(@map_frame.width))
     return image
 
   render: (ctx, indices, args) ->
@@ -67,7 +67,7 @@ class DynamicImageView extends Renderer.View
     if @render_timer
       clearTimeout(@render_timer)
 
-    image_obj = @model.get('image_source').images[extent.join(':')]
+    image_obj = @model.image_source.images[extent.join(':')]
     if image_obj? and image_obj.loaded
       @_draw_image(extent.join(':'))
       return
@@ -79,11 +79,11 @@ class DynamicImageView extends Renderer.View
       @render_timer = setTimeout((=> @_create_image(extent)), 125)
 
   _draw_image: (image_key) ->
-    image_obj = @model.get('image_source').images[image_key]
+    image_obj = @model.image_source.images[image_key]
     if image_obj?
       @map_canvas.save()
       @_set_rect()
-      @map_canvas.globalAlpha = @model.get('alpha')
+      @map_canvas.globalAlpha = @model.alpha
       [sxmin, symin] = @plot_view.frame.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]], @plot_view.canvas)
       [sxmax, symax] = @plot_view.frame.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]], @plot_view.canvas)
       sxmin = sxmin[0]

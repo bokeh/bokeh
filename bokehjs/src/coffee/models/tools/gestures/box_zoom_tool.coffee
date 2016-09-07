@@ -9,10 +9,10 @@ class BoxZoomToolView extends GestureTool.View
   _match_aspect: (basepoint, curpoint, frame) ->
 
     # aspect ratio of plot frame
-    hend = frame.h_range.get('end')
-    hstart = frame.h_range.get('start')
-    vend = frame.v_range.get('end')
-    vstart = frame.v_range.get('start')
+    hend = frame.h_range.end
+    hstart = frame.h_range.start
+    vend = frame.v_range.end
+    vstart = frame.v_range.start
     w = hend - hstart
     h = vend - vstart
     a = w/h
@@ -91,15 +91,15 @@ class BoxZoomToolView extends GestureTool.View
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
-    frame = @plot_model.get('frame')
-    dims = @model.get('dimensions')
+    frame = @plot_model.frame
+    dims = @model.dimensions
 
-    if @model.get('match_aspect') and dims.length == 2
+    if @model.match_aspect and dims.length == 2
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
-    @model.get('overlay').update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
+    @model.overlay.update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
 
     return null
 
@@ -109,17 +109,17 @@ class BoxZoomToolView extends GestureTool.View
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
-    frame = @plot_model.get('frame')
-    dims = @model.get('dimensions')
+    frame = @plot_model.frame
+    dims = @model.dimensions
 
-    if @model.get('match_aspect') and dims.length == 2
+    if @model.match_aspect and dims.length == 2
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
     @_update(vx, vy)
 
-    @model.get('overlay').update({left: null, right: null, top: null, bottom: null})
+    @model.overlay.update({left: null, right: null, top: null, bottom: null})
     @_baseboint = null
     return null
 

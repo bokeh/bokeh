@@ -11,8 +11,8 @@ p = require "../../core/properties"
 class AxisView extends Renderer.View
   initialize: (options) ->
     super(options)
-    @_x_range_name = @model.get('x_range_name')
-    @_y_range_name = @model.get('y_range_name')
+    @_x_range_name = @model.x_range_name
+    @_y_range_name = @model.y_range_name
 
   render: () ->
     if @model.visible == false
@@ -56,8 +56,8 @@ class AxisView extends Renderer.View
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
 
-    tin = @model.get('major_tick_in')
-    tout = @model.get('major_tick_out')
+    tin = @model.major_tick_in
+    tout = @model.major_tick_out
     @visuals.major_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
@@ -73,8 +73,8 @@ class AxisView extends Renderer.View
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
-    tin = @model.get('minor_tick_in')
-    tout = @model.get('minor_tick_out')
+    tin = @model.minor_tick_in
+    tout = @model.minor_tick_out
     @visuals.minor_tick_line.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
@@ -89,14 +89,14 @@ class AxisView extends Renderer.View
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
     dim = @model.dimension
-    side = @model.get('panel_side')
-    orient = @model.get('major_label_orientation')
+    side = @model.panel_side
+    orient = @model.major_label_orientation
     if _.isString(orient)
       angle = @model.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
-    standoff = @_tick_extent() + @model.get('major_label_standoff')
-    labels = @model.get('formatter').doFormat(coords.major[dim])
+    standoff = @_tick_extent() + @model.major_label_standoff
+    labels = @model.formatter.doFormat(coords.major[dim])
 
     @visuals.major_label_text.set_value(ctx)
     @model.panel.apply_label_text_heuristics(ctx, orient)
@@ -111,17 +111,17 @@ class AxisView extends Renderer.View
         ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff), Math.round(sy[i]+ny*standoff+ny*yoff))
 
   _draw_axis_label: (ctx) ->
-    label = @model.get('axis_label')
+    label = @model.axis_label
     if not label?
       return
     [x, y] = @model.rule_coords
     [sx, sy] = @plot_view.map_to_screen(x, y, @_x_range_name, @_y_range_name)
     [nx, ny] = @model.normals
     [xoff, yoff]  = @model.offsets
-    side = @model.get('panel_side')
+    side = @model.panel_side
     orient = 'parallel'
     angle = @model.panel.get_label_angle_heuristic(orient)
-    standoff = (@_tick_extent() + @_tick_label_extent() + @model.get('axis_label_standoff'))
+    standoff = (@_tick_extent() + @_tick_label_extent() + @model.axis_label_standoff)
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
     @visuals.axis_label_text.set_value(ctx)
@@ -143,7 +143,7 @@ class AxisView extends Renderer.View
       ctx.fillText(label, x, y)
 
   _tick_extent: () ->
-    return @model.get('major_tick_out')
+    return @model.major_tick_out
 
   _tick_label_extent: () ->
     extent = 0
@@ -151,9 +151,9 @@ class AxisView extends Renderer.View
 
     dim = @model.dimension
     coords = @model.tick_coords.major
-    side = @model.get('panel_side')
-    orient = @model.get('major_label_orientation')
-    labels = @model.get('formatter').doFormat(coords[dim])
+    side = @model.panel_side
+    orient = @model.major_label_orientation
+    labels = @model.formatter.doFormat(coords[dim])
     @visuals.major_label_text.set_value(ctx)
 
     if _.isString(orient)
@@ -180,14 +180,14 @@ class AxisView extends Renderer.View
       if val > extent
         extent = val
     if extent > 0
-      extent += @model.get('major_label_standoff')
+      extent += @model.major_label_standoff
     return extent
 
   _axis_label_extent: () ->
     extent = 0
 
-    side = @model.get('panel_side')
-    axis_label = @model.get('axis_label')
+    side = @model.panel_side
+    axis_label = @model.axis_label
     orient = 'parallel'
     ctx = @plot_view.canvas_view.ctx
     @visuals.axis_label_text.set_value(ctx)
@@ -195,7 +195,7 @@ class AxisView extends Renderer.View
     c = Math.cos(angle)
     s = Math.sin(angle)
     if axis_label
-      extent += @model.get('axis_label_standoff')
+      extent += @model.axis_label_standoff
       @visuals.axis_label_text.set_value(ctx)
       w = ctx.measureText(axis_label).width * 1.1
       h = ctx.measureText(axis_label).ascent * 0.9
@@ -258,7 +258,7 @@ class Axis extends GuideRenderer.Model
 
     @define_computed_property('computed_bounds', @_computed_bounds, false)
     @add_dependencies('computed_bounds', this, ['bounds'])
-    @add_dependencies('computed_bounds', @get('plot'), ['x_range', 'y_range'])
+    @add_dependencies('computed_bounds', @plot, ['x_range', 'y_range'])
 
   @getters {
     computed_bounds: () -> @_get_computed('computed_bounds')
@@ -276,9 +276,9 @@ class Axis extends GuideRenderer.Model
     @set('panel_side', side)
 
   _offsets: () ->
-    side = @get('panel_side')
+    side = @panel_side
     [xoff, yoff] = [0, 0]
-    frame = @plot.plot_canvas.get('frame')
+    frame = @plot.plot_canvas.frame
 
     if side == "below"
       yoff = Math.abs(@panel.top - frame.bottom)
@@ -297,17 +297,17 @@ class Axis extends GuideRenderer.Model
   _ranges: () ->
     i = @dimension
     j = (i + 1) % 2
-    frame = @plot.plot_canvas.get('frame')
+    frame = @plot.plot_canvas.frame
     ranges = [
-      frame.x_ranges[@get('x_range_name')],
-      frame.y_ranges[@get('y_range_name')]
+      frame.x_ranges[@x_range_name],
+      frame.y_ranges[@y_range_name]
     ]
     return [ranges[i], ranges[j]]
 
   _computed_bounds: () ->
     [range, cross_range] = @ranges
 
-    user_bounds = @get('bounds') ? 'auto'
+    user_bounds = @bounds ? 'auto'
     range_bounds = [range.min, range.max]
 
     if user_bounds == 'auto'
@@ -356,7 +356,7 @@ class Axis extends GuideRenderer.Model
     [range, cross_range] = @ranges
     [start, end] = @computed_bounds
 
-    ticks = @get('ticker').get_ticks(start, end, range, {})
+    ticks = @ticker.get_ticks(start, end, range, {})
     majors = ticks.major
     minors = ticks.minor
 
@@ -395,9 +395,9 @@ class Axis extends GuideRenderer.Model
     }
 
   _get_loc: (cross_range) ->
-    cstart = cross_range.get('start')
-    cend = cross_range.get('end')
-    side = @get('panel_side')
+    cstart = cross_range.start
+    cend = cross_range.end
+    side = @panel_side
 
     if side == 'left' or side == 'below'
       loc = 'start'

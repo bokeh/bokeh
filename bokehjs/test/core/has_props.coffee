@@ -91,7 +91,7 @@ describe "has_properties module", ->
 
   #   it "should dereference elements by default if inside a document", ->
   #     expect(model3.document).to.equal doc
-  #     output = model3.get('vectordata')
+  #     output = model3.vectordata
 
   #     expect(output[0].document).to.equal doc
   #     expect(output[1].document).to.equal doc
@@ -100,7 +100,7 @@ describe "has_properties module", ->
 
   #   it "should work with nested arrays", ->
   #     expect(model4.document).to.equal doc
-  #     output = model4.get('vectordata')
+  #     output = model4.vectordata
 
   #     expect(output[0][0].document).to.equal doc
   #     expect(output[0][1].document).to.equal doc

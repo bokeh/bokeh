@@ -15,7 +15,7 @@ class Range1d extends Range.Model
     }
 
   _set_auto_bounds: () ->
-    if @get('bounds') == 'auto'
+    if @bounds == 'auto'
       min = Math.min(@_initial_start, @_initial_end)
       max = Math.max(@_initial_start, @_initial_end)
       @set('bounds', [min, max])

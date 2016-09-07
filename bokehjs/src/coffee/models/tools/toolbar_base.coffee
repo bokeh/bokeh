@@ -29,9 +29,9 @@ class ToolbarBaseView extends LayoutDOM.View
       })
     location = if @model.toolbar_location? then @model.toolbar_location else 'above'
     sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
-    @$el.html(@template({logo: @model.get("logo"), location: location, sticky: sticky}))
+    @$el.html(@template({logo: @model.logo, location: location, sticky: sticky}))
 
-    inspectors = @model.get('inspectors')
+    inspectors = @model.inspectors
     button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
 
     if inspectors.length == 0
@@ -52,16 +52,16 @@ class ToolbarBaseView extends LayoutDOM.View
       anchor.dropdown()
 
     button_bar_list = @$(".bk-button-bar-list[type='help']")
-    _.each(@model.get('help'), (item) ->
+    _.each(@model.help, (item) ->
       button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
     )
 
     button_bar_list = @$(".bk-button-bar-list[type='actions']")
-    _.each(@model.get('actions'), (item) ->
+    _.each(@model.actions, (item) ->
       button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
     )
 
-    gestures = @model.get('gestures')
+    gestures = @model.gestures
     for et of gestures
       button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
       _.each(gestures[et].tools, (item) ->
@@ -77,7 +77,7 @@ class ToolbarBase extends LayoutDOM.Model
 
   _active_change: (tool) =>
     event_type = tool.event_type
-    gestures = @get('gestures')
+    gestures = @gestures
 
     # Toggle between tools of the same type by deactivating any active ones
     currently_active_tool = gestures[event_type].active

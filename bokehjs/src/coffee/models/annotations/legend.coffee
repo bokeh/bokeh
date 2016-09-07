@@ -9,13 +9,13 @@ class LegendView extends Annotation.View
     super(options)
 
   compute_legend_bbox: () ->
-    legend_names = (legend_name for [legend_name, glyphs] in @model.get("legends"))
+    legend_names = (legend_name for [legend_name, glyphs] in @model.legends)
 
-    glyph_height = @model.get('glyph_height')
-    glyph_width = @model.get('glyph_width')
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
 
-    label_height = @model.get('label_height')
-    label_width = @model.get('label_width')
+    label_height = @model.label_height
+    label_width = @model.label_width
 
     @max_label_height = _.max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
@@ -32,12 +32,12 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
-    legend_margin = @model.get('legend_margin')
-    legend_padding = @model.get('legend_padding')
-    legend_spacing = @model.get('legend_spacing')
-    label_standoff =  @model.get('label_standoff')
+    legend_margin = @model.legend_margin
+    legend_padding = @model.legend_padding
+    legend_spacing = @model.legend_spacing
+    label_standoff =  @model.label_standoff
 
-    if @model.get("orientation") == "vertical"
+    if @model.orientation == "vertical"
       legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
       legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
@@ -46,39 +46,39 @@ class LegendView extends Annotation.View
         legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    location = @model.get('location')
+    location = @model.location
     h_range = @plot_view.frame.h_range
     v_range = @plot_view.frame.v_range
 
     if _.isString(location)
       switch location
         when 'top_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('end') - legend_margin
+          x = h_range.start + legend_margin
+          y = v_range.end - legend_margin
         when 'top_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('end') - legend_margin
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.end - legend_margin
         when 'top_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('end') - legend_margin
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.end - legend_margin
         when 'right_center'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.end - legend_margin - legend_width
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('start') + legend_margin + legend_height
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.start + legend_margin
+          y = v_range.start + legend_margin + legend_height
         when 'left_center'
-          x = h_range.get('start') + legend_margin
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.start + legend_margin
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = (v_range.end + v_range.start)/2 + legend_height/2
     else if _.isArray(location) and location.length == 2
       [x, y] = location
 
@@ -93,9 +93,9 @@ class LegendView extends Annotation.View
 
     bbox = @compute_legend_bbox()
 
-    glyph_height = @model.get('glyph_height')
-    glyph_width = @model.get('glyph_width')
-    orientation = @model.get('orientation')
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    orientation = @model.orientation
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
@@ -113,11 +113,11 @@ class LegendView extends Annotation.View
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
-    N = @model.get("legends").length
-    legend_spacing = @model.get('legend_spacing')
-    label_standoff = @model.get('label_standoff')
-    xoffset = yoffset = @model.get('legend_padding')
-    for [legend_name, glyphs], idx in @model.get("legends")
+    N = @model.legends.length
+    legend_spacing = @model.legend_spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.legend_padding
+    for [legend_name, glyphs], idx in @model.legends
       x1 = bbox.x + xoffset
       y1 = bbox.y + yoffset
       x2 = x1 + glyph_width

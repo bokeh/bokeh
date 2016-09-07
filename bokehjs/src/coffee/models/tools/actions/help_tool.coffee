@@ -5,7 +5,7 @@ p = require "../../../core/properties"
 
 class HelpToolView extends ActionTool.View
   do: () ->
-    window.open(@model.get('redirect'))
+    window.open(@model.redirect)
 
 class HelpTool extends ActionTool.Model
   default_view: HelpToolView

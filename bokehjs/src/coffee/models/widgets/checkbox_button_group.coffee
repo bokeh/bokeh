@@ -31,7 +31,7 @@ class CheckboxButtonGroupView extends Widget.View
       if i in active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @model.get("button_type"))
+      $label.addClass("bk-bs-btn-" + @model.button_type)
       if i in active then $label.addClass("bk-bs-active")
       @$el.find('.bk-bs-btn-group').append($label)
 
@@ -40,7 +40,7 @@ class CheckboxButtonGroupView extends Widget.View
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @model.active = active
-    @model.get('callback')?.execute(@model)
+    @model.callback?.execute(@model)
 
 
 class CheckboxButtonGroup extends Widget.Model

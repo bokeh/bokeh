@@ -24,9 +24,9 @@ class StringFormatter extends CellFormatter
   doFormat: (row, cell, value, columnDef, dataContext) ->
     text = super(row, cell, value, columnDef, dataContext)
 
-    font_style = @get("font_style")
-    text_align = @get("text_align")
-    text_color = @get("text_color")
+    font_style = @font_style
+    text_align = @text_align
+    text_color = @text_color
 
     if font_style? or text_align? or text_color?
       text = $("<span>#{text}</span>")
@@ -49,9 +49,9 @@ class NumberFormatter extends StringFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    format = @get("format")
-    language = @get("language")
-    rounding = switch @get("rounding")
+    format = @format
+    language = @language
+    rounding = switch @rounding
       when "round", "nearest"   then Math.round
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
@@ -66,7 +66,7 @@ class BooleanFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    if !!value then $('<i>').addClass(@get("icon")).html() else ""
+    if !!value then $('<i>').addClass(@icon).html() else ""
 
 class DateFormatter extends CellFormatter
   type: 'DateFormatter'
@@ -76,7 +76,7 @@ class DateFormatter extends CellFormatter
   }
 
   getFormat: () ->
-    format = @get("format")
+    format = @format
     name = switch format
       when "ATOM", "W3C", "RFC-3339", "ISO-8601" then "ISO-8601"
       when "COOKIE"                              then "COOKIE"
@@ -103,7 +103,7 @@ class HTMLTemplateFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    template = @get("template")
+    template = @template
     if value == null
       return ""
     else

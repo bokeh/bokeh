@@ -26,10 +26,10 @@ describe "datarange1d module", ->
     r = new DataRange1d()
 
     it "should have start = null", ->
-      expect(r.get('start')).to.be.null
+      expect(r.start).to.be.null
 
     it "should have end = null", ->
-      expect(r.get('end')).to.be.null
+      expect(r.end).to.be.null
 
     # Math.min(null, null) == 0
     it "should have min = 0", ->
@@ -40,16 +40,16 @@ describe "datarange1d module", ->
       expect(r.max).to.be.equal 0
 
     it "should have flipped = false", ->
-      expect(r.get('flipped')).to.be.equal false
+      expect(r.flipped).to.be.equal false
 
     it "should have follow = null", ->
-      expect(r.get('follow')).to.be.null
+      expect(r.follow).to.be.null
 
     it "should have follow_interval = null", ->
-      expect(r.get('follow_interval')).to.be.null
+      expect(r.follow_interval).to.be.null
 
     it "should have default_span = 2", ->
-      expect(r.get('default_span')).to.be.equal 2
+      expect(r.default_span).to.be.equal 2
 
     it "should have no computed_renderers", ->
       expect(r.computed_renderers()).to.be.deep.equal []
@@ -58,10 +58,10 @@ describe "datarange1d module", ->
     r = new DataRange1d({start: 10, end:20})
 
     it "should have start = 10", ->
-      expect(r.get('start')).to.be.equal 10
+      expect(r.start).to.be.equal 10
 
     it "should have end = 20", ->
-      expect(r.get('end')).to.be.equal 20
+      expect(r.end).to.be.equal 20
 
     it "should have min = 10", ->
       expect(r.min).to.be.equal 10
@@ -78,10 +78,10 @@ describe "datarange1d module", ->
       r.set('follow_interval', 10)
       r.set('default_span', 10)
       r.reset()
-      expect(r.get('range_padding')).to.be.equal 0.1
-      expect(r.get('follow')).to.be.null
-      expect(r.get('follow_interval')).to.be.null
-      expect(r.get('default_span')).to.be.equal 2
+      expect(r.range_padding).to.be.equal 0.1
+      expect(r.follow).to.be.null
+      expect(r.follow_interval).to.be.null
+      expect(r.default_span).to.be.equal 2
 
     # something must call update(...) to update (start, end)
     it "should not reset (start, end)", ->
@@ -89,8 +89,8 @@ describe "datarange1d module", ->
       r.set('start', 4)
       r.set('end', 10)
       r.reset()
-      expect(r.get('start')).to.be.equal 4
-      expect(r.get('end')).to.be.equal 10
+      expect(r.start).to.be.equal 4
+      expect(r.end).to.be.equal 10
 
   describe "computed_renderers", ->
 

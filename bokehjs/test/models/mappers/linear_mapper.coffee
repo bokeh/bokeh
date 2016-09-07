@@ -55,12 +55,12 @@ describe "linear_mapper module", ->
 
       it "should update on range start update", ->
         mapper = generate_mapper()
-        mapper.get('source_range').set('start', -10)
+        mapper.source_range.set('start', -10)
         expect(mapper.mapper_state).to.be.deep.equal [3, 50]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
-        mapper.get('source_range').set('end', 20)
+        mapper.source_range.set('end', 20)
         expect(mapper.mapper_state).to.be.deep.equal [3, 20]
 
     describe "update target range1d", ->
@@ -72,10 +72,10 @@ describe "linear_mapper module", ->
 
       it "should update on range start update", ->
         mapper = generate_mapper()
-        mapper.get('target_range').set('start', 0)
+        mapper.target_range.set('start', 0)
         expect(mapper.mapper_state).to.be.deep.equal [8, 0]
 
       it "should update on range end update", ->
         mapper = generate_mapper()
-        mapper.get('target_range').set('end', 100)
+        mapper.target_range.set('end', 100)
         expect(mapper.mapper_state).to.be.deep.equal [8, 20]

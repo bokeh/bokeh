@@ -7,7 +7,7 @@ class ToggleView extends AbstractButton.View
 
   render: () ->
     super()
-    if @model.get("active")
+    if @model.active
       @$el.find('button').addClass("bk-bs-active")
     else
       @$el.find('button').removeClass("bk-bs-active")
@@ -15,7 +15,7 @@ class ToggleView extends AbstractButton.View
 
   change_input: () ->
     super()
-    @model.set('active', not @model.get('active'))
+    @model.set('active', not @model.active)
 
 
 class Toggle extends AbstractButton.Model

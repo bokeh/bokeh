@@ -42,9 +42,9 @@ class CompositeTicker extends ContinuousTicker.Model
     # the first scale
     best_index = argmin(errors)
     if best_index == Infinity
-      return @get('tickers')[0]
+      return @tickers[0]
     best_ticker_ndx = ticker_ndxs[best_index]
-    best_ticker = @get('tickers')[best_ticker_ndx]
+    best_ticker = @tickers[best_ticker_ndx]
 
     return best_ticker
 

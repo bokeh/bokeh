@@ -10,8 +10,8 @@ class SelectToolView extends GestureTool.View
   _keyup: (e) ->
     if e.keyCode == 27
       for r in @model.computed_renderers
-        ds = r.get('data_source')
-        sm = ds.get('selection_manager')
+        ds = r.data_source
+        sm = ds.selection_manager
         sm.clear()
 
   _save_geometry: (geometry, final, append) ->
@@ -38,7 +38,7 @@ class SelectToolView extends GestureTool.View
     if final
       tool_events = @plot_model.plot.tool_events
       if append
-        geoms = tool_events.get('geometries')
+        geoms = tool_events.geometries
         geoms.push(g)
       else
         geoms = [g]
@@ -62,20 +62,20 @@ class SelectTool extends GestureTool.Model
 
     @define_computed_property('computed_renderers',
       () ->
-        renderers = @get('renderers')
-        names = @get('names')
+        renderers = @renderers
+        names = @names
 
         if renderers.length == 0
-          all_renderers = @get('plot').get('renderers')
+          all_renderers = @plot.renderers
           renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
 
         if names.length > 0
-          renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+          renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
 
         return renderers
       , true)
     @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
-    @add_dependencies('computed_renderers', @get('plot'), ['renderers'])
+    @add_dependencies('computed_renderers', @plot, ['renderers'])
 
   @getters {
     computed_renderers: () -> @_get_computed('computed_renderers')

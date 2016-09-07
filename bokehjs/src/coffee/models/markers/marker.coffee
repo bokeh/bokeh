@@ -51,13 +51,13 @@ class MarkerView extends Glyph.View
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
     hr = @renderer.plot_view.frame.h_range
-    vx0 = hr.get('start') - @max_size
-    vx1 = hr.get('end') + @max_size
+    vx0 = hr.start - @max_size
+    vx1 = hr.end + @max_size
     [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
 
     vr = @renderer.plot_view.frame.v_range
-    vy0 = vr.get('start') - @max_size
-    vy1 = vr.get('end') + @max_size
+    vy0 = vr.start - @max_size
+    vy1 = vr.end + @max_size
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])

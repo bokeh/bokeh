@@ -100,32 +100,32 @@ class ColorBarView extends Annotation.View
     if _.isString(location)
       switch location
         when 'top_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('end') - legend_margin
+          x = h_range.start + legend_margin
+          y = v_range.end - legend_margin
         when 'top_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('end') - legend_margin
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.end - legend_margin
         when 'top_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('end') - legend_margin
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.end - legend_margin
         when 'right_center'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.end - legend_margin - legend_width
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('start') + legend_margin + legend_height
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.start + legend_margin
+          y = v_range.start + legend_margin + legend_height
         when 'left_center'
-          x = h_range.get('start') + legend_margin
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.start + legend_margin
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = (v_range.end + v_range.start)/2 + legend_height/2
     else if _.isArray(location) and location.length == 2
       [x, y] = location
 
@@ -244,7 +244,7 @@ class ColorBarView extends Annotation.View
     [sx, sy] = @model._tick_coordinates().major
 
     labels = @model._tick_coordinates().major_labels
-    formatted_labels = @model.get('formatter').doFormat(labels)
+    formatted_labels = @model.formatter.doFormat(labels)
 
     @visuals.major_label_text.set_value(ctx)
 

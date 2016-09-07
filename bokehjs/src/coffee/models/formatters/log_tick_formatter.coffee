@@ -15,15 +15,15 @@ class LogTickFormatter extends TickFormatter.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @basic_formatter = new BasicTickFormatter.Model()
-    if not @get('ticker')?
+    if not @ticker?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
   doFormat: (ticks) ->
     if ticks.length == 0
       return []
 
-    if @get('ticker')?
-      base = @get('ticker').get('base')
+    if @ticker?
+      base = @ticker.base
     else
       base = 10
 

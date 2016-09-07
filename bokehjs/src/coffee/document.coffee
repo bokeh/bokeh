@@ -217,13 +217,13 @@ class Document
 
     for d in to_detach.values
       d.detach_document()
-      name = d.get('name')
+      name = d.name
       if name != null
         @_all_models_by_name.remove_value(name, d)
 
     for a in to_attach.values
       a.attach_document(@)
-      name = a.get('name')
+      name = a.name
       if name != null
         @_all_models_by_name.add_value(name, a)
 

@@ -15,9 +15,9 @@ class PanToolView extends GestureTool.View
     if not frame.contains(vx, vy)
       hr = frame.h_range
       vr = frame.v_range
-      if vx < hr.get('start') or vx > hr.get('end')
+      if vx < hr.start or vx > hr.end
         @v_axis_only = true
-      if vy < vr.get('start') or vy > vr.get('end')
+      if vy < vr.start or vy > vr.end
         @h_axis_only = true
     @plot_view.interactive_timestamp = Date.now()
 
@@ -40,22 +40,22 @@ class PanToolView extends GestureTool.View
     new_dy = dy - @last_dy
 
     hr = _.clone(frame.h_range)
-    sx_low  = hr.get('start') - new_dx
-    sx_high = hr.get('end') - new_dx
+    sx_low  = hr.start - new_dx
+    sx_high = hr.end - new_dx
 
     vr = _.clone(frame.v_range)
-    sy_low  = vr.get('start') - new_dy
-    sy_high = vr.get('end') - new_dy
+    sy_low  = vr.start - new_dy
+    sy_high = vr.end - new_dy
 
-    dims = @model.get('dimensions')
+    dims = @model.dimensions
 
     if dims.indexOf('width') > -1 and not @v_axis_only
       sx0 = sx_low
       sx1 = sx_high
       sdx = -new_dx
     else
-      sx0 = hr.get('start')
-      sx1 = hr.get('end')
+      sx0 = hr.start
+      sx1 = hr.end
       sdx = 0
 
     if dims.indexOf('height') > -1 and not @h_axis_only
@@ -63,8 +63,8 @@ class PanToolView extends GestureTool.View
       sy1 = sy_high
       sdy = new_dy
     else
-      sy0 = vr.get('start')
-      sy1 = vr.get('end')
+      sy0 = vr.start
+      sy1 = vr.end
       sdy = 0
 
     @last_dx = dx

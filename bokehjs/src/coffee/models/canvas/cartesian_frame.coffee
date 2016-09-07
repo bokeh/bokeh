@@ -23,8 +23,8 @@ class CartesianFrame extends LayoutCanvas.Model
 
     mapper: () ->
       new GridMapper.Model({
-        domain_mapper: @get('x_mapper')
-        codomain_mapper: @get('y_mapper')
+        domain_mapper: @x_mapper
+        codomain_mapper: @y_mapper
       })
 
     h_range: () ->

@@ -31,7 +31,7 @@ class BasicTickFormatter extends TickFormatter.Model
       zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000
 
     need_sci = false
-    if @get('use_scientific')
+    if @use_scientific
       for tick in ticks
         tick_abs = Math.abs(tick)
         if (tick_abs > zero_eps and
@@ -40,7 +40,7 @@ class BasicTickFormatter extends TickFormatter.Model
           need_sci = true
           break
 
-    precision = @get('precision')
+    precision = @precision
 
     if not precision? or _.isNumber(precision)
       labels = new Array(ticks.length)

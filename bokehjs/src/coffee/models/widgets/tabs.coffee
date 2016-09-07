@@ -15,9 +15,9 @@ class TabsView extends Widget.View
       val.$el.detach()
     @$el.empty()
 
-    tabs = @model.get('tabs')
-    active = @model.get('active')
-    children = @model.get('children')
+    tabs = @model.tabs
+    active = @model.active
+    children = @model.children
 
     html = $(tabs_template({
       tabs: tabs
@@ -29,12 +29,12 @@ class TabsView extends Widget.View
       event.preventDefault()
       $(this).tab('show')
       panelId = $(this).attr('href').replace('#tab-','')
-      tabs = that.model.get('tabs')
+      tabs = that.model.tabs
       panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
         return panel.id == panelId
       ))
       that.model.set('active', panelIdx)
-      that.model.get('callback')?.execute(that.model)
+      that.model.callback?.execute(that.model)
 
     $panels = html.children(".bk-bs-tab-pane")
 
@@ -51,7 +51,7 @@ class Tabs extends Widget.Model
 
   initialize: (options) ->
     super(options)
-    @children = (tab.get("child") for tab in @tabs)
+    @children = (tab.child for tab in @tabs)
 
   @define {
       tabs:     [ p.Array,   [] ]
@@ -64,7 +64,7 @@ class Tabs extends Widget.Model
   }
 
   get_layoutable_children: () ->
-    return @get('children')
+    return @children
 
   get_edit_variables: () ->
     edit_variables = super()

@@ -16,10 +16,10 @@ class MarkupView extends Widget.View
     super()
     @$el.empty()
     @$el.html(@template())
-    if @model.get('height')
-      @$el.height(@model.get('height'))
-    if @model.get('width')
-      @$el.width(@model.get('width'))
+    if @model.height
+      @$el.height(@model.height)
+    if @model.width
+      @$el.width(@model.width)
 
 
 class Markup extends Widget.Model

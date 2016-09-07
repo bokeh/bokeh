@@ -16,12 +16,12 @@ class IconView extends Widget.View
   render: () ->
     @$el.empty()
     @$el.addClass("bk-fa")
-    @$el.addClass("bk-fa-" + @model.get("icon_name"))
-    size = @model.get("size")
+    @$el.addClass("bk-fa-" + @model.icon_name)
+    size = @model.size
     if size? then @$el.css("font-size": size + "em")
-    flip = @model.get("flip")
+    flip = @model.flip
     if flip? then @$el.addClass("bk-fa-flip-" + flip)
-    if @model.get("spin")
+    if @model.spin
       @$el.addClass("bk-fa-spin")
     return @
 

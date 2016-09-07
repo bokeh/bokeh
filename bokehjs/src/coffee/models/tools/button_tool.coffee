@@ -21,8 +21,8 @@ class ButtonToolButtonView extends Backbone.View
 
   render: () ->
     @$el.children('button')
-        .prop("disabled", @model.get('disabled'))
-        .toggleClass('active', @model.get('active'))
+        .prop("disabled", @model.disabled)
+        .toggleClass('active', @model.active)
     return @
 
   _clicked: (e) ->

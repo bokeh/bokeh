@@ -12,7 +12,7 @@ class PolySelectToolView extends SelectTool.View
     @data = null
 
   _active_change: () ->
-    if not @model.get('active')
+    if not @model.active
       @_clear_data()
 
   _keyup: (e) ->
@@ -27,7 +27,7 @@ class PolySelectToolView extends SelectTool.View
 
   _clear_data: () ->
     @data = null
-    @model.get('overlay').update({xs:[], ys:[]})
+    @model.overlay.update({xs:[], ys:[]})
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -41,7 +41,7 @@ class PolySelectToolView extends SelectTool.View
     @data.vx.push(vx)
     @data.vy.push(vy)
 
-    overlay = @model.get('overlay')
+    overlay = @model.overlay
     new_data = {}
     new_data.vx = _.clone(@data.vx)
     new_data.vy = _.clone(@data.vy)
@@ -55,8 +55,8 @@ class PolySelectToolView extends SelectTool.View
     }
 
     for r in @model.computed_renderers
-      ds = r.get('data_source')
-      sm = ds.get('selection_manager')
+      ds = r.data_source
+      sm = ds.selection_manager
       sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
     @_save_geometry(geometry, final, append)
