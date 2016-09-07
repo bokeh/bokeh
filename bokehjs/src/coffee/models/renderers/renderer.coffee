@@ -1,7 +1,7 @@
 _ = require "underscore"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
-Backbone = require "backbone"
+Backbone = require "../../core/backbone"
 
 BokehView = require "../../core/bokeh_view"
 {color2rgba} = require "../../core/util/color"

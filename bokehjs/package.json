@@ -90,7 +90,6 @@
   },
   "dependencies": {
     "underscore": "^1.5.2",
-    "backbone": "^1.1.0",
     "es6-promise":"3.0.2",
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
