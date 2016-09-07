@@ -67,7 +67,6 @@ declare namespace Bokeh.Plotting {
         arc               (attrs: ArcAttrs):              GlyphRenderer;
         bezier            (attrs: BezierAttrs):           GlyphRenderer;
         ellipse           (attrs: EllipseAttrs):          GlyphRenderer;
-        gear              (attrs: GearAttrs):             GlyphRenderer;
         image             (attrs: ImageAttrs):            GlyphRenderer;
         image_rgba        (attrs: ImageRGBAAttrs):        GlyphRenderer;
         image_url         (attrs: ImageURLAttrs):         GlyphRenderer;
@@ -135,12 +134,6 @@ declare namespace Bokeh.Plotting {
             width: SpatialAttr,
             height: SpatialAttr,
             opts?: EllipseOpts):             GlyphRenderer;
-        gear(
-            x: DataAttr,
-            y: DataAttr,
-            module: ValueAttr<number>,
-            teeth: ValueAttr<Int>,
-            opts?: GearOpts):             GlyphRenderer;
         image(
             color_mapper: ColorMapper,
             image: ValueAttr<Array<number>>,
@@ -387,19 +380,6 @@ declare namespace Bokeh.Plotting {
         y: DataAttr;
         width: SpatialAttr;
         height: SpatialAttr;
-    }
-
-    export interface GearOpts extends GlyphOpts, LinePropsOpts, FillPropsOpts {
-        angle?: AngularAttr;
-        pressure_angle?: AngularAttr;
-        shaft_size?: ValueAttr<number>;
-        internal?: ValueAttr<boolean>;
-    }
-    export interface GearAttrs extends GearOpts {
-        x: DataAttr;
-        y: DataAttr;
-        module: ValueAttr<number>;
-        teeth: ValueAttr<Int>;
     }
 
     export interface ImageRGBAOpts extends GlyphOpts {

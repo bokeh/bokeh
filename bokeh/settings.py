@@ -168,7 +168,7 @@ class Settings(object):
         Bokeh source tree.
 
         '''
-        if self.debugjs:
+        if self._is_dev or self.debugjs:
             bokehjssrcdir = abspath(join(ROOT_DIR, '..', 'bokehjs', 'src'))
 
             if isdir(bokehjssrcdir):
@@ -180,7 +180,7 @@ class Settings(object):
         '''
 
         '''
-        return bokehjsdir(self.debugjs)
+        return bokehjsdir(self._is_dev or self.debugjs)
 
     def js_files(self):
         ''' The JS files in the BokehJS directory.
@@ -206,6 +206,8 @@ class Settings(object):
                     js_files.append(join(root, fname))
         return js_files
 
+    def nodejs_path(self, default=None):
+        return self._get_str("NODEJS_PATH", default)
 
 #: A global settings object that other parts of Bokeh can refer to.
 #:
