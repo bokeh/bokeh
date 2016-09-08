@@ -7,9 +7,45 @@ p = require "../core/properties"
 class Selector extends HasProps
   type: 'Selector'
 
-  update: (indices, final, append, silent=false) ->
+  select: (tool, renderer_view, geometry, final=true) ->
+    if @source != renderer_view.model.data_source
+      logger.warn('select called with mis-matched data sources')
+
+    indices = renderer_view.hit_test(geometry)
+
+    if indices?
+      @_update(indices, true, false)
+
+      @source.trigger('select')
+      @source.trigger('select-' + renderer_view.mget('id'))
+
+      return not indices.is_empty()
+    else
+      return false
+
+  inspect: (tool, renderer_view, geometry, final=true) ->
+    if @source != renderer_view.model.data_source
+      logger.warn('inspect called with mis-matched data sources')
+
+    indices = renderer_view.hit_test(geometry)
+
+    if indices?
+      @_update(indices, false, true, true)
+
+      data = {'geometry': geometry}
+      @source.trigger(
+        'inspect', indices, tool, renderer_view, @source, data
+      )
+      @source.trigger(
+        "inspect#{renderer_view.model.id}", indices, tool, renderer_view,
+        @source, data
+      )
+      return not indices.is_empty()
+    else
+      return false
+
+  _update: (indices, append, final, silent=false) ->
     @set('timestamp', new Date(), {silent: silent})
-    @set('final', final, {silent: silent})
     if append
       new_indices = hittest.create_hit_test_result()
       new_indices['0d'].indices =  _.union(@indices['0d'].indices, indices['0d'].indices)
@@ -32,8 +68,9 @@ class Selector extends HasProps
 
   @internal {
     indices:   [ p.Any, () -> hittest.create_hit_test_result() ]
-    final:     [ p.Boolean ]
-    timestamp: [ p.Any ]
+    timestamp: [ p.Any      ]
+    source:    [ p.Instance ]
+    final:     [ p.Boolean  ]
   }
 
 module.exports = Selector

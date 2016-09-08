@@ -23,24 +23,24 @@ describe "Selector module", ->
       s = new Selector()
       expect(s.indices).to.deep.equal empty_selection
 
-  describe "Selector.update method", ->
+  describe "Selector._update method", ->
 
     it "should reset the `indices` attributes if append arg is false", ->
       s = new Selector()
 
-      # function signature is: update(indices, final, append)
-      s.update(@hit_indices_1, false, false)
+      # function signature is: _update(indices, final, append)
+      s._update(@hit_indices_1, false, false)
       expect(s.indices).to.be.deep.equal(@hit_indices_1)
 
-      s.update(@hit_indices_2, false, false)
+      s._update(@hit_indices_2, false, false)
       expect(s.indices).to.be.deep.equal(@hit_indices_2)
 
     it "should union the `1d` indices if append arg is true", ->
       s = new Selector()
 
-      # function signature is `Selector.update(indices, final, append)`
-      s.update(@hit_indices_1, false, true)
-      s.update(@hit_indices_2, false, true)
+      # function signature is `Selector._update(indices, append, final)`
+      s._update(@hit_indices_1, true, false)
+      s._update(@hit_indices_2, true, false)
       expect(s.indices['1d'].indices).to.be.deep.equal([0,1,2,7,8,9])
 
       # also shouldn't mutate either indices arguments
@@ -54,11 +54,11 @@ describe "Selector module", ->
       hit_indices_2 = hittest.create_hit_test_result()
       hit_indices_2['2d'] = {2: [1, 2], 3: [3]}
 
-      # function signature is `Selector.update(indices, final, append)`
-      s.update(hit_indices_1, false, true)
+      # function signature is `Selector._update(indices, append, final)`
+      s._update(hit_indices_1, true, false)
       expect(s.indices['2d']).to.be.deep.equal( {3: [5, 6], 4: [7]} )
 
-      s.update(hit_indices_2, false, true)
+      s._update(hit_indices_2, true, false)
       expect(s.indices['2d']).to.be.deep.equal( {3: [3, 5, 6], 2: [1, 2], 4: [7]})
 
   describe "Selector.clear method", ->

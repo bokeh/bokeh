@@ -77,7 +77,7 @@ class SelectTool extends GestureTool.Model
     selectable_renderers = @_get_selectable_renderers()
 
     for renderer in _.uniq(selectable_renderers, false, (r) -> r.data_source)
-      renderer.data_source.selection_manager.clear()
+      renderer.data_source.selector.clear()
 
     return null
 

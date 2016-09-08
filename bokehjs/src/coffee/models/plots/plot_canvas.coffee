@@ -283,7 +283,7 @@ class PlotCanvasView extends Renderer.View
     selection = []
     for renderer in @model.plot.renderers
       if renderer instanceof GlyphRenderer.Model
-        selected = renderer.data_source.selected
+        selected = renderer.data_source.selected.indices
         selection[renderer.id] = selected
     selection
 
