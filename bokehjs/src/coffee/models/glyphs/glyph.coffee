@@ -29,7 +29,7 @@ class GlyphView extends Renderer.View
 
   render: (ctx, indices, data) ->
 
-    if @mget("visible")
+    if @model.visible
       ctx.beginPath();
 
       if @glglyph?

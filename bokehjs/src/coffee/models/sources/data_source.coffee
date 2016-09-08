@@ -15,7 +15,7 @@ class DataSource extends Model
   initialize: (options) ->
     super(options)
     @listenTo @, 'change:selected', () =>
-      callback = @get('callback')
+      callback = @callback
       if callback?
         if _.isFunction(callback)
           callback(@)

@@ -19,7 +19,7 @@ class Ticker extends Model
 
   # Generates a nice series of ticks for a given range.
   get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
-    return @get_ticks_no_defaults(data_low, data_high, @get('desired_num_ticks'))
+    return @get_ticks_no_defaults(data_low, data_high, @desired_num_ticks)
 
   # The version of get_ticks() that does the work (and the version that
   # should be overridden in subclasses).
@@ -32,7 +32,7 @@ class Ticker extends Model
     else
       factors = _.range(start_factor, end_factor + 1)
     ticks = (factor * interval for factor in factors)
-    num_minor_ticks = @get("num_minor_ticks")
+    num_minor_ticks = @num_minor_ticks
     minor_ticks = []
     if num_minor_ticks > 1
       minor_interval = interval / num_minor_ticks

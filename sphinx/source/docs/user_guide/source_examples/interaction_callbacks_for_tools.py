@@ -7,7 +7,7 @@ source = ColumnDataSource(data=dict(x=[], y=[], width=[], height=[]))
 
 callback = CustomJS(args=dict(source=source), code="""
         // get data source from Callback args
-        var data = source.get('data');
+        var data = source.data;
 
         /// get BoxSelectTool dimensions from cb_data parameter of Callback
         var geometry = cb_data['geometry'];

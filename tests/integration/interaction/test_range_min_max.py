@@ -27,10 +27,10 @@ def make_pan_plot_with_callback(xr=None, yr=None):
         x_range = xr
     x_callback = CustomJS(args=dict(x_range=x_range), code="""
         window.get_x_range_start = function() {
-            return x_range.get('start');
+            return x_range.start;
         }
         window.get_x_range_end = function() {
-            return x_range.get('end');
+            return x_range.end;
         }
     """)
     x_range.callback = x_callback
@@ -41,10 +41,10 @@ def make_pan_plot_with_callback(xr=None, yr=None):
         y_range = yr
     y_callback = CustomJS(args=dict(y_range=y_range), code="""
         window.get_y_range_start = function() {
-            return y_range.get('start');
+            return y_range.start;
         }
         window.get_y_range_end = function() {
-            return y_range.get('end');
+            return y_range.end;
         }
     """)
     y_range.callback = y_callback

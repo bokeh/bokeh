@@ -29,7 +29,7 @@ label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data, ren
 p.add_layout(label_set)
 
 callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
-    var data = source.get('data');
+    var data = source.data;
     for (var i = 0; i < data['y'].length; i++) {
         data['xn'][i] = normal.compute(data['x'][i] + 1);
     }

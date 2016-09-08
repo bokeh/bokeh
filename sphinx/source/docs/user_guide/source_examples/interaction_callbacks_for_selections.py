@@ -19,9 +19,9 @@ p2 = figure(plot_width=400, plot_height=400, x_range=(0, 1), y_range=(0, 1),
 p2.circle('x', 'y', source=s2, alpha=0.6)
 
 s1.callback = CustomJS(args=dict(s2=s2), code="""
-        var inds = cb_obj.get('selected')['1d'].indices;
-        var d1 = cb_obj.get('data');
-        var d2 = s2.get('data');
+        var inds = cb_obj.selected['1d'].indices;
+        var d1 = cb_obj.data;
+        var d2 = s2.data;
         d2['x'] = []
         d2['y'] = []
         for (i = 0; i < inds.length; i++) {

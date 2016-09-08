@@ -13,8 +13,8 @@ plot = Figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 callback = CustomJS(args=dict(source=source), code="""
-        var data = source.get('data');
-        var f = cb_obj.get('value')
+        var data = source.data;
+        var f = cb_obj.value
         x = data['x']
         y = data['y']
         for (i = 0; i < x.length; i++) {

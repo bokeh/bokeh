@@ -66,7 +66,7 @@ class Box extends LayoutDOM.Model
   }
 
   get_layoutable_children: () ->
-    @get('children')
+    @children
 
   variables_updated: () ->
     # Use trigger to force re-render

@@ -13,7 +13,7 @@ class OpenURL extends Model
 
   execute: (data_source) ->
     for i in Util.get_indices(data_source)
-      url = Util.replace_placeholders(@get("url"), data_source, i)
+      url = Util.replace_placeholders(@url, data_source, i)
       window.open(url)
     null
 

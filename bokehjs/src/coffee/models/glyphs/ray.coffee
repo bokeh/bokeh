@@ -14,8 +14,8 @@ class RayView extends Glyph.View
   _render: (ctx, indices, {sx, sy, slength, _angle}) ->
     if @visuals.line.doit
 
-      width = @renderer.plot_view.frame.get('width')
-      height = @renderer.plot_view.frame.get('height')
+      width = @renderer.plot_view.frame.width
+      height = @renderer.plot_view.frame.height
       inf_len = 2 * (width + height)
       for i in [0...slength.length]
         if slength[i] == 0

@@ -75,15 +75,15 @@ class Plot extends LayoutDOM.Model
   initialize: (options) ->
     super(options)
     for xr in _.values(@extra_x_ranges).concat(@x_range)
-      plots = xr.get('plots')
+      plots = xr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        xr.set('plots', plots)
+        xr.plots = plots
     for yr in _.values(@extra_y_ranges).concat(@y_range)
-      plots = yr.get('plots')
+      plots = yr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        yr.set('plots', plots)
+        yr.plots = plots
 
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
@@ -119,7 +119,7 @@ class Plot extends LayoutDOM.Model
     if not @height?
       @height = @plot_height
 
-  Object.defineProperty(this.prototype, "plot_canvas", { get: () -> @_plot_canvas })
+  @getter("plot_canvas", () -> @_plot_canvas)
 
   _doc_attached: () ->
     # Setup side renderers
@@ -133,9 +133,9 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@plot_canvas)
 
   add_renderers: (new_renderers...) ->
-    renderers = @get('renderers')
+    renderers = @renderers
     renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
+    @renderers = renderers
 
   add_layout: (renderer, side="center") ->
     # For non-center renderers, this method can only be used before

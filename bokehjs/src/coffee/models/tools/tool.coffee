@@ -9,7 +9,7 @@ class ToolView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:active', () =>
-      if @mget('active')
+      if @model.active
         @activate()
       else
         @deactivate()
@@ -23,13 +23,13 @@ class ToolView extends Renderer.View
 
 class Tool extends Model
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('synthetic_renderers', (() -> []), true)
+  @getters {
+    synthetic_renderers: () -> []
+  }
 
   @define {
-      plot: [ p.Instance ]
-    }
+    plot: [ p.Instance ]
+  }
 
   @internal {
     level: [ p.RenderLevel, 'overlay' ]
@@ -81,19 +81,19 @@ class Tool extends Model
   # utility function to get limits along both dimensions, given
   # optional dimensional constraints
   _get_dim_limits: ([vx0, vy0], [vx1, vy1], frame, dims) ->
-    hr = frame.get('h_range')
+    hr = frame.h_range
     if dims.indexOf('width') >= 0
       vxlim = [_.min([vx0, vx1]), _.max([vx0, vx1])]
-      vxlim = [_.max([vxlim[0], hr.get('min')]), _.min([vxlim[1], hr.get('max')])]
+      vxlim = [_.max([vxlim[0], hr.min]), _.min([vxlim[1], hr.max])]
     else
-      vxlim = [hr.get('min'), hr.get('max')]
+      vxlim = [hr.min, hr.max]
 
-    vr = frame.get('v_range')
+    vr = frame.v_range
     if dims.indexOf('height') >= 0
       vylim = [_.min([vy0, vy1]), _.max([vy0, vy1])]
-      vylim = [_.max([vylim[0], vr.get('min')]), _.min([vylim[1], vr.get('max')])]
+      vylim = [_.max([vylim[0], vr.min]), _.min([vylim[1], vr.max])]
     else
-      vylim = [vr.get('min'), vr.get('max')]
+      vylim = [vr.min, vr.max]
 
     return [vxlim, vylim]
 

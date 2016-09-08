@@ -42,7 +42,7 @@ class ImageView extends Glyph.View
       canvas.height = @_height[i]
       ctx = canvas.getContext('2d')
       image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
-      cmap = @mget('color_mapper')
+      cmap = @model.color_mapper
       if @_rows?
         img = @_image[i]
       else
@@ -63,11 +63,11 @@ class ImageView extends Glyph.View
 
   _map_data: () ->
     switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
       when "screen" then @sw = @_dw
 
     switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
       when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
