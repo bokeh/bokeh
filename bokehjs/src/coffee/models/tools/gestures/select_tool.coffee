@@ -9,10 +9,7 @@ class SelectToolView extends GestureTool.View
 
   _keyup: (e) ->
     if e.keyCode == 27
-      for r in @model._get_selectable_renderers()
-        ds = r.data_source
-        sm = ds.selection_manager
-        sm.clear()
+      @model._clear_current_selection()
 
   _get_cb_data: (geometry) ->
     g = _.clone(geometry)
@@ -56,7 +53,7 @@ class SelectToolView extends GestureTool.View
 
   _emit_callback: (geometry) ->
     @model.callback.execute(@model, {geometry: geometry})
-    return
+    return null
 
 class SelectTool extends GestureTool.Model
   default_view: SelectToolView

@@ -11,6 +11,8 @@ class TapToolView extends SelectTool.View
     vy = canvas.sy_to_vy(e.bokeh.sy)
     append = e.srcEvent.shiftKey ? false
     @_select(vx, vy, true, append)
+    if @model.behavior == "select"
+      @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -19,11 +21,7 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    callback = @model.callback
-    @_save_geometry(geometry, final, append)
-
-    cb_data =
-      geometries: @plot_model.plot.tool_events.geometries
+    cb_data = @_get_cb_data(geometry)
 
     if not append
       @model._clear_current_selection()
@@ -38,14 +36,15 @@ class TapToolView extends SelectTool.View
       else
         did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
 
+        callback = @mget("callback")
       if did_hit and callback?
-        if _.isFunction(callback)
-          callback(ds, cb_data)
-        else
-          callback.execute(ds, cb_data)
+        callback.execute(ds, cb_data)
 
-    if @model.behavior == "select"
-      @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+    if @model.callback?
+      @_emit_callback(cb_data)
+
+    if final
+      @_save_geometry(cb_data, append)
 
     return null
 
@@ -60,7 +59,6 @@ class TapTool extends SelectTool.Model
 
   @define {
     behavior: [ p.String, "select" ] # TODO: Enum("select", "inspect")
-    callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
 
 module.exports =

@@ -65,6 +65,6 @@ describe "Selector module", ->
     it "should set `indices` attribute as empty HitTestResult", ->
       s = new Selector()
       s.set('indices', @hit_indices_1)
-
       s.clear()
+
       expect(s.indices).to.deep.equal empty_selection
