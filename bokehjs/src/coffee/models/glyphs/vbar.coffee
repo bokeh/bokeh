@@ -80,6 +80,9 @@ class VBarView extends Glyph.View
 
   scy: (i) -> return (@stop[i] + @sbottom[i])/2
 
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
+
 class VBar extends Glyph.Model
   default_view: VBarView
   type: 'VBar'
