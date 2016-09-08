@@ -5,6 +5,7 @@ Backbone = require "./backbone"
 {logger} = require "./logging"
 property_mixins = require "./property_mixins"
 refs = require "./util/refs"
+p = require "./properties"
 
 class HasProps extends Backbone.Model
 
@@ -77,6 +78,10 @@ class HasProps extends Backbone.Model
         props[name] = _.extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
+  @define {
+    id: [ p.Any ]
+  }
+
   toString: () -> "#{@type}(#{@id})"
 
   constructor : (attributes, options) ->
@@ -109,9 +114,8 @@ class HasProps extends Backbone.Model
     @_computed = {}
 
     # auto generating ID
-    if not _.has(attrs, @idAttribute)
+    if not attrs.id?
       this.id = _.uniqueId(this.type)
-      this.attributes[@idAttribute] = this.id
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
@@ -132,7 +136,7 @@ class HasProps extends Backbone.Model
       attrs[key] = value
     for own key, val of attrs
       prop_name = key
-      if not (prop_name == "id" or @props[prop_name])
+      if not @props[prop_name]?
         throw new Error("#{@type}.set('#{prop_name}'): #{prop_name} wasn't declared")
 
       if not (options? and options.defaults)
@@ -207,7 +211,7 @@ class HasProps extends Backbone.Model
     return prop_spec
 
   get: (prop_name) ->
-    if not (prop_name == "id" or @props[prop_name])
+    if not @props[prop_name]?
       throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
     else
       return super(prop_name)
@@ -235,12 +239,11 @@ class HasProps extends Backbone.Model
   defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   attribute_is_serializable: (attr) ->
-    if attr == "id"
-      return true
     prop = @props[attr]
     if not prop?
       throw new Error("#{@type}.attribute_is_serializable('#{attr}'): #{attr} wasn't declared")
-    return not prop.internal
+    else
+      return not prop.internal
 
   # dict of attributes that should be serialized to the server. We
   # sometimes stick things in attributes that aren't part of the
