@@ -66,8 +66,7 @@ class BoxSelectToolView extends SelectTool.View
       @model._clear_current_selection()
 
     for r in @model._get_selectable_renderers()
-      sm = r.data_source.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
+      r.data_source.selector.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
 
     cb_data = @_get_cb_data(geometry)
 
