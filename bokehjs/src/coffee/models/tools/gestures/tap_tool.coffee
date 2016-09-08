@@ -19,18 +19,18 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    callback = @mget("callback")
+    callback = @model.callback
     @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.plot.tool_events.get('geometries')
+      geometries: @plot_model.plot.tool_events.geometries
 
     if not append
       @model._clear_current_selection()
 
-    for r in @mget('computed_renderers')
-      ds = r.get('data_source')
-      sm = ds.get('selection_manager')
+    for r in @model.computed_renderers
+      ds = r.data_source
+      sm = ds.selection_manager
 
       view = @plot_view.renderer_views[r.id]
       if @model.behavior == "select"

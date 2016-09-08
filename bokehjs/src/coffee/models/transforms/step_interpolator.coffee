@@ -24,17 +24,17 @@ class StepInterpolator extends Interpolator.Model
         return @_y_sorted[@_y_sorted.length-1]
 
     ind = -1
-    if @get('mode') == "after"
+    if @mode == "after"
       ind = _.findLastIndex(@_x_sorted, (num) ->
         return x >= num
       )
 
-    if @get('mode') == "before"
+    if @mode == "before"
       ind = _.findIndex(@_x_sorted, (num) ->
         return x <= num
       )
 
-    if @get('mode') == "center"
+    if @mode == "center"
       diffs = (Math.abs(tx - x) for tx in @_x_sorted)
       mdiff = _.min(diffs)
       ind = _.findIndex(diffs, (num) ->

@@ -12,7 +12,7 @@ class FixedTicker extends ContinuousTicker.Model
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
     return {
-      major: @get('ticks')
+      major: @ticks
       minor: []
     }
 

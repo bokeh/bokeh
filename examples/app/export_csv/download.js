@@ -1,4 +1,4 @@
-var data = source.get('data');
+var data = source.data;
 var filetext = 'name,income,years_experience\n';
 for (i=0; i < data['name'].length; i++) {
     var currRow = [data['name'][i].toString(),

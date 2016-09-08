@@ -57,8 +57,8 @@ class ImageURLView extends Glyph.View
     # TODO (bev): take actual border width into account when clipping
     frame = @renderer.plot_view.frame
     ctx.rect(
-      frame.get('left')+1, frame.get('bottom')+1,
-      frame.get('width')-2, frame.get('height')-2,
+      frame.left+1, frame.bottom+1,
+      frame.width-2, frame.height-2,
     )
     ctx.clip()
 

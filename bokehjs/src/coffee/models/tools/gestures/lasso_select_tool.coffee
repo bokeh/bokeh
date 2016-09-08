@@ -12,7 +12,7 @@ class LassoSelectToolView extends SelectTool.View
     @data = null
 
   _active_change: () ->
-    if not @mget('active')
+    if not @model.active
       @_clear_overlay()
 
   _keyup: (e) ->
@@ -32,25 +32,25 @@ class LassoSelectToolView extends SelectTool.View
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
 
-    h_range = @plot_model.get('frame').get('h_range')
-    v_range = @plot_model.get('frame').get('v_range')
-    if vx > h_range.get('end')
-      vx = h_range.get('end')
-    if vx < h_range.get('start')
-      vx = h_range.get('start')
+    h_range = @plot_model.frame.h_range
+    v_range = @plot_model.frame.v_range
+    if vx > h_range.end
+      vx = h_range.end
+    if vx < h_range.start
+      vx = h_range.start
 
-    if vy > v_range.get('end')
-      vy = v_range.get('end')
-    if vy < v_range.get('start')
-      vy = v_range.get('start')
+    if vy > v_range.end
+      vy = v_range.end
+    if vy < v_range.start
+      vy = v_range.start
 
     @data.vx.push(vx)
     @data.vy.push(vy)
 
-    overlay = @mget('overlay')
+    overlay = @model.overlay
     overlay.update({xs: @data.vx, ys: @data.vy})
 
-    if @mget('select_every_mousemove')
+    if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
       @_select(@data.vx, @data.vy, false, append)
 
@@ -61,7 +61,7 @@ class LassoSelectToolView extends SelectTool.View
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
-    @mget('overlay').update({xs:[], ys:[]})
+    @model.overlay.update({xs:[], ys:[]})
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -73,12 +73,12 @@ class LassoSelectToolView extends SelectTool.View
     if not append
       @model._clear_current_selection()
 
-    for r in @mget('computed_renderers')
-      ds = r.get('data_source')
-      sm = ds.get('selection_manager')
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
+    for r in @model.computed_renderers
+      ds = r.data_source
+      sm = ds.selection_manager
+      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
-    if @mget('callback')?
+    if @model.callback?
       @_emit_callback(geometry)
 
     @_save_geometry(geometry, final, append)
@@ -86,19 +86,19 @@ class LassoSelectToolView extends SelectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('computed_renderers')[0]
-    canvas = @plot_model.get('canvas')
-    frame = @plot_model.get('frame')
+    r = @model.computed_renderers[0]
+    canvas = @plot_model.canvas
+    frame = @plot_model.frame
 
     geometry['sx'] = canvas.v_vx_to_sx(geometry.vx)
     geometry['sy'] = canvas.v_vy_to_sy(geometry.vy)
 
-    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
-    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    xmapper = frame.x_mappers[r.x_range_name]
+    ymapper = frame.y_mappers[r.y_range_name]
     geometry['x'] = xmapper.v_map_from_target(geometry.vx)
     geometry['y'] = ymapper.v_map_from_target(geometry.vy)
 
-    @mget('callback').execute(@model, {geometry: geometry})
+    @model.callback.execute(@model, {geometry: geometry})
 
     return
 

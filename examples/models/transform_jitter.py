@@ -29,14 +29,14 @@ label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data, ren
 p.add_layout(label_set)
 
 callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
-    data=source.get('data')
-    for (i=0; i < data['y'].length; i++) {
-        data['xn'][i] = normal.compute(data['x'][i]+1)
+    var data = source.data;
+    for (var i = 0; i < data['y'].length; i++) {
+        data['xn'][i] = normal.compute(data['x'][i] + 1);
     }
-    for (i=0; i < data['y'].length; i++) {
-        data['xu'][i] = uniform.compute(data['x'][i]+2)
+    for (var i = 0; i < data['y'].length; i++) {
+        data['xu'][i] = uniform.compute(data['x'][i] + 2);
     }
-    source.trigger('change')
+    source.trigger('change');
 """)
 
 button = Button(label='Press to apply Jitter!', callback=callback)

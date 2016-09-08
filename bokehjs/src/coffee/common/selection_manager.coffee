@@ -26,7 +26,6 @@ class SelectionManager extends HasProps
     if indices?
       @selector.update(indices, final, append)
       @source.selected = @selector.indices
-
       @source.trigger('select')
       @source.trigger('select-' + renderer_view.model.id)
 
