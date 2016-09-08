@@ -17,7 +17,7 @@ describe "func_tick_formatter module", ->
 
     it "should have values as function args", ->
       rng = new Range1d()
-      formatter.set('args', {foo: rng.ref()})
+      formatter.args = {foo: rng.ref()}
       func = new Function("tick", "foo", "require", "return 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
@@ -42,7 +42,7 @@ describe "func_tick_formatter module", ->
     it "should handle args appropriately", ->
       rng = new Range1d({start: 5, end: 10})
       formatter = new FuncTickFormatter({
-        code: "return foo.get('start') + foo.get('end') + tick"
+        code: "return foo.start + foo.end + tick"
         args: {foo: rng}
       })
       labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10])
