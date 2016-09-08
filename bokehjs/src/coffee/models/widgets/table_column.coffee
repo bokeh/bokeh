@@ -22,13 +22,13 @@ class TableColumn extends Model
   toColumn: () ->
     return {
       id: _.uniqueId()
-      field: @get("field")
-      name: @get("title")
-      width: @get("width")
-      formatter: @get("formatter")?.doFormat.bind(@get("formatter"))
-      editor: @get("editor")
-      sortable: @get("sortable")
-      defaultSortAsc: @get("default_sort") == "ascending"
+      field: @field
+      name: @title
+      width: @width
+      formatter: @formatter?.doFormat.bind(@formatter)
+      editor: @editor
+      sortable: @sortable
+      defaultSortAsc: @default_sort == "ascending"
     }
 
 module.exports =

@@ -20,7 +20,7 @@ class Toolbar extends ToolbarBase.Model
     @_init_tools()
 
   _init_tools: () ->
-    for tool in @get('tools')
+    for tool in @tools
       if tool instanceof InspectTool.Model
         if not _.some(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])

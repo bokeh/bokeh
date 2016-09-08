@@ -28,8 +28,8 @@ class ResizeToolView extends GestureTool.View
     if @active
       canvas = @plot_view.canvas
       frame = @plot_view.frame
-      left = canvas.vx_to_sx(frame.get('h_range').get('end')-40)
-      top = canvas.vy_to_sy(frame.get('v_range').get('start')+40)
+      left = canvas.vx_to_sx(frame.h_range.end-40)
+      top = canvas.vy_to_sy(frame.v_range.start+40)
       @$el.attr('style',
         "position:absolute; top:#{top}px; left:#{left}px;"
       )
@@ -40,8 +40,8 @@ class ResizeToolView extends GestureTool.View
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @ch = canvas.get('height')
-    @cw = canvas.get('width')
+    @ch = canvas.height
+    @cw = canvas.width
     @plot_view.interactive_timestamp = Date.now()
     return null
 
@@ -53,8 +53,8 @@ class ResizeToolView extends GestureTool.View
   _pan_end: (e) ->
     @plot_view.push_state("resize", {
       dimensions: {
-        width: @plot_view.canvas.get("width")
-        height: @plot_view.canvas.get("height")
+        width: @plot_view.canvas.width
+        height: @plot_view.canvas.height
       }
     })
 

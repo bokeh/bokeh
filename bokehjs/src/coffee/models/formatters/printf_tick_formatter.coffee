@@ -12,7 +12,7 @@ class PrintfTickFormatter extends TickFormatter.Model
     }
 
   doFormat: (ticks) ->
-    format = @get("format")
+    format = @format
     labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
     return labels
 

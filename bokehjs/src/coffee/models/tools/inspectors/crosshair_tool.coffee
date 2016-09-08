@@ -7,25 +7,25 @@ p = require "../../../core/properties"
 class CrosshairToolView extends InspectTool.View
 
   _move: (e) ->
-    if not @mget('active')
+    if not @model.active
       return
-    frame = @plot_model.get('frame')
-    canvas = @plot_model.get('canvas')
+    frame = @plot_model.frame
+    canvas = @plot_model.canvas
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    for dim in @mget('dimensions')
-      span = @mget('spans')[dim]
+    for dim in @model.dimensions
+      span = @model.spans[dim]
       if not frame.contains(vx, vy)
         span.unset('computed_location')
       else
         if dim == "width"
-          span.set('computed_location', vy)
+          span.computed_location = vy
         else
-          span.set('computed_location', vx)
+          span.computed_location = vx
 
   _move_exit: (e)->
-    for dim in @mget('dimensions')
-      span = @mget('spans')[dim]
+    for dim in @model.dimensions
+      span = @model.spans[dim]
       span.unset('computed_location')
 
 class CrosshairTool extends InspectTool.Model
@@ -46,39 +46,34 @@ class CrosshairTool extends InspectTool.Model
     spans:          [ p.Any ]
   }
 
+  @getters {
+    tooltip: () -> @_get_dim_tooltip("Crosshair", @_check_dims(@dimensions, "crosshair tool"))
+    synthetic_renderers: () -> _.values(@spans)
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          "Crosshair",
-          @_check_dims(@get('dimensions'), "crosshair tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
 
     @spans = {
       width: new Span.Model({
         for_hover: true
         dimension: "width",
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
+        render_mode: @render_mode
+        location_units: @location_units
+        line_color: @line_color
+        line_width: @line_width
+        line_alpha: @line_alpha
       }),
       height: new Span.Model({
         for_hover: true
         dimension: "height"
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
+        render_mode: @render_mode
+        location_units: @location_units
+        line_color: @line_color
+        line_width: @line_width
+        line_alpha: @line_alpha
       })
     }
-
-    @override_computed_property('synthetic_renderers', (() => _.values(@get("spans"))), true)
 
 module.exports =
   Model: CrosshairTool

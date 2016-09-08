@@ -19,11 +19,11 @@ class RectView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
     else
       @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
     else
       @sh = @_height
 

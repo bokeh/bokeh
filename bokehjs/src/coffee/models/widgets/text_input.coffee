@@ -27,7 +27,7 @@ class TextInputView extends InputWidget.View
     @$el.html(@template(@model.attributes))
     # TODO - This 35 is a hack we should be able to compute it
     if @model.height
-      @$el.find('input').height(@mget('height') - 35)
+      @$el.find('input').height(@model.height - 35)
     return @
 
   change_input: () ->

@@ -8,6 +8,13 @@ refs = require "./util/refs"
 
 class HasProps extends Backbone.Model
 
+  @getter: (name, get) ->
+    Object.defineProperty(this.prototype, name, { get: get })
+
+  @getters: (specs) ->
+    for name, get of specs
+      @getter(name, get)
+
   props: {}
   mixins: []
 
@@ -178,10 +185,10 @@ class HasProps extends Backbone.Model
       if prop_spec['use_cache']
         old_val = prop_spec.cache
         prop_spec.cache = undefined
-        new_val = @get(prop_name)
+        new_val = @_get_computed(prop_name)
         firechange = new_val != old_val
       if firechange
-        @trigger('change:' + prop_name, this, @get(prop_name))
+        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
         @trigger('change', this)
 
     prop_spec =
@@ -199,33 +206,16 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
-  override_computed_property: (prop_name, getter, use_cache=true) ->
-    if _.has(@_computed, prop_name)
-      @_remove_computed_property(prop_name)
-    @define_computed_property(prop_name, getter, use_cache)
-
-  _remove_computed_property: (prop_name) ->
-    # removes the property, unbinding all callbacks that implemented it
-    prop_spec = @_computed[prop_name]
-    dependencies = prop_spec.dependencies
-    for dep in dependencies
-      obj = dep.obj
-      for fld in dep['fields']
-        obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
-    @off("changedep:" + dep)
-    delete @_computed[prop_name]
-
   get: (prop_name) ->
-    if _.has(@_computed, prop_name)
-      return @_get_prop(prop_name)
+    if not (prop_name == "id" or @props[prop_name])
+      throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
     else
-      if not (prop_name == "id" or @props[prop_name])
-        throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
-
       return super(prop_name)
 
-  _get_prop: (prop_name) ->
+  _get_computed: (prop_name) ->
     prop_spec = @_computed[prop_name]
+    if not prop_spec?
+      throw new Error("computed property #{@type}.#{prop_name} wasn't declared")
     if prop_spec.use_cache and prop_spec.cache
       return prop_spec.cache
     else

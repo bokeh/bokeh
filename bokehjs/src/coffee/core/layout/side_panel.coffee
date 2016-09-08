@@ -149,7 +149,7 @@ update_constraints = (view) ->
   v = view
 
   if v.model.props.visible?
-    if v.mget('visible') is false
+    if v.model.visible is false
       # if not visible, avoid applying constraints until visible again
       return
 
@@ -176,7 +176,7 @@ update_constraints = (view) ->
   if not v._full_set?
     v._full_set = false
   if not v._full_set
-    side = v.model.panel.get('side')
+    side = v.model.panel.side
     if side in ['above', 'below']
       s.add_constraint(EQ(v.model.panel._width, [-1, v.plot_model.canvas._width]))
     if side in ['left', 'right']
@@ -193,7 +193,7 @@ class SidePanel extends LayoutCanvas.Model
 
   initialize: (attrs, options)->
     super(attrs, options)
-    side = @get('side')
+    side = @side
     if side == "above"
       @_dim = 0
       @_normals = [0, -1]
@@ -236,7 +236,7 @@ class SidePanel extends LayoutCanvas.Model
     return constraints
 
   apply_label_text_heuristics: (ctx, orient) ->
-    side = @get('side')
+    side = @side
 
     if _.isString(orient)
       baseline = _baseline_lookup[side][orient]
@@ -259,7 +259,7 @@ class SidePanel extends LayoutCanvas.Model
     return ctx
 
   get_label_angle_heuristic: (orient) ->
-    side = @get('side')
+    side = @side
     return _angle_lookup[side][orient]
 
 module.exports =

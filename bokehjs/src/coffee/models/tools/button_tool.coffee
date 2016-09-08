@@ -21,8 +21,8 @@ class ButtonToolButtonView extends Backbone.View
 
   render: () ->
     @$el.children('button')
-        .prop("disabled", @model.get('disabled'))
-        .toggleClass('active', @model.get('active'))
+        .prop("disabled", @model.disabled)
+        .toggleClass('active', @model.active)
     return @
 
   _clicked: (e) ->
@@ -32,9 +32,9 @@ class ButtonToolView extends Tool.View
 class ButtonTool extends Tool.Model
   icon: null
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('tooltip', () -> @tool_name)
+  @getters {
+    tooltip: () -> @tool_name
+  }
 
   @internal {
     disabled: [ p.Boolean, false ]
