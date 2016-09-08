@@ -207,6 +207,7 @@ new_signature = {
     "pixies": []
 }
 
+
 class TestDiffer(object):
     differ = differ(old_version, new_version)
 
@@ -214,16 +215,9 @@ class TestDiffer(object):
         self.differ.additions = False
         raw_diff = self.differ.diff_modules()
         assert raw_diff == expected_diff
-
-    def test_catch_key_error(self):
-        self.differ.additions = False
-        self.differ.former = single_class_old
-        self.differ.latter = single_class_new
+        self.differ.additions = True
         raw_diff = self.differ.diff_modules()
-        assert raw_diff == expected_single_class
-
-        self.differ.former = old_version
-        self.differ.latter = new_version
+        assert raw_diff == expected_additions
 
     def test_get_diff(self):
         diff = self.differ.get_diff()

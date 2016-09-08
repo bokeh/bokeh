@@ -83,9 +83,11 @@ class APICrawler(object):
                     argument_names.append({default_names[x]: ast.literal_eval(defaults[x])})
                 except ValueError:
                     if isinstance(defaults[x], ast.Lambda):
-                        argument_names.append({default_names[x]: "lambda function"})
+                        argument_names.append({default_names[x]: "type: Lambda"})
                     elif isinstance(defaults[x], ast.Call):
-                        argument_names.append({default_names[x]: "function call"})
+                        argument_names.append({default_names[x]: "type: Call"})
+                    elif isinstance(defaults[x], ast.BinOp):
+                        argument_names.append({default_names[x]: "type: BinOp"})
                     else:
                         argument_names.append({default_names[x]: defaults[x].id})
             return argument_names
@@ -114,7 +116,7 @@ class APICrawler(object):
         for x in filenames:
             with open(x, "r") as f:
                 source = f.read()
-                files_dict[x] = {"classes": {}, "functions": []}
+                files_dict[x] = {"classes": {}, "functions": {}}
                 files_dict[x]["classes"] = self.get_classes(source)
                 files_dict[x]["functions"] = self.get_functions(source)
         return files_dict
@@ -192,19 +194,17 @@ class Differ(object):
                     latter_items["functions"]
                 )
 
-                if list(class_diff) or function_diff:
-                    diff[x] = copy.deepcopy(intersection[x])
-                    if list(class_diff):
-                        diff_dict = {y: {} for y in class_diff}
-                        diff[x]["classes"] = diff_dict
-                    else:
-                        diff[x]["classes"] = {}
-                    if function_diff:
-                        if not diff.get(x):
-                            diff[x] = {"functions": {}}
-                        diff[x]["functions"] = function_diff
+                diff[x] = {"classes": {}, "functions": {}}
+                if list(class_diff):
+                    diff_dict = {y: {} for y in class_diff}
+                    diff[x]["classes"] = diff_dict
+                else:
+                    diff[x]["classes"] = {}
 
-
+                if function_diff:
+                    diff[x]["functions"] = function_diff
+                else:
+                    diff[x]["functions"] = {}
         return diff
 
     def diff_methods(self, diff, intersection):
