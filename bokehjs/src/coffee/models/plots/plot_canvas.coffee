@@ -294,9 +294,9 @@ class PlotCanvasView extends Renderer.View
       ds = renderer.data_source
       if selection?
         if renderer.id in selection
-          ds.selected = selection[renderer.id]
+          ds.selector.indices = selection[renderer.id]
       else
-        ds.selection_manager.clear()
+        ds.selector.clear()
 
   reset_selection: () ->
     @update_selection(null)

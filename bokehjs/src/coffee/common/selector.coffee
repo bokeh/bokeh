@@ -14,7 +14,7 @@ class Selector extends HasProps
     indices = renderer_view.hit_test(geometry)
 
     if indices?
-      @_update(indices, true, false)
+      @_update(indices, true, final) # append = true
 
       @source.trigger('select')
       @source.trigger("select-#{renderer_view.model.id}")
@@ -30,7 +30,7 @@ class Selector extends HasProps
     indices = renderer_view.hit_test(geometry)
 
     if indices?
-      @_update(indices, false, true, true)
+      @_update(indices, false, final, true) # append = false
 
       data = {'geometry': geometry}
       @source.trigger(
