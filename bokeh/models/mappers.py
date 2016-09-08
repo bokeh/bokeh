@@ -41,8 +41,7 @@ class CategoricalColorMapper(ColorMapper):
     """
 
     factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
-    A list of string or integer factors (categories) to comprise
-    this categorical range.
+    A sequence of factors / categories that map to the color palette.
     """)
 
 

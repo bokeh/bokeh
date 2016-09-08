@@ -8,7 +8,7 @@ class CategoricalColorMapper extends ColorMapper.Model
   type: "CategoricalColorMapper"
 
   @define {
-    factors:  [ p.Array, [] ]
+    factors:  [ p.Array ]
   }
 
   _get_values: (data, palette) ->
