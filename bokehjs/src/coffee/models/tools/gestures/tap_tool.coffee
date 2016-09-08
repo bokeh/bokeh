@@ -28,13 +28,12 @@ class TapToolView extends SelectTool.View
 
     for r in @model._get_selectable_renderers()
       ds = r.data_source
-      sm = ds.selection_manager
 
       view = @plot_view.renderer_views[r.id]
       if @model.behavior == "select"
-        did_hit = sm.select(@, view, geometry)
+        did_hit = ds.selector.select(@, view, geometry)
       else
-        did_hit = sm.inspect(@, view, geometry)
+        did_hit = ds.inspector.inspect(@, view, geometry)
 
         callback = @mget("callback")
       if did_hit and callback?

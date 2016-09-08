@@ -131,7 +131,7 @@ class GlyphRendererView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    selected = @model.data_source.selected.indices
+    selected = @model.data_source.selector.indices
     if !selected or selected.length == 0
       selected = []
     else
@@ -142,7 +142,7 @@ class GlyphRendererView extends Renderer.View
       else
         selected = []
 
-    inspected = @model.data_source.inspected.indices
+    inspected = @model.data_source.inspector.indices
     if !inspected or inspected.length == 0
       inspected = []
     else

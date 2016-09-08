@@ -17,7 +17,7 @@ class Selector extends HasProps
       @_update(indices, true, false)
 
       @source.trigger('select')
-      @source.trigger('select-' + renderer_view.mget('id'))
+      @source.trigger("select-#{renderer_view.model.id}")
 
       return not indices.is_empty()
     else
@@ -46,6 +46,7 @@ class Selector extends HasProps
 
   _update: (indices, append, final, silent=false) ->
     @set('timestamp', new Date(), {silent: silent})
+    @set('final', final, {silent: silent})
     if append
       new_indices = hittest.create_hit_test_result()
       new_indices['0d'].indices =  _.union(@indices['0d'].indices, indices['0d'].indices)
