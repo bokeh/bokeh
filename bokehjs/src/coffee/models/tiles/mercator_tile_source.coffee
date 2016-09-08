@@ -206,21 +206,18 @@ class MercatorTileSource extends TileSource
       value = quadKey.charAt(tileZ - i)
       mask = 1 << (i - 1)
 
-      if value == '0'
-        continue
-
-      else if value == '1'
-        tileX |= mask
-
-      else if value == '2'
-        tileY |= mask
-
-      else if value == '3'
-        tileX |= mask
-        tileY |= mask
-
-      else
-        throw new TypeError("Invalid Quadkey: " + quadKey)
+      switch value
+        when '0'
+          continue
+        when '1'
+          tileX |= mask
+        when '2'
+          tileY |= mask
+        when '3'
+          tileX |= mask
+          tileY |= mask
+        else
+          throw new TypeError("Invalid Quadkey: " + quadKey)
 
     return [tileX, tileY, tileZ]
 

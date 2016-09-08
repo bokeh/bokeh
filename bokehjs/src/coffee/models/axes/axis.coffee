@@ -280,17 +280,15 @@ class Axis extends GuideRenderer.Model
     [xoff, yoff] = [0, 0]
     frame = @plot.plot_canvas.frame
 
-    if side == "below"
-      yoff = Math.abs(@panel.top - frame.bottom)
-
-    else if side == "above"
-      yoff = Math.abs(@panel.bottom - frame.top)
-
-    else if side == "right"
-      xoff = Math.abs(@panel.left - frame.right)
-
-    else if side == "left"
-      xoff = Math.abs(@panel.right - frame.left)
+    switch side
+      when "below"
+        yoff = Math.abs(@panel.top - frame.bottom)
+      when "above"
+        yoff = Math.abs(@panel.bottom - frame.top)
+      when "right"
+        xoff = Math.abs(@panel.left - frame.right)
+      when "left"
+        xoff = Math.abs(@panel.right - frame.left)
 
     return [xoff, yoff]
 
