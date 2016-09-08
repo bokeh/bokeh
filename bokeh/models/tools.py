@@ -544,6 +544,13 @@ class PolySelectTool(Tap):
     A shaded annotation drawn to indicate the selection region.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on every selection of a polygon area.
+    The cb_data parameter that is available to the Callback code will contain
+    one PolySelectTool-specific field:
+    :geometry: object containing the coordinates of the polygon area
+    """)
+
 class HoverTool(Inspection):
     """ *toolbar icon*: |inspector_icon|
 

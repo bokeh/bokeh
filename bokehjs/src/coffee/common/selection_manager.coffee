@@ -9,7 +9,7 @@ class SelectionManager extends HasProps
   type: 'SelectionManager'
 
   @internal {
-    source: [ p.Any ]
+    source: [ p.Instance ]
   }
 
   initialize: (attrs, options) ->
