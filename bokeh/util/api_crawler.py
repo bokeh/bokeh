@@ -49,7 +49,7 @@ class APICrawler(object):
         class_defs = {}
         for x in classes:
             class_defs[x.name] = {}
-            methods = [node for node in x.body if self.is_toplevel_function(node) and self.is_public(node.name)]
+            methods = [node for node in x.body if isinstance(node, ast.FunctionDef) and self.is_public(node.name)]
             methods = self.get_full_signature(methods)
             class_defs[x.name]["methods"] = methods
         return class_defs
@@ -115,8 +115,6 @@ class APICrawler(object):
             with open(x, "r") as f:
                 source = f.read()
                 files_dict[x] = {"classes": {}, "functions": []}
-                if x == "bokeh/embed.py":
-                    pass
                 files_dict[x]["classes"] = self.get_classes(source)
                 files_dict[x]["functions"] = self.get_functions(source)
         return files_dict
@@ -189,23 +187,23 @@ class Differ(object):
                     set(list(latter_items["classes"].keys()))
                 )
 
-                if list(class_diff):
-                    diff[x] = copy.deepcopy(intersection[x])
-                    if list(class_diff):
-                        diff[x] = copy.deepcopy(intersection[x])
-                        diff_dict = {y: {} for y in class_diff}
-                        diff[x]["classes"] = diff_dict
-                    else:
-                        diff[x]["classes"] = {}
-
                 function_diff = self.diff_signatures(
                     former_items["functions"],
                     latter_items["functions"]
                 )
-                if function_diff:
-                    if not diff.get(x):
-                        diff[x] = {"functions": {}}
-                    diff[x]["functions"] = function_diff
+
+                if list(class_diff) or function_diff:
+                    diff[x] = copy.deepcopy(intersection[x])
+                    if list(class_diff):
+                        diff_dict = {y: {} for y in class_diff}
+                        diff[x]["classes"] = diff_dict
+                    else:
+                        diff[x]["classes"] = {}
+                    if function_diff:
+                        if not diff.get(x):
+                            diff[x] = {"functions": {}}
+                        diff[x]["functions"] = function_diff
+
 
         return diff
 

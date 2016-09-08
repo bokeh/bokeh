@@ -63,7 +63,7 @@ def convert_dashes(dash):
     return mpl_dash_map.get(dash, dash)
 
 
-def get_props_cycled(col, prop, fx=lambda x: x - 1):
+def get_props_cycled(col, prop, fx=lambda x: x):
     """ We need to cycle the `get.property` list (where property can be colors,
     line_width, etc) as matplotlib does. We use itertools tools for do this
     cycling ans slice manipulation.
