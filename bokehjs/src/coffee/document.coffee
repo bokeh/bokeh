@@ -647,52 +647,52 @@ class Document
     Document._initialize_references_json(references_json, old_references, new_references)
 
     for event_json in events_json
+      switch event_json.kind
+        when 'ModelChanged'
+          patched_id = event_json['model']['id']
+          if patched_id not of @_all_models
+            throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
+          patched_obj = @_all_models[patched_id]
+          attr = event_json['attr']
+          value = Document._resolve_refs(event_json['new'], old_references, new_references)
+          patched_obj.set({ "#{attr}" : value })
 
-      if event_json['kind'] == 'ModelChanged'
-        patched_id = event_json['model']['id']
-        if patched_id not of @_all_models
-          throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
-        patched_obj = @_all_models[patched_id]
-        attr = event_json['attr']
-        value = Document._resolve_refs(event_json['new'], old_references, new_references)
-        patched_obj.set({ "#{attr}" : value })
+        when 'ColumnsStreamed'
+          column_source_id = event_json['column_source']['id']
+          if column_source_id not of @_all_models
+            throw new Error("Cannot stream to #{column_source_id} which is not in the document")
+          column_source = @_all_models[column_source_id]
+          if column_source not instanceof ColumnDataSource.Model
+            throw new Error("Cannot stream to non-ColumnDataSource")
+          data = event_json['data']
+          rollover = event_json['rollover']
+          column_source.stream(data, rollover)
 
-      else if event_json['kind'] == 'ColumnsStreamed'
-        column_source_id = event_json['column_source']['id']
-        if column_source_id not of @_all_models
-          throw new Error("Cannot stream to #{column_source_id} which is not in the document")
-        column_source = @_all_models[column_source_id]
-        if column_source not instanceof ColumnDataSource.Model
-          throw new Error("Cannot stream to non-ColumnDataSource")
-        data = event_json['data']
-        rollover = event_json['rollover']
-        column_source.stream(data, rollover)
+        when 'ColumnsPatched'
+          column_source_id = event_json['column_source']['id']
+          if column_source_id not of @_all_models
+            throw new Error("Cannot patch #{column_source_id} which is not in the document")
+          column_source = @_all_models[column_source_id]
+          if column_source not instanceof ColumnDataSource.Model
+            throw new Error("Cannot patch non-ColumnDataSource")
+          patches = event_json['patches']
+          column_source.patch(patches)
 
-      else if event_json['kind'] == 'ColumnsPatched'
-        column_source_id = event_json['column_source']['id']
-        if column_source_id not of @_all_models
-          throw new Error("Cannot patch #{column_source_id} which is not in the document")
-        column_source = @_all_models[column_source_id]
-        if column_source not instanceof ColumnDataSource.Model
-          throw new Error("Cannot patch non-ColumnDataSource")
-        patches = event_json['patches']
-        column_source.patch(patches)
+        when 'RootAdded'
+          root_id = event_json['model']['id']
+          root_obj = references[root_id]
+          @add_root(root_obj)
 
-      else if event_json['kind'] == 'RootAdded'
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        @add_root(root_obj)
+        when 'RootRemoved'
+          root_id = event_json['model']['id']
+          root_obj = references[root_id]
+          @remove_root(root_obj)
 
-      else if event_json['kind'] == 'RootRemoved'
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        @remove_root(root_obj)
+        when 'TitleChanged'
+          @set_title(event_json['title'])
 
-      else if event_json['kind'] == 'TitleChanged'
-        @set_title(event_json['title'])
-
-      else
-        throw new Error("Unknown patch event " + JSON.stringify(event_json))
+        else
+          throw new Error("Unknown patch event " + JSON.stringify(event_json))
 
 module.exports = {
   Document : Document

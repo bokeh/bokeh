@@ -18,22 +18,23 @@ class SelectToolView extends GestureTool.View
     g = _.clone(geometry)
     xm = @plot_view.frame.x_mappers['default']
     ym = @plot_view.frame.y_mappers['default']
-    if g.type == 'point'
-      g.x = xm.map_from_target(g.vx)
-      g.y = ym.map_from_target(g.vy)
-    else if g.type == 'rect'
-      g.x0 = xm.map_from_target(g.vx0)
-      g.y0 = ym.map_from_target(g.vy0)
-      g.x1 = xm.map_from_target(g.vx1)
-      g.y1 = ym.map_from_target(g.vy1)
-    else if g.type == 'poly'
-      g.x = new Array(g.vx.length)
-      g.y = new Array(g.vy.length)
-      for i in [0...g.vx.length]
-        g.x[i] = xm.map_from_target(g.vx[i])
-        g.y[i] = ym.map_from_target(g.vy[i])
-    else
-      logger.debug("Unrecognized selection geometry type: '#{g.type}'")
+    switch g.type
+      when 'point'
+        g.x = xm.map_from_target(g.vx)
+        g.y = ym.map_from_target(g.vy)
+      when 'rect'
+        g.x0 = xm.map_from_target(g.vx0)
+        g.y0 = ym.map_from_target(g.vy0)
+        g.x1 = xm.map_from_target(g.vx1)
+        g.y1 = ym.map_from_target(g.vy1)
+      when 'poly'
+        g.x = new Array(g.vx.length)
+        g.y = new Array(g.vy.length)
+        for i in [0...g.vx.length]
+          g.x[i] = xm.map_from_target(g.vx[i])
+          g.y[i] = ym.map_from_target(g.vy[i])
+      else
+        logger.debug("Unrecognized selection geometry type: '#{g.type}'")
 
     if final
       tool_events = @plot_model.plot.tool_events
