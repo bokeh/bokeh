@@ -193,29 +193,29 @@ class SidePanel extends LayoutCanvas.Model
 
   initialize: (attrs, options)->
     super(attrs, options)
-    side = @side
-    if side == "above"
-      @_dim = 0
-      @_normals = [0, -1]
-      @_size = @_height
-      @_anchor = @_bottom
-    else if side == "below"
-      @_dim = 0
-      @_normals = [0, 1]
-      @_size = @_height
-      @_anchor = @_top
-    else if side == "left"
-      @_dim = 1
-      @_normals = [-1, 0]
-      @_size = @_width
-      @_anchor = @_right
-    else if side == "right"
-      @_dim = 1
-      @_normals = [1, 0]
-      @_size = @_width
-      @_anchor = @_left
-    else
-      logger.error("unrecognized side: '#{ side }'")
+    switch @side
+      when "above"
+        @_dim = 0
+        @_normals = [0, -1]
+        @_size = @_height
+        @_anchor = @_bottom
+      when "below"
+        @_dim = 0
+        @_normals = [0, 1]
+        @_size = @_height
+        @_anchor = @_top
+      when "left"
+        @_dim = 1
+        @_normals = [-1, 0]
+        @_size = @_width
+        @_anchor = @_right
+      when "right"
+        @_dim = 1
+        @_normals = [1, 0]
+        @_size = @_width
+        @_anchor = @_left
+      else
+        logger.error("unrecognized side: '#{ @side }'")
 
   get_constraints: () ->
     #

@@ -104,40 +104,41 @@ class HoverToolView extends InspectTool.View
       data_x = renderer.glyph._x[i+1]
       data_y = renderer.glyph._y[i+1]
 
-      if @model.line_policy == "interp" # and renderer.get_interpolation_hit?
-        [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
-        rx = xmapper.map_to_target(data_x)
-        ry = ymapper.map_to_target(data_y)
+      switch @model.line_policy
+        when "interp" # and renderer.get_interpolation_hit?
+          [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
+          rx = xmapper.map_to_target(data_x)
+          ry = ymapper.map_to_target(data_y)
 
-      else if @model.line_policy == "prev"
-        rx = canvas.sx_to_vx(renderer.glyph.sx[i])
-        ry = canvas.sy_to_vy(renderer.glyph.sy[i])
+        when "prev"
+          rx = canvas.sx_to_vx(renderer.glyph.sx[i])
+          ry = canvas.sy_to_vy(renderer.glyph.sy[i])
 
-      else if @model.line_policy == "next"
-        rx = canvas.sx_to_vx(renderer.glyph.sx[i+1])
-        ry = canvas.sy_to_vy(renderer.glyph.sy[i+1])
+        when "next"
+          rx = canvas.sx_to_vx(renderer.glyph.sx[i+1])
+          ry = canvas.sy_to_vy(renderer.glyph.sy[i+1])
 
-      else if @model.line_policy == "nearest"
-        d1x = renderer.glyph.sx[i]
-        d1y = renderer.glyph.sy[i]
-        dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
+        when "nearest"
+          d1x = renderer.glyph.sx[i]
+          d1y = renderer.glyph.sy[i]
+          dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
 
-        d2x = renderer.glyph.sx[i+1]
-        d2y = renderer.glyph.sy[i+1]
-        dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+          d2x = renderer.glyph.sx[i+1]
+          d2y = renderer.glyph.sy[i+1]
+          dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
 
-        if dist1 < dist2
-          [sdatax, sdatay] = [d1x, d1y]
+          if dist1 < dist2
+            [sdatax, sdatay] = [d1x, d1y]
+          else
+            [sdatax, sdatay] = [d2x, d2y]
+            i = i+1
+
+          data_x = renderer.glyph._x[i]
+          data_y = renderer.glyph._y[i]
+          rx = canvas.sx_to_vx(sdatax)
+          ry = canvas.sy_to_vy(sdatay)
+
         else
-          [sdatax, sdatay] = [d2x, d2y]
-          i = i+1
-
-        data_x = renderer.glyph._x[i]
-        data_y = renderer.glyph._y[i]
-        rx = canvas.sx_to_vx(sdatax)
-        ry = canvas.sy_to_vy(sdatay)
-
-      else
           [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
@@ -152,38 +153,39 @@ class HoverToolView extends InspectTool.View
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
 
-          if @model.line_policy == "interp" # and renderer.get_interpolation_hit?
-            [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, j, geometry)
-            rx = xmapper.map_to_target(data_x)
-            ry = ymapper.map_to_target(data_y)
+          switch @model.line_policy
+            when "interp" # and renderer.get_interpolation_hit?
+              [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, j, geometry)
+              rx = xmapper.map_to_target(data_x)
+              ry = ymapper.map_to_target(data_y)
 
-          else if @model.line_policy == "prev"
-            rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j])
-            ry = canvas.sy_to_vy(renderer.glyph.sys[i][j])
+            when "prev"
+              rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j])
+              ry = canvas.sy_to_vy(renderer.glyph.sys[i][j])
 
-          else if @model.line_policy == "next"
-            rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j+1])
-            ry = canvas.sy_to_vy(renderer.glyph.sys[i][j+1])
+            when "next"
+              rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j+1])
+              ry = canvas.sy_to_vy(renderer.glyph.sys[i][j+1])
 
-          else if @model.line_policy == "nearest"
-            d1x = renderer.glyph.sx[i][j]
-            d1y = renderer.glyph.sy[i][j]
-            dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
+            when "nearest"
+              d1x = renderer.glyph.sx[i][j]
+              d1y = renderer.glyph.sy[i][j]
+              dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
 
-            d2x = renderer.glyph.sx[i][j+1]
-            d2y = renderer.glyph.sy[i][j+1]
-            dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+              d2x = renderer.glyph.sx[i][j+1]
+              d2y = renderer.glyph.sy[i][j+1]
+              dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
 
-            if dist1 < dist2
-              [sdatax, sdatay] = [d1x, d1y]
-            else
-              [sdatax, sdatay] = [d2x, d2y]
-              j = j+1
+              if dist1 < dist2
+                [sdatax, sdatay] = [d1x, d1y]
+              else
+                [sdatax, sdatay] = [d2x, d2y]
+                j = j+1
 
-            data_x = renderer.glyph._x[i][j]
-            data_y = renderer.glyph._y[i][j]
-            rx = canvas.sx_to_vx(sdatax)
-            ry = canvas.sy_to_vy(sdatay)
+              data_x = renderer.glyph._x[i][j]
+              data_y = renderer.glyph._y[i][j]
+              rx = canvas.sx_to_vx(sdatax)
+              ry = canvas.sy_to_vy(sdatay)
 
           vars = {index: i, segment_index: j, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
 
