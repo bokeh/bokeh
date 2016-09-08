@@ -63,7 +63,7 @@ class PolySelectToolView extends SelectTool.View
 
     cb_data = @_get_cb_data(geometry)
 
-    if @mget('callback')?
+    if @model.callback?
       @_emit_callback(cb_data)
 
     if final

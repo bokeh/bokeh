@@ -26,7 +26,7 @@ class TapToolView extends SelectTool.View
     if not append
       @model._clear_current_selection()
 
-    for r in @model.computed_renderers
+    for r in @model._get_selectable_renderers()
       ds = r.data_source
       sm = ds.selection_manager
 
