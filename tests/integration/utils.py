@@ -110,7 +110,7 @@ def add_visual_box_select(plot):
     rect = Rect(x='x', y='y', width='width', height='height', fill_alpha=0.3, fill_color='#009933')
     callback = CustomJS(args=dict(source=source), code="""
         // get data source from Callback args
-        var data = source.get('data');
+        var data = source.data;
 
         /// get BoxSelectTool dimensions from cb_data parameter of Callback
         var geometry = cb_data['geometry'];

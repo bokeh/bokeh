@@ -1,5 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "./backbone"
 
 enums = require "./enums"
 svg_colors = require "./util/svg_colors"
@@ -57,7 +57,7 @@ class Property extends Backbone.Model
   array: (source) ->
     if not @dataspec
       throw new Error("attempted to retrieve property array for non-dataspec property")
-    data = source.get('data')
+    data = source.data
     if @spec.field?
       if @spec.field of data
         ret = @transform(source.get_column(@spec.field))

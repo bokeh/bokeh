@@ -14,8 +14,8 @@ class RayView extends Glyph.View
   _render: (ctx, indices, {sx, sy, slength, _angle}) ->
     if @visuals.line.doit
 
-      width = @renderer.plot_view.frame.get('width')
-      height = @renderer.plot_view.frame.get('height')
+      width = @renderer.plot_view.frame.width
+      height = @renderer.plot_view.frame.height
       inf_len = 2 * (width + height)
       for i in [0...slength.length]
         if slength[i] == 0
@@ -38,8 +38,8 @@ class RayView extends Glyph.View
         ctx.rotate(-_angle[i])
         ctx.translate(-sx[i], -sy[i])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
 class Ray extends Glyph.Model
   default_view: RayView

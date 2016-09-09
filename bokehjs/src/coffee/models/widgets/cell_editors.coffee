@@ -95,7 +95,7 @@ class StringEditorView extends CellEditorView
   input: '<input type="text" />'
 
   renderEditor: () ->
-    completions = @model.get("completions")
+    completions = @model.completions
     if not _.isEmpty(completions)
       @$input.autocomplete(source: completions)
       @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
@@ -124,7 +124,7 @@ class SelectEditorView extends CellEditorView
   input: '<select />'
 
   renderEditor: () ->
-    for option in @model.get("options")
+    for option in @model.options
       @$input.append($('<option>').attr(value: option).text(option))
     @focus()
 
@@ -167,7 +167,7 @@ class IntEditorView extends CellEditorView
   input: '<input type="text" />'
 
   renderEditor: () ->
-    @$input.spinner(step: @model.get("step"))
+    @$input.spinner(step: @model.step)
     @$input.focus().select()
 
   remove: () ->
@@ -200,7 +200,7 @@ class NumberEditorView extends CellEditorView
   input: '<input type="text" />'
 
   renderEditor: () ->
-    @$input.spinner(step: @model.get("step"))
+    @$input.spinner(step: @model.step)
     @$input.focus().select()
 
   remove: () ->

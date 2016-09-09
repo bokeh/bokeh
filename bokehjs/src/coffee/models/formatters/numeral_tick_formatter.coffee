@@ -15,9 +15,9 @@ class NumeralTickFormatter extends TickFormatter.Model
     }
 
   doFormat: (ticks) ->
-    format = @get("format")
-    language = @get("language")
-    rounding = switch @get("rounding")
+    format = @format
+    language = @language
+    rounding = switch @rounding
       when "round", "nearest"   then Math.round
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil

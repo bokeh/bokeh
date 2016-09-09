@@ -2,6 +2,7 @@ declare namespace Bokeh {
     export interface Glyph extends Model, IGlyph {}
     export interface IGlyph extends IModel {
         visible?: boolean;
+        label?: Vectorized<string>;
     }
 
     export var AnnularWedge: { new(attributes?: IAnnularWedge, options?: ModelOpts): AnnularWedge };
@@ -201,18 +202,5 @@ declare namespace Bokeh {
         start_angle?: Angular;
         end_angle?: Angular;
         direction?: Direction;
-    }
-
-    export var Gear: { new(attributes?: IGear, options?: ModelOpts): Gear };
-    export interface Gear extends Glyph, IGear {}
-    export interface IGear extends IGlyph, LineProps, FillProps {
-        x?: Numerical | Categorical;
-        y?: Numerical | Categorical;
-        angle?: Angular;
-        module?: Vectorized<number>;
-        teeth?: Vectorized<Int>;
-        pressure_angle?: Angular;
-        shaft_size?: Vectorized<number>;
-        internal?: Vectorized<boolean>;
     }
 }

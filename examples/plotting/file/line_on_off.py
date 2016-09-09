@@ -21,8 +21,7 @@ l2 = p.line(x, np.tan(x), color=Viridis3[2], legend="Line 2", **props)
 
 checkbox = CheckboxGroup(labels=["Line 0", "Line 1", "Line 2"],
                          active=[0, 1, 2], width=100)
-checkbox.callback = CustomJS(args=dict(l0=l0, l1=l1, l2=l2, checkbox=checkbox),
-                             lang="coffeescript", code="""
+checkbox.callback = CustomJS.from_coffeescript(args=dict(l0=l0, l1=l1, l2=l2, checkbox=checkbox), code="""
 l0.visible = 0 in checkbox.active;
 l1.visible = 1 in checkbox.active;
 l2.visible = 2 in checkbox.active;
