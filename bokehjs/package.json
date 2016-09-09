@@ -46,7 +46,6 @@
     "hammerjs": "^2.0.4",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
-    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs-prebuilt": "2.1.7",
     "proxyquire": "1.7.10",
     "run-sequence": "^1.0.0",
@@ -98,7 +97,8 @@
     "rbush": "^2.0.1",
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
-    "timezone": "0.0.38"
+    "timezone": "0.0.38",
+    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0"
   },
   "scripts": {
     "build": "gulp build",
