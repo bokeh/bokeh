@@ -35,4 +35,9 @@ _ = Bokeh._
 APIs = require './api'
 _.extend(Bokeh, _.omit(APIs, "models"))
 
+Bokeh.require_widgets = () ->
+  Widgets = require './models/widgets/main'
+  _.extend(Bokeh, _.omit(Widgets, "models"))
+  Bokeh.Models.register_locations(Widgets.models)
+
 module.exports = Bokeh
