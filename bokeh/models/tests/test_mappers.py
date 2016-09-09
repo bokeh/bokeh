@@ -1,7 +1,7 @@
-from __future__ import  absolute_import
+from __future__ import absolute_import
 
 from bokeh.models.mappers import (
-    LinearColorMapper, LogColorMapper
+    LinearColorMapper, LogColorMapper, CategoricalColorMapper
 )
 
 from .utils.property_utils import (
@@ -18,6 +18,7 @@ def test_LinearColorMapper():
         "nan_color"],
     )
 
+
 def test_LogColorMapper():
     mapper = LogColorMapper()
     yield (check_properties_existence, mapper, [
@@ -26,3 +27,17 @@ def test_LogColorMapper():
         "high",
         "nan_color"],
     )
+
+
+def test_CategoricalColorMapper():
+    mapper = CategoricalColorMapper()
+    check_properties_existence(mapper, [
+        "factors",
+        "palette",
+        "nan_color"],
+    )
+
+
+def test_warning_if_categorical_color_mapper_with_different_length_palette_factors(recwarn):
+    CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green"])
+    assert len(recwarn) == 1

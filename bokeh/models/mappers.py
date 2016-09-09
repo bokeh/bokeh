@@ -2,6 +2,7 @@
 
 """
 from __future__ import absolute_import
+import warnings
 
 from ..model import Model
 from ..core.properties import abstract
@@ -43,6 +44,17 @@ class CategoricalColorMapper(ColorMapper):
     factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
     A sequence of factors / categories that map to the color palette.
     """)
+
+
+    def __init__(self, **kwargs):
+        super(ColorMapper, self).__init__(**kwargs)
+        palette = self.palette
+        factors = self.factors
+        if palette and factors:
+            if len(palette) != len(factors):
+                extra_factors = factors[len(palette):]
+                warnings.warn("""Palette length does not match number of
+factors. %s will be assigned to `nan_color` %s""" % (extra_factors, self.nan_color))
 
 
 @abstract
