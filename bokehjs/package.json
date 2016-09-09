@@ -43,7 +43,6 @@
     "gulp-if": "^2.0.0",
     "merge": "^1.2.0",
     "logtrap": "^0.0.1",
-    "hammerjs": "^2.0.4",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
     "phantomjs-prebuilt": "2.1.7",
@@ -98,6 +97,7 @@
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",
+    "hammerjs": "^2.0.4",
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0"
   },
   "scripts": {
