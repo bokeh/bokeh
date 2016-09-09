@@ -98,8 +98,7 @@
     "rbush": "^2.0.1",
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
-    "timezone": "0.0.38",
-    "coffee-script": "^1.9.3"
+    "timezone": "0.0.38"
   },
   "scripts": {
     "build": "gulp build",
