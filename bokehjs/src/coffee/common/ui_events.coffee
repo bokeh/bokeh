@@ -107,14 +107,14 @@ class UIEvents extends Backbone.Model
       if event_type == 'scroll'
         base_event_type = 'pinch'
 
-    gestures = toolbar.get('gestures')
+    gestures = toolbar.gestures
     active_tool = gestures[base_event_type].active
 
     if active_tool?
       @_trigger_event(event_type, active_tool, e)
 
   _trigger_event: (event_type, active_tool, e)->
-    if active_tool.get('active') == true
+    if active_tool.active == true
       if event_type == 'scroll'
         e.preventDefault()
         e.stopPropagation()

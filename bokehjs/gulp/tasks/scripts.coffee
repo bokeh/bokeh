@@ -111,7 +111,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
         prelude: pluginPreludeText
       }
       plugin = browserify(pluginOpts)
-      labels[plugin_name] = namedLabeler(plugin, labels)
+      labels[plugin_name] = namedLabeler(plugin, labels.bokehjs)
       for own file, name of labels.bokehjs
         plugin.external(file) if name != "_process"
       plugin

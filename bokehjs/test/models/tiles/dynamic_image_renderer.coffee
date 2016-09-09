@@ -29,7 +29,7 @@ describe "dynamic image renderer", ->
 
       image_source = new ImageSource.Model(image_options)
       expect_url = 'http://test_value/test_value2/0/0/0/0.png'
-      expect(image_source.get('extra_url_vars')).to.have.any.keys('test_key')
-      expect(image_source.get('extra_url_vars')).to.have.any.keys('test_key2')
+      expect(image_source.extra_url_vars).to.have.any.keys('test_key')
+      expect(image_source.extra_url_vars).to.have.any.keys('test_key2')
       formatted_url = image_source.get_image_url(0,0,0,0,0,0)
       expect(formatted_url).to.be.equal(expect_url)

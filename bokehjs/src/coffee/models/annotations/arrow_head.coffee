@@ -23,9 +23,9 @@ class OpenHead extends ArrowHead
     if @visuals["line"].doit
       @visuals["line"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.stroke()
 
   @mixins ['line']
@@ -41,18 +41,18 @@ class NormalHead extends ArrowHead
     if @visuals["fill"].doit
       @visuals["fill"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.closePath()
       ctx.fill()
 
     if @visuals["line"].doit
       @visuals["line"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.closePath()
       ctx.stroke()
 
@@ -73,20 +73,20 @@ class VeeHead extends ArrowHead
     if @visuals["fill"].doit
       @visuals["fill"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
-      ctx.lineTo(0, 0.5*@get("size"))
+      ctx.lineTo(-0.5*@size, @size)
+      ctx.lineTo(0, 0.5*@size)
       ctx.closePath()
       ctx.fill()
 
     if @visuals["line"].doit
       @visuals["line"].set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
-      ctx.lineTo(0, 0.5*@get("size"))
+      ctx.lineTo(-0.5*@size, @size)
+      ctx.lineTo(0, 0.5*@size)
       ctx.closePath()
       ctx.stroke()
 

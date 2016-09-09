@@ -295,10 +295,6 @@ _.extend(Model.prototype, Events, {
   // A hash of attributes whose current and previous value differ.
   changed: null,
 
-  // The default name for the JSON `id` attribute is `"id"`. MongoDB and
-  // CouchDB users may want to set this to `"_id"`.
-  idAttribute: 'id',
-
   // Initialize is an empty function by default. Override it with your own
   // initialization logic.
   initialize: function(){},
@@ -358,9 +354,6 @@ _.extend(Model.prototype, Events, {
       }
       unset ? delete current[attr] : current[attr] = val;
     }
-
-    // Update the `id`.
-    if (this.idAttribute in attrs) this.id = this.get(this.idAttribute);
 
     // Trigger all relevant attribute changes.
     if (!silent) {

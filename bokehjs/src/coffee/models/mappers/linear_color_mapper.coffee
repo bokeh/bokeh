@@ -13,8 +13,8 @@ class LinearColorMapper extends ColorMapper.Model
     }
 
   _get_values: (data, palette) ->
-    min = @get('low') ? _.min(data)
-    max = @get('high') ? _.max(data)
+    min = @low ? _.min(data)
+    max = @high ? _.max(data)
     max_key = palette.length - 1
     values = []
 

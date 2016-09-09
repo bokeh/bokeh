@@ -15,8 +15,8 @@ p.circle(x='x', y='y', source=controls, size=15, alpha=0.5, color="firebrick")
 p.circle(x='x', y='y', source=source, size=1, alpha=0.2, color="navy")
 
 callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
-    var mode = cb_obj.get('value');
-    var data = source.get('data');
+    var mode = cb_obj.value;
+    var data = source.data;
     var dx = 6 / %d;
 
     if (mode == 'None') {
@@ -25,9 +25,9 @@ callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
     }
     else {
         if (mode == 'Linear') { interp = linear; }
-        else if (mode == 'Step (before)') { interp = step; step.set('mode', 'before'); }
-        else if (mode == 'Step (center)') { interp = step; step.set('mode', 'center'); }
-        else if (mode == 'Step (after)')  { interp = step; step.set('mode', 'after');  }
+        else if (mode == 'Step (before)') { interp = step; step.mode = 'before'; }
+        else if (mode == 'Step (center)') { interp = step; step.mode = 'center'; }
+        else if (mode == 'Step (after)')  { interp = step; step.mode = 'after';  }
 
         for (i=0; i < %d; i++) {
             data['x'][i] = i * dx

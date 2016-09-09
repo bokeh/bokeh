@@ -66,10 +66,10 @@ class PatchesView extends Glyph.View
 
   _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
-    [x0, x1] = [xr.get('min'), xr.get('max')]
+    [x0, x1] = [xr.min, xr.max]
 
     yr = @renderer.plot_view.y_range
-    [y0, y1] = [yr.get('min'), yr.get('max')]
+    [y0, y1] = [yr.min, yr.max]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     return (x.i for x in @index.search(bbox))

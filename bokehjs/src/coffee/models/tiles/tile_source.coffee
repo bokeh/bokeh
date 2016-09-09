@@ -40,7 +40,7 @@ class TileSource extends Model
 
   normalize_case:() ->
     '''Note: should probably be refactored into subclasses.'''
-    url = @get('url')
+    url = @url
     url = url.replace('{x}','{X}')
     url = url.replace('{y}','{Y}')
     url = url.replace('{z}','{Z}')
@@ -49,7 +49,7 @@ class TileSource extends Model
     url = url.replace('{ymin}','{YMIN}')
     url = url.replace('{xmax}','{XMAX}')
     url = url.replace('{ymax}','{YMAX}')
-    @set('url', url)
+    @url = url
 
   update: () ->
     logger.debug("TileSource: tile cache count: #{Object.keys(@tiles).length}")
@@ -93,7 +93,7 @@ class TileSource extends Model
       delete @tiles[key]
 
   get_image_url: (x, y, z) ->
-    image_url = @string_lookup_replace(@get('url'), @get('extra_url_vars'))
+    image_url = @string_lookup_replace(@url, @extra_url_vars)
     return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
   retain_neighbors: (reference_tile) ->

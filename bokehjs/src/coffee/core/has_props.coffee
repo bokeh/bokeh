@@ -5,8 +5,16 @@ Backbone = require "./backbone"
 {logger} = require "./logging"
 property_mixins = require "./property_mixins"
 refs = require "./util/refs"
+p = require "./properties"
 
 class HasProps extends Backbone.Model
+
+  @getter: (name, get) ->
+    Object.defineProperty(this.prototype, name, { get: get })
+
+  @getters: (specs) ->
+    for name, get of specs
+      @getter(name, get)
 
   props: {}
   mixins: []
@@ -70,6 +78,10 @@ class HasProps extends Backbone.Model
         props[name] = _.extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
+  @define {
+    id: [ p.Any ]
+  }
+
   toString: () -> "#{@type}(#{@id})"
 
   constructor : (attributes, options) ->
@@ -102,9 +114,8 @@ class HasProps extends Backbone.Model
     @_computed = {}
 
     # auto generating ID
-    if not _.has(attrs, @idAttribute)
+    if not attrs.id?
       this.id = _.uniqueId(this.type)
-      this.attributes[@idAttribute] = this.id
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
@@ -125,7 +136,7 @@ class HasProps extends Backbone.Model
       attrs[key] = value
     for own key, val of attrs
       prop_name = key
-      if not (prop_name == "id" or @props[prop_name])
+      if not @props[prop_name]?
         throw new Error("#{@type}.set('#{prop_name}'): #{prop_name} wasn't declared")
 
       if not (options? and options.defaults)
@@ -178,10 +189,10 @@ class HasProps extends Backbone.Model
       if prop_spec['use_cache']
         old_val = prop_spec.cache
         prop_spec.cache = undefined
-        new_val = @get(prop_name)
+        new_val = @_get_computed(prop_name)
         firechange = new_val != old_val
       if firechange
-        @trigger('change:' + prop_name, this, @get(prop_name))
+        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
         @trigger('change', this)
 
     prop_spec =
@@ -199,33 +210,16 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
-  override_computed_property: (prop_name, getter, use_cache=true) ->
-    if _.has(@_computed, prop_name)
-      @_remove_computed_property(prop_name)
-    @define_computed_property(prop_name, getter, use_cache)
-
-  _remove_computed_property: (prop_name) ->
-    # removes the property, unbinding all callbacks that implemented it
-    prop_spec = @_computed[prop_name]
-    dependencies = prop_spec.dependencies
-    for dep in dependencies
-      obj = dep.obj
-      for fld in dep['fields']
-        obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
-    @off("changedep:" + dep)
-    delete @_computed[prop_name]
-
   get: (prop_name) ->
-    if _.has(@_computed, prop_name)
-      return @_get_prop(prop_name)
+    if not @props[prop_name]?
+      throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
     else
-      if not (prop_name == "id" or @props[prop_name])
-        throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
-
       return super(prop_name)
 
-  _get_prop: (prop_name) ->
+  _get_computed: (prop_name) ->
     prop_spec = @_computed[prop_name]
+    if not prop_spec?
+      throw new Error("computed property #{@type}.#{prop_name} wasn't declared")
     if prop_spec.use_cache and prop_spec.cache
       return prop_spec.cache
     else
@@ -245,12 +239,11 @@ class HasProps extends Backbone.Model
   defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   attribute_is_serializable: (attr) ->
-    if attr == "id"
-      return true
     prop = @props[attr]
     if not prop?
       throw new Error("#{@type}.attribute_is_serializable('#{attr}'): #{attr} wasn't declared")
-    return not prop.internal
+    else
+      return not prop.internal
 
   # dict of attributes that should be serialized to the server. We
   # sometimes stick things in attributes that aren't part of the
