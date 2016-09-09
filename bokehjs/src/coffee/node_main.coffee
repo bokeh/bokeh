@@ -32,12 +32,12 @@ if not (global.window? and global.document?)
 Bokeh = require './main'
 _ = Bokeh._
 
-APIs = require './api'
-_.extend(Bokeh, _.omit(APIs, "models"))
+load_plugin = (path) ->
+  plugin = require(path)
+  _.extend(Bokeh, _.omit(plugin, "models"))
+  Bokeh.Models.register_locations(plugin.models ? {})
 
-Bokeh.require_widgets = () ->
-  Widgets = require './models/widgets/main'
-  _.extend(Bokeh, _.omit(Widgets, "models"))
-  Bokeh.Models.register_locations(Widgets.models)
+load_plugin('./api')
+load_plugin('./models/widgets/main')
 
 module.exports = Bokeh
