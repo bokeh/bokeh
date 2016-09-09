@@ -1469,6 +1469,36 @@ class TestProperties(unittest.TestCase):
         # Invalid values
         self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), 22)))
 
+def test_HasProps___eq_____ne__():
+    class Foo(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    v = Foo() == Foo()
+    assert v is True
+    v = Foo() != Foo()
+    assert v is False
+
+    v = Foo(x=1) == Foo(x=1)
+    assert v is True
+    v = Foo(x=1) != Foo(x=1)
+    assert v is False
+
+    v = Foo(x=1) == Foo(x=2)
+    assert v is False
+    v = Foo(x=1) != Foo(x=2)
+    assert v is True
+
+    v = Foo(x=1) == 1
+    assert v is False
+    v = Foo(x=1) != 1
+    assert v is True
+
+    v = 1 == Foo(x=1)
+    assert v is False
+    v = 1 != Foo(x=1)
+    assert v is True
 
 def test_HasProps_clone():
     p1 = Plot(plot_width=1000)
@@ -1476,7 +1506,6 @@ def test_HasProps_clone():
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
-
 
 def test_titleprop_transforms_string_into_title_object():
     class Foo(HasProps):

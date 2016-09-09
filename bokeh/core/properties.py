@@ -702,6 +702,18 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for name, value in properties.items():
             setattr(self, name, value)
 
+    def __eq__(self, other):
+        if not isinstance(other, HasProps):
+            return False
+        else:
+            return self.properties_with_values() == other.properties_with_values()
+
+    def __ne__(self, other):
+        if not isinstance(other, HasProps):
+            return True
+        else:
+            return self.properties_with_values() != other.properties_with_values()
+
     def __setattr__(self, name, value):
         # self.properties() below can be expensive so avoid it
         # if we're just setting a private underscore field
