@@ -2,6 +2,7 @@ declare namespace Bokeh {
     export interface Glyph extends Model, IGlyph {}
     export interface IGlyph extends IModel {
         visible?: boolean;
+        label?: Vectorized<string>;
     }
 
     export var AnnularWedge: { new(attributes?: IAnnularWedge, options?: ModelOpts): AnnularWedge };

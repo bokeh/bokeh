@@ -8,15 +8,19 @@ class FuncTickFormatter extends TickFormatter.Model
   type: 'FuncTickFormatter'
 
   @define {
-    code: [ p.String,  '' ]
-  }
+      args: [ p.Any,     {}           ] # TODO (bev) better type
+      code: [ p.String,  ''           ]
+    }
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+
+  _make_func: () ->
+    return new Function("tick", _.keys(@args)..., "require", @code)
 
   doFormat: (ticks) ->
-    # wrap the `code` fxn inside a function and make it a callable
-    # func = new Function("tick", "var a = " + code + "return a(tick)")
-    func = new Function("tick", "var func = " + @code + "return func(tick)")
-
-    return _.map(ticks, func)
+    func = @_make_func()
+    return (func(tick, _.values(@args)..., require) for tick in ticks)
 
 module.exports =
   Model: FuncTickFormatter

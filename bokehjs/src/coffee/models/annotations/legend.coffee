@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+GlyphRenderer = require "../renderers/glyph_renderer"
 p = require "../../core/properties"
 {get_text_height} = require "../../core/util/text"
 
@@ -9,7 +10,7 @@ class LegendView extends Annotation.View
     super(options)
 
   compute_legend_bbox: () ->
-    legend_names = (legend_name for [legend_name, glyphs] in @model.legends)
+    legend_names = @model.get_legend_names()
 
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
@@ -91,49 +92,80 @@ class LegendView extends Annotation.View
     if @model.legends.length == 0
       return
 
+    ctx = @plot_view.canvas_view.ctx
     bbox = @compute_legend_bbox()
 
-    glyph_height = @model.glyph_height
-    glyph_width = @model.glyph_width
-    orientation = @model.orientation
-
-    ctx = @plot_view.canvas_view.ctx
     ctx.save()
+    @_draw_legend_box(ctx, bbox)
+    if @model.legends[0] instanceof GlyphRenderer.Model
+      @_draw_legends_from_renderers(ctx, bbox)
+    else
+      @_draw_legends_from_legends_spec(ctx, bbox)
+    ctx.restore()
 
+  _draw_legend_box: (ctx, bbox) ->
     if @model.panel?
       panel_offset = @_get_panel_offset()
       ctx.translate(panel_offset.x, panel_offset.y)
-
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-
     @visuals.background_fill.set_value(ctx)
     ctx.fill()
     if @visuals.border_line.doit
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
-    N = @model.legends.length
+  _draw_legends_from_renderers: (ctx, bbox) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
     legend_spacing = @model.legend_spacing
     label_standoff = @model.label_standoff
     xoffset = yoffset = @model.legend_padding
-    for [legend_name, glyphs], idx in @model.legends
+
+    for renderer in @model.legends
+      labels = renderer.get_labels_from_glyph_label_prop()
+      field = renderer.get_field_from_glyph_label_prop()
+
+      if labels.length == 0
+        continue
+
+      for label in labels
+        x1 = bbox.x + xoffset
+        y1 = bbox.y + yoffset
+        x2 = x1 + glyph_width
+        y2 = y1 + glyph_height
+        if @model.orientation == "vertical"
+          yoffset += @max_label_height + legend_spacing
+        else
+          xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+        @visuals.label_text.set_value(ctx)
+        ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
+        view = @plot_view.renderer_views[renderer.id]
+        view.draw_legend(ctx, x1, x2, y1, y2, field, label)
+
+  _draw_legends_from_legends_spec: (ctx, bbox) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    legend_spacing = @model.legend_spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.legend_padding
+
+    for [legend_name, glyph_renderers], idx in @model.legends
       x1 = bbox.x + xoffset
       y1 = bbox.y + yoffset
       x2 = x1 + glyph_width
       y2 = y1 + glyph_height
-      if orientation == "vertical"
+      if @model.orientation == "vertical"
         yoffset += @max_label_height + legend_spacing
       else
         xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
 
       @visuals.label_text.set_value(ctx)
       ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
-      for renderer in glyphs
+      for renderer in glyph_renderers
         view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
-
-    ctx.restore()
 
   _get_size: () ->
     bbox = @compute_legend_bbox()
@@ -153,6 +185,16 @@ class Legend extends Annotation.Model
   default_view: LegendView
 
   type: 'Legend'
+
+  get_legend_names: () ->
+    legend_names = []
+    for item in @legends
+      if item instanceof GlyphRenderer.Model
+        labels = item.get_labels_from_glyph_label_prop()
+        legend_names = legend_names.concat(labels)
+      else
+        legend_names.push(item[0])
+    return legend_names
 
   @mixins ['text:label_', 'line:border_', 'fill:background_']
 

@@ -115,9 +115,13 @@ class Legend(Annotation):
     Amount of spacing between legend entries.
     """)
 
-    legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""
+    legends = Either(List(Instance(GlyphRenderer)), List(Tuple(String, List(Instance(GlyphRenderer)))), help="""
+    A list of glyph renderers OR
     A list of tuples that maps text labels to the legend to corresponding
     renderers that should draw sample representations for those labels.
+
+    If a list of glyph renderers is provided, the label property from the glyph
+    will be used as the legend label.
 
     .. note::
         The ``legends`` attribute may also be set from a dict or OrderedDict.
