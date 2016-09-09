@@ -6,9 +6,9 @@ p = require "../../../core/properties"
 class WheelPanToolView extends GestureTool.View
 
   _scroll: (e) ->
-    frame = @plot_model.get('frame')
-    hr = frame.get('h_range')
-    vr = frame.get('v_range')
+    frame = @plot_model.frame
+    hr = frame.h_range
+    vr = frame.v_range
 
     # we need a browser-specific multiplier to have similar experiences
     if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
@@ -21,7 +21,7 @@ class WheelPanToolView extends GestureTool.View
     else
       delta = e.bokeh.delta
 
-    factor  = @mget('speed') * delta
+    factor  = @model.speed * delta
 
     # clamp the magnitude of factor, if it is > 1 bad things happen
     if factor > 0.9
@@ -29,10 +29,10 @@ class WheelPanToolView extends GestureTool.View
     else if factor < -0.9
       factor = -0.9
 
-    [vx_low, vx_high] = [hr.get('start'), hr.get('end')]
-    [vy_low, vy_high]  = [vr.get('start'), vr.get('end')]
+    [vx_low, vx_high] = [hr.start, hr.end]
+    [vy_low, vy_high]  = [vr.start, vr.end]
 
-    switch @mget('dimension')
+    switch @model.dimension
       when "height"
         vy_range = Math.abs(vy_high - vy_low)
         sx0 = vx_low
@@ -47,12 +47,12 @@ class WheelPanToolView extends GestureTool.View
         sy1 = vy_high
 
     xrs = {}
-    for name, mapper of frame.get('x_mappers')
+    for name, mapper of frame.x_mappers
       [start, end] = mapper.v_map_from_target([sx0, sx1], true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of frame.get('y_mappers')
+    for name, mapper of frame.y_mappers
       [start, end] = mapper.v_map_from_target([sy0, sy1], true)
       yrs[name] = {start: start, end: end}
 
@@ -77,20 +77,13 @@ class WheelPanTool extends GestureTool.Model
   event_type: 'scroll'
   default_order: 12
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimension'), "wheel pan tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimension'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimension, "wheel pan tool"))
+  }
 
   @define {
-      dimension: [ p.Dimension, "width" ]
-    }
+    dimension: [ p.Dimension, "width" ]
+  }
 
   @internal {
     speed: [ p.Number, 1/1000 ]
