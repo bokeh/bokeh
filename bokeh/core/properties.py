@@ -703,13 +703,13 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             setattr(self, name, value)
 
     def __eq__(self, other):
-        if not isinstance(other, HasProps):
+        if not isinstance(other, self.__class__):
             return False
         else:
             return self.properties_with_values() == other.properties_with_values()
 
     def __ne__(self, other):
-        if not isinstance(other, HasProps):
+        if not isinstance(other, self.__class__):
             return True
         else:
             return self.properties_with_values() != other.properties_with_values()

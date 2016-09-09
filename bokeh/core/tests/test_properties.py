@@ -1485,6 +1485,11 @@ def test_HasProps___eq_____ne__():
         y = String("hello")
         z = List(Int, [1,2,3])
 
+    class FooUnrelated(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
     v = Foo() == Foo()
     assert v is True
     v = Foo() != Foo()
@@ -1508,6 +1513,11 @@ def test_HasProps___eq_____ne__():
     v = 1 == Foo(x=1)
     assert v is False
     v = 1 != Foo(x=1)
+    assert v is True
+
+    v = Foo() == FooUnrelated()
+    assert v is False
+    v = Foo() != FooUnrelated()
     assert v is True
 
 def test_HasProps_clone():
