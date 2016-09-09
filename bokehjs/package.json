@@ -64,6 +64,7 @@
     "websocket":"^1.0.22",
     "typings": "^0.7.9",
     "typings-core": "^0.2.11",
+    "coffee-script": "^1.10.0",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
     "acorn": "^3.3.0",
