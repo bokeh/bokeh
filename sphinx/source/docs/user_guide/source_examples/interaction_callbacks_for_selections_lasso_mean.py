@@ -16,8 +16,8 @@ s2 = ColumnDataSource(data=dict(ym=[0.5, 0.5]))
 p.line(x=[0, 1], y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
 s.callback = CustomJS(args=dict(s2=s2), code="""
-        var inds = cb_obj.get('selected')['1d'].indices;
-        var d = cb_obj.get('data');
+        var inds = cb_obj.selected['1d'].indices;
+        var d = cb_obj.data;
         var ym = 0
 
         if (inds.length == 0) { return; }
@@ -31,7 +31,7 @@ s.callback = CustomJS(args=dict(s2=s2), code="""
         }
 
         ym /= inds.length
-        s2.get('data')['ym'] = [ym, ym]
+        s2.data['ym'] = [ym, ym]
 
         cb_obj.trigger('change');
         s2.trigger('change');

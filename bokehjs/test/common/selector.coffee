@@ -12,7 +12,7 @@ describe "Selector", ->
 
   it "should be constructable", ->
     s = new Selector()
-    expect(s.get('indices')).to.deep.equal empty_selection
+    expect(s.indices).to.deep.equal empty_selection
 
   it "should be updatable", ->
 
@@ -20,4 +20,4 @@ describe "Selector", ->
     s = new Selector()
 
     s.clear()
-    expect(s.get('indices')).to.deep.equal empty_selection
+    expect(s.indices).to.deep.equal empty_selection

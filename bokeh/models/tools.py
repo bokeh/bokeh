@@ -601,7 +601,6 @@ class HoverTool(Inspection):
             * annulus
             * arc
             * bezier
-            * gear
             * image
             * image_rgba
             * image_url

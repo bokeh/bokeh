@@ -12,7 +12,7 @@ class YearsTicker extends SingleIntervalTicker.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @set('interval', ONE_YEAR)
+    @interval = ONE_YEAR
     @basic_ticker = new BasicTicker.Model({num_minor_ticks:0})
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->

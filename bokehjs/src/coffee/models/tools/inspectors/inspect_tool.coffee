@@ -1,5 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
+Backbone = require "../../../core/backbone"
 Tool = require "../tool"
 inspect_tool_list_item_template = require "./inspect_tool_list_item_template"
 
@@ -19,8 +19,8 @@ class InspectToolListItemView extends Backbone.View
     return @
 
   _clicked: (e) ->
-    active = @model.get('active')
-    @model.set('active', not active)
+    active = @model.active
+    @model.active = not active
 
 class InspectToolView extends Tool.View
 

@@ -30,7 +30,7 @@ describe "ui_events", ->
 
     it "should stopPropagation & preventDefault of event if scroll gesture is active", ->
 
-      @active_scroll.set('active', true)
+      @active_scroll.active = true
 
       @ui_event._trigger_event('scroll', @active_scroll, @e)
       expect(@stopPropagation.callCount).to.equal 1
@@ -38,7 +38,7 @@ describe "ui_events", ->
 
     it "should not stopPropagation & preventDefault of event if scroll gesture is not active", ->
 
-      @active_scroll.set('active', false)
+      @active_scroll.active = false
 
       @ui_event._trigger_event('scroll', @active_scroll, @e)
       expect(@stopPropagation.callCount).to.equal 0

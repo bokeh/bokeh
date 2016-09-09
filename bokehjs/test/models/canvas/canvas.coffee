@@ -25,6 +25,49 @@ describe "Canvas.Model", ->
     c.document = new Document()
     expect(c.get_constraints().length).to.be.equal 8
 
+  describe "Coordinate transforms", ->
+    c = new Canvas()
+    # stub solver property
+    c._height._value = 100
+
+    it "Canvas.vx_to_sx method", ->
+      expect(c.vx_to_sx(10)).to.be.equal(10)
+
+    it "Canvas.vy_to_sy method", ->
+      expect(c.vy_to_sy(10)).to.be.equal(89)
+
+    it "Canvas.v_vx_to_sx method", ->
+      sxs = c.v_vx_to_sx([0, 1, 2])
+      expect(sxs).to.be.instanceOf(Float64Array)
+      expect(sxs).to.be.deep.equal(new Float64Array([0, 1, 2]))
+
+    it "Canvas.v_vy_to_sy method", ->
+      sys = c.v_vy_to_sy([0, 1, 2])
+      expect(sys).to.be.instanceOf(Float64Array)
+      expect(sys).to.be.deep.equal(new Float64Array([99, 98, 97]))
+
+    it "Canvas.sx_to_vx method", ->
+      expect(c.sx_to_vx(10)).to.be.equal(10)
+
+    it "Canvas.sy_to_vy method", ->
+      expect(c.sy_to_vy(89)).to.be.equal(10)
+
+    it "Canvas.v_sx_to_vx method", ->
+      vxs = c.v_sx_to_vx([0, 1, 2])
+      expect(vxs).to.be.instanceOf(Float64Array)
+      expect(vxs).to.be.deep.equal(new Float64Array([0, 1, 2]))
+
+    it "Canvas.v_sy_to_vy method", ->
+      vys = c.v_sy_to_vy([99, 98, 97])
+      expect(vys).to.be.instanceOf(Float64Array)
+      expect(vys).to.be.deep.equal(new Float64Array([0, 1, 2]))
+
+    it "expect stuff", ->
+      start = 0
+      one = c.vy_to_sy(0)
+      two = c.sy_to_vy(one)
+      expect(start).to.be.equal(two)
+
 describe "Canvas.View", ->
 
   afterEach ->

@@ -15,10 +15,10 @@ class Range1d extends Range.Model
     }
 
   _set_auto_bounds: () ->
-    if @get('bounds') == 'auto'
+    if @bounds == 'auto'
       min = Math.min(@_initial_start, @_initial_end)
       max = Math.max(@_initial_start, @_initial_end)
-      @set('bounds', [min, max])
+      @bounds = [min, max]
 
   constructor: () ->
     # new Range1d({start: start, end: end}) or Range1d(start, end)
@@ -31,20 +31,15 @@ class Range1d extends Range.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('min',
-        () -> Math.min(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('min', this, ['start', 'end'])
-
-    @define_computed_property('max',
-        () -> Math.max(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('max', this, ['start', 'end'])
-
-    @_initial_start = @get('start')
-    @_initial_end = @get('end')
+    @_initial_start = @start
+    @_initial_end = @end
 
     @_set_auto_bounds()
+
+  @getters {
+    min: () -> Math.min(@start, @end)
+    max: () -> Math.max(@start, @end)
+  }
 
   reset: () ->
     @set({start: @_initial_start, end: @_initial_end})

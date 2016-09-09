@@ -7,7 +7,6 @@ def test_js_callback():
     slider = Slider()
 
     cb = CustomJS(code="foo();", args={'x': slider})
-    assert cb.lang == 'javascript'
     assert 'foo()' in cb.code
     assert cb.args['x'] is slider
 
@@ -26,7 +25,6 @@ def test_py_callback():
     def cb(x=slider):
         foo()
     cb = CustomJS.from_py_func(cb)
-    assert cb.lang == 'javascript'
     assert 'foo()' in cb.code
     assert cb.args['x'] is slider
 

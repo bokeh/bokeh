@@ -10,7 +10,7 @@ class InputWidgetView extends Widget.View
     @$el.find('input').prop("disabled", @model.disabled)
 
   change_input: () ->
-    @mget('callback')?.execute(@model)
+    @model.callback?.execute(@model)
 
 
 class InputWidget extends Widget.Model

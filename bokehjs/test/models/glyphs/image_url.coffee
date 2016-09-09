@@ -12,13 +12,13 @@ describe "ImageURL module", ->
       r = new ImageURL.Model()
 
       it "should have global_alpha=1.0", ->
-        expect(r.get('global_alpha')).to.be.equal 1.0
+        expect(r.global_alpha).to.be.equal 1.0
 
       it "should have retry_attempts=0", ->
-        expect(r.get('retry_attempts')).to.be.equal 0
+        expect(r.retry_attempts).to.be.equal 0
 
       it "should have retry_timeout=0", ->
-        expect(r.get('retry_timeout')).to.be.equal 0
+        expect(r.retry_timeout).to.be.equal 0
 
   describe "ImageURLView", ->
 

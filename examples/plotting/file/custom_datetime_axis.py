@@ -28,7 +28,7 @@ class DateGapTickFormatter(TickFormatter):
           type: 'DateGapTickFormatter'
 
           doFormat: (ticks) ->
-            date_labels = @get("date_labels")
+            date_labels = @date_labels
             return (date_labels[tick] ? "" for tick in ticks)
 
           @define {

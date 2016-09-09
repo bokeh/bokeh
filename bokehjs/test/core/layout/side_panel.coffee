@@ -90,7 +90,7 @@ describe "SidePanel.Model", ->
       expect(an_view._size_constraint).to.be.undefined
 
     it "should not set _size_constraint if visible is false", ->
-      @axis.set('visible', false)
+      @axis.visible = false
       expect(@axis_view._size_constraint).to.be.undefined
       update_constraints(@axis_view)
       # Should still be undefined because visible is false
