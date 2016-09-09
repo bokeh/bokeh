@@ -9,8 +9,6 @@ p = require "../../core/properties"
 class ArrowView extends Annotation.View
   initialize: (options) ->
     super(options)
-    if not @model.source?
-      this.model.source = new ColumnDataSource.Model()
     @canvas = @plot_model.canvas
     @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
     @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
@@ -91,17 +89,17 @@ class Arrow extends Annotation.Model
   @mixins ['line']
 
   @define {
-      x_start:          [ p.NumberSpec,                         ]
-      y_start:          [ p.NumberSpec,                         ]
-      start_units:      [ p.String,      'data'                 ]
-      start:            [ p.Instance,    null                   ]
-      x_end:            [ p.NumberSpec,                         ]
-      y_end:            [ p.NumberSpec,                         ]
-      end_units:        [ p.String,      'data'                 ]
-      end:              [ p.Instance,    new OpenHead.Model({}) ]
-      source:           [ p.Instance                            ]
-      x_range_name:     [ p.String,      'default'              ]
-      y_range_name:     [ p.String,      'default'              ]
+      x_start:          [ p.NumberSpec,                       ]
+      y_start:          [ p.NumberSpec,                       ]
+      start_units:      [ p.String,      'data'               ]
+      start:            [ p.Instance,    null                 ]
+      x_end:            [ p.NumberSpec,                       ]
+      y_end:            [ p.NumberSpec,                       ]
+      end_units:        [ p.String,      'data'               ]
+      end:              [ p.Instance,    new OpenHead.Model() ]
+      source:           [ p.Instance,                         ]
+      x_range_name:     [ p.String,      'default'            ]
+      y_range_name:     [ p.String,      'default'            ]
   }
 
 module.exports =

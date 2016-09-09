@@ -19,7 +19,7 @@ from ..core.properties import (
 from .formatters import TickFormatter, BasicTickFormatter
 from .mappers import ColorMapper
 from .renderers import Renderer, GlyphRenderer
-from .sources import DataSource, ColumnDataSource
+from .sources import DataSource
 from .tickers import Ticker, BasicTicker
 
 @abstract
@@ -568,7 +568,7 @@ class LabelSet(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    source = Instance(DataSource, help="""
     Local data source to use when rendering annotations on the plot.
     """)
 

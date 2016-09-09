@@ -170,7 +170,7 @@ class LabelSet extends TextAnnotation.Model
       angle:        [ p.AngleSpec,    0                 ]
       x_offset:     [ p.NumberSpec,   { value: 0 }      ]
       y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
+      source:       [ p.Instance,                       ]
       x_range_name: [ p.String,      'default'          ]
       y_range_name: [ p.String,      'default'          ]
       render_mode:  [ p.RenderMode,  'canvas'           ]

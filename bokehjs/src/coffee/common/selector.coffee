@@ -14,7 +14,9 @@ class Selector extends HasProps
     indices = renderer_view.hit_test(geometry)
 
     if indices?
-      @_update(indices, true, final) # append = true
+      selected = @_update(indices, true, final) # append = true
+      # Here for compatibility, should be removed
+      @source.selected = selected
 
       @source.trigger('select')
       @source.trigger("select-#{renderer_view.model.id}")
@@ -30,16 +32,18 @@ class Selector extends HasProps
     indices = renderer_view.hit_test(geometry)
 
     if indices?
-      @_update(indices, false, final, true) # append = false
+      inspected = @_update(indices, false, final, true) # append = false
+      # Here for compatibility, should be removed
+      @source.inspected = inspected
 
-      data = {'geometry': geometry}
       @source.trigger(
-        'inspect', indices, tool, renderer_view, @source, data
+        'inspect', indices, tool, renderer_view, @source, {'geometry': geometry}
       )
       @source.trigger(
         "inspect#{renderer_view.model.id}", indices, tool, renderer_view,
-        @source, data
+        @source, {'geometry': geometry}
       )
+
       return not indices.is_empty()
     else
       return false
@@ -61,11 +65,13 @@ class Selector extends HasProps
     else
       new_indices = indices
     @set('indices', new_indices, {silent: silent})
+    return new_indices
 
   clear: () ->
     @timestamp = new Date()
     @final = true
     @indices = hittest.create_hit_test_result()
+    @source.selected = @indices
 
   @internal {
     indices:   [ p.Any, () -> hittest.create_hit_test_result() ]

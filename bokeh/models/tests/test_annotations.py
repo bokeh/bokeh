@@ -3,9 +3,7 @@ from __future__ import  absolute_import
 from bokeh.models.annotations import (
     Legend, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
-from bokeh.models import (
-    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter
-)
+from bokeh.models import ArrowHead, BasicTicker, BasicTickFormatter
 
 from .utils.property_utils import (
     FILL, LINE, TEXT, ANGLE, prefix,
@@ -224,8 +222,7 @@ def test_LabelSet():
     assert label_set.render_mode == 'canvas'
     assert label_set.x_range_name == 'default'
     assert label_set.y_range_name == 'default'
-    assert isinstance(label_set.source, ColumnDataSource)
-    assert label_set.source.data == {}
+    assert label_set.source is None
     yield check_text_properties, label_set
     yield check_fill_properties, label_set, "background_", None, 1.0
     yield check_line_properties, label_set, "border_", None, 1.0, 1.0
