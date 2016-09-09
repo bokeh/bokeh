@@ -26,3 +26,13 @@ describe "CategoricalColorMapper module", ->
         })
       vals = color_mapper._get_values(["d", "a", "b"], palette)
       expect(vals).to.be.deep.equal(["gray", "red", "green"])
+
+    it "Should map data to nan_color if palette is shorter than data", ->
+      palette = ["red", "green"]
+      color_mapper = new CategoricalColorMapper({
+          palette: palette
+          nan_color: "gray"
+          factors: ["a", "b", "c"]
+        })
+      vals = color_mapper._get_values(["a", "b", "c"], palette)
+      expect(vals).to.be.deep.equal(["red", "green", "gray"])
