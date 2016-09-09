@@ -9,12 +9,16 @@ class DataSource extends Model
   type: 'DataSource'
 
   @define {
+      # selected and inspected are here for compatibility, should be removed
+      selected:  [ p.Any, () -> hittest.create_hit_test_result() ]
+      callback:  [ p.Any                                         ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
+    }
+
+  @internal {
+      # selected and inspected are here for compatibility, should be removed
+      inspected: [ p.Any, () -> hittest.create_hit_test_result()       ]
       inspector: [ p.Instance, (self) -> new Selector( {source: self}) ]
       selector:  [ p.Instance, (self) -> new Selector( {source: self}) ]
-      # here for compatibility, should be removed
-      selected:  [ p.Any, () -> hittest.create_hit_test_result() ]
-      inspected: [ p.Any, () -> hittest.create_hit_test_result() ]
-      callback:  [ p.Any                                   ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
     }
 
   initialize: (options) ->

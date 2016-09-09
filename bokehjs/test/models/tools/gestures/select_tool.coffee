@@ -14,6 +14,14 @@ Circle = utils.require("models/glyphs/circle").Model
 
 describe "SelectTool module", ->
 
+  afterEach ->
+    utils.unstub_canvas()
+    utils.unstub_solver()
+
+  beforeEach ->
+    utils.stub_canvas()
+    utils.stub_solver()
+
   describe "SelectTool.Model", ->
 
     beforeEach ->
@@ -50,14 +58,7 @@ describe "SelectTool module", ->
 
     describe "SelectToolView", ->
 
-      afterEach ->
-        utils.unstub_canvas()
-        utils.unstub_solver()
-
       beforeEach ->
-        utils.stub_canvas()
-        utils.stub_solver()
-
         doc = new Document()
         @plot = new Plot({
           x_range: new Range1d({start: 0, end: 1})
