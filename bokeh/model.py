@@ -85,6 +85,20 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         super(Model, self).__init__(**kwargs)
         default_theme.apply_to_model(self)
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self._id == other._id and \
+                   self.properties_with_values() == other.properties_with_values()
+
+    def __ne__(self, other):
+        if not isinstance(other, self.__class__):
+            return True
+        else:
+            return self._id != other._id or \
+                   self.properties_with_values() != other.properties_with_values()
+
     def _attach_document(self, doc):
         '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
