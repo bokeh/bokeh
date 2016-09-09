@@ -11,16 +11,17 @@ from .utils.property_utils import (
 
 def test_LinearColorMapper():
     mapper = LinearColorMapper()
-    yield (check_properties_existence, mapper, [
+    check_properties_existence(mapper, [
         "palette",
         "low",
         "high",
         "nan_color"],
     )
 
+
 def test_LogColorMapper():
     mapper = LogColorMapper()
-    yield (check_properties_existence, mapper, [
+    check_properties_existence(mapper, [
         "palette",
         "low",
         "high",
