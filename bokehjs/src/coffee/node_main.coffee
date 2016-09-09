@@ -30,4 +30,9 @@ if not (global.window? and global.document?)
       global[name] = object
 
 Bokeh = require './main'
+_ = Bokeh._
+
+APIs = require './api'
+_.extend(Bokeh, _.omit(APIs, "models"))
+
 module.exports = Bokeh
