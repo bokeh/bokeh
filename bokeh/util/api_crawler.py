@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ast, os, copy, sys
 
 __all__ = ["api_crawler", "differ"]
@@ -257,9 +258,9 @@ class Differ(object):
         diff = self.diff_methods(diff, intersection)
         return diff
 
-    def pretty_function_signatures(self, arg_dict):
+    def pretty_function_signatures(self, arg_list):
         arg_string = []
-        for x in arg_dict:
+        for x in arg_list:
             if isinstance(x, dict):
                 arg_string.append("%s=%s" % (str(list(x.keys())[0]), str(list(x.values())[0])))
             elif isinstance(x, list):
@@ -269,16 +270,58 @@ class Differ(object):
         if arg_string:
             return "(" + ", ".join(arg_string) + ")"
         else:
-            return ""
+            return "()"
+
+    def pretty_function_changes(self, title, name, old_func, new_func, diff):
+        tags = []
+        if self.additions:
+            ending = "_added"
+            old = "\n\told_signature: %s" % self.pretty_function_signatures(new_func)
+            new = "\n\tnew_signature: %s" % self.pretty_function_signatures(old_func)
+        else:
+            old = "\n\told_signature: %s" % self.pretty_function_signatures(old_func)
+            new = "\n\tnew_signature: %s" % self.pretty_function_signatures(new_func)
+            ending = "_removed"
+        old_kwarg_keys = [list(x.keys())[0] for x in old_func if isinstance(x, dict)]
+        new_kwarg_keys = [list(x.keys())[0] for x in new_func if isinstance(x, dict)]
+        for x in diff:
+            if isinstance(x, str):
+                if "args" + ending not in tags:
+                    tags.append("args" + ending)
+            elif isinstance(x, dict):
+                current_key = list(x.keys())[0]
+                if current_key in old_kwarg_keys and current_key in new_kwarg_keys:
+                    if "kwargs_changed" not in tags:
+                        tags.append("kwargs_changed")
+                elif "kwargs" + ending not in tags:
+                    tags.append("kwargs" + ending)
+        if tags:
+            tags = "\n\ttags: %s" % ", ".join(tags)
+        else:
+            tags = "\n\ttags: None"
+
+        signature_string = "%s%s%s%s"% (
+            title,
+            old,
+            new,
+            tags
+        )
+        return signature_string
 
     def pretty_diff(self, diff):
         parsed_diff = []
+        parsed_signature_diff = []
         if self.additions:
-            method = "ADDED"
+            method = "ADDED:"
         else:
-            method = "DELETED"
+            method = "DELETED:"
         for x in diff.keys():
-            formatted_string = "%s %s" % (method, os.path.splitext(x.replace("/", "."))[0])
+            module_string = os.path.splitext(x.replace("/", "."))[0]
+            formatted_string = "%s %s" % (method, module_string)
+            changed_string = "%s %s" % (
+                "CHANGED:",
+                module_string
+            )
             if diff[x].values():
                 for y in diff[x].values():
                     if diff[x]["classes"] == y:
@@ -287,21 +330,37 @@ class Differ(object):
                                 parsed_diff.append("%s.%s" % (formatted_string, z))
                             else:
                                 for i in y[z]["methods"]:
-                                    parsed_diff.append("%s.%s.%s" % (
-                                        formatted_string,
-                                        z,
-                                        i + self.pretty_function_signatures(y[z]["methods"][i]
-                                    )))
+                                    if y[z]["methods"][i]:
+                                        title = "%s.%s.%s" % (changed_string, z, i)
+                                        parsed_signature_diff.append(self.pretty_function_changes(
+                                            title,
+                                            i,
+                                            self.former[x]["classes"][z]["methods"][i],
+                                            self.latter[x]["classes"][z]["methods"][i],
+                                            y[z]["methods"][i],
+                                        ))
+                                    else:
+                                        parsed_diff.append("%s.%s.%s" % (formatted_string, z, i))
                     if diff[x]["functions"] == y:
                         for z in y:
-                            class_string = "%s%s" % (
-                                z,
-                                self.pretty_function_signatures(y[z])
-                            )
-                            parsed_diff.append("%s.%s" % (formatted_string, class_string))
+                            if y[z]:
+                                title = "%s.%s" % (changed_string, z)
+                                parsed_signature_diff.append(self.pretty_function_changes(
+                                    title,
+                                    y,
+                                    self.former[x]["functions"][z],
+                                    self.latter[x]["functions"][z],
+                                    diff[x]["functions"][z]
+                                ))
+                            else:
+                                function_string = "%s" % (z)
+                                parsed_diff.append("%s.%s" % (formatted_string, function_string))
             else:
                 parsed_diff.insert(0, formatted_string)
+
+        parsed_diff += parsed_signature_diff
         return parsed_diff
+
 
     def get_diff(self):
         self.additions = False

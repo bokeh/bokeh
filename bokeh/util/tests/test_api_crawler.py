@@ -155,20 +155,20 @@ expected_additions = {
 }
 
 expected_parsed_diff = [
-    'DELETED models',
-    'DELETED bands.Radiohead.jonny',
-    'DELETED bands.Radiohead.thom(guitar)',
-    'DELETED bands.Radiohead.colin(bass=[1, 2, 3])',
-    'DELETED bands.Radiohead.phil(song, drums=[1, 2, 3], solo=False)',
-    'DELETED bands.ringo(beat=[1, 2, 3])',
-    'DELETED bands.paul(bass)',
-    'DELETED bands.Beatles'
+    'DELETED: models',
+    'DELETED: bands.Radiohead.jonny',
+    'DELETED: bands.Beatles',
+    "CHANGED: bands.Radiohead.thom\n\told_signature: (self, guitar)\n\tnew_signature: (self)\n\ttags: args_removed",
+    "CHANGED: bands.Radiohead.colin\n\told_signature: (self, bass=[1, 2, 3])\n\tnew_signature: (self)\n\ttags: kwargs_removed",
+    "CHANGED: bands.Radiohead.phil\n\told_signature: (self, song, drums=[1, 2, 3], solo=False)\n\tnew_signature: (self)\n\ttags: args_removed, kwargs_removed",
+    "CHANGED: bands.ringo\n\told_signature: (beat=[1, 2, 3])\n\tnew_signature: (beat=[1, 2])\n\ttags: kwargs_changed",
+    "CHANGED: bands.paul\n\told_signature: (bass)\n\tnew_signature: ()\n\ttags: args_removed",
 ]
 
 expected_parsed_additions = [
-    'ADDED bands.george',
-    'ADDED bands.Pixies',
-    'ADDED bands.ringo(beat=[1, 2])',
+    'ADDED: bands.george',
+    'ADDED: bands.Pixies',
+    'CHANGED: bands.ringo\n\told_signature: (beat=[1, 2])\n\tnew_signature: (beat=[1, 2, 3])\n\ttags: kwargs_changed'
 ]
 
 single_class_old = {
