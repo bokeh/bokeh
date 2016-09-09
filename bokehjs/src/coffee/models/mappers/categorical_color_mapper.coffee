@@ -16,7 +16,7 @@ class CategoricalColorMapper extends ColorMapper.Model
 
     for d in data
       key = @factors.indexOf(d)
-      if key < 0
+      if key < 0 or key >= palette.length
         color = @nan_color
       else
         color = palette[key]
