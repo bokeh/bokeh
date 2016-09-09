@@ -1161,6 +1161,16 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(Bar()))
         self.assertFalse(prop.is_valid(Baz()))
 
+    def test_Instance_from_json(self):
+        class MapOptions(HasProps):
+            lat = Float
+            lng = Float
+            zoom = Int(12)
+
+        v1 = Instance(MapOptions).from_json(dict(lat=1, lng=2))
+        v2 = MapOptions(lat=1, lng=2)
+        self.assertEqual(v1, v2)
+
     def test_Interval(self):
         with self.assertRaises(TypeError):
             prop = Interval()

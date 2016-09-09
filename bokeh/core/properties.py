@@ -1243,7 +1243,7 @@ class Instance(PropertyDescriptor):
                 attrs = {}
 
                 for name, value in iteritems(json):
-                    prop = self.instance_type.lookup(name)
+                    prop = self.instance_type.lookup(name).descriptor
                     attrs[name] = prop.from_json(value, models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()
