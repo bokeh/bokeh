@@ -225,26 +225,41 @@ class FuncTickFormatter(TickFormatter):
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
+        argspec = inspect.getargspec(func)
 
-        arg = inspect.getargspec(func)[0]
-        if len(arg) != 1:
-            raise ValueError("Function `func` can have only one argument, but %d were supplied." % len(arg))
+        default_names = argspec.args
+        default_values = argspec.defaults or []
 
-        # Set the transpiled functions as `formatter` so that we can call it
-        code = pyscript.py2js(func, 'formatter')
-        # We wrap the transpiled function into an anonymous function with a single
-        # arg that matches that of func.
-        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (arg[0], code, arg[0])
+        if len(default_names) - len(default_values) != 0:
+            raise ValueError("Function `func` may only contain keyword arguments.")
 
-        return cls(code=wrapped_code)
+        if default_values and not any([isinstance(value, Model) for value in default_values]):
+            raise ValueError("Default value must be a plot object.")
+
+        func_kwargs = dict(zip(default_names, default_values))
+
+        # Wrap the code attr in a function named `formatter` and call it
+        # with arguments that match the `args` attr
+        code = pyscript.py2js(func, 'formatter') + 'formatter(%s);\n' % ', '.join(default_names)
+
+        return cls(code=code, args=func_kwargs)
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        wrapped_code = "formatter = () -> %s" % (code,)
+
+        compiled = nodejs_compile(wrapped_code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
         else:
-            return cls(code=compiled.code) # TODO: args=args
+            wrapped_compiled_code = "%s\nreturn formatter()" % (compiled.code,)
+            return cls(code=wrapped_compiled_code, args=args)
+
+    args = Dict(String, Instance(Model), help="""
+    A mapping of names to Bokeh plot objects. These objects are made
+    available to the formatter code snippet as the values of named
+    parameters to the callback.
+    """)
 
     code = String(default="", help="""
     An anonymous JavaScript function expression to reformat a
