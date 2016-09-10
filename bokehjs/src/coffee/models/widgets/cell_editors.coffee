@@ -5,14 +5,16 @@ $2 = require "jquery-ui/spinner"
 
 p = require "../../core/properties"
 
-BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
 
-class CellEditorView extends BokehView
+Widget = require "./widget"
+
+class CellEditor extends Model
+
+class CellEditorView extends Widget.View
 
   tagName: "div"
-  attributes:
-    class: "bk-cell-editor"
+  className: "bk-cell-editor"
 
   input: null
 
@@ -20,9 +22,9 @@ class CellEditorView extends BokehView
   defaultValue: null
 
   initialize: (args) ->
+    super({})
     @args = args
     @model = @args.column.editor
-    super()
     @render()
 
   render: () ->
@@ -83,10 +85,6 @@ class CellEditorView extends BokehView
     return { valid: true, msg: null }
 
   validate: () -> return @validateValue(@getValue())
-
-class CellEditor extends Model
-  type: "CellEditor"
-  default_view: CellEditorView
 
 class StringEditorView extends CellEditorView
 
