@@ -95,8 +95,8 @@ class DataTableView extends Widget.View
     super(options)
     @render()
     @listenTo(@model, 'change', @render)
-    @listenTo(@model.source, 'change:data', () => @updateGrid())
-    @listenTo(@model.source, 'change:selected', () => @updateSelection())
+    @listenTo(@mget('source'), 'change:data', () => @updateGrid())
+    @listenTo(@mget('source'), 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
     @data.constructor(@model.source)
