@@ -121,6 +121,11 @@ class PlotCanvasView extends Renderer.View
 
     @update_dataranges()
 
+    for name, rng of @frame.x_ranges
+      rng.callback?.execute(rng)
+    for name, rng of @frame.y_ranges
+      rng.callback?.execute(rng)
+
     @unpause()
 
     logger.debug("PlotView initialized")
