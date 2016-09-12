@@ -11,7 +11,7 @@ class Interpolator extends Transform.Model
     @_y_sorted = []
     @_sorted_dirty = true
 
-    @bind 'change', () ->
+    @on 'change', () ->
       @_sorted_dirty = true
 
   @define {

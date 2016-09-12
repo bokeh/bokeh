@@ -265,10 +265,6 @@ var triggerEvents = function(events, args) {
   }
 };
 
-// Aliases for backwards compatibility.
-Events.bind   = Events.on;
-Events.unbind = Events.off;
-
 // Backbone.Model
 // --------------
 
