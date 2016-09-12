@@ -1502,9 +1502,6 @@ def test_HasProps_equals():
     v = Foo(x=1).equals(1)
     assert v is False
 
-    v = 1.equals(Foo(x=1))
-    assert v is False
-
     v = Foo().equals(FooUnrelated())
     assert v is False
 
