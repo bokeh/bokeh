@@ -326,7 +326,6 @@ _.extend(Model.prototype, Events, {
     options || (options = {});
 
     // Extract attributes and options.
-    var unset      = options.unset;
     var silent     = options.silent;
     var changes    = [];
     var changing   = this._changing;
@@ -350,7 +349,7 @@ _.extend(Model.prototype, Events, {
       } else {
         delete changed[attr];
       }
-      unset ? delete current[attr] : current[attr] = val;
+      current[attr] = val;
     }
 
     // Trigger all relevant attribute changes.
