@@ -354,9 +354,9 @@ _.extend(Model.prototype, Events, {
 
     // Trigger all relevant attribute changes.
     if (!silent) {
-      if (changes.length) this._pending = options;
+      if (changes.length) this._pending = true;
       for (var i = 0; i < changes.length; i++) {
-        this.trigger('change:' + changes[i], this, current[changes[i]], options);
+        this.trigger('change:' + changes[i], this, current[changes[i]]);
       }
     }
 
@@ -365,9 +365,8 @@ _.extend(Model.prototype, Events, {
     if (changing) return this;
     if (!silent) {
       while (this._pending) {
-        options = this._pending;
         this._pending = false;
-        this.trigger('change', this, options);
+        this.trigger('change', this);
       }
     }
     this._pending = false;
