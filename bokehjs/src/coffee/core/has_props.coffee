@@ -9,13 +9,6 @@ p = require "./properties"
 
 class HasProps extends Backbone.Model
 
-  @getter: (name, get) ->
-    Object.defineProperty(this.prototype, name, { get: get })
-
-  @getters: (specs) ->
-    for name, get of specs
-      @getter(name, get)
-
   props: {}
   mixins: []
 
