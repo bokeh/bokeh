@@ -375,12 +375,9 @@ _.extend(Model.prototype, Events, {
     return this;
   },
 
-  destroy: function(options) {
-    options = options ? _.clone(options) : {};
-    var model = this;
-
-    model.stopListening();
-    model.trigger('destroy', model, null, options);
+  destroy: function() {
+    this.stopListening();
+    this.trigger('destroy', this);
   },
 
   // Create a new model with identical attributes to this one.
