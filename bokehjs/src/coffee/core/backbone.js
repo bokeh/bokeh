@@ -312,12 +312,6 @@ _.extend(Model.prototype, Events, {
     return this.attributes[attr];
   },
 
-  // Returns `true` if the attribute contains a value that is not null
-  // or undefined.
-  has: function(attr) {
-    return this.get(attr) != null;
-  },
-
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
@@ -384,57 +378,6 @@ _.extend(Model.prototype, Events, {
     this._pending = false;
     this._changing = false;
     return this;
-  },
-
-  // Remove an attribute from the model, firing `"change"`. `unset` is a noop
-  // if the attribute doesn't exist.
-  unset: function(attr, options) {
-    return this.set(attr, void 0, _.extend({}, options, {unset: true}));
-  },
-
-  // Clear all attributes on the model, firing `"change"`.
-  clear: function(options) {
-    var attrs = {};
-    for (var key in this.attributes) attrs[key] = void 0;
-    return this.set(attrs, _.extend({}, options, {unset: true}));
-  },
-
-  // Determine if the model has changed since the last `"change"` event.
-  // If you specify an attribute name, determine if that attribute has changed.
-  hasChanged: function(attr) {
-    if (attr == null) return !_.isEmpty(this.changed);
-    return _.has(this.changed, attr);
-  },
-
-  // Return an object containing all the attributes that have changed, or
-  // false if there are no changed attributes. Useful for determining what
-  // parts of a view need to be updated and/or what attributes need to be
-  // persisted to the server. Unset attributes will be set to undefined.
-  // You can also pass an attributes object to diff against the model,
-  // determining if there *would be* a change.
-  changedAttributes: function(diff) {
-    if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
-    var old = this._changing ? this._previousAttributes : this.attributes;
-    var changed = {};
-    for (var attr in diff) {
-      var val = diff[attr];
-      if (_.isEqual(old[attr], val)) continue;
-      changed[attr] = val;
-    }
-    return _.size(changed) ? changed : false;
-  },
-
-  // Get the previous value of an attribute, recorded at the time the last
-  // `"change"` event was fired.
-  previous: function(attr) {
-    if (attr == null || !this._previousAttributes) return null;
-    return this._previousAttributes[attr];
-  },
-
-  // Get all of the attributes of the model at the time of the previous
-  // `"change"` event.
-  previousAttributes: function() {
-    return _.clone(this._previousAttributes);
   },
 
   destroy: function(options) {
