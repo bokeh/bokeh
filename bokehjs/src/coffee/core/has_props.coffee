@@ -203,6 +203,14 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
+  set: (key, value, options) ->
+    logger.warn("HasProps.set('prop_name', value) is deprecated, use HasProps.prop_name = value instead")
+    return @setv(key, value, options)
+
+  get: (prop_name) ->
+    logger.warn("HasProps.get('prop_name') is deprecated, use HasProps.prop_name instead")
+    return @getv(prop_name)
+
   getv: (prop_name) ->
     if not @props[prop_name]?
       throw new Error("property #{@type}.#{prop_name} wasn't declared")
