@@ -1,6 +1,8 @@
 Welcome to Bokeh
 ================
 
+**A framework for interactive browser-based visualizations**
+
 .. _about:
 
 Bokeh is a Python interactive visualization library that targets modern
