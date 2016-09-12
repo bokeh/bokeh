@@ -282,7 +282,7 @@ var Model = function(attributes, options) {
   var attrs = attributes || {};
   options || (options = {});
   this.attributes = {};
-  this.set(attrs, options);
+  this.setv(attrs, options);
   this.changed = {};
   this.initialize.apply(this, arguments);
 };
@@ -308,14 +308,14 @@ _.extend(Model.prototype, Events, {
   initialize: function(){},
 
   // Get the value of an attribute.
-  get: function(attr) {
+  getv: function(attr) {
     return this.attributes[attr];
   },
 
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  set: function(key, val, options) {
+  setv: function(key, val, options) {
     if (key == null) return this;
 
     // Handle both `"key", value` and `{key: value}` -style arguments.

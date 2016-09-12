@@ -117,7 +117,7 @@ class BoxAnnotation extends Annotation.Model
   }
 
   update:({left, right, top, bottom}) ->
-    @set({left: left, right: right, top: top, bottom: bottom}, {silent: true})
+    @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
 
 module.exports =

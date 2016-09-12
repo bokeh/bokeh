@@ -15,9 +15,9 @@ class Property extends Backbone.Model
   specifiers: ['field', 'value']
 
   @getters {
-    obj: () -> @get('obj')
-    attr: () -> @get('attr')
-    default_value: () -> @get('default_value')
+    obj: () -> @getv('obj')
+    attr: () -> @getv('attr')
+    default_value: () -> @getv('default_value')
   }
 
   initialize: (attrs, options) ->
@@ -87,11 +87,11 @@ class Property extends Backbone.Model
     if not obj.properties?
       throw new Error("property object must be a HasProps")
 
-    attr = @gattr
+    attr = @attr
     if not attr?
       throw new Error("missing property attr")
 
-    attr_value = obj.get(attr)
+    attr_value = obj.getv(attr)
 
     if _.isUndefined(attr_value)
       default_value = @default_value
@@ -102,7 +102,7 @@ class Property extends Backbone.Model
         when _.isFunction(default_value)  then default_value(obj)
         else                                   default_value
 
-      obj.set(attr, attr_value, {silent: true, defaults: true})
+      obj.setv(attr, attr_value, {silent: true, defaults: true})
 
     # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
     #   @spec = attr_value

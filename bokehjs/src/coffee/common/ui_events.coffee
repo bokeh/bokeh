@@ -7,8 +7,8 @@ mousewheel = require("jquery-mousewheel")($)
 class UIEvents extends Backbone.Model
 
   @getters {
-    toolbar: () -> @get('toolbar')
-    hit_area: () -> @get('hit_area')
+    toolbar: () -> @getv('toolbar')
+    hit_area: () -> @getv('hit_area')
   }
 
   initialize: (attrs, options) ->

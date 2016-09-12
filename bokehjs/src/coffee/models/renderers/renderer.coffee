@@ -14,8 +14,8 @@ Model = require "../../model"
 class _ContextProperties extends Backbone.Model
 
   @getters {
-    obj: () -> @get('obj')
-    prefix: () -> @get('prefix')
+    obj: () -> @getv('obj')
+    prefix: () -> @getv('prefix')
   }
 
   constructor: (attrs, options) ->

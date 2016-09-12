@@ -61,7 +61,7 @@ class SelectionManager extends HasProps
       inspector = @_get_inspector(renderer_view)
       inspector.update(indices, true, false, true)
 
-      @source.set({ "inspected": inspector.indices}, {"silent": true })
+      @source.setv({inspected: inspector.indices}, {"silent": true })
 
       source.trigger(
         'inspect', indices, tool, renderer_view, source, data

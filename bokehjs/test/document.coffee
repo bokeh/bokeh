@@ -634,8 +634,8 @@ describe "Document", ->
     root1 = new SomeModel({ foo: 42 })
     root2 = new SomeModel({ foo: 43 })
     child1 = new SomeModel({ foo: 44 })
-    root1.set { child: child1 }
-    root2.set { child: child1 }
+    root1.setv({ child: child1 })
+    root2.setv({ child: child1 })
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
@@ -662,8 +662,8 @@ describe "Document", ->
     child1 = new SomeModel({ foo: 44 })
     child2 = new SomeModel({ foo: 45 })
     child3 = new SomeModel({ foo: 46, child: child2})
-    root1.set { child: child1 }
-    root2.set { child: child1 }
+    root1.setv({ child: child1 })
+    root2.setv({ child: child1 })
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
@@ -700,7 +700,7 @@ describe "Document", ->
 
     root1 = new SomeModel({ foo: 42 })
     child1 = new SomeModel({ foo: 43 })
-    root1.set { child: child1 }
+    root1.setv({ child: child1 })
     d.add_root(root1)
     expect(d.roots().length).to.equal 1
 
@@ -787,7 +787,7 @@ describe "Document", ->
       'obj_prop' : new ModelWithConstructTimeChanges(),
       'dict_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
       }
-    root1.set(serialized_values)
+    root1.setv(serialized_values)
 
     d.add_root(root1)
 
@@ -803,7 +803,7 @@ describe "Document", ->
 
     # document should have the values we set above
     for own key, value of serialized_values
-      expect(root1.get(key)).to.deep.equal value
+      expect(root1.getv(key)).to.deep.equal value
     expect(root1.list_prop[0].bar).to.equal 42
     expect(root1.dict_prop['foo'].bar).to.equal 43
 
