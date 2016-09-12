@@ -282,8 +282,6 @@ var Model = function(attributes, options) {
   var attrs = attributes || {};
   options || (options = {});
   this.attributes = {};
-  var defaults = _.result(this, 'defaults');
-  attrs = _.defaults(_.extend({}, defaults, attrs), defaults);
   this.set(attrs, options);
   this.changed = {};
   this.initialize.apply(this, arguments);

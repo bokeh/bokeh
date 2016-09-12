@@ -229,8 +229,6 @@ class HasProps extends Backbone.Model
   set_subtype: (subtype) ->
     @_subtype = subtype
 
-  defaults: -> throw new Error("don't use HasProps.defaults anymore")
-
   attribute_is_serializable: (attr) ->
     prop = @props[attr]
     if not prop?
