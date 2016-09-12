@@ -702,17 +702,17 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for name, value in properties.items():
             setattr(self, name, value)
 
-    def __eq__(self, other):
+    def equals(self, other):
+        """ Structural equality of models. """
+        # NOTE: don't try to use this to implement __eq__. Because then
+        # you will be tempted to implement __hash__, which would interfere
+        # with mutability of models. However, not implementing __hash__
+        # will make bokeh unusable in Python 3, where proper implementation
+        # of __hash__ is required when implementing __eq__.
         if not isinstance(other, self.__class__):
             return False
         else:
             return self.properties_with_values() == other.properties_with_values()
-
-    def __ne__(self, other):
-        if not isinstance(other, self.__class__):
-            return True
-        else:
-            return self.properties_with_values() != other.properties_with_values()
 
     def __setattr__(self, name, value):
         # self.properties() below can be expensive so avoid it

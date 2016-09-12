@@ -33,35 +33,3 @@ def test_model_in_empty_document_unsets_curdoc_on_model_references_and_then_rest
 
     # Check old document is replaced
     assert a_ref._document == doc
-
-def test_Model___eq_____ne__():
-    class EqNe(Model):
-        x = Int(12)
-
-    class EqNeUnrelated(Model):
-        x = Int(12)
-
-    v = EqNe() == EqNe()
-    assert v is False
-    v = EqNe() != EqNe()
-    assert v is True
-
-    v = EqNe(id="x") == EqNe(id="x")
-    assert v is True
-    v = EqNe(id="x") != EqNe(id="x")
-    assert v is False
-
-    v = EqNe(id="x", x=1) == EqNe(id="x", x=1)
-    assert v is True
-    v = EqNe(id="x", x=1) != EqNe(id="x", x=1)
-    assert v is False
-
-    v = EqNe(id="x", x=1) == EqNe(id="x", x=2)
-    assert v is False
-    v = EqNe(id="x", x=1) != EqNe(id="x", x=2)
-    assert v is True
-
-    v = EqNe(id="x") == EqNeUnrelated(id="x")
-    assert v is False
-    v = EqNe(id="x") != EqNeUnrelated(id="x")
-    assert v is True
