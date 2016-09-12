@@ -6,12 +6,17 @@ mousewheel = require("jquery-mousewheel")($)
 
 class UIEvents extends Backbone.Model
 
+  @getters {
+    toolbar: () -> @get('toolbar')
+    hit_area: () -> @get('hit_area')
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @_hammer_element()
 
   _hammer_element: ->
-    hit_area = @get('hit_area')
+    hit_area = @hit_area
     @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
@@ -96,7 +101,6 @@ class UIEvents extends Backbone.Model
         tool_view.listenTo(@, "scroll:#{id}", tool_view["_scroll"])
 
   _trigger: (event_type, e) ->
-    toolbar = @get('toolbar')
     base_event_type = event_type.split(":")[0]
 
     # Dual touch hack part 2/2
@@ -107,7 +111,7 @@ class UIEvents extends Backbone.Model
       if event_type == 'scroll'
         base_event_type = 'pinch'
 
-    gestures = toolbar.gestures
+    gestures = @toolbar.gestures
     active_tool = gestures[base_event_type].active
 
     if active_tool?

@@ -14,18 +14,21 @@ class Property extends Backbone.Model
   dataspec: false
   specifiers: ['field', 'value']
 
+  @getters {
+    obj: () -> @get('obj')
+    attr: () -> @get('attr')
+    default_value: () -> @get('default_value')
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
     @_init(false)
 
-    obj = @get('obj')
-    attr = @get('attr')
-
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(obj, "change:#{attr}", () ->
+    @listenTo(@obj, "change:#{@attr}", () =>
       @_init()
-      obj.trigger("propchange")
+      @obj.trigger("propchange")
     )
     @listenTo(@, "change:obj", () ->
       throw new Error("attempted to reset 'obj' on Property")
@@ -76,7 +79,7 @@ class Property extends Backbone.Model
   # ----- private methods
 
   _init: (trigger=true) ->
-    obj = @get('obj')
+    obj = @obj
     if not obj?
       throw new Error("missing property object")
 
@@ -84,14 +87,14 @@ class Property extends Backbone.Model
     if not obj.properties?
       throw new Error("property object must be a HasProps")
 
-    attr = @get('attr')
+    attr = @gattr
     if not attr?
       throw new Error("missing property attr")
 
     attr_value = obj.get(attr)
 
     if _.isUndefined(attr_value)
-      default_value = @get('default_value')
+      default_value = @default_value
 
       attr_value = switch
         when _.isUndefined(default_value) then null
@@ -133,11 +136,10 @@ class Property extends Backbone.Model
 
 simple_prop = (name, pred) ->
   class Prop extends Property
-    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     validate: (value) ->
       if not pred(value)
-        attr = @get('attr')
-        throw new Error("#{name} property '#{attr}' given invalid value: #{value}")
+        throw new Error("#{name} property '#{@attr}' given invalid value: #{value}")
 
 class Any extends simple_prop("Any", (x) -> true)
 
@@ -166,7 +168,7 @@ class Font extends String
 
 enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
-    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
 
 class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
@@ -217,7 +219,7 @@ class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformSt
 
 units_prop = (name, valid_units, default_units) ->
   class UnitsProp extends Number
-    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     init: () ->
       if not @spec.units?
         @spec.units = default_units
