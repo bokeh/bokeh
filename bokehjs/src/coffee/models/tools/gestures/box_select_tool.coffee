@@ -62,38 +62,22 @@ class BoxSelectToolView extends SelectTool.View
       vy1: vy1
     }
 
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
+    if not append
+      @model._clear_current_selection()
+
+    for r in @model._get_selectable_renderers()
+      sm = r.data_source.selection_manager
+      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
+
+    cb_data = @_get_cb_data(geometry)
 
     if @model.callback?
-      @_emit_callback(geometry)
+      @_emit_callback(cb_data)
 
-    @_save_geometry(geometry, final, append)
+    if final
+      @_save_geometry(cb_data, append)
 
     return null
-
-  _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
-    canvas = @plot_model.canvas
-    frame = @plot_model.frame
-
-    geometry['sx0'] = canvas.vx_to_sx(geometry.vx0)
-    geometry['sx1'] = canvas.vx_to_sx(geometry.vx1)
-    geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
-    geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
-
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
-    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
-    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
-    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
-
-    @model.callback.execute(@model, {geometry: geometry})
-
-    return
 
 DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
@@ -121,7 +105,6 @@ class BoxSelectTool extends SelectTool.Model
   @define {
     dimensions:             [ p.Array,    ["width", "height"] ]
     select_every_mousemove: [ p. Bool,    false               ]
-    callback:               [ p.Instance                      ]
     overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
   }
 
