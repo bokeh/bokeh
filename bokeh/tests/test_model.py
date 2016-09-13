@@ -1,5 +1,4 @@
-from bokeh.model import Model, _ModelInEmptyDocument
-from bokeh.core.properties import Int
+from bokeh.model import _ModelInEmptyDocument
 from bokeh.plotting import figure
 from bokeh.io import curdoc
 
