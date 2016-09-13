@@ -346,6 +346,30 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
 
+    def _repr_pretty_(self, p, cycle):
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        _id = getattr(self, "_id", None)
+
+        if cycle:
+            p.text(name)
+            p.text('(id=')
+            p.pretty(_id)
+            p.text(', ...)')
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=lambda (prop, _): prop)
+                all_props = [('id', _id)] + sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
+
 def _find_some_document(models):
     from .document import Document
 
