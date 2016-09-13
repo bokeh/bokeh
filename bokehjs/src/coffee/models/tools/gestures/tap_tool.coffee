@@ -21,7 +21,7 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    cb_data = @_get_cb_data(geometry)
+    cb_data = @model._get_cb_data(geometry)
 
     if not append
       @model._clear_current_selection()
@@ -35,18 +35,17 @@ class TapToolView extends SelectTool.View
       else
         did_hit = ds.inspector.inspect(@, view, geometry)
 
-        callback = @mget("callback")
+        callback = @model.callback
       if did_hit and callback?
         callback.execute(ds, cb_data)
 
     if @model.callback?
-      @_emit_callback(cb_data)
+      @model._emit_callback(cb_data)
 
     if final
-      @_save_geometry(cb_data, append)
+      @model._save_geometry(cb_data, append)
 
     return null
-
 
 class TapTool extends SelectTool.Model
   default_view: TapToolView

@@ -6,18 +6,10 @@ p = require "../../../core/properties"
 
 class LassoSelectToolView extends SelectTool.View
 
-  initialize: (options) ->
-    super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+  _clear_overlay: () ->
     @data = null
-
-  _active_change: () ->
-    if not @model.active
-      @_clear_overlay()
-
-  _keyup: (e) ->
-    if e.keyCode == 13
-      @_clear_overlay()
+    @model.overlay.update({xs:[], ys:[]})
+    return null
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
@@ -46,9 +38,7 @@ class LassoSelectToolView extends SelectTool.View
 
     @data.vx.push(vx)
     @data.vy.push(vy)
-
-    overlay = @model.overlay
-    overlay.update({xs: @data.vx, ys: @data.vy})
+    @model.overlay.update({xs: @data.vx, ys: @data.vy})
 
     if @model.select_every_mousemove
       append = e.srcEvent.shiftKey ? false
@@ -57,14 +47,12 @@ class LassoSelectToolView extends SelectTool.View
     return null
 
   _pan_end: (e) ->
-    @_clear_overlay()
     append = e.srcEvent.shiftKey ? false
     @_select(@data.vx, @data.vy, true, append)
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
-    return null
+    @_clear_overlay()
 
-  _clear_overlay: () ->
-    @model.overlay.update({xs:[], ys:[]})
+    return null
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -79,13 +67,13 @@ class LassoSelectToolView extends SelectTool.View
     for r in @model._get_selectable_renderers()
       r.data_source.selector.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
 
-    cb_data = @_get_cb_data(geometry)
+    cb_data = @model._get_cb_data(geometry)
 
     if @model.callback?
-      @_emit_callback(cb_data)
+      @model._emit_callback(cb_data)
 
     if final
-      @_save_geometry(cb_data, append)
+      @model._save_geometry(cb_data, append)
 
     return null
 

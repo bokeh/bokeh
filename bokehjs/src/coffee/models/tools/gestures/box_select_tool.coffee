@@ -6,9 +6,14 @@ p = require "../../../core/properties"
 
 class BoxSelectToolView extends SelectTool.View
 
+  _clear_overlay: () ->
+    @_basepoint = null
+    @model.overlay.update({left: null, right: null, top: null, bottom: null})
+    return null
+
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @_baseboint = [
+    @_basepoint = [
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
@@ -23,7 +28,7 @@ class BoxSelectToolView extends SelectTool.View
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+    [vxlim, vylim] = @model._get_dim_limits(@_basepoint, curpoint, frame, dims)
     @model.overlay.update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
     if @model.select_every_mousemove
@@ -41,19 +46,15 @@ class BoxSelectToolView extends SelectTool.View
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+    [vxlim, vylim] = @model._get_dim_limits(@_basepoint, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
     @_select(vxlim, vylim, true, append)
-
-    @model.overlay.update({left: null, right: null, top: null, bottom: null})
-
-    @_baseboint = null
-
     @plot_view.push_state('box_select', {selection: @plot_view.get_selection()})
+    @_clear_overlay()
 
     return null
 
-  _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
+  _select: ([vx0, vx1], [vy0, vy1], final, append) ->
     geometry = {
       type: 'rect'
       vx0: vx0
@@ -68,13 +69,13 @@ class BoxSelectToolView extends SelectTool.View
     for r in @model._get_selectable_renderers()
       r.data_source.selector.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
 
-    cb_data = @_get_cb_data(geometry)
+    cb_data = @model._get_cb_data(geometry)
 
     if @model.callback?
-      @_emit_callback(cb_data)
+      @model._emit_callback(cb_data)
 
     if final
-      @_save_geometry(cb_data, append)
+      @model._save_geometry(cb_data, append)
 
     return null
 
