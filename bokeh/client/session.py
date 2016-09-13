@@ -292,7 +292,7 @@ class ClientSession(object):
         """
         if obj and obj not in self.document.roots:
             self.document.add_root(obj)
-        show_session(session=self)
+        show_session(session=self, browser=browser, new=new)
 
     @classmethod
     def _ensure_session_id(cls, session_id):
