@@ -6,10 +6,6 @@ p = require "../../../core/properties"
 class WheelPanToolView extends GestureTool.View
 
   _scroll: (e) ->
-    frame = @plot_model.frame
-    hr = frame.h_range
-    vr = frame.v_range
-
     # we need a browser-specific multiplier to have similar experiences
     if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
       multiplier = 20
@@ -28,6 +24,13 @@ class WheelPanToolView extends GestureTool.View
       factor = 0.9
     else if factor < -0.9
       factor = -0.9
+
+    @_update_ranges(factor)
+
+  _update_ranges: (factor) ->
+    frame = @plot_model.frame
+    hr = frame.h_range
+    vr = frame.v_range
 
     [vx_low, vx_high] = [hr.start, hr.end]
     [vy_low, vy_high]  = [vr.start, vr.end]
@@ -69,6 +72,7 @@ class WheelPanToolView extends GestureTool.View
     @plot_view.interactive_timestamp = Date.now()
     return null
 
+
 class WheelPanTool extends GestureTool.Model
   type: 'WheelPanTool'
   default_view: WheelPanToolView
@@ -78,7 +82,7 @@ class WheelPanTool extends GestureTool.Model
   default_order: 12
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimension, "wheel pan tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims([@dimension], "wheel pan tool"))
   }
 
   @define {
