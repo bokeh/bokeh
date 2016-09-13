@@ -3,7 +3,7 @@ from __future__ import  absolute_import
 from bokeh.models.annotations import (
     Legend, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
-from bokeh.models import ArrowHead, BasicTicker, BasicTickFormatter
+from bokeh.models import ArrowHead, BasicTicker, BasicTickFormatter, ColumnDataSource
 
 from .utils.property_utils import (
     FILL, LINE, TEXT, ANGLE, prefix,
@@ -113,7 +113,8 @@ def test_Arrow():
     assert arrow.y_end is None
     assert arrow.end_units == 'data'
     assert isinstance(arrow.end, ArrowHead)
-    assert arrow.source is None
+    assert isinstance(arrow.source, ColumnDataSource)
+    assert arrow.source.data == {}
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     yield check_line_properties, arrow
@@ -222,7 +223,8 @@ def test_LabelSet():
     assert label_set.render_mode == 'canvas'
     assert label_set.x_range_name == 'default'
     assert label_set.y_range_name == 'default'
-    assert label_set.source is None
+    assert isinstance(label_set.source, ColumnDataSource)
+    assert label_set.source.data == {}
     yield check_text_properties, label_set
     yield check_fill_properties, label_set, "background_", None, 1.0
     yield check_line_properties, label_set, "border_", None, 1.0, 1.0

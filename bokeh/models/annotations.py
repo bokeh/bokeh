@@ -19,7 +19,7 @@ from ..core.properties import (
 from .formatters import TickFormatter, BasicTickFormatter
 from .mappers import ContinuousColorMapper
 from .renderers import Renderer, GlyphRenderer
-from .sources import DataSource
+from .sources import DataSource, ColumnDataSource
 from .tickers import Ticker, BasicTicker
 
 
@@ -317,7 +317,7 @@ class Arrow(Annotation):
     The %s values for the arrow body.
     """)
 
-    source = Instance(DataSource, help="""
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 
@@ -573,7 +573,7 @@ class LabelSet(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-    source = Instance(DataSource, help="""
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 

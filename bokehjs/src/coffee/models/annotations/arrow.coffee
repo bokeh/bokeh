@@ -97,7 +97,7 @@ class Arrow extends Annotation.Model
       y_end:            [ p.NumberSpec,                       ]
       end_units:        [ p.String,      'data'               ]
       end:              [ p.Instance,    new OpenHead.Model() ]
-      source:           [ p.Instance,                         ]
+      source:           [ p.Instance, () -> new ColumnDataSource.Model() ]
       x_range_name:     [ p.String,      'default'            ]
       y_range_name:     [ p.String,      'default'            ]
   }
