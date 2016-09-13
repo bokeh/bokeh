@@ -15,6 +15,8 @@ from bokeh.core.properties import (
 from bokeh.models import Plot
 from bokeh.models.annotations import Title
 
+from IPython.lib.pretty import pretty
+
 class Basictest(unittest.TestCase):
 
     def test_simple_class(self):
@@ -1477,6 +1479,57 @@ def test_HasProps_clone():
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
+def test_HasProps__repr_pretty_():
+    class Foo1(HasProps):
+        a = Int(12)
+        b = String("hello")
+
+    assert pretty(Foo1()) == "bokeh.core.tests.test_properties.Foo1(a=12, b='hello')"
+
+    class Foo2(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+
+    assert pretty(Foo2()) == "bokeh.core.tests.test_properties.Foo2(a=12, b='hello', c=[1, 2, 3])"
+
+    class Foo3(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+        d = Float(None)
+
+    assert pretty(Foo3()) == "bokeh.core.tests.test_properties.Foo3(a=12, b='hello', c=[1, 2, 3], d=None)"
+
+    class Foo4(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+        d = Float(None)
+        e = Instance(Foo1, lambda: Foo1())
+
+    assert pretty(Foo4()) == """\
+bokeh.core.tests.test_properties.Foo4(
+    a=12,
+    b='hello',
+    c=[1, 2, 3],
+    d=None,
+    e=bokeh.core.tests.test_properties.Foo1(a=12, b='hello'))"""
+
+    class Foo5(HasProps):
+        foo6 = Any            # can't use Instance(".core.tests.test_properties.Foo6")
+
+    class Foo6(HasProps):
+        foo5 = Instance(Foo5)
+
+    f5 = Foo5()
+    f6 = Foo6(foo5=f5)
+    f5.foo6 = f6
+
+    assert pretty(f5) == """\
+bokeh.core.tests.test_properties.Foo5(
+    foo6=bokeh.core.tests.test_properties.Foo6(
+        foo5=bokeh.core.tests.test_properties.Foo5(...)))"""
 
 def test_titleprop_transforms_string_into_title_object():
     class Foo(HasProps):
