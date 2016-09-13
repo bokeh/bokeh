@@ -78,6 +78,7 @@ declare namespace Bokeh {
     export var BoxSelectTool: { new(attributes?: IBoxSelectTool, options?: ModelOpts): BoxSelectTool };
     export interface BoxSelectTool extends SelectTool, IBoxSelectTool {}
     export interface IBoxSelectTool extends ISelectTool {
+        callback?: Callback | ((source: this) => void);
         select_every_mousemove?: boolean;
         dimensions?: Array<Dimension>;
     }
@@ -85,12 +86,15 @@ declare namespace Bokeh {
     export var LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: ModelOpts): LassoSelectTool };
     export interface LassoSelectTool extends SelectTool, ILassoSelectTool {}
     export interface ILassoSelectTool extends ISelectTool {
+        callback?: Callback | ((source: this) => void);
         select_every_mousemove?: boolean;
     }
 
     export var PolySelectTool: { new(attributes?: IPolySelectTool, options?: ModelOpts): PolySelectTool };
     export interface PolySelectTool extends SelectTool, IPolySelectTool {}
-    export interface IPolySelectTool extends ISelectTool {}
+    export interface IPolySelectTool extends ISelectTool {
+        callback?: Callback | ((source: this) => void);
+    }
 
     export var TapTool: { new(attributes?: ITapTool, options?: ModelOpts): TapTool };
     export interface TapTool extends SelectTool, ITapTool {}
