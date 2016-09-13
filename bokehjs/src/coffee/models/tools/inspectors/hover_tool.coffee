@@ -330,9 +330,7 @@ class HoverTool extends InspectTool.Model
     @add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot'])
     @add_dependencies('computed_renderers', @plot, ['renderers'])
 
-  @getters {
-    computed_renderers: () -> @_get_computed('computed_renderers')
-    ttmodels: () ->
+    @define_computed_property 'ttmodels', () ->
       ttmodels = {}
       tooltips = @tooltips
 
@@ -346,6 +344,11 @@ class HoverTool extends InspectTool.Model
           ttmodels[r.id] = tooltip
 
       return ttmodels
+    @add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips'])
+
+  @getters {
+    computed_renderers: () -> @_get_computed('computed_renderers')
+    ttmodels: () -> @_get_computed('ttmodels')
     synthetic_renderers: () -> _.values(@ttmodels)
   }
 

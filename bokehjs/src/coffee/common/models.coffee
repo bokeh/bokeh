@@ -68,6 +68,7 @@ module.exports = {
   WidgetBox:                require '../models/layouts/widget_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
+  CategoricalColorMapper:   require '../models/mappers/categorical_color_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'

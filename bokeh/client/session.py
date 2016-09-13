@@ -7,14 +7,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from ._connection import ClientConnection
-
 from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
                               server_url_for_websocket_url,
                               _SessionCoordinates )
 from bokeh.document import Document
 from bokeh.util.session_id import generate_session_id
-from bokeh.util.tornado import _DocumentCallbackGroup
 
 DEFAULT_SESSION_ID = "default"
 
@@ -206,9 +203,11 @@ class ClientSession(object):
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
+        from ._connection import ClientConnection
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         self._current_patch = None
+        from bokeh.util.tornado import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
 
     def _attach_document(self, document):
@@ -293,7 +292,7 @@ class ClientSession(object):
         """
         if obj and obj not in self.document.roots:
             self.document.add_root(obj)
-        show_session(session=self)
+        show_session(session=self, browser=browser, new=new)
 
     @classmethod
     def _ensure_session_id(cls, session_id):
