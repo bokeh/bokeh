@@ -2,17 +2,15 @@
 utils = require "../utils"
 sinon = require 'sinon'
 
-Selector = utils.require "common/selector"
 hittest = utils.require "common/hittest"
 
-hittest = utils.require "common/hittest"
-SomeMarker = utils.require("models/markers/index").CircleX.Model
+Selector = utils.require "common/selector"
 {Document} = utils.require("document")
-Range1d = utils.require("models/ranges/range1d").Model
+SomeMarker = utils.require("models/markers/index").CircleX.Model
 Plot = utils.require("models/plots/plot").Model
+Range1d = utils.require("models/ranges/range1d").Model
 GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
 ColumnDataSource = utils.require('models/sources/column_data_source').Model
-# PlotCanvasView = utils.require('models/plots/plot_canvas').View
 
 empty_selection = hittest.create_hit_test_result()
 full_selection = hittest.create_hit_test_result()
