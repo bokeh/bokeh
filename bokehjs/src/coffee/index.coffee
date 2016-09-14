@@ -15,7 +15,7 @@ module.constructor.prototype.require = (modulePath) ->
 
   return this.constructor._load(modulePath, this)
 
-factory = () ->
+bokehjs = () ->
   if not window?.document?
     throw new Error("bokehjs requires a window with a document. If your
       runtime environment doesn't provide those, e.g. pure node.js, you
@@ -34,4 +34,4 @@ factory = () ->
 
   return Bokeh
 
-module.exports = if window?.document? then factory() else factory
+module.exports = if window?.document? then bokehjs() else bokehjs
