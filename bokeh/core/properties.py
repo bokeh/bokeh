@@ -63,6 +63,7 @@ import numbers
 import re
 import types
 from warnings import warn
+from operator import itemgetter
 
 from six import string_types, iteritems
 
@@ -921,6 +922,26 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         """ Prints the properties of this object, nicely formatted """
         for key, value in self.properties_with_values().items():
             print("%s%s: %r" % ("  "*indent, key, value))
+
+    def _repr_pretty_(self, p, cycle):
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+
+        if cycle:
+            p.text("%s(...)" % name)
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=itemgetter(0))
+                all_props = sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
 
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.
