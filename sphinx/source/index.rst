@@ -1,7 +1,8 @@
 Welcome to Bokeh
 ================
 
-**A framework for interactive browser-based visualizations**
+A platform for interactive browser-based visualizations
+-------------------------------------------------------
 
 .. _about:
 
