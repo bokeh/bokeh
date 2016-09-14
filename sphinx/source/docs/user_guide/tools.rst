@@ -276,6 +276,16 @@ just the x-axis or just the y-axis by setting the ``dimensions`` property to
 a list containing ``width`` or ``height``. Additionally, there are tool aliases
 ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
+WheelPanTool
+'''''''''''''
+
+* name: ``'xwheel_pan'``, ``'ywheel_pan'``
+* icon: |wheel_pan_icon|
+
+The wheel pan tool will translate the plot window along the specified
+dimension without changing the window's aspect ratio. The tool will respect any
+min and max values and ranges preventing panning beyond these values.
+
 .. _userguide_tools_actions:
 
 Actions
@@ -494,6 +504,8 @@ LOD behavior:
 .. |tap_select_icon| image:: /_images/icons/TapSelect.png
     :height: 14pt
 .. |undo_icon| image:: /_images/icons/Undo.png
+    :height: 14pt
+.. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
     :height: 14pt
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
     :height: 14pt

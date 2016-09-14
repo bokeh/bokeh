@@ -15,7 +15,7 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelZoomTool, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime, value
 from ..util.string import nice_join
@@ -220,6 +220,8 @@ _known_tools = {
     "wheel_zoom": lambda: WheelZoomTool(dimensions=["width", "height"]),
     "xwheel_zoom": lambda: WheelZoomTool(dimensions=["width"]),
     "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
+    "xwheel_pan": lambda: WheelPanTool(dimension="width"),
+    "ywheel_pan": lambda: WheelPanTool(dimension="height"),
     "resize": lambda: ResizeTool(),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
