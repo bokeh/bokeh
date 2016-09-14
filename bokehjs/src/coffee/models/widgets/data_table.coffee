@@ -7,7 +7,6 @@ CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
 
 hittest = require "../../common/hittest"
 p = require "../../core/properties"
-DOMUtil = require "../../util/dom_util"
 
 TableWidget = require "./table_widget"
 Widget = require "./widget"
@@ -55,7 +54,7 @@ class DataProvider
   updateSource: () ->
     # XXX: We should say `@source.data = @data`, but data was updated in-place,
     # so that would be a no-op. We have to trigger change events manually instead.
-    @source.trigger("change:data", @, @source.attributes['data'])
+    @source.trigger("change:data")
 
   getItemMetadata: (index) -> null
 
@@ -94,16 +93,20 @@ class DataTableView extends Widget.View
 
   initialize: (options) ->
     super(options)
-    DOMUtil.waitForElement(@el, () => @render())
-    @listenTo(@model, 'change', () => @render())
-    source = @model.source
-    @listenTo(source, 'change:data', () => @updateGrid())
-    @listenTo(source, 'change:selected', () => @updateSelection())
+    @render()
+    @listenTo(@model, 'change', @render)
+    @listenTo(@mget('source'), 'change:data', () => @updateGrid())
+    @listenTo(@mget('source'), 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
-    @data = new DataProvider(@model.source)
-    @grid.setData(@data)
+    @data.constructor(@model.source)
+    @grid.invalidate()
     @grid.render()
+
+    # XXX: Workaround for `@model.source.trigger('change')` not triggering an event within python.
+    # But we still need it to trigger render updates
+    @model.source.data = @model.source.data
+    @model.source.trigger('change')
 
   updateSelection: () ->
     selected = @model.source.selected
