@@ -1161,6 +1161,16 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(Bar()))
         self.assertFalse(prop.is_valid(Baz()))
 
+    def test_Instance_from_json(self):
+        class MapOptions(HasProps):
+            lat = Float
+            lng = Float
+            zoom = Int(12)
+
+        v1 = Instance(MapOptions).from_json(dict(lat=1, lng=2))
+        v2 = MapOptions(lat=1, lng=2)
+        self.assertTrue(v1.equals(v2))
+
     def test_Interval(self):
         with self.assertRaises(TypeError):
             prop = Interval()
@@ -1469,6 +1479,31 @@ class TestProperties(unittest.TestCase):
         # Invalid values
         self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), 22)))
 
+def test_HasProps_equals():
+    class Foo(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    class FooUnrelated(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    v = Foo().equals(Foo())
+    assert v is True
+
+    v = Foo(x=1).equals(Foo(x=1))
+    assert v is True
+
+    v = Foo(x=1).equals(Foo(x=2))
+    assert v is False
+
+    v = Foo(x=1).equals(1)
+    assert v is False
+
+    v = Foo().equals(FooUnrelated())
+    assert v is False
 
 def test_HasProps_clone():
     p1 = Plot(plot_width=1000)
@@ -1476,7 +1511,6 @@ def test_HasProps_clone():
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
-
 
 def test_titleprop_transforms_string_into_title_object():
     class Foo(HasProps):

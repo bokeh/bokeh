@@ -17,10 +17,11 @@ from ..core.properties import (
 )
 
 from .formatters import TickFormatter, BasicTickFormatter
-from .mappers import ColorMapper
+from .mappers import ContinuousColorMapper
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tickers import Ticker, BasicTicker
+
 
 @abstract
 class Annotation(Renderer):
@@ -114,9 +115,13 @@ class Legend(Annotation):
     Amount of spacing between legend entries.
     """)
 
-    legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""
+    legends = Either(List(Instance(GlyphRenderer)), List(Tuple(String, List(Instance(GlyphRenderer)))), help="""
+    A list of glyph renderers OR
     A list of tuples that maps text labels to the legend to corresponding
     renderers that should draw sample representations for those labels.
+
+    If a list of glyph renderers is provided, the label property from the glyph
+    will be used as the legend label.
 
     .. note::
         The ``legends`` attribute may also be set from a dict or OrderedDict.
@@ -182,8 +187,8 @@ class ColorBar(Annotation):
     A TickFormatter to use for formatting the visual appearance of ticks.
     """)
 
-    color_mapper = Instance(ColorMapper, help="""
-    A color mapper containing a color palette to render.
+    color_mapper = Instance(ContinuousColorMapper, help="""
+    A continuous color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ColorMapper aren't set, ticks
