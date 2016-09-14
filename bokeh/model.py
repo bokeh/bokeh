@@ -5,6 +5,7 @@ logger = logging.getLogger(__file__)
 
 from contextlib import contextmanager
 from json import loads
+from operator import itemgetter
 
 from six import iteritems
 
@@ -358,7 +359,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         else:
             with p.group(4, '%s(' % name, ')'):
                 props = self.properties_with_values().items()
-                sorted_props = sorted(props, key=lambda (prop, _): prop)
+                sorted_props = sorted(props, key=itemgetter(0))
                 all_props = [('id', _id)] + sorted_props
                 for i, (prop, value) in enumerate(all_props):
                     if i == 0:

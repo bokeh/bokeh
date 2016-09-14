@@ -63,6 +63,7 @@ import numbers
 import re
 import types
 from warnings import warn
+from operator import itemgetter
 
 from six import string_types, iteritems
 
@@ -918,7 +919,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         else:
             with p.group(4, '%s(' % name, ')'):
                 props = self.properties_with_values().items()
-                sorted_props = sorted(props, key=lambda (prop, _): prop)
+                sorted_props = sorted(props, key=itemgetter(0))
                 all_props = sorted_props
                 for i, (prop, value) in enumerate(all_props):
                     if i == 0:
