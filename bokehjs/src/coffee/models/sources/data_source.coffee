@@ -23,7 +23,7 @@ class DataSource extends Model
 
   initialize: (options) ->
     super(options)
-    @listenTo(@selector, 'select', () =>
+    @listenTo(@, 'select', () =>
       if @callback?
         @callback.execute(@)
     )
