@@ -107,7 +107,7 @@ old_version = {
                 "methods": {"here_comes_the_sun": []}
             }
         },
-        "functions": {"john": [], "paul": ["bass"], "ringo": [{"beat":[1, 2, 3]}]}
+        "functions": {"john": [], "paul": ["bass"], "ringo": ["drums", {"beat":[1, 2, 3]}]}
     }
 }
 
@@ -117,13 +117,13 @@ new_version = {
             "Radiohead": {
                 "methods": {
                     "thom": ["self"],
-                    "colin": ["self"],
+                    "colin": ["self", {"keyboard": True}],
                     "ed": ["self"],
                     "phil": ["self"]},
             },
             "Pixies": {"methods": {"debaser": []}}
         },
-        "functions": {"john": [], "paul": [], "george": [], "ringo": [{"beat":[1, 2]}]}
+        "functions": {"john": [], "paul": ["guitar"], "george": [], "ringo": [{"beat":[1, 2]}]}
     }
 }
 
@@ -141,16 +141,17 @@ expected_diff = {
             },
             "Beatles": {}
         },
-        "functions": {"ringo": [{"beat":[1, 2, 3]}], "paul": ["bass"]}
+        "functions": {"ringo": ["drums", {"beat":[1, 2, 3]}], "paul": ["bass"]}
     }
 }
 
 expected_additions = {
     'bands': {
         'classes': {
-            'Pixies': {}
+            'Pixies': {},
+            'Radiohead': {'methods': {'colin': [{'keyboard': True}]}},
         },
-        'functions': {"george": [], "ringo": [{"beat":[1, 2]}]}
+        'functions': {"george": [], "paul": ["guitar"], "ringo": [{"beat":[1, 2]}]}
     }
 }
 
@@ -158,17 +159,19 @@ expected_parsed_diff = [
     'DELETED: models',
     'DELETED: bands.Radiohead.jonny',
     'DELETED: bands.Beatles',
-    "CHANGED: bands.Radiohead.thom\n\told_signature: (self, guitar)\n\tnew_signature: (self)\n\ttags: args_removed",
-    "CHANGED: bands.Radiohead.colin\n\told_signature: (self, bass=[1, 2, 3])\n\tnew_signature: (self)\n\ttags: kwargs_removed",
-    "CHANGED: bands.Radiohead.phil\n\told_signature: (self, song, drums=[1, 2, 3], solo=False)\n\tnew_signature: (self)\n\ttags: args_removed, kwargs_removed",
-    "CHANGED: bands.ringo\n\told_signature: (beat=[1, 2, 3])\n\tnew_signature: (beat=[1, 2])\n\ttags: kwargs_changed",
-    "CHANGED: bands.paul\n\told_signature: (bass)\n\tnew_signature: ()\n\ttags: args_removed",
 ]
 
 expected_parsed_additions = [
     'ADDED: bands.george',
     'ADDED: bands.Pixies',
-    'CHANGED: bands.ringo\n\told_signature: (beat=[1, 2])\n\tnew_signature: (beat=[1, 2, 3])\n\ttags: kwargs_changed'
+]
+
+expected_changes = [
+    'CHANGED: bands.ringo\n\told_signature: (drums, beat=[1, 2, 3])\n\tnew_signature: (beat=[1, 2])\n\ttags: args_removed, kwargs_changed',
+    "CHANGED: bands.paul\n\told_signature: (bass)\n\tnew_signature: (guitar)\n\ttags: args_removed, args_added",
+    "CHANGED: bands.Radiohead.thom\n\told_signature: (self, guitar)\n\tnew_signature: (self)\n\ttags: args_removed",
+    "CHANGED: bands.Radiohead.colin\n\told_signature: (self, bass=[1, 2, 3])\n\tnew_signature: (self, keyboard=True)\n\ttags: kwargs_removed, kwargs_added",
+    "CHANGED: bands.Radiohead.phil\n\told_signature: (self, song, drums=[1, 2, 3], solo=False)\n\tnew_signature: (self)\n\ttags: args_removed, kwargs_removed",
 ]
 
 single_class_old = {
@@ -221,9 +224,10 @@ class TestDiffer(object):
 
     def test_get_diff(self):
         diff = self.differ.get_diff()
-        expected_diff = expected_parsed_diff + expected_parsed_additions
-        for x in diff:
-            assert x in expected_diff
+        expected_diff = expected_parsed_diff + expected_parsed_additions + expected_changes
+        assert len(diff) == len(expected_diff)
+        for x in expected_diff:
+            assert x in diff
 
     def test_diff_additions(self):
         self.differ.additions = True
@@ -243,6 +247,15 @@ class TestDiffer(object):
         raw_diff = self.differ.pretty_diff(raw_diff)
         for x in expected_parsed_additions:
             assert x in raw_diff
+
+    def test_signature_changes_parsing(self):
+        diff = self.differ.pretty_function_changes(
+            "CHANGED: bands.Radiohead.colin",
+            ['self', {'bass': [1, 2, 3]}],
+            ['self', {'keyboard': True}],
+        )
+        expected_parsed_diff = "CHANGED: bands.Radiohead.colin\n\told_signature: (self, bass=[1, 2, 3])\n\tnew_signature: (self, keyboard=True)\n\ttags: kwargs_removed, kwargs_added"
+        assert diff == expected_parsed_diff
 
     def test_operators(self):
         a = {"one", "two", "three", "four"}
@@ -266,13 +279,13 @@ class TestDiffer(object):
         self.differ.additions = False
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
-        assert diff["bands"]["functions"] == {"ringo": [{"beat":[1, 2, 3]}], "paul": ["bass"]}
+        assert diff["bands"]["functions"] == {"ringo": ["drums", {"beat":[1, 2, 3]}], "paul": ["bass"]}
         for x in diff["bands"]["classes"].keys():
             assert x in expected_diff["bands"]["classes"].keys()
         self.differ.additions = True
         intersection, diff = self.differ.diff_files()
         diff = self.differ.diff_functions_classes(diff, intersection)
-        assert diff["bands"]["functions"] == {"george": [], "ringo": [{"beat":[1, 2]}]}
+        assert diff["bands"]["functions"] == {"george": [], "paul": ["guitar"], "ringo": [{"beat":[1, 2]}]}
         assert list(diff["bands"]["classes"].keys()) == ["Pixies"]
 
     def test_diff_methods(self):
