@@ -1,20 +1,20 @@
 from __future__ import absolute_import
-import subprocess, sys, shlex
+import os, subprocess, sys, shlex
 
 from bokeh.util.api_crawler import api_crawler, differ
 
 
 def diff_versions(old_version, new_version):
-    subprocess.check_output(shlex.split("git stash"))
-    subprocess.check_output(shlex.split("git checkout tags/%s -- bokeh" % old_version))
+    subprocess.call(shlex.split("git stash"), stdout=open(os.devnull, "w"))
+    subprocess.call(shlex.split("git checkout tags/%s -- bokeh" % old_version), stdout=open(os.devnull, "w"))
     old = api_crawler("bokeh").get_crawl_dict()
-    subprocess.check_output(shlex.split("git checkout tags/%s -- bokeh" % new_version))
+    subprocess.call(shlex.split("git checkout tags/%s -- bokeh" % new_version), stdout=open(os.devnull, "w"))
     new = api_crawler("bokeh").get_crawl_dict()
 
     # Reset HEAD to initial state.
-    subprocess.check_output(shlex.split("git checkout HEAD -- bokeh"))
-    subprocess.check_output(shlex.split("git reset HEAD -- bokeh"))
-    subprocess.check_output(shlex.split("git stash apply"))
+    subprocess.call(shlex.split("git checkout HEAD -- bokeh"), stdout=open(os.devnull, "w"))
+    subprocess.call(shlex.split("git reset HEAD -- bokeh"), stdout=open(os.devnull, "w"))
+    subprocess.call(shlex.split("git stash apply"), stdout=open(os.devnull, "w"))
 
     # Combine items removed and added into a single text file.
     diff = differ(old, new)
