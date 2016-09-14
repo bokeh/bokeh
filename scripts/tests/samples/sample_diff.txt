@@ -1,0 +1,165 @@
+DELETED: bokeh.models.plots.LayoutBox
+DELETED: bokeh.models.plots.GridPlot
+DELETED: bokeh.models.sources.BlazeDataSource
+DELETED: bokeh.charts.stats.Bins.update
+DELETED: bokeh.charts.stats.Bins.__init__
+DELETED: bokeh.plotting.figure.Figure.ygrid
+DELETED: bokeh.plotting.figure.Figure.grid
+DELETED: bokeh.plotting.figure.Figure.xaxis
+DELETED: bokeh.plotting.figure.Figure.yaxis
+DELETED: bokeh.plotting.figure.Figure.axis
+DELETED: bokeh.plotting.figure.Figure.legend
+DELETED: bokeh.plotting.figure.Figure.xgrid
+DELETED: bokeh.application.handlers.script.ScriptHandler.failed
+DELETED: bokeh.application.handlers.script.ScriptHandler.error_detail
+DELETED: bokeh.application.handlers.script.ScriptHandler.url_path
+DELETED: bokeh.application.handlers.script.ScriptHandler.modify_document
+DELETED: bokeh.application.handlers.script.ScriptHandler.error
+DELETED: bokeh.server.session.ServerSession.seconds_since_last_unsubscribe
+DELETED: bokeh.models.widgets.layouts.BaseBox
+DELETED: bokeh.models.widgets.layouts.HBox
+DELETED: bokeh.models.widgets.layouts.Layout
+DELETED: bokeh.models.widgets.layouts.VBox
+DELETED: bokeh.models.widgets.layouts.VBoxForm
+DELETED: bokeh.io.gridplot
+DELETED: bokeh.models.tools.PreviewSaveTool
+DELETED: bokeh.charts.data_source.ChartDataSource.create_attr_data
+ADDED: bokeh.models.widgets.buttons.ButtonLike
+ADDED: bokeh.document.without_document_lock
+ADDED: bokeh.document.UnlockedDocumentProxy
+ADDED: bokeh.document.Document.template
+ADDED: bokeh.document.ColumnsStreamedEvent
+ADDED: bokeh.application.application.Application.safe_to_fork
+ADDED: bokeh.application.application.Application.static_path
+ADDED: bokeh.models.plots.Plot.title_text_baseline
+ADDED: bokeh.models.plots.Plot.title_text_font_style
+ADDED: bokeh.models.plots.Plot.title_text_font_size
+ADDED: bokeh.models.plots.Plot.title_text_alpha
+ADDED: bokeh.models.plots.Plot.title_text_align
+ADDED: bokeh.models.plots.Plot.title_text_font
+ADDED: bokeh.models.plots.Plot.grid
+ADDED: bokeh.models.plots.Plot.responsive
+ADDED: bokeh.models.plots.Plot.logo
+ADDED: bokeh.models.plots.Plot.title_standoff
+ADDED: bokeh.models.plots.Plot.legend
+ADDED: bokeh.models.plots.Plot.axis
+ADDED: bokeh.models.plots.Plot.ygrid
+ADDED: bokeh.models.plots.Plot.title_text_color
+ADDED: bokeh.models.plots.Plot.yaxis
+ADDED: bokeh.models.plots.Plot.tools
+ADDED: bokeh.models.plots.Plot.xaxis
+ADDED: bokeh.models.plots.Plot.xgrid
+ADDED: bokeh.core.properties.TitleProp
+ADDED: bokeh.core.properties.TimeDelta
+ADDED: bokeh.server.tornado.match_host
+ADDED: bokeh.server.tornado.BokehTornado.initialize
+ADDED: bokeh.application.handlers.handler.Handler.static_path
+ADDED: bokeh.models.sources.ColumnDataSource.stream
+ADDED: bokeh.charts.stats.BinnedStat
+ADDED: bokeh.charts.stats.Histogram
+ADDED: bokeh.server.session.ServerSession.milliseconds_since_last_unsubscribe
+ADDED: bokeh.models.formatters.FuncTickFormatter
+ADDED: bokeh.charts.glyphs.ArcGlyph
+ADDED: bokeh.charts.attributes.AttrSpec.series
+ADDED: bokeh.charts.models.CompositeGlyph.df
+ADDED: bokeh.charts.models.CompositeGlyph.data
+ADDED: bokeh.charts.models.CompositeGlyph.__init__
+ADDED: bokeh.models.annotations.LabelSet
+ADDED: bokeh.models.annotations.Title
+ADDED: bokeh.models.annotations.TextAnnotation
+ADDED: bokeh.models.annotations.Arrow
+ADDED: bokeh.models.annotations.Label
+ADDED: bokeh.charts.utils.color_in_equal_space
+ADDED: bokeh.charts.utils.comp_glyphs_to_df
+ADDED: bokeh.models.mappers.LogColorMapper
+ADDED: bokeh.models.widgets.markups.Div
+ADDED: bokeh.models.glyphs.Ellipse
+ADDED: bokeh.models.tools.Tap
+ADDED: bokeh.models.tools.ToolbarBox
+ADDED: bokeh.models.tools.Scroll
+ADDED: bokeh.models.tools.UndoTool
+ADDED: bokeh.models.tools.Drag
+ADDED: bokeh.models.tools.RedoTool
+ADDED: bokeh.models.tools.Action
+ADDED: bokeh.models.tools.ToolbarBase
+ADDED: bokeh.models.tools.Inspection
+ADDED: bokeh.models.tools.SaveTool
+ADDED: bokeh.models.tools.Toolbar
+ADDED: bokeh.charts.chart.Chart.ygrid
+ADDED: bokeh.charts.chart.Chart.xgrid
+ADDED: bokeh.charts.chart.Chart.legend
+ADDED: bokeh.charts.builder.Builder.sort_legend
+ADDED: bokeh.charts.data_source.ChartDataSource.join_attrs
+ADDED: bokeh.charts.data_source.ChartDataSource.attr_specs
+CHANGED: bokeh.charts.builders.donut_builder.Donut
+	old_signature: (data, label=index, values=None, color=None, agg=None, hover_tool=True, hover_text=None, height=400, width=400, xgrid=False, ygrid=False)
+	new_signature: (data, label=index, values=None, color=None, agg=None, hover_tool=True, hover_text=None, plot_height=400, plot_width=400, xgrid=False, ygrid=False)
+	tags: kwargs_removed, kwargs_added
+CHANGED: bokeh.server.tornado.BokehTornado.__init__
+	old_signature: (self, applications, prefix, hosts, extra_websocket_origins, io_loop=None, extra_patterns=None, secret_key=type: Call, sign_sessions=type: Call, generate_session_ids=True, keep_alive_milliseconds=37000, check_unused_sessions_milliseconds=17000, unused_session_lifetime_milliseconds=type: BinOp, stats_log_frequency_milliseconds=15000, develop=False)
+	new_signature: (self, applications, prefix, hosts, extra_websocket_origins, io_loop=None, extra_patterns=None, secret_key=type: Call, sign_sessions=type: Call, generate_session_ids=True, keep_alive_milliseconds=37000, check_unused_sessions_milliseconds=17000, unused_session_lifetime_milliseconds=15000, stats_log_frequency_milliseconds=15000, develop=False, use_index=True, redirect_root=True)
+	tags: kwargs_changed, kwargs_added
+CHANGED: bokeh.charts.stats.bins
+	old_signature: (data, values=None, column=None, bin_count=None, labels=None)
+	new_signature: (data, values=None, column=None, bins=None, labels=None)
+	tags: kwargs_removed, kwargs_added
+CHANGED: bokeh.charts.glyphs.HistogramGlyph.__init__
+	old_signature: (self, values, label=None, color=None, bin_count=None)
+	new_signature: (self, values, label=None, color=None, bins=None)
+	tags: kwargs_removed, kwargs_added
+CHANGED: bokeh.server.application_context.ApplicationContext.cleanup_sessions
+	old_signature: (self, unused_session_linger_seconds)
+	new_signature: (self, unused_session_linger_milliseconds)
+	tags: args_removed, args_added
+CHANGED: bokeh.charts.operations.stack
+	old_signature: (renderers=None, columns=None)
+	new_signature: ()
+	tags: kwargs_removed
+CHANGED: bokeh.core.state.State.autoadd
+	old_signature: (self)
+	new_signature: (self, val)
+	tags: args_added
+CHANGED: bokeh.document.ModelChangedEvent.__init__
+	old_signature: (self, document, model, attr, old, new, serializable_new)
+	new_signature: (self, document, model, attr, old, new, serializable_new, hint=None)
+	tags: kwargs_added
+CHANGED: bokeh.core.json_encoder.serialize_json
+	old_signature: (obj, encoder=BokehJSONEncoder)
+	new_signature: (obj, encoder=BokehJSONEncoder, indent=None)
+	tags: kwargs_added
+CHANGED: bokeh.client.session.ClientSession.show
+	old_signature: (self, browser=None, new=tab)
+	new_signature: (self, obj=None, browser=None, new=tab)
+	tags: kwargs_added
+CHANGED: bokeh.embed.server_html_page_for_session
+	old_signature: (session_id, resources, title, websocket_url)
+	new_signature: (session_id, resources, title, websocket_url, template=FILE)
+	tags: kwargs_added
+CHANGED: bokeh.embed.server_html_page_for_models
+	old_signature: (session_id, model_ids, resources, title, websocket_url)
+	new_signature: (session_id, model_ids, resources, title, websocket_url, template=FILE)
+	tags: kwargs_added
+CHANGED: bokeh.util.callback_manager.CallbackManager.trigger
+	old_signature: (self, attr, old, new)
+	new_signature: (self, attr, old, new, hint=None)
+	tags: kwargs_added
+CHANGED: bokeh.command.util.build_single_handler_application
+	old_signature: (path)
+	new_signature: (path, argv=None)
+	tags: kwargs_added
+CHANGED: bokeh.command.util.build_single_handler_applications
+	old_signature: (paths)
+	new_signature: (paths, argvs=None)
+	tags: kwargs_added
+CHANGED: bokeh.charts.chart.Chart.create_tools
+	old_signature: (self, tools)
+	new_signature: (self, tools, active_drag, active_scroll, active_tap)
+	tags: args_added
+CHANGED: bokeh.charts.data_source.ChartDataSource.__init__
+	old_signature: (self, df, dims=None, required_dims=None, selections=None, column_assigner=OrderedAssigner)
+	new_signature: (self, df, dims=None, required_dims=None, selections=None, column_assigner=OrderedAssigner, attrs=None)
+	tags: kwargs_added
+CHANGED: bokeh.model.Model.trigger
+	old_signature: (self, attr, old, new)
+	new_signature: (self, attr, old, new, hint=None)
+	tags: kwargs_added

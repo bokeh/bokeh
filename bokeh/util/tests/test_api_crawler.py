@@ -99,7 +99,7 @@ old_version = {
                     "thom": ["self", "guitar"],
                     "jonny": ["self"],
                     "colin": ["self", {"bass": [1, 2, 3]}],
-                    "ed": ["self"],
+                    "ed": [{"guitar": True}],
                     "phil": ["self", "song", {"drums": [1, 2, 3]}, {"solo": False}]
                 }
             },
@@ -118,7 +118,7 @@ new_version = {
                 "methods": {
                     "thom": ["self"],
                     "colin": ["self", {"keyboard": True}],
-                    "ed": ["self"],
+                    "ed": [{"guitar": True}],
                     "phil": ["self"]},
             },
             "Pixies": {"methods": {"debaser": []}}

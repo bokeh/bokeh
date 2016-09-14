@@ -274,7 +274,6 @@ class Differ(object):
 
     def pretty_function_changes(self, title, old_func, new_func):
         tags = []
-        # Replace this with a simple parsing of title, grabbing the last item after a split with periods.
         intersection = old_func[:]
         for x in new_func:
             if x not in intersection:
@@ -294,7 +293,9 @@ class Differ(object):
             elif isinstance(x, dict):
                 current_key = list(x.keys())[0]
                 if current_key in old_kwarg_keys and current_key in new_kwarg_keys:
-                    if "kwargs_changed" not in tags:
+                    old_kwarg = next(x for x in old_func if isinstance(x, dict) and list(x.keys())[0] == current_key)
+                    new_kwarg = next(x for x in new_func if isinstance(x, dict) and list(x.keys())[0] == current_key)
+                    if old_kwarg != new_kwarg and "kwargs_changed" not in tags:
                         tags.append("kwargs_changed")
                 elif x not in old_func and x in new_func:
                     if "kwargs_added" not in tags:
@@ -307,7 +308,7 @@ class Differ(object):
         else:
             tags = "\n\ttags: None"
 
-        signature_string = "%s%s%s%s"% (
+        signature_string = "%s%s%s%s" % (
             title,
             old,
             new,
