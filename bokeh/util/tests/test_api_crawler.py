@@ -254,7 +254,12 @@ class TestDiffer(object):
             ['self', {'bass': [1, 2, 3]}],
             ['self', {'keyboard': True}],
         )
-        expected_parsed_diff = "CHANGED: bands.Radiohead.colin\n\told_signature: (self, bass=[1, 2, 3])\n\tnew_signature: (self, keyboard=True)\n\ttags: kwargs_removed, kwargs_added"
+        expected_parsed_diff = (
+            "CHANGED: bands.Radiohead.colin"
+            "\n\told_signature: (self, bass=[1, 2, 3])"
+            "\n\tnew_signature: (self, keyboard=True)"
+            "\n\ttags: kwargs_removed, kwargs_added"
+        )
         assert diff == expected_parsed_diff
 
     def test_operators(self):
