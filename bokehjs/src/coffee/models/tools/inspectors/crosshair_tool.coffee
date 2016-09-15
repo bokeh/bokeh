@@ -16,7 +16,7 @@ class CrosshairToolView extends InspectTool.View
     for dim in @model.dimensions
       span = @model.spans[dim]
       if not frame.contains(vx, vy)
-        span.unset('computed_location')
+        span.computed_location = null
       else
         if dim == "width"
           span.computed_location = vy
@@ -26,7 +26,7 @@ class CrosshairToolView extends InspectTool.View
   _move_exit: (e)->
     for dim in @model.dimensions
       span = @model.spans[dim]
-      span.unset('computed_location')
+      span.computed_location = null
 
 class CrosshairTool extends InspectTool.Model
   default_view: CrosshairToolView
