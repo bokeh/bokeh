@@ -81,7 +81,7 @@ class GlyphRendererView extends Renderer.View
 
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
-    @glyph.model.set({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
+    @glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
     @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)

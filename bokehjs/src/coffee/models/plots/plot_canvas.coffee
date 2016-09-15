@@ -370,7 +370,7 @@ class PlotCanvasView extends Renderer.View
     for [rng, range_info] in range_info_iter
       rng.have_updated_interactively = true
       if rng.start != range_info['start'] or rng.end != range_info['end']
-          rng.set(range_info)
+          rng.setv(range_info)
           rng.callback?.execute(rng)
 
   _get_weight_to_constrain_interval: (rng, range_info) ->

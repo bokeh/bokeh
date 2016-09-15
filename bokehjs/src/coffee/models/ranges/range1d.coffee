@@ -42,7 +42,7 @@ class Range1d extends Range.Model
   }
 
   reset: () ->
-    @set({start: @_initial_start, end: @_initial_end})
+    @setv({start: @_initial_start, end: @_initial_end})
     @_set_auto_bounds()
 
 module.exports =

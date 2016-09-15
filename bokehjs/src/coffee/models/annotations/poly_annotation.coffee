@@ -71,7 +71,7 @@ class PolyAnnotation extends Annotation.Model
   }
 
   update:({xs, ys}) ->
-    @set({xs: xs, ys: ys}, {silent: true})
+    @setv({xs: xs, ys: ys}, {silent: true})
     @trigger('data_update')
 
 module.exports =

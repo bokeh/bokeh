@@ -53,7 +53,7 @@ class DialogView extends Widget.View
     return @
 
   onHide: (event) =>
-    @model.set("visible", false, {silent: true})
+    @model.setv("visible", false, {silent: true})
 
   change_visibility: () =>
     @$modal.modal(if @model.visible then "show" else "hide")
