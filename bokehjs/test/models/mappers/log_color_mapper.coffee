@@ -75,3 +75,16 @@ describe "LogColorMapper module", ->
 
       vals = color_mapper._get_values([1, NaN, 100], palette)
       expect(vals).to.be.deep.equal(["red", "gray", "blue"])
+
+    it "Should map high/low values to high_color/low_color, if provided", ->
+      palette = ["red", "green", "blue"]
+      color_mapper = new LogColorMapper({
+          low: 1
+          high: 100
+          low_color: "pink"
+          high_color: "orange"
+          palette: palette
+        })
+
+      vals = color_mapper._get_values([0.5, 1, 10, 100, 101], palette)
+      expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
