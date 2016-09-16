@@ -1,10 +1,11 @@
 from __future__ import print_function
 import ast, os, sys
+import six
 
 __all__ = ["api_crawler", "differ"]
 
 
-if sys.version_info > (3, 0):
+if six.PY3:
     arg_name = "arg"
 else:
     arg_name = "id"

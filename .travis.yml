@@ -79,7 +79,7 @@ script:
     #
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then py.test -m quality ; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ./scripts/changes_report.sh ; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then python -m scripts/changes_report.py ; fi
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( cd sphinx; make all ) ; fi
     #
     # Run examples
