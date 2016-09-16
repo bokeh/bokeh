@@ -10,8 +10,6 @@ class ColorBarToolView extends SelectTool.View
 
   initialize: (options) ->
     super(options)
-    @_initial_mapper_low = @model.color_bar.color_mapper.low
-    @_initial_mapper_high = @model.color_bar.color_mapper.high
     @listenTo(@model, 'change:active', () ->
       @_toggle_active()
       @plot_view.request_render()
@@ -21,13 +19,10 @@ class ColorBarToolView extends SelectTool.View
     @model.color_bar.visible = @model.active
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
 
-    # if we want to undo the mapper changes when tool is deactivated:
-    if not @model.active
-      @model.color_bar.color_mapper.low = @_initial_mapper_low
-      @model.color_bar.color_mapper.high = @_initial_mapper_high
-
   _get_image_dims: () ->
-    color_bar_view = @plot_view.renderer_views[1038]
+    renderers = _.values(@plot_view.renderer_views)
+    color_bar_views = _.filter(renderers, (r) -> return r instanceof ColorBar.View)
+    color_bar_view = color_bar_views[0]
 
     panel_offset = color_bar_view._get_panel_offset() #need to flip y value
     frame_offset = color_bar_view._get_frame_offset()
@@ -88,7 +83,7 @@ class ColorBarToolView extends SelectTool.View
     dims = @_get_image_dims()
 
     @_curpoint = [
-      @plot_view.canvas.sx_to_vx(dims.x1)
+      @plot_view.canvas.sx_to_vx(dims.x1 - 3) # fudge factor, idk why necessary
       @plot_view.canvas.sy_to_vy(e.bokeh.sy)
     ]
 
@@ -105,28 +100,18 @@ class ColorBarToolView extends SelectTool.View
     if _.isNull(@_basepoint)
       return null
 
-    did_hit = @_validate_point(e)
-
-    dims = @_get_image_dims()
-
-    @_curpoint = [
-      @plot_view.canvas.sx_to_vx(dims.x1)
-      @plot_view.canvas.sy_to_vy(e.bokeh.sy)
-    ]
-
-    if not did_hit
-      @model.overlay.update({left: null, right: null, top: null, bottom: null})
-      return null
-
     image_dims = @model.color_bar._computed_image_dimensions()
-    mapper = @model.color_bar._tick_coordinate_mapper(image_dims.height)
+    palette_mapper = @model.color_bar._tick_coordinate_mapper(image_dims.height)
 
     offset_dims = @_get_image_dims()
-    start = mapper.map_from_target(@_curpoint[1] - offset_dims.y0)
-    end = mapper.map_from_target(@_basepoint[1] - offset_dims.y0)
+    start = palette_mapper.map_from_target(@_curpoint[1] - offset_dims.y0)
+    end = palette_mapper.map_from_target(@_basepoint[1] - offset_dims.y0)
 
-    @model.color_bar.color_mapper.low = start
-    @model.color_bar.color_mapper.high = end
+    @model.color_bar.band_start = start
+    @model.color_bar.band_end = end
+
+    @model.image_color_mapper.low = start
+    @model.image_color_mapper.high = end
 
     @plot_view.request_render()
 
@@ -167,6 +152,7 @@ class ColorBarTool extends SelectTool.Model
   @define {
       color_bar:                [ p.Instance, DEFAULT_COLOR_BAR   ]
       overlay:                  [ p.Instance, DEFAULT_BOX_OVERLAY ]
+      image_color_mapper:       [ p.Instance                      ]
     }
 
   initialize: (attrs, options) ->
