@@ -7,6 +7,7 @@ p = require "../../core/properties"
 bbox = require "../../core/util/bbox"
 Model = require "../../model"
 bokehgl = require "./webgl/main"
+{logger} = require "../../core/logging"
 
 class GlyphView extends Renderer.View
 
@@ -28,7 +29,7 @@ class GlyphView extends Renderer.View
 
   render: (ctx, indices, data) ->
 
-    if @mget("visible")
+    if @model.visible
       ctx.beginPath();
 
       if @glglyph?
@@ -131,32 +132,21 @@ class GlyphView extends Renderer.View
     else
       return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
-  get_reference_point: () ->
-    return undefined
-    #reference_point = @mget('reference_point')
-    #ret = if _.isNumber(reference_point)
-    #  @data[reference_point]
-    #else
-    #  reference_point
-    #return ret
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    return null
 
-  draw_legend: (ctx, x0, x1, y0, y1) -> null
-
-  _generic_line_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
+  _generic_line_legend: (ctx, x0, x1, y0, y1, index) ->
     ctx.save()
     ctx.beginPath()
     ctx.moveTo(x0, (y0 + y1) /2)
     ctx.lineTo(x1, (y0 + y1) /2)
     if @visuals.line.doit
-      @visuals.line.set_vectorize(ctx, reference_point)
+      @visuals.line.set_vectorize(ctx, index)
       ctx.stroke()
     ctx.restore()
 
-  _generic_area_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-    indices = [reference_point]
-
+  _generic_area_legend: (ctx, x0, x1, y0, y1, index) ->
+    indices = [index]
     w = Math.abs(x1-x0)
     dw = w*0.1
     h = Math.abs(y1-y0)
@@ -169,18 +159,21 @@ class GlyphView extends Renderer.View
     sy1 = y1 - dh
 
     if @visuals.fill.doit
-      @visuals.fill.set_vectorize(ctx, reference_point)
+      @visuals.fill.set_vectorize(ctx, index)
       ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
 
     if @visuals.line.doit
       ctx.beginPath()
       ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
-      @visuals.line.set_vectorize(ctx, reference_point)
+      @visuals.line.set_vectorize(ctx, index)
       ctx.stroke()
 
+
 class Glyph extends Model
+
   @define {
       visible: [ p.Bool, true ]
+      label:   [ p.StringSpec, null ]
     }
 
   @internal {

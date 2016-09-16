@@ -25,48 +25,44 @@ class FactorRange extends Range.Model
 
     # Bounds come in as factors, but are later converted to
     # coordinates, so store the factored version for later use
-    if @get('bounds')? and @get('bounds') != 'auto'
-      @set('_bounds_as_factors', @get('bounds'))
+    if @bounds? and @bounds != 'auto'
+      @_bounds_as_factors = @bounds
     else
-      @set('_bounds_as_factors', @get('factors'))
+      @_bounds_as_factors = @factors
 
     @_init()
 
-    @define_computed_property('min',
-        () -> @get('start')
-      , false)
-    @add_dependencies('min', this, ['factors', 'offset'])
-    @define_computed_property('max',
-        () -> @get('end')
-      , false)
-    @add_dependencies('max', this, ['factors', 'offset'])
-
     @listenTo(@, 'change:factors', @_update_factors)
     @listenTo(@, 'change:offset', @_init)
+
+  @getters {
+    min: () -> @start
+    max: () -> @end
+  }
 
   reset: () ->
     @_init()
 
   _update_factors: () ->
     # Factors have been changed, need to update the factored version of the bounds
-    @set('_bounds_as_factors', @get('factors'))
+    @_bounds_as_factors = @factors
     @_init()
 
   _init: () ->
-    factors = @get('factors')
+    factors = @factors
 
-    if @get('bounds')? and @get('bounds') != 'auto'
-      factors = @get('_bounds_as_factors')
-      @set('factors', factors)
+    if @bounds? and @bounds != 'auto'
+      factors = @_bounds_as_factors
+      @factors = factors
 
-    start = 0.5 + @get('offset')
+    start = 0.5 + @offset
     end = factors.length + start
 
-    @set('start', start)
-    @set('end', end)
+    @start = start
+    @end = end
 
-    if @get('bounds')?
-      @set('bounds', [start, end])
+    if @bounds?
+      @bounds = [start, end]
 
 module.exports =
   Model: FactorRange

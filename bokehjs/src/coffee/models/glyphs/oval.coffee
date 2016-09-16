@@ -51,25 +51,23 @@ class OvalView extends Glyph.View
       ctx.rotate(-@_angle[i])
       ctx.translate(-sx[i], -sy[i])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
-    indices = [reference_point]
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
 
-    scale = @sw[reference_point] / @sh[reference_point]
+    scale = @sw[index] / @sh[index]
     d = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.8
     sw = { }
     sh = { }
     if scale > 1
-      sw[reference_point] = d
-      sh[reference_point] = d/scale
+      sw[index] = d
+      sh[index] = d/scale
     else
-      sw[reference_point] = d*scale
-      sh[reference_point] = d
+      sw[index] = d*scale
+      sh[index] = d
 
     data = {sx, sy, sw, sh}
     @_render(ctx, indices, data)

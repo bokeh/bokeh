@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from math import pi
 
@@ -8,7 +8,7 @@ from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 from bokeh.models import Range1d, Plot, PanTool, WheelZoomTool, BoxZoomTool, UndoTool, RedoTool, ResetTool
-from bokeh.models.glyphs import Gear
+from gear import Gear
 
 def pitch_radius(module, teeth):
     return float(module*teeth)/2

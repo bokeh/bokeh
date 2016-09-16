@@ -15,7 +15,7 @@ Widget = require "./widget"
 class DataProvider
 
   constructor: (@source) ->
-    @data = @source.get('data')
+    @data = @source.data
     @fields = _.keys(@data)
 
     if not _.contains(@fields, "index")
@@ -53,7 +53,7 @@ class DataProvider
     @updateSource()
 
   updateSource: () ->
-    # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
+    # XXX: We should say `@source.data = @data`, but data was updated in-place,
     # so that would be a no-op. We have to trigger change events manually instead.
     @source.trigger("change:data", @, @source.attributes['data'])
 
@@ -96,17 +96,17 @@ class DataTableView extends Widget.View
     super(options)
     DOMUtil.waitForElement(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
-    source = @mget("source")
+    source = @model.source
     @listenTo(source, 'change:data', () => @updateGrid())
     @listenTo(source, 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
-    @data = new DataProvider(@mget("source"))
+    @data = new DataProvider(@model.source)
     @grid.setData(@data)
     @grid.render()
 
   updateSelection: () ->
-    selected = @mget("source").get("selected")
+    selected = @model.source.selected
     indices = selected['1d'].indices
     @grid.setSelectedRows(indices)
     # If the selection is not in the current slickgrid viewport, scroll the
@@ -117,7 +117,7 @@ class DataTableView extends Widget.View
     # console.log("DataTableView::updateSelection",
     #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @mget("scroll_to_selection") and not _.any(_.map(indices, (index) ->
+    if @model.scroll_to_selection and not _.any(_.map(indices, (index) ->
         cur_grid_range["top"] <= index and index <= cur_grid_range["bottom"]))
       # console.log("DataTableView::updateSelection", min_index, indices)
       min_index = Math.max(0, Math.min.apply(null, indices) - 1)
@@ -138,35 +138,35 @@ class DataTableView extends Widget.View
     }
 
   render: () ->
-    columns = (column.toColumn() for column in @mget("columns"))
+    columns = (column.toColumn() for column in @model.columns)
 
-    if @mget("selectable") == "checkbox"
+    if @model.selectable == "checkbox"
       checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
       columns.unshift(checkboxSelector.getColumnDefinition())
 
-    if @mget("row_headers") and @mget("source").get_column("index")?
+    if @model.row_headers and @model.source.get_column("index")?
       columns.unshift(@newIndexColumn())
 
-    width = @mget("width")
-    height = @mget("height")
+    width = @model.width
+    height = @model.height
 
     options =
-      enableCellNavigation: @mget("selectable") != false
+      enableCellNavigation: @model.selectable != false
       enableColumnReorder: true
-      forceFitColumns: @mget("fit_columns")
+      forceFitColumns: @model.fit_columns
       autoHeight: height == "auto"
-      multiColumnSort: @mget("sortable")
-      editable: @mget("editable")
+      multiColumnSort: @model.sortable
+      editable: @model.editable
       autoEdit: false
 
     if width?
-      @$el.css(width: "#{@mget("width")}px")
+      @$el.css(width: "#{@model.width}px")
     else
-      @$el.css(width: "#{@mget("default_width")}px")
+      @$el.css(width: "#{@model.default_width}px")
     if height? and height != "auto"
-      @$el.css(height: "#{@mget("height")}px")
+      @$el.css(height: "#{@model.height}px")
 
-    @data = new DataProvider(@mget("source"))
+    @data = new DataProvider(@model.source)
     @grid = new SlickGrid(@el, @data, columns, options)
 
     @grid.onSort.subscribe (event, args) =>
@@ -175,14 +175,14 @@ class DataTableView extends Widget.View
       @grid.invalidate()
       @grid.render()
 
-    if @mget("selectable") != false
+    if @model.selectable != false
       @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
       if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
 
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = args.rows
-        @mget("source").set("selected", selected)
+        @model.source.selected = selected
 
     return @
 

@@ -22,9 +22,9 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 def callback(source=source, window=None):
-    data = source.get('data')
-    A, B = amp.get('value'), offset.get('value')
-    k, phi = freq.get('value'), phase.get('value')
+    data = source.data
+    A, B = amp.value, offset.value
+    k, phi = freq.value, phase.value
     x, y = data['x'], data['y']
     for i in range(len(x)):
         y[i] = B + A * window.Math.sin(k * x[i] + phi)

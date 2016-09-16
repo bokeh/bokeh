@@ -76,19 +76,19 @@ class PlotCanvasView extends Renderer.View
       range: null                     # set later by set_initial_range()
       selection: {}                   # XXX: initial selection?
       dimensions: {
-        width: @mget("canvas").get("width")
-        height: @mget("canvas").get("height")
+        width: @model.canvas.width
+        height: @model.canvas.height
       }
     }
 
     # compat, to be removed
-    @frame = @mget('frame')
-    @x_range = @frame.get('x_ranges')['default']
-    @y_range = @frame.get('y_ranges')['default']
-    @xmapper = @frame.get('x_mappers')['default']
-    @ymapper = @frame.get('y_mappers')['default']
+    @frame = @model.frame
+    @x_range = @frame.x_ranges['default']
+    @y_range = @frame.y_ranges['default']
+    @xmapper = @frame.x_mappers['default']
+    @ymapper = @frame.y_mappers['default']
 
-    @canvas = @mget('canvas')
+    @canvas = @model.canvas
     @canvas_view = new @canvas.default_view({'model': @canvas})
     @$el.append(@canvas_view.el)
     @canvas_view.render(true)
@@ -106,7 +106,7 @@ class PlotCanvasView extends Renderer.View
     @model.document._unrendered_plots[@id] = true
 
     @ui_event_bus = new UIEvents({
-      toolbar: @mget('toolbar')
+      toolbar: @model.toolbar
       hit_area: @canvas_view.$el
     })
 
@@ -198,26 +198,26 @@ class PlotCanvasView extends Renderer.View
     follow_enabled = false
     has_bounds = false
 
-    for xr in _.values(frame.get('x_ranges'))
+    for xr in _.values(frame.x_ranges)
       if xr instanceof DataRange1d.Model
         xr.update(bounds, 0, @model.id)
-        if xr.get('follow')
+        if xr.follow
           follow_enabled = true
-      has_bounds = true if xr.get('bounds')?
+      has_bounds = true if xr.bounds?
 
-    for yr in _.values(frame.get('y_ranges'))
+    for yr in _.values(frame.y_ranges)
       if yr instanceof DataRange1d.Model
         yr.update(bounds, 1, @model.id)
-        if yr.get('follow')
+        if yr.follow
           follow_enabled = true
-      has_bounds = true if yr.get('bounds')?
+      has_bounds = true if yr.bounds?
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.get('x_ranges'))
-        xr.set('bounds', null)
-      for yr in _.values(frame.get('y_ranges'))
-        yr.set('bounds', null)
+      for xr in _.values(frame.x_ranges)
+        xr.bounds = null
+      for yr in _.values(frame.y_ranges)
+        yr.bounds = null
 
     @range_update_timestamp = Date.now()
 
@@ -283,7 +283,7 @@ class PlotCanvasView extends Renderer.View
     selection = []
     for renderer in @model.plot.renderers
       if renderer instanceof GlyphRenderer.Model
-        selected = renderer.get('data_source').get("selected")
+        selected = renderer.data_source.selected
         selection[renderer.id] = selected
     selection
 
@@ -291,12 +291,12 @@ class PlotCanvasView extends Renderer.View
     for renderer in @model.plot.renderers
       if renderer not instanceof GlyphRenderer.Model
         continue
-      ds = renderer.get('data_source')
+      ds = renderer.data_source
       if selection?
         if renderer.id in selection
-          ds.set("selected", selection[renderer.id])
+          ds.selected = selection[renderer.id]
       else
-        ds.get('selection_manager').clear()
+        ds.selection_manager.clear()
 
   reset_selection: () ->
     @update_selection(null)
@@ -309,28 +309,28 @@ class PlotCanvasView extends Renderer.View
     # Apply shared weight to all ranges
     if weight < 1
       for [rng, range_info] in range_info_iter
-        range_info['start'] = weight * range_info['start'] + (1-weight) * rng.get('start')
-        range_info['end'] = weight * range_info['end'] + (1-weight) * rng.get('end')
+        range_info['start'] = weight * range_info['start'] + (1-weight) * rng.start
+        range_info['end'] = weight * range_info['end'] + (1-weight) * rng.end
 
   _update_ranges_individually: (range_info_iter, is_panning, is_scrolling) ->
     hit_bound = false
     for [rng, range_info] in range_info_iter
       # Is this a reversed range?
-      reversed = (rng.get('start') > rng.get('end'))
+      reversed = (rng.start > rng.end)
 
       # Limit range interval first. Note that for scroll events,
       # the interval has already been limited for all ranges simultaneously
       if not is_scrolling
         weight = @_get_weight_to_constrain_interval(rng, range_info)
         if weight < 1
-            range_info['start'] = weight * range_info['start'] + (1-weight) * rng.get('start')
-            range_info['end'] = weight * range_info['end'] + (1-weight) * rng.get('end')
+            range_info['start'] = weight * range_info['start'] + (1-weight) * rng.start
+            range_info['end'] = weight * range_info['end'] + (1-weight) * rng.end
 
       # Prevent range from going outside limits
       # Also ensure that range keeps the same delta when panning/scrolling
-      if rng.get('bounds')?
-        min = rng.get('bounds')[0]
-        max = rng.get('bounds')[1]
+      if rng.bounds?
+        min = rng.bounds[0]
+        max = rng.bounds[1]
         new_interval = Math.abs(range_info['end'] - range_info['start'])
 
         if reversed
@@ -369,28 +369,28 @@ class PlotCanvasView extends Renderer.View
 
     for [rng, range_info] in range_info_iter
       rng.have_updated_interactively = true
-      if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
-          rng.set(range_info)
-          rng.get('callback')?.execute(rng)
+      if rng.start != range_info['start'] or rng.end != range_info['end']
+          rng.setv(range_info)
+          rng.callback?.execute(rng)
 
   _get_weight_to_constrain_interval: (rng, range_info) ->
       # Get the weight by which a range-update can be applied
       # to still honor the interval limits (including the implicit
       # max interval imposed by the bounds)
-      min_interval = rng.get('min_interval')
-      max_interval = rng.get('max_interval')
+      min_interval = rng.min_interval
+      max_interval = rng.max_interval
       weight = 1.0
 
       # Express bounds as a max_interval. By doing this, the application of
       # bounds and interval limits can be applied independent from each-other.
-      if rng.get('bounds')?
-        [min, max] = rng.get('bounds')
+      if rng.bounds?
+        [min, max] = rng.bounds
         if min? and max?
           max_interval2 = Math.abs(max - min)
           max_interval = if max_interval? then Math.min(max_interval, max_interval2) else max_interval2
 
       if min_interval? || max_interval?
-        old_interval = Math.abs(rng.get('end') - rng.get('start'))
+        old_interval = Math.abs(rng.end - rng.start)
         new_interval = Math.abs(range_info['end'] - range_info['start'])
         if min_interval > 0 and new_interval < min_interval
             weight = (old_interval - min_interval) / (old_interval - new_interval)
@@ -402,18 +402,18 @@ class PlotCanvasView extends Renderer.View
   update_range: (range_info, is_panning, is_scrolling) ->
     @pause
     if not range_info?
-      for name, rng of @frame.get('x_ranges')
+      for name, rng of @frame.x_ranges
         rng.reset()
-        rng.get('callback')?.execute(rng)
-      for name, rng of @frame.get('y_ranges')
+        rng.callback?.execute(rng)
+      for name, rng of @frame.y_ranges
         rng.reset()
-        rng.get('callback')?.execute(rng)
+        rng.callback?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []
-      for name, rng of @frame.get('x_ranges')
+      for name, rng of @frame.x_ranges
         range_info_iter.push([rng, range_info.xrs[name]])
-      for name, rng of @frame.get('y_ranges')
+      for name, rng of @frame.y_ranges
         range_info_iter.push([rng, range_info.yrs[name]])
       if is_scrolling
         @_update_ranges_together(range_info_iter)  # apply interval bounds while keeping aspect
@@ -426,7 +426,7 @@ class PlotCanvasView extends Renderer.View
   build_levels: () ->
     renderer_models = @model.plot.renderers
     for tool_model in @model.plot.toolbar.tools
-      synthetic = tool_model.get("synthetic_renderers")
+      synthetic = tool_model.synthetic_renderers
       renderer_models = renderer_models.concat(synthetic)
 
     # should only bind events on NEW views and tools
@@ -440,12 +440,12 @@ class PlotCanvasView extends Renderer.View
     tool_views = build_views(@tool_views, @model.plot.toolbar.tools, @view_options())
 
     for v in views
-      level = v.mget('level')
+      level = v.model.level
       @levels[level][v.model.id] = v
       v.bind_bokeh_events()
 
     for tool_view in tool_views
-      level = tool_view.mget('level')
+      level = tool_view.model.level
       @levels[level][tool_view.model.id] = tool_view
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
@@ -453,9 +453,9 @@ class PlotCanvasView extends Renderer.View
     return this
 
   bind_bokeh_events: () ->
-    for name, rng of @model.frame.get('x_ranges')
+    for name, rng of @model.frame.x_ranges
       @listenTo(rng, 'change', @request_render)
-    for name, rng of @model.frame.get('y_ranges')
+    for name, rng of @model.frame.y_ranges
       @listenTo(rng, 'change', @request_render)
     @listenTo(@model.plot, 'change:renderers', @build_levels)
     @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
@@ -469,20 +469,20 @@ class PlotCanvasView extends Renderer.View
     # check for good values for ranges before setting initial range
     good_vals = true
     xrs = {}
-    for name, rng of @frame.get('x_ranges')
-      if (not rng.get('start')? or not rng.get('end')? or
-          _.isNaN(rng.get('start') + rng.get('end')))
+    for name, rng of @frame.x_ranges
+      if (not rng.start? or not rng.end? or
+          _.isNaN(rng.start + rng.end))
         good_vals = false
         break
-      xrs[name] = { start: rng.get('start'), end: rng.get('end') }
+      xrs[name] = { start: rng.start, end: rng.end }
     if good_vals
       yrs = {}
-      for name, rng of @frame.get('y_ranges')
-        if (not rng.get('start')? or not rng.get('end')? or
-            _.isNaN(rng.get('start') + rng.get('end')))
+      for name, rng of @frame.y_ranges
+        if (not rng.start? or not rng.end? or
+            _.isNaN(rng.start + rng.end))
           good_vals = false
           break
-        yrs[name] = { start: rng.get('start'), end: rng.get('end') }
+        yrs[name] = { start: rng.start, end: rng.end }
     if good_vals
       @_initial_state_info.range = @initial_range_info = {
         xrs: xrs
@@ -519,7 +519,7 @@ class PlotCanvasView extends Renderer.View
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
-    @model.get('frame')._update_mappers()
+    @model.frame._update_mappers()
 
     ctx = @canvas_view.ctx
     ctx.pixel_ratio = ratio = @canvas_view.pixel_ratio  # Also store on cts for WebGL
@@ -530,10 +530,10 @@ class PlotCanvasView extends Renderer.View
     ctx.translate(0.5, 0.5)
 
     frame_box = [
-      @canvas.vx_to_sx(@frame.get('left')),
-      @canvas.vy_to_sy(@frame.get('top')),
-      @frame.get('width'),
-      @frame.get('height'),
+      @canvas.vx_to_sx(@frame.left),
+      @canvas.vy_to_sy(@frame.top),
+      @frame.width,
+      @frame.height,
     ]
 
     @_map_hook(ctx, frame_box)
@@ -598,8 +598,8 @@ class PlotCanvasView extends Renderer.View
     s = @model.document.solver()
 
     # Note: -1 to effectively dilate the canvas by 1px
-    s.suggest_value(@frame._width, @canvas.get('width') - 1)
-    s.suggest_value(@frame._height, @canvas.get('height') - 1)
+    s.suggest_value(@frame._width, @canvas.width - 1)
+    s.suggest_value(@frame._height, @canvas.height - 1)
 
     for model_id, view of @renderer_views
       if view.model.panel?
@@ -633,10 +633,10 @@ class PlotCanvasView extends Renderer.View
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.clearRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+    ctx.clearRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
     if @visuals.border_fill.doit
       @visuals.border_fill.set_value(ctx)
-      ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+      ctx.fillRect(0, 0,  @canvas_view.model.width, @canvas_view.model.height)
       ctx.clearRect(frame_box...)
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)
@@ -711,15 +711,19 @@ class PlotCanvas extends LayoutDOM.Model
     children = [
       @above_panel, @below_panel,
       @left_panel, @right_panel,
-      @canvas, @frame
+      @canvas, @frame,
     ]
 
-    # Return all the panels for any side renderers
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @plot.get(side)
+    collect_panels = (layout_renderers) ->
       for r in layout_renderers
         if r.panel?
           children.push(r.panel)
+
+    collect_panels(@plot.above)
+    collect_panels(@plot.below)
+    collect_panels(@plot.left)
+    collect_panels(@plot.right)
+
     return children
 
   get_edit_variables: () ->
@@ -777,30 +781,27 @@ class PlotCanvas extends LayoutDOM.Model
 
   _get_side_constraints: () ->
     constraints = []
-    for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @plot.get(side)
+    sides = [['above', @plot.above], ['below', @plot.below],
+             ['left', @plot.left], ['right', @plot.right]]
+    for [side, layout_renderers] in sides
       last = @frame
       for r in layout_renderers
         # Stack together the renderers
-        if side == "above"
-          constraints.push(EQ(last.panel._top, [-1, r.panel._bottom]))
-        if side == "below"
-          constraints.push(EQ(last.panel._bottom, [-1, r.panel._top]))
-        if side == "left"
-          constraints.push(EQ(last.panel._left, [-1, r.panel._right]))
-        if side == "right"
-          constraints.push(EQ(last.panel._right, [-1, r.panel._left]))
+        constraint = switch side
+          when "above" then EQ(last.panel._top, [-1, r.panel._bottom])
+          when "below" then EQ(last.panel._bottom, [-1, r.panel._top])
+          when "left"  then EQ(last.panel._left, [-1, r.panel._right])
+          when "right" then EQ(last.panel._right, [-1, r.panel._left])
+        constraints.push(constraint)
         last = r
       if layout_renderers.length != 0
         # Set panel extent to match the side renderers (e.g. axes)
-        if side == "above"
-          constraints.push(EQ(last.panel._top, [-1, @above_panel._top]))
-        if side == "below"
-          constraints.push(EQ(last.panel._bottom, [-1, @below_panel._bottom]))
-        if side == "left"
-          constraints.push(EQ(last.panel._left, [-1, @left_panel._left]))
-        if side == "right"
-          constraints.push(EQ(last.panel._right, [-1, @right_panel._right]))
+        constraint = switch side
+          when "above" then EQ(last.panel._top, [-1, @above_panel._top])
+          when "below" then EQ(last.panel._bottom, [-1, @below_panel._bottom])
+          when "left"  then EQ(last.panel._left, [-1, @left_panel._left])
+          when "right" then EQ(last.panel._right, [-1, @right_panel._right])
+        constraints.push(constraint)
     return constraints
 
   # TODO: This is less than awesome - this is here purely for tests to pass. Need to

@@ -9,8 +9,8 @@ class LabelSetView extends TextAnnotation.View
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.get('x_mappers')[@model.x_range_name]
-    @ymapper = @plot_view.frame.get('y_mappers')[@model.y_range_name]
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
     @set_data()
 

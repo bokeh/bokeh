@@ -1,5 +1,7 @@
 - path: "models"
   skip: ["choropleth.py", "maps_cities.py", "data_tables_server.py"]
+- path: "custom/gears"
+  skip: ["gear.py"]
 - path: "compat"
 - path: "charts/file"
   type: file

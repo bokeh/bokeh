@@ -82,6 +82,9 @@ class HBarView extends Glyph.View
 
   scx: (i) -> return (@sleft[i] + @sright[i])/2
 
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
+
 class HBar extends Glyph.Model
   default_view: HBarView
   type: 'HBar'

@@ -1,4 +1,5 @@
 _ = require "underscore"
+p = require "../../core/properties"
 
 ColorMapper = require "./color_mapper"
 
@@ -6,9 +7,14 @@ ColorMapper = require "./color_mapper"
 class LinearColorMapper extends ColorMapper.Model
   type: "LinearColorMapper"
 
+  @define {
+      high:          [ p.Number           ]
+      low:           [ p.Number           ]
+    }
+
   _get_values: (data, palette) ->
-    min = @get('low') ? _.min(data)
-    max = @get('high') ? _.max(data)
+    min = @low ? _.min(data)
+    max = @high ? _.max(data)
     max_key = palette.length - 1
     values = []
 

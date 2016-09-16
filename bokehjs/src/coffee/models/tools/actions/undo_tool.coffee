@@ -4,7 +4,7 @@ class UndoToolView extends ActionTool.View
 
   initialize: (options) ->
     super(options)
-    @listenTo(@plot_view, "state_changed", () => @model.set('disabled', not @plot_view.can_undo()))
+    @listenTo(@plot_view, "state_changed", () => @model.disabled = not @plot_view.can_undo())
 
   do: () ->
     @plot_view.undo()

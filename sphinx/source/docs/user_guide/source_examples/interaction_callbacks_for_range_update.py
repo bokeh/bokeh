@@ -18,9 +18,9 @@ colors = [
 source = ColumnDataSource({'x': [], 'y': [], 'width': [], 'height': []})
 
 jscode="""
-    var data = source.get('data');
-    var start = cb_obj.get('start');
-    var end = cb_obj.get('end');
+    var data = source.data;
+    var start = cb_obj.start;
+    var end = cb_obj.end;
     data['%s'] = [start + (end - start) / 2];
     data['%s'] = [end - start];
     source.trigger('change');

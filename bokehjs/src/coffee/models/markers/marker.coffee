@@ -6,20 +6,18 @@ p = require "../../core/properties"
 
 class MarkerView extends Glyph.View
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     # using objects like this seems a little wonky, since the keys are coerced to
     # stings, but it works
-    indices = [reference_point]
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
     size = { }
-    size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+    size[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
     angle = { }
-    angle[reference_point] = 0
+    angle[index] = 0
 
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
@@ -50,14 +48,14 @@ class MarkerView extends Glyph.View
   _mask_data: (all_indices) ->
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
-    hr = @renderer.plot_view.frame.get('h_range')
-    vx0 = hr.get('start') - @max_size
-    vx1 = hr.get('end') + @max_size
+    hr = @renderer.plot_view.frame.h_range
+    vx0 = hr.start - @max_size
+    vx1 = hr.end + @max_size
     [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
 
-    vr = @renderer.plot_view.frame.get('v_range')
-    vy0 = vr.get('start') - @max_size
-    vy1 = vr.get('end') + @max_size
+    vr = @renderer.plot_view.frame.v_range
+    vy0 = vr.start - @max_size
+    vy1 = vr.end + @max_size
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])

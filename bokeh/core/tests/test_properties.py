@@ -15,6 +15,8 @@ from bokeh.core.properties import (
 from bokeh.models import Plot
 from bokeh.models.annotations import Title
 
+from IPython.lib.pretty import pretty
+
 class Basictest(unittest.TestCase):
 
     def test_simple_class(self):
@@ -1161,6 +1163,16 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(Bar()))
         self.assertFalse(prop.is_valid(Baz()))
 
+    def test_Instance_from_json(self):
+        class MapOptions(HasProps):
+            lat = Float
+            lng = Float
+            zoom = Int(12)
+
+        v1 = Instance(MapOptions).from_json(dict(lat=1, lng=2))
+        v2 = MapOptions(lat=1, lng=2)
+        self.assertTrue(v1.equals(v2))
+
     def test_Interval(self):
         with self.assertRaises(TypeError):
             prop = Interval()
@@ -1469,6 +1481,31 @@ class TestProperties(unittest.TestCase):
         # Invalid values
         self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), 22)))
 
+def test_HasProps_equals():
+    class Foo(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    class FooUnrelated(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    v = Foo().equals(Foo())
+    assert v is True
+
+    v = Foo(x=1).equals(Foo(x=1))
+    assert v is True
+
+    v = Foo(x=1).equals(Foo(x=2))
+    assert v is False
+
+    v = Foo(x=1).equals(1)
+    assert v is False
+
+    v = Foo().equals(FooUnrelated())
+    assert v is False
 
 def test_HasProps_clone():
     p1 = Plot(plot_width=1000)
@@ -1477,6 +1514,57 @@ def test_HasProps_clone():
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
+def test_HasProps__repr_pretty_():
+    class Foo1(HasProps):
+        a = Int(12)
+        b = String("hello")
+
+    assert pretty(Foo1()) == "bokeh.core.tests.test_properties.Foo1(a=12, b='hello')"
+
+    class Foo2(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+
+    assert pretty(Foo2()) == "bokeh.core.tests.test_properties.Foo2(a=12, b='hello', c=[1, 2, 3])"
+
+    class Foo3(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+        d = Float(None)
+
+    assert pretty(Foo3()) == "bokeh.core.tests.test_properties.Foo3(a=12, b='hello', c=[1, 2, 3], d=None)"
+
+    class Foo4(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+        d = Float(None)
+        e = Instance(Foo1, lambda: Foo1())
+
+    assert pretty(Foo4()) == """\
+bokeh.core.tests.test_properties.Foo4(
+    a=12,
+    b='hello',
+    c=[1, 2, 3],
+    d=None,
+    e=bokeh.core.tests.test_properties.Foo1(a=12, b='hello'))"""
+
+    class Foo5(HasProps):
+        foo6 = Any            # can't use Instance(".core.tests.test_properties.Foo6")
+
+    class Foo6(HasProps):
+        foo5 = Instance(Foo5)
+
+    f5 = Foo5()
+    f6 = Foo6(foo5=f5)
+    f5.foo6 = f6
+
+    assert pretty(f5) == """\
+bokeh.core.tests.test_properties.Foo5(
+    foo6=bokeh.core.tests.test_properties.Foo6(
+        foo5=bokeh.core.tests.test_properties.Foo5(...)))"""
 
 def test_titleprop_transforms_string_into_title_object():
     class Foo(HasProps):

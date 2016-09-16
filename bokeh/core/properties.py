@@ -63,6 +63,7 @@ import numbers
 import re
 import types
 from warnings import warn
+from operator import itemgetter
 
 from six import string_types, iteritems
 
@@ -702,6 +703,18 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for name, value in properties.items():
             setattr(self, name, value)
 
+    def equals(self, other):
+        """ Structural equality of models. """
+        # NOTE: don't try to use this to implement __eq__. Because then
+        # you will be tempted to implement __hash__, which would interfere
+        # with mutability of models. However, not implementing __hash__
+        # will make bokeh unusable in Python 3, where proper implementation
+        # of __hash__ is required when implementing __eq__.
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.properties_with_values() == other.properties_with_values()
+
     def __setattr__(self, name, value):
         # self.properties() below can be expensive so avoid it
         # if we're just setting a private underscore field
@@ -909,6 +922,26 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         """ Prints the properties of this object, nicely formatted """
         for key, value in self.properties_with_values().items():
             print("%s%s: %r" % ("  "*indent, key, value))
+
+    def _repr_pretty_(self, p, cycle):
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+
+        if cycle:
+            p.text("%s(...)" % name)
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=itemgetter(0))
+                all_props = sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
 
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.
@@ -1231,7 +1264,7 @@ class Instance(PropertyDescriptor):
                 attrs = {}
 
                 for name, value in iteritems(json):
-                    prop = self.instance_type.lookup(name)
+                    prop = self.instance_type.lookup(name).descriptor
                     attrs[name] = prop.from_json(value, models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()

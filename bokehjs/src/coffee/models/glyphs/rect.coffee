@@ -19,11 +19,11 @@ class RectView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
     else
       @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
     else
       @sh = @_height
 
@@ -130,8 +130,8 @@ class RectView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)

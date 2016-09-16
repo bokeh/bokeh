@@ -5,7 +5,7 @@ p = require "../../../core/properties"
 
 class HelpToolView extends ActionTool.View
   do: () ->
-    window.open(@mget('redirect'))
+    window.open(@model.redirect)
 
 class HelpTool extends ActionTool.Model
   default_view: HelpToolView
@@ -14,19 +14,19 @@ class HelpTool extends ActionTool.Model
   icon: "bk-tool-icon-help"
 
   @define {
-      help_tooltip: [
-        p.String,
-        'Click the question mark to learn more about Bokeh plot tools.'
-      ]
-      redirect:     [
-        p.String
-        'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
-      ]
-    }
+    help_tooltip: [
+      p.String,
+      'Click the question mark to learn more about Bokeh plot tools.'
+    ]
+    redirect:     [
+      p.String
+      'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
+    ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @override_computed_property('tooltip', () ->@get('help_tooltip'))
+  @getters {
+    tooltip: () -> @help_tooltip
+  }
 
 module.exports =
   Model: HelpTool,
