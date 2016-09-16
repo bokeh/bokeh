@@ -22,12 +22,12 @@ class ColorBarToolView extends SelectTool.View
     @model.overlay.update({left: null, right: null, top: null, bottom: null})
 
     # if we want to undo the mapper changes when tool is deactivated:
-    # if not @model.active
-    #   @model.color_bar.color_mapper.low = @_initial_mapper_low
-    #   @model.color_bar.color_mapper.high = @_initial_mapper_high
+    if not @model.active
+      @model.color_bar.color_mapper.low = @_initial_mapper_low
+      @model.color_bar.color_mapper.high = @_initial_mapper_high
 
   _get_image_dims: () ->
-    color_bar_view = @plot_view.renderer_views[1039]
+    color_bar_view = @plot_view.renderer_views[1038]
 
     panel_offset = color_bar_view._get_panel_offset() #need to flip y value
     frame_offset = color_bar_view._get_frame_offset()
