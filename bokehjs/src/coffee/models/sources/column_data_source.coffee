@@ -48,7 +48,7 @@ class ColumnDataSource extends DataSource.Model
       data[k] = data[k].concat(new_data[k])
       if data[k].length > rollover
         data[k] = data[k].slice(-rollover)
-    @set('data', data, {silent: true})
+    @setv('data', data, {silent: true})
     @trigger('stream')
 
   patch: (patches) ->
@@ -57,7 +57,7 @@ class ColumnDataSource extends DataSource.Model
       for i in [0...patch.length]
         [ind, value] = patch[i]
         data[k][ind] = value
-    @set('data', data, {silent: true})
+    @setv('data', data, {silent: true})
     @trigger('patch')
 
 module.exports =

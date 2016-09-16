@@ -124,7 +124,7 @@ class Plot extends LayoutDOM.Model
   _doc_attached: () ->
     # Setup side renderers
     for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
+      layout_renderers = @getv(side)
       for r in layout_renderers
         @plot_canvas.add_renderer_to_canvas_side(r, side)
     @plot_canvas.attach_document(@document)
@@ -147,7 +147,7 @@ class Plot extends LayoutDOM.Model
       renderer.plot = this
     @add_renderers(renderer)
     if side != 'center'
-      side_renderers = @get(side)
+      side_renderers = @getv(side)
       side_renderers.push(renderer)
 
   add_glyph: (glyph, source, attrs={}) ->

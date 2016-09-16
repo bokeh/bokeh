@@ -49,8 +49,8 @@ class Selector extends HasProps
       return false
 
   _update: (indices, append, final, silent=false) ->
-    @set('timestamp', new Date(), {silent: silent})
-    @set('final', final, {silent: silent})
+    @setv('timestamp', new Date(), {silent: silent})
+    @setv('final', final, {silent: silent})
     if append
       new_indices = hittest.create_hit_test_result()
       new_indices['0d'].indices =  _.union(@indices['0d'].indices, indices['0d'].indices)
@@ -64,7 +64,7 @@ class Selector extends HasProps
           new_indices['2d'][k] = v
     else
       new_indices = indices
-    @set('indices', new_indices, {silent: silent})
+    @setv('indices', new_indices, {silent: silent})
     return new_indices
 
   clear: () ->

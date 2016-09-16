@@ -109,10 +109,10 @@ describe "properties module", ->
       it "should throw an Error", ->
         prop = new properties.Property({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
         fn = ->
-          prop.set('obj', new SomeHasProps(a: {value: 20}))
+          prop.setv('obj', new SomeHasProps(a: {value: 20}))
         expect(fn).to.throw Error, "attempted to reset 'obj' on Property"
         fn = ->
-          prop.set('attr', 'b')
+          prop.setv('attr', 'b')
         expect(fn).to.throw Error, "attempted to reset 'attr' on Property"
 
 

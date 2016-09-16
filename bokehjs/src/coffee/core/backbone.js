@@ -265,10 +265,6 @@ var triggerEvents = function(events, args) {
   }
 };
 
-// Aliases for backwards compatibility.
-Events.bind   = Events.on;
-Events.unbind = Events.off;
-
 // Backbone.Model
 // --------------
 
@@ -282,11 +278,19 @@ var Model = function(attributes, options) {
   var attrs = attributes || {};
   options || (options = {});
   this.attributes = {};
-  var defaults = _.result(this, 'defaults');
-  attrs = _.defaults(_.extend({}, defaults, attrs), defaults);
-  this.set(attrs, options);
+  this.setv(attrs, options);
   this.changed = {};
   this.initialize.apply(this, arguments);
+};
+
+Model.getter = function(name, get) {
+  Object.defineProperty(this.prototype, name, { get: get });
+};
+
+Model.getters = function(specs) {
+  for (var name in specs) {
+    this.getter(name, specs[name]);
+  }
 };
 
 // Attach all inheritable methods to the Model prototype.
@@ -300,20 +304,14 @@ _.extend(Model.prototype, Events, {
   initialize: function(){},
 
   // Get the value of an attribute.
-  get: function(attr) {
+  getv: function(attr) {
     return this.attributes[attr];
-  },
-
-  // Returns `true` if the attribute contains a value that is not null
-  // or undefined.
-  has: function(attr) {
-    return this.get(attr) != null;
   },
 
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  set: function(key, val, options) {
+  setv: function(key, val, options) {
     if (key == null) return this;
 
     // Handle both `"key", value` and `{key: value}` -style arguments.
@@ -328,7 +326,6 @@ _.extend(Model.prototype, Events, {
     options || (options = {});
 
     // Extract attributes and options.
-    var unset      = options.unset;
     var silent     = options.silent;
     var changes    = [];
     var changing   = this._changing;
@@ -352,14 +349,14 @@ _.extend(Model.prototype, Events, {
       } else {
         delete changed[attr];
       }
-      unset ? delete current[attr] : current[attr] = val;
+      current[attr] = val;
     }
 
     // Trigger all relevant attribute changes.
     if (!silent) {
-      if (changes.length) this._pending = options;
+      if (changes.length) this._pending = true;
       for (var i = 0; i < changes.length; i++) {
-        this.trigger('change:' + changes[i], this, current[changes[i]], options);
+        this.trigger('change:' + changes[i], this, current[changes[i]]);
       }
     }
 
@@ -368,9 +365,8 @@ _.extend(Model.prototype, Events, {
     if (changing) return this;
     if (!silent) {
       while (this._pending) {
-        options = this._pending;
         this._pending = false;
-        this.trigger('change', this, options);
+        this.trigger('change', this);
       }
     }
     this._pending = false;
@@ -378,63 +374,9 @@ _.extend(Model.prototype, Events, {
     return this;
   },
 
-  // Remove an attribute from the model, firing `"change"`. `unset` is a noop
-  // if the attribute doesn't exist.
-  unset: function(attr, options) {
-    return this.set(attr, void 0, _.extend({}, options, {unset: true}));
-  },
-
-  // Clear all attributes on the model, firing `"change"`.
-  clear: function(options) {
-    var attrs = {};
-    for (var key in this.attributes) attrs[key] = void 0;
-    return this.set(attrs, _.extend({}, options, {unset: true}));
-  },
-
-  // Determine if the model has changed since the last `"change"` event.
-  // If you specify an attribute name, determine if that attribute has changed.
-  hasChanged: function(attr) {
-    if (attr == null) return !_.isEmpty(this.changed);
-    return _.has(this.changed, attr);
-  },
-
-  // Return an object containing all the attributes that have changed, or
-  // false if there are no changed attributes. Useful for determining what
-  // parts of a view need to be updated and/or what attributes need to be
-  // persisted to the server. Unset attributes will be set to undefined.
-  // You can also pass an attributes object to diff against the model,
-  // determining if there *would be* a change.
-  changedAttributes: function(diff) {
-    if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
-    var old = this._changing ? this._previousAttributes : this.attributes;
-    var changed = {};
-    for (var attr in diff) {
-      var val = diff[attr];
-      if (_.isEqual(old[attr], val)) continue;
-      changed[attr] = val;
-    }
-    return _.size(changed) ? changed : false;
-  },
-
-  // Get the previous value of an attribute, recorded at the time the last
-  // `"change"` event was fired.
-  previous: function(attr) {
-    if (attr == null || !this._previousAttributes) return null;
-    return this._previousAttributes[attr];
-  },
-
-  // Get all of the attributes of the model at the time of the previous
-  // `"change"` event.
-  previousAttributes: function() {
-    return _.clone(this._previousAttributes);
-  },
-
-  destroy: function(options) {
-    options = options ? _.clone(options) : {};
-    var model = this;
-
-    model.stopListening();
-    model.trigger('destroy', model, null, options);
+  destroy: function() {
+    this.stopListening();
+    this.trigger('destroy', this);
   },
 
   // Create a new model with identical attributes to this one.
