@@ -7,6 +7,7 @@ p = require "../../core/properties"
 dialog_template = require "./dialog_template"
 Widget = require "./widget"
 
+
 class DialogView extends Widget.View
 
   initialize: (options) ->
@@ -14,7 +15,6 @@ class DialogView extends Widget.View
     @render()
     @render_content()
     @render_buttons()
-
     @listenTo(@model, 'destroy', @remove)
     @listenTo(@model, 'change:visible', @change_visibility)
     @listenTo(@model, 'change:content', @change_content)
@@ -25,7 +25,7 @@ class DialogView extends Widget.View
 
     content = @model.content
     if content?
-      if typeof content is 'object'
+      if typeof(content) != "string"
         @content_view = new content.default_view(model: content)
         @$el.find('.bk-dialog-content').empty()
         @$el.find('.bk-dialog-content').append(@content_view.$el)
@@ -45,7 +45,6 @@ class DialogView extends Widget.View
     return @
 
   render: () ->
-    super()
     @$modal = $(dialog_template(@model.attributes))
     @$modal.modal({show: @model.visible})
     @$modal.on('hidden.bk-bs.modal', @onHide)
@@ -65,14 +64,41 @@ class Dialog extends Widget.Model
   type: "Dialog"
   default_view: DialogView
 
+  initialize: (options) ->
+    super(options)
+    @children = []
+    if typeof(@content) != "string"
+      @children.push(@content)
+
   @define {
       visible:     [ p.Bool,    false ]
       closable:    [ p.Bool,    true  ]
       title:       [ p.String,  ""    ]
-      content:     [ p.String,  ""    ]
+      content:     [ p.Any,     ""    ]  # str or LayoutDOM
       buttons:     [ p.Array,   []    ]
       buttons_box: [ p.Instance       ]
     }
+
+  @internal {
+      children:    [ p.Array,   []    ]
+  }
+
+  get_layoutable_children: () ->
+    return @get('children')
+
+  get_edit_variables: () ->
+    edit_variables = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      edit_variables = edit_variables.concat(child.get_edit_variables())
+    return edit_variables
+
+  get_constraints: () ->
+    constraints = super()
+    # Go down the children to pick up any more constraints
+    for child in @get_layoutable_children()
+      constraints = constraints.concat(child.get_constraints())
+    return constraints
 
 module.exports =
   Model: Dialog
