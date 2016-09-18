@@ -13,7 +13,7 @@ class GlyphView extends Renderer.View
 
   initialize: (options) ->
     super(options)
-
+    @_nohit_warned = {}
     @renderer = options.renderer
 
     # Init gl (this should really be done anytime renderer is set,
@@ -168,6 +168,17 @@ class GlyphView extends Renderer.View
       @visuals.line.set_vectorize(ctx, index)
       ctx.stroke()
 
+  hit_test: (geometry) ->
+    result = null
+
+    func = "_hit_#{geometry.type}"
+    if @[func]?
+      result = @[func](geometry)
+    else if not @_nohit_warned[geometry.type]?
+      logger.debug("'#{geometry.type}' selection not available for #{@model.type}")
+      @_nohit_warned[geometry.type] = true
+
+    return result
 
 class Glyph extends Model
 

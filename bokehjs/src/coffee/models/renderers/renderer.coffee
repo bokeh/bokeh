@@ -183,7 +183,6 @@ class RendererView extends BokehView
     super(options)
     @plot_model = options.plot_model
     @plot_view = options.plot_view
-    @nohit_warned = {}
     @visuals = {}
 
     for spec in @model.mixins
@@ -272,18 +271,6 @@ class RendererView extends BokehView
   _index_data: () -> null
   _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
-
-  hit_test: (geometry) ->
-    result = null
-
-    func = "_hit_#{geometry.type}"
-    if @[func]?
-      result = @[func](geometry)
-    else if not @nohit_warned[geometry.type]?
-      logger.debug("'#{geometry.type}' selection not available for #{@model.type}")
-      @nohit_warned[geometry.type] = true
-
-    return result
 
   map_to_screen: (x, y) ->
     @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
