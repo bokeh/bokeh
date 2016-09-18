@@ -165,6 +165,12 @@ class GlyphView extends Renderer.View
 
     return result
 
+  set_data: (source) ->
+    super(source)
+    @index = @_index_data()
+
+  _index_data: () -> null
+
   mask_data: (indices) ->
     # WebGL can do the clipping much more efficiently
     if @glglyph? then indices else @_mask_data(indices)
