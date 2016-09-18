@@ -86,7 +86,6 @@ class RendererView extends BokehView
 
   _set_data: () -> null
   _map_data: () -> null
-  _bounds: (bds) -> bds
 
   set_visuals: (source) ->
     @visuals.warm_cache(source)

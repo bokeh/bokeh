@@ -177,6 +177,8 @@ class GlyphView extends Renderer.View
 
   _mask_data: (indices) -> indices
 
+  _bounds: (bounds) -> bounds
+
 class Glyph extends Model
 
   @define {
