@@ -25,7 +25,7 @@ class GlyphView extends Renderer.View
       if ctx.glcanvas?
         Cls = bokehgl[@model.type + 'GLGlyph']
         if Cls
-          @glglyph = new Cls(ctx.glcanvas.gl, this)
+          @glglyph = new Cls(ctx.glcanvas.gl, @)
 
   set_visuals: (source) ->
     super(source)
@@ -34,37 +34,16 @@ class GlyphView extends Renderer.View
       @glglyph.set_visuals_changed()
 
   render: (ctx, indices, data) ->
-
     if @model.visible
-      ctx.beginPath();
+      ctx.beginPath()
 
       if @glglyph?
-        if @_render_gl(ctx, indices, data)
+        if @glglyph.render(ctx, indices, data)
           return
 
       @_render(ctx, indices, data)
 
     return
-
-  _render_gl: (ctx, indices, mainglyph) ->
-    # Get transform
-    wx = wy = 1  # Weights to scale our vectors
-    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
-    # Try again, but with weighs so we're looking at ~100 in screen coordinates
-    wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
-    wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
-    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
-    # Test how linear it is
-    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
-        Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
-      return false
-    [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
-    trans =
-        pixel_ratio: ctx.pixel_ratio,  # pass pixel_ratio to webgl
-        width: ctx.glcanvas.width, height: ctx.glcanvas.height,
-        dx: dx[0]/sx, dy: dy[0]/sy, sx: sx, sy: sy
-    @glglyph.draw(indices, mainglyph, trans)
-    return true  # success
 
   bounds: () ->
     if not @index?
