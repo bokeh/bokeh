@@ -213,7 +213,7 @@ class RendererView extends BokehView
 
     @_map_data()
 
-  project_xy: (x, y) ->
+  _project_xy: (x, y) ->
     merc_x_s = []
     merc_y_s = []
     for i in [0...x.length]
@@ -222,11 +222,11 @@ class RendererView extends BokehView
       merc_y_s[i] = merc_y
     return [merc_x_s, merc_y_s]
 
-  project_xsys: (xs, ys) ->
+  _project_xsys: (xs, ys) ->
     merc_xs_s = []
     merc_ys_s = []
     for i in [0...xs.length]
-      [merc_x_s, merc_y_s] = @project_xy(xs[i], ys[i])
+      [merc_x_s, merc_y_s] = @_project_xy(xs[i], ys[i])
       merc_xs_s[i] = merc_x_s
       merc_ys_s[i] = merc_y_s
     return [merc_xs_s, merc_ys_s]
@@ -245,9 +245,9 @@ class RendererView extends BokehView
 
     if @plot_model.use_map
       if @_x?
-        [@_x, @_y] = @project_xy(@_x, @_y)
+        [@_x, @_y] = @_project_xy(@_x, @_y)
       if @_xs?
-        [@_xs, @_ys] = @project_xsys(@_xs, @_ys)
+        [@_xs, @_ys] = @_project_xsys(@_xs, @_ys)
 
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
