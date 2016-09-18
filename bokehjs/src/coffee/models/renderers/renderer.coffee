@@ -190,8 +190,6 @@ class RendererView extends BokehView
       prefix ?= ""
       @visuals[prefix+name] = new VISUALS[name]({obj: @model, prefix: prefix})
 
-  bind_bokeh_events: () ->
-
   request_render: () ->
     @plot_view.request_render()
 
