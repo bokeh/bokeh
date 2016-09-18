@@ -174,6 +174,23 @@ class PanTool(Drag):
     """)
 
 
+class WheelPanTool(Scroll):
+    """ *toolbar icon*: |wheel_pan_icon|
+
+    The wheel pan tool allows the user to pan the plot along the configured
+    dimension using the scroll wheel.
+
+    .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
+        :height: 18pt
+
+    """
+
+    dimension = Enum(Dimension, default="width", help="""
+    Which dimension the wheel pan tool is constrained to act in. By
+    default the wheel pan tool will pan the plot along the x-axis.
+    """)
+
+
 class WheelZoomTool(Scroll):
     """ *toolbar icon*: |wheel_zoom_icon|
 
@@ -627,7 +644,6 @@ class HoverTool(Inspection):
             * annulus
             * arc
             * bezier
-            * gear
             * image
             * image_rgba
             * image_url
@@ -723,6 +739,10 @@ class HoverTool(Inspection):
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.
+    """)
+
+    show_arrow = Bool(default=True, help="""
+    Whether tooltip's arrow should be showed.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."

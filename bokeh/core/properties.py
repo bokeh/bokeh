@@ -63,6 +63,7 @@ import numbers
 import re
 import types
 from warnings import warn
+from operator import itemgetter
 
 from six import string_types, iteritems
 
@@ -702,6 +703,18 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for name, value in properties.items():
             setattr(self, name, value)
 
+    def equals(self, other):
+        """ Structural equality of models. """
+        # NOTE: don't try to use this to implement __eq__. Because then
+        # you will be tempted to implement __hash__, which would interfere
+        # with mutability of models. However, not implementing __hash__
+        # will make bokeh unusable in Python 3, where proper implementation
+        # of __hash__ is required when implementing __eq__.
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.properties_with_values() == other.properties_with_values()
+
     def __setattr__(self, name, value):
         # self.properties() below can be expensive so avoid it
         # if we're just setting a private underscore field
@@ -910,6 +923,26 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for key, value in self.properties_with_values().items():
             print("%s%s: %r" % ("  "*indent, key, value))
 
+    def _repr_pretty_(self, p, cycle):
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+
+        if cycle:
+            p.text("%s(...)" % name)
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=itemgetter(0))
+                all_props = sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
+
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.
 
@@ -1025,12 +1058,18 @@ class ContainerProperty(ParameterizedPropertyDescriptor):
         return False
 
 class Seq(ContainerProperty):
-    """ Sequence (list, tuple) type property.
+    """ An ordered sequence of values (list, tuple, (nd)array). """
 
-    """
+    @classmethod
+    def _is_seq(cls, value):
+        return ((isinstance(value, collections.Sequence) or cls._is_seq_like(value)) and
+                not isinstance(value, string_types))
 
-    def _is_seq(self, value):
-        return isinstance(value, collections.Container) and not isinstance(value, collections.Mapping)
+    @classmethod
+    def _is_seq_like(cls, value):
+        return (isinstance(value, (collections.Container, collections.Sized, collections.Iterable))
+                and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
+                and not isinstance(value, collections.Mapping))
 
     def _new_instance(self, value):
         return value
@@ -1079,6 +1118,7 @@ class List(Seq):
         # optional values. Also in Dict.
         super(List, self).__init__(item_type, default=default, help=help)
 
+    @classmethod
     def _is_seq(self, value):
         return isinstance(value, list)
 
@@ -1087,6 +1127,7 @@ class Array(Seq):
 
     """
 
+    @classmethod
     def _is_seq(self, value):
         import numpy as np
         return isinstance(value, np.ndarray)
@@ -1223,7 +1264,7 @@ class Instance(PropertyDescriptor):
                 attrs = {}
 
                 for name, value in iteritems(json):
-                    prop = self.instance_type.lookup(name)
+                    prop = self.instance_type.lookup(name).descriptor
                     attrs[name] = prop.from_json(value, models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()
@@ -1645,8 +1686,17 @@ class DataSpecProperty(BasicProperty):
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
         super(DataSpec, self).__init__(
-            String, Dict(String, Either(String, Instance('bokeh.models.transforms.Transform'), typ)),
-            typ, default=default, help=help
+            String,
+            Dict(
+                String,
+                Either(
+                    String,
+                    Instance('bokeh.models.transforms.Transform'),
+                    Instance('bokeh.models.mappers.ColorMapper'),
+                    typ)),
+            typ,
+            default=default,
+            help=help
         )
         self._type = self._validate_type_param(typ)
 

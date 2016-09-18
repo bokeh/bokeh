@@ -40,6 +40,9 @@ the :ref:`devguide`.
     docs/user_guide/layout
     docs/user_guide/notebook
     docs/user_guide/interaction
+    docs/user_guide/interaction/linking
+    docs/user_guide/interaction/widgets
+    docs/user_guide/interaction/callbacks
     docs/user_guide/cli
     docs/user_guide/server
     docs/user_guide/embed
@@ -73,6 +76,8 @@ the :ref:`devguide`.
     docs/reference/themes
     docs/reference/tile_providers
     docs/reference/util
+    docs/releases/0.12.2
+    docs/releases/0.12.1
     docs/releases/0.12.0
     docs/releases/0.11.1
     docs/releases/0.11.0

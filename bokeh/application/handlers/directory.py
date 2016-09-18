@@ -91,6 +91,10 @@ class DirectoryHandler(Handler):
         return self._main_handler.error or self._lifecycle_handler.error
 
     @property
+    def safe_to_fork(self):
+        return self._main_handler.safe_to_fork
+
+    @property
     def error_detail(self):
         return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 

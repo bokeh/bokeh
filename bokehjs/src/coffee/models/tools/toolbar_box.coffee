@@ -26,7 +26,7 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
   }
 
   _init_tools: () ->
-    for tool in @get('tools')
+    for tool in @tools
       if tool instanceof InspectTool.Model
         if not _.some(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
@@ -111,7 +111,7 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
         continue
       @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
-        @gestures[et].tools[0].set('active', true)
+        @gestures[et].tools[0].active = true
 
 
 class ToolbarBoxView extends Box.View

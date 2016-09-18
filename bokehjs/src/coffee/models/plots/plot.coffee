@@ -75,15 +75,15 @@ class Plot extends LayoutDOM.Model
   initialize: (options) ->
     super(options)
     for xr in _.values(@extra_x_ranges).concat(@x_range)
-      plots = xr.get('plots')
+      plots = xr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        xr.set('plots', plots)
+        xr.plots = plots
     for yr in _.values(@extra_y_ranges).concat(@y_range)
-      plots = yr.get('plots')
+      plots = yr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        yr.set('plots', plots)
+        yr.plots = plots
 
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
@@ -119,12 +119,12 @@ class Plot extends LayoutDOM.Model
     if not @height?
       @height = @plot_height
 
-  Object.defineProperty(this.prototype, "plot_canvas", { get: () -> @_plot_canvas })
+  @getter("plot_canvas", () -> @_plot_canvas)
 
   _doc_attached: () ->
     # Setup side renderers
     for side in ['above', 'below', 'left', 'right']
-      layout_renderers = @get(side)
+      layout_renderers = @getv(side)
       for r in layout_renderers
         @plot_canvas.add_renderer_to_canvas_side(r, side)
     @plot_canvas.attach_document(@document)
@@ -133,9 +133,9 @@ class Plot extends LayoutDOM.Model
     @_set_orientation_variables(@plot_canvas)
 
   add_renderers: (new_renderers...) ->
-    renderers = @get('renderers')
+    renderers = @renderers
     renderers = renderers.concat(new_renderers)
-    @set('renderers', renderers)
+    @renderers = renderers
 
   add_layout: (renderer, side="center") ->
     # For non-center renderers, this method can only be used before
@@ -147,7 +147,7 @@ class Plot extends LayoutDOM.Model
       renderer.plot = this
     @add_renderers(renderer)
     if side != 'center'
-      side_renderers = @get(side)
+      side_renderers = @getv(side)
       side_renderers.push(renderer)
 
   add_glyph: (glyph, source, attrs={}) ->
@@ -226,10 +226,10 @@ class Plot extends LayoutDOM.Model
       if @toolbar_location is 'below'
         # (3) stack: plot_canvas._dom_top = toolbar._bottom - toolbar._height
         if @toolbar_sticky is false
-          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom))
+          constraints.push(EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @toolbar._bottom, [-1, @toolbar._height]))
         if @toolbar_sticky is true
           constraints.push(GE(@plot_canvas.below_panel._height, [-1, @toolbar._height]))
-          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height, @toolbar._height))
+          constraints.push(WEAK_EQ(@toolbar._dom_top, [-1, @plot_canvas._height], @plot_canvas.below_panel._height))
 
       if @toolbar_location is 'left'
         # (3) stack: plot_canvas._dom_left = toolbar._dom_left + toolbar._width
@@ -239,10 +239,10 @@ class Plot extends LayoutDOM.Model
       if @toolbar_location is 'right'
         # (3) stack: plot_canvas._dom_left = plot_canvas._right - toolbar._width
         if @toolbar_sticky is false
-          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right))
+          constraints.push(EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @toolbar._right, [-1, @toolbar._width]))
         if @toolbar_sticky is true
           constraints.push(GE(@plot_canvas.right_panel._width, [-1, @toolbar._width]))
-          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width, @toolbar._width))
+          constraints.push(WEAK_EQ(@toolbar._dom_left, [-1, @plot_canvas._width], @plot_canvas.right_panel._width))
 
       if @toolbar_location in ['above', 'below']
         # (4) toolbar_width = full_width - plot_canvas._right

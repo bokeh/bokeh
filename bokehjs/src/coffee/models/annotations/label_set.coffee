@@ -9,42 +9,45 @@ class LabelSetView extends TextAnnotation.View
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    @set_data(@mget('source'))
-    @set_visuals(@mget('source'))
+    @set_data()
 
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       for i in [0...@_text.length]
         @title_div = $("<div>").addClass('bk-annotation-child').hide()
         @title_div.appendTo(@$el)
 
   bind_bokeh_events: () ->
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', () ->
-        @set_data(@mget('source'))
+        @set_data()
         @render())
-      @listenTo(@mget('source'), 'change', () ->
-        @set_data(@mget('source'))
+      @listenTo(@model.source, 'change', () ->
+        @set_data()
         @render())
     else
       @listenTo(@model, 'change', () ->
-        @set_data(@mget('source'))
+        @set_data()
         @plot_view.request_render())
-      @listenTo(@mget('source'), 'change', () ->
-        @set_data(@mget('source'))
+      @listenTo(@model.source, 'change', () ->
+        @set_data()
         @plot_view.request_render())
 
+  set_data: () ->
+    super(@model.source)
+    @set_visuals(@model.source)
+
   _map_data: () ->
-    if @mget('x_units') == "data"
+    if @model.x_units == "data"
       vx = @xmapper.v_map_to_target(@_x)
     else
       vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
-    if @mget('y_units') == "data"
+    if @model.y_units == "data"
       vy = @ymapper.v_map_to_target(@_y)
     else
       vy = @_y.slice(0) # make deep copy to not mutate
@@ -57,7 +60,7 @@ class LabelSetView extends TextAnnotation.View
 
     [sx, sy] = @_map_data()
 
-    if @mget('render_mode') == 'canvas'
+    if @model.render_mode == 'canvas'
       for i in [0...@_text.length]
         @_v_canvas_text(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
     else

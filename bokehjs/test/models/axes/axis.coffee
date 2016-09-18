@@ -92,11 +92,11 @@ describe "Axis.View", ->
     expect(@axis_view._tick_label_extent()).to.be.above @axis.major_label_standoff
 
   it "_axis_label_extent should be greater than axis_label_standoff", ->
-    @axis.set('axis_label', 'Left axis label')
+    @axis.axis_label = 'Left axis label'
     expect(@axis_view._axis_label_extent()).to.be.above @axis.axis_label_standoff
 
   it "_axis_label_extent should be greater than the font_size", ->
-    @axis.set('axis_label', 'Left axis label')
+    @axis.axis_label = 'Left axis label'
     expect(@axis_view._axis_label_extent()).to.be.above 0
     expect(@axis_view._axis_label_extent()).to.be.below 10
 

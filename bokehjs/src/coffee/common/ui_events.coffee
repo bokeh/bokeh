@@ -1,18 +1,22 @@
 $ = require "jquery"
-Backbone = require "backbone"
+Backbone = require "../core/backbone"
 Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 {logger} = require "../core/logging"
 
 class UIEvents extends Backbone.Model
 
+  @getters {
+    toolbar: () -> @getv('toolbar')
+    hit_area: () -> @getv('hit_area')
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @_hammer_element()
 
-
   _hammer_element: ->
-    hit_area = @get('hit_area')
+    hit_area = @hit_area
     @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
@@ -45,7 +49,6 @@ class UIEvents extends Backbone.Model
     hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
-
 
   register_tool: (tool_view) ->
     et = tool_view.model.event_type
@@ -88,16 +91,34 @@ class UIEvents extends Backbone.Model
       logger.debug("Registering tool: #{type} for event 'doubletap'")
       tool_view.listenTo(@, "doubletap", tool_view._doubletap)
 
+    # Dual touch hack part 1/2
+    # This is a hack for laptops with touch screen who may be pinching or scrolling
+    # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
+    # will be linked to pinch. But we also want to trigger in the case of a scroll.
+    if 'ontouchstart' of window or navigator.maxTouchPoints > 0
+      if et == 'pinch'
+        logger.debug("Registering scroll on touch screen")
+        tool_view.listenTo(@, "scroll:#{id}", tool_view["_scroll"])
+
   _trigger: (event_type, e) ->
-    toolbar = @get('toolbar')
     base_event_type = event_type.split(":")[0]
-    gestures = toolbar.get('gestures')
+
+    # Dual touch hack part 2/2
+    # This is a hack for laptops with touch screen who may be pinching or scrolling
+    # in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
+    # will be linked to pinch. But we also want to trigger in the case of a scroll.
+    if 'ontouchstart' of window or navigator.maxTouchPoints > 0
+      if event_type == 'scroll'
+        base_event_type = 'pinch'
+
+    gestures = @toolbar.gestures
     active_tool = gestures[base_event_type].active
+
     if active_tool?
       @_trigger_event(event_type, active_tool, e)
 
   _trigger_event: (event_type, active_tool, e)->
-    if active_tool.get('active') == true
+    if active_tool.active == true
       if event_type == 'scroll'
         e.preventDefault()
         e.stopPropagation()

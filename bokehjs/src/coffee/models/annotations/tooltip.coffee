@@ -26,32 +26,32 @@ class TooltipView extends Annotation.View
     @$el.empty()
     @$el.hide()
 
-    @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
+    @$el.toggleClass("bk-tooltip-custom", @model.custom)
 
     if _.isEmpty(data)
       return
 
     for val in data
       [vx, vy, content] = val
-      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
+      if @model.inner_only and not @plot_view.frame.contains(vx, vy)
           continue
       tip = $('<div />').appendTo(@$el)
       tip.append(content)
-    sx = @plot_view.mget('canvas').vx_to_sx(vx)
-    sy = @plot_view.mget('canvas').vy_to_sy(vy)
+    sx = @plot_view.model.canvas.vx_to_sx(vx)
+    sy = @plot_view.model.canvas.vy_to_sy(vy)
 
     attachment = @model.attachment
     switch attachment
       when "horizontal"
-        width = @plot_view.frame.get('width')
-        left = @plot_view.frame.get('left')
+        width = @plot_view.frame.width
+        left = @plot_view.frame.left
         if vx - left < width/2
           side = 'right'
         else
           side = 'left'
       when "vertical"
-        height = @plot_view.frame.get('height')
-        bottom = @plot_view.frame.get('bottom')
+        height = @plot_view.frame.height
+        bottom = @plot_view.frame.bottom
         if vy - bottom < height/2
           side = 'below'
         else
@@ -81,6 +81,9 @@ class TooltipView extends Annotation.View
         top = sy - @$el.outerHeight() - arrow_size
         left = Math.round(sx - @$el.outerWidth()/2)
 
+    if @model.show_arrow
+        @$el.addClass("bk-tooltip-arrow")
+
     # TODO (bev) this is not currently bulletproof. If there are
     # two hits, not colocated and one is off the screen, that can
     # be problematic
@@ -96,6 +99,7 @@ class Tooltip extends Annotation.Model
   @define {
     attachment: [ p.String, 'horizontal' ] # TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
     inner_only: [ p.Bool,   true         ]
+    show_arrow: [ p.Bool,   true         ]
   }
 
   @override {

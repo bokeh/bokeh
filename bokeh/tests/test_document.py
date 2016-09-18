@@ -477,6 +477,27 @@ class TestDocument(unittest.TestCase):
         assert isinstance(events[0], document.SessionCallbackAdded)
         assert isinstance(events[1], document.SessionCallbackRemoved)
 
+    def test_add_partial_callback(self):
+        from functools import partial
+        d = document.Document()
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def _cb(): pass
+        cb = partial(_cb)
+
+        callback = d.add_timeout_callback(cb, 1)
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+        assert callback.timeout == 1
+
     def test_add_remove_next_tick_callback(self):
         d = document.Document()
 

@@ -1,0 +1,110 @@
+@tooltipBorder: #e5e5e5;  /* Same border color used everywhere */
+@tooltipColor: white;
+
+@tooltipArrowColor: #909599;  /* Gray of icons */
+@tooltipArrowWidth: 10px;
+@tooltipArrowHeight: 10px;
+@tooltipArrowHalfWidth: 7px;
+@tooltipArrowHalfHeight: 7px;
+
+.bk-tooltip {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  position: absolute;
+  padding: 5px;
+  border: 1px solid @tooltipBorder;
+  background-color: @tooltipColor;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+.bk-tooltip > div:not(:first-child) {
+  /* gives space when multiple elements are being hovered over */
+  margin-top: 5px;
+  border-top: @tooltipBorder 1px dashed;
+}
+
+.bk-tooltip-arrow-horizontal() {
+  position: absolute;
+  margin: -@tooltipArrowHalfHeight 0 0 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: @tooltipArrowHalfHeight 0 @tooltipArrowHalfHeight 0;
+  border-color: transparent;
+  content: " ";
+  display: block;
+}
+
+.bk-tooltip-arrow-vertical() {
+  position: absolute;
+  margin: 0 0 0 -@tooltipArrowHalfWidth;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 @tooltipArrowHalfWidth 0 @tooltipArrowHalfWidth;
+  border-color: transparent;
+  content: " ";
+  display: block;
+}
+
+.bk-tooltip.bk-left.bk-tooltip-arrow::before {
+  .bk-tooltip-arrow-horizontal();
+  left: -@tooltipArrowWidth;
+  border-right-width: @tooltipArrowWidth;
+  border-right-color: @tooltipArrowColor;
+}
+
+.bk-tooltip.bk-left::before {
+  left: -@tooltipArrowWidth;
+  border-right-width: @tooltipArrowWidth;
+  border-right-color: @tooltipArrowColor;
+}
+
+.bk-tooltip.bk-right.bk-tooltip-arrow::after {
+  .bk-tooltip-arrow-horizontal();
+  right: -@tooltipArrowWidth;
+  border-left-width: @tooltipArrowWidth;
+  border-left-color: @tooltipArrowColor;
+}
+
+.bk-tooltip.bk-right::after {
+  right: -@tooltipArrowWidth;
+  border-left-width: @tooltipArrowWidth;
+  border-left-color: @tooltipArrowColor;
+}
+
+.bk-tooltip.bk-above::before {
+  .bk-tooltip-arrow-vertical();
+  top: -@tooltipArrowHeight;
+  border-bottom-width: @tooltipArrowHeight;
+  border-bottom-color: @tooltipArrowColor;
+}
+
+.bk-tooltip.bk-below::after {
+  .bk-tooltip-arrow-vertical();
+  bottom: -@tooltipArrowHeight;
+  border-top-width: @tooltipArrowHeight;
+  border-top-color: @tooltipArrowColor;
+}
+
+.bk-tooltip-row-label {
+  text-align: right;
+  color: #26aae1;  /* blue from toolbar highlighting */
+}
+
+.bk-tooltip-row-value {
+  color: default; /* seems to be necessary for notebook */
+}
+
+.bk-tooltip-color-block {
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+  margin-right: 5px;
+  outline: #dddddd solid 1px;
+  display: inline-block;
+}

@@ -9,49 +9,49 @@ p = require "../../core/properties"
 class ArrowView extends Annotation.View
   initialize: (options) ->
     super(options)
-    if not @mget('source')?
-      this.mset('source', new ColumnDataSource.Model())
-    @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    if not @model.source?
+      this.model.source = new ColumnDataSource.Model()
+    @canvas = @plot_model.canvas
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
     @set_data()
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
-    @listenTo(@mget('source'), 'change', () ->
-      set_data()
+    @listenTo(@model.source, 'change', () ->
+      @set_data()
       @plot_view.request_render())
 
   set_data: () ->
-    super(@mget('source'))
-    @set_visuals(@mget('source'))
+    super(@model.source)
+    @set_visuals(@model.source)
 
   _map_data: () ->
-    if @mget('start_units') == 'data'
+    if @model.start_units == 'data'
       start = @plot_view.map_to_screen(@_x_start, @_y_start,
-                                       x_name=@mget('x_range_name')
-                                       y_name=@mget('y_range_name')
+                                       x_name=@model.x_range_name
+                                       y_name=@model.y_range_name
                                        )
     else
-      start = [@canvas.v_vx_to_sx(@_x_start.slice(0)),
-               @canvas.v_vy_to_sy(@_y_start.slice(0))]
+      start = [@canvas.v_vx_to_sx(@_x_start),
+               @canvas.v_vy_to_sy(@_y_start)]
 
-    if @mget('end_units') == 'data'
+    if @model.end_units == 'data'
       end = @plot_view.map_to_screen(@_x_end, @_y_end,
-                                     x_name=@mget('x_range_name')
-                                     y_name=@mget('y_range_name')
+                                     x_name=@model.x_range_name
+                                     y_name=@model.y_range_name
                                      )
     else
-      end = [@canvas.v_vx_to_sx(@_x_end.slice(0)),
-             @canvas.v_vy_to_sy(@_y_end.slice(0))]
+      end = [@canvas.v_vx_to_sx(@_x_end),
+             @canvas.v_vy_to_sy(@_y_end)]
 
     return [start, end]
 
   render: () ->
     [@start, @end] = @_map_data()
     @_draw_arrow_body()
-    if @mget('end')? then @_draw_arrow_head(@mget('end'), @start, @end)
-    if @mget('start')? then @_draw_arrow_head(@mget('start'), @end, @start)
+    if @model.end? then @_draw_arrow_head(@model.end, @start, @end)
+    if @model.start? then @_draw_arrow_head(@model.start, @end, @start)
 
   _draw_arrow_body: () ->
     ctx = @plot_view.canvas_view.ctx

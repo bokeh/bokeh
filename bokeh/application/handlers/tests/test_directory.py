@@ -212,3 +212,19 @@ some.foo = 57
         assert not doc.roots
 
         assert doc.template is FILE
+
+    def test_safe_to_fork(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            assert handler.safe_to_fork
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+            assert not handler.safe_to_fork
+
+        with_directory_contents({
+            'main.py' : "# This script does nothing",
+        }, load)

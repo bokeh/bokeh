@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecate import deprecated
@@ -22,7 +22,7 @@ class DataSource(Model):
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
-        '2d': {'indices': []}
+        '2d': {}
     }, help="""
     A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
 
@@ -63,7 +63,7 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Any, help="""
+    data = Dict(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """)
@@ -151,7 +151,7 @@ class ColumnDataSource(DataSource):
         Args:
             data (seq) : new data to add
             name (str, optional) : column name to use.
-                If not supplied, generate a name go the form "Series ####"
+                If not supplied, generate a name of the form "Series ####"
 
         Returns:
             str:  the column name used

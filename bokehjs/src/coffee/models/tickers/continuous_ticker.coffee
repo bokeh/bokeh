@@ -35,10 +35,10 @@ class ContinuousTicker extends Ticker.Model
   get_interval: undefined
 
   # Returns the smallest interval that can be returned by get_interval().
-  get_min_interval: () -> @get('min_interval')
+  get_min_interval: () -> @min_interval
 
   # Returns the largest interval that can be returned by get_interval().
-  get_max_interval: () -> @get('max_interval') ? Infinity
+  get_max_interval: () -> @max_interval ? Infinity
 
   # Returns the interval size that would produce exactly the number of
   # desired ticks.  (In general we won't use exactly this interval, because

@@ -2,21 +2,80 @@
 
 """
 from __future__ import absolute_import
+import warnings
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Float, Color, Enum, Seq
+from ..core.properties import Color, Enum, Seq, Either, String, Int, Float, Date, Datetime
 from ..core.enums import Palette
 from .. import palettes
 
+
 @abstract
 class ColorMapper(Model):
-    """ Base class for color mapper types. `ColorMapper`` is not
+    """ Base class for color mapper types. ``ColorMapper`` is not
     generally useful to instantiate on its own.
 
     """
 
-class LinearColorMapper(ColorMapper):
+    palette = Seq(Color, help="""
+    A sequence of colors to use as the target palette for mapping.
+
+    This property can also be set as a ``String``, to the name of
+    any of the palettes shown in :ref:`bokeh.palettes`.
+    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
+
+    nan_color = Color(default="gray", help="""
+    Color to be used if data is NaN. Default: 'gray'
+    """)
+
+    def __init__(self, palette=None, **kwargs):
+        if palette is not None:
+            kwargs['palette'] = palette
+        super(ColorMapper, self).__init__(**kwargs)
+
+
+class CategoricalColorMapper(ColorMapper):
+    """ Map categories to colors. Values that are passed to
+    this mapper that aren't in factors will be assigned the nan_color.
+
+    """
+
+    factors = Either(Seq(String), Seq(Int), Seq(Float), Seq(Datetime), Seq(Date), help="""
+    A sequence of factors / categories that map to the color palette.
+    """)
+
+
+    def __init__(self, **kwargs):
+        super(ColorMapper, self).__init__(**kwargs)
+        palette = self.palette
+        factors = self.factors
+        if palette and factors:
+            if len(palette) < len(factors):
+                extra_factors = factors[len(palette):]
+                warnings.warn("""Palette length does not match number of
+factors. %s will be assigned to `nan_color` %s""" % (extra_factors, self.nan_color))
+
+
+@abstract
+class ContinuousColorMapper(ColorMapper):
+    """ Base class for cotinuous color mapper types. ``ContinuousColorMapper`` is not
+    generally useful to instantiate on its own.
+
+    """
+
+    low = Float(help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
+    """)
+
+    high = Float(help="""
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
+    """)
+
+
+class LinearColorMapper(ContinuousColorMapper):
     """ Map numbers in a range [*low*, *high*] linearly into a
     sequence of colors (a palette).
 
@@ -32,39 +91,8 @@ class LinearColorMapper(ColorMapper):
 
     """
 
-    palette = Seq(Color, help="""
-    A sequence of colors to use as the target palette for mapping.
 
-    This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh.palettes`.
-    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
-
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
-    """)
-
-    high = Float(help="""
-    The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
-    """)
-
-    # TODO: (jc) what is the color code for transparent?
-    # TODO: (bev) better docstring
-    reserve_color = Color("#ffffff", help="""
-    Used by Abstract Rendering.
-    """)
-
-    # TODO: (bev) better docstring
-    reserve_val = Float(default=None, help="""
-    Used by Abstract Rendering.
-    """)
-
-    def __init__(self, palette=None, **kwargs):
-        if palette is not None: kwargs['palette'] = palette
-        super(LinearColorMapper, self).__init__(**kwargs)
-
-class LogColorMapper(ColorMapper):
+class LogColorMapper(ContinuousColorMapper):
     """ Map numbers in a range [*low*, *high*] into a
     sequence of colors (a palette) on a natural logarithm scale.
 
@@ -83,24 +111,3 @@ class LogColorMapper(ColorMapper):
         non-negative.
 
     """
-
-    palette = Seq(Color, help="""
-    A sequence of colors to use as the target palette for mapping.
-
-    This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh.palettes`.
-    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
-
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
-    """)
-
-    high = Float(help="""
-    The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
-    """)
-
-    def __init__(self, palette=None, **kwargs):
-        if palette is not None: kwargs['palette'] = palette
-        super(LogColorMapper, self).__init__(**kwargs)

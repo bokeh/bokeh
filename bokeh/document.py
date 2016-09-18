@@ -8,7 +8,22 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-from functools import wraps
+# There is a problem with using @wraps decorator in combination with functools.partial.
+# This issue is not present in Python 3.
+# This redefinition will be triggered only if issue affects user,
+# otherwise regular definition of @wraps will be used.
+#
+# this code snippet was originally posted in followig stack overflow discussion:
+# http://stackoverflow.com/a/28752007
+
+from functools import wraps, partial, WRAPPER_ASSIGNMENTS
+try:
+    wraps(partial(wraps))(wraps)
+except AttributeError:
+    @wraps(wraps)
+    def wraps(obj, attr_names=WRAPPER_ASSIGNMENTS, wraps=wraps):
+        return wraps(obj, assigned=(name for name in attr_names if hasattr(obj, name)))
+
 from json import loads
 
 import jinja2
@@ -126,6 +141,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
 
+
 class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
@@ -223,7 +239,7 @@ class _MultiValuedDict(object):
             raise ValueError("Can't put None in this dict")
         if isinstance(value, set):
             raise ValueError("Can't put sets in this dict")
-        existing = self._dict.get(key, None)
+        existing = self._dict.get(key)
         if existing is None:
             self._dict[key] = value
         elif isinstance(existing, set):
@@ -234,7 +250,7 @@ class _MultiValuedDict(object):
     def remove_value(self, key, value):
         if key is None:
             raise ValueError("Key is None")
-        existing = self._dict.get(key, None)
+        existing = self._dict.get(key)
         if isinstance(existing, set):
             existing.discard(value)
             if len(existing) == 0:
@@ -245,7 +261,7 @@ class _MultiValuedDict(object):
             pass
 
     def get_one(self, k, duplicate_error):
-        existing = self._dict.get(k, None)
+        existing = self._dict.get(k)
         if isinstance(existing, set):
             if len(existing) == 1:
                 return next(iter(existing))
@@ -255,7 +271,7 @@ class _MultiValuedDict(object):
             return existing
 
     def get_all(self, k):
-        existing = self._dict.get(k, None)
+        existing = self._dict.get(k)
         if existing is None:
             return []
         elif isinstance(existing, set):
@@ -281,6 +297,7 @@ class Document(object):
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = {}
         self._session_callbacks = {}
+        self._session_context = None
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
@@ -358,6 +375,10 @@ class Document(object):
         return list(self._roots)
 
     @property
+    def session_context(self):
+        return self._session_context
+
+    @property
     def title(self):
         return self._title
 
@@ -400,6 +421,7 @@ class Document(object):
         self._theme = theme
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
+
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
@@ -459,7 +481,7 @@ class Document(object):
 
     def get_model_by_id(self, model_id):
         ''' Get the model object for the given ID or None if not found'''
-        return self._all_models.get(model_id, None)
+        return self._all_models.get(model_id)
 
     def get_model_by_name(self, name):
         ''' Get the model object for the given name or None if not found'''
@@ -683,8 +705,8 @@ class Document(object):
                                                                value_refs))
 
         for key in shared:
-            old_value = from_obj['attributes'].get(key, None)
-            new_value = to_obj['attributes'].get(key, None)
+            old_value = from_obj['attributes'].get(key)
+            new_value = to_obj['attributes'].get(key)
 
             if old_value is None and new_value is None:
                 continue

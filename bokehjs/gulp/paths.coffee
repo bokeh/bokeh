@@ -30,16 +30,16 @@ module.exports = {
         full: "bokeh.js"
         fullWithPath: path.join(JS_BUILD_DIR, "bokeh.js")
         minified: "bokeh.min.js"
+    api:
+      destination:
+        full: "bokeh-api.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-api.js")
+        minified: "bokeh-api.min.js"
     widgets:
       destination:
         full: "bokeh-widgets.js"
         fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js")
         minified: "bokeh-widgets.min.js"
-    compiler:
-      destination:
-        full: "bokeh-compiler.js"
-        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-compiler.js")
-        minified: "bokeh-compiler.min.js"
     sources: [
         "./src/coffee/main.coffee"
         "./src/coffee/widget/main.coffee"

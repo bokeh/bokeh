@@ -35,6 +35,7 @@ doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "glyph1.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Glyph Plot"))

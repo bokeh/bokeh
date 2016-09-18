@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 Annotation = require "./annotation"
+GlyphRenderer = require "../renderers/glyph_renderer"
 p = require "../../core/properties"
 {get_text_height} = require "../../core/util/text"
 
@@ -9,13 +10,13 @@ class LegendView extends Annotation.View
     super(options)
 
   compute_legend_bbox: () ->
-    legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
+    legend_names = @model.get_legend_names()
 
-    glyph_height = @mget('glyph_height')
-    glyph_width = @mget('glyph_width')
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
 
-    label_height = @mget('label_height')
-    label_width = @mget('label_width')
+    label_height = @model.label_height
+    label_width = @model.label_width
 
     @max_label_height = _.max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
@@ -32,12 +33,12 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
-    legend_margin = @mget('legend_margin')
-    legend_padding = @mget('legend_padding')
-    legend_spacing = @mget('legend_spacing')
-    label_standoff =  @mget('label_standoff')
+    legend_margin = @model.legend_margin
+    legend_padding = @model.legend_padding
+    legend_spacing = @model.legend_spacing
+    label_standoff =  @model.label_standoff
 
-    if @mget("orientation") == "vertical"
+    if @model.orientation == "vertical"
       legend_height = legend_names.length * @max_label_height + (legend_names.length - 1) * legend_spacing + 2 * legend_padding
       legend_width = max_label_width + glyph_width + label_standoff + 2 * legend_padding
     else
@@ -46,39 +47,39 @@ class LegendView extends Annotation.View
         legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    location = @mget('location')
-    h_range = @plot_view.frame.get('h_range')
-    v_range = @plot_view.frame.get('v_range')
+    location = @model.location
+    h_range = @plot_view.frame.h_range
+    v_range = @plot_view.frame.v_range
 
     if _.isString(location)
       switch location
         when 'top_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('end') - legend_margin
+          x = h_range.start + legend_margin
+          y = v_range.end - legend_margin
         when 'top_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('end') - legend_margin
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.end - legend_margin
         when 'top_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('end') - legend_margin
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.end - legend_margin
         when 'right_center'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.end - legend_margin - legend_width
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('start') + legend_margin + legend_height
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.start + legend_margin
+          y = v_range.start + legend_margin + legend_height
         when 'left_center'
-          x = h_range.get('start') + legend_margin
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.start + legend_margin
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = (v_range.end + v_range.start)/2 + legend_height/2
     else if _.isArray(location) and location.length == 2
       [x, y] = location
 
@@ -91,49 +92,80 @@ class LegendView extends Annotation.View
     if @model.legends.length == 0
       return
 
+    ctx = @plot_view.canvas_view.ctx
     bbox = @compute_legend_bbox()
 
-    glyph_height = @mget('glyph_height')
-    glyph_width = @mget('glyph_width')
-    orientation = @mget('orientation')
-
-    ctx = @plot_view.canvas_view.ctx
     ctx.save()
+    @_draw_legend_box(ctx, bbox)
+    if @model.legends[0] instanceof GlyphRenderer.Model
+      @_draw_legends_from_renderers(ctx, bbox)
+    else
+      @_draw_legends_from_legends_spec(ctx, bbox)
+    ctx.restore()
 
+  _draw_legend_box: (ctx, bbox) ->
     if @model.panel?
       panel_offset = @_get_panel_offset()
       ctx.translate(panel_offset.x, panel_offset.y)
-
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-
     @visuals.background_fill.set_value(ctx)
     ctx.fill()
     if @visuals.border_line.doit
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
-    N = @mget("legends").length
-    legend_spacing = @mget('legend_spacing')
-    label_standoff = @mget('label_standoff')
-    xoffset = yoffset = @mget('legend_padding')
-    for [legend_name, glyphs], idx in @mget("legends")
+  _draw_legends_from_renderers: (ctx, bbox) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    legend_spacing = @model.legend_spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.legend_padding
+
+    for renderer in @model.legends
+      labels = renderer.get_labels_from_glyph_label_prop()
+      field = renderer.get_field_from_glyph_label_prop()
+
+      if labels.length == 0
+        continue
+
+      for label in labels
+        x1 = bbox.x + xoffset
+        y1 = bbox.y + yoffset
+        x2 = x1 + glyph_width
+        y2 = y1 + glyph_height
+        if @model.orientation == "vertical"
+          yoffset += @max_label_height + legend_spacing
+        else
+          xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+        @visuals.label_text.set_value(ctx)
+        ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
+        view = @plot_view.renderer_views[renderer.id]
+        view.draw_legend(ctx, x1, x2, y1, y2, field, label)
+
+  _draw_legends_from_legends_spec: (ctx, bbox) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    legend_spacing = @model.legend_spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.legend_padding
+
+    for [legend_name, glyph_renderers], idx in @model.legends
       x1 = bbox.x + xoffset
       y1 = bbox.y + yoffset
       x2 = x1 + glyph_width
       y2 = y1 + glyph_height
-      if orientation == "vertical"
+      if @model.orientation == "vertical"
         yoffset += @max_label_height + legend_spacing
       else
         xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
 
       @visuals.label_text.set_value(ctx)
       ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
-      for renderer in glyphs
+      for renderer in glyph_renderers
         view = @plot_view.renderer_views[renderer.id]
         view.draw_legend(ctx, x1, x2, y1, y2)
-
-    ctx.restore()
 
   _get_size: () ->
     bbox = @compute_legend_bbox()
@@ -153,6 +185,16 @@ class Legend extends Annotation.Model
   default_view: LegendView
 
   type: 'Legend'
+
+  get_legend_names: () ->
+    legend_names = []
+    for item in @legends
+      if item instanceof GlyphRenderer.Model
+        labels = item.get_labels_from_glyph_label_prop()
+        legend_names = legend_names.concat(labels)
+      else
+        legend_names.push(item[0])
+    return legend_names
 
   @mixins ['text:label_', 'line:border_', 'fill:background_']
 

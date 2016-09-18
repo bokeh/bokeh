@@ -78,5 +78,6 @@ document.add_root(row)
 session.show(row)
 
 if __name__ == "__main__":
+    document.validate()
     print("\npress ctrl-C to exit")
     session.loop_until_closed()

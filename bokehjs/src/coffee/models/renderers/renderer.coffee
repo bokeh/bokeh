@@ -1,7 +1,7 @@
 _ = require "underscore"
-proj4 = require "proj4"
+proj4 = require "../../common/proj4"
 toProjection = proj4.defs('GOOGLE')
-Backbone = require "backbone"
+Backbone = require "../../core/backbone"
 
 BokehView = require "../../core/bokeh_view"
 {color2rgba} = require "../../core/util/color"
@@ -13,6 +13,11 @@ Model = require "../../model"
 
 class _ContextProperties extends Backbone.Model
 
+  @getters {
+    obj: () -> @getv('obj')
+    prefix: () -> @getv('prefix')
+  }
+
   constructor: (attrs, options) ->
     if not attrs.prefix?
       attrs.prefix = ""
@@ -20,8 +25,8 @@ class _ContextProperties extends Backbone.Model
 
     @cache = {}
 
-    obj = @get('obj')
-    prefix = @get('prefix')
+    obj = @obj
+    prefix = @prefix
 
     do_spec = obj.properties[prefix+@do_attr].spec
     @doit = not _.isNull(do_spec.value)
@@ -31,8 +36,8 @@ class _ContextProperties extends Backbone.Model
 
   warm_cache: (source) ->
     for attr in @attrs
-      obj = @get('obj')
-      prefix = @get('prefix')
+      obj = @obj
+      prefix = @prefix
       prop = obj.properties[prefix+attr]
       if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
         @cache[attr] = prop.spec.value
@@ -40,8 +45,8 @@ class _ContextProperties extends Backbone.Model
         @cache[attr+"_array"] = prop.array(source)
 
   cache_select: (attr, i) ->
-    obj = @get('obj')
-    prefix = @get('prefix')
+    obj = @obj
+    prefix = @prefix
     prop = obj.properties[prefix+attr]
     if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
       @cache[attr] = prop.spec.value
@@ -281,13 +286,14 @@ class RendererView extends BokehView
     return result
 
   map_to_screen: (x, y) ->
-    @plot_view.map_to_screen(x, y, @mget("x_range_name"), @mget("y_range_name"))
+    @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
 class Renderer extends Model
   type: "Renderer"
 
   @define {
     level: [ p.RenderLevel, null ]
+    visible: [ p.Bool, true ]
   }
 
 module.exports =

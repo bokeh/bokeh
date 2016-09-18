@@ -1,5 +1,5 @@
 _ = require "underscore"
-proj4 = require "proj4"
+proj4 = require "../../common/proj4"
 toProjection = proj4.defs('GOOGLE')
 
 PlotCanvas = require "./plot_canvas"
@@ -30,8 +30,8 @@ class GMapPlotCanvasView extends PlotCanvas.View
 
   setRanges: () =>
     [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
-    @x_range.set({start: proj_xstart, end: proj_xend})
-    @y_range.set({start: proj_ystart, end: proj_yend})
+    @x_range.setv({start: proj_xstart, end: proj_xend})
+    @y_range.setv({start: proj_ystart, end: proj_yend})
 
   update_range: (range_info) ->
     @pause()
@@ -77,10 +77,10 @@ class GMapPlotCanvasView extends PlotCanvas.View
   bind_bokeh_events: () ->
     super()
 
-    width = @frame.get('width')
-    height = @frame.get('height')
-    left = @canvas.vx_to_sx(@frame.get('left'))
-    top = @canvas.vy_to_sy(@frame.get('top'))
+    width = @frame.width
+    height = @frame.height
+    left = @canvas.vx_to_sx(@frame.left)
+    top = @canvas.vy_to_sy(@frame.top)
 
     @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
     @canvas_view.map_div.attr('style', "width:#{width}px;")
@@ -136,8 +136,8 @@ class GMapPlotCanvasView extends PlotCanvas.View
     @canvas_view.map_div.width("#{width}px").height("#{height}px")
 
   _paint_empty: (ctx, frame_box) ->
-    ow = @canvas.get('width')
-    oh = @canvas.get('height')
+    ow = @canvas.width
+    oh = @canvas.height
     [left, top, iw, ih] = frame_box
 
     ctx.clearRect(0, 0, ow, oh)

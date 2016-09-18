@@ -25,16 +25,10 @@ class QuadView extends Glyph.View
 
     for i in [0...left.length]
       l = left[i]
-      if isNaN(l) or not isFinite(l)
-        continue
       r = right[i]
-      if isNaN(r) or not isFinite(r)
-        continue
       t = top[i]
-      if isNaN(t) or not isFinite(t)
-        continue
       b = bottom[i]
-      if isNaN(b) or not isFinite(b)
+      if isNaN(l+r+t+b) or not isFinite(l+r+t+b)
         continue
       pts.push({minX: l, minY: b, maxX: r, maxY: t, i: i})
 
@@ -90,8 +84,8 @@ class QuadView extends Glyph.View
   scy: (i) ->
     return (@stop[i] + @sbottom[i])/2
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
 class Quad extends Glyph.Model
   default_view: QuadView

@@ -37,6 +37,6 @@ class SessionHandler(RequestHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise HTTPError(status_code=403, reason="Invalid session ID")
 
-        session = yield self.application_context.create_session_if_needed(session_id)
+        session = yield self.application_context.create_session_if_needed(session_id, self.request)
 
         raise gen.Return(session)

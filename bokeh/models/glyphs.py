@@ -21,6 +21,10 @@ class Glyph(Model):
     Whether the glyph should render or not.
     """)
 
+    label = StringSpec(default=None, help="""
+    A label for this glyph. Can be a string, or a column of a ColumnDataSource.
+    """)
+
 class AnnularWedge(Glyph):
     """ Render annular wedges. """
 
@@ -223,71 +227,37 @@ class Ellipse(Glyph):
     The %s values for the ovals.
     """)
 
-class Gear(Glyph):
-    """ Render gears.
+class HBar(Glyph):
+    """ Render horizontal bars, given a center coordinate, height and (left, right) coordinates. """
 
-    The details and nomenclature concerning gear construction can
-    be quite involved. For more information, consult the `Wikipedia
-    article for Gear`_.
-
-    .. _Wikipedia article for Gear: http://en.wikipedia.org/wiki/Gear
-    """
-
-    __example__ = "tests/glyphs/Gear.py"
+    __example__ = "tests/glyphs/HBar.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal')
-
-    x = NumberSpec(help="""
-    The x-coordinates of the center of the gears.
-    """)
+    _args = ('y', 'height', 'left', 'right')
 
     y = NumberSpec(help="""
-    The y-coordinates of the center of the gears.
+    The y-coordinates of the centers of the horizontal bars.
     """)
 
-    angle = AngleSpec(default=0, help="""
-    The angle the gears are rotated from horizontal. [rad]
+    height = NumberSpec(help="""
+    The heights of the vertical bars.
     """)
 
-    module = NumberSpec(help="""
-    A scaling factor, given by::
-
-        m = p / pi
-
-    where *p* is the circular pitch, defined as the distance from one
-    face of a tooth to the corresponding face of an adjacent tooth on
-    the same gear, measured along the pitch circle. [float]
+    left = NumberSpec(default=0, help="""
+    The x-coordinates of the left edges.
     """)
 
-    teeth = NumberSpec(help="""
-    How many teeth the gears have. [int]
-    """)
-
-    pressure_angle = NumberSpec(default=20, help="""
-    The complement of the angle between the direction that the teeth
-    exert force on each other, and the line joining the centers of the
-    two gears. [deg]
-    """)
-
-    # TODO: (bev) evidently missing a test for default value
-    shaft_size = NumberSpec(default=0.3, help="""
-    The central gear shaft size as a percentage of the overall gear
-    size. [float]
-    """)
-
-    # TODO: (bev) evidently missing a test for default value
-    internal = NumberSpec(default=False, help="""
-    Whether the gear teeth are internal. [bool]
+    right = NumberSpec(help="""
+    The x-coordinates of the right edges.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the gears.
+    The %s values for the horizontal bars.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the gears.
+    The %s values for the horizontal bars.
     """)
 
 class Image(Glyph):
@@ -300,15 +270,6 @@ class Image(Glyph):
             # Use a palette (given or default)
             palette = kwargs.pop('palette', 'Greys9')
             mapper = LinearColorMapper(palette)
-
-            reserve_val = kwargs.pop('reserve_val', None)
-            if reserve_val is not None:
-                mapper.reserve_val = reserve_val
-
-            reserve_color = kwargs.pop('reserve_color', None)
-            if reserve_color is not None:
-                mapper.reserve_color = reserve_color
-
             kwargs['color_mapper'] = mapper
 
         super(Image, self).__init__(**kwargs)
@@ -891,6 +852,39 @@ class Text(Glyph):
 
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
+    """)
+
+class VBar(Glyph):
+    """ Render vertical bars, given a center coordinate, width and (top, bottom) coordinates. """
+
+    __example__ = "tests/glyphs/VBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'width', 'top', 'bottom')
+
+    x = NumberSpec(help="""
+    The x-coordinates of the centers of the vertical bars.
+    """)
+
+    width = NumberSpec(help="""
+    The widths of the vertical bars.
+    """)
+
+    bottom = NumberSpec(default=0, help="""
+    The y-coordinates of the bottom edges.
+    """)
+
+    top = NumberSpec(help="""
+    The y-coordinates of the top edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
     """)
 
 class Wedge(Glyph):

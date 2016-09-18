@@ -14,8 +14,8 @@ def has_no_console_errors(selenium):
     Helper function to detect console errors.
     """
     logs = selenium.get_log('browser')
-    severe_errors = [l for l in logs if l['level'] == 'SEVERE']
-    non_network_errors = [l for l in severe_errors if l['type'] != 'network']
+    severe_errors = [l for l in logs if l.get('level') == 'SEVERE']
+    non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
     if len(non_network_errors) == 0:
         return True
     else:
@@ -110,7 +110,7 @@ def add_visual_box_select(plot):
     rect = Rect(x='x', y='y', width='width', height='height', fill_alpha=0.3, fill_color='#009933')
     callback = CustomJS(args=dict(source=source), code="""
         // get data source from Callback args
-        var data = source.get('data');
+        var data = source.data;
 
         /// get BoxSelectTool dimensions from cb_data parameter of Callback
         var geometry = cb_data['geometry'];

@@ -27,6 +27,12 @@ declare namespace Bokeh {
         dimensions?: Array<Dimension>;
     }
 
+    export var WheelPanTool: { new(attributes?: IWheelPanTool, options?: ModelOpts): WheelPanTool };
+    export interface WheelPanTool extends Tool, IWheelPanTool {}
+    export interface IWheelPanTool extends ITool {
+        dimensions?: Array<Dimension>;
+    }
+
     export var WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: ModelOpts): WheelZoomTool };
     export interface WheelZoomTool extends Tool, IWheelZoomTool {}
     export interface IWheelZoomTool extends ITool {
@@ -145,6 +151,7 @@ declare namespace Bokeh {
         line_policy?: LinePolicy;
         anchor?: Anchor;
         attachment?: "horizontal" | "vertical";
+        show_arrow?: boolean;
     }
 
     export var HelpTool: { new(attributes?: IHelpTool, options?: ModelOpts): HelpTool };

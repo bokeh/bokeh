@@ -22,7 +22,7 @@ class TextView extends Glyph.View
         ctx.fillText(_text[i], 0, 0)
         ctx.restore()
 
-  draw_legend: (ctx, x1, x2, y1, y2) ->
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     ctx.save()
     @text_props.set_value(ctx)
     # override some features so we fit inside the legend
