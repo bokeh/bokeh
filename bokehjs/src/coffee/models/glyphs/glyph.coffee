@@ -27,6 +27,12 @@ class GlyphView extends Renderer.View
         if Cls
           @glglyph = new Cls(ctx.glcanvas.gl, this)
 
+  set_visuals: (source) ->
+    super(source)
+
+    if @glglyph?
+      @glglyph.set_visuals_changed()
+
   render: (ctx, indices, data) ->
 
     if @model.visible
@@ -183,9 +189,9 @@ class GlyphView extends Renderer.View
 class Glyph extends Model
 
   @define {
-      visible: [ p.Bool, true ]
-      label:   [ p.StringSpec, null ]
-    }
+    visible: [ p.Bool, true ]
+    label:   [ p.StringSpec, null ]
+  }
 
   @internal {
     x_range_name: [ p.String,      'default' ]

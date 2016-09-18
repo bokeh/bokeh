@@ -6,13 +6,14 @@ CartesianFrame = require "../canvas/cartesian_frame"
 DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
-Renderer = require "../renderers/renderer"
 
 build_views = require "../../common/build_views"
 UIEvents = require "../../common/ui_events"
+{Visuals} = require "../../common/visuals"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
+BokehView = require "../../core/bokeh_view"
 {EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
@@ -32,9 +33,7 @@ update_panel_constraints = require("../../core/layout/side_panel").update_constr
 
 global_gl_canvas = null
 
-# TODO (bev) PlotView should not be a RendererView
-# TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
-class PlotCanvasView extends Renderer.View
+class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
@@ -64,13 +63,7 @@ class PlotCanvasView extends Renderer.View
     super(options)
     @pause()
 
-    # TODO (bev) this sucks a bit
-    @visuals = {}
-
-    for spec in @model.plot.mixins
-      [name, prefix] = spec.split(":")
-      prefix ?= ""
-      @visuals[prefix+name] = new Renderer.Visuals[name]({obj: @model.plot, prefix: prefix})
+    @visuals = new Visuals(@model.plot)
 
     @_initial_state_info = {
       range: null                     # set later by set_initial_range()
