@@ -81,7 +81,6 @@ describe "Axis.View", ->
     sinon.stub(plot_canvas_view, 'update_constraints')
     @axis_view = new @axis.default_view({
       model: @axis
-      plot_model: plot.plot_canvas
       plot_view: plot_canvas_view
     })
 

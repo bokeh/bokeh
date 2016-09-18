@@ -48,7 +48,6 @@ describe "WheelPanTool", ->
 
       wheel_pan_tool_view = new x_wheel_pan_tool.default_view({
         model: x_wheel_pan_tool
-        plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
       })
 
@@ -68,7 +67,6 @@ describe "WheelPanTool", ->
 
       wheel_pan_tool_view = new x_wheel_pan_tool.default_view({
         model: x_wheel_pan_tool
-        plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
       })
 

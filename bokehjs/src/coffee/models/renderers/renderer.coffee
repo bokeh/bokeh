@@ -13,9 +13,12 @@ class RendererView extends BokehView
 
   initialize: (options) ->
     super(options)
-    @plot_model = options.plot_model
     @plot_view = options.plot_view
     @visuals = new Visuals(@model)
+
+  @getters {
+    plot_model: () -> @plot_view.model
+  }
 
   request_render: () ->
     @plot_view.request_render()

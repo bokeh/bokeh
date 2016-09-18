@@ -38,8 +38,7 @@ class PlotCanvasView extends BokehView
 
   state: { history: [], index: -1 }
 
-  view_options: () ->
-    _.extend({plot_model: @model, plot_view: @}, @options)
+  view_options: () -> _.extend({plot_view: @}, @options)
 
   pause: () ->
     @is_paused = true

@@ -49,7 +49,7 @@ class GlyphRendererView extends Renderer.View
       @model.data_source.setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view, plot_model: @plot_model})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)

@@ -262,7 +262,6 @@ describe "ColorBar module", ->
 
       @color_bar_view = new @color_bar.default_view({
         model: @color_bar
-        plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
       })
 
