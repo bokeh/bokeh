@@ -89,7 +89,6 @@ class RendererView extends BokehView
   _set_data: () -> null
   _map_data: () -> null
   _index_data: () -> null
-  _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
 
   set_visuals: (source) ->

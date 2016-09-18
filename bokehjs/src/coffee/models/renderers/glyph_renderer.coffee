@@ -122,10 +122,7 @@ class GlyphRendererView extends Renderer.View
     dtmap = Date.now() - t0
 
     tmask = Date.now()
-    if glsupport
-      indices = @all_indices  # WebGL can do the clipping much more efficiently
-    else
-      indices = @glyph._mask_data(@all_indices)
+    indices = @glyph.mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
