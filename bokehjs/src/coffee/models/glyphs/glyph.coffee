@@ -204,6 +204,19 @@ class GlyphView extends Renderer.View
 
 class Glyph extends Model
 
+  _coords: []
+
+  @coords: (coords) ->
+    _coords = this.prototype._coords.concat(coords)
+    this.prototype._coords = _coords
+
+    result = {}
+    for [x, y] in coords
+      result[x] = [ p.NumberSpec ]
+      result[y] = [ p.NumberSpec ]
+
+    @define(result)
+
   @define {
     visible: [ p.Bool, true ]
     label:   [ p.StringSpec, null ]

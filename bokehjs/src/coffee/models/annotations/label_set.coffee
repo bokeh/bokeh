@@ -161,20 +161,20 @@ class LabelSet extends TextAnnotation.Model
 
   @mixins ['text', 'line:border_', 'fill:background_']
 
-  @coords [['x', 'y']]
-
   @define {
-      x_units:      [ p.SpatialUnits, 'data'            ]
-      y_units:      [ p.SpatialUnits, 'data'            ]
-      text:         [ p.StringSpec,   { field: "text" } ]
-      angle:        [ p.AngleSpec,    0                 ]
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
-      x_range_name: [ p.String,      'default'          ]
-      y_range_name: [ p.String,      'default'          ]
-      render_mode:  [ p.RenderMode,  'canvas'           ]
-    }
+    x:            [ p.NumberSpec                      ]
+    y:            [ p.NumberSpec                      ]
+    x_units:      [ p.SpatialUnits, 'data'            ]
+    y_units:      [ p.SpatialUnits, 'data'            ]
+    text:         [ p.StringSpec,   { field: "text" } ]
+    angle:        [ p.AngleSpec,    0                 ]
+    x_offset:     [ p.NumberSpec,   { value: 0 }      ]
+    y_offset:     [ p.NumberSpec,   { value: 0 }      ]
+    source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
+    x_range_name: [ p.String,      'default'          ]
+    y_range_name: [ p.String,      'default'          ]
+    render_mode:  [ p.RenderMode,  'canvas'           ]
+  }
 
   @override {
     background_fill_color: null
