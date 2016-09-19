@@ -8,7 +8,7 @@ class LabelView extends TextAnnotation.View
     @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
     @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    @set_visuals(null)
+    @visuals.warm_cache(null)
 
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx

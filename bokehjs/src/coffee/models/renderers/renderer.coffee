@@ -66,9 +66,6 @@ class RendererView extends BokehView
 
   _set_data: () -> null
 
-  set_visuals: (source) ->
-    @visuals.warm_cache(source)
-
   map_to_screen: (x, y) ->
     @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 

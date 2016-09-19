@@ -28,7 +28,7 @@ class GlyphView extends Renderer.View
           @glglyph = new Cls(ctx.glcanvas.gl, @)
 
   set_visuals: (source) ->
-    super(source)
+    @visuals.warm_cache(source)
 
     if @glglyph?
       @glglyph.set_visuals_changed()

@@ -38,7 +38,7 @@ class LabelSetView extends TextAnnotation.View
 
   set_data: () ->
     super(@model.source)
-    @set_visuals(@model.source)
+    @visuals.warm_cache(@model.source)
 
   _map_data: () ->
     if @model.x_units == "data"
