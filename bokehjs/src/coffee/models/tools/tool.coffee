@@ -1,11 +1,19 @@
 _ = require "underscore"
 
-Renderer = require "../renderers/renderer"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
 
-class ToolView extends Renderer.View
+class ToolView extends BokehView
+
+  initialize: (options) ->
+    super(options)
+    @plot_view = options.plot_view
+
+  @getters {
+    plot_model: () -> @plot_view.model
+  }
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:active', () =>
