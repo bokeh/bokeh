@@ -40,7 +40,6 @@ class Tool extends Model
   }
 
   @internal {
-    level: [ p.RenderLevel, 'overlay' ]
     active: [ p.Boolean, false ]
   }
 

@@ -438,7 +438,7 @@ class PlotCanvasView extends BokehView
 
     for tool_view in tool_views
       level = tool_view.model.level
-      @levels[level][tool_view.model.id] = tool_view
+      @levels['tool'][tool_view.model.id] = tool_view
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
 
