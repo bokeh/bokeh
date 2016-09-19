@@ -241,7 +241,7 @@ class LineBuilder(XYBuilder):
 
                 if self.tooltips:
                     renderer = add_tooltips_columns(renderer, self.tooltips, group)
-                
+
                 yield renderer
 
         if self.stack:

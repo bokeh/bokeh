@@ -659,16 +659,16 @@ def add_tooltips_columns(renderer, tooltips, group):
 
     Args:
         renderer (GlyphRenderer): renderer for the glyph to be modified.
-        tooltips (bool, list(str), list(tuple)): valid tooltips string as 
+        tooltips (bool, list(str), list(tuple)): valid tooltips string as
             defined in the builder class.
         group (DataGroup): group of data containing missing columns.
 
     Returns:
         renderer (GlyphRenderer): renderer with missing columns added
-    
+
     """
     current_columns = renderer.data_source.data.keys()
-    
+
     # find columns specified in tooltips
     if isinstance(tooltips[0], tuple):
         tooltips_columns = [pair[1].replace('@', '') for pair in tooltips]
@@ -676,9 +676,9 @@ def add_tooltips_columns(renderer, tooltips, group):
         tooltips_columns = tooltips
     else:
         tooltips_columns = []
-    
+
     for column in tooltips_columns:
-        
+
         if column in current_columns:
             continue
         elif '$' in column:
