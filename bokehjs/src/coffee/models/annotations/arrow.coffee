@@ -14,17 +14,17 @@ class ArrowView extends Annotation.View
     @canvas = @plot_model.canvas
     @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
     @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
-    @set_data()
+    @set_data(@model.source)
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @plot_view.request_render)
     @listenTo(@model.source, 'change', () ->
-      @set_data()
+      @set_data(@model.source)
       @plot_view.request_render())
 
-  set_data: () ->
-    super(@model.source)
-    @visuals.warm_cache(@model.source)
+  set_data: (source) ->
+    super(source)
+    @visuals.warm_cache(source)
 
   _map_data: () ->
     if @model.start_units == 'data'
