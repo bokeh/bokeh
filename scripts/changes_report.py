@@ -8,10 +8,13 @@ from api_report import diff_versions
 from plugins.upload_to_s3 import upload_file_to_s3_by_job_id
 
 current = subprocess.check_output(shlex.split("git describe --tags")).decode("utf8")
-previous = subprocess.check_output(shlex.split("git tag --sort=-version:refname")).decode("utf8")
+
+tag = subprocess.Popen(shlex.split("git tag"), stdout=subprocess.PIPE)
+grep = subprocess.Popen(shlex.split("sort -V -r"), stdin=tag.stdout, stdout=subprocess.PIPE)
+previous = grep.communicate()[0].decode("utf8")
 
 current = str.split(str(current), "\n")[0]
-previous = str.split(previous, "\n")
+previous = str.split(str(previous), "\n")
 previous = [x for x in previous if not any(y.isalpha() for y in x)][0]
 
 filename = "%s_%s.txt" % (previous, current)
