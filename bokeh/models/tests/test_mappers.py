@@ -15,6 +15,8 @@ def test_LinearColorMapper():
         "palette",
         "low",
         "high",
+        "low_color",
+        "high_color",
         "nan_color"],
     )
 
@@ -25,6 +27,8 @@ def test_LogColorMapper():
         "palette",
         "low",
         "high",
+        "low_color",
+        "high_color",
         "nan_color"],
     )
 

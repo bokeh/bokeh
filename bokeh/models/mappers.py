@@ -74,6 +74,15 @@ class ContinuousColorMapper(ColorMapper):
     this are clamped to ``high``.
     """)
 
+    low_color = Color(default=None, help="""
+    Color to be used if data is lower than ``low`` value. If None,
+    values lower than ``low`` are mapped to the first color in the palette.
+    """)
+
+    high_color = Color(default=None, help="""
+    Color to be used if data is lower than ``high`` value. If None,
+    values lower than ``high`` are mapped to the last color in the palette.
+    """)
 
 class LinearColorMapper(ContinuousColorMapper):
     """ Map numbers in a range [*low*, *high*] linearly into a
@@ -90,6 +99,7 @@ class LinearColorMapper(ContinuousColorMapper):
        99 >= x      : 'blue'    # values > high are clamped
 
     """
+
 
 
 class LogColorMapper(ContinuousColorMapper):

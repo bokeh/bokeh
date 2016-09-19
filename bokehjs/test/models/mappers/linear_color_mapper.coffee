@@ -103,3 +103,16 @@ describe "LinearColorMapper module", ->
 
       vals = color_mapper._get_values([1, NaN, 3], palette)
       expect(vals).to.be.deep.equal(["red", "gray", "blue"])
+
+    it "Should map high/low values to high_color/low_color, if provided", ->
+      palette = ["red", "green", "blue"]
+      color_mapper = new LinearColorMapper({
+          low: 0
+          high: 2
+          palette: palette
+          low_color: "pink"
+          high_color: "orange"
+        })
+
+      vals = color_mapper._get_values([-1, 0, 1, 2, 3], palette)
+      expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
