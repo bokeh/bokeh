@@ -22,6 +22,8 @@ from bokeh.charts.builder import create_and_build, XYBuilder
 from bokeh.charts.glyphs import PointGlyph
 from bokeh.charts.attributes import MarkerAttr, ColorAttr
 from bokeh.charts.utils import add_tooltips_columns
+
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------

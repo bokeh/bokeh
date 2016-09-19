@@ -30,6 +30,7 @@ from ..stats import stats
 from ...models.sources import ColumnDataSource
 from ..utils import help
 
+
 # -----------------------------------------------------------------------------
 # Classes and functions
 # -----------------------------------------------------------------------------
@@ -229,7 +230,7 @@ class BarBuilder(Builder):
         self.max_height = max([renderer.y_max for renderer in self.comp_glyphs])
         self.min_height = min([renderer.y_min for renderer in self.comp_glyphs])
 
-        for renderer in self.comp_glphs:
+        for renderer in self.comp_glyphs:
             for sub_renderer in renderer.renderers:
                 yield sub_renderer
 
