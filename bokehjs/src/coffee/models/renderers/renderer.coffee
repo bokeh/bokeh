@@ -23,26 +23,6 @@ class RendererView extends BokehView
   request_render: () ->
     @plot_view.request_render()
 
-  map_data: () ->
-    # todo: if using gl, skip this (when is this called?)
-
-    # map all the coordinate fields
-    for [xname, yname] in @model._coords
-      sxname = "s#{xname}"
-      syname = "s#{yname}"
-      xname = "_#{xname}"
-      yname = "_#{yname}"
-      if _.isArray(@[xname]?[0])
-        [ @[sxname], @[syname] ] = [ [], [] ]
-        for i in [0...@[xname].length]
-          [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])
-          @[sxname].push(sx)
-          @[syname].push(sy)
-      else
-        [ @[sxname], @[syname] ] = @map_to_screen(@[xname], @[yname])
-
-    @_map_data()
-
   _project_xy: (x, y) ->
     merc_x_s = []
     merc_y_s = []
@@ -85,7 +65,6 @@ class RendererView extends BokehView
     @_set_data()
 
   _set_data: () -> null
-  _map_data: () -> null
 
   set_visuals: (source) ->
     @visuals.warm_cache(source)

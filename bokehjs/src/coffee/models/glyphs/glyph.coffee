@@ -179,6 +179,29 @@ class GlyphView extends Renderer.View
 
   _bounds: (bounds) -> bounds
 
+  map_data: () ->
+    # todo: if using gl, skip this (when is this called?)
+
+    # map all the coordinate fields
+    for [xname, yname] in @model._coords
+      sxname = "s#{xname}"
+      syname = "s#{yname}"
+      xname = "_#{xname}"
+      yname = "_#{yname}"
+      if _.isArray(@[xname]?[0])
+        [ @[sxname], @[syname] ] = [ [], [] ]
+        for i in [0...@[xname].length]
+          [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])
+          @[sxname].push(sx)
+          @[syname].push(sy)
+      else
+        [ @[sxname], @[syname] ] = @map_to_screen(@[xname], @[yname])
+
+    @_map_data()
+
+  # This is where specs not included in coords are computed, e.g. radius.
+  _map_data: () ->
+
 class Glyph extends Model
 
   @define {
