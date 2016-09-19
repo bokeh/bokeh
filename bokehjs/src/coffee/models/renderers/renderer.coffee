@@ -1,10 +1,10 @@
 _ = require "underscore"
 
 BokehView = require "../../core/bokeh_view"
+{Visuals} = require "../../core/visuals"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 proj = require "../../core/util/projections"
-{Visuals} = require "../../common/visuals"
 Model = require "../../model"
 
 class RendererView extends BokehView

@@ -1,6 +1,6 @@
 _ = require "underscore"
-mixins = require "../core/property_mixins"
-{color2rgba} = require "../core/util/color"
+mixins = require "./property_mixins"
+{color2rgba} = require "./util/color"
 
 class ContextProperties
 

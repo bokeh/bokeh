@@ -1,6 +1,6 @@
 TextAnnotation = require "./text_annotation"
 p = require "../../core/properties"
-Visuals = require "../../common/visuals"
+Visuals = require "../../core/visuals"
 
 class TitleView extends TextAnnotation.View
 

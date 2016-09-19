@@ -7,7 +7,7 @@ bbox = require "../../core/util/bbox"
 proj = require "../../core/util/projections"
 BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
-{Visuals} = require "../../common/visuals"
+{Visuals} = require "../../core/visuals"
 bokehgl = require "./webgl/main"
 {logger} = require "../../core/logging"
 

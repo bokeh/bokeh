@@ -1,6 +1,6 @@
 Annotation = require "./annotation"
 Renderer = require "../renderers/renderer"
-{Visuals} = require "../../common/visuals"
+{Visuals} = require "../../core/visuals"
 p = require "../../core/properties"
 
 class ArrowHead extends Annotation.Model

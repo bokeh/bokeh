@@ -9,10 +9,10 @@ LayoutDOM = require "../layouts/layout_dom"
 
 build_views = require "../../common/build_views"
 UIEvents = require "../../common/ui_events"
-{Visuals} = require "../../common/visuals"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
+{Visuals} = require "../../core/visuals"
 BokehView = require "../../core/bokeh_view"
 {EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
