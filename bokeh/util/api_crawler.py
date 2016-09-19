@@ -1,5 +1,5 @@
 from __future__ import print_function
-import ast, os, sys
+import ast, os
 import six
 
 __all__ = ["api_crawler", "differ"]
