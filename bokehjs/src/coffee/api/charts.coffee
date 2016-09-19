@@ -4,7 +4,7 @@ sprintf = require("sprintf")
 {Document} = require("../document")
 embed = require("../embed")
 models = require("./models")
-palettes = require("../palettes/palettes")
+palettes = require("./palettes")
 
 sum = (array) ->
   return array.reduce(((a, b) => a + b), 0)
