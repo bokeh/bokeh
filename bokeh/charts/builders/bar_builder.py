@@ -28,6 +28,7 @@ from ..operations import Stack, Dodge
 from ...core.enums import Aggregation
 from ..stats import stats
 from ...models.sources import ColumnDataSource
+from ..utils import help
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -190,9 +191,7 @@ class BarBuilder(Builder):
         kwargs = self.get_extra_args()
         attrs = self.collect_attr_kwargs()
 
-        groups = []
         for group in self._data.groupby(**self.attributes):
-            groups.append(group)
             glyph_kwargs = self.get_group_kwargs(group, attrs)
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
@@ -230,8 +229,8 @@ class BarBuilder(Builder):
         self.max_height = max([renderer.y_max for renderer in self.comp_glyphs])
         self.min_height = min([renderer.y_min for renderer in self.comp_glyphs])
 
-        for i in range(len(self.comp_glyphs)):
-            for sub_renderer in self.comp_glyphs[i].renderers:
+        for renderer in self.comp_glphs:
+            for sub_renderer in renderer.renderers:
                 yield sub_renderer
 
 

@@ -28,6 +28,7 @@ from ...core.properties import Bool, String, List
 from ..operations import Stack, Dodge
 from ..utils import add_tooltips_columns
 
+
 # -----------------------------------------------------------------------------
 # Classes and functions
 # -----------------------------------------------------------------------------

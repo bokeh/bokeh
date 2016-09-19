@@ -21,6 +21,7 @@ from ..builder import create_and_build
 from .line_builder import LineBuilder
 from ..glyphs import StepGlyph
 
+
 # -----------------------------------------------------------------------------
 # Classes and functions
 # -----------------------------------------------------------------------------
