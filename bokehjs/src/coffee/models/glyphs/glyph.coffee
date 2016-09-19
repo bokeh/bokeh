@@ -2,19 +2,22 @@ _ = require "underscore"
 rbush = require "rbush"
 
 CategoricalMapper = require "../mappers/categorical_mapper"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 bbox = require "../../core/util/bbox"
+proj = require "../../core/util/projections"
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
+{Visuals} = require "../../common/visuals"
 bokehgl = require "./webgl/main"
 {logger} = require "../../core/logging"
 
-class GlyphView extends Renderer.View
+class GlyphView extends BokehView
 
   initialize: (options) ->
     super(options)
     @_nohit_warned = {}
     @renderer = options.renderer
+    @visuals = new Visuals(@model)
 
     # Init gl (this should really be done anytime renderer is set,
     # and not done if it isn't ever set, but for now it only
@@ -166,10 +169,25 @@ class GlyphView extends Renderer.View
     return result
 
   set_data: (source) ->
-    super(source)
+    data = @model.materialize_dataspecs(source)
+    _.extend(@, data)
+
+    if @renderer.plot_view.model.use_map
+      if @_x?
+        [@_x, @_y] = proj.project_xy(@_x, @_y)
+      if @_xs?
+        [@_xs, @_ys] = proj.project_xsys(@_xs, @_ys)
+
+    if @glglyph?
+      @glglyph.set_data_changed(@_x.length)
+
+    @_set_data()
+
     @index = @_index_data()
 
-  _index_data: () -> null
+  _set_data: () ->
+
+  _index_data: () ->
 
   mask_data: (indices) ->
     # WebGL can do the clipping much more efficiently
@@ -201,6 +219,9 @@ class GlyphView extends Renderer.View
 
   # This is where specs not included in coords are computed, e.g. radius.
   _map_data: () ->
+
+  map_to_screen: (x, y) ->
+    @renderer.plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
 class Glyph extends Model
 
