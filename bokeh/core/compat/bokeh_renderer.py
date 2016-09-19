@@ -147,7 +147,7 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        if "get_facecolor" in dir(ax):
+        if hasattr(ax, 'get_facecolor'):
             background_fill_color = convert_color(ax.get_facecolor())
         else:
             background_fill_color = convert_color(ax.get_axis_bgcolor())
