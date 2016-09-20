@@ -18,6 +18,7 @@ from ..models import (
     WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime, value
+from ..util.deprecate import BokehDeprecationWarning
 from ..util.string import nice_join
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
@@ -119,8 +120,13 @@ def _process_legend_kwargs(kwargs):
             # Otherwise just accept folks were being intentional
             kwargs['label'] = legend
 
+_GLYPH_SOURCE_MSG = """
+Supplying a user-defined data source AND iterable values to glyph methods is deprecated.
 
-def _process_sequence_literals(glyphclass, kwargs, source):
+See https://github.com/bokeh/bokeh/issues/2056 for more information.
+"""
+
+def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
     dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
@@ -142,6 +148,9 @@ def _process_sequence_literals(glyphclass, kwargs, source):
 
         if isinstance(val, np.ndarray) and val.ndim != 1:
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+
+        if is_user_source:
+            warnings.warn(_GLYPH_SOURCE_MSG, BokehDeprecationWarning, stacklevel=2)
 
         source.add(val, name=var)
         kwargs[var] = var
@@ -412,6 +421,8 @@ def _glyph_function(glyphclass, extra_docs=None):
     def func(self, *args, **kwargs):
 
         _process_legend_kwargs(kwargs)
+        # Need to check if user source is present before _pop_renderer_args
+        is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
 
@@ -421,8 +432,8 @@ def _glyph_function(glyphclass, extra_docs=None):
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
-        _process_sequence_literals(glyphclass, kwargs, source)
-        _process_sequence_literals(glyphclass, glyph_ca, source)
+        _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
+        _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
 
         # handle the nonselection glyph, we always set one
         nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
