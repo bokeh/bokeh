@@ -344,8 +344,9 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         return serialize_json(json_like)
 
     def __str__(self):
-        return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
-                self.__view_model__, getattr(self, "_id", None))
+        return "%s(id=%s, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
+
+    __repr__ = __str__
 
     def _repr_pretty_(self, p, cycle):
         name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
@@ -370,6 +371,58 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                     p.text(prop)
                     p.text('=')
                     p.pretty(value)
+
+    def _repr_html_(self):
+        module = self.__class__.__module__
+        name = self.__class__.__name__
+
+        _id = getattr(self, "_id", None)
+
+        cls_name = make_id()
+
+        def row(c):
+            return '<div style="display: table-row;">' + c + '</div>'
+        def hidden_row(c):
+            return '<div class="%s" style="display: none;">%s</div>' % (cls_name, c)
+        def cell(c):
+            return '<div style="display: table-cell;">' + c + '</div>'
+
+        html = ''
+        html += '<div style="display: table;">'
+
+        ellipsis_id = make_id()
+        ellipsis = '<span id="%s" style="cursor: pointer;">&hellip;)</span>' % ellipsis_id
+
+        prefix = cell('<b title="%s.%s">%s</b>(' % (module, name, name))
+        html += row(prefix + cell('id' + '&nbsp;=&nbsp;' + repr(_id) + ', ' + ellipsis))
+
+        props = self.properties_with_values().items()
+        sorted_props = sorted(props, key=itemgetter(0))
+        all_props = sorted_props
+        for i, (prop, value) in enumerate(all_props):
+            end = ')' if i == len(all_props)-1 else ','
+            html += hidden_row(cell("") + cell(prop + '&nbsp;=&nbsp;' + repr(value) + end))
+
+        html += '</div>'
+        html += """
+<script>
+(function() {
+  var expanded = false;
+  var ellipsis = document.getElementById("%(ellipsis_id)s");
+  ellipsis.addEventListener("click", function() {
+    var rows = document.getElementsByClassName("%(cls_name)s");
+    for (var i = 0; i < rows.length; i++) {
+      var el = rows[i];
+      el.style.display = expanded ? "none" : "table-row";
+    }
+    ellipsis.innerHTML = expanded ? "&hellip;)" : "&lsaquo;&lsaquo;&lsaquo;";
+    expanded = !expanded;
+  });
+})();
+</script>
+""" % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
+
+        return html
 
 def _find_some_document(models):
     from .document import Document
