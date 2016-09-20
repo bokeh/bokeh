@@ -102,19 +102,20 @@ class PlotCanvasView extends BokehView
       hit_area: @canvas_view.$el
     })
 
-    @renderer_views = {}
-    @tool_views = {}
-
     @levels = {}
     for level in enums.RenderLevel
       @levels[level] = {}
-    @build_levels()
-    @bind_bokeh_events()
 
+    @renderer_views = {}
+    @tool_views = {}
+
+    @build_levels()
+    @build_tools()
+
+    @bind_bokeh_events()
     @update_dataranges()
 
     @unpause()
-
     logger.debug("PlotView initialized")
 
     return this
@@ -416,41 +417,37 @@ class PlotCanvasView extends BokehView
     @update_range(null)
 
   build_levels: () ->
-    renderer_models = @model.plot.renderers
-    for tool_model in @model.plot.toolbar.tools
-      synthetic = tool_model.synthetic_renderers
-      renderer_models = renderer_models.concat(synthetic)
+    renderer_models = @model.plot.all_renderers
 
-    # should only bind events on NEW views and tools
+    # should only bind events on NEW views
     old_renderers = _.keys(@renderer_views)
-    views = build_views(@renderer_views, renderer_models, @view_options())
+    new_renderer_views = build_views(@renderer_views, renderer_models, @view_options())
     renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
 
-    tool_views = build_views(@tool_views, @model.plot.toolbar.tools, @view_options())
+    for view in new_renderer_views
+      @levels[view.model.level][view.model.id] = view
+      view.bind_bokeh_events()
 
-    for v in views
-      level = v.model.level
-      @levels[level][v.model.id] = v
-      v.bind_bokeh_events()
+    return @
 
-    for tool_view in tool_views
-      level = tool_view.model.level
-      @levels['tool'][tool_view.model.id] = tool_view
+  build_tools: () ->
+    tool_models = @model.plot.toolbar.tools
+    new_tool_views = build_views(@tool_views, tool_models, @view_options())
+
+    for tool_view in new_tool_views
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
-
-    return this
 
   bind_bokeh_events: () ->
     for name, rng of @model.frame.x_ranges
       @listenTo(rng, 'change', @request_render)
     for name, rng of @model.frame.y_ranges
       @listenTo(rng, 'change', @request_render)
-    @listenTo(@model.plot, 'change:renderers', @build_levels)
-    @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
+    @listenTo(@model.plot, 'change:renderers', () => @build_levels())
+    @listenTo(@model.plot.toolbar, 'change:tools', () => @build_levels(); @build_tools())
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
     @listenTo(@model.plot.document.solver(), 'layout_update', () => @request_render())
@@ -542,7 +539,7 @@ class PlotCanvasView extends BokehView
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
     @blit_webgl(ratio)
     @_render_levels(ctx, ['annotation'], frame_box)
-    @_render_levels(ctx, ['overlay', 'tool'])
+    @_render_levels(ctx, ['overlay'])
 
     if not @initial_range_info?
       @set_initial_range()
