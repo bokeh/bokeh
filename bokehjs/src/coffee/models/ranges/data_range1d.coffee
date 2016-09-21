@@ -137,14 +137,14 @@ class DataRange1d extends DataRange.Model
         new_range.start = start
       if end != _end
         new_range.end = end
-      @set(new_range)
+      @setv(new_range)
 
     if @bounds == 'auto'
       @bounds = [start, end]
 
   reset: () ->
     @have_updated_interactively = false
-    @set({
+    @setv({
       range_padding: @_initial_range_padding
       follow: @_initial_follow
       follow_interval: @_initial_follow_interval

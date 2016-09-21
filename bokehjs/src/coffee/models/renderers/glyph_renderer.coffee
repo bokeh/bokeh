@@ -81,7 +81,7 @@ class GlyphRendererView extends Renderer.View
 
     # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
     # mapping functions on the base Renderer class
-    @glyph.model.set({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
+    @glyph.model.setv({x_range_name: @model.x_range_name, y_range_name: @model.y_range_name}, {silent: true})
     @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)
@@ -215,8 +215,8 @@ class GlyphRendererView extends Renderer.View
   map_to_screen: (x, y) ->
     @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    index = @model.get_reference_point()
+  draw_legend: (ctx, x0, x1, y0, y1, field, label) ->
+    index = @model.get_reference_point(field, label)
     @glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
 
   hit_test: (geometry) ->
@@ -237,6 +237,26 @@ class GlyphRenderer extends Renderer.Model
         if i > 0
           index = i
     return index
+
+  get_field_from_glyph_label_prop: () ->
+    label_prop = @glyph.label
+    if label_prop? and label_prop.field?
+      return label_prop.field
+
+  get_labels_from_glyph_label_prop: () ->
+    # Always return a list of the labels
+    label_prop = @glyph.label
+    if label_prop? and label_prop.value?
+      return [label_prop.value]
+    if label_prop? and label_prop.field?
+      if @data_source.get_column?
+        data = @data_source.get_column(label_prop.field)
+        if data
+          return _.unique(data)
+        else
+          return ["Invalid field"]
+    return []
+
 
   @define {
       x_range_name:       [ p.String,      'default' ]

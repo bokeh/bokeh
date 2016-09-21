@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.2",
+  "version": "0.12.3dev4",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -43,10 +43,8 @@
     "gulp-if": "^2.0.0",
     "merge": "^1.2.0",
     "logtrap": "^0.0.1",
-    "hammerjs": "^2.0.4",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
-    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "phantomjs-prebuilt": "2.1.7",
     "proxyquire": "1.7.10",
     "run-sequence": "^1.0.0",
@@ -66,6 +64,7 @@
     "websocket":"^1.0.22",
     "typings": "^0.7.9",
     "typings-core": "^0.2.11",
+    "coffee-script": "^1.10.0",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
     "acorn": "^3.3.0",
@@ -94,16 +93,17 @@
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "~1.10.5",
-    "jsnlog": "^2.7.5",
     "rbush": "^2.0.1",
     "proj4": "^2.3.10",
     "sprintf": "^0.1.5",
     "timezone": "0.0.38",
-    "coffee-script": "^1.9.3"
+    "hammerjs": "^2.0.4",
+    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
+    "root-require": "^0.3.1"
   },
   "scripts": {
     "build": "gulp build",
     "dev-build": "gulp dev-build"
   },
-  "main": "build/js/bokeh.js"
+  "main": "build/js/tree/index.js"
 }

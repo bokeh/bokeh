@@ -47,9 +47,8 @@ One way that you might want to use the Bokeh server is during exploratory
 data analysis, possibly in a Jupyter notebook. Alternatively, you might
 want to create a small app that you can run locally, or that you can send
 to colleagues to run locally. The Bokeh server is very useful and easy to
-use in this scenario. All of the methods here below can be used effectively:
+use in this scenario. Both of the methods here below can be used effectively:
 
-* :ref:`userguide_server_output_server`
 * :ref:`userguide_server_bokeh_client`
 * :ref:`userguide_server_applications`
 
@@ -99,155 +98,6 @@ different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
 server with other web application frameworks. See a complete example at
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
-
-
-.. _userguide_server_output_server:
-
-Specifying ``output_server``
-----------------------------
-
-With the previous Flask-based Bokeh server, there was a function
-:func:`bokeh.io.output_server` that could be used to load Bokeh documents
-in to a running Bokeh server programmatically. The function still exists
-and works, however its utility is somewhat limited.
-
-First, we must have a Bokeh Server running. To do that, execute the command:
-
-.. code-block:: sh
-
-    bokeh serve
-
-or, alternatively:
-
-.. code-block:: sh
-
-    python -m bokeh serve
-
-When the server starts you should see output similar to the following on your
-console:
-
-.. code-block:: sh
-
-    DEBUG:bokeh.server.tornado:Allowed Host headers: ['localhost:5006']
-    DEBUG:bokeh.server.tornado:These host origins can connect to the websocket: ['localhost:5006']
-    DEBUG:bokeh.server.tornado:Patterns are: [<<< several endpoints >>>]
-    INFO:bokeh.command.subcommands.serve:Starting Bokeh server on port 5006 with applications at paths ['/']
-
-This starts the Bokeh Server in a mode where it can easily accept connections
-and data from any script that uses :func:`~bokeh.io.output_server` to connect
-to it.
-
-A simple script that illustrates this is here:
-
-.. code-block:: python
-
-    from bokeh.plotting import figure, show, output_server
-
-    p = figure(title="Server Plot")
-    p.circle([1, 2, 3], [4, 5, 6])
-
-    output_server("hover")
-
-    show(p)
-
-Because the script calls ``show``, a browser tab is automatically opened up
-to the correct URL to view the document, which in this case is:
-
-.. code-block:: none
-
-    http://localhost:5006/?bokeh-session-id=hover
-
-.. _userguide_server_bokeh_client:
-
-Connecting with ``bokeh.client``
---------------------------------
-
-With the new Tornado and websocket-based server introduced in Bokeh 0.11,
-there is also a proper client API for interacting directly with a Bokeh
-Server. This client API can be used to trigger updates to the plots and
-widgets in the browser, either in response to UI events from the browser
-or as a results of periodic or asynchronous callbacks. As before, the first
-step is to start a Bokeh Server:
-
-.. code-block:: sh
-
-    bokeh serve
-
-Next, let's look at a complete example, and then examine a few key lines
-individually:
-
-.. code-block:: python
-
-    import numpy as np
-    from numpy import pi
-
-    from bokeh.client import push_session
-    from bokeh.driving import cosine
-    from bokeh.plotting import figure, curdoc
-
-    x = np.linspace(0, 4*pi, 80)
-    y = np.sin(x)
-
-    p = figure()
-    r1 = p.line([0, 4*pi], [-1, 1], color="firebrick")
-    r2 = p.line(x, y, color="navy", line_width=4)
-
-    # open a session to keep our local document in sync with server
-    session = push_session(curdoc())
-
-    @cosine(w=0.03)
-    def update(step):
-        # updating a single column of the the *same length* is OK
-        r2.data_source.data["y"] = y * step
-        r2.glyph.line_alpha = 1 - 0.8 * abs(step)
-
-    curdoc().add_periodic_callback(update, 50)
-
-    session.show(p) # open the document in a browser
-
-    session.loop_until_closed() # run forever
-
-If you run this script, you will see a plot with an animated line appear in
-a new browser tab. The first half of the script is like most any script that
-uses the ``bokeh.plotting`` interface. The first interesting line is:
-
-.. code-block:: python
-
-    session = push_session(curdoc())
-
-This line opens a new session with the Bokeh Server, initializing it with our
-current Document. This local Document will be automatically kept in sync with
-the server. The next few lines define and add a periodic callback to be run
-every 50 milliseconds:
-
-.. code-block:: python
-
-    @cosine(w=0.03)
-    def update(step):
-        # updating a single column of the the *same length* is OK
-        r2.data_source.data["y"] = y * step
-        r2.glyph.line_alpha = 1 - 0.8 * abs(step)
-
-    curdoc().add_periodic_callback(update, 50)
-
-Next, analogous to :func:`bokeh.io.show`, there is this a
-:func:`~bokeh.client.session.ClientSession.show` on session objects that will
-automatically open a browser tab to display the synced Document.
-
-Finally, we need to tell the session to loop forever, so that the periodic
-callbacks happen:
-
-.. code-block:: python
-
-    session.loop_until_closed() # run forever
-
-This mode of interaction can be very useful, especially for individual
-exploratory data analysis (e.g, in a Juypter notebook). However, it does
-have some drawbacks when compared to the Application technique described
-below. In particular, in addition to network traffic between the browser
-and the server, there is network traffic between the python client and the
-server as well. Depending on the particular usage, this could be a
-significant consideration.
 
 .. _userguide_server_applications:
 
@@ -700,6 +550,97 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
+.. _userguide_server_bokeh_client:
+
+Connecting with ``bokeh.client``
+--------------------------------
+
+With the new Tornado and websocket-based server introduced in Bokeh 0.11,
+there is also a proper client API for interacting directly with a Bokeh
+Server. This client API can be used to trigger updates to the plots and
+widgets in the browser, either in response to UI events from the browser
+or as a results of periodic or asynchronous callbacks. As before, the first
+step is to start a Bokeh Server:
+
+.. code-block:: sh
+
+    bokeh serve
+
+Next, let's look at a complete example, and then examine a few key lines
+individually:
+
+.. code-block:: python
+
+    import numpy as np
+    from numpy import pi
+
+    from bokeh.client import push_session
+    from bokeh.driving import cosine
+    from bokeh.plotting import figure, curdoc
+
+    x = np.linspace(0, 4*pi, 80)
+    y = np.sin(x)
+
+    p = figure()
+    r1 = p.line([0, 4*pi], [-1, 1], color="firebrick")
+    r2 = p.line(x, y, color="navy", line_width=4)
+
+    # open a session to keep our local document in sync with server
+    session = push_session(curdoc())
+
+    @cosine(w=0.03)
+    def update(step):
+        # updating a single column of the the *same length* is OK
+        r2.data_source.data["y"] = y * step
+        r2.glyph.line_alpha = 1 - 0.8 * abs(step)
+
+    curdoc().add_periodic_callback(update, 50)
+
+    session.show(p) # open the document in a browser
+
+    session.loop_until_closed() # run forever
+
+If you run this script, you will see a plot with an animated line appear in
+a new browser tab. The first half of the script is like most any script that
+uses the ``bokeh.plotting`` interface. The first interesting line is:
+
+.. code-block:: python
+
+    session = push_session(curdoc())
+
+This line opens a new session with the Bokeh Server, initializing it with our
+current Document. This local Document will be automatically kept in sync with
+the server. The next few lines define and add a periodic callback to be run
+every 50 milliseconds:
+
+.. code-block:: python
+
+    @cosine(w=0.03)
+    def update(step):
+        # updating a single column of the the *same length* is OK
+        r2.data_source.data["y"] = y * step
+        r2.glyph.line_alpha = 1 - 0.8 * abs(step)
+
+    curdoc().add_periodic_callback(update, 50)
+
+Next, analogous to :func:`bokeh.io.show`, there is this a
+:func:`~bokeh.client.session.ClientSession.show` on session objects that will
+automatically open a browser tab to display the synced Document.
+
+Finally, we need to tell the session to loop forever, so that the periodic
+callbacks happen:
+
+.. code-block:: python
+
+    session.loop_until_closed() # run forever
+
+This mode of interaction can be very useful, especially for individual
+exploratory data analysis (e.g, in a Juypter notebook). However, it does
+have some drawbacks when compared to the Application technique described
+below. In particular, in addition to network traffic between the browser
+and the server, there is network traffic between the python client and the
+server as well. Depending on the particular usage, this could be a
+significant consideration.
 
 .. _userguide_server_deployment:
 

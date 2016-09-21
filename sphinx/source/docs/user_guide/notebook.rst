@@ -40,7 +40,7 @@ The following screenshots walk through the basic usage of notebook handles.
     :scale: 40 %
     :align: center
 
-* Next, create some plots, and make sure to pass ``handle_notebook=True``
+* Next, create some plots, and make sure to pass ``notebook_handle=True``
   to |show|:
 
 .. image:: /_images/notebook_comms2.png

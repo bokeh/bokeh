@@ -116,8 +116,8 @@ class TileRendererView extends Renderer.View
       extent = @get_extent()
       zoom_level = @model.tile_source.get_level_by_extent(extent, @map_frame.height, @map_frame.width)
       new_extent = @model.tile_source.snap_to_zoom(extent, @map_frame.height, @map_frame.width, zoom_level)
-      @x_range.set({start:new_extent[0], end: new_extent[2]})
-      @y_range.set({start:new_extent[1], end: new_extent[3]})
+      @x_range.setv({start:new_extent[0], end: new_extent[2]})
+      @y_range.setv({start:new_extent[1], end: new_extent[3]})
       @extent = new_extent
       @_last_height = @map_frame.height
       @_last_width = @map_frame.width
@@ -220,8 +220,8 @@ class TileRendererView extends Renderer.View
       snap_back = true
 
     if snap_back
-      @x_range.set(x_range:{start:extent[0], end: extent[2]})
-      @y_range.set({start:extent[1], end: extent[3]})
+      @x_range.setv(x_range:{start:extent[0], end: extent[2]})
+      @y_range.setv({start:extent[1], end: extent[3]})
       @extent = extent
 
     @extent = extent

@@ -439,7 +439,7 @@ class Document
     # this first pass removes all 'refs' replacing them with real instances
     foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        instance.set(attrs)
+        instance.setv(attrs)
 
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->
@@ -655,7 +655,7 @@ class Document
           patched_obj = @_all_models[patched_id]
           attr = event_json['attr']
           value = Document._resolve_refs(event_json['new'], old_references, new_references)
-          patched_obj.set({ "#{attr}" : value })
+          patched_obj.setv({ "#{attr}" : value })
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']

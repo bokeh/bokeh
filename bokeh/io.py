@@ -181,6 +181,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
 # usually we default session_id to "generate a random one" but
 # here we default to a hardcoded one. This is to support local
 # usage e.g. with a notebook.
+@deprecated("Bokeh 0.12.3", "bokeh.client sessions (described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client)")
 def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", autopush=False):
     """ Configure the default output state to push its document to a
     session on a Bokeh server.

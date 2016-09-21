@@ -9,13 +9,6 @@ p = require "./properties"
 
 class HasProps extends Backbone.Model
 
-  @getter: (name, get) ->
-    Object.defineProperty(this.prototype, name, { get: get })
-
-  @getters: (specs) ->
-    for name, get of specs
-      @getter(name, get)
-
   props: {}
   mixins: []
 
@@ -29,8 +22,8 @@ class HasProps extends Backbone.Model
           throw new Error("attempted to redefine attribute '#{this.name}.#{name}'")
 
         Object.defineProperty(this.prototype, name, {
-          get: ()      -> this.get(name)
-          set: (value) -> this.set(name, value)
+          get: ()      -> this.getv(name)
+          set: (value) -> this.setv(name, value)
         }, {
           configurable: false
           enumerable: true
@@ -102,10 +95,10 @@ class HasProps extends Backbone.Model
     # Bokeh specific
     this._set_after_defaults = {}
 
-    this.set(attrs, options)
+    this.setv(attrs, options)
 
     # this is maintained by backbone ("changes since the last
-    # set()") and probably isn't relevant to us
+    # setv()") and probably isn't relevant to us
     this.changed = {}
 
     ## bokeh custom constructor code
@@ -124,7 +117,7 @@ class HasProps extends Backbone.Model
     if not options.defer_initialization
       this.initialize.apply(this, arguments)
 
-  set: (key, value, options) ->
+  setv: (key, value, options) ->
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
@@ -137,19 +130,19 @@ class HasProps extends Backbone.Model
     for own key, val of attrs
       prop_name = key
       if not @props[prop_name]?
-        throw new Error("#{@type}.set('#{prop_name}'): #{prop_name} wasn't declared")
+        throw new Error("property #{@type}.#{prop_name} wasn't declared")
 
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
     if not _.isEmpty(attrs)
       old = {}
       for key, value of attrs
-        old[key] = @get(key)
+        old[key] = @getv(key)
       super(attrs, options)
 
       if not options?.silent?
         for key, value of attrs
-          @_tell_document_about_change(key, old[key], @get(key))
+          @_tell_document_about_change(key, old[key], @getv(key))
 
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
@@ -210,9 +203,17 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
+  set: (key, value, options) ->
+    logger.warn("HasProps.set('prop_name', value) is deprecated, use HasProps.prop_name = value instead")
+    return @setv(key, value, options)
+
   get: (prop_name) ->
+    logger.warn("HasProps.get('prop_name') is deprecated, use HasProps.prop_name instead")
+    return @getv(prop_name)
+
+  getv: (prop_name) ->
     if not @props[prop_name]?
-      throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
+      throw new Error("property #{@type}.#{prop_name} wasn't declared")
     else
       return super(prop_name)
 
@@ -235,8 +236,6 @@ class HasProps extends Backbone.Model
   # only Python cares about this
   set_subtype: (subtype) ->
     @_subtype = subtype
-
-  defaults: -> throw new Error("don't use HasProps.defaults anymore")
 
   attribute_is_serializable: (attr) ->
     prop = @props[attr]

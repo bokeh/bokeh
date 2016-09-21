@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from collections import Iterable, OrderedDict, Sequence
+from collections import Iterable, Sequence
 import difflib
 import itertools
 import re
@@ -15,12 +15,14 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelZoomTool, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
-from ..core.properties import ColorSpec, Datetime
+from ..core.properties import ColorSpec, Datetime, value
+from ..util.deprecate import BokehDeprecationWarning
 from ..util.string import nice_join
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+
 
 def get_default_color(plot=None):
     colors = [
@@ -98,7 +100,33 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
 
     return result
 
-def _process_sequence_literals(glyphclass, kwargs, source):
+
+def _process_legend_kwargs(kwargs):
+    if kwargs.get('legend') and kwargs.get('label'):
+        raise RuntimeError("Cannot set both legend and label at the same time.")
+    legend = kwargs.pop('legend', None)
+    source = kwargs.get('source')
+    if legend:
+        if isinstance(legend, string_types):
+            # Try and do something intelligent with a legend string:
+            # * value if it's not in column data source
+            # * field if it is
+            if source and hasattr(source, 'column_names'):
+                if legend in source.column_names:
+                    kwargs['label'] = legend
+                else:
+                    kwargs['label'] = value(legend)
+        else:
+            # Otherwise just accept folks were being intentional
+            kwargs['label'] = legend
+
+_GLYPH_SOURCE_MSG = """
+Supplying a user-defined data source AND iterable values to glyph methods is deprecated.
+
+See https://github.com/bokeh/bokeh/issues/2056 for more information.
+"""
+
+def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
     dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
@@ -121,6 +149,9 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         if isinstance(val, np.ndarray) and val.ndim != 1:
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
+        if is_user_source:
+            warnings.warn(_GLYPH_SOURCE_MSG, BokehDeprecationWarning, stacklevel=2)
+
         source.add(val, name=var)
         kwargs[var] = var
 
@@ -130,21 +161,16 @@ def _make_glyph(glyphclass, kws, extra):
         kws.update(extra)
         return glyphclass(**kws)
 
-def _update_legend(plot, legend_name, glyph_renderer):
+def _update_legend(plot, glyph_renderer):
     legends = plot.select(type=Legend)
     if not legends:
-        legend = Legend(plot=plot)
-        # this awkward syntax is needed to go through Property.__set__ and
-        # therefore trigger a change event. With improvements to Property
-        # we might be able to use a more natural append() or +=
-        plot.renderers = plot.renderers + [legend]
+        legend = Legend()
+        plot.add_layout(legend)
     elif len(legends) == 1:
         legend = legends[0]
     else:
         raise RuntimeError("Plot %s configured with more than one legend renderer" % plot)
-    specs = OrderedDict(legend.legends)
-    specs.setdefault(legend_name, []).append(glyph_renderer)
-    legend.legends = list(specs.items())
+    legend.legends.append(glyph_renderer)
 
 def _get_range(range_input):
     if range_input is None:
@@ -203,6 +229,8 @@ _known_tools = {
     "wheel_zoom": lambda: WheelZoomTool(dimensions=["width", "height"]),
     "xwheel_zoom": lambda: WheelZoomTool(dimensions=["width"]),
     "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
+    "xwheel_pan": lambda: WheelPanTool(dimension="width"),
+    "ywheel_pan": lambda: WheelPanTool(dimension="height"),
     "resize": lambda: ResizeTool(),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
@@ -392,8 +420,9 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, *args, **kwargs):
 
-        # pop off glyph *function* parameters that are not glyph class properties
-        legend_name = kwargs.pop("legend", None)
+        _process_legend_kwargs(kwargs)
+        # Need to check if user source is present before _pop_renderer_args
+        is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
 
@@ -403,8 +432,8 @@ def _glyph_function(glyphclass, extra_docs=None):
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
-        _process_sequence_literals(glyphclass, kwargs, source)
-        _process_sequence_literals(glyphclass, glyph_ca, source)
+        _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
+        _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
 
         # handle the nonselection glyph, we always set one
         nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
@@ -432,8 +461,8 @@ def _glyph_function(glyphclass, extra_docs=None):
                                        hover_glyph=hglyph,
                                        **renderer_kws)
 
-        if legend_name:
-            _update_legend(self, legend_name, glyph_renderer)
+        if glyph.label:
+            _update_legend(self, glyph_renderer)
 
         for tool in self.select(type=BoxSelectTool):
             # this awkward syntax is needed to go through Property.__set__ and
