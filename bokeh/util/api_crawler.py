@@ -218,11 +218,12 @@ class Differ(object):
                     # Prevent NoneType errors by returning empty dict.
                     former_methods = self.former[x]["classes"].get(y, {})
                     latter_methods = self.latter[x]["classes"].get(y, {})
-                    methods_diff = self.diff_signatures(former_methods["methods"], latter_methods["methods"])
-                    if methods_diff:
-                        if not diff.get(x):
-                            diff[x] = {"classes": {}}
-                        diff[x]["classes"][y] = {"methods": methods_diff}
+                    if former_methods and latter_methods:
+                        methods_diff = self.diff_signatures(former_methods.get("methods", {}), latter_methods.get("methods", {}))
+                        if methods_diff:
+                            if not diff.get(x):
+                                diff[x] = {"classes": {}}
+                            diff[x]["classes"][y] = {"methods": methods_diff}
         return diff
 
     def diff_single_signature(self, old, new):
