@@ -1190,31 +1190,31 @@ class _Palettes(object):
         return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9 }
     @property
     def PuOr(self):
-        return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,      10: self.PuOr10,     11: self.PuOr11 }
+        return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,      10: self.PuOr10,     11: self.PuOr11 } # NOQA
     @property
     def BrBG(self):
-        return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,      10: self.BrBG10,     11: self.BrBG11 }
+        return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,      10: self.BrBG10,     11: self.BrBG11 } # NOQA
     @property
     def PRGn(self):
-        return { 3: self.PRGn3,     4: self.PRGn4,     5: self.PRGn5,     6: self.PRGn6,     7: self.PRGn7,     8: self.PRGn8,     9: self.PRGn9,      10: self.PRGn10,     11: self.PRGn11 }
+        return { 3: self.PRGn3,     4: self.PRGn4,     5: self.PRGn5,     6: self.PRGn6,     7: self.PRGn7,     8: self.PRGn8,     9: self.PRGn9,      10: self.PRGn10,     11: self.PRGn11 } # NOQA
     @property
     def PiYG(self):
-        return { 3: self.PiYG3,     4: self.PiYG4,     5: self.PiYG5,     6: self.PiYG6,     7: self.PiYG7,     8: self.PiYG8,     9: self.PiYG9,      10: self.PiYG10,     11: self.PiYG11 }
+        return { 3: self.PiYG3,     4: self.PiYG4,     5: self.PiYG5,     6: self.PiYG6,     7: self.PiYG7,     8: self.PiYG8,     9: self.PiYG9,      10: self.PiYG10,     11: self.PiYG11 } # NOQA
     @property
     def RdBu(self):
-        return { 3: self.RdBu3,     4: self.RdBu4,     5: self.RdBu5,     6: self.RdBu6,     7: self.RdBu7,     8: self.RdBu8,     9: self.RdBu9,      10: self.RdBu10,     11: self.RdBu11 }
+        return { 3: self.RdBu3,     4: self.RdBu4,     5: self.RdBu5,     6: self.RdBu6,     7: self.RdBu7,     8: self.RdBu8,     9: self.RdBu9,      10: self.RdBu10,     11: self.RdBu11 } # NOQA
     @property
     def RdGy(self):
-        return { 3: self.RdGy3,     4: self.RdGy4,     5: self.RdGy5,     6: self.RdGy6,     7: self.RdGy7,     8: self.RdGy8,     9: self.RdGy9,      10: self.RdGy10,     11: self.RdGy11 }
+        return { 3: self.RdGy3,     4: self.RdGy4,     5: self.RdGy5,     6: self.RdGy6,     7: self.RdGy7,     8: self.RdGy8,     9: self.RdGy9,      10: self.RdGy10,     11: self.RdGy11 } # NOQA
     @property
     def RdYlBu(self):
-        return { 3: self.RdYlBu3,   4: self.RdYlBu4,   5: self.RdYlBu5,   6: self.RdYlBu6,   7: self.RdYlBu7,   8: self.RdYlBu8,   9: self.RdYlBu9,    10: self.RdYlBu10,   11: self.RdYlBu11 }
+        return { 3: self.RdYlBu3,   4: self.RdYlBu4,   5: self.RdYlBu5,   6: self.RdYlBu6,   7: self.RdYlBu7,   8: self.RdYlBu8,   9: self.RdYlBu9,    10: self.RdYlBu10,   11: self.RdYlBu11 } # NOQA
     @property
     def Spectral(self):
-        return { 3: self.Spectral3, 4: self.Spectral4, 5: self.Spectral5, 6: self.Spectral6, 7: self.Spectral7, 8: self.Spectral8, 9: self.Spectral9,  10: self.Spectral10, 11: self.Spectral11 }
+        return { 3: self.Spectral3, 4: self.Spectral4, 5: self.Spectral5, 6: self.Spectral6, 7: self.Spectral7, 8: self.Spectral8, 9: self.Spectral9,  10: self.Spectral10, 11: self.Spectral11 } # NOQA
     @property
     def RdYlGn(self):
-        return { 3: self.RdYlGn3,   4: self.RdYlGn4,   5: self.RdYlGn5,   6: self.RdYlGn6,   7: self.RdYlGn7,   8: self.RdYlGn8,   9: self.RdYlGn9,    10: self.RdYlGn10,   11: self.RdYlGn11 }
+        return { 3: self.RdYlGn3,   4: self.RdYlGn4,   5: self.RdYlGn5,   6: self.RdYlGn6,   7: self.RdYlGn7,   8: self.RdYlGn8,   9: self.RdYlGn9,    10: self.RdYlGn10,   11: self.RdYlGn11 } # NOQA
     @property
     def Accent(self):
         return { 3: self.Accent3,   4: self.Accent4,   5: self.Accent5,   6: self.Accent6,   7: self.Accent7,   8: self.Accent8 }
@@ -1223,7 +1223,7 @@ class _Palettes(object):
         return { 3: self.Dark2_3,   4: self.Dark2_4,   5: self.Dark2_5,   6: self.Dark2_6,   7: self.Dark2_7,   8: self.Dark2_8 }
     @property
     def Paired(self):
-        return { 3: self.Paired3,   4: self.Paired4,   5: self.Paired5,   6: self.Paired6,   7: self.Paired7,   8: self.Paired8,   9: self.Paired9,    10: self.Paired10,   11: self.Paired11, 12: self.Paired12 }
+        return { 3: self.Paired3,   4: self.Paired4,   5: self.Paired5,   6: self.Paired6,   7: self.Paired7,   8: self.Paired8,   9: self.Paired9,    10: self.Paired10,   11: self.Paired11, 12: self.Paired12 } # NOQA
     @property
     def Pastel1(self):
         return { 3: self.Pastel1_3, 4: self.Pastel1_4, 5: self.Pastel1_5, 6: self.Pastel1_6, 7: self.Pastel1_7, 8: self.Pastel1_8, 9: self.Pastel1_9 }
@@ -1238,20 +1238,20 @@ class _Palettes(object):
         return { 3: self.Set2_3,    4: self.Set2_4,    5: self.Set2_5,    6: self.Set2_6,    7: self.Set2_7,    8: self.Set2_8 }
     @property
     def Set3(self):
-        return { 3: self.Set3_3,    4: self.Set3_4,    5: self.Set3_5,    6: self.Set3_6,    7: self.Set3_7,    8: self.Set3_8,    9: self.Set3_9,     10: self.Set3_10,    11: self.Set3_11, 12: self.Set3_12 }
+        return { 3: self.Set3_3,    4: self.Set3_4,    5: self.Set3_5,    6: self.Set3_6,    7: self.Set3_7,    8: self.Set3_8,    9: self.Set3_9,     10: self.Set3_10,    11: self.Set3_11, 12: self.Set3_12 } # NOQA
 
     @property
     def Magma(self):
-        return { 3: self.Magma3,   4: self.Magma4,   5: self.Magma5,   6: self.Magma6,   7: self.Magma7,   8: self.Magma8,   9: self.Magma9,    10: self.Magma10,   11: self.Magma11,   256: self.Magma256 }
+        return { 3: self.Magma3,   4: self.Magma4,   5: self.Magma5,   6: self.Magma6,   7: self.Magma7,   8: self.Magma8,   9: self.Magma9,    10: self.Magma10,   11: self.Magma11,   256: self.Magma256 } # NOQA
     @property
     def Inferno(self):
-        return { 3: self.Inferno3, 4: self.Inferno4, 5: self.Inferno5, 6: self.Inferno6, 7: self.Inferno7, 8: self.Inferno8, 9: self.Inferno9,  10: self.Inferno10, 11: self.Inferno11, 256: self.Inferno256 }
+        return { 3: self.Inferno3, 4: self.Inferno4, 5: self.Inferno5, 6: self.Inferno6, 7: self.Inferno7, 8: self.Inferno8, 9: self.Inferno9,  10: self.Inferno10, 11: self.Inferno11, 256: self.Inferno256 } # NOQA
     @property
     def Plasma(self):
-        return { 3: self.Plasma3,  4: self.Plasma4,  5: self.Plasma5,  6: self.Plasma6,  7: self.Plasma7,  8: self.Plasma8,  9: self.Plasma9,   10: self.Plasma10,  11: self.Plasma11,  256: self.Plasma256 }
+        return { 3: self.Plasma3,  4: self.Plasma4,  5: self.Plasma5,  6: self.Plasma6,  7: self.Plasma7,  8: self.Plasma8,  9: self.Plasma9,   10: self.Plasma10,  11: self.Plasma11,  256: self.Plasma256 } # NOQA
     @property
     def Viridis(self):
-        return { 3: self.Viridis3, 4: self.Viridis4, 5: self.Viridis5, 6: self.Viridis6, 7: self.Viridis7, 8: self.Viridis8, 9: self.Viridis9,  10: self.Viridis10, 11: self.Viridis11, 256: self.Viridis256 }
+        return { 3: self.Viridis3, 4: self.Viridis4, 5: self.Viridis5, 6: self.Viridis6, 7: self.Viridis7, 8: self.Viridis8, 9: self.Viridis9,  10: self.Viridis10, 11: self.Viridis11, 256: self.Viridis256 } # NOQA
 
     @property
     def brewer(self):

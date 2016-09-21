@@ -1,6 +1,3 @@
-import re
-from types import FunctionType
-
 import bokeh.palettes as pal
 
 def test_cmap_generator_function():
