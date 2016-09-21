@@ -27,13 +27,13 @@ def test_editable_changes_data(output_file_url, selenium):
     # Save the plot and start the test
     save(data_table)
     selenium.get(output_file_url)
-    #assert has_no_console_errors(selenium)
+    assert has_no_console_errors(selenium)
 
-    # Tap the plot and test for alert
-    row_1_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:first-child .r0')
-    #row_2_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:nth-child(2) .r1')
+    # Resize the page so that the table displays correctly
+    selenium.set_window_size(width=800, height=800)
 
     # Click row_1 (which triggers first alert)
+    row_1_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:first-child .r1')
     row_1_cell.click()
     alert = selenium.switch_to_alert()
     assert alert.text == '1,2'
@@ -43,11 +43,11 @@ def test_editable_changes_data(output_file_url, selenium):
     actions = ActionChains(selenium)
     actions.move_to_element(row_1_cell)
     actions.double_click()
-    actions.send_keys("33\ue007") # After the backslash is ENTER key
+    actions.send_keys("33\ue007")  # After the backslash is ENTER key
     actions.perform()
 
     # Click row_2 (which triggers alert again so we can inspect the data)
-    row_2_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:nth-child(2) .r0')
+    row_2_cell = selenium.find_element_by_css_selector('.grid-canvas .bk-slick-row:nth-child(2) .r1')
     row_2_cell.click()
     alert = selenium.switch_to_alert()
     assert alert.text == '33,2'
