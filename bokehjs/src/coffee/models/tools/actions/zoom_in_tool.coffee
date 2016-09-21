@@ -1,5 +1,5 @@
 ActionTool = require "./action_tool"
-ZoomUtil = require "../../../util/zoom"
+{scale_range} = require "../../../util/zoom"
 {logger} = require "../../../core/logging"
 
 p = require "../../../core/properties"
@@ -16,7 +16,7 @@ class ZoomInToolView extends ActionTool.View
     if dims.indexOf('height') == -1
       h_axis_only = true
 
-    zoom_info = ZoomUtil.scale_range({
+    zoom_info = scale_range({
       frame: frame
       factor: @model.factor
       v_axis_only: v_axis_only
@@ -30,20 +30,12 @@ class ZoomInToolView extends ActionTool.View
 class ZoomInTool extends ActionTool.Model
   default_view: ZoomInToolView
   type: "ZoomInTool"
-  tool_name: "ZoomIn"
+  tool_name: "Zoom In"
   icon: "bk-tool-icon-zoom-in"
 
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@dimensions, "zoom-in tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom in tool"))
+  }
 
   @define {
     factor: [ p.Percent, 0.1 ]

@@ -1,5 +1,5 @@
 ActionTool = require "./action_tool"
-ZoomUtil = require "../../../util/zoom"
+{scale_range} = require "../../../util/zoom"
 {logger} = require "../../../core/logging"
 
 p = require "../../../core/properties"
@@ -16,7 +16,7 @@ class ZoomOutToolView extends ActionTool.View
     if dims.indexOf('height') == -1
       h_axis_only = true
 
-    zoom_info = ZoomUtil.scale_range({
+    zoom_info = scale_range({
       frame: frame
       factor: -@model.factor  # zooming out requires a negative factor to scale_range
       v_axis_only: v_axis_only
@@ -30,20 +30,12 @@ class ZoomOutToolView extends ActionTool.View
 class ZoomOutTool extends ActionTool.Model
   default_view: ZoomOutToolView
   type: "ZoomOutTool"
-  tool_name: "ZoomOut"
+  tool_name: "Zoom Out"
   icon: "bk-tool-icon-zoom-out"
 
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@dimensions, "zoom-out tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom out tool"))
+  }
 
   @define {
     factor: [ p.Percent, 0.1 ]
