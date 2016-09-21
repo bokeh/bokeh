@@ -86,9 +86,6 @@ interactive usage are:
 ``output_notebook``
     For displaying Bokeh visualizations inline in Jupyter notebook cells.
 
-``output_server``
-    For installing Bokeh applications on a running Bokeh server.
-
 These functions are most often used together with the ``show`` or ``save``
 functions. Scripts that output with these typically look something like:
 
@@ -305,7 +302,6 @@ just one additional line of code:
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
