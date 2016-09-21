@@ -1357,10 +1357,4 @@ class _PalettesModule(_types.ModuleType, _Palettes):
         return list(self.__dict__.keys()) + \
                [ name for name in dir(_Palettes) if not name.startswith("_") ]
 
-_module_name = 'bokeh.palettes'
-_orig_module = _sys.modules[_module_name]
-if not isinstance(_orig_module, _PalettesModule):
-    _new_module = _PalettesModule(_module_name)
-    _new_dict = { key: val for key, val in _orig_module.__dict__.items() if not key.startswith('_') or key.startswith('__') }
-    _new_module.__dict__.update(_new_dict)
-    _sys.modules[_module_name] = _new_module
+_sys.modules['bokeh.palettes'] = _PalettesModule('bokeh.palettes')
