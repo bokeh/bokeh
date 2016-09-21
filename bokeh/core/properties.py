@@ -61,11 +61,12 @@ from importlib import import_module
 import inspect
 import numbers
 import re
+import sys
 import types
 from warnings import warn
 from operator import itemgetter
 
-from six import string_types, iteritems
+from six import string_types, iteritems, StringIO
 
 from ..util.dependencies import import_optional
 from ..util.future import with_metaclass
@@ -74,6 +75,7 @@ from .property_containers import PropertyValueList, PropertyValueDict, PropertyV
 from . import enums
 
 pd = import_optional('pandas')
+IPython = import_optional('IPython')
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -918,12 +920,12 @@ class HasProps(with_metaclass(MetaHasProps, object)):
     def unapply_theme(self):
         self.apply_theme(property_values=dict())
 
-    def pprint_props(self, indent=0):
-        """ Prints the properties of this object, nicely formatted """
-        for key, value in self.properties_with_values().items():
-            print("%s%s: %r" % ("  "*indent, key, value))
+    def __str__(self):
+        return "%s(...)" % self.__class__.__name__
 
-    def _repr_pretty_(self, p, cycle):
+    __repr__ = __str__
+
+    def _bokeh_repr_pretty_(self, p, cycle):
         name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
 
         if cycle:
@@ -942,6 +944,38 @@ class HasProps(with_metaclass(MetaHasProps, object)):
                     p.text(prop)
                     p.text('=')
                     p.pretty(value)
+
+    def pretty(self, verbose=False, max_width=79, newline='\n'):
+        """ Pretty print the object's representation. """
+        if not IPython:
+            cls = self.__class.__
+            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
+        else:
+            stream = StringIO()
+            printer = BokehPrettyPrinter(stream, verbose, max_width, newline)
+            printer.pretty(self)
+            printer.flush()
+            return stream.getvalue()
+
+    def pprint(self, verbose=False, max_width=79, newline='\n'):
+        """ Like `pretty` but print to stdout. """
+        if not IPython:
+            cls = self.__class.__
+            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
+        else:
+            printer = BokehPrettyPrinter(sys.stdout, verbose, max_width, newline)
+            printer.pretty(self)
+            printer.flush()
+            sys.stdout.write(newline)
+            sys.stdout.flush()
+
+if IPython:
+    from IPython.lib.pretty import RepresentationPrinter
+
+    class BokehPrettyPrinter(RepresentationPrinter):
+        def __init__(self, output, verbose=False, max_width=79, newline='\n'):
+            super(BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
+            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._bokeh_repr_pretty_(p, cycle)
 
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.

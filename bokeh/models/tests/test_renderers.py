@@ -23,7 +23,7 @@ class TestGlyphRenderer(unittest.TestCase):
             'Category labels cannot contain colons',
             '[range:x_range] [first_value: 2:0] '
             '[range:y_range] [first_value: 2:0] '
-            '[renderer: Figure(id=%s, ...)]' % plot._id
+            '[renderer: Figure(id=%r, ...)]' % plot._id
         )])
 
     def test_validates_colons_only_in_factorial_range(self):
@@ -41,7 +41,7 @@ class TestGlyphRenderer(unittest.TestCase):
             'MALFORMED_CATEGORY_LABEL',
             'Category labels cannot contain colons',
             '[range:y_range] [first_value: 2:0] '
-            '[renderer: Figure(id=%s, ...)]' % plot._id
+            '[renderer: Figure(id=%r, ...)]' % plot._id
         )])
 
 if __name__ == '__main__':

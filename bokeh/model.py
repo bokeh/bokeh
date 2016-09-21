@@ -344,11 +344,11 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         return serialize_json(json_like)
 
     def __str__(self):
-        return "%s(id=%s, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
+        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
 
     __repr__ = __str__
 
-    def _repr_pretty_(self, p, cycle):
+    def _bokeh_repr_pretty_(self, p, cycle):
         name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         _id = getattr(self, "_id", None)
 
