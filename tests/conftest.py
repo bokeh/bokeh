@@ -1,7 +1,10 @@
+import os
 import pytest
 
-from tests.plugins.constants import default_upload
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
+
+default_diff = os.environ.get("BOKEH_DEFAULT_DIFF")
+default_upload = default_diff is not None
 
 pytest_plugins = (
     "tests.examples.examples_report_plugin",
