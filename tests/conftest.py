@@ -11,7 +11,6 @@ pytest_plugins = (
     "tests.plugins.phantomjs_screenshot",
     "tests.plugins.image_diff",
     "tests.plugins.file_server",
-    "tests.plugins.upload_to_s3",
 )
 
 
