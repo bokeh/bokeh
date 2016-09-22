@@ -102,7 +102,7 @@ class Document
   solver: () ->
     @_solver
 
-  resize: () ->
+  resize: (width=null, height=null) ->
     # Notes on resizing (xx:yy means event yy on object xx):
     # window:event -> document.resize() -> solver:resize
     #   -> LayoutDOM.render()
@@ -112,10 +112,10 @@ class Document
     # but it currently needs two passes to get it right.
     # Seems to be needed everywhere on initialization, and on Windows
     # it seems necessary on each Draw
-    @_resize()
-    @_resize()
+    @_resize(width=width, height=height)
+    @_resize(width=width, height=height)
 
-  _resize: () ->
+  _resize: (width=null, height=null) ->
 
     for root in @_roots
       if root.layoutable isnt true
@@ -129,15 +129,16 @@ class Document
       root_div = $("#modelid_#{root.id}")
 
       # Start working upwards until you find a height to pin against - usually .bk-root
-      target_height = 0
-      measuring = root_div
-      while target_height == 0
-        measuring = measuring.parent()
-        target_height = measuring.height()
+      if _.isNull(width)
+        target_height = 0
+        measuring = root_div
+        while target_height == 0
+          measuring = measuring.parent()
+          target_height = measuring.height()
 
-      # Once we've found that grab the width of this element
-      width = measuring.width()
-      height = target_height
+        # Once we've found that grab the width of this element
+        width = measuring.width()
+        height = target_height
 
       # Set the constraints on root
       if vars.width?
