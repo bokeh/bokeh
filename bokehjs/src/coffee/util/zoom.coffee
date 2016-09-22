@@ -62,8 +62,6 @@ scale_range = ({frame, factor, center, h_axis_only = false, v_axis_only = false}
     [start, end] = mapper.v_map_from_target([sy0, sy1], true)
     yrs[name] = {start: start, end: end}
 
-  debugger;
-
   # OK this sucks we can't set factor independently in each direction. It is used
   # for GMap plots, and GMap plots always preserve aspect, so effective the value
   # of 'dimensions' is ignored.
