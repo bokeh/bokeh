@@ -82,7 +82,18 @@ module.exports = {
   LinearColorMapper:                      require("../models/mappers/linear_color_mapper").Model
 
   ## api/typings/models/markers.d.ts
-  markers:                                [require('../models/markers/index')]
+  Asterisk:                               require('../models/markers/index').Asterisk.Model
+  CircleCross:                            require('../models/markers/index').CircleCross.Model
+  CircleX:                                require('../models/markers/index').CircleX.Model
+  Cross:                                  require('../models/markers/index').Cross.Model
+  Diamond:                                require('../models/markers/index').Diamond.Model
+  DiamondCross:                           require('../models/markers/index').DiamondCross.Model
+  InvertedTriangle:                       require('../models/markers/index').InvertedTriangle.Model
+  Square:                                 require('../models/markers/index').Square.Model
+  SquareCross:                            require('../models/markers/index').SquareCross.Model
+  SquareX:                                require('../models/markers/index').SquareX.Model
+  Triangle:                               require('../models/markers/index').Triangle.Model
+  X:                                      require('../models/markers/index').X.Model
 
   ## api/typings/models/model.d.ts
   Model:                                  require("../model").Model
