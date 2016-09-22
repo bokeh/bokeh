@@ -156,6 +156,10 @@ class Instance extends simple_prop("Instance", (x) -> x.properties?)
 # TODO (bev) separate booleans?
 class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
 
+# TODO extend Number instead of copying it's predicate
+#class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
+class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
+
 class String extends simple_prop("String", _.isString)
 
 # TODO (bev) don't think this exists python side
@@ -291,6 +295,7 @@ module.exports =
   LineJoin: LineJoin
   Location: Location
   Number: Number
+  Percent: Percent
   Int: Number                     # TODO
   Orientation: Orientation
   RenderLevel: RenderLevel

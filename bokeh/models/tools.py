@@ -23,8 +23,8 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..model import Model
-from ..core.properties import abstract, Float, Color
 from ..core.properties import (
+    abstract, Float, Color, Percent,
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
 from ..core.enums import Dimension, Location, Anchor
@@ -407,6 +407,49 @@ class BoxZoomTool(Drag):
         If the tool is restricted to one dimension, this value has
         no effect.
 
+    """)
+
+class ZoomInTool(Action):
+    """ *toolbar icon*: |zoom_in_icon|
+
+    The zoom-in tool allows users to click a button to zoom in
+    by a fixed amount.
+
+    .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+        :height: 18pt
+
+    """
+    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
+    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    Which dimensions the zoom-in tool is constrained to act in. By
+    default the zoom-in zoom tool will zoom in any dimension, but can be
+    configured to only zoom horizontally across the width of the plot, or
+    vertically across the height of the plot.
+    """)
+
+    factor = Percent(default=0.1, help="""
+    Percentage to zoom for each click of the zoom-in tool.
+    """)
+
+class ZoomOutTool(Action):
+    """ *toolbar icon*: |zoom_out_icon|
+
+    The zoom-out tool allows users to click a button to zoom out
+    by a fixed amount.
+
+    .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
+        :height: 18pt
+
+    """
+    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    Which dimensions the zoom-out tool is constrained to act in. By
+    default the zoom-out tool will zoom in any dimension, but can be
+    configured to only zoom horizontally across the width of the plot, or
+    vertically across the height of the plot.
+    """)
+
+    factor = Percent(default=0.1, help="""
+    Percentage to zoom for each click of the zoom-in tool.
     """)
 
 

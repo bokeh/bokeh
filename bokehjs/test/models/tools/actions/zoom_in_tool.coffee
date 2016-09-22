@@ -1,0 +1,101 @@
+_ = require "underscore"
+{expect} = require "chai"
+utils = require "../../../utils"
+sinon = require 'sinon'
+
+{Document} = utils.require("document")
+ZoomInTool = utils.require("models/tools/actions/zoom_in_tool").Model
+Range1d = utils.require("models/ranges/range1d").Model
+Plot = utils.require("models/plots/plot").Model
+Toolbar = utils.require("models/tools/toolbar").Model
+
+describe "ZoomInTool", ->
+
+  describe "Model", ->
+
+    it "should create proper tooltip", ->
+      tool = new ZoomInTool()
+      expect(tool.tooltip).to.be.equal('Zoom In')
+
+      x_tool = new ZoomInTool({dimensions: ['width']})
+      expect(x_tool.tooltip).to.be.equal('Zoom In (x-axis)')
+
+      y_tool = new ZoomInTool({dimensions: ['height']})
+      expect(y_tool.tooltip).to.be.equal('Zoom In (y-axis)')
+
+  describe "View", ->
+
+    afterEach ->
+      utils.unstub_canvas()
+
+    beforeEach ->
+      utils.stub_canvas()
+
+      @plot = new Plot({
+         x_range: new Range1d({start: -1, end: 1})
+         y_range: new Range1d({start: -1, end: 1})
+      })
+
+      document = new Document()
+      document.add_root(@plot)
+
+      @plot_canvas_view = new @plot.plot_canvas.default_view({
+        model: @plot.plot_canvas
+      })
+
+    it "should zoom into both ranges", ->
+      zoom_in_tool = new ZoomInTool()
+
+      @plot.add_tools(zoom_in_tool)
+
+      zoom_in_tool_view = new zoom_in_tool.default_view({
+        model: zoom_in_tool
+        plot_model: @plot.plot_canvas
+        plot_view: @plot_canvas_view
+      })
+
+      # perform the tool action
+      zoom_in_tool_view.do()
+
+      hr = @plot_canvas_view.frame.x_ranges['default']
+      expect([hr.start, hr.end]).to.be.deep.equal([-0.9, 0.9])
+      vr = @plot_canvas_view.frame.y_ranges['default']
+      expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
+
+    it "should zoom the x-axis only", ->
+      zoom_in_tool = new ZoomInTool({dimensions: ['width']})
+
+      @plot.add_tools(zoom_in_tool)
+
+      zoom_in_tool_view = new zoom_in_tool.default_view({
+        model: zoom_in_tool
+        plot_model: @plot.plot_canvas
+        plot_view: @plot_canvas_view
+      })
+
+      # perform the tool action
+      zoom_in_tool_view.do()
+
+      hr = @plot_canvas_view.frame.x_ranges['default']
+      expect([hr.start, hr.end]).to.be.deep.equal([-0.9, 0.9])
+      vr = @plot_canvas_view.frame.y_ranges['default']
+      expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
+
+    it "should zoom the y-axis only", ->
+      zoom_in_tool = new ZoomInTool({dimensions: ['height']})
+
+      @plot.add_tools(zoom_in_tool)
+
+      zoom_in_tool_view = new zoom_in_tool.default_view({
+        model: zoom_in_tool
+        plot_model: @plot.plot_canvas
+        plot_view: @plot_canvas_view
+      })
+
+      # perform the tool action
+      zoom_in_tool_view.do()
+
+      hr = @plot_canvas_view.frame.x_ranges['default']
+      expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
+      vr = @plot_canvas_view.frame.y_ranges['default']
+      expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
