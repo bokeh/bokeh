@@ -34,7 +34,7 @@ class ZoomOutTool extends ActionTool.Model
   icon: "bk-tool-icon-zoom-out"
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom out tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom-out tool"))
   }
 
   @define {

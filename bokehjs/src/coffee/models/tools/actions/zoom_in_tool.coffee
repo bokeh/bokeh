@@ -34,7 +34,7 @@ class ZoomInTool extends ActionTool.Model
   icon: "bk-tool-icon-zoom-in"
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom in tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom-in tool"))
   }
 
   @define {

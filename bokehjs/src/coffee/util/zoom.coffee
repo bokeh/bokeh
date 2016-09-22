@@ -8,9 +8,8 @@ scale_range = ({frame, factor, center, h_axis_only = false, v_axis_only = false}
   # * v_axis_only - if true only scale the vertical axis
   # * h_axis_only - if true only scale the horizontal axis
 
-  hr = frame.get('h_range')
-  vr = frame.get('v_range')
-
+  hr = frame.h_range
+  vr = frame.v_range
 
   # clamp the  magnitude of factor, if it is > 1 bad things happen
   if factor > 0.9
@@ -18,23 +17,21 @@ scale_range = ({frame, factor, center, h_axis_only = false, v_axis_only = false}
   else if factor < -0.9
     factor = -0.9
 
-  vx_low  = hr.get('start')
-  vx_high = hr.get('end')
+  vx_low  = hr.start
+  vx_high = hr.end
 
-  vy_low  = vr.get('start')
-  vy_high = vr.get('end')
+  vy_low  = vr.start
+  vy_high = vr.end
 
   frame_center = {
     x: (vx_high + vx_low) / 2.0
     y: (vy_high + vy_low) / 2.0
   }
 
-
   # if center or either dimension center.x,y
   # isn't given, use the frame_center
   vx = center?.x ? frame_center.x
   vy = center?.y ? frame_center.y
-
 
   if vx < vx_low or vx > vx_high
     v_axis_only = true
@@ -56,14 +53,16 @@ scale_range = ({frame, factor, center, h_axis_only = false, v_axis_only = false}
     sy1 = vy_high
 
   xrs = {}
-  for name, mapper of frame.get('x_mappers')
+  for name, mapper of frame.x_mappers
     [start, end] = mapper.v_map_from_target([sx0, sx1], true)
     xrs[name] = {start: start, end: end}
 
   yrs = {}
-  for name, mapper of frame.get('y_mappers')
+  for name, mapper of frame.y_mappers
     [start, end] = mapper.v_map_from_target([sy0, sy1], true)
     yrs[name] = {start: start, end: end}
+
+  debugger;
 
   # OK this sucks we can't set factor independently in each direction. It is used
   # for GMap plots, and GMap plots always preserve aspect, so effective the value
