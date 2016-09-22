@@ -28,7 +28,8 @@ conda install --yes $DEPS_TRAVIS
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
-echo "noarch build output contents: $(ls $HOME/miniconda/conda-bld/noarch)"
+NOARCH_DIR="$HOME/miniconda/conda-bld/noarch"
+echo "noarch build output contents: $(ls $NOARCH_DIR)"
 
 conda install bokeh --use-local --yes
 
