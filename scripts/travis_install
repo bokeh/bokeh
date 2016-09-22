@@ -23,13 +23,21 @@ echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 conda config --add channels bokeh
 conda config --add channels conda-forge
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14 jinja2"
+# DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda conda-env conda-build"
 conda install --yes $DEPS_TRAVIS
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
 NOARCH_DIR="$HOME/miniconda/conda-bld/noarch"
-echo "noarch build output contents: $(ls $NOARCH_DIR)"
+echo "noarch build output contents: $(ls -l $NOARCH_DIR)"
+
+BUILD_FILE_COUNT="$(ls -l $NOARCH_DIR | wc -l)"
+if [ $BUILD_FILE_COUNT = 0 ]; then
+   echo "No noarch build files were generated"
+   exit 1
+fi
+
 
 conda install bokeh --use-local --yes
 
