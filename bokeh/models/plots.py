@@ -601,11 +601,6 @@ class Plot(LayoutDOM):
     level-of-detail mode is disabled.
     """)
 
-    webgl = Bool(False, help="""
-    Whether WebGL is enabled for this plot. If True, the glyphs that
-    support this will render via WebGL instead of the 2D canvas.
-    """)
-
     #
     # DEPRECATED PROPERTIES
     #

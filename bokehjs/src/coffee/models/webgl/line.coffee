@@ -1,5 +1,5 @@
 gloo2 = require "gloo2"
-{logger} = require "../../../core/logging"
+{logger} = require "../../core/logging"
 {BaseGLGlyph, line_width, attach_float, attach_color, color2rgba} = require "./base"
 
 

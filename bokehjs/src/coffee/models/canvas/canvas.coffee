@@ -22,9 +22,6 @@ class CanvasView extends BokehView
     # create the canvas context that gets passed around for drawing
     @ctx = @get_ctx()
 
-    # init without webgl support (can be overriden in plot.coffee)
-    @ctx.glcanvas = null
-
     # work around canvas incompatibilities
     fixup_line_dash(@ctx)
     fixup_line_dash_offset(@ctx)

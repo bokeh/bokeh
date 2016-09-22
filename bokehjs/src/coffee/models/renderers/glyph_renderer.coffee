@@ -49,7 +49,7 @@ class GlyphRendererView extends Renderer.View
       @model.data_source.setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
+    @plot_view.glyph_view_factory(model, @)
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -115,8 +115,6 @@ class GlyphRendererView extends Renderer.View
 
     t0 = Date.now()
 
-    glsupport = @glyph.glglyph
-
     tmap = Date.now()
     @glyph.map_data()
     dtmap = Date.now() - t0
@@ -151,8 +149,7 @@ class GlyphRendererView extends Renderer.View
         inspected = []
 
     lod_threshold = @plot_model.plot.lod_threshold
-    if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
-      # Render decimated during interaction if too many elements and not using GL
+    if @plot_view.interactive and lod_threshold? and @all_indices.length > lod_threshold
       indices = @decimated
       glyph = @decimated_glyph
       nonselection_glyph = @decimated_glyph

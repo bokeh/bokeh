@@ -133,6 +133,8 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
 
   buildWidgets = mkBuildPlugin("widgets", 'models/widgets/main.js')
 
+  buildGL = mkBuildPlugin("gl", 'models/webgl/main.js')
+
   writeLabels = (next) ->
     data = {}
     for own name, module_labels of labels
@@ -163,11 +165,11 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
 
-  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> writeLabels(() -> buildCompiler(cb)))))
+  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> buildGL(() -> writeLabels(() -> buildCompiler(cb))))))
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets].map (entry) ->
+  tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets, paths.coffee.gl].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))

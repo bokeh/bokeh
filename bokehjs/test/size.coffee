@@ -11,6 +11,7 @@ LIMITS = {
   "css/bokeh.min.css":         74
   "js/bokeh-widgets.min.js":   290
   "js/bokeh-api.min.js":        40
+  "js/bokeh-gl.min.js":         80
   "js/bokeh.min.js":           918
 }
 

@@ -1,5 +1,3 @@
-# Used by webgl to convert colors to rgba tuples.
-
 svg_colors = require "./svg_colors"
 
 _component2hex = (v) ->

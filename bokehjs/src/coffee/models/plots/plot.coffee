@@ -105,7 +105,7 @@ class Plot extends LayoutDOM.Model
       title = if _.isString(@title) then new Title.Model({text: @title}) else @title
       @add_layout(title, @title_location)
 
-    @_plot_canvas = new PlotCanvas({plot: @})
+    @_plot_canvas = @_plot_canvas_factory()
 
     @toolbar.toolbar_location = @toolbar_location
     @toolbar.toolbar_sticky = @toolbar_sticky
@@ -118,6 +118,8 @@ class Plot extends LayoutDOM.Model
       @width = @plot_width
     if not @height?
       @height = @plot_height
+
+  _plot_canvas_factory: () -> new PlotCanvas({plot: @})
 
   @getter("plot_canvas", () -> @_plot_canvas)
 
@@ -338,7 +340,6 @@ class Plot extends LayoutDOM.Model
       lod_threshold:     [ p.Number,   2000                   ]
       lod_timeout:       [ p.Number,   500                    ]
 
-      webgl:             [ p.Bool,     false                  ]
       hidpi:             [ p.Bool,     true                   ]
 
       min_border:        [ p.Number,   5                      ]
