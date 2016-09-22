@@ -21,10 +21,8 @@ python -V
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
 conda config --add channels bokeh
-conda config --add channels conda-forge
 
-# DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda conda-env conda-build"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
 conda install --yes $DEPS_TRAVIS
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
@@ -38,7 +36,6 @@ if [ $BUILD_FILE_COUNT != 3 ]; then
    echo "noarch build has wrong number of files"
    exit 1
 fi
-
 
 conda install bokeh --use-local --yes
 
