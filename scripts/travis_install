@@ -33,9 +33,9 @@ NOARCH_DIR="$HOME/miniconda/conda-bld/noarch"
 echo "noarch build output contents:"
 ls -l $NOARCH_DIR
 
-BUILD_FILE_COUNT="$(ls -l $NOARCH_DIR | wc -l)"
-if [ $BUILD_FILE_COUNT < 3 ]; then
-   echo "noarch build is missing files"
+BUILD_FILE_COUNT="$(ls $NOARCH_DIR | wc -l)"
+if [ $BUILD_FILE_COUNT != 3 ]; then
+   echo "noarch build has wrong number of files"
    exit 1
 fi
 
