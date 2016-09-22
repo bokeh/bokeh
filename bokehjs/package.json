@@ -58,7 +58,6 @@
     "yargs": "^3.11.0",
     "through2": "^2.0.0",
     "shasum": "^1.0.1",
-    "root-require": "^0.3.1",
     "event-stream": "^3.3.1",
     "jsdom": "^5.6.1",
     "websocket":"^1.0.22",
