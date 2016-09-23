@@ -263,11 +263,6 @@ def test_glyph_label_is_None_if_legend_is_none(p, source):
     assert renderer.glyph.label is None
 
 
-def test_cannot_set_legend_and_label(p, source):
-    with pytest.raises(RuntimeError):
-        p.circle(x='x', y='y', legend='label', label='label', source=source)
-
-
 def test_legend_added_when_legend_set(p, source):
     renderer = p.circle(x='x', y='y', legend='label', source=source)
     legends = p.select(Legend)
@@ -296,8 +291,16 @@ def test_adding_legend_doesnt_work_when_legends_already_added(p, source):
 
 
 def test_multiple_renderers_correctly_added_to_legend(p, source):
-    square = p.square(x='x', y='y', label='label', source=source)
-    circle = p.circle(x='x', y='y', label='label', source=source)
+    square = p.square(x='x', y='y', legend='square', source=source)
+    circle = p.circle(x='x', y='y', legend='circle', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].legends == [square, circle]
+
+
+def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(p, source):
+    square = p.square(x='x', y='y', legend='compound legend string', source=source)
+    circle = p.circle(x='x', y='y', legend='compound legend string', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].legends == [('compound legend string', [square, circle]),]
