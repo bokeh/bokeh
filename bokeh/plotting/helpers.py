@@ -17,7 +17,7 @@ from ..models import (
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
-from ..core.properties import ColorSpec, Datetime, value
+from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecate import BokehDeprecationWarning
 from ..util.string import nice_join
 
@@ -107,18 +107,18 @@ def _process_legend_kwargs(kwargs):
     legend = kwargs.pop('legend', None)
     source = kwargs.get('source')
     if legend:
-        if isinstance(legend, string_types):
-            # Try and do something intelligent with a legend string:
-            # * value if it's not in column data source
-            # * field if it is
+        kwargs['label'] = legend
+
+    label = kwargs.get('label')
+    if label:
+        # Try and be smart
+        if isinstance(label, string_types):
+            # Do the simple thing first
+            kwargs['label'] = value(label)
+            # But if there's a source - try and do something smart
             if source and hasattr(source, 'column_names'):
-                if legend in source.column_names:
-                    kwargs['label'] = legend
-                else:
-                    kwargs['label'] = value(legend)
-        else:
-            # Otherwise just accept folks were being intentional
-            kwargs['label'] = legend
+                if label in source.column_names:
+                    kwargs['label'] = field(label)
 
 _GLYPH_SOURCE_MSG = """
 Supplying a user-defined data source AND iterable values to glyph methods is deprecated.

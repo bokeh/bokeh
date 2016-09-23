@@ -245,7 +245,7 @@ def p():
 
 def test_glyph_label_is_legend_if_column_in_datasouurce_is_added_as_legend(p, source):
     renderer = p.circle(x='x', y='y', legend='label', source=source)
-    assert renderer.glyph.label == 'label'
+    assert renderer.glyph.label == {'field': 'label'}
 
 
 def test_glyph_label_is_value_if_column_not_in_datasouurce_is_added_as_legend(p, source):
