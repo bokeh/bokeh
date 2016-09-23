@@ -10,6 +10,7 @@ from ..util._plot_arg_helpers import _convert_responsive
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
+
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
@@ -57,6 +58,8 @@ class Figure(Plot):
         tool_objs, tool_map = _process_tools_arg(self, tools)
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, active_drag, active_scroll, active_tap)
+
+        self._compound_legend = False
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from collections import Iterable, Sequence
+from collections import Iterable, Sequence, OrderedDict
 import difflib
 import itertools
 import re
@@ -162,6 +162,7 @@ def _make_glyph(glyphclass, kws, extra):
         return glyphclass(**kws)
 
 def _update_legend(plot, glyph_renderer):
+    # Get the plot's legend
     legends = plot.select(type=Legend)
     if not legends:
         legend = Legend()
@@ -170,7 +171,33 @@ def _update_legend(plot, glyph_renderer):
         legend = legends[0]
     else:
         raise RuntimeError("Plot %s configured with more than one legend renderer" % plot)
-    legend.legends.append(glyph_renderer)
+
+    label = glyph_renderer.glyph.label
+
+    if plot._compound_legend is True:
+        compound_legend = True
+    else:
+        compound_legend = False
+        # But test if we now need to switch
+        if label.get('value'):
+            for r in plot.renderers:
+                if isinstance(r, GlyphRenderer) and hasattr(r.glyph, 'label') and r.glyph.label == label:
+                    compound_legend = True
+                    plot._compound_legend = True
+                    # Then we're building a new compound legend and we need to
+                    # rebuild the plain legends into compound legends spec
+                    legend_renderers = legend.legends
+                    specs = OrderedDict()
+                    for renderer in legend_renderers:
+                        specs.setdefault(label.get('value'), []).append(renderer)
+                    legend.legends = list(specs.items())
+
+    if compound_legend:
+        specs = OrderedDict(legend.legends)
+        specs.setdefault(label.get('value'), []).append(glyph_renderer)
+        legend.legends = list(specs.items())
+    else:
+        legend.legends.append(glyph_renderer)
 
 def _get_range(range_input):
     if range_input is None:
@@ -426,7 +453,9 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, *args, **kwargs):
 
+        # Process legend kwargs and remove legend before we get going
         _process_legend_kwargs(kwargs)
+
         # Need to check if user source is present before _pop_renderer_args
         is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
