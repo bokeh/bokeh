@@ -12,7 +12,7 @@ from six import string_types
 from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
+    FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
@@ -101,24 +101,22 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     return result
 
 
-def _process_legend_kwargs(kwargs):
-    if kwargs.get('legend') and kwargs.get('label'):
-        raise RuntimeError("Cannot set both legend and label at the same time.")
+def _get_legend_item_label(kwargs):
     legend = kwargs.pop('legend', None)
     source = kwargs.get('source')
+    legend_item_label = None
     if legend:
-        kwargs['label'] = legend
-
-    label = kwargs.get('label')
-    if label:
-        # Try and be smart
-        if isinstance(label, string_types):
+        if isinstance(legend, string_types):
             # Do the simple thing first
-            kwargs['label'] = value(label)
+            legend_item_label = value(legend)
             # But if there's a source - try and do something smart
             if source and hasattr(source, 'column_names'):
-                if label in source.column_names:
-                    kwargs['label'] = field(label)
+                if legend in source.column_names:
+                    legend_item_label = field(legend)
+        else:
+            legend_item_label = legend
+    return legend_item_label
+
 
 _GLYPH_SOURCE_MSG = """
 Supplying a user-defined data source AND iterable values to glyph methods is deprecated.
@@ -155,13 +153,15 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
         source.add(val, name=var)
         kwargs[var] = var
 
+
 def _make_glyph(glyphclass, kws, extra):
         if extra is None: return None
         kws = kws.copy()
         kws.update(extra)
         return glyphclass(**kws)
 
-def _update_legend(plot, glyph_renderer):
+
+def _update_legend(plot, legend_item_label, glyph_renderer):
     # Get the plot's legend
     legends = plot.select(type=Legend)
     if not legends:
@@ -172,32 +172,24 @@ def _update_legend(plot, glyph_renderer):
     else:
         raise RuntimeError("Plot %s configured with more than one legend renderer" % plot)
 
-    label = glyph_renderer.glyph.label
+    # If there is an existing legend with a matching label, then put the
+    # renderer on that (if the source matches). Otherwise add a new one.
+    added = False
+    for item in legend.items:
+        if item.label == legend_item_label:
+            if item.label.get('value'):
+                item.renderers.append(glyph_renderer)
+                added = True
+                break
+            if item.label.get('field') and \
+                    glyph_renderer.data_source is item.renderers[0].datasource:
+                item.renderers.append(glyph_renderer)
+                added = True
+                break
+    if not added:
+        new_item = LegendItem(label=legend_item_label, renderers=[glyph_renderer])
+        legend.items.append(new_item)
 
-    if plot._compound_legend is True:
-        compound_legend = True
-    else:
-        compound_legend = False
-        # But test if we now need to switch
-        if label.get('value'):
-            for r in plot.renderers:
-                if isinstance(r, GlyphRenderer) and hasattr(r.glyph, 'label') and r.glyph.label == label:
-                    compound_legend = True
-                    plot._compound_legend = True
-                    # Then we're building a new compound legend and we need to
-                    # rebuild the plain legends into compound legends spec
-                    legend_renderers = legend.legends
-                    specs = OrderedDict()
-                    for renderer in legend_renderers:
-                        specs.setdefault(label.get('value'), []).append(renderer)
-                    legend.legends = list(specs.items())
-
-    if compound_legend:
-        specs = OrderedDict(legend.legends)
-        specs.setdefault(label.get('value'), []).append(glyph_renderer)
-        legend.legends = list(specs.items())
-    else:
-        legend.legends.append(glyph_renderer)
 
 def _get_range(range_input):
     if range_input is None:
@@ -454,7 +446,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     def func(self, *args, **kwargs):
 
         # Process legend kwargs and remove legend before we get going
-        _process_legend_kwargs(kwargs)
+        legend_item_label = _get_legend_item_label(kwargs)
 
         # Need to check if user source is present before _pop_renderer_args
         is_user_source = kwargs.get('source', None) is not None
@@ -496,8 +488,8 @@ def _glyph_function(glyphclass, extra_docs=None):
                                        hover_glyph=hglyph,
                                        **renderer_kws)
 
-        if glyph.label:
-            _update_legend(self, glyph_renderer)
+        if legend_item_label:
+            _update_legend(self, legend_item_label, glyph_renderer)
 
         for tool in self.select(type=BoxSelectTool):
             # this awkward syntax is needed to go through Property.__set__ and

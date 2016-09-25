@@ -59,8 +59,6 @@ class Figure(Plot):
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, active_drag, active_scroll, active_tap)
 
-        self._compound_legend = False
-
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
     annulus = _glyph_function(glyphs.Annulus, """

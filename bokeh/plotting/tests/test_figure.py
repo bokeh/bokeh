@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import unittest
 import pytest
 
+from bokeh.core.properties import value
 from bokeh.models import (
     BoxZoomTool,
     ColumnDataSource,
@@ -245,36 +246,36 @@ def p():
 
 def test_glyph_label_is_legend_if_column_in_datasouurce_is_added_as_legend(p, source):
     renderer = p.circle(x='x', y='y', legend='label', source=source)
-    assert renderer.glyph.label == {'field': 'label'}
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'label'}
 
 
 def test_glyph_label_is_value_if_column_not_in_datasouurce_is_added_as_legend(p, source):
     renderer = p.circle(x='x', y='y', legend='milk', source=source)
-    assert renderer.glyph.label == {'value': 'milk'}
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'value': 'milk'}
 
 
 def test_glyph_label_is_just_added_directly_if_not_string(p, source):
     renderer = p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
-    assert renderer.glyph.label == {'field': 'milk'}
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'milk'}
 
 
-def test_glyph_label_is_None_if_legend_is_none(p, source):
+def test_no_legend_if_legend_is_none(p, source):
     renderer = p.circle(x='x', y='y', legend=None, source=source)
-    assert renderer.glyph.label is None
+    legends = p.select(Legend)
+    assert len(legends) == 0
 
 
 def test_legend_added_when_legend_set(p, source):
     renderer = p.circle(x='x', y='y', legend='label', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
-    assert legends[0].legends == [renderer]
-
-
-def test_legend_added_when_label_set(p, source):
-    renderer = p.circle(x='x', y='y', label='label', source=source)
-    legends = p.select(Legend)
-    assert len(legends) == 1
-    assert legends[0].legends == [renderer]
+    assert legends[0].items[0].renderers == [renderer]
 
 
 def test_legend_not_added_when_no_legend(p, source):
@@ -295,7 +296,10 @@ def test_multiple_renderers_correctly_added_to_legend(p, source):
     circle = p.circle(x='x', y='y', legend='circle', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
-    assert legends[0].legends == [square, circle]
+    assert legends[0].items[0].renderers == [square]
+    assert legends[0].items[0].label == value('square')
+    assert legends[0].items[1].renderers == [circle]
+    assert legends[0].items[1].label == value('circle')
 
 
 def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(p, source):
@@ -303,4 +307,5 @@ def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_rende
     circle = p.circle(x='x', y='y', legend='compound legend string', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
-    assert legends[0].legends == [('compound legend string', [square, circle]),]
+    assert legends[0].items[0].renderers == [square, circle]
+    assert legends[0].items[0].label == {'value': 'compound legend string'}
