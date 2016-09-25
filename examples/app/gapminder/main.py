@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+from bokeh.core.properties import field
 from bokeh.io import curdoc
 from bokeh.layouts import layout
 from bokeh.models import (
     ColumnDataSource, HoverTool,
     SingleIntervalTicker, Slider, Button, Label,
-    CategoricalColorMapper, Legend
+    CategoricalColorMapper, Legend, LegendItem
 )
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
@@ -46,7 +47,6 @@ cr = plot.circle(
     y='life',
     size='population',
     source=sources[years[0]],
-    label='region',
     fill_color={'field': 'region', 'transform': color_mapper},
     fill_alpha=0.8,
     line_color='#7c7e71',
@@ -55,7 +55,7 @@ cr = plot.circle(
 )
 
 plot.add_tools(HoverTool(tooltips="@index", renderers=[cr]))
-plot.add_layout(Legend(legends=[cr]))
+plot.add_layout(Legend(items=[LegendItem(label=field('region'), renderers=[cr])]))
 
 
 def animate_update():

@@ -5,6 +5,8 @@ Bokeh plots
 from __future__ import absolute_import
 import warnings
 
+from six import string_types
+
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
     AngleUnits, TextAlign, FontStyle
@@ -51,6 +53,13 @@ class TextAnnotation(Annotation):
 
 
 class LegendItem(Model):
+
+    def __init__(self, *args, **kwargs):
+        super(LegendItem, self).__init__(*args, **kwargs)
+        if isinstance(self.label, string_types):
+            # Allow convenience of setting label as a string
+            self.label = value(self.label)
+
 
     label = StringSpec(default=None, help="""
     A label for this legend. Can be a string, or a column of a

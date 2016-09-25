@@ -30,7 +30,7 @@ from bokeh.document import Document
 from bokeh.embed import autoload_server
 from bokeh.layouts import row, column
 from bokeh.models import (Plot, DataRange1d, LinearAxis, CategoricalAxis,
-                          Legend, ColumnDataSource, Grid, Line,
+                          Legend, LegendItem, ColumnDataSource, Grid, Line,
                           SingleIntervalTicker, Quad, Select, FactorRange)
 from bokeh.sampledata.population import load_population
 
@@ -69,7 +69,10 @@ def pyramid():
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
-    plot.add_layout(Legend(legends=[("Male", [male_quad_glyph]), ("Female", [female_quad_glyph])]))
+    plot.add_layout(Legend(items=[
+        LegendItem(label="Male", renderers=[male_quad_glyph]),
+        LegendItem(label="Female", renderers=[female_quad_glyph])
+    ]))
 
     return plot
 
@@ -93,7 +96,10 @@ def population():
     plot.add_layout(
         Legend(
             location="bottom_right",
-            legends=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
+            items=[
+                LegendItem(label="known", renderers=[line_known_glyph]),
+                LegendItem(label="predicted", renderers=[line_predicted_glyph])
+            ],
         )
     )
 
