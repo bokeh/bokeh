@@ -4,6 +4,13 @@ declare namespace Bokeh {
         level?: RenderLevel;
     }
 
+    export var LegendItem: { new(attributes?: ILegendItem, options?: ModelOpts): LegendItem };
+    export interface LegendItem extends Model, ILegendItem {}
+    export interface ILegendItem extends IModel {
+        label?: Vectorized<string>;
+        renderers?: Array<GlyphRenderer>;
+    }
+
     export var Legend: { new(attributes?: ILegend, options?: ModelOpts): Legend };
     export interface Legend extends Annotation, ILegend {}
     export interface ILegend extends IAnnotation {
@@ -51,7 +58,8 @@ declare namespace Bokeh {
         legend_padding?: Int;
         legend_spacing?: Int;
 
-        legends?: Array<[string, Array<GlyphRenderer>]>;
+        items?: Array<LegendItem>;
+
     }
 
     export var ColorBar: { new(attributes?: IColorBar, options?: ModelOpts): ColorBar };

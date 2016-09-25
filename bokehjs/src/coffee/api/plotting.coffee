@@ -359,16 +359,18 @@ class Figure extends models.Plot
     return objs
 
   _update_legend: (legend_name, glyph_renderer) ->
-    legends = _.clone(@_legend.legends)
+    # TODO: (BIRD) NEEDS UPDATING
+    console.log('not working')
+    #legends = _.clone(@_legend.legends)
 
-    for [name, renderers] in legends
-      if name == legend_name
-        renderers.push(glyph_renderer)
-        @_legend.legends = legends
-        return
+    #for [name, renderers] in legends
+    #  if name == legend_name
+    #    renderers.push(glyph_renderer)
+    #    @_legend.legends = legends
+    #    return
 
-    legends.push([legend_name, [glyph_renderer]])
-    @_legend.legends = legends
+    #legends.push([legend_name, [glyph_renderer]])
+    #@_legend.legends = legends
 
 figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
