@@ -51,15 +51,13 @@ namespace Stocks {
     const period = 0.5;  // seconds
     function new_data() {
         t += period;
-        // XXX: explicit type annotation required due to TypeScript#6041.
-        // Remove when TypeScript 2.0 is available.
-        const d: Bokeh.Data = {
+        const data = {
             t:      [t*1000],
             corp_a: [Math.sin(t*0.3 + 0)*2 + Math.random() + 3.0],
             corp_b: [Math.sin(t*0.5 + 1)*2 + Math.random() + 3.4],
             corp_c: [Math.sin(t*0.7 + 2)*2 + Math.random() + 3.8],
         };
-        source.stream(d, 50);
+        source.stream(data, 50);
     }
     setInterval(new_data, period*1000);
 

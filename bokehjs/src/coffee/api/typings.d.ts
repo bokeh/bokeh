@@ -1,4 +1,5 @@
-/// <reference path="../../../typings/main.d.ts" />
+/// <reference types="@types/jquery" />
+/// <reference types="@types/underscore" />
 
 /// <reference path="./typings/bokeh.d.ts" />
 /// <reference path="./typings/charts.d.ts" />

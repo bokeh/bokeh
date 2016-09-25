@@ -126,6 +126,7 @@ class Figure extends models.Plot
   annulus:           (args...) -> @_glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args)
   arc:               (args...) -> @_glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args)
   bezier:            (args...) -> @_glyph(models.Bezier,       "x0,y0,x1,y1,cx0,cy0,cx1,cy1",                         args)
+  circle:            (args...) -> @_glyph(models.Circle,       "x,y",                                                 args)
   ellipse:           (args...) -> @_glyph(models.Ellipse,      "x,y,width,height",                                    args)
   image:             (args...) -> @_glyph(models.Image,        "color_mapper,image,rows,cols,x,y,dw,dh",              args)
   image_rgba:        (args...) -> @_glyph(models.ImageRGBA,    "image,rows,cols,x,y,dw,dh",                           args)
@@ -144,7 +145,6 @@ class Figure extends models.Plot
   wedge:             (args...) -> @_glyph(models.Wedge,        "x,y,radius,start_angle,end_angle",                    args)
 
   asterisk:          (args...) -> @_marker(models.Asterisk,         args)
-  circle:            (args...) -> @_marker(models.Circle,           args)
   circle_cross:      (args...) -> @_marker(models.CircleCross,      args)
   circle_x:          (args...) -> @_marker(models.CircleX,          args)
   cross:             (args...) -> @_marker(models.Cross,            args)

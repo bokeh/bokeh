@@ -1,6 +1,5 @@
 /build
 /node_modules
-/typings
 *~
 *.sw[opn]
 *.bak
