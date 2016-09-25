@@ -54,7 +54,6 @@ describe "LegendItem", ->
         label: { value: 'label' },
         renderers: [ gr_1, gr_2 ]
       })
-      console.log(legend_item._check_data_sources_on_renderers())
       expect(legend_item._check_data_sources_on_renderers()).to.be.true
 
   describe "_check_field_label_on_data_source", ->
