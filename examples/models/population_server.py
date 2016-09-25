@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.models.glyphs import Line, Quad
 from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Legend,
+    LinearAxis, CategoricalAxis, Grid, Legend, LegendItem,
     SingleIntervalTicker
 )
 from bokeh.sampledata.population import load_population
@@ -27,6 +27,7 @@ years = [str(x) for x in sorted(df.Year.unique())]
 locations = sorted(df.Location.unique())
 
 source_pyramid = ColumnDataSource(data=dict())
+
 
 def pyramid():
     xdr = DataRange1d()
@@ -50,12 +51,14 @@ def pyramid():
 
     plot.add_layout(Legend(items=[
         LegendItem(label="Male", renderers=[male_quad_glyph]),
-        LegendItem(label="Female", renderers=[female_quad_glyph])]))
+        LegendItem(label="Female", renderers=[female_quad_glyph])
+    ]))
 
     return plot
 
 source_known = ColumnDataSource(data=dict(x=[], y=[]))
 source_predicted = ColumnDataSource(data=dict(x=[], y=[]))
+
 
 def population():
     xdr = FactorRange(factors=years)
@@ -63,7 +66,7 @@ def population():
 
     plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=150, toolbar_location=None)
 
-    plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
+    plot.add_layout(CategoricalAxis(major_label_orientation=pi / 4), 'below')
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
     line_known_glyph = plot.add_glyph(source_known, line_known)
@@ -80,6 +83,7 @@ def population():
 
     return plot
 
+
 def update_pyramid():
     pyramid = df[(df.Location == location) & (df.Year == year)]
 
@@ -88,8 +92,8 @@ def update_pyramid():
 
     total = male.Value.sum() + female.Value.sum()
 
-    male_percent = -male.Value/total
-    female_percent = female.Value/total
+    male_percent = -male.Value / total
+    female_percent = female.Value / total
 
     groups = male.AgeGrpStart.tolist()
     shifted = groups[1:] + [groups[-1] + 5]
@@ -101,9 +105,10 @@ def update_pyramid():
         female=female_percent,
     )
 
+
 def update_population():
     population = df[df.Location == location].groupby(df.Year).Value.sum()
-    aligned_revision = revision//10 * 10
+    aligned_revision = revision // 10 * 10
 
     known = population[population.index <= aligned_revision]
     predicted = population[population.index >= aligned_revision]
@@ -111,19 +116,23 @@ def update_population():
     source_known.data = dict(x=known.index.map(str), y=known.values)
     source_predicted.data = dict(x=predicted.index.map(str), y=predicted.values)
 
+
 def update_data():
     update_population()
     update_pyramid()
+
 
 def on_year_change(attr, old, new):
     global year
     year = int(new)
     update_data()
 
+
 def on_location_change(attr, old, new):
     global location
     location = new
     update_data()
+
 
 def create_layout():
     year_select = Select(title="Year:", value="2010", options=years)
