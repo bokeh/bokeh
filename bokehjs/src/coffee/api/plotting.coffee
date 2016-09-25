@@ -235,7 +235,7 @@ class Figure extends models.Plot
         do (param, i) ->
           attrs[param] = args[i]
 
-    legend = attrs.legend
+    legend = _process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
     has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
@@ -358,19 +358,34 @@ class Figure extends models.Plot
 
     return objs
 
-  _update_legend: (legend_name, glyph_renderer) ->
-    # TODO: (BIRD) NEEDS UPDATING
-    console.log('not working')
-    #legends = _.clone(@_legend.legends)
+  _process_legend: (legend, source) ->
+    legend_item_label = null
+    if legend?
+      if _.isString(legend)
+        legend_item_label = { value: legend }
+        if source? and source.column_names?
+          if legend in source.column_names
+            legend_item_label = { field: legend }
+      else
+        legend_item_label = legend
+    return legend_item_label
 
-    #for [name, renderers] in legends
-    #  if name == legend_name
-    #    renderers.push(glyph_renderer)
-    #    @_legend.legends = legends
-    #    return
+  _update_legend: (legend_item_label, glyph_renderer) ->
+    added = False
+    for item in @_legend.items
+      if item.label == legend_item_label
+        if item.label.value?
+          item.renderers.push(glyph_renderer)
+          added = True
+          break
+        if item.label.field? and glyph_renderer.data_source == item.renderers[0].data_source
+          item.renderers.push(glyph_renderer)
+          added = True
+          break
+    if not added
+      new_item = new LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      @_legend.items.append(new_item)
 
-    #legends.push([legend_name, [glyph_renderer]])
-    #@_legend.legends = legends
 
 figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
