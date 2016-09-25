@@ -103,7 +103,7 @@ class Figure extends models.Plot
 
     @add_tools(@_process_tools(tools)...)
 
-    @_legend = new models.Legend({plot: this})
+    @_legend = new models.Legend({plot: this, items: []})
     @add_renderers(@_legend)
 
   Object.defineProperty this.prototype, "xgrid", {
@@ -235,7 +235,7 @@ class Figure extends models.Plot
         do (param, i) ->
           attrs[param] = args[i]
 
-    legend = _process_legend(attrs.legend, attrs.source)
+    legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
     has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
@@ -371,20 +371,20 @@ class Figure extends models.Plot
     return legend_item_label
 
   _update_legend: (legend_item_label, glyph_renderer) ->
-    added = False
+    added = false
     for item in @_legend.items
-      if item.label == legend_item_label
+      if _.isEqual(item.label, legend_item_label)
         if item.label.value?
           item.renderers.push(glyph_renderer)
-          added = True
+          added = true
           break
         if item.label.field? and glyph_renderer.data_source == item.renderers[0].data_source
           item.renderers.push(glyph_renderer)
-          added = True
+          added = true
           break
     if not added
-      new_item = new LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
-      @_legend.items.append(new_item)
+      new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      @_legend.items.push(new_item)
 
 
 figure = (attributes={}, options={}) ->
