@@ -16,6 +16,8 @@ from ..core.properties import (
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
+from ..core import validation
+from ..core.validation.errors import NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
 
 from .formatters import TickFormatter, BasicTickFormatter
@@ -57,6 +59,15 @@ class LegendItem(Model):
     A list of the glyph renderers to draw in the legend. If ``label`` is a field,
     then all data_sources of renderers must be the same.
     """)
+
+    @validation.error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
+    def _check_data_sources_on_renderers(self):
+        if self.label and self.label.get('field'):
+            source = self.renderers[0].data_source
+            for r in self.renderers:
+                if r.data_source != source:
+                    return str(self)
+
 
 
 DEP_MSG_0_12_3 = """

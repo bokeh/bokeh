@@ -1,10 +1,13 @@
 from __future__ import absolute_import
+import mock
 
+from bokeh.core.properties import field, value
+from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
-    Legend, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
+    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
 from bokeh.models import (
-    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter
+    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
 )
 
 from .utils.property_utils import (
@@ -311,3 +314,34 @@ def test_Title():
         "render_mode"],
         prefix('border_', LINE),
         prefix('background_', FILL))
+
+def test_can_add_multiple_glyph_renderers_to_legend_item():
+    legend_item = LegendItem()
+    gr_1 = GlyphRenderer()
+    gr_2 = GlyphRenderer()
+    legend_item.renderers = [gr_1, gr_2]
+    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        check_integrity([legend_item])
+        assert mock_logger.error.call_count == 0
+
+
+def test_legend_item_with_field_label_and_different_data_sources_raises_a_validation_error():
+    legend_item = LegendItem()
+    gr_1 = GlyphRenderer(data_source=ColumnDataSource())
+    gr_2 = GlyphRenderer(data_source=ColumnDataSource())
+    legend_item.label = field('label')
+    legend_item.renderers = [gr_1, gr_2]
+    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        check_integrity([legend_item])
+        assert mock_logger.error.call_count == 1
+
+
+def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_a_validation_error():
+    legend_item = LegendItem()
+    gr_1 = GlyphRenderer(data_source=ColumnDataSource())
+    gr_2 = GlyphRenderer(data_source=ColumnDataSource())
+    legend_item.label = value('label')
+    legend_item.renderers = [gr_1, gr_2]
+    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        check_integrity([legend_item])
+        assert mock_logger.error.call_count == 0
