@@ -165,7 +165,7 @@ class Legend extends Annotation.Model
     legend_names = []
     for item in @items
       labels = item.get_labels_list_from_label_prop()
-      legend_names.concat(labels)
+      legend_names = legend_names.concat(labels)
     return legend_names
 
 

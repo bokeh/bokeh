@@ -30,7 +30,8 @@ describe "LegendItem", ->
       source = new ColumnDataSource({
         data: {
           label: ['foo', 'bar', 'foo', 'bar']
-        }
+        },
+        selection_manager: null,
       })
       gr = new GlyphRenderer({'data_source': source})
       legend_item = new LegendItem({'label': {'field': 'label'}, 'renderers': [gr]})
@@ -41,7 +42,8 @@ describe "LegendItem", ->
       source = new ColumnDataSource({
         data: {
           x: [10, 20, 30, 40],
-        }
+        },
+        selection_manager: null,
       })
       gr = new GlyphRenderer({'data_source': source})
       legend_item = new LegendItem({'label': {'field': 'milk'}, 'renderers': [gr]})

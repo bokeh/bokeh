@@ -23,7 +23,8 @@ describe "Legend.Model", ->
       source = new ColumnDataSource({
         data: {
           label: ['l1', 'l2', 'l2', 'l1']
-        }
+        },
+        selection_manager: null,
       })
       gr = new GlyphRenderer({'data_source': source})
       item_1 = new LegendItem({'label': {'field': 'label'}, 'renderers': [gr]})
