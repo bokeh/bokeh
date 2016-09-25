@@ -33,9 +33,9 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
-    legend_margin = @model.legend_margin
-    legend_padding = @model.legend_padding
-    legend_spacing = @model.legend_spacing
+    legend_margin = @model.margin
+    legend_padding = @model.padding
+    legend_spacing = @model.spacing
     label_standoff =  @model.label_standoff
 
     if @model.orientation == "vertical"
@@ -115,9 +115,9 @@ class LegendView extends Annotation.View
   _draw_legend_items: (ctx, bbox) ->
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
-    legend_spacing = @model.legend_spacing
+    legend_spacing = @model.spacing
     label_standoff = @model.label_standoff
-    xoffset = yoffset = @model.legend_padding
+    xoffset = yoffset = @model.padding
 
     for item in @model.items
       labels = item.get_labels_list_from_label_prop()
@@ -179,9 +179,9 @@ class Legend extends Annotation.Model
       glyph_width:    [ p.Number,         20          ]
       label_height:   [ p.Number,         20          ]
       label_width:    [ p.Number,         20          ]
-      legend_margin:  [ p.Number,         10          ]
-      legend_padding: [ p.Number,         10          ]
-      legend_spacing: [ p.Number,         3           ]
+      margin:  [ p.Number,         10          ]
+      padding: [ p.Number,         10          ]
+      spacing: [ p.Number,         3           ]
       items:          [ p.Array,                      ]
   }
 

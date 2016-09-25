@@ -54,9 +54,9 @@ declare namespace Bokeh {
         glyph_height?: Int;
         glyph_width?: Int;
 
-        legend_margin?: Int;
-        legend_padding?: Int;
-        legend_spacing?: Int;
+        margin?: Int;
+        padding?: Int;
+        spacing?: Int;
 
         items?: Array<LegendItem>;
 
