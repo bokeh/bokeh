@@ -182,7 +182,7 @@ def _update_legend(plot, legend_item_label, glyph_renderer):
                 added = True
                 break
             if item.label.get('field') and \
-                    glyph_renderer.data_source is item.renderers[0].datasource:
+                    glyph_renderer.data_source is item.renderers[0].data_source:
                 item.renderers.append(glyph_renderer)
                 added = True
                 break

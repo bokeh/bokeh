@@ -4,6 +4,7 @@ from bokeh.plotting.helpers import (
 )
 
 
+# _get_legend_item_label
 def test_if_legend_is_something_exotic_that_it_is_passed_directly_to_label():
     kwargs = {
         'legend': {'field': 'milk'}

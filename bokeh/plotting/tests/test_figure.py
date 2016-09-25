@@ -303,9 +303,20 @@ def test_multiple_renderers_correctly_added_to_legend(p, source):
 
 
 def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(p, source):
-    square = p.square(x='x', y='y', legend='compound legend string', source=source)
-    circle = p.circle(x='x', y='y', legend='compound legend string', source=source)
+    # 'compound legend string' is just a value
+    square = p.square(x='x', y='y', legend='compound legend string')
+    circle = p.circle(x='x', y='y', legend='compound legend string')
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].items[0].renderers == [square, circle]
     assert legends[0].items[0].label == {'value': 'compound legend string'}
+
+
+def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(p, source):
+    # label is a field
+    square = p.square(x='x', y='y', legend='label', source=source)
+    circle = p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [square, circle]
+    assert legends[0].items[0].label == {'field': 'label'}
