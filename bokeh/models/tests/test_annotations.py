@@ -25,7 +25,7 @@ def test_Legend():
     assert legend.glyph_width == 20
     assert legend.legend_padding == 10
     assert legend.legend_spacing == 3
-    assert legend.legends == []
+    assert legend.items == []
     check_line_properties(legend, "border_", "#e5e5e5", 1.0, 0.5)
     check_text_properties(legend, "label_", "10pt", "middle")
     check_fill_properties(legend, "background_", "#ffffff", 0.95)
@@ -42,7 +42,7 @@ def test_Legend():
         "legend_margin",
         "legend_padding",
         "legend_spacing",
-        "legends",
+        "items",
         "level"],
         prefix('label_', TEXT),
         prefix('border_', LINE),

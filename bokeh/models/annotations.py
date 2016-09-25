@@ -3,13 +3,14 @@ Bokeh plots
 
 """
 from __future__ import absolute_import
+import warnings
 
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
     AngleUnits, TextAlign, FontStyle
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
-from ..core.properties import abstract, value
+from ..core.properties import abstract, HasProps, value
 from ..core.properties import (
     Bool, Int, String, Enum, Instance, List, Dict, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
@@ -41,13 +42,34 @@ class TextAnnotation(Annotation):
 
     """
 
+
+class LegendItem(HasProps):
+
+    label = StringSpec(default=None, help="""
+    A label for this legend. Can be a string, or a column of a
+    ColumnDataSource. If ``label`` is a field, then it must
+    be in the renderers' data_source.
+    """)
+
+    renderers = List(Instance(GlyphRenderer), help="""
+    A list of the glyph renderers to draw in the legend. If ``label`` is a field,
+    then all data_sources of renderers must be the same.
+    """)
+
+
+DEP_MSG_0_12_3 = """
+    Legend property '%s' was deprecated in 0.12.3 and will be removed. Use '%s' instead.
+    """
+
+
 class Legend(Annotation):
     """ Render informational legends for a plot.
 
     """
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float),
-        default="top_right", help="""
+    __deprecated_attributes__ = ('legends', )
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
     ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
@@ -81,7 +103,7 @@ class Legend(Annotation):
 
     label_text_baseline = Override(default='middle')
 
-    label_text_font_size = Override(default={ 'value' : '10pt' })
+    label_text_font_size = Override(default={'value': '10pt'})
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
@@ -115,21 +137,30 @@ class Legend(Annotation):
     Amount of spacing between legend entries.
     """)
 
-    legends = Either(List(Instance(GlyphRenderer)), List(Tuple(String, List(Instance(GlyphRenderer)))), help="""
-    A list of glyph renderers OR
-    A list of tuples that maps text labels to the legend to corresponding
-    renderers that should draw sample representations for those labels.
+    items = List(Instance(LegendItem), help="""
+    A list of legend items to be rendered in the legend.
+    """)
 
-    If a list of glyph renderers is provided, the label property from the glyph
-    will be used as the legend label.
+    @property
+    def legends(self):
+        warnings.warn(DEP_MSG_0_12_3 % ('legends', 'Legend.items'))
+        return self.items
 
-    .. note::
-        The ``legends`` attribute may also be set from a dict or OrderedDict.
-        If a dict is used, the order of the legend entries is unspecified.
+    @legends.setter
+    def legends(self, legends):
+        warnings.warn(DEP_MSG_0_12_3 % ('legends', 'Legend.items'))
+        # Legends are [('label', [glyph_renderer_1, glyph_renderer_2]), ....]
+        # Or {'label', [glyph_renderer_1, glyph_renderer_2], ....}
+        if isinstance(legends, dict):
+            legends = list(legends.items())
+        items_list = []
+        for legend in legends:
+            item = LegendItem()
+            item.label = value(legend[0])
+            item.renderers = legend[1]
+            items_list.append(item)
+        self.items = items_list
 
-    """).accepts(
-        Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
-    )
 
 class ColorBar(Annotation):
     """ Render a color bar based on a color mapper for a plot.
