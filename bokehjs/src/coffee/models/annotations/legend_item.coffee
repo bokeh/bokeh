@@ -1,10 +1,47 @@
 _ = require "underscore"
-HasProps = require "../../core/has_props"
+
 Model = require "../../model"
+
 p = require "../../core/properties"
+{logger} = require "../../core/logging"
 
 class LegendItem extends Model
   type: "LegendItem"
+
+  _check_data_sources_on_renderers: () ->
+    field = @get_field_from_label_prop()
+    if field?
+      if @renderers.length < 1
+        return false
+      source = @renderers[0].data_source
+      if source?
+        for r in @renderers
+          if r.data_source != source
+            return false
+    return true
+
+  _check_field_label_on_data_source: () ->
+    field = @get_field_from_label_prop()
+    if field?
+      if @renderers.length < 1
+        return false
+      source = @renderers[0].data_source
+      if source? and field not in source.columns()
+        return false
+    return true
+
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    # Validate data_sources match
+    data_source_validation = @_check_data_sources_on_renderers()
+    if not data_source_validation
+      logger.error("Non matching data sources on legend item renderers")
+    # Validate label in data_source
+    field_validation = @_check_field_label_on_data_source()
+    if not field_validation
+      logger.error("Bad column name on label: #{@label}")
+
 
   @define {
       label: [ p.StringSpec, null ]
