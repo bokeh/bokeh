@@ -1,7 +1,9 @@
+_ = require "underscore"
 HasProps = require "../../core/has_props"
+Model = require "../../model"
 p = require "../../core/properties"
 
-class LegendItem extends HasProps
+class LegendItem extends Model
   type: "LegendItem"
 
   @define {
@@ -9,26 +11,34 @@ class LegendItem extends HasProps
       renderers: [ p.Array, [] ]
   }
 
-  get_field_from_label_prop: () ->
+  get_field_from_label_prop: () =>
     if @label? and @label.field?
       return @label.field
 
-  get_labels_list_from_label_prop: () ->
+  get_labels_list_from_label_prop: () =>
     # Always return a list of the labels
     if @label? and @label.value?
       return [@label.value]
+    console.log('a')
     field = @get_field_from_label_prop()
-    if field
+    console.log('field')
+    if field?
+      console.log('renderers')
       if @renderers[0] and @renderers[0].data_source?
         source = @renderers[0].data_source
       else
         return ["No source found"]
       if source.get_column?
-        data = source.get_column(@label.field)
+        console.log('heyo')
+        console.log(field)
+        console.log(source)
+        data = source.get_column(field)
+        console.log(data)
         if data
           return _.unique(data)
         else
           return ["Invalid field"]
     return []
 
-module.exports = LegendItem
+module.exports =
+  Model: LegendItem

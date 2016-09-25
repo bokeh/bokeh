@@ -138,8 +138,9 @@ class LegendView extends Annotation.View
 
         @visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
-        view = @plot_view.renderer_views[renderer.id]
-        view.draw_legend(ctx, x1, x2, y1, y2, field, label)
+        for r in item.renderers
+          view = @plot_view.renderer_views[r.id]
+          view.draw_legend(ctx, x1, x2, y1, y2, field, label)
 
   _get_size: () ->
     bbox = @compute_legend_bbox()

@@ -10,12 +10,13 @@ from ..core.enums import (
     AngleUnits, TextAlign, FontStyle
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
-from ..core.properties import abstract, HasProps, value
+from ..core.properties import abstract, value
 from ..core.properties import (
-    Bool, Int, String, Enum, Instance, List, Dict, Tuple,
+    Bool, Int, String, Enum, Instance, List, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
+from ..model import Model
 
 from .formatters import TickFormatter, BasicTickFormatter
 from .mappers import ContinuousColorMapper
@@ -36,6 +37,7 @@ class Annotation(Renderer):
 
     level = Override(default="annotation")
 
+
 @abstract
 class TextAnnotation(Annotation):
     """ Base class for annotation models.
@@ -43,7 +45,7 @@ class TextAnnotation(Annotation):
     """
 
 
-class LegendItem(HasProps):
+class LegendItem(Model):
 
     label = StringSpec(default=None, help="""
     A label for this legend. Can be a string, or a column of a
@@ -304,6 +306,7 @@ class ColorBar(Annotation):
 def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead
     return OpenHead()
+
 
 class Arrow(Annotation):
     """ Render an arrow as an annotation.
