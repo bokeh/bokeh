@@ -17,7 +17,10 @@ from ..core.properties import (
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
 from ..core import validation
-from ..core.validation.errors import NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
+from ..core.validation.errors import (
+    BAD_COLUMN_NAME,
+    NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
+)
 from ..model import Model
 
 from .formatters import TickFormatter, BasicTickFormatter
@@ -63,10 +66,23 @@ class LegendItem(Model):
     @validation.error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
         if self.label and self.label.get('field'):
+            if len(self.renderers) < 1:
+                return str(self)
             source = self.renderers[0].data_source
             for r in self.renderers:
                 if r.data_source != source:
                     return str(self)
+
+    @validation.error(BAD_COLUMN_NAME)
+    def _check_field_label_on_data_source(self):
+        if self.label and self.label.get('field'):
+            if len(self.renderers) < 1:
+                return str(self)
+            source = self.renderers[0].data_source
+            if self.label.get('field') not in source.column_names:
+                return str(self)
+
+
 
 
 
