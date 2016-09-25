@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from collections import Iterable, Sequence, OrderedDict
+from collections import Iterable, Sequence
 import difflib
 import itertools
 import re
@@ -26,16 +26,16 @@ DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33f
 
 def get_default_color(plot=None):
     colors = [
-      "#1f77b4",
-      "#ff7f0e", "#ffbb78",
-      "#2ca02c", "#98df8a",
-      "#d62728", "#ff9896",
-      "#9467bd", "#c5b0d5",
-      "#8c564b", "#c49c94",
-      "#e377c2", "#f7b6d2",
-      "#7f7f7f",
-      "#bcbd22", "#dbdb8d",
-      "#17becf", "#9edae5"
+        "#1f77b4",
+        "#ff7f0e", "#ffbb78",
+        "#2ca02c", "#98df8a",
+        "#d62728", "#ff9896",
+        "#9467bd", "#c5b0d5",
+        "#8c564b", "#c49c94",
+        "#e377c2", "#f7b6d2",
+        "#7f7f7f",
+        "#bcbd22", "#dbdb8d",
+        "#17becf", "#9edae5"
     ]
     if plot:
         renderers = plot.renderers
@@ -45,11 +45,13 @@ def get_default_color(plot=None):
     else:
         return colors[0]
 
+
 def get_default_alpha(plot=None):
     return 1.0
 
+
 def _glyph_doc(args, props, desc):
-    params_tuple =tuple(itertools.chain.from_iterable(sorted(list(args.items()))))
+    params_tuple = tuple(itertools.chain.from_iterable(sorted(list(args.items()))))
     params = "\t%s : %s\n" * len(args) % params_tuple
 
     return """%s
@@ -64,12 +66,15 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.models.Plot>`
     """ % (desc, params, props)
 
+
 def _pop_renderer_args(kwargs):
     result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
     for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
         val = kwargs.pop(attr, None)
-        if val: result[attr] = val
+        if val:
+            result[attr] = val
     return result
+
 
 def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     """
@@ -83,9 +88,10 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     # thing throughout the codebase really suggests that we need to have
     # a real stylesheet class, where defaults and Types can declaratively
     # substitute for this kind of imperative logic.
-    color = kwargs.pop(prefix+"color", get_default_color())
+    color = kwargs.pop(prefix + "color", get_default_color())
     for argname in ("fill_color", "line_color"):
-        if argname not in glyphclass.properties(): continue
+        if argname not in glyphclass.properties():
+            continue
         result[argname] = kwargs.pop(prefix + argname, color)
 
     # NOTE: text fill color should really always default to black, hard coding
@@ -93,9 +99,10 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     if "text_color" in glyphclass.properties():
         result["text_color"] = kwargs.pop(prefix + "text_color", "black")
 
-    alpha = kwargs.pop(prefix+"alpha", default_alpha)
+    alpha = kwargs.pop(prefix + "alpha", default_alpha)
     for argname in ("fill_alpha", "line_alpha", "text_alpha"):
-        if argname not in glyphclass.properties(): continue
+        if argname not in glyphclass.properties():
+            continue
         result[argname] = kwargs.pop(prefix + argname, alpha)
 
     return result
@@ -124,22 +131,23 @@ Supplying a user-defined data source AND iterable values to glyph methods is dep
 See https://github.com/bokeh/bokeh/issues/2056 for more information.
 """
 
+
 def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
     dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
-        if not isinstance(val, Iterable): continue
-
+        if not isinstance(val, Iterable):
+            continue
         # pass dicts (i.e., values or fields) on as-is
-        if isinstance(val, dict): continue
-
+        if isinstance(val, dict):
+            continue
         # let any non-dataspecs do their own validation (e.g., line_dash properties)
-        if var not in dataspecs: continue
-
+        if var not in dataspecs:
+            continue
         # strings sequences are handled by the dataspec as-is
-        if isinstance(val, string_types): continue
-
+        if isinstance(val, string_types):
+            continue
         # similarly colorspecs handle color tuple sequences as-is
         if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
@@ -155,10 +163,11 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
 
 
 def _make_glyph(glyphclass, kws, extra):
-        if extra is None: return None
-        kws = kws.copy()
-        kws.update(extra)
-        return glyphclass(**kws)
+    if extra is None:
+        return None
+    kws = kws.copy()
+    kws.update(extra)
+    return glyphclass(**kws)
 
 
 def _update_legend(plot, legend_item_label, glyph_renderer):
@@ -202,9 +211,10 @@ def _get_range(range_input):
         if len(range_input) == 2:
             try:
                 return Range1d(start=range_input[0], end=range_input[1])
-            except ValueError: # @mattpap suggests ValidationError instead
+            except ValueError:  # @mattpap suggests ValidationError instead
                 pass
     raise ValueError("Unrecognized range input: '%s'" % str(range_input))
+
 
 def _get_axis_class(axis_type, range_input):
     if axis_type is None:
@@ -228,6 +238,7 @@ def _get_axis_class(axis_type, range_input):
         return LinearAxis
     else:
         raise ValueError("Unrecognized axis_type: '%r'" % axis_type)
+
 
 def _get_num_minor_ticks(axis_class, num_minor_ticks):
     if isinstance(num_minor_ticks, int):
@@ -280,6 +291,7 @@ _known_tools = {
     "reset": lambda: ResetTool(),
     "help": lambda: HelpTool(),
 }
+
 
 def _tool_from_string(name):
     """ Takes a string and returns a corresponding `Tool` instance. """
@@ -441,6 +453,7 @@ Returns:
     GlyphRenderer
 """
 
+
 def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, *args, **kwargs):
@@ -512,7 +525,8 @@ def _glyph_function(glyphclass, extra_docs=None):
     kwlines = []
     kws = glyphclass.properties() - set(glyphclass._args)
     for kw in sorted(kws):
-        if kw == "session": continue # TODO (bev) improve or remove
+        if kw == "session":
+            continue  # TODO (bev) improve or remove
         spec = getattr(glyphclass, kw)
         if spec.__doc__:
             typ = spec.__class__.__name__
@@ -522,7 +536,7 @@ def _glyph_function(glyphclass, extra_docs=None):
             desc = ""
         kwlines.append(_arg_template % (kw, typ, desc, spec.class_default(glyphclass)))
 
-    func.__doc__ = _doc_template  % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
+    func.__doc__ = _doc_template % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
 
     if extra_docs:
         func.__doc__ += extra_docs

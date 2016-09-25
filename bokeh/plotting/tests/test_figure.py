@@ -138,7 +138,7 @@ class TestFigure(unittest.TestCase):
     def test_tools(self):
         TOOLS = "resize,pan,box_zoom,reset,lasso_select"
         fig = plt.figure(tools=TOOLS)
-        expected = [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool]
+        expected = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool]
 
         self.assertEqual(len(fig.tools), len(expected))
         for i, _type in enumerate(expected):
@@ -158,6 +158,7 @@ class TestFigure(unittest.TestCase):
         p.border_fill_color = 'yellow'
         self.assertEqual(p.background_fill_color, 'green')
         self.assertEqual(p.border_fill_color, 'yellow')
+
 
 class TestMarkers(unittest.TestCase):
 
@@ -245,28 +246,28 @@ def p():
 
 
 def test_glyph_label_is_legend_if_column_in_datasouurce_is_added_as_legend(p, source):
-    renderer = p.circle(x='x', y='y', legend='label', source=source)
+    p.circle(x='x', y='y', legend='label', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].items[0].label == {'field': 'label'}
 
 
 def test_glyph_label_is_value_if_column_not_in_datasouurce_is_added_as_legend(p, source):
-    renderer = p.circle(x='x', y='y', legend='milk', source=source)
+    p.circle(x='x', y='y', legend='milk', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].items[0].label == {'value': 'milk'}
 
 
 def test_glyph_label_is_just_added_directly_if_not_string(p, source):
-    renderer = p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
+    p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
     assert legends[0].items[0].label == {'field': 'milk'}
 
 
 def test_no_legend_if_legend_is_none(p, source):
-    renderer = p.circle(x='x', y='y', legend=None, source=source)
+    p.circle(x='x', y='y', legend=None, source=source)
     legends = p.select(Legend)
     assert len(legends) == 0
 
