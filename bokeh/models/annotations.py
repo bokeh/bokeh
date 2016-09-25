@@ -83,9 +83,6 @@ class LegendItem(Model):
                 return str(self)
 
 
-
-
-
 DEP_MSG_0_12_3 = """
     Legend property '%s' was deprecated in 0.12.3 and will be removed. Use '%s' instead.
     """
@@ -96,7 +93,9 @@ class Legend(Annotation):
 
     """
 
-    __deprecated_attributes__ = ('legends', )
+    __deprecated_attributes__ = (
+        'legends', 'legend_margin', 'legend_padding', 'legend_spacing'
+    )
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
@@ -154,15 +153,15 @@ class Legend(Annotation):
     The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
-    legend_margin = Int(10, help="""
+    margin = Int(10, help="""
     Amount of margin around the legend.
     """)
 
-    legend_padding = Int(10, help="""
+    padding = Int(10, help="""
     Amount of padding around the contents of the legend.
     """)
 
-    legend_spacing = Int(3, help="""
+    spacing = Int(3, help="""
     Amount of spacing between legend entries.
     """)
 
@@ -189,6 +188,36 @@ class Legend(Annotation):
             item.renderers = legend[1]
             items_list.append(item)
         self.items = items_list
+
+    @property
+    def legend_margin(self):
+        warnings.warn(DEP_MSG_0_12_3 % ('legend_margin', 'Legend.margin'))
+        return self.margin
+
+    @legend_margin.setter
+    def legend_margin(self, margin):
+        warnings.warn(DEP_MSG_0_12_3 % ('legend_margin', 'Legend.margin'))
+        self.margin = margin
+
+    @property
+    def legend_padding(self):
+        warnings.warn(DEP_MSG_0_12_3 % ('legend_padding', 'Legend.padding'))
+        return self.padding
+
+    @legend_padding.setter
+    def legend_padding(self, padding):
+        warnings.warn(DEP_MSG_0_12_3 % ('legend_padding', 'Legend.padding'))
+        self.padding = padding
+
+    @property
+    def legend_spacing(self):
+        warnings.warn(DEP_MSG_0_12_3 % ('legend_spacing', 'Legend.spacing'))
+        return self.spacing
+
+    @legend_spacing.setter
+    def legend_spacing(self, spacing):
+        warnings.warn(DEP_MSG_0_12_3 % ('legend_spacing', 'Legend.spacing'))
+        self.spacing = spacing
 
 
 class ColorBar(Annotation):

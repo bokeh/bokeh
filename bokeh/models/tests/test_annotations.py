@@ -26,8 +26,9 @@ def test_Legend():
     assert legend.label_width == 20
     assert legend.glyph_height == 20
     assert legend.glyph_width == 20
-    assert legend.legend_padding == 10
-    assert legend.legend_spacing == 3
+    assert legend.padding == 10
+    assert legend.spacing == 3
+    assert legend.margin == 10
     assert legend.items == []
     check_line_properties(legend, "border_", "#e5e5e5", 1.0, 0.5)
     check_text_properties(legend, "label_", "10pt", "middle")
@@ -42,9 +43,9 @@ def test_Legend():
         "label_width",
         "glyph_height",
         "glyph_width",
-        "legend_margin",
-        "legend_padding",
-        "legend_spacing",
+        "margin",
+        "padding",
+        "spacing",
         "items",
         "level"],
         prefix('label_', TEXT),
@@ -314,6 +315,7 @@ def test_Title():
         "render_mode"],
         prefix('border_', LINE),
         prefix('background_', FILL))
+
 
 def test_can_add_multiple_glyph_renderers_to_legend_item():
     legend_item = LegendItem()

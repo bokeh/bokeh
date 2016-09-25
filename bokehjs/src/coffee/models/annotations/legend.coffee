@@ -179,10 +179,10 @@ class Legend extends Annotation.Model
       glyph_width:    [ p.Number,         20          ]
       label_height:   [ p.Number,         20          ]
       label_width:    [ p.Number,         20          ]
-      margin:  [ p.Number,         10          ]
-      padding: [ p.Number,         10          ]
-      spacing: [ p.Number,         3           ]
-      items:          [ p.Array,                      ]
+      margin:         [ p.Number,         10          ]
+      padding:        [ p.Number,         10          ]
+      spacing:        [ p.Number,         3           ]
+      items:          [ p.Array,          []          ]
   }
 
   @override {
