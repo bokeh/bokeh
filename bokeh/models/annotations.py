@@ -60,7 +60,6 @@ class LegendItem(Model):
             # Allow convenience of setting label as a string
             self.label = value(self.label)
 
-
     label = StringSpec(default=None, help="""
     A label for this legend. Can be a string, or a column of a
     ColumnDataSource. If ``label`` is a field, then it must
@@ -74,17 +73,13 @@ class LegendItem(Model):
 
     @validation.error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
-        if self.label and self.label.get('field'):
-            if len(self.renderers) < 1:
+        if self.label and 'field' in self.label:
+            if len({r.data_source for r in self.renderers}) != 1:
                 return str(self)
-            source = self.renderers[0].data_source
-            for r in self.renderers:
-                if r.data_source != source:
-                    return str(self)
 
     @validation.error(BAD_COLUMN_NAME)
     def _check_field_label_on_data_source(self):
-        if self.label and self.label.get('field'):
+        if self.label and 'field' in self.label:
             if len(self.renderers) < 1:
                 return str(self)
             source = self.renderers[0].data_source

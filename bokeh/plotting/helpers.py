@@ -525,8 +525,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     kwlines = []
     kws = glyphclass.properties() - set(glyphclass._args)
     for kw in sorted(kws):
-        if kw == "session":
-            continue  # TODO (bev) improve or remove
+        if kw == "session": continue  # TODO (bev) improve or remove
         spec = getattr(glyphclass, kw)
         if spec.__doc__:
             typ = spec.__class__.__name__
