@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.3dev4",
+  "version": "0.12.3rc1",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -62,8 +62,7 @@
     "event-stream": "^3.3.1",
     "jsdom": "^5.6.1",
     "websocket":"^1.0.22",
-    "typings": "^0.7.9",
-    "typings-core": "^0.2.11",
+    "typescript": "^2.0.3",
     "coffee-script": "^1.10.0",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
@@ -99,7 +98,9 @@
     "timezone": "0.0.38",
     "hammerjs": "^2.0.4",
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
-    "root-require": "^0.3.1"
+    "root-require": "^0.3.1",
+    "@types/jquery": "^2.0.32",
+    "@types/underscore": "^1.7.33"
   },
   "scripts": {
     "build": "gulp build",

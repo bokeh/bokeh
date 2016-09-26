@@ -10,26 +10,36 @@ from bokeh.sampledata.olympics2014 import data
 
 defaults.plot_width = 450
 defaults.plot_height = 400
+tooltips = [("Cylinders", "@cyl"),
+            ("Displacement", "@displ"),
+            ("Weight", "@weight"),
+            ("Acceleration", "@accel"),
+            ("Horsepower", "@hp"),
+            ("Miles Per Gallon", "@mpg"),
+            ("Origin", "@origin")]
 
 scatter0 = Scatter(
-    df, x='mpg', title="x='mpg'", xlabel="Miles Per Gallon")
+    df, x='mpg', title="x='mpg'", xlabel="Miles Per Gallon", tooltips=tooltips)
 
 scatter1 = Scatter(
     df, x='mpg', y='hp', title="x='mpg', y='hp'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right',
+    tooltips=tooltips)
 
 scatter2 = Scatter(
     df, x='mpg', y='hp', color='cyl', title="x='mpg', y='hp', color='cyl'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right',
+    tooltips=tooltips)
 
 scatter3 = Scatter(
     df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin', with tooltips",
     xlabel="Miles Per Gallon", ylabel="Horsepower",
-    legend='top_right', tooltips=[('origin', "@origin")])
+    legend='top_right', tooltips=tooltips)
 
 scatter4 = Scatter(
     df, x='mpg', y='hp', color='cyl', marker='origin', title="x='mpg', y='hp', color='cyl', marker='origin'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right',
+    tooltips=tooltips)
 
 # Example with nested json/dict like data, which has been pre-aggregated and pivoted
 df2 = df_from_json(data)

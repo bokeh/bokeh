@@ -3,13 +3,17 @@ import pytest
 import subprocess
 import sys
 
-from os.path import join, dirname
+from os.path import abspath, dirname, join, pardir, split
 from .utils import info, fail
+
+TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
 
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--phantomjs", type=str, default="phantomjs", help="phantomjs executable"
+        "--phantomjs", type=str,
+        default=join(TOP_PATH, 'bokehjs', 'node_modules', '.bin', 'phantomjs'),
+        help="phantomjs executable"
     )
 
 

@@ -66,15 +66,10 @@ class LayoutDOM(Model):
 
     """)
 
-    # TODO: (mp) Not yet, because it breaks plotting/notebook examples.
-    # Rename to _repr_html_ if we decide to enable this by default.
-    def __repr_html__(self):
-        return notebook_div(self)
-
     @property
     def html(self):
         from IPython.core.display import HTML
-        return HTML(self.__repr_html__())
+        return HTML(notebook_div(self))
 
 
 class Spacer(LayoutDOM):

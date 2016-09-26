@@ -147,7 +147,10 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        background_fill_color = convert_color(ax.get_axis_bgcolor())
+        if hasattr(ax, 'get_facecolor'):
+            background_fill_color = convert_color(ax.get_facecolor())
+        else:
+            background_fill_color = convert_color(ax.get_axis_bgcolor())
         self.plot.background_fill_color = background_fill_color
         if self.xkcd:
             self.plot.title.text_font = "Comic Sans MS, Textile, cursive"

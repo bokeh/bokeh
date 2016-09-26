@@ -8,8 +8,10 @@ class LogColorMapper extends ColorMapper.Model
   type: "LogColorMapper"
 
   @define {
-      high:          [ p.Number           ]
-      low:           [ p.Number           ]
+      high:       [ p.Number ]
+      low:        [ p.Number ]
+      high_color: [ p.Color  ]
+      low_color:  [ p.Color  ]
     }
 
   _get_values: (data, palette) ->
@@ -25,11 +27,27 @@ class LogColorMapper extends ColorMapper.Model
       if isNaN(d)
         values.push(@nan_color)
         continue
-      # Clamp the data
+
       if d > high
-        d = high
+        if @high_color?
+          values.push(@high_color)
+        else
+          values.push(palette[max_key])
+        continue
+
+      # This handles the edge case where d == high, since the code below maps
+      # values exactly equal to high to palette.length, which is greater than
+      # max_key
+      if d == high
+        values.push(palette[max_key])
+        continue
+
       if d < low
-        d = low
+        if @low_color?
+          values.push(@low_color)
+        else
+          values.push(palette[0])
+        continue
 
       # Get the key
       log = Math.log1p(d) - Math.log1p(low)  # subtract the low offset

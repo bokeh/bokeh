@@ -52,6 +52,7 @@ tsOpts = {
   module: "commonjs"
   moduleResolution: "node"
   target: "ES5"
+  typescript: require('typescript')
 }
 
 gulp.task "scripts:ts", () ->

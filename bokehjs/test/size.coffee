@@ -10,9 +10,9 @@ LIMITS = {
   "css/bokeh-widgets.min.css": 527
   "css/bokeh.min.css":         74
   "js/bokeh-widgets.min.js":   290
-  "js/bokeh-api.min.js":        40
+  "js/bokeh-api.min.js":        70
   "js/bokeh-gl.min.js":         80
-  "js/bokeh.min.js":           918
+  "js/bokeh.min.js":           780
 }
 
 for filename, maxsize of LIMITS
