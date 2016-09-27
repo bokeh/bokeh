@@ -32,7 +32,7 @@ from .embed import notebook_div, standalone_html_page_for_models, autoload_serve
 from .models.layouts import LayoutDOM, Row, Column, VBoxForm
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .model import _ModelInDocument
-from .util.deprecate import deprecated
+from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -181,7 +181,6 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
 # usually we default session_id to "generate a random one" but
 # here we default to a hardcoded one. This is to support local
 # usage e.g. with a notebook.
-@deprecated("Bokeh 0.12.3", "bokeh.client sessions (described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client)")
 def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", autopush=False):
     """ Configure the default output state to push its document to a
     session on a Bokeh server.
@@ -226,6 +225,9 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", au
         Calling this function will replace any existing server-side document in the named session.
 
     """
+    deprecated((0, 12, 3), 'bokeh.io.output_server()', """
+    bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
+    """)
 
     _state.output_server(session_id=session_id, url=url, app_path=app_path, autopush=autopush)
 
@@ -620,20 +622,20 @@ def _push_or_save(obj):
     if _state.file and _state.autosave:
         save(obj)
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.hplot()', 'bokeh.models.layouts.Row')
     layout = Row(children=list(children), **kwargs)
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.vplot()', 'bokeh.models.layouts.Column')
     layout = Column(children=list(children), **kwargs)
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.vform()', 'bokeh.models.layouts.WidgetBox')
     # Returning a VBoxForm, because it has helpers so that
     # Bokeh deprecates gracefully.
     return VBoxForm(*children, **kwargs)

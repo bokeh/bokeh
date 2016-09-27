@@ -1,5 +1,5 @@
-from bokeh.util.deprecate import deprecated_module
-deprecated_module('bokeh.templates', '0.11', 'use bokeh.core.templates instead')
-del deprecated_module
+from bokeh.util.deprecation import deprecated
+deprecated((0, 11, 0), 'bokeh.templates', 'bokeh.core.templates')
+del deprecated
 
 from .core.templates import * # NOQA
