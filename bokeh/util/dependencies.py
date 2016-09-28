@@ -2,6 +2,8 @@
 
 '''
 from importlib import import_module
+import traceback
+import warnings
 
 def import_optional(mod_name):
     ''' Attempt to import an optional dependency.
@@ -17,8 +19,11 @@ def import_optional(mod_name):
     '''
     try:
         return import_module(mod_name)
-    except Exception:
+    except ImportError:
         return None
+    except Exception as exc:
+        warnings.warn(traceback.format_exc(), RuntimeWarning)
+        
 
 def import_required(mod_name, error_msg):
     ''' Attempt to import a required dependency.
