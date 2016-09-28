@@ -3,6 +3,8 @@ module.exports =
 
   Dimension: ["width", "height"]
 
+  Dimensions: ["width", "height", "both"]
+
   Direction: ["clock", "anticlock"]
 
   FontStyle: ["normal", "italic", "bold"]

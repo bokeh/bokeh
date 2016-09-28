@@ -13,6 +13,7 @@ declare namespace Bokeh {
     export type AngleUnits = "deg" | "rad";
     export type DatetimeUnits = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years";
     export type Dimension = "width" | "height";
+    export type Dimensions = "width" | "height" | "both";
     export type Orientation = "horizontal" | "vertical";
     export type Anchor = "top_left" | "top_center" | "top_right" | "right_center" | "bottom_right" | "bottom_center" | "bottom_left" | "left_center" | "center";
     export type LegendLocation = Anchor;

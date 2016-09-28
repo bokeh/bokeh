@@ -34,7 +34,7 @@ class CrosshairTool extends InspectTool.Model
   tool_name: "Crosshair"
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
+      dimensions: [ p.Dimensions, "both"         ]
       line_color: [ p.Color, 'black'             ]
       line_width: [ p.Number, 1                  ]
       line_alpha: [ p.Number, 1.0                ]
@@ -47,7 +47,7 @@ class CrosshairTool extends InspectTool.Model
   }
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip("Crosshair", @_check_dims(@dimensions, "crosshair tool"))
+    tooltip: () -> @_get_dim_tooltip("Crosshair", @dimensions)
     synthetic_renderers: () -> _.values(@spans)
   }
 

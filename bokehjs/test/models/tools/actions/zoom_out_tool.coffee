@@ -17,10 +17,10 @@ describe "ZoomOutTool", ->
       tool = new ZoomOutTool()
       expect(tool.tooltip).to.be.equal('Zoom Out')
 
-      x_tool = new ZoomOutTool({dimensions: ['width']})
+      x_tool = new ZoomOutTool({dimensions: 'width'})
       expect(x_tool.tooltip).to.be.equal('Zoom Out (x-axis)')
 
-      y_tool = new ZoomOutTool({dimensions: ['height']})
+      y_tool = new ZoomOutTool({dimensions: 'height'})
       expect(y_tool.tooltip).to.be.equal('Zoom Out (y-axis)')
 
   describe "View", ->
@@ -63,7 +63,7 @@ describe "ZoomOutTool", ->
       expect([vr.start, vr.end]).to.be.deep.equal([-1.1, 1.1])
 
     it "should zoom the x-axis only", ->
-      zoom_out_tool = new ZoomOutTool({dimensions: ['width']})
+      zoom_out_tool = new ZoomOutTool({dimensions: 'width'})
 
       @plot.add_tools(zoom_out_tool)
 
@@ -82,7 +82,7 @@ describe "ZoomOutTool", ->
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
 
     it "should zoom the y-axis only", ->
-      zoom_out_tool = new ZoomOutTool({dimensions: ['height']})
+      zoom_out_tool = new ZoomOutTool({dimensions: 'height'})
 
       @plot.add_tools(zoom_out_tool)
 

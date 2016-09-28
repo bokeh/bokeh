@@ -94,7 +94,7 @@ class BoxZoomToolView extends GestureTool.View
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    if @model.match_aspect and dims.length == 2
+    if @model.match_aspect and dims == 'both'
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
@@ -112,7 +112,7 @@ class BoxZoomToolView extends GestureTool.View
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    if @model.match_aspect and dims.length == 2
+    if @model.match_aspect and dims == 'both'
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
@@ -172,11 +172,11 @@ class BoxZoomTool extends GestureTool.Model
   default_order: 20
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "box zoom tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
   @define {
-    dimensions:   [ p.Array,    ["width", "height"] ]
+    dimensions:   [ p.Dimensions, "both"            ]
     overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
     match_aspect: [ p.Bool,     false               ]
   }

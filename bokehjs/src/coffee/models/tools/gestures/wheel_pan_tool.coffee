@@ -82,7 +82,7 @@ class WheelPanTool extends GestureTool.Model
   default_order: 12
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims([@dimension], "wheel pan tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimension)
   }
 
   @define {
