@@ -17,7 +17,7 @@ def import_optional(mod_name):
     '''
     try:
         return import_module(mod_name)
-    except ImportError:
+    except Exception:
         return None
 
 def import_required(mod_name, error_msg):
