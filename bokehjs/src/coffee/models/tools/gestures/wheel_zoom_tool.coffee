@@ -26,12 +26,6 @@ class WheelZoomToolView extends GestureTool.View
     vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
 
-    # if wheel-scroll events happen outside frame restrict scaling to axis in bounds
-    if vx < hr.start or vx > hr.end
-      v_axis_only = true
-    if vy < vr.start or vy > vr.end
-      h_axis_only = true
-
     dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property
