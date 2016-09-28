@@ -4,7 +4,6 @@
 from __future__ import absolute_import
 
 from six import string_types
-import warnings
 
 from ..core.query import find
 from ..core import validation
@@ -18,6 +17,7 @@ from ..core.properties import (
     Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override, TitleProp)
 from ..util.string import nice_join
+from ..util.deprecation import deprecated
 
 from .annotations import Legend, Title
 from .axes import Axis
@@ -31,14 +31,8 @@ from .layouts import LayoutDOM
 
 from ..util.plot_utils import _list_attr_splat, _select_helper
 
-# See all the way at the bottom of Plot for where this is used.
-DEP_MSG_0_12_0 = """
-    Plot property '%s' was deprecated in 0.12.0 and will be removed. Use '%s' instead.
-    """
-
 # We create an empty title by default
 DEFAULT_TITLE = lambda: Title(text="")
-
 
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -612,15 +606,13 @@ class Plot(LayoutDOM):
 
     @property
     def responsive(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('responsive', 'Plot.sizing_mode'))
+        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode')
         return self.sizing_mode != "fixed"
 
     @responsive.setter
     def responsive(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('responsive', 'Plot.sizing_mode'))
-        warnings.warn("""
-        The 'responsive' property has been deprecated in 0.12.0. It has been
-        replaced by 'sizing_mode' which accepts one of five modes:
+        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode', """
+        Plot.sizing_mode which accepts one of five modes:
 
             fixed, scale_width, scale_height, scale_both, stretch_both
 
@@ -637,114 +629,98 @@ class Plot(LayoutDOM):
 
     @property
     def background_fill(self):
-        warnings.warn(
-            """
-            Plot property 'background_fill' was deprecated in Bokeh
-            0.11.0 and will be removed. Use 'background_fill_color' instead.
-            """)
+        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
         return self.background_fill_color
 
     @background_fill.setter
     def background_fill(self, color):
-        warnings.warn(
-            """
-            Plot property 'background_fill' was deprecated in Bokeh
-            0.11.0 and will be removed. Use 'background_fill_color' instead.
-            """)
+        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
         self.background_fill_color = color
 
     @property
     def border_fill(self):
-        warnings.warn(
-            """
-            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
-            will be removed. Use 'border_fill_color' instead.
-            """)
+        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
         return self.border_fill_color
 
     @border_fill.setter
     def border_fill(self, color):
-        warnings.warn(
-            """
-            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
-            will be removed. Use 'border_fill_color' instead.
-            """)
+        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
         self.border_fill_color = color
 
     @property
     def logo(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('logo', 'Plot.toolbar.logo'))
+        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
         return self.toolbar.logo
 
     @logo.setter
     def logo(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('logo', 'Plot.toolbar.logo'))
+        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
         self.toolbar.logo = value
 
     @property
     def title_standoff(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.offset'))
+        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
         return self.title.offset
 
     @title_standoff.setter
     def title_standoff(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_standoff', 'Plot.title.offset'))
+        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
         self.title.offset = value
 
     @property
     def title_text_font(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font', 'Plot.title.text_font'))
+        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
         return self.title.text_font
 
     @title_text_font.setter
     def title_text_font(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font', 'Plot.title.text_font'))
+        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
         self.title.text_font = value
 
     @property
     def title_text_font_size(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_size', 'Plot.title.text_font_size'))
+        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
         return self.title.text_font_size
 
     @title_text_font_size.setter
     def title_text_font_size(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_size', 'Plot.title.text_font_size'))
+        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
         self.title.text_font_size = value
 
     @property
     def title_text_font_style(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_style', 'Plot.title.text_font_style'))
+        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
         return self.title.text_font_style
 
     @title_text_font_style.setter
     def title_text_font_style(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_font_style', 'Plot.title.text_font_style'))
+        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
         self.title.text_font_style = value
 
     @property
     def title_text_color(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_color', 'Plot.title.text_color'))
+        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
         return self.title.text_color
 
     @title_text_color.setter
     def title_text_color(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_color', 'Plot.title.text_color'))
+        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
         self.title.text_color = value
 
     @property
     def title_text_alpha(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_alpha', 'Plot.title.text_alpha'))
+        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
         return self.title.text_alpha
 
     @title_text_alpha.setter
     def title_text_alpha(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_alpha', 'Plot.title.text_alpha'))
+        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
         self.title.text_alpha = value
 
     @property
     def title_text_align(self):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.align'))
-        warnings.warn("""``title_text_align`` was deprecated in 0.12.0 and is no longer
+        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
+        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
         available on the new Title object. There is a new ``plot.title.title_align`` which is
         similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
         If you need the exact ``title_text_align`` behavior, please add a title by creating a
@@ -755,8 +731,8 @@ class Plot(LayoutDOM):
 
     @title_text_align.setter
     def title_text_align(self, value):
-        warnings.warn(DEP_MSG_0_12_0 % ('title_text_align', 'Plot.title.align'))
-        warnings.warn("""``title_text_align`` was deprecated in 0.12.0 and is no longer
+        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
+        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
         available on the new Title object. There is a new ``plot.title.title_align`` which is
         similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
         If you need the exact ``title_text_align`` behavior, please add a title by creating a
@@ -767,7 +743,7 @@ class Plot(LayoutDOM):
 
     @property
     def title_text_baseline(self):
-        warnings.warn("""title_text_baseline was deprecated in 0.12.0 and is no longer
+        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
         available on the new Title object. If you need to alter the text_baseline, please
         add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
         it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
@@ -776,7 +752,7 @@ class Plot(LayoutDOM):
 
     @title_text_baseline.setter
     def title_text_baseline(self, value):
-        warnings.warn("""title_text_baseline was deprecated in 0.12.0 and is no longer
+        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
         available on the new Title object. If you need to alter the text_baseline, please
         add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
         it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.

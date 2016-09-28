@@ -18,7 +18,7 @@ from ..models import (
     WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime, value
-from ..util.deprecate import BokehDeprecationWarning
+from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
@@ -150,7 +150,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
         if is_user_source:
-            warnings.warn(_GLYPH_SOURCE_MSG, BokehDeprecationWarning, stacklevel=2)
+            deprecated(_GLYPH_SOURCE_MSG)
 
         source.add(val, name=var)
         kwargs[var] = var
