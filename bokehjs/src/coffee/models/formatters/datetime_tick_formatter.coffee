@@ -95,31 +95,17 @@ class DatetimeTickFormatter extends TickFormatter.Model
     # numbers, as we've worked hard to ensure).  Consequently, we adjust the
     # resolution upwards a small amount (less than any possible step in
     # scales) to make the effective boundaries slightly lower.
-    adjusted_resolution_secs = resolution_secs * 1.1
+    adjusted_secs = resolution_secs * 1.1
 
-    if adjusted_resolution_secs < 1e-3
-      str = "microseconds"
-    else if adjusted_resolution_secs < 1.0
-      str = "milliseconds"
-    else if adjusted_resolution_secs < 60
-      if span_secs >= 60
-        str = "minsec"
-      else
-        str = "seconds"
-    else if adjusted_resolution_secs < 3600
-      if span_secs >= 3600
-        str = "hourmin"
-      else
-        str = "minutes"
-    else if adjusted_resolution_secs < 24*3600
-      str = "hours"
-    else if adjusted_resolution_secs < 31*24*3600
-      str = "days"
-    else if adjusted_resolution_secs < 365*24*3600
-      str = "months"
-    else
-      str = "years"
-    return str
+    return switch
+      when adjusted_secs < 1e-3        then "microseconds"
+      when adjusted_secs < 1.0         then "milliseconds"
+      when adjusted_secs < 60          then (if span_secs >= 60   then "minsec"  else "seconds")
+      when adjusted_secs < 3600        then (if span_secs >= 3600 then "hourmin" else "minutes")
+      when adjusted_secs < 24*3600     then "hours"
+      when adjusted_secs < 31*24*3600  then "days"
+      when adjusted_secs < 365*24*3600 then "months"
+      else                                  "years"
 
   doFormat: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
 
