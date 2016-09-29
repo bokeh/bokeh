@@ -14,6 +14,7 @@ from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
     Either, Instance)
 from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
 from ..util.dependencies import import_required
+from ..util.deprecation import deprecated
 from ..util.compiler import nodejs_compile, CompilationError
 
 @abstract
@@ -282,26 +283,7 @@ class FuncTickFormatter(TickFormatter):
 
     """)
 
-DEFAULT_DATETIME_FORMATS = lambda : {
-    'microseconds': ['%fus'],
-    'milliseconds': ['%3Nms', '%S.%3Ns'],
-    'seconds':      ['%Ss'],
-    'minsec':       [':%M:%S'],
-    'minutes':      [':%M', '%Mm'],
-    'hourmin':      ['%H:%M'],
-    'hours':        ['%Hh', '%H:%M'],
-    'days':         ['%m/%d', '%a%d'],
-    'months':       ['%m/%Y', '%b%y'],
-    'years':        ['%Y'],
-}
-
-class DatetimeTickFormatter(TickFormatter):
-    """ Display tick values from a continuous range as formatted
-    datetimes.
-
-    """
-
-    formats = Dict(Enum(DatetimeUnits), List(String), default=DEFAULT_DATETIME_FORMATS, help="""
+DATETIME_TICK_FORMATTER_HELP="""
     User defined formats for displaying datetime values.
 
     The enum values correspond roughly to different "time scales". The
@@ -312,19 +294,7 @@ class DatetimeTickFormatter(TickFormatter):
     will be used. By default, all leading zeros are stripped away from
     the formatted labels. These behaviors cannot be changed as of now.
 
-    An example of specifying the same date format over a range of time scales::
-
-        DatetimeTickFormatter(
-            formats=dict(
-                hours=["%B %Y"],
-                days=["%B %Y"],
-                months=["%B %Y"],
-                years=["%B %Y"],
-            )
-        )
-
     This list of supported `strftime`_ formats is reproduced below.
-
 
     .. warning::
         The client library BokehJS uses the `timezone`_ library to
@@ -509,4 +479,59 @@ class DatetimeTickFormatter(TickFormatter):
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    """)
+"""
+
+class DatetimeTickFormatter(TickFormatter):
+    """ Display tick values from a continuous range as formatted datetimes. """
+
+    microseconds = List(String, default=['%fus'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    milliseconds = List(String, default=['%3Nms', '%S.%3Ns'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    seconds      = List(String, default=['%Ss'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    minsec       = List(String, default=[':%M:%S'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    minutes      = List(String, default=[':%M', '%Mm'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    hourmin      = List(String, default=['%H:%M'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    hours        = List(String, default=['%Hh', '%H:%M'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    days         = List(String, default=['%m/%d', '%a%d'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    months       = List(String, default=['%m/%Y', '%b%y'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    years        = List(String, default=['%Y'],
+        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
+    __deprecated_attributes__ = ('formats',)
+
+    @property
+    def formats(self):
+        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual fields')
+        return dict(
+            microseconds = self.microseconds,
+            milliseconds = self.milliseconds,
+            seconds      = self.seconds,
+            minsec       = self.minsec,
+            minutes      = self.minutes,
+            hourmin      = self.hourmin,
+            hours        = self.hours,
+            days         = self.days,
+            months       = self.months,
+            years        = self.years)
+
+    @formats.setter
+    def formats(self, value):
+        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual fields')
+        if 'microseconds' in value: self.microseconds = value['microseconds']
+        if 'milliseconds' in value: self.milliseconds = value['milliseconds']
+        if 'seconds'      in value: self.seconds      = value['seconds']
+        if 'minsec'       in value: self.minsec       = value['minsec']
+        if 'minutes'      in value: self.minutes      = value['minutes']
+        if 'hourmin'      in value: self.hourmin      = value['hourmin']
+        if 'hours'        in value: self.hours        = value['hours']
+        if 'days'         in value: self.days         = value['days']
+        if 'months'       in value: self.months       = value['months']
+        if 'years'        in value: self.years        = value['years']

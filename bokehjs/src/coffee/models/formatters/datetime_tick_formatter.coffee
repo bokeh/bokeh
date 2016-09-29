@@ -36,24 +36,20 @@ _strftime = (t, format) ->
       return format
     return tz(t, format)
 
-DEFAULT_DATETIME_FORMATS = {
-  'microseconds': ['%fus']
-  'milliseconds': ['%3Nms', '%S.%3Ns']
-  'seconds':      ['%Ss']
-  'minsec':       [':%M:%S']
-  'minutes':      [':%M', '%Mm']
-  'hourmin':      ['%H:%M']
-  'hours':        ['%Hh', '%H:%M']
-  'days':         ['%m/%d', '%a%d']
-  'months':       ['%m/%Y', '%b%y']
-  'years':        ['%Y']
-}
-
 class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
 
   @define {
-    formats: [ p.Any, DEFAULT_DATETIME_FORMATS ] # TODO (bev)
+    microseconds: [ p.Array, ['%fus'] ]
+    milliseconds: [ p.Array, ['%3Nms', '%S.%3Ns'] ]
+    seconds:      [ p.Array, ['%Ss'] ]
+    minsec:       [ p.Array, [':%M:%S'] ]
+    minutes:      [ p.Array, [':%M', '%Mm'] ]
+    hourmin:      [ p.Array, ['%H:%M'] ]
+    hours:        [ p.Array, ['%Hh', '%H:%M'] ]
+    days:         [ p.Array, ['%m/%d', '%a%d'] ]
+    months:       [ p.Array, ['%m/%Y', '%b%y'] ]
+    years:        [ p.Array, ['%Y'] ]
   }
 
   # Labels of time units, from finest to coarsest.
@@ -71,12 +67,24 @@ class DatetimeTickFormatter extends TickFormatter.Model
 
   _update_width_formats: () ->
     now = tz(new Date())
-    @_width_formats = {}
 
-    for fmt_name, fmt_strings of @formats
+    _widths = (fmt_strings) ->
       sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
       sorted = _.sortBy(_.zip(sizes, fmt_strings), ([size, fmt]) -> size)
-      @_width_formats[fmt_name] = _.zip.apply(_, sorted)
+      return _.zip.apply(_, sorted)
+
+    @_width_formats = {
+      microseconds: _widths(@microseconds)
+      milliseconds: _widths(@milliseconds)
+      seconds:      _widths(@seconds)
+      minsec:       _widths(@minsec)
+      minutes:      _widths(@minutes)
+      hourmin:      _widths(@hourmin)
+      hours:        _widths(@hours)
+      days:         _widths(@days)
+      months:       _widths(@months)
+      years:        _widths(@years)
+    }
 
   # FIXME There is some unfortunate flicker when panning/zooming near the
   # span boundaries.
