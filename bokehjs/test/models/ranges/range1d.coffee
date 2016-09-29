@@ -1,7 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
+sinon = require "sinon"
 
 Range1d = utils.require("models/ranges/range1d").Model
+CustomJS = utils.require("models/callbacks/customjs").Model
 
 describe "range1d module", ->
 
@@ -91,3 +93,21 @@ describe "range1d module", ->
       r.reset()
       expect(r.start).to.be.equal 10
       expect(r.end).to.be.equal 20
+
+    it "should execute update callback once", ->
+      cb = new CustomJS()
+      spy = sinon.spy(cb, 'execute')
+      r = new Range1d({start: 10, end: 20, callback: cb})
+      r.reset()
+
+      expect(spy.calledOnce).to.be.true
+
+  describe "changing model attribute", ->
+
+    it "should execute callback once", ->
+      cb = new CustomJS()
+      spy = sinon.spy(cb, 'execute')
+      r = new Range1d({start: 10, end: 20, callback: cb})
+      r.start = 15
+
+      expect(spy.calledOnce).to.be.true

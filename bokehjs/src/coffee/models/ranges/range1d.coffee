@@ -18,7 +18,7 @@ class Range1d extends Range.Model
     if @bounds == 'auto'
       min = Math.min(@_initial_start, @_initial_end)
       max = Math.max(@_initial_start, @_initial_end)
-      @bounds = [min, max]
+      @setv({bounds: [min, max]})
 
   constructor: () ->
     # new Range1d({start: start, end: end}) or Range1d(start, end)
@@ -44,6 +44,7 @@ class Range1d extends Range.Model
   reset: () ->
     @setv({start: @_initial_start, end: @_initial_end})
     @_set_auto_bounds()
+    @callback?.execute(@)
 
 module.exports =
   Model: Range1d
