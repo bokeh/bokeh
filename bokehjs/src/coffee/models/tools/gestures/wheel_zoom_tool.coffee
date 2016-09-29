@@ -35,10 +35,8 @@ class WheelZoomToolView extends GestureTool.View
     dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property
-    if dims.indexOf('width') == -1
-      v_axis_only = true
-    if dims.indexOf('height') == -1
-      h_axis_only = true
+    v_axis_only = dims == 'height'
+    h_axis_only = dims == 'width'
 
     # we need a browser-specific multiplier to have similar experiences
     if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
@@ -75,11 +73,11 @@ class WheelZoomTool extends GestureTool.Model
   default_order: 10
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "wheel zoom tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
   @define {
-    dimensions: [ p.Array, ["width", "height"] ]
+    dimensions: [ p.Dimensions, "both" ]
   }
 
   @internal {

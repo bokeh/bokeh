@@ -17,10 +17,10 @@ describe "WheelZoomTool", ->
       tool = new WheelZoomTool()
       expect(tool.tooltip).to.be.equal('Wheel Zoom')
 
-      x_tool = new WheelZoomTool({dimensions: ['width']})
+      x_tool = new WheelZoomTool({dimensions: 'width'})
       expect(x_tool.tooltip).to.be.equal('Wheel Zoom (x-axis)')
 
-      y_tool = new WheelZoomTool({dimensions: ['height']})
+      y_tool = new WheelZoomTool({dimensions: 'height'})
       expect(y_tool.tooltip).to.be.equal('Wheel Zoom (y-axis)')
 
   describe "View", ->
@@ -92,7 +92,7 @@ describe "WheelZoomTool", ->
       expect(vr.end).to.be.closeTo(1.166, 0.01)
 
     it "should zoom the x-axis only", ->
-      wheel_zoom = new WheelZoomTool({dimensions: ['width']})
+      wheel_zoom = new WheelZoomTool({dimensions: 'width'})
 
       @plot.add_tools(wheel_zoom)
 
@@ -115,7 +115,7 @@ describe "WheelZoomTool", ->
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
 
     it "should zoom the y-axis only", ->
-      wheel_zoom = new WheelZoomTool({dimensions: ['height']})
+      wheel_zoom = new WheelZoomTool({dimensions: 'height'})
 
       @plot.add_tools(wheel_zoom)
 

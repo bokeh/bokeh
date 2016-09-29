@@ -27,13 +27,26 @@ from ..core.properties import (
     abstract, Float, Color, Percent,
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
-from ..core.enums import Dimension, Location, Anchor
+from ..core.enums import Dimension, Dimensions, Location, Anchor
+from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import LayoutDOM, Box
 
+def _deprecated_dimensions(tool):
+    def transformer(value):
+        deprecated((0, 12, 4), "List(Enum(Dimension)) in %s.dimensions" % tool, "Enum(Dimensions)")
+
+        if "width" in value and "height" in value:
+            return "both"
+        elif "width" in value or "height" in value:
+            return value
+        else:
+            raise ValueError("empty dimensions' list doesn't make sense")
+
+    return transformer
 
 class ToolEvents(Model):
     """
@@ -166,13 +179,12 @@ class PanTool(Drag):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the pan tool is constrained to act in. By default
     the pan tool will pan in any dimension, but can be configured to only
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
-    """)
-
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("PanTool"))
 
 class WheelPanTool(Scroll):
     """ *toolbar icon*: |wheel_pan_icon|
@@ -207,12 +219,12 @@ class WheelZoomTool(Scroll):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the wheel zoom tool is constrained to act in. By
     default the wheel zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("WheelZoomTool"))
 
 
 class SaveTool(Action):
@@ -324,12 +336,12 @@ class CrosshairTool(Inspection):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the crosshair tool is to track. By default, both a
     vertical and horizontal line will be drawn. If only "width" is supplied,
     only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("CrosshairTool"))
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
@@ -385,7 +397,7 @@ class BoxZoomTool(Drag):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom box is to be free in. By default,
     users may freely draw zoom boxes with any dimensions. If only
     "width" is supplied, the box will be constrained to span the entire
@@ -393,7 +405,7 @@ class BoxZoomTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxZoomTool"))
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -420,12 +432,12 @@ class ZoomInTool(Action):
 
     """
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom-in tool is constrained to act in. By
     default the zoom-in zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomInTool"))
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
@@ -441,12 +453,12 @@ class ZoomOutTool(Action):
         :height: 18pt
 
     """
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom-out tool is constrained to act in. By
     default the zoom-out tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomOutTool"))
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
@@ -485,7 +497,7 @@ class BoxSelectTool(Drag):
     event, or only once, when the selection region is completed. Default: False
     """)
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box selection is to be free in. By default,
     users may freely draw selections boxes with any dimensions. If only
     "width" is supplied, the box will be constrained to span the entire
@@ -493,7 +505,7 @@ class BoxSelectTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxSelectTool"))
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.
