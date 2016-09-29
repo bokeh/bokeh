@@ -106,7 +106,10 @@ DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
                             "minutes", "hourmin", "hours", "days", "months", "years")
 
 #: Specify a vertical/horizontal dimension
-Dimension = enumeration("width", "height", "x", "y")
+Dimension = enumeration("width", "height")
+
+#: Specify a vertical/horizontal dimensions
+Dimensions = enumeration("width", "height", "both")
 
 #: Specify a vertical/horizontal orientation for something
 Orientation = enumeration("horizontal", "vertical")

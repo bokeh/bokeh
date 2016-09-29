@@ -49,7 +49,7 @@ class PanToolView extends GestureTool.View
 
     dims = @model.dimensions
 
-    if dims.indexOf('width') > -1 and not @v_axis_only
+    if (dims == 'width' or dims == 'both') and not @v_axis_only
       sx0 = sx_low
       sx1 = sx_high
       sdx = -new_dx
@@ -58,7 +58,7 @@ class PanToolView extends GestureTool.View
       sx1 = hr.end
       sdx = 0
 
-    if dims.indexOf('height') > -1 and not @h_axis_only
+    if (dims == 'height' or dims == 'both') and not @h_axis_only
       sy0 = sy_low
       sy1 = sy_high
       sdy = new_dy
@@ -99,11 +99,11 @@ class PanTool extends GestureTool.Model
   default_order: 10
 
   @define {
-    dimensions: [ p.Array, ["width", "height"] ]
+    dimensions: [ p.Dimensions, "both" ]
   }
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip("Pan", @_check_dims(@dimensions, "pan tool"))
+    tooltip: () -> @_get_dim_tooltip("Pan", @dimensions)
   }
 
 module.exports =

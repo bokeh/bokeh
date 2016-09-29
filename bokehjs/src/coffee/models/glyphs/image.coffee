@@ -3,7 +3,6 @@ _ = require "underscore"
 Glyph = require "../glyphs/glyph"
 LinearColorMapper = require "../mappers/linear_color_mapper"
 p = require "../../core/properties"
-{Greys} = require '../../palettes/palettes'
 
 class ImageView extends Glyph.View
 
@@ -101,6 +100,9 @@ class ImageView extends Glyph.View
       maxY: d.maxY + @max_dh
     }
 
+# NOTE: this needs to be redefined here, because palettes are located in bokeh-api.js bundle
+Greys9 = () -> [0x000000, 0x252525, 0x525252, 0x737373, 0x969696, 0xbdbdbd, 0xd9d9d9, 0xf0f0f0, 0xffffff]
+
 class Image extends Glyph.Model
   default_view: ImageView
 
@@ -113,7 +115,7 @@ class Image extends Glyph.Model
       dw:           [ p.DistanceSpec     ]
       dh:           [ p.DistanceSpec     ]
       dilate:       [ p.Bool,      false ]
-      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys.Greys9) ]
+      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model({palette: Greys9()}) ]
   }
 
 module.exports =
