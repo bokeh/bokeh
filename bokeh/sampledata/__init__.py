@@ -128,4 +128,3 @@ def _open_csv_file(filename):
         return open(filename, 'rb')
     else:
         return open(filename, 'r', newline='', encoding='utf8')
-
