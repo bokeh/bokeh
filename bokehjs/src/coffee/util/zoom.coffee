@@ -34,11 +34,6 @@ scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
   vx = if center? then center.x else (vx_high + vx_low) / 2.0
   vy = if center? then center.y else (vy_high + vy_low) / 2.0
 
-  if vx < vx_low or vx > vx_high
-    h_axis = false
-  if vy < vy_low or vy > vy_high
-    v_axis = false
-
   if h_axis
     sx0 = vx_low  - (vx_low  - vx)*factor
     sx1 = vx_high - (vx_high - vx)*factor

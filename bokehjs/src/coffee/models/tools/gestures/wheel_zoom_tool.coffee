@@ -28,9 +28,10 @@ class WheelZoomToolView extends GestureTool.View
 
     dims = @model.dimensions
 
-    # restrict to axis configured in tool's dimensions property
-    h_axis = dims == 'width'  or dims == 'both'
-    v_axis = dims == 'height' or dims == 'both'
+    # restrict to axis configured in tool's dimensions property and if
+    # zoom origin is inside of frame range/domain
+    h_axis = dims in ['width', 'both'] and hr.min < vx < hr.max
+    v_axis = dims in ['height', 'both'] and vr.min < vy < vr.max
 
     # we need a browser-specific multiplier to have similar experiences
     if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
@@ -45,7 +46,7 @@ class WheelZoomToolView extends GestureTool.View
 
     factor  = @model.speed * delta
 
-    zoom_info = scale_range(frame, factor, v_axis=v_axis, h_axis=h_axis, {x: vx, y: vy})
+    zoom_info = scale_range(frame, factor, h_axis=h_axis, v_axis=v_axis, {x: vx, y: vy})
 
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
