@@ -189,6 +189,8 @@ class Direction extends enum_prop("Direction", enums.Direction)
 
 class Dimension extends enum_prop("Dimension", enums.Dimension)
 
+class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
+
 class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
 class LineCap extends enum_prop("LineCap", enums.LineCap)
@@ -285,6 +287,7 @@ module.exports =
   Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
+  Dimensions: Dimensions
   Direction: Direction
   Distance: Distance
   Font: Font

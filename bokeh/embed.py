@@ -28,6 +28,7 @@ from .model import Model, _ModelInDocument, _ModelInEmptyDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
+from .util.deprecation import deprecated
 
 def _prefix(text, prefix):
     return "\n".join([ prefix + line for line in text.split("\n") ])
@@ -118,9 +119,8 @@ def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
 
     '''
     if resources is not None:
-        warn('Because the ``resources`` argument is no longer needed, '
-             'it is deprecated and no longer has any effect',
-             DeprecationWarning, stacklevel=2)
+        deprecated('Because the ``resources`` argument is no longer needed, '
+                   'it is deprecated and no longer has any effect.')
 
     # 1) Convert single items and dicts into list
 

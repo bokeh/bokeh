@@ -11,8 +11,8 @@ class ZoomOutToolView extends ActionTool.View
     dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property
-    h_axis = 'width' in dims
-    v_axis = 'height' in dims
+    h_axis = dims == 'width'  or dims == 'both'
+    v_axis = dims == 'height' or dims == 'both'
 
     # zooming out requires a negative factor to scale_range
     zoom_info = scale_range(frame, -@model.factor, h_axis=h_axis, v_axis=v_axis)
@@ -29,12 +29,12 @@ class ZoomOutTool extends ActionTool.Model
   icon: "bk-tool-icon-zoom-out"
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "zoom-out tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
   @define {
-    factor: [ p.Percent, 0.1 ]
-    dimensions: [ p.Array, ["width", "height"] ]
+    factor:     [ p.Percent,    0.1    ]
+    dimensions: [ p.Dimensions, "both" ]
   }
 
 module.exports = {
