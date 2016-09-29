@@ -15,7 +15,7 @@ class ZoomOutToolView extends ActionTool.View
     v_axis = dims == 'height' or dims == 'both'
 
     # zooming out requires a negative factor to scale_range
-    zoom_info = scale_range(frame, -@model.factor, h_axis=h_axis, v_axis=v_axis)
+    zoom_info = scale_range(frame, -@model.factor, h_axis, v_axis)
 
     @plot_view.push_state('zoom_out', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)

@@ -46,7 +46,7 @@ class WheelZoomToolView extends GestureTool.View
 
     factor  = @model.speed * delta
 
-    zoom_info = scale_range(frame, factor, h_axis=h_axis, v_axis=v_axis, {x: vx, y: vy})
+    zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: vx, y: vy})
 
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
