@@ -1,8 +1,10 @@
 {expect} = require "chai"
 utils = require "../../utils"
+sinon = require "sinon"
 
 HasProps = utils.require "core/has_props"
 p = utils.require "core/properties"
+CustomJS = utils.require("models/callbacks/customjs").Model
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 
 class TestObject extends HasProps
@@ -91,6 +93,13 @@ describe "datarange1d module", ->
       r.reset()
       expect(r.start).to.be.equal 4
       expect(r.end).to.be.equal 10
+
+    it "should execute callback exactly once", ->
+      cb = new CustomJS()
+      r = new DataRange1d({callback: cb})
+      spy = sinon.spy(cb, 'execute')
+      r.reset()
+      expect(spy.calledOnce).to.be.true
 
   describe "computed_renderers", ->
 
@@ -239,3 +248,13 @@ describe "datarange1d module", ->
 
       expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal {minX: 0, maxX: 10, minY: 5, maxY: 6}
       expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal {minX: 0, maxX: 15, minY: 5, maxY: 6}
+
+  describe "changing model attribute", ->
+
+    it "should execute callback once", ->
+      cb = new CustomJS()
+      spy = sinon.spy(cb, 'execute')
+      r = new DataRange1d({callback: cb})
+      expect(spy.called).to.be.false
+      r.start = 15
+      expect(spy.calledOnce).to.be.true

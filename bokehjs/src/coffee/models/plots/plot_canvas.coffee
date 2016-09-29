@@ -371,7 +371,6 @@ class PlotCanvasView extends Renderer.View
       rng.have_updated_interactively = true
       if rng.start != range_info['start'] or rng.end != range_info['end']
           rng.setv(range_info)
-          rng.callback?.execute(rng)
 
   _get_weight_to_constrain_interval: (rng, range_info) ->
       # Get the weight by which a range-update can be applied
@@ -404,10 +403,8 @@ class PlotCanvasView extends Renderer.View
     if not range_info?
       for name, rng of @frame.x_ranges
         rng.reset()
-        rng.callback?.execute(rng)
       for name, rng of @frame.y_ranges
         rng.reset()
-        rng.callback?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []

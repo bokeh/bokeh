@@ -8,9 +8,7 @@ class Range extends Model
 
   initialize: (options) ->
     super(options)
-    @listenTo(@, 'change', () ->
-      @callback?.execute(@)
-    )
+    @listenTo(@, 'change', () -> @callback?.execute(@))
 
   @define {
       callback: [ p.Instance ]
@@ -21,6 +19,11 @@ class Range extends Model
   }
 
   reset: () ->
+    """
+    This method should be reimplemented by subclasses and ensure that
+    the callback, if exists, is executed at completion.
+    """
+    @callback?.execute(@)
 
 module.exports =
   Model: Range
