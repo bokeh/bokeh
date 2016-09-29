@@ -12,7 +12,7 @@ from ..model import Model
 from ..core.properties import abstract
 from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
     Either, Instance)
-from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
+from ..core.enums import RoundingFunction, NumeralLanguage
 from ..util.dependencies import import_required
 from ..util.deprecation import deprecated
 from ..util.compiler import nodejs_compile, CompilationError
