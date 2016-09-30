@@ -37,7 +37,7 @@ from .model import Model
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
-from .util.deprecate import deprecated
+from .util.deprecation import deprecated
 from .util.version import __version__
 from .util.serialization import make_id
 
@@ -445,7 +445,6 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
 
@@ -460,6 +459,7 @@ class Document(object):
             None
 
         """
+        deprecated((0, 11, 0), 'Document.add()', 'Document.add_root()')
         for obj in objects:
             self.add_root(obj)
 

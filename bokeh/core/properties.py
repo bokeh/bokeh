@@ -69,6 +69,7 @@ from operator import itemgetter
 from six import string_types, iteritems, StringIO
 
 from ..util.dependencies import import_optional
+from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
@@ -1800,9 +1801,8 @@ class FontSizeSpec(DataSpec):
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, string_types):
-            warn('Setting a fixed font size value as a string %r is deprecated, '
-                 'set with value(%r) or [%r] instead' % (value, value, value),
-                 DeprecationWarning, stacklevel=2)
+            deprecated('Setting a fixed font size value as a string %r is deprecated, '
+                       'set with value(%r) or [%r] instead' % (value, value, value))
             if len(value) > 0 and value[0].isdigit():
                 value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
@@ -1998,7 +1998,7 @@ class TitleProp(Either):
     def transform(self, value):
         if isinstance(value, str):
             from bokeh.models.annotations import Title
-            warn("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
+            deprecated("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
             and will be removed. The title is now an object on Plot (which holds all of it's
             styling properties). Please use Plot.title.text instead.
 
