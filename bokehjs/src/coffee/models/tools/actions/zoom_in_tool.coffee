@@ -11,15 +11,11 @@ class ZoomInToolView extends ActionTool.View
     dims = @model.dimensions
 
     # restrict to axis configured in tool's dimensions property
-    v_axis_only = dims == 'height'
-    h_axis_only = dims == 'width'
+    h_axis = dims == 'width'  or dims == 'both'
+    v_axis = dims == 'height' or dims == 'both'
 
-    zoom_info = scale_range({
-      frame: frame
-      factor: @model.factor
-      v_axis_only: v_axis_only
-      h_axis_only: h_axis_only
-    })
+    zoom_info = scale_range(frame, @model.factor, h_axis, v_axis)
+
     @plot_view.push_state('zoom_out', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
     @plot_view.interactive_timestamp = Date.now()
