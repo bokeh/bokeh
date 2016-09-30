@@ -49,7 +49,7 @@ class GlyphRendererView extends Renderer.View
       @model.data_source.setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view, plot_model: @plot_model})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -122,10 +122,7 @@ class GlyphRendererView extends Renderer.View
     dtmap = Date.now() - t0
 
     tmask = Date.now()
-    if glsupport
-      indices = @all_indices  # WebGL can do the clipping much more efficiently
-    else
-      indices = @glyph._mask_data(@all_indices)
+    indices = @glyph.mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx

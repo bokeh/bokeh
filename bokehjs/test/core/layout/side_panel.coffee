@@ -79,11 +79,11 @@ describe "SidePanel.Model", ->
       @plot_canvas = new PlotCanvas({ 'plot': plot })
       @plot_canvas.attach_document(doc)
       @plot_canvas_view = new @plot_canvas.default_view({ 'model': @plot_canvas })
-      @axis_view = new @axis.default_view({ model: @axis, plot_model: @plot_canvas, plot_view: @plot_canvas_view })
+      @axis_view = new @axis.default_view({ model: @axis, plot_view: @plot_canvas_view })
 
     it "should not fail if visible is not on model", ->
       an = new Annotation()
-      an_view = new an.default_view({model: an, plot_model: @plot_canvas, plot_view: @plot_canvas_view})
+      an_view = new an.default_view({model: an, plot_view: @plot_canvas_view})
       expect(an_view._size_constraint).to.be.undefined
       update_constraints(an_view)
       # Should still be undefined because visible is false

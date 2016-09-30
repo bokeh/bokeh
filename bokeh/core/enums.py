@@ -153,7 +153,7 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
 
 #: Specify a position in the render order for a Bokeh renderer
-RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay", "tool")
+RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")

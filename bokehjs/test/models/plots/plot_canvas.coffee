@@ -321,7 +321,7 @@ describe "PlotCanvas.View update_constraints", ->
   #  axis = new Axis({ ticker: ticker, formatter: formatter })
   #  @test_plot.add_layout(axis, 'below')
   #  test_plot_view = new @test_plot.default_view({ 'model': @test_plot })
-  #  axis_view = new axis.default_view({ model: axis, plot_model: @test_plot, plot_view: test_plot_view })
+  #  axis_view = new axis.default_view({ model: axis, plot_view: test_plot_view })
 
   #  spy = sinon.spy(update_constraints)
   #  test_plot_view.update_constraints()
