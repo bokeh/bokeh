@@ -260,6 +260,7 @@ and improvements to this section for future users.
     extensions_gallery/tool
     extensions_gallery/wrapping
     extensions_gallery/latex
+    extensions_gallery/widget
 
 :ref:`userguide_extensions_examples_ticking`
     Subclass built-in Bokeh models for axis ticking to customize their
@@ -274,6 +275,9 @@ and improvements to this section for future users.
 
 :ref:`userguide_extensions_examples_latex`
     Include a third-party JavaScript library in order to render LaTex.
+
+:ref:`userguide_extensions_examples_widget`
+    Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org
 .. _KaTex: https://khan.github.io/KaTeX/

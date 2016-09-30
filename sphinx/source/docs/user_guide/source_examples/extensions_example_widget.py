@@ -353,9 +353,9 @@ class JQueryRangeSlider(InputWidget):
     """)
 
 
-x = [x*0.005 for x in range(2, 200)]
+x = [x*0.005 for x in range(2, 198)]
 y = x
-w = [w*0.005 for w in range(2, 200)]
+w = [w*0.005 for w in range(2, 198)]
 z = [z**0.5 for z in w]
 
 source = ColumnDataSource(data=dict(x=x, y=y, w=w, z=z))
@@ -409,8 +409,8 @@ callback_jquery = CustomJS(args=dict(source=source), code="""
         source.trigger('change');
     """)
 slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power", callback=callback_single)
-ion_range_slider = IonRangeSlider(start=0.01, end=1, step=0.01, range=(0.01, 1), title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
-jquery_range_slider = JQueryRangeSlider(start=0.01, end=1, step=0.01, range=(0.01, 1), title='JQuery UI Slider - Range', callback=callback_jquery, callback_policy='continuous')
+ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)), title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
+jquery_range_slider = JQueryRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(w), max(w)), title='JQuery UI Slider - Range', callback=callback_jquery, callback_policy='continuous')
 
 layout = column(plot, slider, jquery_range_slider, ion_range_slider)
 show(layout)
