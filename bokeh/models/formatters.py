@@ -283,6 +283,21 @@ class FuncTickFormatter(TickFormatter):
 
     """)
 
+def DEFAULT_DATETIME_FORMATS():
+    deprecated((0, 12, 4), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
+    return {
+        'microseconds': ['%fus'],
+        'milliseconds': ['%3Nms', '%S.%3Ns'],
+        'seconds':      ['%Ss'],
+        'minsec':       [':%M:%S'],
+        'minutes':      [':%M', '%Mm'],
+        'hourmin':      ['%H:%M'],
+        'hours':        ['%Hh', '%H:%M'],
+        'days':         ['%m/%d', '%a%d'],
+        'months':       ['%m/%Y', '%b%y'],
+        'years':        ['%Y'],
+    }
+
 DATETIME_TICK_FORMATTER_HELP="""
     User defined formats for displaying datetime values.
 
@@ -486,22 +501,31 @@ class DatetimeTickFormatter(TickFormatter):
 
     microseconds = List(String, default=['%fus'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     milliseconds = List(String, default=['%3Nms', '%S.%3Ns'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     seconds      = List(String, default=['%Ss'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     minsec       = List(String, default=[':%M:%S'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     minutes      = List(String, default=[':%M', '%Mm'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     hourmin      = List(String, default=['%H:%M'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     hours        = List(String, default=['%Hh', '%H:%M'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     days         = List(String, default=['%m/%d', '%a%d'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     months       = List(String, default=['%m/%Y', '%b%y'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+
     years        = List(String, default=['%Y'],
         help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
 
@@ -509,7 +533,7 @@ class DatetimeTickFormatter(TickFormatter):
 
     @property
     def formats(self):
-        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual fields')
+        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
         return dict(
             microseconds = self.microseconds,
             milliseconds = self.milliseconds,
@@ -524,7 +548,7 @@ class DatetimeTickFormatter(TickFormatter):
 
     @formats.setter
     def formats(self, value):
-        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual fields')
+        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
         if 'microseconds' in value: self.microseconds = value['microseconds']
         if 'milliseconds' in value: self.milliseconds = value['milliseconds']
         if 'seconds'      in value: self.seconds      = value['seconds']
