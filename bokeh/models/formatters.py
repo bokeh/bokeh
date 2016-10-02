@@ -298,27 +298,38 @@ def DEFAULT_DATETIME_FORMATS():
         'years':        ['%Y'],
     }
 
-DATETIME_TICK_FORMATTER_HELP="""
-    User defined formats for displaying datetime values.
+def _DATETIME_TICK_FORMATTER_HELP(field):
+    return """
+    Formats for displaying datetime values in the %s range.
 
-    The enum values correspond roughly to different "time scales". The
-    corresponding value is a list of `strftime`_ formats to use for
+    See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
+    """ % field
+
+class DatetimeTickFormatter(TickFormatter):
+    """ A ``TickFormatter`` for displaying datetime values nicely across a
+    range of scales.
+
+    ``DatetimeTickFormatter`` has the following properties for setting formats
+    at different scales scales:
+
+    * ``microseconds``
+    * ``milliseconds``
+    * ``seconds``
+    * ``minsec``
+    * ``minutes``
+    * ``hourmin``
+    * ``hours``
+    * ``days``
+    * ``months``
+    * ``years``
+
+    Each scale property can be set to format or list of formats to use for
     formatting datetime tick values that fall in in that "time scale".
-
     By default, only the first format string passed for each time scale
     will be used. By default, all leading zeros are stripped away from
-    the formatted labels. These behaviors cannot be changed as of now.
+    the formatted labels.
 
     This list of supported `strftime`_ formats is reproduced below.
-
-    .. warning::
-        The client library BokehJS uses the `timezone`_ library to
-        format datetimes. The inclusion of the list below is based on the
-        claim that `timezone`_ makes to support "the full compliment
-        of GNU date format specifiers." However, this claim has not
-        been tested exhaustively against this list. If you find formats
-        that do not function as expected, please submit a `github issue`_,
-        so that the documentation can be updated appropriately.
 
     %a
         The abbreviated name of the day of the week according to the
@@ -490,49 +501,69 @@ DATETIME_TICK_FORMATTER_HELP="""
     %%
         A literal '%' character.
 
+    .. warning::
+        The client library BokehJS uses the `timezone`_ library to
+        format datetimes. The inclusion of the list below is based on the
+        claim that `timezone`_ makes to support "the full compliment
+        of GNU date format specifiers." However, this claim has not
+        been tested exhaustively against this list. If you find formats
+        that do not function as expected, please submit a `github issue`_,
+        so that the documentation can be updated appropriately.
+
     .. _strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-"""
+    """
+    microseconds = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
+                        default=['%fus']).accepts(String, lambda fmt: [fmt])
 
-class DatetimeTickFormatter(TickFormatter):
-    """ Display tick values from a continuous range as formatted datetimes. """
+    milliseconds = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
+                        default=['%3Nms', '%S.%3Ns']).accepts(String, lambda fmt: [fmt])
 
-    microseconds = List(String, default=['%fus'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    seconds      = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
+                        default=['%Ss']).accepts(String, lambda fmt: [fmt])
 
-    milliseconds = List(String, default=['%3Nms', '%S.%3Ns'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    minsec       = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
+                        default=[':%M:%S']).accepts(String, lambda fmt: [fmt])
 
-    seconds      = List(String, default=['%Ss'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    minutes      = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
+                        default=[':%M', '%Mm']).accepts(String, lambda fmt: [fmt])
 
-    minsec       = List(String, default=[':%M:%S'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    hourmin      = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
+                        default=['%H:%M']).accepts(String, lambda fmt: [fmt])
 
-    minutes      = List(String, default=[':%M', '%Mm'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    hours        = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
+                        default=['%Hh', '%H:%M']).accepts(String, lambda fmt: [fmt])
 
-    hourmin      = List(String, default=['%H:%M'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    days         = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
+                        default=['%m/%d', '%a%d']).accepts(String, lambda fmt: [fmt])
 
-    hours        = List(String, default=['%Hh', '%H:%M'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    months       = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
+                        default=['%m/%Y', '%b%y']).accepts(String, lambda fmt: [fmt])
 
-    days         = List(String, default=['%m/%d', '%a%d'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
-
-    months       = List(String, default=['%m/%Y', '%b%y'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
-
-    years        = List(String, default=['%Y'],
-        help=DATETIME_TICK_FORMATTER_HELP).accepts(String, lambda fmt: [fmt])
+    years        = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
+                        default=['%Y']).accepts(String, lambda fmt: [fmt])
 
     __deprecated_attributes__ = ('formats',)
 
     @property
     def formats(self):
+        ''' A dictionary containing formats for all scales.
+
+        THIS PROPERTY IS DEPRECTATED. Use individual DatetimeTickFormatter fields instead.
+
+        '''
         deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
         return dict(
             microseconds = self.microseconds,
