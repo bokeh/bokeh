@@ -1,23 +1,20 @@
+_ = require "underscore"
 $ = require "jquery"
-Backbone = require "../core/backbone"
 Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
+
+{Events} = require "../core/events"
 {logger} = require "../core/logging"
 
-class UIEvents extends Backbone.Model
+class UIEvents
+  _.extend(@prototype, Events)
 
-  @getters {
-    toolbar: () -> @getv('toolbar')
-    hit_area: () -> @getv('hit_area')
-  }
+  # new (toolbar: Toolbar, hit_area: $Element)
+  constructor: (@toolbar, @hit_area) ->
+    @_configure_hammerjs()
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_hammer_element()
-
-  _hammer_element: ->
-    hit_area = @hit_area
-    @hammer = new Hammer(hit_area[0])
+  _configure_hammerjs: () ->
+    @hammer = new Hammer(@hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
     @hammer.get('doubletap').recognizeWith('tap')
@@ -43,10 +40,10 @@ class UIEvents extends Backbone.Model
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    hit_area.mousemove((e) => @_mouse_move(e))
-    hit_area.mouseenter((e) => @_mouse_enter(e))
-    hit_area.mouseleave((e) => @_mouse_exit(e))
-    hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
+    @hit_area.mousemove((e) => @_mouse_move(e))
+    @hit_area.mouseenter((e) => @_mouse_enter(e))
+    @hit_area.mouseleave((e) => @_mouse_exit(e))
+    @hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
 
@@ -228,4 +225,6 @@ class UIEvents extends Backbone.Model
     # NOTE: keyup event triggered unconditionally
     @trigger('keyup', e)
 
-module.exports = UIEvents
+module.exports = {
+  UIEvents: UIEvents
+}
