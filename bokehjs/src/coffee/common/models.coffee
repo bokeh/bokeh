@@ -1,7 +1,6 @@
 module.exports = {
   SelectionManager:         require './selection_manager'
   Selector:                 require './selector'
-  ToolEvents:               require './tool_events'
 
   Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'
@@ -130,6 +129,8 @@ module.exports = {
 
   DynamicImageRenderer:     require '../models/tiles/dynamic_image_renderer'
   ImageSource:              require '../models/tiles/image_source'
+
+  ToolEvents:               require '../models/tools/tool_events'
 
   Toolbar:                  require '../models/tools/toolbar'
   ToolbarBox:               require '../models/tools/toolbar_box'
