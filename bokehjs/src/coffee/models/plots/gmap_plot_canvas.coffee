@@ -1,5 +1,5 @@
 _ = require "underscore"
-proj4 = require "../../common/proj4"
+proj4 = require "../../core/util/proj4"
 toProjection = proj4.defs('GOOGLE')
 
 PlotCanvas = require "./plot_canvas"
