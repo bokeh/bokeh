@@ -10,7 +10,7 @@ ColumnDataSource = utils.require("models/sources/column_data_source").Model
 LinearMapper = utils.require("models/mappers/linear_mapper").Model
 Range1d = utils.require("models/ranges/range1d").Model
 
-hittest = utils.require "common/hittest"
+hittest = utils.require "core/hittest"
 empty_selection = hittest.create_hit_test_result()
 
 describe "SelectionManager", ->

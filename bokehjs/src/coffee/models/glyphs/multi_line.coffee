@@ -1,7 +1,7 @@
 _ = require "underscore"
 rbush = require "rbush"
 
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 Glyph = require "./glyph"
 
 class MultiLineView extends Glyph.View

@@ -1,6 +1,6 @@
 _ = require "underscore"
 HasProps = require "../core/has_props"
-hittest = require "./hittest"
+hittest = require "../core/hittest"
 {logger} = require "../core/logging"
 p = require "../core/properties"
 

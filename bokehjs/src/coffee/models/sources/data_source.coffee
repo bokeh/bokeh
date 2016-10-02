@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 Model = require "../../model"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 p = require "../../core/properties"
 
 class DataSource extends Model

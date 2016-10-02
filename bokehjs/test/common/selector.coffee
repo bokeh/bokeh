@@ -4,7 +4,7 @@ fixtures = require "./fixtures/object"
 
 base = utils.require "base"
 Selector = utils.require "common/selector"
-hittest = utils.require "common/hittest"
+hittest = utils.require "core/hittest"
 
 empty_selection = hittest.create_hit_test_result()
 

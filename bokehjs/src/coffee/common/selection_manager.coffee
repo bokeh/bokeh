@@ -2,7 +2,7 @@ _ = require "underscore"
 HasProps = require "../core/has_props"
 {logger} = require "../core/logging"
 Selector = require "./selector"
-hittest = require "./hittest"
+hittest = require "../core/hittest"
 p = require "../core/properties"
 
 class SelectionManager extends HasProps
