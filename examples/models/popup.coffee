@@ -2,6 +2,7 @@ _ = require "underscore"
 Util = require "util/util"
 Model = require "model"
 p = require "core/properties"
+{replace_placeholders} = require "core/util/templating"
 popup_helper = require "./popup_helper"
 
 class Popup extends Model
@@ -9,7 +10,7 @@ class Popup extends Model
 
   execute: (data_source) ->
     for i in Util.get_indices(data_source)
-      message = Util.replace_placeholders(@message, data_source, i)
+      message = replace_placeholders(@message, data_source, i)
       popup_helper.popup(message)
     null
 

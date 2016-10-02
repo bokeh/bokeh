@@ -1,7 +1,8 @@
 _ = require "underscore"
 
-p = require "../../core/properties"
 Model = require "../../model"
+p = require "../../core/properties"
+{replace_placeholders} = require "../../core/util/templating"
 Util = require "../../util/util"
 
 class OpenURL extends Model
@@ -13,7 +14,7 @@ class OpenURL extends Model
 
   execute: (data_source) ->
     for i in Util.get_indices(data_source)
-      url = Util.replace_placeholders(@url, data_source, i)
+      url = replace_placeholders(@url, data_source, i)
       window.open(url)
     null
 
