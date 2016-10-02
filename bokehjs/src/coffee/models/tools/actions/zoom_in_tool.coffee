@@ -1,5 +1,5 @@
 ActionTool = require "./action_tool"
-{scale_range} = require "../../../util/zoom"
+{scale_range} = require "../../../core/util/zoom"
 {logger} = require "../../../core/logging"
 
 p = require "../../../core/properties"
