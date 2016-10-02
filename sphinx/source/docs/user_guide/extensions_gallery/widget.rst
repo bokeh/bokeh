@@ -10,4 +10,3 @@ The double ended sliders control the x ranges for the blue (middle slider) and r
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/extensions_example_widget.py
     :source-position: below
-
