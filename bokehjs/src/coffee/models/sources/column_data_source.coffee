@@ -2,7 +2,7 @@ _ = require "underscore"
 
 DataSource = require './data_source'
 hittest = require "../../core/hittest"
-SelectionManager = require "../../common/selection_manager"
+SelectionManager = require "../../core/selection_manager"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 

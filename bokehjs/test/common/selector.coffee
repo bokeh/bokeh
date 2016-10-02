@@ -3,7 +3,7 @@ utils = require "../utils"
 fixtures = require "./fixtures/object"
 
 base = utils.require "base"
-Selector = utils.require "common/selector"
+Selector = utils.require "core/selector"
 hittest = utils.require "core/hittest"
 
 empty_selection = hittest.create_hit_test_result()

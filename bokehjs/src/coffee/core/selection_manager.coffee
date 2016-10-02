@@ -1,9 +1,9 @@
 _ = require "underscore"
-HasProps = require "../core/has_props"
-{logger} = require "../core/logging"
+HasProps = require "./has_props"
+{logger} = require "./logging"
 Selector = require "./selector"
-hittest = require "../core/hittest"
-p = require "../core/properties"
+hittest = require "./hittest"
+p = require "./properties"
 
 class SelectionManager extends HasProps
   type: 'SelectionManager'
@@ -90,6 +90,5 @@ class SelectionManager extends HasProps
   _get_inspector: (rview) ->
     _.setdefault(@inspectors, rview.model.id, new Selector())
     return @inspectors[rview.model.id]
-
 
 module.exports = SelectionManager
