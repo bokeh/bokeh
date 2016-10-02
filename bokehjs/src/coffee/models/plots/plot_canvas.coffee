@@ -8,7 +8,7 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 
 build_views = require "../../common/build_views"
-{UIEvents} = require "../../common/ui_events"
+{UIEvents} = require "../../core/ui_events"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
