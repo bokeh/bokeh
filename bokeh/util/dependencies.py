@@ -2,7 +2,6 @@
 
 '''
 from importlib import import_module
-import traceback
 import logging
 
 
