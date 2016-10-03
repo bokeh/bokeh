@@ -50,6 +50,7 @@ class IonRangeSlider(InputWidget):
     range = Tuple(Float, Float, help="""
     The start and end values for the range.
     """)
+
     step = Float(default=0.1, help="""
     The step between consecutive values.
     """)
