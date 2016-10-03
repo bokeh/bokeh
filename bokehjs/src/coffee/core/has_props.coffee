@@ -6,6 +6,7 @@ Backbone = require "./backbone"
 property_mixins = require "./property_mixins"
 refs = require "./util/refs"
 p = require "./properties"
+{array_max} = require "./util/math"
 
 class HasProps extends Backbone.Model
 
@@ -385,5 +386,18 @@ class HasProps extends Backbone.Model
         @document._invalidate_all_models()
 
       @document._notify_change(@, attr, old, new_)
+
+  materialize_dataspecs: (source) ->
+    data = {}
+    for name, prop of @properties
+      if not prop.dataspec
+        continue
+      # this skips optional properties like radius for circles
+      if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
+        continue
+      data["_#{name}"] = prop.array(source)
+      if prop instanceof p.Distance
+        data["max_#{name}"] = array_max(data["_#{name}"])
+    return data
 
 module.exports = HasProps

@@ -2,19 +2,22 @@ _ = require "underscore"
 rbush = require "rbush"
 
 CategoricalMapper = require "../mappers/categorical_mapper"
-Renderer = require "../renderers/renderer"
 p = require "../../core/properties"
 bbox = require "../../core/util/bbox"
+proj = require "../../core/util/projections"
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
+{Visuals} = require "../../core/visuals"
 bokehgl = require "./webgl/main"
 {logger} = require "../../core/logging"
 
-class GlyphView extends Renderer.View
+class GlyphView extends BokehView
 
   initialize: (options) ->
     super(options)
-
+    @_nohit_warned = {}
     @renderer = options.renderer
+    @visuals = new Visuals(@model)
 
     # Init gl (this should really be done anytime renderer is set,
     # and not done if it isn't ever set, but for now it only
@@ -25,40 +28,25 @@ class GlyphView extends Renderer.View
       if ctx.glcanvas?
         Cls = bokehgl[@model.type + 'GLGlyph']
         if Cls
-          @glglyph = new Cls(ctx.glcanvas.gl, this)
+          @glglyph = new Cls(ctx.glcanvas.gl, @)
+
+  set_visuals: (source) ->
+    @visuals.warm_cache(source)
+
+    if @glglyph?
+      @glglyph.set_visuals_changed()
 
   render: (ctx, indices, data) ->
-
     if @model.visible
-      ctx.beginPath();
+      ctx.beginPath()
 
       if @glglyph?
-        if @_render_gl(ctx, indices, data)
+        if @glglyph.render(ctx, indices, data)
           return
 
       @_render(ctx, indices, data)
 
     return
-
-  _render_gl: (ctx, indices, mainglyph) ->
-    # Get transform
-    wx = wy = 1  # Weights to scale our vectors
-    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
-    # Try again, but with weighs so we're looking at ~100 in screen coordinates
-    wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
-    wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
-    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
-    # Test how linear it is
-    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
-        Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
-      return false
-    [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
-    trans =
-        pixel_ratio: ctx.pixel_ratio,  # pass pixel_ratio to webgl
-        width: ctx.glcanvas.width, height: ctx.glcanvas.height,
-        dx: dx[0]/sx, dy: dy[0]/sy, sx: sx, sy: sy
-    @glglyph.draw(indices, mainglyph, trans)
-    return true  # success
 
   bounds: () ->
     if not @index?
@@ -168,12 +156,91 @@ class GlyphView extends Renderer.View
       @visuals.line.set_vectorize(ctx, index)
       ctx.stroke()
 
+  hit_test: (geometry) ->
+    result = null
+
+    func = "_hit_#{geometry.type}"
+    if @[func]?
+      result = @[func](geometry)
+    else if not @_nohit_warned[geometry.type]?
+      logger.debug("'#{geometry.type}' selection not available for #{@model.type}")
+      @_nohit_warned[geometry.type] = true
+
+    return result
+
+  set_data: (source) ->
+    data = @model.materialize_dataspecs(source)
+    _.extend(@, data)
+
+    if @renderer.plot_view.model.use_map
+      if @_x?
+        [@_x, @_y] = proj.project_xy(@_x, @_y)
+      if @_xs?
+        [@_xs, @_ys] = proj.project_xsys(@_xs, @_ys)
+
+    if @glglyph?
+      @glglyph.set_data_changed(@_x.length)
+
+    @_set_data()
+
+    @index = @_index_data()
+
+  _set_data: () ->
+
+  _index_data: () ->
+
+  mask_data: (indices) ->
+    # WebGL can do the clipping much more efficiently
+    if @glglyph? then indices else @_mask_data(indices)
+
+  _mask_data: (indices) -> indices
+
+  _bounds: (bounds) -> bounds
+
+  map_data: () ->
+    # todo: if using gl, skip this (when is this called?)
+
+    # map all the coordinate fields
+    for [xname, yname] in @model._coords
+      sxname = "s#{xname}"
+      syname = "s#{yname}"
+      xname = "_#{xname}"
+      yname = "_#{yname}"
+      if _.isArray(@[xname]?[0])
+        [ @[sxname], @[syname] ] = [ [], [] ]
+        for i in [0...@[xname].length]
+          [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])
+          @[sxname].push(sx)
+          @[syname].push(sy)
+      else
+        [ @[sxname], @[syname] ] = @map_to_screen(@[xname], @[yname])
+
+    @_map_data()
+
+  # This is where specs not included in coords are computed, e.g. radius.
+  _map_data: () ->
+
+  map_to_screen: (x, y) ->
+    @renderer.plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
 class Glyph extends Model
 
+  _coords: []
+
+  @coords: (coords) ->
+    _coords = this.prototype._coords.concat(coords)
+    this.prototype._coords = _coords
+
+    result = {}
+    for [x, y] in coords
+      result[x] = [ p.NumberSpec ]
+      result[y] = [ p.NumberSpec ]
+
+    @define(result)
+
   @define {
-      visible: [ p.Bool, true ]
-    }
+    visible: [ p.Bool, true ]
+  }
 
   @internal {
     x_range_name: [ p.String,      'default' ]

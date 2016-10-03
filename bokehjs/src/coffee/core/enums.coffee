@@ -3,6 +3,8 @@ module.exports =
 
   Dimension: ["width", "height"]
 
+  Dimensions: ["width", "height", "both"]
+
   Direction: ["clock", "anticlock"]
 
   FontStyle: ["normal", "italic", "bold"]
@@ -21,7 +23,7 @@ module.exports =
 
   Orientation: ["vertical", "horizontal"]
 
-  RenderLevel: ["image", "underlay", "glyph", "annotation", "overlay", "tool"]
+  RenderLevel: ["image", "underlay", "glyph", "annotation", "overlay"]
 
   RenderMode: ["canvas", "css"]
 

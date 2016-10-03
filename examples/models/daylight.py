@@ -75,7 +75,7 @@ sunset_line_renderer = plot.add_glyph(source, sunset_line)
 text = Text(x="dates", y="times", text="texts", text_align="center")
 plot.add_glyph(text_source, text)
 
-xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
+xformatter = DatetimeTickFormatter(months="%b %Y")
 xaxis = DatetimeAxis(formatter=xformatter)
 plot.add_layout(xaxis, 'below')
 

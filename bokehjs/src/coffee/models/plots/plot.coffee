@@ -354,6 +354,14 @@ class Plot extends LayoutDOM.Model
     background_fill_color: "#ffffff"
   }
 
+  @getters {
+    all_renderers: () ->
+      renderers = @renderers
+      for tool in @toolbar.tools
+        renderers = renderers.concat(tool.synthetic_renderers)
+      return renderers
+  }
+
 module.exports =
   View: PlotView
   Model: Plot

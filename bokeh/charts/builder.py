@@ -19,7 +19,6 @@ types on top of it.
 from __future__ import absolute_import
 
 import numpy as np
-import warnings
 
 from six import string_types
 from .attributes import AttrSpec, ColorAttr, CatAttr
@@ -34,6 +33,7 @@ from ..models.sources import ColumnDataSource
 from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either, Enum)
 from ..core.enums import SortDirection
+from ..util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -599,16 +599,12 @@ class Builder(HasProps):
 
     @property
     def sort_legend(self):
-        warnings.warn("Chart property `sort_legend` was deprecated in 0.12 \
-            and will be removed in the future. Use `legend_sort_field` and \
-            `legend_sort_direction` instead.")
+        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
         return [(self.legend_sort_field, self.legend_sort_direction)]
 
     @sort_legend.setter
     def sort_legend(self, value):
-        warnings.warn("Chart property 'sort_legend' was deprecated in 0.12 \
-            and will be removed in the future. Use `legend_sort_field` and \
-            `legend_sort_direction` instead.")
+        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
         self.legend_sort_field, direction = value[0]
         if direction:
             self.legend_sort_direction = "ascending"

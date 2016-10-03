@@ -24,33 +24,33 @@ declare namespace Bokeh {
     export var PanTool: { new(attributes?: IPanTool, options?: ModelOpts): PanTool };
     export interface PanTool extends Tool, IPanTool {}
     export interface IPanTool extends ITool {
-        dimensions?: Array<Dimension>;
+        dimensions?: Dimensions;
     }
 
     export var WheelPanTool: { new(attributes?: IWheelPanTool, options?: ModelOpts): WheelPanTool };
     export interface WheelPanTool extends Tool, IWheelPanTool {}
     export interface IWheelPanTool extends ITool {
-        dimensions?: Array<Dimension>;
+        dimension?: Dimension;
     }
 
     export var WheelZoomTool: { new(attributes?: IWheelZoomTool, options?: ModelOpts): WheelZoomTool };
     export interface WheelZoomTool extends Tool, IWheelZoomTool {}
     export interface IWheelZoomTool extends ITool {
-        dimensions?: Array<Dimension>;
+        dimensions?: Dimensions;
     }
 
     export var ZoomInTool: { new(attributes?: IZoomInTool, options?: ModelOpts): ZoomInTool };
     export interface ZoomInTool extends Tool, IZoomInTool {}
     export interface IZoomInTool extends ITool {
         factor?: Percent;
-        dimensions?: Array<Dimension>;
+        dimensions?: Dimensions;
     }
 
     export var ZoomOutTool: { new(attributes?: IZoomOutTool, options?: ModelOpts): ZoomOutTool };
     export interface ZoomOutTool extends Tool, IZoomOutTool {}
     export interface IZoomOutTool extends ITool {
         factor?: Percent;
-        dimensions?: Array<Dimension>;
+        dimensions?: Dimensions;
     }
 
     export var SaveTool: { new(attributes?: ISaveTool, options?: ModelOpts): SaveTool };
@@ -78,7 +78,7 @@ declare namespace Bokeh {
     export var CrosshairTool: { new(attributes?: ICrosshairTool, options?: ModelOpts): CrosshairTool };
     export interface CrosshairTool extends InspectTool, ICrosshairTool {}
     export interface ICrosshairTool extends IInspectTool {
-        dimensions?: Array<Dimension>;
+        dimensions?: Dimensions;
 
         line_color?: Color;
         line_width?: number;
@@ -93,7 +93,7 @@ declare namespace Bokeh {
     export interface BoxSelectTool extends SelectTool, IBoxSelectTool {}
     export interface IBoxSelectTool extends ISelectTool {
         select_every_mousemove?: boolean;
-        dimensions?: Array<Dimension>;
+        dimensions?: Dimensions;
     }
 
     export var LassoSelectTool: { new(attributes?: ILassoSelectTool, options?: ModelOpts): LassoSelectTool };

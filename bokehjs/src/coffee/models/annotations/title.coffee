@@ -1,12 +1,12 @@
 TextAnnotation = require "./text_annotation"
 p = require "../../core/properties"
-{Visuals} = require "../renderers/renderer"
+Visuals = require "../../core/visuals"
 
 class TitleView extends TextAnnotation.View
 
   initialize: (options) ->
     super(options)
-    @visuals.text = new Visuals.text({obj: @model, prefix: ""})
+    @visuals.text = new Visuals.Text(@model)
 
     # Use side_panel heuristics to determine unset text props
     ctx = @plot_view.canvas_view.ctx
