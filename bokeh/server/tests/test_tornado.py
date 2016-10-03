@@ -66,9 +66,11 @@ def test_check_whitelist_accepts_all_on_star():
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios
+#
+# Note: explicit port is workaround for some issue on travis causing port clashes
 def test_log_stats():
     application = Application()
-    with ManagedServerLoop(application) as server:
+    with ManagedServerLoop(application, port=5010) as server:
         server._tornado.log_stats()
         session1 = pull_session(session_id='session1',
                                 url=url(server),
