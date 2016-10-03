@@ -4,6 +4,7 @@ Model = require "../../model"
 
 p = require "../../core/properties"
 {logger} = require "../../core/logging"
+ColumnDataSource = require "../../models/sources/column_data_source"
 
 class LegendItem extends Model
   type: "LegendItem"
@@ -62,9 +63,9 @@ class LegendItem extends Model
         source = @renderers[0].data_source
       else
         return ["No source found"]
-      if source.get_column?
+      if source instanceof ColumnDataSource.Model
         data = source.get_column(field)
-        if data
+        if data?
           return _.unique(data)
         else
           return ["Invalid field"]
