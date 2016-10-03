@@ -69,7 +69,10 @@ def pyramid():
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
-    plot.add_layout(Legend(legends=[("Male", [male_quad_glyph]), ("Female", [female_quad_glyph])]))
+    plot.add_layout(Legend(items=[
+        ("Male"   , [male_quad_glyph]),
+        ("Female" , [female_quad_glyph]),
+    ]))
 
     return plot
 
@@ -90,11 +93,12 @@ def population():
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
     line_predicted_glyph = plot.add_glyph(source_predicted, line_predicted)
 
-    plot.add_layout(
-        Legend(
-            location="bottom_right",
-            legends=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
-        )
+    plot.add_layout(Legend(
+        location="bottom_right",
+        items=[
+            ("known"     , [line_known_glyph]),
+            ("predicted" , [line_predicted_glyph]),
+        ])
     )
 
     return plot

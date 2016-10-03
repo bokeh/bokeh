@@ -21,10 +21,6 @@ class Glyph(Model):
     Whether the glyph should render or not.
     """)
 
-    label = StringSpec(default=None, help="""
-    A label for this glyph. Can be a string, or a column of a ColumnDataSource.
-    """)
-
 class AnnularWedge(Glyph):
     """ Render annular wedges. """
 
