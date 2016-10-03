@@ -21,6 +21,7 @@ from ..util.deprecation import deprecated
 
 from .annotations import Legend, Title
 from .axes import Axis
+from .events import UIEvents
 from .glyphs import Glyph
 from .grids import Grid
 from .ranges import Range, FactorRange
@@ -40,9 +41,6 @@ class Plot(LayoutDOM):
     """
 
     def __init__(self, **kwargs):
-        if "tool_events" not in kwargs:
-            kwargs["tool_events"] = ToolEvents()
-
         if "toolbar" in kwargs and "logo" in kwargs:
             raise ValueError("Conflicing properties set on plot: toolbar, logo.")
 
@@ -465,8 +463,12 @@ class Plot(LayoutDOM):
     the toolbar will be outside of the axes, titles etc.
     """)
 
-    tool_events = Instance(ToolEvents, help="""
+    tool_events = Instance(ToolEvents, default=lambda: ToolEvents(), help="""
     A ToolEvents object to share and report tool events.
+    """)
+
+    ui_events = Instance(UIEvents, default=lambda: UIEvents(), help="""
+    A UIEvents object to handle specific UI events.
     """)
 
     left = List(Instance(Renderer), help="""

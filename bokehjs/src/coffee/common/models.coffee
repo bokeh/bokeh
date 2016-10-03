@@ -2,6 +2,7 @@ module.exports = {
   SelectionManager:         require './selection_manager'
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
+  UIEvents:                 require './ui_events'
 
   Arrow:                    require '../models/annotations/arrow'
   BoxAnnotation:            require '../models/annotations/box_annotation'

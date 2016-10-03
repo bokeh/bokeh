@@ -8,6 +8,7 @@ LayoutDOM = require "../layouts/layout_dom"
 Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 ToolEvents = require "../../common/tool_events"
+UIEvents = require "../../common/ui_events"
 PlotCanvas = require("./plot_canvas").Model
 
 ColumnDataSource = require "../sources/column_data_source"
@@ -332,6 +333,7 @@ class Plot extends LayoutDOM.Model
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
       tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
+      ui_events:         [ p.Instance, () -> new UIEvents.Model()   ]
 
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]

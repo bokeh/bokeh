@@ -8,7 +8,6 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 
 build_views = require "../../common/build_views"
-UIEvents = require "../../common/ui_events"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
@@ -97,10 +96,8 @@ class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents({
-      toolbar: @model.toolbar
-      hit_area: @canvas_view.$el
-    })
+    # Set up UI eventing on canvas element
+    @model.plot.ui_events.configure_hammerjs(@model.plot, @canvas_view.$el)
 
     @levels = {}
     for level in enums.RenderLevel
@@ -439,7 +436,7 @@ class PlotCanvasView extends BokehView
 
     for tool_view in new_tool_views
       tool_view.bind_bokeh_events()
-      @ui_event_bus.register_tool(tool_view)
+      @model.plot.ui_events.register_tool(tool_view)
 
   bind_bokeh_events: () ->
     for name, rng of @model.frame.x_ranges
