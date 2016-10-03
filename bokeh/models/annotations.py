@@ -3,7 +3,6 @@ Bokeh plots
 
 """
 from __future__ import absolute_import
-import warnings
 
 from six import string_types
 
@@ -24,6 +23,7 @@ from ..core.validation.errors import (
     NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 )
 from ..model import Model
+from ..util.deprecation import deprecated
 
 from .formatters import TickFormatter, BasicTickFormatter
 from .mappers import ContinuousColorMapper
@@ -85,11 +85,6 @@ class LegendItem(Model):
             source = self.renderers[0].data_source
             if self.label.get('field') not in source.column_names:
                 return str(self)
-
-
-DEP_MSG_0_12_3 = """
-    Legend property '%s' was deprecated in 0.12.3 and will be removed. Use '%s' instead.
-    """
 
 
 class Legend(Annotation):
@@ -198,12 +193,12 @@ class Legend(Annotation):
 
     @property
     def legends(self):
-        warnings.warn(DEP_MSG_0_12_3 % ('legends', 'Legend.items'))
+        deprecated((0, 12, 3), 'legends', 'Legend.items')
         return self.items
 
     @legends.setter
     def legends(self, legends):
-        warnings.warn(DEP_MSG_0_12_3 % ('legends', 'Legend.items'))
+        deprecated((0, 12, 3), 'legends', 'Legend.items')
         # Legends are [('label', [glyph_renderer_1, glyph_renderer_2]), ....]
         # Or {'label', [glyph_renderer_1, glyph_renderer_2], ....}
         if isinstance(legends, dict):
@@ -218,32 +213,32 @@ class Legend(Annotation):
 
     @property
     def legend_margin(self):
-        warnings.warn(DEP_MSG_0_12_3 % ('legend_margin', 'Legend.margin'))
+        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
         return self.margin
 
     @legend_margin.setter
     def legend_margin(self, margin):
-        warnings.warn(DEP_MSG_0_12_3 % ('legend_margin', 'Legend.margin'))
+        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
         self.margin = margin
 
     @property
     def legend_padding(self):
-        warnings.warn(DEP_MSG_0_12_3 % ('legend_padding', 'Legend.padding'))
+        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
         return self.padding
 
     @legend_padding.setter
     def legend_padding(self, padding):
-        warnings.warn(DEP_MSG_0_12_3 % ('legend_padding', 'Legend.padding'))
+        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
         self.padding = padding
 
     @property
     def legend_spacing(self):
-        warnings.warn(DEP_MSG_0_12_3 % ('legend_spacing', 'Legend.spacing'))
+        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
         return self.spacing
 
     @legend_spacing.setter
     def legend_spacing(self, spacing):
-        warnings.warn(DEP_MSG_0_12_3 % ('legend_spacing', 'Legend.spacing'))
+        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
         self.spacing = spacing
 
 
