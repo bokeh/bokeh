@@ -4,6 +4,7 @@ from os import mkdir, remove
 from os.path import exists, expanduser, isdir, join, splitext
 from sys import stdout
 from zipfile import ZipFile
+import six
 from six.moves.urllib.request import urlopen
 
 def _bokeh_dir(create=False):
@@ -120,3 +121,10 @@ def _getfile(base_url, file_name, data_dir, progress=True):
             zip_file.extract(real_name, data_dir)
 
         remove(file_path)
+
+def _open_csv_file(filename):
+    # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
+    if six.PY2:
+        return open(filename, 'rb')
+    else:
+        return open(filename, 'r', newline='', encoding='utf8')
