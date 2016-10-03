@@ -36,6 +36,7 @@ a serialized version of the model looks like.
    models/tickers
    models/tiles
    models/tools
+   models/transforms
    models/widgets.widget
    models/widgets.buttons
    models/widgets.dialogs
