@@ -3,6 +3,7 @@ from __future__ import print_function
 import numpy as np
 import sympy as sy
 
+from bokeh.core.properties import value
 from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
@@ -36,10 +37,8 @@ def update_data():
     x, fy, ty = taylor(expr, xs, order, (-2*sy.pi, 2*sy.pi), 200)
 
     plot.title.text = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
-    legend.items = [
-        LegendItem(label="%s" % expr, renderers=[line_f_glyph]),
-        LegendItem(label="taylor(%s)" % expr, renderers=[line_t_glyph]),
-    ]
+    legend.items[0].label = value("%s" % expr)
+    legend.items[1].label = value("taylor(%s)" % expr)
     source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
 
@@ -68,6 +67,10 @@ xgrid = Grid(dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 
 legend = Legend(location="top_right")
+legend.items = [
+    LegendItem(label=value("%s" % expr), renderers=[line_f_glyph]),
+    LegendItem(label=value("taylor(%s)" % expr), renderers=[line_t_glyph]),
+]
 plot.add_layout(legend)
 
 def on_slider_value_change(attr, old, new):

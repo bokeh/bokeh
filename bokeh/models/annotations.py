@@ -171,7 +171,30 @@ class Legend(Annotation):
 
     items = List(Instance(LegendItem), help="""
     A list of legend items to be rendered in the legend.
-    """)
+
+    This can be specified explicitly, for instance:
+
+    .. code-block:: python
+
+        legend = Legend(items=[
+            LegendItem(label="sin(x)", renderers=[r0, r1]),
+            LegendItem(label="2*sin(x)", renderers=[r2]),
+            LegendItem(label="3*sin(x)", renderers=[r3, r4])
+        ])
+
+    But can also be given more compactly as a list of tuples:
+
+    .. code-block:: python
+
+        legend = Legend(items=[
+            ("sin(x)"   , [r0, r1]),
+            ("2*sin(x)" , [r2]),
+            ("3*sin(x)" , [r3, r4])
+        ])
+
+    where each tuple is of the form: *(label, renderers)*.
+
+    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
 
     @property
     def legends(self):

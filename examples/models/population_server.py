@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.models.glyphs import Line, Quad
 from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Legend, LegendItem,
+    LinearAxis, CategoricalAxis, Grid, Legend,
     SingleIntervalTicker
 )
 from bokeh.sampledata.population import load_population
@@ -26,7 +26,7 @@ location = "World"
 years = [str(x) for x in sorted(df.Year.unique())]
 locations = sorted(df.Location.unique())
 
-source_pyramid = ColumnDataSource(data=dict())
+source_pyramid = ColumnDataSource(data=dict(female=[], male=[], groups=[], shifted=[]))
 
 
 def pyramid():
@@ -50,8 +50,8 @@ def pyramid():
     female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
     plot.add_layout(Legend(items=[
-        LegendItem(label="Male", renderers=[male_quad_glyph]),
-        LegendItem(label="Female", renderers=[female_quad_glyph])
+        ("Male"   , [male_quad_glyph]),
+        ("Female" , [female_quad_glyph]),
     ]))
 
     return plot
@@ -77,7 +77,7 @@ def population():
     plot.add_layout(
         Legend(
             location="bottom_right",
-            legends=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
+            items=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
         )
     )
 
