@@ -37,7 +37,7 @@ from .layouts import LayoutDOM, Box
 
 def _deprecated_dimensions(tool):
     def transformer(value):
-        deprecated((0, 12, 4), "List(Enum(Dimension)) in %s.dimensions" % tool, "Enum(Dimensions)")
+        deprecated((0, 12, 3), "List(Enum(Dimension)) in %s.dimensions" % tool, "Enum(Dimensions)")
 
         if "width" in value and "height" in value:
             return "both"
