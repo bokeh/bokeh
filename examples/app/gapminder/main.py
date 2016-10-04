@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+from bokeh.core.properties import field
 from bokeh.io import curdoc
 from bokeh.layouts import layout
 from bokeh.models import (
-    ColumnDataSource, HoverTool,
-    SingleIntervalTicker, Slider, Button, Label,
-    CategoricalColorMapper, Legend
+    ColumnDataSource, HoverTool, SingleIntervalTicker, Slider, Button, Label,
+    CategoricalColorMapper,
 )
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
@@ -31,6 +31,8 @@ for year in years:
     df = df.fillna('NaN')
     sources[year] = ColumnDataSource(df)
 
+source = sources[years[0]]
+
 plot = figure(x_range=(1, 9), y_range=(20, 100), title='Gapminder Data', plot_height=300)
 plot.xaxis.ticker = SingleIntervalTicker(interval=1)
 plot.xaxis.axis_label = "Children per woman (total fertility)"
@@ -41,21 +43,19 @@ label = Label(x=1.1, y=18, text=str(years[0]), text_font_size='70pt', text_color
 plot.add_layout(label)
 
 color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions_list)
-cr = plot.circle(
+plot.circle(
     x='fertility',
     y='life',
     size='population',
-    source=sources[years[0]],
-    label='region',
+    source=source,
     fill_color={'field': 'region', 'transform': color_mapper},
     fill_alpha=0.8,
     line_color='#7c7e71',
     line_width=0.5,
-    line_alpha=0.5
+    line_alpha=0.5,
+    legend=field('region'),
 )
-
-plot.add_tools(HoverTool(tooltips="@index", renderers=[cr]))
-plot.add_layout(Legend(legends=[cr]))
+plot.add_tools(HoverTool(tooltips="@index", show_arrow=False, point_policy='follow_mouse'))
 
 
 def animate_update():
@@ -68,7 +68,7 @@ def animate_update():
 def slider_update(attrname, old, new):
     year = slider.value
     label.text = str(year)
-    cr.data_source.data = sources[year].data
+    source.data = sources[year].data
 
 slider = Slider(start=years[0], end=years[-1], value=years[0], step=1, title="Year")
 slider.on_change('value', slider_update)

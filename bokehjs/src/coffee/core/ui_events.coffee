@@ -1,11 +1,11 @@
+_ = require "underscore"
 $ = require "jquery"
 Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 
 Model = require "../model"
-p = require "../core/properties"
-
-{logger} = require "../core/logging"
+p = require "./properties"
+{logger} = require "./logging"
 
 class UIEvents extends Model
   type: 'UIEvents'
@@ -35,9 +35,7 @@ class UIEvents extends Model
     plot: [ p.Instance ]
   }
 
-  configure_hammerjs: (plot, hit_area) ->
-    @plot = plot
-
+  configure_hammerjs: (@plot, hit_area) ->
     @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
@@ -64,10 +62,10 @@ class UIEvents extends Model
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    hit_area.mousemove((e) => @_mouse_move(e))
-    hit_area.mouseenter((e) => @_mouse_enter(e))
-    hit_area.mouseleave((e) => @_mouse_exit(e))
-    hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
+    @hit_area.mousemove((e) => @_mouse_move(e))
+    @hit_area.mouseenter((e) => @_mouse_enter(e))
+    @hit_area.mouseleave((e) => @_mouse_exit(e))
+    @hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
 
@@ -272,5 +270,6 @@ class UIEvents extends Model
     @trigger('keyup', e)
     @on_key_up?.execute(@, e)
 
-module.exports =
+module.exports = {
   Model: UIEvents
+}

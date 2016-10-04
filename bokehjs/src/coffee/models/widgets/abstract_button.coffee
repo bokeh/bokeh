@@ -1,6 +1,6 @@
 p = require "../../core/properties"
 
-build_views = require "../../common/build_views"
+build_views = require "../../core/build_views"
 Widget = require "./widget"
 template = require "./button_template"
 

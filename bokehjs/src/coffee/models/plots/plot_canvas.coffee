@@ -7,14 +7,13 @@ DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 
-build_views = require "../../common/build_views"
-
-enums = require "../../core/enums"
+build_views = require "../../core/build_views"
 LayoutCanvas = require "../../core/layout/layout_canvas"
 {Visuals} = require "../../core/visuals"
 BokehView = require "../../core/bokeh_view"
 {EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
+enums = require "../../core/enums"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
 update_panel_constraints = require("../../core/layout/side_panel").update_constraints

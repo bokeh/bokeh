@@ -284,7 +284,7 @@ class FuncTickFormatter(TickFormatter):
     """)
 
 def DEFAULT_DATETIME_FORMATS():
-    deprecated((0, 12, 4), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
+    deprecated((0, 12, 3), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
     return {
         'microseconds': ['%fus'],
         'milliseconds': ['%3Nms', '%S.%3Ns'],
@@ -564,7 +564,7 @@ class DatetimeTickFormatter(TickFormatter):
         THIS PROPERTY IS DEPRECTATED. Use individual DatetimeTickFormatter fields instead.
 
         '''
-        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
+        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
         return dict(
             microseconds = self.microseconds,
             milliseconds = self.milliseconds,
@@ -579,7 +579,7 @@ class DatetimeTickFormatter(TickFormatter):
 
     @formats.setter
     def formats(self, value):
-        deprecated((0, 12, 4), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
+        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
         if 'microseconds' in value: self.microseconds = value['microseconds']
         if 'milliseconds' in value: self.milliseconds = value['milliseconds']
         if 'seconds'      in value: self.seconds      = value['seconds']

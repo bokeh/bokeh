@@ -1,8 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 
-build_views = require "../../common/build_views"
-
+build_views = require "../../core/build_views"
 BokehView = require "../../core/bokeh_view"
 {WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 {logger} = require "../../core/logging"

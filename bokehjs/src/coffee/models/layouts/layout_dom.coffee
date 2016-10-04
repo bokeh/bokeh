@@ -4,11 +4,9 @@ Model = require "../../model"
 p = require "../../core/properties"
 {GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 
-build_views = require "../../common/build_views"
-
+build_views = require "../../core/build_views"
 BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
-
 
 class LayoutDOMView extends BokehView
 

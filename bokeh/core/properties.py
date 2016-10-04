@@ -1796,15 +1796,14 @@ class FontSizeSpec(DataSpec):
     or a data source column name referring to column of font size data.
 
     '''
+    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(ex|px|cm|mm|in|pt|pc)$")
+
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
-        if isinstance(value, string_types):
-            deprecated('Setting a fixed font size value as a string %r is deprecated, '
-                       'set with value(%r) or [%r] instead' % (value, value, value))
-            if len(value) > 0 and value[0].isdigit():
-                value = dict(value=value)
+        if isinstance(value, string_types) and self._font_size_re.match(value) is not None:
+            value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
 
 class UnitsSpecProperty(DataSpecProperty):
