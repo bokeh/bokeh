@@ -53,8 +53,8 @@ def shutdown_server():
     print("Asked Server to shut down.")
 
 def ui():
-    time.sleep(0.5)
     try:
+        time.sleep(0.5)
         input("Press <ENTER> to exit...\n")
     except:
         pass
