@@ -1,10 +1,8 @@
 ''' Utilities for checking dependencies
 
 '''
-from __future__ import print_function
 from importlib import import_module
 import logging
-import traceback
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +27,6 @@ def import_optional(mod_name):
     except Exception as e:
         msg = "Failed to import optional module `{}`".format(mod_name)
         logger.exception(msg)
-        print('\n'.join([msg, traceback.format_exc()]))
         
 
 def import_required(mod_name, error_msg):
