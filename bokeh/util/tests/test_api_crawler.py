@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 import ast, os
-import pytest
 
 import pytest
 xfail = pytest.mark.xfail
@@ -355,7 +354,14 @@ def test_multuple_methods_diff(test_differ):
         old = f.read()
     with open(os.path.join(os.path.dirname(__file__), "samples/inputs_new.txt"), "r") as f:
         new = f.read()
-    expected = {'inputs': {'functions': {}, 'classes': {'InputWidget': {'methods': {'create': []}}, 'MultiSelect': {'methods': {'create': []}}, 'Select': {'methods': {'create': []}}}}}
+    expected = {'inputs':
+        {
+            'functions': {},
+            'classes': {
+                'InputWidget': {'methods': {'create': []}},
+                'MultiSelect': {'methods': {'create': []}}, 'Select': {'methods': {'create': []}}}
+            }
+        }
     sample_crawler = api_crawler("bokeh")
     old = {"inputs": {"classes": sample_crawler.get_classes(old), "functions": {}}}
     new = {"inputs": {"classes": sample_crawler.get_classes(new), "functions": {}}}
