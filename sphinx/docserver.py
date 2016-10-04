@@ -57,7 +57,7 @@ def ui():
     time.sleep(0.5)
     try:
         input("Press <ENTER> to exit...\n")
-    except (SyntaxError, KeyboardInterrupt) as e:
+    except (SyntaxError, KeyboardInterrupt):
         pass
 
 if __name__ == "__main__":
