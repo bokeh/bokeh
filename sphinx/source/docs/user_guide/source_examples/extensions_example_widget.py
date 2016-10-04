@@ -15,7 +15,7 @@ class IonRangeSlider(InputWidget):
     # of JavaScript (or CoffeeScript) code that implements the JavaScript side
     # of the custom extension model.
 
-    __implementation__ = open('extensions_ion_range_slider.coffee').read()
+    __implementation__ = 'extensions_ion_range_slider.coffee'
     __javascript__ = ["https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js",
                       "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/js/ion.rangeSlider.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css",
@@ -77,7 +77,7 @@ class JQueryRangeSlider(InputWidget):
     # of JavaScript (or CoffeeScript) code that implements the JavaScript side
     # of the custom extension model.
 
-    __implementation__ = open('extensions_jquery_ui_range_slider.coffee').read()
+    __implementation__ = 'extensions_jquery_ui_range_slider.coffee'
 
     # Below are all the "properties" for this model. Bokeh properties are
     # class attributes that define the fields (and their types) that can be
