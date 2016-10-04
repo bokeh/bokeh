@@ -283,16 +283,6 @@ var Model = function(attributes, options) {
   this.initialize.apply(this, arguments);
 };
 
-Model.getter = function(name, get) {
-  Object.defineProperty(this.prototype, name, { get: get });
-};
-
-Model.getters = function(specs) {
-  for (var name in specs) {
-    this.getter(name, specs[name]);
-  }
-};
-
 // Attach all inheritable methods to the Model prototype.
 _.extend(Model.prototype, Events, {
 
@@ -546,6 +536,16 @@ _.extend(View.prototype, Events, {
   }
 
 });
+
+Model.getter = View.getter = function(name, get) {
+  Object.defineProperty(this.prototype, name, { get: get });
+};
+
+Model.getters = View.getters = function(specs) {
+  for (var name in specs) {
+    this.getter(name, specs[name]);
+  }
+};
 
 module.exports = {
   Events: Events,

@@ -21,12 +21,14 @@ from six import string_types
 
 from ...layouts import gridplot
 from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, LinearAxis, Plot, CategoricalAxis, Legend)
+                     Grid, LinearAxis, Plot, CategoricalAxis, Legend, LegendItem)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ...plotting import DEFAULT_TOOLS
 from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
+
+from ..properties import value
 
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_color, convert_dashes, get_props_cycled, xkcd_line
@@ -147,7 +149,10 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        background_fill_color = convert_color(ax.get_axis_bgcolor())
+        if hasattr(ax, 'get_facecolor'):
+            background_fill_color = convert_color(ax.get_facecolor())
+        else:
+            background_fill_color = convert_color(ax.get_axis_bgcolor())
         self.plot.background_fill_color = background_fill_color
         if self.xkcd:
             self.plot.title.text_font = "Comic Sans MS, Textile, cursive"
@@ -162,7 +167,7 @@ class BokehRenderer(Renderer):
         lgnd = Legend(location="top_right")
         try:
             for label, obj in zip(props['labels'], props['handles']):
-                lgnd.legends.append((label, [self.handles[id(obj)]]))
+                lgnd.items.append(LegendItem(label=value(label), renderers=[self.handles[id(obj)]]))
             self.plot.add_layout(lgnd)
         except KeyError:
             pass

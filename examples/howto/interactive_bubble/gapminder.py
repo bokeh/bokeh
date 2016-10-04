@@ -2,11 +2,13 @@ import pandas as pd
 
 from jinja2 import Template
 
+from bokeh.core.properties import field
 from bokeh.embed import file_html
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource, Plot, Circle, Range1d, LinearAxis, HoverTool, Text,
     SingleIntervalTicker, CustomJS, Slider, CategoricalColorMapper, Legend,
+    LegendItem,
 )
 from bokeh.models.annotations import Title
 from bokeh.palettes import Spectral6
@@ -82,7 +84,7 @@ plot.add_glyph(text_source, text)
 color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions_list)
 renderer_source = sources['_%s' % years[0]]
 circle_glyph = Circle(
-    x='fertility', y='life', size='population', label='region',
+    x='fertility', y='life', size='population',
     fill_color={'field': 'region', 'transform': color_mapper},
     fill_alpha=0.8,
     line_color='#7c7e71', line_width=0.5, line_alpha=0.5)
@@ -91,7 +93,7 @@ circle_renderer = plot.add_glyph(renderer_source, circle_glyph)
 # Add the hover (only against the circle and not other plot elements)
 tooltips = "@index"
 plot.add_tools(HoverTool(tooltips=tooltips, renderers=[circle_renderer]))
-plot.add_layout(Legend(legends=[circle_renderer]))
+plot.add_layout(Legend(items=[LegendItem(label=field('region'), renderers=[circle_renderer])]))
 
 # Add the slider
 code = """

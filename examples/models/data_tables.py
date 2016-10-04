@@ -56,7 +56,7 @@ tooltips = [
 ]
 cty_hover_tool = HoverTool(renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
 hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
-select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
+select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions='width')
 plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
 layout = Column(plot, data_table)

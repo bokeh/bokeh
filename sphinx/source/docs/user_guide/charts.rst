@@ -389,6 +389,17 @@ Often it is most useful to group both the color and marker shape together:
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_marker.py
     :source-position: above
 
+.. _userguide_charts_scatter_tooltips:
+
+Tooltips
+~~~~~~~~
+
+The ``tooltips`` parameter can be used to add information to the hover tool
+and is supported for the scatter and line charts. The format is the same as
+the :attr:`~bokeh.models.tools.HoverTool.tooltips` attribute of the hover tool.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_tooltips.py
+    :source-position: above
 
 .. _userguide_charts_defaults:
 

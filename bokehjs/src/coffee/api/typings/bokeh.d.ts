@@ -3,13 +3,30 @@ declare namespace Bokeh {
 
     var index: Map<View<LayoutDOM>>;
 
-    var _: UnderscoreStatic;
+    var _: _.UnderscoreStatic;
     var $: JQueryStatic;
 
-    var logger: JSNLog.JSNLogLogger;
+    class LogLevel {
+      name: string;
+      level: number;
+    }
 
-    type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
-    function set_log_level(level: LogLevel): void;
+    type NamedLogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal" | "off";
+
+    function set_log_level(level: NamedLogLevel): void;
+
+    class Logger {
+      get_level: () => LogLevel;
+      set_level: (log_level: LogLevel | NamedLogLevel) => void;
+
+      trace: (...args: any[]) => void;
+      debug: (...args: any[]) => void;
+      info:  (...args: any[]) => void;
+      warn:  (...args: any[]) => void;
+      error: (...args: any[]) => void;
+      fatal: (...args: any[]) => void;
+    }
+    var logger: Logger;
 
     function sprintf(fmt: string, ...args: any[]): string;
 

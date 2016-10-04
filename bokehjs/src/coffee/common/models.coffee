@@ -8,6 +8,7 @@ module.exports = {
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
+  LegendItem:               require '../models/annotations/legend_item'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
   Title:                    require '../models/annotations/title'
@@ -135,6 +136,8 @@ module.exports = {
 
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'
+  ZoomInTool:               require '../models/tools/actions/zoom_in_tool'
+  ZoomOutTool:              require '../models/tools/actions/zoom_out_tool'
   SaveTool:                 require '../models/tools/actions/save_tool'
   UndoTool:                 require '../models/tools/actions/undo_tool'
   RedoTool:                 require '../models/tools/actions/redo_tool'

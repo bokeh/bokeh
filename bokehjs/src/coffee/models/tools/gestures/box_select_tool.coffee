@@ -103,13 +103,13 @@ class BoxSelectTool extends SelectTool.Model
   default_order: 30
 
   @define {
-    dimensions:             [ p.Array,    ["width", "height"] ]
+    dimensions:             [ p.Dimensions, "both"            ]
     select_every_mousemove: [ p. Bool,    false               ]
     overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
   }
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "box select tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
 module.exports =

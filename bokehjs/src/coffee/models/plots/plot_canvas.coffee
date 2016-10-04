@@ -6,13 +6,14 @@ CartesianFrame = require "../canvas/cartesian_frame"
 DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
-Renderer = require "../renderers/renderer"
 
 build_views = require "../../common/build_views"
 UIEvents = require "../../common/ui_events"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
+{Visuals} = require "../../core/visuals"
+BokehView = require "../../core/bokeh_view"
 {EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
@@ -32,15 +33,12 @@ update_panel_constraints = require("../../core/layout/side_panel").update_constr
 
 global_gl_canvas = null
 
-# TODO (bev) PlotView should not be a RendererView
-# TODO (bird) Renderer.View is only used to render the empty frame and its outline - what about setting an annotation in the background?
-class PlotCanvasView extends Renderer.View
+class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
 
-  view_options: () ->
-    _.extend({plot_model: @model, plot_view: @}, @options)
+  view_options: () -> _.extend({plot_view: @}, @options)
 
   pause: () ->
     @is_paused = true
@@ -64,13 +62,7 @@ class PlotCanvasView extends Renderer.View
     super(options)
     @pause()
 
-    # TODO (bev) this sucks a bit
-    @visuals = {}
-
-    for spec in @model.plot.mixins
-      [name, prefix] = spec.split(":")
-      prefix ?= ""
-      @visuals[prefix+name] = new Renderer.Visuals[name]({obj: @model.plot, prefix: prefix})
+    @visuals = new Visuals(@model.plot)
 
     @_initial_state_info = {
       range: null                     # set later by set_initial_range()
@@ -110,19 +102,20 @@ class PlotCanvasView extends Renderer.View
       hit_area: @canvas_view.$el
     })
 
-    @renderer_views = {}
-    @tool_views = {}
-
     @levels = {}
     for level in enums.RenderLevel
       @levels[level] = {}
-    @build_levels()
-    @bind_bokeh_events()
 
+    @renderer_views = {}
+    @tool_views = {}
+
+    @build_levels()
+    @build_tools()
+
+    @bind_bokeh_events()
     @update_dataranges()
 
     @unpause()
-
     logger.debug("PlotView initialized")
 
     return this
@@ -424,41 +417,37 @@ class PlotCanvasView extends Renderer.View
     @update_range(null)
 
   build_levels: () ->
-    renderer_models = @model.plot.renderers
-    for tool_model in @model.plot.toolbar.tools
-      synthetic = tool_model.synthetic_renderers
-      renderer_models = renderer_models.concat(synthetic)
+    renderer_models = @model.plot.all_renderers
 
-    # should only bind events on NEW views and tools
+    # should only bind events on NEW views
     old_renderers = _.keys(@renderer_views)
-    views = build_views(@renderer_views, renderer_models, @view_options())
+    new_renderer_views = build_views(@renderer_views, renderer_models, @view_options())
     renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
 
-    tool_views = build_views(@tool_views, @model.plot.toolbar.tools, @view_options())
+    for view in new_renderer_views
+      @levels[view.model.level][view.model.id] = view
+      view.bind_bokeh_events()
 
-    for v in views
-      level = v.model.level
-      @levels[level][v.model.id] = v
-      v.bind_bokeh_events()
+    return @
 
-    for tool_view in tool_views
-      level = tool_view.model.level
-      @levels[level][tool_view.model.id] = tool_view
+  build_tools: () ->
+    tool_models = @model.plot.toolbar.tools
+    new_tool_views = build_views(@tool_views, tool_models, @view_options())
+
+    for tool_view in new_tool_views
       tool_view.bind_bokeh_events()
       @ui_event_bus.register_tool(tool_view)
-
-    return this
 
   bind_bokeh_events: () ->
     for name, rng of @model.frame.x_ranges
       @listenTo(rng, 'change', @request_render)
     for name, rng of @model.frame.y_ranges
       @listenTo(rng, 'change', @request_render)
-    @listenTo(@model.plot, 'change:renderers', @build_levels)
-    @listenTo(@model.plot.toolbar, 'change:tools', @build_levels)
+    @listenTo(@model.plot, 'change:renderers', () => @build_levels())
+    @listenTo(@model.plot.toolbar, 'change:tools', () => @build_levels(); @build_tools())
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
     @listenTo(@model.plot.document.solver(), 'layout_update', () => @request_render())
@@ -550,7 +539,7 @@ class PlotCanvasView extends Renderer.View
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
     @blit_webgl(ratio)
     @_render_levels(ctx, ['annotation'], frame_box)
-    @_render_levels(ctx, ['overlay', 'tool'])
+    @_render_levels(ctx, ['overlay'])
 
     if not @initial_range_info?
       @set_initial_range()

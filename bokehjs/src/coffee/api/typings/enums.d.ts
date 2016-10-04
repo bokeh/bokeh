@@ -12,7 +12,8 @@ declare namespace Bokeh {
     export type SpatialUnits = Units;
     export type AngleUnits = "deg" | "rad";
     export type DatetimeUnits = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years";
-    export type Dimension = "width" | "height" | "x" | "y";
+    export type Dimension = "width" | "height";
+    export type Dimensions = "width" | "height" | "both";
     export type Orientation = "horizontal" | "vertical";
     export type Anchor = "top_left" | "top_center" | "top_right" | "right_center" | "bottom_right" | "bottom_center" | "bottom_left" | "left_center" | "center";
     export type LegendLocation = Anchor;
@@ -23,7 +24,7 @@ declare namespace Bokeh {
     export type DateFormat = "ATOM" | "W3C" | "RFC-3339" | "ISO-8601" | "COOKIE" | "RFC-822" | "RFC-850" | "RFC-1036" | "RFC-1123" | "RFC-2822" | "RSS" | "TICKS" | "TIMESTAMP";
     export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup";
     export type NumeralLanguage = "be-nl" | "chs" | "cs" | "da-dk" | "de-ch" | "de" | "en" | "en-gb" | "es-ES" | "es" | "et" | "fi" | "fr-CA" | "fr-ch" | "fr" | "hu" | "it" | "ja" | "nl-nl" | "pl" | "pt-br" | "pt-pt" | "ru" | "ru-UA" | "sk" | "th" | "tr" | "uk-UA";
-    export type RenderLevel = "image" | "underlay" | "glyph" | "annotation" | "overlay" | "tool";
+    export type RenderLevel = "image" | "underlay" | "glyph" | "annotation" | "overlay";
     export type RenderMode = "canvas" | "css";
     export type Aggregation = "sum" | "mean" | "count" | "nunique" | "median" | "min" | "max";
     export type StartEnd = "start" | "end";

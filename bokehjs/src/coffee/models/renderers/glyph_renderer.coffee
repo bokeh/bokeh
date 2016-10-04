@@ -49,7 +49,7 @@ class GlyphRendererView extends Renderer.View
       @model.data_source.setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: @, plot_view: @plot_view, plot_model: @plot_model})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -122,10 +122,7 @@ class GlyphRendererView extends Renderer.View
     dtmap = Date.now() - t0
 
     tmask = Date.now()
-    if glsupport
-      indices = @all_indices  # WebGL can do the clipping much more efficiently
-    else
-      indices = @glyph._mask_data(@all_indices)
+    indices = @glyph.mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
@@ -237,26 +234,6 @@ class GlyphRenderer extends Renderer.Model
         if i > 0
           index = i
     return index
-
-  get_field_from_glyph_label_prop: () ->
-    label_prop = @glyph.label
-    if label_prop? and label_prop.field?
-      return label_prop.field
-
-  get_labels_from_glyph_label_prop: () ->
-    # Always return a list of the labels
-    label_prop = @glyph.label
-    if label_prop? and label_prop.value?
-      return [label_prop.value]
-    if label_prop? and label_prop.field?
-      if @data_source.get_column?
-        data = @data_source.get_column(label_prop.field)
-        if data
-          return _.unique(data)
-        else
-          return ["Invalid field"]
-    return []
-
 
   @define {
       x_range_name:       [ p.String,      'default' ]

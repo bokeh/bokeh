@@ -9,7 +9,7 @@ LinearMapper = utils.require("models/mappers/linear_mapper").Model
 LogColorMapper = utils.require("models/mappers/log_color_mapper").Model
 LogMapper = utils.require("models/mappers/log_mapper").Model
 LogTicker = utils.require("models/tickers/log_ticker").Model
-{Viridis} = utils.require("palettes/palettes")
+{Viridis} = utils.require("api/palettes")
 Plot = utils.require("models/plots/plot").Model
 Range1d = utils.require("models/ranges/range1d").Model
 {Document} = utils.require "document"
@@ -262,7 +262,6 @@ describe "ColorBar module", ->
 
       @color_bar_view = new @color_bar.default_view({
         model: @color_bar
-        plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
       })
 

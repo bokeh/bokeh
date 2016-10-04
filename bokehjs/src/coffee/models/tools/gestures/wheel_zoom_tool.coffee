@@ -1,6 +1,7 @@
 _ = require "underscore"
 
 GestureTool = require "./gesture_tool"
+{scale_range} = require "../../../util/zoom"
 p = require "../../../core/properties"
 
 # Here for testing purposes
@@ -25,10 +26,12 @@ class WheelZoomToolView extends GestureTool.View
     vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
 
-    if vx < hr.start or vx > hr.end
-      v_axis_only = true
-    if vy < vr.start or vy > vr.end
-      h_axis_only = true
+    dims = @model.dimensions
+
+    # restrict to axis configured in tool's dimensions property and if
+    # zoom origin is inside of frame range/domain
+    h_axis = dims in ['width', 'both'] and hr.min < vx < hr.max
+    v_axis = dims in ['height', 'both'] and vr.min < vy < vr.max
 
     # we need a browser-specific multiplier to have similar experiences
     if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
@@ -43,52 +46,8 @@ class WheelZoomToolView extends GestureTool.View
 
     factor  = @model.speed * delta
 
-    # clamp the  magnitude of factor, if it is > 1 bad things happen
-    if factor > 0.9
-      factor = 0.9
-    else if factor < -0.9
-      factor = -0.9
+    zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: vx, y: vy})
 
-    vx_low  = hr.start
-    vx_high = hr.end
-
-    vy_low  = vr.start
-    vy_high = vr.end
-
-    dims = @model.dimensions
-
-    if dims.indexOf('width') > -1 and not v_axis_only
-      sx0 = vx_low  - (vx_low  - vx)*factor
-      sx1 = vx_high - (vx_high - vx)*factor
-    else
-      sx0 = vx_low
-      sx1 = vx_high
-
-    if dims.indexOf('height') > -1 and not h_axis_only
-      sy0 = vy_low  - (vy_low  - vy)*factor
-      sy1 = vy_high - (vy_high - vy)*factor
-    else
-      sy0 = vy_low
-      sy1 = vy_high
-
-    xrs = {}
-    for name, mapper of frame.x_mappers
-      [start, end] = mapper.v_map_from_target([sx0, sx1], true)
-      xrs[name] = {start: start, end: end}
-
-    yrs = {}
-    for name, mapper of frame.y_mappers
-      [start, end] = mapper.v_map_from_target([sy0, sy1], true)
-      yrs[name] = {start: start, end: end}
-
-    # OK this sucks we can't set factor independently in each direction. It is used
-    # for GMap plots, and GMap plots always preserve aspect, so effective the value
-    # of 'dimensions' is ignored.
-    zoom_info = {
-      xrs: xrs
-      yrs: yrs
-      factor: factor
-    }
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
     @plot_view.interactive_timestamp = Date.now()
@@ -103,11 +62,11 @@ class WheelZoomTool extends GestureTool.Model
   default_order: 10
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "wheel zoom tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
   @define {
-    dimensions: [ p.Array, ["width", "height"] ]
+    dimensions: [ p.Dimensions, "both" ]
   }
 
   @internal {

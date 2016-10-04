@@ -156,6 +156,10 @@ class Instance extends simple_prop("Instance", (x) -> x.properties?)
 # TODO (bev) separate booleans?
 class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
 
+# TODO extend Number instead of copying it's predicate
+#class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
+class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
+
 class String extends simple_prop("String", _.isString)
 
 # TODO (bev) don't think this exists python side
@@ -184,6 +188,8 @@ class Direction extends enum_prop("Direction", enums.Direction)
     return result
 
 class Dimension extends enum_prop("Dimension", enums.Dimension)
+
+class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
 
 class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
@@ -281,6 +287,7 @@ module.exports =
   Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
+  Dimensions: Dimensions
   Direction: Direction
   Distance: Distance
   Font: Font
@@ -291,6 +298,7 @@ module.exports =
   LineJoin: LineJoin
   Location: Location
   Number: Number
+  Percent: Percent
   Int: Number                     # TODO
   Orientation: Orientation
   RenderLevel: RenderLevel

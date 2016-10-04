@@ -551,15 +551,15 @@ describe "Document", ->
 
     parsed['version'] = "0.0.1"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}rc123"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}dev123"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}-foo"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
@@ -962,6 +962,17 @@ describe "Document", ->
     expect(spy.calledTwice).is.true
     expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
     expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
+
+  it "resize method's height and width args are passed to _solver.suggest_value", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'suggest_value')
+    root_model = new ModelWithConstrainedVariables({sizing_mode: "scale_both"})
+    d.add_root(root_model)
+    d.resize(width=200, height=300)
+    expect(spy.callCount).is.equal(4)
+    expect(spy.calledWithExactly(d._doc_width, 200)).is.true
+    expect(spy.calledWithExactly(d._doc_height, 300)).is.true
 
   it "resize calls suggest_value once for one root with width", ->
     d = new Document()

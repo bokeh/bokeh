@@ -8,17 +8,19 @@ class LinearColorMapper extends ColorMapper.Model
   type: "LinearColorMapper"
 
   @define {
-      high:          [ p.Number           ]
-      low:           [ p.Number           ]
+      high:       [ p.Number ]
+      low:        [ p.Number ]
+      high_color: [ p.Color  ]
+      low_color:  [ p.Color  ]
     }
 
   _get_values: (data, palette) ->
-    min = @low ? _.min(data)
-    max = @high ? _.max(data)
+    low = @low ? _.min(data)
+    high = @high ? _.max(data)
     max_key = palette.length - 1
     values = []
 
-    norm_factor = 1 / (max - min)
+    norm_factor = 1 / (high - low)
     normed_interval = 1 / palette.length
 
     for d in data
@@ -26,13 +28,27 @@ class LinearColorMapper extends ColorMapper.Model
         values.push(@nan_color)
         continue
 
-      normed_d = (d - min) * norm_factor
+      # This handles the edge case where d == high, since the code below maps
+      # values exactly equal to high to palette.length, which is greater than
+      # max_key
+      if d == high
+        values.push(palette[max_key])
+        continue
+
+      normed_d = (d - low) * norm_factor
       key = Math.floor(normed_d / normed_interval)
       if key < 0
-        key = 0
-      else if key >= max_key
-        key = max_key
-      values.push(palette[key])
+        if @low_color?
+          values.push(@low_color)
+        else
+          values.push(palette[0])
+      else if key > max_key
+        if @high_color?
+          values.push(@high_color)
+        else
+          values.push(palette[max_key])
+      else
+        values.push(palette[key])
     return values
 
 module.exports =

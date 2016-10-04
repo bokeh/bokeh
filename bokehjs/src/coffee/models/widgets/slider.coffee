@@ -47,7 +47,8 @@ class SliderView extends InputWidget.View
       slide: @slide
     }
     @$el.find('.slider').slider(opts)
-    @$( "##{ @model.id }" ).val( @$('.slider').slider('value') )
+    if @model.title?
+      @$( "##{ @model.id }" ).val( @$('.slider').slider('value') )
     @$el.find('.bk-slider-parent').height(@model.height)
     return @
 
@@ -58,7 +59,8 @@ class SliderView extends InputWidget.View
   slide: (event, ui) =>
     value = ui.value
     logger.debug("slide value = #{value}")
-    @$( "##{ @model.id }" ).val( ui.value )
+    if @model.title?
+      @$( "##{ @model.id }" ).val( ui.value )
     @model.value = value
     if @callbackWrapper then @callbackWrapper()
 

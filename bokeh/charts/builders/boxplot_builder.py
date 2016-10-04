@@ -122,6 +122,7 @@ class BoxPlotBuilder(BarBuilder):
     default_attributes = {'label': CatAttr(),
                           'color': ColorAttr(default='DimGrey'),
                           'outlier_fill_color': ColorAttr(default='red'),
+                          'outlier_line_color': ColorAttr(default='red'),
                           'whisker_color': ColorAttr(default='black'),
                           'line_color': ColorAttr(default='black'),
                           'stack': CatAttr(),

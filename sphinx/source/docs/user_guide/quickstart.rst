@@ -564,7 +564,6 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
