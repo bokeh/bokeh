@@ -217,7 +217,8 @@ plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
 For more precise control over how the plot scales to fill its container,
-see the documentation on the :ref:`bokeh.models.layouts.LayoutDOM.sizing_mode` parameter.
+see the documentation for :ref:`bokeh.models.layouts`, in particular the
+``sizing_mode`` property of :class:`~bokeh.models.layouts.LayoutDOM`.
 
 .. warning::
     This feature is known not to work when combined with HBox.

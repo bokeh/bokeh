@@ -28,7 +28,7 @@ functionality.
 .. _bokeh.util.deprecation:
 
 ``bokeh.util.deprecation``
-------------------------
+--------------------------
 
 .. automodule:: bokeh.util.deprecation
 
