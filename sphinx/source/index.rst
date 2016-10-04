@@ -112,4 +112,3 @@ the :ref:`devguide`.
     docs/dev_guide/server
     docs/dev_guide/bindings
     docs/dev_guide/bokehjs
-    docs/dev_guide/notes
