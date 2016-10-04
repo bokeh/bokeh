@@ -1,6 +1,6 @@
 _ = require "underscore"
-Backbone = require "backbone"
 kiwi = require "kiwi"
+{Events} = require "../events"
 
 {Variable, Expression, Constraint, Operator, Strength} = kiwi
 
@@ -17,8 +17,8 @@ _weak_constrainer = (op) ->
       args.push(arg)
     new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, kiwi.Strength.weak )
 
-
 class Solver
+  _.extend(@prototype, Events)
 
   constructor: () ->
     @solver = new kiwi.Solver()
@@ -54,10 +54,7 @@ class Solver
   suggest_value: (variable, value) ->
     @solver.suggestValue(variable, value)
 
-_.extend(Solver.prototype, Backbone.Events)
-
-module.exports =
-
+module.exports = {
   Variable: Variable
   Expression: Expression
   Constraint: Constraint
@@ -73,3 +70,4 @@ module.exports =
   WEAK_GE: _weak_constrainer(Operator.Ge)
 
   Solver: Solver
+}

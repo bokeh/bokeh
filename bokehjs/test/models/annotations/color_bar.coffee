@@ -9,7 +9,7 @@ LinearMapper = utils.require("models/mappers/linear_mapper").Model
 LogColorMapper = utils.require("models/mappers/log_color_mapper").Model
 LogMapper = utils.require("models/mappers/log_mapper").Model
 LogTicker = utils.require("models/tickers/log_ticker").Model
-{Viridis} = utils.require("palettes/palettes")
+{Viridis} = utils.require("api/palettes")
 Plot = utils.require("models/plots/plot").Model
 Range1d = utils.require("models/ranges/range1d").Model
 {Document} = utils.require "document"
@@ -46,9 +46,8 @@ describe "ColorBar module", ->
 
     beforeEach ->
       # Stub solver computed values with deterministic frame height and width
-      frame_stub = sinon.stub(@plot.plot_canvas.frame, 'get')
-      frame_stub.withArgs('height').returns(500)
-      frame_stub.withArgs('width').returns(500)
+      Object.defineProperty(@plot.plot_canvas.frame, 'height', { get: () -> 500 })
+      Object.defineProperty(@plot.plot_canvas.frame, 'width', { get: () -> 500 })
 
     describe "ColorBar.Model._title_extent method", ->
 
@@ -78,13 +77,13 @@ describe "ColorBar module", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
         mapper = @color_bar._tick_coordinate_mapper(100) #length of scale dimension
         expect(mapper).to.be.instanceof(LinearMapper)
-        expect(mapper.get('mapper_state')).to.be.deep.equal [10, 0]
+        expect(mapper.mapper_state).to.be.deep.equal [10, 0]
 
       it "LogColorMapper should yield LogMapper instance with correct state", ->
         @color_bar.color_mapper = new LogColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
         mapper = @color_bar._tick_coordinate_mapper(100) #length of scale dimension
         expect(mapper).to.be.instanceof(LogMapper)
-        expect(mapper.get('mapper_state')).to.be.deep.equal [100, 0, 2.302585092994046, 0]
+        expect(mapper.mapper_state).to.be.deep.equal [100, 0, 2.302585092994046, 0]
 
     describe "ColorBar.Model._computed_image_dimensions method", ->
 
@@ -263,14 +262,13 @@ describe "ColorBar module", ->
 
       @color_bar_view = new @color_bar.default_view({
         model: @color_bar
-        plot_model: @plot.plot_canvas
         plot_view: @plot_canvas_view
       })
 
     it "Should reset scale image if color_mapper changes", ->
       # Reset spy count to zero (method was called during view initialization)
       @_set_canvas_image_stub.reset()
-      @color_bar.color_mapper.set('palette', Viridis.Viridis3)
+      @color_bar.color_mapper.palette = Viridis.Viridis3
       expect(@_set_canvas_image_stub.called).to.be.true
 
     it "ColorBar.View._get_image_offset method", ->

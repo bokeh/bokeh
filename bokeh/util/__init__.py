@@ -25,12 +25,12 @@ functionality.
 .. automodule:: bokeh.util.dependencies
   :members:
 
-.. _bokeh.util.deprecate:
+.. _bokeh.util.deprecation:
 
-``bokeh.util.deprecate``
+``bokeh.util.deprecation``
 ------------------------
 
-.. automodule:: bokeh.util.deprecate
+.. automodule:: bokeh.util.deprecation
 
 .. _bokeh.util.functions:
 

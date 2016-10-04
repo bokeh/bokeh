@@ -9,6 +9,7 @@ module.exports = {
   Label:                    require '../models/annotations/label'
   LabelSet:                 require '../models/annotations/label_set'
   Legend:                   require '../models/annotations/legend'
+  LegendItem:               require '../models/annotations/legend_item'
   PolyAnnotation:           require '../models/annotations/poly_annotation'
   Span:                     require '../models/annotations/span'
   Title:                    require '../models/annotations/title'
@@ -43,7 +44,6 @@ module.exports = {
   Bezier:                   require '../models/glyphs/bezier'
   Circle:                   require '../models/glyphs/circle'
   Ellipse:                  require '../models/glyphs/ellipse'
-  Gear:                     require '../models/glyphs/gear'
   HBar:                     require '../models/glyphs/hbar'
   Image:                    require '../models/glyphs/image'
   ImageRGBA:                require '../models/glyphs/image_rgba'
@@ -70,6 +70,7 @@ module.exports = {
   WidgetBox:                require '../models/layouts/widget_box'
 
   CategoricalMapper:        require '../models/mappers/categorical_mapper'
+  CategoricalColorMapper:   require '../models/mappers/categorical_color_mapper'
   GridMapper:               require '../models/mappers/grid_mapper'
   LinearColorMapper:        require '../models/mappers/linear_color_mapper'
   LinearMapper:             require '../models/mappers/linear_mapper'
@@ -80,20 +81,20 @@ module.exports = {
   Jitter:                   require '../models/transforms/jitter'
   Interpolator:             require '../models/transforms/interpolator'
   LinearInterpolator:       require '../models/transforms/linear_interpolator'
-  StepInterpolator:       require '../models/transforms/step_interpolator'
+  StepInterpolator:         require '../models/transforms/step_interpolator'
 
-  Asterisk:                 require '../models/markers/asterisk'
-  CircleCross:              require '../models/markers/circle_cross'
-  CircleX:                  require '../models/markers/circle_x'
-  Cross:                    require '../models/markers/cross'
-  Diamond:                  require '../models/markers/diamond'
-  DiamondCross:             require '../models/markers/diamond_cross'
-  InvertedTriangle:         require '../models/markers/inverted_triangle'
-  Square:                   require '../models/markers/square'
-  SquareCross:              require '../models/markers/square_cross'
-  SquareX:                  require '../models/markers/square_x'
-  Triangle:                 require '../models/markers/triangle'
-  X:                        require '../models/markers/x'
+  Asterisk:                 require('../models/markers/index').Asterisk
+  CircleCross:              require('../models/markers/index').CircleCross
+  CircleX:                  require('../models/markers/index').CircleX
+  Cross:                    require('../models/markers/index').Cross
+  Diamond:                  require('../models/markers/index').Diamond
+  DiamondCross:             require('../models/markers/index').DiamondCross
+  InvertedTriangle:         require('../models/markers/index').InvertedTriangle
+  Square:                   require('../models/markers/index').Square
+  SquareCross:              require('../models/markers/index').SquareCross
+  SquareX:                  require('../models/markers/index').SquareX
+  Triangle:                 require('../models/markers/index').Triangle
+  X:                        require('../models/markers/index').X
 
   Plot:                     require '../models/plots/plot'
   GMapPlot:                 require '../models/plots/gmap_plot'
@@ -136,6 +137,8 @@ module.exports = {
 
   ButtonTool:               require '../models/tools/button_tool'
   ActionTool:               require '../models/tools/actions/action_tool'
+  ZoomInTool:               require '../models/tools/actions/zoom_in_tool'
+  ZoomOutTool:              require '../models/tools/actions/zoom_out_tool'
   SaveTool:                 require '../models/tools/actions/save_tool'
   UndoTool:                 require '../models/tools/actions/undo_tool'
   RedoTool:                 require '../models/tools/actions/redo_tool'
@@ -151,6 +154,7 @@ module.exports = {
   SelectTool:               require '../models/tools/gestures/select_tool'
   ResizeTool:               require '../models/tools/gestures/resize_tool'
   TapTool:                  require '../models/tools/gestures/tap_tool'
+  WheelPanTool:             require '../models/tools/gestures/wheel_pan_tool'
   WheelZoomTool:            require '../models/tools/gestures/wheel_zoom_tool'
 
   CrosshairTool:            require '../models/tools/inspectors/crosshair_tool'

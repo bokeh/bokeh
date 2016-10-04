@@ -13,7 +13,7 @@ CSS class names
 The CSS for controlling Bokeh presentation are located in a ``bokeh.css`` file
 that is compiled from several separate ``.less`` files in the BokehJS source
 tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
-the string ``bk-``. For instance some examples are: ``.bk-sidebar``, ``.bk-toolbar-button``, etc.
+the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-button``, etc.
 
 Furthermore, BokehJS ships with its own version of `Bootstrap <http://getbootstrap.com>`_.
 To prevent name collisions, the version of Bootstrap CSS that Bokeh uses has

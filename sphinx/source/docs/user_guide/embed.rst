@@ -406,7 +406,6 @@ on the server at `"some/path"`, from the document that has the plot embedded.
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 

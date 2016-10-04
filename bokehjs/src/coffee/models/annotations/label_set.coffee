@@ -9,10 +9,10 @@ class LabelSetView extends TextAnnotation.View
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.get('x_mappers')[@model.x_range_name]
-    @ymapper = @plot_view.frame.get('y_mappers')[@model.y_range_name]
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    @set_data()
+    @set_data(@model.source)
 
     if @model.render_mode == 'css'
       for i in [0...@_text.length]
@@ -23,22 +23,22 @@ class LabelSetView extends TextAnnotation.View
     if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', () ->
-        @set_data()
+        @set_data(@model.source)
         @render())
       @listenTo(@model.source, 'change', () ->
-        @set_data()
+        @set_data(@model.source)
         @render())
     else
       @listenTo(@model, 'change', () ->
-        @set_data()
+        @set_data(@model.source)
         @plot_view.request_render())
       @listenTo(@model.source, 'change', () ->
-        @set_data()
+        @set_data(@model.source)
         @plot_view.request_render())
 
-  set_data: () ->
-    super(@model.source)
-    @set_visuals(@model.source)
+  set_data: (source) ->
+    super(source)
+    @visuals.warm_cache(source)
 
   _map_data: () ->
     if @model.x_units == "data"
@@ -161,20 +161,20 @@ class LabelSet extends TextAnnotation.Model
 
   @mixins ['text', 'line:border_', 'fill:background_']
 
-  @coords [['x', 'y']]
-
   @define {
-      x_units:      [ p.SpatialUnits, 'data'            ]
-      y_units:      [ p.SpatialUnits, 'data'            ]
-      text:         [ p.StringSpec,   { field: "text" } ]
-      angle:        [ p.AngleSpec,    0                 ]
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
-      x_range_name: [ p.String,      'default'          ]
-      y_range_name: [ p.String,      'default'          ]
-      render_mode:  [ p.RenderMode,  'canvas'           ]
-    }
+    x:            [ p.NumberSpec                      ]
+    y:            [ p.NumberSpec                      ]
+    x_units:      [ p.SpatialUnits, 'data'            ]
+    y_units:      [ p.SpatialUnits, 'data'            ]
+    text:         [ p.StringSpec,   { field: "text" } ]
+    angle:        [ p.AngleSpec,    0                 ]
+    x_offset:     [ p.NumberSpec,   { value: 0 }      ]
+    y_offset:     [ p.NumberSpec,   { value: 0 }      ]
+    source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
+    x_range_name: [ p.String,      'default'          ]
+    y_range_name: [ p.String,      'default'          ]
+    render_mode:  [ p.RenderMode,  'canvas'           ]
+  }
 
   @override {
     background_fill_color: null

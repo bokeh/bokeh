@@ -13,6 +13,5 @@ declare namespace Bokeh {
     export interface ICustomJS extends ICallback {
         args?: Map<Model>;
         code?: string;
-        lang?: ScriptingLanguage;
     }
 }

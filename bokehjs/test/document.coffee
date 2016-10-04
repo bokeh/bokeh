@@ -45,8 +45,8 @@ class ModelWithConstructTimeChanges extends Model
 
   initialize: (attributes, options) ->
     super(attributes, options)
-    @set('foo', 4)
-    @set('child', new AnotherModel())
+    @foo = 4
+    @child = new AnotherModel()
 
   @define {
     foo:   [ p.Number, 2 ]
@@ -60,10 +60,10 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 
   initialize: (attributes, options) ->
     super(attributes, options)
-    @set('list_prop', [new AnotherModel()])
-    @set('dict_prop', { foo: new AnotherModel() })
-    @set('obj_prop', new ModelWithConstructTimeChanges())
-    @set('dict_of_list_prop', { foo: [new AnotherModel()] })
+    @list_prop = [new AnotherModel()]
+    @dict_prop = { foo: new AnotherModel() }
+    @obj_prop = new ModelWithConstructTimeChanges()
+    @dict_of_list_prop = { foo: [new AnotherModel()] }
 
   @define {
     list_prop:         [ p.Array ]
@@ -222,15 +222,15 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 0
     m = new SomeModel()
     m2 = new AnotherModel()
-    m.set({ child: m2 })
-    expect(m.get('child')).to.equal m2
+    m.child = m2
+    expect(m.child).to.equal m2
     d.add_root(m)
     expect(d.roots().length).to.equal 1
     expect(Object.keys(d._all_models).length).to.equal 2
 
-    m.set({ child: null })
+    m.child = null
     expect(Object.keys(d._all_models).length).to.equal 1
-    m.set({ child: m2 })
+    m.child = m2
     expect(Object.keys(d._all_models).length).to.equal 2
     d.remove_root(m)
     expect(d.roots().length).to.equal 0
@@ -242,19 +242,19 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 0
     m = new SomeModelWithChildren()
     m2 = new AnotherModel()
-    m.set({ children: [ m2 ] })
-    expect(m.get('children')).to.deep.equal [ m2 ]
+    m.children = [m2]
+    expect(m.children).to.deep.equal [ m2 ]
     # check that we get the right all_models on initial add_root
     d.add_root(m)
     expect(d.roots().length).to.equal 1
     expect(Object.keys(d._all_models).length).to.equal 2
 
     # check that removing children list drops the models beneath it
-    m.set({ children: [] })
+    m.children = []
     expect(Object.keys(d._all_models).length).to.equal 1
 
     # check that adding children back re-adds the models
-    m.set({ children: [ m2 ] })
+    m.children = [m2]
     expect(Object.keys(d._all_models).length).to.equal 2
 
     # check that removing root removes the models
@@ -269,8 +269,8 @@ describe "Document", ->
     m = new SomeModelWithChildren()
     m3 = new AnotherModel()
     m2 = new SomeModel({ child: m3 })
-    m.set({ children: [ m2 ] })
-    expect(m.get('children')).to.deep.equal [ m2 ]
+    m.children = [m2]
+    expect(m.children).to.deep.equal [ m2 ]
 
     # check that we get the right all_models on initial add_root
     d.add_root(m)
@@ -278,11 +278,11 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 3
 
     # check that removing children list drops the models beneath it
-    m.set({ children: [] })
+    m.children = []
     expect(Object.keys(d._all_models).length).to.equal 1
 
     # check that adding children back re-adds the models
-    m.set({ children: [ m2 ] })
+    m.children = [m2]
     expect(Object.keys(d._all_models).length).to.equal 3
 
     # check that removing root removes the models
@@ -294,7 +294,7 @@ describe "Document", ->
     d = new Document()
     m = new SomeModel()
     m2 = new AnotherModel()
-    m.set({ child: m2 })
+    m.child = m2
     d.add_root(m)
     expect(d.get_model_by_id(m.id)).to.equal(m)
     expect(d.get_model_by_id(m2.id)).to.equal(m2)
@@ -304,10 +304,10 @@ describe "Document", ->
     d = new Document()
     m = new SomeModel({ name : "foo" })
     m2 = new AnotherModel({ name : "bar" })
-    m.set({ child: m2 })
+    m.child = m2
     d.add_root(m)
-    expect(d.get_model_by_name(m.get('name'))).to.equal(m)
-    expect(d.get_model_by_name(m2.get('name'))).to.equal(m2)
+    expect(d.get_model_by_name(m.name)).to.equal(m)
+    expect(d.get_model_by_name(m2.name)).to.equal(m2)
     expect(d.get_model_by_name("invalidid")).to.equal(null)
 
   it "lets us get_model_by_name after changing name", ->
@@ -316,7 +316,7 @@ describe "Document", ->
     d.add_root(m)
     expect(d.get_model_by_name("foo")).to.equal(m)
     expect(d.get_model_by_name("bar")).to.equal(null)
-    m.set({ name : "bar" })
+    m.name = "bar"
     expect(d.get_model_by_name("foo")).to.equal(null)
     expect(d.get_model_by_name("bar")).to.equal(m)
 
@@ -342,23 +342,23 @@ describe "Document", ->
     root1 = new SomeModel()
     root2 = new SomeModel()
     child1 = new AnotherModel()
-    root1.set('child', child1)
-    root2.set('child', child1)
+    root1.child = child1
+    root2.child = child1
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
     expect(_.size(d._all_models)).to.equal 3
 
-    root1.set('child', null)
+    root1.child = null
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('child', null)
+    root2.child = null
     expect(_.size(d._all_models)).to.equal 2
 
-    root1.set('child', child1)
+    root1.child = child1
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('child', child1)
+    root2.child = child1
     expect(_.size(d._all_models)).to.equal 3
 
     d.remove_root(root1)
@@ -375,21 +375,21 @@ describe "Document", ->
     root1 = new SomeModel()
     root2 = new SomeModel()
     child1 = new SomeModel()
-    root1.set('child', child1)
-    root2.set('child', child1)
-    child1.set('child', root1)
+    root1.child = child1
+    root2.child = child1
+    child1.child = root1
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
     expect(_.size(d._all_models)).to.equal 3
 
-    root1.set('child', null)
+    root1.child = null
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('child', null)
+    root2.child = null
     expect(_.size(d._all_models)).to.equal 2
 
-    root1.set('child', child1)
+    root1.child = child1
     expect(_.size(d._all_models)).to.equal 3
 
   it "can have all_models with cycles through lists", ->
@@ -400,21 +400,21 @@ describe "Document", ->
     root1 = new SomeModelWithChildren()
     root2 = new SomeModelWithChildren()
     child1 = new SomeModelWithChildren()
-    root1.set('children', [child1])
-    root2.set('children', [child1])
-    child1.set('children', [root1])
+    root1.children = [child1]
+    root2.children = [child1]
+    child1.children = [root1]
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
     expect(_.size(d._all_models)).to.equal 3
 
-    root1.set('children', [])
+    root1.children = []
     expect(_.size(d._all_models)).to.equal 3
 
-    root2.set('children', [])
+    root2.children = []
     expect(_.size(d._all_models)).to.equal 2
 
-    root1.set('children', [child1])
+    root1.children = [child1]
     expect(_.size(d._all_models)).to.equal 3
 
   it "can notify on changes", ->
@@ -425,7 +425,7 @@ describe "Document", ->
 
     d.add_root(m)
     expect(d.roots().length).to.equal 1
-    expect(m.get('bar')).to.equal 1
+    expect(m.bar).to.equal 1
 
     events = []
     curdoc_from_listener = []
@@ -433,7 +433,7 @@ describe "Document", ->
       events.push(event)
     d.on_change(listener)
 
-    m.set('bar', 42)
+    m.bar = 42
     expect(events.length).to.equal 1
     expect(events[0]).is.instanceof ModelChangedEvent
     expect(events[0].document).to.equal d
@@ -450,20 +450,20 @@ describe "Document", ->
 
     d.add_root(m)
     expect(d.roots().length).to.equal 1
-    expect(m.get('bar')).to.equal 1
+    expect(m.bar).to.equal 1
 
     events = []
     listener = (event) ->
       events.push(event)
     d.on_change(listener)
 
-    m.set('bar', 42)
+    m.bar = 42
 
     expect(events.length).to.equal 1
     expect(events[0].new_).to.equal 42
 
     d.remove_on_change(listener)
-    m.set('bar', 43)
+    m.bar = 43
 
     expect(events.length).to.equal 1
 
@@ -551,15 +551,15 @@ describe "Document", ->
 
     parsed['version'] = "0.0.1"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}rc123"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}dev123"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
-    expect(out).to.be.equal "Bokeh: JS/Python version mismatch\nBokeh: Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
+    expect(out).to.be.equal "[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (#{js_version})  /  Python (#{parsed["version"]})\n"
 
     parsed['version'] = "#{js_version}-foo"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
@@ -594,7 +594,7 @@ describe "Document", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
     root1 = new SomeModel()
-    root1.set('name', 'bar')
+    root1.name = 'bar'
     d.add_root(root1)
     expect(d.roots().length).to.equal 1
 
@@ -605,7 +605,7 @@ describe "Document", ->
 
     expect(copy.roots().length).to.equal 1
     expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
-    expect(copy.roots()[0].get('name')).to.be.equal 'bar'
+    expect(copy.roots()[0].name).to.be.equal 'bar'
 
     # be sure defaults were NOT included
     attrs = parsed['roots']['references'][0]['attributes']
@@ -634,23 +634,23 @@ describe "Document", ->
     root1 = new SomeModel({ foo: 42 })
     root2 = new SomeModel({ foo: 43 })
     child1 = new SomeModel({ foo: 44 })
-    root1.set { child: child1 }
-    root2.set { child: child1 }
+    root1.setv({ child: child1 })
+    root2.setv({ child: child1 })
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
 
-    event1 = new ModelChangedEvent(d, root1, 'foo', root1.get('foo'), 57)
+    event1 = new ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
     patch1 = d.create_json_patch_string([event1])
     d.apply_json_patch_string(patch1)
 
-    expect(root1.get('foo')).to.equal 57
+    expect(root1.foo).to.equal 57
 
-    event2 = new ModelChangedEvent(d, child1, 'foo', child1.get('foo'), 67)
+    event2 = new ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
     patch2 = d.create_json_patch_string([event2])
     d.apply_json_patch_string(patch2)
 
-    expect(child1.get('foo')).to.equal 67
+    expect(child1.foo).to.equal 67
 
   it "can patch a reference property", ->
     d = new Document()
@@ -662,8 +662,8 @@ describe "Document", ->
     child1 = new SomeModel({ foo: 44 })
     child2 = new SomeModel({ foo: 45 })
     child3 = new SomeModel({ foo: 46, child: child2})
-    root1.set { child: child1 }
-    root2.set { child: child1 }
+    root1.setv({ child: child1 })
+    root2.setv({ child: child1 })
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal 2
@@ -672,23 +672,23 @@ describe "Document", ->
     expect(d._all_models).to.not.have.property(child2.id)
     expect(d._all_models).to.not.have.property(child3.id)
 
-    event1 = new ModelChangedEvent(d, root1, 'child', root1.get('child'), child3)
+    event1 = new ModelChangedEvent(d, root1, 'child', root1.child, child3)
     patch1 = d.create_json_patch_string([event1])
     d.apply_json_patch_string(patch1)
 
-    expect(root1.get('child').id).to.equal child3.id
-    expect(root1.get('child').get('child').id).to.equal child2.id
+    expect(root1.child.id).to.equal child3.id
+    expect(root1.child.child.id).to.equal child2.id
     expect(d._all_models).to.have.property(child1.id)
     expect(d._all_models).to.have.property(child2.id)
     expect(d._all_models).to.have.property(child3.id)
 
     # put it back how it was before
-    event2 = new ModelChangedEvent(d, root1, 'child', child1.get('child'), child1)
+    event2 = new ModelChangedEvent(d, root1, 'child', child1.child, child1)
     patch2 = d.create_json_patch_string([event2])
     d.apply_json_patch_string(patch2)
 
-    expect(root1.get('child').id).to.equal child1.id
-    expect(root1.get('child').get('child')).to.be.equal null
+    expect(root1.child.id).to.equal child1.id
+    expect(root1.child.child).to.be.equal null
     expect(d._all_models).to.have.property(child1.id)
     expect(d._all_models).to.not.have.property(child2.id)
     expect(d._all_models).to.not.have.property(child3.id)
@@ -700,20 +700,20 @@ describe "Document", ->
 
     root1 = new SomeModel({ foo: 42 })
     child1 = new SomeModel({ foo: 43 })
-    root1.set { child: child1 }
+    root1.setv({ child: child1 })
     d.add_root(root1)
     expect(d.roots().length).to.equal 1
 
     child2 = new SomeModel({ foo: 44 })
 
-    event1 = new ModelChangedEvent(d, root1, 'foo', root1.get('foo'), 57)
-    event2 = new ModelChangedEvent(d, root1, 'child', root1.get('child'), child2)
+    event1 = new ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+    event2 = new ModelChangedEvent(d, root1, 'child', root1.child, child2)
     patch1 = d.create_json_patch_string([event1, event2])
     d.apply_json_patch_string(patch1)
 
 
-    expect(root1.get('foo')).to.equal 57
-    expect(root1.get('child').get('foo')).to.be.equal 44
+    expect(root1.foo).to.equal 57
+    expect(root1.child.foo).to.be.equal 44
 
 
   it "sets proper document on models added during construction", ->
@@ -723,7 +723,8 @@ describe "Document", ->
 
     root1 = new ModelWithConstructTimeChanges()
     # change it so it doesn't match what initialize() does
-    root1.set({ foo: 3, child: null })
+    root1.foo = 3
+    root1.child = null
     d.add_root(root1)
 
     json = d.to_json_string()
@@ -733,15 +734,15 @@ describe "Document", ->
 
     root1_copy = copy.get_model_by_id(root1.id)
 
-    expect(root1.get('foo')).to.equal 3
-    expect(root1.get('child')).to.equal null
+    expect(root1.foo).to.equal 3
+    expect(root1.child).to.equal null
 
     # when unpacking the copy, initialize() was supposed to overwrite
     # what we unpacked.
-    expect(root1_copy.get('foo')).to.equal 4
-    expect(root1_copy.get('child')).to.be.an.instanceof(AnotherModel)
+    expect(root1_copy.foo).to.equal 4
+    expect(root1_copy.child).to.be.an.instanceof(AnotherModel)
     expect(root1_copy.document).to.equal copy
-    expect(root1_copy.get('child').document).to.equal copy
+    expect(root1_copy.child.document).to.equal copy
 
   it "computes patch for models added during construction", ->
     d = new Document()
@@ -750,7 +751,8 @@ describe "Document", ->
 
     root1 = new ModelWithConstructTimeChanges()
     # change it so it doesn't match what initialize() does
-    root1.set({ foo: 3, child: null })
+    root1.foo = 3
+    root1.child = null
     d.add_root(root1)
 
     json = d.to_json_string()
@@ -761,11 +763,11 @@ describe "Document", ->
     patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 
     expect(patch.events.length).to.equal 2
-    expect(root1.get('foo')).to.equal 3
-    expect(root1.get('child')).to.equal null
+    expect(root1.foo).to.equal 3
+    expect(root1.child).to.equal null
     d.apply_json_patch(patch)
-    expect(root1.get('foo')).to.equal 4
-    expect(root1.get('child')).to.be.an.instanceof(AnotherModel)
+    expect(root1.foo).to.equal 4
+    expect(root1.child).to.be.an.instanceof(AnotherModel)
 
   it "computes complicated patch for models added during construction", ->
     # this test simulates how from_json has to compute changes
@@ -785,7 +787,7 @@ describe "Document", ->
       'obj_prop' : new ModelWithConstructTimeChanges(),
       'dict_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
       }
-    root1.set(serialized_values)
+    root1.setv(serialized_values)
 
     d.add_root(root1)
 
@@ -801,9 +803,9 @@ describe "Document", ->
 
     # document should have the values we set above
     for own key, value of serialized_values
-      expect(root1.get(key)).to.deep.equal value
-    expect(root1.get('list_prop')[0].get('bar')).to.equal 42
-    expect(root1.get('dict_prop')['foo'].get('bar')).to.equal 43
+      expect(root1.getv(key)).to.deep.equal value
+    expect(root1.list_prop[0].bar).to.equal 42
+    expect(root1.dict_prop['foo'].bar).to.equal 43
 
     expect(patch.events.length).to.equal 4
 
@@ -812,16 +814,16 @@ describe "Document", ->
     # ComplicatedModelWithConstructTimeChanges changes (not name
     # and tags)
     d.apply_json_patch(patch)
-    expect(root1.get('name')).to.equal 'foo'
-    expect(root1.get('tags')).to.deep.equal ['bar']
-    expect(root1.get('list_prop').length).to.equal 1
-    expect(root1.get('list_prop')[0].get('bar')).to.equal 1
-    expect(Object.keys(root1.get('dict_prop')).length).to.equal 1
-    expect(root1.get('dict_prop')['foo'].get('bar')).to.equal 1
-    expect(root1.get('obj_prop')).to.be.an.instanceof(ModelWithConstructTimeChanges)
-    expect(root1.get('obj_prop').get('child')).to.be.an.instanceof(AnotherModel)
-    expect(Object.keys(root1.get('dict_of_list_prop')).length).to.equal 1
-    expect(_.values(root1.get('dict_of_list_prop'))[0].length).to.equal 1
+    expect(root1.name).to.equal 'foo'
+    expect(root1.tags).to.deep.equal ['bar']
+    expect(root1.list_prop.length).to.equal 1
+    expect(root1.list_prop[0].bar).to.equal 1
+    expect(Object.keys(root1.dict_prop).length).to.equal 1
+    expect(root1.dict_prop['foo'].bar).to.equal 1
+    expect(root1.obj_prop).to.be.an.instanceof(ModelWithConstructTimeChanges)
+    expect(root1.obj_prop.child).to.be.an.instanceof(AnotherModel)
+    expect(Object.keys(root1.dict_of_list_prop).length).to.equal 1
+    expect(_.values(root1.dict_of_list_prop)[0].length).to.equal 1
 
   it "adds two constraints and two edit_variables on instantiation solver", ->
     d = new Document()
@@ -960,6 +962,17 @@ describe "Document", ->
     expect(spy.calledTwice).is.true
     expect(spy.calledWithExactly(d._doc_height, window.innerHeight - 30), 'suggest_value was not called with window.innerHeight').is.true
     expect(spy.calledWithExactly(d._doc_width, window.innerWidth - 50), 'suggest_value was not called with window.innerWidth - 50').is.true
+
+  it "resize method's height and width args are passed to _solver.suggest_value", ->
+    d = new Document()
+    s = d.solver()
+    spy = sinon.spy(s, 'suggest_value')
+    root_model = new ModelWithConstrainedVariables({sizing_mode: "scale_both"})
+    d.add_root(root_model)
+    d.resize(width=200, height=300)
+    expect(spy.callCount).is.equal(4)
+    expect(spy.calledWithExactly(d._doc_width, 200)).is.true
+    expect(spy.calledWithExactly(d._doc_height, 300)).is.true
 
   it "resize calls suggest_value once for one root with width", ->
     d = new Document()

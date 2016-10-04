@@ -106,7 +106,10 @@ DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
                             "minutes", "hourmin", "hours", "days", "months", "years")
 
 #: Specify a vertical/horizontal dimension
-Dimension = enumeration("width", "height", "x", "y")
+Dimension = enumeration("width", "height")
+
+#: Specify a vertical/horizontal dimensions
+Dimensions = enumeration("width", "height", "both")
 
 #: Specify a vertical/horizontal orientation for something
 Orientation = enumeration("horizontal", "vertical")
@@ -150,16 +153,13 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
 
 #: Specify a position in the render order for a Bokeh renderer
-RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay", "tool")
+RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
 
 #: Specify an aggregation type for different charts
 Aggregation = enumeration("sum", "mean", "count", "nunique", "median", "min", "max")
-
-#: Specify the language used in a CustomJS callback
-ScriptingLanguage = enumeration("javascript", "coffeescript")
 
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")

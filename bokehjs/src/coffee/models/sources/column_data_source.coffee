@@ -23,10 +23,10 @@ class ColumnDataSource extends DataSource.Model
   }
 
   get_column: (colname) ->
-    return @get('data')[colname] ? null
+    return @data[colname] ? null
 
   get_length: () ->
-    data = @get('data')
+    data = @data
     if _.keys(data).length == 0
       return null # XXX: don't guess, treat on case-by-case basis
     else
@@ -46,24 +46,24 @@ class ColumnDataSource extends DataSource.Model
 
   columns: () ->
     # return the column names in this data source
-    return _.keys(@get('data'))
+    return _.keys(@data)
 
   stream: (new_data, rollover) ->
-    data = @get('data')
+    data = @data
     for k, v of new_data
       data[k] = data[k].concat(new_data[k])
       if data[k].length > rollover
         data[k] = data[k].slice(-rollover)
-    @set('data', data, {silent: true})
+    @setv('data', data, {silent: true})
     @trigger('stream')
 
   patch: (patches) ->
-    data = @get('data')
+    data = @data
     for k, patch of patches
       for i in [0...patch.length]
         [ind, value] = patch[i]
         data[k][ind] = value
-    @set('data', data, {silent: true})
+    @setv('data', data, {silent: true})
     @trigger('patch')
 
 module.exports =

@@ -32,7 +32,7 @@ from .embed import notebook_div, standalone_html_page_for_models, autoload_serve
 from .models.layouts import LayoutDOM, Row, Column, VBoxForm
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .model import _ModelInDocument
-from .util.deprecate import deprecated
+from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -46,8 +46,6 @@ from .client import DEFAULT_SESSION_ID, push_session, show_session
 _new_param = {'tab': 2, 'window': 1}
 
 _state = State()
-
-_nb_loaded = False
 
 #-----------------------------------------------------------------------------
 # Local utilities
@@ -98,6 +96,7 @@ class _CommsHandle(object):
         self._doc = doc
         self._json[doc] = json
 
+
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
@@ -147,7 +146,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         root_dir=root_dir
     )
 
-def output_notebook(resources=None, verbose=False, hide_banner=False):
+def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
 
@@ -165,6 +164,9 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         hide_banner (bool, optional):
             whether to hide the Bokeh banner (default: False)
 
+        load_timeout (int, optional) :
+            Timeout in milliseconds when plots assume load timed out (default: 5000)
+
     Returns:
         None
 
@@ -173,7 +175,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
         session or the top of a script.
 
     '''
-    load_notebook(resources, verbose, hide_banner)
+    load_notebook(resources, verbose, hide_banner, load_timeout)
     _state.output_notebook()
 
 # usually we default session_id to "generate a random one" but
@@ -223,6 +225,9 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", au
         Calling this function will replace any existing server-side document in the named session.
 
     """
+    deprecated((0, 12, 3), 'bokeh.io.output_server()', """
+    bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
+    """)
 
     _state.output_server(session_id=session_id, url=url, app_path=app_path, autopush=autopush)
 
@@ -265,7 +270,7 @@ def curstate():
     '''
     return _state
 
-def show(obj, browser=None, new="tab"):
+def show(obj, browser=None, new="tab", notebook_handle=False):
     ''' Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
@@ -290,9 +295,14 @@ def show(obj, browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
 
+        notebook_handle (bool, optional): create notebook interaction handle (default: False)
+            For notebook output, toggles whether a handle which can be
+            used with ``push_notebook`` is returned.
+
     Returns:
-        when in a a jupyter notebook (with ``output_notebook`` enabled), returns
-        a handle that can be used by ``push_notebook``, None otherwise.
+        when in a jupyter notebook (with ``output_notebook`` enabled)
+        and ``notebook_handle=True``, returns a handle that can be used by
+        ``push_notebook``, None otherwise.
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
@@ -301,17 +311,17 @@ def show(obj, browser=None, new="tab"):
     '''
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
-    return _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
 
 
-def _show_with_state(obj, state, browser, new):
+def _show_with_state(obj, state, browser, new, notebook_handle=False):
     controller = browserlib.get_browser_controller(browser=browser)
 
     comms_handle = None
     shown = False
 
     if state.notebook:
-        comms_handle = _show_notebook_with_state(obj, state)
+        comms_handle = _show_notebook_with_state(obj, state, notebook_handle)
         shown = True
 
     elif state.server_enabled:
@@ -327,33 +337,19 @@ def _show_file_with_state(obj, state, new, controller):
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=_new_param[new])
 
-_NB_LOAD_WARNING = """
-
-BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this
-may be due to a slow or bad network connection. Possible fixes:
-
-* ALWAYS run `output_notebook()` in a cell BY ITSELF, AT THE TOP, with no other code
-* re-rerun `output_notebook()` to attempt to load from CDN again, or
-* use INLINE resources instead, as so:
-
-    from bokeh.resources import INLINE
-    output_notebook(resources=INLINE)
-"""
-
-def _show_notebook_with_state(obj, state):
+def _show_notebook_with_state(obj, state, notebook_handle):
     if state.server_enabled:
         push(state=state)
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        if not _nb_loaded:
-            warnings.warn(_NB_LOAD_WARNING)
-            return
-        comms_target = make_id()
+        comms_target = make_id() if notebook_handle else None
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
-        handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
-        state.last_comms_handle = handle
-        return handle
+        if comms_target:
+            handle = _CommsHandle(get_comms(comms_target), state.document,
+                                  state.document.to_json())
+            state.last_comms_handle = handle
+            return handle
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
@@ -529,8 +525,19 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
                     document=document, io_loop=io_loop)
 
 def push_notebook(document=None, state=None, handle=None):
-    ''' Update the last-shown plot in a Jupyter notebook with the new data
+    ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
+
+    When working the the notebook, the ``show`` function can be passed the
+    argument ``notebook_handle=True``, which will cause it to return a
+    handle object that can be used to update the Bokeh output later. When
+    ``push_notebook`` is called, any property updates (e.g. plot titles or
+    data source values, etc.) since the last call to ``push_notebook`` or
+    the original ``show`` call are applied to the Bokeh output in the
+    previously rendered Jupyter output cell.
+
+    Several example notebooks can be found in the GitHub repository in
+    the :bokeh-tree:`examples/howto/notebook_comms` directory.
 
     Args:
 
@@ -550,23 +557,26 @@ def push_notebook(document=None, state=None, handle=None):
 
         .. code-block:: python
 
-            from bokeh.io import push_notebook
+            from bokeh.plotting import figure
+            from bokeh.io import output_notebook, push_notebook, show
 
-            # code to create a plot
+            output_notebook()
 
-            show(plot)
+            plot = figure()
+            plot.circle([1,2,3], [4,6,5])
 
+            handle = show(plot, notebook_handle=True)
+
+            # Update the plot title in the earlier cell
             plot.title = "New Title"
-
-            # This will cause the title to update
-            push_notebook()
+            push_notebook(handle)
 
     '''
     if state is None:
         state = _state
 
     if state.server_enabled:
-        raise RuntimeError("output_server() has been called, use push() to push to server")
+        raise RuntimeError("output_server() has been called, which is incompatible with push_notebook")
 
     if not document:
         document = state.document
@@ -579,7 +589,7 @@ def push_notebook(document=None, state=None, handle=None):
         handle = state.last_comms_handle
 
     if not handle:
-        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
+        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 
     to_json = document.to_json()
@@ -587,6 +597,7 @@ def push_notebook(document=None, state=None, handle=None):
         msg = dict(doc=to_json)
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
+
     handle.comms.send(json.dumps(msg))
     handle.update(document, to_json)
 
@@ -611,20 +622,20 @@ def _push_or_save(obj):
     if _state.file and _state.autosave:
         save(obj)
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.hplot()', 'bokeh.models.layouts.Row')
     layout = Row(children=list(children), **kwargs)
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.vplot()', 'bokeh.models.layouts.Column')
     layout = Column(children=list(children), **kwargs)
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.vform()', 'bokeh.models.layouts.WidgetBox')
     # Returning a VBoxForm, because it has helpers so that
     # Bokeh deprecates gracefully.
     return VBoxForm(*children, **kwargs)

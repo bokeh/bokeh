@@ -276,6 +276,16 @@ just the x-axis or just the y-axis by setting the ``dimensions`` property to
 a list containing ``width`` or ``height``. Additionally, there are tool aliases
 ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
+WheelPanTool
+'''''''''''''
+
+* name: ``'xwheel_pan'``, ``'ywheel_pan'``
+* icon: |wheel_pan_icon|
+
+The wheel pan tool will translate the plot window along the specified
+dimension without changing the window's aspect ratio. The tool will respect any
+min and max values and ranges preventing panning beyond these values.
+
 .. _userguide_tools_actions:
 
 Actions
@@ -316,6 +326,34 @@ SaveTool
 
 The save tool pops up a modal dialog that allows the user to save a PNG image
 of the plot.
+
+ZoomInTool
+''''''''''
+
+* name: ``'zoom_in'``, ``'xzoom_in'``, ``'yzoom_in'``
+* icon: |zoom_in_icon|
+
+The zoom-in tool will increase the zoom of the plot. It will respect any min and max
+values and ranges preventing zooming in and out beyond these.
+
+It is also possible to constraint the wheel zoom tool to only act on either
+just the x-axis or just the y-axis by setting the ``dimensions`` property to
+a list containing ``width`` or ``height``. Additionally, there are tool aliases
+``'xzoom_in'`` and ``'yzoom_in'``, respectively.
+
+ZoomOutTool
+'''''''''''
+
+* name: ``'zoom_out'``, ``'xzoom_out'``, ``'yzoom_out'``
+* icon: |zoom_out_icon|
+
+The zoom-out tool will decrease the zoom level of the plot. It will respect any min and
+max values and ranges preventing zooming in and out beyond these.
+
+It is also possible to constraint the wheel zoom tool to only act on either
+just the x-axis or just the y-axis by setting the ``dimensions`` property to
+a list containing ``width`` or ``height``. Additionally, there are tool aliases
+``'xzoom_in'`` and ``'yzoom_in'``, respectively.
 
 .. _userguide_tools_inspectors:
 
@@ -495,5 +533,11 @@ LOD behavior:
     :height: 14pt
 .. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt
+.. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
+    :height: 14pt
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
+    :height: 14pt
+.. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+    :height: 14pt
+.. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt

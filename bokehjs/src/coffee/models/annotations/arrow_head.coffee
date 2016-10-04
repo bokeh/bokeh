@@ -1,5 +1,6 @@
 Annotation = require "./annotation"
 Renderer = require "../renderers/renderer"
+{Visuals} = require "../../core/visuals"
 p = require "../../core/properties"
 
 class ArrowHead extends Annotation.Model
@@ -7,11 +8,7 @@ class ArrowHead extends Annotation.Model
 
   initialize: (options) ->
     super(options)
-    @visuals = {}
-    for spec in @mixins
-      [name, prefix] = spec.split(":")
-      prefix ?= ""
-      @visuals[prefix+name] = new Renderer.Visuals[name]({obj: @, prefix: prefix})
+    @visuals = new Visuals(@)
 
   render: (ctx, i) ->
     null
@@ -20,12 +17,12 @@ class OpenHead extends ArrowHead
   type: 'OpenHead'
 
   render: (ctx, i) ->
-    if @visuals["line"].doit
-      @visuals["line"].set_vectorize(ctx, i)
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.stroke()
 
   @mixins ['line']
@@ -38,21 +35,21 @@ class NormalHead extends ArrowHead
   type: 'NormalHead'
 
   render: (ctx, i) ->
-    if @visuals["fill"].doit
-      @visuals["fill"].set_vectorize(ctx, i)
+    if @visuals.fill.doit
+      @visuals.fill.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.closePath()
       ctx.fill()
 
-    if @visuals["line"].doit
-      @visuals["line"].set_vectorize(ctx, i)
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.closePath()
       ctx.stroke()
 
@@ -70,23 +67,23 @@ class VeeHead extends ArrowHead
   type: 'VeeHead'
 
   render: (ctx, i) ->
-    if @visuals["fill"].doit
-      @visuals["fill"].set_vectorize(ctx, i)
+    if @visuals.fill.doit
+      @visuals.fill.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
-      ctx.lineTo(0, 0.5*@get("size"))
+      ctx.lineTo(-0.5*@size, @size)
+      ctx.lineTo(0, 0.5*@size)
       ctx.closePath()
       ctx.fill()
 
-    if @visuals["line"].doit
-      @visuals["line"].set_vectorize(ctx, i)
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
-      ctx.lineTo(0, 0.5*@get("size"))
+      ctx.lineTo(-0.5*@size, @size)
+      ctx.lineTo(0, 0.5*@size)
       ctx.closePath()
       ctx.stroke()
 

@@ -5,16 +5,14 @@ $2 = require "jquery-ui/spinner"
 
 p = require "../../core/properties"
 
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
 
-Widget = require "./widget"
-
-class CellEditor extends Model
-
-class CellEditorView extends Widget.View
+class CellEditorView extends BokehView
 
   tagName: "div"
-  className: "bk-cell-editor"
+  attributes:
+    class: "bk-cell-editor"
 
   input: null
 
@@ -22,9 +20,9 @@ class CellEditorView extends Widget.View
   defaultValue: null
 
   initialize: (args) ->
-    super({})
     @args = args
     @model = @args.column.editor
+    super()
     @render()
 
   render: () ->
@@ -86,6 +84,10 @@ class CellEditorView extends Widget.View
 
   validate: () -> return @validateValue(@getValue())
 
+class CellEditor extends Model
+  type: "CellEditor"
+  default_view: CellEditorView
+
 class StringEditorView extends CellEditorView
 
   emptyValue: ""
@@ -93,7 +95,7 @@ class StringEditorView extends CellEditorView
   input: '<input type="text" />'
 
   renderEditor: () ->
-    completions = @model.get("completions")
+    completions = @model.completions
     if not _.isEmpty(completions)
       @$input.autocomplete(source: completions)
       @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
@@ -122,7 +124,7 @@ class SelectEditorView extends CellEditorView
   input: '<select />'
 
   renderEditor: () ->
-    for option in @model.get("options")
+    for option in @model.options
       @$input.append($('<option>').attr(value: option).text(option))
     @focus()
 
@@ -165,7 +167,7 @@ class IntEditorView extends CellEditorView
   input: '<input type="text" />'
 
   renderEditor: () ->
-    @$input.spinner(step: @model.get("step"))
+    @$input.spinner(step: @model.step)
     @$input.focus().select()
 
   remove: () ->
@@ -198,7 +200,7 @@ class NumberEditorView extends CellEditorView
   input: '<input type="text" />'
 
   renderEditor: () ->
-    @$input.spinner(step: @model.get("step"))
+    @$input.spinner(step: @model.step)
     @$input.focus().select()
 
   remove: () ->

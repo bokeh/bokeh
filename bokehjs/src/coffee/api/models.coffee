@@ -9,6 +9,7 @@ module.exports = {
   Label:                                  require("../models/annotations/label").Model
   LabelSet:                               require("../models/annotations/label_set").Model
   Legend:                                 require("../models/annotations/legend").Model
+  LegendItem:                             require("../models/annotations/legend_item").Model
   PolyAnnotation:                         require("../models/annotations/poly_annotation").Model
   Span:                                   require("../models/annotations/span").Model
   Title:                                  require("../models/annotations/title").Model
@@ -43,6 +44,7 @@ module.exports = {
   Annulus:                                require("../models/glyphs/annulus").Model
   Arc:                                    require("../models/glyphs/arc").Model
   Bezier:                                 require("../models/glyphs/bezier").Model
+  Circle:                                 require("../models/glyphs/circle").Model
   Ellipse:                                require("../models/glyphs/ellipse").Model
   ImageRGBA:                              require("../models/glyphs/image_rgba").Model
   Image:                                  require("../models/glyphs/image").Model
@@ -59,7 +61,6 @@ module.exports = {
   Segment:                                require("../models/glyphs/segment").Model
   Text:                                   require("../models/glyphs/text").Model
   Wedge:                                  require("../models/glyphs/wedge").Model
-  Gear:                                   require("../models/glyphs/gear").Model
 
   ## api/typings/models/grids.d.ts
   Grid:                                   require("../models/grids/grid").Model
@@ -82,20 +83,18 @@ module.exports = {
   LinearColorMapper:                      require("../models/mappers/linear_color_mapper").Model
 
   ## api/typings/models/markers.d.ts
-  Marker:                                 require("../models/markers/marker").Model
-  Asterisk:                               require("../models/markers/asterisk").Model
-  Circle:                                 require("../models/glyphs/circle").Model
-  CircleCross:                            require("../models/markers/circle_cross").Model
-  CircleX:                                require("../models/markers/circle_x").Model
-  Cross:                                  require("../models/markers/cross").Model
-  Diamond:                                require("../models/markers/diamond").Model
-  DiamondCross:                           require("../models/markers/diamond_cross").Model
-  InvertedTriangle:                       require("../models/markers/inverted_triangle").Model
-  Square:                                 require("../models/markers/square").Model
-  SquareCross:                            require("../models/markers/square_cross").Model
-  SquareX:                                require("../models/markers/square_x").Model
-  Triangle:                               require("../models/markers/triangle").Model
-  X:                                      require("../models/markers/x").Model
+  Asterisk:                               require('../models/markers/index').Asterisk.Model
+  CircleCross:                            require('../models/markers/index').CircleCross.Model
+  CircleX:                                require('../models/markers/index').CircleX.Model
+  Cross:                                  require('../models/markers/index').Cross.Model
+  Diamond:                                require('../models/markers/index').Diamond.Model
+  DiamondCross:                           require('../models/markers/index').DiamondCross.Model
+  InvertedTriangle:                       require('../models/markers/index').InvertedTriangle.Model
+  Square:                                 require('../models/markers/index').Square.Model
+  SquareCross:                            require('../models/markers/index').SquareCross.Model
+  SquareX:                                require('../models/markers/index').SquareX.Model
+  Triangle:                               require('../models/markers/index').Triangle.Model
+  X:                                      require('../models/markers/index').X.Model
 
   ## api/typings/models/model.d.ts
   Model:                                  require("../model").Model

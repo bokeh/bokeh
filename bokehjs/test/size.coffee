@@ -9,10 +9,9 @@ console.log(build_dir)
 LIMITS = {
   "css/bokeh-widgets.min.css": 527
   "css/bokeh.min.css":         74
-  "js/bokeh-compiler.min.js":  178
   "js/bokeh-widgets.min.js":   290
-  "js/bokeh-api.min.js":        40
-  "js/bokeh.min.js":           918
+  "js/bokeh-api.min.js":        70
+  "js/bokeh.min.js":           780
 }
 
 for filename, maxsize of LIMITS

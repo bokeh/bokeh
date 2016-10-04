@@ -34,4 +34,5 @@ NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
 NOTEBOOK_DIV = _env.get_template("notebook_div.html")
 
 AUTOLOAD_JS = _env.get_template("autoload_js.js")
+AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
 AUTOLOAD_TAG = _env.get_template("autoload_tag.html")

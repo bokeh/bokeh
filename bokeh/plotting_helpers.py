@@ -1,5 +1,5 @@
-from bokeh.util.deprecate import deprecated_module
-deprecated_module('bokeh.plotting_helpers', '0.11', 'use bokeh.plotting.helpers instead')
-del deprecated_module
+from bokeh.util.deprecation import deprecated
+deprecated((0, 11, 0), 'bokeh.plotting_helpers', 'bokeh.plotting.helpers')
+del deprecated
 
 from .plotting.helpers import * # NOQA

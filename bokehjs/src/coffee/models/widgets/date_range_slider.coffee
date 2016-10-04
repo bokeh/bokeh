@@ -18,9 +18,9 @@ class DateRangeSliderView extends InputWidget.View
     super()
     @$el.empty()
 
-    [value_min, value_max] = @mget("value")
-    [range_min, range_max] = @mget("range")
-    [bounds_min, bounds_max] = @mget("bounds")
+    [value_min, value_max] = @model.value
+    [range_min, range_max] = @model.range
+    [bounds_min, bounds_max] = @model.bounds
 
     @$el.dateRangeSlider({
       defaultValues: { min: new Date(value_min), max: new Date(value_max) },
@@ -29,18 +29,18 @@ class DateRangeSliderView extends InputWidget.View
           min: if _.isObject(range_min) then range_min else false,
           max: if _.isObject(range_max) then range_max else false,
       },
-      step: @mget("step") or {},
+      step: @model.step or {},
       # formatter
       # scales
-      enabled: @mget("enabled"),
-      arrows: @mget("arrows"),
-      valueLabels: @mget("value_labels"),
-      wheelMode: @mget("wheel_mode"),
+      enabled: @model.enabled,
+      arrows: @model.arrows,
+      valueLabels: @model.value_labels,
+      wheelMode: @model.wheel_mode,
     })
 
     @$el.on "userValuesChanged", (event, data) =>
-      @mset('value', [data.values.min, data.values.max])
-      @mget('callback')?.execute(@model)
+      @model.value = [data.values.min, data.values.max]
+      @model.callback?.execute(@model)
 
     return @
 

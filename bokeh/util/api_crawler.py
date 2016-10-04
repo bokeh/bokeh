@@ -138,6 +138,7 @@ class Differ(object):
         self.latter = latter
         self._additions = False
         self._operation = self.diff_operation
+        self.parsed_signature_diff = []
 
     @property
     def additions(self):

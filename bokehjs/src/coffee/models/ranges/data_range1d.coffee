@@ -24,39 +24,34 @@ class DataRange1d extends DataRange.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('min',
-        () -> Math.min(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('min', this, ['start', 'end'])
-
-    @define_computed_property('max',
-        () -> Math.max(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('max', this, ['start', 'end'])
-
     @plot_bounds = {}
 
     @have_updated_interactively = false
-    @_initial_start = @get('start')
-    @_initial_end = @get('end')
-    @_initial_range_padding = @get('range_padding')
-    @_initial_follow = @get('follow')
-    @_initial_follow_interval = @get('follow_interval')
-    @_initial_default_span = @get('default_span')
+    @_initial_start = @start
+    @_initial_end = @end
+    @_initial_range_padding = @range_padding
+    @_initial_follow = @follow
+    @_initial_follow_interval = @follow_interval
+    @_initial_default_span = @default_span
+
+  @getters {
+    min: () -> Math.min(@start, @end)
+    max: () -> Math.max(@start, @end)
+  }
 
   computed_renderers: () ->
     # TODO (bev) check that renderers actually configured with this range
-    names = @get('names')
-    renderers = @get('renderers')
+    names = @names
+    renderers = @renderers
 
     if renderers.length == 0
-      for plot in @get('plots')
-        all_renderers = plot.get('renderers')
+      for plot in @plots
+        all_renderers = plot.renderers
         rs = (r for r in all_renderers when r.type == "GlyphRenderer")
         renderers = renderers.concat(rs)
 
     if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+      renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
 
     logger.debug("computed #{renderers.length} renderers for DataRange1d #{@id}")
     for r in renderers
@@ -86,11 +81,11 @@ class DataRange1d extends DataRange.Model
     return [min, max]
 
   _compute_range: (min, max) ->
-    range_padding = @get('range_padding')
+    range_padding = @range_padding
     if range_padding? and range_padding > 0
 
       if max == min
-        span = @get('default_span')
+        span = @default_span
       else
         span = (max-min)*(1+range_padding)
 
@@ -101,15 +96,15 @@ class DataRange1d extends DataRange.Model
       [start, end] = [min, max]
 
     follow_sign = +1
-    if @get('flipped')
+    if @flipped
       [start, end] = [end, start]
       follow_sign = -1
 
-    follow_interval = @get('follow_interval')
+    follow_interval = @follow_interval
     if follow_interval? and Math.abs(start-end) > follow_interval
-      if @get('follow') == 'start'
+      if @follow == 'start'
         end = start + follow_sign*follow_interval
-      else if @get('follow') == 'end'
+      else if @follow == 'end'
         start = end - follow_sign*follow_interval
 
     return [start, end]
@@ -135,21 +130,21 @@ class DataRange1d extends DataRange.Model
       end = @_initial_end
 
     # only trigger updates when there are changes
-    [_start, _end] = [@get('start'), @get('end')]
+    [_start, _end] = [@start, @end]
     if start != _start or end != _end
       new_range = {}
       if start != _start
         new_range.start = start
       if end != _end
         new_range.end = end
-      @set(new_range)
+      @setv(new_range)
 
-    if @get('bounds') == 'auto'
-      @set('bounds', [start, end])
+    if @bounds == 'auto'
+      @bounds = [start, end]
 
   reset: () ->
     @have_updated_interactively = false
-    @set({
+    @setv({
       range_padding: @_initial_range_padding
       follow: @_initial_follow
       follow_interval: @_initial_follow_interval

@@ -61,18 +61,22 @@ from importlib import import_module
 import inspect
 import numbers
 import re
+import sys
 import types
 from warnings import warn
+from operator import itemgetter
 
-from six import string_types, iteritems
+from six import string_types, iteritems, StringIO
 
 from ..util.dependencies import import_optional
+from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 from . import enums
 
 pd = import_optional('pandas')
+IPython = import_optional('IPython')
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -702,6 +706,18 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for name, value in properties.items():
             setattr(self, name, value)
 
+    def equals(self, other):
+        """ Structural equality of models. """
+        # NOTE: don't try to use this to implement __eq__. Because then
+        # you will be tempted to implement __hash__, which would interfere
+        # with mutability of models. However, not implementing __hash__
+        # will make bokeh unusable in Python 3, where proper implementation
+        # of __hash__ is required when implementing __eq__.
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.properties_with_values() == other.properties_with_values()
+
     def __setattr__(self, name, value):
         # self.properties() below can be expensive so avoid it
         # if we're just setting a private underscore field
@@ -905,10 +921,62 @@ class HasProps(with_metaclass(MetaHasProps, object)):
     def unapply_theme(self):
         self.apply_theme(property_values=dict())
 
-    def pprint_props(self, indent=0):
-        """ Prints the properties of this object, nicely formatted """
-        for key, value in self.properties_with_values().items():
-            print("%s%s: %r" % ("  "*indent, key, value))
+    def __str__(self):
+        return "%s(...)" % self.__class__.__name__
+
+    __repr__ = __str__
+
+    def _bokeh_repr_pretty_(self, p, cycle):
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+
+        if cycle:
+            p.text("%s(...)" % name)
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=itemgetter(0))
+                all_props = sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
+
+    def pretty(self, verbose=False, max_width=79, newline='\n'):
+        """ Pretty print the object's representation. """
+        if not IPython:
+            cls = self.__class.__
+            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
+        else:
+            stream = StringIO()
+            printer = BokehPrettyPrinter(stream, verbose, max_width, newline)
+            printer.pretty(self)
+            printer.flush()
+            return stream.getvalue()
+
+    def pprint(self, verbose=False, max_width=79, newline='\n'):
+        """ Like `pretty` but print to stdout. """
+        if not IPython:
+            cls = self.__class.__
+            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
+        else:
+            printer = BokehPrettyPrinter(sys.stdout, verbose, max_width, newline)
+            printer.pretty(self)
+            printer.flush()
+            sys.stdout.write(newline)
+            sys.stdout.flush()
+
+if IPython:
+    from IPython.lib.pretty import RepresentationPrinter
+
+    class BokehPrettyPrinter(RepresentationPrinter):
+        def __init__(self, output, verbose=False, max_width=79, newline='\n'):
+            super(BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
+            self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._bokeh_repr_pretty_(p, cycle)
 
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.
@@ -1025,12 +1093,18 @@ class ContainerProperty(ParameterizedPropertyDescriptor):
         return False
 
 class Seq(ContainerProperty):
-    """ Sequence (list, tuple) type property.
+    """ An ordered sequence of values (list, tuple, (nd)array). """
 
-    """
+    @classmethod
+    def _is_seq(cls, value):
+        return ((isinstance(value, collections.Sequence) or cls._is_seq_like(value)) and
+                not isinstance(value, string_types))
 
-    def _is_seq(self, value):
-        return isinstance(value, collections.Container) and not isinstance(value, collections.Mapping)
+    @classmethod
+    def _is_seq_like(cls, value):
+        return (isinstance(value, (collections.Container, collections.Sized, collections.Iterable))
+                and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
+                and not isinstance(value, collections.Mapping))
 
     def _new_instance(self, value):
         return value
@@ -1079,6 +1153,7 @@ class List(Seq):
         # optional values. Also in Dict.
         super(List, self).__init__(item_type, default=default, help=help)
 
+    @classmethod
     def _is_seq(self, value):
         return isinstance(value, list)
 
@@ -1087,6 +1162,7 @@ class Array(Seq):
 
     """
 
+    @classmethod
     def _is_seq(self, value):
         import numpy as np
         return isinstance(value, np.ndarray)
@@ -1223,7 +1299,7 @@ class Instance(PropertyDescriptor):
                 attrs = {}
 
                 for name, value in iteritems(json):
-                    prop = self.instance_type.lookup(name)
+                    prop = self.instance_type.lookup(name).descriptor
                     attrs[name] = prop.from_json(value, models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()
@@ -1725,9 +1801,8 @@ class FontSizeSpec(DataSpec):
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, string_types):
-            warn('Setting a fixed font size value as a string %r is deprecated, '
-                 'set with value(%r) or [%r] instead' % (value, value, value),
-                 DeprecationWarning, stacklevel=2)
+            deprecated('Setting a fixed font size value as a string %r is deprecated, '
+                       'set with value(%r) or [%r] instead' % (value, value, value))
             if len(value) > 0 and value[0].isdigit():
                 value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
@@ -1923,7 +1998,7 @@ class TitleProp(Either):
     def transform(self, value):
         if isinstance(value, str):
             from bokeh.models.annotations import Title
-            warn("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
+            deprecated("""Setting Plot property 'title' using a string was deprecated in 0.12.0,
             and will be removed. The title is now an object on Plot (which holds all of it's
             styling properties). Please use Plot.title.text instead.
 

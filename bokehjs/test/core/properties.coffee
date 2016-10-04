@@ -73,12 +73,12 @@ describe "properties module", ->
       it "should set undefined property attr value to null if no default is given", ->
         obj = new SomeHasProps(a: {})
         p = new properties.Property({obj: obj, attr: 'b'})
-        expect(obj.get('b')).to.be.equal null
+        expect(obj.b).to.be.equal null
 
       #it "should set undefined property attr value if a default is given", ->
       #  obj = new SomeHasProps(a: {})
       #  p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
-      #  expect(obj.get('b')).to.be.equal 10
+      #  expect(obj.b).to.be.equal 10
 
       # it "should throw an Error for missing specifications", ->
       #   fn = ->
@@ -104,17 +104,6 @@ describe "properties module", ->
       it "should set a value spec for non-object attr values", ->
         p = new properties.Property({obj: new SomeHasProps(a: 10), attr: 'a'})
         expect(p.spec).to.be.deep.equal {value: 10}
-
-    describe "re-setting obj and attr properties", ->
-      it "should throw an Error", ->
-        prop = new properties.Property({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
-        fn = ->
-          prop.set('obj', new SomeHasProps(a: {value: 20}))
-        expect(fn).to.throw Error, "attempted to reset 'obj' on Property"
-        fn = ->
-          prop.set('attr', 'b')
-        expect(fn).to.throw Error, "attempted to reset 'attr' on Property"
-
 
     describe "value", ->
       it "should return a value if there is a value spec", ->
@@ -249,13 +238,13 @@ describe "properties module", ->
         prop = new properties.Property({obj: obj, attr: 'a'})
         stuff = {called: false}
         prop.listenTo(prop, 'change', () -> stuff.called = true)
-        obj.set('a', {value: "bar"})
+        obj.a = {value: "bar"}
         expect(stuff.called).to.be.true
 
       it "should update the spec", ->
         obj = new SomeHasProps(a: {value: "foo"})
         prop = new properties.Property({obj: obj, attr: 'a'})
-        obj.set('a', {value: "bar"})
+        obj.a = {value: "bar"}
         expect(prop.spec).to.be.deep.equal {value: "bar"}
 
   describe "Anchor", ->

@@ -1,6 +1,5 @@
 _ = require "underscore"
-Backbone = require "backbone"
-
+{Events} = require "./events"
 enums = require "./enums"
 svg_colors = require "./util/svg_colors"
 {valid_rgb} = require "./util/color"
@@ -9,29 +8,19 @@ svg_colors = require "./util/svg_colors"
 # Property base class
 #
 
-class Property extends Backbone.Model
+class Property
+  _.extend(@prototype, Events)
 
   dataspec: false
   specifiers: ['field', 'value']
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
+  constructor: ({@obj, @attr, @default_value}) ->
     @_init(false)
 
-    obj = @get('obj')
-    attr = @get('attr')
-
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(obj, "change:#{attr}", () ->
+    @listenTo(@obj, "change:#{@attr}", () =>
       @_init()
-      obj.trigger("propchange")
-    )
-    @listenTo(@, "change:obj", () ->
-      throw new Error("attempted to reset 'obj' on Property")
-    )
-    @listenTo(@, "change:attr", () ->
-      throw new Error("attempted to reset 'attr' on Property")
+      @obj.trigger("propchange")
     )
 
   update: () -> @_init()
@@ -57,7 +46,7 @@ class Property extends Backbone.Model
   array: (source) ->
     if not @dataspec
       throw new Error("attempted to retrieve property array for non-dataspec property")
-    data = source.get('data')
+    data = source.data
     if @spec.field?
       if @spec.field of data
         ret = @transform(source.get_column(@spec.field))
@@ -76,7 +65,7 @@ class Property extends Backbone.Model
   # ----- private methods
 
   _init: (trigger=true) ->
-    obj = @get('obj')
+    obj = @obj
     if not obj?
       throw new Error("missing property object")
 
@@ -84,14 +73,14 @@ class Property extends Backbone.Model
     if not obj.properties?
       throw new Error("property object must be a HasProps")
 
-    attr = @get('attr')
+    attr = @attr
     if not attr?
       throw new Error("missing property attr")
 
-    attr_value = obj.get(attr)
+    attr_value = obj.getv(attr)
 
     if _.isUndefined(attr_value)
-      default_value = @get('default_value')
+      default_value = @default_value
 
       attr_value = switch
         when _.isUndefined(default_value) then null
@@ -99,7 +88,7 @@ class Property extends Backbone.Model
         when _.isFunction(default_value)  then default_value(obj)
         else                                   default_value
 
-      obj.set(attr, attr_value, {silent: true, defaults: true})
+      obj.setv(attr, attr_value, {silent: true, defaults: true})
 
     # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
     #   @spec = attr_value
@@ -133,11 +122,10 @@ class Property extends Backbone.Model
 
 simple_prop = (name, pred) ->
   class Prop extends Property
-    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     validate: (value) ->
       if not pred(value)
-        attr = @get('attr')
-        throw new Error("#{name} property '#{attr}' given invalid value: #{value}")
+        throw new Error("#{name} property '#{@attr}' given invalid value: #{value}")
 
 class Any extends simple_prop("Any", (x) -> true)
 
@@ -154,6 +142,10 @@ class Instance extends simple_prop("Instance", (x) -> x.properties?)
 # TODO (bev) separate booleans?
 class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
 
+# TODO extend Number instead of copying it's predicate
+#class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
+class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
+
 class String extends simple_prop("String", _.isString)
 
 # TODO (bev) don't think this exists python side
@@ -166,7 +158,7 @@ class Font extends String
 
 enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
-    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
 
 class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
@@ -182,6 +174,8 @@ class Direction extends enum_prop("Direction", enums.Direction)
     return result
 
 class Dimension extends enum_prop("Dimension", enums.Dimension)
+
+class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
 
 class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
@@ -217,7 +211,7 @@ class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformSt
 
 units_prop = (name, valid_units, default_units) ->
   class UnitsProp extends Number
-    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     init: () ->
       if not @spec.units?
         @spec.units = default_units
@@ -279,6 +273,7 @@ module.exports =
   Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
+  Dimensions: Dimensions
   Direction: Direction
   Distance: Distance
   Font: Font
@@ -289,6 +284,7 @@ module.exports =
   LineJoin: LineJoin
   Location: Location
   Number: Number
+  Percent: Percent
   Int: Number                     # TODO
   Orientation: Orientation
   RenderLevel: RenderLevel

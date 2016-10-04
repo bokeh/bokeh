@@ -20,7 +20,9 @@ def version_update(version, filename):
         print("ERROR: Unable to find version string to replace in %s" % filename)
         sys.exit(1)
 
-    old_version = match.group(3) + match.group(4)
+    old_version = match.group(3)
+    if match.group(4) is not None:
+        old_version += match.group(4)
 
     text = re.sub(pat, r'\g<1>\g<2>%s\g<6>' % version, text)
 

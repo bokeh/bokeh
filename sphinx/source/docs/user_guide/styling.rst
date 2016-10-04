@@ -217,7 +217,7 @@ plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
 For more precise control over how the plot scales to fill its container,
-see the documentation on the :ref:`~bokeh.models.layouts.LayoutDOM.sizing_mode` parameter.
+see the documentation on the :ref:`bokeh.models.layouts.LayoutDOM.sizing_mode` parameter.
 
 .. warning::
     This feature is known not to work when combined with HBox.
@@ -805,8 +805,9 @@ spacing, etc. of the legend components:
 .. bokeh-prop:: bokeh.models.annotations.Legend.label_height
 .. bokeh-prop:: bokeh.models.annotations.Legend.glyph_width
 .. bokeh-prop:: bokeh.models.annotations.Legend.glyph_height
-.. bokeh-prop:: bokeh.models.annotations.Legend.legend_padding
-.. bokeh-prop:: bokeh.models.annotations.Legend.legend_spacing
+.. bokeh-prop:: bokeh.models.annotations.Legend.padding
+.. bokeh-prop:: bokeh.models.annotations.Legend.spacing
+.. bokeh-prop:: bokeh.models.annotations.Legend.margin
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_dimensions.py
     :source-position: above
