@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import input
 
 import flask
 import os
@@ -54,7 +55,7 @@ def shutdown_server():
 
 def ui():
     time.sleep(0.5)
-    raw_input("Press <ENTER> to exit...\n")
+    input("Press <ENTER> to exit...\n")
 
 
 if __name__ == "__main__":
