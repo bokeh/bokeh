@@ -27,7 +27,6 @@ def import_optional(mod_name):
     except Exception:
         msg = "Failed to import optional module `{}`".format(mod_name)
         logger.exception(msg)
-        
 
 def import_required(mod_name, error_msg):
     ''' Attempt to import a required dependency.
