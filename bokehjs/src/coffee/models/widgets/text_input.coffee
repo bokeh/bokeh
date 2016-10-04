@@ -1,7 +1,6 @@
 _ = require "underscore"
 
-build_views = require "../../common/build_views"
-
+build_views = require "../../core/build_views"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 

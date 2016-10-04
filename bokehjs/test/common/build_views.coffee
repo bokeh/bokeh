@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-build_views = utils.require "common/build_views"
+build_views = utils.require "core/build_views"
 
 describe "build_views", ->
   describe "jQueryUIPrefixer", ->

@@ -23,6 +23,10 @@
     for more information on how to obtain your own, to use for the
     ``api_key`` property of your Google Map plot .
 
+1006 : *NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS*
+    All data_sources on ``LegendItem.renderers`` must match when LegendItem.label
+    is type field.
+
 9999 : *EXT*
     Indicates that a custom error check has failed.
 
@@ -35,6 +39,7 @@ codes = {
     1003: ("NO_SOURCE_FOR_GLYPH",    "Glyph renderer has no data source"),
     1004: ("REQUIRED_RANGE",         "A required Range objects missing"),
     1005: ("MISSING_GOOGLE_API_KEY", "Google now requires API keys for all Google Maps usage"),
+    1006: ("NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS", "LegendItem.label is a field, but renderer data sources don't match"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

@@ -5,12 +5,18 @@ SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
 
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 p = require "../../core/properties"
-DOMUtil = require "../../util/dom_util"
 
 TableWidget = require "./table_widget"
 Widget = require "./widget"
+
+wait_for_element = (el, fn) ->
+  handler = () =>
+    if $.contains(document.documentElement, el)
+      clearInterval(interval)
+      fn()
+  interval = setInterval(handler, 50)
 
 class DataProvider
 
@@ -94,7 +100,7 @@ class DataTableView extends Widget.View
 
   initialize: (options) ->
     super(options)
-    DOMUtil.waitForElement(@el, () => @render())
+    wait_for_element(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
     source = @model.source
     @listenTo(source, 'change:data', () => @updateGrid())

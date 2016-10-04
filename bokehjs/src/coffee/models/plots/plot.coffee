@@ -7,7 +7,7 @@ p = require "../../core/properties"
 LayoutDOM = require "../layouts/layout_dom"
 Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
-ToolEvents = require "../../common/tool_events"
+ToolEvents = require "../tools/tool_events"
 PlotCanvas = require("./plot_canvas").Model
 
 ColumnDataSource = require "../sources/column_data_source"

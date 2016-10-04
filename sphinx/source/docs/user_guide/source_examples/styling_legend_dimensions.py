@@ -19,7 +19,8 @@ p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
 p.legend.label_standoff = 5
 p.legend.glyph_width = 50
-p.legend.legend_spacing = 10
-p.legend.legend_padding = 50
+p.legend.spacing = 10
+p.legend.padding = 50
+p.legend.margin = 50
 
 show(p)

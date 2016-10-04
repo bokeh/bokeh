@@ -3,7 +3,7 @@ rbush = require "rbush"
 
 Glyph = require "./glyph"
 CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 
 class QuadView extends Glyph.View
 
