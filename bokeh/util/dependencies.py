@@ -24,7 +24,7 @@ def import_optional(mod_name):
         return import_module(mod_name)
     except ImportError:
         pass
-    except Exception as e:
+    except Exception:
         msg = "Failed to import optional module `{}`".format(mod_name)
         logger.exception(msg)
         
