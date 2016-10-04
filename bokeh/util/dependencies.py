@@ -2,6 +2,11 @@
 
 '''
 from importlib import import_module
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 def import_optional(mod_name):
     ''' Attempt to import an optional dependency.
@@ -18,7 +23,10 @@ def import_optional(mod_name):
     try:
         return import_module(mod_name)
     except ImportError:
-        return None
+        pass
+    except Exception:
+        msg = "Failed to import optional module `{}`".format(mod_name)
+        logger.exception(msg)
 
 def import_required(mod_name, error_msg):
     ''' Attempt to import a required dependency.
