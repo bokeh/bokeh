@@ -30,4 +30,4 @@ Coffeescript for ion range slider:
 
 Eco template for ion range slider:
 
-.. literalinclude:: ../source_examples/extensions_ionrangeslidertemplate.eco
+.. literalinclude:: ../source_examples/extensions_ion_range_slider_template.eco
