@@ -704,7 +704,7 @@ property.
 Inside the Plot Area
 ''''''''''''''''''''
 
-For legends in the to the central layout area, such as those created
+For legends in the central layout area, such as those created
 automatically by ``bokeh.plotting``, values for ``location``  can be:
 
 ``"top_left"``
