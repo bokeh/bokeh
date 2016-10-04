@@ -241,7 +241,8 @@ module.exports =
 class IonRangeSlider(InputWidget):
     # The special class attribute ``__implementation__`` should contain a string
     # of JavaScript (or CoffeeScript) code that implements the JavaScript side
-    # of the custom extension model.
+    # of the custom extension model or a string name of a JavaScript (or
+    # CoffeeScript) file with the implementation.
 
     __implementation__ = ion_range_slider_coffee
     __javascript__ = ["https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js",
@@ -303,7 +304,8 @@ class IonRangeSlider(InputWidget):
 class JQueryRangeSlider(InputWidget):
     # The special class attribute ``__implementation__`` should contain a string
     # of JavaScript (or CoffeeScript) code that implements the JavaScript side
-    # of the custom extension model.
+    # of the custom extension model or a string name of a JavaScript (or
+    # CoffeeScript) file with the implementation.
 
     __implementation__ = jquery_ui_range_slider_coffee
 
