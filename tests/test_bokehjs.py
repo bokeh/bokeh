@@ -21,6 +21,7 @@ class TestBokehJS(unittest.TestCase):
                                 stdout=subprocess.PIPE)
         out, errs = proc.communicate()
         msg = out.decode('utf-8', errors='ignore')
+        os.chdir('..')
         print(msg)
         if proc.returncode != 0:
             assert False
