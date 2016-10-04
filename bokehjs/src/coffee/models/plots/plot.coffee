@@ -8,7 +8,7 @@ LayoutDOM = require "../layouts/layout_dom"
 Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
 ToolEvents = require "../tools/tool_events"
-UIEvents = require "../../core/ui_events"
+UIEvents = require "../events/ui_events"
 PlotCanvas = require("./plot_canvas").Model
 
 ColumnDataSource = require "../sources/column_data_source"

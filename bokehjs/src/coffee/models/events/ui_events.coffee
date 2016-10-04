@@ -3,9 +3,9 @@ $ = require "jquery"
 Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 
-Model = require "../model"
-p = require "./properties"
-{logger} = require "./logging"
+Model = require "../../model"
+p = require "../../core/properties"
+{logger} = require "../../core/logging"
 
 class UIEvents extends Model
   type: 'UIEvents'
@@ -62,10 +62,10 @@ class UIEvents extends Model
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    @hit_area.mousemove((e) => @_mouse_move(e))
-    @hit_area.mouseenter((e) => @_mouse_enter(e))
-    @hit_area.mouseleave((e) => @_mouse_exit(e))
-    @hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
+    hit_area.mousemove((e) => @_mouse_move(e))
+    hit_area.mouseenter((e) => @_mouse_enter(e))
+    hit_area.mouseleave((e) => @_mouse_exit(e))
+    hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
 

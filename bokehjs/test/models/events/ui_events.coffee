@@ -1,9 +1,9 @@
 {expect} = require "chai"
-utils = require "../utils"
+utils = require "../../utils"
 cheerio = require 'cheerio'
 sinon = require 'sinon'
 
-{UIEvents} = utils.require("core/ui_events").Model
+{UIEvents} = utils.require("models/events/ui_events").Model
 scroll = utils.require "models/tools/gestures/wheel_zoom_tool"
 
 describe "UIEvents", ->
