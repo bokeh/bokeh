@@ -69,8 +69,7 @@ class HoverToolView extends InspectTool.View
     hovered_renderers = []
 
     for r in @model.computed_renderers
-      sm = r.data_source.selection_manager
-      sm.inspect(@, @plot_view.renderer_views[r.id], geometry, {"geometry": geometry})
+      r.data_source.inspector.inspect(@, @plot_view.renderer_views[r.id], geometry)
 
     if @model.callback?
       @_emit_callback(geometry)

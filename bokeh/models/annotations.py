@@ -429,7 +429,7 @@ class Arrow(Annotation):
     The %s values for the arrow body.
     """)
 
-    source = Instance(DataSource, help="""
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 

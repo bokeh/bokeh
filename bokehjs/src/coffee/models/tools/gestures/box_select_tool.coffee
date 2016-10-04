@@ -6,9 +6,14 @@ p = require "../../../core/properties"
 
 class BoxSelectToolView extends SelectTool.View
 
+  _clear_overlay: () ->
+    @_basepoint = null
+    @model.overlay.update({left: null, right: null, top: null, bottom: null})
+    return null
+
   _pan_start: (e) ->
     canvas = @plot_view.canvas
-    @_baseboint = [
+    @_basepoint = [
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
@@ -23,7 +28,7 @@ class BoxSelectToolView extends SelectTool.View
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+    [vxlim, vylim] = @model._get_dim_limits(@_basepoint, curpoint, frame, dims)
     @model.overlay.update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
     if @model.select_every_mousemove
@@ -41,19 +46,15 @@ class BoxSelectToolView extends SelectTool.View
     frame = @plot_model.frame
     dims = @model.dimensions
 
-    [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+    [vxlim, vylim] = @model._get_dim_limits(@_basepoint, curpoint, frame, dims)
     append = e.srcEvent.shiftKey ? false
     @_select(vxlim, vylim, true, append)
-
-    @model.overlay.update({left: null, right: null, top: null, bottom: null})
-
-    @_baseboint = null
-
     @plot_view.push_state('box_select', {selection: @plot_view.get_selection()})
+    @_clear_overlay()
 
     return null
 
-  _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
+  _select: ([vx0, vx1], [vy0, vy1], final, append) ->
     geometry = {
       type: 'rect'
       vx0: vx0
@@ -62,38 +63,21 @@ class BoxSelectToolView extends SelectTool.View
       vy1: vy1
     }
 
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
+    if not append
+      @model._clear_current_selection()
+
+    for r in @model._get_selectable_renderers()
+      r.data_source.selector.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
+
+    cb_data = @model._get_cb_data(geometry)
 
     if @model.callback?
-      @_emit_callback(geometry)
+      @model._emit_callback(cb_data)
 
-    @_save_geometry(geometry, final, append)
+    if final
+      @model._save_geometry(cb_data, append)
 
     return null
-
-  _emit_callback: (geometry) ->
-    r = @model.computed_renderers[0]
-    canvas = @plot_model.canvas
-    frame = @plot_model.frame
-
-    geometry['sx0'] = canvas.vx_to_sx(geometry.vx0)
-    geometry['sx1'] = canvas.vx_to_sx(geometry.vx1)
-    geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
-    geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
-
-    xmapper = frame.x_mappers[r.x_range_name]
-    ymapper = frame.y_mappers[r.y_range_name]
-    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
-    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
-    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
-    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
-
-    @model.callback.execute(@model, {geometry: geometry})
-
-    return
 
 DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   level: "overlay"
@@ -121,7 +105,6 @@ class BoxSelectTool extends SelectTool.Model
   @define {
     dimensions:             [ p.Dimensions, "both"            ]
     select_every_mousemove: [ p. Bool,    false               ]
-    callback:               [ p.Instance                      ]
     overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ]
   }
 

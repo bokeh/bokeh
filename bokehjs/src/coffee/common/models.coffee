@@ -1,5 +1,4 @@
 module.exports = {
-  SelectionManager:         require './selection_manager'
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 

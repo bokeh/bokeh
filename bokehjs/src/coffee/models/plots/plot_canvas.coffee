@@ -273,7 +273,7 @@ class PlotCanvasView extends BokehView
     selection = []
     for renderer in @model.plot.renderers
       if renderer instanceof GlyphRenderer.Model
-        selected = renderer.data_source.selected
+        selected = renderer.data_source.selector.indices
         selection[renderer.id] = selected
     selection
 
@@ -284,9 +284,9 @@ class PlotCanvasView extends BokehView
       ds = renderer.data_source
       if selection?
         if renderer.id in selection
-          ds.selected = selection[renderer.id]
+          ds.selector.indices = selection[renderer.id]
       else
-        ds.selection_manager.clear()
+        ds.selector.clear()
 
   reset_selection: () ->
     @update_selection(null)

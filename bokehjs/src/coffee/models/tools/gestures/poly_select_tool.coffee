@@ -6,28 +6,18 @@ p = require "../../../core/properties"
 
 class PolySelectToolView extends SelectTool.View
 
-  initialize: (options) ->
-    super(options)
-    @listenTo(@model, 'change:active', @_active_change)
+  _clear_overlay: () ->
     @data = null
-
-  _active_change: () ->
-    if not @model.active
-      @_clear_data()
-
-  _keyup: (e) ->
-    if e.keyCode == 13
-      @_clear_data()
+    @model.overlay.update({xs:[], ys:[]})
+    retun null
 
   _doubletap: (e)->
     append = e.srcEvent.shiftKey ? false
     @_select(@data.vx, @data.vy, true, append)
+    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
+    @_clear_overlay()
 
-    @_clear_data()
-
-  _clear_data: () ->
-    @data = null
-    @model.overlay.update({xs:[], ys:[]})
+    return null
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -42,10 +32,9 @@ class PolySelectToolView extends SelectTool.View
     @data.vy.push(vy)
 
     overlay = @model.overlay
-    new_data = {}
-    new_data.vx = _.clone(@data.vx)
-    new_data.vy = _.clone(@data.vy)
     overlay.update({xs: @data.vx, ys: @data.vy})
+
+    return null
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -54,13 +43,19 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @model.computed_renderers
-      ds = r.data_source
-      sm = ds.selection_manager
-      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
+    if not append
+      @model._clear_current_selection()
 
-    @_save_geometry(geometry, final, append)
-    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
+    for r in @model._get_selectable_renderers()
+      r.data_source.selector.select(@, @plot_view.renderer_views[r.id], geometry, final, true)
+
+    cb_data = @model._get_cb_data(geometry)
+
+    if @model.callback?
+      @model._emit_callback(cb_data)
+
+    if final
+      @model._save_geometry(cb_data, append)
 
     return null
 

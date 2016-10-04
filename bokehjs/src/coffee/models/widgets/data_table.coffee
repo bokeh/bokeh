@@ -96,9 +96,9 @@ class DataTableView extends Widget.View
     super(options)
     DOMUtil.waitForElement(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
-    source = @model.source
-    @listenTo(source, 'change:data', () => @updateGrid())
-    @listenTo(source, 'change:selected', () => @updateSelection())
+    @listenTo(@model.source, 'change:data', () => @updateGrid())
+    @listenTo(@model.source, 'select',
+      (update=true) -> if update then @updateSelection())
 
   updateGrid: () ->
     @data.constructor(@model.source)
@@ -111,7 +111,7 @@ class DataTableView extends Widget.View
     @model.source.trigger('change')
 
   updateSelection: () ->
-    selected = @model.source.selected
+    selected = @model.source.selector.indices
     indices = selected['1d'].indices
     @grid.setSelectedRows(indices)
     # If the selection is not in the current slickgrid viewport, scroll the
@@ -180,14 +180,16 @@ class DataTableView extends Widget.View
       @grid.invalidate()
       @grid.render()
 
-    if @model.selectable != false
+    if @model.selectable
       @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
       if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
 
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = args.rows
-        @model.source.selected = selected
+        @model.source.selector._update(selected, false, true, true)
+        # trigger `select` event with 'false' arg to know not to updateSelection again
+        @model.source.trigger('select', false)
 
     return @
 
@@ -211,6 +213,7 @@ class DataTable extends TableWidget.Model
 
   @internal {
     default_width:        [ p.Number, 600   ]
+    selected:             [ p.Any,    []    ]
   }
 
 module.exports =

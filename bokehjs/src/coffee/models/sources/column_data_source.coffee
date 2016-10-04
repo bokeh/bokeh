@@ -2,7 +2,6 @@ _ = require "underscore"
 
 DataSource = require './data_source'
 hittest = require "../../common/hittest"
-SelectionManager = require "../../common/selection_manager"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -16,11 +15,6 @@ class ColumnDataSource extends DataSource.Model
       data:              [ p.Any,      {} ]
       column_names:      [ p.Array,    [] ]
     }
-
-  @internal {
-    selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
-    inspected:         [ p.Any ]
-  }
 
   get_column: (colname) ->
     return @data[colname] ? null

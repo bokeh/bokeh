@@ -7,7 +7,7 @@ from bokeh.models.annotations import (
     Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label, Title
 )
 from bokeh.models import (
-    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
+    ArrowHead, BasicTicker, BasicTickFormatter, ColumnDataSource, GlyphRenderer
 )
 
 from .utils.property_utils import (
@@ -122,7 +122,8 @@ def test_Arrow():
     assert arrow.y_end is None
     assert arrow.end_units == 'data'
     assert isinstance(arrow.end, ArrowHead)
-    assert arrow.source is None
+    assert isinstance(arrow.source, ColumnDataSource)
+    assert arrow.source.data == {}
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     check_line_properties(arrow)
