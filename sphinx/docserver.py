@@ -55,8 +55,10 @@ def shutdown_server():
 
 def ui():
     time.sleep(0.5)
-    input("Press <ENTER> to exit...\n")
-
+    try:
+        input("Press <ENTER> to exit...\n")
+    except (SyntaxError, KeyboardInterrupt) as e:
+        pass
 
 if __name__ == "__main__":
 
