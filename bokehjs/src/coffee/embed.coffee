@@ -1,6 +1,5 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "./core/backbone"
 {Promise} = require "es6-promise"
 
 base = require "./base"

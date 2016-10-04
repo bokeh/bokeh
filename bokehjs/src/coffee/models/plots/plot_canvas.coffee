@@ -8,7 +8,7 @@ GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 
 build_views = require "../../common/build_views"
-UIEvents = require "../../common/ui_events"
+{UIEvents} = require "../../common/ui_events"
 
 enums = require "../../core/enums"
 LayoutCanvas = require "../../core/layout/layout_canvas"
@@ -97,10 +97,7 @@ class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents({
-      toolbar: @model.toolbar
-      hit_area: @canvas_view.$el
-    })
+    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.$el)
 
     @levels = {}
     for level in enums.RenderLevel
