@@ -5,7 +5,7 @@ _ = require "underscore"
 # add some useful functions to underscore
 require("./core/util/underscore").patch()
 
-locations = require("./common/models")
+locations = require("./models/index")
 
 overrides = {}
 

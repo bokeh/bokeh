@@ -152,7 +152,7 @@ module.exports = {
   ToolbarBox:                             require("../models/tools/toolbar_box").Model
 
   ## api/typings/models/tools.d.ts
-  ToolEvents:                             require("../common/tool_events").Model
+  ToolEvents:                             require("../models/tools/tool_events").Model
   Tool:                                   require("../models/tools/tool").Model
   PanTool:                                require("../models/tools/gestures/pan_tool").Model
   WheelZoomTool:                          require("../models/tools/gestures/wheel_zoom_tool").Model

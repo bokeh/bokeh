@@ -3,8 +3,8 @@ $ = require "jquery"
 Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 
-{Events} = require "../core/events"
-{logger} = require "../core/logging"
+{Events} = require "./events"
+{logger} = require "./logging"
 
 class UIEvents
   _.extend(@prototype, Events)
