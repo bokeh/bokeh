@@ -1,5 +1,4 @@
 from __future__ import print_function
-from builtins import input
 
 import flask
 import os
@@ -57,7 +56,7 @@ def ui():
     time.sleep(0.5)
     try:
         input("Press <ENTER> to exit...\n")
-    except (SyntaxError, KeyboardInterrupt):
+    except:
         pass
 
 if __name__ == "__main__":
