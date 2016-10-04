@@ -25,7 +25,7 @@ license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
-eco = require '../eco'
+{eco} = require '../eco'
 ts = require 'gulp-typescript'
 
 {namedLabeler} = require "../labeler"

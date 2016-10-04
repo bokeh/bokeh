@@ -154,6 +154,12 @@ class JavaScript(Inline):
     def lang(self):
         return "javascript"
 
+class Eco(Inline):
+
+    @property
+    def lang(self):
+        return "eco"
+
 class Less(Inline):
 
     @property
@@ -173,6 +179,8 @@ class FromFile(Implementation):
             return "coffeescript"
         if self.file.endswith(".js"):
             return "javascript"
+        if self.file.endswith(".eco"):
+            return "eco"
         if self.file.endswith((".css", ".less")):
             return "less"
 
@@ -210,7 +218,7 @@ class CustomModel(object):
         impl = self.cls.__implementation__
 
         if isinstance(impl, six.string_types):
-            if "\n" not in impl and impl.endswith((".coffee", ".js", ".css", ".less")):
+            if "\n" not in impl and impl.endswith((".coffee", ".js", ".eco", ".css", ".less")):
                 impl = FromFile(join(self.path, impl))
             else:
                 impl = CoffeeScript(impl)
@@ -265,7 +273,7 @@ def gen_custom_models_static():
                 def mkpath(ext):
                     return abspath(join(root, *module.split("/")) + "." + ext)
 
-                for ext in ["js", "coffee", "css", "less"]:
+                for ext in ["js", "coffee", "eco", "css", "less"]:
                     path = mkpath(ext)
                     if exists(path):
                         break

@@ -3,20 +3,17 @@ utils = require "../utils"
 cheerio = require 'cheerio'
 sinon = require 'sinon'
 
-ui_events = utils.require "common/ui_events"
+{UIEvents} = utils.require "core/ui_events"
 scroll = utils.require "models/tools/gestures/wheel_zoom_tool"
 # Stub out _hammer_element as not used in testing
-sinon.stub(ui_events.prototype, "_hammer_element")
+sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
-describe "ui_events", ->
+describe "UIEvents", ->
   html = '<body><canvas></canvas></body>'
-  $ = cheerio.load html
+  $ = cheerio.load(html)
 
   beforeEach ->
-    e = new Event "wheel",
-
-    deltaY: 100
-    deltaX: 100
+    e = new Event("wheel", {deltaY: 100, deltaX: 100})
     e.bokeh = {}
 
     @preventDefault = sinon.spy(e, "preventDefault")
@@ -24,7 +21,7 @@ describe "ui_events", ->
     @e = e
 
     @active_scroll = new scroll.Model
-    @ui_event = new ui_events
+    @ui_event = new UIEvents()
 
   describe "_trigger_scroll", ->
 

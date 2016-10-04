@@ -7,15 +7,14 @@ DataRange1d = require "../ranges/data_range1d"
 GlyphRenderer = require "../renderers/glyph_renderer"
 LayoutDOM = require "../layouts/layout_dom"
 
-build_views = require "../../common/build_views"
-UIEvents = require "../../common/ui_events"
-
-enums = require "../../core/enums"
+build_views = require "../../core/build_views"
+{UIEvents} = require "../../core/ui_events"
 LayoutCanvas = require "../../core/layout/layout_canvas"
 {Visuals} = require "../../core/visuals"
 BokehView = require "../../core/bokeh_view"
 {EQ, GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
+enums = require "../../core/enums"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
 update_panel_constraints = require("../../core/layout/side_panel").update_constraints
@@ -97,10 +96,7 @@ class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents({
-      toolbar: @model.toolbar
-      hit_area: @canvas_view.$el
-    })
+    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.$el)
 
     @levels = {}
     for level in enums.RenderLevel

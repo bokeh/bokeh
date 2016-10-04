@@ -3,7 +3,7 @@ rbush = require "rbush"
 Quad = require "./quad"
 Glyph = require "./glyph"
 CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 p = require "../../core/properties"
 
 class VBarView extends Glyph.View

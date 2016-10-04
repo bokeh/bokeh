@@ -4,6 +4,7 @@ coffee = require "coffee-script"
 detective = require "detective"
 jslint = require "jslint"
 less = require "less"
+eco = require "../../gulp/eco"
 
 mkCoffeescriptError = (error, file) ->
   message = error.message
@@ -93,6 +94,11 @@ stdin.on "end", () ->
         return reply({error: mkCoffeescriptError(error, input.file)})
     when "javascript"
       code = input.code
+    when "eco"
+      try
+        code = "module.exports = #{eco.compile(input.code)};"
+      catch error
+        return reply({error: mkCoffeescriptError(error, input.file)})
     when "less"
       options = {
         paths: [path.dirname(input.file)]
@@ -103,6 +109,8 @@ stdin.on "end", () ->
           reply({error: mkLessError(error, input.file)})
         else
           reply({code: output.css})
+    else
+      throw new Error("unsupported input type: #{input.lang}")
 
   try
     acorn.parse(code, {})

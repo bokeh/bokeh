@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 GestureTool = require "./gesture_tool"
-{scale_range} = require "../../../util/zoom"
+{scale_range} = require "../../../core/util/zoom"
 p = require "../../../core/properties"
 
 # Here for testing purposes
