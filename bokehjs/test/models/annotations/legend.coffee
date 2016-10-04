@@ -6,9 +6,11 @@ SidePanel = utils.require("core/layout/side_panel").Model
 
 {Document} = utils.require "document"
 
+ColumnDataSource = utils.require("models/sources/column_data_source").Model
 GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
 Legend = utils.require("models/annotations/legend").Model
 LegendView = utils.require("models/annotations/legend").View
+LegendItem = utils.require("models/annotations/legend_item").Model
 
 HEIGHT = 333
 WIDTH = 222
@@ -17,24 +19,19 @@ describe "Legend.Model", ->
 
   describe "get_legend_names", ->
 
-    it "should return the first item of tuple when legends is legend spec style", ->
-      gr_1 = new GlyphRenderer()
-      gr_2 = new GlyphRenderer()
-
-      legend = new Legend({
-        legends: [['label_1', [gr_1]], ['label_2', [gr_2]]]
+    it "should return the results of get_labels_from_glyph_label_prop", ->
+      source = new ColumnDataSource({
+        data: {
+          label: ['l1', 'l2', 'l2', 'l1']
+        },
+        selection_manager: null,
       })
-      labels = legend.get_legend_names()
-      expect(labels).to.be.deep.equal ['label_1', 'label_2']
-
-    it "should return the results of get_labels_from_glyph_label_prop when legends is list of renderers", ->
-      gr_1 = new GlyphRenderer()
-      sinon.stub(gr_1, "get_labels_from_glyph_label_prop", () -> ['l1', 'l2'])
-      gr_2 = new GlyphRenderer()
-      sinon.stub(gr_2, "get_labels_from_glyph_label_prop", () -> ['l3'])
+      gr = new GlyphRenderer({'data_source': source})
+      item_1 = new LegendItem({'label': {'field': 'label'}, 'renderers': [gr]})
+      item_2 = new LegendItem({'label': {'value': 'l3'}})
 
       legend = new Legend({
-        legends: [gr_1, gr_2]
+        items: [item_1, item_2]
       })
       labels = legend.get_legend_names()
       expect(labels).to.be.deep.equal ['l1', 'l2', 'l3']

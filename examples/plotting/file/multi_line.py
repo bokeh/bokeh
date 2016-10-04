@@ -43,7 +43,7 @@ rt_plot.xaxis.axis_label = "Retention Time (sec)"
 rt_plot.yaxis.axis_label = "Intensity"
 
 mz_plot = figure(tools=[HoverTool(**hover_opts), TapTool()], **figure_opts)
-mz_plot.multi_line(xs='MZ', ys='MZ_intensity', label="Intensity_tip", **line_opts)
+mz_plot.multi_line(xs='MZ', ys='MZ_intensity', legend="Intensity_tip", **line_opts)
 mz_plot.xaxis.axis_label = "MZ"
 mz_plot.yaxis.axis_label = "Intensity"
 

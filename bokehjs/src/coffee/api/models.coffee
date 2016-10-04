@@ -9,6 +9,7 @@ module.exports = {
   Label:                                  require("../models/annotations/label").Model
   LabelSet:                               require("../models/annotations/label_set").Model
   Legend:                                 require("../models/annotations/legend").Model
+  LegendItem:                             require("../models/annotations/legend_item").Model
   PolyAnnotation:                         require("../models/annotations/poly_annotation").Model
   Span:                                   require("../models/annotations/span").Model
   Title:                                  require("../models/annotations/title").Model

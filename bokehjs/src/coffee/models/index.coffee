@@ -6,6 +6,7 @@ module.exports = {
   Label:                    require './annotations/label'
   LabelSet:                 require './annotations/label_set'
   Legend:                   require './annotations/legend'
+  LegendItem:               require './annotations/legend_item'
   PolyAnnotation:           require './annotations/poly_annotation'
   Span:                     require './annotations/span'
   Title:                    require './annotations/title'

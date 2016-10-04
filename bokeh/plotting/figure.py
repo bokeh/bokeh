@@ -10,6 +10,7 @@ from ..util._plot_arg_helpers import _convert_responsive
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
+
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.

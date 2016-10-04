@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 
+from bokeh.core.properties import field
 from bokeh.io import save
 from bokeh.models import (
-    ColumnDataSource, Plot, Circle, Legend, Range1d
+    ColumnDataSource, Plot, Circle, Legend, LegendItem, Range1d
 )
 from tests.integration.utils import has_no_console_errors
 
@@ -26,9 +27,9 @@ def test_legend_powered_by_source(output_file_url, selenium, screenshot):
         color=['red', 'green', 'blue'],
         label=['Color Red', 'Color Green', 'Color Blue'],
     ))
-    circle = Circle(x='x', y='y', fill_color='color', label='label', size=20)
+    circle = Circle(x='x', y='y', fill_color='color', size=20)
     circle_renderer = plot.add_glyph(source, circle)
-    plot.add_layout(Legend(legends=[circle_renderer]))
+    plot.add_layout(Legend(items=[LegendItem(label=field('label'), renderers=[circle_renderer])]))
 
     # Save the plot and start the test
     save(plot)
