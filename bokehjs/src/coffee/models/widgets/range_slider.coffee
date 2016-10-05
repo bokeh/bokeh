@@ -35,7 +35,7 @@ class RangeSliderView extends InputWidget.View
     max = @model.end
     min = @model.start
     step = @model.step or ((max - min)/50)
-    logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
+    logger.debug("range-slider render: min, max, step = (#{min}, #{max}, #{step})")
     opts = {
       range: true,
       orientation: @model.orientation,
@@ -51,6 +51,11 @@ class RangeSliderView extends InputWidget.View
     if @model.title?
       @$( "##{ @model.id }" ).val( @$('.slider').slider('values').join(' - ') )
     @$el.find('.bk-slider-parent').height(@model.height)
+    bk_handle = @$el.find('.bk-ui-slider-handle')
+    # Map bk handle to ui handle - otherwise slide doesn't work
+    if bk_handle.length == 2 
+      bk_handle[0].style.left = @$el.find('.ui-slider-handle')[0].style.left
+      bk_handle[1].style.left = @$el.find('.ui-slider-handle')[1].style.left
     return @
 
   slidestop: (event, ui) =>
@@ -58,11 +63,12 @@ class RangeSliderView extends InputWidget.View
       @model.callback?.execute(@model)
 
   slide: (event, ui) =>
-    value = ui.value
-    logger.debug("slide value = #{value}")
+    values = ui.values
+    values_str = values.join(' - ')
+    logger.debug("range-slide value = #{values_str}")
     if @model.title?
-      @$( "##{ @model.id }" ).val( ui.values.join(' - ') )
-    @model.value = value
+      @$( "##{ @model.id }" ).val( values_str )
+    @model.range = values
     if @callbackWrapper then @callbackWrapper()
 
 class RangeSlider extends InputWidget.Model
@@ -70,7 +76,7 @@ class RangeSlider extends InputWidget.Model
   default_view: RangeSliderView
 
   @define {
-      range:             [ p.Any,         (0.1, 0.9)   ]
+      range:             [ p.Any,         {0.1, 0.9}   ]
       start:             [ p.Number,      0            ]
       end:               [ p.Number,      1            ]
       step:              [ p.Number,      0.1          ]
