@@ -8,7 +8,7 @@ p = require "core/properties"
 # We will subclass in JavaScript from the same class that was subclassed
 # from in Python
 InputWidget = require "models/widgets/input_widget"
-ionslidertemplate = require "./extensions_ion_range_slider_template.eco"
+ionslidertemplate = require("./extensions_ion_range_slider_template")
 
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that

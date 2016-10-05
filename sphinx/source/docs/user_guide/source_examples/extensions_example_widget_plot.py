@@ -130,7 +130,8 @@ p = require "core/properties"
 # We will subclass in JavaScript from the same class that was subclassed
 # from in Python
 InputWidget = require "models/widgets/input_widget"
-ionslidertemplate = require "models/widgets/slidertemplate"
+# Use our custom template, this needs to not have the .eco ending on the file
+ionslidertemplate = require("./extensions_ion_range_slider_template")
 
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that
@@ -143,9 +144,6 @@ class IonRangeSliderView extends InputWidget.View
     @listenTo(@model, 'change', @render)
     @$el.empty()
     html = @template(@model.attributes)
-    # replace div slider to input slider
-    html = html.replace('<div class="slider "','<input type="text" class="slider "')
-    html = html.replace('<div class="bk-slider-horizontal">','<div class="bk-slider-horizontal bk-ion-slider">')
     @$el.html(html)
     @callbackWrapper = null
     if @model.callback_policy == 'continuous'
