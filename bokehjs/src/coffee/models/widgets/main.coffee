@@ -18,6 +18,7 @@ module.exports = {
     PreText:                  require './pretext'
     Select:                   require './selectbox'
     Slider:                   require './slider'
+    RangeSlider:              require './range_slider'
     MultiSelect:              require './multiselect'
     DateRangeSlider:          require './date_range_slider'
     DatePicker:               require './date_picker'
