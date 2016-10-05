@@ -1357,4 +1357,8 @@ class _PalettesModule(_types.ModuleType, _Palettes):
         return list(self.__dict__.keys()) + \
                [ name for name in dir(_Palettes) if not name.startswith("_") ]
 
+# need to explicitly transfer the docstring for Sphinx docs to build correctly
+_doc = _sys.modules['bokeh.palettes'].__doc__
 _sys.modules['bokeh.palettes'] = _PalettesModule('bokeh.palettes')
+_sys.modules['bokeh.palettes'].__doc__ = _doc
+del _doc
