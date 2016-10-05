@@ -89,7 +89,7 @@ class Document
     @_solver = new Solver()
     @_init_solver()
 
-    $(window).on("resize", $.proxy(@resize, @))
+    $(window).on("resize", () => @resize())
 
   _init_solver : () ->
     @_solver.clear()
@@ -102,17 +102,13 @@ class Document
   solver: () ->
     @_solver
 
-  resize: (jquery_event, width=null, height=null) ->
+  resize: (width=null, height=null) ->
     # Notes on resizing (xx:yy means event yy on object xx):
     # window:event -> document.resize() -> solver:resize
     #   -> LayoutDOM.render()
     #   -> PlotCanvas.resize() -> solver:update_layout
 
-    # Note: JQuery.proxy passes the resize event as the first argument to the
-    # resize method. We don't currently use that argument for anything, but
-    # need it as a positional arg.
-
-    # Ideally the solver would  settle in one pass (can that be done?),
+    # Ideally the solver would settle in one pass (can that be done?),
     # but it currently needs two passes to get it right.
     # Seems to be needed everywhere on initialization, and on Windows
     # it seems necessary on each Draw
