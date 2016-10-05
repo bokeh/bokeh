@@ -1,7 +1,7 @@
 .. _bokeh.models_plots:
 
-``bokeh.models.plots``
-----------------------
+bokeh.models.plots
+------------------
 
 .. automodule:: bokeh.models.plots
    :members:
