@@ -136,9 +136,9 @@ def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, c
 
     p.legend.location = "top_right"
     p.legend.orientation = "horizontal"
-    p.legend.legend_padding = 6
-    p.legend.legend_margin = 6
-    p.legend.legend_spacing = 6
+    p.legend.padding = 6
+    p.legend.margin = 6
+    p.legend.spacing = 6
 
     return p, _sources
 
