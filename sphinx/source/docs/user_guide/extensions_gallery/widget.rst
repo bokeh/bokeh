@@ -5,8 +5,8 @@ Adding A Custom Widget
 
 This example shows how to add a double-ended slider widget to the plot.
 
-The single normal Bokeh slider controls the power of the lines (the blue line has a power given by half that value).
-The double ended sliders control the x ranges for the blue (middle slider) and red (bottom slider) lines.
+The single normal Bokeh slider controls the power of the line.
+The double ended sliders control the x ranges for the line.
 
 
 
@@ -17,11 +17,6 @@ Python script:
 
 .. literalinclude:: ../source_examples/extensions_example_widget.py
    :language: python
-
-Coffeescript for jqueryUi range slider:
-
-.. literalinclude:: ../source_examples/extensions_jquery_ui_range_slider.coffee
-   :language: coffee
 
 Coffeescript for ion range slider:
 

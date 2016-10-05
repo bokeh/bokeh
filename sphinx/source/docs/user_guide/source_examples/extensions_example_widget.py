@@ -73,72 +73,13 @@ class IonRangeSlider(InputWidget):
     """)
 
 
-class JQueryRangeSlider(InputWidget):
-    # The special class attribute ``__implementation__`` should contain a string
-    # of JavaScript (or CoffeeScript) code that implements the JavaScript side
-    # of the custom extension model or a string name of a JavaScript (or
-    # CoffeeScript) file with the implementation.
-
-    __implementation__ = 'extensions_jquery_ui_range_slider.coffee'
-
-    # Below are all the "properties" for this model. Bokeh properties are
-    # class attributes that define the fields (and their types) that can be
-    # communicated automatically between Python and the browser. Properties
-    # also support type validation. More information about properties in
-    # can be found here:
-    #
-    #    http://bokeh.pydata.org/en/latest/docs/reference/core.html#bokeh-core-properties
-    disable = Bool(default=True, help="""
-    Enable or disable the slider.
-    """)
-
-    range = Tuple(Float, Float, default=(0.1, 0.9), help="""
-    Initial or selected range.
-    """)
-
-    start = Float(default=0, help="""
-    The minimum allowable value.
-    """)
-
-    end = Float(default=1, help="""
-    The maximum allowable value.
-    """)
-
-    step = Float(default=0.1, help="""
-    The step between consecutive values.
-    """)
-
-    orientation = Enum("horizontal", "vertical", help="""
-    Orient the slider either horizontally (default) or vertically.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
-    """)
-
-    callback_throttle = Float(default=200, help="""
-    Number of microseconds to pause between callback calls as the slider is moved.
-    """)
-
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
-       "continuous": the callback will be executed immediately for each movement of the slider
-       "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-       "mouseup": the callback will be executed only once when the slider is released.
-       The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
-    """)
-
-
 x = [x*0.005 for x in range(2, 198)]
 y = x
-w = [w*0.005 for w in range(2, 198)]
-z = [z**0.5 for z in w]
 
-source = ColumnDataSource(data=dict(x=x, y=y, w=w, z=z))
+source = ColumnDataSource(data=dict(x=x, y=y))
 
 plot = Figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6, color='#ed5565')
-plot.line('w', 'z', source=source, line_width=3, line_alpha=0.6)
 
 callback_single = CustomJS(args=dict(source=source), code="""
         var data = source.data;
@@ -170,24 +111,9 @@ callback_ion = CustomJS(args=dict(source=source), code="""
         source.trigger('change');
     """)
 
-callback_jquery = CustomJS(args=dict(source=source), code="""
-        var data = source.data;
-        var f = cb_obj.range
-        w = data['w']
-        z = data['z']
-        pow = (Math.log(z[100])/Math.log(w[100]))
-        console.log(pow)
-        delta = (f[1]-f[0])/w.length
-        for (i = 0; i < w.length; i++) {
-            w[i] = delta*i + f[0]
-            z[i] = Math.pow(w[i], pow)
-        }
-        source.trigger('change');
-    """)
 
 slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power", callback=callback_single)
 ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)), title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
-jquery_range_slider = JQueryRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(w), max(w)), title='JQuery UI Slider - Range', callback=callback_jquery, callback_policy='continuous')
 
-layout = column(plot, slider, jquery_range_slider, ion_range_slider)
+layout = column(plot, slider, ion_range_slider)
 show(layout)
