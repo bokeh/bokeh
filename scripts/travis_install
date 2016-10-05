@@ -23,10 +23,9 @@ echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
 conda install --yes $DEPS_TRAVIS
 
-conda config --add channels conda-forge
-conda config --add channels bokeh
-conda config --remove channels defaults
-conda config --add channels defaults
+conda config --append channels bokeh
+conda config --append channels conda-forge
+echo "conda config $(conda config --show-sources)"
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
