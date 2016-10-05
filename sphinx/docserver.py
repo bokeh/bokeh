@@ -1,5 +1,4 @@
 from __future__ import print_function
-from builtins import input
 
 import flask
 import os
@@ -54,10 +53,10 @@ def shutdown_server():
     print("Asked Server to shut down.")
 
 def ui():
-    time.sleep(0.5)
     try:
+        time.sleep(0.5)
         input("Press <ENTER> to exit...\n")
-    except (SyntaxError, KeyboardInterrupt):
+    except:
         pass
 
 if __name__ == "__main__":
