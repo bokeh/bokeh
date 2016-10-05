@@ -104,13 +104,6 @@ SOURCE_TEMPLATE = jinja2.Template(u"""
 """)
 
 
-SCRIPT_TEMPLATE = jinja2.Template(u"""
-<div class="bk-root">
-    {{ script|indent(4) }}
-</div>
-""")
-
-
 class bokeh_plot(nodes.General, nodes.Element):
     pass
 
@@ -299,8 +292,7 @@ def html_visit_bokeh_plot(self, node):
             with open(dest_path, "w") as f:
                 f.write(js)
 
-        html = SCRIPT_TEMPLATE.render(script=script)
-        self.body.append(html)
+        self.body.append(script)
     except Exception as e:
         raise SphinxError("Unable to generate Bokeh plot at %s:%d:%s" % (node['rst_source'], node['rst_lineno'], e))
     else:
