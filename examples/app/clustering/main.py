@@ -154,9 +154,7 @@ def update_algorithm_or_clusters(attrname, old, new):
     X, y_pred = clustering(X, algorithm, n_clusters)
     colors = [spectral[i] for i in y_pred]
 
-    source.data['colors'] = colors
-    source.data['x'] = X[:, 0]
-    source.data['y'] = X[:, 1]
+    source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
     plot.title.text = algorithm
 
@@ -172,9 +170,7 @@ def update_samples_or_dataset(attrname, old, new):
     X, y_pred = clustering(X, algorithm, n_clusters)
     colors = [spectral[i] for i in y_pred]
 
-    source.data['x'] = X[:, 0]
-    source.data['y'] = X[:, 1]
-    source.data['colors'] = colors
+    source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
 algorithm_select.on_change('value', update_algorithm_or_clusters)
 clusters_slider.on_change('value', update_algorithm_or_clusters)
