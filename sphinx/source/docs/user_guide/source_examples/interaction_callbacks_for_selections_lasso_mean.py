@@ -12,8 +12,8 @@ s = ColumnDataSource(data=dict(x=x, y=y, color=color))
 p = figure(plot_width=400, plot_height=400, tools="lasso_select", title="Select Here")
 p.circle('x', 'y', color='color', size=8, source=s, alpha=0.4)
 
-s2 = ColumnDataSource(data=dict(ym=[0.5, 0.5]))
-p.line(x=[0, 1], y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
+s2 = ColumnDataSource(data=dict(x=[0, 1], ym=[0.5, 0.5]))
+p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
 s.callback = CustomJS(args=dict(s2=s2), code="""
         var inds = cb_obj.selected['1d'].indices;

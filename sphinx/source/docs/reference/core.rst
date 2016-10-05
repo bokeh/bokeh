@@ -1,15 +1,15 @@
 .. _bokeh.core:
 
-``bokeh.core``
-==============
+bokeh.core
+==========
 
 .. automodule:: bokeh.core
 
 
 .. _bokeh.core.compat:
 
-``bokeh.core.compat``
-~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.compat
+-----------------
 
 
 .. automodule:: bokeh.core.compat
@@ -18,8 +18,8 @@
 
 .. _bokeh.core.enums:
 
-``bokeh.core.enums``
-~~~~~~~~~~~~~~~~~~~~
+bokeh.core.enums
+----------------
 
 .. automodule:: bokeh.core.enums
   :members:
@@ -27,8 +27,8 @@
 
 .. _bokeh.core.json_encoder:
 
-``bokeh.core.json_encoder``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.json_encoder
+-----------------------
 
 .. automodule:: bokeh.core.json_encoder
   :members:
@@ -36,8 +36,8 @@
 
 .. _bokeh.core.properties:
 
-``bokeh.core.properties``
-~~~~~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.properties
+---------------------
 
 In order to streamline and automate the creation and use of models that can
 for describing plots and scenes, Bokeh provides a collection of properties
@@ -51,8 +51,8 @@ classes provide for easy bulk addition of properties to model classes.
 
 .. _bokeh.core.property_containers:
 
-``bokeh.core.property_containers``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.property_containers
+------------------------------
 
 .. automodule:: bokeh.core.property_containers
     :members:
@@ -60,8 +60,8 @@ classes provide for easy bulk addition of properties to model classes.
 
 .. _bokeh.core.property_mixins:
 
-``bokeh.core.property_mixins``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.property_mixins
+--------------------------
 
 .. autoclass:: bokeh.core.property_mixins.FillProps
     :members:
@@ -75,8 +75,8 @@ classes provide for easy bulk addition of properties to model classes.
 
 .. _bokeh.core.query:
 
-``bokeh.core.query``
-~~~~~~~~~~~~~~~~~~~~
+bokeh.core.query
+----------------
 
 .. automodule:: bokeh.core.query
   :members:
@@ -84,8 +84,8 @@ classes provide for easy bulk addition of properties to model classes.
 
 .. _bokeh.core.state:
 
-``bokeh.core.state``
-~~~~~~~~~~~~~~~~~~~~
+bokeh.core.state
+----------------
 
 .. automodule:: bokeh.core.state
   :members:
@@ -93,16 +93,16 @@ classes provide for easy bulk addition of properties to model classes.
 
 .. _bokeh.core.templates:
 
-``bokeh.core.templates``
-~~~~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.templates
+--------------------
 
 .. automodule:: bokeh.core.templates
 
 
 .. _bokeh.core.validation:
 
-``bokeh.core.validation``
-~~~~~~~~~~~~~~~~~~~~~~~~~
+bokeh.core.validation
+---------------------
 
 To create a Bokeh visualization, the central task is to assemble a collection
 model objects from |bokeh.models| into a graph that represents the scene that
@@ -120,8 +120,8 @@ outlined below.
 
 .. _bokeh.core.validation.errors:
 
-``bokeh.core.validation.errors``
-''''''''''''''''''''''''''''''''
+bokeh.core.validation.errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: bokeh.core.validation.errors
    :members:
@@ -130,8 +130,8 @@ outlined below.
 
 .. _bokeh.core.validation.warnings:
 
-``bokeh.core.validation.warnings``
-''''''''''''''''''''''''''''''''''
+bokeh.core.validation.warnings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: bokeh.core.validation.warnings
    :members:
@@ -140,8 +140,8 @@ outlined below.
 
 .. _bokeh.core.validation.decorators:
 
-``bokeh.core.validation.decorators``
-''''''''''''''''''''''''''''''''''''
+bokeh.core.validation.decorators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: bokeh.core.validation.decorators.error
 
@@ -150,8 +150,8 @@ outlined below.
 
 .. _bokeh.core.validation.exceptions:
 
-``bokeh.core.validation.exceptions``
-''''''''''''''''''''''''''''''''''''
+bokeh.core.validation.exceptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: bokeh.core.validation.exceptions
    :members:

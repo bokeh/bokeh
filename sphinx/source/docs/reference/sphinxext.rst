@@ -1,7 +1,7 @@
 .. _bokeh.sphinxext:
 
-``bokeh.sphinxext``
-===================
+bokeh.sphinxext
+===============
 
 In order to help automate and simplify the generation of Bokeh
 documentation, several Sphinx extensions have been created. Most
@@ -62,7 +62,7 @@ bokeh_prop
 .. _bokeh.sphinxext.bokeh_sitemap:
 
 bokeh_sitemap
-----------------------
+-------------
 
 .. automodule:: bokeh.sphinxext.bokeh_sitemap
 

@@ -1,5 +1,7 @@
-``bokeh.models.widgets.inputs``
--------------------------------
+.. _bokeh.models.widgets.inputs:
+
+bokeh.models.widgets.inputs
+---------------------------
 
 .. automodule:: bokeh.models.widgets.inputs
    :members:

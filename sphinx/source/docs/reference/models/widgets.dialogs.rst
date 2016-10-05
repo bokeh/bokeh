@@ -1,5 +1,7 @@
-``bokeh.models.widgets.dialogs``
---------------------------------
+.. _bokeh.models.widgets.dialogs:
+
+bokeh.models.widgets.dialogs
+----------------------------
 
 .. automodule:: bokeh.models.widgets.dialogs
    :members:

@@ -1,7 +1,7 @@
 .. _bokeh.models:
 
-``bokeh.models``
-================
+bokeh.models
+============
 
 One of the central design principals of Bokeh is that, regardless of
 how the plot creation code is spelled in Python (or other languages),
