@@ -86,7 +86,7 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  _.delay(-> $(element).replaceWith(view.$el))
+  _.delay(-> $(element).append(view.$el))
 
 # Fill element with the roots from doc
 add_document_static = (element, doc, use_for_title) ->
