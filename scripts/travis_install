@@ -25,7 +25,7 @@ conda install --yes $DEPS_TRAVIS
 
 conda config --append channels bokeh
 conda config --append channels conda-forge
-echo "conda config $(conda config --show-sources)"
+echo "conda config: $(conda config --get channels)"
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
