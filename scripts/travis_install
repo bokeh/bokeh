@@ -20,9 +20,9 @@ python -V
 
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
-conda config --remove channels defaults
 conda config --add channels conda-forge
 conda config --add channels bokeh
+conda config --remove channels defaults
 conda config --add channels defaults
 
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
