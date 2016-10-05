@@ -3,6 +3,7 @@
 - path: "custom/gears"
   skip: ["gear.py"]
 - path: "compat"
+  skip: ["ggplot_density.py"]
 - path: "charts/file"
   type: file
 - path: "howto/charts"
