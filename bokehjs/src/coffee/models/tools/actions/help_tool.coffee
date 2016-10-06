@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 ActionTool = require "./action_tool"
 p = require "../../../core/properties"

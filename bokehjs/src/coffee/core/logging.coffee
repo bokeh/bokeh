@@ -1,6 +1,6 @@
 # This is based on https://github.com/pimterry/loglevel
 
-_ = require 'underscore'
+import * as _ from "underscore"
 
 noop = () ->
 

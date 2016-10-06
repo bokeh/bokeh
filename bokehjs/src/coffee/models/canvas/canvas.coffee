@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 canvas_template = require "./canvas_template"
 LayoutCanvas = require "../../core/layout/layout_canvas"

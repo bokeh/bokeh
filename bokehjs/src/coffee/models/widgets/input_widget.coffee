@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Widget = require "./widget"
 p = require "../../core/properties"

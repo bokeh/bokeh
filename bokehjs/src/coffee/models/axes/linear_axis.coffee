@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Axis = require "./axis"
 ContinuousAxis = require "./continuous_axis"

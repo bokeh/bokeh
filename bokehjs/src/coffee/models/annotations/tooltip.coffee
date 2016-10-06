@@ -1,5 +1,5 @@
 $ = require "jquery"
-_ = require "underscore"
+import * as _ from "underscore"
 
 Annotation = require "./annotation"
 {logger} = require "../../core/logging"

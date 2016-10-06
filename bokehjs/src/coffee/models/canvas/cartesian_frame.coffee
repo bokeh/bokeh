@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 CategoricalMapper = require "../mappers/categorical_mapper"
 GridMapper = require "../mappers/grid_mapper"

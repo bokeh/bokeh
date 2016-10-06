@@ -1,5 +1,5 @@
 $ = require "jquery"
-_ = require "underscore"
+import * as _ from "underscore"
 Backbone = require "./backbone"
 
 {logger} = require "./logging"

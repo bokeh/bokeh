@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 SelectTool = require "./select_tool"
 BoxAnnotation = require "../../annotations/box_annotation"

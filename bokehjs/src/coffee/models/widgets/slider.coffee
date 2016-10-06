@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 $2 = require "jquery-ui/slider"
 
 {logger} = require "../../core/logging"

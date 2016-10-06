@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 SPrintf = require "sprintf"
 
 TickFormatter = require "./tick_formatter"

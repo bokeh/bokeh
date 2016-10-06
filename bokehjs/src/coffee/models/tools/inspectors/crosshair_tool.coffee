@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 InspectTool = require "./inspect_tool"
 Span = require "../../annotations/span"

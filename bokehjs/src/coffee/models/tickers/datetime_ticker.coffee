@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 AdaptiveTicker = require "./adaptive_ticker"
 CompositeTicker = require "./composite_ticker"

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Axis = require "./axis"
 CategoricalTickFormatter = require "../formatters/categorical_tick_formatter"

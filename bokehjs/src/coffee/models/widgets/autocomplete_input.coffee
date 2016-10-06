@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 $1 = require "jquery-ui/autocomplete"
 
 TextInput = require "./text_input"

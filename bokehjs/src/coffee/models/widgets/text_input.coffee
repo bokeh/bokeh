@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 build_views = require "../../core/build_views"
 {logger} = require "../../core/logging"

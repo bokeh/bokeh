@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Glyph = require "../glyphs/glyph"
 LinearColorMapper = require "../mappers/linear_color_mapper"

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 TileSource = require "./tile_source"
 p = require "../../core/properties"

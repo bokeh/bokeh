@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 Transform = require "./transform"
 Interpolator = require "./interpolator"
 p = require "../../core/properties"

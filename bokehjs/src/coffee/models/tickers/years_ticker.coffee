@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 BasicTicker = require "./basic_ticker"
 SingleIntervalTicker = require "./single_interval_ticker"

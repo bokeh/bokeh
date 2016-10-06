@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 {EQ, GE} = require "./solver"
 LayoutCanvas = require "./layout_canvas"

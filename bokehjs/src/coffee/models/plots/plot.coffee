@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 {WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 {logger} = require "../../core/logging"

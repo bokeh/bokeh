@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 LinearAxis = require "./axis"
 DatetimeTickFormatter = require "../formatters/datetime_tick_formatter"

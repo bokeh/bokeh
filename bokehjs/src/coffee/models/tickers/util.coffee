@@ -8,7 +8,7 @@
 # function that took a lot of fancy arguments, but those arguments weren't
 # used anywhere.  Should we restore them?
 
-_ = require "underscore"
+import * as _ from "underscore"
 
 # Some time constants, in milliseconds.
 ONE_MILLI = 1.0

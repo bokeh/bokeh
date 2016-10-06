@@ -5,7 +5,7 @@
 //     For all details and documentation:
 //     http://backbonejs.org
 
-var _ = require('underscore');
+import * as _ from "underscore";
 
 // Backbone.Events
 // ---------------

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views

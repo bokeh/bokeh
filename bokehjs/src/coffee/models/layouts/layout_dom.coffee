@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 $ = require "jquery"
 Model = require "../../model"
 p = require "../../core/properties"

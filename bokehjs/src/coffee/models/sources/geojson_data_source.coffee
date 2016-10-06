@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 ColumnDataSource = require "./column_data_source"
 {logger} = require "../../core/logging"

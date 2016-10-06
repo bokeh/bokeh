@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 {Variable, EQ, GE, Strength}  = require "./solver"
 Model = require "../../model"

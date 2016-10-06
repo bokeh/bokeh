@@ -1,4 +1,4 @@
-_ = require("underscore")
+import * as _ from "underscore"
 
 module.exports = {
   ## api/linalg.ts

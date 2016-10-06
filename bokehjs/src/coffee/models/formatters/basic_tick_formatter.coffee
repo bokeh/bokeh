@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 TickFormatter = require "./tick_formatter"
 p = require "../../core/properties"

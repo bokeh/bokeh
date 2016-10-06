@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 mixins = require "./property_mixins"
 {color2rgba} = require "./util/color"
 

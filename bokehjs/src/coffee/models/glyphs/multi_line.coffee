@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 rbush = require "rbush"
 
 hittest = require "../../core/hittest"

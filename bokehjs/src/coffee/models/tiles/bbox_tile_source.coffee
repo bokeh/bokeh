@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 MercatorTileSource = require('./mercator_tile_source')
 p = require "../../core/properties"

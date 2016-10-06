@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Renderer = require "./renderer"
 p = require "../../core/properties"

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Annotation = require "./annotation"
 GlyphRenderer = require "../renderers/glyph_renderer"

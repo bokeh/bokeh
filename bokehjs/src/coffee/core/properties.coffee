@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 {Events} = require "./events"
 enums = require "./enums"
 svg_colors = require "./util/svg_colors"

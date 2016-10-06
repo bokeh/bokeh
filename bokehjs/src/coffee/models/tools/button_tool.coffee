@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 BokehView = require "../../core/bokeh_view"
 Tool = require "./tool"
 button_tool_template = require "./button_tool_template"

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 GestureTool = require "./gesture_tool"
 {scale_range} = require "../../../core/util/zoom"

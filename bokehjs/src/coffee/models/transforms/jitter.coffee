@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 Transform = require "./transform"
 p = require "../../core/properties"
 bokeh_math = require "../../core/util/math"

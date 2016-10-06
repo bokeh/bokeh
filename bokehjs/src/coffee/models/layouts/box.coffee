@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 {EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
 p = require "../../core/properties"

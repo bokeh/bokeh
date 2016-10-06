@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 p = require "../../core/properties"
 
 ColorMapper = require "./color_mapper"

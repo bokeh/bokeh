@@ -1,5 +1,5 @@
 $ = require "jquery"
-_ = require "underscore"
+import * as _ from "underscore"
 {Promise} = require "es6-promise"
 
 base = require "./base"

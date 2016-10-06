@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 ButtonTool = require "../button_tool"
 
 class GestureToolButtonView extends ButtonTool.ButtonView

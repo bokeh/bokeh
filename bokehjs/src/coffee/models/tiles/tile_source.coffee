@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 ImagePool = require "./image_pool"
 tile_utils = require "./tile_utils"

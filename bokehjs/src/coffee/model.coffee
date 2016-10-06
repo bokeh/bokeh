@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 HasProps = require "./core/has_props"
 p = require "./core/properties"
 

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 {Promise} = require "es6-promise"
 
 HasProps = require "./core/has_props"

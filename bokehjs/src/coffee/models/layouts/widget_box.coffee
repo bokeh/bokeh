@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 $ = require "jquery"
 
 build_views = require "../../core/build_views"

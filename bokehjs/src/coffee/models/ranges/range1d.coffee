@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Range = require "./range"
 p = require "../../core/properties"

@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 HasProps = require "./has_props"
 {logger} = require "./logging"
 Selector = require "./selector"

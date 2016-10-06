@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 SPrintf = require "sprintf"
 tz = require "timezone"
 

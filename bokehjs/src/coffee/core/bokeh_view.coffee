@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 Backbone = require "./backbone"
 
 class BokehView extends Backbone.View

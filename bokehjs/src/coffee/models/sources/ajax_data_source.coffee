@@ -1,5 +1,5 @@
 $ = require "jquery"
-_ = require "underscore"
+import * as _ from "underscore"
 
 RemoteDataSource = require "./remote_data_source"
 {logger} = require "../../core/logging"

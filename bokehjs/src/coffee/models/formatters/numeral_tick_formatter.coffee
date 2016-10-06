@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 Numbro = require "numbro"
 
 TickFormatter = require "./tick_formatter"

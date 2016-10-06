@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"

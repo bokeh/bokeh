@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/sortable"
 SlickGrid = require "slick_grid/slick.grid"

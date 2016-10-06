@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 ContinuousTicker = require "./continuous_ticker"
 p = require "../../core/properties"

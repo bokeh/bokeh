@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 SidePanel = require "../../core/layout/side_panel"
 GuideRenderer = require "../renderers/guide_renderer"

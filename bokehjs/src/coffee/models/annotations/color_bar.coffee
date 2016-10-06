@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 Annotation = require "./annotation"
 BasicTicker = require "../tickers/basic_ticker"

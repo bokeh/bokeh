@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 Widget = require "./widget"
 
 class AbstractIcon extends Widget.Model

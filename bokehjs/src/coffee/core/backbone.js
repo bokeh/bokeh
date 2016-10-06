@@ -5,7 +5,7 @@
 //     For all details and documentation:
 //     http://backbonejs.org
 
-var _ = require('underscore');
+import * as _ from "underscore";
 var $ = require('jquery');
 
 var Events = require('./events').Events;

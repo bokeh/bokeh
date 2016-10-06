@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 proj4 = require "../../core/util/proj4"
 toProjection = proj4.defs('GOOGLE')
 

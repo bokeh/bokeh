@@ -1,6 +1,6 @@
 # This module implements the Base GL Glyph and some utilities
 
-_ = require "underscore"
+import * as _ from "underscore"
 color = require "../../../core/util/color"
 color2rgba = color.color2rgba
 

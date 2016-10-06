@@ -1,4 +1,4 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
 {argmin} = require "./util"
 ContinuousTicker = require "./continuous_ticker"
