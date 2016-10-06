@@ -118,6 +118,7 @@ class Image extends Glyph.Model
       color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model({palette: Greys9()}) ]
   }
 
-module.exports =
-  Model: Image
-  View: ImageView
+export {
+  Image as Model
+  ImageView as View
+}

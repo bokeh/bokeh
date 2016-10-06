@@ -57,5 +57,6 @@ class CompositeTicker extends ContinuousTicker.Model
     ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
     return ticks
 
-module.exports =
-  Model: CompositeTicker
+export {
+  CompositeTicker as Model
+}

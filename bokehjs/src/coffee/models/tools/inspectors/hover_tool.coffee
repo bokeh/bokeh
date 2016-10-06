@@ -353,6 +353,7 @@ class HoverTool extends InspectTool.Model
     synthetic_renderers: () -> _.values(@ttmodels)
   }
 
-module.exports =
-  Model: HoverTool
-  View: HoverToolView
+export {
+  HoverTool as Model
+  HoverToolView as View
+}

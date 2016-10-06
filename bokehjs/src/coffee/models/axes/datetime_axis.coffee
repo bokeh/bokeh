@@ -16,6 +16,7 @@ class DatetimeAxis extends LinearAxis.Model
     formatter: () -> new DatetimeTickFormatter.Model()
   }
 
-module.exports =
-  Model: DatetimeAxis
-  View: DatetimeAxisView
+export {
+  DatetimeAxis as Model
+  DatetimeAxisView as View
+}

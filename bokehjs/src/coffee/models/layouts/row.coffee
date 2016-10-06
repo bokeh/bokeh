@@ -11,6 +11,7 @@ class Row extends Box.Model
     super(attrs, options)
     @_horizontal = true
 
-module.exports =
-  View: RowView
-  Model: Row
+export {
+  RowView as View
+  Row as Model
+}

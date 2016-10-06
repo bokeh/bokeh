@@ -125,6 +125,7 @@ class Marker extends Glyph.Model
   }
 
 
-module.exports =
-  Model: Marker
-  View: MarkerView
+export {
+  Marker as Model
+  MarkerView as View
+}

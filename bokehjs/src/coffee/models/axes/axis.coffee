@@ -401,6 +401,7 @@ class Axis extends GuideRenderer.Model
       when 'left', 'below' then cross_range.start
       when 'right', 'above' then cross_range.end
 
-module.exports =
-  Model: Axis
-  View: AxisView
+export {
+  Axis as Model
+  AxisView as View
+}

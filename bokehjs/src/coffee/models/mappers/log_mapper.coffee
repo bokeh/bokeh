@@ -117,5 +117,6 @@ class LogMapper extends Model
     target_range: [ p.Any ]
   }
 
-module.exports =
-  Model: LogMapper
+export {
+  LogMapper as Model
+}

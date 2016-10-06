@@ -260,6 +260,7 @@ class LayoutDOM extends Model
       layoutable: [ p.Bool, true ]
   }
 
-module.exports =
-  Model: LayoutDOM
-  View: LayoutDOMView
+export {
+  LayoutDOM as Model
+  LayoutDOMView as View
+}

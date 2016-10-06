@@ -17,6 +17,7 @@ class LinearAxis extends ContinuousAxis.Model
     formatter: () -> new BasicTickFormatter.Model()
   }
 
-module.exports =
-  Model: LinearAxis
-  View: LinearAxisView
+export {
+  LinearAxis as Model
+  LinearAxisView as View
+}

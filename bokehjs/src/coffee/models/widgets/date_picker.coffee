@@ -37,6 +37,7 @@ class DatePicker extends InputWidget.Model
       max_date: [ p.Any             ]
     }
 
-module.exports =
-  Model: DatePicker
-  View: DatePickerView
+export {
+  DatePicker as Model
+  DatePickerView as View
+}

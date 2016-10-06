@@ -40,5 +40,6 @@ class LogTickFormatter extends TickFormatter.Model
 
     return labels
 
-module.exports =
-  Model: LogTickFormatter
+export {
+  LogTickFormatter as Model
+}

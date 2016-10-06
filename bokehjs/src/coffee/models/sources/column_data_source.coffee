@@ -66,5 +66,6 @@ class ColumnDataSource extends DataSource.Model
     @setv('data', data, {silent: true})
     @trigger('patch')
 
-module.exports =
-  Model: ColumnDataSource
+export {
+  ColumnDataSource as Model
+}

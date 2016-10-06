@@ -37,7 +37,7 @@ class ZoomOutTool extends ActionTool.Model
     dimensions: [ p.Dimensions, "both" ]
   }
 
-module.exports = {
-  Model: ZoomOutTool
-  View: ZoomOutToolView
+export {
+  ZoomOutTool as Model
+  ZoomOutToolView as View
 }

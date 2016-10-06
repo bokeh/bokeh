@@ -55,6 +55,7 @@ class MultiSelect extends InputWidget.Model
       options: [ p.Array, [] ]
     }
 
-module.exports =
-  Model: MultiSelect
-  View: MultiSelectView
+export {
+  MultiSelect as Model
+  MultiSelectView as View
+}

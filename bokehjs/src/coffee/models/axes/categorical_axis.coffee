@@ -28,6 +28,7 @@ class CategoricalAxis extends Axis.Model
 
     return range_bounds
 
-module.exports =
-  Model: CategoricalAxis
-  View: CategoricalAxisView
+export {
+  CategoricalAxis as Model
+  CategoricalAxisView as View
+}

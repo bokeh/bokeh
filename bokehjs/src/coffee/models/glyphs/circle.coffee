@@ -222,6 +222,7 @@ class Circle extends Glyph.Model # XXX: Marker.Model
     super(attrs, options)
     @properties.radius.optional = true
 
-module.exports =
-  Model: Circle
-  View: CircleView
+export {
+  Circle as Model
+  CircleView as View
+}

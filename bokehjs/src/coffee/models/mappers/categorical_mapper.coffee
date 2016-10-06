@@ -65,5 +65,6 @@ class CategoricalMapper extends LinearMapper.Model
       result[i] = factors[Math.floor(x[i] - 0.5 - range.offset)]
     return result
 
-module.exports =
-  Model: CategoricalMapper
+export {
+  CategoricalMapper as Model
+}

@@ -219,6 +219,7 @@ class DataTable extends TableWidget.Model
     default_width:        [ p.Number, 600   ]
   }
 
-module.exports =
-  Model: DataTable
-  View: DataTableView
+export {
+  DataTable as Model
+  DataTableView as View
+}

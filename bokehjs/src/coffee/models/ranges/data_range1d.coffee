@@ -153,5 +153,6 @@ class DataRange1d extends DataRange.Model
 
 
 
-module.exports =
-  Model: DataRange1d
+export {
+  DataRange1d as Model
+}

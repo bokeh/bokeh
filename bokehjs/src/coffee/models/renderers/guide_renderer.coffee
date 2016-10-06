@@ -14,5 +14,6 @@ class GuideRenderer extends Renderer.Model
     level: 'overlay'
   }
 
-module.exports =
-  Model: GuideRenderer
+export {
+  GuideRenderer as Model
+}

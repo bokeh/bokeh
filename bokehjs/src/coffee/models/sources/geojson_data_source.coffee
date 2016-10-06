@@ -151,5 +151,6 @@ class GeoJSONDataSource extends ColumnDataSource.Model
 
     return data
 
-module.exports =
-  Model: GeoJSONDataSource
+export {
+  GeoJSONDataSource as Model
+}

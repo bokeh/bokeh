@@ -28,6 +28,7 @@ class HelpTool extends ActionTool.Model
     tooltip: () -> @help_tooltip
   }
 
-module.exports =
-  Model: HelpTool,
-  View: HelpToolView,
+export {
+  HelpTool as Model
+  HelpToolView as View
+}

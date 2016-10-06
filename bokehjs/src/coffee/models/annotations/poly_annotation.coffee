@@ -74,6 +74,7 @@ class PolyAnnotation extends Annotation.Model
     @setv({xs: xs, ys: ys}, {silent: true})
     @trigger('data_update')
 
-module.exports =
-  Model: PolyAnnotation
-  View: PolyAnnotationView
+export {
+  PolyAnnotation as Model
+  PolyAnnotationView as View
+}

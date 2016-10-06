@@ -39,7 +39,8 @@ class ButtonTool extends Tool.Model
     disabled: [ p.Boolean, false ]
   }
 
-module.exports =
-  Model: ButtonTool
-  View: ButtonToolView
-  ButtonView: ButtonToolButtonView
+export {
+  ButtonTool as Model
+  ButtonToolView as View
+  ButtonToolButtonView as ButtonView
+}

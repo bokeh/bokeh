@@ -80,6 +80,7 @@ class Tabs extends Widget.Model
       constraints = constraints.concat(child.get_constraints())
     return constraints
 
-module.exports =
-  Model: Tabs
-  View: TabsView
+export {
+  Tabs as Model
+  TabsView as View
+}

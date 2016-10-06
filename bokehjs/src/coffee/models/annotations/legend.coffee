@@ -195,6 +195,7 @@ class Legend extends Annotation.Model
     label_text_baseline: "middle"
   }
 
-module.exports =
-  Model: Legend
-  View: LegendView
+export {
+  Legend as Model
+  LegendView as View
+}

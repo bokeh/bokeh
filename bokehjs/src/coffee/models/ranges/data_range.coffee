@@ -11,5 +11,6 @@ class DataRange extends Range.Model
       renderers: [ p.Array, [] ]
     }
 
-module.exports =
-  Model: DataRange
+export {
+  DataRange as Model
+}

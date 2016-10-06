@@ -208,5 +208,6 @@ class DatetimeTickFormatter extends TickFormatter.Model
 
     return labels
 
-module.exports =
-  Model: DatetimeTickFormatter
+export {
+  DatetimeTickFormatter as Model
+}

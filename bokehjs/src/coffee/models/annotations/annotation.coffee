@@ -37,6 +37,7 @@ class Annotation extends Renderer.Model
     # If the annotation is in a side panel, we need to set level to overlay, so it is visible.
     @level = 'overlay'
 
-module.exports =
-  Model: Annotation
-  View: AnnotationView
+export {
+  Annotation as Model
+  AnnotationView as View
+}

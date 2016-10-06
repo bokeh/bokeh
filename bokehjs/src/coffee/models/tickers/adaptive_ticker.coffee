@@ -64,5 +64,6 @@ class AdaptiveTicker extends ContinuousTicker.Model
 
     return clamp(interval, @get_min_interval(), @get_max_interval())
 
-module.exports =
-  Model: AdaptiveTicker
+export {
+  AdaptiveTicker as Model
+}

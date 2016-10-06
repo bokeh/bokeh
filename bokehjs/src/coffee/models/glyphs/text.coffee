@@ -47,6 +47,7 @@ class Text extends Glyph.Model
       y_offset: [ p.NumberSpec, 0                 ]
     }
 
-module.exports =
-  Model: Text
-  View: TextView
+export {
+  Text as Model
+  TextView as View
+}

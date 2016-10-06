@@ -22,5 +22,6 @@ class DataSource extends Model
         else
           callback.execute(@)
 
-module.exports =
-  Model: DataSource
+export {
+  DataSource as Model
+}

@@ -45,5 +45,6 @@ class Range1d extends Range.Model
     @setv({start: @_initial_start, end: @_initial_end})
     @_set_auto_bounds()
 
-module.exports =
-  Model: Range1d
+export {
+  Range1d as Model
+}

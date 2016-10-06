@@ -115,6 +115,7 @@ class ImageRGBA extends Glyph.Model
     @properties.rows.optional = true
     @properties.cols.optional = true
 
-module.exports =
-  Model: ImageRGBA
-  View: ImageRGBAView
+export {
+  ImageRGBA as Model
+  ImageRGBAView as View
+}

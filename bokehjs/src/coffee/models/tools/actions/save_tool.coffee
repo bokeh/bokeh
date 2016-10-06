@@ -24,6 +24,7 @@ class SaveTool extends ActionTool.Model
   tool_name: "Save"
   icon: "bk-tool-icon-save"
 
-module.exports =
-  Model: SaveTool
-  View: SaveToolView
+export {
+  SaveTool as Model
+  SaveToolView as View
+}

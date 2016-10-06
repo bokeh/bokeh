@@ -181,6 +181,7 @@ class BoxZoomTool extends GestureTool.Model
     match_aspect: [ p.Bool,     false               ]
   }
 
-module.exports =
-  Model: BoxZoomTool
-  View: BoxZoomToolView
+export {
+  BoxZoomTool as Model
+  BoxZoomToolView as View
+}

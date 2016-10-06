@@ -136,6 +136,7 @@ class TextAnnotation extends Annotation.Model
   type: 'TextAnnotation'
   default_view: TextAnnotationView
 
-module.exports =
-  Model: TextAnnotation
-  View: TextAnnotationView
+export {
+  TextAnnotation as Model
+  TextAnnotationView as View
+}

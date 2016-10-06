@@ -64,5 +64,6 @@ class FactorRange extends Range.Model
     if @bounds?
       @bounds = [start, end]
 
-module.exports =
-  Model: FactorRange
+export {
+  FactorRange as Model
+}

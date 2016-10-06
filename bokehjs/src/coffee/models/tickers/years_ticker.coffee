@@ -31,5 +31,6 @@ class YearsTicker extends SingleIntervalTicker.Model
       minor: []
     }
 
-module.exports =
-  Model: YearsTicker
+export {
+  YearsTicker as Model
+}

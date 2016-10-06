@@ -31,5 +31,6 @@ class TableColumn extends Model
       defaultSortAsc: @default_sort == "ascending"
     }
 
-module.exports =
-  Model: TableColumn
+export {
+  TableColumn as Model
+}

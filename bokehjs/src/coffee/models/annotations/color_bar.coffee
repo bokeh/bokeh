@@ -506,6 +506,7 @@ class ColorBar extends Annotation.Model
       "major_labels": major_labels
     }
 
-module.exports =
-  Model: ColorBar
-  View: ColorBarView
+export {
+  ColorBar as Model
+  ColorBarView as View
+}

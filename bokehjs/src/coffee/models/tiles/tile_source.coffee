@@ -111,4 +111,6 @@ class TileSource extends Model
   quadkey_to_tile_xyz: (quadkey) ->
     throw Error("Not Implemented")
 
-module.exports = TileSource
+export {
+  TileSource
+}

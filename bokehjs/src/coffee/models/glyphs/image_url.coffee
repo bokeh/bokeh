@@ -126,6 +126,7 @@ class ImageURL extends Glyph.Model
       retry_timeout:  [ p.Number,    0          ]
   }
 
-module.exports =
-  Model: ImageURL
-  View: ImageURLView
+export {
+  ImageURL as Model
+  ImageURLView as View
+}

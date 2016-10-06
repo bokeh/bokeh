@@ -8,5 +8,6 @@ class WMTSTileSource extends MercatorTileSource
     [x, y, z] = @tms_to_wmts(x, y, z)
     return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
-module.exports =
-  Model : WMTSTileSource
+export {
+  WMTSTileSource as Model
+}

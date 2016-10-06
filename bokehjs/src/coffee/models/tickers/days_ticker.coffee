@@ -83,5 +83,6 @@ class DaysTicker extends SingleIntervalTicker.Model
       "minor": []
     }
 
-module.exports =
-  Model: DaysTicker
+export {
+  DaysTicker as Model
+}

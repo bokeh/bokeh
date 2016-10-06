@@ -64,6 +64,7 @@ class DateRangeSlider extends InputWidget.Model
       ###
     }
 
-module.exports =
-  Model: DateRangeSlider
-  View: DateRangeSliderView
+export {
+  DateRangeSlider as Model
+  DateRangeSliderView as View
+}

@@ -794,6 +794,7 @@ class PlotCanvas extends LayoutDOM.Model
   plot_canvas: () ->
     return @
 
-module.exports =
-  Model: PlotCanvas
-  View: PlotCanvasView
+export {
+  PlotCanvas as Model
+  PlotCanvasView as View
+}

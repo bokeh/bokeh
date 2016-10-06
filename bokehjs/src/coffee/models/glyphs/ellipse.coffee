@@ -79,6 +79,7 @@ class Ellipse extends Glyph.Model
       height: [ p.DistanceSpec     ]
     }
 
-module.exports =
-  Model: Ellipse
-  View: EllipseView
+export {
+  Ellipse as Model
+  EllipseView as View
+}

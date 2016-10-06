@@ -14,6 +14,7 @@ class PreText extends Markup.Model
   type: "PreText"
   default_view: PreTextView
 
-module.exports =
-  Model: PreText
-  View: PreTextView
+export {
+  PreText as Model
+  PreTextView as View
+}

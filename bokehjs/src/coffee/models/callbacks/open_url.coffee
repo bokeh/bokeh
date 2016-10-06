@@ -18,5 +18,6 @@ class OpenURL extends Model
       window.open(url)
     null
 
-module.exports =
-  Model: OpenURL
+export {
+  OpenURL as Model
+}

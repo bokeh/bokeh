@@ -73,6 +73,7 @@ class WheelZoomTool extends GestureTool.Model
     speed: [ p.Number, 1/600 ]
   }
 
-module.exports =
-  Model: WheelZoomTool
-  View: WheelZoomToolView
+export {
+  WheelZoomTool as Model
+  WheelZoomToolView as View
+}

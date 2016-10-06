@@ -157,6 +157,7 @@ class ToolbarBox extends Box.Model
   }
 
 
-module.exports =
-  Model: ToolbarBox
-  View: ToolbarBoxView
+export {
+  ToolbarBox as Model
+  ToolbarBoxView as View
+}

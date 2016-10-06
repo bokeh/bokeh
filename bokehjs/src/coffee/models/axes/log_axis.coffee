@@ -17,6 +17,7 @@ class LogAxis extends ContinuousAxis.Model
     formatter: () -> new LogTickFormatter.Model()
   }
 
-module.exports =
-  Model: LogAxis
-  View: LogAxisView
+export {
+  LogAxis as Model
+  LogAxisView as View
+}

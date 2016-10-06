@@ -136,5 +136,6 @@ class WidgetBox extends LayoutDOM.Model
     'children': [ p.Array, [] ]
   }
 
-module.exports =
-  Model: WidgetBox
+export {
+  WidgetBox as Model
+}

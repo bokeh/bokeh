@@ -280,4 +280,6 @@ class MercatorTileSource extends TileSource
   calculate_world_x_by_tile_xyz: (x, y, z) ->
     return Math.floor(x / Math.pow(2, z))
 
-module.exports = MercatorTileSource
+export {
+  MercatorTileSource
+}

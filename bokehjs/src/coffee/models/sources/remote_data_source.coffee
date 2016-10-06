@@ -11,5 +11,6 @@ class RemoteDataSource extends ColumnDataSource.Model
       polling_interval: [ p.Number    ]
     }
 
-module.exports =
-  Model: RemoteDataSource
+export {
+  RemoteDataSource as Model
+}

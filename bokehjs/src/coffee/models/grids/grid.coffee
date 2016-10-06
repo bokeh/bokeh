@@ -150,6 +150,7 @@ class Grid extends GuideRenderer.Model
 
     return coords
 
-module.exports =
-  Model: Grid
-  View: GridView
+export {
+  Grid as Model
+  GridView as View
+}

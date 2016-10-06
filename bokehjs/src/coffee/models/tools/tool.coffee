@@ -70,6 +70,7 @@ class Tool extends Model
 
     return [vxlim, vylim]
 
-module.exports =
-  Model: Tool
-  View: ToolView
+export {
+  Tool as Model
+  ToolView as View
+}

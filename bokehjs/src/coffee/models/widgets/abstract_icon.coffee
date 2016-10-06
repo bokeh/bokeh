@@ -4,5 +4,6 @@ import * as Widget from "./widget"
 class AbstractIcon extends Widget.Model
   type: "AbstractIcon"
 
-module.exports =
-  Model: AbstractIcon
+export {
+  AbstractIcon as Model
+}

@@ -515,19 +515,19 @@ class AsteriskGLGlyph extends MarkerGLGlyph
     """
 
 
-module.exports = {
-  CircleGLGlyph: CircleGLGlyph
-  SquareGLGlyph: SquareGLGlyph
-  AnnulusGLGlyph: AnnulusGLGlyph
-  DiamondGLGlyph: DiamondGLGlyph
-  TriangleGLGlyph: TriangleGLGlyph
-  InvertedTriangleGLGlyph: InvertedTriangleGLGlyph
-  CrossGLGlyph: CrossGLGlyph
-  CircleCrossGLGlyph: CircleCrossGLGlyph
-  SquareCrossGLGlyph: SquareCrossGLGlyph
-  DiamondCrossGLGlyph: DiamondCrossGLGlyph
-  XGLGlyph: XGLGlyph
-  CircleXGLGlyph: CircleXGLGlyph
-  SquareXGLGlyph: SquareXGLGlyph
-  AsteriskGLGlyph: AsteriskGLGlyph
+export {
+  CircleGLGlyph
+  SquareGLGlyph
+  AnnulusGLGlyph
+  DiamondGLGlyph
+  TriangleGLGlyph
+  InvertedTriangleGLGlyph
+  CrossGLGlyph
+  CircleCrossGLGlyph
+  SquareCrossGLGlyph
+  DiamondCrossGLGlyph
+  XGLGlyph
+  CircleXGLGlyph
+  SquareXGLGlyph
+  AsteriskGLGlyph
 }

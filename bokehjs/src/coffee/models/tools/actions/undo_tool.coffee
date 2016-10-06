@@ -19,7 +19,7 @@ class UndoTool extends ActionTool.Model
     disabled: true
   }
 
-module.exports = {
-  Model: UndoTool
-  View: UndoToolView
+export {
+  UndoTool as Model
+  UndoToolView as View
 }

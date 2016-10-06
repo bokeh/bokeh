@@ -361,6 +361,7 @@ class Plot extends LayoutDOM.Model
       return renderers
   }
 
-module.exports =
-  View: PlotView
-  Model: Plot
+export {
+  PlotView as View
+  Plot as Model
+}

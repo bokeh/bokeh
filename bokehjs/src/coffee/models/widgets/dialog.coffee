@@ -74,6 +74,7 @@ class Dialog extends Widget.Model
       buttons_box: [ p.Instance       ]
     }
 
-module.exports =
-  Model: Dialog
-  View: DialogView
+export {
+  Dialog as Model
+  DialogView as View
+}

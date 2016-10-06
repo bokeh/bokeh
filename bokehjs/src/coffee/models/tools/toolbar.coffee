@@ -75,5 +75,6 @@ class Toolbar extends ToolbarBase.Model
       active_tap:    [ p.Any, 'auto' ]
   }
 
-module.exports =
-  Model: Toolbar
+export {
+  Toolbar as Model
+}

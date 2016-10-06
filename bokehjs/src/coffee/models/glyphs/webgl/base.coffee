@@ -132,11 +132,4 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'vec4', vbo)
 
-
-module.exports = {
-  BaseGLGlyph: BaseGLGlyph
-  line_width: line_width
-  attach_float: attach_float
-  attach_color: attach_color
-  color2rgba: color2rgba
-}
+export {BaseGLGlyph, line_width, attach_float, attach_color, color2rgba}

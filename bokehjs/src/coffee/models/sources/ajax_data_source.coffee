@@ -56,5 +56,6 @@ class AjaxDataSource extends RemoteDataSource.Model
     )
     return null
 
-module.exports =
-  Model: AjaxDataSource
+export {
+  AjaxDataSource as Model
+}

@@ -104,6 +104,7 @@ class Bezier extends Glyph.Model
   @coords [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
   @mixins ['line']
 
-module.exports =
-  Model: Bezier
-  View: BezierView
+export {
+  Bezier as Model
+  BezierView as View
+}

@@ -75,5 +75,6 @@ class ColorMapper extends Model
       new_palette[i] = _convert(palette[i])
     return new_palette
 
-module.exports =
-  Model: ColorMapper
+export {
+  ColorMapper as Model
+}

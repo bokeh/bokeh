@@ -59,6 +59,7 @@ class TapTool extends SelectTool.Model
     callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
 
-module.exports =
-  Model: TapTool
-  View: TapToolView
+export {
+  TapTool as Model
+  TapToolView as View
+}

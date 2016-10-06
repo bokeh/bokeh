@@ -29,6 +29,7 @@ class Toggle extends AbstractButton.Model
     label: "Toggle"
   }
 
-module.exports =
-  Model: Toggle
-  View: ToggleView
+export {
+  Toggle as Model
+  ToggleView as View
+}

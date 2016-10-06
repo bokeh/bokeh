@@ -10,5 +10,6 @@ class ToolEvents extends Model
     geometries: [ p.Array, [] ]
   }
 
-module.exports =
-  Model: ToolEvents
+export {
+  ToolEvents as Model
+}

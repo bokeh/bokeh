@@ -108,6 +108,7 @@ class Span extends Annotation.Model
     computed_location: [ p.Number, null ]
   }
 
-module.exports =
-  Model: Span
-  View: SpanView
+export {
+  Span as Model
+  SpanView as View
+}

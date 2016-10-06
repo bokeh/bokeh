@@ -20,5 +20,6 @@ class SingleIntervalTicker extends ContinuousTicker.Model
 
   get_interval: (data_low, data_high, n_desired_ticks) -> @interval
 
-module.exports =
-  Model: SingleIntervalTicker
+export {
+  SingleIntervalTicker as Model
+}

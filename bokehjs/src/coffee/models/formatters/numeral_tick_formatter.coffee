@@ -26,5 +26,6 @@ class NumeralTickFormatter extends TickFormatter.Model
     return labels
 
 
-module.exports =
-  Model: NumeralTickFormatter
+export {
+  NumeralTickFormatter as Model
+}

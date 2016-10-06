@@ -20,4 +20,6 @@ class ImagePool
     else
       @images.push(img)
 
-module.exports = ImagePool
+export {
+  ImagePool
+}

@@ -53,6 +53,7 @@ class RadioGroup extends Widget.Model
       callback: [ p.Instance ]
     }
 
-module.exports =
-  Model: RadioGroup
-  View: RadioGroupView
+export {
+  RadioGroup as Model
+  RadioGroupView as View
+}

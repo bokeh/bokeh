@@ -16,5 +16,6 @@ class PrintfTickFormatter extends TickFormatter.Model
     labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
     return labels
 
-module.exports =
-  Model: PrintfTickFormatter
+export {
+  PrintfTickFormatter as Model
+}

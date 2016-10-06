@@ -84,5 +84,6 @@ class Interpolator extends Transform.Model
 
     @_sorted_dirty = false
 
-module.exports =
-  Model: Interpolator
+export {
+  Interpolator as Model
+}

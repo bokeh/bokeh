@@ -181,6 +181,7 @@ class LabelSet extends TextAnnotation.Model
     border_line_color: null
   }
 
-module.exports =
-  Model: LabelSet
-  View: LabelSetView
+export {
+  LabelSet as Model
+  LabelSetView as View
+}

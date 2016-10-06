@@ -111,6 +111,7 @@ class Line extends Glyph.Model
   @coords [['x', 'y']]
   @mixins ['line']
 
-module.exports =
-  Model: Line
-  View: LineView
+export {
+  Line as Model
+  LineView as View
+}

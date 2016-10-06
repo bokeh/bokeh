@@ -83,5 +83,6 @@ class BasicTickFormatter extends TickFormatter.Model
 
     return labels
 
-module.exports =
-  Model: BasicTickFormatter
+export {
+  BasicTickFormatter as Model
+}

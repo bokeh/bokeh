@@ -88,6 +88,7 @@ class Oval extends Glyph.Model
       height: [ p.DistanceSpec     ]
     }
 
-module.exports =
-  Model: Oval
-  View: OvalView
+export {
+  Oval as Model
+  OvalView as View
+}

@@ -175,6 +175,7 @@ class Canvas extends LayoutCanvas.Model
     constraints.push(EQ(@_height, [-1, @_top]))
     return constraints
 
-module.exports =
-  Model: Canvas
-  View: CanvasView
+export {
+  Canvas as Model
+  CanvasView as View
+}

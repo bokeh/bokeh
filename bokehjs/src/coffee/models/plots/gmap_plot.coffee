@@ -28,6 +28,7 @@ class GMapPlot extends Plot.Model
     api_key: [ p.String ]
   }
 
-module.exports =
-  Model: GMapPlot
-  View: GMapPlotView
+export {
+  GMapPlot as Model
+  GMapPlotView as View
+}

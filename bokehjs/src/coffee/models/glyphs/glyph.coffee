@@ -247,6 +247,7 @@ class Glyph extends Model
     y_range_name: [ p.String,      'default' ]
   }
 
-module.exports =
-  Model: Glyph
-  View: GlyphView
+export {
+  Glyph as Model
+  GlyphView as View
+}

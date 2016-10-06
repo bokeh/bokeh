@@ -23,5 +23,6 @@ class CategoricalColorMapper extends ColorMapper.Model
       values.push(color)
     return values
 
-module.exports =
-  Model: CategoricalColorMapper
+export {
+  CategoricalColorMapper as Model
+}

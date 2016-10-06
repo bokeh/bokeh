@@ -906,7 +906,4 @@ class LineGLGlyph extends BaseGLGlyph
       @vbo_segment.set_size(@V_segment.length*4)
       @vbo_segment.set_data(0, @V_segment)
 
-
-module.exports = {
-  LineGLGlyph: LineGLGlyph
-}
+export {LineGLGlyph}

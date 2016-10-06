@@ -16,5 +16,6 @@ class Range extends Model
 
   reset: () ->
 
-module.exports =
-  Model: Range
+export {
+  Range as Model
+}

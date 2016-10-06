@@ -79,6 +79,7 @@ class Label extends TextAnnotation.Model
     border_line_color: null
   }
 
-module.exports =
-  Model: Label
-  View: LabelView
+export {
+  Label as Model
+  LabelView as View
+}

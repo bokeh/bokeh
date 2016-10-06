@@ -124,6 +124,7 @@ class ToolbarBase extends LayoutDOM.Model
     sizing_mode: null
   }
 
-module.exports =
-  Model: ToolbarBase
-  View: ToolbarBaseView
+export {
+  ToolbarBase as Model
+  ToolbarBaseView as View
+}

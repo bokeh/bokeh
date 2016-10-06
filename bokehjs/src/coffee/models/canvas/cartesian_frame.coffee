@@ -120,5 +120,6 @@ class CartesianFrame extends LayoutCanvas.Model
     constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
     return constraints
 
-module.exports =
-  Model: CartesianFrame
+export {
+  CartesianFrame as Model
+}

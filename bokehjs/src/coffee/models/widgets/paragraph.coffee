@@ -14,6 +14,7 @@ class Paragraph extends Markup.Model
   type: "Paragraph"
   default_view: ParagraphView
 
-module.exports =
-  Model: Paragraph
-  View: ParagraphView
+export {
+  Paragraph as Model
+  ParagraphView as View
+}

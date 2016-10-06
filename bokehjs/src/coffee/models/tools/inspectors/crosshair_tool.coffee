@@ -75,6 +75,7 @@ class CrosshairTool extends InspectTool.Model
       })
     }
 
-module.exports =
-  Model: CrosshairTool
-  View: CrosshairToolView
+export {
+  CrosshairTool as Model
+  CrosshairToolView as View
+}

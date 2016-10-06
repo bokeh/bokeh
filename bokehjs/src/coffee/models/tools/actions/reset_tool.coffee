@@ -21,7 +21,7 @@ class ResetTool extends ActionTool.Model
     reset_size: [ p.Bool, true ]
   }
 
-module.exports = {
-  Model: ResetTool
-  View: ResetToolView
+export {
+  ResetTool as Model
+  ResetToolView as View
 }

@@ -6,5 +6,6 @@ class CategoricalTickFormatter extends TickFormatter.Model
   doFormat: (ticks) ->
     return ticks
 
-module.exports =
-  Model: CategoricalTickFormatter
+export {
+  CategoricalTickFormatter as Model
+}

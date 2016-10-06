@@ -41,6 +41,7 @@ class Select extends InputWidget.Model
       options: [ p.Any,    [] ] # TODO (bev) is this used?
     }
 
-module.exports =
-  Model: Select
-  View: SelectView
+export {
+  Select as Model
+  SelectView as View
+}

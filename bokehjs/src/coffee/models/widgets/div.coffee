@@ -22,6 +22,7 @@ class Div extends Markup.Model
     render_as_text: [ p.Bool,   false]
   }
 
-module.exports =
-  Model: Div
-  View: DivView
+export {
+  Div as Model
+  DivView as View
+}

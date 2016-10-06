@@ -52,15 +52,16 @@ last_year_no_later_than = (date) ->
   date.setUTCMonth(0)
   return date
 
-module.exports =
-  argmin:                   argmin
-  copy_date:                copy_date
-  last_month_no_later_than: last_month_no_later_than
-  last_year_no_later_than:  last_year_no_later_than
-  ONE_MILLI:                ONE_MILLI
-  ONE_SECOND:               ONE_SECOND
-  ONE_MINUTE:               ONE_MINUTE
-  ONE_HOUR:                 ONE_HOUR
-  ONE_DAY:                  ONE_DAY
-  ONE_MONTH:                ONE_MONTH
-  ONE_YEAR:                 ONE_YEAR
+export {
+  argmin
+  copy_date
+  last_month_no_later_than
+  last_year_no_later_than
+  ONE_MILLI
+  ONE_SECOND
+  ONE_MINUTE
+  ONE_HOUR
+  ONE_DAY
+  ONE_MONTH
+  ONE_YEAR
+}

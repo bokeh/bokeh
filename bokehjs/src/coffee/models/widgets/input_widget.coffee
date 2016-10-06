@@ -22,6 +22,7 @@ class InputWidget extends Widget.Model
       title:    [ p.String, '' ]
     }
 
-module.exports =
-  Model: InputWidget
-  View: InputWidgetView
+export {
+  InputWidget as Model
+  InputWidgetView as View
+}

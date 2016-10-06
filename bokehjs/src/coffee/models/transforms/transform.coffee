@@ -3,5 +3,6 @@ import * as Model from "../../model"
 
 class Transform extends Model
 
-module.exports =
-  Model: Transform
+export {
+  Transform as Model
+}

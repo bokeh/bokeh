@@ -120,6 +120,7 @@ class DynamicImageRenderer extends Renderer.Model
     level: 'underlay'
   }
 
-module.exports =
-  Model: DynamicImageRenderer
-  View: DynamicImageView
+export {
+  DynamicImageRenderer as Model
+  DynamicImageView as View
+}

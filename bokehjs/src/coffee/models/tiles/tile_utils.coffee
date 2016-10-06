@@ -25,5 +25,6 @@ class ProjectionUtils
     [xmax, ymax] = @meters_to_geographic(xmax, ymax)
     return [xmin, ymin, xmax, ymax]
 
-module.exports =
-  ProjectionUtils : ProjectionUtils
+export {
+  ProjectionUtils
+}

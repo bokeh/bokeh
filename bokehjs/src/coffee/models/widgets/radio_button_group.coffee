@@ -54,6 +54,7 @@ class RadioButtonGroup extends Widget.Model
       callback:    [ p.Instance ]
     }
 
-module.exports =
-  Model: RadioButtonGroup
-  View: RadioButtonGroupView
+export {
+  RadioButtonGroup as Model
+  RadioButtonGroupView as View
+}

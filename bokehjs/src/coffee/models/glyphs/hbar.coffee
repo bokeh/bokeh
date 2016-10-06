@@ -97,6 +97,7 @@ class HBar extends Glyph.Model
       right:  [ p.NumberSpec    ]
     }
 
-module.exports =
-  Model: HBar
-  View: HBarView
+export {
+  HBar as Model
+  HBarView as View
+}

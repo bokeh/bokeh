@@ -88,6 +88,7 @@ class PolySelectTool extends SelectTool.Model
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
 
-module.exports =
-  Model: PolySelectTool
-  View: PolySelectToolView
+export {
+  PolySelectTool as Model
+  PolySelectToolView as View
+}

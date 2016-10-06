@@ -19,7 +19,7 @@ class RedoTool extends ActionTool.Model
     disabled: true
   }
 
-module.exports = {
-  Model: RedoTool
-  View: RedoToolView
+export {
+  RedoTool as Model
+  RedoToolView as View
 }

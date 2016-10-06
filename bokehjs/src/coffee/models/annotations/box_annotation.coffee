@@ -120,6 +120,7 @@ class BoxAnnotation extends Annotation.Model
     @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
 
-module.exports =
-  Model: BoxAnnotation
-  View: BoxAnnotationView
+export {
+  BoxAnnotation as Model
+  BoxAnnotationView as View
+}

@@ -78,6 +78,7 @@ class Slider extends InputWidget.Model
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
 
-module.exports =
-  Model: Slider
-  View: SliderView
+export {
+  Slider as Model
+  SliderView as View
+}

@@ -27,5 +27,6 @@ class CustomJS extends Model
     # in the same order
     new Function(_.keys(@args)..., "cb_obj", "cb_data", "require", @code)
 
-module.exports =
-  Model: CustomJS
+export {
+  CustomJS as Model
+}

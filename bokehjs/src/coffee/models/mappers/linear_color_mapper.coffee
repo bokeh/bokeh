@@ -51,5 +51,6 @@ class LinearColorMapper extends ColorMapper.Model
         values.push(palette[key])
     return values
 
-module.exports =
-  Model: LinearColorMapper
+export {
+  LinearColorMapper as Model
+}

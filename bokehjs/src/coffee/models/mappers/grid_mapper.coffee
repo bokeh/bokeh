@@ -22,5 +22,6 @@ class GridMapper extends Model
     ys = @codomain_mapper.v_map_from_target(yprimes)
     return [xs, ys]
 
-module.exports =
-  Model: GridMapper
+export {
+  GridMapper as Model
+}

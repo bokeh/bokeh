@@ -82,6 +82,7 @@ class SelectTool extends GestureTool.Model
     computed_renderers: () -> @_get_computed('computed_renderers')
   }
 
-module.exports =
-  Model: SelectTool
-  View: SelectToolView
+export {
+  SelectTool as Model
+  SelectToolView as View
+}

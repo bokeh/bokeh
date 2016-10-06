@@ -129,6 +129,7 @@ class BoxSelectTool extends SelectTool.Model
     tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
-module.exports =
-  Model: BoxSelectTool
-  View: BoxSelectToolView
+export {
+  BoxSelectTool as Model
+  BoxSelectToolView as View
+}

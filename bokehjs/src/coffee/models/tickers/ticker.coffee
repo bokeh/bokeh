@@ -47,5 +47,6 @@ class Ticker extends Model
       "minor": minor_ticks
     }
 
-module.exports =
-  Model: Ticker
+export {
+  Ticker as Model
+}

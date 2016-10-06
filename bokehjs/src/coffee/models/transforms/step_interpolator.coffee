@@ -55,5 +55,6 @@ class StepInterpolator extends Interpolator.Model
       result[idx] = this.compute(x)
     return result
 
-module.exports =
-  Model: StepInterpolator
+export {
+  StepInterpolator as Model
+}

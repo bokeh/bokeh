@@ -32,6 +32,7 @@ class Markup extends Widget.Model
     text: [ p.String, '' ]
   }
 
-module.exports =
-  Model: Markup
-  View: MarkupView
+export {
+  Markup as Model
+  MarkupView as View
+}

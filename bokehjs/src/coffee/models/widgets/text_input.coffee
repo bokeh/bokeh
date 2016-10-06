@@ -43,6 +43,7 @@ class TextInput extends InputWidget.Model
       value: [ p.String, "" ]
     }
 
-module.exports =
-  Model: TextInput
-  View: TextInputView
+export {
+  TextInput as Model
+  TextInputView as View
+}

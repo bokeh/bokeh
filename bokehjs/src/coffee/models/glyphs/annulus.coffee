@@ -118,6 +118,7 @@ class Annulus extends Glyph.Model
       outer_radius: [ p.DistanceSpec ]
     }
 
-module.exports =
-  Model: Annulus
-  View: AnnulusView
+export {
+  Annulus as Model
+  AnnulusView as View
+}

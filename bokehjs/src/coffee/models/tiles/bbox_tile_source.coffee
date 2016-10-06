@@ -20,5 +20,6 @@ class BBoxTileSource extends MercatorTileSource
 
     return image_url.replace("{XMIN}", xmin).replace("{YMIN}", ymin).replace("{XMAX}", xmax).replace("{YMAX}", ymax)
 
-module.exports =
-  Model : BBoxTileSource
+export {
+  BBoxTileSource as Model
+}

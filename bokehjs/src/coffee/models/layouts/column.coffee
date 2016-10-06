@@ -11,6 +11,7 @@ class Column extends Box.Model
     super(attrs, options)
     @_horizontal = false
 
-module.exports =
-  View: ColumnView
-  Model: Column
+export {
+  ColumnView as View
+  Column as Model
+}

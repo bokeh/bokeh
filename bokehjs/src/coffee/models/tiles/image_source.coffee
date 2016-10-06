@@ -44,5 +44,6 @@ class ImageSource extends Model
     image_url = @string_lookup_replace(@url, @extra_url_vars)
     return image_url.replace("{XMIN}", xmin).replace("{YMIN}", ymin).replace("{XMAX}", xmax).replace("{YMAX}", ymax).replace("{WIDTH}", width).replace("{HEIGHT}", height)
 
-module.exports =
-  Model : ImageSource
+export {
+  ImageSource as Model
+}

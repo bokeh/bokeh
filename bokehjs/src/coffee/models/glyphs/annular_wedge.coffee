@@ -130,6 +130,7 @@ class AnnularWedge extends Glyph.Model
       end_angle:    [ p.AngleSpec                ]
     }
 
-module.exports =
-  Model: AnnularWedge
-  View: AnnularWedgeView
+export {
+  AnnularWedge as Model
+  AnnularWedgeView as View
+}

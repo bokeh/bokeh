@@ -10,5 +10,6 @@ class TableWidget extends Widget.Model
       source: [ p.Instance ]
     }
 
-module.exports =
-  Model: TableWidget
+export {
+  TableWidget as Model
+}

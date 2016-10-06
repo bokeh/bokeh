@@ -42,7 +42,8 @@ class InspectTool extends Tool.Model
   _exit_outer: () ->
 
 
-module.exports =
-  Model: InspectTool
-  View: InspectToolView
-  ListItemView: InspectToolListItemView
+export {
+  InspectTool as Model
+  InspectToolView as View
+  InspectToolListItemView as ListItemView
+}

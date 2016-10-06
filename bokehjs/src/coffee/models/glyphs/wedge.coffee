@@ -104,6 +104,7 @@ class Wedge extends Glyph.Model
       end_angle:    [ p.AngleSpec                ]
     }
 
-module.exports =
-  Model: Wedge
-  View: WedgeView
+export {
+  Wedge as Model
+  WedgeView as View
+}

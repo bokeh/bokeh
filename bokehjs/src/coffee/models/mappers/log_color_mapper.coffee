@@ -63,5 +63,6 @@ class LogColorMapper extends ColorMapper.Model
       values.push(palette[key])
     return values
 
-module.exports =
-  Model: LogColorMapper
+export {
+  LogColorMapper as Model
+}

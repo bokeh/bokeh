@@ -14,7 +14,8 @@ class GestureTool extends ButtonTool.Model
   event_type: null
   default_order: null
 
-module.exports =
-  Model: GestureTool
-  View: GestureToolView
-  ButtonView: GestureToolButtonView
+export {
+  GestureTool as Model
+  GestureToolView as View
+  GestureToolButtonView as ButtonView
+}

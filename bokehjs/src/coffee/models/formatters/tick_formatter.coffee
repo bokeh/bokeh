@@ -7,5 +7,6 @@ class TickFormatter extends Model
 
   doFormat: (ticks) ->
 
-module.exports =
-  Model: TickFormatter
+export {
+  TickFormatter as Model
+}

@@ -77,6 +77,7 @@ class ResizeTool extends GestureTool.Model
   event_type: "pan"
   default_order: 40
 
-module.exports =
-  Model: ResizeTool
-  View: ResizeToolView
+export {
+  ResizeTool as Model
+  ResizeToolView as View
+}

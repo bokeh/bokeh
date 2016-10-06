@@ -496,6 +496,7 @@ class Box extends LayoutDOM.Model
     'box-cell-align-bottom'
   ]
 
-module.exports =
-  Model: Box
-  View: BoxView
+export {
+  Box as Model
+  BoxView as View
+}

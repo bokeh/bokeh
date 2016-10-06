@@ -125,6 +125,7 @@ class LassoSelectTool extends SelectTool.Model
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
 
-module.exports =
-  Model: LassoSelectTool
-  View: LassoSelectToolView
+export {
+  LassoSelectTool as Model
+  LassoSelectToolView as View
+}

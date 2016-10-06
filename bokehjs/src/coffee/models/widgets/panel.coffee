@@ -22,6 +22,7 @@ class Panel extends Widget.Model
       closable: [ p.Bool,    false ]
     }
 
-module.exports =
-  Model: Panel
-  View: PanelView
+export {
+  Panel as Model
+  PanelView as View
+}

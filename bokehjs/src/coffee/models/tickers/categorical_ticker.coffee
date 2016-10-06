@@ -15,5 +15,6 @@ class CategoricalTicker extends Ticker.Model
       "minor": []
     }
 
-module.exports =
-  Model: CategoricalTicker
+export {
+  CategoricalTicker as Model
+}

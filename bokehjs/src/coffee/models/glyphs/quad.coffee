@@ -95,6 +95,7 @@ class Quad extends Glyph.Model
   @coords [['right', 'bottom'], ['left', 'top']]
   @mixins ['line', 'fill']
 
-module.exports =
-  Model: Quad
-  View: QuadView
+export {
+  Quad as Model
+  QuadView as View
+}

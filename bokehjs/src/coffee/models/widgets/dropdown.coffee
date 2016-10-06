@@ -51,6 +51,7 @@ class Dropdown extends AbstractButton.Model
     label: "Dropdown"
   }
 
-module.exports =
-  Model: Dropdown
-  View: DropdownView
+export {
+  Dropdown as Model
+  DropdownView as View
+}

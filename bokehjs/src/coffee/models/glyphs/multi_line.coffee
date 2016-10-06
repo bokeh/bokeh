@@ -121,6 +121,7 @@ class MultiLine extends Glyph.Model
   @coords [['xs', 'ys']]
   @mixins ['line']
 
-module.exports =
-  Model: MultiLine
-  View: MultiLineView
+export {
+  MultiLine as Model
+  MultiLineView as View
+}

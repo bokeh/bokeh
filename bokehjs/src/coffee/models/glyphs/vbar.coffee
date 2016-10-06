@@ -95,6 +95,7 @@ class VBar extends Glyph.Model
       bottom: [ p.NumberSpec, 0 ]
     }
 
-module.exports =
-  Model: VBar
-  View: VBarView
+export {
+  VBar as Model
+  VBarView as View
+}

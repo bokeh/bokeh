@@ -57,5 +57,6 @@ class LinearMapper extends Model
     target_range: [ p.Any ]
   }
 
-module.exports =
-  Model: LinearMapper
+export {
+  LinearMapper as Model
+}

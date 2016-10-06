@@ -43,5 +43,6 @@ class Spacer extends LayoutDOM.Model
     })
     return constrained_variables
 
-module.exports =
-  Model: Spacer
+export {
+  Spacer as Model
+}

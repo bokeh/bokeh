@@ -71,5 +71,6 @@ class LegendItem extends Model
           return ["Invalid field"]
     return []
 
-module.exports =
-  Model: LegendItem
+export {
+  LegendItem as Model
+}

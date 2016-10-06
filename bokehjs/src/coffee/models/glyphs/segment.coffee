@@ -44,6 +44,7 @@ class Segment extends Glyph.Model
   @coords [['x0', 'y0'], ['x1', 'y1']]
   @mixins ['line']
 
-module.exports =
-  Model: Segment
-  View: SegmentView
+export {
+  Segment as Model
+  SegmentView as View
+}

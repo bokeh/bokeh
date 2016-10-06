@@ -85,5 +85,6 @@ class LogTicker extends AdaptiveTicker.Model
       "minor": minor_ticks
     }
 
-module.exports =
-  Model: LogTicker
+export {
+  LogTicker as Model
+}

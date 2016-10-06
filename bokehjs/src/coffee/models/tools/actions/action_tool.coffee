@@ -13,7 +13,8 @@ class ActionToolView extends ButtonTool.View
 
 class ActionTool extends ButtonTool.Model
 
-module.exports =
-  Model: ActionTool
-  View: ActionToolView
-  ButtonView: ActionToolButtonView
+export {
+  ActionTool as Model
+  ActionToolView as View
+  ActionToolButtonView as ButtonView
+}

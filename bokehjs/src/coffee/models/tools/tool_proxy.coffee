@@ -34,5 +34,6 @@ class ToolProxy extends Model
     active = @model.active
     @model.active = not active
 
-module.exports =
-  ToolProxy: ToolProxy
+export {
+  ToolProxy
+}

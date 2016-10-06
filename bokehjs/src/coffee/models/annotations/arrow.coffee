@@ -104,6 +104,7 @@ class Arrow extends Annotation.Model
       y_range_name:     [ p.String,      'default'              ]
   }
 
-module.exports =
-  Model: Arrow
-  View: ArrowView
+export {
+  Arrow as Model
+  ArrowView as View
+}

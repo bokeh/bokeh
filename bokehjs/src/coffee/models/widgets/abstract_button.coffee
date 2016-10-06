@@ -54,6 +54,7 @@ class AbstractButton extends Widget.Model
   }
 
 
-module.exports =
-  Model: AbstractButton
-  View: AbstractButtonView
+export {
+  AbstractButton as Model
+  AbstractButtonView as View
+}

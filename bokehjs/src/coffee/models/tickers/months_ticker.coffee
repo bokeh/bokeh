@@ -67,5 +67,6 @@ class MonthsTicker extends SingleIntervalTicker.Model
       "minor": []
     }
 
-module.exports =
-  Model: MonthsTicker
+export {
+  MonthsTicker as Model
+}

@@ -40,6 +40,7 @@ class Icon extends AbstractIcon.Model
       spin:      [ p.Bool,   false   ]
     }
 
-module.exports =
-  Model: Icon
-  View: IconView
+export {
+  Icon as Model
+  IconView as View
+}

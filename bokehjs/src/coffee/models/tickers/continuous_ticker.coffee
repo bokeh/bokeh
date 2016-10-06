@@ -47,5 +47,6 @@ class ContinuousTicker extends Ticker.Model
     data_range = data_high - data_low
     return data_range / desired_n_ticks
 
-module.exports =
-  Model: ContinuousTicker
+export {
+  ContinuousTicker as Model
+}

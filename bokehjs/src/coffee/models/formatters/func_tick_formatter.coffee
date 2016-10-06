@@ -22,5 +22,6 @@ class FuncTickFormatter extends TickFormatter.Model
     func = @_make_func()
     return (func(tick, _.values(@args)..., require) for tick in ticks)
 
-module.exports =
-  Model: FuncTickFormatter
+export {
+  FuncTickFormatter as Model
+}

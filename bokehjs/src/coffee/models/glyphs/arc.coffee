@@ -44,6 +44,7 @@ class Arc extends Glyph.Model
       end_angle:   [ p.AngleSpec                ]
     }
 
-module.exports =
-  Model: Arc
-  View: ArcView
+export {
+  Arc as Model
+  ArcView as View
+}

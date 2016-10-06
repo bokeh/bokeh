@@ -42,7 +42,7 @@ class Renderer extends Model
     visible: [ p.Bool, true ]
   }
 
-module.exports = {
-  Model: Renderer
-  View: RendererView
+export {
+  Renderer as Model
+  RendererView as View
 }

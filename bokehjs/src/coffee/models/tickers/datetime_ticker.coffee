@@ -68,5 +68,6 @@ class DatetimeTicker extends CompositeTicker.Model
       ]
     }
 
-module.exports =
-  Model: DatetimeTicker
+export {
+  DatetimeTicker as Model
+}

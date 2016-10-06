@@ -106,6 +106,7 @@ class PanTool extends GestureTool.Model
     tooltip: () -> @_get_dim_tooltip("Pan", @dimensions)
   }
 
-module.exports =
-  Model: PanTool
-  View: PanToolView
+export {
+  PanTool as Model
+  PanToolView as View
+}

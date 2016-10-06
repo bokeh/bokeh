@@ -253,6 +253,7 @@ class GlyphRenderer extends Renderer.Model
   decimated_defaults: {fill: {fill_alpha: 0.3, fill_color: "grey"}, line: {line_alpha: 0.3, line_color: "grey"}}
   nonselection_defaults: {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}}
 
-module.exports =
-  Model: GlyphRenderer
-  View: GlyphRendererView
+export {
+  GlyphRenderer as Model
+  GlyphRendererView as View
+}

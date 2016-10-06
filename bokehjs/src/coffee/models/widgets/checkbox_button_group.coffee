@@ -54,6 +54,7 @@ class CheckboxButtonGroup extends Widget.Model
       callback:    [ p.Instance ]
     }
 
-module.exports =
-  Model: CheckboxButtonGroup
-  View: CheckboxButtonGroupView
+export {
+  CheckboxButtonGroup as Model
+  CheckboxButtonGroupView as View
+}

@@ -18,6 +18,7 @@ class Widget extends LayoutDOM.Model
   type: "Widget"
   default_view: WidgetView
 
-module.exports =
-  Model: Widget
-  View: WidgetView
+export {
+  Widget as Model
+  WidgetView as View
+}

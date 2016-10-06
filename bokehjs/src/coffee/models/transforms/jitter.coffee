@@ -25,5 +25,6 @@ class Jitter extends Transform.Model
       result[idx] = this.compute(x)
     return result
 
-module.exports =
-  Model: Jitter
+export {
+  Jitter as Model
+}

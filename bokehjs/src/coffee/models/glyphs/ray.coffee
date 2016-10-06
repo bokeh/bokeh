@@ -53,6 +53,7 @@ class Ray extends Glyph.Model
       angle:  [ p.AngleSpec    ]
     }
 
-module.exports =
-  Model: Ray
-  View: RayView
+export {
+  Ray as Model
+  RayView as View
+}

@@ -21,6 +21,7 @@ class AutocompleteInput extends TextInput.Model
       completions: [ p.Array, [] ]
     }
 
-module.exports =
-  View: AutocompleteInputView
-  Model: AutocompleteInput
+export {
+  AutocompleteInputView as View
+  AutocompleteInput as Model
+}

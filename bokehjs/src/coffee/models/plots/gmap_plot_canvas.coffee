@@ -168,6 +168,7 @@ class GMapPlotCanvas extends PlotCanvas.Model
     @use_map = true
     super(attrs, options)
 
-module.exports =
-  Model: GMapPlotCanvas
-  View: GMapPlotCanvasView
+export {
+  GMapPlotCanvas as Model
+  GMapPlotCanvasView as View
+}

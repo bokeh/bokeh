@@ -98,6 +98,7 @@ class Title extends TextAnnotation.Model
     text_baseline: [ p.TextBaseline, 'bottom' ]
   }
 
-module.exports =
-  Model: Title
-  View: TitleView
+export {
+  Title as Model
+  TitleView as View
+}

@@ -62,6 +62,7 @@ class Quadratic extends Glyph.Model
   @coords [['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']]
   @mixins ['line']
 
-module.exports =
-  Model: Quadratic
-  View: QuadraticView
+export {
+  Quadratic as Model
+  QuadraticView as View
+}

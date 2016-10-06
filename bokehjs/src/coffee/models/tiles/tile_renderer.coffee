@@ -287,6 +287,7 @@ class TileRenderer extends Renderer.Model
     level: 'underlay'
   }
 
-module.exports =
-  Model: TileRenderer
-  View: TileRendererView
+export {
+  TileRenderer as Model
+  TileRendererView as View
+}

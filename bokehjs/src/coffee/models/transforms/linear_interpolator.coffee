@@ -36,5 +36,6 @@ class LinearInterpolator extends Interpolator.Model
       result[idx] = this.compute(x)
     return result
 
-module.exports =
-  Model: LinearInterpolator
+export {
+  LinearInterpolator as Model
+}

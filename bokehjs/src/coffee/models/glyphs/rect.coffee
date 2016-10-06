@@ -150,6 +150,7 @@ class Rect extends Glyph.Model
       dilate: [ p.Bool,        false ]
     }
 
-module.exports =
-  Model: Rect
-  View: RectView
+export {
+  Rect as Model
+  RectView as View
+}

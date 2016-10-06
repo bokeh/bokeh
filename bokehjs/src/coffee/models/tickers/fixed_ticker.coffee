@@ -16,5 +16,6 @@ class FixedTicker extends ContinuousTicker.Model
       minor: []
     }
 
-module.exports =
-  Model: FixedTicker
+export {
+  FixedTicker as Model
+}

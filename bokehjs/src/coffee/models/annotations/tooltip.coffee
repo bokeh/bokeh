@@ -122,6 +122,7 @@ class Tooltip extends Annotation.Model
     # TODO (bev) not sure why this is now necessary
     @trigger('change:data')
 
-module.exports =
-  Model: Tooltip
-  View: TooltipView
+export {
+  Tooltip as Model
+  TooltipView as View
+}

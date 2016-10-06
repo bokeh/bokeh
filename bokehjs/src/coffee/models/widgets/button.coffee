@@ -20,6 +20,7 @@ class Button extends AbstractButton.Model
     clicks: [ p.Number, 0        ]
   }
 
-module.exports =
-  Model: Button
-  View: ButtonView
+export {
+  Button as Model
+  ButtonView as View
+}
