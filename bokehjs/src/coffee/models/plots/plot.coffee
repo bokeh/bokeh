@@ -12,7 +12,6 @@ import {Model as PlotCanvas} from "./plot_canvas"
 
 import * as ColumnDataSource from "../sources/column_data_source"
 import * as GlyphRenderer from "../renderers/glyph_renderer"
-import * as Title from "../annotations/title"
 
 class PlotView extends LayoutDOM.View
   className: "bk-plot-layout"
