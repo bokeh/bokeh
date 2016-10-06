@@ -1,6 +1,7 @@
 import "./core/util/underscore"
 
-Bokeh = {}
+module.exports = exports = Bokeh = {}
+
 Bokeh.require = require
 Bokeh.version = require("./version")
 
@@ -15,8 +16,6 @@ Bokeh.set_log_level     = logging.set_log_level
 
 Bokeh.index             = require("./base").index
 Bokeh.embed             = require("./embed")
-Bokeh.safely            = require("./safely")
+export {safely} from "./safely"
 
 Bokeh.Models            = require("./base").Models
-
-module.exports = Bokeh

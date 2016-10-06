@@ -35,5 +35,5 @@ class ToolProxy extends Model
     @model.active = not active
 
 export {
-  ToolProxy
+  ToolProxy as Model
 }

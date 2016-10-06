@@ -2,7 +2,7 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 
 import {Models} from "./base"
-import * as js_version from "./version"
+import {js_version} from "./version"
 import {EQ, Solver, Variable} from "./core/layout/solver"
 import {logger} from "./core/logging"
 import * as HasProps from "./core/has_props"

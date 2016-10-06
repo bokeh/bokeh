@@ -4,7 +4,7 @@ import * as _ from "underscore"
 import * as color from "../../../core/util/color"
 color2rgba = color.color2rgba
 
-class BaseGLGlyph
+export class BaseGLGlyph
 
   GLYPH: ''  # name of the glyph that this gl-glyph applies to
 
@@ -51,31 +51,31 @@ class BaseGLGlyph
     @draw(indices, mainglyph, trans)
     return true  # success
 
-line_width = (width) ->
+export line_width = (width) ->
     # Increase small values to make it more similar to canvas
     if width < 2
       width = Math.sqrt(width*2)
     return width
 
-fill_array_with_float = (n, val) ->
+export fill_array_with_float = (n, val) ->
     a = new Float32Array(n)
     for i in [0...n]
         a[i] = val
     return a
 
-fill_array_with_vec = (n, m, val) ->
+export fill_array_with_vec = (n, m, val) ->
     a = new Float32Array(n*m)
     for i in [0...n]
       for j in [0...m]
         a[i*m+j] = val[j]
     return a
 
-visual_prop_is_singular = (visual, propname) ->
+export visual_prop_is_singular = (visual, propname) ->
     # This touches the internals of the visual, so we limit use in this function
     # See renderer.coffee:cache_select() for similar code
     return not _.isUndefined(visual[propname].spec.value)
 
-attach_float = (prog, vbo, att_name, n, visual, name) ->
+export attach_float = (prog, vbo, att_name, n, visual, name) ->
     # Attach a float attribute to the program. Use singleton value if we can,
     # otherwise use VBO to apply array.
     if not visual.doit
@@ -91,7 +91,7 @@ attach_float = (prog, vbo, att_name, n, visual, name) ->
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'float', vbo)
 
-attach_color = (prog, vbo, att_name, n, visual, prefix) ->
+export attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     # Attach the color attribute to the program. If there's just one color,
     # then use this single color for all vertices (no VBO). Otherwise we
     # create an array and upload that to the VBO, which we attahce to the prog.
@@ -131,5 +131,3 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
       vbo.set_size(n*m*4)
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'vec4', vbo)
-
-export {BaseGLGlyph, line_width, attach_float, attach_color, color2rgba}

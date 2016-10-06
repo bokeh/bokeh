@@ -6,7 +6,7 @@ import * as HelpTool from "./actions/help_tool"
 import * as GestureTool from "./gestures/gesture_tool"
 import * as InspectTool from "./inspectors/inspect_tool"
 import * as ToolbarBase from "./toolbar_base"
-import {ToolProxy} from "./tool_proxy"
+import * as ToolProxy from "./tool_proxy"
 
 import * as Box from "../layouts/box"
 
@@ -78,7 +78,7 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
 
     # Add a proxy for each of the groups of tools.
     make_proxy = (tools, active=false) ->
-      return new ToolProxy({
+      return new ToolProxy.Model({
         tools: tools,
         event_type: tools[0].event_type,
         tooltip: tools[0].tool_name

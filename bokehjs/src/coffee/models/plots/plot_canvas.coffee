@@ -17,7 +17,7 @@ import {logger} from "../../core/logging"
 import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
-import {update_panel_constraints} from "../../core/layout/side_panel"
+import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)

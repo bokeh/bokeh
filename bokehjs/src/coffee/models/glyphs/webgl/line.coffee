@@ -69,7 +69,7 @@ class DashAtlas
     return [Z, period]
 
 
-class LineGLGlyph extends BaseGLGlyph
+export class LineGLGlyph extends BaseGLGlyph
 
     GLYPH: 'line'
 
@@ -905,5 +905,3 @@ class LineGLGlyph extends BaseGLGlyph
       @cumsum = cumsum  # L[-1] in Nico's code
       @vbo_segment.set_size(@V_segment.length*4)
       @vbo_segment.set_data(0, @V_segment)
-
-export {LineGLGlyph}
