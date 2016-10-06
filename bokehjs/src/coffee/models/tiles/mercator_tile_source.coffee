@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as TileSource from "./tile_source"
 import * as p from "../../core/properties"
 
-class MercatorTileSource extends TileSource
+class MercatorTileSource extends TileSource.Model
   type: 'MercatorTileSource'
 
   @define {
@@ -281,5 +281,5 @@ class MercatorTileSource extends TileSource
     return Math.floor(x / Math.pow(2, z))
 
 export {
-  MercatorTileSource
+  MercatorTileSource as Model
 }

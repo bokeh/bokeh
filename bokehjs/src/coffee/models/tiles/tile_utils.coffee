@@ -2,7 +2,7 @@ import * as proj4 from "../../core/util/proj4"
 mercator = proj4.defs('GOOGLE')
 wgs84 = proj4.defs('WGS84')
 
-class ProjectionUtils
+export class ProjectionUtils
 
   constructor: () ->
     @origin_shift = 2 * Math.PI * 6378137 / 2.0
@@ -24,7 +24,3 @@ class ProjectionUtils
     [xmin, ymin] = @meters_to_geographic(xmin, ymin)
     [xmax, ymax] = @meters_to_geographic(xmax, ymax)
     return [xmin, ymin, xmax, ymax]
-
-export {
-  ProjectionUtils
-}

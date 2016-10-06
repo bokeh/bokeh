@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-import * as ImagePool from "./image_pool"
-import * as tile_utils from "./tile_utils"
+import {ImagePool} from "./image_pool"
+import {ProjectionUtils} from "./tile_utils"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as Model from "../../model"
@@ -27,7 +27,7 @@ class TileSource extends Model
 
   constructor: (options={}) ->
     super
-    @utils = new tile_utils.ProjectionUtils()
+    @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
     @normalize_case()
@@ -112,5 +112,5 @@ class TileSource extends Model
     throw Error("Not Implemented")
 
 export {
-  TileSource
+  TileSource as Model
 }

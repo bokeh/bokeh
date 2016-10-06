@@ -1,6 +1,6 @@
 import * as MercatorTileSource from './mercator_tile_source'
 
-class TMSTileSource extends MercatorTileSource
+class TMSTileSource extends MercatorTileSource.Model
   type: 'TMSTileSource'
 
   get_image_url: (x, y, z) ->

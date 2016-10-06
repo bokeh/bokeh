@@ -1,6 +1,6 @@
 import * as MercatorTileSource from './mercator_tile_source'
 
-class WMTSTileSource extends MercatorTileSource
+class WMTSTileSource extends MercatorTileSource.Model
   type: 'WMTSTileSource'
 
   get_image_url: (x, y, z) ->

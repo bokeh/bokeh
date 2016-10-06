@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-import * as ImagePool from "./image_pool"
+import {ImagePool} from "./image_pool"
 import * as Renderer from "../renderers/renderer"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"

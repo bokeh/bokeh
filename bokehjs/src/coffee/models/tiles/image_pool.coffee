@@ -1,4 +1,4 @@
-class ImagePool
+export class ImagePool
 
   constructor: () ->
     @images = []
@@ -19,7 +19,3 @@ class ImagePool
       Array::push.apply(@images, img)
     else
       @images.push(img)
-
-export {
-  ImagePool
-}

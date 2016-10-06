@@ -132,7 +132,6 @@ module.exports = {
 
   # tiles
   TileRenderer:             require './tiles/tile_renderer'
-  TileSource:               require './tiles/tile_source'
   TMSTileSource:            require './tiles/tms_tile_source'
   WMTSTileSource:           require './tiles/wmts_tile_source'
   QUADKEYTileSource:        require './tiles/quadkey_tile_source'

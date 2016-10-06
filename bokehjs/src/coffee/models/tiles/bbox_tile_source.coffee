@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as MercatorTileSource from './mercator_tile_source'
 import * as p from "../../core/properties"
 
-class BBoxTileSource extends MercatorTileSource
+class BBoxTileSource extends MercatorTileSource.Model
   type: 'BBoxTileSource'
 
   @define {
