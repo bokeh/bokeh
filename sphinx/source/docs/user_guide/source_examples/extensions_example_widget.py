@@ -86,11 +86,8 @@ callback_single = CustomJS(args=dict(source=source), code="""
         var f = cb_obj.value
         x = data['x']
         y = data['y']
-        w = data['w']
-        z = data['z']
         for (i = 0; i < x.length; i++) {
             y[i] = Math.pow(x[i], f)
-            z[i] = Math.pow(w[i], f/2)
         }
         source.trigger('change');
     """)

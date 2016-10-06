@@ -6,9 +6,7 @@ Adding A Custom Widget
 This example shows how to add a double-ended slider widget to the plot.
 
 The single normal Bokeh slider controls the power of the line.
-The double ended sliders control the x ranges for the line.
-
-
+The double ended sliders control the x range for the line.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/extensions_example_widget_plot.py
     :source-position: none
