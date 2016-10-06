@@ -248,7 +248,8 @@ def check_issue(issue, after):
 
     else:
         if not any(label['name'].startswith('type: ') for label in labels):
-            logging.warn('issue with no type label: {}'.format(issue_line((issue))))
+            if not any(label['name']=="reso: duplicate" for label in labels):
+                logging.warn('issue with no type label: {}'.format(issue_line((issue))))
 
         if closed_issue(issue, after):
             if not any(label['name'].startswith('reso: ') for label in labels):
