@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-$1 = require "bootstrap/modal"
+import "bootstrap/modal"
 
 p = require "../../core/properties"
 

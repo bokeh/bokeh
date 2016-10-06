@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-$$1 = require "bootstrap/dropdown"
+import "bootstrap/dropdown"
 
 {logger} = require "../../core/logging"
 {EQ, Variable}  = require "../../core/layout/solver"

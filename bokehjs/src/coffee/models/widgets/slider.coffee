@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$2 = require "jquery-ui/slider"
+import "jquery-ui/slider"
 
 {logger} = require "../../core/logging"
 p = require "../../core/properties"

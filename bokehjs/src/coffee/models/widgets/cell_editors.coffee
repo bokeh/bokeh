@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-$1 = require "jquery-ui/autocomplete"
-$2 = require "jquery-ui/spinner"
+import "jquery-ui/autocomplete"
+import "jquery-ui/spinner"
 
 p = require "../../core/properties"
 

@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-$1 = require "jquery-ui/datepicker"
+import "jquery-ui/datepicker"
 
 p = require "../../core/properties"
 

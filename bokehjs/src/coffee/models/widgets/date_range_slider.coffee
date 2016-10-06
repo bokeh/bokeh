@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-$1 = require "jqrangeslider/jQDateRangeSlider"
+import "jqrangeslider/jQDateRangeSlider"
 
 p = require "../../core/properties"
 
