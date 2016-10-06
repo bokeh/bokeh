@@ -111,18 +111,8 @@ class HTMLTemplateFormatter extends CellFormatter
       compiled_template = _.template(template)
       return compiled_template(dataContext)
 
-module.exports =
-  String:
-    Model: StringFormatter
-
-  Number:
-    Model: NumberFormatter
-
-  Boolean:
-    Model: BooleanFormatter
-
-  Date:
-    Model: DateFormatter
-
-  HTMLTemplate:
-    Model: HTMLTemplateFormatter
+export String       = {Model: StringFormatter}
+export Number       = {Model: NumberFormatter}
+export Boolean      = {Model: BooleanFormatter}
+export Date         = {Model: DateFormatter}
+export HTMLTemplate = {Model: HTMLTemplateFormatter}

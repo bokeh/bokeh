@@ -281,39 +281,47 @@ class DateEditor extends CellEditor
   type: 'DateEditor'
   default_view: DateEditorView
 
-module.exports =
-  String:
-    Model: StringEditor
-    View: StringEditorView
+export String = {
+  Model: StringEditor
+  View: StringEditorView
+}
 
-  Text:
-    Model: TextEditor
-    View: TextEditorView
+export Text = {
+  Model: TextEditor
+  View: TextEditorView
+}
 
-  Select:
-    Model: SelectEditor
-    View: SelectEditorView
+export Select = {
+  Model: SelectEditor
+  View: SelectEditorView
+}
 
-  Percent:
-    Model: PercentEditor
-    View: PercentEditorView
+export Percent = {
+  Model: PercentEditor
+  View: PercentEditorView
+}
 
-  Checkbox:
-    Model: CheckboxEditor
-    View: CheckboxEditorView
+export Checkbox = {
+  Model: CheckboxEditor
+  View: CheckboxEditorView
+}
 
-  Int:
-    Model: IntEditor
-    View: IntEditorView
+export Int = {
+  Model: IntEditor
+  View: IntEditorView
+}
 
-  Number:
-    Model: NumberEditor
-    View: NumberEditorView
+export Number = {
+  Model: NumberEditor
+  View: NumberEditorView
+}
 
-  Time:
-    Model: TimeEditor
-    View: TimeEditorView
+export Time = {
+  Model: TimeEditor
+  View: TimeEditorView
+}
 
-  Date:
-    Model: DateEditor
-    View: DateEditorView
+export Date = {
+  Model: DateEditor
+  View: DateEditorView
+}
