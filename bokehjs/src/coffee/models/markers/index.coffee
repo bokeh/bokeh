@@ -201,16 +201,15 @@ x = (ctx, i, sx, sy, r, line, fill) ->
 
   return
 
-module.exports =
-  Asterisk:         generate_marker('Asterisk', asterisk)
-  CircleCross:      generate_marker('CircleCross', circle_cross)
-  CircleX:          generate_marker('CircleX', circle_x)
-  Cross:            generate_marker('Cross', cross)
-  Diamond:          generate_marker('Diamond', diamond)
-  DiamondCross:     generate_marker('DiamondCross', diamond_cross)
-  InvertedTriangle: generate_marker('InvertedTriangle', inverted_triangle)
-  Square:           generate_marker('Square', square)
-  SquareCross:      generate_marker('SquareCross', square_cross)
-  SquareX:          generate_marker('SquareX', square_x)
-  Triangle:         generate_marker('Triangle', triangle)
-  X:                generate_marker('X', x)
+export Asterisk         = generate_marker('Asterisk', asterisk)
+export CircleCross      = generate_marker('CircleCross', circle_cross)
+export CircleX          = generate_marker('CircleX', circle_x)
+export Cross            = generate_marker('Cross', cross)
+export Diamond          = generate_marker('Diamond', diamond)
+export DiamondCross     = generate_marker('DiamondCross', diamond_cross)
+export InvertedTriangle = generate_marker('InvertedTriangle', inverted_triangle)
+export Square           = generate_marker('Square', square)
+export SquareCross      = generate_marker('SquareCross', square_cross)
+export SquareX          = generate_marker('SquareX', square_x)
+export Triangle         = generate_marker('Triangle', triangle)
+export X                = generate_marker('X', x)
