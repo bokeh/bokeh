@@ -1,7 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 import * as Hammer from "hammerjs"
-mousewheel = require("jquery-mousewheel")($)
+
+import * as mousewheel from "jquery-mousewheel"
+mousewheel($)
 
 import {Events} from "./events"
 import {logger} from "./logging"
