@@ -1,4 +1,4 @@
-import * as _ from "underscore"
+import "./core/util/underscore"
 
 Bokeh = {}
 Bokeh.require = require

@@ -1,10 +1,6 @@
 import * as _ from "underscore"
 
 import {logger} from "./core/logging"
-
-# add some useful functions to underscore
-require("./core/util/underscore").patch()
-
 import * as locations from "./models/index"
 
 overrides = {}
