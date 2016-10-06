@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as Model from "../../model"
 
 import * as p from "../../core/properties"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as ColumnDataSource from "../../models/sources/column_data_source"
 
 class LegendItem extends Model

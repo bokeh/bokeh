@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-{Variable, EQ, GE, Strength}  = require "./solver"
+import {Variable, EQ, GE, Strength} from "./solver"
 import * as Model from "../../model"
 import * as p from "../properties"
 

@@ -4,8 +4,8 @@ import * as SidePanel from "../../core/layout/side_panel"
 import * as GuideRenderer from "../renderers/guide_renderer"
 import * as Renderer from "../renderers/renderer"
 
-{GE} = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
+import {GE} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class AxisView extends Renderer.View

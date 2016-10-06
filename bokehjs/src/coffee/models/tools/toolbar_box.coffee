@@ -6,7 +6,7 @@ import * as HelpTool from "./actions/help_tool"
 import * as GestureTool from "./gestures/gesture_tool"
 import * as InspectTool from "./inspectors/inspect_tool"
 import * as ToolbarBase from "./toolbar_base"
-{ToolProxy} = require "./tool_proxy"
+import {ToolProxy} from "./tool_proxy"
 
 import * as Box from "../layouts/box"
 

@@ -1,14 +1,14 @@
 import * as _ from "underscore"
 
-{WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
+import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 import * as LayoutDOM from "../layouts/layout_dom"
 import * as Title from "../annotations/title"
 import * as Toolbar from "../tools/toolbar"
 import * as ToolEvents from "../tools/tool_events"
-PlotCanvas = require("./plot_canvas").Model
+import {Model as PlotCanvas} from "./plot_canvas"
 
 import * as ColumnDataSource from "../sources/column_data_source"
 import * as GlyphRenderer from "../renderers/glyph_renderer"

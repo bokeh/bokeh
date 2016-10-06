@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as HasProps from "./has_props"
-{logger} = require "./logging"
+import {logger} from "./logging"
 import * as Selector from "./selector"
 import * as hittest from "./hittest"
 import * as p from "./properties"

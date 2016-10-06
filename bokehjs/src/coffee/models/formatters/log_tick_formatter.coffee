@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import * as BasicTickFormatter from "./basic_tick_formatter"
 import * as TickFormatter from "./tick_formatter"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class LogTickFormatter extends TickFormatter.Model

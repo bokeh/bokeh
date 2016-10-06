@@ -3,8 +3,8 @@ import * as $ from "jquery"
 import * as Hammer from "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 
-{Events} = require "./events"
-{logger} = require "./logging"
+import {Events} from "./events"
+import {logger} from "./logging"
 
 class UIEvents
   _.extend(@prototype, Events)

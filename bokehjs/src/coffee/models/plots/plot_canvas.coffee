@@ -8,16 +8,16 @@ import * as GlyphRenderer from "../renderers/glyph_renderer"
 import * as LayoutDOM from "../layouts/layout_dom"
 
 import * as build_views from "../../core/build_views"
-{UIEvents} = require "../../core/ui_events"
+import {UIEvents} from "../../core/ui_events"
 import * as LayoutCanvas from "../../core/layout/layout_canvas"
-{Visuals} = require "../../core/visuals"
+import {Visuals} from "../../core/visuals"
 import * as BokehView from "../../core/bokeh_view"
-{EQ, GE} = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
+import {EQ, GE} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
 import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
-{throttle} = require "../../core/util/throttle"
-update_panel_constraints = require("../../core/layout/side_panel").update_constraints
+import {throttle} from "../../core/util/throttle"
+import {update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)

@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import * as GestureTool from "./gesture_tool"
-{scale_range} = require "../../../core/util/zoom"
+import {scale_range} from "../../../core/util/zoom"
 import * as p from "../../../core/properties"
 
 # Here for testing purposes

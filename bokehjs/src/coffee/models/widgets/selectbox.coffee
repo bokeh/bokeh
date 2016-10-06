@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 import * as InputWidget from "./input_widget"

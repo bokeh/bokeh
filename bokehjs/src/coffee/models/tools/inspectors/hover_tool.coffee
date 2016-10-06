@@ -5,8 +5,8 @@ import * as InspectTool from "./inspect_tool"
 import * as Tooltip from "../../annotations/tooltip"
 import * as GlyphRenderer from "../../renderers/glyph_renderer"
 import * as hittest from "../../../core/hittest"
-{logger} = require "../../../core/logging"
-{replace_placeholders} = require "../../../core/util/templating"
+import {logger} from "../../../core/logging"
+import {replace_placeholders} from "../../../core/util/templating"
 import * as p from "../../../core/properties"
 
 _color_to_hex = (color) ->

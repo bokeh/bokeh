@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as Annotation from "./annotation"
 import * as GlyphRenderer from "../renderers/glyph_renderer"
 import * as p from "../../core/properties"
-{get_text_height} = require "../../core/util/text"
+import {get_text_height} from "../../core/util/text"
 
 class LegendView extends Annotation.View
   initialize: (options) ->

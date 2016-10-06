@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as kiwi from "kiwi"
-{Events} = require "../events"
+import {Events} from "../events"
 
 {Variable, Expression, Constraint, Operator, Strength} = kiwi
 

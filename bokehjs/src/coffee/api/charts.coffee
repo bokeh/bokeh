@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 import * as sprintf from "sprintf"
-{Document} = require("../document")
+import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"

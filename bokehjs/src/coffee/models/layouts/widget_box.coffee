@@ -3,8 +3,8 @@ import * as $ from "jquery"
 
 import * as build_views from "../../core/build_views"
 import * as BokehView from "../../core/bokeh_view"
-{WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
+import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 import * as LayoutDOM from "../layouts/layout_dom"

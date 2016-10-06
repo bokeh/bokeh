@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-{Events} = require "./events"
+import {Events} from "./events"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
-{valid_rgb} = require "./util/color"
+import {valid_rgb} from "./util/color"
 
 #
 # Property base class

@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as Model from "../../model"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class ToolEvents extends Model

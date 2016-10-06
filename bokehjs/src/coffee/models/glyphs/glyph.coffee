@@ -7,9 +7,9 @@ import * as bbox from "../../core/util/bbox"
 import * as proj from "../../core/util/projections"
 import * as BokehView from "../../core/bokeh_view"
 import * as Model from "../../model"
-{Visuals} = require "../../core/visuals"
+import {Visuals} from "../../core/visuals"
 import * as bokehgl from "./webgl/main"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 
 class GlyphView extends BokehView
 

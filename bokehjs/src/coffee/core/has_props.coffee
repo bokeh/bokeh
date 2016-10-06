@@ -2,11 +2,11 @@ import * as $ from "jquery"
 import * as _ from "underscore"
 import * as Backbone from "./backbone"
 
-{logger} = require "./logging"
+import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
-{array_max} = require "./util/math"
+import {array_max} from "./util/math"
 
 class HasProps extends Backbone.Model
 

@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import * as HasProps from "./has_props"
 import * as hittest from "./hittest"
-{logger} = require "./logging"
+import {logger} from "./logging"
 import * as p from "./properties"
 
 class Selector extends HasProps

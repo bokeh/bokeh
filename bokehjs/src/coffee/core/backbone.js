@@ -8,7 +8,7 @@
 import * as _ from "underscore";
 import * as $ from "jquery";
 
-var Events = require('./events').Events;
+import {Events} from './events';
 
 // Backbone.Model
 // --------------

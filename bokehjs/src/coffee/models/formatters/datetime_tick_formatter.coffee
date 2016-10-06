@@ -3,7 +3,7 @@ import * as SPrintf from "sprintf"
 import * as tz from "timezone"
 
 import * as TickFormatter from "./tick_formatter"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 _us = (t) ->

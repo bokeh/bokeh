@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as mixins from "./property_mixins"
-{color2rgba} = require "./util/color"
+import {color2rgba} from "./util/color"
 
 class ContextProperties
 

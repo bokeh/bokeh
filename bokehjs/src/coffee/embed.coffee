@@ -1,11 +1,11 @@
 import * as $ from "jquery"
 import * as _ from "underscore"
-{Promise} = require "es6-promise"
+import {Promise} from "es6-promise"
 
 import * as base from "./base"
-{pull_session} = require "./client"
-{logger, set_log_level} = require "./core/logging"
-{Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
+import {pull_session} from "./client"
+import {logger, set_log_level} from "./core/logging"
+import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.

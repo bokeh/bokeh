@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import * as Transform from "./transform"
 import * as p from "../../core/properties"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 
 class Interpolator extends Transform.Model
 

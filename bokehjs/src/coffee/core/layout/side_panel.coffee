@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-{EQ, GE} = require "./solver"
+import {EQ, GE} from "./solver"
 import * as LayoutCanvas from "./layout_canvas"
 
 import * as p from "../../core/properties"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # title text, based on it's location and orientation

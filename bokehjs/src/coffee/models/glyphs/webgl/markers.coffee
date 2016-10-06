@@ -1,6 +1,6 @@
 import * as gloo2 from "gloo2"
-{logger} = require "../../../core/logging"
-{BaseGLGlyph, line_width, attach_float, attach_color} = require "./base"
+import {logger} from "../../../core/logging"
+import {BaseGLGlyph, line_width, attach_float, attach_color} from "./base"
 
 
 class MarkerGLGlyph extends BaseGLGlyph

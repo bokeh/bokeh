@@ -1,6 +1,6 @@
 import * as Annotation from "./annotation"
 import * as Renderer from "../renderers/renderer"
-{Visuals} = require "../../core/visuals"
+import {Visuals} from "../../core/visuals"
 import * as p from "../../core/properties"
 
 class ArrowHead extends Annotation.Model

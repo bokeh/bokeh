@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import * as Glyph from "./glyph"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class ImageURLView extends Glyph.View

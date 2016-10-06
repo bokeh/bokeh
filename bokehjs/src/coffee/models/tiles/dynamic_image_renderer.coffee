@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import * as ImagePool from "./image_pool"
 import * as Renderer from "../renderers/renderer"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class DynamicImageView extends Renderer.View

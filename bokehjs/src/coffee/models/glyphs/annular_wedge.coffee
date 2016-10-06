@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as Glyph from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
-{angle_between} = require "../../core/util/math"
+import {angle_between} from "../../core/util/math"
 
 class AnnularWedgeView extends Glyph.View
 

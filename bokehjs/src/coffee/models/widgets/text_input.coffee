@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import * as build_views from "../../core/build_views"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 import * as InputWidget from "./input_widget"

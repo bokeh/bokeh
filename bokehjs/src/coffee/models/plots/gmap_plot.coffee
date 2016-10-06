@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 
 import * as GMapPlotCanvas from "./gmap_plot_canvas"
 import * as Plot from "./plot"

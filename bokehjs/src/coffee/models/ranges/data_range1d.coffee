@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import * as DataRange from "./data_range"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as bbox from "../../core/util/bbox"
 

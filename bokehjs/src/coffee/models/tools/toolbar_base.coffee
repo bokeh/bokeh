@@ -2,8 +2,8 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/dropdown"
 
-{logger} = require "../../core/logging"
-{EQ, Variable}  = require "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import {EQ, Variable} from "../../core/layout/solver"
 import * as p from "../../core/properties"
 
 import * as LayoutDOM from "../layouts/layout_dom"

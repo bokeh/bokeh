@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 import * as sprintf from "sprintf"
-{Document} = require("../document")
+import {Document} from "../document"
 import * as embed from "../embed"
-{BOKEH_ROOT} = require("../embed")
+import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 
 _default_tooltips = [

@@ -4,7 +4,7 @@ import * as $ from "jquery"
 import * as ImagePool from "./image_pool"
 import * as wmts from "./wmts_tile_source"
 import * as Renderer from "../renderers/renderer"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class TileRendererView extends Renderer.View

@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-{logger} = require "./core/logging"
+import {logger} from "./core/logging"
 
 # add some useful functions to underscore
 require("./core/util/underscore").patch()

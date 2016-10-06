@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import * as Renderer from "./renderer"
 import * as RemoteDataSource from "../sources/remote_data_source"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class GlyphRendererView extends Renderer.View

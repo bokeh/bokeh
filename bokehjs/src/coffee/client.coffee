@@ -1,9 +1,9 @@
 import * as _ from "underscore"
-{Promise} = require "es6-promise"
+import {Promise} from "es6-promise"
 
 import * as HasProps from "./core/has_props"
-{logger} = require "./core/logging"
-{Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
+import {logger} from "./core/logging"
+import {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} from "./document"
 
 DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 DEFAULT_SESSION_ID = "default"

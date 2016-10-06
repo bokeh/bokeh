@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import * as ImagePool from "./image_pool"
 import * as tile_utils from "./tile_utils"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as Model from "../../model"
 

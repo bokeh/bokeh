@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-{EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
+import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
 
 import * as LayoutDOM from "./layout_dom"

@@ -2,7 +2,7 @@ import * as $ from "jquery"
 import * as _ from "underscore"
 
 import * as Annotation from "./annotation"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class TooltipView extends Annotation.View

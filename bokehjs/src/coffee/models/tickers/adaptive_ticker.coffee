@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-{argmin} = require "./util"
+import {argmin} from "./util"
 import * as ContinuousTicker from "./continuous_ticker"
 import * as p from "../../core/properties"
 

@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import * as GestureTool from "./gesture_tool"
 import * as GlyphRenderer from "../../renderers/glyph_renderer"
-{logger} = require "../../../core/logging"
+import {logger} from "../../../core/logging"
 import * as p from "../../../core/properties"
 
 class SelectToolView extends GestureTool.View

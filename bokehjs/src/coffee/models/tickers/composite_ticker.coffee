@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import * as ContinuousTicker from "./continuous_ticker"
-{argmin} = require "./util"
+import {argmin} from "./util"
 import * as p from "../../core/properties"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate

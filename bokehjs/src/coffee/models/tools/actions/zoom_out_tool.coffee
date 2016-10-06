@@ -1,6 +1,6 @@
 import * as ActionTool from "./action_tool"
-{scale_range} = require "../../../core/util/zoom"
-{logger} = require "../../../core/logging"
+import {scale_range} from "../../../core/util/zoom"
+import {logger} from "../../../core/logging"
 
 import * as p from "../../../core/properties"
 

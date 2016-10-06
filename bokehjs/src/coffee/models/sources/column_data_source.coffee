@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as DataSource from "./data_source"
 import * as hittest from "../../core/hittest"
 import * as SelectionManager from "../../core/selection_manager"
-{logger} = require "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 # Datasource where the data is defined column-wise, i.e. each key in the

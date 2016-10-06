@@ -6,9 +6,9 @@ import * as LinearMapper from "../mappers/linear_mapper"
 import * as LogMapper from "../mappers/log_mapper"
 import * as Range1d from "../ranges/range1d"
 
-{EQ, GE}  = require "../../core/layout/solver"
+import {EQ, GE} from "../../core/layout/solver"
 import * as LayoutCanvas from "../../core/layout/layout_canvas"
-{logging} = require "../../core/logging"
+import {logging} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class CartesianFrame extends LayoutCanvas.Model
