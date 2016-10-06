@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 $1 = require "jquery-ui/autocomplete"
 $2 = require "jquery-ui/spinner"
 

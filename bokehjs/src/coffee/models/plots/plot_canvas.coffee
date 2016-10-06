@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 
 Canvas = require "../canvas/canvas"
 CartesianFrame = require "../canvas/cartesian_frame"

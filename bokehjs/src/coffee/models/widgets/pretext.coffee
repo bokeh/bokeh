@@ -1,4 +1,4 @@
-$ = require "jquery"
+import * as $ from "jquery"
 
 Markup = require "./markup"
 p = require "../../core/properties"

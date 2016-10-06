@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require("jquery")
+import * as $ from "jquery"
 sprintf = require("sprintf")
 {Document} = require("../document")
 embed = require("../embed")

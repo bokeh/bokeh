@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 $1 = require "jquery-ui/datepicker"
 
 p = require "../../core/properties"

@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 Numbro = require "numbro"
 
 p = require "../../core/properties"

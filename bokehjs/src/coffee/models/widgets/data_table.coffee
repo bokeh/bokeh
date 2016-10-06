@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 $1 = require "jquery-ui/sortable"
 SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"

@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 
 ImagePool = require "./image_pool"
 wmts = require "./wmts_tile_source"

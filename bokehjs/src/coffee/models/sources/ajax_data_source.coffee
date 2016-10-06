@@ -1,4 +1,4 @@
-$ = require "jquery"
+import * as $ from "jquery"
 import * as _ from "underscore"
 
 RemoteDataSource = require "./remote_data_source"

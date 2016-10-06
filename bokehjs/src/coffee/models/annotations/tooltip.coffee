@@ -1,4 +1,4 @@
-$ = require "jquery"
+import * as $ from "jquery"
 import * as _ from "underscore"
 
 Annotation = require "./annotation"

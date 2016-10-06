@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 
 Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"

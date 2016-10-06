@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 $1 = require "bootstrap/button"
 
 Widget = require "./widget"

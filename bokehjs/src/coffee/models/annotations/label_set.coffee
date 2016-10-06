@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 
 TextAnnotation = require "./text_annotation"
 ColumnDataSource = require "../sources/column_data_source"

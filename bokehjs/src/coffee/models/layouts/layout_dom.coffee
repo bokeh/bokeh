@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-$ = require "jquery"
+import * as $ from "jquery"
 Model = require "../../model"
 p = require "../../core/properties"
 {GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
