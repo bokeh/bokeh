@@ -8,7 +8,7 @@ mousewheel($)
 import {Events} from "./events"
 import {logger} from "./logging"
 
-class UIEvents
+export class UIEvents
   _.extend(@prototype, Events)
 
   # new (toolbar: Toolbar, hit_area: $Element)
@@ -226,7 +226,3 @@ class UIEvents
   _key_up: (e) ->
     # NOTE: keyup event triggered unconditionally
     @trigger('keyup', e)
-
-module.exports = {
-  UIEvents: UIEvents
-}

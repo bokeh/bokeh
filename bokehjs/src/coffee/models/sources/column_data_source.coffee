@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import * as DataSource from "./data_source"
 import * as hittest from "../../core/hittest"
-import * as SelectionManager from "../../core/selection_manager"
+import {SelectionManager} from "../../core/selection_manager"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 

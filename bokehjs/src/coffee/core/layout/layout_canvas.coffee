@@ -40,5 +40,6 @@ class LayoutCanvas extends Model
 
   get_constraints: () -> []
 
-module.exports =
-  Model: LayoutCanvas
+export {
+  LayoutCanvas as Model
+}

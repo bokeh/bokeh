@@ -8,7 +8,7 @@ import {valid_rgb} from "./util/color"
 # Property base class
 #
 
-class Property
+export class Property
   _.extend(@prototype, Events)
 
   dataspec: false
@@ -120,51 +120,53 @@ class Property
 # Simple Properties
 #
 
-simple_prop = (name, pred) ->
+export simple_prop = (name, pred) ->
   class Prop extends Property
     toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     validate: (value) ->
       if not pred(value)
         throw new Error("#{name} property '#{@attr}' given invalid value: #{value}")
 
-class Any extends simple_prop("Any", (x) -> true)
+export class Any extends simple_prop("Any", (x) -> true)
 
-class Array extends simple_prop("Array", (x) -> _.isArray(x) or x instanceof Float64Array)
+export class Array extends simple_prop("Array", (x) -> _.isArray(x) or x instanceof Float64Array)
 
-class Bool extends simple_prop("Bool", _.isBoolean)
+export class Bool extends simple_prop("Bool", _.isBoolean)
+export Boolean = Bool
 
-class Color extends simple_prop("Color", (x) ->
+export class Color extends simple_prop("Color", (x) ->
   svg_colors[x.toLowerCase()]? or x.substring(0, 1) == "#" or valid_rgb(x)
 )
 
-class Instance extends simple_prop("Instance", (x) -> x.properties?)
+export class Instance extends simple_prop("Instance", (x) -> x.properties?)
 
 # TODO (bev) separate booleans?
-class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
+export class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
+export Int = Number
 
 # TODO extend Number instead of copying it's predicate
 #class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
+export class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
 
-class String extends simple_prop("String", _.isString)
+export class String extends simple_prop("String", _.isString)
 
 # TODO (bev) don't think this exists python side
-class Font extends String
+export class Font extends String
 
 
 #
 # Enum properties
 #
 
-enum_prop = (name, enum_values) ->
+export enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
     toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
 
-class Anchor extends enum_prop("Anchor", enums.LegendLocation)
+export class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
-class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits)
+export class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits)
 
-class Direction extends enum_prop("Direction", enums.Direction)
+export class Direction extends enum_prop("Direction", enums.Direction)
   transform: (values) ->
     result = new Uint8Array(values.length)
     for i in [0...values.length]
@@ -173,43 +175,43 @@ class Direction extends enum_prop("Direction", enums.Direction)
         when 'anticlock' then result[i] = true
     return result
 
-class Dimension extends enum_prop("Dimension", enums.Dimension)
+export class Dimension extends enum_prop("Dimension", enums.Dimension)
 
-class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
+export class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
 
-class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
+export class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
-class LineCap extends enum_prop("LineCap", enums.LineCap)
+export class LineCap extends enum_prop("LineCap", enums.LineCap)
 
-class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
+export class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
 
-class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation)
+export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation)
 
-class Location extends enum_prop("Location", enums.Location)
+export class Location extends enum_prop("Location", enums.Location)
 
-class Orientation extends enum_prop("Orientation", enums.Orientation)
+export class Orientation extends enum_prop("Orientation", enums.Orientation)
 
-class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
+export class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
 
-class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)
+export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)
 
-class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
+export class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
 
-class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
+export class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
 
-class SizingMode extends enum_prop("SizingMode", enums.SizingMode)
+export class SizingMode extends enum_prop("SizingMode", enums.SizingMode)
 
-class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
+export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
-class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
+export class Distribution extends enum_prop("Distribution", enums.DistributionTypes)
 
-class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
+export class TransformStepMode extends enum_prop("TransformStepMode", enums.TransformStepModes)
 
 #
 # Units Properties
 #
 
-units_prop = (name, valid_units, default_units) ->
+export units_prop = (name, valid_units, default_units) ->
   class UnitsProp extends Number
     toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     init: () ->
@@ -223,84 +225,36 @@ units_prop = (name, valid_units, default_units) ->
       if units not in valid_units
         throw new Error("#{name} units must be one of #{valid_units}, given invalid value: #{units}")
 
-class Angle extends units_prop("Angle", enums.AngleUnits, "rad")
+export class Angle extends units_prop("Angle", enums.AngleUnits, "rad")
   transform: (values) ->
     if @spec.units == "deg"
       values = (x * Math.PI/180.0 for x in values)
     values = (-x for x in values)
     return super(values)
 
-class Distance extends units_prop("Distance", enums.SpatialUnits, "data")
+export class Distance extends units_prop("Distance", enums.SpatialUnits, "data")
 
 #
 # DataSpec properties
 #
 
-class AngleSpec extends Angle
+export class AngleSpec extends Angle
   dataspec: true
 
-class ColorSpec extends Color
+export class ColorSpec extends Color
   dataspec: true
 
-class DirectionSpec extends Distance
+export class DirectionSpec extends Distance
   dataspec: true
 
-class DistanceSpec extends Distance
+export class DistanceSpec extends Distance
   dataspec: true
 
-class FontSizeSpec extends String
+export class FontSizeSpec extends String
   dataspec: true
 
-class NumberSpec extends Number
+export class NumberSpec extends Number
   dataspec: true
 
-class StringSpec extends String
+export class StringSpec extends String
   dataspec: true
-
-module.exports =
-  Property: Property
-
-  simple_prop: simple_prop
-  enum_prop: enum_prop
-  units_prop: units_prop
-
-  Anchor: Anchor
-  Any: Any
-  Angle: Angle
-  AngleUnits: AngleUnits
-  Array: Array
-  Bool: Bool
-  Boolean: Bool                   # alias
-  Color: Color
-  Dimension: Dimension
-  Dimensions: Dimensions
-  Direction: Direction
-  Distance: Distance
-  Font: Font
-  FontStyle: FontStyle
-  Instance: Instance
-  LegendLocation: LegendLocation
-  LineCap: LineCap
-  LineJoin: LineJoin
-  Location: Location
-  Number: Number
-  Percent: Percent
-  Int: Number                     # TODO
-  Orientation: Orientation
-  RenderLevel: RenderLevel
-  RenderMode: RenderMode
-  SizingMode: SizingMode
-  SpatialUnits: SpatialUnits
-  String: String
-  TextAlign: TextAlign
-  TextBaseline: TextBaseline
-  Distribution: Distribution
-  TransformStepMode: TransformStepMode
-
-  AngleSpec: AngleSpec
-  ColorSpec: ColorSpec
-  DirectionSpec: DirectionSpec
-  DistanceSpec: DistanceSpec
-  FontSizeSpec: FontSizeSpec
-  NumberSpec: NumberSpec
-  StringSpec: StringSpec

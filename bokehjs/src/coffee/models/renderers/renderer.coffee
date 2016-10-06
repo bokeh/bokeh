@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-import * as BokehView from "../../core/bokeh_view"
+import {BokehView} from "../../core/bokeh_view"
 import {Visuals} from "../../core/visuals"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"

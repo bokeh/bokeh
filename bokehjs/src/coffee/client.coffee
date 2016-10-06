@@ -1,12 +1,12 @@
 import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
-import * as HasProps from "./core/has_props"
+import {HasProps} from "./core/has_props"
 import {logger} from "./core/logging"
 import {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} from "./document"
 
-DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
-DEFAULT_SESSION_ID = "default"
+export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
+export DEFAULT_SESSION_ID = "default"
 
 class Message
   constructor : (@header, @metadata, @content) ->
@@ -432,7 +432,7 @@ class ClientSession
 # The returned promise has a close() method
 # in case you want to close before getting a session;
 # session.close() works too once you have a session.
-pull_session = (url, session_id) ->
+export pull_session = (url, session_id) ->
   rejecter = null
   connection = null
   promise = new Promise (resolve, reject) ->
@@ -458,8 +458,3 @@ pull_session = (url, session_id) ->
   promise.close = () ->
     connection.close()
   promise
-
-module.exports =
-  pull_session: pull_session
-  DEFAULT_SERVER_WEBSOCKET_URL: DEFAULT_SERVER_WEBSOCKET_URL
-  DEFAULT_SESSION_ID: DEFAULT_SESSION_ID

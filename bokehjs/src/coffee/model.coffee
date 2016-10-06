@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-import * as HasProps from "./core/has_props"
+import {HasProps} from "./core/has_props"
 import * as p from "./core/properties"
 
 export class Model extends HasProps

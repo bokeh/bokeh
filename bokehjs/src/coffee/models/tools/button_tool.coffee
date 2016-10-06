@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-import * as BokehView from "../../core/bokeh_view"
+import {BokehView} from "../../core/bokeh_view"
 import * as Tool from "./tool"
 import * as button_tool_template from "./button_tool_template"
 import * as p from "../../core/properties"

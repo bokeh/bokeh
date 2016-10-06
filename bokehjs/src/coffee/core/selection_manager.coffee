@@ -1,11 +1,11 @@
 import * as _ from "underscore"
-import * as HasProps from "./has_props"
+import {HasProps} from "./has_props"
 import {logger} from "./logging"
-import * as Selector from "./selector"
+import {Selector} from "./selector"
 import * as hittest from "./hittest"
 import * as p from "./properties"
 
-class SelectionManager extends HasProps
+export class SelectionManager extends HasProps
   type: 'SelectionManager'
 
   @internal {
@@ -90,5 +90,3 @@ class SelectionManager extends HasProps
   _get_inspector: (rview) ->
     _.setdefault(@inspectors, rview.model.id, new Selector())
     return @inspectors[rview.model.id]
-
-module.exports = SelectionManager

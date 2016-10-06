@@ -3,7 +3,7 @@ import * as $ from "jquery"
 import "bootstrap/button"
 
 import * as Widget from "./widget"
-import * as BokehView from "../../core/bokeh_view"
+import {BokehView} from "../../core/bokeh_view"
 import * as p from "../../core/properties"
 import * as template from "./button_group_template"
 

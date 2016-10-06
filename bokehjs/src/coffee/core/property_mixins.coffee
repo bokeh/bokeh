@@ -18,13 +18,13 @@ _line_mixin =
   line_dash:        [ p.Array,      []        ]
   line_dash_offset: [ p.Number,     0         ]
 
-line = (prefix) -> _gen_mixin(_line_mixin, prefix)
+export line = (prefix) -> _gen_mixin(_line_mixin, prefix)
 
 _fill_mixin =
   fill_color: [ p.ColorSpec,  'gray' ]
   fill_alpha: [ p.NumberSpec, 1.0    ]
 
-fill = (prefix) -> _gen_mixin(_fill_mixin, prefix)
+export fill = (prefix) -> _gen_mixin(_fill_mixin, prefix)
 
 _text_mixin =
   text_font:       [ p.Font,         'helvetica' ]
@@ -35,9 +35,9 @@ _text_mixin =
   text_align:      [ p.TextAlign,    'left'      ]
   text_baseline:   [ p.TextBaseline, 'bottom'    ]
 
-text = (prefix) -> _gen_mixin(_text_mixin, prefix)
+export text = (prefix) -> _gen_mixin(_text_mixin, prefix)
 
-create = (configs) ->
+export create = (configs) ->
   result = {}
   for config in configs
     [kind, prefix] = config.split(":")
@@ -45,10 +45,3 @@ create = (configs) ->
       throw Error("Unknown property mixin kind '#{kind}'")
     result = _.extend result, @[kind](prefix)
   return result
-
-module.exports =
-  line: line
-  fill: fill
-  text: text
-
-  create: create

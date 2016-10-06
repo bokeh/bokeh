@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import * as BokehView from "../../core/bokeh_view"
+import {BokehView} from "../../core/bokeh_view"
 import {Model} from "../../model"
 
 class ToolView extends BokehView

@@ -5,15 +5,15 @@ import {Models} from "./base"
 import {js_version} from "./version"
 import {EQ, Solver, Variable} from "./core/layout/solver"
 import {logger} from "./core/logging"
-import * as HasProps from "./core/has_props"
+import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {MultiDict, Set} from "./core/util/data_structures"
 import * as ColumnDataSource from "./models/sources/column_data_source"
 
-class DocumentChangedEvent
+export class DocumentChangedEvent
   constructor : (@document) ->
 
-class ModelChangedEvent extends DocumentChangedEvent
+export class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
     super @document
   json : (references) ->
@@ -43,7 +43,7 @@ class ModelChangedEvent extends DocumentChangedEvent
       'new' : value_json
     }
 
-class TitleChangedEvent extends DocumentChangedEvent
+export class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title) ->
     super @document
   json : (references) ->
@@ -52,7 +52,7 @@ class TitleChangedEvent extends DocumentChangedEvent
       'title' : @title
     }
 
-class RootAddedEvent extends DocumentChangedEvent
+export class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
   json : (references) ->
@@ -62,7 +62,7 @@ class RootAddedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
-class RootRemovedEvent extends DocumentChangedEvent
+export class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
   json : (references) ->
@@ -71,11 +71,11 @@ class RootRemovedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
-DEFAULT_TITLE = "Bokeh Application"
+export DEFAULT_TITLE = "Bokeh Application"
 
 # This class should match the API of the Python Document class
 # as much as possible.
-class Document
+export class Document
 
   constructor : () ->
     @_title = DEFAULT_TITLE
@@ -693,13 +693,3 @@ class Document
 
         else
           throw new Error("Unknown patch event " + JSON.stringify(event_json))
-
-module.exports = {
-  Document : Document
-  DocumentChangedEvent : DocumentChangedEvent
-  ModelChangedEvent : ModelChangedEvent
-  TitleChangedEvent : TitleChangedEvent
-  RootAddedEvent : RootAddedEvent
-  RootRemovedEvent : RootRemovedEvent
-  DEFAULT_TITLE : DEFAULT_TITLE
-}

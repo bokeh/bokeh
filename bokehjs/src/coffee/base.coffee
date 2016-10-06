@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import {logger} from "./core/logging"
 import * as locations from "./models/index"
 
-overrides = {}
+export overrides = {}
 
 make_cache = (locations) ->
   result = {}
@@ -25,7 +25,7 @@ _get_mod_cache = () ->
     _mod_cache = make_cache(locations)
   _mod_cache
 
-Models = (typename) ->
+export Models = (typename) ->
   mod_cache = _get_mod_cache()
 
   if overrides[typename]
@@ -61,9 +61,4 @@ Models.registered_names = () ->
 # embed.coffee, to the view objects for those models.  It doesn't
 # contain all views, only those explicitly rendered to an element
 # by embed.coffee.
-index = {}
-
-module.exports =
-  overrides: overrides # for testing only
-  index: index
-  Models: Models
+export index = {}

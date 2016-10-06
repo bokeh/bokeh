@@ -19,7 +19,7 @@ import {Events} from './events';
 // performing computations and transformations on that data.
 
 // Create a new model with the specified attributes.
-var Model = function(attributes, options) {
+export var Model = function(attributes, options) {
   var attrs = attributes || {};
   options || (options = {});
   this.attributes = {};
@@ -133,7 +133,7 @@ _.extend(Model.prototype, Events, {
 
 // Creating a Backbone.View creates its initial element outside of the DOM,
 // if an existing element is not provided...
-var View = function(options) {
+export var View = function(options) {
   _.extend(this, _.pick(options, viewOptions));
   this._ensureElement();
   this.initialize.apply(this, arguments);
@@ -290,9 +290,4 @@ Model.getters = View.getters = function(specs) {
   for (var name in specs) {
     this.getter(name, specs[name]);
   }
-};
-
-module.exports = {
-  Model: Model,
-  View: View
 };

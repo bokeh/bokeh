@@ -16,7 +16,7 @@ _format_number = (number) ->
   else
     return "#{number}" # get strings for categorical types
 
-replace_placeholders = (string, data_source, i, special_vars={}) ->
+export replace_placeholders = (string, data_source, i, special_vars={}) ->
   string = string.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) => "#{prefix}@$#{name}"
 
   string = string.replace /(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
@@ -38,7 +38,3 @@ replace_placeholders = (string, data_source, i, special_vars={}) ->
     "#{prefix}#{_.escape(replacement)}"
 
   return string
-
-module.exports = {
-  replace_placeholders: replace_placeholders
-}

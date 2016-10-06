@@ -31,7 +31,7 @@ class ContextProperties
     else
       @cache[attr] = @cache[attr+"_array"][i]
 
-class Line extends ContextProperties
+export class Line extends ContextProperties
 
   attrs: _.keys(mixins.line())
   do_attr: "line_color"
@@ -78,7 +78,7 @@ class Line extends ContextProperties
     color = color2rgba(@line_color.value(), @line_alpha.value())
     return "rgba(#{color[0]*255},#{color[1]*255},#{color[2]*255},#{color[3]})"
 
-class Fill extends ContextProperties
+export class Fill extends ContextProperties
 
   attrs: _.keys(mixins.fill())
   do_attr: "fill_color"
@@ -100,7 +100,7 @@ class Fill extends ContextProperties
     color = color2rgba(@fill_color.value(), @fill_alpha.value())
     return "rgba(#{color[0]*255},#{color[1]*255},#{color[2]*255},#{color[3]})"
 
-class Text extends ContextProperties
+export class Text extends ContextProperties
 
   attrs: _.keys(mixins.text())
   do_attr: "text_color"
@@ -150,7 +150,7 @@ class Text extends ContextProperties
     if ctx.textBaseline != @cache.text_baseline
       ctx.textBaseline = @cache.text_baseline
 
-class Visuals
+export class Visuals
 
   constructor: (model) ->
     for spec in model.mixins
@@ -165,10 +165,3 @@ class Visuals
     for own name, prop of @
       if prop instanceof ContextProperties
         prop.warm_cache(source)
-
-module.exports = {
-  Visuals: Visuals
-  Line: Line
-  Fill: Fill
-  Text: Text
-}

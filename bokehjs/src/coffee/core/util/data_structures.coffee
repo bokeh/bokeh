@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-class MultiDict
+export class MultiDict
 
     constructor : () ->
       @_dict = {}
@@ -45,8 +45,7 @@ class MultiDict
       else
         return existing
 
-
-class Set
+export class Set
   constructor: (array) ->
     if not array
       @values = []
@@ -116,7 +115,3 @@ class Set
       newSet.push item if set.missing(item)
 
     return newSet
-
-module.exports =
-  MultiDict: MultiDict
-  Set: Set

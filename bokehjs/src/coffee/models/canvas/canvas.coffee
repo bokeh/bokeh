@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import * as canvas_template from "./canvas_template"
 import * as LayoutCanvas from "../../core/layout/layout_canvas"
 
-import * as BokehView from "../../core/bokeh_view"
+import {BokehView} from "../../core/bokeh_view"
 import {GE, EQ} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"

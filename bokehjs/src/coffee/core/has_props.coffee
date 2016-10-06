@@ -8,7 +8,7 @@ import * as refs from "./util/refs"
 import * as p from "./properties"
 import {array_max} from "./util/math"
 
-class HasProps extends Backbone.Model
+export class HasProps extends Backbone.Model
 
   props: {}
   mixins: []
@@ -399,5 +399,3 @@ class HasProps extends Backbone.Model
       if prop instanceof p.Distance
         data["max_#{name}"] = array_max(data["_#{name}"])
     return data
-
-module.exports = HasProps

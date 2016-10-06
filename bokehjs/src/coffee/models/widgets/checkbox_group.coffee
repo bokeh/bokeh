@@ -2,7 +2,7 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 
 import * as Widget from "./widget"
-import * as BokehView from "../../core/bokeh_view"
+import {BokehView} from "../../core/bokeh_view"
 import * as p from "../../core/properties"
 
 

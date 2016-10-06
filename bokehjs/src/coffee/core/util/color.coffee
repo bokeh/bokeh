@@ -6,7 +6,7 @@ _component2hex = (v) ->
   h = Number(v).toString(16)
   h = if h.length == 1 then '0' + h else h
 
-color2hex = (color) ->
+export color2hex = (color) ->
   color = color + ''
   if color.indexOf('#') == 0
     return color
@@ -19,7 +19,7 @@ color2hex = (color) ->
   else
     return color
 
-color2rgba = (color, alpha=1) ->
+export color2rgba = (color, alpha=1) ->
     if not color  # NaN, null, '', etc.
       return [0, 0, 0, 0]  # transparent
     # Convert to hex and then to clean version of 6 or 8 chars
@@ -37,7 +37,7 @@ color2rgba = (color, alpha=1) ->
       rgba.push(alpha)
     return rgba.slice(0, 4)  # return 4 elements
 
-valid_rgb = (value) ->
+export valid_rgb = (value) ->
   switch value.substring(0, 4)
       when "rgba" then params = {start: "rgba(", len: 4, alpha: true}
       when "rgb(" then params = {start: "rgb(", len: 3, alpha: false}
@@ -60,8 +60,3 @@ valid_rgb = (value) ->
   if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
     throw new Error("color expects rgb to have value between 0 and 255")
   return true
-
-module.exports =
-  color2hex: color2hex
-  color2rgba: color2rgba
-  valid_rgb: valid_rgb

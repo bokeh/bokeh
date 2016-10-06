@@ -1,4 +1,4 @@
-point_in_poly = (x, y, px, py) ->
+export point_in_poly = (x, y, px, py) ->
   inside = false
 
   x1 = px[px.length-1]
@@ -17,7 +17,7 @@ point_in_poly = (x, y, px, py) ->
 
 nullreturner = () -> null  # stub function shared by all hittests by default
 
-class HitTestResult
+export class HitTestResult
   constructor: () ->
     # 0d is only valid for line and patch glyphs
     @['0d'] = {
@@ -47,16 +47,16 @@ class HitTestResult
   is_empty: () ->
     @_0d.indices.length == 0 && @_1d.indices.length == 0
 
-create_hit_test_result = () -> new HitTestResult()
+export create_hit_test_result = () -> new HitTestResult()
 
-validate_bbox_coords = ([x0, x1], [y0, y1]) ->
+export validate_bbox_coords = ([x0, x1], [y0, y1]) ->
   # rbush expects x0, y0 to be min, x1, y1 max
   if x0 > x1 then [x0, x1] = [x1, x0]
   if y0 > y1 then [y0, y1] = [y1, y0]
   return {minX: x0, minY: y0, maxX: x1, maxY: y1}
 
 sqr = (x) -> x * x
-dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)
+export dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)
 
 dist_to_segment_squared = (p, v, w) ->
   l2 = dist_2_pts(v.x, v.y, w.x, w.y)
@@ -70,10 +70,10 @@ dist_to_segment_squared = (p, v, w) ->
 
   return dist_2_pts(p.x, p.y, v.x + t * (w.x - v.x), v.y + t * (w.y - v.y))
 
-dist_to_segment = (p, v, w) ->
+export dist_to_segment = (p, v, w) ->
   Math.sqrt dist_to_segment_squared(p, v, w)
 
-check_2_segments_intersect = (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l1_y1) ->
+export check_2_segments_intersect = (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l1_y1) ->
   ### Check if 2 segments (l0 and l1) intersect. Returns a structure with
     the following attributes:
       * hit (boolean): whether the 2 segments intersect
@@ -99,12 +99,3 @@ check_2_segments_intersect = (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l
       x: x,
       y: y
     }
-
-module.exports =
-  point_in_poly: point_in_poly
-  HitTestResult: HitTestResult
-  create_hit_test_result: create_hit_test_result
-  dist_2_pts: dist_2_pts
-  dist_to_segment: dist_to_segment
-  check_2_segments_intersect: check_2_segments_intersect
-  validate_bbox_coords: validate_bbox_coords

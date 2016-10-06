@@ -144,8 +144,7 @@ _align_lookup_positive = {
 #         height or width. Extending to full height or width means it's easy to
 #         calculate mid-way for alignment.
 
-
-update_constraints = (view) ->
+export update_constraints = (view) ->
   v = view
 
   if v.model.props.visible?
@@ -262,6 +261,6 @@ class SidePanel extends LayoutCanvas.Model
     side = @side
     return _angle_lookup[side][orient]
 
-module.exports =
-  Model: SidePanel
-  update_constraints: update_constraints
+export {
+  SidePanel as Model
+}

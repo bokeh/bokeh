@@ -4,8 +4,8 @@ import {Model} from "../../model"
 import * as p from "../../core/properties"
 import {GE, EQ, Strength, Variable} from "../../core/layout/solver"
 
-import * as build_views from "../../core/build_views"
-import * as BokehView from "../../core/bokeh_view"
+import {build_views} from "../../core/build_views"
+import {BokehView} from "../../core/bokeh_view"
 import {logger} from "../../core/logging"
 
 class LayoutDOMView extends BokehView

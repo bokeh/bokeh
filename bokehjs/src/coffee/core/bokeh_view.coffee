@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import * as Backbone from "./backbone"
 
-class BokehView extends Backbone.View
+export class BokehView extends Backbone.View
   initialize: (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
@@ -16,5 +16,3 @@ class BokehView extends Backbone.View
         val.off(null, null, this)
     @trigger('remove', this)
     super()
-
-module.exports = BokehView
