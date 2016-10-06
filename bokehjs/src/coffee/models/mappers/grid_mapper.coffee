@@ -1,4 +1,4 @@
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class GridMapper extends Model
 

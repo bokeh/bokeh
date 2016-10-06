@@ -2,7 +2,7 @@ import * as _ from "underscore"
 import * as HasProps from "./core/has_props"
 import * as p from "./core/properties"
 
-class Model extends HasProps
+export class Model extends HasProps
   type: "Model"
 
   @define {
@@ -27,5 +27,3 @@ class Model extends HasProps
         result[0]
       else
         throw new Error("found more than one object matching given selector")
-
-module.exports = Model

@@ -4,7 +4,7 @@ import {ImagePool} from "./image_pool"
 import {ProjectionUtils} from "./tile_utils"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class TileSource extends Model
   type: 'TileSource'

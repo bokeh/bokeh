@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import {Variable, EQ, GE, Strength} from "./solver"
-import * as Model from "../../model"
+import {Model} from "../../model"
 import * as p from "../properties"
 
 class LayoutCanvas extends Model

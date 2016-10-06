@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class ImageSource extends Model
   type: 'ImageSource'

@@ -1,5 +1,5 @@
 import * as p from "../../core/properties"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 
 class ToolProxy extends Model

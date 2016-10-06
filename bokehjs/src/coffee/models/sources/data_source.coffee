@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-import * as Model from "../../model"
+import {Model} from "../../model"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 

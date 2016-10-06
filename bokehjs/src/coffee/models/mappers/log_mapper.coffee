@@ -1,4 +1,4 @@
-import * as Model from "../../model"
+import {Model} from "../../model"
 import * as p from "../../core/properties"
 
 class LogMapper extends Model

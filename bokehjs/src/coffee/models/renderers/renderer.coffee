@@ -5,7 +5,7 @@ import {Visuals} from "../../core/visuals"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as proj from "../../core/util/projections"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class RendererView extends BokehView
 

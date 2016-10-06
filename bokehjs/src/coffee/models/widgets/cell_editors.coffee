@@ -6,7 +6,7 @@ import "jquery-ui/spinner"
 import * as p from "../../core/properties"
 
 import * as BokehView from "../../core/bokeh_view"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class CellEditorView extends BokehView
 

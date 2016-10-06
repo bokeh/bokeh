@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import * as p from "../../core/properties"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class CustomJS extends Model
   type: 'CustomJS'

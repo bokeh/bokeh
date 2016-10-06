@@ -3,7 +3,7 @@ import * as $ from "jquery"
 import * as Numbro from "numbro"
 
 import * as p from "../../core/properties"
-import * as Model from "../../model"
+import {Model} from "../../model"
 
 class CellFormatter extends Model
   doFormat: (row, cell, value, columnDef, dataContext) ->
