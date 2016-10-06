@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-Model = require "../../model"
+import * as Model from "../../model"
 
 class TickFormatter extends Model
   type: 'TickFormatter'

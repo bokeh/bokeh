@@ -1,8 +1,8 @@
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-build_views = require "../../core/build_views"
-Widget = require "./widget"
-template = require "./button_template"
+import * as build_views from "../../core/build_views"
+import * as Widget from "./widget"
+import * as template from "./button_template"
 
 
 class AbstractButtonView extends Widget.View

@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-Hammer = require "hammerjs"
+import * as Hammer from "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 
 {Events} = require "./events"

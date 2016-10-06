@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-Model = require "../../model"
+import * as Model from "../../model"
 
 class Transform extends Model
 

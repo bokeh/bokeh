@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-GuideRenderer = require "../renderers/guide_renderer"
-Renderer = require "../renderers/renderer"
-p = require "../../core/properties"
+import * as GuideRenderer from "../renderers/guide_renderer"
+import * as Renderer from "../renderers/renderer"
+import * as p from "../../core/properties"
 
 class GridView extends Renderer.View
   initialize: (attrs, options) ->

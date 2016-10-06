@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-Transform = require "./transform"
-Interpolator = require "./interpolator"
-p = require "../../core/properties"
+import * as Transform from "./transform"
+import * as Interpolator from "./interpolator"
+import * as p from "../../core/properties"
 
 
 class StepInterpolator extends Interpolator.Model

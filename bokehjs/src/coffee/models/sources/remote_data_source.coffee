@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-ColumnDataSource = require "./column_data_source"
-p = require "../../core/properties"
+import * as ColumnDataSource from "./column_data_source"
+import * as p from "../../core/properties"
 
 class RemoteDataSource extends ColumnDataSource.Model
   type: 'RemoteDataSource'

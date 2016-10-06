@@ -1,6 +1,6 @@
-path = require "path"
-assert = require "assert"
-rootRequire = require("root-require")
+import * as path from "path"
+import * as assert from "assert"
+import * as rootRequire from "root-require"
 
 root = rootRequire.packpath.parent()
 pkg = rootRequire("./package.json")

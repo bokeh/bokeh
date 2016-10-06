@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-rbush = require "rbush"
+import * as rbush from "rbush"
 
-hittest = require "../../core/hittest"
-Glyph = require "./glyph"
+import * as hittest from "../../core/hittest"
+import * as Glyph from "./glyph"
 
 class MultiLineView extends Glyph.View
 

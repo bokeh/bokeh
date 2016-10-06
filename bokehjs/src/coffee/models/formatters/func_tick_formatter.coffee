@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-TickFormatter = require "../formatters/tick_formatter"
+import * as TickFormatter from "../formatters/tick_formatter"
 
 class FuncTickFormatter extends TickFormatter.Model
   type: 'FuncTickFormatter'

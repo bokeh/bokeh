@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-LinearAxis = require "./axis"
-DatetimeTickFormatter = require "../formatters/datetime_tick_formatter"
-DatetimeTicker = require "../tickers/datetime_ticker"
+import * as LinearAxis from "./axis"
+import * as DatetimeTickFormatter from "../formatters/datetime_tick_formatter"
+import * as DatetimeTicker from "../tickers/datetime_ticker"
 
 class DatetimeAxisView extends LinearAxis.View
 

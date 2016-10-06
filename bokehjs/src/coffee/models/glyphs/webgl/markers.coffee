@@ -1,4 +1,4 @@
-gloo2 = require "gloo2"
+import * as gloo2 from "gloo2"
 {logger} = require "../../../core/logging"
 {BaseGLGlyph, line_width, attach_float, attach_color} = require "./base"
 

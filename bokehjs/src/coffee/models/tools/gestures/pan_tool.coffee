@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
-p = require "../../../core/properties"
+import * as GestureTool from "./gesture_tool"
+import * as p from "../../../core/properties"
 
 class PanToolView extends GestureTool.View
 

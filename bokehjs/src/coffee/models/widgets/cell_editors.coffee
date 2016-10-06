@@ -3,10 +3,10 @@ import * as $ from "jquery"
 import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-BokehView = require "../../core/bokeh_view"
-Model = require "../../model"
+import * as BokehView from "../../core/bokeh_view"
+import * as Model from "../../model"
 
 class CellEditorView extends BokehView
 

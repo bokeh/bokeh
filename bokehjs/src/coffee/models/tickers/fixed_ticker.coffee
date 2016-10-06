@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-ContinuousTicker = require "./continuous_ticker"
-p = require "../../core/properties"
+import * as ContinuousTicker from "./continuous_ticker"
+import * as p from "../../core/properties"
 
 class FixedTicker extends ContinuousTicker.Model
   type: 'FixedTicker'

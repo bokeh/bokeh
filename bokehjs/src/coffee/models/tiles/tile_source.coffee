@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-ImagePool = require "./image_pool"
-tile_utils = require "./tile_utils"
+import * as ImagePool from "./image_pool"
+import * as tile_utils from "./tile_utils"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import * as Model from "../../model"
 
 class TileSource extends Model
   type: 'TileSource'

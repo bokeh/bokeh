@@ -1,13 +1,13 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-build_views = require "../../core/build_views"
-BokehView = require "../../core/bokeh_view"
+import * as build_views from "../../core/build_views"
+import * as BokehView from "../../core/bokeh_view"
 {WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-LayoutDOM = require "../layouts/layout_dom"
+import * as LayoutDOM from "../layouts/layout_dom"
 
 
 class WidgetBoxView extends LayoutDOM.View

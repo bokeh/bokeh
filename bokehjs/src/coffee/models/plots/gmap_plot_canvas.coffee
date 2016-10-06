@@ -1,9 +1,9 @@
 import * as _ from "underscore"
-proj4 = require "../../core/util/proj4"
+import * as proj4 from "../../core/util/proj4"
 toProjection = proj4.defs('GOOGLE')
 
-PlotCanvas = require "./plot_canvas"
-p = require "../../core/properties"
+import * as PlotCanvas from "./plot_canvas"
+import * as p from "../../core/properties"
 
 class GMapPlotCanvasView extends PlotCanvas.View
 

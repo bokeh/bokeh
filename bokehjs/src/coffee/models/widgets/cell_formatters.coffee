@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-Numbro = require "numbro"
+import * as Numbro from "numbro"
 
-p = require "../../core/properties"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import * as Model from "../../model"
 
 class CellFormatter extends Model
   doFormat: (row, cell, value, columnDef, dataContext) ->

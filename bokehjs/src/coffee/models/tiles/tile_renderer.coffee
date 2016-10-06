@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-ImagePool = require "./image_pool"
-wmts = require "./wmts_tile_source"
-Renderer = require "../renderers/renderer"
+import * as ImagePool from "./image_pool"
+import * as wmts from "./wmts_tile_source"
+import * as Renderer from "../renderers/renderer"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class TileRendererView extends Renderer.View
 

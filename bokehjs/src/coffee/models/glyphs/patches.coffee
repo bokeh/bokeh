@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-rbush = require "rbush"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
-hittest = require "../../core/hittest"
+import * as Glyph from "./glyph"
+import * as hittest from "../../core/hittest"
 
 class PatchesView extends Glyph.View
 

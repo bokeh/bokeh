@@ -1,6 +1,6 @@
 import * as _ from "underscore"
-Transform = require "./transform"
-p = require "../../core/properties"
+import * as Transform from "./transform"
+import * as p from "../../core/properties"
 {logger} = require "../../core/logging"
 
 class Interpolator extends Transform.Model

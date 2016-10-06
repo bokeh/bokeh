@@ -1,4 +1,4 @@
-proj4 = require "../../core/util/proj4"
+import * as proj4 from "../../core/util/proj4"
 mercator = proj4.defs('GOOGLE')
 wgs84 = proj4.defs('WGS84')
 

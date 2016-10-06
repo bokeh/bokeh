@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-ColorMapper = require "./color_mapper"
+import * as ColorMapper from "./color_mapper"
 
 
 class CategoricalColorMapper extends ColorMapper.Model

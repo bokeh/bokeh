@@ -2,10 +2,10 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/button"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
-template = require "./button_group_template"
+import * as Widget from "./widget"
+import * as template from "./button_group_template"
 
 
 class RadioButtonGroupView extends Widget.View

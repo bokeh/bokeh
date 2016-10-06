@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import * as InputWidget from "./input_widget"
 
-multiselecttemplate = require "./multiselecttemplate"
+import * as multiselecttemplate from "./multiselecttemplate"
 
 
 class MultiSelectView extends InputWidget.View

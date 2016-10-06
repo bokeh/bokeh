@@ -1,4 +1,4 @@
-Axis = require "./axis"
+import * as Axis from "./axis"
 
 class ContinuousAxis extends Axis.Model
   type: 'ContinuousAxis'

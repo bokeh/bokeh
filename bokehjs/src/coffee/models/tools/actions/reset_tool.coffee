@@ -1,6 +1,6 @@
-ActionTool = require "./action_tool"
+import * as ActionTool from "./action_tool"
 
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
 class ResetToolView extends ActionTool.View
 

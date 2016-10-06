@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-HasProps = require "../has_props"
+import * as HasProps from "../has_props"
 
 # Create a Bokeh reference from a HasProps subclass
 #

@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Ticker = require "./ticker"
-p = require "../../core/properties"
+import * as Ticker from "./ticker"
+import * as p from "../../core/properties"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.

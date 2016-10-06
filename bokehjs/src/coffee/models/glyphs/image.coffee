@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-Glyph = require "../glyphs/glyph"
-LinearColorMapper = require "../mappers/linear_color_mapper"
-p = require "../../core/properties"
+import * as Glyph from "../glyphs/glyph"
+import * as LinearColorMapper from "../mappers/linear_color_mapper"
+import * as p from "../../core/properties"
 
 class ImageView extends Glyph.View
 

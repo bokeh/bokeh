@@ -1,4 +1,4 @@
-LayoutDOM = require "../layouts/layout_dom"
+import * as LayoutDOM from "../layouts/layout_dom"
 
 
 class WidgetView extends LayoutDOM.View

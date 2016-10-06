@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-Numbro = require "numbro"
+import * as Numbro from "numbro"
 
-TickFormatter = require "./tick_formatter"
-p = require "../../core/properties"
+import * as TickFormatter from "./tick_formatter"
+import * as p from "../../core/properties"
 
 class NumeralTickFormatter extends TickFormatter.Model
   type: 'NumeralTickFormatter'

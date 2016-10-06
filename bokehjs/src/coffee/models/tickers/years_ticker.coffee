@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-BasicTicker = require "./basic_ticker"
-SingleIntervalTicker = require "./single_interval_ticker"
-util = require "./util"
+import * as BasicTicker from "./basic_ticker"
+import * as SingleIntervalTicker from "./single_interval_ticker"
+import * as util from "./util"
 
 last_year_no_later_than = util.last_year_no_later_than
 ONE_YEAR = util.ONE_YEAR

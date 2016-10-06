@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-Transform = require "./transform"
-p = require "../../core/properties"
-bokeh_math = require "../../core/util/math"
+import * as Transform from "./transform"
+import * as p from "../../core/properties"
+import * as bokeh_math from "../../core/util/math"
 
 class Jitter extends Transform.Model
   @define {

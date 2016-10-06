@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 {logger} = require "../../core/logging"
 
-GMapPlotCanvas = require "./gmap_plot_canvas"
-Plot = require "./plot"
-p = require "../../core/properties"
+import * as GMapPlotCanvas from "./gmap_plot_canvas"
+import * as Plot from "./plot"
+import * as p from "../../core/properties"
 
 class GMapPlotView extends Plot.View
 

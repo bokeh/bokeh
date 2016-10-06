@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Widget = require "./widget"
-p = require "../../core/properties"
+import * as Widget from "./widget"
+import * as p from "../../core/properties"
 
 class InputWidgetView extends Widget.View
 

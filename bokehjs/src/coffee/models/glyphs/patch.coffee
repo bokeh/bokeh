@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-Glyph = require "./glyph"
+import * as Glyph from "./glyph"
 
 class PatchView extends Glyph.View
 

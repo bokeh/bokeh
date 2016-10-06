@@ -2,10 +2,10 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/tab"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-tabs_template = require "./tabs_template"
-Widget = require "./widget"
+import * as tabs_template from "./tabs_template"
+import * as Widget from "./widget"
 
 class TabsView extends Widget.View
 

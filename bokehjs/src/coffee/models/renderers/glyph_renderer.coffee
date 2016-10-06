@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-Renderer = require "./renderer"
-RemoteDataSource = require "../sources/remote_data_source"
+import * as Renderer from "./renderer"
+import * as RemoteDataSource from "../sources/remote_data_source"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class GlyphRendererView extends Renderer.View
 

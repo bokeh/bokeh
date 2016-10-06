@@ -1,12 +1,12 @@
 import * as _ from "underscore"
 
-SidePanel = require "../../core/layout/side_panel"
-GuideRenderer = require "../renderers/guide_renderer"
-Renderer = require "../renderers/renderer"
+import * as SidePanel from "../../core/layout/side_panel"
+import * as GuideRenderer from "../renderers/guide_renderer"
+import * as Renderer from "../renderers/renderer"
 
 {GE} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class AxisView extends Renderer.View
   initialize: (options) ->

@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
-BoxAnnotation = require "../../annotations/box_annotation"
-p = require "../../../core/properties"
+import * as GestureTool from "./gesture_tool"
+import * as BoxAnnotation from "../../annotations/box_annotation"
+import * as p from "../../../core/properties"
 
 class BoxZoomToolView extends GestureTool.View
 

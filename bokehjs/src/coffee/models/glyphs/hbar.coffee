@@ -1,10 +1,10 @@
 import * as _ from "underscore"
-rbush = require "rbush"
-Quad = require "./quad"
-Glyph = require "./glyph"
-CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
+import * as rbush from "rbush"
+import * as Quad from "./quad"
+import * as Glyph from "./glyph"
+import * as CategoricalMapper from "../mappers/categorical_mapper"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
 class HBarView extends Glyph.View
 

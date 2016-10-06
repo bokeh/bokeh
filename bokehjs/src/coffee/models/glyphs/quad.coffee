@@ -1,9 +1,9 @@
 import * as _ from "underscore"
-rbush = require "rbush"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
-CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../core/hittest"
+import * as Glyph from "./glyph"
+import * as CategoricalMapper from "../mappers/categorical_mapper"
+import * as hittest from "../../core/hittest"
 
 class QuadView extends Glyph.View
 

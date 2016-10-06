@@ -1,6 +1,6 @@
-TextAnnotation = require "./text_annotation"
-p = require "../../core/properties"
-Visuals = require "../../core/visuals"
+import * as TextAnnotation from "./text_annotation"
+import * as p from "../../core/properties"
+import * as Visuals from "../../core/visuals"
 
 class TitleView extends TextAnnotation.View
 

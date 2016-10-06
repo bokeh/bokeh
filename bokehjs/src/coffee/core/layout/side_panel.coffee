@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
 {EQ, GE} = require "./solver"
-LayoutCanvas = require "./layout_canvas"
+import * as LayoutCanvas from "./layout_canvas"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 {logger} = require "../../core/logging"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of

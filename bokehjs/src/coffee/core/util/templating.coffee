@@ -1,6 +1,6 @@
-_  = require "underscore"
-SPrintf = require "sprintf"
-Numbro = require "numbro"
+import * as _ from "underscore"
+import * as SPrintf from "sprintf"
+import * as Numbro from "numbro"
 
 _format_number = (number) ->
   if _.isNumber(number)

@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 
-Markup = require "./markup"
-p = require "../../core/properties"
+import * as Markup from "./markup"
+import * as p from "../../core/properties"
 
 class PreTextView extends Markup.View
 

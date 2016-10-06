@@ -1,4 +1,4 @@
-Ticker = require "./ticker"
+import * as Ticker from "./ticker"
 
 class CategoricalTicker extends Ticker.Model
   type: 'CategoricalTicker'

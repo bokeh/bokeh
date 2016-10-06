@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-rbush = require "rbush"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
+import * as Glyph from "./glyph"
 
 # Formula from: http://pomax.nihongoresources.com/pages/bezier/
 #

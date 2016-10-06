@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractButton = require "./abstract_button"
+import * as AbstractButton from "./abstract_button"
 
 
 class ButtonView extends AbstractButton.View

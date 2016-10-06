@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-p  = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractIcon = require "./abstract_icon"
-Widget = require "./widget"
+import * as AbstractIcon from "./abstract_icon"
+import * as Widget from "./widget"
 
 class IconView extends Widget.View
   tagName: "i"

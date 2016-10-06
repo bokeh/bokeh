@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
+import * as Glyph from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
 class CircleView extends Glyph.View
 

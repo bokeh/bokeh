@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
+import * as GestureTool from "./gesture_tool"
 {scale_range} = require "../../../core/util/zoom"
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
 # Here for testing purposes
 document = {} unless document?

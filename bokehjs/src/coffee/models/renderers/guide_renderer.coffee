@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Renderer = require "./renderer"
-p = require "../../core/properties"
+import * as Renderer from "./renderer"
+import * as p from "../../core/properties"
 
 class GuideRenderer extends Renderer.Model
   type: 'GuideRenderer'

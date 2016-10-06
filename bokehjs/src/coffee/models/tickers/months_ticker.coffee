@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-SingleIntervalTicker = require "./single_interval_ticker"
-util = require "./util"
-p = require "../../core/properties"
+import * as SingleIntervalTicker from "./single_interval_ticker"
+import * as util from "./util"
+import * as p from "../../core/properties"
 
 copy_date = util.copy_date
 last_year_no_later_than = util.last_year_no_later_than

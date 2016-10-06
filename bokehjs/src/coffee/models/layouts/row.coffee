@@ -1,4 +1,4 @@
-Box = require "./box"
+import * as Box from "./box"
 
 class RowView extends Box.View
   className: "bk-grid-row"

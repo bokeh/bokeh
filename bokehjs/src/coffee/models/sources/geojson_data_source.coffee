@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-ColumnDataSource = require "./column_data_source"
+import * as ColumnDataSource from "./column_data_source"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class GeoJSONDataSource extends ColumnDataSource.Model
   type: 'GeoJSONDataSource'

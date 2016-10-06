@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-build_views = require "../../core/build_views"
+import * as build_views from "../../core/build_views"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
-template = require "./text_input_template"
+import * as InputWidget from "./input_widget"
+import * as template from "./text_input_template"
 
 
 class TextInputView extends InputWidget.View

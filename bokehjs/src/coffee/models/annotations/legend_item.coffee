@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-Model = require "../../model"
+import * as Model from "../../model"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 {logger} = require "../../core/logging"
-ColumnDataSource = require "../../models/sources/column_data_source"
+import * as ColumnDataSource from "../../models/sources/column_data_source"
 
 class LegendItem extends Model
   type: "LegendItem"

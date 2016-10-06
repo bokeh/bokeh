@@ -1,6 +1,6 @@
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractButton = require "./abstract_button"
+import * as AbstractButton from "./abstract_button"
 
 
 class ToggleView extends AbstractButton.View

@@ -1,7 +1,7 @@
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
-template = require "./markup_template"
+import * as Widget from "./widget"
+import * as template from "./markup_template"
 
 
 class MarkupView extends Widget.View

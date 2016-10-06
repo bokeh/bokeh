@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
 {argmin} = require "./util"
-ContinuousTicker = require "./continuous_ticker"
-p = require "../../core/properties"
+import * as ContinuousTicker from "./continuous_ticker"
+import * as p from "../../core/properties"
 
 # Forces a number x into a specified range [min_val, max_val].
 clamp = (x, min_val, max_val) ->

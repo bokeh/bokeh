@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-DataRange = require "./data_range"
+import * as DataRange from "./data_range"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
-bbox = require "../../core/util/bbox"
+import * as p from "../../core/properties"
+import * as bbox from "../../core/util/bbox"
 
 class DataRange1d extends DataRange.Model
   type: 'DataRange1d'

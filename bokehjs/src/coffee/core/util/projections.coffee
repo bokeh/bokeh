@@ -1,4 +1,4 @@
-proj4 = require "./proj4"
+import * as proj4 from "./proj4"
 toProjection = proj4.defs('GOOGLE')
 
 project_xy = (x, y) ->

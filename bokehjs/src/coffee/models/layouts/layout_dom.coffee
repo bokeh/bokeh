@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-Model = require "../../model"
-p = require "../../core/properties"
+import * as Model from "../../model"
+import * as p from "../../core/properties"
 {GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
 
-build_views = require "../../core/build_views"
-BokehView = require "../../core/bokeh_view"
+import * as build_views from "../../core/build_views"
+import * as BokehView from "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 
 class LayoutDOMView extends BokehView

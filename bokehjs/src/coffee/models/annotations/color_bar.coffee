@@ -1,15 +1,15 @@
 import * as _ from "underscore"
 
-Annotation = require "./annotation"
-BasicTicker = require "../tickers/basic_ticker"
-BasicTickFormatter = require "../formatters/basic_tick_formatter"
-LinearColorMapper = require "../mappers/linear_color_mapper"
-LinearMapper = require "../mappers/linear_mapper"
-LogMapper = require "../mappers/log_mapper"
-Range1d = require "../ranges/range1d"
+import * as Annotation from "./annotation"
+import * as BasicTicker from "../tickers/basic_ticker"
+import * as BasicTickFormatter from "../formatters/basic_tick_formatter"
+import * as LinearColorMapper from "../mappers/linear_color_mapper"
+import * as LinearMapper from "../mappers/linear_mapper"
+import * as LogMapper from "../mappers/log_mapper"
+import * as Range1d from "../ranges/range1d"
 
-p = require "../../core/properties"
-text_util = require "../../core/util/text"
+import * as p from "../../core/properties"
+import * as text_util from "../../core/util/text"
 
 SHORT_DIM = 25
 LONG_DIM_MIN_SCALAR = 0.3

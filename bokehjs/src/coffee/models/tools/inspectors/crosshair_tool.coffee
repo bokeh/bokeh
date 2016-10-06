@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-InspectTool = require "./inspect_tool"
-Span = require "../../annotations/span"
-p = require "../../../core/properties"
+import * as InspectTool from "./inspect_tool"
+import * as Span from "../../annotations/span"
+import * as p from "../../../core/properties"
 
 class CrosshairToolView extends InspectTool.View
 

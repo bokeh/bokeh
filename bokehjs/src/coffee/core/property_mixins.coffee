@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-p = require "./properties"
+import * as p from "./properties"
 
 _gen_mixin = (mixin, prefix) ->
   result = {}

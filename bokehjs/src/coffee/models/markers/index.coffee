@@ -1,4 +1,4 @@
-M = require "./marker"
+import * as M from "./marker"
 
 SQ3 = Math.sqrt(3)
 

@@ -2,7 +2,7 @@ import * as $ from "jquery"
 import * as _ from "underscore"
 {Promise} = require "es6-promise"
 
-base = require "./base"
+import * as base from "./base"
 {pull_session} = require "./client"
 {logger, set_log_level} = require "./core/logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"

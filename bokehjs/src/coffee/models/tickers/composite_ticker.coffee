@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-ContinuousTicker = require "./continuous_ticker"
+import * as ContinuousTicker from "./continuous_ticker"
 {argmin} = require "./util"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate
 # for a given range.

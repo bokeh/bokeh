@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 
-Markup = require "./markup"
+import * as Markup from "./markup"
 
 class ParagraphView extends Markup.View
 

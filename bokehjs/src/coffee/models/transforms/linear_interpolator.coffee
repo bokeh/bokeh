@@ -1,6 +1,6 @@
 import * as _ from "underscore"
-Transform = require "./transform"
-Interpolator = require "./interpolator"
+import * as Transform from "./transform"
+import * as Interpolator from "./interpolator"
 
 class LinearInterpolator extends Interpolator.Model
 

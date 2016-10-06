@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-sprintf = require("sprintf")
+import * as sprintf from "sprintf"
 {Document} = require("../document")
-embed = require("../embed")
+import * as embed from "../embed"
 {BOKEH_ROOT} = require("../embed")
-models = require("./models")
+import * as models from "./models"
 
 _default_tooltips = [
   ["index", "$index"],

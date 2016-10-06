@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Model = require "../../model"
+import * as Model from "../../model"
 
 
 class ColorMapper extends Model

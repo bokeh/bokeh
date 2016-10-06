@@ -1,8 +1,8 @@
-ActionTool = require "./action_tool"
+import * as ActionTool from "./action_tool"
 {scale_range} = require "../../../core/util/zoom"
 {logger} = require "../../../core/logging"
 
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
 class ZoomOutToolView extends ActionTool.View
 

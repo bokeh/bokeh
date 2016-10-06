@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-PolyAnnotation = require "../../annotations/poly_annotation"
-p = require "../../../core/properties"
+import * as SelectTool from "./select_tool"
+import * as PolyAnnotation from "../../annotations/poly_annotation"
+import * as p from "../../../core/properties"
 
 class LassoSelectToolView extends SelectTool.View
 

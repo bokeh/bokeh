@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 {Promise} = require "es6-promise"
 
-HasProps = require "./core/has_props"
+import * as HasProps from "./core/has_props"
 {logger} = require "./core/logging"
 {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
 

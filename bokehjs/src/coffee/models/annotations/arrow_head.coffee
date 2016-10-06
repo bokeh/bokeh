@@ -1,7 +1,7 @@
-Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
+import * as Annotation from "./annotation"
+import * as Renderer from "../renderers/renderer"
 {Visuals} = require "../../core/visuals"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class ArrowHead extends Annotation.Model
   type: 'ArrowHead'

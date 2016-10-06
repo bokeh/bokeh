@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import * as Model from "../../model"
 
 class ImageSource extends Model
   type: 'ImageSource'

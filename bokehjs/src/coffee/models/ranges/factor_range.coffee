@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Range = require "./range"
-p = require "../../core/properties"
+import * as Range from "./range"
+import * as p from "../../core/properties"
 
 class FactorRange extends Range.Model
   type: 'FactorRange'

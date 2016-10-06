@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-ColorMapper = require "./color_mapper"
+import * as ColorMapper from "./color_mapper"
 
 # Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.

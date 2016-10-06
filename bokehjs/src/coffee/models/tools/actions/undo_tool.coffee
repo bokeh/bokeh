@@ -1,4 +1,4 @@
-ActionTool = require "./action_tool"
+import * as ActionTool from "./action_tool"
 
 class UndoToolView extends ActionTool.View
 

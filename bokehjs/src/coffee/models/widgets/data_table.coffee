@@ -1,15 +1,15 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 import "jquery-ui/sortable"
-SlickGrid = require "slick_grid/slick.grid"
-RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
-CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
+import * as SlickGrid from "slick_grid/slick.grid"
+import * as RowSelectionModel from "slick_grid/plugins/slick.rowselectionmodel"
+import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectcolumn"
 
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-TableWidget = require "./table_widget"
-Widget = require "./widget"
+import * as TableWidget from "./table_widget"
+import * as Widget from "./widget"
 
 wait_for_element = (el, fn) ->
   handler = () =>

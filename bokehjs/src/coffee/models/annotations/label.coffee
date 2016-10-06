@@ -1,5 +1,5 @@
-TextAnnotation = require "./text_annotation"
-p = require "../../core/properties"
+import * as TextAnnotation from "./text_annotation"
+import * as p from "../../core/properties"
 
 class LabelView extends TextAnnotation.View
   initialize: (options) ->

@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
+import * as Widget from "./widget"
 
 
 class RadioGroupView extends Widget.View

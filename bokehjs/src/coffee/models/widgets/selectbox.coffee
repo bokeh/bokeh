@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import * as InputWidget from "./input_widget"
 
-template = require "./selecttemplate"
+import * as template from "./selecttemplate"
 
 
 class SelectView extends InputWidget.View

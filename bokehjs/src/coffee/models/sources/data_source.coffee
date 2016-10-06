@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-Model = require "../../model"
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
+import * as Model from "../../model"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
 class DataSource extends Model
   type: 'DataSource'

@@ -1,6 +1,6 @@
 import * as _ from "underscore"
-HasProps = require "./core/has_props"
-p = require "./core/properties"
+import * as HasProps from "./core/has_props"
+import * as p from "./core/properties"
 
 class Model extends HasProps
   type: "Model"

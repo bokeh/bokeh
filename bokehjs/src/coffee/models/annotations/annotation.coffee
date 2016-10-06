@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-SidePanel = require "../../core/layout/side_panel"
-p = require "../../core/properties"
+import * as SidePanel from "../../core/layout/side_panel"
+import * as p from "../../core/properties"
 
-Renderer = require "../renderers/renderer"
+import * as Renderer from "../renderers/renderer"
 
 class AnnotationView extends Renderer.View
 

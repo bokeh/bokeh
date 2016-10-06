@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-Widget = require "./widget"
+import * as Widget from "./widget"
 
 class AbstractIcon extends Widget.Model
   type: "AbstractIcon"

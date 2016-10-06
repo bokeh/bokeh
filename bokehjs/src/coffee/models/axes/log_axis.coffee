@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-Axis = require "./axis"
-ContinuousAxis = require "./continuous_axis"
-LogTickFormatter = require "../formatters/log_tick_formatter"
-LogTicker = require "../tickers/log_ticker"
+import * as Axis from "./axis"
+import * as ContinuousAxis from "./continuous_axis"
+import * as LogTickFormatter from "../formatters/log_tick_formatter"
+import * as LogTicker from "../tickers/log_ticker"
 
 class LogAxisView extends Axis.View
 

@@ -1,5 +1,5 @@
-Model = require "../../model"
-p = require "../../core/properties"
+import * as Model from "../../model"
+import * as p from "../../core/properties"
 
 class LinearMapper extends Model
   initialize: (attrs, options) ->

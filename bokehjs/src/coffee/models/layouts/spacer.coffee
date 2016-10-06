@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-LayoutDOM = require "./layout_dom"
+import * as LayoutDOM from "./layout_dom"
 
 
 class SpacerView extends LayoutDOM.View

@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 import "jquery-ui/autocomplete"
 
-TextInput = require "./text_input"
-p = require "../../core/properties"
+import * as TextInput from "./text_input"
+import * as p from "../../core/properties"
 
 class AutocompleteInputView extends TextInput.View
 

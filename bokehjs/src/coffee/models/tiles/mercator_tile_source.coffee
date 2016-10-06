@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-TileSource = require "./tile_source"
-p = require "../../core/properties"
+import * as TileSource from "./tile_source"
+import * as p from "../../core/properties"
 
 class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'

@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as Widget from "./widget"
+import * as BokehView from "../../core/bokeh_view"
+import * as p from "../../core/properties"
 
 
 class CheckboxGroupView extends Widget.View

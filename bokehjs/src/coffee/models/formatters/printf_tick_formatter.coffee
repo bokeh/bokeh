@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-SPrintf = require "sprintf"
+import * as SPrintf from "sprintf"
 
-TickFormatter = require "./tick_formatter"
-p = require "../../core/properties"
+import * as TickFormatter from "./tick_formatter"
+import * as p from "../../core/properties"
 
 class PrintfTickFormatter extends TickFormatter.Model
   type: 'PrintfTickFormatter'

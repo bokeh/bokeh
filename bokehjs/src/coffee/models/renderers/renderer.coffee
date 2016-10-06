@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-BokehView = require "../../core/bokeh_view"
+import * as BokehView from "../../core/bokeh_view"
 {Visuals} = require "../../core/visuals"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
-proj = require "../../core/util/projections"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import * as proj from "../../core/util/projections"
+import * as Model from "../../model"
 
 class RendererView extends BokehView
 

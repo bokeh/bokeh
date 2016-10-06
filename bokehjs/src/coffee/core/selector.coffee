@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-HasProps = require "./has_props"
-hittest = require "./hittest"
+import * as HasProps from "./has_props"
+import * as hittest from "./hittest"
 {logger} = require "./logging"
-p = require "./properties"
+import * as p from "./properties"
 
 class Selector extends HasProps
   type: 'Selector'

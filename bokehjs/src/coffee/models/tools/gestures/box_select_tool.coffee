@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-BoxAnnotation = require "../../annotations/box_annotation"
-p = require "../../../core/properties"
+import * as SelectTool from "./select_tool"
+import * as BoxAnnotation from "../../annotations/box_annotation"
+import * as p from "../../../core/properties"
 
 class BoxSelectToolView extends SelectTool.View
 

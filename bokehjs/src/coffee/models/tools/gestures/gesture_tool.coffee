@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-ButtonTool = require "../button_tool"
+import * as ButtonTool from "../button_tool"
 
 class GestureToolButtonView extends ButtonTool.ButtonView
 

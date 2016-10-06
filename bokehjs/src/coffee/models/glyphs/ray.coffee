@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import * as Glyph from "./glyph"
+import * as p from "../../core/properties"
 
 class RayView extends Glyph.View
 

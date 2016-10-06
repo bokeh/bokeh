@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-MercatorTileSource = require('./mercator_tile_source')
-p = require "../../core/properties"
+import * as MercatorTileSource from './mercator_tile_source'
+import * as p from "../../core/properties"
 
 class BBoxTileSource extends MercatorTileSource
   type: 'BBoxTileSource'

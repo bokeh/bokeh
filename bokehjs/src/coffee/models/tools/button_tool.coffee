@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-BokehView = require "../../core/bokeh_view"
-Tool = require "./tool"
-button_tool_template = require "./button_tool_template"
-p = require "../../core/properties"
+import * as BokehView from "../../core/bokeh_view"
+import * as Tool from "./tool"
+import * as button_tool_template from "./button_tool_template"
+import * as p from "../../core/properties"
 
 class ButtonToolButtonView extends BokehView
   tagName: "li"

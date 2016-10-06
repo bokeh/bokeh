@@ -2,13 +2,13 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 
 {Models} = require "./base"
-js_version = require("./version")
+import * as js_version from "./version"
 {EQ, Solver, Variable} = require "./core/layout/solver"
 {logger} = require "./core/logging"
-HasProps = require "./core/has_props"
+import * as HasProps from "./core/has_props"
 {is_ref} = require "./core/util/refs"
 {MultiDict, Set} = require "./core/util/data_structures"
-ColumnDataSource = require "./models/sources/column_data_source"
+import * as ColumnDataSource from "./models/sources/column_data_source"
 
 class DocumentChangedEvent
   constructor : (@document) ->

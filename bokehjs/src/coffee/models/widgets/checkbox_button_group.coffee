@@ -2,10 +2,10 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/button"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
-template = require "./button_group_template"
+import * as Widget from "./widget"
+import * as BokehView from "../../core/bokeh_view"
+import * as p from "../../core/properties"
+import * as template from "./button_group_template"
 
 
 class CheckboxButtonGroupView extends Widget.View

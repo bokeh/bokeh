@@ -2,10 +2,10 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/modal"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-dialog_template = require "./dialog_template"
-Widget = require "./widget"
+import * as dialog_template from "./dialog_template"
+import * as Widget from "./widget"
 
 class DialogView extends Widget.View
 

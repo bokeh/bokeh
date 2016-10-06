@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-ActionTool = require "./action_tool"
+import * as ActionTool from "./action_tool"
 
 class SaveToolView extends ActionTool.View
 

@@ -1,4 +1,4 @@
-Model = require "../../model"
+import * as Model from "../../model"
 
 class GridMapper extends Model
 

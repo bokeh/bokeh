@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
-GlyphRenderer = require "../../renderers/glyph_renderer"
+import * as GestureTool from "./gesture_tool"
+import * as GlyphRenderer from "../../renderers/glyph_renderer"
 {logger} = require "../../../core/logging"
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
 class SelectToolView extends GestureTool.View
 

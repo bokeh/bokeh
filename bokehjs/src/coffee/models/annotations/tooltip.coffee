@@ -1,9 +1,9 @@
 import * as $ from "jquery"
 import * as _ from "underscore"
 
-Annotation = require "./annotation"
+import * as Annotation from "./annotation"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class TooltipView extends Annotation.View
   className: "bk-tooltip"

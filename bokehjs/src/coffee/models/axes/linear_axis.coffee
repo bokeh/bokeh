@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-Axis = require "./axis"
-ContinuousAxis = require "./continuous_axis"
-BasicTickFormatter = require "../formatters/basic_tick_formatter"
-BasicTicker = require "../tickers/basic_ticker"
+import * as Axis from "./axis"
+import * as ContinuousAxis from "./continuous_axis"
+import * as BasicTickFormatter from "../formatters/basic_tick_formatter"
+import * as BasicTicker from "../tickers/basic_ticker"
 
 class LinearAxisView extends Axis.View
 

@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-ActionTool = require "./action_tool"
-p = require "../../../core/properties"
+import * as ActionTool from "./action_tool"
+import * as p from "../../../core/properties"
 
 class HelpToolView extends ActionTool.View
   do: () ->

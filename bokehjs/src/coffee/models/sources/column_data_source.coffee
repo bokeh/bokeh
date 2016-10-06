@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-DataSource = require './data_source'
-hittest = require "../../core/hittest"
-SelectionManager = require "../../core/selection_manager"
+import * as DataSource from "./data_source"
+import * as hittest from "../../core/hittest"
+import * as SelectionManager from "../../core/selection_manager"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.

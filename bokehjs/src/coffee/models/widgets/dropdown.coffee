@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractButton = require "./abstract_button"
+import * as AbstractButton from "./abstract_button"
 
-template = require "./dropdown_template"
+import * as template from "./dropdown_template"
 
 class DropdownView extends AbstractButton.View
   template: template

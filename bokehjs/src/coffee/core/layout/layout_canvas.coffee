@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
 {Variable, EQ, GE, Strength}  = require "./solver"
-Model = require "../../model"
-p = require "../properties"
+import * as Model from "../../model"
+import * as p from "../properties"
 
 class LayoutCanvas extends Model
   type: 'LayoutCanvas'

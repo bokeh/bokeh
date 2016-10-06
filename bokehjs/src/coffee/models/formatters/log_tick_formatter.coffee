@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-BasicTickFormatter = require "./basic_tick_formatter"
-TickFormatter = require "./tick_formatter"
+import * as BasicTickFormatter from "./basic_tick_formatter"
+import * as TickFormatter from "./tick_formatter"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class LogTickFormatter extends TickFormatter.Model
   type: 'LogTickFormatter'

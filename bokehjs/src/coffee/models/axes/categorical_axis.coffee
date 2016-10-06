@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-Axis = require "./axis"
-CategoricalTickFormatter = require "../formatters/categorical_tick_formatter"
-CategoricalTicker = require "../tickers/categorical_ticker"
+import * as Axis from "./axis"
+import * as CategoricalTickFormatter from "../formatters/categorical_tick_formatter"
+import * as CategoricalTicker from "../tickers/categorical_ticker"
 {logger} = require "../../core/logging"
 
 class CategoricalAxisView extends Axis.View

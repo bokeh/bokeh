@@ -1,15 +1,15 @@
 import * as _ from "underscore"
 
-CategoricalMapper = require "../mappers/categorical_mapper"
-GridMapper = require "../mappers/grid_mapper"
-LinearMapper = require "../mappers/linear_mapper"
-LogMapper = require "../mappers/log_mapper"
-Range1d = require "../ranges/range1d"
+import * as CategoricalMapper from "../mappers/categorical_mapper"
+import * as GridMapper from "../mappers/grid_mapper"
+import * as LinearMapper from "../mappers/linear_mapper"
+import * as LogMapper from "../mappers/log_mapper"
+import * as Range1d from "../ranges/range1d"
 
 {EQ, GE}  = require "../../core/layout/solver"
-LayoutCanvas = require "../../core/layout/layout_canvas"
+import * as LayoutCanvas from "../../core/layout/layout_canvas"
 {logging} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class CartesianFrame extends LayoutCanvas.Model
   type: 'CartesianFrame'

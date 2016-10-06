@@ -1,10 +1,10 @@
 import * as _ from "underscore"
-SPrintf = require "sprintf"
-tz = require "timezone"
+import * as SPrintf from "sprintf"
+import * as tz from "timezone"
 
-TickFormatter = require "./tick_formatter"
+import * as TickFormatter from "./tick_formatter"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get

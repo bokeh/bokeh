@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-Annotation = require "./annotation"
+import * as Annotation from "./annotation"
 OpenHead = require("./arrow_head").OpenHead
-ColumnDataSource = require "../sources/column_data_source"
-p = require "../../core/properties"
+import * as ColumnDataSource from "../sources/column_data_source"
+import * as p from "../../core/properties"
 {atan2} = require "../../core/util/math"
 
 class ArrowView extends Annotation.View

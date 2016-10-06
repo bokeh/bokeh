@@ -1,13 +1,13 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-InspectTool = require "./inspect_tool"
-Tooltip = require "../../annotations/tooltip"
-GlyphRenderer = require "../../renderers/glyph_renderer"
-hittest = require "../../../core/hittest"
+import * as InspectTool from "./inspect_tool"
+import * as Tooltip from "../../annotations/tooltip"
+import * as GlyphRenderer from "../../renderers/glyph_renderer"
+import * as hittest from "../../../core/hittest"
 {logger} = require "../../../core/logging"
 {replace_placeholders} = require "../../../core/util/templating"
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')

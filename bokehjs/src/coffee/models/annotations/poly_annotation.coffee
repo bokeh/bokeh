@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Annotation = require "./annotation"
-p = require "../../core/properties"
+import * as Annotation from "./annotation"
+import * as p from "../../core/properties"
 
 class PolyAnnotationView extends Annotation.View
 

@@ -1,4 +1,4 @@
-ButtonTool = require "../button_tool"
+import * as ButtonTool from "../button_tool"
 
 class ActionToolButtonView extends ButtonTool.ButtonView
 

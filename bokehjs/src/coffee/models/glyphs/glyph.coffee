@@ -1,14 +1,14 @@
 import * as _ from "underscore"
-rbush = require "rbush"
+import * as rbush from "rbush"
 
-CategoricalMapper = require "../mappers/categorical_mapper"
-p = require "../../core/properties"
-bbox = require "../../core/util/bbox"
-proj = require "../../core/util/projections"
-BokehView = require "../../core/bokeh_view"
-Model = require "../../model"
+import * as CategoricalMapper from "../mappers/categorical_mapper"
+import * as p from "../../core/properties"
+import * as bbox from "../../core/util/bbox"
+import * as proj from "../../core/util/projections"
+import * as BokehView from "../../core/bokeh_view"
+import * as Model from "../../model"
 {Visuals} = require "../../core/visuals"
-bokehgl = require "./webgl/main"
+import * as bokehgl from "./webgl/main"
 {logger} = require "../../core/logging"
 
 class GlyphView extends BokehView

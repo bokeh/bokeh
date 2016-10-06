@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-Annotation = require "./annotation"
-GlyphRenderer = require "../renderers/glyph_renderer"
-p = require "../../core/properties"
+import * as Annotation from "./annotation"
+import * as GlyphRenderer from "../renderers/glyph_renderer"
+import * as p from "../../core/properties"
 {get_text_height} = require "../../core/util/text"
 
 class LegendView extends Annotation.View

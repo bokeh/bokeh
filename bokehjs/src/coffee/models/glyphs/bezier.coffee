@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-rbush = require "rbush"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
+import * as Glyph from "./glyph"
 
 # algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 _cbb = (x0, y0, x1, y1, x2, y2, x3, y3) ->

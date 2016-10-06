@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
 {EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-LayoutDOM = require "./layout_dom"
+import * as LayoutDOM from "./layout_dom"
 
 
 class BoxView extends LayoutDOM.View

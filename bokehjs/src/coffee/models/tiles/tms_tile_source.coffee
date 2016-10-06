@@ -1,4 +1,4 @@
-MercatorTileSource = require('./mercator_tile_source')
+import * as MercatorTileSource from './mercator_tile_source'
 
 class TMSTileSource extends MercatorTileSource
   type: 'TMSTileSource'

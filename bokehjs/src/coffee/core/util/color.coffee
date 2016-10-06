@@ -1,6 +1,6 @@
 # Used by webgl to convert colors to rgba tuples.
 
-svg_colors = require "./svg_colors"
+import * as svg_colors from "./svg_colors"
 
 _component2hex = (v) ->
   h = Number(v).toString(16)

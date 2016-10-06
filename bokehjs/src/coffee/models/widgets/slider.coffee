@@ -2,12 +2,12 @@ import * as _ from "underscore"
 import "jquery-ui/slider"
 
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
-Widget = require "./widget"
+import * as InputWidget from "./input_widget"
+import * as Widget from "./widget"
 
-slidertemplate = require "./slidertemplate"
+import * as slidertemplate from "./slidertemplate"
 
 
 class SliderView extends InputWidget.View

@@ -1,9 +1,9 @@
 import * as $ from "jquery"
 import * as _ from "underscore"
 
-RemoteDataSource = require "./remote_data_source"
+import * as RemoteDataSource from "./remote_data_source"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class AjaxDataSource extends RemoteDataSource.Model
   type: 'AjaxDataSource'

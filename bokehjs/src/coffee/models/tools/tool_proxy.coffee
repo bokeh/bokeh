@@ -1,5 +1,5 @@
-p = require "../../core/properties"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import * as Model from "../../model"
 
 
 class ToolProxy extends Model

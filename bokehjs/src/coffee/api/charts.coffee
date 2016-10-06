@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-sprintf = require("sprintf")
+import * as sprintf from "sprintf"
 {Document} = require("../document")
-embed = require("../embed")
-models = require("./models")
-palettes = require("./palettes")
+import * as embed from "../embed"
+import * as models from "./models"
+import * as palettes from "./palettes"
 
 sum = (array) ->
   return array.reduce(((a, b) => a + b), 0)

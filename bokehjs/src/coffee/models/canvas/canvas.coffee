@@ -1,12 +1,12 @@
 import * as _ from "underscore"
 
-canvas_template = require "./canvas_template"
-LayoutCanvas = require "../../core/layout/layout_canvas"
+import * as canvas_template from "./canvas_template"
+import * as LayoutCanvas from "../../core/layout/layout_canvas"
 
-BokehView = require "../../core/bokeh_view"
+import * as BokehView from "../../core/bokeh_view"
 {GE, EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} = require "../../core/util/canvas"
 
 class CanvasView extends BokehView

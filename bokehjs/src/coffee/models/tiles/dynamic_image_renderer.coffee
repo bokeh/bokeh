@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-ImagePool = require "./image_pool"
-Renderer = require "../renderers/renderer"
+import * as ImagePool from "./image_pool"
+import * as Renderer from "../renderers/renderer"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class DynamicImageView extends Renderer.View
 

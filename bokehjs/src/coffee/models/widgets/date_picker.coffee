@@ -2,9 +2,9 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "jquery-ui/datepicker"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import * as InputWidget from "./input_widget"
 
 
 class DatePickerView extends InputWidget.View

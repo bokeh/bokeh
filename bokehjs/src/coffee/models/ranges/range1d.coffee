@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-Range = require "./range"
-p = require "../../core/properties"
+import * as Range from "./range"
+import * as p from "../../core/properties"
 
 class Range1d extends Range.Model
   type: 'Range1d'

@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-AdaptiveTicker = require "./adaptive_ticker"
+import * as AdaptiveTicker from "./adaptive_ticker"
 
 range = (start, stop, step) ->
   if _.isUndefined(stop) # one param defined

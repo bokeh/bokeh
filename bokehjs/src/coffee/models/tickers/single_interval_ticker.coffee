@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-ContinuousTicker = require "./continuous_ticker"
-p = require "../../core/properties"
+import * as ContinuousTicker from "./continuous_ticker"
+import * as p from "../../core/properties"
 
 # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
 # regardless of the input range.  It's not very useful by itself, but can

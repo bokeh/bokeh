@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-TextAnnotation = require "./text_annotation"
-ColumnDataSource = require "../sources/column_data_source"
-p = require "../../core/properties"
+import * as TextAnnotation from "./text_annotation"
+import * as ColumnDataSource from "../sources/column_data_source"
+import * as p from "../../core/properties"
 
 class LabelSetView extends TextAnnotation.View
   initialize: (options) ->

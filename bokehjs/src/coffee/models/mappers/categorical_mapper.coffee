@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-LinearMapper = require "./linear_mapper"
+import * as LinearMapper from "./linear_mapper"
 
 class CategoricalMapper extends LinearMapper.Model
 

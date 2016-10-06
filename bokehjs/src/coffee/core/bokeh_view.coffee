@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-Backbone = require "./backbone"
+import * as Backbone from "./backbone"
 
 class BokehView extends Backbone.View
   initialize: (options) ->

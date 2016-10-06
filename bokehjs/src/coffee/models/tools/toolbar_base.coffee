@@ -4,15 +4,15 @@ import "bootstrap/dropdown"
 
 {logger} = require "../../core/logging"
 {EQ, Variable}  = require "../../core/layout/solver"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-LayoutDOM = require "../layouts/layout_dom"
+import * as LayoutDOM from "../layouts/layout_dom"
 
-ActionTool = require "./actions/action_tool"
-HelpTool = require "./actions/help_tool"
-GestureTool = require "./gestures/gesture_tool"
-InspectTool = require "./inspectors/inspect_tool"
-toolbar_template = require "./toolbar_template"
+import * as ActionTool from "./actions/action_tool"
+import * as HelpTool from "./actions/help_tool"
+import * as GestureTool from "./gestures/gesture_tool"
+import * as InspectTool from "./inspectors/inspect_tool"
+import * as toolbar_template from "./toolbar_template"
 
 
 class ToolbarBaseView extends LayoutDOM.View

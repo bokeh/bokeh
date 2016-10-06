@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 {Events} = require "./events"
-enums = require "./enums"
-svg_colors = require "./util/svg_colors"
+import * as enums from "./enums"
+import * as svg_colors from "./util/svg_colors"
 {valid_rgb} = require "./util/color"
 
 #

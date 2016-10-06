@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-p = require "../../../core/properties"
+import * as SelectTool from "./select_tool"
+import * as p from "../../../core/properties"
 
 class TapToolView extends SelectTool.View
 

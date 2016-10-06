@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-AdaptiveTicker = require "./adaptive_ticker"
-CompositeTicker = require "./composite_ticker"
-DaysTicker = require "./days_ticker"
-MonthsTicker = require "./months_ticker"
-YearsTicker = require "./years_ticker"
-util = require "./util"
+import * as AdaptiveTicker from "./adaptive_ticker"
+import * as CompositeTicker from "./composite_ticker"
+import * as DaysTicker from "./days_ticker"
+import * as MonthsTicker from "./months_ticker"
+import * as YearsTicker from "./years_ticker"
+import * as util from "./util"
 
 ONE_MILLI = util.ONE_MILLI
 ONE_SECOND = util.ONE_SECOND

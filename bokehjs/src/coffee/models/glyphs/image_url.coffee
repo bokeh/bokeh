@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-Glyph = require "./glyph"
+import * as Glyph from "./glyph"
 {logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
 class ImageURLView extends Glyph.View
   initialize: (options) ->

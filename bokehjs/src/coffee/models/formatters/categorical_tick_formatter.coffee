@@ -1,4 +1,4 @@
-TickFormatter = require "../formatters/tick_formatter"
+import * as TickFormatter from "../formatters/tick_formatter"
 
 class CategoricalTickFormatter extends TickFormatter.Model
   type: 'CategoricalTickFormatter'

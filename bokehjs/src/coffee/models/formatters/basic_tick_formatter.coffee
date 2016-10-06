@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
-TickFormatter = require "./tick_formatter"
-p = require "../../core/properties"
+import * as TickFormatter from "./tick_formatter"
+import * as p from "../../core/properties"
 
 class BasicTickFormatter extends TickFormatter.Model
   type: 'BasicTickFormatter'
