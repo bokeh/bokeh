@@ -1,3 +1,12 @@
+2016-10-05 0.12.3rc5:
+--------------------
+  * bugfixes:
+    - #5302 [component: examples] [component: server] [py2] Bokeh serve --show app/gapminder doesn't work
+    - #5304 [component: examples] [component: server] [regression] App/surface3d doesn't work because custom model path is wrongly resolved
+  * tasks:
+    - #5299 [component: build] Use our own bokeh channel and avoid using conda-forge
+    - #5312 [component: examples] Clustering app example does not set .data atomically
+
 2016-09-13 0.12.3dev4:
 --------------------
 
