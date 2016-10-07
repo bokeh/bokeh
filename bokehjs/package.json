@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.3rc6",
+  "version": "0.12.3",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
