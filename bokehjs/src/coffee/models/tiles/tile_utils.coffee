@@ -1,6 +1,4 @@
-import * as proj4 from "../../core/util/proj4"
-mercator = proj4.defs('GOOGLE')
-wgs84 = proj4.defs('WGS84')
+import {proj4, mercator, wgs84} from "../../core/util/proj4"
 
 export class ProjectionUtils
 

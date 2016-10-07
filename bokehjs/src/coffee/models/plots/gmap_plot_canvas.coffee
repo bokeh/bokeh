@@ -1,6 +1,5 @@
 import * as _ from "underscore"
-import * as proj4 from "../../core/util/proj4"
-toProjection = proj4.defs('GOOGLE')
+import {proj4, mercator} from "../../core/util/proj4"
 
 import * as PlotCanvas from "./plot_canvas"
 import * as p from "../../core/properties"
@@ -24,8 +23,8 @@ class GMapPlotCanvasView extends PlotCanvas.View
 
   getProjectedBounds: () =>
     [xstart, xend, ystart, yend] = @getLatLngBounds()
-    [proj_xstart, proj_ystart] = proj4(toProjection, [xstart, ystart])
-    [proj_xend, proj_yend] = proj4(toProjection, [xend, yend])
+    [proj_xstart, proj_ystart] = proj4(mercator, [xstart, ystart])
+    [proj_xend, proj_yend] = proj4(mercator, [xend, yend])
     return [proj_xstart, proj_xend, proj_ystart, proj_yend]
 
   setRanges: () =>
