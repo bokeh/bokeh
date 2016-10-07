@@ -68,8 +68,11 @@ warning, and will result in an error in a future release.
 FuncTickFormatter
 '''''''''''''''''
 
-Something about FuncTickFormatter (LUKE) (https://github.com/bokeh/bokeh/pull/4659/files)
-
+`FuncTickFormatter` instances using JavaScript or CoffeeScript now require
+code snippets (i.e., function bodies) instead of full function definitions.
+Additionally, these formatters now accept Bokeh models as arguments so that
+the models can be readily available to the formatter function code.
+(https://github.com/bokeh/bokeh/pull/4659/files)
 
 Legend
 ''''''
