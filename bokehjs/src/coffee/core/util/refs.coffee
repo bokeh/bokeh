@@ -9,7 +9,7 @@ import {HasProps} from "../has_props"
 # @throw Error if `obj` is not a HasProps
 #
 export create_ref = (obj) ->
-  if obj not instanceof HasProps.constructor
+  if obj not instanceof HasProps
     throw new Error("can only create refs for HasProps subclasses")
   ref = {
     'type': obj.type
@@ -44,5 +44,5 @@ export convert_to_ref = (value) ->
   if _.isArray(value)
     return _.map(value, convert_to_ref)
   else
-    if value instanceof HasProps.constructor
+    if value instanceof HasProps
       return value.ref()
