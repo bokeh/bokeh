@@ -1,6 +1,5 @@
 import "./core/util/underscore"
 
-export {require}
 export {version} from "./version"
 
 import * as _ from "underscore"
