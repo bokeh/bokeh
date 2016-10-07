@@ -1411,12 +1411,29 @@ class _Palettes(object):
         }
 
     @property
+    def seaborn(self):
+        return {
+            "Deep"       : self.Deep,
+            "Muted"      : self.Muted,
+            "Pastel"     : self.Pastel,
+            "Bright"     : self.Bright,
+            "Dark"       : self.Dark,
+            "Colorblind" : self.Colorblind,
+        }
+
+    @property
     def all_palettes(self):
         palettes = self.brewer
-        palettes["Magma"]   = self.Magma
-        palettes["Inferno"] = self.Inferno
-        palettes["Plasma"]  = self.Plasma
-        palettes["Viridis"] = self.Viridis
+        palettes["Deep"]       = self.Deep,
+        palettes["Muted"]      = self.Muted,
+        palettes["Pastel"]     = self.Pastel,
+        palettes["Bright"]     = self.Bright,
+        palettes["Dark"]       = self.Dark,
+        palettes["Colorblind"] = self.Colorblind,
+        palettes["Magma"]      = self.Magma
+        palettes["Inferno"]    = self.Inferno
+        palettes["Plasma"]     = self.Plasma
+        palettes["Viridis"]    = self.Viridis
         return palettes
 
     @property
