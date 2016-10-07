@@ -22,7 +22,7 @@ def bollinger():
     p = figure(x_axis_type='datetime', tools=tools)
     p.patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
 
-    p.title = 'Bollinger Bands'
+    p.title.text = 'Bollinger Bands'
     p.title_location = 'left'
     p.title.align = 'left'
     p.plot_height = 600

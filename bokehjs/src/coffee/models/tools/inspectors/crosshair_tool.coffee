@@ -9,24 +9,24 @@ class CrosshairToolView extends InspectTool.View
   _move: (e) ->
     if not @model.active
       return
+
     frame = @plot_model.frame
     canvas = @plot_model.canvas
+
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    for dim in @model.dimensions
-      span = @model.spans[dim]
-      if not frame.contains(vx, vy)
-        span.computed_location = null
-      else
-        if dim == "width"
-          span.computed_location = vy
-        else
-          span.computed_location = vx
+    if not frame.contains(vx, vy)
+      vx = vy = null
 
-  _move_exit: (e)->
-    for dim in @model.dimensions
-      span = @model.spans[dim]
-      span.computed_location = null
+    @_update_spans(vx, vy)
+
+  _move_exit: (e) ->
+    @_update_spans(null, null)
+
+  _update_spans: (x, y) ->
+    dims = @model.dimensions
+    if dims in ['width',  'both'] then @model.spans.width.computed_location  = y
+    if dims in ['height', 'both'] then @model.spans.height.computed_location = x
 
 class CrosshairTool extends InspectTool.Model
   default_view: CrosshairToolView
@@ -34,7 +34,7 @@ class CrosshairTool extends InspectTool.Model
   tool_name: "Crosshair"
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
+      dimensions: [ p.Dimensions, "both"         ]
       line_color: [ p.Color, 'black'             ]
       line_width: [ p.Number, 1                  ]
       line_alpha: [ p.Number, 1.0                ]
@@ -47,7 +47,7 @@ class CrosshairTool extends InspectTool.Model
   }
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip("Crosshair", @_check_dims(@dimensions, "crosshair tool"))
+    tooltip: () -> @_get_dim_tooltip("Crosshair", @dimensions)
     synthetic_renderers: () -> _.values(@spans)
   }
 

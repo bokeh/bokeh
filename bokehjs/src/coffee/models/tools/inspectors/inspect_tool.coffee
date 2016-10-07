@@ -1,9 +1,9 @@
 _ = require "underscore"
-Backbone = require "../../../core/backbone"
+BokehView = require "../../../core/bokeh_view"
 Tool = require "../tool"
 inspect_tool_list_item_template = require "./inspect_tool_list_item_template"
 
-class InspectToolListItemView extends Backbone.View
+class InspectToolListItemView extends BokehView
   className: "bk-toolbar-inspector"
   template: inspect_tool_list_item_template
   events: {

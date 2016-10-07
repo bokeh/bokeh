@@ -30,7 +30,6 @@ create_glyph_view = (glyph) ->
 
   glyph_renderer_view = new glyph_renderer.default_view({
     model: glyph_renderer
-    plot_model: plot.plot_canvas
     plot_view: plot_view
   })
 

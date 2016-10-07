@@ -105,17 +105,6 @@ describe "properties module", ->
         p = new properties.Property({obj: new SomeHasProps(a: 10), attr: 'a'})
         expect(p.spec).to.be.deep.equal {value: 10}
 
-    describe "re-setting obj and attr properties", ->
-      it "should throw an Error", ->
-        prop = new properties.Property({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
-        fn = ->
-          prop.setv('obj', new SomeHasProps(a: {value: 20}))
-        expect(fn).to.throw Error, "attempted to reset 'obj' on Property"
-        fn = ->
-          prop.setv('attr', 'b')
-        expect(fn).to.throw Error, "attempted to reset 'attr' on Property"
-
-
     describe "value", ->
       it "should return a value if there is a value spec", ->
         prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})

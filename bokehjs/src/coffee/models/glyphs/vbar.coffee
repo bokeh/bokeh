@@ -3,7 +3,7 @@ rbush = require "rbush"
 Quad = require "./quad"
 Glyph = require "./glyph"
 CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 p = require "../../core/properties"
 
 class VBarView extends Glyph.View
@@ -13,8 +13,8 @@ class VBarView extends Glyph.View
 
     vtop = @renderer.ymapper.v_map_to_target(@_top)
     vbottom = (@renderer.ymapper.v_map_to_target(@_bottom))
-    @stop = @plot_view.canvas.v_vy_to_sy(vtop)
-    @sbottom = @plot_view.canvas.v_vy_to_sy(vbottom)
+    @stop = @renderer.plot_view.canvas.v_vy_to_sy(vtop)
+    @sbottom = @renderer.plot_view.canvas.v_vy_to_sy(vbottom)
 
     @sleft = []
     @sright = []

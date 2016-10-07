@@ -3,20 +3,20 @@ rbush = require "rbush"
 Quad = require "./quad"
 Glyph = require "./glyph"
 CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 p = require "../../core/properties"
 
 class HBarView extends Glyph.View
 
   _map_data: () ->
     vy = @renderer.ymapper.v_map_to_target(@_y)
-    @sy = @plot_view.canvas.v_vy_to_sy(vy)
+    @sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 
     vright = @renderer.xmapper.v_map_to_target(@_right)
     vleft = @renderer.xmapper.v_map_to_target(@_left)
 
-    @sright = @plot_view.canvas.v_vx_to_sx(vright)
-    @sleft = @plot_view.canvas.v_vx_to_sx(vleft)
+    @sright = @renderer.plot_view.canvas.v_vx_to_sx(vright)
+    @sleft = @renderer.plot_view.canvas.v_vx_to_sx(vleft)
 
     @stop = []
     @sbottom = []

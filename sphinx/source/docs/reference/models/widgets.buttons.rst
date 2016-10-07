@@ -1,5 +1,7 @@
-``bokeh.models.widgets.buttons``
---------------------------------
+.. _bokeh.models.widgets.buttons:
+
+bokeh.models.widgets.buttons
+----------------------------
 
 .. automodule:: bokeh.models.widgets.buttons
    :members:

@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 p = require "../../core/properties"
 {angle_between} = require "../../core/util/math"
 

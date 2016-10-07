@@ -33,7 +33,6 @@ describe "ResizeTool", ->
       @resizetool = new ResizeTool({ plot: plot })
       @resizetool_view = new @resizetool.default_view({
         model: @resizetool
-        plot_model: plot.plot_canvas
         plot_view: @plot_canvas_view
       })
 

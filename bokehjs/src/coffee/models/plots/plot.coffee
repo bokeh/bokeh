@@ -7,7 +7,7 @@ p = require "../../core/properties"
 LayoutDOM = require "../layouts/layout_dom"
 Title = require "../annotations/title"
 Toolbar = require "../tools/toolbar"
-ToolEvents = require "../../common/tool_events"
+ToolEvents = require "../tools/tool_events"
 PlotCanvas = require("./plot_canvas").Model
 
 ColumnDataSource = require "../sources/column_data_source"
@@ -352,6 +352,14 @@ class Plot extends LayoutDOM.Model
     outline_line_color: '#e5e5e5'
     border_fill_color: "#ffffff"
     background_fill_color: "#ffffff"
+  }
+
+  @getters {
+    all_renderers: () ->
+      renderers = @renderers
+      for tool in @toolbar.tools
+        renderers = renderers.concat(tool.synthetic_renderers)
+      return renderers
   }
 
 module.exports =

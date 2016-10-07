@@ -78,6 +78,13 @@ if needed by passing a legend that is the column of the column data source.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends_by_source.py
     :source-position: above
 
+If you do not want this automatic behavior, you can use the ``field()`` or
+``value()`` functions from :ref:`bokeh.core.properties`, to be explicit about
+your  intentions. See :bokeh-tree:`examples/app/gapminder/main.py` for an
+example. Alternatively, you can not specify any legend argument, and manually
+build a :class:`~bokeh.models.annotations.Legend` by hand. You can see an
+example of this in :bokeh-tree:`examples/models/legends.py`:
+
 .. _userguide_plotting_color_bars:
 
 Color Bars

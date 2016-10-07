@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Patch, Line, Text
 from bokeh.models import (
     ColumnDataSource, DataRange1d, DatetimeAxis,
-    DatetimeTickFormatter, Grid, Legend, Plot
+    DatetimeTickFormatter, Grid, Legend, LegendItem, Plot
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
@@ -66,16 +66,16 @@ plot.add_glyph(patch1_source, patch1)
 patch2 = Patch(x="dates", y="times", fill_color="orange", fill_alpha=0.8)
 plot.add_glyph(patch2_source, patch2)
 
-sunrise_line = Line(x="dates", y="sunrises", line_color="yellow", line_width=2, label=value("sunrise"))
+sunrise_line = Line(x="dates", y="sunrises", line_color="yellow", line_width=2)
 sunrise_line_renderer = plot.add_glyph(source, sunrise_line)
 
-sunset_line = Line(x="dates", y="sunsets", line_color="red", line_width=2, label=value("sunset"))
+sunset_line = Line(x="dates", y="sunsets", line_color="red", line_width=2)
 sunset_line_renderer = plot.add_glyph(source, sunset_line)
 
 text = Text(x="dates", y="times", text="texts", text_align="center")
 plot.add_glyph(text_source, text)
 
-xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
+xformatter = DatetimeTickFormatter(months="%b %Y")
 xaxis = DatetimeAxis(formatter=xformatter)
 plot.add_layout(xaxis, 'below')
 
@@ -85,7 +85,10 @@ plot.add_layout(yaxis, 'left')
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
-legend = Legend(legends=[sunrise_line_renderer, sunset_line_renderer])
+legend = Legend(items=[
+    LegendItem(label=value('sunrise'), renderers=[sunrise_line_renderer]),
+    LegendItem(label=value('sunset'), renderers=[sunset_line_renderer])
+])
 plot.add_layout(legend)
 
 doc = Document()

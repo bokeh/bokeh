@@ -14,46 +14,17 @@ p = require "../../core/properties"
 class CartesianFrame extends LayoutCanvas.Model
   type: 'CartesianFrame'
 
-  @getters {
-    x_ranges: () -> @_get_ranges(@x_range, @extra_x_ranges)
-    y_ranges: () -> @_get_ranges(@y_range, @extra_y_ranges)
-
-    x_mappers: () -> @_get_mappers(@x_mapper_type, @x_ranges, @h_range)
-    y_mappers: () -> @_get_mappers(@y_mapper_type, @y_ranges, @v_range)
-
-    mapper: () ->
-      new GridMapper.Model({
-        domain_mapper: @x_mapper
-        codomain_mapper: @y_mapper
-      })
-
-    h_range: () ->
-      @_h_range.start = @left
-      @_h_range.end   = @left + @width
-      return @_h_range
-    v_range: () ->
-      @_v_range.start = @bottom
-      @_v_range.end   = @bottom + @height
-      return @_v_range
-  }
-
   initialize: (attrs, options) ->
     super(attrs, options)
     @panel = @
 
-    @_h_range = new Range1d.Model({
-      start: @left,
-      end:   @left + @width
-    })
+    @_configure_mappers()
+    @listenTo(@, 'change', () => @_configure_mappers())
 
-    @_v_range = new Range1d.Model({
-      start: @bottom,
-      end:   @bottom + @height
-    })
     return null
 
   _doc_attached: () ->
-    @listenTo(@document.solver(), 'layout_update', @_update_mappers)
+    @listenTo(@document.solver(), 'layout_update', () => @_update_mappers())
     return null
 
   contains: (vx, vy) ->
@@ -97,20 +68,44 @@ class CartesianFrame extends LayoutCanvas.Model
       })
     return mappers
 
+  _configure_frame_ranges: () ->
+    @_h_range = new Range1d.Model({start: @left,   end: @left   + @width})
+    @_v_range = new Range1d.Model({start: @bottom, end: @bottom + @height})
+
+  _configure_mappers: () ->
+    @_configure_frame_ranges()
+
+    @_x_ranges = @_get_ranges(@x_range, @extra_x_ranges)
+    @_y_ranges = @_get_ranges(@y_range, @extra_y_ranges)
+
+    @_x_mappers = @_get_mappers(@x_mapper_type, @_x_ranges, @_h_range)
+    @_y_mappers = @_get_mappers(@y_mapper_type, @_y_ranges, @_v_range)
+
   _update_mappers: () ->
-    for name, mapper of @x_mappers
-      mapper.target_range = @h_range
-    for name, mapper of @y_mappers
-      mapper.target_range = @v_range
+    @_configure_frame_ranges()
+
+    for name, mapper of @_x_mappers
+      mapper.target_range = @_h_range
+    for name, mapper of @_y_mappers
+      mapper.target_range = @_v_range
     return null
+
+  @getters {
+    h_range:   () -> @_h_range
+    v_range:   () -> @_v_range
+    x_ranges:  () -> @_x_ranges
+    y_ranges:  () -> @_y_ranges
+    x_mappers: () -> @_x_mappers
+    y_mappers: () -> @_y_mappers
+  }
 
   @internal {
     extra_x_ranges: [ p.Any, {} ]
     extra_y_ranges: [ p.Any, {} ]
-    x_range: [ p.Instance ]
-    y_range: [ p.Instance ]
-    x_mapper_type: [ p.Any ]
-    y_mapper_type: [ p.Any ]
+    x_range:        [ p.Instance ]
+    y_range:        [ p.Instance ]
+    x_mapper_type:  [ p.String, 'auto' ]
+    y_mapper_type:  [ p.String, 'auto' ]
   }
 
   get_constraints: () ->

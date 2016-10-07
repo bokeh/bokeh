@@ -15,30 +15,30 @@ _default_tooltips = [
 _default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 _known_tools = {
-  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: ["width", "height"])
-  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: ["width"])
-  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: ["height"])
-  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width", "height"])
-  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width"])
-  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["height"])
-  zoom_in:      (plot) -> new models.ZoomInTool(plot: plot, dimensions: ['width', 'height'])
-  xzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: ['width'])
-  yzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: ['height'])
-  zoom_out:     (plot) -> new models.ZoomOutTool(plot: plot, dimensions: ['width', 'height'])
-  xzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: ['width'])
-  yzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: ['height'])
+  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: 'both')
+  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'width')
+  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'height')
+  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'both')
+  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'width')
+  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'height')
+  zoom_in:      (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'both')
+  xzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'width')
+  yzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'height')
+  zoom_out:     (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'both')
+  xzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'width')
+  yzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'height')
   resize:       (plot) -> new models.ResizeTool(plot: plot)
   click:        (plot) -> new models.TapTool(plot: plot, behavior: "inspect")
   tap:          (plot) -> new models.TapTool(plot: plot)
   crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
   box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
-  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: ['width'])
-  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: ['height'])
+  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'width')
+  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'height')
   poly_select:  (plot) -> new models.PolySelectTool(plot: plot)
   lasso_select: (plot) -> new models.LassoSelectTool(plot: plot)
-  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width', 'height'])
-  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width'])
-  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['height'])
+  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'both')
+  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'width')
+  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'height')
   hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
   save:         (plot) -> new models.SaveTool(plot: plot)
   previewsave:  (plot) -> new models.SaveTool(plot: plot)
@@ -103,7 +103,7 @@ class Figure extends models.Plot
 
     @add_tools(@_process_tools(tools)...)
 
-    @_legend = new models.Legend({plot: this})
+    @_legend = new models.Legend({plot: this, items: []})
     @add_renderers(@_legend)
 
   Object.defineProperty this.prototype, "xgrid", {
@@ -235,7 +235,7 @@ class Figure extends models.Plot
         do (param, i) ->
           attrs[param] = args[i]
 
-    legend = attrs.legend
+    legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
     has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
@@ -358,17 +358,34 @@ class Figure extends models.Plot
 
     return objs
 
-  _update_legend: (legend_name, glyph_renderer) ->
-    legends = _.clone(@_legend.legends)
+  _process_legend: (legend, source) ->
+    legend_item_label = null
+    if legend?
+      if _.isString(legend)
+        legend_item_label = { value: legend }
+        if source? and source.column_names?
+          if legend in source.column_names
+            legend_item_label = { field: legend }
+      else
+        legend_item_label = legend
+    return legend_item_label
 
-    for [name, renderers] in legends
-      if name == legend_name
-        renderers.push(glyph_renderer)
-        @_legend.legends = legends
-        return
+  _update_legend: (legend_item_label, glyph_renderer) ->
+    added = false
+    for item in @_legend.items
+      if _.isEqual(item.label, legend_item_label)
+        if item.label.value?
+          item.renderers.push(glyph_renderer)
+          added = true
+          break
+        if item.label.field? and glyph_renderer.data_source == item.renderers[0].data_source
+          item.renderers.push(glyph_renderer)
+          added = true
+          break
+    if not added
+      new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      @_legend.items.push(new_item)
 
-    legends.push([legend_name, [glyph_renderer]])
-    @_legend.legends = legends
 
 figure = (attributes={}, options={}) ->
   new Figure(attributes, options)

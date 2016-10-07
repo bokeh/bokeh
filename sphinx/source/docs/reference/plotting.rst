@@ -1,7 +1,7 @@
 .. _bokeh.plotting:
 
-``bokeh.plotting``
-==================
+bokeh.plotting
+==============
 
 .. autofunction:: bokeh.plotting.figure.figure
 

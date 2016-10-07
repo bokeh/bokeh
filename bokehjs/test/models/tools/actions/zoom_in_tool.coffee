@@ -17,10 +17,10 @@ describe "ZoomInTool", ->
       tool = new ZoomInTool()
       expect(tool.tooltip).to.be.equal('Zoom In')
 
-      x_tool = new ZoomInTool({dimensions: ['width']})
+      x_tool = new ZoomInTool({dimensions: 'width'})
       expect(x_tool.tooltip).to.be.equal('Zoom In (x-axis)')
 
-      y_tool = new ZoomInTool({dimensions: ['height']})
+      y_tool = new ZoomInTool({dimensions: 'height'})
       expect(y_tool.tooltip).to.be.equal('Zoom In (y-axis)')
 
   describe "View", ->
@@ -63,7 +63,7 @@ describe "ZoomInTool", ->
       expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
 
     it "should zoom the x-axis only", ->
-      zoom_in_tool = new ZoomInTool({dimensions: ['width']})
+      zoom_in_tool = new ZoomInTool({dimensions: 'width'})
 
       @plot.add_tools(zoom_in_tool)
 
@@ -82,7 +82,7 @@ describe "ZoomInTool", ->
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
 
     it "should zoom the y-axis only", ->
-      zoom_in_tool = new ZoomInTool({dimensions: ['height']})
+      zoom_in_tool = new ZoomInTool({dimensions: 'height'})
 
       @plot.add_tools(zoom_in_tool)
 

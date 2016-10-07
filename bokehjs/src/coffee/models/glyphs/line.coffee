@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 
 class LineView extends Glyph.View
 

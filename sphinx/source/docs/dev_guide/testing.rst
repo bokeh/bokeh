@@ -38,10 +38,6 @@ and integration tests) **from the top level directory** by executing:
 
     py.test
 
-.. note::
-    Currently this script does not support Windows.
-
-
 To learn more about marking test functions and selecting/deselecting them for
 a run, please consult the pytest documentation for `custom markers`_.
 

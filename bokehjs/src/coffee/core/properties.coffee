@@ -1,6 +1,5 @@
 _ = require "underscore"
-Backbone = require "./backbone"
-
+{Events} = require "./events"
 enums = require "./enums"
 svg_colors = require "./util/svg_colors"
 {valid_rgb} = require "./util/color"
@@ -9,32 +8,19 @@ svg_colors = require "./util/svg_colors"
 # Property base class
 #
 
-class Property extends Backbone.Model
+class Property
+  _.extend(@prototype, Events)
 
   dataspec: false
   specifiers: ['field', 'value']
 
-  @getters {
-    obj: () -> @getv('obj')
-    attr: () -> @getv('attr')
-    default_value: () -> @getv('default_value')
-  }
-
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
+  constructor: ({@obj, @attr, @default_value}) ->
     @_init(false)
 
     # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
     @listenTo(@obj, "change:#{@attr}", () =>
       @_init()
       @obj.trigger("propchange")
-    )
-    @listenTo(@, "change:obj", () ->
-      throw new Error("attempted to reset 'obj' on Property")
-    )
-    @listenTo(@, "change:attr", () ->
-      throw new Error("attempted to reset 'attr' on Property")
     )
 
   update: () -> @_init()
@@ -189,6 +175,8 @@ class Direction extends enum_prop("Direction", enums.Direction)
 
 class Dimension extends enum_prop("Dimension", enums.Dimension)
 
+class Dimensions extends enum_prop("Dimensions", enums.Dimensions)
+
 class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
 class LineCap extends enum_prop("LineCap", enums.LineCap)
@@ -285,6 +273,7 @@ module.exports =
   Boolean: Bool                   # alias
   Color: Color
   Dimension: Dimension
+  Dimensions: Dimensions
   Direction: Direction
   Distance: Distance
   Font: Font

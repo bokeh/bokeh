@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 GestureTool = require "./gesture_tool"
-{scale_range} = require "../../../util/zoom"
+{scale_range} = require "../../../core/util/zoom"
 p = require "../../../core/properties"
 
 # Here for testing purposes
@@ -26,19 +26,12 @@ class WheelZoomToolView extends GestureTool.View
     vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
     vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
 
-    # if wheel-scroll events happen outside frame restrict scaling to axis in bounds
-    if vx < hr.start or vx > hr.end
-      v_axis_only = true
-    if vy < vr.start or vy > vr.end
-      h_axis_only = true
-
     dims = @model.dimensions
 
-    # restrict to axis configured in tool's dimensions property
-    if dims.indexOf('width') == -1
-      v_axis_only = true
-    if dims.indexOf('height') == -1
-      h_axis_only = true
+    # restrict to axis configured in tool's dimensions property and if
+    # zoom origin is inside of frame range/domain
+    h_axis = dims in ['width', 'both'] and hr.min < vx < hr.max
+    v_axis = dims in ['height', 'both'] and vr.min < vy < vr.max
 
     # we need a browser-specific multiplier to have similar experiences
     if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
@@ -53,13 +46,7 @@ class WheelZoomToolView extends GestureTool.View
 
     factor  = @model.speed * delta
 
-    zoom_info = scale_range({
-      frame: frame
-      factor: factor
-      center: [vx, vy]
-      v_axis_only: v_axis_only
-      h_axis_only: h_axis_only
-    })
+    zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: vx, y: vy})
 
     @plot_view.push_state('wheel_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info, false, true)
@@ -75,11 +62,11 @@ class WheelZoomTool extends GestureTool.Model
   default_order: 10
 
   @getters {
-    tooltip: () -> @_get_dim_tooltip(@tool_name, @_check_dims(@dimensions, "wheel zoom tool"))
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
 
   @define {
-    dimensions: [ p.Array, ["width", "height"] ]
+    dimensions: [ p.Dimensions, "both" ]
   }
 
   @internal {

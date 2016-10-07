@@ -4,10 +4,10 @@ $ = require "jquery"
 InspectTool = require "./inspect_tool"
 Tooltip = require "../../annotations/tooltip"
 GlyphRenderer = require "../../renderers/glyph_renderer"
-hittest = require "../../../common/hittest"
+hittest = require "../../../core/hittest"
 {logger} = require "../../../core/logging"
+{replace_placeholders} = require "../../../core/util/templating"
 p = require "../../../core/properties"
-Util = require "../../../util/util"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -244,7 +244,7 @@ class HoverToolView extends InspectTool.View
   _render_tooltips: (ds, i, vars) ->
     tooltips = @model.tooltips
     if _.isString(tooltips)
-      return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
+      return $('<div>').html(replace_placeholders(tooltips, ds, i, vars))
     else if _.isFunction(tooltips)
       return tooltips(ds, vars)
     else
@@ -279,7 +279,7 @@ class HoverToolView extends InspectTool.View
           td.append(span)
         else
           value = value.replace("$~", "$data_")
-          value = Util.replace_placeholders(value, ds, i, vars)
+          value = replace_placeholders(value, ds, i, vars)
           td.append($('<span>').html(value))
 
         row.append(td)

@@ -39,19 +39,6 @@ replace_placeholders = (string, data_source, i, special_vars={}) ->
 
   return string
 
-get_indices = (data_source) ->
-  selected = data_source.selected
-
-  if selected['0d'].glyph
-    selected['0d'].indices
-  else if selected['1d'].indices.length > 0
-    selected['1d'].indices
-  else if selected['2d'].indices.length > 0
-    selected['2d'].indices
-  else
-    []
-
 module.exports = {
   replace_placeholders: replace_placeholders
-  get_indices: get_indices
 }

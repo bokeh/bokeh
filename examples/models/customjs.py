@@ -28,11 +28,10 @@ plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
 customjs = CustomJS.from_coffeescript(args=dict(source=source), code="""
-  Util = require "util/util"
-  data = source.data
+  {get_indices} = require "core/util/selection"
 
-  for i in Util.get_indices(source)
-    color = data['color'][i]
+  for i in get_indices(source)
+    color = source.data['color'][i]
     window.alert("Selected color: #{color}")
 """)
 

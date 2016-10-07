@@ -1,6 +1,5 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "./core/backbone"
 {Promise} = require "es6-promise"
 
 base = require "./base"
@@ -182,7 +181,9 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
       fill_render_item_from_script_tag(elem, item)
       container = $('<div>', {class: BOKEH_ROOT})
       elem.replaceWith(container)
-      elem = container
+      child = $('<div>')
+      container.append(child)
+      elem = child
 
     use_for_title = item.use_for_title? and item.use_for_title
 

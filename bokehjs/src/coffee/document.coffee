@@ -89,7 +89,7 @@ class Document
     @_solver = new Solver()
     @_init_solver()
 
-    $(window).on("resize", $.proxy(@resize, @))
+    $(window).on("resize", () => @resize())
 
   _init_solver : () ->
     @_solver.clear()
@@ -108,15 +108,14 @@ class Document
     #   -> LayoutDOM.render()
     #   -> PlotCanvas.resize() -> solver:update_layout
 
-    # Ideally the solver would  settle in one pass (can that be done?),
+    # Ideally the solver would settle in one pass (can that be done?),
     # but it currently needs two passes to get it right.
     # Seems to be needed everywhere on initialization, and on Windows
     # it seems necessary on each Draw
-    @_resize(width=width, height=height)
-    @_resize(width=width, height=height)
+    @_resize(width, height)
+    @_resize(width, height)
 
   _resize: (width=null, height=null) ->
-
     for root in @_roots
       if root.layoutable isnt true
         continue

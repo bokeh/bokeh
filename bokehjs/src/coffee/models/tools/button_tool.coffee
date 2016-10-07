@@ -1,11 +1,10 @@
 _ = require "underscore"
-Backbone = require "../../core/backbone"
-
+BokehView = require "../../core/bokeh_view"
 Tool = require "./tool"
 button_tool_template = require "./button_tool_template"
 p = require "../../core/properties"
 
-class ButtonToolButtonView extends Backbone.View
+class ButtonToolButtonView extends BokehView
   tagName: "li"
   template: button_tool_template
 

@@ -10,7 +10,7 @@ from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override, Include, MinMaxBounds, TitleProp)
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds, TitleProp)
 
 from bokeh.models import Plot
 from bokeh.models.annotations import Title
@@ -475,6 +475,20 @@ class TestNumberSpec(unittest.TestCase):
         # but regular assignment overwrites the previous dict-ness
         a.x = dict(field="baz")
         self.assertDictEqual(a.x, dict(field="baz"))
+
+class TestFontSizeSpec(unittest.TestCase):
+    def test_font_size_from_string(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        a = Foo()
+        self.assertIs(a.x, None)
+        a.x = '10pt'
+        self.assertEqual(a.x, dict(value='10pt'))
+        self.assertEqual(a.lookup('x').serializable_value(a), dict(value='10pt'))
+        a.x = '_10pt'
+        self.assertEqual(a.x, '_10pt')
+        self.assertEqual(a.lookup('x').serializable_value(a), dict(field='_10pt'))
 
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):

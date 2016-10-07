@@ -969,7 +969,7 @@ describe "Document", ->
     spy = sinon.spy(s, 'suggest_value')
     root_model = new ModelWithConstrainedVariables({sizing_mode: "scale_both"})
     d.add_root(root_model)
-    d.resize(width=200, height=300)
+    d.resize(200, 300)
     expect(spy.callCount).is.equal(4)
     expect(spy.calledWithExactly(d._doc_width, 200)).is.true
     expect(spy.calledWithExactly(d._doc_height, 300)).is.true

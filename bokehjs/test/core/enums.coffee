@@ -26,7 +26,7 @@ describe "enums module", ->
     expect(enums.RenderMode).to.be.deep.equal ["canvas", "css"]
 
   it "should have RenderLevel", ->
-    expect(enums.RenderLevel).to.be.deep.equal ["image", "underlay", "glyph", "annotation", "overlay", "tool"]
+    expect(enums.RenderLevel).to.be.deep.equal ["image", "underlay", "glyph", "annotation", "overlay"]
 
   it "should have Side", ->
     expect(enums.Side).to.be.deep.equal ["left", "right"]

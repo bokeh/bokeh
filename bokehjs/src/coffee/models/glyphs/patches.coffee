@@ -2,7 +2,7 @@ _ = require "underscore"
 rbush = require "rbush"
 
 Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+hittest = require "../../core/hittest"
 
 class PatchesView extends Glyph.View
 
