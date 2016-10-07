@@ -2,8 +2,8 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-Canvas = utils.require("models/canvas/canvas.coffee").Model
-CanvasView = utils.require("models/canvas/canvas.coffee").View
+Canvas = utils.require("models/canvas/canvas").Model
+CanvasView = utils.require("models/canvas/canvas").View
 {Document} = utils.require "document"
 {Variable}  = utils.require("core/layout/solver")
 

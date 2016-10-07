@@ -4,8 +4,8 @@ utils = require "../../../utils"
 sinon = require 'sinon'
 
 {Document} = utils.require("document")
-WheelPanTool = utils.require("models/tools/gestures/wheel_pan_tool.coffee").Model
-WheelPanToolView = utils.require("models/tools/gestures/wheel_pan_tool.coffee").View
+WheelPanTool = utils.require("models/tools/gestures/wheel_pan_tool").Model
+WheelPanToolView = utils.require("models/tools/gestures/wheel_pan_tool").View
 Range1d = utils.require("models/ranges/range1d").Model
 Plot = utils.require("models/plots/plot").Model
 Toolbar = utils.require("models/tools/toolbar").Model

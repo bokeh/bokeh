@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-CartesianFrame = utils.require("models/canvas/cartesian_frame.coffee").Model
-Range1d = utils.require("models/ranges/range1d.coffee").Model
+CartesianFrame = utils.require("models/canvas/cartesian_frame").Model
+Range1d = utils.require("models/ranges/range1d").Model
 {Document} = utils.require "document"
 {Variable}  = utils.require("core/layout/solver")
 
