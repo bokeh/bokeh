@@ -41,7 +41,7 @@ class FactorRange extends Range.Model
 
   reset: () ->
     @_init()
-    @callback?.execute(@)
+    @trigger('change')
 
   _update_factors: () ->
     # Factors have been changed, need to update the factored version of the bounds

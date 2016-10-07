@@ -23,7 +23,7 @@ class Range extends Model
     This method should be reimplemented by subclasses and ensure that
     the callback, if exists, is executed at completion.
     """
-    @callback?.execute(@)
+    @trigger('change')
 
 module.exports =
   Model: Range

@@ -142,7 +142,7 @@ class DataRange1d extends DataRange.Model
     if @bounds == 'auto'
       @setv({bounds: [start, end]}, {silent: true})
 
-    @callback?.execute(@)
+    @trigger('change')
 
   reset: () ->
     @have_updated_interactively = false
@@ -152,8 +152,7 @@ class DataRange1d extends DataRange.Model
       follow_interval: @_initial_follow_interval
       default_span: @_initial_default_span
     }, {silent: true})
-    @callback?.execute(@)
-
+    @trigger('change')
 
 module.exports =
   Model: DataRange1d

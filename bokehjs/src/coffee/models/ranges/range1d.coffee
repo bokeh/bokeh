@@ -44,7 +44,7 @@ class Range1d extends Range.Model
   reset: () ->
     @setv({start: @_initial_start, end: @_initial_end}, {silent: true})
     @_set_auto_bounds()
-    @callback?.execute(@)
+    @trigger('change')
 
 module.exports =
   Model: Range1d
