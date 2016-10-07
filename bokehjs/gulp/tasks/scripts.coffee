@@ -76,7 +76,7 @@ tsjsOpts = {
 
 gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
   gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
-      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
+      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> if argv.tsjs then gutil.log(err.message)))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:tsjs"]
