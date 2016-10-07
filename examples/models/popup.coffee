@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "model"
+{Model} = require "model"
 p = require "core/properties"
 {get_indices} = require "core/util/selection"
 {replace_placeholders} = require "core/util/templating"
