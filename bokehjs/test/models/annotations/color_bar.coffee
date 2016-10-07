@@ -21,7 +21,7 @@ work-around using proxyrequire does some `require` hackery to stub the
 text.get_text_height can be stubbed.
 ###
 textStub = {}
-ColorBar = proxyquire('../../../src/coffee/models/annotations/color_bar',
+ColorBar = proxyquire('../../../build/js/tree/models/annotations/color_bar',
                       {"../../core/util/text": textStub})
 
 describe "ColorBar module", ->
