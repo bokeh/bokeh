@@ -1424,12 +1424,7 @@ class _Palettes(object):
     @property
     def all_palettes(self):
         palettes = self.brewer
-        palettes["Deep"]       = self.Deep,
-        palettes["Muted"]      = self.Muted,
-        palettes["Pastel"]     = self.Pastel,
-        palettes["Bright"]     = self.Bright,
-        palettes["Dark"]       = self.Dark,
-        palettes["Colorblind"] = self.Colorblind,
+        palettes.update(self.seaborn)
         palettes["Magma"]      = self.Magma
         palettes["Inferno"]    = self.Inferno
         palettes["Plasma"]     = self.Plasma
