@@ -8,7 +8,6 @@ rename = require "gulp-rename"
 transform = require "vinyl-transform"
 replace = require "gulp-replace"
 uglify = require "gulp-uglify"
-runSequence = require "run-sequence"
 sourcemaps = require "gulp-sourcemaps"
 source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
@@ -81,7 +80,7 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scrip
 
 gulp.task "scripts:compile", ["scripts:tsjs"]
 
-gulp.task "scripts:build", ["scripts:compile"], (cb) ->
+gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
@@ -185,7 +184,9 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> writeLabels(() -> buildCompiler(cb)))))
   null # XXX: this is extremely important to allow cb() to work
 
-gulp.task "scripts:minify", ->
+gulp.task "scripts:build", ["scripts:bundle"]
+
+gulp.task "scripts:minify", ["scripts:bundle"], ->
   tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
@@ -195,5 +196,4 @@ gulp.task "scripts:minify", ->
       .pipe(gulp.dest(paths.buildDir.js))
   es.merge.apply(null, tasks)
 
-gulp.task "scripts", (cb) ->
-  runSequence("scripts:build", "scripts:minify", cb)
+gulp.task "scripts", ["scripts:build", "scripts:minify"]
