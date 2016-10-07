@@ -28,8 +28,8 @@ source = ColumnDataSource(data=dict(
 
 p = figure(title="Hoverful Scatter", tools=TOOLS)
 
-p.circle(x, y, radius=radii, source=source,
-         fill_color=colors, fill_alpha=0.6, line_color=None)
+p.circle(x='x', y='y', radius='radius', source=source,
+         fill_color='colors', fill_alpha=0.6, line_color=None)
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
        text_baseline="middle", text_align="center")
