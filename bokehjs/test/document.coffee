@@ -6,9 +6,9 @@ sinon = require "sinon"
 
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
-js_version = utils.require "version"
+js_version = utils.require("version").version
 {Models} = utils.require "base"
-Model = utils.require "model"
+{Model} = utils.require "model"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 

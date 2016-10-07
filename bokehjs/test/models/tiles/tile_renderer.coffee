@@ -9,11 +9,11 @@ TMSTileSource = utils.require "models/tiles/tms_tile_source"
 WMTSTileSource = utils.require "models/tiles/wmts_tile_source"
 QUADKEYTileSource = utils.require "models/tiles/quadkey_tile_source"
 BBoxTileSource = utils.require "models/tiles/bbox_tile_source"
-tile_utils = utils.require "models/tiles/tile_utils"
+{ProjectionUtils} = utils.require "models/tiles/tile_utils"
 
 describe "projection utils", ->
 
-  utils = new tile_utils.ProjectionUtils()
+  utils = new ProjectionUtils()
   tol = 0.01
 
   it "should convert lat/lng to meters", ->
@@ -70,7 +70,7 @@ describe "tile sources", ->
     tile_options =
       url : 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
 
-    source = new TileSource(tile_options)
+    source = new TileSource.Model(tile_options)
 
     it "should remove tile and add back to image pool ", ->
       expect(source.pool.images.length).to.be.equal(0)
@@ -91,7 +91,7 @@ describe "tile sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new TileSource(tile_options)
+      offset_source = new TileSource.Model(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
 
@@ -105,7 +105,7 @@ describe "tile sources", ->
         url : 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png'
         extra_url_vars : test_extra_url_vars
 
-      tile_source = new TileSource(tile_options)
+      tile_source = new TileSource.Model(tile_options)
       expect_url = 'http://test_value/test_value2/0/0/0.png'
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
@@ -118,11 +118,11 @@ describe "tile sources", ->
       tile_options =
         url : 'http://mock/{x}/{y}/{z}.png'
       expect_url = 'http://mock/0/0/0.png'
-      tile_source = new TileSource(tile_options)
+      tile_source = new TileSource.Model(tile_options)
       expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
 
       tile_options.url = 'http://mock/{X}/{Y}/{Z}.png'
-      tile_source = new TileSource(tile_options)
+      tile_source = new TileSource.Model(tile_options)
       expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
 
     it "should return tiles in ascending distance from center tile", ->
@@ -243,7 +243,7 @@ describe "tile sources", ->
 
   describe "mercator tile source", ->
 
-    source = new MercatorTileSource()
+    source = new MercatorTileSource.Model()
     tol = 0.01
 
     it "should calculate resolution", ->
@@ -268,13 +268,13 @@ describe "tile sources", ->
       tile_options =
         wrap_around : true
 
-      source = new MercatorTileSource(tile_options)
+      source = new MercatorTileSource.Model(tile_options)
       expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(true)
 
       tile_options =
         wrap_around : false
 
-      source = new MercatorTileSource(tile_options)
+      source = new MercatorTileSource.Model(tile_options)
       expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(false)
 
     it "should get best zoom level based on extent and height/width", ->

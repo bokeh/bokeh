@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-SelectionManager = utils.require "core/selection_manager"
+{SelectionManager} = utils.require "core/selection_manager"
 
 SomeMarker = utils.require("models/markers/index").CircleX.Model
 GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model

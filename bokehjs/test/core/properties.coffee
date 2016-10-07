@@ -3,7 +3,7 @@ utils = require "../utils"
 
 p = properties = utils.require "core/properties"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 enums = utils.require "core/enums"
 ColumnDataSource = utils.require("models/sources/column_data_source").Model
 svg_colors = utils.require "core/util/svg_colors"

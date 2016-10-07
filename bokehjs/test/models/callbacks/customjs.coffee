@@ -4,7 +4,7 @@ utils = require "../../utils"
 CustomJS = utils.require("models/callbacks/customjs").Model
 Range1d = utils.require("models/ranges/range1d").Model
 {Document} = utils.require "document"
-js_version = utils.require "version"
+js_version = utils.require("version").version
 
 describe "customjs module", ->
 

@@ -7,7 +7,7 @@ widget_defaults = require "./generated_defaults/widgets_defaults"
 
 {Models} = utils.require "base"
 mixins = utils.require "core/property_mixins"
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 
 widget_locations = utils.require("models/widgets/main").models
 Models.register_locations(widget_locations)
