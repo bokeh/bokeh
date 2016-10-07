@@ -8,7 +8,7 @@ import * as Range1d from "../ranges/range1d"
 
 import {EQ, GE} from "../../core/layout/solver"
 import * as LayoutCanvas from "../../core/layout/layout_canvas"
-import {logging} from "../../core/logging"
+import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 class CartesianFrame extends LayoutCanvas.Model
