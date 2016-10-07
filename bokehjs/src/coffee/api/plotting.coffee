@@ -5,6 +5,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
+import {startsWith} from "../core/util/string"
 
 _default_tooltips = [
   ["index", "$index"],
@@ -238,8 +239,8 @@ export class Figure extends models.Plot
     legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
-    has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
-    has_hglyph = _.any(_.keys(attrs), (key) -> key.startsWith("hover_"))
+    has_sglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "selection_"))
+    has_hglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
     nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
