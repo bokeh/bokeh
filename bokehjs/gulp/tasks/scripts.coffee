@@ -54,13 +54,12 @@ tsOpts = {
   module: "commonjs"
   moduleResolution: "node"
   target: "ES5"
-  typescript: require('typescript')
 }
 
 gulp.task "scripts:ts", () ->
   gulp.src("./src/coffee/**/*.ts")
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(ts(tsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
+      .pipe(ts(tsOpts, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
       .pipe(rename((path) -> path.extname = '.ts'))
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
@@ -70,7 +69,6 @@ tsjsOpts = {
   module: "commonjs"
   moduleResolution: "node"
   target: "ES5"
-  typescript: require('typescript')
 }
 
 gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
@@ -93,7 +91,7 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scrip
           return
     gutil.log(msg)
   gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
-      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', error))
+      .pipe(ts(tsjsOpts, ts.reporter.nullReporter()).on('error', error))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:tsjs"]
