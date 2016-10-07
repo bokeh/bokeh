@@ -9,13 +9,7 @@ Bokeh.version = require("./version")
 Bokeh._                 = require("underscore")
 Bokeh.$                 = require("jquery")
 
-# set up logger
-logging = require("./core/logging")
-Bokeh.logger            = logging.logger
-Bokeh.set_log_level     = logging.set_log_level
-
-Bokeh.index             = require("./base").index
+export {logger, set_log_level} from "./core/logging"
+export {Models, index} from "./base"
 Bokeh.embed             = require("./embed")
 export {safely} from "./safely"
-
-Bokeh.Models            = require("./base").Models
