@@ -30,27 +30,12 @@ ts = require 'gulp-typescript'
 
 {namedLabeler} = require "../labeler"
 
-tsjsOpts = {
-  noImplicitAny: false
-  noEmitOnError: false
-  module: "commonjs"
-  moduleResolution: "node"
-  target: "ES5"
-  typescript: require('typescript')
-}
-
 gulp.task "scripts:coffee", () ->
   gulp.src('./src/coffee/**/*.coffee')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
       .pipe(coffee({bare: true}))
       .pipe(rename((path) -> path.extname = '.ts'))
-      #.pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
-
-gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js"], () ->
-  gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
-      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
-      .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:js", () ->
   gulp.src('./src/coffee/**/*.js')
@@ -61,7 +46,8 @@ gulp.task "scripts:eco", () ->
   gulp.src('./src/coffee/**/*.eco')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
       .pipe(eco())
-      .pipe(gulp.dest(paths.buildDir.jsTree))
+      .pipe(rename((path) -> path.extname = '.ts'))
+      .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
 tsOpts = {
   noImplicitAny: true
@@ -76,9 +62,24 @@ gulp.task "scripts:ts", () ->
   gulp.src("./src/coffee/**/*.ts")
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
       .pipe(ts(tsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
+      .pipe(rename((path) -> path.extname = '.ts'))
+      .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
+
+tsjsOpts = {
+  noImplicitAny: false
+  noEmitOnError: false
+  module: "commonjs"
+  moduleResolution: "node"
+  target: "ES5"
+  typescript: require('typescript')
+}
+
+gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
+  gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
+      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
-gulp.task "scripts:compile", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"]
+gulp.task "scripts:compile", ["scripts:tsjs"]
 
 gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")
