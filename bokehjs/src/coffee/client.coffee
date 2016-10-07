@@ -298,7 +298,7 @@ class ClientConnection
       @_pending_ack[1](new Error("Lost websocket connection, #{event.code} (#{event.reason})"))
       @_pending_ack = null
 
-    pop_pending = () ->
+    pop_pending = () =>
       for reqid, promise_funcs of @_pending_replies
         delete @_pending_replies[reqid]
         return promise_funcs
