@@ -48,19 +48,8 @@ gulp.task "scripts:eco", () ->
       .pipe(rename((path) -> path.extname = '.ts'))
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
-tsOpts = {
-  noImplicitAny: true
-  noEmitOnError: true
-  module: "commonjs"
-  moduleResolution: "node"
-  target: "ES5"
-}
-
 gulp.task "scripts:ts", () ->
   gulp.src("./src/coffee/**/*.ts")
-      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(ts(tsOpts, ts.reporter.nullReporter()).on('error', (err) -> gutil.log(err.message)))
-      .pipe(rename((path) -> path.extname = '.ts'))
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
 tsjsOpts = {
