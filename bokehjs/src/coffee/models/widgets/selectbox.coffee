@@ -5,7 +5,7 @@ import * as p from "../../core/properties"
 
 import * as InputWidget from "./input_widget"
 
-import * as template from "./selecttemplate"
+import template from "./selecttemplate"
 
 
 class SelectView extends InputWidget.View

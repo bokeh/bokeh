@@ -4,7 +4,7 @@ import "bootstrap/tab"
 
 import * as p from "../../core/properties"
 
-import * as tabs_template from "./tabs_template"
+import tabs_template from "./tabs_template"
 import * as Widget from "./widget"
 
 class TabsView extends Widget.View

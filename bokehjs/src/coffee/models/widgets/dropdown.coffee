@@ -5,7 +5,7 @@ import * as p from "../../core/properties"
 
 import * as AbstractButton from "./abstract_button"
 
-import * as template from "./dropdown_template"
+import template from "./dropdown_template"
 
 class DropdownView extends AbstractButton.View
   template: template

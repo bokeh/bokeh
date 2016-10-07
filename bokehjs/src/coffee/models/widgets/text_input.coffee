@@ -5,7 +5,7 @@ import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
 import * as InputWidget from "./input_widget"
-import * as template from "./text_input_template"
+import template from "./text_input_template"
 
 
 class TextInputView extends InputWidget.View

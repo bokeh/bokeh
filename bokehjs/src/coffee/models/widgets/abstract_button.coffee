@@ -2,7 +2,7 @@ import * as p from "../../core/properties"
 
 import {build_views} from "../../core/build_views"
 import * as Widget from "./widget"
-import * as template from "./button_template"
+import template from "./button_template"
 
 
 class AbstractButtonView extends Widget.View

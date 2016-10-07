@@ -5,7 +5,7 @@ import "bootstrap/button"
 import * as Widget from "./widget"
 import {BokehView} from "../../core/bokeh_view"
 import * as p from "../../core/properties"
-import * as template from "./button_group_template"
+import template from "./button_group_template"
 
 
 class CheckboxButtonGroupView extends Widget.View

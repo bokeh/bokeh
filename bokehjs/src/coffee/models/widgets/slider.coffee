@@ -7,7 +7,7 @@ import * as p from "../../core/properties"
 import * as InputWidget from "./input_widget"
 import * as Widget from "./widget"
 
-import * as slidertemplate from "./slidertemplate"
+import slidertemplate from "./slidertemplate"
 
 
 class SliderView extends InputWidget.View

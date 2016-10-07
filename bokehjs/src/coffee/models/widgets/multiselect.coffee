@@ -4,7 +4,7 @@ import * as p from "../../core/properties"
 
 import * as InputWidget from "./input_widget"
 
-import * as multiselecttemplate from "./multiselecttemplate"
+import multiselecttemplate from "./multiselecttemplate"
 
 
 class MultiSelectView extends InputWidget.View

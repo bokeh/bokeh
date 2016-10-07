@@ -1,7 +1,7 @@
 import * as p from "../../core/properties"
 
 import * as Widget from "./widget"
-import * as template from "./markup_template"
+import template from "./markup_template"
 
 
 class MarkupView extends Widget.View

@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-import * as canvas_template from "./canvas_template"
+import canvas_template from "./canvas_template"
 import * as LayoutCanvas from "../../core/layout/layout_canvas"
 
 import {BokehView} from "../../core/bokeh_view"

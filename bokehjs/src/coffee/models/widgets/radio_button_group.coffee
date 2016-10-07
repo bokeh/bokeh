@@ -5,7 +5,7 @@ import "bootstrap/button"
 import * as p from "../../core/properties"
 
 import * as Widget from "./widget"
-import * as template from "./button_group_template"
+import template from "./button_group_template"
 
 
 class RadioButtonGroupView extends Widget.View

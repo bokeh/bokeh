@@ -4,7 +4,7 @@ import "bootstrap/modal"
 
 import * as p from "../../core/properties"
 
-import * as dialog_template from "./dialog_template"
+import dialog_template from "./dialog_template"
 import * as Widget from "./widget"
 
 class DialogView extends Widget.View

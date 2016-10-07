@@ -12,7 +12,7 @@ import * as ActionTool from "./actions/action_tool"
 import * as HelpTool from "./actions/help_tool"
 import * as GestureTool from "./gestures/gesture_tool"
 import * as InspectTool from "./inspectors/inspect_tool"
-import * as toolbar_template from "./toolbar_template"
+import toolbar_template from "./toolbar_template"
 
 
 class ToolbarBaseView extends LayoutDOM.View

@@ -69,7 +69,7 @@ eco = (opt) ->
     dest = gutil.replaceExtension(file.path, '.js')
 
     try
-      data = "module.exports = #{compile(str)};"
+      data = "export default #{compile(str)};"
     catch err
       return cb(new PluginError('gulp-eco', err))
 

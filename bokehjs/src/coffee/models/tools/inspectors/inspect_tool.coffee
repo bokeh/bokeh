@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import {BokehView} from "../../../core/bokeh_view"
 import * as Tool from "../tool"
-import * as inspect_tool_list_item_template from "./inspect_tool_list_item_template"
+import inspect_tool_list_item_template from "./inspect_tool_list_item_template"
 
 class InspectToolListItemView extends BokehView
   className: "bk-toolbar-inspector"
