@@ -73,7 +73,6 @@ the :ref:`devguide`.
     docs/reference/themes
     docs/reference/tile_providers
     docs/reference/util
-    docs/releases/0.12.3
     docs/releases/0.12.2
     docs/releases/0.12.1
     docs/releases/0.12.0
