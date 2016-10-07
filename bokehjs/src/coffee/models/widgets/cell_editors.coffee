@@ -236,7 +236,7 @@ class TimeEditor extends CellEditor
 
 class DateEditorView extends CellEditorView
 
-  emptyValue: new Date()
+  emptyValue: new window.Date()
 
   input: '<input type="text" />'
 
@@ -275,7 +275,7 @@ class DateEditorView extends CellEditorView
 
   getValue: () -> return @$input.datepicker("getDate").getTime()
 
-  setValue: (val) -> @$input.datepicker("setDate", new Date(val))
+  setValue: (val) -> @$input.datepicker("setDate", new window.Date(val))
 
 class DateEditor extends CellEditor
   type: 'DateEditor'
