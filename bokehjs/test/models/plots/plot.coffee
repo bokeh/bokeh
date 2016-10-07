@@ -5,6 +5,7 @@ sinon = require 'sinon'
 
 {Document} = utils.require("document")
 
+CustomJS = utils.require("models/callbacks/customjs").Model
 DataRange1d = utils.require("models/ranges/data_range1d").Model
 Range1d = utils.require("models/ranges/range1d").Model
 PlotCanvas = utils.require("models/plots/plot_canvas").Model
@@ -150,6 +151,16 @@ describe "Plot", ->
       doc = new Document()
       @p.attach_document(doc)
       expect(@p.plot_canvas.document).to.be.equal doc
+
+    it "should not execute range callbacks on initialization", ->
+      cb = new CustomJS()
+      spy = sinon.spy(cb, 'execute')
+
+      plot = new Plot({
+         x_range: new Range1d({callback: cb})
+         y_range: new Range1d({callback: cb})
+      })
+      expect(spy.called).to.be.false
 
     describe "get_constrained_variables", ->
 
