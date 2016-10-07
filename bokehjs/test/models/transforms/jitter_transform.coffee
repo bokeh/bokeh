@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {Collections} = utils.require "base"
-Jitter = utils.require("models/transforms/jitter").Model
+{Jitter} = utils.require("models/transforms/jitter")
 bokeh_math  = utils.require("core/util/math")
 
 describe "Jitter transform module", ->

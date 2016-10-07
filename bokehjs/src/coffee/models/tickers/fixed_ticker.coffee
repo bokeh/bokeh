@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as ContinuousTicker from "./continuous_ticker"
+import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "../../core/properties"
 
-class FixedTicker extends ContinuousTicker.Model
+export class FixedTicker extends ContinuousTicker
   type: 'FixedTicker'
 
   @define {
@@ -15,7 +15,3 @@ class FixedTicker extends ContinuousTicker.Model
       major: @ticks
       minor: []
     }
-
-export {
-  FixedTicker as Model
-}

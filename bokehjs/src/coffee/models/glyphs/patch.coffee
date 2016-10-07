@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
-class PatchView extends Glyph.View
+export class PatchView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -49,15 +49,10 @@ class PatchView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Patch extends Glyph.Model
+export class Patch extends Glyph
   default_view: PatchView
 
   type: 'Patch'
 
   @coords [['x', 'y']]
   @mixins ['line', 'fill']
-
-export {
-  Patch as Model
-  PatchView as View
-}

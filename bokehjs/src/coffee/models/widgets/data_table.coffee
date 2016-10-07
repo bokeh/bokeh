@@ -8,8 +8,8 @@ import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectco
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-import * as TableWidget from "./table_widget"
-import * as Widget from "./widget"
+import {TableWidget} from "./table_widget"
+import {WidgetView} from "./widget"
 
 wait_for_element = (el, fn) ->
   handler = () =>
@@ -18,7 +18,7 @@ wait_for_element = (el, fn) ->
       fn()
   interval = setInterval(handler, 50)
 
-class DataProvider
+export class DataProvider
 
   constructor: (@source) ->
     @data = @source.data
@@ -94,7 +94,7 @@ class DataProvider
 
     @updateSource()
 
-class DataTableView extends Widget.View
+export class DataTableView extends WidgetView
   attributes:
     class: "bk-data-table"
 
@@ -197,7 +197,7 @@ class DataTableView extends Widget.View
 
     return @
 
-class DataTable extends TableWidget.Model
+export class DataTable extends TableWidget
   type: 'DataTable'
   default_view: DataTableView
 
@@ -218,8 +218,3 @@ class DataTable extends TableWidget.Model
   @internal {
     default_width:        [ p.Number, 600   ]
   }
-
-export {
-  DataTable as Model
-  DataTableView as View
-}

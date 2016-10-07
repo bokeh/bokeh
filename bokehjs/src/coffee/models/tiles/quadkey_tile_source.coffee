@@ -1,6 +1,6 @@
-import * as MercatorTileSource from './mercator_tile_source'
+import {MercatorTileSource} from './mercator_tile_source'
 
-class QUADKEYTileSource extends MercatorTileSource.Model
+export class QUADKEYTileSource extends MercatorTileSource
   type: 'QUADKEYTileSource'
 
   get_image_url: (x, y, z) ->
@@ -8,7 +8,3 @@ class QUADKEYTileSource extends MercatorTileSource.Model
     [x, y, z] = @tms_to_wmts(x, y, z)
     quadKey = @tile_xyz_to_quadkey(x, y, z)
     return image_url.replace("{Q}", quadKey)
-
-export {
-  QUADKEYTileSource as Model
-}

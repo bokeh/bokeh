@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-import * as TextAnnotation from "./text_annotation"
-import * as ColumnDataSource from "../sources/column_data_source"
+import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {ColumnDataSource} from "../sources/column_data_source"
 import * as p from "../../core/properties"
 
-class LabelSetView extends TextAnnotation.View
+export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
     super(options)
 
@@ -154,7 +154,7 @@ class LabelSetView extends TextAnnotation.View
                    .css(div_style)
                    .show()
 
-class LabelSet extends TextAnnotation.Model
+export class LabelSet extends TextAnnotation
   default_view: LabelSetView
 
   type: 'Label'
@@ -170,7 +170,7 @@ class LabelSet extends TextAnnotation.Model
     angle:        [ p.AngleSpec,    0                 ]
     x_offset:     [ p.NumberSpec,   { value: 0 }      ]
     y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-    source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
+    source:       [ p.Instance,     () -> new ColumnDataSource()  ]
     x_range_name: [ p.String,      'default'          ]
     y_range_name: [ p.String,      'default'          ]
     render_mode:  [ p.RenderMode,  'canvas'           ]
@@ -180,8 +180,3 @@ class LabelSet extends TextAnnotation.Model
     background_fill_color: null
     border_line_color: null
   }
-
-export {
-  LabelSet as Model
-  LabelSetView as View
-}

@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as GestureTool from "./gesture_tool"
+import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "../../../core/properties"
 
-class PanToolView extends GestureTool.View
+export class PanToolView extends GestureToolView
 
   _pan_start: (e) ->
     @last_dx = 0
@@ -90,7 +90,7 @@ class PanToolView extends GestureTool.View
     @plot_view.update_range(@pan_info, is_panning=true)
     return null
 
-class PanTool extends GestureTool.Model
+export class PanTool extends GestureTool
   default_view: PanToolView
   type: "PanTool"
   tool_name: "Pan"
@@ -105,8 +105,3 @@ class PanTool extends GestureTool.Model
   @getters {
     tooltip: () -> @_get_dim_tooltip("Pan", @dimensions)
   }
-
-export {
-  PanTool as Model
-  PanToolView as View
-}

@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-import * as InspectTool from "./inspect_tool"
-import * as Tooltip from "../../annotations/tooltip"
-import * as GlyphRenderer from "../../renderers/glyph_renderer"
+import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Tooltip} from "../../annotations/tooltip"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import * as hittest from "../../../core/hittest"
 import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
@@ -21,7 +21,7 @@ _color_to_hex = (color) ->
   rgb = blue | (green << 8) | (red << 16)
   return digits[1] + '#' + rgb.toString(16)
 
-class HoverToolView extends InspectTool.View
+export class HoverToolView extends InspectToolView
 
   bind_bokeh_events: () ->
     for r in @model.computed_renderers
@@ -287,7 +287,7 @@ class HoverToolView extends InspectTool.View
 
       return table
 
-class HoverTool extends InspectTool.Model
+export class HoverTool extends InspectTool
   default_view: HoverToolView
   type: "HoverTool"
   tool_name: "Hover Tool"
@@ -321,7 +321,7 @@ class HoverTool extends InspectTool.Model
 
         if renderers.length == 0
           all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
         if names.length > 0
           renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
@@ -337,7 +337,7 @@ class HoverTool extends InspectTool.Model
 
       if tooltips?
         for r in @computed_renderers
-          tooltip = new Tooltip.Model({
+          tooltip = new Tooltip({
             custom: _.isString(tooltips) or _.isFunction(tooltips)
             attachment: @attachment
             show_arrow: @show_arrow
@@ -352,8 +352,3 @@ class HoverTool extends InspectTool.Model
     ttmodels: () -> @_get_computed('ttmodels')
     synthetic_renderers: () -> _.values(@ttmodels)
   }
-
-export {
-  HoverTool as Model
-  HoverToolView as View
-}

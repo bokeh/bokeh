@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
 
-class ImageRGBAView extends Glyph.View
+export class ImageRGBAView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -94,7 +94,7 @@ class ImageRGBAView extends Glyph.View
       maxY: d.maxY + @max_dh
     }
 
-class ImageRGBA extends Glyph.Model
+export class ImageRGBA extends Glyph
   default_view: ImageRGBAView
 
   type: 'ImageRGBA'
@@ -114,8 +114,3 @@ class ImageRGBA extends Glyph.Model
     super(attrs, options)
     @properties.rows.optional = true
     @properties.cols.optional = true
-
-export {
-  ImageRGBA as Model
-  ImageRGBAView as View
-}

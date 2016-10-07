@@ -4,13 +4,12 @@ import "jquery-ui/slider"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-import * as InputWidget from "./input_widget"
-import * as Widget from "./widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 import slidertemplate from "./slidertemplate"
 
 
-class SliderView extends InputWidget.View
+export class SliderView extends InputWidgetView
   tagName: "div"
   template: slidertemplate
 
@@ -64,7 +63,7 @@ class SliderView extends InputWidget.View
     @model.value = value
     if @callbackWrapper then @callbackWrapper()
 
-class Slider extends InputWidget.Model
+export class Slider extends InputWidget
   type: "Slider"
   default_view: SliderView
 
@@ -77,8 +76,3 @@ class Slider extends InputWidget.Model
       callback_throttle: [ p.Number,      200          ]
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
-
-export {
-  Slider as Model
-  SliderView as View
-}

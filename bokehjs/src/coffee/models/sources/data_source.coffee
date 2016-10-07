@@ -4,7 +4,7 @@ import {Model} from "../../model"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-class DataSource extends Model
+export class DataSource extends Model
   type: 'DataSource'
 
   @define {
@@ -21,7 +21,3 @@ class DataSource extends Model
           callback(@)
         else
           callback.execute(@)
-
-export {
-  DataSource as Model
-}

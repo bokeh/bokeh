@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 
 import {EQ, GE} from "./solver"
-import * as LayoutCanvas from "./layout_canvas"
+import {LayoutCanvas} from "./layout_canvas"
 
 import * as p from "../../core/properties"
 import {logger} from "../../core/logging"
@@ -183,7 +183,7 @@ export update_constraints = (view) ->
     v._full_set = true
 
 
-class SidePanel extends LayoutCanvas.Model
+export class SidePanel extends LayoutCanvas
 
   @internal {
     side: [ p.String ]
@@ -260,7 +260,3 @@ class SidePanel extends LayoutCanvas.Model
   get_label_angle_heuristic: (orient) ->
     side = @side
     return _angle_lookup[side][orient]
-
-export {
-  SidePanel as Model
-}

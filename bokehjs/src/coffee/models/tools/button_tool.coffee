@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 import {BokehView} from "../../core/bokeh_view"
-import * as Tool from "./tool"
+import {Tool, ToolView} from "./tool"
 import button_tool_template from "./button_tool_template"
 import * as p from "../../core/properties"
 
-class ButtonToolButtonView extends BokehView
+export class ButtonToolButtonView extends BokehView
   tagName: "li"
   template: button_tool_template
 
@@ -26,9 +26,9 @@ class ButtonToolButtonView extends BokehView
 
   _clicked: (e) ->
 
-class ButtonToolView extends Tool.View
+export class ButtonToolView extends ToolView
 
-class ButtonTool extends Tool.Model
+export class ButtonTool extends Tool
   icon: null
 
   @getters {
@@ -38,9 +38,3 @@ class ButtonTool extends Tool.Model
   @internal {
     disabled: [ p.Boolean, false ]
   }
-
-export {
-  ButtonTool as Model
-  ButtonToolView as View
-  ButtonToolButtonView as ButtonView
-}

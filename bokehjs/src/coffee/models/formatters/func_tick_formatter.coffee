@@ -2,9 +2,9 @@ import * as _ from "underscore"
 
 import * as p from "../../core/properties"
 
-import * as TickFormatter from "../formatters/tick_formatter"
+import {TickFormatter} from "../formatters/tick_formatter"
 
-class FuncTickFormatter extends TickFormatter.Model
+export class FuncTickFormatter extends TickFormatter
   type: 'FuncTickFormatter'
 
   @define {
@@ -21,7 +21,3 @@ class FuncTickFormatter extends TickFormatter.Model
   doFormat: (ticks) ->
     func = @_make_func()
     return (func(tick, _.values(@args)..., require) for tick in ticks)
-
-export {
-  FuncTickFormatter as Model
-}

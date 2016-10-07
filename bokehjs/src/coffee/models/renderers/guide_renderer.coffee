@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Renderer from "./renderer"
+import {Renderer} from "./renderer"
 import * as p from "../../core/properties"
 
-class GuideRenderer extends Renderer.Model
+export class GuideRenderer extends Renderer
   type: 'GuideRenderer'
 
   @define {
@@ -13,7 +13,3 @@ class GuideRenderer extends Renderer.Model
   @override {
     level: 'overlay'
   }
-
-export {
-  GuideRenderer as Model
-}

@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 import "jquery-ui/autocomplete"
 
-import * as TextInput from "./text_input"
+import {TextInput, TextInputView} from "./text_input"
 import * as p from "../../core/properties"
 
-class AutocompleteInputView extends TextInput.View
+export class AutocompleteInputView extends TextInputView
 
   render: () ->
     super()
@@ -13,15 +13,10 @@ class AutocompleteInputView extends TextInput.View
     $input.autocomplete("widget").addClass("bk-autocomplete-input")
     return @
 
-class AutocompleteInput extends TextInput.Model
+export class AutocompleteInput extends TextInput
   type: "AutocompleteInput"
   default_view: AutocompleteInputView
 
   @define {
       completions: [ p.Array, [] ]
     }
-
-export {
-  AutocompleteInputView as View
-  AutocompleteInput as Model
-}

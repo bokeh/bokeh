@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-LogMapper = utils.require("models/mappers/log_mapper").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{LogMapper} = utils.require("models/mappers/log_mapper")
+{Range1d} = utils.require("models/ranges/range1d")
 
 describe "log_mapper module", ->
   source = {start: 0, end: 10000}

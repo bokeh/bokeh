@@ -1,11 +1,11 @@
 import * as $ from "jquery"
 import * as _ from "underscore"
 
-import * as RemoteDataSource from "./remote_data_source"
+import {RemoteDataSource} from "./remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-class AjaxDataSource extends RemoteDataSource.Model
+export class AjaxDataSource extends RemoteDataSource
   type: 'AjaxDataSource'
 
   @define {
@@ -55,7 +55,3 @@ class AjaxDataSource extends RemoteDataSource.Model
       logger.error(arguments)
     )
     return null
-
-export {
-  AjaxDataSource as Model
-}

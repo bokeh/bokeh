@@ -5,9 +5,9 @@ import "bootstrap/modal"
 import * as p from "../../core/properties"
 
 import dialog_template from "./dialog_template"
-import * as Widget from "./widget"
+import {Widget, WidgetView} from "./widget"
 
-class DialogView extends Widget.View
+export class DialogView extends WidgetView
 
   initialize: (options) ->
     super(options)
@@ -61,7 +61,7 @@ class DialogView extends Widget.View
   change_content: () =>
     @render_content()
 
-class Dialog extends Widget.Model
+export class Dialog extends Widget
   type: "Dialog"
   default_view: DialogView
 
@@ -73,8 +73,3 @@ class Dialog extends Widget.Model
       buttons:     [ p.Array,   []    ]
       buttons_box: [ p.Instance       ]
     }
-
-export {
-  Dialog as Model
-  DialogView as View
-}

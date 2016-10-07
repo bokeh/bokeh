@@ -1,10 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-Paragraph = utils.require("models/widgets/paragraph").Model
-ParagraphView = utils.require("models/widgets/paragraph").View
+{Paragraph} = utils.require("models/widgets/paragraph")
+{ParagraphView} = utils.require("models/widgets/paragraph")
 {Document} = utils.require("document")
-
 
 describe "Paragraph.View render", ->
 

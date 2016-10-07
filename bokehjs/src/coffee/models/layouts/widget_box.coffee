@@ -7,10 +7,10 @@ import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-import * as LayoutDOM from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 
-class WidgetBoxView extends LayoutDOM.View
+export class WidgetBoxView extends LayoutDOMView
   className: "bk-widget-box"
 
   initialize: (options) ->
@@ -79,7 +79,7 @@ class WidgetBoxView extends LayoutDOM.View
       return width
 
 
-class WidgetBox extends LayoutDOM.Model
+export class WidgetBox extends LayoutDOM
   type: 'WidgetBox'
   default_view: WidgetBoxView
 
@@ -135,7 +135,3 @@ class WidgetBox extends LayoutDOM.Model
   @define {
     'children': [ p.Array, [] ]
   }
-
-export {
-  WidgetBox as Model
-}

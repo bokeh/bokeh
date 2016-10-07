@@ -6,9 +6,9 @@ _ = require "underscore"
 $ = require "jquery"
 
 p = require "core/properties"
-LayoutDOM = require "models/layouts/layout_dom"
+{LayoutDOM, LayoutDOMView} = require "models/layouts/layout_dom"
 
-class CustomView extends LayoutDOM.View
+class CustomView extends LayoutDOMView
 
   initialize: (options) ->
     super(options)
@@ -27,7 +27,7 @@ class CustomView extends LayoutDOM.View
     @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
     @$('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
 
-class Custom extends LayoutDOM.Model
+class Custom extends LayoutDOM
 
   # If there is an associated view, this is boilerplate.
   default_view: CustomView
@@ -48,9 +48,10 @@ class Custom extends LayoutDOM.Model
 
 # This is boilerplate. Every implementation should export a Model
 # and (when applicable) also a View.
-module.exports =
-  Model: Custom
-  View: CustomView
+module.exports = {
+  Custom: Custom
+  CustomView: CustomView
+}
 """
 
 class Custom(LayoutDOM):

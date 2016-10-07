@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-import * as Annotation from "./annotation"
+import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 
 import {get_text_height} from "../../core/util/text"
 
-class TextAnnotationView extends Annotation.View
+export class TextAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
 
@@ -132,11 +132,6 @@ class TextAnnotationView extends Annotation.View
         .css(div_style)
         .show()
 
-class TextAnnotation extends Annotation.Model
+export class TextAnnotation extends Annotation
   type: 'TextAnnotation'
   default_view: TextAnnotationView
-
-export {
-  TextAnnotation as Model
-  TextAnnotationView as View
-}

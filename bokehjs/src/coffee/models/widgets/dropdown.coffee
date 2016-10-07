@@ -3,11 +3,11 @@ import * as $ from "jquery"
 
 import * as p from "../../core/properties"
 
-import * as AbstractButton from "./abstract_button"
+import {AbstractButton, AbstractButtonView} from "./abstract_button"
 
 import template from "./dropdown_template"
 
-class DropdownView extends AbstractButton.View
+export class DropdownView extends AbstractButtonView
   template: template
 
   render: () ->
@@ -37,7 +37,7 @@ class DropdownView extends AbstractButton.View
 
 
 
-class Dropdown extends AbstractButton.Model
+export class Dropdown extends AbstractButton
   type: "Dropdown"
   default_view: DropdownView
 
@@ -50,8 +50,3 @@ class Dropdown extends AbstractButton.Model
   @override {
     label: "Dropdown"
   }
-
-export {
-  Dropdown as Model
-  DropdownView as View
-}

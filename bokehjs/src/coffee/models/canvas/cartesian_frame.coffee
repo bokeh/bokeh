@@ -1,17 +1,16 @@
 import * as _ from "underscore"
 
-import * as CategoricalMapper from "../mappers/categorical_mapper"
-import * as GridMapper from "../mappers/grid_mapper"
-import * as LinearMapper from "../mappers/linear_mapper"
-import * as LogMapper from "../mappers/log_mapper"
-import * as Range1d from "../ranges/range1d"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {LinearMapper} from "../mappers/linear_mapper"
+import {LogMapper} from "../mappers/log_mapper"
+import {Range1d} from "../ranges/range1d"
 
 import {EQ, GE} from "../../core/layout/solver"
-import * as LayoutCanvas from "../../core/layout/layout_canvas"
+import {LayoutCanvas} from "../../core/layout/layout_canvas"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-class CartesianFrame extends LayoutCanvas.Model
+export class CartesianFrame extends LayoutCanvas
   type: 'CartesianFrame'
 
   initialize: (attrs, options) ->
@@ -54,11 +53,11 @@ class CartesianFrame extends LayoutCanvas.Model
     for name, range of ranges
       if range.type == "Range1d" or range.type == "DataRange1d"
         if mapper_type == "log"
-          mapper_model = LogMapper.Model
+          mapper_model = LogMapper
         else
-          mapper_model = LinearMapper.Model
+          mapper_model = LinearMapper
       else if range.type == "FactorRange"
-        mapper_model = CategoricalMapper.Model
+        mapper_model = CategoricalMapper
       else
         logger.warn("unknown range type for range '#{name}': #{range}")
         return null
@@ -69,8 +68,8 @@ class CartesianFrame extends LayoutCanvas.Model
     return mappers
 
   _configure_frame_ranges: () ->
-    @_h_range = new Range1d.Model({start: @left,   end: @left   + @width})
-    @_v_range = new Range1d.Model({start: @bottom, end: @bottom + @height})
+    @_h_range = new Range1d({start: @left,   end: @left   + @width})
+    @_v_range = new Range1d({start: @bottom, end: @bottom + @height})
 
   _configure_mappers: () ->
     @_configure_frame_ranges()
@@ -119,7 +118,3 @@ class CartesianFrame extends LayoutCanvas.Model
     constraints.push(EQ(@_left, @_width, [-1, @_right]))
     constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
     return constraints
-
-export {
-  CartesianFrame as Model
-}

@@ -1,10 +1,6 @@
 import * as _ from "underscore"
 
-import * as AdaptiveTicker from "./adaptive_ticker"
+import {AdaptiveTicker} from "./adaptive_ticker"
 
-class BasicTicker extends AdaptiveTicker.Model
+export class BasicTicker extends AdaptiveTicker
   type: 'BasicTicker'
-
-export {
-  BasicTicker as Model
-}

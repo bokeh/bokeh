@@ -1,21 +1,15 @@
 import * as _ from "underscore"
-import * as ButtonTool from "../button_tool"
+import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
 
-class GestureToolButtonView extends ButtonTool.ButtonView
+export class GestureToolButtonView extends ButtonToolButtonView
 
   _clicked: () ->
     active = @model.active
     @model.active = not active
 
-class GestureToolView extends ButtonTool.View
+export class GestureToolView extends ButtonToolView
 
-class GestureTool extends ButtonTool.Model
+export class GestureTool extends ButtonTool
 
   event_type: null
   default_order: null
-
-export {
-  GestureTool as Model
-  GestureToolView as View
-  GestureToolButtonView as ButtonView
-}

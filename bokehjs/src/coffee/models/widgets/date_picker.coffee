@@ -4,10 +4,10 @@ import "jquery-ui/datepicker"
 
 import * as p from "../../core/properties"
 
-import * as InputWidget from "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 
-class DatePickerView extends InputWidget.View
+export class DatePickerView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
@@ -26,7 +26,7 @@ class DatePickerView extends InputWidget.View
     @model.value = d.toString()
     @model.callback?.execute(@model)
 
-class DatePicker extends InputWidget.Model
+export class DatePicker extends InputWidget
   type: "DatePicker"
   default_view: DatePickerView
 
@@ -36,8 +36,3 @@ class DatePicker extends InputWidget.Model
       min_date: [ p.Any             ]
       max_date: [ p.Any             ]
     }
-
-export {
-  DatePicker as Model
-  DatePickerView as View
-}

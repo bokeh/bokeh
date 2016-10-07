@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-LogColorMapper = utils.require("models/mappers/log_color_mapper").Model
+{LogColorMapper} = utils.require("models/mappers/log_color_mapper")
 
 describe "LogColorMapper module", ->
 

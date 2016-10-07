@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Range from "./range"
+import {Range} from "./range"
 import * as p from "../../core/properties"
 
-class Range1d extends Range.Model
+export class Range1d extends Range
   type: 'Range1d'
 
   @define {
@@ -44,7 +44,3 @@ class Range1d extends Range.Model
   reset: () ->
     @setv({start: @_initial_start, end: @_initial_end})
     @_set_auto_bounds()
-
-export {
-  Range1d as Model
-}

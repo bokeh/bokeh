@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
 
-class ArcView extends Glyph.View
+export class ArcView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -30,7 +30,7 @@ class ArcView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Arc extends Glyph.Model
+export class Arc extends Glyph
   default_view: ArcView
 
   type: 'Arc'
@@ -43,8 +43,3 @@ class Arc extends Glyph.Model
       start_angle: [ p.AngleSpec                ]
       end_angle:   [ p.AngleSpec                ]
     }
-
-export {
-  Arc as Model
-  ArcView as View
-}

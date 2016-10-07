@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Annotation from "./annotation"
+import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 
-class PolyAnnotationView extends Annotation.View
+export class PolyAnnotationView extends AnnotationView
 
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent
@@ -47,7 +47,7 @@ class PolyAnnotationView extends Annotation.View
       @visuals.fill.set_value(ctx)
       ctx.fill()
 
-class PolyAnnotation extends Annotation.Model
+export class PolyAnnotation extends Annotation
   default_view: PolyAnnotationView
 
   type: "PolyAnnotation"
@@ -73,8 +73,3 @@ class PolyAnnotation extends Annotation.Model
   update:({xs, ys}) ->
     @setv({xs: xs, ys: ys}, {silent: true})
     @trigger('data_update')
-
-export {
-  PolyAnnotation as Model
-  PolyAnnotationView as View
-}

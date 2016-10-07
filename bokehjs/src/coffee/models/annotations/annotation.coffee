@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-import * as SidePanel from "../../core/layout/side_panel"
+import {SidePanel} from "../../core/layout/side_panel"
 import * as p from "../../core/properties"
 
-import * as Renderer from "../renderers/renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 
-class AnnotationView extends Renderer.View
+export class AnnotationView extends RendererView
 
   _get_panel_offset: () ->
     # Sub-classes may have to implement _get_panel_offset themselves
@@ -19,7 +19,7 @@ class AnnotationView extends Renderer.View
     # Sub-classes should implement _get_size if they want layout on side panels to work.
     return -1
 
-class Annotation extends Renderer.Model
+export class Annotation extends Renderer
   type: 'Annotation'
   default_view: AnnotationView
 
@@ -32,12 +32,7 @@ class Annotation extends Renderer.Model
   }
 
   add_panel: (side) ->
-    @panel = new SidePanel.Model({side: side})
+    @panel = new SidePanel({side: side})
     @panel.attach_document(@document)
     # If the annotation is in a side panel, we need to set level to overlay, so it is visible.
     @level = 'overlay'
-
-export {
-  Annotation as Model
-  AnnotationView as View
-}

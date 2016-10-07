@@ -3,16 +3,16 @@ import * as $ from "jquery"
 
 import * as p from "../../core/properties"
 
-import * as Widget from "./widget"
+import {Widget, WidgetView} from "./widget"
 
-class PanelView extends Widget.View
+export class PanelView extends WidgetView
 
   render: () ->
     super()
     @$el.empty()
     return @
 
-class Panel extends Widget.Model
+export class Panel extends Widget
   type: "Panel"
   default_view: PanelView
 
@@ -21,8 +21,3 @@ class Panel extends Widget.Model
       child:    [ p.Instance       ]
       closable: [ p.Bool,    false ]
     }
-
-export {
-  Panel as Model
-  PanelView as View
-}

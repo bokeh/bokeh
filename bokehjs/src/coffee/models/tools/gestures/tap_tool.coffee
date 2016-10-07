@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as SelectTool from "./select_tool"
+import {SelectTool, SelectToolView} from "./select_tool"
 import * as p from "../../../core/properties"
 
-class TapToolView extends SelectTool.View
+export class TapToolView extends SelectToolView
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -46,7 +46,7 @@ class TapToolView extends SelectTool.View
 
     return null
 
-class TapTool extends SelectTool.Model
+export class TapTool extends SelectTool
   default_view: TapToolView
   type: "TapTool"
   tool_name: "Tap"
@@ -58,8 +58,3 @@ class TapTool extends SelectTool.Model
     behavior: [ p.String, "select" ] # TODO: Enum("select", "inspect")
     callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
-
-export {
-  TapTool as Model
-  TapToolView as View
-}

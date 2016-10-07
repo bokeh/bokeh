@@ -1,2 +1,2 @@
-import * as AllModels from "./index"
-export models = AllModels
+import * as Widgets from "./index"
+export models = Widgets

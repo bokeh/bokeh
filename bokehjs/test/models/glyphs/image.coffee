@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {create_glyph_view} = require("./glyph_utils")
-Image = utils.require('models/glyphs/image')
+{Image, ImageView} = utils.require('models/glyphs/image')
 
 describe "Image module", ->
 
@@ -17,9 +17,9 @@ describe "Image module", ->
     beforeEach ->
       utils.stub_canvas()
       utils.stub_solver()
-      @stub = sinon.stub(Image.View.prototype, '_set_data')
+      @stub = sinon.stub(ImageView.prototype, '_set_data')
 
-      @image = new Image.Model()
+      @image = new Image()
 
     it "`_map_data` should correctly map data if w and h units are 'data'", ->
       # ImageView._map_data is called by ImageView.map_data

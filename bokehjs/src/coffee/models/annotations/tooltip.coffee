@@ -1,11 +1,11 @@
 import * as $ from "jquery"
 import * as _ from "underscore"
 
-import * as Annotation from "./annotation"
+import {Annotation, AnnotationView} from "./annotation"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-class TooltipView extends Annotation.View
+export class TooltipView extends AnnotationView
   className: "bk-tooltip"
 
   initialize: (options) ->
@@ -91,7 +91,7 @@ class TooltipView extends Annotation.View
       @$el.css({top: top, left: left})
       @$el.show()
 
-class Tooltip extends Annotation.Model
+export class Tooltip extends Annotation
   default_view: TooltipView
 
   type: 'Tooltip'
@@ -121,8 +121,3 @@ class Tooltip extends Annotation.Model
 
     # TODO (bev) not sure why this is now necessary
     @trigger('change:data')
-
-export {
-  Tooltip as Model
-  TooltipView as View
-}

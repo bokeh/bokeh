@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 
-class LineView extends Glyph.View
+export class LineView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -103,15 +103,10 @@ class LineView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Line extends Glyph.Model
+export class Line extends Glyph
   default_view: LineView
 
   type: 'Line'
 
   @coords [['x', 'y']]
   @mixins ['line']
-
-export {
-  Line as Model
-  LineView as View
-}

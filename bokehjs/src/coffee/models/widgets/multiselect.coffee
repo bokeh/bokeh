@@ -2,12 +2,12 @@ import * as _ from "underscore"
 
 import * as p from "../../core/properties"
 
-import * as InputWidget from "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 import multiselecttemplate from "./multiselecttemplate"
 
 
-class MultiSelectView extends InputWidget.View
+export class MultiSelectView extends InputWidgetView
   tagName: "div"
   template: multiselecttemplate
   events:
@@ -46,7 +46,7 @@ class MultiSelectView extends InputWidget.View
       @model.value = []
     super()
 
-class MultiSelect extends InputWidget.Model
+export class MultiSelect extends InputWidget
   type: "MultiSelect"
   default_view: MultiSelectView
 
@@ -54,8 +54,3 @@ class MultiSelect extends InputWidget.Model
       value:   [ p.Array, [] ]
       options: [ p.Array, [] ]
     }
-
-export {
-  MultiSelect as Model
-  MultiSelectView as View
-}

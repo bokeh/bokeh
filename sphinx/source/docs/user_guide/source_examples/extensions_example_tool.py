@@ -7,9 +7,9 @@ output_file('tool.html')
 
 JS_CODE = """
 p = require "core/properties"
-GestureTool = require "models/tools/gestures/gesture_tool"
+{GestureTool, GestureToolView} = require "models/tools/gestures/gesture_tool"
 
-class DrawToolView extends GestureTool.View
+class DrawToolView extends GestureToolView
 
   # this is executed when the pan/drag event starts
   _pan_start: (e) ->
@@ -35,7 +35,7 @@ class DrawToolView extends GestureTool.View
   # this is executed then the pan/drag ends
   _pan_end: (e) -> return null
 
-class DrawTool extends GestureTool.Model
+class DrawTool extends GestureTool
   default_view: DrawToolView
   type: "DrawTool"
 
@@ -46,9 +46,10 @@ class DrawTool extends GestureTool.Model
 
   @define { source: [ p.Instance ] }
 
-module.exports =
-  Model: DrawTool
-  View: DrawToolView
+module.exports = {
+  DrawTool: DrawTool
+  DrawToolView: DrawToolView
+}
 """
 
 class DrawTool(Tool):

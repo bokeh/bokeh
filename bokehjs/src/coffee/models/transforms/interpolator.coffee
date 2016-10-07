@@ -1,9 +1,9 @@
 import * as _ from "underscore"
-import * as Transform from "./transform"
+import {Transform} from "./transform"
 import * as p from "../../core/properties"
 import {logger} from "../../core/logging"
 
-class Interpolator extends Transform.Model
+export class Interpolator extends Transform
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -83,7 +83,3 @@ class Interpolator extends Transform.Model
       @_y_sorted[k] = list[k].y;
 
     @_sorted_dirty = false
-
-export {
-  Interpolator as Model
-}

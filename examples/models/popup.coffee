@@ -18,5 +18,6 @@ class Popup extends Model
     message: [ p.String, "" ]
   }
 
-module.exports =
-  Model: Popup
+module.exports = {
+  Popup: Popup
+}

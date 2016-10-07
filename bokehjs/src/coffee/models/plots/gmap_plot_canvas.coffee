@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 import {proj4, mercator} from "../../core/util/proj4"
 
-import * as PlotCanvas from "./plot_canvas"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 import * as p from "../../core/properties"
 
-class GMapPlotCanvasView extends PlotCanvas.View
+export class GMapPlotCanvasView extends PlotCanvasView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
@@ -158,7 +158,7 @@ class GMapPlotCanvasView extends PlotCanvas.View
     ctx.fillStyle = @model.plot.border_fill_color
     ctx.fill()
 
-class GMapPlotCanvas extends PlotCanvas.Model
+export class GMapPlotCanvas extends PlotCanvas
   type: 'GMapPlotCanvas'
   default_view: GMapPlotCanvasView
 
@@ -166,8 +166,3 @@ class GMapPlotCanvas extends PlotCanvas.Model
   initialize: (attrs, options) ->
     @use_map = true
     super(attrs, options)
-
-export {
-  GMapPlotCanvas as Model
-  GMapPlotCanvasView as View
-}

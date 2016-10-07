@@ -1,10 +1,9 @@
 import * as _ from "underscore"
-import * as Transform from "./transform"
-import * as Interpolator from "./interpolator"
+import {Interpolator} from "./interpolator"
 import * as p from "../../core/properties"
 
 
-class StepInterpolator extends Interpolator.Model
+export class StepInterpolator extends Interpolator
 
   @define {
     mode: [ p.TransformStepMode, "after"]
@@ -54,7 +53,3 @@ class StepInterpolator extends Interpolator.Model
     for x, idx in xs
       result[idx] = this.compute(x)
     return result
-
-export {
-  StepInterpolator as Model
-}

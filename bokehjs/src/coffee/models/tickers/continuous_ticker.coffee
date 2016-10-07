@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-import * as Ticker from "./ticker"
+import {Ticker} from "./ticker"
 import * as p from "../../core/properties"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
@@ -15,7 +15,7 @@ import * as p from "../../core/properties"
 # magnitudes.  To make it possible to select Tickers programmatically, they
 # also support some additional methods: get_interval(), get_min_interval(),
 # and get_max_interval().
-class ContinuousTicker extends Ticker.Model
+export class ContinuousTicker extends Ticker
   type: 'ContinuousTicker'
 
   @define {
@@ -46,7 +46,3 @@ class ContinuousTicker extends Ticker.Model
   get_ideal_interval: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low
     return data_range / desired_n_ticks
-
-export {
-  ContinuousTicker as Model
-}

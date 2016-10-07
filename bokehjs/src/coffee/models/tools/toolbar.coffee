@@ -2,17 +2,16 @@ import * as _ from "underscore"
 
 import * as p from "../../core/properties"
 
-import * as ActionTool from "./actions/action_tool"
-import * as HelpTool from "./actions/help_tool"
-import * as GestureTool from "./gestures/gesture_tool"
-import * as InspectTool from "./inspectors/inspect_tool"
+import {ActionTool} from "./actions/action_tool"
+import {HelpTool} from "./actions/help_tool"
+import {GestureTool} from "./gestures/gesture_tool"
+import {InspectTool} from "./inspectors/inspect_tool"
 
-import * as ToolbarBase from "./toolbar_base"
+import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
 
-
-class Toolbar extends ToolbarBase.Model
+export class Toolbar extends ToolbarBase
   type: 'Toolbar'
-  default_view: ToolbarBase.View
+  default_view: ToolbarBaseView
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -21,16 +20,16 @@ class Toolbar extends ToolbarBase.Model
 
   _init_tools: () ->
     for tool in @tools
-      if tool instanceof InspectTool.Model
+      if tool instanceof InspectTool
         if not _.some(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
-      else if tool instanceof HelpTool.Model
+      else if tool instanceof HelpTool
         if not _.some(@help, (t) => t.id == tool.id)
           @help = @help.concat([tool])
-      else if tool instanceof ActionTool.Model
+      else if tool instanceof ActionTool
         if not _.some(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
-      else if tool instanceof GestureTool.Model
+      else if tool instanceof GestureTool
         et = tool.event_type
 
         if et not of @gestures
@@ -74,7 +73,3 @@ class Toolbar extends ToolbarBase.Model
       active_scroll: [ p.Any, 'auto' ]
       active_tap:    [ p.Any, 'auto' ]
   }
-
-export {
-  Toolbar as Model
-}

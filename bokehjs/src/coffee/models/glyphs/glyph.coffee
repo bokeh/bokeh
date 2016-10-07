@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import * as rbush from "rbush"
 
-import * as CategoricalMapper from "../mappers/categorical_mapper"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
 import * as p from "../../core/properties"
 import * as bbox from "../../core/util/bbox"
 import * as proj from "../../core/util/projections"
@@ -11,7 +11,7 @@ import {Visuals} from "../../core/visuals"
 import * as bokehgl from "./webgl/main"
 import {logger} from "../../core/logging"
 
-class GlyphView extends BokehView
+export class GlyphView extends BokehView
 
   initialize: (options) ->
     super(options)
@@ -79,11 +79,11 @@ class GlyphView extends BokehView
     pts = []
 
     # if the range is categorical, map to synthetic coordinates first
-    if @renderer.xmapper instanceof CategoricalMapper.Model
+    if @renderer.xmapper instanceof CategoricalMapper
       xx = @renderer.xmapper.v_map_to_target(@_x, true)
     else
       xx = @_x
-    if @renderer.ymapper instanceof CategoricalMapper.Model
+    if @renderer.ymapper instanceof CategoricalMapper
       yy = @renderer.ymapper.v_map_to_target(@_y, true)
     else
       yy = @_y
@@ -223,7 +223,7 @@ class GlyphView extends BokehView
   map_to_screen: (x, y) ->
     @renderer.plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
-class Glyph extends Model
+export class Glyph extends Model
 
   _coords: []
 
@@ -246,8 +246,3 @@ class Glyph extends Model
     x_range_name: [ p.String,      'default' ]
     y_range_name: [ p.String,      'default' ]
   }
-
-export {
-  Glyph as Model
-  GlyphView as View
-}

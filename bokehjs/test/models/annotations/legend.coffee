@@ -2,20 +2,20 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-SidePanel = utils.require("core/layout/side_panel").Model
+{SidePanel} = utils.require("core/layout/side_panel")
 
 {Document} = utils.require "document"
 
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
-GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
-Legend = utils.require("models/annotations/legend").Model
-LegendView = utils.require("models/annotations/legend").View
-LegendItem = utils.require("models/annotations/legend_item").Model
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{Legend} = utils.require("models/annotations/legend")
+{LegendView} = utils.require("models/annotations/legend")
+{LegendItem} = utils.require("models/annotations/legend_item")
 
 HEIGHT = 333
 WIDTH = 222
 
-describe "Legend.Model", ->
+describe "Legend", ->
 
   describe "get_legend_names", ->
 
@@ -37,7 +37,7 @@ describe "Legend.Model", ->
       expect(labels).to.be.deep.equal ['l1', 'l2', 'l3']
 
 
-describe "Legend.View", ->
+describe "LegendView", ->
 
   afterEach ->
     LegendView.prototype.compute_legend_bbox.restore()

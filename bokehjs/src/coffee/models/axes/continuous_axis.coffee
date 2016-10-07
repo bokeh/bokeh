@@ -1,8 +1,4 @@
-import * as Axis from "./axis"
+import {Axis} from "./axis"
 
-class ContinuousAxis extends Axis.Model
+export class ContinuousAxis extends Axis
   type: 'ContinuousAxis'
-
-export {
-  ContinuousAxis as Model
-}

@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-class RectView extends Glyph.View
+export class RectView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -136,7 +136,7 @@ class RectView extends Glyph.View
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-class Rect extends Glyph.Model
+export class Rect extends Glyph
   default_view: RectView
 
   type: 'Rect'
@@ -149,8 +149,3 @@ class Rect extends Glyph.Model
       height: [ p.DistanceSpec       ]
       dilate: [ p.Bool,        false ]
     }
-
-export {
-  Rect as Model
-  RectView as View
-}

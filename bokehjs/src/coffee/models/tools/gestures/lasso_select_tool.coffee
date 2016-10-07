@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-import * as SelectTool from "./select_tool"
-import * as PolyAnnotation from "../../annotations/poly_annotation"
+import {SelectTool, SelectToolView} from "./select_tool"
+import {PolyAnnotation} from "../../annotations/poly_annotation"
 import * as p from "../../../core/properties"
 
-class LassoSelectToolView extends SelectTool.View
+export class LassoSelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
@@ -99,7 +99,7 @@ class LassoSelectToolView extends SelectTool.View
 
     return
 
-DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
@@ -111,7 +111,7 @@ DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   line_dash: [4, 4]
 })
 
-class LassoSelectTool extends SelectTool.Model
+export class LassoSelectTool extends SelectTool
   default_view: LassoSelectToolView
   type: "LassoSelectTool"
   tool_name: "Lasso Select"
@@ -124,8 +124,3 @@ class LassoSelectTool extends SelectTool.Model
       callback:               [ p.Instance                       ]
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
-
-export {
-  LassoSelectTool as Model
-  LassoSelectToolView as View
-}

@@ -23,7 +23,7 @@ _ = require "underscore"
 $ = require "jquery"
 
 p = require "core/properties"
-LayoutDOM = require "models/layouts/layout_dom"
+{LayoutDOM, LayoutDOMView} = require "models/layouts/layout_dom"
 
 # This defines some default options for the Graph3d feature of vis.js
 # See: http://visjs.org/graph3d_examples.html for more details.
@@ -48,9 +48,9 @@ OPTIONS =
 #
 #     http://backbonejs.org/
 #
-# In this case we will subclass from the existing BokehJS ``LayoutDOM.View``,
+# In this case we will subclass from the existing BokehJS ``LayoutDOMView``,
 # corresponding to our
-class Surface3dView extends LayoutDOM.View
+class Surface3dView extends LayoutDOMView
 
   initialize: (options) ->
     super(options)
@@ -94,7 +94,7 @@ class Surface3dView extends LayoutDOM.View
 # correspond to the python Bokeh model subclass. In this case, since we want
 # an element that can position itself in the DOM according to a Bokeh layout,
 # we subclass from ``LayoutDOM.model``
-class Surface3d extends LayoutDOM.Model
+class Surface3d extends LayoutDOM
 
   # This is usually boilerplate. In some cases there may not be a view.
   default_view: Surface3dView
@@ -118,9 +118,10 @@ class Surface3d extends LayoutDOM.Model
 
 # This is boilerplate. Every implementation should "export" a ``Model``
 # and (when applicable) also a ``View``.
-module.exports =
-  Model: Surface3d
-  View: Surface3dView
+module.exports = {
+  Surface3d: Surface3d
+  Surface3dView: Surface3dView
+}
 """
 
 # This custom extension model will have a DOM view that should layout-able in

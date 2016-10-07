@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-import * as AdaptiveTicker from "./adaptive_ticker"
+import {AdaptiveTicker} from "./adaptive_ticker"
 
 range = (start, stop, step) ->
   if _.isUndefined(stop) # one param defined
@@ -15,7 +15,7 @@ range = (start, stop, step) ->
     i += step
   return result
 
-class LogTicker extends AdaptiveTicker.Model
+export class LogTicker extends AdaptiveTicker
   type: 'LogTicker'
 
   @override {
@@ -84,7 +84,3 @@ class LogTicker extends AdaptiveTicker.Model
       "major": ticks
       "minor": minor_ticks
     }
-
-export {
-  LogTicker as Model
-}

@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-import * as ColumnDataSource from "./column_data_source"
+import {ColumnDataSource} from "./column_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-class GeoJSONDataSource extends ColumnDataSource.Model
+export class GeoJSONDataSource extends ColumnDataSource
   type: 'GeoJSONDataSource'
 
   @define {
@@ -150,7 +150,3 @@ class GeoJSONDataSource extends ColumnDataSource.Model
         arr_index += 1
 
     return data
-
-export {
-  GeoJSONDataSource as Model
-}

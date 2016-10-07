@@ -1,17 +1,12 @@
-import * as Box from "./box"
+import {Box, BoxView} from "./box"
 
-class ColumnView extends Box.View
+export class ColumnView extends BoxView
   className: "bk-grid-column"
 
-class Column extends Box.Model
+export class Column extends Box
   type: 'Column'
   default_view: ColumnView
 
   constructor: (attrs, options) ->
     super(attrs, options)
     @_horizontal = false
-
-export {
-  ColumnView as View
-  Column as Model
-}

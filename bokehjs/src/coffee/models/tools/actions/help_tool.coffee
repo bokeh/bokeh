@@ -1,13 +1,13 @@
 import * as _ from "underscore"
 
-import * as ActionTool from "./action_tool"
+import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "../../../core/properties"
 
-class HelpToolView extends ActionTool.View
+export class HelpToolView extends ActionToolView
   do: () ->
     window.open(@model.redirect)
 
-class HelpTool extends ActionTool.Model
+export class HelpTool extends ActionTool
   default_view: HelpToolView
   type: "HelpTool"
   tool_name: "Help"
@@ -27,8 +27,3 @@ class HelpTool extends ActionTool.Model
   @getters {
     tooltip: () -> @help_tooltip
   }
-
-export {
-  HelpTool as Model
-  HelpToolView as View
-}

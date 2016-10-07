@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-import * as GestureTool from "./gesture_tool"
-import * as BoxAnnotation from "../../annotations/box_annotation"
+import {GestureTool, GestureToolView} from "./gesture_tool"
+import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "../../../core/properties"
 
-class BoxZoomToolView extends GestureTool.View
+export class BoxZoomToolView extends GestureToolView
 
   _match_aspect: (basepoint, curpoint, frame) ->
 
@@ -148,7 +148,7 @@ class BoxZoomToolView extends GestureTool.View
     @plot_view.push_state('box_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info)
 
-DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"
@@ -163,7 +163,7 @@ DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   line_dash: [4, 4]
 })
 
-class BoxZoomTool extends GestureTool.Model
+export class BoxZoomTool extends GestureTool
   default_view: BoxZoomToolView
   type: "BoxZoomTool"
   tool_name: "Box Zoom"
@@ -180,8 +180,3 @@ class BoxZoomTool extends GestureTool.Model
     overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
     match_aspect: [ p.Bool,     false               ]
   }
-
-export {
-  BoxZoomTool as Model
-  BoxZoomToolView as View
-}

@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
 import {ImagePool} from "./image_pool"
-import * as Renderer from "../renderers/renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-class DynamicImageView extends Renderer.View
+export class DynamicImageView extends RendererView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -106,7 +106,7 @@ class DynamicImageView extends Renderer.View
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
-class DynamicImageRenderer extends Renderer.Model
+export class DynamicImageRenderer extends Renderer
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
 
@@ -119,8 +119,3 @@ class DynamicImageRenderer extends Renderer.Model
   @override {
     level: 'underlay'
   }
-
-export {
-  DynamicImageRenderer as Model
-  DynamicImageView as View
-}

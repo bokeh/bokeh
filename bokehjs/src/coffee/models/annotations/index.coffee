@@ -1,16 +1,15 @@
-import * as Arrow          from './arrow';            export {Arrow}
-import * as BoxAnnotation  from './box_annotation';   export {BoxAnnotation}
-import * as ColorBar       from './color_bar';        export {ColorBar}
-import * as Label          from './label';            export {Label}
-import * as LabelSet       from './label_set';        export {LabelSet}
-import * as Legend         from './legend';           export {Legend}
-import * as LegendItem     from './legend_item';      export {LegendItem}
-import * as PolyAnnotation from './poly_annotation';  export {PolyAnnotation}
-import * as Span           from './span';             export {Span}
-import * as Title          from './title';            export {Title}
-import * as Tooltip        from './tooltip';          export {Tooltip}
+export {Arrow}          from "./arrow"
+export {BoxAnnotation}  from "./box_annotation"
+export {ColorBar}       from "./color_bar"
+export {Label}          from "./label"
+export {LabelSet}       from "./label_set"
+export {Legend}         from "./legend"
+export {LegendItem}     from "./legend_item"
+export {PolyAnnotation} from "./poly_annotation"
+export {Span}           from "./span"
+export {Title}          from "./title"
+export {Tooltip}        from "./tooltip"
 
-import * as ArrowHead from "./arrow_head"
-export OpenHead   = {Model: ArrowHead.OpenHead}
-export NormalHead = {Model: ArrowHead.NormalHead}
-export VeeHead    = {Model: ArrowHead.VeeHead}
+export {OpenHead}       from "./arrow_head"
+export {NormalHead}     from "./arrow_head"
+export {VeeHead}        from "./arrow_head"

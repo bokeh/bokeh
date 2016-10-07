@@ -1,15 +1,15 @@
 _ = require "underscore"
 
 p = require "core/properties"
-DataSource = require "models/sources/data_source"
-LinearColorMapper = require "models/mappers/linear_color_mapper"
+{DataSource} = require "models/sources/data_source"
+{LinearColorMapper} = require "models/mappers/linear_color_mapper"
 
-class WaterfallSource extends DataSource.Model
+class WaterfallSource extends DataSource
   type: 'WaterfallSource'
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @_cmap = new LinearColorMapper.Model({'palette': @palette, low: 0, high: 5})
+    @_cmap = new LinearColorMapper({'palette': @palette, low: 0, high: 5})
 
     num_images = Math.ceil(@num_grams/@tile_width) + 1
 
@@ -76,5 +76,6 @@ class WaterfallSource extends DataSource.Model
     inspected:    [ p.Any       ]
   }
 
-module.exports =
-  Model: WaterfallSource
+module.exports = {
+  WaterfallSource: WaterfallSource
+}

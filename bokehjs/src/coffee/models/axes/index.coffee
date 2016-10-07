@@ -1,4 +1,4 @@
-import * as CategoricalAxis from './categorical_axis';  export {CategoricalAxis}
-import * as DatetimeAxis    from './datetime_axis';     export {DatetimeAxis}
-import * as LinearAxis      from './linear_axis';       export {LinearAxis}
-import * as LogAxis         from './log_axis';          export {LogAxis}
+export {CategoricalAxis} from "./categorical_axis"
+export {DatetimeAxis}    from "./datetime_axis"
+export {LinearAxis}      from "./linear_axis"
+export {LogAxis}         from "./log_axis"

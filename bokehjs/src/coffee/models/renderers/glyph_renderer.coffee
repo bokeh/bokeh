@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-import * as Renderer from "./renderer"
-import * as RemoteDataSource from "../sources/remote_data_source"
+import {Renderer, RendererView} from "./renderer"
+import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-class GlyphRendererView extends Renderer.View
+export class GlyphRendererView extends RendererView
 
   initialize: (options) ->
     super(options)
@@ -45,7 +45,7 @@ class GlyphRendererView extends Renderer.View
 
     @set_data(false)
 
-    if @model.data_source instanceof RemoteDataSource.Model
+    if @model.data_source instanceof RemoteDataSource
       @model.data_source.setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
@@ -220,7 +220,7 @@ class GlyphRendererView extends Renderer.View
     @glyph.hit_test(geometry)
 
 
-class GlyphRenderer extends Renderer.Model
+export class GlyphRenderer extends Renderer
   default_view: GlyphRendererView
 
   type: 'GlyphRenderer'
@@ -252,8 +252,3 @@ class GlyphRenderer extends Renderer.Model
   selection_defaults: {fill: {}, line: {}}
   decimated_defaults: {fill: {fill_alpha: 0.3, fill_color: "grey"}, line: {line_alpha: 0.3, line_color: "grey"}}
   nonselection_defaults: {fill: {fill_alpha: 0.2, line_alpha: 0.2}, line: {}}
-
-export {
-  GlyphRenderer as Model
-  GlyphRendererView as View
-}

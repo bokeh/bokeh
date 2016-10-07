@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 import * as SPrintf from "sprintf"
 
-import * as TickFormatter from "./tick_formatter"
+import {TickFormatter} from "./tick_formatter"
 import * as p from "../../core/properties"
 
-class PrintfTickFormatter extends TickFormatter.Model
+export class PrintfTickFormatter extends TickFormatter
   type: 'PrintfTickFormatter'
 
   @define {
@@ -15,7 +15,3 @@ class PrintfTickFormatter extends TickFormatter.Model
     format = @format
     labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
     return labels
-
-export {
-  PrintfTickFormatter as Model
-}

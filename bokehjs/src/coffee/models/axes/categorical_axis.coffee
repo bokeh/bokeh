@@ -1,20 +1,20 @@
 import * as _ from "underscore"
 
-import * as Axis from "./axis"
-import * as CategoricalTickFormatter from "../formatters/categorical_tick_formatter"
-import * as CategoricalTicker from "../tickers/categorical_ticker"
+import {Axis, AxisView} from "./axis"
+import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
+import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {logger} from "../../core/logging"
 
-class CategoricalAxisView extends Axis.View
+export class CategoricalAxisView extends AxisView
 
-class CategoricalAxis extends Axis.Model
+export class CategoricalAxis extends Axis
   default_view: CategoricalAxisView
 
   type: 'CategoricalAxis'
 
   @override {
-    ticker:    () -> new CategoricalTicker.Model()
-    formatter: () -> new CategoricalTickFormatter.Model()
+    ticker:    () -> new CategoricalTicker()
+    formatter: () -> new CategoricalTickFormatter()
   }
 
   _computed_bounds: () ->
@@ -27,8 +27,3 @@ class CategoricalAxis extends Axis.Model
       logger.warn("Categorical Axes only support user_bounds='auto', ignoring")
 
     return range_bounds
-
-export {
-  CategoricalAxis as Model
-  CategoricalAxisView as View
-}

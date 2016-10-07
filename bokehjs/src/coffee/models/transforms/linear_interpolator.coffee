@@ -1,8 +1,7 @@
 import * as _ from "underscore"
-import * as Transform from "./transform"
-import * as Interpolator from "./interpolator"
+import {Interpolator} from "./interpolator"
 
-class LinearInterpolator extends Interpolator.Model
+export class LinearInterpolator extends Interpolator
 
   compute: (x) ->
     # Apply the transform to a single value
@@ -35,7 +34,3 @@ class LinearInterpolator extends Interpolator.Model
     for x, idx in xs
       result[idx] = this.compute(x)
     return result
-
-export {
-  LinearInterpolator as Model
-}

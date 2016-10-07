@@ -1,19 +1,18 @@
 import * as _ from "underscore"
 import * as p from "../../core/properties"
 
-import * as ActionTool from "./actions/action_tool"
-import * as HelpTool from "./actions/help_tool"
-import * as GestureTool from "./gestures/gesture_tool"
-import * as InspectTool from "./inspectors/inspect_tool"
-import * as ToolbarBase from "./toolbar_base"
-import * as ToolProxy from "./tool_proxy"
+import {ActionTool} from "./actions/action_tool"
+import {HelpTool} from "./actions/help_tool"
+import {GestureTool} from "./gestures/gesture_tool"
+import {InspectTool} from "./inspectors/inspect_tool"
+import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
+import {ToolProxy} from "./tool_proxy"
 
-import * as Box from "../layouts/box"
+import {Box, BoxView} from "../layouts/box"
 
-
-class ToolbarBoxToolbar extends ToolbarBase.Model
+export class ToolbarBoxToolbar extends ToolbarBase
   type: 'ToolbarBoxToolbar'
-  default_view: ToolbarBase.View
+  default_view: ToolbarBaseView
 
   initialize: (options) ->
     super(options)
@@ -27,16 +26,16 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
 
   _init_tools: () ->
     for tool in @tools
-      if tool instanceof InspectTool.Model
+      if tool instanceof InspectTool
         if not _.some(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
-      else if tool instanceof HelpTool.Model
+      else if tool instanceof HelpTool
         if not _.some(@help, (t) => t.id == tool.id)
           @help = @help.concat([tool])
-      else if tool instanceof ActionTool.Model
+      else if tool instanceof ActionTool
         if not _.some(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
-      else if tool instanceof GestureTool.Model
+      else if tool instanceof GestureTool
         et = tool.event_type
         if not _.some(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
@@ -78,7 +77,7 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
 
     # Add a proxy for each of the groups of tools.
     make_proxy = (tools, active=false) ->
-      return new ToolProxy.Model({
+      return new ToolProxy({
         tools: tools,
         event_type: tools[0].event_type,
         tooltip: tools[0].tool_name
@@ -114,7 +113,7 @@ class ToolbarBoxToolbar extends ToolbarBase.Model
         @gestures[et].tools[0].active = true
 
 
-class ToolbarBoxView extends Box.View
+export class ToolbarBoxView extends BoxView
   className: 'bk-toolbar-box'
 
   get_width: () ->
@@ -129,7 +128,7 @@ class ToolbarBoxView extends Box.View
     return 30
 
 
-class ToolbarBox extends Box.Model
+export class ToolbarBox extends Box
   type: 'ToolbarBox'
   default_view: ToolbarBoxView
 
@@ -155,9 +154,3 @@ class ToolbarBox extends Box.Model
     tools:            [ p.Any,      []       ]
     logo:             [ p.String,   "normal" ]
   }
-
-
-export {
-  ToolbarBox as Model
-  ToolbarBoxView as View
-}

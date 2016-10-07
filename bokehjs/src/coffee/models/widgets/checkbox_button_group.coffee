@@ -2,13 +2,13 @@ import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/button"
 
-import * as Widget from "./widget"
+import {Widget, WidgetView} from "./widget"
 import {BokehView} from "../../core/bokeh_view"
 import * as p from "../../core/properties"
 import template from "./button_group_template"
 
 
-class CheckboxButtonGroupView extends Widget.View
+export class CheckboxButtonGroupView extends WidgetView
   events:
     "change input": "change_input"
   template: template
@@ -43,7 +43,7 @@ class CheckboxButtonGroupView extends Widget.View
     @model.callback?.execute(@model)
 
 
-class CheckboxButtonGroup extends Widget.Model
+export class CheckboxButtonGroup extends Widget
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
@@ -53,8 +53,3 @@ class CheckboxButtonGroup extends Widget.Model
       button_type: [ p.String, "default" ]
       callback:    [ p.Instance ]
     }
-
-export {
-  CheckboxButtonGroup as Model
-  CheckboxButtonGroupView as View
-}

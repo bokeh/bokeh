@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-LinearMapper = utils.require("models/mappers/linear_mapper").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{Range1d} = utils.require("models/ranges/range1d")
 
 describe "linear_mapper module", ->
   source = {start: 0, end: 10}

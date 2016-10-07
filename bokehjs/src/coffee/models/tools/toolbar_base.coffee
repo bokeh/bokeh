@@ -6,16 +6,16 @@ import {logger} from "../../core/logging"
 import {EQ, Variable} from "../../core/layout/solver"
 import * as p from "../../core/properties"
 
-import * as LayoutDOM from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
-import * as ActionTool from "./actions/action_tool"
-import * as HelpTool from "./actions/help_tool"
-import * as GestureTool from "./gestures/gesture_tool"
-import * as InspectTool from "./inspectors/inspect_tool"
+import {ActionToolButtonView} from "./actions/action_tool"
+import {HelpToolButtonView} from "./actions/help_tool"
+import {GestureToolButtonView} from "./gestures/gesture_tool"
+import {InspectToolListItemView} from "./inspectors/inspect_tool"
 import toolbar_template from "./toolbar_template"
 
 
-class ToolbarBaseView extends LayoutDOM.View
+export class ToolbarBaseView extends LayoutDOMView
   className: "bk-toolbar-wrapper"
   template: toolbar_template
 
@@ -44,7 +44,7 @@ class ToolbarBaseView extends LayoutDOM.View
       ul = $('<ul class="bk-bs-dropdown-menu" />')
       _.each(inspectors, (tool) ->
         item = $('<li />')
-        item.append(new InspectTool.ListItemView({model: tool}).el)
+        item.append(new InspectToolListItemView({model: tool}).el)
         item.appendTo(ul)
       )
       ul.on('click', (e) -> e.stopPropagation())
@@ -53,25 +53,25 @@ class ToolbarBaseView extends LayoutDOM.View
 
     button_bar_list = @$(".bk-button-bar-list[type='help']")
     _.each(@model.help, (item) ->
-      button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
+      button_bar_list.append(new ActionToolButtonView({model: item}).el)
     )
 
     button_bar_list = @$(".bk-button-bar-list[type='actions']")
     _.each(@model.actions, (item) ->
-      button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
+      button_bar_list.append(new ActionToolButtonView({model: item}).el)
     )
 
     gestures = @model.gestures
     for et of gestures
       button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
       _.each(gestures[et].tools, (item) ->
-        button_bar_list.append(new GestureTool.ButtonView({model: item}).el)
+        button_bar_list.append(new GestureToolButtonView({model: item}).el)
       )
 
     return @
 
 
-class ToolbarBase extends LayoutDOM.Model
+export class ToolbarBase extends LayoutDOM
   type: 'ToolbarBase'
   default_view: ToolbarBaseView
 
@@ -123,8 +123,3 @@ class ToolbarBase extends LayoutDOM.Model
   @override {
     sizing_mode: null
   }
-
-export {
-  ToolbarBase as Model
-  ToolbarBaseView as View
-}

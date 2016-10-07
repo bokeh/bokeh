@@ -4,11 +4,11 @@ utils = require "../../../utils"
 sinon = require 'sinon'
 
 {Document} = utils.require("document")
-ResizeTool = utils.require("models/tools/gestures/resize_tool").Model
-ResizeToolView = utils.require("models/tools/gestures/resize_tool").View
-Range1d = utils.require("models/ranges/range1d").Model
-Plot = utils.require("models/plots/plot").Model
-Toolbar = utils.require("models/tools/toolbar").Model
+{ResizeTool} = utils.require("models/tools/gestures/resize_tool")
+{ResizeToolView} = utils.require("models/tools/gestures/resize_tool")
+{Range1d} = utils.require("models/ranges/range1d")
+{Plot} = utils.require("models/plots/plot")
+{Toolbar} = utils.require("models/tools/toolbar")
 
 describe "ResizeTool", ->
 

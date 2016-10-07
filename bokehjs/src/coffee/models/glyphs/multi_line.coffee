@@ -2,9 +2,9 @@ import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import * as hittest from "../../core/hittest"
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
-class MultiLineView extends Glyph.View
+export class MultiLineView extends GlyphView
 
   _index_data: () ->
     index = rbush()
@@ -113,15 +113,10 @@ class MultiLineView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class MultiLine extends Glyph.Model
+export class MultiLine extends Glyph
   default_view: MultiLineView
 
   type: 'MultiLine'
 
   @coords [['xs', 'ys']]
   @mixins ['line']
-
-export {
-  MultiLine as Model
-  MultiLineView as View
-}

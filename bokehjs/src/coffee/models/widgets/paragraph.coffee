@@ -1,8 +1,8 @@
 import * as $ from "jquery"
 
-import * as Markup from "./markup"
+import {Markup, MarkupView} from "./markup"
 
-class ParagraphView extends Markup.View
+export class ParagraphView extends MarkupView
 
   render: () ->
     super()
@@ -10,11 +10,6 @@ class ParagraphView extends Markup.View
     $para = $('<p style="margin: 0;"></p>').text(@model.text)
     @$el.find('.bk-markup').append($para)
 
-class Paragraph extends Markup.Model
+export class Paragraph extends Markup
   type: "Paragraph"
   default_view: ParagraphView
-
-export {
-  Paragraph as Model
-  ParagraphView as View
-}

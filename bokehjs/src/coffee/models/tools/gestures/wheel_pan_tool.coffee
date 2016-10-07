@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as GestureTool from "./gesture_tool"
+import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "../../../core/properties"
 
-class WheelPanToolView extends GestureTool.View
+export class WheelPanToolView extends GestureToolView
 
   _scroll: (e) ->
     # we need a browser-specific multiplier to have similar experiences
@@ -73,7 +73,7 @@ class WheelPanToolView extends GestureTool.View
     return null
 
 
-class WheelPanTool extends GestureTool.Model
+export class WheelPanTool extends GestureTool
   type: 'WheelPanTool'
   default_view: WheelPanToolView
   tool_name: "Wheel Pan"
@@ -92,8 +92,3 @@ class WheelPanTool extends GestureTool.Model
   @internal {
     speed: [ p.Number, 1/1000 ]
   }
-
-export {
-  WheelPanTool as Model
-  WheelPanToolView as View
-}

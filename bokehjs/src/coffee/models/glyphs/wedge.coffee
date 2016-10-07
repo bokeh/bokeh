@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {angle_between} from "../../core/util/math"
 
-class WedgeView extends Glyph.View
+export class WedgeView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -90,7 +90,7 @@ class WedgeView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Wedge extends Glyph.Model
+export class Wedge extends Glyph
   default_view: WedgeView
 
   type: 'Wedge'
@@ -103,8 +103,3 @@ class Wedge extends Glyph.Model
       start_angle:  [ p.AngleSpec                ]
       end_angle:    [ p.AngleSpec                ]
     }
-
-export {
-  Wedge as Model
-  WedgeView as View
-}

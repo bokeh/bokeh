@@ -1,23 +1,18 @@
 import * as _ from "underscore"
 
-import * as Axis from "./axis"
-import * as ContinuousAxis from "./continuous_axis"
-import * as LogTickFormatter from "../formatters/log_tick_formatter"
-import * as LogTicker from "../tickers/log_ticker"
+import {AxisView} from "./axis"
+import {ContinuousAxis} from "./continuous_axis"
+import {LogTickFormatter} from "../formatters/log_tick_formatter"
+import {LogTicker} from "../tickers/log_ticker"
 
-class LogAxisView extends Axis.View
+export class LogAxisView extends AxisView
 
-class LogAxis extends ContinuousAxis.Model
+export class LogAxis extends ContinuousAxis
   default_view: LogAxisView
 
   type: 'LogAxis'
 
   @override {
-    ticker:    () -> new LogTicker.Model()
-    formatter: () -> new LogTickFormatter.Model()
+    ticker:    () -> new LogTicker()
+    formatter: () -> new LogTickFormatter()
   }
-
-export {
-  LogAxis as Model
-  LogAxisView as View
-}

@@ -27,7 +27,7 @@ bokehjs = () ->
   load_plugin = (path) ->
     plugin = require(path)
     _.extend(Bokeh, _.omit(plugin, "models"))
-    Bokeh.Models.register_locations(plugin.models ? {})
+    Bokeh.Models.register_models(plugin.models ? {})
 
   load_plugin('./api')
   load_plugin('./models/widgets/main')

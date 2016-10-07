@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 
-import * as SingleIntervalTicker from "./single_interval_ticker"
+import {SingleIntervalTicker} from "./single_interval_ticker"
 import * as util from "./util"
 import * as p from "../../core/properties"
 
@@ -30,7 +30,7 @@ date_range_by_year = (start_time, end_time) ->
 # A MonthsTicker produces ticks from a fixed subset of months of the year.
 # E.g., MonthsTicker([0, 3, 6, 9]) produces ticks of the 1st of January,
 # April, July, and October of each year.
-class MonthsTicker extends SingleIntervalTicker.Model
+export class MonthsTicker extends SingleIntervalTicker
   type: 'MonthsTicker'
 
   @define {
@@ -66,7 +66,3 @@ class MonthsTicker extends SingleIntervalTicker.Model
       "major": ticks_in_range,
       "minor": []
     }
-
-export {
-  MonthsTicker as Model
-}

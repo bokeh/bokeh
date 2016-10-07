@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 import {BokehView} from "../../../core/bokeh_view"
-import * as Tool from "../tool"
+import {Tool, ToolView} from "../tool"
 import inspect_tool_list_item_template from "./inspect_tool_list_item_template"
 
-class InspectToolListItemView extends BokehView
+export class InspectToolListItemView extends BokehView
   className: "bk-toolbar-inspector"
   template: inspect_tool_list_item_template
   events: {
@@ -22,9 +22,9 @@ class InspectToolListItemView extends BokehView
     active = @model.active
     @model.active = not active
 
-class InspectToolView extends Tool.View
+export class InspectToolView extends ToolView
 
-class InspectTool extends Tool.Model
+export class InspectTool extends Tool
   event_type: "move"
 
   @override {
@@ -40,10 +40,3 @@ class InspectTool extends Tool.Model
   _exit_inner: () ->
 
   _exit_outer: () ->
-
-
-export {
-  InspectTool as Model
-  InspectToolView as View
-  InspectToolListItemView as ListItemView
-}

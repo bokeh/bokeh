@@ -1,9 +1,9 @@
 import * as $ from "jquery"
 
-import * as Markup from "./markup"
+import {Markup, MarkupView} from "./markup"
 import * as p from "../../core/properties"
 
-class DivView extends Markup.View
+export class DivView extends MarkupView
 
   render: () ->
     super()
@@ -14,15 +14,10 @@ class DivView extends Markup.View
     @$el.find('.bk-markup').append($content)
     return @
 
-class Div extends Markup.Model
+export class Div extends Markup
   type: "Div"
   default_view: DivView
 
   @define {
     render_as_text: [ p.Bool,   false]
   }
-
-export {
-  Div as Model
-  DivView as View
-}

@@ -1,12 +1,12 @@
 _ = require "underscore"
 
 p = require "core/properties"
-Glyph = require "models/glyphs/glyph"
+{Glyph, GlyphView} = require "models/glyphs/glyph"
 
 Bezier = require "./bezier"
 GearUtils = require "./gear_utils"
 
-class GearView extends Glyph.View
+class GearView extends GlyphView
 
   _index_data: () ->
     return @_xy_index()
@@ -115,7 +115,7 @@ class GearView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Gear extends Glyph.Model
+class Gear extends Glyph
   default_view: GearView
 
   type: 'Gear'
@@ -132,6 +132,6 @@ class Gear extends Glyph.Model
     }
 
 module.exports = {
-  Model: Gear
-  View: GearView
+  Gear: Gear
+  GearView: GearView
 }

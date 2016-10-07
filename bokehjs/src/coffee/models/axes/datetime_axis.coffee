@@ -1,22 +1,17 @@
 import * as _ from "underscore"
 
-import * as LinearAxis from "./axis"
-import * as DatetimeTickFormatter from "../formatters/datetime_tick_formatter"
-import * as DatetimeTicker from "../tickers/datetime_ticker"
+import {LinearAxis, LinearAxisView} from "./linear_axis"
+import {DatetimeTickFormatter} from "../formatters/datetime_tick_formatter"
+import {DatetimeTicker} from "../tickers/datetime_ticker"
 
-class DatetimeAxisView extends LinearAxis.View
+export class DatetimeAxisView extends LinearAxisView
 
-class DatetimeAxis extends LinearAxis.Model
+export class DatetimeAxis extends LinearAxis
   default_view: DatetimeAxisView
 
   type: 'DatetimeAxis'
 
   @override {
-    ticker:    () -> new DatetimeTicker.Model()
-    formatter: () -> new DatetimeTickFormatter.Model()
+    ticker:    () -> new DatetimeTicker()
+    formatter: () -> new DatetimeTickFormatter()
   }
-
-export {
-  DatetimeAxis as Model
-  DatetimeAxisView as View
-}

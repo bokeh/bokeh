@@ -1,10 +1,9 @@
 import * as _ from "underscore"
 import * as p from "../../core/properties"
 
-import * as ColorMapper from "./color_mapper"
+import {ColorMapper} from "./color_mapper"
 
-
-class CategoricalColorMapper extends ColorMapper.Model
+export class CategoricalColorMapper extends ColorMapper
   type: "CategoricalColorMapper"
 
   @define {
@@ -22,7 +21,3 @@ class CategoricalColorMapper extends ColorMapper.Model
         color = palette[key]
       values.push(color)
     return values
-
-export {
-  CategoricalColorMapper as Model
-}

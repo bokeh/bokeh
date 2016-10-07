@@ -1,15 +1,11 @@
 import * as _ from "underscore"
 
-import * as Widget from "./widget"
+import {Widget} from "./widget"
 import * as p from "../../core/properties"
 
-class TableWidget extends Widget.Model
+export class TableWidget extends Widget
   type: "TableWidget"
 
   @define {
       source: [ p.Instance ]
     }
-
-export {
-  TableWidget as Model
-}

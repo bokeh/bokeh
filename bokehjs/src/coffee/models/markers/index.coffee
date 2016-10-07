@@ -1,19 +1,6 @@
-import * as M from "./marker"
+import {Marker, MarkerView} from "./marker"
 
 SQ3 = Math.sqrt(3)
-
-generate_marker = (type, f) ->
-  class View extends M.View
-    _render_one: f
-
-  class Model extends M.Model
-    default_view: View
-    type: type
-
-  return {
-    Model: Model
-    View: View
-  }
 
 _one_x =  (ctx, r) ->
   ctx.moveTo(-r,  r)
@@ -201,15 +188,26 @@ x = (ctx, i, sx, sy, r, line, fill) ->
 
   return
 
-export Asterisk         = generate_marker('Asterisk', asterisk)
-export CircleCross      = generate_marker('CircleCross', circle_cross)
-export CircleX          = generate_marker('CircleX', circle_x)
-export Cross            = generate_marker('Cross', cross)
-export Diamond          = generate_marker('Diamond', diamond)
-export DiamondCross     = generate_marker('DiamondCross', diamond_cross)
-export InvertedTriangle = generate_marker('InvertedTriangle', inverted_triangle)
-export Square           = generate_marker('Square', square)
-export SquareCross      = generate_marker('SquareCross', square_cross)
-export SquareX          = generate_marker('SquareX', square_x)
-export Triangle         = generate_marker('Triangle', triangle)
-export X                = generate_marker('X', x)
+_mk_model = (type, f) ->
+  class view extends MarkerView
+    _render_one: f
+
+  class model extends Marker
+    default_view: view
+    type: type
+
+  return model
+
+# markers are final, so no need to export views
+export Asterisk         = _mk_model('Asterisk',         asterisk)
+export CircleCross      = _mk_model('CircleCross',      circle_cross)
+export CircleX          = _mk_model('CircleX',          circle_x)
+export Cross            = _mk_model('Cross',            cross)
+export Diamond          = _mk_model('Diamond',          diamond)
+export DiamondCross     = _mk_model('DiamondCross',     diamond_cross)
+export InvertedTriangle = _mk_model('InvertedTriangle', inverted_triangle)
+export Square           = _mk_model('Square',           square)
+export SquareCross      = _mk_model('SquareCross',      square_cross)
+export SquareX          = _mk_model('SquareX',          square_x)
+export Triangle         = _mk_model('Triangle',         triangle)
+export X                = _mk_model('X',                x)

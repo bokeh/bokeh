@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-import * as LinearMapper from "./linear_mapper"
+import {LinearMapper} from "./linear_mapper"
 
-class CategoricalMapper extends LinearMapper.Model
+export class CategoricalMapper extends LinearMapper
 
   map_to_target: (x, return_synthetic=false) ->
     if _.isNumber(x)
@@ -64,7 +64,3 @@ class CategoricalMapper extends LinearMapper.Model
     for i in [0...xprimes.length]
       result[i] = factors[Math.floor(x[i] - 0.5 - range.offset)]
     return result
-
-export {
-  CategoricalMapper as Model
-}

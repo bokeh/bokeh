@@ -1,9 +1,9 @@
 import * as _ from "underscore"
-import * as Transform from "./transform"
+import {Transform} from "./transform"
 import * as p from "../../core/properties"
 import * as bokeh_math from "../../core/util/math"
 
-class Jitter extends Transform.Model
+export class Jitter extends Transform
   @define {
     mean:         [ p.Number      , 0        ]
     width:        [ p.Number      , 1        ]
@@ -24,7 +24,3 @@ class Jitter extends Transform.Model
     for x, idx in xs
       result[idx] = this.compute(x)
     return result
-
-export {
-  Jitter as Model
-}

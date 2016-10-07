@@ -4,7 +4,7 @@ import {Variable, EQ, GE, Strength} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"
 
-class LayoutCanvas extends Model
+export class LayoutCanvas extends Model
   type: 'LayoutCanvas'
 
   initialize: (attrs, options)->
@@ -39,7 +39,3 @@ class LayoutCanvas extends Model
     return editables
 
   get_constraints: () -> []
-
-export {
-  LayoutCanvas as Model
-}

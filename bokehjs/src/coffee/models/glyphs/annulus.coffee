@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 
-class AnnulusView extends Glyph.View
+export class AnnulusView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -106,7 +106,7 @@ class AnnulusView extends Glyph.View
 
     @_render(ctx, indices, data)
 
-class Annulus extends Glyph.Model
+export class Annulus extends Glyph
   default_view: AnnulusView
 
   type: 'Annulus'
@@ -117,8 +117,3 @@ class Annulus extends Glyph.Model
       inner_radius: [ p.DistanceSpec ]
       outer_radius: [ p.DistanceSpec ]
     }
-
-export {
-  Annulus as Model
-  AnnulusView as View
-}

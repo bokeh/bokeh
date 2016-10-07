@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as TileSource from "./tile_source"
+import {TileSource} from "./tile_source"
 import * as p from "../../core/properties"
 
-class MercatorTileSource extends TileSource.Model
+export class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'
 
   @define {
@@ -279,7 +279,3 @@ class MercatorTileSource extends TileSource.Model
 
   calculate_world_x_by_tile_xyz: (x, y, z) ->
     return Math.floor(x / Math.pow(2, z))
-
-export {
-  MercatorTileSource as Model
-}

@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
 
-class TextView extends Glyph.View
+export class TextView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -33,7 +33,7 @@ class TextView extends Glyph.View
     ctx.fillText("text", x2, (y1+y2)/2)
     ctx.restore()
 
-class Text extends Glyph.Model
+export class Text extends Glyph
   default_view: TextView
 
   type: 'Text'
@@ -46,8 +46,3 @@ class Text extends Glyph.Model
       x_offset: [ p.NumberSpec, 0                 ]
       y_offset: [ p.NumberSpec, 0                 ]
     }
-
-export {
-  Text as Model
-  TextView as View
-}

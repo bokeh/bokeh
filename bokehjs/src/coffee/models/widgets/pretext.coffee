@@ -1,20 +1,15 @@
 import * as $ from "jquery"
 
-import * as Markup from "./markup"
+import {Markup, MarkupView} from "./markup"
 import * as p from "../../core/properties"
 
-class PreTextView extends Markup.View
+export class PreTextView extends MarkupView
 
   render: () ->
     super()
     $pre = $('<pre style="overflow: auto"></pre>').text(@model.text)
     @$el.find('.bk-markup').append($pre)
 
-class PreText extends Markup.Model
+export class PreText extends Markup
   type: "PreText"
   default_view: PreTextView
-
-export {
-  PreText as Model
-  PreTextView as View
-}

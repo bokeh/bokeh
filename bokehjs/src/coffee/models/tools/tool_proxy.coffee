@@ -1,8 +1,7 @@
 import * as p from "../../core/properties"
 import {Model} from "../../model"
 
-
-class ToolProxy extends Model
+export class ToolProxy extends Model
   # Operates all the tools given only one button
 
   initialize: (options) ->
@@ -33,7 +32,3 @@ class ToolProxy extends Model
   _clicked: () ->
     active = @model.active
     @model.active = not active
-
-export {
-  ToolProxy as Model
-}

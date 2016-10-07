@@ -1,1 +1,1 @@
-import * as Grid from './grid'; export {Grid}
+export {Grid} from "./grid"

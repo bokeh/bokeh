@@ -5,9 +5,9 @@ import "bootstrap/tab"
 import * as p from "../../core/properties"
 
 import tabs_template from "./tabs_template"
-import * as Widget from "./widget"
+import {Widget, WidgetView} from "./widget"
 
-class TabsView extends Widget.View
+export class TabsView extends WidgetView
 
   render: () ->
     super()
@@ -45,7 +45,7 @@ class TabsView extends Widget.View
     @$el.tabs
     return @
 
-class Tabs extends Widget.Model
+export class Tabs extends Widget
   type: "Tabs"
   default_view: TabsView
 
@@ -79,8 +79,3 @@ class Tabs extends Widget.Model
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
     return constraints
-
-export {
-  Tabs as Model
-  TabsView as View
-}

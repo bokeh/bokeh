@@ -2,7 +2,7 @@ import * as _ from "underscore"
 import * as SPrintf from "sprintf"
 import * as tz from "timezone"
 
-import * as TickFormatter from "./tick_formatter"
+import {TickFormatter} from "./tick_formatter"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
@@ -36,7 +36,7 @@ _strftime = (t, format) ->
       return format
     return tz(t, format)
 
-class DatetimeTickFormatter extends TickFormatter.Model
+export class DatetimeTickFormatter extends TickFormatter
   type: 'DatetimeTickFormatter'
 
   @define {
@@ -207,7 +207,3 @@ class DatetimeTickFormatter extends TickFormatter.Model
         labels.push(s)
 
     return labels
-
-export {
-  DatetimeTickFormatter as Model
-}

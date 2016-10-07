@@ -1,16 +1,16 @@
 import * as _ from "underscore"
 
-import * as Annotation from "./annotation"
+import {Annotation, AnnotationView} from "./annotation"
 import {OpenHead} from "./arrow_head"
-import * as ColumnDataSource from "../sources/column_data_source"
+import {ColumnDataSource} from "../sources/column_data_source"
 import * as p from "../../core/properties"
 import {atan2} from "../../core/util/math"
 
-class ArrowView extends Annotation.View
+export class ArrowView extends AnnotationView
   initialize: (options) ->
     super(options)
     if not @model.source?
-      this.model.source = new ColumnDataSource.Model()
+      this.model.source = new ColumnDataSource()
     @canvas = @plot_model.canvas
     @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
     @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
@@ -83,7 +83,7 @@ class ArrowView extends Annotation.View
 
       ctx.restore()
 
-class Arrow extends Annotation.Model
+export class Arrow extends Annotation
   default_view: ArrowView
 
   type: 'Arrow'
@@ -103,8 +103,3 @@ class Arrow extends Annotation.Model
       x_range_name:     [ p.String,      'default'              ]
       y_range_name:     [ p.String,      'default'              ]
   }
-
-export {
-  Arrow as Model
-  ArrowView as View
-}

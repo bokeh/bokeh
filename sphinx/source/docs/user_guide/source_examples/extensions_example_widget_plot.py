@@ -20,13 +20,13 @@ p = require "core/properties"
 
 # We will subclass in JavaScript from the same class that was subclassed
 # from in Python
-InputWidget = require "models/widgets/input_widget"
+{InputWidget, InputWidgetView} = require "models/widgets/input_widget"
 # Use our custom template, this needs to not have the .eco ending on the file
 ionslidertemplate = require("./extensions_ion_range_slider_template")
 
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that
-class IonRangeSliderView extends InputWidget.View
+class IonRangeSliderView extends InputWidgetView
   tagName: "div"
   template: ionslidertemplate
 
@@ -94,7 +94,7 @@ class IonRangeSliderView extends InputWidget.View
     if @callbackWrapper then @callbackWrapper()
 
 
-class IonRangeSlider extends InputWidget.Model
+class IonRangeSlider extends InputWidget
 
   # If there is an associated view, this is boilerplate.
   default_view: IonRangeSliderView
@@ -122,8 +122,8 @@ class IonRangeSlider extends InputWidget.Model
 # This is boilerplate. Every implementation should export a Model
 # and (when applicable) also a View.
 module.exports =
-  Model: IonRangeSlider
-  View: IonRangeSliderView
+  IonRangeSlider: IonRangeSlider
+  IonRangeSliderView: IonRangeSliderView
 """
 
 

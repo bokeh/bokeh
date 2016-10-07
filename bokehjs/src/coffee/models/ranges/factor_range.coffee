@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Range from "./range"
+import {Range} from "./range"
 import * as p from "../../core/properties"
 
-class FactorRange extends Range.Model
+export class FactorRange extends Range
   type: 'FactorRange'
 
   @define {
@@ -63,7 +63,3 @@ class FactorRange extends Range.Model
 
     if @bounds?
       @bounds = [start, end]
-
-export {
-  FactorRange as Model
-}

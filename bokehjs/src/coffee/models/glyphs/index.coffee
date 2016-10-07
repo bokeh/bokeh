@@ -1,23 +1,23 @@
-import * as AnnularWedge from './annular_wedge';  export {AnnularWedge}
-import * as Annulus      from './annulus';        export {Annulus}
-import * as Arc          from './arc';            export {Arc}
-import * as Bezier       from './bezier';         export {Bezier}
-import * as Circle       from './circle';         export {Circle}
-import * as Ellipse      from './ellipse';        export {Ellipse}
-import * as HBar         from './hbar';           export {HBar}
-import * as Image        from './image';          export {Image}
-import * as ImageRGBA    from './image_rgba';     export {ImageRGBA}
-import * as ImageURL     from './image_url';      export {ImageURL}
-import * as Line         from './line';           export {Line}
-import * as MultiLine    from './multi_line';     export {MultiLine}
-import * as Oval         from './oval';           export {Oval}
-import * as Patch        from './patch';          export {Patch}
-import * as Patches      from './patches';        export {Patches}
-import * as Quad         from './quad';           export {Quad}
-import * as Quadratic    from './quadratic';      export {Quadratic}
-import * as Ray          from './ray';            export {Ray}
-import * as Rect         from './rect';           export {Rect}
-import * as Segment      from './segment';        export {Segment}
-import * as Text         from './text';           export {Text}
-import * as VBar         from './vbar';           export {VBar}
-import * as Wedge        from './wedge';          export {Wedge}
+export {AnnularWedge} from "./annular_wedge"
+export {Annulus}      from "./annulus"
+export {Arc}          from "./arc"
+export {Bezier}       from "./bezier"
+export {Circle}       from "./circle"
+export {Ellipse}      from "./ellipse"
+export {HBar}         from "./hbar"
+export {Image}        from "./image"
+export {ImageRGBA}    from "./image_rgba"
+export {ImageURL}     from "./image_url"
+export {Line}         from "./line"
+export {MultiLine}    from "./multi_line"
+export {Oval}         from "./oval"
+export {Patch}        from "./patch"
+export {Patches}      from "./patches"
+export {Quad}         from "./quad"
+export {Quadratic}    from "./quadratic"
+export {Ray}          from "./ray"
+export {Rect}         from "./rect"
+export {Segment}      from "./segment"
+export {Text}         from "./text"
+export {VBar}         from "./vbar"
+export {Wedge}        from "./wedge"

@@ -1,9 +1,9 @@
 import * as _ from "underscore"
 
-import * as Glyph from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
 
-class EllipseView extends Glyph.View
+export class EllipseView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -66,7 +66,7 @@ class EllipseView extends Glyph.View
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-class Ellipse extends Glyph.Model
+export class Ellipse extends Glyph
   default_view: EllipseView
 
   type: 'Ellipse'
@@ -78,8 +78,3 @@ class Ellipse extends Glyph.Model
       width:  [ p.DistanceSpec     ]
       height: [ p.DistanceSpec     ]
     }
-
-export {
-  Ellipse as Model
-  EllipseView as View
-}

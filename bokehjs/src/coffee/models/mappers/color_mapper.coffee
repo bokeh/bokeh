@@ -4,7 +4,7 @@ import * as p from "../../core/properties"
 import {Model} from "../../model"
 
 
-class ColorMapper extends Model
+export class ColorMapper extends Model
   type: "ColorMapper"
 
   @define {
@@ -74,7 +74,3 @@ class ColorMapper extends Model
     for i in [0...palette.length]
       new_palette[i] = _convert(palette[i])
     return new_palette
-
-export {
-  ColorMapper as Model
-}

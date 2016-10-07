@@ -14,7 +14,7 @@ import {Model} from "../../model"
 # magnitudes.  To make it possible to select Tickers programmatically, they
 # also support some additional methods: get_interval(), get_min_interval(),
 # and get_max_interval().
-class Ticker extends Model
+export class Ticker extends Model
   type: 'Ticker'
 
   # Generates a nice series of ticks for a given range.
@@ -46,7 +46,3 @@ class Ticker extends Model
       "major": ticks
       "minor": minor_ticks
     }
-
-export {
-  Ticker as Model
-}

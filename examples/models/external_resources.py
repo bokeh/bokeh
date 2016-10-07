@@ -20,9 +20,9 @@ class LatexLabel(Label):
     __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
     __implementation__ = """
-Label = require "models/annotations/label"
+{Label, LabelView} = require "models/annotations/label"
 
-class LatexLabelView extends Label.View
+class LatexLabelView extends LabelView
   render: () ->
     ctx = @plot_view.canvas_view.ctx
 
@@ -52,13 +52,14 @@ class LatexLabelView extends Label.View
 
     @_css_text(ctx, latex, sx + @model.x_offset, sy - @model.y_offset, angle)
 
-class LatexLabel extends Label.Model
+class LatexLabel extends Label
   type: 'LatexLabel'
   default_view: LatexLabelView
 
-module.exports =
-  Model: LatexLabel
-  View: LatexLabelView
+module.exports = {
+  LatexLabel: LatexLabel
+  LatexLabelView: LatexLabelView
+}
 """
 
 x = np.arange(0.0, 1.0 + 0.01, 0.01)

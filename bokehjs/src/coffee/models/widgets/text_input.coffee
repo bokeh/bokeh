@@ -4,11 +4,11 @@ import {build_views} from "../../core/build_views"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
-import * as InputWidget from "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 import template from "./text_input_template"
 
 
-class TextInputView extends InputWidget.View
+export class TextInputView extends InputWidgetView
   tagName: "div"
   attributes:
      class: "bk-widget-form-group"
@@ -35,15 +35,10 @@ class TextInputView extends InputWidget.View
     @model.value = value
     super()
 
-class TextInput extends InputWidget.Model
+export class TextInput extends InputWidget
   type: "TextInput"
   default_view: TextInputView
 
   @define {
       value: [ p.String, "" ]
     }
-
-export {
-  TextInput as Model
-  TextInputView as View
-}

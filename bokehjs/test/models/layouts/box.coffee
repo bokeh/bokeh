@@ -6,11 +6,11 @@ sinon = require "sinon"
 {Strength, Variable}  = utils.require("core/layout/solver")
 
 {Document} = utils.require("document")
-Box = utils.require("models/layouts/box").Model
-BoxView = utils.require("models/layouts/box").View
-LayoutDOMView = utils.require("models/layouts/layout_dom").View
+{Box} = utils.require("models/layouts/box")
+{BoxView} = utils.require("models/layouts/box")
+{LayoutDOMView} = utils.require("models/layouts/layout_dom")
 
-describe "Box.View", ->
+describe "BoxView", ->
 
   afterEach ->
     utils.unstub_solver()
@@ -38,7 +38,7 @@ describe "Box.View", ->
     # we initialize the child_box
     expect(spy.callCount).is.equal 3
 
-describe "Box.Model", ->
+describe "Box", ->
 
   describe "get_edit_variables", ->
 

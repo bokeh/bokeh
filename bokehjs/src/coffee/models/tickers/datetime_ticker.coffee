@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
-import * as AdaptiveTicker from "./adaptive_ticker"
-import * as CompositeTicker from "./composite_ticker"
-import * as DaysTicker from "./days_ticker"
-import * as MonthsTicker from "./months_ticker"
-import * as YearsTicker from "./years_ticker"
+import {AdaptiveTicker} from "./adaptive_ticker"
+import {CompositeTicker} from "./composite_ticker"
+import {DaysTicker} from "./days_ticker"
+import {MonthsTicker} from "./months_ticker"
+import {YearsTicker} from "./years_ticker"
 import * as util from "./util"
 
 ONE_MILLI = util.ONE_MILLI
@@ -18,14 +18,14 @@ ONE_MONTH = util.ONE_MONTH
 # FIXME There should probably be a special ticker for years.
 # FIXME Some of the adaptive tickers probably have too many mantissas, which
 # leads to too-frequent tick transitions.
-class DatetimeTicker extends CompositeTicker.Model
+export class DatetimeTicker extends CompositeTicker
   type: 'DatetimeTicker'
 
   @override {
       num_minor_ticks: 0
       tickers: () -> [
         # Sub-second.
-        new AdaptiveTicker.Model({
+        new AdaptiveTicker({
           mantissas: [1, 2, 5],
           base: 10,
           min_interval: 0,
@@ -34,7 +34,7 @@ class DatetimeTicker extends CompositeTicker.Model
         }),
 
         # Seconds, minutes.
-        new AdaptiveTicker.Model({
+        new AdaptiveTicker({
           mantissas: [1, 2, 5, 10, 15, 20, 30],
           base: 60,
           min_interval: ONE_SECOND,
@@ -43,7 +43,7 @@ class DatetimeTicker extends CompositeTicker.Model
         }),
 
         # Hours.
-        new AdaptiveTicker.Model({
+        new AdaptiveTicker({
           mantissas: [1, 2, 4, 6, 8, 12],
           base: 24.0,
           min_interval: ONE_HOUR,
@@ -52,22 +52,18 @@ class DatetimeTicker extends CompositeTicker.Model
         }),
 
         # Days.
-        new DaysTicker.Model({days: _.range(1, 32)}),
-        new DaysTicker.Model({days: _.range(1, 31, 3)}),
-        new DaysTicker.Model({days: [1, 8, 15, 22]}),
-        new DaysTicker.Model({days: [1, 15]}),
+        new DaysTicker({days: _.range(1, 32)}),
+        new DaysTicker({days: _.range(1, 31, 3)}),
+        new DaysTicker({days: [1, 8, 15, 22]}),
+        new DaysTicker({days: [1, 15]}),
 
         # Months.
-        new MonthsTicker.Model({months: _.range(0, 12, 1)}),
-        new MonthsTicker.Model({months: _.range(0, 12, 2)}),
-        new MonthsTicker.Model({months: _.range(0, 12, 4)}),
-        new MonthsTicker.Model({months: _.range(0, 12, 6)}),
+        new MonthsTicker({months: _.range(0, 12, 1)}),
+        new MonthsTicker({months: _.range(0, 12, 2)}),
+        new MonthsTicker({months: _.range(0, 12, 4)}),
+        new MonthsTicker({months: _.range(0, 12, 6)}),
 
         # Years
-        new YearsTicker.Model({})
+        new YearsTicker({})
       ]
     }
-
-export {
-  DatetimeTicker as Model
-}

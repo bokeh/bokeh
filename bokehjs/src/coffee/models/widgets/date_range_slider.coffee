@@ -4,10 +4,10 @@ import "jqrangeslider/jQDateRangeSlider"
 
 import * as p from "../../core/properties"
 
-import * as InputWidget from "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 
-class DateRangeSliderView extends InputWidget.View
+export class DateRangeSliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
@@ -44,7 +44,7 @@ class DateRangeSliderView extends InputWidget.View
 
     return @
 
-class DateRangeSlider extends InputWidget.Model
+export class DateRangeSlider extends InputWidget
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
@@ -63,8 +63,3 @@ class DateRangeSlider extends InputWidget.Model
       scales
       ###
     }
-
-export {
-  DateRangeSlider as Model
-  DateRangeSliderView as View
-}

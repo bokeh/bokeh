@@ -8,7 +8,7 @@ import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {MultiDict, Set} from "./core/util/data_structures"
-import * as ColumnDataSource from "./models/sources/column_data_source"
+import {ColumnDataSource} from "./models/sources/column_data_source"
 
 export class DocumentChangedEvent
   constructor : (@document) ->
@@ -662,7 +662,7 @@ export class Document
           if column_source_id not of @_all_models
             throw new Error("Cannot stream to #{column_source_id} which is not in the document")
           column_source = @_all_models[column_source_id]
-          if column_source not instanceof ColumnDataSource.Model
+          if column_source not instanceof ColumnDataSource
             throw new Error("Cannot stream to non-ColumnDataSource")
           data = event_json['data']
           rollover = event_json['rollover']
@@ -673,7 +673,7 @@ export class Document
           if column_source_id not of @_all_models
             throw new Error("Cannot patch #{column_source_id} which is not in the document")
           column_source = @_all_models[column_source_id]
-          if column_source not instanceof ColumnDataSource.Model
+          if column_source not instanceof ColumnDataSource
             throw new Error("Cannot patch non-ColumnDataSource")
           patches = event_json['patches']
           column_source.patch(patches)

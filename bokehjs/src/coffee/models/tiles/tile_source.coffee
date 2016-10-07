@@ -6,7 +6,7 @@ import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import {Model} from "../../model"
 
-class TileSource extends Model
+export class TileSource extends Model
   type: 'TileSource'
 
   @define {
@@ -110,7 +110,3 @@ class TileSource extends Model
 
   quadkey_to_tile_xyz: (quadkey) ->
     throw Error("Not Implemented")
-
-export {
-  TileSource as Model
-}

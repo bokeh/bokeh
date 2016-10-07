@@ -35,8 +35,9 @@ class DateGapTickFormatter(TickFormatter):
             date_labels: [ p.Any ]
           }
 
-        module.exports =
-          Model: DateGapTickFormatter
+        module.exports = {
+          DateGapTickFormatter: DateGapTickFormatter
+        }
     """
 
 df = pd.DataFrame(MSFT)[:50]

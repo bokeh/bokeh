@@ -1,10 +1,9 @@
 import * as _ from "underscore"
 import * as p from "../../core/properties"
 
-import * as ColorMapper from "./color_mapper"
+import {ColorMapper} from "./color_mapper"
 
-
-class LinearColorMapper extends ColorMapper.Model
+export class LinearColorMapper extends ColorMapper
   type: "LinearColorMapper"
 
   @define {
@@ -50,7 +49,3 @@ class LinearColorMapper extends ColorMapper.Model
       else
         values.push(palette[key])
     return values
-
-export {
-  LinearColorMapper as Model
-}

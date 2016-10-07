@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-CustomJS = utils.require("models/callbacks/customjs").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{CustomJS} = utils.require("models/callbacks/customjs")
+{Range1d} = utils.require("models/ranges/range1d")
 {Document} = utils.require "document"
 js_version = utils.require("version").version
 

@@ -1,20 +1,14 @@
-import * as ButtonTool from "../button_tool"
+import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
 
-class ActionToolButtonView extends ButtonTool.ButtonView
+export class ActionToolButtonView extends ButtonToolButtonView
 
   _clicked: () ->
     @model.trigger('do')
 
-class ActionToolView extends ButtonTool.View
+export class ActionToolView extends ButtonToolView
 
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'do', @do)
 
-class ActionTool extends ButtonTool.Model
-
-export {
-  ActionTool as Model
-  ActionToolView as View
-  ActionToolButtonView as ButtonView
-}
+export class ActionTool extends ButtonTool

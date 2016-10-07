@@ -3,10 +3,10 @@ import * as _ from "underscore"
 import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
 
-import * as LayoutDOM from "./layout_dom"
+import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
 
-class BoxView extends LayoutDOM.View
+export class BoxView extends LayoutDOMView
   className: "bk-grid"
 
   bind_bokeh_events: () ->
@@ -32,7 +32,7 @@ class BoxView extends LayoutDOM.View
     return width
 
 
-class Box extends LayoutDOM.Model
+export class Box extends LayoutDOM
   default_view: BoxView
 
   constructor: (attrs, options) ->
@@ -495,8 +495,3 @@ class Box extends LayoutDOM.Model
     'box-cell-align-top',
     'box-cell-align-bottom'
   ]
-
-export {
-  Box as Model
-  BoxView as View
-}

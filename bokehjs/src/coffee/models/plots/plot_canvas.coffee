@@ -1,15 +1,15 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
 
-import * as Canvas from "../canvas/canvas"
-import * as CartesianFrame from "../canvas/cartesian_frame"
-import * as DataRange1d from "../ranges/data_range1d"
-import * as GlyphRenderer from "../renderers/glyph_renderer"
-import * as LayoutDOM from "../layouts/layout_dom"
+import {Canvas} from "../canvas/canvas"
+import {CartesianFrame} from "../canvas/cartesian_frame"
+import {DataRange1d} from "../ranges/data_range1d"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {LayoutDOM} from "../layouts/layout_dom"
 
 import {build_views} from "../../core/build_views"
 import {UIEvents} from "../../core/ui_events"
-import * as LayoutCanvas from "../../core/layout/layout_canvas"
+import {LayoutCanvas} from "../../core/layout/layout_canvas"
 import {Visuals} from "../../core/visuals"
 import {BokehView} from "../../core/bokeh_view"
 import {EQ, GE} from "../../core/layout/solver"
@@ -32,7 +32,7 @@ import {update_constraints as update_panel_constraints} from "../../core/layout/
 
 global_gl_canvas = null
 
-class PlotCanvasView extends BokehView
+export class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
@@ -188,14 +188,14 @@ class PlotCanvasView extends BokehView
     has_bounds = false
 
     for xr in _.values(frame.x_ranges)
-      if xr instanceof DataRange1d.Model
+      if xr instanceof DataRange1d
         xr.update(bounds, 0, @model.id)
         if xr.follow
           follow_enabled = true
       has_bounds = true if xr.bounds?
 
     for yr in _.values(frame.y_ranges)
-      if yr instanceof DataRange1d.Model
+      if yr instanceof DataRange1d
         yr.update(bounds, 1, @model.id)
         if yr.follow
           follow_enabled = true
@@ -271,14 +271,14 @@ class PlotCanvasView extends BokehView
   get_selection: () ->
     selection = []
     for renderer in @model.plot.renderers
-      if renderer instanceof GlyphRenderer.Model
+      if renderer instanceof GlyphRenderer
         selected = renderer.data_source.selected
         selection[renderer.id] = selected
     selection
 
   update_selection: (selection) ->
     for renderer in @model.plot.renderers
-      if renderer not instanceof GlyphRenderer.Model
+      if renderer not instanceof GlyphRenderer
         continue
       ds = renderer.data_source
       if selection?
@@ -627,21 +627,21 @@ class PlotCanvasView extends BokehView
       @visuals.background_fill.set_value(ctx)
       ctx.fillRect(frame_box...)
 
-class PlotCanvas extends LayoutDOM.Model
+export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @canvas = new Canvas.Model({
+    @canvas = new Canvas({
       map: @use_map ? false
       initial_width: @plot.plot_width,
       initial_height: @plot.plot_height,
       use_hidpi: @plot.hidpi
     })
 
-    @frame = new CartesianFrame.Model({
+    @frame = new CartesianFrame({
       x_range: @plot.x_range,
       extra_x_ranges: @plot.extra_x_ranges,
       x_mapper_type: @plot.x_mapper_type,
@@ -650,10 +650,10 @@ class PlotCanvas extends LayoutDOM.Model
       y_mapper_type: @plot.y_mapper_type,
     })
 
-    @above_panel = new LayoutCanvas.Model()
-    @below_panel = new LayoutCanvas.Model()
-    @left_panel = new LayoutCanvas.Model()
-    @right_panel = new LayoutCanvas.Model()
+    @above_panel = new LayoutCanvas()
+    @below_panel = new LayoutCanvas()
+    @left_panel = new LayoutCanvas()
+    @right_panel = new LayoutCanvas()
 
     logger.debug("PlotCanvas initialized")
 
@@ -793,8 +793,3 @@ class PlotCanvas extends LayoutDOM.Model
   # find a better way, but this was expedient for now.
   plot_canvas: () ->
     return @
-
-export {
-  PlotCanvas as Model
-  PlotCanvasView as View
-}

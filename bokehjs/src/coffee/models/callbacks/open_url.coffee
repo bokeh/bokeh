@@ -5,7 +5,7 @@ import * as p from "../../core/properties"
 import {get_indices} from "../../core/util/selection"
 import {replace_placeholders} from "../../core/util/templating"
 
-class OpenURL extends Model
+export class OpenURL extends Model
   type: 'OpenURL'
 
   @define {
@@ -17,7 +17,3 @@ class OpenURL extends Model
       url = replace_placeholders(@url, data_source, i)
       window.open(url)
     null
-
-export {
-  OpenURL as Model
-}

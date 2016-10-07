@@ -2,10 +2,10 @@ import * as _ from "underscore"
 
 import * as p from "../../core/properties"
 
-import * as AbstractIcon from "./abstract_icon"
-import * as Widget from "./widget"
+import {AbstractIcon} from "./abstract_icon"
+import {WidgetView} from "./widget"
 
-class IconView extends Widget.View
+export class IconView extends WidgetView
   tagName: "i"
 
   initialize: (options) ->
@@ -29,7 +29,7 @@ class IconView extends Widget.View
     null
 
 
-class Icon extends AbstractIcon.Model
+export class Icon extends AbstractIcon
   type: "Icon"
   default_view: IconView
 
@@ -39,8 +39,3 @@ class Icon extends AbstractIcon.Model
       flip:      [ p.Any             ] # TODO (bev)
       spin:      [ p.Bool,   false   ]
     }
-
-export {
-  Icon as Model
-  IconView as View
-}

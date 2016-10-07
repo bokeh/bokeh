@@ -1,9 +1,8 @@
-import * as Annotation from "./annotation"
-import * as Renderer from "../renderers/renderer"
+import {Annotation} from "./annotation"
 import {Visuals} from "../../core/visuals"
 import * as p from "../../core/properties"
 
-class ArrowHead extends Annotation.Model
+export class ArrowHead extends Annotation
   type: 'ArrowHead'
 
   initialize: (options) ->

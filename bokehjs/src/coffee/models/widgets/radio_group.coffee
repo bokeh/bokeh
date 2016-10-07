@@ -3,10 +3,9 @@ import * as $ from "jquery"
 
 import * as p from "../../core/properties"
 
-import * as Widget from "./widget"
+import {Widget, WidgetView} from "./widget"
 
-
-class RadioGroupView extends Widget.View
+export class RadioGroupView extends WidgetView
   tagName: "div"
   events:
     "change input": "change_input"
@@ -42,7 +41,7 @@ class RadioGroupView extends Widget.View
     @model.callback?.execute(@model)
 
 
-class RadioGroup extends Widget.Model
+export class RadioGroup extends Widget
   type: "RadioGroup"
   default_view: RadioGroupView
 
@@ -52,8 +51,3 @@ class RadioGroup extends Widget.Model
       inline:   [ p.Bool,  false ]
       callback: [ p.Instance ]
     }
-
-export {
-  RadioGroup as Model
-  RadioGroupView as View
-}

@@ -1,8 +1,8 @@
-import * as TextAnnotation from "./text_annotation"
+import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import * as p from "../../core/properties"
 import * as Visuals from "../../core/visuals"
 
-class TitleView extends TextAnnotation.View
+export class TitleView extends TextAnnotationView
 
   initialize: (options) ->
     super(options)
@@ -68,7 +68,7 @@ class TitleView extends TextAnnotation.View
       @visuals.text.set_value(ctx)
       return ctx.measureText(text).ascent + 10
 
-class Title extends TextAnnotation.Model
+export class Title extends TextAnnotation
   default_view: TitleView
 
   type: 'Title'
@@ -97,8 +97,3 @@ class Title extends TextAnnotation.Model
     text_align:    [ p.TextAlign,     'left'  ]
     text_baseline: [ p.TextBaseline, 'bottom' ]
   }
-
-export {
-  Title as Model
-  TitleView as View
-}

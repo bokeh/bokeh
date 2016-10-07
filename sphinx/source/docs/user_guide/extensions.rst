@@ -92,11 +92,11 @@ extensions in the next section.
 
     # We will subclass in JavaScript from the same class that was subclassed
     # from in Python
-    LayoutDOM = require "models/layouts/layout_dom"
+    {LayoutDOM, LayoutDOMView} = require "models/layouts/layout_dom"
 
     # This model will actually need to render things, so we must provide
     # view. The LayoutDOM model has a view already, so we will start with that
-    class CustomView extends LayoutDOM.View
+    class CustomView extends LayoutDOMView
 
       initialize: (options) ->
         super(options)
@@ -115,7 +115,7 @@ extensions in the next section.
         @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
         @$('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
 
-    class Custom extends LayoutDOM.Model
+    class Custom extends LayoutDOM
 
       # If there is an associated view, this is boilerplate.
       default_view: CustomView
@@ -136,9 +136,10 @@ extensions in the next section.
 
     # This is boilerplate. Every implementation should export a Model
     # and (when applicable) also a View.
-    module.exports =
-      Model: Custom
-      View: CustomView
+    module.exports = {
+      Custom: Custom
+      CustomView: CustomView
+    }
 
 .. _userguide_extensions_structure_putting_together:
 

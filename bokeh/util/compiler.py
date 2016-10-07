@@ -31,7 +31,7 @@ _plugin_prelude = \
         var exports = Bokeh.require(entry[i]);
 
         if (_.isObject(exports.models)) {
-          Bokeh.Models.register_locations(exports.models);
+          Bokeh.Models.register_models(exports.models);
         }
 
         _.extend(Bokeh, _.omit(exports, "models"));
@@ -74,7 +74,7 @@ _style_template = \
 """
 
 _export_template = \
-""""%(name)s": require("%(module)s")"""
+""""%(name)s": require("%(module)s").%(name)s"""
 
 _module_template = \
 """"%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""

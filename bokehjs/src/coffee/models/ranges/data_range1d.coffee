@@ -1,11 +1,11 @@
 import * as _ from "underscore"
 
-import * as DataRange from "./data_range"
+import {DataRange} from "./data_range"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as bbox from "../../core/util/bbox"
 
-class DataRange1d extends DataRange.Model
+export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
@@ -150,9 +150,3 @@ class DataRange1d extends DataRange.Model
       follow_interval: @_initial_follow_interval
       default_span: @_initial_default_span
     })
-
-
-
-export {
-  DataRange1d as Model
-}

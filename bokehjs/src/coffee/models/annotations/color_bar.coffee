@@ -1,12 +1,12 @@
 import * as _ from "underscore"
 
-import * as Annotation from "./annotation"
-import * as BasicTicker from "../tickers/basic_ticker"
-import * as BasicTickFormatter from "../formatters/basic_tick_formatter"
-import * as LinearColorMapper from "../mappers/linear_color_mapper"
-import * as LinearMapper from "../mappers/linear_mapper"
-import * as LogMapper from "../mappers/log_mapper"
-import * as Range1d from "../ranges/range1d"
+import {Annotation, AnnotationView} from "./annotation"
+import {BasicTicker} from "../tickers/basic_ticker"
+import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
+import {LinearColorMapper} from "../mappers/linear_color_mapper"
+import {LinearMapper} from "../mappers/linear_mapper"
+import {LogMapper} from "../mappers/log_mapper"
+import {Range1d} from "../ranges/range1d"
 
 import * as p from "../../core/properties"
 import * as text_util from "../../core/util/text"
@@ -15,7 +15,7 @@ SHORT_DIM = 25
 LONG_DIM_MIN_SCALAR = 0.3
 LONG_DIM_MAX_SCALAR = 0.8
 
-class ColorBarView extends Annotation.View
+export class ColorBarView extends AnnotationView
   initialize: (options) ->
     super(options)
     @_set_canvas_image()
@@ -61,7 +61,7 @@ class ColorBarView extends Annotation.View
     # We always want to draw the entire palette linearly, so we create a new
     # LinearColorMapper instance and map a monotonic range of values with
     # length = palette.length to get each palette color in order.
-    cmap = new LinearColorMapper.Model({palette: palette})
+    cmap = new LinearColorMapper({palette: palette})
     buf = cmap.v_map_screen([0...palette.length])
     buf8 = new Uint8ClampedArray(buf)
     image_data.data.set(buf8)
@@ -302,7 +302,7 @@ class ColorBarView extends Annotation.View
     y = @model.padding + @model._title_extent()
     return {x: x, y: y}
 
-class ColorBar extends Annotation.Model
+export class ColorBar extends Annotation
   default_view: ColorBarView
   type: 'ColorBar'
 
@@ -324,8 +324,8 @@ class ColorBar extends Annotation.Model
       height:  [ p.Any,            'auto'      ]
       width:   [ p.Any,            'auto'      ]
       scale_alpha:    [ p.Number,         1.0         ]
-      ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
-      formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
+      ticker:         [ p.Instance,    () -> new BasicTicker()         ]
+      formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
       margin:  [ p.Number,         30          ]
@@ -444,18 +444,18 @@ class ColorBar extends Annotation.Model
     ###
 
     mapping = {
-      'source_range': new Range1d.Model({
+      'source_range': new Range1d({
         start: @color_mapper.low
         end: @color_mapper.high
       })
-      'target_range': new Range1d.Model({
+      'target_range': new Range1d({
         start: 0
         end: scale_length})
     }
 
     switch @color_mapper.type
-      when "LinearColorMapper" then mapper = new LinearMapper.Model(mapping)
-      when "LogColorMapper" then mapper = new LogMapper.Model(mapping)
+      when "LinearColorMapper" then mapper = new LinearMapper(mapping)
+      when "LogColorMapper" then mapper = new LogMapper(mapping)
 
     return mapper
 
@@ -505,8 +505,3 @@ class ColorBar extends Annotation.Model
       "minor": minor_coords
       "major_labels": major_labels
     }
-
-export {
-  ColorBar as Model
-  ColorBarView as View
-}

@@ -8,7 +8,7 @@ import * as p from "../../core/properties"
 import {BokehView} from "../../core/bokeh_view"
 import {Model} from "../../model"
 
-class CellEditorView extends BokehView
+export class CellEditorView extends BokehView
 
   tagName: "div"
   attributes:
@@ -84,11 +84,11 @@ class CellEditorView extends BokehView
 
   validate: () -> return @validateValue(@getValue())
 
-class CellEditor extends Model
+export class CellEditor extends Model
   type: "CellEditor"
   default_view: CellEditorView
 
-class StringEditorView extends CellEditorView
+export class StringEditorView extends CellEditorView
 
   emptyValue: ""
 
@@ -106,20 +106,20 @@ class StringEditorView extends CellEditorView
     @$input[0].defaultValue = @defaultValue
     @$input.select()
 
-class StringEditor extends CellEditor
+export class StringEditor extends CellEditor
   type: 'StringEditor'
   default_view: StringEditorView
   @define {
     completions: [ p.Array, [] ]
   }
 
-class TextEditorView extends CellEditorView
+export class TextEditorView extends CellEditorView
 
-class TextEditor extends CellEditor
+export class TextEditor extends CellEditor
   type: 'TextEditor'
   default_view: TextEditorView
 
-class SelectEditorView extends CellEditorView
+export class SelectEditorView extends CellEditorView
 
   input: '<select />'
 
@@ -132,20 +132,20 @@ class SelectEditorView extends CellEditorView
     super(item)
     @$input.select()
 
-class SelectEditor extends CellEditor
+export class SelectEditor extends CellEditor
   type: 'SelectEditor'
   default_view: SelectEditorView
   @define {
     options: [ p.Array, [] ]
   }
 
-class PercentEditorView extends CellEditorView
+export class PercentEditorView extends CellEditorView
 
-class PercentEditor extends CellEditor
+export class PercentEditor extends CellEditor
   type: 'PercentEditor'
   default_view: PercentEditorView
 
-class CheckboxEditorView extends CellEditorView
+export class CheckboxEditorView extends CellEditorView
 
   input: '<input type="checkbox" value="true" />'
 
@@ -158,11 +158,11 @@ class CheckboxEditorView extends CellEditorView
   serializeValue: () ->
     return @$input.prop('checked')
 
-class CheckboxEditor extends CellEditor
+export class CheckboxEditor extends CellEditor
   type: 'CheckboxEditor'
   default_view: CheckboxEditorView
 
-class IntEditorView extends CellEditorView
+export class IntEditorView extends CellEditorView
 
   input: '<input type="text" />'
 
@@ -188,14 +188,14 @@ class IntEditorView extends CellEditorView
     else
       return super(value)
 
-class IntEditor extends CellEditor
+export class IntEditor extends CellEditor
   type: 'IntEditor'
   default_view: IntEditorView
   @define {
     step: [ p.Number, 1 ]
   }
 
-class NumberEditorView extends CellEditorView
+export class NumberEditorView extends CellEditorView
 
   input: '<input type="text" />'
 
@@ -221,20 +221,20 @@ class NumberEditorView extends CellEditorView
     else
       return super(value)
 
-class NumberEditor extends CellEditor
+export class NumberEditor extends CellEditor
   type: 'NumberEditor'
   default_view: NumberEditorView
   @define {
     step: [ p.Number, 0.01 ]
   }
 
-class TimeEditorView extends CellEditorView
+export class TimeEditorView extends CellEditorView
 
-class TimeEditor extends CellEditor
+export class TimeEditor extends CellEditor
   type: 'TimeEditor'
   default_view: TimeEditorView
 
-class DateEditorView extends CellEditorView
+export class DateEditorView extends CellEditorView
 
   emptyValue: new window.Date()
 
@@ -277,51 +277,6 @@ class DateEditorView extends CellEditorView
 
   setValue: (val) -> @$input.datepicker("setDate", new window.Date(val))
 
-class DateEditor extends CellEditor
+export class DateEditor extends CellEditor
   type: 'DateEditor'
   default_view: DateEditorView
-
-export String = {
-  Model: StringEditor
-  View: StringEditorView
-}
-
-export Text = {
-  Model: TextEditor
-  View: TextEditorView
-}
-
-export Select = {
-  Model: SelectEditor
-  View: SelectEditorView
-}
-
-export Percent = {
-  Model: PercentEditor
-  View: PercentEditorView
-}
-
-export Checkbox = {
-  Model: CheckboxEditor
-  View: CheckboxEditorView
-}
-
-export Int = {
-  Model: IntEditor
-  View: IntEditorView
-}
-
-export Number = {
-  Model: NumberEditor
-  View: NumberEditorView
-}
-
-export Time = {
-  Model: TimeEditor
-  View: TimeEditorView
-}
-
-export Date = {
-  Model: DateEditor
-  View: DateEditorView
-}
