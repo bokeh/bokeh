@@ -1,9 +1,3 @@
-2016-10-07   0.12.3:
---------------------
-  * tasks:
-    - #5258 [component: docs] Double ended sliders extension example
-    - #5319 [component: docs] Issues release notes
-
 2016-10-05 0.12.3rc5:
 --------------------
   * bugfixes:
