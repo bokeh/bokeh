@@ -1,15 +1,15 @@
 import "./core/util/underscore"
 
-module.exports = exports = Bokeh = {}
+export {require}
+export {version} from "./version"
 
-Bokeh.require = require
-Bokeh.version = require("./version")
+import * as _ from "underscore"
+import * as $ from "jquery"
+export {_, $}
 
-# binding the libs that bokeh uses so others can reference them
-Bokeh._                 = require("underscore")
-Bokeh.$                 = require("jquery")
+import * as embed from "./embed"
+export {embed}
 
 export {logger, set_log_level} from "./core/logging"
-export {Models, index} from "./base"
-Bokeh.embed             = require("./embed")
-export {safely} from "./safely"
+export {Models, index}         from "./base"
+export {safely}                from "./safely"
