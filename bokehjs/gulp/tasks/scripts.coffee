@@ -74,8 +74,26 @@ tsjsOpts = {
 }
 
 gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
+  error = (err) ->
+    if not argv.tsjs?
+      return
+    msg = err.message
+    if typeof argv.tsjs == "string"
+      keywords = argv.tsjs.split(",")
+      for keyword in keywords
+        must = true
+        if keyword[0] == "^"
+          keyword = keyword[1..]
+          must = false
+
+        if keyword == "__super__"
+          debugger;
+        found = msg.indexOf(keyword) != -1
+        if not ((found and must) or (not found and not must))
+          return
+    gutil.log(msg)
   gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
-      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', (err) -> if argv.tsjs then gutil.log(err.message)))
+      .pipe(ts(tsjsOpts, {}, ts.reporter.nullReporter()).on('error', error))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:tsjs"]
