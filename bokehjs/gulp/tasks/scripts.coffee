@@ -72,9 +72,6 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scrip
         if keyword[0] == "^"
           keyword = keyword[1..]
           must = false
-
-        if keyword == "__super__"
-          debugger;
         found = msg.indexOf(keyword) != -1
         if not ((found and must) or (not found and not must))
           return
