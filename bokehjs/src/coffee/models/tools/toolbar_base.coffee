@@ -9,11 +9,9 @@ import * as p from "../../core/properties"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 import {ActionToolButtonView} from "./actions/action_tool"
-import {HelpToolButtonView} from "./actions/help_tool"
 import {GestureToolButtonView} from "./gestures/gesture_tool"
 import {InspectToolListItemView} from "./inspectors/inspect_tool"
 import toolbar_template from "./toolbar_template"
-
 
 export class ToolbarBaseView extends LayoutDOMView
   className: "bk-toolbar-wrapper"
