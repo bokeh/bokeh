@@ -270,15 +270,22 @@ def gen_custom_models_static():
         resolved = {}
         for module in to_resolve:
             if module.startswith(("./", "../")):
-                def mkpath(ext):
-                    return abspath(join(root, *module.split("/")) + "." + ext)
+                exts = (".js", ".coffee", ".eco", ".css", ".less")
 
-                for ext in ["js", "coffee", "eco", "css", "less"]:
-                    path = mkpath(ext)
-                    if exists(path):
-                        break
+                def mkpath(module, ext=""):
+                    return abspath(join(root, *module.split("/")) + ext)
+
+                if module.endswith(exts):
+                    path = mkpath(module)
+                    if not exists(path):
+                        raise RuntimeError("no such module: %s" % module)
                 else:
-                    raise RuntimeError("no such module: %s" % module)
+                    for ext in exts:
+                        path = mkpath(module, ext)
+                        if exists(path):
+                            break
+                    else:
+                        raise RuntimeError("no such module: %s" % module)
 
                 impl = FromFile(path)
                 compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)

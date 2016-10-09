@@ -25,7 +25,7 @@ class MyRow(Row):
     __implementation__ = """
 import {Row, RowView} from "models/layouts/row"
 import * as p from "core/properties"
-import "./custom"
+import "./custom.less"
 
 export class MyRowView extends RowView
   render: () ->
