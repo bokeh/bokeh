@@ -25,8 +25,8 @@ export class DrawToolView extends GestureToolView
     if not frame.contains(vx, vy)
       return null
 
-    x = frame.x_mappers.default.map_from_target(vx)
-    y = frame.y_mappers.default.map_from_target(vy)
+    x = frame.x_mappers['default'].map_from_target(vx)
+    y = frame.y_mappers['default'].map_from_target(vy)
 
     @model.source.data.x.push(x)
     @model.source.data.y.push(y)
