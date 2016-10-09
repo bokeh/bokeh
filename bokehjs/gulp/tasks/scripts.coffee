@@ -160,6 +160,12 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
     modulesPath = path.join(paths.buildDir.js, "modules.json")
     fs.writeFile(modulesPath, JSON.stringify(data), () -> next())
 
+  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> writeLabels(cb))))
+  null # XXX: this is extremely important to allow cb() to work
+
+gulp.task "scripts:build", ["scripts:bundle"]
+
+gulp.task "compiler:build", ->
   compilerOpts = {
     entries: [path.resolve(path.join('src', 'js', 'compile.coffee'))]
     extensions: [".js", ".coffee"]
@@ -174,19 +180,11 @@ gulp.task "scripts:bundle", ["scripts:compile"], (cb) ->
      Buffer: undefined
     }
   }
-  compiler = browserify(compilerOpts)
-  buildCompiler = (next) ->
-    compiler
-      .transform("coffeeify")
-      .bundle()
-      .pipe(source("compile.js"))
-      .pipe(gulp.dest(paths.buildDir.js))
-      .on 'end', () -> next()
-
-  buildBokehjs(() -> buildAPI(() -> buildWidgets(() -> writeLabels(() -> buildCompiler(cb)))))
-  null # XXX: this is extremely important to allow cb() to work
-
-gulp.task "scripts:build", ["scripts:bundle"]
+  browserify(compilerOpts)
+    .transform("coffeeify")
+    .bundle()
+    .pipe(source("compile.js"))
+    .pipe(gulp.dest(paths.buildDir.js))
 
 gulp.task "scripts:minify", ["scripts:bundle"], ->
   tasks = [paths.coffee.bokehjs, paths.coffee.api, paths.coffee.widgets].map (entry) ->
@@ -198,4 +196,4 @@ gulp.task "scripts:minify", ["scripts:bundle"], ->
       .pipe(gulp.dest(paths.buildDir.js))
   es.merge.apply(null, tasks)
 
-gulp.task "scripts", ["scripts:build", "scripts:minify"]
+gulp.task "scripts", ["scripts:build", "scripts:minify", "compiler:build"]
