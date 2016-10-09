@@ -65,7 +65,6 @@
     "coffee-script": "^1.10.0",
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
-    "acorn": "^3.3.0",
     "less": "^2.7.1",
     "request": "^2.74.0"
   },
