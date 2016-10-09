@@ -19,11 +19,11 @@ JS_CODE = """
 # Pandas, etc.) to web presentations using the Bokeh server.
 
 # These "require" lines are similar to python "import" statements
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-p = require "core/properties"
-{LayoutDOM, LayoutDOMView} = require "models/layouts/layout_dom"
+import * as p from "core/properties"
+import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
 # This defines some default options for the Graph3d feature of vis.js
 # See: http://visjs.org/graph3d_examples.html for more details.
@@ -50,7 +50,7 @@ OPTIONS =
 #
 # In this case we will subclass from the existing BokehJS ``LayoutDOMView``,
 # corresponding to our
-class Surface3dView extends LayoutDOMView
+export class Surface3dView extends LayoutDOMView
 
   initialize: (options) ->
     super(options)
@@ -93,8 +93,8 @@ class Surface3dView extends LayoutDOMView
 # We must also create a corresponding JavaScript Backbone model sublcass to
 # correspond to the python Bokeh model subclass. In this case, since we want
 # an element that can position itself in the DOM according to a Bokeh layout,
-# we subclass from ``LayoutDOM.model``
-class Surface3d extends LayoutDOM
+# we subclass from ``LayoutDOM``
+export class Surface3d extends LayoutDOM
 
   # This is usually boilerplate. In some cases there may not be a view.
   default_view: Surface3dView
@@ -115,13 +115,6 @@ class Surface3d extends LayoutDOM
     color:       [ p.String           ]
     data_source: [ p.Instance         ]
   }
-
-# This is boilerplate. Every implementation should "export" a ``Model``
-# and (when applicable) also a ``View``.
-module.exports = {
-  Surface3d: Surface3d
-  Surface3dView: Surface3dView
-}
 """
 
 # This custom extension model will have a DOM view that should layout-able in

@@ -90,7 +90,7 @@ compile_and_resolve_deps = (input) ->
       code = input.code
     when "eco"
       try
-        code = "module.exports = #{eco.compile(input.code)};"
+        code = "export default #{eco.compile(input.code)};"
       catch error
         return reply({error: mkCoffeescriptError(error, input.file)})
     when "less"

@@ -20,11 +20,11 @@ class DateGapTickFormatter(TickFormatter):
     """)
 
     __implementation__ = """
-        _ = require "underscore"
-        {Model} = require "model"
-        p = require "core/properties"
+        import * as _ from "underscore"
+        import {Model} from "model"
+        import * as p from "core/properties"
 
-        class DateGapTickFormatter extends Model
+        export class DateGapTickFormatter extends Model
           type: 'DateGapTickFormatter'
 
           doFormat: (ticks) ->
@@ -34,10 +34,6 @@ class DateGapTickFormatter(TickFormatter):
           @define {
             date_labels: [ p.Any ]
           }
-
-        module.exports = {
-          DateGapTickFormatter: DateGapTickFormatter
-        }
     """
 
 df = pd.DataFrame(MSFT)[:50]

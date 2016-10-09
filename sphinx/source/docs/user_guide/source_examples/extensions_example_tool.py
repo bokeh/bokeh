@@ -6,10 +6,10 @@ from bokeh.plotting import figure
 output_file('tool.html')
 
 JS_CODE = """
-p = require "core/properties"
-{GestureTool, GestureToolView} = require "models/tools/gestures/gesture_tool"
+import * as p from "core/properties"
+import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"
 
-class DrawToolView extends GestureToolView
+export class DrawToolView extends GestureToolView
 
   # this is executed when the pan/drag event starts
   _pan_start: (e) ->
@@ -35,7 +35,7 @@ class DrawToolView extends GestureToolView
   # this is executed then the pan/drag ends
   _pan_end: (e) -> return null
 
-class DrawTool extends GestureTool
+export class DrawTool extends GestureTool
   default_view: DrawToolView
   type: "DrawTool"
 
@@ -45,11 +45,6 @@ class DrawTool extends GestureTool
   default_order: 12
 
   @define { source: [ p.Instance ] }
-
-module.exports = {
-  DrawTool: DrawTool
-  DrawToolView: DrawToolView
-}
 """
 
 class DrawTool(Tool):

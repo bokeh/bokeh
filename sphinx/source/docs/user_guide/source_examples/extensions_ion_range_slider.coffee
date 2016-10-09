@@ -1,18 +1,18 @@
 # These are similar to python imports. BokehJS vendors its own versions
 # of Underscore and JQuery. They are available as show here.
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 # The "core/properties" module has all the property types
-p = require "core/properties"
+import * as p from "core/properties"
 
 # We will subclass in JavaScript from the same class that was subclassed
 # from in Python
-InputWidget = require "models/widgets/input_widget"
-ionslidertemplate = require("./extensions_ion_range_slider_template")
+import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
+import ionslidertemplate from "./extensions_ion_range_slider_template"
 
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that
-class IonRangeSliderView extends InputWidget.View
+export class IonRangeSliderView extends InputWidgetView
   tagName: "div"
   template: ionslidertemplate
 
@@ -31,7 +31,6 @@ class IonRangeSliderView extends InputWidget.View
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()
-
 
   render: () ->
     # Backbone Views create <div> elements by default, accessible as @$el.
@@ -79,8 +78,7 @@ class IonRangeSliderView extends InputWidget.View
     @model.range = range
     if @callbackWrapper then @callbackWrapper()
 
-
-class IonRangeSlider extends InputWidget.Model
+export class IonRangeSlider extends InputWidget
 
   # If there is an associated view, this is boilerplate.
   default_view: IonRangeSliderView
@@ -103,9 +101,3 @@ class IonRangeSlider extends InputWidget.Model
       callback_throttle: [ p.Number,      200          ]
       callback_policy:   [ p.String,      "throttle"   ]
   }
-
-# This is boilerplate. Every implementation should export a Model
-# and (when applicable) also a View.
-module.exports =
-  Model: IonRangeSlider
-  View: IonRangeSliderView

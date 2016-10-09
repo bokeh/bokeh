@@ -3,9 +3,9 @@ from bokeh.models import TickFormatter
 from bokeh.plotting import figure
 
 JS_CODE = """
-{TickFormatter} = require "models/formatters/tick_formatter"
+import {TickFormatter} from "models/formatters/tick_formatter"
 
-class MyFormatter extends TickFormatter
+export class MyFormatter extends TickFormatter
   type: "MyFormatter"
 
   # TickFormatters should implement this method, which accepts a lisst
@@ -19,10 +19,6 @@ class MyFormatter extends TickFormatter
        formatted.push("+#{(ticks[i]-ticks[0]).toPrecision(2)}")
 
     return formatted
-
-module.exports = {
-  MyFormatter: MyFormatter
-}
 """
 
 class MyFormatter(TickFormatter):

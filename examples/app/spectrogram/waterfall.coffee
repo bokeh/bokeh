@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p = require "core/properties"
-{DataSource} = require "models/sources/data_source"
-{LinearColorMapper} = require "models/mappers/linear_color_mapper"
+import * as p from "core/properties"
+import {DataSource} from "models/sources/data_source"
+import {LinearColorMapper} from "models/mappers/linear_color_mapper"
 
-class WaterfallSource extends DataSource
+export class WaterfallSource extends DataSource
   type: 'WaterfallSource'
 
   initialize: (attrs, options) ->
@@ -75,7 +75,3 @@ class WaterfallSource extends DataSource
     column_names: [ p.Array, [] ]
     inspected:    [ p.Any       ]
   }
-
-module.exports = {
-  WaterfallSource: WaterfallSource
-}
