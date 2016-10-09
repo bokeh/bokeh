@@ -148,6 +148,12 @@ class CoffeeScript(Inline):
     def lang(self):
         return "coffeescript"
 
+class TypeScript(Inline):
+
+    @property
+    def lang(self):
+        return "typescript"
+
 class JavaScript(Inline):
 
     @property
@@ -177,12 +183,16 @@ class FromFile(Implementation):
     def lang(self):
         if self.file.endswith(".coffee"):
             return "coffeescript"
+        if self.file.endswith(".ts"):
+            return "typescript"
         if self.file.endswith(".js"):
             return "javascript"
         if self.file.endswith(".eco"):
             return "eco"
         if self.file.endswith((".css", ".less")):
             return "less"
+
+exts = (".coffee", ".ts", ".js", ".eco", ".css", ".less")
 
 class CustomModel(object):
     def __init__(self, cls):
@@ -218,7 +228,7 @@ class CustomModel(object):
         impl = self.cls.__implementation__
 
         if isinstance(impl, six.string_types):
-            if "\n" not in impl and impl.endswith((".coffee", ".js", ".eco", ".css", ".less")):
+            if "\n" not in impl and impl.endswith(exts):
                 impl = FromFile(join(self.path, impl))
             else:
                 impl = CoffeeScript(impl)
@@ -270,8 +280,6 @@ def gen_custom_models_static():
         resolved = {}
         for module in to_resolve:
             if module.startswith(("./", "../")):
-                exts = (".js", ".coffee", ".eco", ".css", ".less")
-
                 def mkpath(module, ext=""):
                     return abspath(join(root, *module.split("/")) + ext)
 
