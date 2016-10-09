@@ -21,7 +21,7 @@ def deprecated(since_or_msg, old=None, new=None, extra=None):
         message = "%(old)s was deprecated in Bokeh %(since)s and will be removed, use %(new)s instead."
         message = message % dict(old=old, since=since, new=new)
         if extra is not None:
-            message += " " + extra.trim()
+            message += " " + extra.strip()
     elif isinstance(since_or_msg, six.string_types):
         if not (old is None and new is None and extra is None):
             raise ValueError("deprecated(message) signature doesn't allow extra arguments")
