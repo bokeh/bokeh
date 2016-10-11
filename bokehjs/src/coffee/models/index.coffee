@@ -26,6 +26,9 @@ module.exports = {
   CustomJS:                 require './callbacks/customjs'
   OpenURL:                  require './callbacks/open_url'
 
+  # events
+  UIEvents:                 require './events/ui_events'
+
   # formatters
   BasicTickFormatter:       require './formatters/basic_tick_formatter'
   CategoricalTickFormatter: require './formatters/categorical_tick_formatter'

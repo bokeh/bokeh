@@ -3,18 +3,40 @@ $ = require "jquery"
 Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 
-{Events} = require "./events"
-{logger} = require "./logging"
+Model = require "../../model"
+p = require "../../core/properties"
+{logger} = require "../../core/logging"
 
-class UIEvents
-  _.extend(@prototype, Events)
+class UIEvents extends Model
+  type: 'UIEvents'
 
-  # new (toolbar: Toolbar, hit_area: $Element)
-  constructor: (@toolbar, @hit_area) ->
-    @_configure_hammerjs()
+  @define {
+    on_tap:          [ p.Instance ]
+    on_doubletap:    [ p.Instance ]
+    on_press:        [ p.Instance ]
+    on_pan_start:    [ p.Instance ]
+    on_pan:          [ p.Instance ]
+    on_pan_end:      [ p.Instance ]
+    on_pinch_start:  [ p.Instance ]
+    on_pinch:        [ p.Instance ]
+    on_pinch_end:    [ p.Instance ]
+    on_rotate_start: [ p.Instance ]
+    on_rotate:       [ p.Instance ]
+    on_rotate_end:   [ p.Instance ]
+    on_mouse_enter:  [ p.Instance ]
+    on_mouse_move:   [ p.Instance ]
+    on_mouse_exit:   [ p.Instance ]
+    on_mouse_wheel:  [ p.Instance ]
+    on_key_down:     [ p.Instance ]
+    on_key_up:       [ p.Instance ]
+  }
 
-  _configure_hammerjs: () ->
-    @hammer = new Hammer(@hit_area[0])
+  @internal {
+    plot: [ p.Instance ]
+  }
+
+  configure_hammerjs: (@plot, hit_area) ->
+    @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
     @hammer.get('doubletap').recognizeWith('tap')
@@ -40,10 +62,10 @@ class UIEvents
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    @hit_area.mousemove((e) => @_mouse_move(e))
-    @hit_area.mouseenter((e) => @_mouse_enter(e))
-    @hit_area.mouseleave((e) => @_mouse_exit(e))
-    @hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
+    hit_area.mousemove((e) => @_mouse_move(e))
+    hit_area.mouseenter((e) => @_mouse_enter(e))
+    hit_area.mouseleave((e) => @_mouse_exit(e))
+    hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
 
@@ -108,7 +130,7 @@ class UIEvents
       if event_type == 'scroll'
         base_event_type = 'pinch'
 
-    gestures = @toolbar.gestures
+    gestures = @plot.toolbar.gestures
     active_tool = gestures[base_event_type].active
 
     if active_tool?
@@ -122,6 +144,7 @@ class UIEvents
       @trigger("#{event_type}:#{active_tool.id}", e)
 
   _bokify_hammer: (e) ->
+
     if e.pointerType == 'mouse'
       x = e.srcEvent.pageX
       y = e.srcEvent.pageY
@@ -135,6 +158,10 @@ class UIEvents
       sx: x - left
       sy: y - top
     }
+    xmapper = @plot.plot_canvas.frame.x_mappers['default']
+    ymapper = @plot.plot_canvas.frame.y_mappers['default']
+    e.bokeh["x"] = xmapper.map_to_target(e.bokeh.sx)
+    e.bokeh["y"] = ymapper.map_to_target(e.bokeh.sx)
 
   _bokify_jq: (e) ->
     offset = $(e.currentTarget).offset()
@@ -148,15 +175,18 @@ class UIEvents
   _tap: (e) ->
     @_bokify_hammer(e)
     @_trigger('tap', e)
+    @on_tap?.execute(@, e)
 
   _doubletap: (e) ->
     # NOTE: doubletap event triggered unconditionally
     @_bokify_hammer(e)
     @trigger('doubletap', e)
+    @on_doubletap?.execute(@, e)
 
   _press: (e) ->
     @_bokify_hammer(e)
     @_trigger('press', e)
+    @on_press?.execute(@, e)
 
   _pan_start: (e) ->
     @_bokify_hammer(e)
@@ -164,67 +194,82 @@ class UIEvents
     e.bokeh.sx -= e.deltaX
     e.bokeh.sy -= e.deltaY
     @_trigger('pan:start', e)
+    @on_pan_start?.execute(@, e)
 
   _pan: (e) ->
     @_bokify_hammer(e)
     @_trigger('pan', e)
+    @on_pan?.execute(@, e)
 
   _pan_end: (e) ->
     @_bokify_hammer(e)
     @_trigger('pan:end', e)
+    @on_pan_end?.execute(@, e)
 
   _pinch_start: (e) ->
     @_bokify_hammer(e)
     @_trigger('pinch:start', e)
+    @on_pinch_start?.execute(@, e)
 
   _pinch: (e) ->
     @_bokify_hammer(e)
     @_trigger('pinch', e)
+    @on_pinch?.execute(@, e)
 
   _pinch_end: (e) ->
     @_bokify_hammer(e)
     @_trigger('pinch:end', e)
+    @on_pinch_end?.execute(@, e)
 
   _rotate_start: (e) ->
     @_bokify_hammer(e)
     @_trigger('rotate:start', e)
+    @on_rotate_start?.execute(@, e)
 
   _rotate: (e) ->
     @_bokify_hammer(e)
     @_trigger('rotate', e)
+    @on_rotate?.execute(@, e)
 
   _rotate_end: (e) ->
     @_bokify_hammer(e)
     @_trigger('rotate:end', e)
+    @on_rotate_end?.execute(@, e)
 
   _mouse_enter: (e) ->
     # NOTE: move:enter event triggered unconditionally
     @_bokify_jq(e)
     @trigger('move:enter', e)
+    @on_mouse_enter?.execute(@, e)
 
   _mouse_move: (e) ->
     # NOTE: move event triggered unconditionally
     @_bokify_jq(e)
     @trigger('move', e)
+    @on_mouse_move?.execute(@, e)
 
   _mouse_exit: (e) ->
     # NOTE: move:exit event triggered unconditionally
     @_bokify_jq(e)
     @trigger('move:exit', e)
+    @on_mouse_exit?.execute(@, e)
 
   _mouse_wheel: (e, delta) ->
     @_bokify_jq(e)
     e.bokeh.delta = delta
     @_trigger('scroll', e)
+    @on_mouse_wheel?.execute(@, e)
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
     @trigger('keydown', e)
+    @on_key_down?.execute(@, e)
 
   _key_up: (e) ->
     # NOTE: keyup event triggered unconditionally
     @trigger('keyup', e)
+    @on_key_up?.execute(@, e)
 
 module.exports = {
-  UIEvents: UIEvents
+  Model: UIEvents
 }

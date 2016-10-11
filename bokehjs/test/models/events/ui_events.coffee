@@ -1,12 +1,10 @@
 {expect} = require "chai"
-utils = require "../utils"
+utils = require "../../utils"
 cheerio = require 'cheerio'
 sinon = require 'sinon'
 
-{UIEvents} = utils.require "core/ui_events"
+{UIEvents} = utils.require("models/events/ui_events").Model
 scroll = utils.require "models/tools/gestures/wheel_zoom_tool"
-# Stub out _hammer_element as not used in testing
-sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
 describe "UIEvents", ->
   html = '<body><canvas></canvas></body>'
