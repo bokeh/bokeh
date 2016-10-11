@@ -1,13 +1,13 @@
-_ = require "underscore"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import * as p from "../../core/properties"
 
-ColorMapper = require "./color_mapper"
+import {ColorMapper} from "./color_mapper"
 
 # Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.
 log1p = Math.log1p ? (x) -> Math.log(1 + x)
 
-class LogColorMapper extends ColorMapper.Model
+export class LogColorMapper extends ColorMapper
   type: "LogColorMapper"
 
   @define {
@@ -62,6 +62,3 @@ class LogColorMapper extends ColorMapper.Model
 
       values.push(palette[key])
     return values
-
-module.exports =
-  Model: LogColorMapper

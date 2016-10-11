@@ -1,11 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-GlyphRenderer = require "../renderers/glyph_renderer"
-p = require "../../core/properties"
-{get_text_height} = require "../../core/util/text"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
+import {get_text_height} from "../../core/util/text"
 
-class LegendView extends Annotation.View
+export class LegendView extends AnnotationView
   initialize: (options) ->
     super(options)
 
@@ -156,7 +155,7 @@ class LegendView extends Annotation.View
     y = @model.panel._top._value
     return {x: x, y: -y}
 
-class Legend extends Annotation.Model
+export class Legend extends Annotation
   default_view: LegendView
 
   type: 'Legend'
@@ -194,7 +193,3 @@ class Legend extends Annotation.Model
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }
-
-module.exports =
-  Model: Legend
-  View: LegendView

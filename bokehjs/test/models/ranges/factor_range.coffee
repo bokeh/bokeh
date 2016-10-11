@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-FactorRange = utils.require("models/ranges/factor_range").Model
+{FactorRange} = utils.require("models/ranges/factor_range")
 
 describe "factor_range module", ->
 

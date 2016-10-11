@@ -1,14 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Widget = require "./widget"
-p = require "../../core/properties"
+import {Widget} from "./widget"
+import * as p from "../../core/properties"
 
-class TableWidget extends Widget.Model
+export class TableWidget extends Widget
   type: "TableWidget"
 
   @define {
       source: [ p.Instance ]
     }
-
-module.exports =
-  Model: TableWidget

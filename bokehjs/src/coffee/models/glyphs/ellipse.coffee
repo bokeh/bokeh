@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class EllipseView extends Glyph.View
+export class EllipseView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -66,7 +66,7 @@ class EllipseView extends Glyph.View
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-class Ellipse extends Glyph.Model
+export class Ellipse extends Glyph
   default_view: EllipseView
 
   type: 'Ellipse'
@@ -78,7 +78,3 @@ class Ellipse extends Glyph.Model
       width:  [ p.DistanceSpec     ]
       height: [ p.DistanceSpec     ]
     }
-
-module.exports =
-  Model: Ellipse
-  View: EllipseView

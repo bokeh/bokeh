@@ -1,8 +1,5 @@
-_ = require "underscore"
-Widget = require "./widget"
+import * as _ from "underscore"
+import {Widget} from "./widget"
 
-class AbstractIcon extends Widget.Model
+export class AbstractIcon extends Widget
   type: "AbstractIcon"
-
-module.exports =
-  Model: AbstractIcon

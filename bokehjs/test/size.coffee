@@ -10,7 +10,7 @@ LIMITS = {
   "css/bokeh-widgets.min.css": 527
   "css/bokeh.min.css":         74
   "js/bokeh-widgets.min.js":   290
-  "js/bokeh-api.min.js":        70
+  "js/bokeh-api.min.js":        75
   "js/bokeh.min.js":           780
 }
 

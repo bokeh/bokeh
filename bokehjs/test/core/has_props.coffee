@@ -4,7 +4,7 @@ utils = require "../utils"
 fixtures = require "./fixtures/object"
 
 {Models} = utils.require "base"
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 p = utils.require "core/properties"
 mixins = utils.require "core/property_mixins"
 {Document} = utils.require "document"

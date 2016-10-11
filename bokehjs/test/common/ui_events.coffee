@@ -4,7 +4,7 @@ cheerio = require 'cheerio'
 sinon = require 'sinon'
 
 {UIEvents} = utils.require "core/ui_events"
-scroll = utils.require "models/tools/gestures/wheel_zoom_tool"
+{WheelZoomTool} = utils.require "models/tools/gestures/wheel_zoom_tool"
 # Stub out _hammer_element as not used in testing
 sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
@@ -20,7 +20,7 @@ describe "UIEvents", ->
     @stopPropagation = sinon.spy(e, "stopPropagation")
     @e = e
 
-    @active_scroll = new scroll.Model
+    @active_scroll = new WheelZoomTool()
     @ui_event = new UIEvents()
 
   describe "_trigger_scroll", ->

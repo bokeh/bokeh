@@ -28,7 +28,7 @@ plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
 customjs = CustomJS.from_coffeescript(args=dict(source=source), code="""
-  {get_indices} = require "core/util/selection"
+  import {get_indices} from "core/util/selection"
 
   for i in get_indices(source)
     color = source.data['color'][i]

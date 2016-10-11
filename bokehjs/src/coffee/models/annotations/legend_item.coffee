@@ -1,12 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Model = require "../../model"
+import {Model} from "../../model"
 
-p = require "../../core/properties"
-{logger} = require "../../core/logging"
-ColumnDataSource = require "../../models/sources/column_data_source"
+import * as p from "../../core/properties"
+import {logger} from "../../core/logging"
+import {ColumnDataSource} from "../../models/sources/column_data_source"
 
-class LegendItem extends Model
+export class LegendItem extends Model
   type: "LegendItem"
 
   _check_data_sources_on_renderers: () ->
@@ -63,13 +63,10 @@ class LegendItem extends Model
         source = @renderers[0].data_source
       else
         return ["No source found"]
-      if source instanceof ColumnDataSource.Model
+      if source instanceof ColumnDataSource
         data = source.get_column(field)
         if data?
           return _.unique(data)
         else
           return ["Invalid field"]
     return []
-
-module.exports =
-  Model: LegendItem

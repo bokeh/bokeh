@@ -1,11 +1,11 @@
-$ = require "jquery"
-_ = require "underscore"
+import * as $ from "jquery"
+import * as _ from "underscore"
 
-RemoteDataSource = require "./remote_data_source"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {RemoteDataSource} from "./remote_data_source"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class AjaxDataSource extends RemoteDataSource.Model
+export class AjaxDataSource extends RemoteDataSource
   type: 'AjaxDataSource'
 
   @define {
@@ -55,6 +55,3 @@ class AjaxDataSource extends RemoteDataSource.Model
       logger.error(arguments)
     )
     return null
-
-module.exports =
-  Model: AjaxDataSource

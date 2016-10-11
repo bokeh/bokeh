@@ -10,8 +10,7 @@ compile = (name) ->
     typescript: require('typescript')
   })
   project.src()
-         .pipe(ts(project, {}, reporter).on('error', (err) -> gutil.log(err.message)))
-         .js
+         .pipe(project(reporter).on('error', (err) -> gutil.log(err.message)))
          .pipe(gulp.dest("./examples/#{name}/"))
 
 examples = ["anscombe", "burtin", "charts", "donut", "hover", "legends", "linked", "tap", "stocks"]

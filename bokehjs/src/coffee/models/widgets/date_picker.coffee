@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "jquery-ui/datepicker"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "jquery-ui/datepicker"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 
-class DatePickerView extends InputWidget.View
+export class DatePickerView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
@@ -26,7 +26,7 @@ class DatePickerView extends InputWidget.View
     @model.value = d.toString()
     @model.callback?.execute(@model)
 
-class DatePicker extends InputWidget.Model
+export class DatePicker extends InputWidget
   type: "DatePicker"
   default_view: DatePickerView
 
@@ -36,7 +36,3 @@ class DatePicker extends InputWidget.Model
       min_date: [ p.Any             ]
       max_date: [ p.Any             ]
     }
-
-module.exports =
-  Model: DatePicker
-  View: DatePickerView

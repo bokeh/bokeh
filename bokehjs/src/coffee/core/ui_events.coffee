@@ -1,12 +1,14 @@
-_ = require "underscore"
-$ = require "jquery"
-Hammer = require "hammerjs"
-mousewheel = require("jquery-mousewheel")($)
+import * as _ from "underscore"
+import * as $ from "jquery"
+import * as Hammer from "hammerjs"
 
-{Events} = require "./events"
-{logger} = require "./logging"
+import * as mousewheel from "jquery-mousewheel"
+mousewheel($)
 
-class UIEvents
+import {Events} from "./events"
+import {logger} from "./logging"
+
+export class UIEvents
   _.extend(@prototype, Events)
 
   # new (toolbar: Toolbar, hit_area: $Element)
@@ -224,7 +226,3 @@ class UIEvents
   _key_up: (e) ->
     # NOTE: keyup event triggered unconditionally
     @trigger('keyup', e)
-
-module.exports = {
-  UIEvents: UIEvents
-}

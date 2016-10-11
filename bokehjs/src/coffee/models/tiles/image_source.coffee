@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-Model = require "../../model"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import {Model} from "../../model"
 
-class ImageSource extends Model
+export class ImageSource extends Model
   type: 'ImageSource'
 
   @define {
@@ -43,6 +43,3 @@ class ImageSource extends Model
   get_image_url: (xmin, ymin, xmax, ymax, height, width) ->
     image_url = @string_lookup_replace(@url, @extra_url_vars)
     return image_url.replace("{XMIN}", xmin).replace("{YMIN}", ymin).replace("{XMAX}", xmax).replace("{YMAX}", ymax).replace("{WIDTH}", width).replace("{HEIGHT}", height)
-
-module.exports =
-  Model : ImageSource

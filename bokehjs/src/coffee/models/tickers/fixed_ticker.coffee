@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ContinuousTicker = require "./continuous_ticker"
-p = require "../../core/properties"
+import {ContinuousTicker} from "./continuous_ticker"
+import * as p from "../../core/properties"
 
-class FixedTicker extends ContinuousTicker.Model
+export class FixedTicker extends ContinuousTicker
   type: 'FixedTicker'
 
   @define {
@@ -15,6 +15,3 @@ class FixedTicker extends ContinuousTicker.Model
       major: @ticks
       minor: []
     }
-
-module.exports =
-  Model: FixedTicker

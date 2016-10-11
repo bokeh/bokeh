@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
-GlyphRenderer = require "../../renderers/glyph_renderer"
-{logger} = require "../../../core/logging"
-p = require "../../../core/properties"
+import {GestureTool, GestureToolView} from "./gesture_tool"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {logger} from "../../../core/logging"
+import * as p from "../../../core/properties"
 
-class SelectToolView extends GestureTool.View
+export class SelectToolView extends GestureToolView
 
   _keyup: (e) ->
     if e.keyCode == 27
@@ -47,7 +47,7 @@ class SelectToolView extends GestureTool.View
       tool_events.geometries = geoms
     return null
 
-class SelectTool extends GestureTool.Model
+export class SelectTool extends GestureTool
 
   @define {
       renderers: [ p.Array, [] ]
@@ -68,7 +68,7 @@ class SelectTool extends GestureTool.Model
 
         if renderers.length == 0
           all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
         if names.length > 0
           renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
@@ -81,7 +81,3 @@ class SelectTool extends GestureTool.Model
   @getters {
     computed_renderers: () -> @_get_computed('computed_renderers')
   }
-
-module.exports =
-  Model: SelectTool
-  View: SelectToolView

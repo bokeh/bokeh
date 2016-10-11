@@ -2,18 +2,18 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-TileRenderer = utils.require "models/tiles/tile_renderer"
-TileSource = utils.require "models/tiles/tile_source"
-MercatorTileSource = utils.require "models/tiles/mercator_tile_source"
-TMSTileSource = utils.require "models/tiles/tms_tile_source"
-WMTSTileSource = utils.require "models/tiles/wmts_tile_source"
-QUADKEYTileSource = utils.require "models/tiles/quadkey_tile_source"
-BBoxTileSource = utils.require "models/tiles/bbox_tile_source"
-tile_utils = utils.require "models/tiles/tile_utils"
+{TileRenderer} = utils.require "models/tiles/tile_renderer"
+{TileSource} = utils.require "models/tiles/tile_source"
+{MercatorTileSource} = utils.require "models/tiles/mercator_tile_source"
+{TMSTileSource} = utils.require "models/tiles/tms_tile_source"
+{WMTSTileSource} = utils.require "models/tiles/wmts_tile_source"
+{QUADKEYTileSource} = utils.require "models/tiles/quadkey_tile_source"
+{BBoxTileSource} = utils.require "models/tiles/bbox_tile_source"
+{ProjectionUtils} = utils.require "models/tiles/tile_utils"
 
 describe "projection utils", ->
 
-  utils = new tile_utils.ProjectionUtils()
+  utils = new ProjectionUtils()
   tol = 0.01
 
   it "should convert lat/lng to meters", ->
@@ -142,7 +142,7 @@ describe "tile sources", ->
 
   describe "tms tile source", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    source = new TMSTileSource.Model({url: url})
+    source = new TMSTileSource({url: url})
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -151,7 +151,7 @@ describe "tile sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new TMSTileSource.Model(tile_options)
+      offset_source = new TMSTileSource(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
 
@@ -159,7 +159,7 @@ describe "tile sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new TMSTileSource.Model(tile_options)
+      offset_source = new TMSTileSource(tile_options)
       bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
       expect(bounds).to.include(0)
 
@@ -172,7 +172,7 @@ describe "tile sources", ->
     tile_options =
       url : 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga'
 
-    source = new WMTSTileSource.Model(tile_options)
+    source = new WMTSTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -196,7 +196,7 @@ describe "tile sources", ->
   describe "quadkey tile source", ->
     tile_options =
       url : 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0'
-    source = new QUADKEYTileSource.Model(tile_options)
+    source = new QUADKEYTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -216,7 +216,7 @@ describe "tile sources", ->
   describe "bbox tile source", ->
     tile_options =
       url : 'http://maps.ngdc.noaa.gov/soap/web_mercator/dem_hillshades/MapServer/WMSServer?request=GetMap&service=WMS&styles=default&version=1.3.0&format=image/png&bbox={XMIN},{YMIN},{XMAX},{YMAX}&width=256&height=256&crs=3857&layers=DEM%20Hillshades&BGCOLOR=0x000000&transparent=true'
-    source = new BBoxTileSource.Model(tile_options)
+    source = new BBoxTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -226,7 +226,7 @@ describe "tile sources", ->
       tile_options =
         url : 'http://mock?bbox={xmin},{ymin},{xmax},{ymax}'
 
-      tile_source = new BBoxTileSource.Model(tile_options)
+      tile_source = new BBoxTileSource(tile_options)
       url = tile_source.get_image_url(0,0,0)
       expect(url.indexOf('{xmin}')).to.be.equal(-1)
       expect(url.indexOf('{ymin}')).to.be.equal(-1)
@@ -234,7 +234,7 @@ describe "tile sources", ->
       expect(url.indexOf('{ymax}')).to.be.equal(-1)
 
       tile_options.url = 'http://mock?bbox={XMIN},{YMIN},{XMAX},{YMAX}'
-      tile_source = new BBoxTileSource.Model(tile_options)
+      tile_source = new BBoxTileSource(tile_options)
       url = tile_source.get_image_url(0,0,0)
       expect(url.indexOf('{XMIN}')).to.be.equal(-1)
       expect(url.indexOf('{YMIN}')).to.be.equal(-1)
@@ -312,7 +312,7 @@ describe "tile sources", ->
       tile_options =
         url : 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
 
-      source = new TMSTileSource.Model(tile_options)
+      source = new TMSTileSource(tile_options)
 
       [xmin, ymin, xmax, ymax, level] = [-90.283741, 29.890626, -89.912952,
                                           30.057766, 11]

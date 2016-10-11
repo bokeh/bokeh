@@ -1,8 +1,8 @@
-$ = require "jquery"
+import * as $ from "jquery"
 
 cache = {}
 
-get_text_height = (font) ->
+export get_text_height = (font) ->
   if cache[font]?
     return cache[font]
   text = $('<span>Hg</span>').css({ font: font })
@@ -29,6 +29,3 @@ get_text_height = (font) ->
     div.remove()
   cache[font] = result
   return result
-
-module.exports =
-  get_text_height: get_text_height

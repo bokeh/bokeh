@@ -1,9 +1,9 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
-class SegmentView extends Glyph.View
+export class SegmentView extends GlyphView
 
   _index_data: () ->
     index = rbush()
@@ -36,14 +36,10 @@ class SegmentView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Segment extends Glyph.Model
+export class Segment extends Glyph
   default_view: SegmentView
 
   type: 'Segment'
 
   @coords [['x0', 'y0'], ['x1', 'y1']]
   @mixins ['line']
-
-module.exports =
-  Model: Segment
-  View: SegmentView

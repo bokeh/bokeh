@@ -1,10 +1,10 @@
-_ = require "underscore"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import * as p from "../../core/properties"
 
-Model = require "../../model"
+import {Model} from "../../model"
 
 
-class ColorMapper extends Model
+export class ColorMapper extends Model
   type: "ColorMapper"
 
   @define {
@@ -74,6 +74,3 @@ class ColorMapper extends Model
     for i in [0...palette.length]
       new_palette[i] = _convert(palette[i])
     return new_palette
-
-module.exports =
-  Model: ColorMapper

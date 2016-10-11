@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p = require "../../core/properties"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import {Model} from "../../model"
 
-class CustomJS extends Model
+export class CustomJS extends Model
   type: 'CustomJS'
 
   @define {
@@ -26,6 +26,3 @@ class CustomJS extends Model
     # this relies on _.keys(args) and _.values(args) returning keys and values
     # in the same order
     new Function(_.keys(@args)..., "cb_obj", "cb_data", "require", @code)
-
-module.exports =
-  Model: CustomJS

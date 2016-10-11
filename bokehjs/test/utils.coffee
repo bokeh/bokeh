@@ -1,9 +1,9 @@
 sinon = require 'sinon'
 
 moduleRequire = (name) ->
-  require "#{__dirname}/../src/coffee/#{name}"
+  require "#{__dirname}/../build/js/tree/#{name}"
 
-CanvasView = moduleRequire("models/canvas/canvas").View
+{CanvasView} = moduleRequire("models/canvas/canvas")
 {Solver}  = moduleRequire("core/layout/solver")
 
 stub_canvas = () ->

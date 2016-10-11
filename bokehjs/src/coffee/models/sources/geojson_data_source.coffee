@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ColumnDataSource = require "./column_data_source"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {ColumnDataSource} from "./column_data_source"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class GeoJSONDataSource extends ColumnDataSource.Model
+export class GeoJSONDataSource extends ColumnDataSource
   type: 'GeoJSONDataSource'
 
   @define {
@@ -150,6 +150,3 @@ class GeoJSONDataSource extends ColumnDataSource.Model
         arr_index += 1
 
     return data
-
-module.exports =
-  Model: GeoJSONDataSource

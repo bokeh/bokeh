@@ -3,7 +3,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-GeoJSONDataSource = utils.require("models/sources/geojson_data_source").Model
+{GeoJSONDataSource} = utils.require("models/sources/geojson_data_source")
 
 describe "geojson_data_source module", ->
 

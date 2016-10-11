@@ -2,14 +2,14 @@
 utils = require "../../utils"
 
 {create_glyph_view} = require("./glyph_utils")
-ImageURL = utils.require('models/glyphs/image_url')
+{ImageURL} = utils.require('models/glyphs/image_url')
 
 describe "ImageURL module", ->
 
   describe "ImageURL Model", ->
 
     describe "Default creation", ->
-      r = new ImageURL.Model()
+      r = new ImageURL()
 
       it "should have global_alpha=1.0", ->
         expect(r.global_alpha).to.be.equal 1.0
@@ -29,7 +29,7 @@ describe "ImageURL module", ->
     beforeEach ->
       utils.stub_canvas()
       utils.stub_solver()
-      @image_url = new ImageURL.Model()
+      @image_url = new ImageURL()
 
     it "`_set_data` should correctly set Image src", ->
       # ImageURLView._set_data is called during GlyphRendererView.initialize

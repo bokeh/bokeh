@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {create_glyph_view} = require("./glyph_utils")
-ImageRGBA = utils.require('models/glyphs/image_rgba')
+{ImageRGBA, ImageRGBAView} = utils.require('models/glyphs/image_rgba')
 
 describe "ImageRGBA module", ->
 
@@ -17,9 +17,9 @@ describe "ImageRGBA module", ->
     beforeEach ->
       utils.stub_canvas()
       utils.stub_solver()
-      @stub = sinon.stub(ImageRGBA.View.prototype, '_set_data')
+      @stub = sinon.stub(ImageRGBAView.prototype, '_set_data')
 
-      @image_rgba = new ImageRGBA.Model()
+      @image_rgba = new ImageRGBA()
 
     it "`_map_data` should correctly map data if w and h units are 'data'", ->
       # ImageView._map_data is called by ImageView.map_data

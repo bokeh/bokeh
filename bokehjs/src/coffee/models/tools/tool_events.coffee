@@ -1,14 +1,11 @@
-_ = require "underscore"
-Model = require "../../model"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import {Model} from "../../model"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class ToolEvents extends Model
+export class ToolEvents extends Model
   type: 'ToolEvents'
 
   @define {
     geometries: [ p.Array, [] ]
   }
-
-module.exports =
-  Model: ToolEvents

@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class RectView extends Glyph.View
+export class RectView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -136,7 +136,7 @@ class RectView extends Glyph.View
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-class Rect extends Glyph.Model
+export class Rect extends Glyph
   default_view: RectView
 
   type: 'Rect'
@@ -149,7 +149,3 @@ class Rect extends Glyph.Model
       height: [ p.DistanceSpec       ]
       dilate: [ p.Bool,        false ]
     }
-
-module.exports =
-  Model: Rect
-  View: RectView

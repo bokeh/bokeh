@@ -1,22 +1,18 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Axis = require "./axis"
-ContinuousAxis = require "./continuous_axis"
-LogTickFormatter = require "../formatters/log_tick_formatter"
-LogTicker = require "../tickers/log_ticker"
+import {AxisView} from "./axis"
+import {ContinuousAxis} from "./continuous_axis"
+import {LogTickFormatter} from "../formatters/log_tick_formatter"
+import {LogTicker} from "../tickers/log_ticker"
 
-class LogAxisView extends Axis.View
+export class LogAxisView extends AxisView
 
-class LogAxis extends ContinuousAxis.Model
+export class LogAxis extends ContinuousAxis
   default_view: LogAxisView
 
   type: 'LogAxis'
 
   @override {
-    ticker:    () -> new LogTicker.Model()
-    formatter: () -> new LogTickFormatter.Model()
+    ticker:    () -> new LogTicker()
+    formatter: () -> new LogTickFormatter()
   }
-
-module.exports =
-  Model: LogAxis
-  View: LogAxisView

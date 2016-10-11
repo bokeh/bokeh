@@ -1,7 +1,7 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
 # algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 _cbb = (x0, y0, x1, y1, x2, y2, x3, y3) ->
@@ -64,7 +64,7 @@ _cbb = (x0, y0, x1, y1, x2, y2, x3, y3) ->
     Math.min.apply(null, bounds[1]),
   ]
 
-class BezierView extends Glyph.View
+export class BezierView extends GlyphView
 
   _index_data: () ->
     index = rbush()
@@ -96,14 +96,10 @@ class BezierView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Bezier extends Glyph.Model
+export class Bezier extends Glyph
   default_view: BezierView
 
   type: 'Bezier'
 
   @coords [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
   @mixins ['line']
-
-module.exports =
-  Model: Bezier
-  View: BezierView

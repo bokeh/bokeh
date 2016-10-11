@@ -1,20 +1,17 @@
-_ = require("underscore")
+## api/linalg.ts
+import * as LinAlg from "./api/linalg"; export {LinAlg}
 
-module.exports = {
-  ## api/linalg.ts
-  LinAlg:                                 require("./api/linalg")
+## api/charts.d.ts
+import * as Charts from "./api/charts"; export {Charts}
 
-  ## api/charts.d.ts
-  Charts:                                 require("./api/charts")
+## api/plotting.d.ts
+import * as Plotting from "./api/plotting"; export {Plotting}
 
-  ## api/plotting.d.ts
-  Plotting:                               require("./api/plotting")
+## api/typings/models/document.d.ts
+export {Document} from "./document"
 
-  ## api/typings/models/document.d.ts
-  Document:                               require("./document").Document
+## api/typings/bokeh.d.ts
+import * as sprintf from "sprintf"; export {sprintf}
 
-  ## api/typings/bokeh.d.ts
-  sprintf:                                require("sprintf")
-}
-
-_.extend(module.exports, require("./api/models"))
+## api/typings/models/*.d.ts
+export * from "./api/models"

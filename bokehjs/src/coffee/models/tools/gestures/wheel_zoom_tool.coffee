@@ -1,13 +1,13 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
-{scale_range} = require "../../../core/util/zoom"
-p = require "../../../core/properties"
+import {GestureTool, GestureToolView} from "./gesture_tool"
+import {scale_range} from "../../../core/util/zoom"
+import * as p from "../../../core/properties"
 
 # Here for testing purposes
 document = {} unless document?
 
-class WheelZoomToolView extends GestureTool.View
+export class WheelZoomToolView extends GestureToolView
 
   _pinch: (e) ->
     # TODO (bev) this can probably be done much better
@@ -53,7 +53,7 @@ class WheelZoomToolView extends GestureTool.View
     @plot_view.interactive_timestamp = Date.now()
     return null
 
-class WheelZoomTool extends GestureTool.Model
+export class WheelZoomTool extends GestureTool
   default_view: WheelZoomToolView
   type: "WheelZoomTool"
   tool_name: "Wheel Zoom"
@@ -72,7 +72,3 @@ class WheelZoomTool extends GestureTool.Model
   @internal {
     speed: [ p.Number, 1/600 ]
   }
-
-module.exports =
-  Model: WheelZoomTool
-  View: WheelZoomToolView
