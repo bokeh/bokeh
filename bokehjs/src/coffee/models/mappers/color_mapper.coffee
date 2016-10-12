@@ -9,7 +9,7 @@ export class ColorMapper extends Model
 
   @define {
       palette:       [ p.Any              ] # TODO (bev)
-      nan_color:     [ p.Color, "gray"    ]
+      nan_color:     [ p.Color, "#808080" ]
     }
 
   initialize: (attrs, options) ->
@@ -22,7 +22,7 @@ export class ColorMapper extends Model
     )
 
   v_map_screen: (data) ->
-    values = @_get_values(data, @_palette)
+    values = @_get_values(data, @_palette, true)
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)
 
@@ -49,7 +49,7 @@ export class ColorMapper extends Model
     values = @_get_values(xs, @palette)
     return values
 
-  _get_values: (data, palette) ->
+  _get_values: (data, palette, image_glyph=false) ->
     # Should be defined by subclass
     return []
 

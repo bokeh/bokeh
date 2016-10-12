@@ -17,7 +17,7 @@ export class LogColorMapper extends ColorMapper
       low_color:  [ p.Color  ]
     }
 
-  _get_values: (data, palette) ->
+  _get_values: (data, palette, image_glyph=false) ->
     n = palette.length
     low = @low ? _.min(data)
     high = @high ? _.max(data)
