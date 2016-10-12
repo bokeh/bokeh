@@ -25,7 +25,7 @@ class ColorMapper(Model):
     any of the palettes shown in :ref:`bokeh.palettes`.
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
-    nan_color = Color(default="#808080", help="""
+    nan_color = Color(default="gray", help="""
     Color to be used if data is NaN. Default: 'gray'
     """)
 

@@ -9,7 +9,7 @@ export class ColorMapper extends Model
 
   @define {
       palette:       [ p.Any              ] # TODO (bev)
-      nan_color:     [ p.Color, "#808080" ]
+      nan_color:     [ p.Color, "gray"    ]
     }
 
   initialize: (attrs, options) ->
