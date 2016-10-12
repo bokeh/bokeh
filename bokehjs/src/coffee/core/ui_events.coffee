@@ -12,7 +12,7 @@ export class UIEvents
   _.extend(@prototype, Events)
 
   # new (toolbar: Toolbar, hit_area: $Element)
-  constructor: (@toolbar, @hit_area) ->
+  constructor: (@plot_view, @toolbar, @hit_area) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
@@ -100,6 +100,14 @@ export class UIEvents
         tool_view.listenTo(@, "scroll:#{id}", tool_view["_scroll"])
 
   _trigger: (event_type, e) ->
+    switch event_type
+      when "tap"
+        for view in @plot_view.get_renderer_views()
+          if view.bbox? and view.on_hit?
+            if view.bbox().contains(e.bokeh.sx, e.bokeh.sy)
+              view.on_hit(e.bokeh.sx, e.bokeh.sy)
+              break
+
     base_event_type = event_type.split(":")[0]
 
     # Dual touch hack part 2/2

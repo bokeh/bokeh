@@ -120,9 +120,21 @@ class Legend(Annotation):
     The %s for the legend background style.
     """)
 
+    inactive_props = Include(FillProps, help="""
+    The %s for the legend background style when inactive.
+    """)
+
+    hover_props = Include(FillProps, help="""
+    The %s for the legend background style when hovered.
+    """)
+
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
+    inactive_fill_color = Override(default="grey")
+
+    inactive_fill_alpha = Override(default=0.95)
 
     label_props = Include(TextProps, help="""
     The %s for the legend labels.

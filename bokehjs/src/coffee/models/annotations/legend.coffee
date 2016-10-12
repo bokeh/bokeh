@@ -3,6 +3,7 @@ import * as _ from "underscore"
 import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 import {get_text_height} from "../../core/util/text"
+import {BBox} from "../../core/util/bbox"
 
 export class LegendView extends AnnotationView
   initialize: (options) ->
@@ -87,6 +88,49 @@ export class LegendView extends AnnotationView
 
     return {x: x, y: y, width: legend_width, height: legend_height}
 
+  bbox: () ->
+    {x, y, width, height} = @compute_legend_bbox()
+    return new BBox(x, y, x+width, y+height)
+
+  on_hit: (hx, hy) ->
+    glyph_height = @model.glyph_height
+    glyph_width = @model.glyph_width
+    legend_spacing = @model.spacing
+    label_standoff = @model.label_standoff
+    xoffset = yoffset = @model.padding
+
+    legend_bbox = @compute_legend_bbox()
+    vertical = @model.orientation == "vertical"
+
+    for item in @model.items
+      labels = item.get_labels_list_from_label_prop()
+      field = item.get_field_from_label_prop()
+
+      visible = _.every(item.renderers, (r) -> r.visible)
+
+      for label in labels
+        x1 = legend_bbox.x + xoffset
+        y1 = legend_bbox.y + yoffset
+        x2 = x1 + glyph_width
+        y2 = y1 + glyph_height
+
+        if vertical
+           [w, h] = [legend_bbox.width-2*@model.padding, y2-y1]
+        else
+           [w, h] = [x2-x1, legend_bbox.height-2*@model.padding]
+
+        bbox = new BBox(x1, y1, x1+w, y1+h)
+
+        if bbox.contains(hx, hy)
+          for r in item.renderers
+            r.visible = not r.visible
+          return
+
+        if vertical
+          yoffset += @max_label_height + legend_spacing
+        else
+          xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
   render: () ->
     if @model.items.length == 0
       return
@@ -117,6 +161,7 @@ export class LegendView extends AnnotationView
     legend_spacing = @model.spacing
     label_standoff = @model.label_standoff
     xoffset = yoffset = @model.padding
+    vertical = @model.orientation == "vertical"
 
     for item in @model.items
       labels = item.get_labels_list_from_label_prop()
@@ -125,15 +170,26 @@ export class LegendView extends AnnotationView
       if labels.length == 0
         continue
 
+      visible = _.every(item.renderers, (r) -> r.visible)
+
       for label in labels
         x1 = bbox.x + xoffset
         y1 = bbox.y + yoffset
         x2 = x1 + glyph_width
         y2 = y1 + glyph_height
-        if @model.orientation == "vertical"
+        if vertical
           yoffset += @max_label_height + legend_spacing
         else
           xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+        if not visible
+          ctx.beginPath()
+          if vertical
+            ctx.rect(x1, y1, bbox.width-2*@model.padding, y2-y1)
+          else
+            ctx.rect(x1, y1, x2-x1, bbox.height-2*@model.padding)
+          @visuals.inactive_fill.set_value(ctx)
+          ctx.fill()
 
         @visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
@@ -167,8 +223,7 @@ export class Legend extends Annotation
       legend_names = legend_names.concat(labels)
     return legend_names
 
-
-  @mixins ['text:label_', 'line:border_', 'fill:background_']
+  @mixins ['text:label_', 'fill:inactive_', 'line:border_', 'fill:background_']
 
   @define {
       orientation:    [ p.Orientation,    'vertical'  ]
@@ -190,6 +245,8 @@ export class Legend extends Annotation
     border_line_width: 1
     background_fill_color: "#ffffff"
     background_fill_alpha: 0.95
+    inactive_fill_color: "grey"
+    inactive_fill_alpha: 0.95
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }
