@@ -17,10 +17,6 @@ from .mappers import ColorMapper, LinearColorMapper
 class Glyph(Model):
     """ Base class for all glyph models. """
 
-    visible = Bool(True, help="""
-    Whether the glyph should render or not.
-    """)
-
 class AnnularWedge(Glyph):
     """ Render annular wedges. """
 

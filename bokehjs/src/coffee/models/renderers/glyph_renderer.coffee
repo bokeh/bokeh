@@ -110,7 +110,7 @@ export class GlyphRendererView extends RendererView
       @request_render()
 
   render: () ->
-    if @model.visible == false
+    if not @model.visible
       return
 
     t0 = Date.now()

@@ -29,7 +29,7 @@ class Renderer(Model):
     """)
 
     visible = Bool(default=True, help="""
-    Is the renderer visible. Default: True
+    Is the renderer visible.
     """)
 
 @abstract

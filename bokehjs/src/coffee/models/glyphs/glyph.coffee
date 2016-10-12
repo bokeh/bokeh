@@ -37,16 +37,13 @@ export class GlyphView extends BokehView
       @glglyph.set_visuals_changed()
 
   render: (ctx, indices, data) ->
-    if @model.visible
-      ctx.beginPath()
+    ctx.beginPath()
 
-      if @glglyph?
-        if @glglyph.render(ctx, indices, data)
-          return
+    if @glglyph?
+      if @glglyph.render(ctx, indices, data)
+        return
 
-      @_render(ctx, indices, data)
-
-    return
+    @_render(ctx, indices, data)
 
   bounds: () ->
     if not @index?
@@ -237,10 +234,6 @@ export class Glyph extends Model
       result[y] = [ p.NumberSpec ]
 
     @define(result)
-
-  @define {
-    visible: [ p.Bool, true ]
-  }
 
   @internal {
     x_range_name: [ p.String,      'default' ]
