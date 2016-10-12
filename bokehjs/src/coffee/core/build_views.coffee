@@ -1,6 +1,6 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-build_views = (view_storage, view_models, options, view_types=[]) ->
+export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views
   # convenience function for creating a bunch of views from a spec
   # and storing them in a dictionary keyed off of model id.
@@ -40,17 +40,10 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
 
   return created_views
 
-jQueryUIPrefixer = (el) ->
+export jQueryUIPrefixer = (el) ->
   return unless el.className?
   classList = el.className.split " "
   prefixedClassList = _.map classList, (a) ->
     a = a.trim()
     return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
   return prefixedClassList.join " "
-
-# FIXME Hack to expose jQueryUIPrefixer
-build_views.jQueryUIPrefixer = jQueryUIPrefixer
-
-# FIXME This export is the same as module.exports = build_views
-module.exports =
-  build_views = build_views

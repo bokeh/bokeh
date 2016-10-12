@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-BokehView = require "../../core/bokeh_view"
-Model = require "../../model"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import {BokehView} from "../../core/bokeh_view"
+import {Model} from "../../model"
 
-class ToolView extends BokehView
+export class ToolView extends BokehView
 
   initialize: (options) ->
     super(options)
@@ -29,7 +29,7 @@ class ToolView extends BokehView
   # deactivate is triggered by toolbar ui actions
   deactivate: () ->
 
-class Tool extends Model
+export class Tool extends Model
 
   @getters {
     synthetic_renderers: () -> []
@@ -69,7 +69,3 @@ class Tool extends Model
       vylim = [vr.min, vr.max]
 
     return [vxlim, vylim]
-
-module.exports =
-  Model: Tool
-  View: ToolView

@@ -3,22 +3,22 @@ _ = require "underscore"
 utils = require "../../utils"
 sinon = require 'sinon'
 
-SidePanel = utils.require("core/layout/side_panel").Model
-update_constraints = utils.require("core/layout/side_panel").update_constraints
+{SidePanel} = utils.require("core/layout/side_panel")
+{update_constraints} = utils.require("core/layout/side_panel")
 
 {Document} = utils.require("document")
 
-Annotation = utils.require("models/annotations/annotation").Model
-Axis = utils.require("models/axes/axis").Model
-BasicTicker = utils.require("models/tickers/basic_ticker").Model
-BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Model
-Plot = utils.require("models/plots/plot").Model
-PlotCanvas = utils.require("models/plots/plot_canvas").Model
-PlotView = utils.require("models/plots/plot").View
-Range1d = utils.require("models/ranges/range1d").Model
-Toolbar = utils.require("models/tools/toolbar").Model
+{Annotation} = utils.require("models/annotations/annotation")
+{Axis} = utils.require("models/axes/axis")
+{BasicTicker} = utils.require("models/tickers/basic_ticker")
+{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
+{Plot} = utils.require("models/plots/plot")
+{PlotCanvas} = utils.require("models/plots/plot_canvas")
+{PlotView} = utils.require("models/plots/plot")
+{Range1d} = utils.require("models/ranges/range1d")
+{Toolbar} = utils.require("models/tools/toolbar")
 
-describe "SidePanel.Model", ->
+describe "SidePanel", ->
 
   it "should should return 8 constraints", ->
     p = new SidePanel()

@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-OpenURL = utils.require("models/callbacks/open_url").Model
+{OpenURL} = utils.require("models/callbacks/open_url")
 
-describe "openurl module", ->
+describe "OpenURL", ->
 
   describe "default creation", ->
     r = new OpenURL()

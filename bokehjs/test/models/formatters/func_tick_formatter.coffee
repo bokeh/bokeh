@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-FuncTickFormatter = utils.require("models/formatters/func_tick_formatter").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{FuncTickFormatter} = utils.require("models/formatters/func_tick_formatter")
+{Range1d} = utils.require("models/ranges/range1d")
 
 describe "func_tick_formatter module", ->
 

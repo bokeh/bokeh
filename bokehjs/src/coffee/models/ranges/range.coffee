@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Model = require "../../model"
-p = require "../../core/properties"
+import {Model} from "../../model"
+import * as p from "../../core/properties"
 
-class Range extends Model
+export class Range extends Model
   type: 'Range'
 
   initialize: (options) ->
@@ -24,6 +24,3 @@ class Range extends Model
     the callback, if exists, is executed at completion.
     """
     @trigger('change')
-
-module.exports =
-  Model: Range

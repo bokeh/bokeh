@@ -4,23 +4,23 @@ utils = require "../../utils"
 sinon = require 'sinon'
 
 {Solver, Variable} = utils.require("core/layout/solver")
-update_constraints = utils.require("core/layout/side_panel").update_constraints
+{update_constraints} = utils.require("core/layout/side_panel")
 
 {Document} = utils.require("document")
 
-Axis = utils.require("models/axes/axis").Model
-AxisView = utils.require("models/axes/axis").View
-BasicTicker = utils.require("models/tickers/basic_ticker").Model
-BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Model
-CanvasView = utils.require("models/canvas/canvas").View
-DataRange1d = utils.require("models/ranges/data_range1d").Model
-LayoutCanvas = utils.require("core/layout/layout_canvas").Model
-LinearAxis = utils.require("models/axes/linear_axis").Model
-Plot = utils.require("models/plots/plot").Model
-PlotCanvas = utils.require("models/plots/plot_canvas").Model
-PlotCanvasView = utils.require("models/plots/plot_canvas").View
-Range1d = utils.require("models/ranges/range1d").Model
-Toolbar = utils.require("models/tools/toolbar").Model
+{Axis} = utils.require("models/axes/axis")
+{AxisView} = utils.require("models/axes/axis")
+{BasicTicker} = utils.require("models/tickers/basic_ticker")
+{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
+{CanvasView} = utils.require("models/canvas/canvas")
+{DataRange1d} = utils.require("models/ranges/data_range1d")
+{LayoutCanvas} = utils.require("core/layout/layout_canvas")
+{LinearAxis} = utils.require("models/axes/linear_axis")
+{Plot} = utils.require("models/plots/plot")
+{PlotCanvas} = utils.require("models/plots/plot_canvas")
+{PlotCanvasView} = utils.require("models/plots/plot_canvas")
+{Range1d} = utils.require("models/ranges/range1d")
+{Toolbar} = utils.require("models/tools/toolbar")
 
 # Note: Throughout these tests we've chosen to make a new PlotCanvas, when one
 # has already been made on plot. So we could just as easily have said
@@ -28,7 +28,7 @@ Toolbar = utils.require("models/tools/toolbar").Model
 # tests to just be working with a new PlotCanvas instead of having the greater
 # surface area of what happened during Plot initialization.
 
-describe "PlotCanvas.Model", ->
+describe "PlotCanvas", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -100,7 +100,7 @@ describe "PlotCanvas.Model", ->
       expect(child.get_edit_variables.callCount).to.be.equal 1
 
 
-describe "PlotCanvas.Model constraints", ->
+describe "PlotCanvas constraints", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -145,7 +145,7 @@ describe "PlotCanvas.Model constraints", ->
     for child in children
       expect(child.get_constraints.callCount).to.be.equal 1
 
-describe "PlotCanvas.Model constraints with different layouts", ->
+describe "PlotCanvas constraints with different layouts", ->
 
   beforeEach ->
     @doc = new Document()
@@ -195,7 +195,7 @@ describe "PlotCanvas.Model constraints with different layouts", ->
     expect(plot_canvas._get_side_constraints().length).to.be.equal 4
 
 
-describe "PlotCanvas.View render", ->
+describe "PlotCanvasView render", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -221,7 +221,7 @@ describe "PlotCanvas.View render", ->
     @plot_canvas_view.render()
     expect(spy.calledOnce).to.be.true
 
-describe "PlotCanvas.View resize", ->
+describe "PlotCanvasView resize", ->
   dom_left = 12
   dom_top = 13
   width = 44
@@ -293,7 +293,7 @@ describe "PlotCanvas.View resize", ->
     expect(@plot_canvas_view.resize).to.throw Error
 
 
-describe "PlotCanvas.View update_constraints", ->
+describe "PlotCanvasView update_constraints", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -345,7 +345,7 @@ describe "PlotCanvas.View update_constraints", ->
     expect(@solver_update_stub.callCount).to.be.equal initial_count + 1
 
 
-describe "PlotCanvas.View get_canvas_element", ->
+describe "PlotCanvasView get_canvas_element", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -374,7 +374,7 @@ describe "PlotCanvas.View get_canvas_element", ->
     expect(@plot_canvas_view.canvas_view.get_canvas_element).to.exist
 
 
-describe "PlotCanvas.View dimensions", ->
+describe "PlotCanvasView dimensions", ->
 
   afterEach ->
     utils.unstub_canvas()

@@ -1,10 +1,10 @@
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
-template = require "./markup_template"
+import {Widget, WidgetView} from "./widget"
+import template from "./markup_template"
 
 
-class MarkupView extends Widget.View
+export class MarkupView extends WidgetView
   template: template
 
   initialize: (options) ->
@@ -22,7 +22,7 @@ class MarkupView extends Widget.View
       @$el.width(@model.width)
 
 
-class Markup extends Widget.Model
+export class Markup extends Widget
   type: "Markup"
 
   initialize: (options) ->
@@ -31,7 +31,3 @@ class Markup extends Widget.Model
   @define {
     text: [ p.String, '' ]
   }
-
-module.exports =
-  Model: Markup
-  View: MarkupView

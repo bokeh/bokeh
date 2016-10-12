@@ -1,12 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ContinuousTicker = require "./continuous_ticker"
-{argmin} = require "./util"
-p = require "../../core/properties"
+import {ContinuousTicker} from "./continuous_ticker"
+import {argmin} from "./util"
+import * as p from "../../core/properties"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate
 # for a given range.
-class CompositeTicker extends ContinuousTicker.Model
+export class CompositeTicker extends ContinuousTicker
   type: 'CompositeTicker'
 
   @define {
@@ -56,6 +56,3 @@ class CompositeTicker extends ContinuousTicker.Model
     best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
     ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
     return ticks
-
-module.exports =
-  Model: CompositeTicker

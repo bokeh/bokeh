@@ -8,9 +8,9 @@ from bokeh.models import Label
 from bokeh.plotting import figure, show
 
 JS_CODE = """
-Label = require "models/annotations/label"
+import {Label, LabelView} from "models/annotations/label"
 
-class LatexLabelView extends Label.View
+export class LatexLabelView extends LabelView
   render: () ->
 
     #--- Start of copied section from ``Label.render`` implementation
@@ -49,13 +49,9 @@ class LatexLabelView extends Label.View
     # css can properly style the text
     @_css_text(ctx, latex, sx + @model.x_offset, sy - @model.y_offset, angle)
 
-class LatexLabel extends Label.Model
+export class LatexLabel extends Label
   type: 'LatexLabel'
   default_view: LatexLabelView
-
-module.exports =
-  Model: LatexLabel
-  View: LatexLabelView
 """
 
 class LatexLabel(Label):

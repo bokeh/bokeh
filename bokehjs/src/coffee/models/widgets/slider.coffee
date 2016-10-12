@@ -1,16 +1,15 @@
-_ = require "underscore"
-$2 = require "jquery-ui/slider"
+import * as _ from "underscore"
+import "jquery-ui/slider"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
-Widget = require "./widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
-slidertemplate = require "./slidertemplate"
+import slidertemplate from "./slidertemplate"
 
 
-class SliderView extends InputWidget.View
+export class SliderView extends InputWidgetView
   tagName: "div"
   template: slidertemplate
 
@@ -64,7 +63,7 @@ class SliderView extends InputWidget.View
     @model.value = value
     if @callbackWrapper then @callbackWrapper()
 
-class Slider extends InputWidget.Model
+export class Slider extends InputWidget
   type: "Slider"
   default_view: SliderView
 
@@ -77,7 +76,3 @@ class Slider extends InputWidget.Model
       callback_throttle: [ p.Number,      200          ]
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
-
-module.exports =
-  Model: Slider
-  View: SliderView

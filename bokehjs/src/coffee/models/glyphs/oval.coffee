@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class OvalView extends Glyph.View
+export class OvalView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -75,7 +75,7 @@ class OvalView extends Glyph.View
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-class Oval extends Glyph.Model
+export class Oval extends Glyph
   default_view: OvalView
 
   type: 'Oval'
@@ -87,7 +87,3 @@ class Oval extends Glyph.Model
       width:  [ p.DistanceSpec     ]
       height: [ p.DistanceSpec     ]
     }
-
-module.exports =
-  Model: Oval
-  View: OvalView

@@ -247,14 +247,11 @@ class FuncTickFormatter(TickFormatter):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        wrapped_code = "formatter = () -> %s" % (code,)
-
-        compiled = nodejs_compile(wrapped_code, lang="coffeescript", file="???")
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
         else:
-            wrapped_compiled_code = "%s\nreturn formatter()" % (compiled.code,)
-            return cls(code=wrapped_compiled_code, args=args)
+            return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made

@@ -1,14 +1,14 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "bootstrap/button"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/button"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
-template = require "./button_group_template"
+import {Widget, WidgetView} from "./widget"
+import template from "./button_group_template"
 
 
-class RadioButtonGroupView extends Widget.View
+export class RadioButtonGroupView extends WidgetView
   events:
     "change input": "change_input"
   template: template
@@ -43,7 +43,7 @@ class RadioButtonGroupView extends Widget.View
     @model.active = active[0]
     @model.callback?.execute(@model)
 
-class RadioButtonGroup extends Widget.Model
+export class RadioButtonGroup extends Widget
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
@@ -53,7 +53,3 @@ class RadioButtonGroup extends Widget.Model
       button_type: [ p.String, "default" ]
       callback:    [ p.Instance ]
     }
-
-module.exports =
-  Model: RadioButtonGroup
-  View: RadioButtonGroupView

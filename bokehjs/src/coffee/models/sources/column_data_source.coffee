@@ -1,15 +1,15 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-DataSource = require './data_source'
-hittest = require "../../core/hittest"
-SelectionManager = require "../../core/selection_manager"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {DataSource} from "./data_source"
+import * as hittest from "../../core/hittest"
+import {SelectionManager} from "../../core/selection_manager"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.
 # Each column should be the same length.
-class ColumnDataSource extends DataSource.Model
+export class ColumnDataSource extends DataSource
   type: 'ColumnDataSource'
 
   @define {
@@ -65,6 +65,3 @@ class ColumnDataSource extends DataSource.Model
         data[k][ind] = value
     @setv('data', data, {silent: true})
     @trigger('patch')
-
-module.exports =
-  Model: ColumnDataSource

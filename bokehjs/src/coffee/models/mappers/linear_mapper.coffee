@@ -1,7 +1,7 @@
-Model = require "../../model"
-p = require "../../core/properties"
+import {Model} from "../../model"
+import * as p from "../../core/properties"
 
-class LinearMapper extends Model
+export class LinearMapper extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -56,6 +56,3 @@ class LinearMapper extends Model
     source_range: [ p.Any ]
     target_range: [ p.Any ]
   }
-
-module.exports =
-  Model: LinearMapper

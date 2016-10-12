@@ -3,15 +3,15 @@ utils = require "../../utils"
 sinon = require 'sinon'
 proxyquire = require "proxyquire"
 
-SidePanel = utils.require("core/layout/side_panel").Model
-LinearColorMapper = utils.require("models/mappers/linear_color_mapper").Model
-LinearMapper = utils.require("models/mappers/linear_mapper").Model
-LogColorMapper = utils.require("models/mappers/log_color_mapper").Model
-LogMapper = utils.require("models/mappers/log_mapper").Model
-LogTicker = utils.require("models/tickers/log_ticker").Model
+{SidePanel} = utils.require("core/layout/side_panel")
+{LinearColorMapper} = utils.require("models/mappers/linear_color_mapper")
+{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{LogColorMapper} = utils.require("models/mappers/log_color_mapper")
+{LogMapper} = utils.require("models/mappers/log_mapper")
+{LogTicker} = utils.require("models/tickers/log_ticker")
 {Viridis} = utils.require("api/palettes")
-Plot = utils.require("models/plots/plot").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{Plot} = utils.require("models/plots/plot")
+{Range1d} = utils.require("models/ranges/range1d")
 {Document} = utils.require "document"
 
 ###
@@ -21,8 +21,7 @@ work-around using proxyrequire does some `require` hackery to stub the
 text.get_text_height can be stubbed.
 ###
 textStub = {}
-ColorBar = proxyquire('../../../src/coffee/models/annotations/color_bar',
-                      {"../../core/util/text": textStub})
+{ColorBar, ColorBarView} = proxyquire('../../../build/js/tree/models/annotations/color_bar', {"../../core/util/text": textStub})
 
 describe "ColorBar module", ->
 
@@ -40,16 +39,16 @@ describe "ColorBar module", ->
        y_range: new Range1d({start: 0, end: 1})
     })
 
-    @color_bar = new ColorBar.Model()
+    @color_bar = new ColorBar()
 
-  describe "ColorBar.Model", ->
+  describe "ColorBar", ->
 
     beforeEach ->
       # Stub solver computed values with deterministic frame height and width
       Object.defineProperty(@plot.plot_canvas.frame, 'height', { get: () -> 500 })
       Object.defineProperty(@plot.plot_canvas.frame, 'width', { get: () -> 500 })
 
-    describe "ColorBar.Model._title_extent method", ->
+    describe "ColorBar._title_extent method", ->
 
       it "_title_height should return 0 if there is no title", ->
         title_height = @color_bar._title_extent()
@@ -61,7 +60,7 @@ describe "ColorBar module", ->
         title_height = @color_bar._title_extent()
         expect(title_height).to.be.equal(20)
 
-    describe "ColorBar.Model._tick_extent method", ->
+    describe "ColorBar._tick_extent method", ->
       it "Should return zero if either low or high are unset", ->
         @color_bar.color_mapper = new LinearColorMapper({palette: Viridis.Viridis10})
         expect(@color_bar._tick_extent()).to.be.equal(0)
@@ -71,7 +70,7 @@ describe "ColorBar module", ->
         @color_bar.major_tick_out = 6
         expect(@color_bar._tick_extent()).to.be.equal(6)
 
-    describe "ColorBar.Model._tick_coordinate_mapper method", ->
+    describe "ColorBar._tick_coordinate_mapper method", ->
 
       it "LinearColorMapper should yield LinearMapper instance with correct state", ->
         @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
@@ -85,7 +84,7 @@ describe "ColorBar module", ->
         expect(mapper).to.be.instanceof(LogMapper)
         expect(mapper.mapper_state).to.be.deep.equal [100, 0, 2.302585092994046, 0]
 
-    describe "ColorBar.Model._computed_image_dimensions method", ->
+    describe "ColorBar._computed_image_dimensions method", ->
 
         describe "ColorBar.orientation = 'vertical' in plot frame", ->
 
@@ -193,7 +192,7 @@ describe "ColorBar module", ->
             expect(image_dimensions.width).to.be.equal(480)
             expect(image_dimensions.height).to.be.equal(25)
 
-    describe "ColorBar.Model._tick_coordinates method", ->
+    describe "ColorBar._tick_coordinates method", ->
 
       beforeEach ->
         @plot.add_layout(@color_bar)
@@ -244,13 +243,13 @@ describe "ColorBar module", ->
         expect(tick_coords.major[0]).to.be.deep.equal(new Float64Array([0, 76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
         expect(tick_coords.major_labels).to.be.deep.equal([0, 200, 400, 600, 800, 1000])
 
-  describe "ColorBar.View", ->
+  describe "ColorBarView", ->
 
     afterEach ->
       @_set_canvas_image_stub.restore()
 
     beforeEach ->
-      @_set_canvas_image_stub = sinon.stub(ColorBar.View.prototype, '_set_canvas_image')
+      @_set_canvas_image_stub = sinon.stub(ColorBarView.prototype, '_set_canvas_image')
 
       @color_bar.color_mapper = new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10})
 
@@ -271,31 +270,31 @@ describe "ColorBar module", ->
       @color_bar.color_mapper.palette = Viridis.Viridis3
       expect(@_set_canvas_image_stub.called).to.be.true
 
-    it "ColorBar.View._get_image_offset method", ->
+    it "ColorBarView._get_image_offset method", ->
       @color_bar.title = "I'm a title"
       expect(@color_bar_view._get_image_offset()).to.be.deep.equal({ x: 10, y: 27 })
 
-    it "ColorBar.View._get_label_extent method (orientation='vertical')", ->
+    it "ColorBarView._get_label_extent method (orientation='vertical')", ->
       # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils
       expect(@color_bar_view._get_label_extent()).to.be.equal(6)
 
-    it "ColorBar.View._get_label_extent method (orientation='horizontal')", ->
+    it "ColorBarView._get_label_extent method (orientation='horizontal')", ->
       @color_bar_view.model.orientation = "horizontal"
       expect(@color_bar_view._get_label_extent()).to.be.equal(20)
 
-    it "ColorBar.View.compute_legend_dimensions method (orientation='vertical')", ->
+    it "ColorBarView.compute_legend_dimensions method (orientation='vertical')", ->
       # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils
       @color_bar.height = 100
       @color_bar.width = 25
 
       expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 120, width: 51 })
 
-    it "ColorBar.View.compute_legend_dimensions method (orientation='horizontal')", ->
+    it "ColorBarView.compute_legend_dimensions method (orientation='horizontal')", ->
       @color_bar.orientation = "horizontal"
       @color_bar.height = 25
       @color_bar.width = 100
 
       expect(@color_bar_view.compute_legend_dimensions()).to.be.deep.equal({ height: 65, width: 120 })
 
-    it "ColorBar.View._get_size method", ->
+    it "ColorBarView._get_size method", ->
       expect(@color_bar_view._get_size()).to.be.equal(51)

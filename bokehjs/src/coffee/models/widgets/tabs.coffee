@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "bootstrap/tab"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/tab"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-tabs_template = require "./tabs_template"
-Widget = require "./widget"
+import tabs_template from "./tabs_template"
+import {Widget, WidgetView} from "./widget"
 
-class TabsView extends Widget.View
+export class TabsView extends WidgetView
 
   render: () ->
     super()
@@ -45,7 +45,7 @@ class TabsView extends Widget.View
     @$el.tabs
     return @
 
-class Tabs extends Widget.Model
+export class Tabs extends Widget
   type: "Tabs"
   default_view: TabsView
 
@@ -79,7 +79,3 @@ class Tabs extends Widget.Model
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
     return constraints
-
-module.exports =
-  Model: Tabs
-  View: TabsView

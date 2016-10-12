@@ -1,15 +1,15 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-canvas_template = require "./canvas_template"
-LayoutCanvas = require "../../core/layout/layout_canvas"
+import canvas_template from "./canvas_template"
+import {LayoutCanvas} from "../../core/layout/layout_canvas"
 
-BokehView = require "../../core/bokeh_view"
-{GE, EQ} = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} = require "../../core/util/canvas"
+import {BokehView} from "../../core/bokeh_view"
+import {GE, EQ} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "../../core/util/canvas"
 
-class CanvasView extends BokehView
+export class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
   template: canvas_template
 
@@ -110,7 +110,7 @@ class CanvasView extends BokehView
 
     s.update_variables(trigger)
 
-class Canvas extends LayoutCanvas.Model
+export class Canvas extends LayoutCanvas
   type: 'Canvas'
   default_view: CanvasView
 
@@ -174,7 +174,3 @@ class Canvas extends LayoutCanvas.Model
     constraints.push(EQ(@_width, [-1, @_right]))
     constraints.push(EQ(@_height, [-1, @_top]))
     return constraints
-
-module.exports =
-  Model: Canvas
-  View: CanvasView

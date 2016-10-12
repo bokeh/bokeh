@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-PolyAnnotation = require "../../annotations/poly_annotation"
-p = require "../../../core/properties"
+import {SelectTool, SelectToolView} from "./select_tool"
+import {PolyAnnotation} from "../../annotations/poly_annotation"
+import * as p from "../../../core/properties"
 
-class PolySelectToolView extends SelectTool.View
+export class PolySelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
@@ -64,7 +64,7 @@ class PolySelectToolView extends SelectTool.View
 
     return null
 
-DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
@@ -76,7 +76,7 @@ DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   line_dash: [4, 4]
 })
 
-class PolySelectTool extends SelectTool.Model
+export class PolySelectTool extends SelectTool
   default_view: PolySelectToolView
   type: "PolySelectTool"
   tool_name: "Poly Select"
@@ -87,7 +87,3 @@ class PolySelectTool extends SelectTool.Model
   @define {
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
-
-module.exports =
-  Model: PolySelectTool
-  View: PolySelectToolView

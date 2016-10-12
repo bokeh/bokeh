@@ -1,11 +1,10 @@
-_ = require "underscore"
-proj4 = require "../../core/util/proj4"
-toProjection = proj4.defs('GOOGLE')
+import * as _ from "underscore"
+import {proj4, mercator} from "../../core/util/proj4"
 
-PlotCanvas = require "./plot_canvas"
-p = require "../../core/properties"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
+import * as p from "../../core/properties"
 
-class GMapPlotCanvasView extends PlotCanvas.View
+export class GMapPlotCanvasView extends PlotCanvasView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
@@ -24,8 +23,8 @@ class GMapPlotCanvasView extends PlotCanvas.View
 
   getProjectedBounds: () =>
     [xstart, xend, ystart, yend] = @getLatLngBounds()
-    [proj_xstart, proj_ystart] = proj4(toProjection, [xstart, ystart])
-    [proj_xend, proj_yend] = proj4(toProjection, [xend, yend])
+    [proj_xstart, proj_ystart] = proj4(mercator, [xstart, ystart])
+    [proj_xend, proj_yend] = proj4(mercator, [xend, yend])
     return [proj_xstart, proj_xend, proj_ystart, proj_yend]
 
   setRanges: () =>
@@ -159,7 +158,7 @@ class GMapPlotCanvasView extends PlotCanvas.View
     ctx.fillStyle = @model.plot.border_fill_color
     ctx.fill()
 
-class GMapPlotCanvas extends PlotCanvas.Model
+export class GMapPlotCanvas extends PlotCanvas
   type: 'GMapPlotCanvas'
   default_view: GMapPlotCanvasView
 
@@ -167,7 +166,3 @@ class GMapPlotCanvas extends PlotCanvas.Model
   initialize: (attrs, options) ->
     @use_map = true
     super(attrs, options)
-
-module.exports =
-  Model: GMapPlotCanvas
-  View: GMapPlotCanvasView

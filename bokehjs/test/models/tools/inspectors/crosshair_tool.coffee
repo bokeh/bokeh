@@ -3,13 +3,13 @@ _ = require "underscore"
 utils = require "../../../utils"
 sinon = require 'sinon'
 
-CrosshairTool = utils.require("models/tools/inspectors/crosshair_tool.coffee").Model
-DataRange1d = utils.require("models/ranges/data_range1d").Model
-Range1d = utils.require("models/ranges/range1d").Model
-PlotCanvas = utils.require("models/plots/plot_canvas").Model
-Plot = utils.require("models/plots/plot").Model
-PlotView = utils.require("models/plots/plot").View
-Toolbar = utils.require("models/tools/toolbar").Model
+{CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
+{DataRange1d} = utils.require("models/ranges/data_range1d")
+{Range1d} = utils.require("models/ranges/range1d")
+{PlotCanvas} = utils.require("models/plots/plot_canvas")
+{Plot} = utils.require("models/plots/plot")
+{PlotView} = utils.require("models/plots/plot")
+{Toolbar} = utils.require("models/tools/toolbar")
 
 describe "Crosshair Tool", ->
 

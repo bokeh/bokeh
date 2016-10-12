@@ -41,7 +41,6 @@ def polynomial():
     """
 
     # Grab the inputs arguments from the URL
-    # This is automated by the button
     args = flask.request.args
 
     # Get all the form arguments in the url with defaults
@@ -49,20 +48,15 @@ def polynomial():
     _from = int(getitem(args, '_from', 0))
     to = int(getitem(args, 'to', 10))
 
-    # Create a polynomial line graph
+    # Create a polynomial line graph with those arguments
     x = list(range(_from, to + 1))
     fig = figure(title="Polynomial")
     fig.line(x, [i ** 2 for i in x], color=color, line_width=2)
 
-    # Configure resources to include BokehJS inline in the document.
-    # For more details see:
-    #   http://bokeh.pydata.org/en/latest/docs/reference/resources_embedding.html#bokeh-embed
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
 
-    # For more details see:
-    #   http://bokeh.pydata.org/en/latest/docs/user_guide/embedding.html#components
-    script, div = components(fig, INLINE)
+    script, div = components(fig)
     html = flask.render_template(
         'embed.html',
         plot_script=script,

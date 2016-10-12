@@ -1,4 +1,4 @@
-get_indices = (data_source) ->
+export get_indices = (data_source) ->
   selected = data_source.selected
 
   if selected['0d'].glyph
@@ -9,7 +9,3 @@ get_indices = (data_source) ->
     selected['2d'].indices
   else
     []
-
-module.exports = {
-  get_indices: get_indices
-}

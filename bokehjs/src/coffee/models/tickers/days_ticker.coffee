@@ -1,8 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SingleIntervalTicker = require "./single_interval_ticker"
-util = require "./util"
-p = require "../../core/properties"
+import {SingleIntervalTicker} from "./single_interval_ticker"
+import * as util from "./util"
+import * as p from "../../core/properties"
 
 copy_date = util.copy_date
 last_month_no_later_than = util.last_month_no_later_than
@@ -34,7 +34,7 @@ date_range_by_month = (start_time, end_time) ->
 # A DaysTicker produces ticks from a fixed subset of calendar days.
 # E.g., DaysTicker([1, 15]) produces ticks on the 1st and 15th days of each
 # month.
-class DaysTicker extends SingleIntervalTicker.Model
+export class DaysTicker extends SingleIntervalTicker
   type: 'DaysTicker'
 
   @define {
@@ -82,6 +82,3 @@ class DaysTicker extends SingleIntervalTicker.Model
       "major": ticks_in_range,
       "minor": []
     }
-
-module.exports =
-  Model: DaysTicker

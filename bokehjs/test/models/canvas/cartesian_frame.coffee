@@ -1,12 +1,12 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-CartesianFrame = utils.require("models/canvas/cartesian_frame.coffee").Model
-Range1d = utils.require("models/ranges/range1d.coffee").Model
+{CartesianFrame} = utils.require("models/canvas/cartesian_frame")
+{Range1d} = utils.require("models/ranges/range1d")
 {Document} = utils.require "document"
 {Variable}  = utils.require("core/layout/solver")
 
-describe "Cartesian.Model", ->
+describe "CartesianFrame", ->
 
   it "should have 6 variables", ->
     c = new CartesianFrame({x_range: Range1d(0, 1), y_range: Range1d(0, 1)})

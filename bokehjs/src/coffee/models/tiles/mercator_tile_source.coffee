@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-TileSource = require "./tile_source"
-p = require "../../core/properties"
+import {TileSource} from "./tile_source"
+import * as p from "../../core/properties"
 
-class MercatorTileSource extends TileSource
+export class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'
 
   @define {
@@ -279,5 +279,3 @@ class MercatorTileSource extends TileSource
 
   calculate_world_x_by_tile_xyz: (x, y, z) ->
     return Math.floor(x / Math.pow(2, z))
-
-module.exports = MercatorTileSource

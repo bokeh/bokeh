@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "bootstrap/modal"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/modal"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-dialog_template = require "./dialog_template"
-Widget = require "./widget"
+import dialog_template from "./dialog_template"
+import {Widget, WidgetView} from "./widget"
 
-class DialogView extends Widget.View
+export class DialogView extends WidgetView
 
   initialize: (options) ->
     super(options)
@@ -61,7 +61,7 @@ class DialogView extends Widget.View
   change_content: () =>
     @render_content()
 
-class Dialog extends Widget.Model
+export class Dialog extends Widget
   type: "Dialog"
   default_view: DialogView
 
@@ -73,7 +73,3 @@ class Dialog extends Widget.Model
       buttons:     [ p.Array,   []    ]
       buttons_box: [ p.Instance       ]
     }
-
-module.exports =
-  Model: Dialog
-  View: DialogView

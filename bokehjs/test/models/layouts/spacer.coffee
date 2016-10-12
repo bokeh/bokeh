@@ -4,9 +4,9 @@ utils = require "../../utils"
 
 {Document} = utils.require("document")
 
-Spacer = utils.require("models/layouts/spacer").Model
+{Spacer} = utils.require("models/layouts/spacer")
 
-describe "WidgetBox.View", ->
+describe "WidgetBoxView", ->
   afterEach ->
     utils.unstub_canvas()
     utils.unstub_solver()
@@ -26,7 +26,7 @@ describe "WidgetBox.View", ->
     expected_style = "width: 12px; height: 22px;"
     expect(spacer_view.$el.attr('style')).to.be.equal expected_style
 
-describe "Spacer.Model", ->
+describe "Spacer", ->
 
   beforeEach ->
     @spacer = new Spacer()

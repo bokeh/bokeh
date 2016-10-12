@@ -1,16 +1,16 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-OpenHead = require("./arrow_head").OpenHead
-ColumnDataSource = require "../sources/column_data_source"
-p = require "../../core/properties"
-{atan2} = require "../../core/util/math"
+import {Annotation, AnnotationView} from "./annotation"
+import {OpenHead} from "./arrow_head"
+import {ColumnDataSource} from "../sources/column_data_source"
+import * as p from "../../core/properties"
+import {atan2} from "../../core/util/math"
 
-class ArrowView extends Annotation.View
+export class ArrowView extends AnnotationView
   initialize: (options) ->
     super(options)
     if not @model.source?
-      this.model.source = new ColumnDataSource.Model()
+      this.model.source = new ColumnDataSource()
     @canvas = @plot_model.canvas
     @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
     @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
@@ -83,7 +83,7 @@ class ArrowView extends Annotation.View
 
       ctx.restore()
 
-class Arrow extends Annotation.Model
+export class Arrow extends Annotation
   default_view: ArrowView
 
   type: 'Arrow'
@@ -98,12 +98,8 @@ class Arrow extends Annotation.Model
       x_end:            [ p.NumberSpec,                         ]
       y_end:            [ p.NumberSpec,                         ]
       end_units:        [ p.String,      'data'                 ]
-      end:              [ p.Instance,    new OpenHead.Model({}) ]
+      end:              [ p.Instance,    new OpenHead({})       ]
       source:           [ p.Instance                            ]
       x_range_name:     [ p.String,      'default'              ]
       y_range_name:     [ p.String,      'default'              ]
   }
-
-module.exports =
-  Model: Arrow
-  View: ArrowView

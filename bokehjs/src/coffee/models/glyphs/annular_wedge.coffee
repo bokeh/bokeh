@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
-{angle_between} = require "../../core/util/math"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
+import {angle_between} from "../../core/util/math"
 
-class AnnularWedgeView extends Glyph.View
+export class AnnularWedgeView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -115,7 +115,7 @@ class AnnularWedgeView extends Glyph.View
   scx: (i) -> @_scxy(i).x
   scy: (i) -> @_scxy(i).y
 
-class AnnularWedge extends Glyph.Model
+export class AnnularWedge extends Glyph
   default_view: AnnularWedgeView
 
   type: 'AnnularWedge'
@@ -129,7 +129,3 @@ class AnnularWedge extends Glyph.Model
       start_angle:  [ p.AngleSpec                ]
       end_angle:    [ p.AngleSpec                ]
     }
-
-module.exports =
-  Model: AnnularWedge
-  View: AnnularWedgeView

@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class ImageURLView extends Glyph.View
+export class ImageURLView extends GlyphView
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change:global_alpha', @renderer.request_render)
@@ -107,7 +107,7 @@ class ImageURLView extends Glyph.View
       ctx.drawImage(image, sx, sy, sw[i], sh[i])
     ctx.restore()
 
-class ImageURL extends Glyph.Model
+export class ImageURL extends Glyph
   default_view: ImageURLView
 
   type: 'ImageURL'
@@ -125,7 +125,3 @@ class ImageURL extends Glyph.Model
       retry_attempts: [ p.Number,    0          ]
       retry_timeout:  [ p.Number,    0          ]
   }
-
-module.exports =
-  Model: ImageURL
-  View: ImageURLView

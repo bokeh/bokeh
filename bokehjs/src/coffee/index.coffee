@@ -1,6 +1,6 @@
-path = require "path"
-assert = require "assert"
-rootRequire = require("root-require")
+import * as path from "path"
+import * as assert from "assert"
+import * as rootRequire from "root-require"
 
 root = rootRequire.packpath.parent()
 pkg = rootRequire("./package.json")
@@ -27,7 +27,7 @@ bokehjs = () ->
   load_plugin = (path) ->
     plugin = require(path)
     _.extend(Bokeh, _.omit(plugin, "models"))
-    Bokeh.Models.register_locations(plugin.models ? {})
+    Bokeh.Models.register_models(plugin.models ? {})
 
   load_plugin('./api')
   load_plugin('./models/widgets/main')

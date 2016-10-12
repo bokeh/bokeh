@@ -2,10 +2,11 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 p = utils.require "core/properties"
-CustomJS = utils.require("models/callbacks/customjs").Model
-DataRange1d = utils.require("models/ranges/data_range1d").Model
+
+{CustomJS} = utils.require("models/callbacks/customjs")
+{DataRange1d} = utils.require("models/ranges/data_range1d")
 
 class TestObject extends HasProps
   type: 'TestObject'

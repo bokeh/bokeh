@@ -1,10 +1,10 @@
-ActionTool = require "./action_tool"
-{scale_range} = require "../../../core/util/zoom"
-{logger} = require "../../../core/logging"
+import {ActionTool, ActionToolView} from "./action_tool"
+import {scale_range} from "../../../core/util/zoom"
+import {logger} from "../../../core/logging"
 
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
-class ZoomOutToolView extends ActionTool.View
+export class ZoomOutToolView extends ActionToolView
 
   do: () ->
     frame = @plot_model.frame
@@ -22,7 +22,7 @@ class ZoomOutToolView extends ActionTool.View
     @plot_view.interactive_timestamp = Date.now()
     return null
 
-class ZoomOutTool extends ActionTool.Model
+export class ZoomOutTool extends ActionTool
   default_view: ZoomOutToolView
   type: "ZoomOutTool"
   tool_name: "Zoom Out"
@@ -36,8 +36,3 @@ class ZoomOutTool extends ActionTool.Model
     factor:     [ p.Percent,    0.1    ]
     dimensions: [ p.Dimensions, "both" ]
   }
-
-module.exports = {
-  Model: ZoomOutTool
-  View: ZoomOutToolView
-}

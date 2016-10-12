@@ -2,8 +2,8 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-CustomJS = utils.require("models/callbacks/customjs").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{CustomJS} = utils.require("models/callbacks/customjs")
+{Range1d} = utils.require("models/ranges/range1d")
 
 describe "range1d module", ->
 

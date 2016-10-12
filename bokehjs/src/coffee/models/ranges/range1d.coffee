@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Range = require "./range"
-p = require "../../core/properties"
+import {Range} from "./range"
+import * as p from "../../core/properties"
 
-class Range1d extends Range.Model
+export class Range1d extends Range
   type: 'Range1d'
 
   @define {
@@ -45,6 +45,3 @@ class Range1d extends Range.Model
     @setv({start: @_initial_start, end: @_initial_end}, {silent: true})
     @_set_auto_bounds()
     @trigger('change')
-
-module.exports =
-  Model: Range1d

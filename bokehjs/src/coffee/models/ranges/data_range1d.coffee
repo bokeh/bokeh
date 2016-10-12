@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-DataRange = require "./data_range"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-bbox = require "../../core/util/bbox"
+import {DataRange} from "./data_range"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import * as bbox from "../../core/util/bbox"
 
-class DataRange1d extends DataRange.Model
+export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
@@ -153,6 +153,3 @@ class DataRange1d extends DataRange.Model
       default_span: @_initial_default_span
     }, {silent: true})
     @trigger('change')
-
-module.exports =
-  Model: DataRange1d

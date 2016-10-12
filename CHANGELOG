@@ -1,3 +1,97 @@
+2016-10-07   0.12.3:
+--------------------
+  * tasks:
+    - #5258 [component: docs] Double ended sliders extension example
+    - #5319 [component: docs] Issues release notes
+
+2016-10-07   0.12.3:
+--------------------
+  * bugfixes:
+    - #2415 Trying to render the same plot twice is failing
+    - #4347 [API: charts] Hover in charts not displaying data
+    - #4616 Cannot edit cells in datatable
+    - #4897 [component: docs] Subsections of user guide/adding interactions are rendered twice when selected in site guide
+    - #4926 [regression] Autoload_static seems to be broken in version 0.12
+    - #5029 Importing us county data fails on 3.5
+    - #5107 [component: docs] Bokeh.pydata.org warns that searching 0.12.1 is old but latest isn't pointing to 0.12.2 yet
+    - #5113 [component: bokehjs] Vbar / hbar legend missing glyphs
+    - #5118 Gmapplot error attributeerror("'basicproperty' object has no attribute 'from_json'",)
+    - #5119 Non-server bokeh requires tornado
+    - #5123 Vbar hover tooltip not working in master
+    - #5125 [component: bokehjs] [component: build] Bokeh npm install
+    - #5130 [component: docs] Correct typo in the notebook docs
+    - #5132 [component: build] Deploy.sh version update fails when last version is a full release
+    - #5134 [component: bokehjs] [regression] Fix bad merge
+    - #5156 Session.show() does not take into account browser
+    - #5170 Viridis6 appears to be reversed 
+    - #5188 [component: bokehjs] Glyphview should not extend rendererview
+    - #5202 [API: plotting] [regression] Figure legend not merging glyphs on the same data
+    - #5218 [API: plotting] [component: bokehjs] [regression] Bokehjs plotting api is broken after pr #5017
+    - #5223 [component: docs] Span annotation rejects `x` or `y` for `dimension` argument
+    - #5234 [API: models] Plot not shown if datetimetickformatter partially defined
+    - #5235 Wheel zoom is centers on center-of-plot, not mouse
+    - #5239 [component: docs] Bokeh.models.transforms not in reference guide
+    - #5248 [component: bokehjs] [regression] Add a polyfill for math.log1p() that's not supported by ie
+    - #5260 [component: bokehjs] [memory] [regression] Plot updates cause heap to grow massively
+    - #5271 [component: docs] Docserver.py input causes a syntaxerror
+    - #5288 [component: docs] Typo in the legend location docs, and why "right_center" instead of "center_right"?
+    - #5291 [component: docs] Docserver.py fix
+    - #5294 [component: bokehjs] [layout] [regression] Responsive layouts broken in master
+    - #5302 [component: examples] [component: server] [py2] Bokeh serve --show app/gapminder doesn't work
+    - #5304 [component: examples] [component: server] [regression] App/surface3d doesn't work because custom model path is wrongly resolved
+  * features:
+    - #647 Support latex labels
+    - #820 Split bokehjs in multiple plugins
+    - #916 [starter] Add zoom button that allows zoom by steps
+    - #1589 Bokehjs and node.js integration
+    - #2381 Plainer default tooltip styling
+    - #2590 [component: bokehjs] [webgl] Ongoing webgl related dev
+    - #3856 [component: bokehjs] Populate legend with rows of data
+    - #4621 Add `args` parameter to `functickformatter` similiar to `customjs`
+    - #4886 Allow user defined models to inherit from user defined models
+    - #5011 [component: bokehjs] [starter] Colormapping - color values out of high/low
+    - #5013 Discrete/categorical colormapper and colorbar
+    - #5153 [API: models] Implement _repr_pretty_ on hasprops and model
+    - #5164 [API: models] Add support for _repr_html_ to hasprops and model
+    - #5175 [component: bokehjs] [widgets] Slider with no title (feature request)
+    - #5204 [component: bokehjs] Feature: support passing suggested width/height to document.resize method
+    - #5242 Import_optional isn't robust to all import failures
+    - #5255 [API: charts] Boxplot: outlier_line_color missing in default_attributes of boxplotbuilder
+    - #5279 [API: models] Extensions cannot use own `.eco` templates as compiler won't compile them
+  * tasks:
+    - #2056 [starter] Deprecate glyph functions accepting datasource and sequence literals simultanously
+    - #4526 [API: models] Remove "legend" prefix in some of legend's properties
+    - #4879 Remove gear glyph from bokehjs to shrink resource size
+    - #5076 [component: tests] [starter] Remove yield tests
+    - #5083 [API: plotting] [component: docs] [starter] Add example using hbar/vbar to make bar charts
+    - #5106 [component: bokehjs] Replace mget/mset/get/set with getters and setters
+    - #5110 Revert "add categorical color mapper"
+    - #5116 [component: bokehjs] Make hasprops.id a first class citizen
+    - #5124 [component: bokehjs] Replace "else if" with switch statement 
+    - #5148 [component: examples] Imdb typo in movies app example readme
+    - #5159 [component: build] Py.test should use phantomjs from bokehjs/node_modules/.bin by default
+    - #5160 [component: bokehjs] Deprecate backbone.model.{get,set}()
+    - #5165 [component: bokehjs] Bring some structure to our *.less sources
+    - #5167 [component: bokehjs] Replace obj.unset('prop_name') with obj.prop_name = null
+    - #5168 [component: build] Revert "pin conda-build version to 1.21.14"
+    - #5171 [component: bokehjs] Replacing jsnlog
+    - #5180 Deprecation warning with matplotlib-2.0.0.b4 and bokeh 0.12.2
+    - #5182 [component: bokehjs] Move js palettes to bokeh-api.js
+    - #5211 [component: bokehjs] [component: build] Upgrade timezone dependency and remove timezone from vendor
+    - #5216 [component: bokehjs] [component: build] Upgrade to typescript 2.0
+    - #5236 Unify and simplify deprecation of things
+    - #5250 Change 0.12.4 deprecations to 0.12.3 due to delayed release
+    - #5251 Change indentation to 2 spaces in *(.d).ts files to match other bokehjs sources
+    - #5258 [component: docs] Double ended sliders extension example
+    - #5262 [component: docs] Dev_guide/notes.rst wasn't updated in a year or more
+    - #5263 [component: bokehjs] Move common/* to core/* and merge util/ with core/util/
+    - #5264 [component: bokehjs] Split off backbone.events and don't depend on backbone.model if not necessary
+    - #5277 [component: tests] With --rerun, bokehjs test harness needs to reset directory
+    - #5284 Missing ts api for logcolormapper and categoricalcolormapper
+    - #5299 [component: build] Use our own bokeh channel and avoid using conda-forge
+    - #5312 [component: examples] Clustering app example does not set .data atomically
+    - #5319 [component: docs] Issues release notes
+
 2016-10-05 0.12.3rc5:
 --------------------
   * bugfixes:

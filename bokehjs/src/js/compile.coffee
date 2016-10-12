@@ -1,10 +1,13 @@
+_ = require "underscore"
+fs = require "fs"
 path = require "path"
-acorn = require "acorn"
+ts = require "typescript"
 coffee = require "coffee-script"
 detective = require "detective"
 jslint = require "jslint"
 less = require "less"
 eco = require "../../gulp/eco"
+argv = require("yargs").argv
 
 mkCoffeescriptError = (error, file) ->
   message = error.message
@@ -57,12 +60,11 @@ mkLessError = (error, file) ->
     annotated: annotated
   }
 
-mkAcornError = (error, file) ->
-  message = error.message.replace(/\s*\(\d+:\d+\)\s*$/, "")
-  line = error.loc.line
-  column = error.loc.column
-  text = [file ? "<string>", line, column, message].join(":")
-
+mkTypeScriptError = (diagnostic) ->
+  {line, character} = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
+  [line, column] = [line+1, character+1]
+  message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+  text = [diagnostic.file.fileName, line, column, message].join(":")
   return {
     message: message
     line: line
@@ -73,30 +75,22 @@ mkAcornError = (error, file) ->
 stdin = process.stdin
 stdout = process.stdout
 
-stdin.resume()
-stdin.setEncoding("utf8")
-
 reply = (data) ->
   stdout.write(JSON.stringify(data))
   stdout.write("\n")
 
-data = ""
-
-stdin.on "data", (chunk) -> data += chunk
-stdin.on "end", () ->
-  input = JSON.parse(data)
-
+compile_and_resolve_deps = (input) ->
   switch input.lang
     when "coffeescript"
       try
         code = coffee.compile(input.code, {bare: true, shiftLine: true})
       catch error
         return reply({error: mkCoffeescriptError(error, input.file)})
-    when "javascript"
+    when "javascript", "typescript"
       code = input.code
     when "eco"
       try
-        code = "module.exports = #{eco.compile(input.code)};"
+        code = "export default #{eco.compile(input.code)};"
       catch error
         return reply({error: mkCoffeescriptError(error, input.file)})
     when "less"
@@ -112,10 +106,22 @@ stdin.on "end", () ->
     else
       throw new Error("unsupported input type: #{input.lang}")
 
-  try
-    acorn.parse(code, {})
-  catch error
-    return reply({error: mkAcornError(error, input.file)})
+  result = ts.transpileModule(code, {
+    fileName: input.file,
+    reportDiagnostics: true
+    compilerOptions: {
+      noEmitOnError: false
+      noImplicitAny: false
+      target: ts.ScriptTarget.ES5
+      module: ts.ModuleKind.CommonJS
+    }
+  })
+
+  if _.isArray(result.diagnostics) and result.diagnostics.length > 0
+    diagnostic = result.diagnostics[0]
+    return reply({error: mkTypeScriptError(diagnostic)})
+
+  code = result.outputText
 
   try
     deps = detective(code)
@@ -123,3 +129,21 @@ stdin.on "end", () ->
     return reply({error: error})
 
   return reply({ code: code, deps: deps })
+
+if argv.file?
+  input = {
+    code: fs.readFileSync(argv.file, 'utf-8')
+    lang: argv.lang ? "coffeescript"
+    file: argv.file
+  }
+  compile_and_resolve_deps(input)
+else
+  stdin.resume()
+  stdin.setEncoding("utf8")
+
+  data = ""
+
+  stdin.on "data", (chunk) -> data += chunk
+  stdin.on "end", () ->
+    input = JSON.parse(data)
+    compile_and_resolve_deps(input)
