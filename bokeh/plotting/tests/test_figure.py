@@ -11,10 +11,12 @@ from bokeh.models import (
     LinearAxis,
     PanTool,
     ResetTool,
-    ResizeTool
+    ResizeTool,
+    Title,
 )
 
 import bokeh.plotting as plt
+
 
 
 class TestFigure(unittest.TestCase):
@@ -233,6 +235,19 @@ class TestMarkers(unittest.TestCase):
 def test_title_kwarg_no_warning(recwarn):
     plt.figure(title="title")
     assert len(recwarn) == 0
+
+
+def test_figure_title_should_accept_title():
+    title = Title(text='Great Title')
+    plot = plt.figure(title=title)
+    l1 = plot.line([1, 2, 3], [1, 2, 3])
+    assert plot.title.text == 'Great Title'
+
+
+def test_figure_title_should_accept_string():
+    plot = plt.figure(title='Great Title 2')
+    l1 = plot.line([1, 2, 3], [1, 2, 3])
+    assert plot.title.text == 'Great Title 2'
 
 
 @pytest.fixture
