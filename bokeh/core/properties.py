@@ -1805,7 +1805,7 @@ class FontSizeSpec(DataSpec):
     http://www.w3schools.com/cssref/css_units.asp
 
     '''
-    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%%|rem|vh|vw|ch|em|ex|cm|mm|in|px|pt|pc)$")
+    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|rem|vh|vw|ch|em|ex|cm|mm|in|px|pt|pc)$")
 
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)

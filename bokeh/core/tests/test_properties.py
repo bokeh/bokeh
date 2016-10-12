@@ -481,7 +481,7 @@ class TestFontSizeSpec(unittest.TestCase):
         class Foo(HasProps):
             x = FontSizeSpec(default=None)
 
-        css_units = "%% rem vh vw ch em ex cm mm in px pt pc"
+        css_units = "% rem vh vw ch em ex cm mm in px pt pc"
         for unit in css_units.split():
             a = Foo()
             self.assertIs(a.x, None)
