@@ -17,6 +17,9 @@ def deprecated(since_or_msg, old=None, new=None, extra=None):
         if old is None or new is None:
             raise ValueError("deprecated entity and a replacement are required")
 
+        if len(since_or_msg) != 3 or not all(isinstance(x, int) and x >=0 for x in since_or_msg):
+            raise ValueError("invalid version tuple: %r" % (since_or_msg,))
+
         since = "%d.%d.%d" % since_or_msg
         message = "%(old)s was deprecated in Bokeh %(since)s and will be removed, use %(new)s instead."
         message = message % dict(old=old, since=since, new=new)
