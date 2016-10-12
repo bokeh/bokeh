@@ -27,6 +27,8 @@ export class LinearColorMapper extends ColorMapper
     values = []
 
     nan_color = if image_glyph then @_nan_color else @nan_color
+    low_color = if image_glyph then @_low_color else @low_color
+    high_color = if image_glyph then @_high_color else @high_color
 
     norm_factor = 1 / (high - low)
     normed_interval = 1 / palette.length
@@ -47,13 +49,11 @@ export class LinearColorMapper extends ColorMapper
       key = Math.floor(normed_d / normed_interval)
       if key < 0
         if @low_color?
-          low_color = if image_glyph then @_low_color else @low_color
           values.push(low_color)
         else
           values.push(palette[0])
       else if key > max_key
         if @high_color?
-          high_color = if image_glyph then @_high_color else @high_color
           values.push(high_color)
         else
           values.push(palette[max_key])
