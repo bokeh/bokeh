@@ -138,16 +138,15 @@ describe "LinearColorMapper module", ->
       vals = color_mapper._get_values([-1, 0, 1, 2, 3], palette)
       expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
 
-  describe "LinearColorMapper.v_map_screen method", ->
-
-    it "Should map values and stuff", ->
-      palette = ["#5e4fa2", "#3288bd", "#66c2a5"]
+    it "Should map high/low values to _high_color/_low_color, if image_glyph=true", ->
+      palette = [1, 2, 3]
       color_mapper = new LinearColorMapper({
+          low: 0
+          high: 2
           palette: palette
+          low_color: "pink" # converts to 16761035
+          high_color: "orange" # converts to 16753920
         })
-      img = [0, 0.020038738821815002, 0.040069430259003856]
 
-      buf = color_mapper.v_map_screen(img)
-      buf8 = new Uint8ClampedArray(buf)
-      expect(buf8).to.be.deep.equal(new Uint8Array([94, 79, 162, 255, 50, 136, 189, 255, 102, 194, 165, 255]))
-      # expect(true).to.be.false
+      vals = color_mapper._get_values([-1, 0, 1, 2, 3], palette, true)
+      expect(vals).to.be.deep.equal([16761035, 1, 2, 3, 16753920])

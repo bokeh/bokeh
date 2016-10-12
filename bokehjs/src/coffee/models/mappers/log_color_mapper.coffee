@@ -35,12 +35,14 @@ export class LogColorMapper extends ColorMapper
     for d in data
       # Check NaN
       if isNaN(d)
-        values.push(@nan_color)
+        nan_color = if image_glyph then @_nan_color else @nan_color
+        values.push(nan_color)
         continue
 
       if d > high
         if @high_color?
-          values.push(@high_color)
+          high_color = if image_glyph then @_high_color else @high_color
+          values.push(high_color)
         else
           values.push(palette[max_key])
         continue
@@ -54,7 +56,8 @@ export class LogColorMapper extends ColorMapper
 
       if d < low
         if @low_color?
-          values.push(@low_color)
+          low_color = if image_glyph then @_low_color else @low_color
+          values.push(low_color)
         else
           values.push(palette[0])
         continue

@@ -110,3 +110,16 @@ describe "LogColorMapper module", ->
 
       vals = color_mapper._get_values([0.5, 1, 10, 100, 101], palette)
       expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
+
+    it "Should map high/low values to _high_color/_low_color, if image_glyph=true", ->
+      palette = [1, 2, 3]
+      color_mapper = new LogColorMapper({
+          low: 1
+          high: 100
+          palette: palette
+          low_color: "pink" # converts to 16761035
+          high_color: "orange" # converts to 16753920
+        })
+
+      vals = color_mapper._get_values([-1, 1, 10, 100, 101], palette, true)
+      expect(vals).to.be.deep.equal([16761035, 1, 2, 3, 16753920])
