@@ -240,13 +240,13 @@ def test_title_kwarg_no_warning(recwarn):
 def test_figure_title_should_accept_title():
     title = Title(text='Great Title')
     plot = plt.figure(title=title)
-    l1 = plot.line([1, 2, 3], [1, 2, 3])
+    plot.line([1, 2, 3], [1, 2, 3])
     assert plot.title.text == 'Great Title'
 
 
 def test_figure_title_should_accept_string():
     plot = plt.figure(title='Great Title 2')
-    l1 = plot.line([1, 2, 3], [1, 2, 3])
+    plot.line([1, 2, 3], [1, 2, 3])
     assert plot.title.text == 'Great Title 2'
 
 
