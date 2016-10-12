@@ -1796,7 +1796,7 @@ class FontSizeSpec(DataSpec):
     or a data source column name referring to column of font size data.
 
     '''
-    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(ex|px|cm|mm|in|pt|pc)$")
+    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%%|rem|vh|vw|ch|em|ex|cm|mm|in|px|pt|pc)$")
 
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
