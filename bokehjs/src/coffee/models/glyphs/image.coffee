@@ -46,7 +46,7 @@ export class ImageView extends GlyphView
         img = @_image[i]
       else
         img = _.flatten(@_image[i])
-      buf = cmap.v_map_screen(img)
+      buf = cmap.v_map_screen(img, true)
       buf8 = new Uint8ClampedArray(buf)
       image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)

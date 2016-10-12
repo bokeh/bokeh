@@ -21,8 +21,8 @@ export class ColorMapper extends Model
       @_palette = @_build_palette(@palette)
     )
 
-  v_map_screen: (data) ->
-    values = @_get_values(data, @_palette, true)
+  v_map_screen: (data, image_glyph=false) ->
+    values = @_get_values(data, @_palette, image_glyph)
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)
 
