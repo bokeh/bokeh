@@ -5,6 +5,28 @@ utils = require "../../utils"
 
 describe "LinearColorMapper module", ->
 
+  describe "LinearColorMapper initialization", ->
+
+    it "Should set _nan_color, _low_color, _high_color attributes as ints", ->
+
+      color_mapper = new LinearColorMapper({
+        palette: ["red", "green", "blue"]
+        nan_color: "cadetblue"
+        low_color: "rgb(95,158,160)"
+        high_color: "#5F9EA0"
+        })
+
+      expect(color_mapper._nan_color).to.be.equal(6266528)
+      expect(color_mapper._low_color).to.be.equal(6266528)
+      expect(color_mapper._high_color).to.be.equal(6266528)
+
+    it "If unset _low_color, _high_color should be undefined", ->
+      color_mapper = new LinearColorMapper({
+        palette: ["red", "green", "blue"]
+        })
+      expect(color_mapper._low_color).to.be.undefined
+      expect(color_mapper._high_color).to.be.undefined
+
   describe "LinearColorMapper._get_values method", ->
 
     it "Should map values along linear scale with high/low unset", ->
@@ -115,3 +137,17 @@ describe "LinearColorMapper module", ->
 
       vals = color_mapper._get_values([-1, 0, 1, 2, 3], palette)
       expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
+
+  describe "LinearColorMapper.v_map_screen method", ->
+
+    it "Should map values and stuff", ->
+      palette = ["#5e4fa2", "#3288bd", "#66c2a5"]
+      color_mapper = new LinearColorMapper({
+          palette: palette
+        })
+      img = [0, 0.020038738821815002, 0.040069430259003856]
+
+      buf = color_mapper.v_map_screen(img)
+      buf8 = new Uint8ClampedArray(buf)
+      expect(buf8).to.be.deep.equal(new Uint8Array([94, 79, 162, 255, 50, 136, 189, 255, 102, 194, 165, 255]))
+      # expect(true).to.be.false

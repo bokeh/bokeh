@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 import * as p from "../../core/properties"
 
+import {color2hex} from "../../core/util/color"
 import {ColorMapper} from "./color_mapper"
 
 # Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
@@ -16,6 +17,12 @@ export class LogColorMapper extends ColorMapper
       high_color: [ p.Color  ]
       low_color:  [ p.Color  ]
     }
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @_nan_color = @_build_palette([color2hex(@nan_color)])[0]
+    @_high_color = if @high_color? then @_build_palette([color2hex(@high_color)])[0]
+    @_low_color = if @low_color? then @_build_palette([color2hex(@low_color)])[0]
 
   _get_values: (data, palette, image_glyph=false) ->
     n = palette.length

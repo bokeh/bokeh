@@ -5,6 +5,28 @@ utils = require "../../utils"
 
 describe "LogColorMapper module", ->
 
+  describe "LogColorMapper initialization", ->
+
+    it "Should set _nan_color, _low_color, _high_color attributes as ints", ->
+
+      color_mapper = new LogColorMapper({
+        palette: ["red", "green", "blue"]
+        nan_color: "cadetblue"
+        low_color: "rgb(95,158,160)"
+        high_color: "#5F9EA0"
+        })
+
+      expect(color_mapper._nan_color).to.be.equal(6266528)
+      expect(color_mapper._low_color).to.be.equal(6266528)
+      expect(color_mapper._high_color).to.be.equal(6266528)
+
+    it "If unset _low_color, _high_color should be undefined", ->
+      color_mapper = new LogColorMapper({
+        palette: ["red", "green", "blue"]
+        })
+      expect(color_mapper._low_color).to.be.undefined
+      expect(color_mapper._high_color).to.be.undefined
+
   describe "LogColorMapper.v_map_screen method", ->
 
     it "Should correctly map values along log scale", ->
