@@ -84,19 +84,19 @@ extensions in the next section.
 
     # These are similar to python imports. BokehJS vendors its own versions
     # of Underscore and JQuery. They are available as show here.
-    _ = require "underscore"
-    $ = require "jquery"
+    import * as _ from "underscore"
+    import * as $ from "jquery"
 
     # The "core/properties" module has all the property types
-    p = require "core/properties"
+    import * as p from "core/properties"
 
     # We will subclass in JavaScript from the same class that was subclassed
     # from in Python
-    LayoutDOM = require "models/layouts/layout_dom"
+    import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
     # This model will actually need to render things, so we must provide
     # view. The LayoutDOM model has a view already, so we will start with that
-    class CustomView extends LayoutDOM.View
+    export class CustomView extends LayoutDOMView
 
       initialize: (options) ->
         super(options)
@@ -115,7 +115,7 @@ extensions in the next section.
         @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
         @$('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
 
-    class Custom extends LayoutDOM.Model
+    export class Custom extends LayoutDOM
 
       # If there is an associated view, this is boilerplate.
       default_view: CustomView
@@ -133,12 +133,6 @@ extensions in the next section.
         text:   [ p.String ]
         slider: [ p.Any    ]
       }
-
-    # This is boilerplate. Every implementation should export a Model
-    # and (when applicable) also a View.
-    module.exports =
-      Model: Custom
-      View: CustomView
 
 .. _userguide_extensions_structure_putting_together:
 
@@ -260,6 +254,7 @@ and improvements to this section for future users.
     extensions_gallery/tool
     extensions_gallery/wrapping
     extensions_gallery/latex
+    extensions_gallery/widget
 
 :ref:`userguide_extensions_examples_ticking`
     Subclass built-in Bokeh models for axis ticking to customize their
@@ -274,6 +269,9 @@ and improvements to this section for future users.
 
 :ref:`userguide_extensions_examples_latex`
     Include a third-party JavaScript library in order to render LaTex.
+
+:ref:`userguide_extensions_examples_widget`
+    Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org
 .. _KaTex: https://khan.github.io/KaTeX/

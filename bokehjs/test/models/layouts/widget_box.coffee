@@ -5,21 +5,21 @@ sinon = require 'sinon'
 
 {Document} = utils.require("document")
 
-DataRange1d = utils.require("models/ranges/data_range1d").Model
-LayoutDOM = utils.require("models/layouts/layout_dom").Model
-LayoutDOMView = utils.require("models/layouts/layout_dom").View
-Panel = utils.require("models/widgets/panel").Model
-Plot = utils.require("models/plots/plot").Model
-Tabs = utils.require("models/widgets/tabs").Model
-Toolbar = utils.require("models/tools/toolbar").Model
-WidgetBox = utils.require("models/layouts/widget_box").Model
-WidgetBoxView = utils.require("models/layouts/widget_box").View
+{DataRange1d} = utils.require("models/ranges/data_range1d")
+{LayoutDOM} = utils.require("models/layouts/layout_dom")
+{LayoutDOMView} = utils.require("models/layouts/layout_dom")
+{Panel} = utils.require("models/widgets/panel")
+{Plot} = utils.require("models/plots/plot")
+{Tabs} = utils.require("models/widgets/tabs")
+{Toolbar} = utils.require("models/tools/toolbar")
+{WidgetBox} = utils.require("models/layouts/widget_box")
+{WidgetBoxView} = utils.require("models/layouts/widget_box")
 
 describe "WidgetBox", ->
   beforeEach ->
     @widget_box = new WidgetBox({})
 
-  describe "WidgetBox.View", ->
+  describe "WidgetBoxView", ->
     afterEach ->
       utils.unstub_canvas()
       utils.unstub_solver()
@@ -106,7 +106,7 @@ describe "WidgetBox", ->
       # we initialize the child_box
       expect(spy.callCount).is.equal 3
 
-  describe "WidgetBox.Model", ->
+  describe "WidgetBox", ->
     beforeEach ->
       @expected_constrained_variables = {
         'width': @widget_box._width

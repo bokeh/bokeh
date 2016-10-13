@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 p = utils.require "core/properties"
-DataRange1d = utils.require("models/ranges/data_range1d").Model
+{DataRange1d} = utils.require("models/ranges/data_range1d")
 
 class TestObject extends HasProps
   type: 'TestObject'

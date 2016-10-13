@@ -1,6 +1,6 @@
 # This is based on https://github.com/pimterry/loglevel
 
-_ = require 'underscore'
+import * as _ from "underscore"
 
 noop = () ->
 
@@ -20,7 +20,7 @@ class LogLevel
     @name = name
     @level = level
 
-class Logger
+export class Logger
 
   @TRACE: new LogLevel("trace", 0)
   @DEBUG: new LogLevel("debug", 1)
@@ -80,18 +80,12 @@ class Logger
         else
           @[method_name] = _method_factory(method_name, logger_name)
 
-logger = Logger.get("bokeh")
+export logger = Logger.get("bokeh")
 
-set_log_level = (level) ->
+export set_log_level = (level) ->
   if level not in Logger.levels
     console.log("[bokeh] unrecognized logging level '#{level}' passed to Bokeh.set_log_level(), ignoring")
     console.log("[bokeh] valid log levels are: #{Logger.levels.join(', ')}")
   else
     console.log("[bokeh] setting log level to: '#{level}'")
     logger.set_level(level)
-
-module.exports = {
-  Logger: Logger
-  logger: logger
-  set_log_level: set_log_level
-}

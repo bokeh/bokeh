@@ -1,10 +1,10 @@
-_ = require "underscore"
-SPrintf = require "sprintf"
-tz = require "timezone"
+import * as _ from "underscore"
+import * as SPrintf from "sprintf"
+import * as tz from "timezone"
 
-TickFormatter = require "./tick_formatter"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {TickFormatter} from "./tick_formatter"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
@@ -36,7 +36,7 @@ _strftime = (t, format) ->
       return format
     return tz(t, format)
 
-class DatetimeTickFormatter extends TickFormatter.Model
+export class DatetimeTickFormatter extends TickFormatter
   type: 'DatetimeTickFormatter'
 
   @define {
@@ -207,6 +207,3 @@ class DatetimeTickFormatter extends TickFormatter.Model
         labels.push(s)
 
     return labels
-
-module.exports =
-  Model: DatetimeTickFormatter

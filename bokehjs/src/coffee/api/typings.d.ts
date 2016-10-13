@@ -1,5 +1,15 @@
-/// <reference types="@types/jquery" />
+/// <reference types="@types/es6-promise" />
 /// <reference types="@types/underscore" />
+/// <reference types="@types/jquery" />
+/// <reference types="@types/jquery-mousewheel" />
+/// <reference types="@types/jqueryui" />
+/// <reference types="@types/rbush" />
+/// <reference types="@types/proj4" />
+/// <reference types="@types/sprintf" />
+/// <reference types="@types/timezone-js" />
+/// <reference types="@types/hammerjs" />
+
+/// <reference path="../../vendor/kiwi/kiwi.d.ts" />
 
 /// <reference path="./typings/bokeh.d.ts" />
 /// <reference path="./typings/charts.d.ts" />

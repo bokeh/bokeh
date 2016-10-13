@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-InspectTool = require "./inspect_tool"
-Span = require "../../annotations/span"
-p = require "../../../core/properties"
+import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Span} from "../../annotations/span"
+import * as p from "../../../core/properties"
 
-class CrosshairToolView extends InspectTool.View
+export class CrosshairToolView extends InspectToolView
 
   _move: (e) ->
     if not @model.active
@@ -28,7 +28,7 @@ class CrosshairToolView extends InspectTool.View
     if dims in ['width',  'both'] then @model.spans.width.computed_location  = y
     if dims in ['height', 'both'] then @model.spans.height.computed_location = x
 
-class CrosshairTool extends InspectTool.Model
+export class CrosshairTool extends InspectTool
   default_view: CrosshairToolView
   type: "CrosshairTool"
   tool_name: "Crosshair"
@@ -55,7 +55,7 @@ class CrosshairTool extends InspectTool.Model
     super(attrs, options)
 
     @spans = {
-      width: new Span.Model({
+      width: new Span({
         for_hover: true
         dimension: "width",
         render_mode: @render_mode
@@ -64,7 +64,7 @@ class CrosshairTool extends InspectTool.Model
         line_width: @line_width
         line_alpha: @line_alpha
       }),
-      height: new Span.Model({
+      height: new Span({
         for_hover: true
         dimension: "height"
         render_mode: @render_mode
@@ -74,7 +74,3 @@ class CrosshairTool extends InspectTool.Model
         line_alpha: @line_alpha
       })
     }
-
-module.exports =
-  Model: CrosshairTool
-  View: CrosshairToolView

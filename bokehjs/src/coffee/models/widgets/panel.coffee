@@ -1,18 +1,18 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
+import {Widget, WidgetView} from "./widget"
 
-class PanelView extends Widget.View
+export class PanelView extends WidgetView
 
   render: () ->
     super()
     @$el.empty()
     return @
 
-class Panel extends Widget.Model
+export class Panel extends Widget
   type: "Panel"
   default_view: PanelView
 
@@ -21,7 +21,3 @@ class Panel extends Widget.Model
       child:    [ p.Instance       ]
       closable: [ p.Bool,    false ]
     }
-
-module.exports =
-  Model: Panel
-  View: PanelView

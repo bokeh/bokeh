@@ -1,14 +1,14 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-build_views = require "../../core/build_views"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {build_views} from "../../core/build_views"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
-template = require "./text_input_template"
+import {InputWidget, InputWidgetView} from "./input_widget"
+import template from "./text_input_template"
 
 
-class TextInputView extends InputWidget.View
+export class TextInputView extends InputWidgetView
   tagName: "div"
   attributes:
      class: "bk-widget-form-group"
@@ -35,14 +35,10 @@ class TextInputView extends InputWidget.View
     @model.value = value
     super()
 
-class TextInput extends InputWidget.Model
+export class TextInput extends InputWidget
   type: "TextInput"
   default_view: TextInputView
 
   @define {
       value: [ p.String, "" ]
     }
-
-module.exports =
-  Model: TextInput
-  View: TextInputView

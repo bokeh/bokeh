@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-ImagePool = require "./image_pool"
-wmts = require "./wmts_tile_source"
-Renderer = require "../renderers/renderer"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {ImagePool} from "./image_pool"
+import {WMTSTileSource} from "./wmts_tile_source"
+import {Renderer, RendererView} from "../renderers/renderer"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class TileRendererView extends Renderer.View
+export class TileRendererView extends RendererView
 
   initialize: (options) ->
     @attributionEl = null
@@ -271,7 +271,7 @@ class TileRendererView extends Renderer.View
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-class TileRenderer extends Renderer.Model
+export class TileRenderer extends Renderer
   default_view: TileRendererView
   type: 'TileRenderer'
 
@@ -279,14 +279,10 @@ class TileRenderer extends Renderer.Model
       alpha:          [ p.Number,   1.0              ]
       x_range_name:   [ p.String,   "default"        ]
       y_range_name:   [ p.String,   "default"        ]
-      tile_source:    [ p.Instance, () -> new wmts.Model() ]
+      tile_source:    [ p.Instance, () -> new WMTSTileSource() ]
       render_parents: [ p.Bool,     true             ]
     }
 
   @override {
     level: 'underlay'
   }
-
-module.exports =
-  Model: TileRenderer
-  View: TileRendererView

@@ -6,9 +6,9 @@ sinon = require "sinon"
 {Strength, Variable}  = utils.require("core/layout/solver")
 
 {Document} = utils.require("document")
-Toolbar = utils.require("models/tools/toolbar").Model
+{Toolbar} = utils.require("models/tools/toolbar")
 
-describe "Toolbar.View", ->
+describe "ToolbarView", ->
 
   afterEach ->
     utils.unstub_solver()
@@ -69,7 +69,7 @@ describe "Toolbar.View", ->
     expect(tb_view.$el.attr('style')).to.be.undefined
 
 
-describe "Toolbar.Model", ->
+describe "Toolbar", ->
 
   it "should have 6 variables", ->
     tb = new Toolbar()

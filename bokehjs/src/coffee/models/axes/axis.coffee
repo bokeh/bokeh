@@ -1,14 +1,14 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SidePanel = require "../../core/layout/side_panel"
-GuideRenderer = require "../renderers/guide_renderer"
-Renderer = require "../renderers/renderer"
+import {SidePanel} from "../../core/layout/side_panel"
+import {GuideRenderer} from "../renderers/guide_renderer"
+import {RendererView} from "../renderers/renderer"
 
-{GE} = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {GE} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class AxisView extends Renderer.View
+export class AxisView extends RendererView
   initialize: (options) ->
     super(options)
     @_x_range_name = @model.x_range_name
@@ -206,7 +206,7 @@ class AxisView extends Renderer.View
     return extent
 
 
-class Axis extends GuideRenderer.Model
+export class Axis extends GuideRenderer
   default_view: AxisView
 
   type: 'Axis'
@@ -271,7 +271,7 @@ class Axis extends GuideRenderer.Model
   }
 
   add_panel: (side) ->
-    @panel = new SidePanel.Model({side: side})
+    @panel = new SidePanel({side: side})
     @panel.attach_document(@document)
     @panel_side = side
 
@@ -400,7 +400,3 @@ class Axis extends GuideRenderer.Model
     return switch side
       when 'left', 'below' then cross_range.start
       when 'right', 'above' then cross_range.end
-
-module.exports =
-  Model: Axis
-  View: AxisView

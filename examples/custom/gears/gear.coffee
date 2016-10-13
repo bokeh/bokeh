@@ -1,12 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p = require "core/properties"
-Glyph = require "models/glyphs/glyph"
+import * as p from "core/properties"
+import {Glyph, GlyphView} from "models/glyphs/glyph"
 
-Bezier = require "./bezier"
-GearUtils = require "./gear_utils"
+import {arc_to_bezier} from "./bezier"
+import * as gear_utils from "./gear_utils"
 
-class GearView extends Glyph.View
+export class GearView extends GlyphView
 
   _index_data: () ->
     return @_xy_index()
@@ -23,9 +23,9 @@ class GearView extends Glyph.View
       pitch_radius = smodule[i]*_teeth[i]/2
 
       if _internal[i]
-        fn = GearUtils.create_internal_gear_tooth
+        fn = gear_utils.create_internal_gear_tooth
       else
-        fn = GearUtils.create_gear_tooth
+        fn = gear_utils.create_gear_tooth
 
       seq0 = fn(smodule[i], _teeth[i], _pressure_angle[i])
 
@@ -100,7 +100,7 @@ class GearView extends Glyph.View
         when "A"
           [rx, ry, x_rotation, large_arc, sweep, x, y] = seq[i...i+7]
 
-          segments = Bezier.arc_to_bezier(px, py, rx, ry, -x_rotation, large_arc, 1 - sweep, x, y)
+          segments = arc_to_bezier(px, py, rx, ry, -x_rotation, large_arc, 1 - sweep, x, y)
 
           for [cx0, cy0, cx1, cy1, x, y] in segments
             ctx.bezierCurveTo(cx0, cy0, cx1, cy1, x, y)
@@ -115,7 +115,7 @@ class GearView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Gear extends Glyph.Model
+export class Gear extends Glyph
   default_view: GearView
 
   type: 'Gear'
@@ -123,15 +123,10 @@ class Gear extends Glyph.Model
   @coords [['x', 'y']]
   @mixins ['line', 'fill']
   @define {
-      angle:          [ p.AngleSpec,  0     ]
-      module:         [ p.NumberSpec, null  ]
-      pressure_angle: [ p.NumberSpec, 20    ] # TODO: units: deg
-      shaft_size:     [ p.NumberSpec, 0.3   ]
-      teeth:          [ p.NumberSpec, null  ]
-      internal:       [ p.NumberSpec, false ] # TODO (bev) bool
-    }
-
-module.exports = {
-  Model: Gear
-  View: GearView
-}
+    angle:          [ p.AngleSpec,  0     ]
+    module:         [ p.NumberSpec, null  ]
+    pressure_angle: [ p.NumberSpec, 20    ] # TODO: units: deg
+    shaft_size:     [ p.NumberSpec, 0.3   ]
+    teeth:          [ p.NumberSpec, null  ]
+    internal:       [ p.NumberSpec, false ] # TODO (bev) bool
+  }

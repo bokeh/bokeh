@@ -1,37 +1,19 @@
-module.exports = proj4 = require('proj4/lib/core')
+import * as proj4 from "proj4/lib/core"
+
+import * as Proj from "proj4/lib/Proj"
+import * as toPoint from "proj4/lib/common/toPoint"
+import * as defs from "proj4/lib/defs"
+import * as transform from "proj4/lib/transform"
+
 proj4.defaultDatum = 'WGS84' # default datum
-proj4.Proj = require('proj4/lib/Proj')
-proj4.WGS84 = new proj4.Proj('WGS84')
-proj4.toPoint = require('proj4/lib/common/toPoint')
-proj4.defs = require('proj4/lib/defs')
-proj4.transform = require('proj4/lib/transform')
+proj4.WGS84 = new Proj('WGS84')
 
-###
-projs = [
-  require('proj4/lib/projections/tmerc')
-  require('proj4/lib/projections/utm')
-  require('proj4/lib/projections/sterea')
-  require('proj4/lib/projections/stere')
-  require('proj4/lib/projections/somerc')
-  require('proj4/lib/projections/omerc')
-  require('proj4/lib/projections/lcc')
-  require('proj4/lib/projections/krovak')
-  require('proj4/lib/projections/cass')
-  require('proj4/lib/projections/laea')
-  require('proj4/lib/projections/aea')
-  require('proj4/lib/projections/gnom')
-  require('proj4/lib/projections/cea')
-  require('proj4/lib/projections/eqc')
-  require('proj4/lib/projections/poly')
-  require('proj4/lib/projections/nzmg')
-  require('proj4/lib/projections/mill')
-  require('proj4/lib/projections/sinu')
-  require('proj4/lib/projections/moll')
-  require('proj4/lib/projections/eqdc')
-  require('proj4/lib/projections/vandg')
-  require('proj4/lib/projections/aeqd')
-]
+proj4.Proj = Proj
+proj4.toPoint = toPoint
+proj4.defs = defs
+proj4.transform = transform
 
-for proj in projs
-  proj4.Proj.projections.add(proj)
-###
+export {proj4}
+
+export mercator = defs('GOOGLE')
+export wgs84    = defs('WGS84')

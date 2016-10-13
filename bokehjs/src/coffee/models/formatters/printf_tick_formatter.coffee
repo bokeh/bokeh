@@ -1,10 +1,10 @@
-_ = require "underscore"
-SPrintf = require "sprintf"
+import * as _ from "underscore"
+import * as SPrintf from "sprintf"
 
-TickFormatter = require "./tick_formatter"
-p = require "../../core/properties"
+import {TickFormatter} from "./tick_formatter"
+import * as p from "../../core/properties"
 
-class PrintfTickFormatter extends TickFormatter.Model
+export class PrintfTickFormatter extends TickFormatter
   type: 'PrintfTickFormatter'
 
   @define {
@@ -15,6 +15,3 @@ class PrintfTickFormatter extends TickFormatter.Model
     format = @format
     labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
     return labels
-
-module.exports =
-  Model: PrintfTickFormatter

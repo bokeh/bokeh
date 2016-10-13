@@ -1,11 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Model = require "../../model"
+import {Model} from "../../model"
 
-class TickFormatter extends Model
+export class TickFormatter extends Model
   type: 'TickFormatter'
 
   doFormat: (ticks) ->
-
-module.exports =
-  Model: TickFormatter

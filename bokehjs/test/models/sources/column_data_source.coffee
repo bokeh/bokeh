@@ -3,7 +3,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
 
 describe "column_data_source module", ->
 

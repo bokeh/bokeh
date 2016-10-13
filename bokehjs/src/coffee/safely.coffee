@@ -49,13 +49,10 @@ _burst_into_flames = (error) ->
   body = document.getElementsByTagName("body")[0]
   body.insertBefore(box, body.firstChild)
 
-
-safely = (fn, silent=false) ->
+export safely = (fn, silent=false) ->
   try
     return fn()
   catch error
     _burst_into_flames(error)
     if not silent
       throw error
-
-module.exports = safely

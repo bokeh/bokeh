@@ -1,10 +1,10 @@
-_ = require "underscore"
-HasProps = require "./has_props"
-hittest = require "./hittest"
-{logger} = require "./logging"
-p = require "./properties"
+import * as _ from "underscore"
+import {HasProps} from "./has_props"
+import * as hittest from "./hittest"
+import {logger} from "./logging"
+import * as p from "./properties"
 
-class Selector extends HasProps
+export class Selector extends HasProps
   type: 'Selector'
 
   update: (indices, final, append, silent=false) ->
@@ -27,5 +27,3 @@ class Selector extends HasProps
     final:     [ p.Boolean ]
     timestamp: [ p.Any ]
   }
-
-module.exports = Selector

@@ -1,4 +1,4 @@
-segment_to_bezier = (cx, cy, th0, th1, rx, ry, sin_th, cos_th) ->
+export segment_to_bezier = (cx, cy, th0, th1, rx, ry, sin_th, cos_th) ->
   a00 = cos_th*rx
   a01 = -sin_th*ry
   a10 = sin_th*rx
@@ -16,7 +16,7 @@ segment_to_bezier = (cx, cy, th0, th1, rx, ry, sin_th, cos_th) ->
           a00*x2 + a01*y2, a10*x2 + a11*y2,
           a00*x3 + a01*y3, a10*x3 + a11*y3]
 
-arc_to_bezier = (ox, oy, radx, rady, rotateX, large, sweep, x, y) ->
+export arc_to_bezier = (ox, oy, radx, rady, rotateX, large, sweep, x, y) ->
   th = rotateX*(Math.PI/180)
   sin_th = Math.sin(th)
   cos_th = Math.cos(th)
@@ -69,8 +69,3 @@ arc_to_bezier = (ox, oy, radx, rady, rotateX, large, sweep, x, y) ->
     segment_to_bezier(xc, yc, th2, th3, rx, ry, sin_th, cos_th)
 
   return result
-
-module.exports = {
-  arc_to_bezier: arc_to_bezier
-  segment_to_bezier: segment_to_bezier
-}

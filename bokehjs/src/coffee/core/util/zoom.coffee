@@ -1,6 +1,6 @@
 # Module for zoom-related functions
 
-scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
+export scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
   """
   Utility function for zoom tools to calculate/create the zoom_info object
   of the form required by ``PlotCanvasView.update_range``
@@ -67,7 +67,3 @@ scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
     factor: factor
   }
   return zoom_info
-
-module.exports = {
-    scale_range: scale_range
-}

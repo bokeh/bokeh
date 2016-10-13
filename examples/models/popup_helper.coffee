@@ -1,3 +1,1 @@
-module.exports = {
-  popup: (message) -> window.alert(message)
-}
+export popup = (message) -> window.alert(message)

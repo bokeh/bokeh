@@ -3,13 +3,13 @@ utils = require "../utils"
 
 p = properties = utils.require "core/properties"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 enums = utils.require "core/enums"
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
 svg_colors = utils.require "core/util/svg_colors"
-Transform = utils.require "models/transforms/transform"
+{Transform} = utils.require "models/transforms/transform"
 
-class TestTransform extends Transform.Model
+class TestTransform extends Transform
   compute: (x) -> x+1
   v_compute: (xs) ->
     ret = []

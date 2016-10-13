@@ -1,7 +1,7 @@
-Model = require "../../model"
-p = require "../../core/properties"
+import {Model} from "../../model"
+import * as p from "../../core/properties"
 
-class LogMapper extends Model
+export class LogMapper extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -116,6 +116,3 @@ class LogMapper extends Model
     source_range: [ p.Any ]
     target_range: [ p.Any ]
   }
-
-module.exports =
-  Model: LogMapper

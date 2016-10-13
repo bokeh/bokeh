@@ -1,5 +1,5 @@
-_ = require "underscore"
-AdaptiveTicker = require "./adaptive_ticker"
+import * as _ from "underscore"
+import {AdaptiveTicker} from "./adaptive_ticker"
 
 range = (start, stop, step) ->
   if _.isUndefined(stop) # one param defined
@@ -15,7 +15,7 @@ range = (start, stop, step) ->
     i += step
   return result
 
-class LogTicker extends AdaptiveTicker.Model
+export class LogTicker extends AdaptiveTicker
   type: 'LogTicker'
 
   @override {
@@ -84,6 +84,3 @@ class LogTicker extends AdaptiveTicker.Model
       "major": ticks
       "minor": minor_ticks
     }
-
-module.exports =
-  Model: LogTicker

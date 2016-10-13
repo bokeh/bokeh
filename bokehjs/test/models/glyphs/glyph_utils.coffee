@@ -2,11 +2,11 @@ utils = require "../../utils"
 sinon = require 'sinon'
 
 {Document} = utils.require("document")
-Range1d = utils.require("models/ranges/range1d").Model
-Plot = utils.require("models/plots/plot").Model
-GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
-ColumnDataSource = utils.require('models/sources/column_data_source').Model
-PlotCanvasView = utils.require('models/plots/plot_canvas').View
+{Range1d} = utils.require("models/ranges/range1d")
+{Plot} = utils.require("models/plots/plot")
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{ColumnDataSource} = utils.require('models/sources/column_data_source')
+{PlotCanvasView} = utils.require('models/plots/plot_canvas')
 
 create_glyph_view = (glyph) ->
   ###

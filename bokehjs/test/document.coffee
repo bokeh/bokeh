@@ -6,9 +6,9 @@ sinon = require "sinon"
 
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
-js_version = utils.require "version"
+js_version = utils.require("version").version
 {Models} = utils.require "base"
-Model = utils.require "model"
+{Model} = utils.require "model"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
@@ -969,7 +969,7 @@ describe "Document", ->
     spy = sinon.spy(s, 'suggest_value')
     root_model = new ModelWithConstrainedVariables({sizing_mode: "scale_both"})
     d.add_root(root_model)
-    d.resize(null, 200, 300)
+    d.resize(200, 300)
     expect(spy.callCount).is.equal(4)
     expect(spy.calledWithExactly(d._doc_width, 200)).is.true
     expect(spy.calledWithExactly(d._doc_height, 300)).is.true

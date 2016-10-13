@@ -1,9 +1,8 @@
-Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
-{Visuals} = require "../../core/visuals"
-p = require "../../core/properties"
+import {Annotation} from "./annotation"
+import {Visuals} from "../../core/visuals"
+import * as p from "../../core/properties"
 
-class ArrowHead extends Annotation.Model
+export class ArrowHead extends Annotation
   type: 'ArrowHead'
 
   initialize: (options) ->
@@ -13,7 +12,7 @@ class ArrowHead extends Annotation.Model
   render: (ctx, i) ->
     null
 
-class OpenHead extends ArrowHead
+export class OpenHead extends ArrowHead
   type: 'OpenHead'
 
   render: (ctx, i) ->
@@ -31,7 +30,7 @@ class OpenHead extends ArrowHead
       size:  [ p.Number,   25            ]
     }
 
-class NormalHead extends ArrowHead
+export class NormalHead extends ArrowHead
   type: 'NormalHead'
 
   render: (ctx, i) ->
@@ -63,7 +62,7 @@ class NormalHead extends ArrowHead
     fill_color: 'black'
   }
 
-class VeeHead extends ArrowHead
+export class VeeHead extends ArrowHead
   type: 'VeeHead'
 
   render: (ctx, i) ->
@@ -96,9 +95,3 @@ class VeeHead extends ArrowHead
   @override {
     fill_color: 'black'
   }
-
-module.exports = {
-  OpenHead: {Model: OpenHead}
-  NormalHead: {Model: NormalHead}
-  VeeHead: {Model: VeeHead}
-}

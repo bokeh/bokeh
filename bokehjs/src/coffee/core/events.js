@@ -5,7 +5,7 @@
 //     For all details and documentation:
 //     http://backbonejs.org
 
-var _ = require('underscore');
+import * as _ from "underscore";
 
 // Backbone.Events
 // ---------------
@@ -20,7 +20,7 @@ var _ = require('underscore');
 //     object.on('expand', function(){ alert('expanded'); });
 //     object.trigger('expand');
 //
-var Events = {};
+export var Events = {};
 
 // Regular expression used to split event strings.
 var eventSplitter = /\s+/;
@@ -262,8 +262,4 @@ var triggerEvents = function(events, args) {
     case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
     default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args); return;
   }
-};
-
-module.exports = {
-  Events: Events
 };

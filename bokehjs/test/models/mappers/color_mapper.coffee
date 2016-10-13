@@ -2,7 +2,7 @@
 sinon = require "sinon"
 utils = require "../../utils"
 
-ColorMapper = utils.require("models/mappers/color_mapper").Model
+{ColorMapper} = utils.require("models/mappers/color_mapper")
 
 describe "ColorMapper module", ->
 

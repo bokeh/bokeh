@@ -1,7 +1,7 @@
-TextAnnotation = require "./text_annotation"
-p = require "../../core/properties"
+import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import * as p from "../../core/properties"
 
-class LabelView extends TextAnnotation.View
+export class LabelView extends TextAnnotationView
   initialize: (options) ->
     super(options)
     @canvas = @plot_model.canvas
@@ -52,7 +52,7 @@ class LabelView extends TextAnnotation.View
     else
       @_css_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
 
-class Label extends TextAnnotation.Model
+export class Label extends TextAnnotation
   default_view: LabelView
 
   type: 'Label'
@@ -78,7 +78,3 @@ class Label extends TextAnnotation.Model
     background_fill_color: null
     border_line_color: null
   }
-
-module.exports =
-  Model: Label
-  View: LabelView

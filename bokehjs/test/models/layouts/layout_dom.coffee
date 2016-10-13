@@ -6,15 +6,15 @@ utils = require "../../utils"
 {Strength, Variable}  = utils.require("core/layout/solver")
 
 {Document} = utils.require("document")
-LayoutDOM = utils.require("models/layouts/layout_dom").Model
-LayoutDOMView = utils.require("models/layouts/layout_dom").View
+{LayoutDOM} = utils.require("models/layouts/layout_dom")
+{LayoutDOMView} = utils.require("models/layouts/layout_dom")
 
 dom_left = 12
 dom_top = 13
 width = 111
 height = 443
 
-describe "LayoutDOM.View", ->
+describe "LayoutDOMView", ->
 
   describe "initialize", ->
     afterEach ->
@@ -220,7 +220,7 @@ describe "LayoutDOM.View", ->
       null
 
 
-describe "LayoutDOM.Model", ->
+describe "LayoutDOM", ->
 
   it "should have default sizing_mode of fixed", ->
     l = new LayoutDOM()

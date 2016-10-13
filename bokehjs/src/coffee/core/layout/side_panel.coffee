@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{EQ, GE} = require "./solver"
-LayoutCanvas = require "./layout_canvas"
+import {EQ, GE} from "./solver"
+import {LayoutCanvas} from "./layout_canvas"
 
-p = require "../../core/properties"
-{logger} = require "../../core/logging"
+import * as p from "../../core/properties"
+import {logger} from "../../core/logging"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # title text, based on it's location and orientation
@@ -144,8 +144,7 @@ _align_lookup_positive = {
 #         height or width. Extending to full height or width means it's easy to
 #         calculate mid-way for alignment.
 
-
-update_constraints = (view) ->
+export update_constraints = (view) ->
   v = view
 
   if v.model.props.visible?
@@ -184,7 +183,7 @@ update_constraints = (view) ->
     v._full_set = true
 
 
-class SidePanel extends LayoutCanvas.Model
+export class SidePanel extends LayoutCanvas
 
   @internal {
     side: [ p.String ]
@@ -261,7 +260,3 @@ class SidePanel extends LayoutCanvas.Model
   get_label_angle_heuristic: (orient) ->
     side = @side
     return _angle_lookup[side][orient]
-
-module.exports =
-  Model: SidePanel
-  update_constraints: update_constraints

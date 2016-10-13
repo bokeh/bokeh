@@ -1,7 +1,4 @@
-Axis = require "./axis"
+import {Axis} from "./axis"
 
-class ContinuousAxis extends Axis.Model
+export class ContinuousAxis extends Axis
   type: 'ContinuousAxis'
-
-module.exports =
-  Model: ContinuousAxis

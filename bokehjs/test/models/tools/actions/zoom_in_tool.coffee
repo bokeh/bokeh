@@ -4,10 +4,10 @@ utils = require "../../../utils"
 sinon = require 'sinon'
 
 {Document} = utils.require("document")
-ZoomInTool = utils.require("models/tools/actions/zoom_in_tool").Model
-Range1d = utils.require("models/ranges/range1d").Model
-Plot = utils.require("models/plots/plot").Model
-Toolbar = utils.require("models/tools/toolbar").Model
+{ZoomInTool} = utils.require("models/tools/actions/zoom_in_tool")
+{Range1d} = utils.require("models/ranges/range1d")
+{Plot} = utils.require("models/plots/plot")
+{Toolbar} = utils.require("models/tools/toolbar")
 
 describe "ZoomInTool", ->
 

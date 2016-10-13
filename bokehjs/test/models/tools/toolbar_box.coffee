@@ -3,15 +3,15 @@ utils = require "../../utils"
 
 {Document} = utils.require("document")
 
-Box = utils.require("models/layouts/box").Model
-ToolbarBox = utils.require("models/tools/toolbar_box").Model
-Toolbar = utils.require("models/tools/toolbar").Model
-ResetTool = utils.require("models/tools/actions/reset_tool").Model
-SaveTool = utils.require("models/tools/actions/save_tool").Model
-CrosshairTool = utils.require("models/tools/inspectors/crosshair_tool").Model
-HoverTool = utils.require("models/tools/inspectors/hover_tool").Model
+{Box} = utils.require("models/layouts/box")
+{ToolbarBox} = utils.require("models/tools/toolbar_box")
+{Toolbar} = utils.require("models/tools/toolbar")
+{ResetTool} = utils.require("models/tools/actions/reset_tool")
+{SaveTool} = utils.require("models/tools/actions/save_tool")
+{CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
+{HoverTool} = utils.require("models/tools/inspectors/hover_tool")
 
-describe "ToolbarBox.View", ->
+describe "ToolbarBoxView", ->
 
   beforeEach ->
     @box = new ToolbarBox()
@@ -41,7 +41,7 @@ describe "ToolbarBox.View", ->
     expect(@box_view.get_height()).to.be.equal 30
 
 
-describe "ToolbarBox.Model", ->
+describe "ToolbarBox", ->
 
   it "should be an instance of box", ->
     # It's very important that ToolbarBox inherits from Box so

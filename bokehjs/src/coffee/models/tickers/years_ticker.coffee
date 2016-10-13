@@ -1,19 +1,19 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-BasicTicker = require "./basic_ticker"
-SingleIntervalTicker = require "./single_interval_ticker"
-util = require "./util"
+import {BasicTicker} from "./basic_ticker"
+import {SingleIntervalTicker} from "./single_interval_ticker"
+import * as util from "./util"
 
 last_year_no_later_than = util.last_year_no_later_than
 ONE_YEAR = util.ONE_YEAR
 
-class YearsTicker extends SingleIntervalTicker.Model
+export class YearsTicker extends SingleIntervalTicker
   type: 'YearsTicker'
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @interval = ONE_YEAR
-    @basic_ticker = new BasicTicker.Model({num_minor_ticks:0})
+    @basic_ticker = new BasicTicker({num_minor_ticks:0})
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
     start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
@@ -30,6 +30,3 @@ class YearsTicker extends SingleIntervalTicker.Model
       major: ticks_in_range
       minor: []
     }
-
-module.exports =
-  Model: YearsTicker

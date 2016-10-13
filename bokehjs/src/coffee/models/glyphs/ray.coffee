@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class RayView extends Glyph.View
+export class RayView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -41,7 +41,7 @@ class RayView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Ray extends Glyph.Model
+export class Ray extends Glyph
   default_view: RayView
 
   type: 'Ray'
@@ -52,7 +52,3 @@ class Ray extends Glyph.Model
       length: [ p.DistanceSpec ]
       angle:  [ p.AngleSpec    ]
     }
-
-module.exports =
-  Model: Ray
-  View: RayView

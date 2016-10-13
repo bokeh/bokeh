@@ -1,9 +1,9 @@
-_ = require "underscore"
-Transform = require "./transform"
-p = require "../../core/properties"
-bokeh_math = require "../../core/util/math"
+import * as _ from "underscore"
+import {Transform} from "./transform"
+import * as p from "../../core/properties"
+import * as bokeh_math from "../../core/util/math"
 
-class Jitter extends Transform.Model
+export class Jitter extends Transform
   @define {
     mean:         [ p.Number      , 0        ]
     width:        [ p.Number      , 1        ]
@@ -24,6 +24,3 @@ class Jitter extends Transform.Model
     for x, idx in xs
       result[idx] = this.compute(x)
     return result
-
-module.exports =
-  Model: Jitter

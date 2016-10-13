@@ -1,13 +1,12 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
-DataSource = utils.require("models/sources/data_source").Model
-Glyph = utils.require("models/glyphs/glyph").Model
-GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{DataSource} = utils.require("models/sources/data_source")
+{Glyph} = utils.require("models/glyphs/glyph")
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 
-
-describe "GlyphRenderer Model", ->
+describe "GlyphRenderer", ->
 
   beforeEach ->
     @source = new ColumnDataSource({

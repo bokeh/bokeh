@@ -1,15 +1,15 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "jquery-ui/sortable"
-SlickGrid = require "slick_grid/slick.grid"
-RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
-CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "jquery-ui/sortable"
+import * as SlickGrid from "slick_grid/slick.grid"
+import * as RowSelectionModel from "slick_grid/plugins/slick.rowselectionmodel"
+import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectcolumn"
 
-hittest = require "../../core/hittest"
-p = require "../../core/properties"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-TableWidget = require "./table_widget"
-Widget = require "./widget"
+import {TableWidget} from "./table_widget"
+import {WidgetView} from "./widget"
 
 wait_for_element = (el, fn) ->
   handler = () =>
@@ -18,7 +18,7 @@ wait_for_element = (el, fn) ->
       fn()
   interval = setInterval(handler, 50)
 
-class DataProvider
+export class DataProvider
 
   constructor: (@source) ->
     @data = @source.data
@@ -94,7 +94,7 @@ class DataProvider
 
     @updateSource()
 
-class DataTableView extends Widget.View
+export class DataTableView extends WidgetView
   attributes:
     class: "bk-data-table"
 
@@ -197,7 +197,7 @@ class DataTableView extends Widget.View
 
     return @
 
-class DataTable extends TableWidget.Model
+export class DataTable extends TableWidget
   type: 'DataTable'
   default_view: DataTableView
 
@@ -218,7 +218,3 @@ class DataTable extends TableWidget.Model
   @internal {
     default_width:        [ p.Number, 600   ]
   }
-
-module.exports =
-  Model: DataTable
-  View: DataTableView

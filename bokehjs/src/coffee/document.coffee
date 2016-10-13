@@ -1,19 +1,19 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-{Models} = require "./base"
-js_version = require("./version")
-{EQ, Solver, Variable} = require "./core/layout/solver"
-{logger} = require "./core/logging"
-HasProps = require "./core/has_props"
-{is_ref} = require "./core/util/refs"
-{MultiDict, Set} = require "./core/util/data_structures"
-ColumnDataSource = require "./models/sources/column_data_source"
+import {Models} from "./base"
+import {version as js_version} from "./version"
+import {EQ, Solver, Variable} from "./core/layout/solver"
+import {logger} from "./core/logging"
+import {HasProps} from "./core/has_props"
+import {is_ref} from "./core/util/refs"
+import {MultiDict, Set} from "./core/util/data_structures"
+import {ColumnDataSource} from "./models/sources/column_data_source"
 
-class DocumentChangedEvent
+export class DocumentChangedEvent
   constructor : (@document) ->
 
-class ModelChangedEvent extends DocumentChangedEvent
+export class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
     super @document
   json : (references) ->
@@ -43,7 +43,7 @@ class ModelChangedEvent extends DocumentChangedEvent
       'new' : value_json
     }
 
-class TitleChangedEvent extends DocumentChangedEvent
+export class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title) ->
     super @document
   json : (references) ->
@@ -52,7 +52,7 @@ class TitleChangedEvent extends DocumentChangedEvent
       'title' : @title
     }
 
-class RootAddedEvent extends DocumentChangedEvent
+export class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
   json : (references) ->
@@ -62,7 +62,7 @@ class RootAddedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
-class RootRemovedEvent extends DocumentChangedEvent
+export class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
   json : (references) ->
@@ -71,11 +71,11 @@ class RootRemovedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
-DEFAULT_TITLE = "Bokeh Application"
+export DEFAULT_TITLE = "Bokeh Application"
 
 # This class should match the API of the Python Document class
 # as much as possible.
-class Document
+export class Document
 
   constructor : () ->
     @_title = DEFAULT_TITLE
@@ -89,7 +89,7 @@ class Document
     @_solver = new Solver()
     @_init_solver()
 
-    $(window).on("resize", $.proxy(@resize, @))
+    $(window).on("resize", () => @resize())
 
   _init_solver : () ->
     @_solver.clear()
@@ -102,17 +102,13 @@ class Document
   solver: () ->
     @_solver
 
-  resize: (jquery_event, width=null, height=null) ->
+  resize: (width=null, height=null) ->
     # Notes on resizing (xx:yy means event yy on object xx):
     # window:event -> document.resize() -> solver:resize
     #   -> LayoutDOM.render()
     #   -> PlotCanvas.resize() -> solver:update_layout
 
-    # Note: JQuery.proxy passes the resize event as the first argument to the
-    # resize method. We don't currently use that argument for anything, but
-    # need it as a positional arg.
-
-    # Ideally the solver would  settle in one pass (can that be done?),
+    # Ideally the solver would settle in one pass (can that be done?),
     # but it currently needs two passes to get it right.
     # Seems to be needed everywhere on initialization, and on Windows
     # it seems necessary on each Draw
@@ -666,7 +662,7 @@ class Document
           if column_source_id not of @_all_models
             throw new Error("Cannot stream to #{column_source_id} which is not in the document")
           column_source = @_all_models[column_source_id]
-          if column_source not instanceof ColumnDataSource.Model
+          if column_source not instanceof ColumnDataSource
             throw new Error("Cannot stream to non-ColumnDataSource")
           data = event_json['data']
           rollover = event_json['rollover']
@@ -677,7 +673,7 @@ class Document
           if column_source_id not of @_all_models
             throw new Error("Cannot patch #{column_source_id} which is not in the document")
           column_source = @_all_models[column_source_id]
-          if column_source not instanceof ColumnDataSource.Model
+          if column_source not instanceof ColumnDataSource
             throw new Error("Cannot patch non-ColumnDataSource")
           patches = event_json['patches']
           column_source.patch(patches)
@@ -697,13 +693,3 @@ class Document
 
         else
           throw new Error("Unknown patch event " + JSON.stringify(event_json))
-
-module.exports = {
-  Document : Document
-  DocumentChangedEvent : DocumentChangedEvent
-  ModelChangedEvent : ModelChangedEvent
-  TitleChangedEvent : TitleChangedEvent
-  RootAddedEvent : RootAddedEvent
-  RootRemovedEvent : RootRemovedEvent
-  DEFAULT_TITLE : DEFAULT_TITLE
-}

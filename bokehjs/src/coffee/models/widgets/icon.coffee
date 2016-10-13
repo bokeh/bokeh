@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p  = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractIcon = require "./abstract_icon"
-Widget = require "./widget"
+import {AbstractIcon} from "./abstract_icon"
+import {WidgetView} from "./widget"
 
-class IconView extends Widget.View
+export class IconView extends WidgetView
   tagName: "i"
 
   initialize: (options) ->
@@ -29,7 +29,7 @@ class IconView extends Widget.View
     null
 
 
-class Icon extends AbstractIcon.Model
+export class Icon extends AbstractIcon
   type: "Icon"
   default_view: IconView
 
@@ -39,7 +39,3 @@ class Icon extends AbstractIcon.Model
       flip:      [ p.Any             ] # TODO (bev)
       spin:      [ p.Bool,   false   ]
     }
-
-module.exports =
-  Model: Icon
-  View: IconView

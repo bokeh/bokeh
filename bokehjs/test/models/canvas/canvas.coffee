@@ -2,12 +2,12 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-Canvas = utils.require("models/canvas/canvas.coffee").Model
-CanvasView = utils.require("models/canvas/canvas.coffee").View
+{Canvas} = utils.require("models/canvas/canvas")
+{CanvasView} = utils.require("models/canvas/canvas")
 {Document} = utils.require "document"
 {Variable}  = utils.require("core/layout/solver")
 
-describe "Canvas.Model", ->
+describe "Canvas", ->
 
   it "should have 6 variables", ->
     c = new Canvas()
@@ -68,7 +68,7 @@ describe "Canvas.Model", ->
       two = c.sy_to_vy(one)
       expect(start).to.be.equal(two)
 
-describe "Canvas.View", ->
+describe "CanvasView", ->
 
   afterEach ->
     utils.unstub_canvas()
