@@ -9,7 +9,7 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import slidertemplate from "./slidertemplate"
 
 
-export class RangeSliderView extends InputWidget.View
+export class RangeSliderView extends InputWidgetView
   tagName: "div"
   template: slidertemplate
 
@@ -70,7 +70,7 @@ export class RangeSliderView extends InputWidget.View
     @model.range = values
     if @callbackWrapper then @callbackWrapper()
 
-export class RangeSlider extends InputWidget.Model
+export class RangeSlider extends InputWidget
   type: "RangeSlider"
   default_view: RangeSliderView
 
