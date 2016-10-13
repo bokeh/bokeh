@@ -1,16 +1,15 @@
-_ = require "underscore"
-$2 = require "jquery-ui/slider"
+import * as _ from "underscore"
+import "jquery-ui/slider"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
-Widget = require "./widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
-slidertemplate = require "./slidertemplate"
+import slidertemplate from "./slidertemplate"
 
 
-class RangeSliderView extends InputWidget.View
+export class RangeSliderView extends InputWidget.View
   tagName: "div"
   template: slidertemplate
 
@@ -71,7 +70,7 @@ class RangeSliderView extends InputWidget.View
     @model.range = values
     if @callbackWrapper then @callbackWrapper()
 
-class RangeSlider extends InputWidget.Model
+export class RangeSlider extends InputWidget.Model
   type: "RangeSlider"
   default_view: RangeSliderView
 
@@ -84,7 +83,3 @@ class RangeSlider extends InputWidget.Model
       callback_throttle: [ p.Number,      200          ]
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
-
-module.exports =
-  Model: RangeSlider
-  View: RangeSliderView
