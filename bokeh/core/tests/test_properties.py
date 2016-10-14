@@ -481,10 +481,12 @@ class TestFontSizeSpec(unittest.TestCase):
         class Foo(HasProps):
             x = FontSizeSpec(default=None)
 
-        css_units = "% rem vh vw ch em ex cm mm in px pt pc"
-        for unit in css_units.split():
-            a = Foo()
-            self.assertIs(a.x, None)
+        css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
+
+        a = Foo()
+        self.assertIs(a.x, None)
+
+        for unit in css_units.split("|"):
 
             v = '10%s' % unit
             a.x = v
@@ -506,6 +508,26 @@ class TestFontSizeSpec(unittest.TestCase):
             self.assertEqual(a.x, f)
             self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
 
+        for unit in css_units.upper().split("|"):
+            v = '10%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            v = '10.2%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            f = '_10%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+            f = '_10.2%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
 
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):

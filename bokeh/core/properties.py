@@ -1802,10 +1802,10 @@ class FontSizeSpec(DataSpec):
 
     A full list of all valid CSS length units can be found here:
 
-    http://www.w3schools.com/cssref/css_units.asp
+    https://drafts.csswg.org/css-values/#lengths
 
     '''
-    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|rem|vh|vw|ch|em|ex|cm|mm|in|px|pt|pc)$")
+    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
