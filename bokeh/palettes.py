@@ -1369,6 +1369,24 @@ class _Palettes(object):
     @property
     def Viridis(self):
         return { 3: self.Viridis3, 4: self.Viridis4, 5: self.Viridis5, 6: self.Viridis6, 7: self.Viridis7, 8: self.Viridis8, 9: self.Viridis9,  10: self.Viridis10, 11: self.Viridis11, 256: self.Viridis256 } # NOQA
+    @property
+    def Deep(self):
+        return { 3: self.Deep3,   4: self.Deep4,   5: self.Deep5,   6: self.Deep6 }
+    @property
+    def Muted(self):
+        return { 3: self.Muted3,   4: self.Muted4,   5: self.Muted5,   6: self.Muted6 }
+    @property
+    def Pastel(self):
+        return { 3: self.Pastel3,   4: self.Pastel4,   5: self.Pastel5,   6: self.Pastel6 }
+    @property
+    def Bright(self):
+        return { 3: self.Bright3,   4: self.Bright4,   5: self.Bright5,   6: self.Bright6 }
+    @property
+    def Dark(self):
+        return { 3: self.Dark3,   4: self.Dark4,   5: self.Dark5,   6: self.Dark6 }
+    @property
+    def Colorblind(self):
+        return { 3: self.Colorblind3,   4: self.Colorblind4,   5: self.Colorblind5,   6: self.Colorblind6 }
 
     @property
     def brewer(self):
