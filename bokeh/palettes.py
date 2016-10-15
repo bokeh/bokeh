@@ -1625,10 +1625,10 @@ class _Palettes(object):
         return { 3: self.Viridis3, 4: self.Viridis4, 5: self.Viridis5, 6: self.Viridis6, 7: self.Viridis7, 8: self.Viridis8, 9: self.Viridis9,  10: self.Viridis10, 11: self.Viridis11, 256: self.Viridis256 } # NOQA
     @property
     def Deep(self):
-        return { 3: self.Deep3,   4: self.Deep4,   5: self.Deep5,   6: self.Deep6 }
+        return { 3: self.Deep3,     4: self.Deep4,     5: self.Deep5,     6: self.Deep6 }
     @property
     def Muted(self):
-        return { 3: self.Muted3,   4: self.Muted4,   5: self.Muted5,   6: self.Muted6 }
+        return { 3: self.Muted3,    4: self.Muted4,    5: self.Muted5,    6: self.Muted6 }
     @property
     def Pastel(self):
         return { 3: self.Pastel3,   4: self.Pastel4,   5: self.Pastel5,   6: self.Pastel6 }
@@ -1637,28 +1637,32 @@ class _Palettes(object):
         return { 3: self.Bright3,   4: self.Bright4,   5: self.Bright5,   6: self.Bright6 }
     @property
     def Dark(self):
-        return { 3: self.Dark3,   4: self.Dark4,   5: self.Dark5,   6: self.Dark6 }
+        return { 3: self.Dark3,     4: self.Dark4,     5: self.Dark5,     6: self.Dark6 }
     @property
     def Colorblind(self):
-        return { 3: self.Colorblind3,   4: self.Colorblind4,   5: self.Colorblind5,   6: self.Colorblind6 }
+        return { 3: self.Colorblind3,  4: self.Colorblind4,  5: self.Colorblind5,  6: self.Colorblind6 }
     @property
-    def Catagory10(self):
-        return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6, 7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9,  10: self.Category10_10 }
+    def Category10(self):
+        return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6,
+                 7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9, 10: self.Category10_10 }
     @property
-    def Catagory20(self):
-        return { 3: self.Category20_3, 4: self.Category20_4, 5: self.Category20_5, 6: self.Category20_6, 7: self.Category20_7, 8: self.Category20_8,
-                 9: self.Category20_9,  10: self.Category20_10, 11: self.Category20_11, 12: self.Category20_12, 13: self.Category20_13, 14: self.Category20_14,
-                 15: self.Category20_15, 16: self.Category20_16, 17: self.Category20_17, 18: self.Category20_18,  19: self.Category20_19, 20: self.Category20_20 }
+    def Category20(self):
+        return { 3:  self.Category20_3,   4:  self.Category20_4,   5:  self.Category20_5,   6:  self.Category20_6,   7:  self.Category20_7,
+                 8:  self.Category20_8,   9:  self.Category20_9,   10: self.Category20_10,  11: self.Category20_11,  12: self.Category20_12,
+                 13: self.Category20_13,  14: self.Category20_14,  15: self.Category20_15,  16: self.Category20_16,  17: self.Category20_17,
+                 18: self.Category20_18,  19: self.Category20_19,  20: self.Category20_20 }
     @property
-    def Catagory20b(self):
-        return { 3: self.Category20b_3, 4: self.Category20b_4, 5: self.Category20b_5, 6: self.Category20b_6, 7: self.Category20b_7, 8: self.Category20b_8,
-                 9: self.Category20b_9,  10: self.Category20b_10, 11: self.Category20b_11, 12: self.Category20b_12, 13: self.Category20b_13, 14: self.Category20b_14,
-                 15: self.Category20b_15, 16: self.Category20b_16, 17: self.Category20b_17, 18: self.Category20b_18,  19: self.Category20b_19, 20: self.Category20b_20 }
+    def Category20b(self):
+        return { 3:  self.Category20b_3,  4:  self.Category20b_4,  5:  self.Category20b_5,  6:  self.Category20b_6,  7:  self.Category20b_7,
+                 8:  self.Category20b_8,  9:  self.Category20b_9,  10: self.Category20b_10, 11: self.Category20b_11, 12: self.Category20b_12,
+                 13: self.Category20b_13, 14: self.Category20b_14, 15: self.Category20b_15, 16: self.Category20b_16, 17: self.Category20b_17,
+                 18: self.Category20b_18, 19: self.Category20b_19, 20: self.Category20b_20 }
     @property
-    def Catagory20c(self):
-        return { 3: self.Category20c_3, 4: self.Category20c_4, 5: self.Category20c_5, 6: self.Category20c_6, 7: self.Category20c_7, 8: self.Category20c_8,
-                 9: self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12, 13: self.Category20c_13, 14: self.Category20c_14,
-                 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17, 18: self.Category20c_18,  19: self.Category20c_19, 20: self.Category20c_20 }
+    def Category20c(self):
+        return { 3:  self.Category20c_3,  4:  self.Category20c_4,  5:  self.Category20c_5,  6:  self.Category20c_6,  7:  self.Category20c_7,
+                 8:  self.Category20c_8,  9:  self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12,
+                 13: self.Category20c_13, 14: self.Category20c_14, 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17,
+                 18: self.Category20c_18, 19: self.Category20c_19, 20: self.Category20c_20 }
 
     @property
     def brewer(self):
