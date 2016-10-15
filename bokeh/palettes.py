@@ -1282,6 +1282,230 @@ class _Palettes(object):
     def Colorblind6(self):
         return ['#0072B2', '#009E73', '#D55E00', '#CC79A7', '#F0E442', '#56B4E9']
 
+    # vega category10
+    @property
+    def Category10_3(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c']
+    @property
+    def Category10_4(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+    @property
+    def Category10_5(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+    @property
+    def Category10_6(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    @property
+    def Category10_7(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2']
+    @property
+    def Category10_8(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+    @property
+    def Category10_9(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
+    @property
+    def Category10_10(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+
+    # vega category20
+    @property
+    def Category20_3(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e']
+    @property
+    def Category20_4(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78']
+    @property
+    def Category20_5(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c']
+    @property
+    def Category20_6(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a']
+    @property
+    def Category20_7(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728']
+    @property
+    def Category20_8(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896']
+    @property
+    def Category20_9(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd']
+    @property
+    def Category20_10(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5']
+    @property
+    def Category20_11(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b']
+    @property
+    def Category20_12(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94']
+    @property
+    def Category20_13(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2']
+    @property
+    def Category20_14(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2']
+    @property
+    def Category20_15(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f']
+    @property
+    def Category20_16(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7']
+    @property
+    def Category20_17(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22']
+    @property
+    def Category20_18(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d']
+    @property
+    def Category20_19(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf']
+    @property
+    def Category20_20(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+
+    # vega category20b
+    @property
+    def Category20b_3(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf']
+    @property
+    def Category20b_4(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede']
+    @property
+    def Category20b_5(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939']
+    @property
+    def Category20b_6(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252']
+    @property
+    def Category20b_7(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b']
+    @property
+    def Category20b_8(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c']
+    @property
+    def Category20b_9(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31']
+    @property
+    def Category20b_10(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39']
+    @property
+    def Category20b_11(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52']
+    @property
+    def Category20b_12(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94']
+    @property
+    def Category20b_13(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39']
+    @property
+    def Category20b_14(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a']
+    @property
+    def Category20b_15(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b']
+    @property
+    def Category20b_16(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c']
+    @property
+    def Category20b_17(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173']
+    @property
+    def Category20b_18(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173', '￼#a55194']
+    @property
+    def Category20b_19(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173', '￼#a55194', '￼#ce6dbd']
+    @property
+    def Category20b_20(self):
+        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
+                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173', '￼#a55194', '￼#ce6dbd', '￼#de9ed6']
+
+    # vega category20c
+    @property
+    def Category20c_3(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1']
+    @property
+    def Category20c_4(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef']
+    @property
+    def Category20c_5(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d']
+    @property
+    def Category20c_6(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c']
+    @property
+    def Category20c_7(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b']
+    @property
+    def Category20c_8(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2']
+    @property
+    def Category20c_9(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354']
+    @property
+    def Category20c_10(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476']
+    @property
+    def Category20c_11(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b']
+    @property
+    def Category20c_12(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0']
+    @property
+    def Category20c_13(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1']
+    @property
+    def Category20c_14(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8']
+    @property
+    def Category20c_15(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc']
+    @property
+    def Category20c_16(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb']
+    @property
+    def Category20c_17(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363']
+    @property
+    def Category20c_18(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363', '￼#969696']
+    @property
+    def Category20c_19(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363', '￼#969696', '￼#bdbdbd']
+    @property
+    def Category20c_20(self):
+        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
+                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363', '￼#969696', '￼#bdbdbd', '￼#d9d9d9']
+
     @property
     def YlGn(self):
         return { 3: self.YlGn3,     4: self.YlGn4,     5: self.YlGn5,     6: self.YlGn6,     7: self.YlGn7,     8: self.YlGn8,     9: self.YlGn9 }
@@ -1417,6 +1641,24 @@ class _Palettes(object):
     @property
     def Colorblind(self):
         return { 3: self.Colorblind3,   4: self.Colorblind4,   5: self.Colorblind5,   6: self.Colorblind6 }
+    @property
+    def Catagory10(self):
+        return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6, 7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9,  10: self.Category10_10 }
+    @property
+    def Catagory20(self):
+        return { 3: self.Category20_3, 4: self.Category20_4, 5: self.Category20_5, 6: self.Category20_6, 7: self.Category20_7, 8: self.Category20_8,
+                 9: self.Category20_9,  10: self.Category20_10, 11: self.Category20_11, 12: self.Category20_12, 13: self.Category20_13, 14: self.Category20_14,
+                 15: self.Category20_15, 16: self.Category20_16, 17: self.Category20_17, 18: self.Category20_18,  19: self.Category20_19, 20: self.Category20_20 }
+    @property
+    def Catagory20b(self):
+        return { 3: self.Category20b_3, 4: self.Category20b_4, 5: self.Category20b_5, 6: self.Category20b_6, 7: self.Category20b_7, 8: self.Category20b_8,
+                 9: self.Category20b_9,  10: self.Category20b_10, 11: self.Category20b_11, 12: self.Category20b_12, 13: self.Category20b_13, 14: self.Category20b_14,
+                 15: self.Category20b_15, 16: self.Category20b_16, 17: self.Category20b_17, 18: self.Category20b_18,  19: self.Category20b_19, 20: self.Category20b_20 }
+    @property
+    def Catagory20c(self):
+        return { 3: self.Category20c_3, 4: self.Category20c_4, 5: self.Category20c_5, 6: self.Category20c_6, 7: self.Category20c_7, 8: self.Category20c_8,
+                 9: self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12, 13: self.Category20c_13, 14: self.Category20c_14,
+                 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17, 18: self.Category20c_18,  19: self.Category20c_19, 20: self.Category20c_20 }
 
     @property
     def brewer(self):
@@ -1470,9 +1712,19 @@ class _Palettes(object):
         }
 
     @property
+    def vega(self):
+        return {
+            "Category10"  : self.Category10,
+            "Category20"  : self.Category20,
+            "Category20b" : self.Category20b,
+            "Category20c" : self.Category20c,
+        }
+
+    @property
     def all_palettes(self):
         palettes = self.brewer
         palettes.update(self.seaborn)
+        palettes.update(self.vega)
         palettes["Magma"]      = self.Magma
         palettes["Inferno"]    = self.Inferno
         palettes["Plasma"]     = self.Plasma
