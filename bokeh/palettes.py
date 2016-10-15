@@ -1377,134 +1377,134 @@ class _Palettes(object):
     # vega category20b
     @property
     def Category20b_3(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf']
+        return ['#393b79', '#5254a3', '#6b6ecf']
     @property
     def Category20b_4(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede']
     @property
     def Category20b_5(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939']
     @property
     def Category20b_6(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252']
     @property
     def Category20b_7(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b']
     @property
     def Category20b_8(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c']
     @property
     def Category20b_9(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31']
     @property
     def Category20b_10(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39']
     @property
     def Category20b_11(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52']
     @property
     def Category20b_12(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94']
     @property
     def Category20b_13(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39']
     @property
     def Category20b_14(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a']
     @property
     def Category20b_15(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b']
     @property
     def Category20b_16(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c']
     @property
     def Category20b_17(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c', '#7b4173']
     @property
     def Category20b_18(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173', '￼#a55194']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c', '#7b4173', '#a55194']
     @property
     def Category20b_19(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173', '￼#a55194', '￼#ce6dbd']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c', '#7b4173', '#a55194', '#ce6dbd']
     @property
     def Category20b_20(self):
-        return ['￼#393b79', '￼#5254a3', '￼#6b6ecf', '￼#9c9ede', '￼#637939', '￼#8ca252', '￼#b5cf6b', '￼#cedb9c', '￼#8c6d31', '￼#bd9e39',
-                '￼#e7ba52', '￼#e7cb94', '￼#843c39', '￼#ad494a', '￼#d6616b', '￼#e7969c', '￼#7b4173', '￼#a55194', '￼#ce6dbd', '￼#de9ed6']
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c', '#7b4173', '#a55194', '#ce6dbd', '#de9ed6']
 
     # vega category20c
     @property
     def Category20c_3(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1']
+        return ['#3182bd', '#6baed6', '#9ecae1']
     @property
     def Category20c_4(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef']
     @property
     def Category20c_5(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d']
     @property
     def Category20c_6(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c']
     @property
     def Category20c_7(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b']
     @property
     def Category20c_8(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2']
     @property
     def Category20c_9(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354']
     @property
     def Category20c_10(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476']
     @property
     def Category20c_11(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b']
     @property
     def Category20c_12(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0']
     @property
     def Category20c_13(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1']
     @property
     def Category20c_14(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8']
     @property
     def Category20c_15(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc']
     @property
     def Category20c_16(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb']
     @property
     def Category20c_17(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363']
     @property
     def Category20c_18(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363', '￼#969696']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696']
     @property
     def Category20c_19(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363', '￼#969696', '￼#bdbdbd']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd']
     @property
     def Category20c_20(self):
-        return ['￼#3182bd', '￼#6baed6', '￼#9ecae1', '￼#c6dbef', '￼#e6550d', '￼#fd8d3c', '￼#fdae6b', '￼#fdd0a2', '￼#31a354', '￼#74c476',
-                '￼#a1d99b', '￼#c7e9c0', '￼#756bb1', '￼#9e9ac8', '￼#bcbddc', '￼#dadaeb', '￼#636363', '￼#969696', '￼#bdbdbd', '￼#d9d9d9']
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd', '#d9d9d9']
 
     @property
     def YlGn(self):
