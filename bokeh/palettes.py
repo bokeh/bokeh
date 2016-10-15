@@ -88,10 +88,8 @@ containts the following sets of palettes:
 
 * All Brewer palettes
 * Qualitative Seaborn palettes
-* Magma
-* Inferno
-* Plasma
-* Viridis
+* Catagorical Vega palettes
+* The new Matplotlib palettes (Magma, Inferno, Plasma, Viridis)
 
 Every pre-built palette is available as a module attributes, e.g.
 ``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of each
