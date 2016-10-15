@@ -12,7 +12,8 @@ from bokeh.palettes import (Blues9, BrBG9, BuGn9, BuPu9, GnBu9, Greens9,
                             Plasma9, Viridis9, Accent8, Dark2_8, Paired9,
                             Pastel1_9, Pastel2_8, Set1_9, Set2_8, Set3_9,
                             Deep6, Muted6, Pastel6, Bright6, Dark6,
-                            Colorblind6)
+                            Colorblind6, Category10_9, Category20_9,
+                            Category20b_9, Category20c_9)
 
 standard_palettes = OrderedDict([("Blues9", Blues9), ("BrBG9", BrBG9),
                                  ("BuGn9", BuGn9), ("BuPu9", BuPu9),
@@ -37,7 +38,11 @@ standard_palettes = OrderedDict([("Blues9", Blues9), ("BrBG9", BrBG9),
                                  ("Deep6", Deep6), ("Muted6", Muted6),
                                  ("Pastel6", Pastel6), ("Bright6", Bright6),
                                  ("Dark6", Dark6),
-                                 ("Colorblind6", Colorblind6)])
+                                 ("Colorblind6", Colorblind6),
+                                 ("Category10_9", Category10_9),
+                                 ("Category20_9", Category20_9),
+                                 ("Category20b_9", Category20b_9),
+                                 ("Category20c_9", Category20c_9)])
 
 def create_area_chart(data, palette):
     return Area(data,
