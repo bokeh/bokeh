@@ -400,10 +400,14 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
 
-    .. note:: It is a very bad idea to use the same ``session_id``
-        for every page load; you are likely to create scalability
-        and security problems. So ``autoload_server()`` should be
-        called again on each page load.
+    .. note::
+        Bokeh apps embedded using ``autoload_server`` will NOT set the browser
+        window title.
+
+    .. warning::
+        It is a very bad idea to use the same ``session_id`` for every page
+        load; you are likely to create scalability and security problems. So
+        ``autoload_server()`` should be called again on each page load.
 
     '''
 
