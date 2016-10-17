@@ -534,6 +534,47 @@ describe "Document", ->
     # does not reset title
     expect(d.title()).to.equal 'Foo'
 
+  it "throws on destructive move of itself", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(d.title()).to.equal DEFAULT_TITLE
+    d.add_root(new AnotherModel())
+    d.add_root(new AnotherModel())
+    d.set_title('Foo')
+    expect(d.roots().length).to.equal 2
+    expect(d.title()).to.equal 'Foo'
+    try
+      d.destructively_move(d)
+    catch e
+      got_error = true
+      expect(e.message).to.include('Attempted to overwrite a document with itself')
+    expect(got_error).to.equal(true)
+
+it "can destructively move", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(d.title()).to.equal DEFAULT_TITLE
+    d.add_root(new AnotherModel())
+    d.add_root(new AnotherModel())
+    d.set_title('Foo')
+    expect(d.roots().length).to.equal 2
+    expect(d.title()).to.equal 'Foo'
+
+    d2 = new Document()
+    expect(d2.roots().length).to.equal 0
+    expect(d2.title()).to.equal DEFAULT_TITLE
+    d2.add_root(new SomeModel())
+    d2.set_title('Bar')
+    expect(d2.roots().length).to.equal 1
+    expect(d2.title()).to.equal 'Bar'
+
+    d2.destructively_move(d)
+    expect(d.roots().length).to.equal 1
+    expect(d.roots()[0].foo).to.equal 2
+    expect(d.title()).to.equal 'Bar'
+
+    expect(d2.roots().length).to.equal 0
+
   it "checks for versions matching", ->
     d = new Document()
     expect(d.roots().length).to.equal 0

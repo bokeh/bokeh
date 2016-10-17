@@ -159,7 +159,7 @@ export class Document
     finally
       @_pop_all_models_freeze()
 
-  _destructively_move : (dest_doc) ->
+  destructively_move : (dest_doc) ->
     if dest_doc is @
       throw new Error("Attempted to overwrite a document with itself")
 
@@ -168,19 +168,15 @@ export class Document
     # to the new doc or else models referenced from multiple
     # roots could be in both docs at once, which isn't allowed.
     roots = []
-    @_push_all_models_freeze()
-    try
-      while @_roots.length > 0
-        @remove_root(@_roots[0])
-        roots.push(r)
-    finally
-        @_pop_all_models_freeze()
+    for r in @_roots
+      roots.push(r)
+    @clear()
 
     for r in roots
       if r.document != null
         throw new Error("Somehow we didn't detach #{r}")
-    if _all_models.length != 0
-        throw new Error("_all_models still had stuff in it: #{ @_all_models }")
+    if _.size(@_all_models) != 0
+      throw new Error("@_all_models still had stuff in it: #{ @_all_models }")
 
     for r in roots
       dest_doc.add_root(r)
@@ -596,7 +592,7 @@ export class Document
 
   replace_with_json : (json) ->
     replacement = Document.from_json(json)
-    replacement._destructively_move(@)
+    replacement.destructively_move(@)
 
   create_json_patch_string : (events) ->
     JSON.stringify(@create_json_patch(events))
