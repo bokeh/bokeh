@@ -583,6 +583,7 @@ it "can destructively move", ->
     expect(d.roots().length).to.equal 1
     d.set_title("Foo")
 
+    old_log_level = logging.logger.level.name
     logging.set_log_level("warn")
     json = d.to_json_string()
     parsed = JSON.parse(json)
@@ -613,6 +614,9 @@ it "can destructively move", ->
     parsed['version'] = "#{js_version}dev123-bar"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
     expect(out).to.be.equal ""
+
+    # need to reset old log level
+    logging.set_log_level(old_log_level)
 
   it "can serialize with one model in it", ->
     d = new Document()
