@@ -2,7 +2,7 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("dimensions.html")
 
-# create a new plot with a title
+# create a new plot with specific dimensions
 p = figure(plot_width=700)
 p.plot_height = 300
 
