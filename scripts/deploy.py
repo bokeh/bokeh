@@ -1,7 +1,7 @@
 import argparse
 from os.path import join
 import re
-from subprocess import CalledProcessError, check_output, STDOUT
+from subprocess import CalledProcessError, check_output, check_call, STDOUT
 import sys
 from packaging.version import Version as V
 
@@ -398,7 +398,8 @@ def merge_and_push():
         abort()
 
     try:
-        run("git push origin master")
+        # check call because there may be a git hook asking for confirmation
+        check_call("git push origin master".split())
     except Exception as e:
         failed("COULD NOT PUSH MASTER TO ORIGIN: %s" % e)
         abort()
