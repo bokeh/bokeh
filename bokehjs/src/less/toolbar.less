@@ -9,8 +9,14 @@
   padding-bottom: 2px;
 }
 
-.bk-toolbar-button.hover:focus {
-  outline: none;
+.bk-toolbar-button {
+  &:focus {
+    outline: none;
+  }
+
+  &::-moz-focus-inner {
+    border: 0;
+  }
 }
 
 .bk-button-bar-list {
@@ -212,10 +218,6 @@
 .bk-toolbar-box .bk-toolbar-right {
   top: -1px;
   right: 0px;
-}
-
-.bk-button-bar-list .bk-toolbar-button.active {
-  outline: none;
 }
 
 .bk-button-bar-list:empty {
