@@ -202,10 +202,11 @@ def check_checkout():
             abort()
 
         extras = run("git status --porcelain").split("\n")
+        extras = [x for x in extras if x != 'M scripts/issues.py'] # XXXX JUST FOR TESTING
         extras = [x for x in extras if x != '?? scripts/deploy.py'] # XXXX JUST FOR TESTING
         extras = [x for x in extras if x != '?? MAINTAINERS'] # XXXX JUST FOR TESTING
         if extras:
-            failed("Local checkout is NOT clean")
+            failed("Local checkout is NOT clean", extras)
         else:
             passed("Local checkout is clean")
 
@@ -273,7 +274,11 @@ def check_issues():
         out = run("python issues.py -c -p %s" % CONFIG.last_full_version)
         passed("Issue labels are BEP-1 compliant")
     except CalledProcessError as e:
-        failed("Issue labels are NOT BEP-1 compliant", e.output.decode('utf-8').split("\n"))
+        out = e.output.decode('utf-8')
+        if "HTTP Error 403: Forbidden" in out:
+            failed("Issues cannot be checked right now due to GitHub rate limiting")
+        else:
+            failed("Issue labels are NOT BEP-1 compliant", out.split("\n"))
 
 #--------------------------------------
 #
@@ -371,8 +376,15 @@ def update_docs_versions():
         commit(filename, new_version)
 
 def update_changelog():
-    pass
-
+    try:
+        out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
+        passed("Updated CHANGELOG with new closed issues")
+    except CalledProcessError as e:
+        out = e.output.decode('utf-8')
+        if "HTTP Error 403: Forbidden" in out:
+            failed("CHANGELOG cannot be updated right now due to GitHub rate limiting")
+        else:
+            failed("CHANGELOG update failed", out.split("\n"))
 
 def merge_and_push():
     try:
@@ -445,7 +457,11 @@ if __name__ == '__main__':
     check_last_versions()
     check_version_order()
     check_release_branch()
-    check_issues()
+
+    if V(CONFIG.new_version).is_prerelease:
+        print(blue("[SKIP] ") + "Not checking issues for BEP-1 compliance for pre-releases")
+    else:
+        check_issues()
 
     if CONFIG.problems:
         print(red("\n!!! Some pre-checks have failed:\n"))
@@ -470,7 +486,7 @@ if __name__ == '__main__':
 
     update_bokehjs_versions()
 
-    if V(new_version).is_prerelease:
+    if V(CONFIG.new_version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating docs version or changelog for pre-releases")
     else:
         update_docs_versions()
