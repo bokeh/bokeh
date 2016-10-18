@@ -268,6 +268,13 @@ def check_release_branch():
     else:
         passed("Release branch %r does not already exist" % CONFIG.release_branch)
 
+def check_issues():
+    try:
+        out = run("python issues.py -c -p %s" % CONFIG.last_full_version)
+        passed("Issue labels are BEP-1 compliant")
+    except CalledProcessError as e:
+        failed("Issue labels are NOT BEP-1 compliant", e.output.decode('utf-8').split("\n"))
+
 #--------------------------------------
 #
 # Update functions
@@ -438,6 +445,7 @@ if __name__ == '__main__':
     check_last_versions()
     check_version_order()
     check_release_branch()
+    check_issues()
 
     if CONFIG.problems:
         print(red("\n!!! Some pre-checks have failed:\n"))
