@@ -202,9 +202,6 @@ def check_checkout():
             abort()
 
         extras = run("git status --porcelain").split("\n")
-        extras = [x for x in extras if x != 'M scripts/issues.py'] # XXXX JUST FOR TESTING
-        extras = [x for x in extras if x != '?? scripts/deploy.py'] # XXXX JUST FOR TESTING
-        extras = [x for x in extras if x != '?? MAINTAINERS'] # XXXX JUST FOR TESTING
         if extras:
             failed("Local checkout is NOT clean", extras)
         else:
@@ -388,21 +385,18 @@ def update_changelog():
 
 def merge_and_push():
     try:
-        1/0
         run("git checkout master")
     except Exception as e:
         failed("COULD NOT CHECK OUT MASTER BRANCH: %s" % e)
         abort()
 
     try:
-        1/0
         run(["git", "merge", "--no-ff", CONFIG.release_branch, "-m" "'Merge branch %s'" % CONFIG.release_branch])
     except Exception as e:
         failed("COULD NOT MERGE RELEASE BRANCH TO MASTER: %s" % e)
         abort()
 
     try:
-        1/0
         run("git push origin master")
     except Exception as e:
         failed("COULD NOT PUSH MASTER TO ORIGIN: %s" % e)
