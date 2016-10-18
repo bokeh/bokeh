@@ -39,7 +39,6 @@ a serialized version of the model looks like.
    models/transforms
    models/widgets.widget
    models/widgets.buttons
-   models/widgets.dialogs
    models/widgets.groups
    models/widgets.icons
    models/widgets.inputs
