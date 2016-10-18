@@ -20,12 +20,15 @@ export class ToolbarBaseView extends LayoutDOMView
       @$el.css({
         left: @model._dom_left._value
         top: @model._dom_top._value
-        'width': @model._width._value
-        'height': @model._height._value
+        width: @model._width._value
+        height: @model._height._value
       })
-    location = if @model.toolbar_location? then @model.toolbar_location else 'above'
-    sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
-    @$el.html(@template({logo: @model.logo, location: location, sticky: sticky}))
+
+    @$el.html(@template({
+      logo: @model.logo
+      location: @model.toolbar_location
+      sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'
+    }))
 
     buttons = @$(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
