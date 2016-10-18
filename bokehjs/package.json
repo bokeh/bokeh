@@ -71,7 +71,6 @@
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
     "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown.js",
-    "bootstrap/modal": "./src/vendor/bootstrap-3.1.1/js/modal.js",
     "bootstrap/tab": "./src/vendor/bootstrap-3.1.1/js/tab.js",
     "slick_grid/slick.core": "./src/vendor/slick-grid-2.1.0/slick.core.js",
     "slick_grid/slick.grid": "./src/vendor/slick-grid-2.1.0/slick.grid.js",
