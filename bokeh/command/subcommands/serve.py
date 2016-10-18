@@ -397,11 +397,6 @@ class Serve(Subcommand):
             help="Any command line arguments remaining are passed on to the application handler",
         )),
 
-        ('--develop', dict(
-            action='store_true',
-            help="Enable develop-time features that should not be used in production",
-        )),
-
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",
@@ -530,7 +525,6 @@ class Serve(Subcommand):
                                                               'host',
                                                               'num_procs',
                                                               'prefix',
-                                                              'develop',
                                                               'keep_alive_milliseconds',
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',
@@ -571,9 +565,6 @@ class Serve(Subcommand):
                 for route in applications.keys():
                     server.show(route)
             server.io_loop.add_callback(show_callback)
-
-        if args.develop:
-            log.info("Using develop mode (do not enable --develop in production)")
 
         address_string = ''
         if server.address is not None and server.address != '':
