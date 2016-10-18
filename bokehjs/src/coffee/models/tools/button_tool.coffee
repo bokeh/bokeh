@@ -1,28 +1,25 @@
 import * as _ from "underscore"
+import * as $ from "jquery"
 import {BokehView} from "../../core/bokeh_view"
 import {Tool, ToolView} from "./tool"
-import button_tool_template from "./button_tool_template"
 import * as p from "../../core/properties"
 
 export class ButtonToolButtonView extends BokehView
-  tagName: "li"
-  template: button_tool_template
+  tagName: "button"
+  className: "bk-toolbar-button"
 
-  events: () ->
-    return { 'click .bk-toolbar-button': '_clicked' }
+  events: () -> { 'click': '_clicked' }
 
   initialize: (options) ->
     super(options)
-    @$el.html(@template({model: @model}))
-    @listenTo(@model, 'change:active', () => @render())
-    @listenTo(@model, 'change:disabled', () => @render())
+    @listenTo(@model, 'change', () => @render())
     @render()
 
   render: () ->
-    @$el.children('button')
-        .prop("disabled", @model.disabled)
-        .toggleClass('active', @model.active)
-    return @
+    icon = $("<div class='bk-btn-icon'>").addClass(@model.icon)
+    tip = $("<span class='tip'>").text(@model.tooltip)
+    @$el.empty().append([icon, tip])
+    @$el.prop("disabled", @model.disabled)
 
   _clicked: (e) ->
 

@@ -22,7 +22,7 @@
 .bk-button-bar-list {
   margin: 0;
   padding: 0;
-  > li {
+  .bk-toolbar-button {
     list-style-type: none;
     position: relative;
     float: left;
@@ -64,16 +64,16 @@
   background-repeat: no-repeat;
 }
 
-.bk-button-bar-list li:hover .bk-toolbar-button .tip:before {
+.bk-button-bar-list .bk-toolbar-button:hover .tip:before {
   display: inline-block;  // Can this be merged with above
 }
 
-.bk-button-bar-list li::hover .bk-toolbar-button {
+.bk-button-bar-list .bk-toolbar-button:hover {
   background: transparent;
 }
 
 
-.bk-button-bar-list li:hover .bk-toolbar-button .tip {
+.bk-button-bar-list .bk-toolbar-button:hover .tip {
   z-index: 100;
   white-space: nowrap;
   background-color: #fff;
@@ -88,22 +88,22 @@
   }
 }
 
-.bk-toolbar-above .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button:hover .tip {
   top: 10px;
   left: -10px;
 }
 
-.bk-toolbar-below .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button:hover .tip {
   top: -50px;
   left: -10px;
 }
 
-.bk-toolbar-left .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button:hover .tip {
    top: -22px;
    left: 26px;
 }
 
-.bk-toolbar-right .bk-button-bar-list li:hover .bk-toolbar-button .tip {
+.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button:hover .tip {
    float: right;
    top: -22px;
    left: -26px;
@@ -195,7 +195,7 @@
       clear: both;
     }
     .bk-button-bar-list {
-      > li {
+      .bk-toolbar-button {
         clear: both;
       }
     }

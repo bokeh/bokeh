@@ -4,14 +4,14 @@
        class="bk-logo bk-logo-small <% if @logo == "grey": %>bk-grey<% end %>"></a>
   <% end %>
   <div class='bk-button-bar'>
-    <ul class='bk-button-bar-list' type="pan" />
-    <ul class='bk-button-bar-list' type="scroll" />
-    <ul class='bk-button-bar-list' type="pinch" />
-    <ul class='bk-button-bar-list' type="tap" />
-    <ul class='bk-button-bar-list' type="press" />
-    <ul class='bk-button-bar-list' type="rotate" />
-    <ul class='bk-button-bar-list' type="actions" />
-    <ul class='bk-button-bar-list' type="inspectors" />
-    <ul class='bk-button-bar-list' type="help" />
+    <div class='bk-button-bar-list' type="pan" />
+    <div class='bk-button-bar-list' type="scroll" />
+    <div class='bk-button-bar-list' type="pinch" />
+    <div class='bk-button-bar-list' type="tap" />
+    <div class='bk-button-bar-list' type="press" />
+    <div class='bk-button-bar-list' type="rotate" />
+    <div class='bk-button-bar-list' type="actions" />
+    <div class='bk-button-bar-list' type="inspectors" />
+    <div class='bk-button-bar-list' type="help" />
   </div>
 </div>
