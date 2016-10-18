@@ -3,9 +3,10 @@
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
-# This file and the colormaps in it are released under the CC0 license /
-# public domain dedication. We would appreciate credit if you use or
-# redistribute these colormaps, but do not impose any legal restrictions.
+# The Viridis, Magma, Plasma, and Inferno color maps are released under the
+# CC0 license / public domain dedication. We would appreciate credit if you
+# use or redistribute these colormaps, but do not impose any legal
+# restrictions.
 #
 # To the extent possible under law, the persons who associated CC0 with
 # mpl-colormaps have waived all copyright and related or neighboring rights
@@ -19,20 +20,80 @@
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
 ###########################################################################
+# License regarding the Seaborn color palettes:
+#
+# Copyright (c) 2012-2016, Michael L. Waskom
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the project nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+###########################################################################
+# License regarding the Vega color palettes:
+#
+# Copyright (c) 2013, Trifacta Inc.
+# Copyright (c) 2015, University of Washington Interactive Data Lab
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+###########################################################################
 """ Provide a collection of palettes for color mapping.
 
 Palettes are simple plain Python lists of (hex) RGB colors. This module
 containts the following sets of palettes:
 
 * All Brewer palettes
-* Magma
-* Inferno
-* Plasma
-* Viridis
+* Qualitative Seaborn palettes
+* Catagorical Vega palettes
+* The new Matplotlib palettes (Magma, Inferno, Plasma, Viridis)
 
 Every pre-built palette is available as a module attributes, e.g.
-``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of every
-all pre-built palettes can be found in the ``__palettes__`` module attribute.
+``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of each
+pre-built palette can be found in the ``__palettes__`` module attribute.
 
 There are functions :func:`~bokeh.palettes.magma`,
 :func:`~bokeh.palettes.inferno`, :func:`~bokeh.palettes.plasma`,
@@ -40,7 +101,7 @@ There are functions :func:`~bokeh.palettes.magma`,
 size from those palettes.
 
 The Brewer palettes are also collected and grouped by name in a
-``brewer`` dictionary, e.g.: ``brewer['Spectral'][6]``
+``brewer`` dictionary, e.g.: ``brewer["Spectral"][6]``
 
 Finally, all "small" palettes (i.e. excluding the 256 color ones) are
 collected and grouped similarly in a ``small_palettes`` attribute.
@@ -450,10 +511,10 @@ class _Palettes(object):
         return ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
     @property
     def Greys10(self):
-        return ['#000000', '#1c1c1c', '#383838', '#555555', '#717171', '#8d8d8d', '#aaaaaa', '#c6c6c6', '#e2e2e2', '#ffffff']
+        return ["#000000", "#1c1c1c", "#383838", "#555555", "#717171", "#8d8d8d", "#aaaaaa", "#c6c6c6", "#e2e2e2", "#ffffff"]
     @property
     def Greys11(self):
-        return ['#000000', '#191919', '#333333', '#4c4c4c', '#666666', '#7f7f7f', '#999999', '#b2b2b2', '#cccccc', '#e5e5e5', '#ffffff']
+        return ["#000000", "#191919", "#333333", "#4c4c4c", "#666666", "#7f7f7f", "#999999", "#b2b2b2", "#cccccc", "#e5e5e5", "#ffffff"]
     @property
     def Greys256(self):
         return [
@@ -732,407 +793,716 @@ class _Palettes(object):
     def RdYlGn11(self):
         return ["#006837", "#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d73027", "#a50026"]
 
-    @property
-    def Inferno3(self):
-        return ['#000003', '#BA3655', '#FCFEA4']
-    @property
-    def Inferno4(self):
-        return ['#000003', '#781C6D', '#ED6825', '#FCFEA4']
-    @property
-    def Inferno5(self):
-        return ['#000003', '#550F6D', '#BA3655', '#F98C09', '#FCFEA4']
-    @property
-    def Inferno6(self):
-        return ['#000003', '#410967', '#932567', '#DC5039', '#FBA40A', '#FCFEA4']
-    @property
-    def Inferno7(self):
-        return ['#000003', '#32095D', '#781C6D', '#BA3655', '#ED6825', '#FBB318', '#FCFEA4']
-    @property
-    def Inferno8(self):
-        return ['#000003', '#270B52', '#63146E', '#9E2963', '#D24742', '#F57C15', '#FABF25', '#FCFEA4']
-    @property
-    def Inferno9(self):
-        return ['#000003', '#1F0C47', '#550F6D', '#88216A', '#BA3655', '#E35832', '#F98C09', '#F8C931', '#FCFEA4']
-    @property
-    def Inferno10(self):
-        return ['#000003', '#1A0B40', '#4A0B6A', '#781C6D', '#A42C60', '#CD4247', '#ED6825', '#FB9906', '#F7CF3A', '#FCFEA4']
-    @property
-    def Inferno11(self):
-        return ['#000003', '#160B39', '#410967', '#6A176E', '#932567', '#BA3655', '#DC5039', '#F2751A', '#FBA40A', '#F6D542', '#FCFEA4']
-    @property
-    def Inferno256(self):
-        return [
-            '#000003', '#000004', '#000006', '#010007', '#010109', '#01010B', '#02010E', '#020210', '#030212', '#040314', '#040316', '#050418',
-            '#06041B', '#07051D', '#08061F', '#090621', '#0A0723', '#0B0726', '#0D0828', '#0E082A', '#0F092D', '#10092F', '#120A32', '#130A34',
-            '#140B36', '#160B39', '#170B3B', '#190B3E', '#1A0B40', '#1C0C43', '#1D0C45', '#1F0C47', '#200C4A', '#220B4C', '#240B4E', '#260B50',
-            '#270B52', '#290B54', '#2B0A56', '#2D0A58', '#2E0A5A', '#300A5C', '#32095D', '#34095F', '#350960', '#370961', '#390962', '#3B0964',
-            '#3C0965', '#3E0966', '#400966', '#410967', '#430A68', '#450A69', '#460A69', '#480B6A', '#4A0B6A', '#4B0C6B', '#4D0C6B', '#4F0D6C',
-            '#500D6C', '#520E6C', '#530E6D', '#550F6D', '#570F6D', '#58106D', '#5A116D', '#5B116E', '#5D126E', '#5F126E', '#60136E', '#62146E',
-            '#63146E', '#65156E', '#66156E', '#68166E', '#6A176E', '#6B176E', '#6D186E', '#6E186E', '#70196E', '#72196D', '#731A6D', '#751B6D',
-            '#761B6D', '#781C6D', '#7A1C6D', '#7B1D6C', '#7D1D6C', '#7E1E6C', '#801F6B', '#811F6B', '#83206B', '#85206A', '#86216A', '#88216A',
-            '#892269', '#8B2269', '#8D2369', '#8E2468', '#902468', '#912567', '#932567', '#952666', '#962666', '#982765', '#992864', '#9B2864',
-            '#9C2963', '#9E2963', '#A02A62', '#A12B61', '#A32B61', '#A42C60', '#A62C5F', '#A72D5F', '#A92E5E', '#AB2E5D', '#AC2F5C', '#AE305B',
-            '#AF315B', '#B1315A', '#B23259', '#B43358', '#B53357', '#B73456', '#B83556', '#BA3655', '#BB3754', '#BD3753', '#BE3852', '#BF3951',
-            '#C13A50', '#C23B4F', '#C43C4E', '#C53D4D', '#C73E4C', '#C83E4B', '#C93F4A', '#CB4049', '#CC4148', '#CD4247', '#CF4446', '#D04544',
-            '#D14643', '#D24742', '#D44841', '#D54940', '#D64A3F', '#D74B3E', '#D94D3D', '#DA4E3B', '#DB4F3A', '#DC5039', '#DD5238', '#DE5337',
-            '#DF5436', '#E05634', '#E25733', '#E35832', '#E45A31', '#E55B30', '#E65C2E', '#E65E2D', '#E75F2C', '#E8612B', '#E9622A', '#EA6428',
-            '#EB6527', '#EC6726', '#ED6825', '#ED6A23', '#EE6C22', '#EF6D21', '#F06F1F', '#F0701E', '#F1721D', '#F2741C', '#F2751A', '#F37719',
-            '#F37918', '#F47A16', '#F57C15', '#F57E14', '#F68012', '#F68111', '#F78310', '#F7850E', '#F8870D', '#F8880C', '#F88A0B', '#F98C09',
-            '#F98E08', '#F99008', '#FA9107', '#FA9306', '#FA9506', '#FA9706', '#FB9906', '#FB9B06', '#FB9D06', '#FB9E07', '#FBA007', '#FBA208',
-            '#FBA40A', '#FBA60B', '#FBA80D', '#FBAA0E', '#FBAC10', '#FBAE12', '#FBB014', '#FBB116', '#FBB318', '#FBB51A', '#FBB71C', '#FBB91E',
-            '#FABB21', '#FABD23', '#FABF25', '#FAC128', '#F9C32A', '#F9C52C', '#F9C72F', '#F8C931', '#F8CB34', '#F8CD37', '#F7CF3A', '#F7D13C',
-            '#F6D33F', '#F6D542', '#F5D745', '#F5D948', '#F4DB4B', '#F4DC4F', '#F3DE52', '#F3E056', '#F3E259', '#F2E45D', '#F2E660', '#F1E864',
-            '#F1E968', '#F1EB6C', '#F1ED70', '#F1EE74', '#F1F079', '#F1F27D', '#F2F381', '#F2F485', '#F3F689', '#F4F78D', '#F5F891', '#F6FA95',
-            '#F7FB99', '#F9FC9D', '#FAFDA0', '#FCFEA4']
-
-    @property
-    def Magma3(self):
-        return ['#000003', '#B53679', '#FBFCBF']
-    @property
-    def Magma4(self):
-        return ['#000003', '#711F81', '#F0605D', '#FBFCBF']
-    @property
-    def Magma5(self):
-        return ['#000003', '#4F117B', '#B53679', '#FB8660', '#FBFCBF']
-    @property
-    def Magma6(self):
-        return ['#000003', '#3B0F6F', '#8C2980', '#DD4968', '#FD9F6C', '#FBFCBF']
-    @property
-    def Magma7(self):
-        return ['#000003', '#2B115E', '#711F81', '#B53679', '#F0605D', '#FEAE76', '#FBFCBF']
-    @property
-    def Magma8(self):
-        return ['#000003', '#221150', '#5D177E', '#972C7F', '#D1426E', '#F8755C', '#FEB97F', '#FBFCBF']
-    @property
-    def Magma9(self):
-        return ['#000003', '#1B1044', '#4F117B', '#812581', '#B53679', '#E55063', '#FB8660', '#FEC286', '#FBFCBF']
-    @property
-    def Magma10(self):
-        return ['#000003', '#170F3C', '#430F75', '#711F81', '#9E2E7E', '#CB3E71', '#F0605D', '#FC9366', '#FEC78B', '#FBFCBF']
-    @property
-    def Magma11(self):
-        return ['#000003', '#140D35', '#3B0F6F', '#63197F', '#8C2980', '#B53679', '#DD4968', '#F66E5B', '#FD9F6C', '#FDCD90', '#FBFCBF']
-    @property
-    def Magma256(self):
-        return [
-            '#000003', '#000004', '#000006', '#010007', '#010109', '#01010B', '#02020D', '#02020F', '#030311', '#040313', '#040415', '#050417',
-            '#060519', '#07051B', '#08061D', '#09071F', '#0A0722', '#0B0824', '#0C0926', '#0D0A28', '#0E0A2A', '#0F0B2C', '#100C2F', '#110C31',
-            '#120D33', '#140D35', '#150E38', '#160E3A', '#170F3C', '#180F3F', '#1A1041', '#1B1044', '#1C1046', '#1E1049', '#1F114B', '#20114D',
-            '#221150', '#231152', '#251155', '#261157', '#281159', '#2A115C', '#2B115E', '#2D1060', '#2F1062', '#301065', '#321067', '#341068',
-            '#350F6A', '#370F6C', '#390F6E', '#3B0F6F', '#3C0F71', '#3E0F72', '#400F73', '#420F74', '#430F75', '#450F76', '#470F77', '#481078',
-            '#4A1079', '#4B1079', '#4D117A', '#4F117B', '#50127B', '#52127C', '#53137C', '#55137D', '#57147D', '#58157E', '#5A157E', '#5B167E',
-            '#5D177E', '#5E177F', '#60187F', '#61187F', '#63197F', '#651A80', '#661A80', '#681B80', '#691C80', '#6B1C80', '#6C1D80', '#6E1E81',
-            '#6F1E81', '#711F81', '#731F81', '#742081', '#762181', '#772181', '#792281', '#7A2281', '#7C2381', '#7E2481', '#7F2481', '#812581',
-            '#822581', '#842681', '#852681', '#872781', '#892881', '#8A2881', '#8C2980', '#8D2980', '#8F2A80', '#912A80', '#922B80', '#942B80',
-            '#952C80', '#972C7F', '#992D7F', '#9A2D7F', '#9C2E7F', '#9E2E7E', '#9F2F7E', '#A12F7E', '#A3307E', '#A4307D', '#A6317D', '#A7317D',
-            '#A9327C', '#AB337C', '#AC337B', '#AE347B', '#B0347B', '#B1357A', '#B3357A', '#B53679', '#B63679', '#B83778', '#B93778', '#BB3877',
-            '#BD3977', '#BE3976', '#C03A75', '#C23A75', '#C33B74', '#C53C74', '#C63C73', '#C83D72', '#CA3E72', '#CB3E71', '#CD3F70', '#CE4070',
-            '#D0416F', '#D1426E', '#D3426D', '#D4436D', '#D6446C', '#D7456B', '#D9466A', '#DA4769', '#DC4869', '#DD4968', '#DE4A67', '#E04B66',
-            '#E14C66', '#E24D65', '#E44E64', '#E55063', '#E65162', '#E75262', '#E85461', '#EA5560', '#EB5660', '#EC585F', '#ED595F', '#EE5B5E',
-            '#EE5D5D', '#EF5E5D', '#F0605D', '#F1615C', '#F2635C', '#F3655C', '#F3675B', '#F4685B', '#F56A5B', '#F56C5B', '#F66E5B', '#F6705B',
-            '#F7715B', '#F7735C', '#F8755C', '#F8775C', '#F9795C', '#F97B5D', '#F97D5D', '#FA7F5E', '#FA805E', '#FA825F', '#FB8460', '#FB8660',
-            '#FB8861', '#FB8A62', '#FC8C63', '#FC8E63', '#FC9064', '#FC9265', '#FC9366', '#FD9567', '#FD9768', '#FD9969', '#FD9B6A', '#FD9D6B',
-            '#FD9F6C', '#FDA16E', '#FDA26F', '#FDA470', '#FEA671', '#FEA873', '#FEAA74', '#FEAC75', '#FEAE76', '#FEAF78', '#FEB179', '#FEB37B',
-            '#FEB57C', '#FEB77D', '#FEB97F', '#FEBB80', '#FEBC82', '#FEBE83', '#FEC085', '#FEC286', '#FEC488', '#FEC689', '#FEC78B', '#FEC98D',
-            '#FECB8E', '#FDCD90', '#FDCF92', '#FDD193', '#FDD295', '#FDD497', '#FDD698', '#FDD89A', '#FDDA9C', '#FDDC9D', '#FDDD9F', '#FDDFA1',
-            '#FDE1A3', '#FCE3A5', '#FCE5A6', '#FCE6A8', '#FCE8AA', '#FCEAAC', '#FCECAE', '#FCEEB0', '#FCF0B1', '#FCF1B3', '#FCF3B5', '#FCF5B7',
-            '#FBF7B9', '#FBF9BB', '#FBFABD', '#FBFCBF']
-
-    @property
-    def Plasma3(self):
-        return ['#0C0786', '#CA4678', '#EFF821']
-    @property
-    def Plasma4(self):
-        return ['#0C0786', '#9B179E', '#EC7853', '#EFF821']
-    @property
-    def Plasma5(self):
-        return ['#0C0786', '#7C02A7', '#CA4678', '#F79341', '#EFF821']
-    @property
-    def Plasma6(self):
-        return ['#0C0786', '#6A00A7', '#B02A8F', '#E06461', '#FCA635', '#EFF821']
-    @property
-    def Plasma7(self):
-        return ['#0C0786', '#5C00A5', '#9B179E', '#CA4678', '#EC7853', '#FDB22F', '#EFF821']
-    @property
-    def Plasma8(self):
-        return ['#0C0786', '#5201A3', '#8908A5', '#B83289', '#DA5A68', '#F38748', '#FDBB2B', '#EFF821']
-    @property
-    def Plasma9(self):
-        return ['#0C0786', '#4A02A0', '#7C02A7', '#A82296', '#CA4678', '#E56B5C', '#F79341', '#FDC328', '#EFF821']
-    @property
-    def Plasma10(self):
-        return ['#0C0786', '#45039E', '#7200A8', '#9B179E', '#BC3685', '#D7566C', '#EC7853', '#FA9D3A', '#FCC726', '#EFF821']
-    @property
-    def Plasma11(self):
-        return ['#0C0786', '#40039C', '#6A00A7', '#8F0DA3', '#B02A8F', '#CA4678', '#E06461', '#F1824C', '#FCA635', '#FCCC25', '#EFF821']
-    @property
-    def Plasma256(self):
-        return [
-            '#0C0786', '#100787', '#130689', '#15068A', '#18068B', '#1B068C', '#1D068D', '#1F058E', '#21058F', '#230590', '#250591', '#270592',
-            '#290593', '#2B0594', '#2D0494', '#2F0495', '#310496', '#330497', '#340498', '#360498', '#380499', '#3A049A', '#3B039A', '#3D039B',
-            '#3F039C', '#40039C', '#42039D', '#44039E', '#45039E', '#47029F', '#49029F', '#4A02A0', '#4C02A1', '#4E02A1', '#4F02A2', '#5101A2',
-            '#5201A3', '#5401A3', '#5601A3', '#5701A4', '#5901A4', '#5A00A5', '#5C00A5', '#5E00A5', '#5F00A6', '#6100A6', '#6200A6', '#6400A7',
-            '#6500A7', '#6700A7', '#6800A7', '#6A00A7', '#6C00A8', '#6D00A8', '#6F00A8', '#7000A8', '#7200A8', '#7300A8', '#7500A8', '#7601A8',
-            '#7801A8', '#7901A8', '#7B02A8', '#7C02A7', '#7E03A7', '#7F03A7', '#8104A7', '#8204A7', '#8405A6', '#8506A6', '#8607A6', '#8807A5',
-            '#8908A5', '#8B09A4', '#8C0AA4', '#8E0CA4', '#8F0DA3', '#900EA3', '#920FA2', '#9310A1', '#9511A1', '#9612A0', '#9713A0', '#99149F',
-            '#9A159E', '#9B179E', '#9D189D', '#9E199C', '#9F1A9B', '#A01B9B', '#A21C9A', '#A31D99', '#A41E98', '#A51F97', '#A72197', '#A82296',
-            '#A92395', '#AA2494', '#AC2593', '#AD2692', '#AE2791', '#AF2890', '#B02A8F', '#B12B8F', '#B22C8E', '#B42D8D', '#B52E8C', '#B62F8B',
-            '#B7308A', '#B83289', '#B93388', '#BA3487', '#BB3586', '#BC3685', '#BD3784', '#BE3883', '#BF3982', '#C03B81', '#C13C80', '#C23D80',
-            '#C33E7F', '#C43F7E', '#C5407D', '#C6417C', '#C7427B', '#C8447A', '#C94579', '#CA4678', '#CB4777', '#CC4876', '#CD4975', '#CE4A75',
-            '#CF4B74', '#D04D73', '#D14E72', '#D14F71', '#D25070', '#D3516F', '#D4526E', '#D5536D', '#D6556D', '#D7566C', '#D7576B', '#D8586A',
-            '#D95969', '#DA5A68', '#DB5B67', '#DC5D66', '#DC5E66', '#DD5F65', '#DE6064', '#DF6163', '#DF6262', '#E06461', '#E16560', '#E26660',
-            '#E3675F', '#E3685E', '#E46A5D', '#E56B5C', '#E56C5B', '#E66D5A', '#E76E5A', '#E87059', '#E87158', '#E97257', '#EA7356', '#EA7455',
-            '#EB7654', '#EC7754', '#EC7853', '#ED7952', '#ED7B51', '#EE7C50', '#EF7D4F', '#EF7E4E', '#F0804D', '#F0814D', '#F1824C', '#F2844B',
-            '#F2854A', '#F38649', '#F38748', '#F48947', '#F48A47', '#F58B46', '#F58D45', '#F68E44', '#F68F43', '#F69142', '#F79241', '#F79341',
-            '#F89540', '#F8963F', '#F8983E', '#F9993D', '#F99A3C', '#FA9C3B', '#FA9D3A', '#FA9F3A', '#FAA039', '#FBA238', '#FBA337', '#FBA436',
-            '#FCA635', '#FCA735', '#FCA934', '#FCAA33', '#FCAC32', '#FCAD31', '#FDAF31', '#FDB030', '#FDB22F', '#FDB32E', '#FDB52D', '#FDB62D',
-            '#FDB82C', '#FDB92B', '#FDBB2B', '#FDBC2A', '#FDBE29', '#FDC029', '#FDC128', '#FDC328', '#FDC427', '#FDC626', '#FCC726', '#FCC926',
-            '#FCCB25', '#FCCC25', '#FCCE25', '#FBD024', '#FBD124', '#FBD324', '#FAD524', '#FAD624', '#FAD824', '#F9D924', '#F9DB24', '#F8DD24',
-            '#F8DF24', '#F7E024', '#F7E225', '#F6E425', '#F6E525', '#F5E726', '#F5E926', '#F4EA26', '#F3EC26', '#F3EE26', '#F2F026', '#F2F126',
-            '#F1F326', '#F0F525', '#F0F623', '#EFF821']
-
-    @property
-    def Viridis3(self):
-        return ['#440154', '#208F8C', '#FDE724']
-    @property
-    def Viridis4(self):
-        return ['#440154', '#30678D', '#35B778', '#FDE724']
-    @property
-    def Viridis5(self):
-        return ['#440154', '#3B518A', '#208F8C', '#5BC862', '#FDE724']
-    @property
-    def Viridis6(self):
-        return ['#440154', '#404387', '#29788E', '#22A784', '#79D151', '#FDE724']
-    @property
-    def Viridis7(self):
-        return ['#440154', '#443982', '#30678D', '#208F8C', '#35B778', '#8DD644', '#FDE724']
-    @property
-    def Viridis8(self):
-        return ['#440154', '#46317E', '#365A8C', '#277E8E', '#1EA087', '#49C16D', '#9DD93A', '#FDE724']
-    @property
-    def Viridis9(self):
-        return ['#440154', '#472B7A', '#3B518A', '#2C718E', '#208F8C', '#27AD80', '#5BC862', '#AADB32', '#FDE724']
-    @property
-    def Viridis10(self):
-        return ['#440154', '#472777', '#3E4989', '#30678D', '#25828E', '#1E9C89', '#35B778', '#6BCD59', '#B2DD2C', '#FDE724']
-    @property
-    def Viridis11(self):
-        return ['#440154', '#482374', '#404387', '#345E8D', '#29788E', '#208F8C', '#22A784', '#42BE71', '#79D151', '#BADE27', '#FDE724']
-    @property
-    def Viridis256(self):
-        return [
-            '#440154', '#440255', '#440357', '#450558', '#45065A', '#45085B', '#46095C', '#460B5E', '#460C5F', '#460E61', '#470F62', '#471163',
-            '#471265', '#471466', '#471567', '#471669', '#47186A', '#48196B', '#481A6C', '#481C6E', '#481D6F', '#481E70', '#482071', '#482172',
-            '#482273', '#482374', '#472575', '#472676', '#472777', '#472878', '#472A79', '#472B7A', '#472C7B', '#462D7C', '#462F7C', '#46307D',
-            '#46317E', '#45327F', '#45347F', '#453580', '#453681', '#443781', '#443982', '#433A83', '#433B83', '#433C84', '#423D84', '#423E85',
-            '#424085', '#414186', '#414286', '#404387', '#404487', '#3F4587', '#3F4788', '#3E4888', '#3E4989', '#3D4A89', '#3D4B89', '#3D4C89',
-            '#3C4D8A', '#3C4E8A', '#3B508A', '#3B518A', '#3A528B', '#3A538B', '#39548B', '#39558B', '#38568B', '#38578C', '#37588C', '#37598C',
-            '#365A8C', '#365B8C', '#355C8C', '#355D8C', '#345E8D', '#345F8D', '#33608D', '#33618D', '#32628D', '#32638D', '#31648D', '#31658D',
-            '#31668D', '#30678D', '#30688D', '#2F698D', '#2F6A8D', '#2E6B8E', '#2E6C8E', '#2E6D8E', '#2D6E8E', '#2D6F8E', '#2C708E', '#2C718E',
-            '#2C728E', '#2B738E', '#2B748E', '#2A758E', '#2A768E', '#2A778E', '#29788E', '#29798E', '#287A8E', '#287A8E', '#287B8E', '#277C8E',
-            '#277D8E', '#277E8E', '#267F8E', '#26808E', '#26818E', '#25828E', '#25838D', '#24848D', '#24858D', '#24868D', '#23878D', '#23888D',
-            '#23898D', '#22898D', '#228A8D', '#228B8D', '#218C8D', '#218D8C', '#218E8C', '#208F8C', '#20908C', '#20918C', '#1F928C', '#1F938B',
-            '#1F948B', '#1F958B', '#1F968B', '#1E978A', '#1E988A', '#1E998A', '#1E998A', '#1E9A89', '#1E9B89', '#1E9C89', '#1E9D88', '#1E9E88',
-            '#1E9F88', '#1EA087', '#1FA187', '#1FA286', '#1FA386', '#20A485', '#20A585', '#21A685', '#21A784', '#22A784', '#23A883', '#23A982',
-            '#24AA82', '#25AB81', '#26AC81', '#27AD80', '#28AE7F', '#29AF7F', '#2AB07E', '#2BB17D', '#2CB17D', '#2EB27C', '#2FB37B', '#30B47A',
-            '#32B57A', '#33B679', '#35B778', '#36B877', '#38B976', '#39B976', '#3BBA75', '#3DBB74', '#3EBC73', '#40BD72', '#42BE71', '#44BE70',
-            '#45BF6F', '#47C06E', '#49C16D', '#4BC26C', '#4DC26B', '#4FC369', '#51C468', '#53C567', '#55C666', '#57C665', '#59C764', '#5BC862',
-            '#5EC961', '#60C960', '#62CA5F', '#64CB5D', '#67CC5C', '#69CC5B', '#6BCD59', '#6DCE58', '#70CE56', '#72CF55', '#74D054', '#77D052',
-            '#79D151', '#7CD24F', '#7ED24E', '#81D34C', '#83D34B', '#86D449', '#88D547', '#8BD546', '#8DD644', '#90D643', '#92D741', '#95D73F',
-            '#97D83E', '#9AD83C', '#9DD93A', '#9FD938', '#A2DA37', '#A5DA35', '#A7DB33', '#AADB32', '#ADDC30', '#AFDC2E', '#B2DD2C', '#B5DD2B',
-            '#B7DD29', '#BADE27', '#BDDE26', '#BFDF24', '#C2DF22', '#C5DF21', '#C7E01F', '#CAE01E', '#CDE01D', '#CFE11C', '#D2E11B', '#D4E11A',
-            '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
-            '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
-
     # http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
     @property
     def Accent3(self):
-        return ['#7fc97f', '#beaed4', '#fdc086']
+        return ["#7fc97f", "#beaed4", "#fdc086"]
     @property
     def Accent4(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99']
+        return ["#7fc97f", "#beaed4", "#fdc086", "#ffff99"]
     @property
     def Accent5(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0']
+        return ["#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0"]
     @property
     def Accent6(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f']
+        return ["#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0", "#f0027f"]
     @property
     def Accent7(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17']
+        return ["#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0", "#f0027f", "#bf5b17"]
     @property
     def Accent8(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
+        return ["#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0", "#f0027f", "#bf5b17", "#666666"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
     @property
     def Dark2_3(self):
-        return ['#1b9e77', '#d95f02', '#7570b3']
+        return ["#1b9e77", "#d95f02", "#7570b3"]
     @property
     def Dark2_4(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+        return ["#1b9e77", "#d95f02", "#7570b3", "#e7298a"]
     @property
     def Dark2_5(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+        return ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"]
     @property
     def Dark2_6(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
+        return ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02"]
     @property
     def Dark2_7(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
+        return ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d"]
     @property
     def Dark2_8(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+        return ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
     @property
     def Paired3(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a']
+        return ["#a6cee3", "#1f78b4", "#b2df8a"]
     @property
     def Paired4(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c"]
     @property
     def Paired5(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99"]
     @property
     def Paired6(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c"]
     @property
     def Paired7(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f"]
     @property
     def Paired8(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"]
     @property
     def Paired9(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6"]
     @property
     def Paired10(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a"]
     @property
     def Paired11(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99"]
     @property
     def Paired12(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
+        return ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
     @property
     def Pastel1_3(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5"]
     @property
     def Pastel1_4(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4"]
     @property
     def Pastel1_5(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4", "#fed9a6"]
     @property
     def Pastel1_6(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4", "#fed9a6", "#ffffcc"]
     @property
     def Pastel1_7(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4", "#fed9a6", "#ffffcc", "#e5d8bd"]
     @property
     def Pastel1_8(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4", "#fed9a6", "#ffffcc", "#e5d8bd", "#fddaec"]
     @property
     def Pastel1_9(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
+        return ["#fbb4ae", "#b3cde3", "#ccebc5", "#decbe4", "#fed9a6", "#ffffcc", "#e5d8bd", "#fddaec", "#f2f2f2"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
     @property
     def Pastel2_3(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8']
+        return ["#b3e2cd", "#fdcdac", "#cbd5e8"]
     @property
     def Pastel2_4(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4']
+        return ["#b3e2cd", "#fdcdac", "#cbd5e8", "#f4cae4"]
     @property
     def Pastel2_5(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9']
+        return ["#b3e2cd", "#fdcdac", "#cbd5e8", "#f4cae4", "#e6f5c9"]
     @property
     def Pastel2_6(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae']
+        return ["#b3e2cd", "#fdcdac", "#cbd5e8", "#f4cae4", "#e6f5c9", "#fff2ae"]
     @property
     def Pastel2_7(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc']
+        return ["#b3e2cd", "#fdcdac", "#cbd5e8", "#f4cae4", "#e6f5c9", "#fff2ae", "#f1e2cc"]
     @property
     def Pastel2_8(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
+        return ["#b3e2cd", "#fdcdac", "#cbd5e8", "#f4cae4", "#e6f5c9", "#fff2ae", "#f1e2cc", "#cccccc"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
     @property
     def Set1_3(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a']
+        return ["#e41a1c", "#377eb8", "#4daf4a"]
     @property
     def Set1_4(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
+        return ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]
     @property
     def Set1_5(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00']
+        return ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]
     @property
     def Set1_6(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33']
+        return ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33"]
     @property
     def Set1_7(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628']
+        return ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628"]
     @property
     def Set1_8(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
+        return ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
     @property
     def Set1_9(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
+        return ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf", "#999999"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
     @property
     def Set2_3(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb']
+        return ["#66c2a5", "#fc8d62", "#8da0cb"]
     @property
     def Set2_4(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
+        return ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3"]
     @property
     def Set2_5(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854']
+        return ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854"]
     @property
     def Set2_6(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
+        return ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f"]
     @property
     def Set2_7(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494']
+        return ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f", "#e5c494"]
     @property
     def Set2_8(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
+        return ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f", "#e5c494", "#b3b3b3"]
 
     # http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
     @property
     def Set3_3(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada']
+        return ["#8dd3c7", "#ffffb3", "#bebada"]
     @property
     def Set3_4(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072"]
     @property
     def Set3_5(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3"]
     @property
     def Set3_6(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462"]
     @property
     def Set3_7(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69"]
     @property
     def Set3_8(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5"]
     @property
     def Set3_9(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9"]
     @property
     def Set3_10(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd"]
     @property
     def Set3_11(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5"]
     @property
     def Set3_12(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+        return ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"]
+
+
+    @property
+    def Inferno3(self):
+        return ["#000003", "#BA3655", "#FCFEA4"]
+    @property
+    def Inferno4(self):
+        return ["#000003", "#781C6D", "#ED6825", "#FCFEA4"]
+    @property
+    def Inferno5(self):
+        return ["#000003", "#550F6D", "#BA3655", "#F98C09", "#FCFEA4"]
+    @property
+    def Inferno6(self):
+        return ["#000003", "#410967", "#932567", "#DC5039", "#FBA40A", "#FCFEA4"]
+    @property
+    def Inferno7(self):
+        return ["#000003", "#32095D", "#781C6D", "#BA3655", "#ED6825", "#FBB318", "#FCFEA4"]
+    @property
+    def Inferno8(self):
+        return ["#000003", "#270B52", "#63146E", "#9E2963", "#D24742", "#F57C15", "#FABF25", "#FCFEA4"]
+    @property
+    def Inferno9(self):
+        return ["#000003", "#1F0C47", "#550F6D", "#88216A", "#BA3655", "#E35832", "#F98C09", "#F8C931", "#FCFEA4"]
+    @property
+    def Inferno10(self):
+        return ["#000003", "#1A0B40", "#4A0B6A", "#781C6D", "#A42C60", "#CD4247", "#ED6825", "#FB9906", "#F7CF3A", "#FCFEA4"]
+    @property
+    def Inferno11(self):
+        return ["#000003", "#160B39", "#410967", "#6A176E", "#932567", "#BA3655", "#DC5039", "#F2751A", "#FBA40A", "#F6D542", "#FCFEA4"]
+    @property
+    def Inferno256(self):
+        return [
+            "#000003", "#000004", "#000006", "#010007", "#010109", "#01010B", "#02010E", "#020210", "#030212", "#040314", "#040316", "#050418",
+            "#06041B", "#07051D", "#08061F", "#090621", "#0A0723", "#0B0726", "#0D0828", "#0E082A", "#0F092D", "#10092F", "#120A32", "#130A34",
+            "#140B36", "#160B39", "#170B3B", "#190B3E", "#1A0B40", "#1C0C43", "#1D0C45", "#1F0C47", "#200C4A", "#220B4C", "#240B4E", "#260B50",
+            "#270B52", "#290B54", "#2B0A56", "#2D0A58", "#2E0A5A", "#300A5C", "#32095D", "#34095F", "#350960", "#370961", "#390962", "#3B0964",
+            "#3C0965", "#3E0966", "#400966", "#410967", "#430A68", "#450A69", "#460A69", "#480B6A", "#4A0B6A", "#4B0C6B", "#4D0C6B", "#4F0D6C",
+            "#500D6C", "#520E6C", "#530E6D", "#550F6D", "#570F6D", "#58106D", "#5A116D", "#5B116E", "#5D126E", "#5F126E", "#60136E", "#62146E",
+            "#63146E", "#65156E", "#66156E", "#68166E", "#6A176E", "#6B176E", "#6D186E", "#6E186E", "#70196E", "#72196D", "#731A6D", "#751B6D",
+            "#761B6D", "#781C6D", "#7A1C6D", "#7B1D6C", "#7D1D6C", "#7E1E6C", "#801F6B", "#811F6B", "#83206B", "#85206A", "#86216A", "#88216A",
+            "#892269", "#8B2269", "#8D2369", "#8E2468", "#902468", "#912567", "#932567", "#952666", "#962666", "#982765", "#992864", "#9B2864",
+            "#9C2963", "#9E2963", "#A02A62", "#A12B61", "#A32B61", "#A42C60", "#A62C5F", "#A72D5F", "#A92E5E", "#AB2E5D", "#AC2F5C", "#AE305B",
+            "#AF315B", "#B1315A", "#B23259", "#B43358", "#B53357", "#B73456", "#B83556", "#BA3655", "#BB3754", "#BD3753", "#BE3852", "#BF3951",
+            "#C13A50", "#C23B4F", "#C43C4E", "#C53D4D", "#C73E4C", "#C83E4B", "#C93F4A", "#CB4049", "#CC4148", "#CD4247", "#CF4446", "#D04544",
+            "#D14643", "#D24742", "#D44841", "#D54940", "#D64A3F", "#D74B3E", "#D94D3D", "#DA4E3B", "#DB4F3A", "#DC5039", "#DD5238", "#DE5337",
+            "#DF5436", "#E05634", "#E25733", "#E35832", "#E45A31", "#E55B30", "#E65C2E", "#E65E2D", "#E75F2C", "#E8612B", "#E9622A", "#EA6428",
+            "#EB6527", "#EC6726", "#ED6825", "#ED6A23", "#EE6C22", "#EF6D21", "#F06F1F", "#F0701E", "#F1721D", "#F2741C", "#F2751A", "#F37719",
+            "#F37918", "#F47A16", "#F57C15", "#F57E14", "#F68012", "#F68111", "#F78310", "#F7850E", "#F8870D", "#F8880C", "#F88A0B", "#F98C09",
+            "#F98E08", "#F99008", "#FA9107", "#FA9306", "#FA9506", "#FA9706", "#FB9906", "#FB9B06", "#FB9D06", "#FB9E07", "#FBA007", "#FBA208",
+            "#FBA40A", "#FBA60B", "#FBA80D", "#FBAA0E", "#FBAC10", "#FBAE12", "#FBB014", "#FBB116", "#FBB318", "#FBB51A", "#FBB71C", "#FBB91E",
+            "#FABB21", "#FABD23", "#FABF25", "#FAC128", "#F9C32A", "#F9C52C", "#F9C72F", "#F8C931", "#F8CB34", "#F8CD37", "#F7CF3A", "#F7D13C",
+            "#F6D33F", "#F6D542", "#F5D745", "#F5D948", "#F4DB4B", "#F4DC4F", "#F3DE52", "#F3E056", "#F3E259", "#F2E45D", "#F2E660", "#F1E864",
+            "#F1E968", "#F1EB6C", "#F1ED70", "#F1EE74", "#F1F079", "#F1F27D", "#F2F381", "#F2F485", "#F3F689", "#F4F78D", "#F5F891", "#F6FA95",
+            "#F7FB99", "#F9FC9D", "#FAFDA0", "#FCFEA4"]
+
+    @property
+    def Magma3(self):
+        return ["#000003", "#B53679", "#FBFCBF"]
+    @property
+    def Magma4(self):
+        return ["#000003", "#711F81", "#F0605D", "#FBFCBF"]
+    @property
+    def Magma5(self):
+        return ["#000003", "#4F117B", "#B53679", "#FB8660", "#FBFCBF"]
+    @property
+    def Magma6(self):
+        return ["#000003", "#3B0F6F", "#8C2980", "#DD4968", "#FD9F6C", "#FBFCBF"]
+    @property
+    def Magma7(self):
+        return ["#000003", "#2B115E", "#711F81", "#B53679", "#F0605D", "#FEAE76", "#FBFCBF"]
+    @property
+    def Magma8(self):
+        return ["#000003", "#221150", "#5D177E", "#972C7F", "#D1426E", "#F8755C", "#FEB97F", "#FBFCBF"]
+    @property
+    def Magma9(self):
+        return ["#000003", "#1B1044", "#4F117B", "#812581", "#B53679", "#E55063", "#FB8660", "#FEC286", "#FBFCBF"]
+    @property
+    def Magma10(self):
+        return ["#000003", "#170F3C", "#430F75", "#711F81", "#9E2E7E", "#CB3E71", "#F0605D", "#FC9366", "#FEC78B", "#FBFCBF"]
+    @property
+    def Magma11(self):
+        return ["#000003", "#140D35", "#3B0F6F", "#63197F", "#8C2980", "#B53679", "#DD4968", "#F66E5B", "#FD9F6C", "#FDCD90", "#FBFCBF"]
+    @property
+    def Magma256(self):
+        return [
+            "#000003", "#000004", "#000006", "#010007", "#010109", "#01010B", "#02020D", "#02020F", "#030311", "#040313", "#040415", "#050417",
+            "#060519", "#07051B", "#08061D", "#09071F", "#0A0722", "#0B0824", "#0C0926", "#0D0A28", "#0E0A2A", "#0F0B2C", "#100C2F", "#110C31",
+            "#120D33", "#140D35", "#150E38", "#160E3A", "#170F3C", "#180F3F", "#1A1041", "#1B1044", "#1C1046", "#1E1049", "#1F114B", "#20114D",
+            "#221150", "#231152", "#251155", "#261157", "#281159", "#2A115C", "#2B115E", "#2D1060", "#2F1062", "#301065", "#321067", "#341068",
+            "#350F6A", "#370F6C", "#390F6E", "#3B0F6F", "#3C0F71", "#3E0F72", "#400F73", "#420F74", "#430F75", "#450F76", "#470F77", "#481078",
+            "#4A1079", "#4B1079", "#4D117A", "#4F117B", "#50127B", "#52127C", "#53137C", "#55137D", "#57147D", "#58157E", "#5A157E", "#5B167E",
+            "#5D177E", "#5E177F", "#60187F", "#61187F", "#63197F", "#651A80", "#661A80", "#681B80", "#691C80", "#6B1C80", "#6C1D80", "#6E1E81",
+            "#6F1E81", "#711F81", "#731F81", "#742081", "#762181", "#772181", "#792281", "#7A2281", "#7C2381", "#7E2481", "#7F2481", "#812581",
+            "#822581", "#842681", "#852681", "#872781", "#892881", "#8A2881", "#8C2980", "#8D2980", "#8F2A80", "#912A80", "#922B80", "#942B80",
+            "#952C80", "#972C7F", "#992D7F", "#9A2D7F", "#9C2E7F", "#9E2E7E", "#9F2F7E", "#A12F7E", "#A3307E", "#A4307D", "#A6317D", "#A7317D",
+            "#A9327C", "#AB337C", "#AC337B", "#AE347B", "#B0347B", "#B1357A", "#B3357A", "#B53679", "#B63679", "#B83778", "#B93778", "#BB3877",
+            "#BD3977", "#BE3976", "#C03A75", "#C23A75", "#C33B74", "#C53C74", "#C63C73", "#C83D72", "#CA3E72", "#CB3E71", "#CD3F70", "#CE4070",
+            "#D0416F", "#D1426E", "#D3426D", "#D4436D", "#D6446C", "#D7456B", "#D9466A", "#DA4769", "#DC4869", "#DD4968", "#DE4A67", "#E04B66",
+            "#E14C66", "#E24D65", "#E44E64", "#E55063", "#E65162", "#E75262", "#E85461", "#EA5560", "#EB5660", "#EC585F", "#ED595F", "#EE5B5E",
+            "#EE5D5D", "#EF5E5D", "#F0605D", "#F1615C", "#F2635C", "#F3655C", "#F3675B", "#F4685B", "#F56A5B", "#F56C5B", "#F66E5B", "#F6705B",
+            "#F7715B", "#F7735C", "#F8755C", "#F8775C", "#F9795C", "#F97B5D", "#F97D5D", "#FA7F5E", "#FA805E", "#FA825F", "#FB8460", "#FB8660",
+            "#FB8861", "#FB8A62", "#FC8C63", "#FC8E63", "#FC9064", "#FC9265", "#FC9366", "#FD9567", "#FD9768", "#FD9969", "#FD9B6A", "#FD9D6B",
+            "#FD9F6C", "#FDA16E", "#FDA26F", "#FDA470", "#FEA671", "#FEA873", "#FEAA74", "#FEAC75", "#FEAE76", "#FEAF78", "#FEB179", "#FEB37B",
+            "#FEB57C", "#FEB77D", "#FEB97F", "#FEBB80", "#FEBC82", "#FEBE83", "#FEC085", "#FEC286", "#FEC488", "#FEC689", "#FEC78B", "#FEC98D",
+            "#FECB8E", "#FDCD90", "#FDCF92", "#FDD193", "#FDD295", "#FDD497", "#FDD698", "#FDD89A", "#FDDA9C", "#FDDC9D", "#FDDD9F", "#FDDFA1",
+            "#FDE1A3", "#FCE3A5", "#FCE5A6", "#FCE6A8", "#FCE8AA", "#FCEAAC", "#FCECAE", "#FCEEB0", "#FCF0B1", "#FCF1B3", "#FCF3B5", "#FCF5B7",
+            "#FBF7B9", "#FBF9BB", "#FBFABD", "#FBFCBF"]
+
+    @property
+    def Plasma3(self):
+        return ["#0C0786", "#CA4678", "#EFF821"]
+    @property
+    def Plasma4(self):
+        return ["#0C0786", "#9B179E", "#EC7853", "#EFF821"]
+    @property
+    def Plasma5(self):
+        return ["#0C0786", "#7C02A7", "#CA4678", "#F79341", "#EFF821"]
+    @property
+    def Plasma6(self):
+        return ["#0C0786", "#6A00A7", "#B02A8F", "#E06461", "#FCA635", "#EFF821"]
+    @property
+    def Plasma7(self):
+        return ["#0C0786", "#5C00A5", "#9B179E", "#CA4678", "#EC7853", "#FDB22F", "#EFF821"]
+    @property
+    def Plasma8(self):
+        return ["#0C0786", "#5201A3", "#8908A5", "#B83289", "#DA5A68", "#F38748", "#FDBB2B", "#EFF821"]
+    @property
+    def Plasma9(self):
+        return ["#0C0786", "#4A02A0", "#7C02A7", "#A82296", "#CA4678", "#E56B5C", "#F79341", "#FDC328", "#EFF821"]
+    @property
+    def Plasma10(self):
+        return ["#0C0786", "#45039E", "#7200A8", "#9B179E", "#BC3685", "#D7566C", "#EC7853", "#FA9D3A", "#FCC726", "#EFF821"]
+    @property
+    def Plasma11(self):
+        return ["#0C0786", "#40039C", "#6A00A7", "#8F0DA3", "#B02A8F", "#CA4678", "#E06461", "#F1824C", "#FCA635", "#FCCC25", "#EFF821"]
+    @property
+    def Plasma256(self):
+        return [
+            "#0C0786", "#100787", "#130689", "#15068A", "#18068B", "#1B068C", "#1D068D", "#1F058E", "#21058F", "#230590", "#250591", "#270592",
+            "#290593", "#2B0594", "#2D0494", "#2F0495", "#310496", "#330497", "#340498", "#360498", "#380499", "#3A049A", "#3B039A", "#3D039B",
+            "#3F039C", "#40039C", "#42039D", "#44039E", "#45039E", "#47029F", "#49029F", "#4A02A0", "#4C02A1", "#4E02A1", "#4F02A2", "#5101A2",
+            "#5201A3", "#5401A3", "#5601A3", "#5701A4", "#5901A4", "#5A00A5", "#5C00A5", "#5E00A5", "#5F00A6", "#6100A6", "#6200A6", "#6400A7",
+            "#6500A7", "#6700A7", "#6800A7", "#6A00A7", "#6C00A8", "#6D00A8", "#6F00A8", "#7000A8", "#7200A8", "#7300A8", "#7500A8", "#7601A8",
+            "#7801A8", "#7901A8", "#7B02A8", "#7C02A7", "#7E03A7", "#7F03A7", "#8104A7", "#8204A7", "#8405A6", "#8506A6", "#8607A6", "#8807A5",
+            "#8908A5", "#8B09A4", "#8C0AA4", "#8E0CA4", "#8F0DA3", "#900EA3", "#920FA2", "#9310A1", "#9511A1", "#9612A0", "#9713A0", "#99149F",
+            "#9A159E", "#9B179E", "#9D189D", "#9E199C", "#9F1A9B", "#A01B9B", "#A21C9A", "#A31D99", "#A41E98", "#A51F97", "#A72197", "#A82296",
+            "#A92395", "#AA2494", "#AC2593", "#AD2692", "#AE2791", "#AF2890", "#B02A8F", "#B12B8F", "#B22C8E", "#B42D8D", "#B52E8C", "#B62F8B",
+            "#B7308A", "#B83289", "#B93388", "#BA3487", "#BB3586", "#BC3685", "#BD3784", "#BE3883", "#BF3982", "#C03B81", "#C13C80", "#C23D80",
+            "#C33E7F", "#C43F7E", "#C5407D", "#C6417C", "#C7427B", "#C8447A", "#C94579", "#CA4678", "#CB4777", "#CC4876", "#CD4975", "#CE4A75",
+            "#CF4B74", "#D04D73", "#D14E72", "#D14F71", "#D25070", "#D3516F", "#D4526E", "#D5536D", "#D6556D", "#D7566C", "#D7576B", "#D8586A",
+            "#D95969", "#DA5A68", "#DB5B67", "#DC5D66", "#DC5E66", "#DD5F65", "#DE6064", "#DF6163", "#DF6262", "#E06461", "#E16560", "#E26660",
+            "#E3675F", "#E3685E", "#E46A5D", "#E56B5C", "#E56C5B", "#E66D5A", "#E76E5A", "#E87059", "#E87158", "#E97257", "#EA7356", "#EA7455",
+            "#EB7654", "#EC7754", "#EC7853", "#ED7952", "#ED7B51", "#EE7C50", "#EF7D4F", "#EF7E4E", "#F0804D", "#F0814D", "#F1824C", "#F2844B",
+            "#F2854A", "#F38649", "#F38748", "#F48947", "#F48A47", "#F58B46", "#F58D45", "#F68E44", "#F68F43", "#F69142", "#F79241", "#F79341",
+            "#F89540", "#F8963F", "#F8983E", "#F9993D", "#F99A3C", "#FA9C3B", "#FA9D3A", "#FA9F3A", "#FAA039", "#FBA238", "#FBA337", "#FBA436",
+            "#FCA635", "#FCA735", "#FCA934", "#FCAA33", "#FCAC32", "#FCAD31", "#FDAF31", "#FDB030", "#FDB22F", "#FDB32E", "#FDB52D", "#FDB62D",
+            "#FDB82C", "#FDB92B", "#FDBB2B", "#FDBC2A", "#FDBE29", "#FDC029", "#FDC128", "#FDC328", "#FDC427", "#FDC626", "#FCC726", "#FCC926",
+            "#FCCB25", "#FCCC25", "#FCCE25", "#FBD024", "#FBD124", "#FBD324", "#FAD524", "#FAD624", "#FAD824", "#F9D924", "#F9DB24", "#F8DD24",
+            "#F8DF24", "#F7E024", "#F7E225", "#F6E425", "#F6E525", "#F5E726", "#F5E926", "#F4EA26", "#F3EC26", "#F3EE26", "#F2F026", "#F2F126",
+            "#F1F326", "#F0F525", "#F0F623", "#EFF821"]
+
+    @property
+    def Viridis3(self):
+        return ["#440154", "#208F8C", "#FDE724"]
+    @property
+    def Viridis4(self):
+        return ["#440154", "#30678D", "#35B778", "#FDE724"]
+    @property
+    def Viridis5(self):
+        return ["#440154", "#3B518A", "#208F8C", "#5BC862", "#FDE724"]
+    @property
+    def Viridis6(self):
+        return ["#440154", "#404387", "#29788E", "#22A784", "#79D151", "#FDE724"]
+    @property
+    def Viridis7(self):
+        return ["#440154", "#443982", "#30678D", "#208F8C", "#35B778", "#8DD644", "#FDE724"]
+    @property
+    def Viridis8(self):
+        return ["#440154", "#46317E", "#365A8C", "#277E8E", "#1EA087", "#49C16D", "#9DD93A", "#FDE724"]
+    @property
+    def Viridis9(self):
+        return ["#440154", "#472B7A", "#3B518A", "#2C718E", "#208F8C", "#27AD80", "#5BC862", "#AADB32", "#FDE724"]
+    @property
+    def Viridis10(self):
+        return ["#440154", "#472777", "#3E4989", "#30678D", "#25828E", "#1E9C89", "#35B778", "#6BCD59", "#B2DD2C", "#FDE724"]
+    @property
+    def Viridis11(self):
+        return ["#440154", "#482374", "#404387", "#345E8D", "#29788E", "#208F8C", "#22A784", "#42BE71", "#79D151", "#BADE27", "#FDE724"]
+    @property
+    def Viridis256(self):
+        return [
+            "#440154", "#440255", "#440357", "#450558", "#45065A", "#45085B", "#46095C", "#460B5E", "#460C5F", "#460E61", "#470F62", "#471163",
+            "#471265", "#471466", "#471567", "#471669", "#47186A", "#48196B", "#481A6C", "#481C6E", "#481D6F", "#481E70", "#482071", "#482172",
+            "#482273", "#482374", "#472575", "#472676", "#472777", "#472878", "#472A79", "#472B7A", "#472C7B", "#462D7C", "#462F7C", "#46307D",
+            "#46317E", "#45327F", "#45347F", "#453580", "#453681", "#443781", "#443982", "#433A83", "#433B83", "#433C84", "#423D84", "#423E85",
+            "#424085", "#414186", "#414286", "#404387", "#404487", "#3F4587", "#3F4788", "#3E4888", "#3E4989", "#3D4A89", "#3D4B89", "#3D4C89",
+            "#3C4D8A", "#3C4E8A", "#3B508A", "#3B518A", "#3A528B", "#3A538B", "#39548B", "#39558B", "#38568B", "#38578C", "#37588C", "#37598C",
+            "#365A8C", "#365B8C", "#355C8C", "#355D8C", "#345E8D", "#345F8D", "#33608D", "#33618D", "#32628D", "#32638D", "#31648D", "#31658D",
+            "#31668D", "#30678D", "#30688D", "#2F698D", "#2F6A8D", "#2E6B8E", "#2E6C8E", "#2E6D8E", "#2D6E8E", "#2D6F8E", "#2C708E", "#2C718E",
+            "#2C728E", "#2B738E", "#2B748E", "#2A758E", "#2A768E", "#2A778E", "#29788E", "#29798E", "#287A8E", "#287A8E", "#287B8E", "#277C8E",
+            "#277D8E", "#277E8E", "#267F8E", "#26808E", "#26818E", "#25828E", "#25838D", "#24848D", "#24858D", "#24868D", "#23878D", "#23888D",
+            "#23898D", "#22898D", "#228A8D", "#228B8D", "#218C8D", "#218D8C", "#218E8C", "#208F8C", "#20908C", "#20918C", "#1F928C", "#1F938B",
+            "#1F948B", "#1F958B", "#1F968B", "#1E978A", "#1E988A", "#1E998A", "#1E998A", "#1E9A89", "#1E9B89", "#1E9C89", "#1E9D88", "#1E9E88",
+            "#1E9F88", "#1EA087", "#1FA187", "#1FA286", "#1FA386", "#20A485", "#20A585", "#21A685", "#21A784", "#22A784", "#23A883", "#23A982",
+            "#24AA82", "#25AB81", "#26AC81", "#27AD80", "#28AE7F", "#29AF7F", "#2AB07E", "#2BB17D", "#2CB17D", "#2EB27C", "#2FB37B", "#30B47A",
+            "#32B57A", "#33B679", "#35B778", "#36B877", "#38B976", "#39B976", "#3BBA75", "#3DBB74", "#3EBC73", "#40BD72", "#42BE71", "#44BE70",
+            "#45BF6F", "#47C06E", "#49C16D", "#4BC26C", "#4DC26B", "#4FC369", "#51C468", "#53C567", "#55C666", "#57C665", "#59C764", "#5BC862",
+            "#5EC961", "#60C960", "#62CA5F", "#64CB5D", "#67CC5C", "#69CC5B", "#6BCD59", "#6DCE58", "#70CE56", "#72CF55", "#74D054", "#77D052",
+            "#79D151", "#7CD24F", "#7ED24E", "#81D34C", "#83D34B", "#86D449", "#88D547", "#8BD546", "#8DD644", "#90D643", "#92D741", "#95D73F",
+            "#97D83E", "#9AD83C", "#9DD93A", "#9FD938", "#A2DA37", "#A5DA35", "#A7DB33", "#AADB32", "#ADDC30", "#AFDC2E", "#B2DD2C", "#B5DD2B",
+            "#B7DD29", "#BADE27", "#BDDE26", "#BFDF24", "#C2DF22", "#C5DF21", "#C7E01F", "#CAE01E", "#CDE01D", "#CFE11C", "#D2E11B", "#D4E11A",
+            "#D7E219", "#DAE218", "#DCE218", "#DFE318", "#E1E318", "#E4E318", "#E7E419", "#E9E419", "#ECE41A", "#EEE51B", "#F1E51C", "#F3E51E",
+            "#F6E61F", "#F8E621", "#FAE622", "#FDE724"]
+
+    # seaborn deep palette
+    @property
+    def Deep3(self):
+        return ["#4C72B0", "#55A868", "#C44E52"]
+    @property
+    def Deep4(self):
+        return ["#4C72B0", "#55A868", "#C44E52", "#8172B2"]
+    @property
+    def Deep5(self):
+        return ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974"]
+    @property
+    def Deep6(self):
+        return ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
+
+    # seaborn muted palette
+    @property
+    def Muted3(self):
+        return ["#4878CF", "#6ACC65", "#D65F5F"]
+    @property
+    def Muted4(self):
+        return ["#4878CF", "#6ACC65", "#D65F5F", "#B47CC7"]
+    @property
+    def Muted5(self):
+        return ["#4878CF", "#6ACC65", "#D65F5F", "#B47CC7", "#C4AD66"]
+    @property
+    def Muted6(self):
+        return ["#4878CF", "#6ACC65", "#D65F5F", "#B47CC7", "#C4AD66", "#77BEDB"]
+
+    # seaborn pastel palette
+    @property
+    def Pastel3(self):
+        return ["#92C6FF", "#97F0AA", "#FF9F9A"]
+    @property
+    def Pastel4(self):
+        return ["#92C6FF", "#97F0AA", "#FF9F9A", "#D0BBFF"]
+    @property
+    def Pastel5(self):
+        return ["#92C6FF", "#97F0AA", "#FF9F9A", "#D0BBFF", "#FFFEA3"]
+    @property
+    def Pastel6(self):
+        return ["#92C6FF", "#97F0AA", "#FF9F9A", "#D0BBFF", "#FFFEA3", "#B0E0E6"]
+
+    # seaborn bright palette
+    @property
+    def Bright3(self):
+        return ["#003FFF", "#03ED3A", "#E8000B"]
+    @property
+    def Bright4(self):
+        return ["#003FFF", "#03ED3A", "#E8000B", "#8A2BE2"]
+    @property
+    def Bright5(self):
+        return ["#003FFF", "#03ED3A", "#E8000B", "#8A2BE2", "#FFC400"]
+    @property
+    def Bright6(self):
+        return ["#003FFF", "#03ED3A", "#E8000B", "#8A2BE2", "#FFC400", "#00D7FF"]
+
+    # seaborn dark palette
+    @property
+    def Dark3(self):
+        return ["#001C7F", "#017517", "#8C0900"]
+    @property
+    def Dark4(self):
+        return ["#001C7F", "#017517", "#8C0900", "#7600A1"]
+    @property
+    def Dark5(self):
+        return ["#001C7F", "#017517", "#8C0900", "#7600A1", "#B8860B"]
+    @property
+    def Dark6(self):
+        return ["#001C7F", "#017517", "#8C0900", "#7600A1", "#B8860B", "#006374"]
+
+    # seaborn colorblind palette
+    @property
+    def Colorblind3(self):
+        return ["#0072B2", "#009E73", "#D55E00"]
+    @property
+    def Colorblind4(self):
+        return ["#0072B2", "#009E73", "#D55E00", "#CC79A7"]
+    @property
+    def Colorblind5(self):
+        return ["#0072B2", "#009E73", "#D55E00", "#CC79A7", "#F0E442"]
+    @property
+    def Colorblind6(self):
+        return ["#0072B2", "#009E73", "#D55E00", "#CC79A7", "#F0E442", "#56B4E9"]
+
+    # vega category10
+    @property
+    def Category10_3(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c"]
+    @property
+    def Category10_4(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+    @property
+    def Category10_5(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+    @property
+    def Category10_6(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
+    @property
+    def Category10_7(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"]
+    @property
+    def Category10_8(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+    @property
+    def Category10_9(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22"]
+    @property
+    def Category10_10(self):
+        return ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+
+    # vega category20
+    @property
+    def Category20_3(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e"]
+    @property
+    def Category20_4(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78"]
+    @property
+    def Category20_5(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c"]
+    @property
+    def Category20_6(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a"]
+    @property
+    def Category20_7(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728"]
+    @property
+    def Category20_8(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896"]
+    @property
+    def Category20_9(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd"]
+    @property
+    def Category20_10(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5"]
+    @property
+    def Category20_11(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b"]
+    @property
+    def Category20_12(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94"]
+    @property
+    def Category20_13(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2"]
+    @property
+    def Category20_14(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2"]
+    @property
+    def Category20_15(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f"]
+    @property
+    def Category20_16(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7"]
+    @property
+    def Category20_17(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22"]
+    @property
+    def Category20_18(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d"]
+    @property
+    def Category20_19(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf"]
+    @property
+    def Category20_20(self):
+        return ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5",
+                "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5"]
+
+    # vega category20b
+    @property
+    def Category20b_3(self):
+        return ["#393b79", "#5254a3", "#6b6ecf"]
+    @property
+    def Category20b_4(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede"]
+    @property
+    def Category20b_5(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939"]
+    @property
+    def Category20b_6(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252"]
+    @property
+    def Category20b_7(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b"]
+    @property
+    def Category20b_8(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c"]
+    @property
+    def Category20b_9(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31"]
+    @property
+    def Category20b_10(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39"]
+    @property
+    def Category20b_11(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52"]
+    @property
+    def Category20b_12(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94"]
+    @property
+    def Category20b_13(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39"]
+    @property
+    def Category20b_14(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a"]
+    @property
+    def Category20b_15(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b"]
+    @property
+    def Category20b_16(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c"]
+    @property
+    def Category20b_17(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173"]
+    @property
+    def Category20b_18(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194"]
+    @property
+    def Category20b_19(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194", "#ce6dbd"]
+    @property
+    def Category20b_20(self):
+        return ["#393b79", "#5254a3", "#6b6ecf", "#9c9ede", "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39",
+                "#e7ba52", "#e7cb94", "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194", "#ce6dbd", "#de9ed6"]
+
+    # vega category20c
+    @property
+    def Category20c_3(self):
+        return ["#3182bd", "#6baed6", "#9ecae1"]
+    @property
+    def Category20c_4(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef"]
+    @property
+    def Category20c_5(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d"]
+    @property
+    def Category20c_6(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c"]
+    @property
+    def Category20c_7(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b"]
+    @property
+    def Category20c_8(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2"]
+    @property
+    def Category20c_9(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354"]
+    @property
+    def Category20c_10(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476"]
+    @property
+    def Category20c_11(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b"]
+    @property
+    def Category20c_12(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0"]
+    @property
+    def Category20c_13(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1"]
+    @property
+    def Category20c_14(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8"]
+    @property
+    def Category20c_15(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc"]
+    @property
+    def Category20c_16(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb"]
+    @property
+    def Category20c_17(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363"]
+    @property
+    def Category20c_18(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696"]
+    @property
+    def Category20c_19(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd"]
+    @property
+    def Category20c_20(self):
+        return ["#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476",
+                "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9d9d9"]
 
     @property
     def YlGn(self):
@@ -1190,31 +1560,31 @@ class _Palettes(object):
         return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9 }
     @property
     def PuOr(self):
-        return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,      10: self.PuOr10,     11: self.PuOr11 } # NOQA
+        return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,     10: self.PuOr10,     11: self.PuOr11 } # NOQA
     @property
     def BrBG(self):
-        return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,      10: self.BrBG10,     11: self.BrBG11 } # NOQA
+        return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,     10: self.BrBG10,     11: self.BrBG11 } # NOQA
     @property
     def PRGn(self):
-        return { 3: self.PRGn3,     4: self.PRGn4,     5: self.PRGn5,     6: self.PRGn6,     7: self.PRGn7,     8: self.PRGn8,     9: self.PRGn9,      10: self.PRGn10,     11: self.PRGn11 } # NOQA
+        return { 3: self.PRGn3,     4: self.PRGn4,     5: self.PRGn5,     6: self.PRGn6,     7: self.PRGn7,     8: self.PRGn8,     9: self.PRGn9,     10: self.PRGn10,     11: self.PRGn11 } # NOQA
     @property
     def PiYG(self):
-        return { 3: self.PiYG3,     4: self.PiYG4,     5: self.PiYG5,     6: self.PiYG6,     7: self.PiYG7,     8: self.PiYG8,     9: self.PiYG9,      10: self.PiYG10,     11: self.PiYG11 } # NOQA
+        return { 3: self.PiYG3,     4: self.PiYG4,     5: self.PiYG5,     6: self.PiYG6,     7: self.PiYG7,     8: self.PiYG8,     9: self.PiYG9,     10: self.PiYG10,     11: self.PiYG11 } # NOQA
     @property
     def RdBu(self):
-        return { 3: self.RdBu3,     4: self.RdBu4,     5: self.RdBu5,     6: self.RdBu6,     7: self.RdBu7,     8: self.RdBu8,     9: self.RdBu9,      10: self.RdBu10,     11: self.RdBu11 } # NOQA
+        return { 3: self.RdBu3,     4: self.RdBu4,     5: self.RdBu5,     6: self.RdBu6,     7: self.RdBu7,     8: self.RdBu8,     9: self.RdBu9,     10: self.RdBu10,     11: self.RdBu11 } # NOQA
     @property
     def RdGy(self):
-        return { 3: self.RdGy3,     4: self.RdGy4,     5: self.RdGy5,     6: self.RdGy6,     7: self.RdGy7,     8: self.RdGy8,     9: self.RdGy9,      10: self.RdGy10,     11: self.RdGy11 } # NOQA
+        return { 3: self.RdGy3,     4: self.RdGy4,     5: self.RdGy5,     6: self.RdGy6,     7: self.RdGy7,     8: self.RdGy8,     9: self.RdGy9,     10: self.RdGy10,     11: self.RdGy11 } # NOQA
     @property
     def RdYlBu(self):
-        return { 3: self.RdYlBu3,   4: self.RdYlBu4,   5: self.RdYlBu5,   6: self.RdYlBu6,   7: self.RdYlBu7,   8: self.RdYlBu8,   9: self.RdYlBu9,    10: self.RdYlBu10,   11: self.RdYlBu11 } # NOQA
+        return { 3: self.RdYlBu3,   4: self.RdYlBu4,   5: self.RdYlBu5,   6: self.RdYlBu6,   7: self.RdYlBu7,   8: self.RdYlBu8,   9: self.RdYlBu9,   10: self.RdYlBu10,   11: self.RdYlBu11 } # NOQA
     @property
     def Spectral(self):
-        return { 3: self.Spectral3, 4: self.Spectral4, 5: self.Spectral5, 6: self.Spectral6, 7: self.Spectral7, 8: self.Spectral8, 9: self.Spectral9,  10: self.Spectral10, 11: self.Spectral11 } # NOQA
+        return { 3: self.Spectral3, 4: self.Spectral4, 5: self.Spectral5, 6: self.Spectral6, 7: self.Spectral7, 8: self.Spectral8, 9: self.Spectral9, 10: self.Spectral10, 11: self.Spectral11 } # NOQA
     @property
     def RdYlGn(self):
-        return { 3: self.RdYlGn3,   4: self.RdYlGn4,   5: self.RdYlGn5,   6: self.RdYlGn6,   7: self.RdYlGn7,   8: self.RdYlGn8,   9: self.RdYlGn9,    10: self.RdYlGn10,   11: self.RdYlGn11 } # NOQA
+        return { 3: self.RdYlGn3,   4: self.RdYlGn4,   5: self.RdYlGn5,   6: self.RdYlGn6,   7: self.RdYlGn7,   8: self.RdYlGn8,   9: self.RdYlGn9,   10: self.RdYlGn10,   11: self.RdYlGn11 } # NOQA
     @property
     def Accent(self):
         return { 3: self.Accent3,   4: self.Accent4,   5: self.Accent5,   6: self.Accent6,   7: self.Accent7,   8: self.Accent8 }
@@ -1223,7 +1593,7 @@ class _Palettes(object):
         return { 3: self.Dark2_3,   4: self.Dark2_4,   5: self.Dark2_5,   6: self.Dark2_6,   7: self.Dark2_7,   8: self.Dark2_8 }
     @property
     def Paired(self):
-        return { 3: self.Paired3,   4: self.Paired4,   5: self.Paired5,   6: self.Paired6,   7: self.Paired7,   8: self.Paired8,   9: self.Paired9,    10: self.Paired10,   11: self.Paired11, 12: self.Paired12 } # NOQA
+        return { 3: self.Paired3,   4: self.Paired4,   5: self.Paired5,   6: self.Paired6,   7: self.Paired7,   8: self.Paired8,   9: self.Paired9,   10: self.Paired10,   11: self.Paired11,  12: self.Paired12 } # NOQA
     @property
     def Pastel1(self):
         return { 3: self.Pastel1_3, 4: self.Pastel1_4, 5: self.Pastel1_5, 6: self.Pastel1_6, 7: self.Pastel1_7, 8: self.Pastel1_8, 9: self.Pastel1_9 }
@@ -1238,20 +1608,59 @@ class _Palettes(object):
         return { 3: self.Set2_3,    4: self.Set2_4,    5: self.Set2_5,    6: self.Set2_6,    7: self.Set2_7,    8: self.Set2_8 }
     @property
     def Set3(self):
-        return { 3: self.Set3_3,    4: self.Set3_4,    5: self.Set3_5,    6: self.Set3_6,    7: self.Set3_7,    8: self.Set3_8,    9: self.Set3_9,     10: self.Set3_10,    11: self.Set3_11, 12: self.Set3_12 } # NOQA
-
-    @property
-    def Magma(self):
-        return { 3: self.Magma3,   4: self.Magma4,   5: self.Magma5,   6: self.Magma6,   7: self.Magma7,   8: self.Magma8,   9: self.Magma9,    10: self.Magma10,   11: self.Magma11,   256: self.Magma256 } # NOQA
+        return { 3: self.Set3_3,    4: self.Set3_4,    5: self.Set3_5,    6: self.Set3_6,    7: self.Set3_7,    8: self.Set3_8,    9: self.Set3_9,    10: self.Set3_10,    11: self.Set3_11,   12: self.Set3_12 } # NOQA
     @property
     def Inferno(self):
-        return { 3: self.Inferno3, 4: self.Inferno4, 5: self.Inferno5, 6: self.Inferno6, 7: self.Inferno7, 8: self.Inferno8, 9: self.Inferno9,  10: self.Inferno10, 11: self.Inferno11, 256: self.Inferno256 } # NOQA
+        return { 3: self.Inferno3,  4: self.Inferno4,  5: self.Inferno5,  6: self.Inferno6,  7: self.Inferno7,  8: self.Inferno8,  9: self.Inferno9,  10: self.Inferno10,  11: self.Inferno11, 256: self.Inferno256 } # NOQA
+    @property
+    def Magma(self):
+        return { 3: self.Magma3,    4: self.Magma4,    5: self.Magma5,    6: self.Magma6,    7: self.Magma7,    8: self.Magma8,    9: self.Magma9,    10: self.Magma10,    11: self.Magma11,   256: self.Magma256 } # NOQA
     @property
     def Plasma(self):
-        return { 3: self.Plasma3,  4: self.Plasma4,  5: self.Plasma5,  6: self.Plasma6,  7: self.Plasma7,  8: self.Plasma8,  9: self.Plasma9,   10: self.Plasma10,  11: self.Plasma11,  256: self.Plasma256 } # NOQA
+        return { 3: self.Plasma3,   4: self.Plasma4,   5: self.Plasma5,   6: self.Plasma6,   7: self.Plasma7,   8: self.Plasma8,   9: self.Plasma9,   10: self.Plasma10,   11: self.Plasma11,  256: self.Plasma256 } # NOQA
     @property
     def Viridis(self):
-        return { 3: self.Viridis3, 4: self.Viridis4, 5: self.Viridis5, 6: self.Viridis6, 7: self.Viridis7, 8: self.Viridis8, 9: self.Viridis9,  10: self.Viridis10, 11: self.Viridis11, 256: self.Viridis256 } # NOQA
+        return { 3: self.Viridis3,  4: self.Viridis4,  5: self.Viridis5,  6: self.Viridis6,  7: self.Viridis7,  8: self.Viridis8,  9: self.Viridis9,  10: self.Viridis10,  11: self.Viridis11, 256: self.Viridis256 } # NOQA
+    @property
+    def Deep(self):
+        return { 3: self.Deep3,     4: self.Deep4,     5: self.Deep5,     6: self.Deep6 }
+    @property
+    def Muted(self):
+        return { 3: self.Muted3,    4: self.Muted4,    5: self.Muted5,    6: self.Muted6 }
+    @property
+    def Pastel(self):
+        return { 3: self.Pastel3,   4: self.Pastel4,   5: self.Pastel5,   6: self.Pastel6 }
+    @property
+    def Bright(self):
+        return { 3: self.Bright3,   4: self.Bright4,   5: self.Bright5,   6: self.Bright6 }
+    @property
+    def Dark(self):
+        return { 3: self.Dark3,     4: self.Dark4,     5: self.Dark5,     6: self.Dark6 }
+    @property
+    def Colorblind(self):
+        return { 3: self.Colorblind3,  4: self.Colorblind4,  5: self.Colorblind5,  6: self.Colorblind6 }
+    @property
+    def Category10(self):
+        return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6,
+                 7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9, 10: self.Category10_10 }
+    @property
+    def Category20(self):
+        return { 3:  self.Category20_3,   4:  self.Category20_4,   5:  self.Category20_5,   6:  self.Category20_6,   7:  self.Category20_7,
+                 8:  self.Category20_8,   9:  self.Category20_9,   10: self.Category20_10,  11: self.Category20_11,  12: self.Category20_12,
+                 13: self.Category20_13,  14: self.Category20_14,  15: self.Category20_15,  16: self.Category20_16,  17: self.Category20_17,
+                 18: self.Category20_18,  19: self.Category20_19,  20: self.Category20_20 }
+    @property
+    def Category20b(self):
+        return { 3:  self.Category20b_3,  4:  self.Category20b_4,  5:  self.Category20b_5,  6:  self.Category20b_6,  7:  self.Category20b_7,
+                 8:  self.Category20b_8,  9:  self.Category20b_9,  10: self.Category20b_10, 11: self.Category20b_11, 12: self.Category20b_12,
+                 13: self.Category20b_13, 14: self.Category20b_14, 15: self.Category20b_15, 16: self.Category20b_16, 17: self.Category20b_17,
+                 18: self.Category20b_18, 19: self.Category20b_19, 20: self.Category20b_20 }
+    @property
+    def Category20c(self):
+        return { 3:  self.Category20c_3,  4:  self.Category20c_4,  5:  self.Category20c_5,  6:  self.Category20c_6,  7:  self.Category20c_7,
+                 8:  self.Category20c_8,  9:  self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12,
+                 13: self.Category20c_13, 14: self.Category20c_14, 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17,
+                 18: self.Category20c_18, 19: self.Category20c_19, 20: self.Category20c_20 }
 
     @property
     def brewer(self):
@@ -1294,12 +1703,34 @@ class _Palettes(object):
         }
 
     @property
+    def seaborn(self):
+        return {
+            "Deep"       : self.Deep,
+            "Muted"      : self.Muted,
+            "Pastel"     : self.Pastel,
+            "Bright"     : self.Bright,
+            "Dark"       : self.Dark,
+            "Colorblind" : self.Colorblind,
+        }
+
+    @property
+    def vega(self):
+        return {
+            "Category10"  : self.Category10,
+            "Category20"  : self.Category20,
+            "Category20b" : self.Category20b,
+            "Category20c" : self.Category20c,
+        }
+
+    @property
     def all_palettes(self):
         palettes = self.brewer
-        palettes["Magma"]   = self.Magma
-        palettes["Inferno"] = self.Inferno
-        palettes["Plasma"]  = self.Plasma
-        palettes["Viridis"] = self.Viridis
+        palettes.update(self.seaborn)
+        palettes.update(self.vega)
+        palettes["Magma"]      = self.Magma
+        palettes["Inferno"]    = self.Inferno
+        palettes["Plasma"]     = self.Plasma
+        palettes["Viridis"]    = self.Viridis
         return palettes
 
     @property
@@ -1331,23 +1762,23 @@ class _Palettes(object):
 
     @property
     def magma(self):
-        return self._linear_cmap_func_generator('magma', self.Magma256)
+        return self._linear_cmap_func_generator("magma", self.Magma256)
     @property
     def inferno(self):
-        return self._linear_cmap_func_generator('inferno', self.Inferno256)
+        return self._linear_cmap_func_generator("inferno", self.Inferno256)
     @property
     def plasma(self):
-        return self._linear_cmap_func_generator('plasma', self.Plasma256)
+        return self._linear_cmap_func_generator("plasma", self.Plasma256)
     @property
     def viridis(self):
-        return self._linear_cmap_func_generator('viridis', self.Viridis256)
+        return self._linear_cmap_func_generator("viridis", self.Viridis256)
 
     @property
     def grey(self):
-        return self._linear_cmap_func_generator('grey', self.Greys256)
+        return self._linear_cmap_func_generator("grey", self.Greys256)
     @property
     def gray(self):
-        return self._linear_cmap_func_generator('gray', self.Greys256)
+        return self._linear_cmap_func_generator("gray", self.Greys256)
 
 import sys as _sys
 import types as _types
@@ -1358,7 +1789,7 @@ class _PalettesModule(_types.ModuleType, _Palettes):
                [ name for name in dir(_Palettes) if not name.startswith("_") ]
 
 # need to explicitly transfer the docstring for Sphinx docs to build correctly
-_mod = _PalettesModule('bokeh.palettes')
+_mod = _PalettesModule("bokeh.palettes")
 _mod.__doc__ = __doc__
-_sys.modules['bokeh.palettes'] = _mod
+_sys.modules["bokeh.palettes"] = _mod
 del _mod
