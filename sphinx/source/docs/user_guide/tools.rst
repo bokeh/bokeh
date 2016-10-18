@@ -360,8 +360,6 @@ a list containing ``width`` or ``height``. Additionally, there are tool aliases
 Inspectors
 ~~~~~~~~~~
 
-* menu icon: |inspector_icon|
-
 Inspectors are passive tools that annotate or otherwise report information about
 the plot, based on the current cursor position. Any number of inspectors may be
 active at any given time. The inspectors menu in the toolbar allows users to
@@ -371,6 +369,7 @@ CrosshairTool
 '''''''''''''
 
 * name: ``'crosshair'``
+* menu icon: |crosshair_icon|
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. The crosshair tool may be configured to draw
@@ -381,6 +380,7 @@ HoverTool
 '''''''''
 
 * name: ``'hover'``
+* menu icon: |hover_icon|
 
 The hover tool pops up a tooltip div whenever the cursor is over a glyph.
 The information comes from the glyphs data source and is configurable through
@@ -513,7 +513,9 @@ LOD behavior:
     :height: 14pt
 .. |help_icon| image:: /_images/icons/Help.png
     :height: 14pt
-.. |inspector_icon| image:: /_images/icons/Inspector.png
+.. |crosshair_icon| image:: /_images/icons/Crosshair.png
+    :height: 14pt
+.. |hover_icon| image:: /_images/icons/Hover.png
     :height: 14pt
 .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
     :height: 14pt

@@ -21,19 +21,6 @@
   outline: none;
 }
 
-.bk-button-bar .bk-bs-dropdown {
-  a {
-    color: transparent;
-    font-size: 0;
-    display: block;
-    float: left;
-    width: 13px;
-    height: 13px;
-    margin-bottom: 5px;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAGdSURBVCiRXZJPSxtRFMV/dyYTunBREASRIkKwddPSjYIL+x2K9plR+owR7K7L7vsZutIkZqhO8jZ+h25aQilUkbaUgv2zEOpGpAsZnbld+BJC7ubAvYd77uEeYaTaB25bhJqi44Kcq9LYWDOt/lxVkQG542ZFaQP3gB6wBLwDFoGfKtQ2qua7qhIAJB1XEeUE9CtSPLCxWQbObGxWEL0P+k2Uk3barQBImrrgWvmE8NnGpgaQpO4OcArM2Nhc+d4e8DCUcL6UwZYIk0WYzw9Zy4CnHm+9hNcvJI/+3GhuJUndR+A3yCpoCGQ2NkWfnKQuAMqo5Ih2gakScBeYBj32vE3gw5DqAtBCFGAcuCwBF8CRIFX1SiNf6AGPQXLwSgq7Aq+zMGPLrPdNB16h50+92uvul4MiWlJ4FZShAZxFebQztL0MHHoEICiiBvCrRJiI31wBvii8zQt9WV9f/Zek7sjG5lFzvzsWBvJGYA2Ye1599mOQiKTjZlVpCcwA74En/UQonIqwaX0ihJFKUlcH6sAE8Bdo2tg0B/9S5T8JNaZ11wlT0wAAAABJRU5ErkJggg==);
-  }
-}
-
 .bk-button-bar-list {
   margin: 0;
   padding: 0;
@@ -56,18 +43,6 @@
   }
 }
 
-.bk-button-bar-list .bk-bs-dropdown-menu {
-  padding: 10px 8px;
-}
-.bk-button-bar-list .bk-bs-dropdown-menu li {
-  float: none;
-  clear: both;
-  font-family: Helvetica, sans-serif;
-  line-height: 1.5em;
-}
-.bk-button-bar-list .bk-bs-dropdown-menu li input {
-  margin-right: 8px;
-}
 .bk-button-bar-list .bk-toolbar-button {
   width: @buttonWidth;
   height: @buttonHeight;
@@ -214,12 +189,6 @@
           }
         }
       }
-      &.bk-bs-dropdown {
-        padding: 7px 10px 0 5px;
-      }
-      .bk-bs-dropdown-menu {
-        left: -120px;
-      }
     }
   }
 }
@@ -249,14 +218,6 @@
           }
         }
       }
-      &.bk-bs-dropdown {
-        float: left;
-        padding: 7px 10px 0 5px;
-      }
-      .bk-bs-dropdown-menu {
-       top: 0px;
-       left: 30px;
-      }
       > li {
         clear: both;
         &:last-child {
@@ -285,9 +246,6 @@
   top: -1px;
   right: 0px;
 }
-.bk-toolbar-right .bk-button-bar .bk-button-bar-list .bk-bs-dropdown-menu {
-  left: -180px;
-}
 
 .bk-button-bar-list .bk-toolbar-button.active {
   background: #fff;
@@ -295,29 +253,4 @@
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   outline: none !important;
-}
-
-.bk-bs-caret {
-  color: @buttonColor;
-  display: inline-block;
-  width: 0;
-  height: 0;
-  position: relative;
-  left: 11px;
-  top: 3px;
-  vertical-align: middle;
-  border-top: 4px solid;
-  border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
-}
-
-// Override the toolbar dropdown box
-
-.bk-button-bar-list .bk-bs-dropdown-menu {
-  z-index: 100;
-  background-color: #fff;
-  opacity: 0.95;
-  border: #e5e5e5 solid 1px;
-  border-radius: inherit;
-  box-shadow: none;
 }

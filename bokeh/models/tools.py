@@ -320,7 +320,7 @@ class TapTool(Tap):
 
 
 class CrosshairTool(Inspection):
-    """ *toolbar icon*: |inspector_icon|
+    """ *toolbar icon*: |crosshair_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
     at all times, but can be configured in the inspector's menu
@@ -331,7 +331,7 @@ class CrosshairTool(Inspection):
     configured to draw across only one dimension by setting the
     ``dimension`` property to only ``width`` or ``height``.
 
-    .. |inspector_icon| image:: /_images/icons/Inspector.png
+    .. |crosshair_icon| image:: /_images/icons/Crosshair.png
         :height: 18pt
 
     """
@@ -617,7 +617,7 @@ class PolySelectTool(Tap):
     """)
 
 class HoverTool(Inspection):
-    """ *toolbar icon*: |inspector_icon|
+    """ *toolbar icon*: |crosshair_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
     all times, but can be configured in the inspector's menu associated
@@ -667,7 +667,7 @@ class HoverTool(Inspection):
             * segment
             * text
 
-    .. |hover_icon| image:: /_images/icons/Inspector.png
+    .. |hover_icon| image:: /_images/icons/Hover.png
         :height: 18pt
     """
 

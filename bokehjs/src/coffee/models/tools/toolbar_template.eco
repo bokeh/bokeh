@@ -12,7 +12,7 @@
     <ul class='bk-button-bar-list' type="press" />
     <ul class='bk-button-bar-list' type="rotate" />
     <ul class='bk-button-bar-list' type="actions" />
-    <div class='bk-button-bar-list bk-bs-dropdown' type="inspectors" />
+    <ul class='bk-button-bar-list' type="inspectors" />
     <ul class='bk-button-bar-list' type="help" />
   </div>
 </div>
