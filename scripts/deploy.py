@@ -414,7 +414,7 @@ def merge_and_push():
         failed("[NON-FATAL] Could not delete release branch", out.split("\n"))
 
     try:
-        run(["git", "tag", "-a", CONFIG.new_version, "-m", "Release %s" % CONFIG.new_version]).
+        run(["git", "tag", "-a", CONFIG.new_version, "-m", "Release %s" % CONFIG.new_version])
         passed("Tagged release %r" % CONFIG.new_version)
     except Exception as e:
         failed("[FATAL] COULD NOT TAG RELEASE: %s" % e)
