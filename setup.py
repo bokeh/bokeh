@@ -591,7 +591,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=['bin/bokeh', 'bin/bokeh-server'],
+    scripts=['bin/bokeh'],
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     zip_safe=False,
     install_requires=REQUIRES
