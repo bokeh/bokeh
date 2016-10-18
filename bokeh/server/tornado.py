@@ -142,7 +142,6 @@ class BokehTornado(TornadoApplication):
         check_unused_sessions_milliseconds (int) : number of milliseconds between check for unused sessions
         unused_session_lifetime_milliseconds (int) : number of milliseconds for unused session lifetime
         stats_log_frequency_milliseconds (int) : number of milliseconds between logging stats
-        develop (boolean) : True for develop mode
         use_index (boolean) : True to generate an index of the running apps in the RootHandler
 
     '''
@@ -162,7 +161,6 @@ class BokehTornado(TornadoApplication):
                  unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
-                 develop=False,
                  use_index=True,
                  redirect_root=True):
 
@@ -185,7 +183,6 @@ class BokehTornado(TornadoApplication):
         self._hosts = set(hosts)
         self._websocket_origins = self._hosts | set(extra_websocket_origins)
         self._resources = {}
-        self._develop = develop
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
@@ -196,7 +193,7 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v, self._develop)
+            self._applications[k] = ApplicationContext(v)
 
         extra_patterns = extra_patterns or []
         all_patterns = []
@@ -260,7 +257,6 @@ class BokehTornado(TornadoApplication):
                  unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
-                 develop=False,
                  **kw):
 
         if io_loop is None:

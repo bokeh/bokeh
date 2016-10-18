@@ -30,10 +30,6 @@ class BokehServerContext(ServerContext):
             result.append(session.session_context)
         return result
 
-    @property
-    def develop_mode(self):
-        return self.application_context.develop
-
     def add_next_tick_callback(self, callback):
         self._callbacks.add_next_tick_callback(callback)
 
@@ -92,9 +88,8 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, develop=False, io_loop=None):
+    def __init__(self, application, io_loop=None):
         self._application = application
-        self._develop = develop
         self._loop = io_loop
         self._sessions = dict()
         self._pending_sessions = dict()
@@ -108,10 +103,6 @@ class ApplicationContext(object):
     @property
     def application(self):
         return self._application
-
-    @property
-    def develop(self):
-        return self._develop
 
     @property
     def server_context(self):

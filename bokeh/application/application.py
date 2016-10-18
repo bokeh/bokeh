@@ -21,12 +21,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         """ SessionContext instances belonging to this application."""
         raise NotImplementedError("sessions property, should return SessionContext")
 
-    @property
-    @abstractmethod
-    def develop_mode(self):
-        """ True if we are in develop mode."""
-        raise NotImplementedError("develop_mode")
-
     @abstractmethod
     def add_next_tick_callback(self, callback):
         """ Adds a callback to be run on the next tick of the event loop."""
