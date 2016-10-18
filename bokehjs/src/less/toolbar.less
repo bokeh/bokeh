@@ -22,16 +22,6 @@
     float: left;
 
     display: block;
-    &:last-child {
-      &:after {
-        content: " ";
-        background-color: @buttonColor;
-        float: left;
-        height: 10px;
-        width: 1px;
-        margin: 10px 3px 0px 3px;
-      }
-    }
   }
 }
 
@@ -212,18 +202,6 @@
       }
       > li {
         clear: both;
-        &:last-child {
-          &:after {
-            content: " ";
-            float: none;
-            clear: both;
-            display: block;
-            height: 1px;
-            width: 10px;
-            padding: 0;
-            margin: 2px 0 2px 10px;
-          }
-        }
       }
     }
   }
@@ -245,4 +223,36 @@
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   outline: none !important;
+}
+
+.bk-button-bar-list:empty {
+  display: none;
+}
+
+.bk-toolbar-above, .bk-toolbar-below {
+  .bk-button-bar-list + .bk-button-bar-list {
+    &:before {
+      content: " ";
+      float: left;
+      background-color: @buttonColor;
+      height: 10px;
+      width: 1px;
+      margin: 10px 3px 0px 3px;
+    }
+  }
+}
+
+.bk-toolbar-left, .bk-toolbar-right {
+  .bk-button-bar-list + .bk-button-bar-list {
+    &:before {
+      content: " ";
+      float: none;
+      clear: both;
+      display: block;
+      background-color: @buttonColor;
+      height: 1px;
+      width: 10px;
+      margin: 3px 0 3px 10px;
+    }
+  }
 }
