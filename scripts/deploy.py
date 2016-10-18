@@ -202,6 +202,7 @@ def check_checkout():
             abort()
 
         extras = run("git status --porcelain").split("\n")
+        extras = [x for x in extras if x != '']
         if extras:
             failed("Local checkout is NOT clean", extras)
         else:
