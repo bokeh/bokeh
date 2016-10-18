@@ -1,7 +1,7 @@
 import argparse
 from os.path import join
 import re
-from subprocess import CalledProcessError, check_output, check_call, STDOUT
+from subprocess import CalledProcessError, check_output, STDOUT
 import sys
 from packaging.version import Version as V
 
@@ -387,22 +387,54 @@ def update_changelog():
 def merge_and_push():
     try:
         run("git checkout master")
+        passed("Checked out master branch")
     except Exception as e:
-        failed("COULD NOT CHECK OUT MASTER BRANCH: %s" % e)
-        abort()
+        failed("[FATAL] COULD NOT CHECK OUT MASTER BRANCH: %s" % e)
+        return False
 
     try:
-        run(["git", "merge", "--no-ff", CONFIG.release_branch, "-m" "'Merge branch %s'" % CONFIG.release_branch])
+        run(["git", "merge", "--no-ff", CONFIG.release_branch, "-m", "'Merge branch %s'" % CONFIG.release_branch])
+        passed("Merged release branch into master branch")
     except Exception as e:
-        failed("COULD NOT MERGE RELEASE BRANCH TO MASTER: %s" % e)
-        abort()
+        failed("[FATAL] COULD NOT MERGE RELEASE BRANCH TO MASTER: %s" % e)
+        return False
 
     try:
-        # check call because there may be a git hook asking for confirmation
-        check_call("git push origin master".split())
+        # use --no-verify to prevent git hook that might ask for confirmation
+        run("git push --no-verify origin master")
+        passed("Pushed master branch to GitHub")
     except Exception as e:
-        failed("COULD NOT PUSH MASTER TO ORIGIN: %s" % e)
-        abort()
+        failed("[FATAL] COULD NOT PUSH MASTER TO ORIGIN: %s" % e)
+        return False
+
+    try:
+        out = run(["git", "branch", "-d", CONFIG.release_branch])
+        passed("Deleted release branch")
+    except Exception:
+        failed("[NON-FATAL] Could not delete release branch", out.split("\n"))
+
+    try:
+        run(["git", "tag", "-a", CONFIG.new_version, "-m", "Release %s" % CONFIG.new_version]).
+        passed("Tagged release %r" % CONFIG.new_version)
+    except Exception as e:
+        failed("[FATAL] COULD NOT TAG RELEASE: %s" % e)
+        return False
+
+    try:
+        # use --no-verify to prevent git hook that might ask for confirmation
+        run(["git", "push", "--no-verify", "origin", CONFIG.new_version])
+        passed("Pushed tag %r to GitHub" % CONFIG.new_version)
+    except Exception as e:
+        failed("[FATAL] COULD NOT PUSH MASTER TO ORIGIN: %s" % e)
+        return False
+
+    try:
+        out = run("git checkout master")
+        passed("Returned to master branch")
+    except Exception as e:
+        failed("[NON-FATAL] Could not return to master branch", out.split("\n"))
+
+    return True
 
 def show_updates():
     print()
@@ -483,7 +515,7 @@ if __name__ == '__main__':
     update_bokehjs_versions()
 
     if V(CONFIG.new_version).is_prerelease:
-        print(blue("[SKIP] ") + "Not updating docs version or changelog for pre-releases")
+        print(blue("[SKIP] ") + "Not updating docs version or change log for pre-releases")
     else:
         update_docs_versions()
         update_changelog()
@@ -502,8 +534,19 @@ if __name__ == '__main__':
 
     success = merge_and_push()
     if success:
-        banner(blue, "{:^80}".format("Bokeh %r release deployment: SUCCESS" % new_version))
+        if CONFIG.problems:
+            print(blue("\n!!! Some NON-FATAL problems occurred:\n"))
+            for p in CONFIG.problems:
+                print("    - " + yellow(p))
+        print()
+        banner(blue, "{:^80}".format("Bokeh %r release deployment: SUCCESS" % CONFIG.new_version))
     else:
-        banner(red, "{:^80}".format("Bokeh %r release deployment: FAILURE" % new_version))
-
-    run("git checkout master")
+        if CONFIG.problems:
+            print(red("\n!!! Some FATAL problems occurred:\n"))
+            for p in CONFIG.problems:
+                print("    - " + yellow(p))
+        print()
+        print(bright(red("!!! REMOTE ACTIONS MAY HAVE BEEN TAKEN --- local AND remote branches may be dirty")))
+        print()
+        banner(red, "{:^80}".format("Bokeh %r release deployment: FAILURE" % CONFIG.new_version))
+        sys.exit(1)
