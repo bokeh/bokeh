@@ -3,9 +3,10 @@
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
-# This file and the colormaps in it are released under the CC0 license /
-# public domain dedication. We would appreciate credit if you use or
-# redistribute these colormaps, but do not impose any legal restrictions.
+# The Viridis, Magma, Plasma, and Inferno color maps are released under the
+# CC0 license / public domain dedication. We would appreciate credit if you
+# use or redistribute these colormaps, but do not impose any legal
+# restrictions.
 #
 # To the extent possible under law, the persons who associated CC0 with
 # mpl-colormaps have waived all copyright and related or neighboring rights
@@ -25,14 +26,11 @@ Palettes are simple plain Python lists of (hex) RGB colors. This module
 containts the following sets of palettes:
 
 * All Brewer palettes
-* Magma
-* Inferno
-* Plasma
-* Viridis
+* The new Matplotlib palettes (Magma, Inferno, Plasma, Viridis)
 
 Every pre-built palette is available as a module attributes, e.g.
-``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of every
-all pre-built palettes can be found in the ``__palettes__`` module attribute.
+``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of each
+pre-built palette can be found in the ``__palettes__`` module attribute.
 
 There are functions :func:`~bokeh.palettes.magma`,
 :func:`~bokeh.palettes.inferno`, :func:`~bokeh.palettes.plasma`,
