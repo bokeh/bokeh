@@ -732,6 +732,196 @@ class _Palettes(object):
     def RdYlGn11(self):
         return ["#006837", "#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d73027", "#a50026"]
 
+    # http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
+    @property
+    def Accent3(self):
+        return ['#7fc97f', '#beaed4', '#fdc086']
+    @property
+    def Accent4(self):
+        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99']
+    @property
+    def Accent5(self):
+        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0']
+    @property
+    def Accent6(self):
+        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f']
+    @property
+    def Accent7(self):
+        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17']
+    @property
+    def Accent8(self):
+        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
+    @property
+    def Dark2_3(self):
+        return ['#1b9e77', '#d95f02', '#7570b3']
+    @property
+    def Dark2_4(self):
+        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+    @property
+    def Dark2_5(self):
+        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+    @property
+    def Dark2_6(self):
+        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
+    @property
+    def Dark2_7(self):
+        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
+    @property
+    def Dark2_8(self):
+        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
+    @property
+    def Paired3(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a']
+    @property
+    def Paired4(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
+    @property
+    def Paired5(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99']
+    @property
+    def Paired6(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c']
+    @property
+    def Paired7(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f']
+    @property
+    def Paired8(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']
+    @property
+    def Paired9(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6']
+    @property
+    def Paired10(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a']
+    @property
+    def Paired11(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99']
+    @property
+    def Paired12(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
+    @property
+    def Pastel1_3(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5']
+    @property
+    def Pastel1_4(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4']
+    @property
+    def Pastel1_5(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6']
+    @property
+    def Pastel1_6(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc']
+    @property
+    def Pastel1_7(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd']
+    @property
+    def Pastel1_8(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec']
+    @property
+    def Pastel1_9(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
+    @property
+    def Pastel2_3(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8']
+    @property
+    def Pastel2_4(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4']
+    @property
+    def Pastel2_5(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9']
+    @property
+    def Pastel2_6(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae']
+    @property
+    def Pastel2_7(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc']
+    @property
+    def Pastel2_8(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
+    @property
+    def Set1_3(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a']
+    @property
+    def Set1_4(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
+    @property
+    def Set1_5(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00']
+    @property
+    def Set1_6(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33']
+    @property
+    def Set1_7(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628']
+    @property
+    def Set1_8(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
+    @property
+    def Set1_9(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
+    @property
+    def Set2_3(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb']
+    @property
+    def Set2_4(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
+    @property
+    def Set2_5(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854']
+    @property
+    def Set2_6(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
+    @property
+    def Set2_7(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494']
+    @property
+    def Set2_8(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
+    @property
+    def Set3_3(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada']
+    @property
+    def Set3_4(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
+    @property
+    def Set3_5(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
+    @property
+    def Set3_6(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462']
+    @property
+    def Set3_7(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69']
+    @property
+    def Set3_8(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5']
+    @property
+    def Set3_9(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9']
+    @property
+    def Set3_10(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd']
+    @property
+    def Set3_11(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
+    @property
+    def Set3_12(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+
     @property
     def Inferno3(self):
         return ['#000003', '#BA3655', '#FCFEA4']
@@ -944,195 +1134,6 @@ class _Palettes(object):
             '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
             '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
-    @property
-    def Accent3(self):
-        return ['#7fc97f', '#beaed4', '#fdc086']
-    @property
-    def Accent4(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99']
-    @property
-    def Accent5(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0']
-    @property
-    def Accent6(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f']
-    @property
-    def Accent7(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17']
-    @property
-    def Accent8(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
-    @property
-    def Dark2_3(self):
-        return ['#1b9e77', '#d95f02', '#7570b3']
-    @property
-    def Dark2_4(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
-    @property
-    def Dark2_5(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
-    @property
-    def Dark2_6(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
-    @property
-    def Dark2_7(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
-    @property
-    def Dark2_8(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
-    @property
-    def Paired3(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a']
-    @property
-    def Paired4(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
-    @property
-    def Paired5(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99']
-    @property
-    def Paired6(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c']
-    @property
-    def Paired7(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f']
-    @property
-    def Paired8(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']
-    @property
-    def Paired9(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6']
-    @property
-    def Paired10(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a']
-    @property
-    def Paired11(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99']
-    @property
-    def Paired12(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
-    @property
-    def Pastel1_3(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5']
-    @property
-    def Pastel1_4(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4']
-    @property
-    def Pastel1_5(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6']
-    @property
-    def Pastel1_6(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc']
-    @property
-    def Pastel1_7(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd']
-    @property
-    def Pastel1_8(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec']
-    @property
-    def Pastel1_9(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
-    @property
-    def Pastel2_3(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8']
-    @property
-    def Pastel2_4(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4']
-    @property
-    def Pastel2_5(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9']
-    @property
-    def Pastel2_6(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae']
-    @property
-    def Pastel2_7(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc']
-    @property
-    def Pastel2_8(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
-    @property
-    def Set1_3(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a']
-    @property
-    def Set1_4(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
-    @property
-    def Set1_5(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00']
-    @property
-    def Set1_6(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33']
-    @property
-    def Set1_7(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628']
-    @property
-    def Set1_8(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
-    @property
-    def Set1_9(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
-    @property
-    def Set2_3(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb']
-    @property
-    def Set2_4(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
-    @property
-    def Set2_5(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854']
-    @property
-    def Set2_6(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
-    @property
-    def Set2_7(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494']
-    @property
-    def Set2_8(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
-    @property
-    def Set3_3(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada']
-    @property
-    def Set3_4(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
-    @property
-    def Set3_5(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
-    @property
-    def Set3_6(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462']
-    @property
-    def Set3_7(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69']
-    @property
-    def Set3_8(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5']
-    @property
-    def Set3_9(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9']
-    @property
-    def Set3_10(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd']
-    @property
-    def Set3_11(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
-    @property
-    def Set3_12(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
 
     @property
     def YlGn(self):
