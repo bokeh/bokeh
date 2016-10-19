@@ -20,7 +20,8 @@
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
 ###########################################################################
-# License regarding the D3 color palettes:
+# License regarding the D3 color palettes (Category10, Category20,
+# Category20b, and Category 20c):
 #
 # Copyright 2010-2015 Mike Bostock
 # All rights reserved.

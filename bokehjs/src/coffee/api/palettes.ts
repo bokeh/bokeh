@@ -451,6 +451,110 @@ export const Set3_10     = [0x8dd3c7, 0xffffb3, 0xbebada, 0xfb8072, 0x80b1d3, 0x
 export const Set3_11     = [0x8dd3c7, 0xffffb3, 0xbebada, 0xfb8072, 0x80b1d3, 0xfdb462, 0xb3de69, 0xfccde5, 0xd9d9d9, 0xbc80bd, 0xccebc5]
 export const Set3_12     = [0x8dd3c7, 0xffffb3, 0xbebada, 0xfb8072, 0x80b1d3, 0xfdb462, 0xb3de69, 0xfccde5, 0xd9d9d9, 0xbc80bd, 0xccebc5, 0xffed6f]
 
+export const Category10  = [1f77b4, ff7f0e, 2ca02c]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728, 9467bd]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728, 9467bd, 8c564b]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728, 9467bd, 8c564b, e377c2]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728, 9467bd, 8c564b, e377c2, 7f7f7f]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728, 9467bd, 8c564b, e377c2, 7f7f7f, bcbd22]
+export const Category10  = [1f77b4, ff7f0e, 2ca02c, d62728, 9467bd, 8c564b, e377c2, 7f7f7f, bcbd22, 17becf]
+
+export const Category20_3  =  [1f77b4, aec7e8, ff7f0e]
+export const Category20_4  =  [1f77b4, aec7e8, ff7f0e, ffbb78]
+export const Category20_5  =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c]
+export const Category20_6  =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a]
+export const Category20_7  =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728]
+export const Category20_8  =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896]
+export const Category20_9  =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd]
+export const Category20_10 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5]
+export const Category20_11 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b]
+export const Category20_12 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94]
+export const Category20_13 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2]
+export const Category20_14 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2]
+export const Category20_15 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2, 7f7f7f]
+export const Category20_16 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2, 7f7f7f, c7c7c7]
+export const Category20_17 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2, 7f7f7f, c7c7c7, bcbd22]
+export const Category20_18 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2, 7f7f7f, c7c7c7, bcbd22, dbdb8d]
+export const Category20_19 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2, 7f7f7f, c7c7c7, bcbd22, dbdb8d, 17becf]
+export const Category20_20 =  [1f77b4, aec7e8, ff7f0e, ffbb78, 2ca02c, 98df8a, d62728, ff9896, 9467bd, c5b0d5,
+                               8c564b, c49c94, e377c2, f7b6d2, 7f7f7f, c7c7c7, bcbd22, dbdb8d, 17becf, 9edae5]
+
+export const Category20b_3  = [393b79, 5254a3, 6b6ecf]
+export const Category20b_4  = [393b79, 5254a3, 6b6ecf, 9c9ede]
+export const Category20b_5  = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939]
+export const Category20b_6  = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252]
+export const Category20b_7  = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b]
+export const Category20b_8  = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c]
+export const Category20b_9  = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31]
+export const Category20b_10 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39]
+export const Category20b_11 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52]
+export const Category20b_12 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94]
+export const Category20b_13 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39]
+export const Category20b_14 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a]
+export const Category20b_15 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a, d6616b]
+export const Category20b_16 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a, d6616b, e7969c]
+export const Category20b_17 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a, d6616b, e7969c, 7b4173]
+export const Category20b_18 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a, d6616b, e7969c, 7b4173, a55194]
+export const Category20b_19 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a, d6616b, e7969c, 7b4173, a55194, ce6dbd]
+export const Category20b_20 = [393b79, 5254a3, 6b6ecf, 9c9ede, 637939, 8ca252, b5cf6b, cedb9c, 8c6d31, bd9e39,
+                               e7ba52, e7cb94, 843c39, ad494a, d6616b, e7969c, 7b4173, a55194, ce6dbd, de9ed6]
+
+export const Category20c_3 = [3182bd, 6baed6, 9ecae1]
+export const Category20c_4 = [3182bd, 6baed6, 9ecae1, c6dbef]
+export const Category20c_5 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d]
+export const Category20c_6 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c]
+export const Category20c_7 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b]
+export const Category20c_8 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2]
+export const Category20c_9 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354]
+export const Category20c_10 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476]
+export const Category20c_11 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b]
+export const Category20c_12 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0]
+export const Category20c_13 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1]
+export const Category20c_14 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8]
+export const Category20c_15 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8, bcbddc]
+export const Category20c_16 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8, bcbddc, dadaeb]
+export const Category20c_17 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8, bcbddc, dadaeb, 636363]
+export const Category20c_18 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8, bcbddc, dadaeb, 636363, 969696]
+export const Category20c_19 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8, bcbddc, dadaeb, 636363, 969696, bdbdbd]
+export const Category20c_20 = [3182bd, 6baed6, 9ecae1, c6dbef, e6550d, fd8d3c, fdae6b, fdd0a2, 31a354, 74c476,
+                               a1d99b, c7e9c0, 756bb1, 9e9ac8, bcbddc, dadaeb, 636363, 969696, bdbdbd, d9d9d9]
+
+
+export const Colorblind_3 = [0072b2, e69f00, f0e442]
+export const Colorblind_4 = [0072b2, e69f00, f0e442, 009e73]
+export const Colorblind_5 = [0072b2, e69f00, f0e442, 009e73, 56b4e9]
+export const Colorblind_6 = [0072b2, e69f00, f0e442, 009e73, 56b4e9, d55e00]
+export const Colorblind_7 = [0072b2, e69f00, f0e442, 009e73, 56b4e9, d55e00, cc79a7]
+export const Colorblind_8 = [0072b2, e69f00, f0e442, 009e73, 56b4e9, d55e00, cc79a7, 000000]
+
 export const YlGn     = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
 export const YlGnBu   = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
 export const GnBu     = {GnBu3, GnBu4, GnBu5, GnBu6, GnBu7, GnBu8, GnBu9}
@@ -513,7 +617,8 @@ export const Set3     = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9,
  * licensed under the Apache v2 license. You may obtain a copy of the
  * License at http://www.apache.org/licenses/LICENSE-2.0
  ****************************************************************************
- * License regarding the D3 color palettes:
+ * License regarding the D3 color palettes (Category10, Category20,
+ * Category20b, and Category 20c):
  *
  * Copyright 2010-2015 Mike Bostock
  * All rights reserved.
