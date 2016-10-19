@@ -1361,22 +1361,22 @@ class _Palettes(object):
     # ['orange ', 'skyblue', 'blugren', 'yellow ', 'blue   ', 'vermill', 'redprpl', 'black  '] # key
     # ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#000000'] # original, poor in b&w
     @property
-    def Colorblind_3(self):
-        return self.Colorblind_8[:3]
+    def Colorblind3(self):
+        return self.Colorblind8[:3]
     @property
-    def Colorblind_4(self):
-        return self.Colorblind_8[:4]
+    def Colorblind4(self):
+        return self.Colorblind8[:4]
     @property
-    def Colorblind_5(self):
-        return self.Colorblind_8[:5]
+    def Colorblind5(self):
+        return self.Colorblind8[:5]
     @property
-    def Colorblind_6(self):
-        return self.Colorblind_8[:6]
+    def Colorblind6(self):
+        return self.Colorblind8[:6]
     @property
-    def Colorblind_7(self):
-        return self.Colorblind_8[:7]
+    def Colorblind7(self):
+        return self.Colorblind8[:7]
     @property
-    def Colorblind_8(self):
+    def Colorblind8(self):
         #      ['blue   ', 'orange ', 'yellow ', 'blugren', 'skyblue', 'vermill', 'redprpl', 'black  '] # key
         return ['#0072B2', '#E69F00', '#F0E442', '#009E73', '#56B4E9', '#D55E00', '#CC79A7', '#000000'] # reordered
 
@@ -1522,7 +1522,7 @@ class _Palettes(object):
                  18: self.Category20c_18, 19: self.Category20c_19, 20: self.Category20c_20 }
     @property
     def Colorblind(self):
-        return { 3: self.Colorblind_3, 4: self.Colorblind_4, 5: self.Colorblind_5, 6: self.Colorblind_6, 7: self.Colorblind_7, 8: self.Colorblind_8 }
+        return { 3: self.Colorblind3, 4: self.Colorblind4, 5: self.Colorblind5, 6: self.Colorblind6, 7: self.Colorblind7, 8: self.Colorblind8 }
 
     @property
     def brewer(self):
