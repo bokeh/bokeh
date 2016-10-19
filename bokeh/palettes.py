@@ -1356,6 +1356,29 @@ class _Palettes(object):
         return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
                 '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd', '#d9d9d9']
 
+    # colorblind friendly palette from http://jfly.iam.u-tokyo.ac.jp/color/
+    # ['orange ', 'skyblue', 'blugren', 'yellow ', 'blue   ', 'vermill', 'redprpl', 'black  '] # key
+    # ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#000000'] # original, poor in b&w
+    @property
+    def Colorblind_3(self):
+        return self.Colorblind_8[:3]
+    @property
+    def Colorblind_4(self):
+        return self.Colorblind_8[:4]
+    @property
+    def Colorblind_5(self):
+        return self.Colorblind_8[:5]
+    @property
+    def Colorblind_6(self):
+        return self.Colorblind_8[:6]
+    @property
+    def Colorblind_7(self):
+        return self.Colorblind_8[:7]
+    @property
+    def Colorblind_8(self):
+        #      ['blue   ', 'orange ', 'yellow ', 'blugren', 'skyblue', 'vermill', 'redprpl', 'black  '] # key
+        return ['#0072B2', '#E69F00', '#F0E442', '#009E73', '#56B4E9', '#D55E00', '#CC79A7', '#000000'] # reordered
+
 
     @property
     def YlGn(self):
@@ -1496,6 +1519,9 @@ class _Palettes(object):
                  8:  self.Category20c_8,  9:  self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12,
                  13: self.Category20c_13, 14: self.Category20c_14, 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17,
                  18: self.Category20c_18, 19: self.Category20c_19, 20: self.Category20c_20 }
+    @property
+    def Colorblind(self):
+        return { 3: self.Colorblind_3, 4: self.Colorblind_4, 5: self.Colorblind_5, 6: self.Colorblind_6, 7: self.Colorblind_7, 8: self.Colorblind_8 }
 
     @property
     def brewer(self):
@@ -1550,10 +1576,11 @@ class _Palettes(object):
     def all_palettes(self):
         palettes = self.brewer
         palettes.update(self.d3)
-        palettes["Magma"]   = self.Magma
-        palettes["Inferno"] = self.Inferno
-        palettes["Plasma"]  = self.Plasma
-        palettes["Viridis"] = self.Viridis
+        palettes["Colorblind"] = self.Colorblind
+        palettes["Magma"]      = self.Magma
+        palettes["Inferno"]    = self.Inferno
+        palettes["Plasma"]     = self.Plasma
+        palettes["Viridis"]    = self.Viridis
         return palettes
 
     @property
