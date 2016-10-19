@@ -51,11 +51,11 @@
   background-position: center center;
 }
 
-.bk-button-bar-list .bk-toolbar-button span.tip {
+.bk-button-bar-list .bk-toolbar-button .bk-tip {
   display: none;
 }
 
-.bk-button-bar-list .bk-toolbar-button span.tip:before {
+.bk-button-bar-list .bk-toolbar-button .bk-tip:before {
   display: none;
   content: " ";
   position: relative;
@@ -64,7 +64,7 @@
   background-repeat: no-repeat;
 }
 
-.bk-button-bar-list .bk-toolbar-button:hover .tip:before {
+.bk-button-bar-list .bk-toolbar-button:hover .bk-tip:before {
   display: inline-block;  // Can this be merged with above
 }
 
@@ -73,7 +73,7 @@
 }
 
 
-.bk-button-bar-list .bk-toolbar-button:hover .tip {
+.bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
   z-index: 100;
   white-space: nowrap;
   background-color: #fff;
@@ -88,22 +88,22 @@
   }
 }
 
-.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button:hover .tip {
+.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
   top: 10px;
   left: -10px;
 }
 
-.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button:hover .tip {
+.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
   top: -50px;
   left: -10px;
 }
 
-.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button:hover .tip {
+.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
    top: -22px;
    left: 26px;
 }
 
-.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button:hover .tip {
+.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
    float: right;
    top: -22px;
    left: -26px;
@@ -169,7 +169,7 @@
       float: left;
       &[type='help'] {
         .bk-toolbar-button {
-          .tip {
+          .bk-tip {
              float: right;
           }
         }

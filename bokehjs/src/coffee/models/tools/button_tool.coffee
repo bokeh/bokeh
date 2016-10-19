@@ -17,7 +17,7 @@ export class ButtonToolButtonView extends BokehView
 
   render: () ->
     icon = $("<div class='bk-btn-icon'>").addClass(@model.icon)
-    tip = $("<span class='tip'>").text(@model.tooltip)
+    tip = $("<span class='bk-tip'>").text(@model.tooltip)
     @$el.empty().append([icon, tip])
     @$el.prop("disabled", @model.disabled)
 
