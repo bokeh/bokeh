@@ -20,12 +20,43 @@
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
 ###########################################################################
+# License regarding the D3 color palettes:
+#
+# Copyright 2010-2015 Mike Bostock
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the author nor the names of contributors may be used to
+#   endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+###########################################################################
 """ Provide a collection of palettes for color mapping.
 
 Palettes are simple plain Python lists of (hex) RGB colors. This module
 containts the following sets of palettes:
 
 * All Brewer palettes
+* Catagorical D3 palettes
 * The new Matplotlib palettes (Magma, Inferno, Plasma, Viridis)
 
 Every pre-built palette is available as a module attributes, e.g.
@@ -1132,6 +1163,208 @@ class _Palettes(object):
             '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
             '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
 
+    @property
+    def Category10_3(self):
+        return self.Category10_10[:3]
+    @property
+    def Category10_4(self):
+        return self.Category10_10[:4]
+    @property
+    def Category10_5(self):
+        return self.Category10_10[:5]
+    @property
+    def Category10_6(self):
+        return self.Category10_10[:6]
+    @property
+    def Category10_7(self):
+        return self.Category10_10[:7]
+    @property
+    def Category10_8(self):
+        return self.Category10_10[:8]
+    @property
+    def Category10_9(self):
+        return self.Category10_10[:9]
+    @property
+    def Category10_10(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+
+    @property
+    def Category20_3(self):
+        return self.Category20_20[:3]
+    @property
+    def Category20_4(self):
+        return self.Category20_20[:4]
+    @property
+    def Category20_5(self):
+        return self.Category20_20[:5]
+    @property
+    def Category20_6(self):
+        return self.Category20_20[:6]
+    @property
+    def Category20_7(self):
+        return self.Category20_20[:7]
+    @property
+    def Category20_8(self):
+        return self.Category20_20[:8]
+    @property
+    def Category20_9(self):
+        return self.Category20_20[:9]
+    @property
+    def Category20_10(self):
+        return self.Category20_20[:10]
+    @property
+    def Category20_11(self):
+        return self.Category20_20[:11]
+    @property
+    def Category20_12(self):
+        return self.Category20_20[:12]
+    @property
+    def Category20_13(self):
+        return self.Category20_20[:13]
+    @property
+    def Category20_14(self):
+        return self.Category20_20[:14]
+    @property
+    def Category20_15(self):
+        return self.Category20_20[:15]
+    @property
+    def Category20_16(self):
+        return self.Category20_20[:16]
+    @property
+    def Category20_17(self):
+        return self.Category20_20[:17]
+    @property
+    def Category20_18(self):
+        return self.Category20_20[:18]
+    @property
+    def Category20_19(self):
+        return self.Category20_20[:19]
+    @property
+    def Category20_20(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+
+    @property
+    def Category20b_3(self):
+        return self.Category20b_20[:3]
+    @property
+    def Category20b_4(self):
+        return self.Category20b_20[:4]
+    @property
+    def Category20b_5(self):
+        return self.Category20b_20[:5]
+    @property
+    def Category20b_6(self):
+        return self.Category20b_20[:6]
+    @property
+    def Category20b_7(self):
+        return self.Category20b_20[:7]
+    @property
+    def Category20b_8(self):
+        return self.Category20b_20[:8]
+    @property
+    def Category20b_9(self):
+        return self.Category20b_20[:9]
+    @property
+    def Category20b_10(self):
+        return self.Category20b_20[:10]
+    @property
+    def Category20b_11(self):
+        return self.Category20b_20[:11]
+    @property
+    def Category20b_12(self):
+        return self.Category20b_20[:12]
+    @property
+    def Category20b_13(self):
+        return self.Category20b_20[:13]
+    @property
+    def Category20b_14(self):
+        return self.Category20b_20[:14]
+    @property
+    def Category20b_15(self):
+        return self.Category20b_20[:15]
+    @property
+    def Category20b_16(self):
+        return self.Category20b_20[:16]
+    @property
+    def Category20b_17(self):
+        return self.Category20b_20[:17]
+    @property
+    def Category20b_18(self):
+        return self.Category20b_20[:18]
+    @property
+    def Category20b_19(self):
+        return self.Category20b_20[:19]
+    @property
+    def Category20b_20(self):
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c', '#7b4173', '#a55194', '#ce6dbd', '#de9ed6']
+
+    @property
+    def Category20c_3(self):
+        return ['#3182bd', '#6baed6', '#9ecae1']
+    @property
+    def Category20c_4(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef']
+    @property
+    def Category20c_5(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d']
+    @property
+    def Category20c_6(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c']
+    @property
+    def Category20c_7(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b']
+    @property
+    def Category20c_8(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2']
+    @property
+    def Category20c_9(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354']
+    @property
+    def Category20c_10(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476']
+    @property
+    def Category20c_11(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b']
+    @property
+    def Category20c_12(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0']
+    @property
+    def Category20c_13(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1']
+    @property
+    def Category20c_14(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8']
+    @property
+    def Category20c_15(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc']
+    @property
+    def Category20c_16(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb']
+    @property
+    def Category20c_17(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363']
+    @property
+    def Category20c_18(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696']
+    @property
+    def Category20c_19(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd']
+    @property
+    def Category20c_20(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd', '#d9d9d9']
+
 
     @property
     def YlGn(self):
@@ -1250,6 +1483,28 @@ class _Palettes(object):
     @property
     def Viridis(self):
         return { 3: self.Viridis3,  4: self.Viridis4,  5: self.Viridis5,  6: self.Viridis6,  7: self.Viridis7,  8: self.Viridis8,  9: self.Viridis9,  10: self.Viridis10,  11: self.Viridis11, 256: self.Viridis256 } # NOQA
+    @property
+    def Category10(self):
+        return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6,
+                 7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9, 10: self.Category10_10 }
+    @property
+    def Category20(self):
+        return { 3:  self.Category20_3,   4:  self.Category20_4,   5:  self.Category20_5,   6:  self.Category20_6,   7:  self.Category20_7,
+                 8:  self.Category20_8,   9:  self.Category20_9,   10: self.Category20_10,  11: self.Category20_11,  12: self.Category20_12,
+                 13: self.Category20_13,  14: self.Category20_14,  15: self.Category20_15,  16: self.Category20_16,  17: self.Category20_17,
+                 18: self.Category20_18,  19: self.Category20_19,  20: self.Category20_20 }
+    @property
+    def Category20b(self):
+        return { 3:  self.Category20b_3,  4:  self.Category20b_4,  5:  self.Category20b_5,  6:  self.Category20b_6,  7:  self.Category20b_7,
+                 8:  self.Category20b_8,  9:  self.Category20b_9,  10: self.Category20b_10, 11: self.Category20b_11, 12: self.Category20b_12,
+                 13: self.Category20b_13, 14: self.Category20b_14, 15: self.Category20b_15, 16: self.Category20b_16, 17: self.Category20b_17,
+                 18: self.Category20b_18, 19: self.Category20b_19, 20: self.Category20b_20 }
+    @property
+    def Category20c(self):
+        return { 3:  self.Category20c_3,  4:  self.Category20c_4,  5:  self.Category20c_5,  6:  self.Category20c_6,  7:  self.Category20c_7,
+                 8:  self.Category20c_8,  9:  self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12,
+                 13: self.Category20c_13, 14: self.Category20c_14, 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17,
+                 18: self.Category20c_18, 19: self.Category20c_19, 20: self.Category20c_20 }
 
     @property
     def brewer(self):
@@ -1292,8 +1547,18 @@ class _Palettes(object):
         }
 
     @property
+    def d3(self):
+        return {
+            "Category10"  : self.Category10,
+            "Category20"  : self.Category20,
+            "Category20b" : self.Category20b,
+            "Category20c" : self.Category20c,
+        }
+
+    @property
     def all_palettes(self):
         palettes = self.brewer
+        palettes.update(self.d3)
         palettes["Magma"]   = self.Magma
         palettes["Inferno"] = self.Inferno
         palettes["Plasma"]  = self.Plasma
