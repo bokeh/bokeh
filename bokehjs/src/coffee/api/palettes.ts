@@ -491,13 +491,15 @@ export const Set1     = {Set1_3, Set1_4, Set1_5, Set1_6, Set1_7, Set1_8, Set1_9}
 export const Set2     = {Set2_3, Set2_4, Set2_5, Set2_6, Set2_7, Set2_8}
 export const Set3     = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9, Set3_10, Set3_11, Set3_12}
 
-/* License regarding the Viridis, Magma, Plasma and Inferno color maps
+/****************************************************************************
+ * License regarding the Viridis, Magma, Plasma and Inferno colormaps
  * New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
  * and (in the case of viridis) Eric Firing.
  *
- * This file and the colormaps in it are released under the CC0 license /
- * public domain dedication. We would appreciate credit if you use or
- * redistribute these colormaps, but do not impose any legal restrictions.
+ * The Viridis, Magma, Plasma, and Inferno color maps are released under the
+ * CC0 license / public domain dedication. We would appreciate credit if you
+ * use or redistribute these colormaps, but do not impose any legal
+ * restrictions.
  *
  * To the extent possible under law, the persons who associated CC0 with
  * mpl-colormaps have waived all copyright and related or neighboring rights
@@ -505,4 +507,40 @@ export const Set3     = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9,
  *
  * You should have received a copy of the CC0 legalcode along with this
  * work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ ****************************************************************************
+ * This product includes color specifications and designs developed by
+ * Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
+ * licensed under the Apache v2 license. You may obtain a copy of the
+ * License at http://www.apache.org/licenses/LICENSE-2.0
+ ****************************************************************************
+ * License regarding the D3 color palettes:
+ *
+ * Copyright 2010-2015 Mike Bostock
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of the author nor the names of contributors may be used to
+ *   endorse or promote products derived from this software without specific
+ *   prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************
  */

@@ -1,9 +1,9 @@
 ###########################################################################
-# License regarding the Viridis, Magma, Plasma and Inferno color maps:
+# License regarding the Viridis, Magma, Plasma and Inferno colormaps:
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
-# The Viridis, Magma, Plasma, and Inferno color maps are released under the
+# The Viridis, Magma, Plasma, and Inferno colormaps are released under the
 # CC0 license / public domain dedication. We would appreciate credit if you
 # use or redistribute these colormaps, but do not impose any legal
 # restrictions.
