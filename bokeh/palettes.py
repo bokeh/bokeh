@@ -1302,64 +1302,55 @@ class _Palettes(object):
 
     @property
     def Category20c_3(self):
-        return ['#3182bd', '#6baed6', '#9ecae1']
+        return self.Category20c_20[:3]
     @property
     def Category20c_4(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef']
+        return self.Category20c_20[:4]
     @property
     def Category20c_5(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d']
+        return self.Category20c_20[:5]
     @property
     def Category20c_6(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c']
+        return self.Category20c_20[:6]
     @property
     def Category20c_7(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b']
+        return self.Category20c_20[:7]
     @property
     def Category20c_8(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2']
+        return self.Category20c_20[:8]
     @property
     def Category20c_9(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354']
+        return self.Category20c_20[:9]
     @property
     def Category20c_10(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476']
+        return self.Category20c_20[:10]
     @property
     def Category20c_11(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b']
+        return self.Category20c_20[:11]
     @property
     def Category20c_12(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0']
+        return self.Category20c_20[:12]
     @property
     def Category20c_13(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1']
+        return self.Category20c_20[:13]
     @property
     def Category20c_14(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8']
+        return self.Category20c_20[:14]
     @property
     def Category20c_15(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc']
+        return self.Category20c_20[:15]
     @property
     def Category20c_16(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb']
+        return self.Category20c_20[:16]
     @property
     def Category20c_17(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363']
+        return self.Category20c_20[:17]
     @property
     def Category20c_18(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696']
+        return self.Category20c_20[:18]
     @property
     def Category20c_19(self):
-        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
-                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd']
+        return self.Category20c_20[:19]
     @property
     def Category20c_20(self):
         return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
