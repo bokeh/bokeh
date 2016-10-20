@@ -1795,8 +1795,17 @@ class FontSizeSpec(DataSpec):
     ''' A DataSpec property that can be set to a font size fixed value,
     or a data source column name referring to column of font size data.
 
+    ``FontSizeSpec`` tries to determine if the a string value is a valid
+    CSS unit of length, e.g ``"10pt"`` or ``"1.5em"``. If the string can be
+    interpreted as a CSS length, then the DataSpec is a value spec.
+    Otherwise, setting a string value will result in a field spec.
+
+    A full list of all valid CSS length units can be found here:
+
+    https://drafts.csswg.org/css-values/#lengths
+
     '''
-    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(ex|px|cm|mm|in|pt|pc)$")
+    _font_size_re = re.compile("^[0-9]+(\.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)

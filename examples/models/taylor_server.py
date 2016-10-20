@@ -8,7 +8,7 @@ from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend, LegendItem
-from bokeh.models.widgets import Slider, TextInput, Dialog
+from bokeh.models.widgets import Slider, TextInput, PreText
 from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
@@ -79,16 +79,15 @@ def on_slider_value_change(attr, old, new):
     update_data()
 
 def on_text_value_change(attr, old, new):
-    try:
-        global expr
-        expr = sy.sympify(new, dict(x=xs))
-    except (sy.SympifyError, TypeError, ValueError) as exception:
-        dialog.content = str(exception)
-        dialog.visible = True
-    else:
-        update_data()
+    global expr
 
-dialog = Dialog(title="Invalid expression")
+    try:
+        expr = sy.sympify(new, dict(x=xs))
+    except Exception as exception:
+        errbox.text = str(exception)
+    else:
+        errbox.text = ""
+        update_data()
 
 slider = Slider(start=1, end=20, value=order, step=1, title="Order",callback_policy='mouseup')
 slider.on_change('value', on_slider_value_change)
@@ -96,8 +95,10 @@ slider.on_change('value', on_slider_value_change)
 text = TextInput(value=str(expr), title="Expression:")
 text.on_change('value', on_text_value_change)
 
-inputs = WidgetBox(children=[slider, text],width=400)
-layout = Column(children=[inputs, plot, dialog])
+errbox = PreText()
+
+inputs = WidgetBox(children=[slider, text, errbox], width=600)
+layout = Column(children=[inputs, plot])
 update_data()
 document.add_root(layout)
 session.show(layout)

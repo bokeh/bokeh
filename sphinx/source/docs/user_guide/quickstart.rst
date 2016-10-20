@@ -467,7 +467,7 @@ of interest to look out for in this example:
 Bokeh Plot Server
 =================
 
-Bokeh also comes with an optional server component, the ``bokeh-server``. It
+Bokeh also comes with an optional server component, the Bokeh Server. It
 possible to create many interesting and interactive visualizations without
 using the Bokeh server, as we have seen above. However, the Bokeh server
 affords many novel and powerful capabilities, including:

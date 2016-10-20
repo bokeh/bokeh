@@ -306,14 +306,40 @@ server data
 
 The simplest case is to use the Bokeh server to persist your plot and data.
 Additionally, the Bokeh server affords the opportunity of animated plots or
-updating plots with streaming data. The |autoload_server| function returns a ``<script>``
-tag that will load both your plot and data from the Bokeh server.
+updating plots with streaming data. The |autoload_server| function returns a
+``<script>`` tag that will load both your plot and data from the Bokeh server.
 
-As a concrete example, here is some simple code using |autoload_server|
-with a default session:
+If you are already an app on a bokeh server and have the url for
+it then you may want to use |autoload_server| by passing the ``url`` for
+the server, as well as the ``app_path`` for the application on the server.
+As a concrete example, you could embed the sliders app from the demo site
+with a command like:
 
 .. code-block:: python
 
+    script = autoload_server(model=None,
+                             app_path="/apps/slider",
+                             url="https://demo.bokehplots.com")
+
+The resulting ``<script>`` tag that you can use to embed the plot inside
+your HTML document looks like:
+
+.. code-block:: html
+
+    <script
+        src="https://demo.bokehplots.com/apps/slider/autoload.js?bokeh-autoload-element=c5c9bdb5-40e8-46a2-9bf0-40a9d396ce97"
+        id="c5c9bdb5-40e8-46a2-9bf0-40a9d396ce97"
+        data-bokeh-model-id=""
+        data-bokeh-doc-id=""
+    ></script>
+
+.. note::
+    When using ``autoload_server`` the brower document title will not be set.
+
+It's also possible to use ``autoload_server`` to generate scripts to load
+apps that were created using ``bokeh.client`` and ``push_session``. Here is some code using |autoload_server| with a default session:
+
+.. code-block:: python
 
     from bokeh.client import push_session
     from bokeh.embed import autoload_server
@@ -326,8 +352,11 @@ with a default session:
     session = push_session(curdoc())
     script = autoload_server(plot, session_id=session.id)
 
-The resulting ``<script>`` tag that you can use to embed the plot inside
-a document looks like:
+.. note::
+    To execute the code above, a Bokeh server must already be running.
+
+The resulting ``<script>`` tag for this use case has more information, and
+will look something like this:
 
 .. code-block:: html
 
@@ -337,18 +366,6 @@ a document looks like:
     data-bokeh-model-id="b08c02c4-f93c-461c-bb23-514b54dfec83"
     data-bokeh-doc-id=""
     ></script>
-
-
-.. note::
-    To execute the code above, a Bokeh server must be running.
-
-
-Alternatively, if you are already an app on a bokeh server and have the url for
-it then you may want to use |autoload_server| like this:
-
-.. code-block:: python
-
-    script = autoload_server(model=None, app_path="/apps/slider", url="https://demo.bokehplots.com")
 
 For full details read the autoload_server reference here: |autoload_server|.
 
