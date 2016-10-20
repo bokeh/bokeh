@@ -22,7 +22,7 @@ from .bokeh_renderer import BokehRenderer
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def to_bokeh(fig=None, use_pandas=True, xkcd=False):
+def to_bokeh(fig=None, tools=None, use_pandas=True, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
@@ -49,7 +49,7 @@ def to_bokeh(fig=None, use_pandas=True, xkcd=False):
     if fig is None:
         fig = plt.gcf()
 
-    renderer = BokehRenderer(use_pandas, xkcd)
+    renderer = BokehRenderer(tools, use_pandas, xkcd)
     exporter = BokehExporter(renderer)
 
     exporter.run(fig)
