@@ -105,8 +105,8 @@ export class UIEvents
         for view in @plot_view.get_renderer_views()
           if view.bbox? and view.on_hit?
             if view.bbox().contains(e.bokeh.sx, e.bokeh.sy)
-              view.on_hit(e.bokeh.sx, e.bokeh.sy)
-              break
+              if view.on_hit(e.bokeh.sx, e.bokeh.sy)
+                return
 
     base_event_type = event_type.split(":")[0]
 

@@ -124,12 +124,14 @@ export class LegendView extends AnnotationView
         if bbox.contains(hx, hy)
           for r in item.renderers
             r.visible = not r.visible
-          return
+          return true
 
         if vertical
           yoffset += @max_label_height + legend_spacing
         else
           xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
+
+    return false
 
   render: () ->
     if @model.items.length == 0
