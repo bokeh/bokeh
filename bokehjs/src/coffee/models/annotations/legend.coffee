@@ -121,9 +121,9 @@ export class LegendView extends AnnotationView
         y2 = y1 + glyph_height
 
         if vertical
-           [w, h] = [legend_bbox.width-2*@model.padding, y2-y1]
+           [w, h] = [legend_bbox.width-2*@model.padding, @max_label_height]
         else
-           [w, h] = [x2-x1, legend_bbox.height-2*@model.padding]
+           [w, h] = [@text_widths[label] + glyph_width + label_standoff, @max_label_height]
 
         bbox = new BBox(x1, y1, x1+w, y1+h)
 
@@ -188,11 +188,12 @@ export class LegendView extends AnnotationView
           xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
 
         if not visible
-          ctx.beginPath()
           if vertical
-            ctx.rect(x1, y1, bbox.width-2*@model.padding, y2-y1)
+             [w, h] = [bbox.width-2*@model.padding, @max_label_height]
           else
-            ctx.rect(x1, y1, x2-x1, bbox.height-2*@model.padding)
+             [w, h] = [@text_widths[label] + glyph_width + label_standoff, @max_label_height]
+          ctx.beginPath()
+          ctx.rect(x1, y1, w, h)
           @visuals.inactive_fill.set_value(ctx)
           ctx.fill()
 
