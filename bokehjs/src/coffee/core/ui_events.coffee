@@ -102,7 +102,7 @@ export class UIEvents
   _trigger: (event_type, e) ->
     switch event_type
       when "tap"
-        for view in @plot_view.get_renderer_views()
+        for view in @plot_view.get_renderer_views() by -1
           if view.bbox? and view.on_hit?
             if view.bbox().contains(e.bokeh.sx, e.bokeh.sy)
               if view.on_hit(e.bokeh.sx, e.bokeh.sy)

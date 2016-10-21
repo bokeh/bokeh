@@ -430,11 +430,7 @@ export class PlotCanvasView extends BokehView
     return @
 
   get_renderer_views: () ->
-    renderer_views = []
-    for level, views of @levels
-      for id, view of views
-        renderer_views.push(view)
-    return renderer_views
+    (@levels[r.level][r.id] for r in @model.plot.renderers)
 
   build_tools: () ->
     tool_models = @model.plot.toolbar.tools
