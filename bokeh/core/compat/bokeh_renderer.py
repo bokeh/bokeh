@@ -45,10 +45,7 @@ class BokehRenderer(Renderer):
         "Initial setup."
         self.fig = None
         self.use_pd = use_pd
-        if tools is None:
-            self.tools = DEFAULT_TOOLS
-        else:
-            self.tools = tools
+        self.tools = tools
         self.xkcd = xkcd
         self.zorder = {}
         self.handles = {}
