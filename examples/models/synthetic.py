@@ -8,7 +8,7 @@ from bokeh.models.glyphs import Circle, Line, Text
 from bokeh.models import (ColumnDataSource, Range1d, Plot, LinearAxis, Grid,
     HoverTool, TapTool, WheelZoomTool, Legend, LegendItem, CustomJS)
 
-plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=500, plot_height=500)
+plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=500, plot_height=500, toolbar_sticky=False)
 
 xaxis = LinearAxis()
 yaxis = LinearAxis()
@@ -62,10 +62,17 @@ legends = lambda: [
     LegendItem(label="CR2", renderers=[cr2, ln2]),
     LegendItem(label="CR3", renderers=[cr3]),
 ]
-plot.add_layout(Legend(items=legends(), location="left_center", orientation="vertical"))
-plot.add_layout(Legend(items=legends(), location="center", orientation="vertical"))
-plot.add_layout(Legend(items=legends(), location="bottom_center", orientation="horizontal"))
-plot.add_layout(Legend(items=legends(), location="bottom_right", orientation="horizontal"))
+legend = lambda **kwargs: Legend(background_fill_alpha=0.7, items=legends(), **kwargs)
+
+plot.add_layout(legend(location="left_center", orientation="vertical"))
+plot.add_layout(legend(location="center", orientation="vertical"))
+plot.add_layout(legend(location="top_center", orientation="horizontal"))
+plot.add_layout(legend(location="bottom_right", orientation="horizontal"))
+plot.add_layout(legend(location=(0, 0), orientation="vertical", name="(0, 0)"))
+plot.add_layout(legend(location="center", orientation="horizontal", name="above"), 'above')
+plot.add_layout(legend(location="center", orientation="horizontal", name="below"), 'below')
+plot.add_layout(legend(location="center", orientation="vertical", name="left"), 'left')
+plot.add_layout(legend(location="center", orientation="vertical", name="right"), 'right')
 
 doc = Document()
 doc.add_root(plot)
