@@ -6,7 +6,7 @@ from bokeh.util.browser import view
 from bokeh.resources import INLINE
 from bokeh.models.glyphs import Circle, Line, Text
 from bokeh.models import (ColumnDataSource, Range1d, Plot, LinearAxis, Grid,
-    HoverTool, TapTool, WheelZoomTool, Legend, LegendItem, CustomJS)
+    HoverTool, CrosshairTool, TapTool, WheelZoomTool, Legend, LegendItem, CustomJS)
 
 plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=500, plot_height=500, toolbar_sticky=False)
 
@@ -51,6 +51,9 @@ tooltips = "<b>@name</b> = (@x{0.00}, @y{0.00})"
 hover = HoverTool(tooltips=tooltips, renderers=[cr1, cr2, ln2, cr3], point_policy="follow_mouse")
 plot.add_tools(hover)
 
+crosshair = CrosshairTool()
+plot.add_tools(crosshair)
+
 tap = TapTool(renderers=[cr1, cr2, cr3], callback=CustomJS(code="console.log('TAP')"))
 plot.add_tools(tap)
 
@@ -67,6 +70,7 @@ legend = lambda **kwargs: Legend(background_fill_alpha=0.7, items=legends(), **k
 plot.add_layout(legend(location="left_center", orientation="vertical"))
 plot.add_layout(legend(location="center", orientation="vertical"))
 plot.add_layout(legend(location="top_center", orientation="horizontal"))
+plot.add_layout(legend(location="top_right", orientation="horizontal"))
 plot.add_layout(legend(location="bottom_right", orientation="horizontal"))
 plot.add_layout(legend(location=(0, 0), orientation="vertical", name="(0, 0)"))
 plot.add_layout(legend(location="center", orientation="horizontal", name="above"), 'above')
