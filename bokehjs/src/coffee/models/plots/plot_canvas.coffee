@@ -119,6 +119,9 @@ export class PlotCanvasView extends BokehView
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
 
+  set_cursor: (cursor="default") ->
+    @canvas_view.$el.css('cursor', cursor)
+
   init_webgl: () ->
     ctx = @canvas_view.ctx
 

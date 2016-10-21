@@ -213,6 +213,8 @@ export class Legend extends Annotation
 
   type: 'Legend'
 
+  cursor: "pointer"
+
   get_legend_names: () ->
     legend_names = []
     for item in @items
