@@ -47,12 +47,9 @@ export class LegendView extends AnnotationView
         legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    if @model.panel?
-      h_range = {start: @model.panel.left, end: @model.panel.right}
-      v_range = {start: @model.panel.bottom, end: @model.panel.top}
-    else
-      h_range = @plot_view.frame.h_range
-      v_range = @plot_view.frame.v_range
+    panel = @model.panel ? @plot_view.frame
+    h_range = {start: panel.left, end: panel.right}
+    v_range = {start: panel.bottom, end: panel.top}
 
     location = @model.location
     if _.isString(location)
