@@ -47,10 +47,14 @@ export class LegendView extends AnnotationView
         legend_width += _.max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
-    location = @model.location
-    h_range = @plot_view.frame.h_range
-    v_range = @plot_view.frame.v_range
+    if @model.panel?
+      h_range = {start: @model.panel.left, end: @model.panel.right}
+      v_range = {start: @model.panel.bottom, end: @model.panel.top}
+    else
+      h_range = @plot_view.frame.h_range
+      v_range = @plot_view.frame.v_range
 
+    location = @model.location
     if _.isString(location)
       switch location
         when 'top_left'
@@ -81,7 +85,9 @@ export class LegendView extends AnnotationView
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = (v_range.end + v_range.start)/2 + legend_height/2
     else if _.isArray(location) and location.length == 2
-      [x, y] = location
+      [x, y] = location   # left, bottom wrt panel
+      x += h_range.start
+      y += v_range.start + legend_height
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
@@ -146,9 +152,6 @@ export class LegendView extends AnnotationView
     ctx.restore()
 
   _draw_legend_box: (ctx, bbox) ->
-    if @model.panel?
-      panel_offset = @_get_panel_offset()
-      ctx.translate(panel_offset.x, panel_offset.y)
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
     @visuals.background_fill.set_value(ctx)
@@ -206,12 +209,6 @@ export class LegendView extends AnnotationView
       return bbox.height
     if side == 'left' or side == 'right'
       return bbox.width
-
-  _get_panel_offset: () ->
-    # Legends draw from the top down, so set the y_panel_offset to _top
-    x = @model.panel._left._value
-    y = @model.panel._top._value
-    return {x: x, y: -y}
 
 export class Legend extends Annotation
   default_view: LegendView
