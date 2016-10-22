@@ -128,6 +128,8 @@ class Legend(Annotation):
     The %s for the legend background style when hovered.
     """)
 
+    click_policy = Enum("hide", "mute")
+
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)

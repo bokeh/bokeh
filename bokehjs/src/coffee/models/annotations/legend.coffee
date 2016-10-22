@@ -109,8 +109,6 @@ export class LegendView extends AnnotationView
       labels = item.get_labels_list_from_label_prop()
       field = item.get_field_from_label_prop()
 
-      visible = _.every(item.renderers, (r) -> r.visible)
-
       for label in labels
         x1 = legend_bbox.x + xoffset
         y1 = legend_bbox.y + yoffset
@@ -125,8 +123,13 @@ export class LegendView extends AnnotationView
         bbox = new BBox(x1, y1, x1+w, y1+h)
 
         if bbox.contains(hx, hy)
-          for r in item.renderers
-            r.visible = not r.visible
+          switch @model.click_policy
+            when "hide"
+              for r in item.renderers
+                r.visible = not r.visible
+            when "mute"
+              for r in item.renderers
+                r.muted = not r.muted
           return true
 
         if vertical
@@ -172,7 +175,9 @@ export class LegendView extends AnnotationView
       if labels.length == 0
         continue
 
-      visible = _.every(item.renderers, (r) -> r.visible)
+      active = switch @model.click_policy
+        when "hide" then _.every(item.renderers, (r) -> r.visible)
+        when "mute" then _.every(item.renderers, (r) -> not r.muted)
 
       for label in labels
         x1 = bbox.x + xoffset
@@ -184,7 +189,7 @@ export class LegendView extends AnnotationView
         else
           xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
 
-        if not visible
+        if not active
           if vertical
              [w, h] = [bbox.width-2*@model.padding, @max_label_height]
           else
@@ -236,6 +241,7 @@ export class Legend extends Annotation
       padding:        [ p.Number,         10          ]
       spacing:        [ p.Number,         3           ]
       items:          [ p.Array,          []          ]
+      click_policy:   [ p.Any,            "hide"      ]
   }
 
   @override {
