@@ -189,6 +189,12 @@ export class LegendView extends AnnotationView
         else
           xoffset += @text_widths[label] + glyph_width + label_standoff + legend_spacing
 
+        @visuals.label_text.set_value(ctx)
+        ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
+        for r in item.renderers
+          view = @plot_view.renderer_views[r.id]
+          view.draw_legend(ctx, x1, x2, y1, y2, field, label)
+
         if not active
           if vertical
              [w, h] = [bbox.width-2*@model.padding, @max_label_height]
@@ -198,12 +204,6 @@ export class LegendView extends AnnotationView
           ctx.rect(x1, y1, w, h)
           @visuals.inactive_fill.set_value(ctx)
           ctx.fill()
-
-        @visuals.label_text.set_value(ctx)
-        ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
-        for r in item.renderers
-          view = @plot_view.renderer_views[r.id]
-          view.draw_legend(ctx, x1, x2, y1, y2, field, label)
 
   _get_size: () ->
     bbox = @compute_legend_bbox()
@@ -250,8 +250,8 @@ export class Legend extends Annotation
     border_line_width: 1
     background_fill_color: "#ffffff"
     background_fill_alpha: 0.95
-    inactive_fill_color: "grey"
-    inactive_fill_alpha: 0.95
+    inactive_fill_color: "lightgrey"
+    inactive_fill_alpha: 0.4
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }
