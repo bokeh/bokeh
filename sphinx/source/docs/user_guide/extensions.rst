@@ -270,7 +270,7 @@ and improvements to this section for future users.
 :ref:`userguide_extensions_examples_latex`
     Include a third-party JavaScript library in order to render LaTex.
 
-:ref:`userguide_extensions_examples_widget`
+ :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org

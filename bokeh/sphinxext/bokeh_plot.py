@@ -39,9 +39,6 @@ source-position : enum('above', 'below', 'none')
 linenos : bool
     Whether to display line numbers along with the source.
 
-emphasize-lines : list[int]
-    A list of source code lines to emphasize.
-
 Examples
 --------
 
@@ -65,40 +62,96 @@ The inline example code above produces the following output:
 """
 from __future__ import absolute_import
 
-import sys
-import types
+import ast
 import hashlib
-from os import makedirs
-from os.path import basename, dirname, exists, isdir, join, relpath
-import re
-from shutil import copy
-from tempfile import mkdtemp
-import webbrowser
+from os.path import basename, dirname, join
 
 from docutils import nodes
-from docutils.parsers.rst.directives import choice, flag, unchanged
-from docutils.statemachine import ViewList
+from docutils.parsers.rst import Directive, Parser
+from docutils.parsers.rst.directives import choice
 
-from sphinx.util.compat import Directive
 from sphinx.errors import SphinxError
+from sphinx.util import console, copyfile, ensuredir
+from sphinx.util.nodes import set_source_info
 
-from .. import io
 from ..document import Document
 from ..embed import autoload_static
 from ..resources import Resources
 from ..settings import settings
-from ..util.string import decode_utf8
-from .utils import out_of_date
-from ._templates import PLOT_SOURCE
+from .templates import PLOT_PAGE
+from ._example_handler import ExampleHandler
 
+if settings.docs_cdn() == "local":
+    resources = Resources(mode="server", root_url="/en/latest/")
+else:
+    resources = Resources(mode="cdn")
 
-class bokeh_plot(nodes.General, nodes.Element):
-    pass
+class PlotScriptError(SphinxError):
+    """ Error during script parsing. """
 
+    category = 'PlotScript error'
 
-def _source_position(argument):
-    return choice(argument, ('below', 'above', 'none'))
+def _process_script(source, filename, auxdir, js_name):
+    c = ExampleHandler(source=source, filename=filename)
+    d = Document()
+    c.modify_document(d)
+    if c.error:
+        raise PlotScriptError(c.error_detail)
 
+    script_path = join("/scripts", js_name)
+    js_path = join(auxdir, js_name)
+    js, script = autoload_static(d.roots[0], resources, script_path)
+
+    with open(js_path, "w") as f:
+        f.write(js)
+
+    return (script, js, js_path, source)
+
+class PlotScriptParser(Parser):
+    """ This Parser recognizes .py files in the Sphinx source tree,
+    assuming that they contain bokeh examples
+
+    Note: it is important that the .py files are parsed first. This is
+    accomplished by reordering the doc names in the env_before_read_docs callback
+
+    """
+
+    def get_transforms(self):
+        """ List of transforms for documents parsed by this parser.
+
+        """
+        return super(PlotScriptParser, self).get_transforms() + []
+
+    def parse(self, source, document):
+        """ Parse ``source``, write results to ``document``.
+
+        """
+        env = document.settings.env
+        filename = env.doc2path(env.docname) # e.g. full path to docs/user_guide/examples/layout_vertical
+
+        # This code splits the source into two parts: the docstring (or None if
+        # there is not one), and the remaining source code after
+        m = ast.parse(source)
+        docstring = ast.get_docstring(m)
+        if docstring is not None:
+            lines = source.split("\n")
+            lineno = m.body[0].lineno # assumes docstring is m.body[0]
+            source = "\n".join(lines[lineno:])
+
+        js_name = "bokeh-plot-%s.js" % hashlib.md5(env.docname.encode('utf-8')).hexdigest()
+
+        (script, js, js_path, source) = _process_script(source, filename, env.bokeh_plot_auxdir, js_name)
+
+        env.bokeh_plot_files[env.docname] = (script, js, js_path, source)
+
+        rst = PLOT_PAGE.render(source=source,
+                               filename=basename(filename),
+                               docstring=docstring,
+                               script=script)
+
+        document['bokeh_plot_include_bokehjs'] = True
+
+        super(PlotScriptParser, self).parse(rst, document)
 
 class BokehPlotDirective(Directive):
 
@@ -106,192 +159,116 @@ class BokehPlotDirective(Directive):
     optional_arguments = 2
 
     option_spec = {
-        'source-position': _source_position,
-        'linenos': flag,
-        'emphasize-lines': unchanged,
+        'source-position': lambda x: choice(x, ('below', 'above', 'none')),
     }
 
     def run(self):
-        # filename *or* python code content, but not both
-        if self.arguments and self.content:
-            raise RuntimeError("bokeh-plot:: directive can't have both args and content")
 
         env = self.state.document.settings.env
         app = env.app
 
-        if not hasattr(env, 'bokeh_plot_tmpdir'):
-            env.bokeh_plot_tmpdir = mkdtemp()
-            app.verbose("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
-        else:
-            tmpdir = env.bokeh_plot_tmpdir
-            if not exists(tmpdir) or not isdir(tmpdir):
-                app.verbose("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
-                env.bokeh_plot_tmpdir = mkdtemp()
-            else:
-                app.verbose("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+        # filename *or* python code content, but not both
+        if self.arguments and self.content:
+            raise SphinxError("bokeh-plot:: directive can't have both args and content")
 
-        # get the name of the source file we are currently processing
-        rst_source = self.state_machine.document['source']
-        rst_dir = dirname(rst_source)
-        rst_filename = basename(rst_source)
+        # process inline examples here
+        if self.content:
+            app.debug("[bokeh-plot] handling inline example in %r", env.docname)
+            source = '\n'.join(self.content)
+            # need docname not to look like a path
+            docname = env.docname.replace("/", "-")
+            serialno = env.new_serialno(env.docname)
+            js_name = "bokeh-plot-%s-inline-%d.js" % (docname, serialno)
+            # the code runner just needs a real path to cd to, this will do
+            path = join(env.bokeh_plot_auxdir, js_name)
+
+            (script, js, js_path, source) = _process_script(source, path, env.bokeh_plot_auxdir, js_name)
+            env.bokeh_plot_files[js_name] = (script, js, js_path, source)
+
+        # process example files here
+        else:
+            example_path = self.arguments[0][:-3]  # remove the ".py"
+
+            # if it's an "internal" example, the python parser has already handled it
+            if example_path in env.bokeh_plot_files:
+                app.debug("[bokeh-plot] handling internal example in %r: %s", env.docname, self.arguments[0])
+                (script, js, js_path, source) = env.bokeh_plot_files[example_path]
+
+            # handle examples external to the docs source, e.g. gallery examples
+            else:
+                app.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
+                source = open(self.arguments[0]).read()
+                docname = env.docname.replace("/", "-")
+                serialno = env.new_serialno(env.docname)
+                js_name = "bokeh-plot-%s-external-%d.js" % (docname, serialno)
+                (script, js, js_path, source) = _process_script(source, self.arguments[0], env.bokeh_plot_auxdir, js_name)
+                env.bokeh_plot_files[js_name] = (script, js, js_path, source)
 
         # use the source file name to construct a friendly target_id
-        target_id = "%s.bokeh-plot-%d" % (rst_filename, env.new_serialno('bokeh-plot'))
-        target_node = nodes.target('', '', ids=[target_id])
-        result = [target_node]
+        target_id = "%s.%s" % (env.docname, basename(js_path))
+        target = nodes.target('', '', ids=[target_id])
+        result = [target]
 
-        try:
-            source = self._get_source()
-        except Exception as e:
-            raise SphinxError("Unable to read source for Bokeh plot at %s:%d:%s" % (basename(rst_source), self.lineno, e))
+        code = nodes.literal_block(source, source, language="python", linenos=False, classes=[])
+        set_source_info(self, code)
 
         source_position = self.options.get('source-position', 'below')
 
-        if source_position == 'above':
-            result += self._get_source_nodes(source)
+        if source_position == "above": result += [code]
 
-        node = bokeh_plot()
-        node['target_id'] = target_id
-        node['source'] = source
-        node['relpath'] = relpath(rst_dir, env.srcdir)
-        node['rst_source'] = rst_source
-        node['rst_lineno'] = self.lineno
-        if 'alt' in self.options:
-            node['alt'] = self.options['alt']
-        if self.arguments:
-            path = self.arguments[0]
-            if path.startswith("docs"):
-                path = join("source", path)
-            node['path'] = path
-            env.note_dependency(node['path'])
-        if len(self.arguments) == 2:
-            node['symbol'] = self.arguments[1]
-        result += [node]
+        result += [nodes.raw('', script, format="html")]
 
-        if source_position == 'below':
-            result += self._get_source_nodes(source)
+        if source_position == "below": result += [code]
+
+        self.state.document['bokeh_plot_include_bokehjs'] = True
 
         return result
 
-    def _get_source(self):
-        if self.arguments:
-            path = self.arguments[0]
-            if path.startswith("docs"):
-                path = join("source", path)
-            source = open(path, "r").read()
-            source = decode_utf8(source)
-        else:
-            source = u""
-            for line in self.content:
-                source += "%s\n" % line
-        return source
+def env_before_read_docs(app, env, docnames):
+    docnames.sort(key=lambda x: 2 if "extension" in x else 0 if "examples" in x else 1)
 
-    def _get_source_nodes(self, source):
-        linenos = 'linenos' in self.options
-        emphasize_lines = self.options.get('emphasize-lines', False)
-        if emphasize_lines: linenos = True
-        result = ViewList()
-        text = PLOT_SOURCE.render(source=source, linenos=linenos, emphasize_lines=emphasize_lines)
-        for line in text.split("\n"):
-            result.append(line, "<bokeh-plot>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        self.state.nested_parse(result, 0, node)
-        return node.children
+def builder_inited(app):
+    app.env.bokeh_plot_auxdir = join(app.env.doctreedir, 'bokeh_plot')
+    ensuredir(app.env.bokeh_plot_auxdir) # sphinx/_build/doctrees/bokeh_plot
 
+    if not hasattr(app.env, 'bokeh_plot_files'):
+        app.env.bokeh_plot_files = {}
 
-# patch open and show and save to be no-ops
-def _open(*args, **kwargs):
-    pass
+def html_page_context(app, pagename, templatename, context, doctree):
+    """ Add BokehJS to pages that contain plots.
 
+    """
+    if doctree and doctree.get('bokeh_plot_include_bokehjs'):
+        context['bokeh_css_files'] = resources.css_files
+        context['bokeh_js_files'] = resources.js_files
 
-def _save(*args, **kwargs):
-    pass
+def build_finished(app, exception):
+    files = set()
+    for (script, js, js_path, source) in app.env.bokeh_plot_files.values():
+        files.add(js_path)
+    for file in app.status_iterator(files, 'copying linked files... ',
+                                    console.brown, len(files)):
+        target = join(app.builder.outdir, "scripts", basename(file))
+        ensuredir(dirname(target))
+        try:
+            copyfile(file, target)
+        except OSError as err:
+            raise SphinxError('cannot copy local file {!r}: {}'.format(file, err))
 
+def env_purge_doc(app, env, docname):
+    """ Remove local files for a given document.
 
-def _show(obj=None):
-    if obj:
-        io._obj = obj
-
-# This is so Bokeh can correctly document itself
-_save.__doc__ = io.save.__doc__
-_save.__module__ = io.save.__module__
-_show.__doc__ = io.show.__doc__
-_show.__module__ = io.show.__module__
-
-webbrowser.open = _open
-io.save = _save
-io.show = _show
-
-
-def _render_plot(source, path=None, symbol=None):
-    io._state._document = Document()
-    namespace = {}
-    if path is not None:
-        sys.modules["fake"] = types.ModuleType("fake")
-        sys.modules["fake"].__file__ = path
-        namespace["__name__"] = "fake"
-    # need to remove any encoding comment before compiling unicode
-    pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
-    source = pat.sub("", source)
-    code = compile(source, path or "<string>", mode="exec")
-    eval(code, namespace)
-    # TODO (bev) remove this crap
-    if symbol is not None:
-        obj = namespace[symbol]
-    else:
-        obj = io._obj
-    return obj
-
-
-def html_visit_bokeh_plot(self, node):
-    env = self.builder.env
-    dest_dir = join(self.builder.outdir, node["relpath"])
-
-    if settings.docs_cdn() == "local":
-        resources = Resources(mode="server", root_url="/en/latest/")
-    else:
-        resources = Resources(mode="cdn")
-
-    try:
-        if "path" in node:
-            path = node['path']
-            filename = "bokeh-plot-%s.js" % hashlib.md5(path.encode('utf-8')).hexdigest()
-            dest_path = join(dest_dir, filename)
-            tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
-            if not exists(tmpdir): makedirs(tmpdir)
-            cached_path = join(tmpdir, filename)
-
-            if out_of_date(path, cached_path) or not exists(cached_path+".script"):
-                self.builder.app.verbose("generating new plot for '%s'" % path)
-                plot = _render_plot(node['source'], path, node.get('symbol'))
-                js, script = autoload_static(plot, resources, filename)
-                with open(cached_path, "w") as f:
-                    f.write(js)
-                with open(cached_path+".script", "w") as f:
-                    f.write(script)
-            else:
-                self.builder.app.verbose("using cached plot for '%s'" % path)
-                script = open(cached_path+".script", "r").read()
-
-            if not exists(dest_dir): makedirs(dest_dir)
-            copy(cached_path, dest_path)
-        else:
-            filename = node['target_id'] + ".js"
-            if not exists(dest_dir): makedirs(dest_dir)
-            dest_path = join(dest_dir, filename)
-            plot = _render_plot(node['source'])
-            js, script = autoload_static(plot, resources, filename)
-            self.builder.app.verbose("saving inline plot at: %s" % dest_path)
-            with open(dest_path, "w") as f:
-                f.write(js)
-
-        self.body.append(script)
-    except Exception as e:
-        raise SphinxError("Unable to generate Bokeh plot at %s:%d:%s" % (node['rst_source'], node['rst_lineno'], e))
-    else:
-        raise nodes.SkipNode
+    """
+    if docname in env.bokeh_plot_files:
+        del env.bokeh_plot_files[docname]
 
 def setup(app):
-    app.add_node(bokeh_plot, html=(html_visit_bokeh_plot, None))
+    app.add_source_parser('.py', PlotScriptParser)
+
     app.add_directive('bokeh-plot', BokehPlotDirective)
+
+    app.connect('env-before-read-docs', env_before_read_docs)
+    app.connect('builder-inited',       builder_inited)
+    app.connect('html-page-context',    html_page_context)
+    app.connect('build-finished',       build_finished)
+    app.connect('env-purge-doc',        env_purge_doc)

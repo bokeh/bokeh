@@ -16,6 +16,6 @@ MODEL_DETAIL = _env.get_template("model_detail.rst")
 
 PALETTE_DETAIL = _env.get_template("palette_detail.html")
 
-PLOT_SOURCE = _env.get_template("plot_source.rst")
+PLOT_PAGE = _env.get_template("plot_page.rst")
 
 PROP_DETAIL = _env.get_template("prop_detail.rst")
