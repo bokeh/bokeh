@@ -20,8 +20,6 @@
         { "path": "examples/plotting/file/lorenz.py",          "name": "lorenz"                                      },
         { "path": "examples/plotting/file/color_scatter.py",   "name": "color_scatter"                               },
         { "path": "examples/plotting/file/color_sliders.py",   "name": "color_sliders"                               },
-        { "path": "examples/models/iris_splom.py",             "name": "iris_splom",             "symbol": "grid"    },
-        { "path": "examples/models/anscombe.py",               "name": "anscombe",               "symbol": "grid"    },
         { "path": "examples/plotting/file/texas.py",           "name": "texas"                                       },
         { "path": "examples/plotting/file/markers.py",         "name": "markers"                                     },
         { "path": "examples/plotting/file/burtin.py",          "name": "burtin"                                      },

@@ -18,14 +18,14 @@ When using ``bokeh.plotting`` or ``bokeh.Charts``, the quickest way to add
 a basic title is to pass the text as the ``title`` parameter to |Figure| or
 any Chart function:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_basic.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
     :source-position: above
 
 The default title is normally on the top of a plot, aligned to the left. But
 which side of the plot the default title appears on can be controlled by the
 ``title_location`` parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_location.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_title_location.py
     :source-position: above
 
 The default |Title| is accessible through the ``Plot.title`` property.
@@ -33,7 +33,7 @@ Visual properties for font, border, background, and others can be set
 directly on ``.title``. Here is an example that sets font and background
 properties as well as the title text and title alignment using ``.title``:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_visuals.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_title_visuals.py
     :source-position: above
 
 Note that the alignment is measured along the direction of text. For
@@ -44,13 +44,13 @@ In addition to the default title, it is possible to create and add
 additional |Title| objects to plots using the ``add_layout`` method
 of Plots:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_additional.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_title_additional.py
     :source-position: above
 
 If a title and a sticky toolbar are set to the same side, they will occupy
 the same space:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_title_toolbar.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_title_toolbar.py
     :source-position: above
 
 If the plot size is large enough, this can result in a more compact plot.
@@ -69,13 +69,13 @@ argument to the glyph methods, when creating a plot.
     This example depends on the open source NumPy library in order to more
     easily generate better data suitable for demonstrating legends.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_legends.py
     :source-position: above
 
 It is also possible to create multiple legend items for the same glyph when
 if needed by passing a legend that is the column of the column data source.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends_by_source.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_legends_by_source.py
     :source-position: above
 
 If you do not want this automatic behavior, you can use the ``field()`` or
@@ -100,7 +100,7 @@ plot.
     order to more easily generate better data suitable for demonstrating
     legends.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_color_bars.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
 
 .. _userguide_plotting_arrows:
@@ -134,7 +134,7 @@ property to control how big the arrow head is, as well as both line and
 fill properties. The line properties control the outline of the arrow head,
 and the fill properties control the interior of the arrow head (if applicable).
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arrow.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
 
 .. _userguide_plotting_box_annotations:
@@ -147,7 +147,7 @@ to emphasize specific plot regions. By default, box annotation dimensions (e.g.
 ``left`` or ``top``) default will extend the annotation to the edge of the
 plot area.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
 
 .. _userguide_plotting_labels:
@@ -188,7 +188,7 @@ from ``x`` and ``y``. Finally the render level may be controlled with the
 
 The following example illustrates the use of both:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_label.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_label.py
     :source-position: above
 
 .. _userguide_plotting_spans:
@@ -199,7 +199,7 @@ Spans
 |Span| annotations are lines that have a single dimension (width or height)
 and extend to the edge of the plot area.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_span.py
+.. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
