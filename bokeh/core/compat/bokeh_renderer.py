@@ -41,10 +41,11 @@ pd = import_optional('pandas')
 
 class BokehRenderer(Renderer):
 
-    def __init__(self, use_pd, xkcd):
+    def __init__(self, tools, use_pd, xkcd):
         "Initial setup."
         self.fig = None
         self.use_pd = use_pd
+        self.tools = tools
         self.xkcd = xkcd
         self.zorder = {}
         self.handles = {}
@@ -61,7 +62,7 @@ class BokehRenderer(Renderer):
     def close_figure(self, fig):
         "Complete the plot: add tools."
         # Add tools
-        tool_objs, tools_map = _process_tools_arg(self.plot, DEFAULT_TOOLS)
+        tool_objs, tools_map = _process_tools_arg(self.plot, self.tools)
         self.plot.add_tools(*tool_objs)
 
         # Simple or Grid plot setup
