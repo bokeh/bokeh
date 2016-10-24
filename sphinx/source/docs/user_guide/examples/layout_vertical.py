@@ -1,3 +1,10 @@
+"""
+This is an example doc string
+
+* Foo
+* Bar
+
+"""
 from bokeh.io import output_file, show
 from bokeh.layouts import column
 from bokeh.plotting import figure
