@@ -15,7 +15,7 @@ It's often desired to link pan or zooming actions across many plots. All that is
 needed to enable this feature is to share range objects between |figure|
 calls.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_linked_panning.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_linked_panning.py
     :source-position: above
 
 Now you have learned how to link panning between multiple plots with the
@@ -33,7 +33,7 @@ glyph must pass to all other glyphs that share that same source.
 The following code shows an example of linked brushing between circle glyphs on
 two different |figure| calls.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_linked_brushing.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
     :source-position: above
 
 

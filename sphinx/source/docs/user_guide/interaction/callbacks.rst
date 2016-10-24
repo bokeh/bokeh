@@ -22,7 +22,7 @@ action called whenever the users clicks on the glyph.
 The following code shows how to use the OpenURL action combined with a TapTool
 to open an URL whenever the user clicks on a circle.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_open_url.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_open_url.py
     :source-position: above
 
 Now you have learned how to open an URL when the user clicks on a glyph.
@@ -43,7 +43,7 @@ as the ``callback`` argument to a Widget object.
 The code below shows an example of CustomJS set on a slider Widget that
 changes the source of a plot when the slider is used.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_widgets.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: above
 
 .. _userguide_interaction_actions_tool_callbacks:
@@ -57,7 +57,7 @@ uses the selection box dimensions (accessed in the geometry field of the
 cb_data object that is injected into the Callback code attribute), in order to
 add a Rect glyph to the plot with identical dimensions.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_tools.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_tools.py
     :source-position: above
 
 .. _userguide_interaction_actions_selection_callbacks:
@@ -71,14 +71,14 @@ below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
 similar way.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_selections.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections.py
     :source-position: above
 
 Another more sophisticated example is shown below. It computes the average `y`
 value of any selected points (including multiple disjoint selections), and draws
 a line through that value.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
     :source-position: above
 
 .. _userguide_interaction_actions_hover_callbacks:
@@ -90,7 +90,7 @@ The HoverTool has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
 hover tool is over.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_hover.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_hover.py
     :source-position: above
 
 .. _userguide_interaction_actions_range_update_callbacks:
@@ -102,7 +102,7 @@ With Bokeh, ranges have a callback attribute that accept a Callback instance
 and execute javascript code on range updates that are triggered by tool
 interactions such as a box zoom, wheel scroll or pan.
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_range_update.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
     :source-position: above
 
 
@@ -164,7 +164,7 @@ to avoid confusion and help static code analysis tools. You can add
 
     show(layout)
 
-.. bokeh-plot:: source/docs/user_guide/examples/interaction_callbacks_for_widgets.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: none
 
 .. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript

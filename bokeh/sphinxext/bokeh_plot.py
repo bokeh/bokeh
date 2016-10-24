@@ -159,7 +159,10 @@ class BokehPlotDirective(Directive):
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if self.arguments:
-            node['path'] = self.arguments[0]
+            path = self.arguments[0]
+            if path.startswith("docs"):
+                path = join("source", path)
+            node['path'] = path
             env.note_dependency(node['path'])
         if len(self.arguments) == 2:
             node['symbol'] = self.arguments[1]
@@ -172,7 +175,10 @@ class BokehPlotDirective(Directive):
 
     def _get_source(self):
         if self.arguments:
-            source = open(self.arguments[0], "r").read()
+            path = self.arguments[0]
+            if path.startswith("docs"):
+                path = join("source", path)
+            source = open(path, "r").read()
             source = decode_utf8(source)
         else:
             source = u""
