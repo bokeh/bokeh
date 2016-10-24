@@ -22,29 +22,13 @@ import textwrap
 
 from docutils import nodes
 from docutils.statemachine import ViewList
-import jinja2
 
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-
-JINJA_TEMPLATE = jinja2.Template(u"""
-.. data:: {{ name }}
-    :module: {{ module }}
-    :annotation: = {{ objrepr }}
-
-    {% if doc %}{{ doc|indent(4) }}{% endif %}
-
-    .. collapsible-code-block:: {{ lang }}
-        :heading: Template: {{ filename }}
-
-        {{ template_text|indent(8) }}
-
-""")
+from .templates import JINJA_DETAIL
 
 DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE|re.DOTALL)
-
-
 
 class BokehJinjaDirective(Directive):
 
@@ -82,7 +66,7 @@ class BokehJinjaDirective(Directive):
         else: doc = None
 
         filename = basename(template.filename)
-        rst_text = JINJA_TEMPLATE.render(
+        rst_text = JINJA_DETAIL.render(
             name=template_name,
             module=module_path,
             objrepr=repr(template),

@@ -34,31 +34,12 @@ import json
 from docutils import nodes
 from docutils.statemachine import ViewList
 
-import jinja2
-
 from sphinx.errors import SphinxError
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from bokeh.model import Viewable
-
-
-MODEL_TEMPLATE = jinja2.Template(u"""
-.. autoclass::  {{ model_path }}
-    :members:
-    :undoc-members:
-    :exclude-members: get_class
-    :show-inheritance:
-
-.. _{{ model_path }}.json:
-
-.. collapsible-code-block:: javascript
-    :heading: JSON Prototype
-
-    {{ model_json|indent(4) }}
-
-""")
-
+from ..model import Viewable
+from .templates import MODEL_DETAIL
 
 class BokehModelDirective(Directive):
 
@@ -93,7 +74,7 @@ class BokehModelDirective(Directive):
             separators=(',', ': ')
         )
 
-        rst_text = MODEL_TEMPLATE.render(
+        rst_text = MODEL_DETAIL.render(
             model_path=model_path,
             model_json=model_json,
         )

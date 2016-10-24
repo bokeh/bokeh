@@ -11,41 +11,9 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from docutils.statemachine import ViewList
 
-import jinja2
-
 from sphinx.util.compat import Directive
 
-GALLERY_TEMPLATE = jinja2.Template(u"""
-
-{% for name in names %}
-* |{{ name }}|
-{% endfor %}
-
-{% for name in names %}
-.. |{{ name }}| image:: /_images/gallery/{{ name }}.png
-    :target: gallery/{{ name }}.html
-    :class: gallery
-{% endfor %}
-
-""")
-
-DETAIL_TEMPLATE = jinja2.Template(u"""
-:orphan:
-
-.. _gallery_{{ name }}:
-
-{{ name }}
-{{ underline }}
-
-{% if prev_ref -%} < :ref:`{{ prev_ref }}` | {% endif %}
-back to :ref:`{{ up_ref }}`
-{%- if next_ref %} | :ref:`{{ next_ref }}` >{% endif %}
-
-.. bokeh-plot:: {{ path }} {%- if symbol %} {{ symbol }} {% endif %}
-   {% if source_position -%}:source-position: {{ source_position }} {% endif %}
-
-""")
-
+from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
 class BokehGalleryDirective(Directive):
 
@@ -84,7 +52,7 @@ class BokehGalleryDirective(Directive):
                 prev_ref = "gallery_" + details[i-1]['name']
             if i < len(details)-1:
                 next_ref = "gallery_" + details[i+1]['name']
-            rst = DETAIL_TEMPLATE.render(
+            rst = GALLERY_DETAIL.render(
                 name=name,
                 underline="#"*len(name),
                 path=abspath("../" + path),
@@ -102,7 +70,7 @@ class BokehGalleryDirective(Directive):
         result = ViewList()
         names = [detail['name'] for detail in details]
         env.gallery_names = [join("docs", "gallery", n) for n in names]
-        text = GALLERY_TEMPLATE.render(names=names)
+        text = GALLERY_PAGE.render(names=names)
         for line in text.split("\n"):
             result.append(line, "<bokeh-gallery>")
         node = nodes.paragraph()

@@ -79,29 +79,18 @@ from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag, unchanged
 from docutils.statemachine import ViewList
 
-import jinja2
-
 from sphinx.locale import _
 from sphinx.util.compat import Directive
 from sphinx.errors import SphinxError
 
-from .utils import out_of_date
 from .. import io
 from ..document import Document
 from ..embed import autoload_static
 from ..resources import Resources
 from ..settings import settings
 from ..util.string import decode_utf8
-
-
-SOURCE_TEMPLATE = jinja2.Template(u"""
-.. code-block:: python
-   {% if linenos %}:linenos:{% endif %}
-   {% if emphasize_lines %}:emphasize-lines: {{ emphasize_lines }}{% endif %}
-
-   {{ source|indent(3) }}
-
-""")
+from .utils import out_of_date
+from ._templates import PLOT_SOURCE
 
 
 class bokeh_plot(nodes.General, nodes.Element):
@@ -197,7 +186,7 @@ class BokehPlotDirective(Directive):
         emphasize_lines = self.options.get('emphasize-lines', False)
         if emphasize_lines: linenos = True
         result = ViewList()
-        text = SOURCE_TEMPLATE.render(source=source, linenos=linenos, emphasize_lines=emphasize_lines)
+        text = PLOT_SOURCE.render(source=source, linenos=linenos, emphasize_lines=emphasize_lines)
         for line in text.split("\n"):
             result.append(line, "<bokeh-plot>")
         node = nodes.paragraph()

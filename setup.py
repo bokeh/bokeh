@@ -492,6 +492,7 @@ sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojso
 
 package_path(join(SERVER, 'static'))
 package_path(join(ROOT, 'bokeh', 'core', '_templates'))
+package_path(join(ROOT, 'bokeh', 'sphinxext', '_templates'))
 package_path(join(ROOT, 'bokeh', 'server', 'views'), ('.html'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 

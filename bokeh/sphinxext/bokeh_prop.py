@@ -34,28 +34,16 @@ from docutils.core import publish_parts
 
 import textwrap
 
-import jinja2
-
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from bokeh.model import Viewable
-import bokeh.core.properties
-
-
-PROP_TEMPLATE = jinja2.Template(u"""
-.. attribute:: {{ name }}
-    :module: {{ module }}
-
-    *property type:* {{ type_info }}
-
-    {% if doc %}{{ doc|indent(4) }}{% endif %}
-
-""")
+from ..core import properties
+from ..model import Viewable
+from .templates import PROP_DETAIL
 
 PROP_NAMES = [
-    name for name, cls in bokeh.core.properties.__dict__.items()
-    if isinstance(cls, type) and issubclass(cls, bokeh.core.properties.Property)
+    name for name, cls in properties.__dict__.items()
+    if isinstance(cls, type) and issubclass(cls, properties.Property)
 ]
 PROP_NAMES.sort(reverse=True, key=len)
 
@@ -87,7 +75,7 @@ class BokehPropDirective(Directive):
 
         type_info = self._get_type_info(prop)
 
-        rst_text = PROP_TEMPLATE.render(
+        rst_text = PROP_DETAIL.render(
             name=prop_name,
             module=module_path,
             type_info=type_info,

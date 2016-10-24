@@ -7,34 +7,11 @@ from __future__ import absolute_import
 
 from docutils import nodes
 
-import jinja2
-
 from sphinx.locale import _
 from sphinx.util.compat import Directive
 
-from bokeh.palettes import small_palettes
-
-PALETTE_TEMPLATE = jinja2.Template(u"""
-<div class="col-md-4" style="min-height: 230px;">
-    <table>
-      <tr>
-        <th colspan="2"> {{ name }} </th>
-      </tr>
-
-      {% for number in numbers %}
-      <tr>
-
-        <td height='20px' width='30px'> {{ number }} </td>
-
-        {% for color in palette[number] %}
-        <td height="20px" width="20px" style="background-color: {{ color }};"/>
-        {% endfor %}
-
-      </tr>
-      {% endfor %}
-    </table>
-</div>
-""")
+from ..palettes import small_palettes
+from .templates import PALETTE_DETAIL
 
 CSS = """
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -69,7 +46,7 @@ def html_visit_bokeh_palette(self, node):
         palette = small_palettes[name]
         numbers = sorted(palette)
 
-        html = PALETTE_TEMPLATE.render(name=name, numbers=numbers, palette=palette)
+        html = PALETTE_DETAIL.render(name=name, numbers=numbers, palette=palette)
         self.body.append(html)
     self.body.append('</div></div>')
     self.body.append(JS)
