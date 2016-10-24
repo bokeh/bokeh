@@ -7,7 +7,6 @@ from __future__ import absolute_import
 
 from docutils import nodes
 
-from sphinx.locale import _
 from sphinx.util.compat import Directive
 
 from ..palettes import small_palettes
@@ -52,31 +51,6 @@ def html_visit_bokeh_palette(self, node):
     self.body.append(JS)
     raise nodes.SkipNode
 
-def latex_visit_bokeh_palette(self, node):
-    self.body.append(_('[palette: %s]' % node['module']))
-    raise nodes.SkipNode
-
-
-def texinfo_visit_bokeh_palette(self, node):
-    self.body.append(_('[palette: %s]' % node['module']))
-    raise nodes.SkipNode
-
-
-def text_visit_bokeh_palette(self, node):
-    self.body.append(_('[palette: %s]' % node['module']))
-    raise nodes.SkipNode
-
-
-def man_visit_bokeh_palette(self, node):
-    self.body.append(_('[palette: %s]' % node['module']))
-    raise nodes.SkipNode
-
-
 def setup(app):
-    app.add_node(bokeh_palette,
-                 html=(html_visit_bokeh_palette, None),
-                 latex=(latex_visit_bokeh_palette, None),
-                 texinfo=(texinfo_visit_bokeh_palette, None),
-                 text=(text_visit_bokeh_palette, None),
-                 man=(man_visit_bokeh_palette, None))
+    app.add_node(bokeh_palette, html=(html_visit_bokeh_palette, None))
     app.add_directive('bokeh-palette', BokehPaletteDirective)

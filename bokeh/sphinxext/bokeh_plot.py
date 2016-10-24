@@ -79,7 +79,6 @@ from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag, unchanged
 from docutils.statemachine import ViewList
 
-from sphinx.locale import _
 from sphinx.util.compat import Directive
 from sphinx.errors import SphinxError
 
@@ -287,44 +286,6 @@ def html_visit_bokeh_plot(self, node):
     else:
         raise nodes.SkipNode
 
-
-def latex_visit_bokeh_plot(self, node):
-    if 'alt' in node.attributes:
-        self.body.append(_('[graph: %s]') % node['alt'])
-    else:
-        self.body.append(_('[graph]'))
-    raise nodes.SkipNode
-
-
-def texinfo_visit_bokeh_plot(self, node):
-    if 'alt' in node.attributes:
-        self.body.append(_('[graph: %s]') % node['alt'])
-    else:
-        self.body.append(_('[graph]'))
-    raise nodes.SkipNode
-
-
-def text_visit_bokeh_plot(self, node):
-    if 'alt' in node.attributes:
-        self.add_text(_('[graph: %s]') % node['alt'])
-    else:
-        self.add_text(_('[graph]'))
-    raise nodes.SkipNode
-
-
-def man_visit_bokeh_plot(self, node):
-    if 'alt' in node.attributes:
-        self.body.append(_('[graph: %s]') % node['alt'])
-    else:
-        self.body.append(_('[graph]'))
-    raise nodes.SkipNode
-
-
 def setup(app):
-    app.add_node(bokeh_plot,
-                 html=(html_visit_bokeh_plot, None),
-                 latex=(latex_visit_bokeh_plot, None),
-                 texinfo=(texinfo_visit_bokeh_plot, None),
-                 text=(text_visit_bokeh_plot, None),
-                 man=(man_visit_bokeh_plot, None))
+    app.add_node(bokeh_plot, html=(html_visit_bokeh_plot, None))
     app.add_directive('bokeh-plot', BokehPlotDirective)
