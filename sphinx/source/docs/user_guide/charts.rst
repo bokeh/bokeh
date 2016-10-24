@@ -98,7 +98,7 @@ The ``Bar`` high-level chart can produce bar charts in various styles.
 to group. This column will label the x-axis range. Each group is
 aggregated over the ``values`` column and bars are show for the totals:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_bar.py
     :source-position: above
 
 
@@ -110,7 +110,7 @@ Aggregations
 The ``agg`` parameter may be used to specify how each group should be
 aggregated:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_agg.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_bar_agg.py
     :source-position: above
 
 Available aggregations are:
@@ -131,7 +131,7 @@ Bar Width
 The ``bar_width`` parameter can be used to specify the width of the bars, as
 percentage of category width:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_width.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_bar_width.py
     :source-position: above
 
 .. _userguide_charts_bar_color:
@@ -141,7 +141,7 @@ Bar Color
 
 The ``color`` parameter can be used to specify the color of the bars:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_color.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_bar_color.py
     :source-position: above
 
 
@@ -152,7 +152,7 @@ Grouping
 
 Groups in the data may be visually grouped using the ``group`` parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_bar_group.py
     :source-position: above
 
 
@@ -163,7 +163,7 @@ Stacking
 
 Groups in the data may be visually stacked using the ``stack`` parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_stack.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_bar_stack.py
     :source-position: above
 
 
@@ -176,13 +176,13 @@ The ``BoxPlot`` can be used to summarize the statistical properties
 of different groups of data. The ``label`` specifies a column in the data
 to group by, and a box plot is generated for each group:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot.py
     :source-position: above
 
 The label can also accept a list of column names, in which case the data
 is grouped by all the groups in the list:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_nested_label.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_nested_label.py
     :source-position: above
 
 
@@ -194,13 +194,13 @@ Box Color
 The color of the box in a ``BoxPlot`` can be set to a fixed color using the
 ``color`` parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_box_color.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_box_color.py
     :source-position: above
 
 As with ``Bar`` charts, the color can also be given a column name, in which
 case the boxes are shaded automatically according to the group:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_box_color_groups.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_box_color_groups.py
     :source-position: above
 
 
@@ -212,12 +212,12 @@ Whisker Color
 The color of the whiskers can be similarly controlled using the ``whisker_color``
 parameter. For a single color:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_whisker_color.py
     :source-position: above
 
 Or shaded automatically according to a column grouping:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color_groups.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_whisker_color_groups.py
     :source-position: above
 
 
@@ -230,7 +230,7 @@ By default, ``BoxPlot`` charts show outliers above and below the whiskers.
 However, the display of outliers can be turned on or off with the ``outliers``
 parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_outliers.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_outliers.py
     :source-position: above
 
 
@@ -242,7 +242,7 @@ Markers
 The marker used for displaying outliers is controlled by the ``marker``
 parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_marker.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_boxplot_marker.py
     :source-position: above
 
 
@@ -256,19 +256,19 @@ distribution of values in a set of data. It can be used by simply
 passing it a literal sequence of values (e.g a python list, NumPy
 or Pandas DataFrame column):
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_literal.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_histogram_values_literal.py
     :source-position: above
 
 It can also be used by passing in a Pandas Dataframe as the first
 argument, and specifying the name of the column to use for the data.
 The column name can be provided as the second positional argument:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_arg.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_histogram_values_field_arg.py
     :source-position: above
 
 Or explicitly as the ``values`` keyword argument:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_kwarg.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_histogram_values_field_kwarg.py
     :source-position: above
 
 
@@ -280,7 +280,7 @@ Number of Bins
 The ``bins`` argument can be used to specify the number of bins to use when
 computing the histogram:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_bins.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_histogram_bins.py
     :source-position: above
 
 
@@ -292,7 +292,7 @@ Bar Color
 It is also possible to control the color of the histogram bins by setting
 the ``color`` parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_color.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_histogram_color.py
     :source-position: above
 
 
@@ -306,7 +306,7 @@ value of the ``color`` parameter is one of the DataFrame column names, the data
 is first grouped by this column, and a histogram is generated for each group.
 Each histogram is automatically colored differently, and a legend displayed:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_color_groups.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_histogram_color_groups.py
     :source-position: above
 
 
@@ -320,7 +320,7 @@ The ``Scatter`` high-level chart can be used to generate 1D or (more commonly)
 2D scatter plots. It is used by passing in DataFrame-like object as the first
 argument then specifying the columns to use for ``x`` and ``y`` coordinates:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter.py
     :source-position: above
 
 
@@ -332,7 +332,7 @@ Color
 The ``color`` parameter can be used to control the color of the scatter
 markers:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_color.py
     :source-position: above
 
 
@@ -345,7 +345,7 @@ if ``color`` is supplied with the name of a data column then the data is first
 grouped by the values of that column, and then a different color is used for
 every group:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_color_group.py
     :source-position: above
 
 
@@ -357,7 +357,7 @@ Legends
 When grouping, a legend is usually useful, and it's location can be specified
 by the ``legend`` parameter:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_legend.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_legend.py
     :source-position: above
 
 Legends are not sorted by default but this behavior can be changed by using the
@@ -365,7 +365,7 @@ Legends are not sorted by default but this behavior can be changed by using the
 attribute to sort by and :attr:`~bokeh.charts.builder.Builder.legend_sort_direction`
 to set the order (`ascending` or `descending`).
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_legend_sorted.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_legend_sorted.py
     :source-position: above
 
 .. _userguide_charts_scatter_marker:
@@ -375,18 +375,18 @@ Markers
 
 The ``marker`` parameter can be used to control the shape of the scatter marker:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_marker.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_marker.py
     :source-position: above
 
 As with ``color``, the ``marker`` parameter can be given a column name to group
 by the values of that column, using a different marker shape for each group:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_marker_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_marker_group.py
     :source-position: above
 
 Often it is most useful to group both the color and marker shape together:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_marker.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_color_marker.py
     :source-position: above
 
 .. _userguide_charts_scatter_tooltips:
@@ -398,7 +398,7 @@ The ``tooltips`` parameter can be used to add information to the hover tool
 and is supported for the scatter and line charts. The format is the same as
 the :attr:`~bokeh.models.tools.HoverTool.tooltips` attribute of the hover tool.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_tooltips.py
+.. bokeh-plot:: source/docs/user_guide/examples/charts_scatter_tooltips.py
     :source-position: above
 
 .. _userguide_charts_defaults:

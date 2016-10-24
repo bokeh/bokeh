@@ -61,7 +61,7 @@ Button
 
 Bokeh provides a simple Button:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_button.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_button.py
     :source-position: below
 
 Checkbox Button Group
@@ -70,7 +70,7 @@ Checkbox Button Group
 Bokeh also provides a checkbox button group, that can have multiple options
 selected simultaneously:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_checkbox_button_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_checkbox_button_group.py
     :source-position: below
 
 Checkbox Group
@@ -78,7 +78,7 @@ Checkbox Group
 
 A standard checkbox:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_checkbox_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_checkbox_group.py
     :source-position: below
 
 Data Table
@@ -89,7 +89,7 @@ that since the table is configured with a data source object, any plots that
 share this data source will automatically have selections linked between the
 plot and the table (even in static HTML documents).
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_data_table.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_data_table.py
     :source-position: below
 
 Dropdown Menu
@@ -97,7 +97,7 @@ Dropdown Menu
 
 It is also possible to include Dropdown menus:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_dropdown_menu.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_dropdown_menu.py
     :source-position: below
 
 MultiSelect
@@ -105,7 +105,7 @@ MultiSelect
 
 A multi-select widget to present multiple available options:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_multiselect.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_multiselect.py
     :source-position: below
 
 Radio Button Group
@@ -113,7 +113,7 @@ Radio Button Group
 
 A radio button group can have at most one selected button at at time:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_radio_button_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_radio_button_group.py
     :source-position: below
 
 Radio Group
@@ -121,7 +121,7 @@ Radio Group
 
 A radio group uses standard radio button appearance:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_radio_group.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_radio_group.py
     :source-position: below
 
 Select
@@ -129,7 +129,7 @@ Select
 
 A single selection widget:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_select.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_select.py
     :source-position: below
 
 Slider
@@ -138,7 +138,7 @@ Slider
 The Bokeh slider can be configured with ``start`` and ``end`` values, a ``step`` size,
 an initial ``value`` and a ``title``:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_slider.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_slider.py
     :source-position: below
 
 RangeSlider
@@ -155,7 +155,7 @@ Tab Panes
 
 Tab panes allow multiple plots or layouts to be show in selectable tabs:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_tab_panes.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_tab_panes.py
     :source-position: below
 
 TextInput
@@ -163,7 +163,7 @@ TextInput
 
 A widget for collecting a line of text from a user:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_textinput.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_textinput.py
     :source-position: below
 
 Toggle Button
@@ -171,7 +171,7 @@ Toggle Button
 
 The toggle button holds an on/off state:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_toggle_button.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_toggle_button.py
     :source-position: below
 
 .. _userguide_interaction_actions:
@@ -181,7 +181,7 @@ Div
 
 A widget for displaying text that can support HTML in a <div> tag:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_div.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_div.py
     :source-position: below
 
 Paragraph
@@ -189,7 +189,7 @@ Paragraph
 
 A widget for displaying a block of text in an HTML <p> tag:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_paragraph.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_paragraph.py
     :source-position: below
 
 PreText
@@ -197,5 +197,5 @@ PreText
 
 A widget for displaying a block of pre-formatted text in an HTML <pre> tag:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_pretext.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_pretext.py
     :source-position: below
