@@ -451,53 +451,163 @@ export const Set3_10     = [0x8dd3c7, 0xffffb3, 0xbebada, 0xfb8072, 0x80b1d3, 0x
 export const Set3_11     = [0x8dd3c7, 0xffffb3, 0xbebada, 0xfb8072, 0x80b1d3, 0xfdb462, 0xb3de69, 0xfccde5, 0xd9d9d9, 0xbc80bd, 0xccebc5]
 export const Set3_12     = [0x8dd3c7, 0xffffb3, 0xbebada, 0xfb8072, 0x80b1d3, 0xfdb462, 0xb3de69, 0xfccde5, 0xd9d9d9, 0xbc80bd, 0xccebc5, 0xffed6f]
 
-export const YlGn     = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
-export const YlGnBu   = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
-export const GnBu     = {GnBu3, GnBu4, GnBu5, GnBu6, GnBu7, GnBu8, GnBu9}
-export const BuGn     = {BuGn3, BuGn4, BuGn5, BuGn6, BuGn7, BuGn8, BuGn9}
-export const PuBuGn   = {PuBuGn3, PuBuGn4, PuBuGn5, PuBuGn6, PuBuGn7, PuBuGn8, PuBuGn9}
-export const PuBu     = {PuBu3, PuBu4, PuBu5, PuBu6, PuBu7, PuBu8, PuBu9}
-export const BuPu     = {BuPu3, BuPu4, BuPu5, BuPu6, BuPu7, BuPu8, BuPu9}
-export const RdPu     = {RdPu3, RdPu4, RdPu5, RdPu6, RdPu7, RdPu8, RdPu9}
-export const PuRd     = {PuRd3, PuRd4, PuRd5, PuRd6, PuRd7, PuRd8, PuRd9}
-export const OrRd     = {OrRd3, OrRd4, OrRd5, OrRd6, OrRd7, OrRd8, OrRd9}
-export const YlOrRd   = {YlOrRd3, YlOrRd4, YlOrRd5, YlOrRd6, YlOrRd7, YlOrRd8, YlOrRd9}
-export const YlOrBr   = {YlOrBr3, YlOrBr4, YlOrBr5, YlOrBr6, YlOrBr7, YlOrBr8, YlOrBr9}
-export const Purples  = {Purples3, Purples4, Purples5, Purples6, Purples7, Purples8, Purples9}
-export const Blues    = {Blues3, Blues4, Blues5, Blues6, Blues7, Blues8, Blues9}
-export const Greens   = {Greens3, Greens4, Greens5, Greens6, Greens7, Greens8, Greens9}
-export const Oranges  = {Oranges3, Oranges4, Oranges5, Oranges6, Oranges7, Oranges8, Oranges9}
-export const Reds     = {Reds3, Reds4, Reds5, Reds6, Reds7, Reds8, Reds9}
-export const Greys    = {Greys3, Greys4, Greys5, Greys6, Greys7, Greys8, Greys9, Greys10, Greys11, Greys256}
-export const PuOr     = {PuOr3, PuOr4, PuOr5, PuOr6, PuOr7, PuOr8, PuOr9, PuOr10, PuOr11}
-export const BrBG     = {BrBG3, BrBG4, BrBG5, BrBG6, BrBG7, BrBG8, BrBG9, BrBG10, BrBG11}
-export const PRGn     = {PRGn3, PRGn4, PRGn5, PRGn6, PRGn7, PRGn8, PRGn9, PRGn10, PRGn11}
-export const PiYG     = {PiYG3, PiYG4, PiYG5, PiYG6, PiYG7, PiYG8, PiYG9, PiYG10, PiYG11}
-export const RdBu     = {RdBu3, RdBu4, RdBu5, RdBu6, RdBu7, RdBu8, RdBu9, RdBu10, RdBu11}
-export const RdGy     = {RdGy3, RdGy4, RdGy5, RdGy6, RdGy7, RdGy8, RdGy9, RdGy10, RdGy11}
-export const RdYlBu   = {RdYlBu3, RdYlBu4, RdYlBu5, RdYlBu6, RdYlBu7, RdYlBu8, RdYlBu9, RdYlBu10, RdYlBu11}
-export const Spectral = {Spectral3, Spectral4, Spectral5, Spectral6, Spectral7, Spectral8, Spectral9, Spectral10, Spectral11}
-export const RdYlGn   = {RdYlGn3, RdYlGn4, RdYlGn5, RdYlGn6, RdYlGn7, RdYlGn8, RdYlGn9, RdYlGn10, RdYlGn11}
-export const Inferno  = {Inferno3, Inferno4, Inferno5, Inferno6, Inferno7, Inferno8, Inferno9, Inferno10, Inferno11, Inferno256}
-export const Magma    = {Magma3, Magma4, Magma5, Magma6, Magma7, Magma8, Magma9, Magma10, Magma11, Magma256}
-export const Plasma   = {Plasma3, Plasma4, Plasma5, Plasma6, Plasma7, Plasma8, Plasma9, Plasma10, Plasma11, Plasma256}
-export const Viridis  = {Viridis3, Viridis4, Viridis5, Viridis6, Viridis7, Viridis8, Viridis9, Viridis10, Viridis11, Viridis256}
-export const Accent   = {Accent3, Accent4, Accent5, Accent6, Accent7, Accent8}
-export const Dark2    = {Dark2_3, Dark2_4, Dark2_5, Dark2_6, Dark2_7, Dark2_8}
-export const Paired   = {Paired3, Paired4, Paired5, Paired6, Paired7, Paired8, Paired9, Paired10, Paired11, Paired12}
-export const Pastel1  = {Pastel1_3, Pastel1_4, Pastel1_5, Pastel1_6, Pastel1_7, Pastel1_8, Pastel1_9}
-export const Pastel2  = {Pastel2_3, Pastel2_4, Pastel2_5, Pastel2_6, Pastel2_7, Pastel2_8}
-export const Set1     = {Set1_3, Set1_4, Set1_5, Set1_6, Set1_7, Set1_8, Set1_9}
-export const Set2     = {Set2_3, Set2_4, Set2_5, Set2_6, Set2_7, Set2_8}
-export const Set3     = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9, Set3_10, Set3_11, Set3_12}
+export const Category10_3  =  [0x1f77b4, 0xff7f0e, 0x2ca02c]
+export const Category10_4  =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728]
+export const Category10_5  =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd]
+export const Category10_6  =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd, 0x8c564b]
+export const Category10_7  =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd, 0x8c564b, 0xe377c2]
+export const Category10_8  =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd, 0x8c564b, 0xe377c2, 0x7f7f7f]
+export const Category10_9  =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd, 0x8c564b, 0xe377c2, 0x7f7f7f, 0xbcbd22]
+export const Category10_10 =  [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd, 0x8c564b, 0xe377c2, 0x7f7f7f, 0xbcbd22, 0x17becf]
 
-/* License regarding the Viridis, Magma, Plasma and Inferno color maps
+export const Category20_3  =  [0x1f77b4, 0xaec7e8, 0xff7f0e]
+export const Category20_4  =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78]
+export const Category20_5  =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c]
+export const Category20_6  =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a]
+export const Category20_7  =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728]
+export const Category20_8  =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896]
+export const Category20_9  =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd]
+export const Category20_10 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5]
+export const Category20_11 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b]
+export const Category20_12 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94]
+export const Category20_13 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2]
+export const Category20_14 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2]
+export const Category20_15 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2, 0x7f7f7f]
+export const Category20_16 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2, 0x7f7f7f, 0xc7c7c7]
+export const Category20_17 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2, 0x7f7f7f, 0xc7c7c7, 0xbcbd22]
+export const Category20_18 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2, 0x7f7f7f, 0xc7c7c7, 0xbcbd22, 0xdbdb8d]
+export const Category20_19 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2, 0x7f7f7f, 0xc7c7c7, 0xbcbd22, 0xdbdb8d, 0x17becf]
+export const Category20_20 =  [0x1f77b4, 0xaec7e8, 0xff7f0e, 0xffbb78, 0x2ca02c, 0x98df8a, 0xd62728, 0xff9896, 0x9467bd, 0xc5b0d5,
+                               0x8c564b, 0xc49c94, 0xe377c2, 0xf7b6d2, 0x7f7f7f, 0xc7c7c7, 0xbcbd22, 0xdbdb8d, 0x17becf, 0x9edae5]
+
+export const Category20b_3  = [0x393b79, 0x5254a3, 0x6b6ecf]
+export const Category20b_4  = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede]
+export const Category20b_5  = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939]
+export const Category20b_6  = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252]
+export const Category20b_7  = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b]
+export const Category20b_8  = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c]
+export const Category20b_9  = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31]
+export const Category20b_10 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39]
+export const Category20b_11 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52]
+export const Category20b_12 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94]
+export const Category20b_13 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39]
+export const Category20b_14 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a]
+export const Category20b_15 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a, 0xd6616b]
+export const Category20b_16 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a, 0xd6616b, 0xe7969c]
+export const Category20b_17 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a, 0xd6616b, 0xe7969c, 0x7b4173]
+export const Category20b_18 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a, 0xd6616b, 0xe7969c, 0x7b4173, 0xa55194]
+export const Category20b_19 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a, 0xd6616b, 0xe7969c, 0x7b4173, 0xa55194, 0xce6dbd]
+export const Category20b_20 = [0x393b79, 0x5254a3, 0x6b6ecf, 0x9c9ede, 0x637939, 0x8ca252, 0xb5cf6b, 0xcedb9c, 0x8c6d31, 0xbd9e39,
+                               0xe7ba52, 0xe7cb94, 0x843c39, 0xad494a, 0xd6616b, 0xe7969c, 0x7b4173, 0xa55194, 0xce6dbd, 0xde9ed6]
+
+export const Category20c_3  = [0x3182bd, 0x6baed6, 0x9ecae1]
+export const Category20c_4  = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef]
+export const Category20c_5  = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d]
+export const Category20c_6  = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c]
+export const Category20c_7  = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b]
+export const Category20c_8  = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2]
+export const Category20c_9  = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354]
+export const Category20c_10 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476]
+export const Category20c_11 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b]
+export const Category20c_12 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0]
+export const Category20c_13 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1]
+export const Category20c_14 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8]
+export const Category20c_15 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8, 0xbcbddc]
+export const Category20c_16 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8, 0xbcbddc, 0xdadaeb]
+export const Category20c_17 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8, 0xbcbddc, 0xdadaeb, 0x636363]
+export const Category20c_18 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8, 0xbcbddc, 0xdadaeb, 0x636363, 0x969696]
+export const Category20c_19 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8, 0xbcbddc, 0xdadaeb, 0x636363, 0x969696, 0xbdbdbd]
+export const Category20c_20 = [0x3182bd, 0x6baed6, 0x9ecae1, 0xc6dbef, 0xe6550d, 0xfd8d3c, 0xfdae6b, 0xfdd0a2, 0x31a354, 0x74c476,
+                               0xa1d99b, 0xc7e9c0, 0x756bb1, 0x9e9ac8, 0xbcbddc, 0xdadaeb, 0x636363, 0x969696, 0xbdbdbd, 0xd9d9d9]
+
+export const Colorblind3 = [0x0072b2, 0xe69f00, 0xf0e442]
+export const Colorblind4 = [0x0072b2, 0xe69f00, 0xf0e442, 0x009e73]
+export const Colorblind5 = [0x0072b2, 0xe69f00, 0xf0e442, 0x009e73, 0x56b4e9]
+export const Colorblind6 = [0x0072b2, 0xe69f00, 0xf0e442, 0x009e73, 0x56b4e9, 0xd55e00]
+export const Colorblind7 = [0x0072b2, 0xe69f00, 0xf0e442, 0x009e73, 0x56b4e9, 0xd55e00, 0xcc79a7]
+export const Colorblind8 = [0x0072b2, 0xe69f00, 0xf0e442, 0x009e73, 0x56b4e9, 0xd55e00, 0xcc79a7, 0x000000]
+
+export const YlGn        = {YlGn3, YlGn4, YlGn5, YlGn6, YlGn7, YlGn8, YlGn9}
+export const YlGnBu      = {YlGnBu3, YlGnBu4, YlGnBu5, YlGnBu6, YlGnBu7, YlGnBu8, YlGnBu9}
+export const GnBu        = {GnBu3, GnBu4, GnBu5, GnBu6, GnBu7, GnBu8, GnBu9}
+export const BuGn        = {BuGn3, BuGn4, BuGn5, BuGn6, BuGn7, BuGn8, BuGn9}
+export const PuBuGn      = {PuBuGn3, PuBuGn4, PuBuGn5, PuBuGn6, PuBuGn7, PuBuGn8, PuBuGn9}
+export const PuBu        = {PuBu3, PuBu4, PuBu5, PuBu6, PuBu7, PuBu8, PuBu9}
+export const BuPu        = {BuPu3, BuPu4, BuPu5, BuPu6, BuPu7, BuPu8, BuPu9}
+export const RdPu        = {RdPu3, RdPu4, RdPu5, RdPu6, RdPu7, RdPu8, RdPu9}
+export const PuRd        = {PuRd3, PuRd4, PuRd5, PuRd6, PuRd7, PuRd8, PuRd9}
+export const OrRd        = {OrRd3, OrRd4, OrRd5, OrRd6, OrRd7, OrRd8, OrRd9}
+export const YlOrRd      = {YlOrRd3, YlOrRd4, YlOrRd5, YlOrRd6, YlOrRd7, YlOrRd8, YlOrRd9}
+export const YlOrBr      = {YlOrBr3, YlOrBr4, YlOrBr5, YlOrBr6, YlOrBr7, YlOrBr8, YlOrBr9}
+export const Purples     = {Purples3, Purples4, Purples5, Purples6, Purples7, Purples8, Purples9}
+export const Blues       = {Blues3, Blues4, Blues5, Blues6, Blues7, Blues8, Blues9}
+export const Greens      = {Greens3, Greens4, Greens5, Greens6, Greens7, Greens8, Greens9}
+export const Oranges     = {Oranges3, Oranges4, Oranges5, Oranges6, Oranges7, Oranges8, Oranges9}
+export const Reds        = {Reds3, Reds4, Reds5, Reds6, Reds7, Reds8, Reds9}
+export const Greys       = {Greys3, Greys4, Greys5, Greys6, Greys7, Greys8, Greys9, Greys10, Greys11, Greys256}
+export const PuOr        = {PuOr3, PuOr4, PuOr5, PuOr6, PuOr7, PuOr8, PuOr9, PuOr10, PuOr11}
+export const BrBG        = {BrBG3, BrBG4, BrBG5, BrBG6, BrBG7, BrBG8, BrBG9, BrBG10, BrBG11}
+export const PRGn        = {PRGn3, PRGn4, PRGn5, PRGn6, PRGn7, PRGn8, PRGn9, PRGn10, PRGn11}
+export const PiYG        = {PiYG3, PiYG4, PiYG5, PiYG6, PiYG7, PiYG8, PiYG9, PiYG10, PiYG11}
+export const RdBu        = {RdBu3, RdBu4, RdBu5, RdBu6, RdBu7, RdBu8, RdBu9, RdBu10, RdBu11}
+export const RdGy        = {RdGy3, RdGy4, RdGy5, RdGy6, RdGy7, RdGy8, RdGy9, RdGy10, RdGy11}
+export const RdYlBu      = {RdYlBu3, RdYlBu4, RdYlBu5, RdYlBu6, RdYlBu7, RdYlBu8, RdYlBu9, RdYlBu10, RdYlBu11}
+export const Spectral    = {Spectral3, Spectral4, Spectral5, Spectral6, Spectral7, Spectral8, Spectral9, Spectral10, Spectral11}
+export const RdYlGn      = {RdYlGn3, RdYlGn4, RdYlGn5, RdYlGn6, RdYlGn7, RdYlGn8, RdYlGn9, RdYlGn10, RdYlGn11}
+export const Inferno     = {Inferno3, Inferno4, Inferno5, Inferno6, Inferno7, Inferno8, Inferno9, Inferno10, Inferno11, Inferno256}
+export const Magma       = {Magma3, Magma4, Magma5, Magma6, Magma7, Magma8, Magma9, Magma10, Magma11, Magma256}
+export const Plasma      = {Plasma3, Plasma4, Plasma5, Plasma6, Plasma7, Plasma8, Plasma9, Plasma10, Plasma11, Plasma256}
+export const Viridis     = {Viridis3, Viridis4, Viridis5, Viridis6, Viridis7, Viridis8, Viridis9, Viridis10, Viridis11, Viridis256}
+export const Accent      = {Accent3, Accent4, Accent5, Accent6, Accent7, Accent8}
+export const Dark2       = {Dark2_3, Dark2_4, Dark2_5, Dark2_6, Dark2_7, Dark2_8}
+export const Paired      = {Paired3, Paired4, Paired5, Paired6, Paired7, Paired8, Paired9, Paired10, Paired11, Paired12}
+export const Pastel1     = {Pastel1_3, Pastel1_4, Pastel1_5, Pastel1_6, Pastel1_7, Pastel1_8, Pastel1_9}
+export const Pastel2     = {Pastel2_3, Pastel2_4, Pastel2_5, Pastel2_6, Pastel2_7, Pastel2_8}
+export const Set1        = {Set1_3, Set1_4, Set1_5, Set1_6, Set1_7, Set1_8, Set1_9}
+export const Set2        = {Set2_3, Set2_4, Set2_5, Set2_6, Set2_7, Set2_8}
+export const Set3        = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9, Set3_10, Set3_11, Set3_12}
+export const Category10  = {Category10_3, Category10_4, Category10_5, Category10_6, Category10_7, Category10_8, Category10_9, Category10_10}
+export const Category20  = {Category20_3, Category20_4, Category20_5, Category20_6, Category20_7, Category20_8, Category20_9, Category20_10, Category20_11, Category20_12, Category20_13, Category20_14, Category20_15, Category20_16, Category20_17, Category20_18, Category20_19, Category20_20}
+export const Category20b = {Category20b_3, Category20b_4, Category20b_5, Category20b_6, Category20b_7, Category20b_8, Category20b_9, Category20b_10, Category20b_11, Category20b_12, Category20b_13, Category20b_14, Category20b_15, Category20b_16, Category20b_17, Category20b_18, Category20b_19, Category20b_20}
+export const Category20c = {Category20c_3, Category20c_4, Category20c_5, Category20c_6, Category20c_7, Category20c_8, Category20c_9, Category20c_10, Category20c_11, Category20c_12, Category20c_13, Category20c_14, Category20c_15, Category20c_16, Category20c_17, Category20c_18, Category20c_19, Category20c_20}
+export const Colorblind  = {Colorblind3, Colorblind4, Colorblind5, Colorblind6, Colorblind7, Colorblind8}
+
+/****************************************************************************
+ * License regarding the Viridis, Magma, Plasma and Inferno colormaps
  * New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
  * and (in the case of viridis) Eric Firing.
  *
- * This file and the colormaps in it are released under the CC0 license /
- * public domain dedication. We would appreciate credit if you use or
- * redistribute these colormaps, but do not impose any legal restrictions.
+ * The Viridis, Magma, Plasma, and Inferno color maps are released under the
+ * CC0 license / public domain dedication. We would appreciate credit if you
+ * use or redistribute these colormaps, but do not impose any legal
+ * restrictions.
  *
  * To the extent possible under law, the persons who associated CC0 with
  * mpl-colormaps have waived all copyright and related or neighboring rights
@@ -505,4 +615,41 @@ export const Set3     = {Set3_3, Set3_4, Set3_5, Set3_6, Set3_7, Set3_8, Set3_9,
  *
  * You should have received a copy of the CC0 legalcode along with this
  * work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ ****************************************************************************
+ * This product includes color specifications and designs developed by
+ * Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
+ * licensed under the Apache v2 license. You may obtain a copy of the
+ * License at http://www.apache.org/licenses/LICENSE-2.0
+ ****************************************************************************
+ * License regarding the D3 color palettes (Category10, Category20,
+ * Category20b, and Category 20c):
+ *
+ * Copyright 2010-2015 Mike Bostock
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of the author nor the names of contributors may be used to
+ *   endorse or promote products derived from this software without specific
+ *   prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************
  */
