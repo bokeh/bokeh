@@ -254,16 +254,22 @@ def html_page_context(app, pagename, templatename, context, doctree):
 
 def build_finished(app, exception):
     files = set()
+
     for (script, js, js_path, source) in app.env.bokeh_plot_files.values():
         files.add(js_path)
-    for file in app.status_iterator(files, 'copying linked files... ',
-                                    console.brown, len(files)):
+
+    files_iter = app.status_iterator(sorted(files),
+                                     'copying linked files... ',
+                                     console.brown,
+                                     len(files))
+
+    for file in files_iter:
         target = join(app.builder.outdir, "scripts", basename(file))
         ensuredir(dirname(target))
         try:
             copyfile(file, target)
-        except OSError as err:
-            raise SphinxError('cannot copy local file {!r}: {}'.format(file, err))
+        except OSError as e:
+            raise SphinxError('cannot copy local file %r, reason: %s' % (file, e))
 
 def env_purge_doc(app, env, docname):
     """ Remove local files for a given document.
