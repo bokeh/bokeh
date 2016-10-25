@@ -41,15 +41,7 @@ from sphinx.errors import SphinxError
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from ..core import properties
-from ..model import Viewable
 from .templates import PROP_DETAIL
-
-PROP_NAMES = [
-    name for name, cls in properties.__dict__.items()
-    if isinstance(cls, type) and (issubclass(cls, properties.Property) or issubclass(cls, properties.PropertyFactory))
-]
-PROP_NAMES.sort(reverse=True, key=len)
 
 class BokehPropDirective(Directive):
 
@@ -71,22 +63,15 @@ class BokehPropDirective(Directive):
             raise SphinxError("Could not generate reference docs for %r: could not import module %r" % (self.arguments[0], self.options['module']))
 
         model = getattr(module, model_name, None)
-        if model is None:
-            pass
-
-        if type(model) != Viewable:
-            pass
 
         model_obj = model()
 
         prop = getattr(model_obj.__class__, prop_name)
 
-        type_info = self._get_type_info(prop)
-
         rst_text = PROP_DETAIL.render(
             name=prop_name,
             module=self.options['module'],
-            type_info=type_info,
+            type_info=prop._sphinx_type(),
             doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
         )
 
@@ -105,21 +90,6 @@ class BokehPropDirective(Directive):
         node.document = self.state.document
         nested_parse_with_titles(self.state, result, node)
         return node.children
-
-    def _get_type_info(self, prop):
-        name, desc = str(prop).split(":")
-        template = ":class:`~bokeh.core.properties.%s` "
-        # some of the property names are substrings of other property names
-        # so first go through greedily replacing the longest possible match
-        # with a unique id (PROP_NAMES is reverse sorted by length)
-        for i, name in enumerate(PROP_NAMES):
-            desc = desc.replace(name, "__ID%d" % i)
-        # now replace the unique id with the corresponding prop name. Go in
-        # reverse to make sure replacements are greedy
-        for i in range(len(PROP_NAMES)-1, 0, -1):
-            name = PROP_NAMES[i]
-            desc = desc.replace("__ID%d" % i, template % name)
-        return desc
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)

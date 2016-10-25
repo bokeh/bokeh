@@ -37,7 +37,6 @@ class BokehPaletteDirective(Directive):
         return [node]
 
 def html_visit_bokeh_palette(self, node):
-    # NOTE: currently only handles the existing Brewer palettes
     names = sorted(small_palettes)
     self.body.append(CSS)
     self.body.append('<div class="container-fluid"><div class="row">"')

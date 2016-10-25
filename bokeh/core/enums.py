@@ -93,10 +93,10 @@ TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "
 Direction = enumeration("clock", "anticlock")
 
 #: Specify units for mapping values
-Units = enumeration("screen", "data")
+Units = enumeration("screen", "data")  # TODO (bev): can this be deleted?
 
-# Specify units for mapping values
-SpatialUnits = Units
+#: Specify units for mapping values
+SpatialUnits = enumeration("screen", "data")
 
 #: Specify the units for an angle value
 AngleUnits = enumeration("deg", "rad")
