@@ -200,13 +200,11 @@ export class HoverToolView extends InspectToolView
           # which patch we're over if there are discontinuous
           # patches.
           pt = renderer.glyph.get_anchor_point(@model.anchor, i, [sx, sy])
-          if pt?
-            {x, y} = pt
-          else
-            {x, y} = renderer.glyph.get_anchor_point("center", i, [sx, sy])
+          if not pt?
+            pt = renderer.glyph.get_anchor_point("center", i, [sx, sy])
 
-          rx = canvas.sx_to_vx(x)
-          ry = canvas.sy_to_vy(y)
+          rx = canvas.sx_to_vx(pt.x)
+          ry = canvas.sy_to_vy(pt.y)
         else
           [rx, ry] = [vx, vy]
 
