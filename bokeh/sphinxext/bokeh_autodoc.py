@@ -8,10 +8,20 @@ when appropriate.
 from __future__ import absolute_import, print_function
 
 from six import class_types
-from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter
+from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
 
 from bokeh.model import Model
 from bokeh.core.properties import Property
+from bokeh.core.enums import Enumeration
+
+class EnumDocumenter(ModuleLevelDocumenter):
+    directivetype = 'bokeh-enum'
+    objtype = 'enum'
+    priority = 20
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        return isinstance(member, Enumeration)
 
 class PropDocumenter(AttributeDocumenter):
     directivetype = 'bokeh-prop'
@@ -32,5 +42,6 @@ class ModelDocumenter(ClassDocumenter):
         return isinstance(member, class_types) and issubclass(member, Model)
 
 def setup(app):
+    app.add_autodocumenter(EnumDocumenter)
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)

@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',
+    'bokeh.sphinxext.bokeh_enum',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
     'bokeh.sphinxext.bokeh_jinja',

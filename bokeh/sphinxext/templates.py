@@ -7,6 +7,8 @@ _env = Environment(loader=PackageLoader('bokeh.sphinxext', '_templates'))
 CCB_PROLOGUE = _env.get_template("collapsible_code_block_prologue.html")
 CCB_EPILOGUE = _env.get_template("collapsible_code_block_epilogue.html")
 
+ENUM_DETAIL = _env.get_template("enum_detail.rst")
+
 GALLERY_DETAIL = _env.get_template("gallery_detail.rst")
 GALLERY_PAGE = _env.get_template("gallery_page.rst")
 
