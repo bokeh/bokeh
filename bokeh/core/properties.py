@@ -86,7 +86,7 @@ def field(name):
         name (str) : name of a data source field to reference for a property.
 
     Returns:
-        dict : `{"field": name}`
+        dict : ``{"field": name}``
 
     Note:
         This function is included for completeness. String values for
@@ -103,7 +103,7 @@ def value(val):
         val (any) : a fixed value to specify for a property.
 
     Returns:
-        dict : `{"value": name}`
+        dict : ``{"value": name}``
 
     Note:
         String values for property specifications are by default interpreted

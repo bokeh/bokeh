@@ -17,16 +17,16 @@ Examples::
         ]})
 
         # same query, using IN operator
-        find(p, {'type': {IN: ['grid', 'axis']})
+        find(p, {'type': {IN: ['grid', 'axis']}})
 
         # find all plot objects on the 'left' layout of the Plot
-        list(find(p, {'layout': 'left'}, {'plot': p}))
+        find(p, {'layout': 'left'}, {'plot': p})
 
         # find all subplots in column 0
-        find(p, {type: 'plot', 'column: 0}, {'gridplot': p})
+        find(p, {'type': 'plot', 'column': 0}, {'gridplot': p})
 
         # find all subplots the last row
-        find(p, {type: 'plot', 'row': -1}, {'gridplot': p})
+        find(p, {'type': 'plot', 'row': -1}, {'gridplot': p})
 
 '''
 
