@@ -4,7 +4,7 @@
 
     {% if doc %}{{ doc|indent(4) }}{% endif %}
 
-    .. collapsible-code-block:: {{ lang }}
+    .. collapsible-code-block:: jinja
         :heading: Template: {{ filename }}
 
         {{ template_text|indent(8) }}

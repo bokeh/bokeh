@@ -71,7 +71,6 @@ class BokehJinjaDirective(Directive):
             module=module_path,
             objrepr=repr(template),
             doc="" if doc is None else textwrap.dedent(doc),
-            lang=filename.rsplit('.', 1)[-1],
             filename=filename,
             template_text=DOCPAT.sub("", template_text),
         )
