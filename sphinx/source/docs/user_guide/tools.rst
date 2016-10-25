@@ -491,10 +491,17 @@ general sense of the interaction to be preserved mid-flight, while maintaining
 interactive performance. There are four properties on |Plot| objects that control
 LOD behavior:
 
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_factor
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_interval
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_threshold
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_timeout
+.. bokeh-prop:: Plot.lod_factor
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_interval
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_threshold
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_timeout
+    :module: bokeh.models.plots
 
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`

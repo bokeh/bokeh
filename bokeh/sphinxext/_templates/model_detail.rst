@@ -1,10 +1,10 @@
-.. autoclass::  {{ model_path }}
+.. autoclass::  {{ module_name }}.{{ name }}
     :members:
     :undoc-members:
     :exclude-members: get_class
     :show-inheritance:
 
-.. _{{ model_path }}.json:
+.. _{{ name }}.json:
 
 .. collapsible-code-block:: javascript
     :heading: JSON Prototype

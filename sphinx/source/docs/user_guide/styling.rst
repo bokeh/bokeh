@@ -803,14 +803,30 @@ Dimensions
 There are several properties that can be used to control the layout,
 spacing, etc. of the legend components:
 
-.. bokeh-prop:: bokeh.models.annotations.Legend.label_standoff
-.. bokeh-prop:: bokeh.models.annotations.Legend.label_width
-.. bokeh-prop:: bokeh.models.annotations.Legend.label_height
-.. bokeh-prop:: bokeh.models.annotations.Legend.glyph_width
-.. bokeh-prop:: bokeh.models.annotations.Legend.glyph_height
-.. bokeh-prop:: bokeh.models.annotations.Legend.padding
-.. bokeh-prop:: bokeh.models.annotations.Legend.spacing
-.. bokeh-prop:: bokeh.models.annotations.Legend.margin
+.. bokeh-prop:: Legend.label_standoff
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.label_width
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.label_height
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.glyph_width
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.glyph_height
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.padding
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.spacing
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.margin
+    :module: bokeh.models.annotations
+
 
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_dimensions.py
     :source-position: above
