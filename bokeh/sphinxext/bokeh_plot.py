@@ -65,6 +65,7 @@ from __future__ import absolute_import
 import ast
 import hashlib
 from os.path import basename, dirname, join
+import re
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, Parser
@@ -78,6 +79,7 @@ from ..document import Document
 from ..embed import autoload_static
 from ..resources import Resources
 from ..settings import settings
+from ..util.string import decode_utf8
 from .templates import PLOT_PAGE
 from ._example_handler import ExampleHandler
 
@@ -92,6 +94,10 @@ class PlotScriptError(SphinxError):
     category = 'PlotScript error'
 
 def _process_script(source, filename, auxdir, js_name):
+    # This is lame, but seems to be required for python 2
+    pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
+    source = pat.sub("", source)
+
     c = ExampleHandler(source=source, filename=filename)
     d = Document()
     c.modify_document(d)
@@ -120,7 +126,9 @@ class PlotScriptParser(Parser):
         """ List of transforms for documents parsed by this parser.
 
         """
-        return super(PlotScriptParser, self).get_transforms() + []
+
+        # can't use super, Sphinx Parser classes don't inherit object
+        return Parser.get_transforms(self) + []
 
     def parse(self, source, document):
         """ Parse ``source``, write results to ``document``.
@@ -151,7 +159,8 @@ class PlotScriptParser(Parser):
 
         document['bokeh_plot_include_bokehjs'] = True
 
-        super(PlotScriptParser, self).parse(rst, document)
+        # can't use super, Sphinx Parser classes don't inherit object
+        Parser.parse(self, rst, document)
 
 class BokehPlotDirective(Directive):
 
@@ -198,6 +207,7 @@ class BokehPlotDirective(Directive):
             else:
                 app.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
                 source = open(self.arguments[0]).read()
+                source = decode_utf8(source)
                 docname = env.docname.replace("/", "-")
                 serialno = env.new_serialno(env.docname)
                 js_name = "bokeh-plot-%s-external-%d.js" % (docname, serialno)
