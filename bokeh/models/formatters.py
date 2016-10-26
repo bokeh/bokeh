@@ -241,7 +241,7 @@ class FuncTickFormatter(TickFormatter):
 
         # Wrap the code attr in a function named `formatter` and call it
         # with arguments that match the `args` attr
-        code = pyscript.py2js(func, 'formatter') + 'formatter(%s);\n' % ', '.join(default_names)
+        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(default_names)
 
         return cls(code=code, args=func_kwargs)
 
