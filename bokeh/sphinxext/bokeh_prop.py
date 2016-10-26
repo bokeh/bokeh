@@ -31,7 +31,6 @@ from __future__ import absolute_import, print_function
 import importlib
 
 from docutils import nodes
-from docutils.core import publish_parts
 from docutils.parsers.rst.directives import unchanged
 from docutils.statemachine import ViewList
 
@@ -63,10 +62,15 @@ class BokehPropDirective(Directive):
             raise SphinxError("Could not generate reference docs for %r: could not import module %r" % (self.arguments[0], self.options['module']))
 
         model = getattr(module, model_name, None)
+        if model is None:
+            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (self.arguments[0], model_name, self.options['module']))
 
         model_obj = model()
 
-        prop = getattr(model_obj.__class__, prop_name)
+        try:
+            prop = getattr(model_obj.__class__, prop_name)
+        except AttributeError:
+            raise SphinxError("Unable to generate reference docs for %s, no property '%s' in %s" % (self.arguments[0], prop_name, model_name))
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,
@@ -74,14 +78,6 @@ class BokehPropDirective(Directive):
             type_info=prop._sphinx_type(),
             doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
         )
-
-        # Set this to True to hunt for Sphynx warning (e.g. unexpected indentation)
-        if False and prop.__doc__:
-            print('--', prop_name)
-            try:
-                publish_parts(prop.__doc__)
-            except Exception as err:
-                print('Error in docstring: ' + str(err))
 
         result = ViewList()
         for line in rst_text.split("\n"):

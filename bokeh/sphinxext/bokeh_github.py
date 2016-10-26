@@ -171,10 +171,10 @@ def _try_url(app, url, role):
         request.get_method = lambda : 'HEAD'
         response = urllib.request.urlopen(request, timeout=5)
     except (urllib.error.HTTPError, urllib.error.URLError):
-        app.warn("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
+        app.info("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
     else:
         if response.getcode() >= 400:
-            app.warn("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
+            app.info("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
 
 def setup(app):
     app.add_role('bokeh-commit', bokeh_commit)

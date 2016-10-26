@@ -69,8 +69,7 @@ class BokehModelDirective(Directive):
 
         m = py_sig_re.match(sig)
         if m is None:
-            import pdb; pdb.set_trace()
-            raise ValueError
+            raise SphinxError("Unable to parse signature for bokeh-model: %r" % sig)
         name_prefix, model_name, arglist, retann = m.groups()
 
         module_name = self.options['module']
