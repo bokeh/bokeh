@@ -1,4 +1,11 @@
 .bk-root {
+  // XXX: this is necessary to make bokehjs embeddable in web pages using
+  // bootstrap (that includes jupyter-notebook), which is very insisting
+  // on setting the right defaults globally and breaking the world.
+  * {
+    box-sizing: content-box;
+  }
+
   // Only import the bits of bootstrap we need for toolbar
   @bootstrap: "../vendor/bootstrap-3.1.1/less";
   @import "@{bootstrap}/variables.less";
