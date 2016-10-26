@@ -6,6 +6,10 @@ import * as p from "../../core/properties"
 export class Range extends Model
   type: 'Range'
 
+  initialize: (options) ->
+    super(options)
+    @listenTo(@, 'change', () -> @callback?.execute(@))
+
   @define {
       callback: [ p.Instance ]
     }
@@ -15,3 +19,8 @@ export class Range extends Model
   }
 
   reset: () ->
+    """
+    This method should be reimplemented by subclasses and ensure that
+    the callback, if exists, is executed at completion.
+    """
+    @trigger('change')
