@@ -1,6 +1,5 @@
 import * as _ from "underscore"
 import * as $ from "jquery"
-import "bootstrap/dropdown"
 
 import {logger} from "../../core/logging"
 import {EQ, Variable} from "../../core/layout/solver"
@@ -9,8 +8,7 @@ import * as p from "../../core/properties"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 import {ActionToolButtonView} from "./actions/action_tool"
-import {GestureToolButtonView} from "./gestures/gesture_tool"
-import {InspectToolListItemView} from "./inspectors/inspect_tool"
+import {OnOffButtonView} from "./on_off_button"
 import toolbar_template from "./toolbar_template"
 
 export class ToolbarBaseView extends LayoutDOMView
@@ -22,52 +20,35 @@ export class ToolbarBaseView extends LayoutDOMView
       @$el.css({
         left: @model._dom_left._value
         top: @model._dom_top._value
-        'width': @model._width._value
-        'height': @model._height._value
+        width: @model._width._value
+        height: @model._height._value
       })
-    location = if @model.toolbar_location? then @model.toolbar_location else 'above'
-    sticky = if @model.toolbar_sticky is true then 'sticky' else 'not-sticky'
-    @$el.html(@template({logo: @model.logo, location: location, sticky: sticky}))
 
-    inspectors = @model.inspectors
-    button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
+    @$el.html(@template({
+      logo: @model.logo
+      location: @model.toolbar_location
+      sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'
+    }))
 
-    if inspectors.length == 0
-      button_bar_list.hide()
-    else
-      anchor = $('<a href="#" data-bk-bs-toggle="dropdown"
-                  class="bk-bs-dropdown-toggle">inspect
-                  <span class="bk-bs-caret"></a>')
-      anchor.appendTo(button_bar_list)
-      ul = $('<ul class="bk-bs-dropdown-menu" />')
-      _.each(inspectors, (tool) ->
-        item = $('<li />')
-        item.append(new InspectToolListItemView({model: tool}).el)
-        item.appendTo(ul)
-      )
-      ul.on('click', (e) -> e.stopPropagation())
-      ul.appendTo(button_bar_list)
-      anchor.dropdown()
+    buttons = @$(".bk-button-bar-list[type='inspectors']")
+    for obj in @model.inspectors
+      buttons.append(new OnOffButtonView({model: obj}).el)
 
-    button_bar_list = @$(".bk-button-bar-list[type='help']")
-    _.each(@model.help, (item) ->
-      button_bar_list.append(new ActionToolButtonView({model: item}).el)
-    )
+    buttons = @$(".bk-button-bar-list[type='help']")
+    for obj in @model.help
+      buttons.append(new ActionToolButtonView({model: obj}).el)
 
-    button_bar_list = @$(".bk-button-bar-list[type='actions']")
-    _.each(@model.actions, (item) ->
-      button_bar_list.append(new ActionToolButtonView({model: item}).el)
-    )
+    buttons = @$(".bk-button-bar-list[type='actions']")
+    for obj in @model.actions
+      buttons.append(new ActionToolButtonView({model: obj}).el)
 
     gestures = @model.gestures
     for et of gestures
-      button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
-      _.each(gestures[et].tools, (item) ->
-        button_bar_list.append(new GestureToolButtonView({model: item}).el)
-      )
+      buttons = @$(".bk-button-bar-list[type='#{et}']")
+      for obj in gestures[et].tools
+        buttons.append(new OnOffButtonView({model: obj}).el)
 
     return @
-
 
 export class ToolbarBase extends LayoutDOM
   type: 'ToolbarBase'

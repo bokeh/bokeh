@@ -1,30 +1,9 @@
 import * as _ from "underscore"
-import {BokehView} from "../../../core/bokeh_view"
-import {Tool, ToolView} from "../tool"
-import inspect_tool_list_item_template from "./inspect_tool_list_item_template"
+import {ButtonTool, ButtonToolView} from "../button_tool"
 
-export class InspectToolListItemView extends BokehView
-  className: "bk-toolbar-inspector"
-  template: inspect_tool_list_item_template
-  events: {
-    'click [type="checkbox"]': '_clicked'
-  }
+export class InspectToolView extends ButtonToolView
 
-  initialize: (options) ->
-    @listenTo(@model, 'change:active', @render)
-    @render()
-
-  render: () ->
-    @$el.html(@template({model: @model}))
-    return @
-
-  _clicked: (e) ->
-    active = @model.active
-    @model.active = not active
-
-export class InspectToolView extends ToolView
-
-export class InspectTool extends Tool
+export class InspectTool extends ButtonTool
   event_type: "move"
 
   @override {
