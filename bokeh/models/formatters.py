@@ -215,11 +215,23 @@ class FuncTickFormatter(TickFormatter):
     @classmethod
     def from_py_func(cls, func):
         """ Create a FuncTickFormatter instance from a Python function. The
-        function is translated to Javascript using PyScript.
+        function is translated to JavaScript using PyScript. The variable
+        ``tick`` will contain the unformatted tick value and can be expected to
+        be present in the function namespace at render time.
 
-        .. warning::
-            The function can have only a single positional argument and return
-            a single value.
+        Example:
+
+        .. code-block:: python
+
+            code = '''
+                def ticker():
+                    return "{:.0f} + {:.2f}".format(tick, tick % 1)
+            '''
+
+        The python function must have no positional arguments. It's
+        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        arguments to the function.
+
         """
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
@@ -247,6 +259,19 @@ class FuncTickFormatter(TickFormatter):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
+        """ Create a FuncTickFormatter instance from a CoffeeScript snippet.
+        The function body is translated to JavaScript using node. The variable
+        ``tick`` will contain the unformatted tick value and can be expected to
+        be present in the code snippet namespace at render time.
+
+        Example:
+
+        .. code-block:: coffeescript
+
+            code = '''
+                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
+            '''
+        """
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
@@ -260,24 +285,17 @@ class FuncTickFormatter(TickFormatter):
     """)
 
     code = String(default="", help="""
-    An anonymous JavaScript function expression to reformat a
-    single tick to the desired format.
+    A snippet of JavaScript code that reformats a single tick to the desired
+    format. The variable ``tick`` will contain the unformatted tick value and
+    can be expected to be present in the code snippet namespace at render time.
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: javascript
 
             code = '''
-            function (tick) {
-                // Convert from minutes to seconds and add units str
-                return tick * 60 + " seconds"
-            };
+                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
             '''
-
-    .. warning::
-        The function can have only a single positional argument and return
-        a single value.
-
     """)
 
 def DEFAULT_DATETIME_FORMATS():
