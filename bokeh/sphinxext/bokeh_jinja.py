@@ -17,10 +17,9 @@ from __future__ import absolute_import, print_function
 import importlib
 from os.path import basename
 import re
-import sys
 import textwrap
 
-from docutils import nodes
+from sphinx.errors import SphinxError
 
 from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL
@@ -34,28 +33,17 @@ class BokehJinjaDirective(BokehDirective):
 
     def run(self):
 
-        env = self.state.document.settings.env
-        app = env.app
-
         template_path = self.arguments[0]
         module_path, template_name = template_path.rsplit('.', 1)
 
         try:
             module = importlib.import_module(module_path)
         except ImportError:
-            msg = "Unable to import Bokeh template module: %s" % module_path
-            app.warn(msg)
-            node = nodes.error(None,
-                               nodes.paragraph(text=msg),
-                               nodes.paragraph(text=str(sys.exc_info()[1])))
-            return [node]
+            SphinxError("Unable to import Bokeh template module: %s" % module_path)
 
         template = getattr(module, template_name, None)
         if template is None:
-            msg = "Unable to find Bokeh template: %s" % template_path
-            app.warn(msg)
-            node = nodes.error(None, nodes.paragraph(text=msg))
-            return [node]
+            SphinxError("Unable to find Bokeh template: %s" % template_path)
 
         template_text = open(template.filename).read()
         m = DOCPAT.match(template_text)
