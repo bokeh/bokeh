@@ -64,6 +64,7 @@ from __future__ import absolute_import
 
 import ast
 import hashlib
+from os import getenv
 from os.path import basename, dirname, join
 import re
 
@@ -88,6 +89,14 @@ if settings.docs_cdn() == "local":
 else:
     resources = Resources(mode="cdn")
 
+GOOGLE_API_KEY = getenv('GOOGLE_API_KEY')
+if GOOGLE_API_KEY is None:
+    if settings.docs_missing_api_key_ok():
+        GOOGLE_API_KEY = "MISSING_API_KEY"
+    else:
+        raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+                          "or set BOKEH_DOCS_MISSING_API_KEY_OK=yes to build anyway (with broken GMaps)")
+
 class PlotScriptError(SphinxError):
     """ Error during script parsing. """
 
@@ -98,7 +107,13 @@ def _process_script(source, filename, auxdir, js_name):
     pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
     source = pat.sub("", source)
 
-    c = ExampleHandler(source=source, filename=filename)
+    # quick and dirty way to inject Google API key
+    if "GOOGLE_API_KEY" in source:
+        run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
+    else:
+        run_source = source
+
+    c = ExampleHandler(source=run_source, filename=filename)
     d = Document()
     c.modify_document(d)
     if c.error:
@@ -257,9 +272,10 @@ def build_finished(app, exception):
         files.add(js_path)
 
     files_iter = app.status_iterator(sorted(files),
-                                     'copying linked files... ',
+                                     'copying bokeh-plot files... ',
                                      console.brown,
-                                     len(files))
+                                     len(files),
+                                     lambda x: basename(x))
 
     for file in files_iter:
         target = join(app.builder.outdir, "scripts", basename(file))

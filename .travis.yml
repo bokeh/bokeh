@@ -1,116 +1,104 @@
 sudo: false
-
 language: python
-
 python:
-    - 2.7
-    - 3.4
-    - 3.5
-
+- 2.7
+- 3.4
+- 3.5
 env:
-    global:
-        - BOTO_CONFIG="/tmp/nowhere"  # Set it to garbage so doesn't pick up travis defaults
-        - MINICONDA_VERSION="latest"
-        - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
-        - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
-        - secure: "Nyfo1sKNXJPEbR0QF+S/Sbr1OnDl6kRfjKAXVupD83QeLJ2e6gj7R1TpucngUhDluqp2iJ/1DZDXnA9AP+xl8kordIXjEv2FYdijxKAUk3G5BVPm9n6GudsIKYNUpDOiZupZrcKoJtfpIiWOOOgn4uftI7X/ATazudUKeMNjOvQ="
-        - secure: "nqoKfXZTHhJ0ieffqS+5mi5crivUeFeIgohqUaeTCnaOGI5XFMLR8rZPjhMHyFx5vNTp08pbg3Mg4i7iaQn+3dqu25HBwnfhar3TFXfOCQQLJBZstoWSGEDkJKDPwwqZrdFzw+EDxlA0tlLXvV8X0DlArYKhRcAOJF01cCJ7L1c="
-        - secure: "ii7ssdfEDYtc4Ph24mVzyq7JVTkjrn/h36HZn1oZak+HuiYtVbcCjqomKj2n1kPuKJWajOwHGu7d7ymCvK4tQ37keiMRvku/Yz4HELT5IUU1hD+w7mKomc2taKKvddGnbR4I4oZe+SBfwfeQCq5/Ha+koadSQI05Aco/nLNZP3M="
-    matrix:
-      - GROUP=unit
-      - GROUP=integration
-      - GROUP=examples
-      - GROUP=flake_docs
-
+  global:
+  - BOTO_CONFIG="/tmp/nowhere"
+  - MINICONDA_VERSION="latest"
+  - secure: nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI=
+  - secure: oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY=
+  - secure: Nyfo1sKNXJPEbR0QF+S/Sbr1OnDl6kRfjKAXVupD83QeLJ2e6gj7R1TpucngUhDluqp2iJ/1DZDXnA9AP+xl8kordIXjEv2FYdijxKAUk3G5BVPm9n6GudsIKYNUpDOiZupZrcKoJtfpIiWOOOgn4uftI7X/ATazudUKeMNjOvQ=
+  - secure: nqoKfXZTHhJ0ieffqS+5mi5crivUeFeIgohqUaeTCnaOGI5XFMLR8rZPjhMHyFx5vNTp08pbg3Mg4i7iaQn+3dqu25HBwnfhar3TFXfOCQQLJBZstoWSGEDkJKDPwwqZrdFzw+EDxlA0tlLXvV8X0DlArYKhRcAOJF01cCJ7L1c=
+  - secure: ii7ssdfEDYtc4Ph24mVzyq7JVTkjrn/h36HZn1oZak+HuiYtVbcCjqomKj2n1kPuKJWajOwHGu7d7ymCvK4tQ37keiMRvku/Yz4HELT5IUU1hD+w7mKomc2taKKvddGnbR4I4oZe+SBfwfeQCq5/Ha+koadSQI05Aco/nLNZP3M=
+  - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
+  matrix:
+  - GROUP=unit
+  - GROUP=integration
+  - GROUP=examples
+  - GROUP=flake_docs
 matrix:
-    exclude:
-        # integration tests only py 3.4
-        - python: 2.7
-          env: GROUP=integration
-        - python: 3.5
-          env: GROUP=integration
-        #
-        # flake_docs only py 2.7
-        - python: 3.4
-          env: GROUP=flake_docs
-        - python: 3.5
-          env: GROUP=flake_docs
-        #
-        # TEMPORARILY DISABLE EXAMPLES for py 3.5
-        - python: 3.5
-          env: GROUP=examples
-
+  exclude:
+  - python: 2.7
+    env: GROUP=integration
+  - python: 3.5
+    env: GROUP=integration
+  - python: 3.4
+    env: GROUP=flake_docs
+  - python: 3.5
+    env: GROUP=flake_docs
+  - python: 3.5
+    env: GROUP=examples
 branches:
   only:
-    - master
-    - /^\d+.\d+.\d+dev\d+$/
-    - /^\d+.\d+.\d+rc\d+$/
-    - /^\d+.\d+.\d+$/
-
+  - master
+  - "/^\\d+.\\d+.\\d+dev\\d+$/"
+  - "/^\\d+.\\d+.\\d+rc\\d+$/"
+  - "/^\\d+.\\d+.\\d+$/"
 before_install:
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/bin:$PATH"
-    - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
-    - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
-    # We only want to use saucelabs when it's not an external contributor.
-    - if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External committer, not using saucelabs"; else export SAUCELABS=True; fi
-    - if [[ -n "${SAUCELABS}" ]]; then source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh); fi
-
+- export PATH="$HOME/miniconda/bin:$PATH"
+- export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/bin:$PATH"
+- echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
+- export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+- if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External
+  committer, not using saucelabs"; else export SAUCELABS=True; fi
+- if [[ -n "${SAUCELABS}" ]]; then source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh);
+  fi
 install:
-    - scripts/travis_install
-
+- scripts/travis_install
 script:
-    # Deactivate tests on building to avoid huge packages contaning the pics and outout html
-    # Eventually, we need to get rid of the generated stuff before packaging
-    #
-    # Run (JS and Python) unit tests on all python versions
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test --rerun=3 -s -m js; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test --rerun=5 -m 'not (examples or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc; fi  # Run the not examples or js tests (we can eat stdout for this one)
-    #
-    # Run integration tests only once (Py 3.4)
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_start_sauce_connect; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload; fi  # Run the integration tests on saucelabs
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then travis_stop_sauce_connect; fi
-    #
-    # Flake/docs testing only once (Py 2.7)
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then py.test -m quality ; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( cd sphinx; make SPHINXOPTS=-v all ) ; fi
-    #
-    # Run examples
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi # Run the examples
-    #
-    - echo "***** POOR MAN LOGGER ******"; echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST; if [[ "$GROUP" == integration ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html"; fi; if [[ "$GROUP" == examples ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html"; fi; echo "********** END POOR MAN LOGGER ************"
-
-after_success:
-    |
-    if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7' && "$GROUP" == flake_docs ]]; then
-        #install some additional dependencies
-        conda install anaconda-client fabric --yes
-        #decrypt some files and place them in the correct location
-        openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
-        tar xvf secrets.tar
-        cp known_hosts ~/.ssh/known_hosts
-        cp .npmrc ~/.npmrc
-        cp .pypirc ~/.pypirc
-        chmod 600 bokeh_key
-        eval `ssh-agent -s`
-        ssh-add bokeh_key
-        #signal the correct build
-        if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
-          echo "Building a dev or rc package."
-          #we signal the devel build with the "devel" string into the __travis_build_number__.txt file
-          echo "devel" > __travis_build_number__.txt
-        else
-          echo "Building a release package."
-          #we signal the release with an the "release" string into the __travis_build_number__.txt file
-          echo "release" > __travis_build_number__.txt
-        fi
-        bash scripts/build_upload.sh -b $ANACONDA_TOKEN -u $RSUSER -k $RSAPIKEY
-    else
-        echo "Not building because there is no tag."
-    fi
-
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test --rerun=3 -s -m js;
+  fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test --rerun=5 -m 'not (examples
+  or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then
+  travis_start_sauce_connect; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then
+  py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3
+  --upload; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then
+  travis_stop_sauce_connect; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then py.test -m quality ; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( cd sphinx; make SPHINXOPTS=-v
+  all ) ; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
+  export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG
+  == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else
+  py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; fi; fi
+- echo "***** POOR MAN LOGGER ******"; echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG;
+  echo $TRAVIS_PULL_REQUEST; if [[ "$GROUP" == integration ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html";
+  fi; if [[ "$GROUP" == examples ]]; then echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html";
+  fi; echo "********** END POOR MAN LOGGER ************"
+after_success: |
+  if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7' && "$GROUP" == flake_docs ]]; then
+      #install some additional dependencies
+      conda install anaconda-client fabric --yes
+      #decrypt some files and place them in the correct location
+      openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
+      tar xvf secrets.tar
+      cp known_hosts ~/.ssh/known_hosts
+      cp .npmrc ~/.npmrc
+      cp .pypirc ~/.pypirc
+      chmod 600 bokeh_key
+      eval `ssh-agent -s`
+      ssh-add bokeh_key
+      #signal the correct build
+      if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
+        echo "Building a dev or rc package."
+        #we signal the devel build with the "devel" string into the __travis_build_number__.txt file
+        echo "devel" > __travis_build_number__.txt
+      else
+        echo "Building a release package."
+        #we signal the release with an the "release" string into the __travis_build_number__.txt file
+        echo "release" > __travis_build_number__.txt
+      fi
+      bash scripts/build_upload.sh -b $ANACONDA_TOKEN -u $RSUSER -k $RSAPIKEY
+  else
+      echo "Not building because there is no tag."
+  fi
 notifications:
-    flowdock:
-        secure: "ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0="
+  flowdock:
+    secure: ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0=
