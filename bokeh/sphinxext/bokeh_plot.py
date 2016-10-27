@@ -97,6 +97,8 @@ if GOOGLE_API_KEY is None:
         raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
                           "or set BOKEH_DOCS_MISSING_API_KEY_OK=yes to build anyway (with broken GMaps)")
 
+CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
+
 class PlotScriptError(SphinxError):
     """ Error during script parsing. """
 
@@ -104,8 +106,7 @@ class PlotScriptError(SphinxError):
 
 def _process_script(source, filename, auxdir, js_name):
     # This is lame, but seems to be required for python 2
-    pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
-    source = pat.sub("", source)
+    source = CODING.sub("", source)
 
     # quick and dirty way to inject Google API key
     if "GOOGLE_API_KEY" in source:
@@ -137,18 +138,13 @@ class PlotScriptParser(Parser):
 
     """
 
-    def get_transforms(self):
-        """ List of transforms for documents parsed by this parser.
-
-        """
-
-        # can't use super, Sphinx Parser classes don't inherit object
-        return Parser.get_transforms(self) + []
-
     def parse(self, source, document):
         """ Parse ``source``, write results to ``document``.
 
         """
+        # This is lame, but seems to be required for python 2
+        source = CODING.sub("", source)
+
         env = document.settings.env
         filename = env.doc2path(env.docname) # e.g. full path to docs/user_guide/examples/layout_vertical
 
