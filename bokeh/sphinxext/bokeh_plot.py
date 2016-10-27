@@ -80,8 +80,8 @@ from ..embed import autoload_static
 from ..resources import Resources
 from ..settings import settings
 from ..util.string import decode_utf8
+from .example_handler import ExampleHandler
 from .templates import PLOT_PAGE
-from ._example_handler import ExampleHandler
 
 if settings.docs_cdn() == "local":
     resources = Resources(mode="server", root_url="/en/latest/")
@@ -229,8 +229,6 @@ class BokehPlotDirective(Directive):
         result += [nodes.raw('', script, format="html")]
 
         if source_position == "below": result += [code]
-
-        self.state.document['bokeh_plot_include_bokehjs'] = True
 
         return result
 

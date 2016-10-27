@@ -32,29 +32,16 @@ from __future__ import absolute_import, print_function
 
 import importlib
 import json
-import re
 
-from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from docutils.statemachine import ViewList
 
 from sphinx.errors import SphinxError
-from sphinx.util.compat import Directive
-from sphinx.util.nodes import nested_parse_with_titles
 
 from ..model import Viewable
+from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
 
-# taken from Sphinx autodoc
-py_sig_re = re.compile(
-    r'''^ ([\w.]*\.)?            # class name(s)
-          (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional: arguments
-           (?:\s* -> \s* (.*))?  #           return annotation
-          )? $                   # and nothing more
-          ''', re.VERBOSE)
-
-class BokehModelDirective(Directive):
+class BokehModelDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
@@ -101,13 +88,7 @@ class BokehModelDirective(Directive):
             model_json=model_json,
         )
 
-        result = ViewList()
-        for line in rst_text.split("\n"):
-            result.append(line, "<bokeh-model>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
-        return node.children
+        return self._parse(rst_text, "<bokeh-model>")
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)

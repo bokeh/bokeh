@@ -7,15 +7,12 @@ import json
 from os import makedirs, listdir, remove
 from os.path import abspath, dirname, exists, join
 
-from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from docutils.statemachine import ViewList
 
-from sphinx.util.compat import Directive
-
+from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
-class BokehGalleryDirective(Directive):
+class BokehGalleryDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
@@ -33,10 +30,6 @@ class BokehGalleryDirective(Directive):
         env.note_reread()
 
         dest_dir = join(dirname(self.state_machine.node.source), "gallery")
-
-        target_id = "bokeh-plot-%d" % env.new_serialno('bokeh-plot')
-        target_node = nodes.target('', '', ids=[target_id])
-        result = [target_node]
 
         source_position = self.options.get('source-position', 'below')
 
@@ -67,18 +60,11 @@ class BokehGalleryDirective(Directive):
             env.clear_doc(join("docs", "gallery", name))
             env.read_doc(join("docs", "gallery", name), app=app)
 
-        result = ViewList()
         names = [detail['name'] for detail in details]
         env.gallery_names = [join("docs", "gallery", n) for n in names]
-        text = GALLERY_PAGE.render(names=names)
-        for line in text.split("\n"):
-            result.append(line, "<bokeh-gallery>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        self.state.nested_parse(result, 0, node)
+        rst_text = GALLERY_PAGE.render(names=names)
 
-
-        return node.children
+        return self._parse(rst_text, "<bokeh-gallery>")
 
 def env_updated_handler(app, env):
     return getattr(env, 'gallery_names', [])

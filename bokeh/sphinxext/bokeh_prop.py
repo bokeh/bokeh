@@ -29,20 +29,16 @@ the above usage yields the output:
 from __future__ import absolute_import, print_function
 
 import importlib
-
-from docutils import nodes
-from docutils.parsers.rst.directives import unchanged
-from docutils.statemachine import ViewList
-
 import textwrap
 
-from sphinx.errors import SphinxError
-from sphinx.util.compat import Directive
-from sphinx.util.nodes import nested_parse_with_titles
+from docutils.parsers.rst.directives import unchanged
 
+from sphinx.errors import SphinxError
+
+from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL
 
-class BokehPropDirective(Directive):
+class BokehPropDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
@@ -79,13 +75,7 @@ class BokehPropDirective(Directive):
             doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
         )
 
-        result = ViewList()
-        for line in rst_text.split("\n"):
-            result.append(line, "<bokeh-prop>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
-        return node.children
+        return self._parse(rst_text, "<bokeh-prop>")
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)

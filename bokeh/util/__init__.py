@@ -67,7 +67,7 @@ functionality.
 .. _bokeh.util.options:
 
 ``bokeh.util.options``
---------------------
+----------------------
 
 .. automodule:: bokeh.util.options
   :members:

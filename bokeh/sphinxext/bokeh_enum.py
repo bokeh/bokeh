@@ -29,19 +29,16 @@ from __future__ import absolute_import, print_function
 import importlib
 import textwrap
 
-from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from docutils.statemachine import ViewList
 
 from sphinx.errors import SphinxError
-from sphinx.util.compat import Directive
-from sphinx.util.nodes import nested_parse_with_titles
 
+from .bokeh_directive import BokehDirective
 from .templates import ENUM_DETAIL
 
 wrapper = textwrap.TextWrapper(subsequent_indent='    ')
 
-class BokehEnumDirective(Directive):
+class BokehEnumDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
@@ -78,13 +75,7 @@ class BokehEnumDirective(Directive):
             fullrepr=fullrepr,
         )
 
-        result = ViewList()
-        for line in rst_text.split("\n"):
-            result.append(line, "<bokeh-prop>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
-        return node.children
+        return self._parse(rst_text, "<bokeh-enum>")
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-enum', BokehEnumDirective)

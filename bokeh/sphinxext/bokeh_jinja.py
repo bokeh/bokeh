@@ -21,16 +21,13 @@ import sys
 import textwrap
 
 from docutils import nodes
-from docutils.statemachine import ViewList
 
-from sphinx.util.compat import Directive
-from sphinx.util.nodes import nested_parse_with_titles
-
+from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL
 
 DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE|re.DOTALL)
 
-class BokehJinjaDirective(Directive):
+class BokehJinjaDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
@@ -75,13 +72,7 @@ class BokehJinjaDirective(Directive):
             template_text=DOCPAT.sub("", template_text),
         )
 
-        result = ViewList()
-        for line in rst_text.split("\n"):
-            result.append(line, "<bokeh-jinja>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
-        return node.children
+        return self._parse(rst_text, "<bokeh-jinja>")
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-jinja', BokehJinjaDirective)
