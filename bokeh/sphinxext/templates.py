@@ -9,7 +9,6 @@ CCB_EPILOGUE = _env.get_template("collapsible_code_block_epilogue.html")
 
 ENUM_DETAIL = _env.get_template("enum_detail.rst")
 
-GALLERY_DETAIL = _env.get_template("gallery_detail.rst")
 GALLERY_PAGE = _env.get_template("gallery_page.rst")
 
 JINJA_DETAIL = _env.get_template("jinja_detail.rst")

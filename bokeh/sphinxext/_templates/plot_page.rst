@@ -10,12 +10,12 @@
 {{ docstring }}
 {% endif %}
 
-.. code-block:: python
-
-    {{ source|indent(4) }}
-
-----
-
 .. raw:: html
 
     {{ script|indent(4) }}
+
+----
+
+.. code-block:: python
+
+    {{ source|indent(4) }}
