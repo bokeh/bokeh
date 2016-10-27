@@ -45,11 +45,15 @@ class BokehGalleryDirective(BokehDirective):
 
             try:
                 copyfile(src_path, dest_path)
+            except OSError as e:
+                raise SphinxError('cannot copy gallery file %r, reason: %s' % (src_path, e))
+
+            try:
                 env.clear_doc(docname)
                 env.read_doc(docname, app=app)
                 env.gallery_updated.append(docname)
-            except OSError as e:
-                raise SphinxError('cannot copy local file %r, reason: %s' % (src_path, e))
+            except Exception as e:
+                raise SphinxError('failed to read gallery doc %r, reason: %s' % (docname, e))
 
         names = [detail['name']for detail in details]
         rst_text = GALLERY_PAGE.render(names=names)
