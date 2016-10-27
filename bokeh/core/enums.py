@@ -118,6 +118,12 @@ LegendLocation = Anchor = enumeration("top_left", "top_center", "top_right",
 #: Specify a location in plot layouts
 Location = enumeration("above", "below", "left", "right")
 
+#: Specify a vertical location in plot layouts
+VerticalLocation = enumeration("above", "below")
+
+#: Specify a horizontal location in plot layouts
+HorizontalLocation = enumeration("left", "right")
+
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 

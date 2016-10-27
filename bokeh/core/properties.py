@@ -987,6 +987,7 @@ if IPython:
 _PROP_LINK = ":class:`~bokeh.core.properties.%s` "
 _MODEL_LINK = ":class:`~%s` "
 
+
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.
 

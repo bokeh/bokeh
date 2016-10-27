@@ -16,6 +16,8 @@ JINJA_DETAIL = _env.get_template("jinja_detail.rst")
 
 MODEL_DETAIL = _env.get_template("model_detail.rst")
 
+OPTIONS_DETAIL = _env.get_template("options_detail.rst")
+
 PALETTE_DETAIL = _env.get_template("palette_detail.html")
 
 PLOT_PAGE = _env.get_template("plot_page.rst")
