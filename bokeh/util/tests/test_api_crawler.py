@@ -1,15 +1,26 @@
 from __future__ import absolute_import
-import ast
-import pytest
+import ast, os
 
+import pytest
+xfail = pytest.mark.xfail
 
 from ..api_crawler import api_crawler, differ
 
 
-sample_class = """
-class SampleClass:
-    def __init__(self):
+source = """
+class Beatles(object):
+    def __init__(self, john, paul, george=True, ringo=[1, 2, 3]):
+        self.apple = apple
+        self.potato = potato
+
+    def strawberry_fields_forever(self, fields, eyes_closed=True):
         pass
+
+def john(guitar, song="imagine"):
+    return guitar
+
+def ringo(drums, beat=[1, 2, 3]):
+    return drums
 """
 
 sample_function = """
@@ -17,12 +28,10 @@ def sample_function(self):
     pass
 """
 
-sample_code = """
+sample_class = """
 class SampleClass:
     def __init__(self):
         pass
-def sample_function(self):
-    pass
 """
 
 
@@ -69,13 +78,24 @@ def test_is_class(test_crawler):
 
 
 def test_get_functions(test_crawler):
-    functions = test_crawler.get_functions(sample_code)
+    functions = test_crawler.get_functions(sample_function)
     assert "sample_function" in functions
 
 
 def test_get_classes(test_crawler):
-    classes = test_crawler.get_classes(sample_code)
+    classes = test_crawler.get_classes(sample_class)
     assert "SampleClass" in classes
+
+    def test_get_arguments(self):
+        expected = ["drums", {"beat": [1, 2, 3]}]
+        assert expected == self.crawler.get_functions(source)["ringo"]
+
+    def test_get_full_signature(self):
+        expected = {
+            "john": ["guitar", {"song": "imagine"}],
+            "ringo": ["drums", {"beat": [1, 2, 3]}]
+        }
+        assert expected == self.crawler.get_functions(source)
 
 
 old_version = {
@@ -83,13 +103,19 @@ old_version = {
     "bands": {
         "classes": {
             "Radiohead": {
-                "methods": ["thom", "jonny", "colin", "ed", "phil"]
+                "methods": {
+                    "thom": ["self", "guitar"],
+                    "jonny": ["self"],
+                    "colin": ["self", {"bass": [1, 2, 3]}],
+                    "ed": [{"guitar": True}],
+                    "phil": ["self", "song", {"drums": [1, 2, 3]}, {"solo": False}]
+                }
             },
             "Beatles": {
-                "methods": ["Here Comes the Sun"]
+                "methods": {"here_comes_the_sun": []}
             }
         },
-        "functions": ["john", "paul", "ringo"]
+        "functions": {"john": [], "paul": ["bass"], "ringo": ["drums", {"beat":[1, 2, 3]}]}
     }
 }
 
@@ -97,11 +123,15 @@ new_version = {
     "bands": {
         "classes": {
             "Radiohead": {
-                "methods": ["thom", "colin", "ed", "phil"]
+                "methods": {
+                    "thom": ["self"],
+                    "colin": ["self", {"keyboard": True}],
+                    "ed": [{"guitar": True}],
+                    "phil": ["self"]},
             },
-            "Pixies": {"methods": ["debaser"]}
+            "Pixies": {"methods": {"debaser": []}}
         },
-        "functions": ["john", "paul", "george"]
+        "functions": {"john": [], "paul": ["guitar"], "george": [], "ringo": [{"beat":[1, 2]}]}
     }
 }
 
@@ -110,46 +140,82 @@ expected_diff = {
     "bands": {
         "classes": {
             "Radiohead": {
-                "methods": ["jonny"]
+                "methods":{
+                    "jonny": [],
+                    "thom": ["guitar"],
+                    "colin": [{"bass": [1, 2, 3]}],
+                    "phil": ["song", {"drums": [1, 2, 3]}, {"solo": False}]
+                }
             },
             "Beatles": {}
         },
-        "functions": ["ringo"]
+        "functions": {"ringo": ["drums", {"beat":[1, 2, 3]}], "paul": ["bass"]}
     }
 }
 
 expected_additions = {
     'bands': {
         'classes': {
-            'Pixies': {}
+            'Pixies': {},
+            'Radiohead': {'methods': {'colin': [{'keyboard': True}]}},
         },
-        'functions': ['george']
+        'functions': {"george": [], "paul": ["guitar"], "ringo": [{"beat":[1, 2]}]}
     }
 }
 
 expected_parsed_diff = [
-    'DELETED models',
-    'DELETED bands.Radiohead.jonny',
-    'DELETED bands.Apple',
-    'DELETED bands.ringo',
-    'DELETED bands.Beatles'
+    'DELETED: models',
+    'DELETED: bands.Radiohead.jonny',
+    'DELETED: bands.Beatles',
 ]
 
 expected_parsed_additions = [
-    'ADDED bands.george',
-    'ADDED bands.Pixies'
+    'ADDED: bands.george',
+    'ADDED: bands.Pixies',
+]
+
+expected_changes = [
+    'CHANGED: bands.ringo\n\told_signature: (drums, beat=[1, 2, 3])\n\tnew_signature: (beat=[1, 2])\n\ttags: args_removed, kwargs_changed',
+    "CHANGED: bands.paul\n\told_signature: (bass)\n\tnew_signature: (guitar)\n\ttags: args_removed, args_added",
+    "CHANGED: bands.Radiohead.thom\n\told_signature: (self, guitar)\n\tnew_signature: (self)\n\ttags: args_removed",
+    "CHANGED: bands.Radiohead.colin\n\told_signature: (self, bass=[1, 2, 3])\n\tnew_signature: (self, keyboard=True)\n\ttags: kwargs_removed, kwargs_added",
+    "CHANGED: bands.Radiohead.phil\n\told_signature: (self, song, drums=[1, 2, 3], solo=False)\n\tnew_signature: (self)\n\ttags: args_removed, kwargs_removed",
 ]
 
 single_class_old = {
-    "bands": {"functions": [], "classes": {"Radiohead": {"methods": ["thom", "jonny", "colin", "ed", "phil"]}}}
+    "bands": {
+        "functions": {},
+        "classes": {
+            "Radiohead": {
+                "methods": {"jonny": ["self"], "thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
+            }
+        }
+    }
 }
 
 single_class_new = {
-    "bands": {"functions": [], "classes": {"Radiohead": {"methods": ["thom", "colin", "ed", "phil"]}}}
+    "bands": {
+        "functions": {},
+        "classes": {
+                "Radiohead": {
+                "methods": {"thom": ["self"], "colin": ["self"], "ed": ["self"], "phil": ["self"]}
+            }
+        }
+    }
 }
 
 expected_single_class = {
-    "bands": {"classes": {"Radiohead": {"methods": ["jonny"]}}}
+    "bands": {"classes": {"Radiohead": {"methods": {"jonny": []}}}}
+}
+
+old_signature = {
+    "__init__": ["self", "john", "paul", {"george": True}, {"ringo": [1, 2, 3]}],
+    "radiohead": ["self", "thom", "jonny"]
+}
+
+new_signature = {
+    "__init__": ["self", "paul", "pete", {"george": False}, {"ringo": [1, 2]}],
+    "pixies": []
 }
 
 
@@ -162,24 +228,17 @@ def test_accurate_diff(test_differ):
     test_differ.additions = False
     raw_diff = test_differ.diff_modules()
     assert raw_diff == expected_diff
-
-
-def test_catch_key_error(test_differ):
-    test_differ.additions = False
-    test_differ.former = single_class_old
-    test_differ.latter = single_class_new
+    test_differ.additions = True
     raw_diff = test_differ.diff_modules()
-    assert raw_diff == expected_single_class
-
-    test_differ.former = old_version
-    test_differ.latter = new_version
+    assert raw_diff == expected_additions
 
 
 def test_get_diff(test_differ):
     diff = test_differ.get_diff()
-    expected_diff = expected_parsed_diff + expected_parsed_additions
-    for x in diff:
-        assert x in expected_diff
+    expected_diff = expected_parsed_diff + expected_parsed_additions + expected_changes
+    assert len(diff) == len(expected_diff)
+    for x in expected_diff:
+        assert x in diff
 
 
 def test_diff_additions(test_differ):
@@ -192,16 +251,31 @@ def test_removed_parsing(test_differ):
     test_differ.additions = False
     raw_diff = test_differ.diff_modules()
     raw_diff = test_differ.pretty_diff(raw_diff)
-    for x in raw_diff:
-        assert x in expected_parsed_diff
+    for x in expected_parsed_diff:
+        assert x in raw_diff
 
 
 def test_additions_parsing(test_differ):
     test_differ.additions = True
     raw_diff = test_differ.diff_modules()
     raw_diff = test_differ.pretty_diff(raw_diff)
-    for x in raw_diff:
-        assert x in expected_parsed_additions
+    for x in expected_parsed_additions:
+        assert x in raw_diff
+
+
+def test_signature_changes_parsing(test_differ):
+    diff = test_differ.pretty_function_changes(
+        "CHANGED: bands.Radiohead.colin",
+        ['self', {'bass': [1, 2, 3]}],
+        ['self', {'keyboard': True}],
+    )
+    expected_parsed_diff = (
+        "CHANGED: bands.Radiohead.colin"
+        "\n\told_signature: (self, bass=[1, 2, 3])"
+        "\n\tnew_signature: (self, keyboard=True)"
+        "\n\ttags: kwargs_removed, kwargs_added"
+    )
+    assert diff == expected_parsed_diff
 
 
 def test_operators(test_differ):
@@ -228,13 +302,13 @@ def test_diff_classes_functions(test_differ):
     test_differ.additions = False
     intersection, diff = test_differ.diff_files()
     diff = test_differ.diff_functions_classes(diff, intersection)
-    assert diff["bands"]["functions"] == ["ringo"]
+    assert diff["bands"]["functions"] == {"ringo": ["drums", {"beat":[1, 2, 3]}], "paul": ["bass"]}
     for x in diff["bands"]["classes"].keys():
         assert x in expected_diff["bands"]["classes"].keys()
     test_differ.additions = True
     intersection, diff = test_differ.diff_files()
     diff = test_differ.diff_functions_classes(diff, intersection)
-    assert diff["bands"]["functions"] == ["george"]
+    assert diff["bands"]["functions"] == {"george": [], "paul": ["guitar"], "ringo": [{"beat":[1, 2]}]}
     assert list(diff["bands"]["classes"].keys()) == ["Pixies"]
 
 
@@ -243,4 +317,54 @@ def test_diff_methods(test_differ):
     intersection, diff = test_differ.diff_files()
     diff = test_differ.diff_functions_classes(diff, intersection)
     diff = test_differ.diff_methods(diff, intersection)
-    assert diff["bands"]["classes"]["Radiohead"]["methods"] == ["jonny"]
+    assert diff["bands"]["classes"]["Radiohead"]["methods"] == {"jonny": [],
+            "thom": ["guitar"], "colin": [{"bass": [1, 2, 3]}],
+            "phil": ["song", {"drums": [1, 2, 3]}, {"solo": False}]
+    }
+
+
+def test_diff_single_signature(test_differ):
+    expected = ["john", {"george": True}, {"ringo": [1, 2, 3]}]
+    assert expected == test_differ.diff_single_signature(
+        old_signature["__init__"],
+        new_signature["__init__"]
+    )
+
+
+def test_diff_full_signature(test_differ):
+    test_differ.additions = False
+    expected = {
+        "__init__": ["john", {"george": True}, {"ringo": [1, 2, 3]}],
+        "radiohead": []
+    }
+    assert expected == test_differ.diff_signatures(old_signature, new_signature)
+
+
+def test_diff_signature_added(test_differ):
+    test_differ.additions = True
+    expected = {
+        "__init__": ["pete", {"george": False}, {"ringo": [1, 2]}],
+        "pixies": []
+    }
+    assert expected == test_differ.diff_signatures(old_signature, new_signature)
+
+
+def test_multuple_methods_diff(test_differ):
+    with open(os.path.join(os.path.dirname(__file__), "samples/inputs_old.txt"), "r") as f:
+        old = f.read()
+    with open(os.path.join(os.path.dirname(__file__), "samples/inputs_new.txt"), "r") as f:
+        new = f.read()
+    expected = {'inputs':
+        {
+            'functions': {},
+            'classes': {
+                'InputWidget': {'methods': {'create': []}},
+                'MultiSelect': {'methods': {'create': []}}, 'Select': {'methods': {'create': []}}}
+            }
+        }
+    sample_crawler = api_crawler("bokeh")
+    old = {"inputs": {"classes": sample_crawler.get_classes(old), "functions": {}}}
+    new = {"inputs": {"classes": sample_crawler.get_classes(new), "functions": {}}}
+    sample_differ = differ(old, new)
+    diff = sample_differ.diff_modules()
+    assert expected == diff

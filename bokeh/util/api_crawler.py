@@ -1,6 +1,14 @@
-import ast, os, copy
+from __future__ import print_function
+import ast, os
+import six
 
 __all__ = ["api_crawler", "differ"]
+
+
+if six.PY3:
+    arg_name = "arg"
+else:
+    arg_name = "id"
 
 
 class APICrawler(object):
@@ -43,18 +51,50 @@ class APICrawler(object):
         class_defs = {}
         for x in classes:
             class_defs[x.name] = {}
-            methods = []
-            for y in x.body:
-                if isinstance(y, ast.FunctionDef) and self.is_public(y.name):
-                    methods.append(y.name)
+            methods = [node for node in x.body if isinstance(node, ast.FunctionDef) and self.is_public(node.name)]
+            methods = self.get_full_signature(methods)
             class_defs[x.name]["methods"] = methods
         return class_defs
 
     def get_functions(self, source):
         # For a given source, look for functions and return those functions as a list.
         parsed = ast.parse(source)
-        functions = [node.name for node in ast.walk(parsed) if self.is_toplevel_function(node) and self.is_public(node.name)]
+        functions = [node for node in ast.walk(parsed) if self.is_toplevel_function(node) and self.is_public(node.name)]
+        functions = self.get_full_signature(functions)
         return functions
+
+    def get_full_signature(self, functions):
+        full_signature = {}
+        for x in functions:
+            full_signature.update(self.get_signature(x))
+        return full_signature
+
+    def get_signature(self, function):
+        return {
+            function.name: self.get_arguments(function)
+        }
+
+    def get_arguments(self, function):
+        arguments = function.args.args
+        defaults = function.args.defaults
+        if defaults:
+            argument_names = [getattr(x, arg_name) for x in arguments[:len(arguments) - len(defaults)]]
+            default_names = [getattr(x, arg_name) for x in arguments[len(arguments) - len(defaults):]]
+            for x in range(len(default_names)):
+                try:
+                    argument_names.append({default_names[x]: ast.literal_eval(defaults[x])})
+                except ValueError:
+                    if isinstance(defaults[x], ast.Lambda):
+                        argument_names.append({default_names[x]: "type: Lambda"})
+                    elif isinstance(defaults[x], ast.Call):
+                        argument_names.append({default_names[x]: "type: Call"})
+                    elif isinstance(defaults[x], ast.BinOp):
+                        argument_names.append({default_names[x]: "type: BinOp"})
+                    else:
+                        argument_names.append({default_names[x]: defaults[x].id})
+            return argument_names
+        else:
+            return [getattr(x, arg_name) for x in arguments]
 
     def get_filenames(self, directory):
         # Go through the file tree and grab the filnames for each file found.
@@ -78,7 +118,7 @@ class APICrawler(object):
         for x in filenames:
             with open(x, "r") as f:
                 source = f.read()
-                files_dict[x] = {"classes": {}, "functions": []}
+                files_dict[x] = {"classes": {}, "functions": {}}
                 files_dict[x]["classes"] = self.get_classes(source)
                 files_dict[x]["functions"] = self.get_functions(source)
         return files_dict
@@ -98,6 +138,7 @@ class Differ(object):
         self.latter = latter
         self._additions = False
         self._operation = self.diff_operation
+        self.parsed_signature_diff = []
 
     @property
     def additions(self):
@@ -146,26 +187,27 @@ class Differ(object):
             former_items = self.former.get(x)
             latter_items = self.latter.get(x)
             if former_items and latter_items:
-                function_diff = self._operation(
-                    set(former_items["functions"]),
-                    set(latter_items["functions"])
-                )
                 class_diff = self._operation(
                     set(list(former_items["classes"].keys())),
                     set(list(latter_items["classes"].keys()))
                 )
-                if function_diff or list(class_diff):
-                    diff[x]= copy.deepcopy(intersection[x])
-                    if list(class_diff):
-                        diff_dict = {y: {} for y in class_diff}
-                        diff[x]["classes"] = diff_dict
-                    else:
-                        diff[x]["classes"] = {}
 
-                    if function_diff:
-                        diff[x]["functions"] = list(function_diff)
-                    else:
-                        diff[x]["functions"] = []
+                function_diff = self.diff_signatures(
+                    former_items["functions"],
+                    latter_items["functions"]
+                )
+
+                diff[x] = {"classes": {}, "functions": {}}
+                if list(class_diff):
+                    diff_dict = {y: {} for y in class_diff}
+                    diff[x]["classes"] = diff_dict
+                else:
+                    diff[x]["classes"] = {}
+
+                if function_diff:
+                    diff[x]["functions"] = function_diff
+                else:
+                    diff[x]["functions"] = {}
         return diff
 
     def diff_methods(self, diff, intersection):
@@ -177,17 +219,40 @@ class Differ(object):
                     # Prevent NoneType errors by returning empty dict.
                     former_methods = self.former[x]["classes"].get(y, {})
                     latter_methods = self.latter[x]["classes"].get(y, {})
-                    if former_methods.get("methods") and latter_methods.get("methods"):
-                        former_values = set(list(former_methods.values())[0])
-                        latter_values = set(list(latter_methods.values())[0])
-                        methods_diff = self._operation(former_values, latter_values)
+                    if former_methods and latter_methods:
+                        methods_diff = self.diff_signatures(former_methods.get("methods", {}), latter_methods.get("methods", {}))
                         if methods_diff:
                             if not diff.get(x):
-                                diff[x] = {}
-                                diff[x]["classes"] = {}
-                            diff[x]["classes"][y] = copy.deepcopy(intersection[x]["classes"][y])
-                            diff[x]["classes"][y]["methods"] = methods_diff
+                                diff[x] = {"classes": {}}
+                            diff[x]["classes"][y] = {"methods": methods_diff}
         return diff
+
+    def diff_single_signature(self, old, new):
+        arguments_diff = []
+        for x in old:
+            if x not in new:
+                arguments_diff.append(x)
+        return arguments_diff
+
+    def diff_signatures(self, old_signature, new_signature):
+        arguments = {}
+        intersection = list(set(old_signature) & set(new_signature))
+        difference = self._operation(set(old_signature), set(new_signature))
+        arguments.update({x: [] for x in difference})
+        for x in intersection:
+            if self.additions:
+                arguments_diff = self.diff_single_signature(
+                    new_signature[x],
+                    old_signature[x]
+                )
+            else:
+                arguments_diff = self.diff_single_signature(
+                    old_signature[x],
+                    new_signature[x]
+                )
+            if arguments_diff:
+                arguments.update({x: arguments_diff})
+        return arguments
 
     def diff_modules(self):
         intersection, diff = self.diff_files()
@@ -195,38 +260,125 @@ class Differ(object):
         diff = self.diff_methods(diff, intersection)
         return diff
 
+    def pretty_function_signatures(self, arg_list):
+        arg_string = []
+        for x in arg_list:
+            if isinstance(x, dict):
+                arg_string.append("%s=%s" % (str(list(x.keys())[0]), str(list(x.values())[0])))
+            elif isinstance(x, list):
+                arg_string.append("%s=%s" % (str(x), str(list(x.values())[0])))
+            else:
+                arg_string.append("%s" % x)
+        if arg_string:
+            return "(" + ", ".join(arg_string) + ")"
+        else:
+            return "()"
+
+    def pretty_function_changes(self, title, old_func, new_func):
+        tags = []
+        intersection = old_func[:]
+        for x in new_func:
+            if x not in intersection:
+                intersection.append(x)
+        old = "\n\told_signature: %s" % self.pretty_function_signatures(old_func)
+        new = "\n\tnew_signature: %s" % self.pretty_function_signatures(new_func)
+        old_kwarg_keys = [list(x.keys())[0] for x in old_func if isinstance(x, dict)]
+        new_kwarg_keys = [list(x.keys())[0] for x in new_func if isinstance(x, dict)]
+        for x in intersection:
+            if isinstance(x, str):
+                if x not in old_func and x in new_func:
+                    if "args_added" not in tags:
+                        tags.append("args_added")
+                elif x not in new_func and x in old_func:
+                    if "args_removed" not in tags:
+                        tags.append("args_removed")
+            elif isinstance(x, dict):
+                current_key = list(x.keys())[0]
+                if current_key in old_kwarg_keys and current_key in new_kwarg_keys:
+                    old_kwarg = next(x for x in old_func if isinstance(x, dict) and list(x.keys())[0] == current_key)
+                    new_kwarg = next(x for x in new_func if isinstance(x, dict) and list(x.keys())[0] == current_key)
+                    if old_kwarg != new_kwarg and "kwargs_changed" not in tags:
+                        tags.append("kwargs_changed")
+                elif x not in old_func and x in new_func:
+                    if "kwargs_added" not in tags:
+                        tags.append("kwargs_added")
+                elif x not in new_func and x in old_func:
+                    if "kwargs_removed" not in tags:
+                        tags.append("kwargs_removed")
+        if tags:
+            tags = "\n\ttags: %s" % ", ".join(tags)
+        else:
+            tags = "\n\ttags: None"
+
+        signature_string = "%s%s%s%s" % (
+            title,
+            old,
+            new,
+            tags,
+        )
+        return signature_string
+
     def pretty_diff(self, diff):
         parsed_diff = []
         if self.additions:
-            method = "ADDED"
+            method = "ADDED:"
         else:
-            method = "DELETED"
+            method = "DELETED:"
         for x in diff.keys():
-            formatted_string = "%s %s" % (method, os.path.splitext(x.replace("/", "."))[0])
+            module_string = os.path.splitext(x.replace("/", "."))[0]
+            formatted_string = "%s %s" % (method, module_string)
+            changed_string = "%s %s" % (
+                "CHANGED:",
+                module_string
+            )
             if diff[x].values():
                 for y in diff[x].values():
-                    if isinstance(y, dict) and y:
+                    if diff[x]["classes"] == y:
                         for z in y.keys():
                             if not y[z].values():
                                 parsed_diff.append("%s.%s" % (formatted_string, z))
                             else:
-                                for a in y[z].values():
-                                    for b in a:
-                                        parsed_diff.append("%s.%s.%s" % (formatted_string, z, b))
-                    elif isinstance(y, list) and y:
+                                for i in y[z]["methods"]:
+                                    if y[z]["methods"][i]:
+                                        title = "%s.%s.%s" % (changed_string, z, i)
+                                        self.parsed_signature_diff.append(self.pretty_function_changes(
+                                            title,
+                                            self.former[x]["classes"][z]["methods"][i],
+                                            self.latter[x]["classes"][z]["methods"][i],
+                                        ))
+                                    else:
+                                        parsed_diff.append("%s.%s.%s" % (formatted_string, z, i))
+                    if diff[x]["functions"] == y:
                         for z in y:
-                            class_string = "%s" % z
-                            parsed_diff.append("%s.%s" % (formatted_string, class_string))
+                            if y[z]:
+                                title = "%s.%s" % (changed_string, z)
+                                self.parsed_signature_diff.append(self.pretty_function_changes(
+                                    title,
+                                    self.former[x]["functions"][z],
+                                    self.latter[x]["functions"][z],
+                                ))
+                            else:
+                                function_string = "%s" % (z)
+                                parsed_diff.append("%s.%s" % (formatted_string, function_string))
             else:
                 parsed_diff.insert(0, formatted_string)
+
         return parsed_diff
 
+    def dedupelicate_signatures(self, signatures):
+        deduped = []
+        for x in range(len(signatures)):
+            if signatures[x] not in deduped:
+                deduped.append(signatures[x])
+        return deduped
+
     def get_diff(self):
+        self.parsed_signature_diff = []
         self.additions = False
         removed = self.pretty_diff(self.diff_modules())
         self.additions = True
         added = self.pretty_diff(self.diff_modules())
-        return removed + added
+        return removed + added + self.dedupelicate_signatures(self.parsed_signature_diff)
 
 
 api_crawler = APICrawler
