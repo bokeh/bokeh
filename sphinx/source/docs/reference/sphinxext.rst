@@ -16,6 +16,13 @@ bokeh_autodoc
 
 .. automodule:: bokeh.sphinxext.bokeh_autodoc
 
+.. _bokeh.sphinxext.bokeh_enum:
+
+bokeh_enum
+----------
+
+.. automodule:: bokeh.sphinxext.bokeh_enum
+
 .. _bokeh.sphinxext.bokeh_gallery:
 
 bokeh_gallery

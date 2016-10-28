@@ -8,7 +8,8 @@ JSON fields will also be generated.
 This directive takes the path to a Bokeh model class as an
 argument::
 
-    .. bokeh-model:: bokeh.sphinxext.sample.Foo
+    .. bokeh-model:: Foo
+        :module: bokeh.sphinxext.sample
 
 Examples
 --------
@@ -23,7 +24,8 @@ For the following definition of ``bokeh.sphinxext.sample.Foo``::
 
 the above usage yields the output:
 
-    .. bokeh-model:: bokeh.sphinxext.sample.Foo
+    .. bokeh-model:: Foo
+        :module: bokeh.sphinxext.sample
 
 """
 from __future__ import absolute_import, print_function
@@ -31,58 +33,45 @@ from __future__ import absolute_import, print_function
 import importlib
 import json
 
-from docutils import nodes
-from docutils.statemachine import ViewList
-
-import jinja2
+from docutils.parsers.rst.directives import unchanged
 
 from sphinx.errors import SphinxError
-from sphinx.util.compat import Directive
-from sphinx.util.nodes import nested_parse_with_titles
 
-from bokeh.model import Viewable
+from ..model import Viewable
+from .bokeh_directive import BokehDirective, py_sig_re
+from .templates import MODEL_DETAIL
 
-
-MODEL_TEMPLATE = jinja2.Template(u"""
-.. autoclass::  {{ model_path }}
-    :members:
-    :undoc-members:
-    :exclude-members: get_class
-    :show-inheritance:
-
-.. _{{ model_path }}.json:
-
-.. collapsible-code-block:: javascript
-    :heading: JSON Prototype
-
-    {{ model_json|indent(4) }}
-
-""")
-
-
-class BokehModelDirective(Directive):
+class BokehModelDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
+    optional_arguments = 2
+
+    option_spec = {
+        'module': unchanged
+    }
 
     def run(self):
-        model_path = self.arguments[0]
-        module_name, model_name = model_path.rsplit(".", 1)
+        sig = " ".join(self.arguments)
+
+        m = py_sig_re.match(sig)
+        if m is None:
+            raise SphinxError("Unable to parse signature for bokeh-model: %r" % sig)
+        name_prefix, model_name, arglist, retann = m.groups()
+
+        module_name = self.options['module']
 
         try:
             module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Unable to generate reference docs for %s, couldn't import module '%s'" %
-                (model_path, module_name))
+            raise SphinxError("Unable to generate reference docs for %s, couldn't import module '%s'" % (model_name, module_name))
 
         model = getattr(module, model_name, None)
         if model is None:
-            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" %
-                (model_path, model_name, module_name))
+            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (model_name, model_name, module_name))
 
         if type(model) != Viewable:
-            raise SphinxError("Unable to generate reference docs for %s, model '%s' is not a subclass of Viewable" %
-                (model_path, model_name))
+            raise SphinxError("Unable to generate reference docs for %s, model '%s' is not a subclass of Viewable" % (model_name, model_name))
 
         model_obj = model()
 
@@ -93,18 +82,13 @@ class BokehModelDirective(Directive):
             separators=(',', ': ')
         )
 
-        rst_text = MODEL_TEMPLATE.render(
-            model_path=model_path,
+        rst_text = MODEL_DETAIL.render(
+            name=model_name,
+            module_name=module_name,
             model_json=model_json,
         )
 
-        result = ViewList()
-        for line in rst_text.split("\n"):
-            result.append(line, "<bokeh-model>")
-        node = nodes.paragraph()
-        node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
-        return node.children
+        return self._parse(rst_text, "<bokeh-model>")
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)
