@@ -33,9 +33,7 @@ Bokeh
 <tr>
   <td>PyPI</td>
   <td>
-    <a href="https://pypi.python.org/pypi/bokeh/">
-    <img src="https://img.shields.io/pypi/dm/bokeh.svg" alt="pypi downloads" />
-    </a>
+    <i>currently unavailable</i>
   </td>
 </tr>
 <tr>
@@ -46,6 +44,15 @@ Bokeh
     </a>
   </td>
 </tr>
+<tr>
+  <td>Twitter</td>
+  <td>
+    <a href="https://https://twitter.com/BokehPlots">
+    <img src="https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow" />
+    </a>
+  </td>
+</tr>
+https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow
 </table>
 
 Bokeh, a Python interactive visualization library, enables beautiful and
