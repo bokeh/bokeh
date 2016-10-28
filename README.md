@@ -33,7 +33,7 @@ Bokeh
 <tr>
   <td>PyPI</td>
   <td>
-    <i>currently unavailable</i>
+    <img src="http://bokeh.pydata.org/pip-bokeh-downloads.png" />
   </td>
 </tr>
 <tr>
@@ -52,7 +52,6 @@ Bokeh
     </a>
   </td>
 </tr>
-https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow
 </table>
 
 Bokeh, a Python interactive visualization library, enables beautiful and
