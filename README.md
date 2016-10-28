@@ -4,7 +4,7 @@ Bokeh
 <table>
 <tr>
   <td>Latest Release</td>
-  <td><img src="https://img.shields.io/pypi/v/bokeh.svg" alt="latest release" /></td>
+  <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="latest release" /></td>
 </tr>
 <tr>
   <td>License</td>
