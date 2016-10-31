@@ -45,7 +45,7 @@ p = figure(x_range=(-11, 11), y_range=(-11, 11))
 r = p.annular_wedge(0, 0, rmin, rmax, theta[:-1], theta[1:],
                     fill_color=colors, line_color="white")
 
-# add out plot to curdoc
+# add the plot to curdoc
 curdoc().add_root(p)
 
 # open a session which will keep our local doc in sync with server
