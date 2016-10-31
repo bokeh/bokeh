@@ -10,8 +10,7 @@ import template from "./text_input_template"
 
 export class TextInputView extends InputWidgetView
   tagName: "div"
-  attributes:
-     class: "bk-widget-form-group"
+  className: "bk-widget-form-group"
   template: template
   events:
     "change input": "change_input"

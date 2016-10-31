@@ -95,8 +95,7 @@ export class DataProvider
     @updateSource()
 
 export class DataTableView extends WidgetView
-  attributes:
-    class: "bk-data-table"
+  className: "bk-data-table"
 
   initialize: (options) ->
     super(options)
