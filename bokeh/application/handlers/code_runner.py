@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function
 
-from os.path import abspath, dirname
 from types import ModuleType
 import os
 import sys
@@ -64,7 +63,7 @@ class _CodeRunner(object):
 
         module_name = 'bk_script_' + make_id().replace('-', '')
         module = ModuleType(module_name)
-        module.__dict__['__file__'] = abspath(self._path)
+        module.__dict__['__file__'] = os.path.abspath(self._path)
 
         return module
 
