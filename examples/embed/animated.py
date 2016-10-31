@@ -40,7 +40,6 @@ rmax = r_base + sin(r_x) + 1
 colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
           "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-# figure() function auto-adds the figure to curdoc()
 p = figure(x_range=(-11, 11), y_range=(-11, 11))
 r = p.annular_wedge(0, 0, rmin, rmax, theta[:-1], theta[1:],
                     fill_color=colors, line_color="white")
