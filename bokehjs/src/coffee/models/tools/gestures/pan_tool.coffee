@@ -94,7 +94,6 @@ export class PanTool extends GestureTool
   default_view: PanToolView
   type: "PanTool"
   tool_name: "Pan"
-  icon: "bk-tool-icon-pan"
   event_type: "pan"
   default_order: 10
 
@@ -104,4 +103,10 @@ export class PanTool extends GestureTool
 
   @getters {
     tooltip: () -> @_get_dim_tooltip("Pan", @dimensions)
+    icon: () ->
+      suffix = switch @dimensions
+        when "both"   then "pan"
+        when "width"  then "xpan"
+        when "height" then "ypan"
+      "bk-tool-icon-#{suffix}"
   }

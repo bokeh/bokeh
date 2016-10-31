@@ -288,7 +288,7 @@ export class HoverToolView extends InspectToolView
 export class HoverTool extends InspectTool
   default_view: HoverToolView
   type: "HoverTool"
-  tool_name: "Hover Tool"
+  tool_name: "Hover"
   icon: "bk-tool-icon-hover"
 
   @define {

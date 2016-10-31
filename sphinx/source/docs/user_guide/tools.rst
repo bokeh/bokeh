@@ -44,14 +44,14 @@ If you would like to hide the toolbar entirely, pass ``None``.
 Below is some code that positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_location`` value.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar_clash.py
+.. bokeh-plot:: docs/user_guide/examples/tools_position_toolbar_clash.py
     :source-position: above
 
 Note that the toolbar position clashes with the default axes, in this case
 setting the ``toolbar_sticky`` option to ``False`` will move the toolbar
 to outside of the region where the axis is drawn.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
+.. bokeh-plot:: docs/user_guide/examples/tools_position_toolbar.py
     :source-position: above
 
 .. _userguide_tools_specifying_tools:
@@ -360,8 +360,6 @@ a list containing ``width`` or ``height``. Additionally, there are tool aliases
 Inspectors
 ~~~~~~~~~~
 
-* menu icon: |inspector_icon|
-
 Inspectors are passive tools that annotate or otherwise report information about
 the plot, based on the current cursor position. Any number of inspectors may be
 active at any given time. The inspectors menu in the toolbar allows users to
@@ -371,6 +369,7 @@ CrosshairTool
 '''''''''''''
 
 * name: ``'crosshair'``
+* menu icon: |crosshair_icon|
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. The crosshair tool may be configured to draw
@@ -381,6 +380,7 @@ HoverTool
 '''''''''
 
 * name: ``'hover'``
+* menu icon: |hover_icon|
 
 The hover tool pops up a tooltip div whenever the cursor is over a glyph.
 The information comes from the glyphs data source and is configurable through
@@ -395,12 +395,12 @@ toolbar.
 Try running the code and changing the name of tools being added to the
 tools with valid values
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_string.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_string.py
     :source-position: above
 
 or with a list of the tool instances:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_instance.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_instance.py
     :source-position: above
 
 Setting Tool Visuals
@@ -449,7 +449,7 @@ the right:
 Here is a complete example of how to configure and use the hover tool with
 default tooltip:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_tooltips.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips.py
     :source-position: above
 
 Custom Tooltip
@@ -459,7 +459,7 @@ It is also possible to supply a custom tooltip template. To do this,
 pass an HTML string, with the Bokeh tooltip field name symbols wherever
 substitutions are desired. An example is shown below:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_custom_tooltip.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above
 
 Selection Overlays
@@ -491,10 +491,17 @@ general sense of the interaction to be preserved mid-flight, while maintaining
 interactive performance. There are four properties on |Plot| objects that control
 LOD behavior:
 
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_factor
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_interval
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_threshold
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_timeout
+.. bokeh-prop:: Plot.lod_factor
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_interval
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_threshold
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_timeout
+    :module: bokeh.models.plots
 
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
@@ -513,7 +520,9 @@ LOD behavior:
     :height: 14pt
 .. |help_icon| image:: /_images/icons/Help.png
     :height: 14pt
-.. |inspector_icon| image:: /_images/icons/Inspector.png
+.. |crosshair_icon| image:: /_images/icons/Crosshair.png
+    :height: 14pt
+.. |hover_icon| image:: /_images/icons/Hover.png
     :height: 14pt
 .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
     :height: 14pt

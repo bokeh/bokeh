@@ -64,6 +64,14 @@ functionality.
 .. automodule:: bokeh.util.notebook
   :members:
 
+.. _bokeh.util.options:
+
+``bokeh.util.options``
+----------------------
+
+.. automodule:: bokeh.util.options
+  :members:
+
 .. _bokeh.util.paths:
 
 ``bokeh.util.paths``

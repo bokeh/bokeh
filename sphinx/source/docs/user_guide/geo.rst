@@ -79,6 +79,13 @@ With the GMapPlot, you can plot any bokeh glyphs over a Google Map.
     )
     plot.title.text = "Austin"
 
+    # For GMaps to function, Google requires you obtain and enable an API key:
+    #
+    #     https://developers.google.com/maps/documentation/javascript/get-api-key
+    #
+    # Replace the value below with your personal API key:
+    plot.api_key = "GOOGLE_API_KEY"
+
     source = ColumnDataSource(
         data=dict(
             lat=[30.29, 30.20, 30.29],

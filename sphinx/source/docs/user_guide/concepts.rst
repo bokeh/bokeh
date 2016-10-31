@@ -221,7 +221,7 @@ users will want to create |Figure| objects by using the |figure| function.
 A prototypical example of the |bokeh.plotting| usage is show below, along
 with the resulting plot:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_plotting.py
+.. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
     :source-position: above
 
 The main observation is that the typical usage involves creating plots objects
@@ -259,7 +259,7 @@ The interface includes chart types such as: |Bar|, |BoxPlot|, |Histogram|,
 |Timeseries|, and many others. One simple example using |Scatter| is shown
 below:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_charts.py
+.. bokeh-plot:: docs/user_guide/examples/concepts_charts.py
     :source-position: above
 
 Important to note is that the same output functions are used across different
@@ -280,7 +280,7 @@ plots very easily. There are several examples in the :ref:`gallery`. Here is
 a quick example that shows a Seaborn_ plot converted to a Bokeh plot with
 just one additional line of code:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_other_interfaces.py
+.. bokeh-plot:: docs/user_guide/examples/concepts_other_interfaces.py
     :source-position: above
 
 .. _Backbone: http://backbonejs.org

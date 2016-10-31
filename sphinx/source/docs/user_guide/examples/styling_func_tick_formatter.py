@@ -7,9 +7,7 @@ p = figure(plot_width=500, plot_height=500)
 p.circle([0, 2, 4, 6, 8, 10], [6, 2, 4, 10, 8, 0], size=30)
 
 p.yaxis.formatter = FuncTickFormatter(code="""
-    function (tick) {
-        return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
-    };
+    return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
 """)
 
 show(p)

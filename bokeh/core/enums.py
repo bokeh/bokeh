@@ -93,10 +93,7 @@ TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "
 Direction = enumeration("clock", "anticlock")
 
 #: Specify units for mapping values
-Units = enumeration("screen", "data")
-
-# Specify units for mapping values
-SpatialUnits = Units
+SpatialUnits = enumeration("screen", "data")
 
 #: Specify the units for an angle value
 AngleUnits = enumeration("deg", "rad")
@@ -120,6 +117,12 @@ LegendLocation = Anchor = enumeration("top_left", "top_center", "top_right",
 
 #: Specify a location in plot layouts
 Location = enumeration("above", "below", "left", "right")
+
+#: Specify a vertical location in plot layouts
+VerticalLocation = enumeration("above", "below")
+
+#: Specify a horizontal location in plot layouts
+HorizontalLocation = enumeration("left", "right")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
