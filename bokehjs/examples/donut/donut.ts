@@ -16,7 +16,7 @@ namespace WebBrowserMarketShare {
   function unzip2<A, B>(ABs: Array<[A, B]>): [Array<A>, Array<B>] {
     const As: Array<A> = []
     const Bs: Array<B> = []
-    for (let [a, b] of ABs) {
+    for (const [a, b] of ABs) {
       As.push(a)
       Bs.push(b)
     }
@@ -61,7 +61,7 @@ namespace WebBrowserMarketShare {
   let _browsers: Array<string> = null
   let year: number = null
 
-  for (let [head, ...tail] of read_csv_from("data")) {
+  for (const [head, ...tail] of read_csv_from("data")) {
     const _year = parseInt(head)
     if (!isNaN(_year)) {
       [year, _browsers] = [_year, tail]
@@ -99,7 +99,7 @@ namespace WebBrowserMarketShare {
     "Other": { color: "gray" }
   }
 
-  for (let row of read_csv_from("info")) {
+  for (const row of read_csv_from("info")) {
     const [browser, description, color, icon] = row
     info[browser] = {
       description: description,

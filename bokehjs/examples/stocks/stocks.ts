@@ -25,7 +25,7 @@ namespace Stocks {
     // Add a line for each entry in the source
     const colors = ['#aa0000','#00aa00', '#0000aa', '#aaaa00', '#aa00aa', '#00aaaa'];
     let i = -1;
-    for (let key in source.data) {
+    for (const key in source.data) {
       if (key != 't') {
         i += 1;
         plot.line({field: 't'}, {field: key},
