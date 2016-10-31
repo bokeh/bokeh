@@ -165,26 +165,26 @@ export class Box extends LayoutDOM
       if @_has_var('height', var_keys)
         constraints.push(EQ(last.span.start, last.span.size, [-1, @_height]))
 
-    # align outermost edges in both dimensions
-    constraints = constraints.concat(@_align_outer_edges_constraints(true)) # horizontal=true
-    constraints = constraints.concat(@_align_outer_edges_constraints(false))
+    return constraints.concat(
+      # align outermost edges in both dimensions
+      @_align_outer_edges_constraints(true) # horizontal=true
+      @_align_outer_edges_constraints(false)
 
-    # line up edges in same-arity boxes
-    constraints = constraints.concat(@_align_inner_cell_edges_constraints())
+      # line up edges in same-arity boxes
+      @_align_inner_cell_edges_constraints()
 
-    # build our equal-size bounds from the child ones
-    constraints = constraints.concat(@_box_equal_size_bounds(true)) # horizontal=true
-    constraints = constraints.concat(@_box_equal_size_bounds(false))
+      # build our equal-size bounds from the child ones
+      @_box_equal_size_bounds(true) # horizontal=true
+      @_box_equal_size_bounds(false)
 
-    # propagate cell alignment (between same-arity boxes) up the hierarchy
-    constraints = constraints.concat(@_box_cell_align_bounds(true)) # horizontal=true
-    constraints = constraints.concat(@_box_cell_align_bounds(false))
+      # propagate cell alignment (between same-arity boxes) up the hierarchy
+      @_box_cell_align_bounds(true) # horizontal=true
+      @_box_cell_align_bounds(false)
 
-    # build our whitespace from the child ones
-    constraints = constraints.concat(@_box_whitespace(true)) # horizontal=true
-    constraints = constraints.concat(@_box_whitespace(false))
-
-    return constraints
+      # build our whitespace from the child ones
+      @_box_whitespace(true) # horizontal=true
+      @_box_whitespace(false)
+    )
 
   _has_var: (look_up, var_keys) ->
     # Convenience wrapper on an underscore method to
