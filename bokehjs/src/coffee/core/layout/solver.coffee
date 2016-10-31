@@ -3,17 +3,10 @@ import {Variable, Expression, Constraint, Operator, Strength, Solver as Constrai
 import {Events} from "../events"
 
 _constrainer = (op) ->
-  () =>
-    expr = Object.create(Expression.prototype)
-    Expression.apply(expr, arguments)
-    return new Constraint(expr, op)
+  (args) -> new Constraint(new Expression(args...), op)
 
 _weak_constrainer = (op) ->
-  () ->
-    args = [null]
-    for arg in arguments
-      args.push(arg)
-    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, Strength.weak )
+  (args) -> new Constraint(new Expression(args...), op, Strength.weak)
 
 export {Variable, Expression, Constraint, Operator, Strength}
 
