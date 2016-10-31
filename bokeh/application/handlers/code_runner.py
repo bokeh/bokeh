@@ -76,8 +76,7 @@ class _CodeRunner(object):
             _cwd = os.getcwd()
             _sys_path = list(sys.path)
             _sys_argv = list(sys.argv)
-            os.chdir(dirname(self._path))
-            sys.path.insert(0, '')
+            sys.path.insert(0, os.path.dirname(self._path))
             sys.argv = [os.path.basename(self._path)] + self._argv
 
             exec(self._code, module.__dict__)
