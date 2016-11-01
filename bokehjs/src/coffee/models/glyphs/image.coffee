@@ -30,19 +30,22 @@ export class ImageView extends GlyphView
       @_height = new Array(@_image.length)
 
     for i in [0...@_image.length]
-      if @_rows?
-        @_height[i] = @_rows[i]
-        @_width[i] = @_cols[i]
+      if @_image_shape?
+        @_height[i] = @_image_shape[i][0]
+        @_width[i] = @_image_shape[i][1]
       else
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
-      canvas = document.createElement('canvas')
-      canvas.width = @_width[i]
-      canvas.height = @_height[i]
+      if @image_data[i]? and @image_data[i].width == @_width[i] and @image_data[i].height == @_height[i]
+        canvas = @image_data[i]
+      else
+        canvas = document.createElement('canvas')
+        canvas.width = @_width[i]
+        canvas.height = @_height[i]
       ctx = canvas.getContext('2d')
       image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
       cmap = @model.color_mapper
-      if @_rows?
+      if @_image_shape?
         img = @_image[i]
       else
         img = _.flatten(@_image[i])

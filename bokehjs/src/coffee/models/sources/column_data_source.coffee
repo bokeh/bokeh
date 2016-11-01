@@ -13,13 +13,14 @@ export class ColumnDataSource extends DataSource
   type: 'ColumnDataSource'
 
   @define {
-      data:              [ p.Any,      {} ]
-      column_names:      [ p.Array,    [] ]
+      data:         [ p.Any,   {} ]
+      column_names: [ p.Array, [] ]
     }
 
   @internal {
     selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
     inspected:         [ p.Any ]
+    _shapes:           [ p.Any ]
   }
 
   get_column: (colname) ->
