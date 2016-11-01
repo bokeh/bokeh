@@ -228,4 +228,4 @@ To contribute to Bokeh, please review the [Developer Guide](http://bokeh.pydata.
 
 Follow us
 ---------
-Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots), on [Vine](https://vine.co/bokehplots), and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
+Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
