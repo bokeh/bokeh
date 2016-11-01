@@ -61,3 +61,10 @@ export rnorm = (mu, sigma) ->
   rn = mu + sigma*rn
 
   return rn
+
+export clamp = (val, min, max) ->
+  if val > max
+    return max
+  if val < min
+    return min
+  return val
