@@ -40,4 +40,5 @@ export class TextInput extends InputWidget
 
   @define {
       value: [ p.String, "" ]
+      placeholder: [ p.String, "" ]
     }
