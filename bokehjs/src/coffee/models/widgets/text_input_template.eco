@@ -1,2 +1,2 @@
 <label for="<%= @id %>"> <%= @title %> </label>
-<input class="bk-widget-form-input" type="text" id="<%=@id %>" name="<%= @name %>" value="<%= @value %>"/>
+<input class="bk-widget-form-input" type="text" id="<%=@id %>" name="<%= @name %>" value="<%= @value %>" placeholder="<%= @placeholder %>"/>
