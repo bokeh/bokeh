@@ -23,8 +23,9 @@ export class HasProps extends Backbone.Model
           throw new Error("attempted to redefine attribute '#{this.name}.#{name}'")
 
         Object.defineProperty(this.prototype, name, {
-          get: ()      -> this.getv(name)
-          set: (value) -> this.setv(name, value)
+          # XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
+          get: ()      -> value = this.getv(name); return value
+          set: (value) -> this.setv(name, value); return this
         }, {
           configurable: false
           enumerable: true
