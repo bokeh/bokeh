@@ -50,23 +50,6 @@ def get_default_alpha(plot=None):
     return 1.0
 
 
-def _glyph_doc(args, props, desc):
-    params_tuple = tuple(itertools.chain.from_iterable(sorted(list(args.items()))))
-    params = "\t%s : %s\n" * len(args) % params_tuple
-
-    return """%s
-
-    Parameters
-    ----------
-    %s
-    Additionally, the following properties are accepted as keyword arguments: %s
-
-    Returns
-    -------
-    plot : :py:class:`Plot <bokeh.models.Plot>`
-    """ % (desc, params, props)
-
-
 def _pop_renderer_args(kwargs):
     result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
     for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
@@ -437,6 +420,12 @@ def _get_argspecs(glyphclass):
         argspecs[arg] = spec
     return argspecs
 
+# This template generates the following:
+#
+# def foo(self, x, y=10, kwargs):
+#     kwargs['x'] = x
+#     kwargs['y'] = y
+#     return func(self, **kwargs)
 _sigfunc_template = """
 def %s(self, %s, **kwargs):
 %s
