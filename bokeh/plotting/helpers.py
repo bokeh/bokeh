@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from collections import Iterable, Sequence
+from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
 import re
@@ -426,6 +426,43 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_scroll, active_
     else:
         raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
 
+def _get_argspecs(glyphclass):
+    argspecs = OrderedDict()
+    for arg in glyphclass._args:
+        spec = {}
+        prop = getattr(glyphclass, arg)
+        spec['desc'] = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        spec['default'] = prop.class_default(glyphclass)
+        spec['type'] = prop.__class__.__name__
+        argspecs[arg] = spec
+    return argspecs
+
+_sigfunc_template = """
+def %s(self, %s, **kwargs):
+%s
+    return func(self, **kwargs)
+"""
+
+def _get_sigfunc(func_name, func, argspecs):
+    # This code is to wrap the generic func(*args, **kw) glyph method so that
+    # a much better signature is available to users. E.g., for ``square`` we have:
+    #
+    # Signature: p.square(x, y, size=4, angle=0.0, **kwargs)
+    #
+    # which provides descriptive names for positional args, as well as any defaults
+    func_args_with_defaults = []
+    for arg, spec in argspecs.items():
+        if spec['default'] is None:
+            func_args_with_defaults.append(arg)
+        else:
+            func_args_with_defaults.append("%s=%r" % (arg, spec['default']))
+    args_text = ", ".join(func_args_with_defaults)
+    kwargs_assign_text = "\n".join("    kwargs[%r] = %s" % (x, x) for x in argspecs)
+    func_text = _sigfunc_template % (func_name, args_text, kwargs_assign_text)
+    func_code = compile(func_text, "fakesource", "exec")
+    func_globals = {}
+    eval(func_code, {"func": func}, func_globals)
+    return func_globals[func_name]
 
 _arg_template = "    %s (%s) : %s (default %r)"
 _doc_template = """ Configure and add %s glyphs to this Figure.
@@ -453,10 +490,32 @@ Returns:
     GlyphRenderer
 """
 
+def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
+    func.__name__ = glyphclass.__name__.lower()
+
+    kwlines = []
+    kws = glyphclass.properties() - set(argspecs)
+    for kw in sorted(kws):
+        prop = getattr(glyphclass, kw)
+        if prop.__doc__:
+            typ = prop.__class__.__name__
+            desc = " ".join(x.strip() for x in prop.__doc__.strip().split("\n\n")[0].split('\n'))
+        else:
+            typ = str(prop)
+            desc = ""
+        kwlines.append(_arg_template % (kw, typ, desc, prop.class_default(glyphclass)))
+
+    arglines = []
+    for arg, spec in argspecs.items():
+        arglines.append(_arg_template % (arg, spec['type'], spec['desc'], spec['default']))
+
+    func.__doc__ = _doc_template % (func.__name__, "\n".join(arglines), "\n".join(kwlines))
+    if extra_docs:
+        func.__doc__ += extra_docs
 
 def _glyph_function(glyphclass, extra_docs=None):
 
-    def func(self, *args, **kwargs):
+    def func(self, **kwargs):
 
         # Process legend kwargs and remove legend before we get going
         legend_item_label = _get_legend_item_label(kwargs)
@@ -465,10 +524,6 @@ def _glyph_function(glyphclass, extra_docs=None):
         is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
-
-        # add the positional arguments as kwargs
-        attributes = dict(zip(glyphclass._args, args))
-        kwargs.update(attributes)
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
@@ -505,38 +560,16 @@ def _glyph_function(glyphclass, extra_docs=None):
             _update_legend(self, legend_item_label, glyph_renderer)
 
         for tool in self.select(type=BoxSelectTool):
-            # this awkward syntax is needed to go through Property.__set__ and
-            # therefore trigger a change event. With improvements to Property
-            # we might be able to use a more natural append() or +=
-            tool.renderers = tool.renderers + [glyph_renderer]
+            tool.renderers.append(glyph_renderer)
 
-        # awkward syntax for same reason mentioned above
-        self.renderers = self.renderers + [glyph_renderer]
+        self.renderers.append(glyph_renderer)
+
         return glyph_renderer
 
-    func.__name__ = glyphclass.__view_model__
+    argspecs = _get_argspecs(glyphclass)
 
-    arglines = []
-    for arg in glyphclass._args:
-        spec = getattr(glyphclass, arg)
-        desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
-        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.class_default(glyphclass)))
+    sigfunc = _get_sigfunc(glyphclass.__name__.lower(), func, argspecs)
 
-    kwlines = []
-    kws = glyphclass.properties() - set(glyphclass._args)
-    for kw in sorted(kws):
-        if kw == "session": continue  # TODO (bev) improve or remove
-        spec = getattr(glyphclass, kw)
-        if spec.__doc__:
-            typ = spec.__class__.__name__
-            desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
-        else:
-            typ = str(spec)
-            desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, spec.class_default(glyphclass)))
+    _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
 
-    func.__doc__ = _doc_template % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
-
-    if extra_docs:
-        func.__doc__ += extra_docs
-    return func
+    return sigfunc
