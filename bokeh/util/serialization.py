@@ -4,6 +4,8 @@ Bokeh objects.
 """
 from __future__ import absolute_import
 
+import base64
+
 from six import iterkeys
 
 from .dependencies import import_optional
@@ -52,8 +54,7 @@ def transform_series(obj):
     return transform_array(vals)
 
 def flattened_and_shape(array):
-    return list(array.flat), array.shape
-
+    return  base64.b64encode(array).decode('utf-8'), array.shape
 
 def transform_array(obj):
     """Transform arrays into lists of json safe types

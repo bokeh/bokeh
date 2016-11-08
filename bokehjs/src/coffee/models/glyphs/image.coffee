@@ -29,6 +29,7 @@ export class ImageView extends GlyphView
     if not @_height? or @_height.length != @_image.length
       @_height = new Array(@_image.length)
 
+    debugger
     for i in [0...@_image.length]
       if @_image_shape?
         @_height[i] = @_image_shape[i][0]
