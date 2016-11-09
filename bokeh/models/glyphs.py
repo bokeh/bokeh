@@ -230,7 +230,7 @@ class HBar(Glyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('y', 'height', 'left', 'right')
+    _args = ('y', 'height', 'right', 'left')
 
     y = NumberSpec(help="""
     The y-coordinates of the centers of the horizontal bars.
