@@ -183,7 +183,7 @@ class FromFile(Implementation):
     def lang(self):
         if self.file.endswith(".coffee"):
             return "coffeescript"
-        if self.file.endswith(".ts"):
+        if self.file.endswith((".ts", ".tsx")):
             return "typescript"
         if self.file.endswith(".js"):
             return "javascript"
@@ -192,7 +192,7 @@ class FromFile(Implementation):
         if self.file.endswith((".css", ".less")):
             return "less"
 
-exts = (".coffee", ".ts", ".js", ".eco", ".css", ".less")
+exts = (".coffee", ".ts", ".tsx", ".js", ".eco", ".css", ".less")
 
 class CustomModel(object):
     def __init__(self, cls):

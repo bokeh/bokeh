@@ -49,7 +49,8 @@ gulp.task "scripts:eco", () ->
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
 gulp.task "scripts:ts", () ->
-  gulp.src("./src/coffee/**/*.ts")
+  prefix = "./src/coffee/**"
+  gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
 tsjsOpts = {
@@ -58,6 +59,8 @@ tsjsOpts = {
   module: "commonjs"
   moduleResolution: "node"
   target: "ES5"
+  jsx: "react"
+  reactNamespace: "DOM"
 }
 
 gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
@@ -76,7 +79,8 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scrip
         if not ((found and must) or (not found and not must))
           return
     gutil.log(msg)
-  gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
+  prefix = paths.buildDir.jsTree + '_ts/**'
+  gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
       .pipe(ts(tsjsOpts, ts.reporter.nullReporter()).on('error', error))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
