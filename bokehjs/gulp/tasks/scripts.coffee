@@ -24,7 +24,6 @@ license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
-{eco} = require '../eco'
 ts = require 'gulp-typescript'
 
 {namedLabeler} = require "../labeler"
@@ -38,13 +37,6 @@ gulp.task "scripts:coffee", () ->
 
 gulp.task "scripts:js", () ->
   gulp.src('./src/coffee/**/*.js')
-      .pipe(rename((path) -> path.extname = '.ts'))
-      .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
-
-gulp.task "scripts:eco", () ->
-  gulp.src('./src/coffee/**/*.eco')
-      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(eco())
       .pipe(rename((path) -> path.extname = '.ts'))
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
@@ -63,7 +55,7 @@ tsjsOpts = {
   reactNamespace: "DOM"
 }
 
-gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
+gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
   error = (err) ->
     if not argv.tsjs?
       return

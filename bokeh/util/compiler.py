@@ -160,12 +160,6 @@ class JavaScript(Inline):
     def lang(self):
         return "javascript"
 
-class Eco(Inline):
-
-    @property
-    def lang(self):
-        return "eco"
-
 class Less(Inline):
 
     @property
@@ -187,12 +181,10 @@ class FromFile(Implementation):
             return "typescript"
         if self.file.endswith(".js"):
             return "javascript"
-        if self.file.endswith(".eco"):
-            return "eco"
         if self.file.endswith((".css", ".less")):
             return "less"
 
-exts = (".coffee", ".ts", ".tsx", ".js", ".eco", ".css", ".less")
+exts = (".coffee", ".ts", ".tsx", ".js", ".css", ".less")
 
 class CustomModel(object):
     def __init__(self, cls):

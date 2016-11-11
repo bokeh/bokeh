@@ -21,7 +21,7 @@ import * as p from "core/properties"
 # We will subclass in JavaScript from the same class that was subclassed
 # from in Python
 import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
-# Use our custom template, this needs to not have the .eco ending on the file
+# Use our custom template
 import ionslidertemplate from "./extensions_ion_range_slider_template"
 
 # This model will actually need to render things, so we must provide
