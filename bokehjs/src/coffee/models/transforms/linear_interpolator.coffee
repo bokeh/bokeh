@@ -9,15 +9,18 @@ export class LinearInterpolator extends Interpolator
 
     if @clip == true
       if x < @_x_sorted[0] or x > @_x_sorted[@_x_sorted.length-1]
-        return(null)
+        return null
     else
       if x < @_x_sorted[0]
         return @_y_sorted[0]
       if x > @_x_sorted[@_x_sorted.length-1]
         return @_y_sorted[@_y_sorted.length-1]
 
+    if x == @_x_sorted[0]
+      return @_y_sorted[0]
+
     ind = _.findLastIndex(@_x_sorted, (num) ->
-      return x >= num
+      return num < x
     )
 
     x1 = @_x_sorted[ind]
@@ -26,7 +29,7 @@ export class LinearInterpolator extends Interpolator
     y2 = @_y_sorted[ind+1]
 
     ret = y1 + (((x-x1) / (x2-x1)) * (y2-y1))
-    return(ret)
+    return ret
 
   v_compute: (xs) ->
     # Apply the tranform to a vector of values

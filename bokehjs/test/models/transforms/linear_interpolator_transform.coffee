@@ -31,6 +31,7 @@ describe "linear_interpolator_transform module", ->
     it "should return control points", ->
       expect(transform.compute(0)).to.be.equal 10
       expect(transform.compute(5)).to.be.equal 20
+      expect(transform.compute(15)).to.be.equal 30
 
     it "should linearly interpolate between control points", ->
       expect(transform.compute(2)).to.be.equal 14
@@ -47,6 +48,7 @@ describe "linear_interpolator_transform module", ->
     it "should return control points", ->
       expect(transform.compute(0)).to.be.equal 10
       expect(transform.compute(5)).to.be.equal 20
+      expect(transform.compute(15)).to.be.equal 30
 
     it "should linearly interpolate between control points", ->
       expect(transform.compute(2)).to.be.equal 14
