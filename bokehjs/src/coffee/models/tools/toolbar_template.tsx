@@ -3,7 +3,7 @@ import * as DOM from "../../core/util/dom";
 interface ToolbarProps {
   location: "above" | "below" | "left" | "right";
   sticky: "sticky" | "non-sticky";
-  logo: "normal" | "grey" | null;
+  logo?: "normal" | "grey";
 }
 
 export default (props: ToolbarProps): HTMLElement => {
@@ -13,7 +13,8 @@ export default (props: ToolbarProps): HTMLElement => {
     logo = <a href="http://bokeh.pydata.org/" target="_blank" class={["bk-logo", "bk-logo-small", cls]}></a>
   }
 
-  return <div class={[`bk-toolbar-${props.location}`, `bk-toolbar-${props.sticky}`]}>
+  return (
+    <div class={[`bk-toolbar-${props.location}`, `bk-toolbar-${props.sticky}`]}>
       <div class='bk-button-bar'>
         {logo}
         <div class='bk-button-bar-list' type="pan" />
@@ -27,4 +28,5 @@ export default (props: ToolbarProps): HTMLElement => {
         <div class='bk-button-bar-list' type="help" />
       </div>
     </div>
+  )
 }

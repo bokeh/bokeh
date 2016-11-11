@@ -1,10 +1,31 @@
-<label for="<%= @id %>"> <%= @title %> </label>
-<select multiple class="bk-widget-form-input" id="<%=@id %>" name="<%= @name %>">
-  <% for option in @options: %>
-    <% if typeof option is "string": %>
-  <option <% if @value.indexOf(option) > -1: %>selected="selected" <% end %>value="<%= option %>"><%=option%></option>
-    <% else: %>
-  <option  <% if @value.indexOf(option[0]) > -1: %>selected="selected" <% end %>value="<%= option[0] %>"><%= option[1] %></option>
-    <% end %>
-  <% end %>
-</select>
+import * as _ from "underscore";
+import * as DOM from "../../core/util/dom";
+
+interface MultiSelectProps {
+  id: string;
+  title: string;
+  name: string;
+  value: Array<string>;
+  options: Array<string | [string, string]>;
+}
+
+export default (props: MultiSelectProps): HTMLElement => {
+  return (
+    <fragment>
+      <label for={props.id}> {props.title} </label>
+      <select multiple class="bk-widget-form-input" id={props.id} name={props.name}>{
+        props.options.map(option => {
+          let value, label;
+          if (_.isString(option)) {
+            value = label  = option
+          } else {
+            [value, label] = option
+          }
+
+          const selected = props.value.indexOf(value) > -1
+          return <option selected={selected} value={value}>{label}</option>
+        })
+      }</select>
+    </fragment>
+  )
+}
