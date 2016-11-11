@@ -209,19 +209,11 @@ class CustomModel(object):
 
     @property
     def file(self):
-        try:
-            file = inspect.getfile(self.cls)
-        except TypeError:
-            return None
-        else:
-            return abspath(file)
+        return abspath(inspect.getfile(self.cls))
 
     @property
     def path(self):
-        if self.file is None:
-            return os.getcwd()
-        else:
-            return dirname(self.file)
+        return dirname(self.file)
 
     @property
     def implementation(self):
