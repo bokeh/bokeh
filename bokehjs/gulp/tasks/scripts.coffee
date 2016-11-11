@@ -19,6 +19,8 @@ path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
 insert = require('gulp-insert')
+rootRequire = require("root-require")
+
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
 gulpif = require 'gulp-if'
@@ -45,15 +47,7 @@ gulp.task "scripts:ts", () ->
   gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
-tsjsOpts = {
-  noImplicitAny: false
-  noEmitOnError: false
-  module: "commonjs"
-  moduleResolution: "node"
-  target: "ES5"
-  jsx: "react"
-  reactNamespace: "DOM"
-}
+tsconfig = rootRequire("./tsconfig.json")
 
 gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
   error = (err) ->
@@ -73,7 +67,7 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
     gutil.log(msg)
   prefix = paths.buildDir.jsTree + '_ts/**'
   gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
-      .pipe(ts(tsjsOpts, ts.reporter.nullReporter()).on('error', error))
+      .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:tsjs"]

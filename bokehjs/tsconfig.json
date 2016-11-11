@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5",
+    "jsx": "react",
+    "reactNamespace": "DOM"
+  }
+}
