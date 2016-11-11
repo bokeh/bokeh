@@ -82,7 +82,10 @@ The complete contents of ``small_palettes`` is show below.
 
 """
 
-class _Palettes(object):
+import sys as _sys
+import types as _types
+
+class _PalettesModule(_types.ModuleType):
     @property
     def YlGn3(self):
         return ["#31a354", "#addd8e", "#f7fcb9"]
@@ -1601,6 +1604,9 @@ class _Palettes(object):
             __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
         return __palettes__
 
+    def __dir__(self):
+        return [name for name in dir(type(self)) if not name.startswith('_')]
+
     def _linear_cmap_func_generator(self, name, cmap):
         import math
         import numpy as np
@@ -1631,16 +1637,9 @@ class _Palettes(object):
     def gray(self):
         return self._linear_cmap_func_generator('gray', self.Greys256)
 
-import sys as _sys
-import types as _types
-
-class _PalettesModule(_types.ModuleType, _Palettes):
-    def __dir__(self):
-        return list(self.__dict__.keys()) + \
-               [ name for name in dir(_Palettes) if not name.startswith("_") ]
 
 # need to explicitly transfer the docstring for Sphinx docs to build correctly
 _mod = _PalettesModule('bokeh.palettes')
 _mod.__doc__ = __doc__
 _sys.modules['bokeh.palettes'] = _mod
-del _mod
+del _mod, _sys, _types
