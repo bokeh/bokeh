@@ -640,6 +640,7 @@ class HoverTool(Inspection):
             ("fill color", "$color[hex, swatch]:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
+            ("baz", "@baz[safe]"),
         ]
 
     You can also supply a ``Callback`` to the HoverTool, to build custom
@@ -702,6 +703,10 @@ class HoverTool(Inspection):
     Field names starting with "@" are interpreted as columns on the
     data source. For instance, "@temp" would look up values to display
     from the "temp" column of the data source.
+
+    You can use @val{safe} to override automatic escaping of the tooltip data source.
+    Any HTML tags in the data tags will be rendered as HTML in the resulting
+    HoverTool output.
 
     Field names starting with "$" are special, known fields:
 
