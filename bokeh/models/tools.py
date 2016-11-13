@@ -640,7 +640,7 @@ class HoverTool(Inspection):
             ("fill color", "$color[hex, swatch]:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
-            ("baz", "@baz[safe]"),
+            ("baz", "@baz{safe}"),
         ]
 
     You can also supply a ``Callback`` to the HoverTool, to build custom
