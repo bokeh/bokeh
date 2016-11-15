@@ -641,6 +641,7 @@ class HoverTool(Inspection):
             ("foo", "@foo"),
             ("bar", "@bar"),
             ("baz", "@baz{safe}"),
+            ("total", "@total{$0,0.00}"
         ]
 
     You can also supply a ``Callback`` to the HoverTool, to build custom
@@ -704,10 +705,6 @@ class HoverTool(Inspection):
     data source. For instance, "@temp" would look up values to display
     from the "temp" column of the data source.
 
-    You can use @val{safe} to override automatic escaping of the tooltip data source.
-    Any HTML tags in the data tags will be rendered as HTML in the resulting
-    HoverTool output.
-
     Field names starting with "$" are special, known fields:
 
     :$index: index of selected point in the data source
@@ -719,6 +716,17 @@ class HoverTool(Inspection):
         ``$color[options]:field_name``. The available options
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
+
+    Additional format options ``safe`` and `Numbro format codes <http://numbrojs.com/format.html>`_
+    can be included in a post-fix brace block on field names. ::
+
+        [("total", "@total{$0,0.00}"),
+         ("data", "@data{safe}")]
+
+    Including ``{safe}`` after a field name will override automatic escaping
+    of the tooltip data source. Any HTML tags in the data tags will be rendered
+    as HTML in the resulting HoverTool output. See :ref:`custom_hover_tooltip` for a
+    more detailed example.
 
     ``None`` is also a valid value for tooltips. This turns off the
     rendering of tooltips. This is mostly useful when supplying other

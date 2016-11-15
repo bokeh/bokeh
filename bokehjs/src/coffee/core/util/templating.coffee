@@ -33,7 +33,7 @@ export replace_placeholders = (string, data_source, i, special_vars = {}) ->
       replacement = "???"
     else
       if format == 'safe'
-        return '' + prefix + value
+        return '#{prefix}#{value}'
       else if format?
         replacement = Numbro.format(value, format)
       else

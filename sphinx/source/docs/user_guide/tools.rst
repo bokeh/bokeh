@@ -452,6 +452,9 @@ default tooltip:
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips.py
     :source-position: above
 
+
+.. _custom_hover_tooltip:
+
 Custom Tooltip
 ''''''''''''''
 
