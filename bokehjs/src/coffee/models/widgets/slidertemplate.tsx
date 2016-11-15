@@ -7,17 +7,18 @@ interface SliderProps {
 }
 
 export default (props: SliderProps): HTMLElement => {
-  let title;
+  let title, value;
   if (props.title != null) {
-    title = <fragment>
-      props.title.length != 0 && <label for={props.id}> {props.title}: </label>
-      <input type="text" id={props.id} readonly />
-    </fragment>
+    if (props.title.length != 0) {
+      title = <label for={props.id}> {props.title}: </label>
+    }
+    value = <input type="text" id={props.id} readonly />
   }
 
   return (
     <div class="bk-slider-parent">
       {title}
+      {value}
       <div class={`bk-slider-${props.orientation}`}>
         <div class="slider" id={props.id}></div>
       </div>

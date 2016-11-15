@@ -21,7 +21,7 @@ export class TabsView extends WidgetView
 
     html = $(tabs_template({
       tabs: tabs
-      active: (i) -> if i == active then 'bk-bs-active' else ''
+      active_tab_id: tabs[active].id
     }))
 
     that = this
