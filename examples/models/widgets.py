@@ -58,11 +58,14 @@ date_picker = DatePicker()
 
 paragraph = Paragraph(text="some text")
 
-div = Div(text="some text")
+div = Div(text="some <b>text</b>")
 
 pre_text = PreText(text="some text")
 
-#tabs = Tabs(tabs=[Panel(title="Tab 1"), Panel(title="Tab 2")])
+tabs = Tabs(tabs=[
+    Panel(title="Tab 1", child=Button(label="Button 1")),
+    Panel(title="Tab 2", child=Button(label="Button 2")),
+])
 
 widgets = Row(children=[
     WidgetBox(children=[
@@ -77,7 +80,9 @@ widgets = Row(children=[
         slider, range_slider, #date_range_slider,
         date_picker,
         paragraph, div, pre_text,
-        #tabs,
+    ]),
+    WidgetBox(children=[
+        tabs,
     ]),
 ])
 
