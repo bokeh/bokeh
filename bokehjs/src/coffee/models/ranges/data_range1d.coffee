@@ -9,14 +9,15 @@ export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
-      start:           [ p.Number        ]
-      end:             [ p.Number        ]
-      range_padding:   [ p.Number, 0.1   ]
-      flipped:         [ p.Bool,   false ]
-      follow:          [ p.String        ] # TODO (bev)
-      follow_interval: [ p.Number        ]
-      default_span:    [ p.Number, 2     ]
-      bounds:          [ p.Any           ] # TODO (bev)
+      start:           [ p.Number         ]
+      end:             [ p.Number         ]
+      range_padding:   [ p.Number, 0.1    ]
+      mapper_type:     [ p.String, "auto" ]
+      flipped:         [ p.Bool,   false  ]
+      follow:          [ p.String         ] # TODO (bev)
+      follow_interval: [ p.Number         ]
+      default_span:    [ p.Number, 2      ]
+      bounds:          [ p.Any            ] # TODO (bev)
       min_interval: [ p.Any ]
       max_interval: [ p.Any ]
     }
@@ -84,13 +85,23 @@ export class DataRange1d extends DataRange
     range_padding = @range_padding
     if range_padding? and range_padding > 0
 
-      if max == min
-        span = @default_span
-      else
-        span = (max-min)*(1+range_padding)
+      if @mapper_type == "log"
+        log_min = Math.log(min) / Math.log(10)
+        log_max = Math.log(max) / Math.log(10) # TODO bases
+        if max == min
+          span = Math.log(@default_span) / Math.log(10)
+        else
+          span = (log_max-log_min)*(1+range_padding)
+        center = (log_min+log_max) / 2.0
+        [start, end] = [Math.pow(10, center-span / 2.0), Math.pow(10, center+span / 2.0)]
 
-      center = (max+min)/2.0
-      [start, end] = [center-span/2.0, center+span/2.0]
+      else
+        if max == min
+          span = @default_span
+        else
+          span = (max-min)*(1+range_padding)
+        center = (max+min) / 2.0
+        [start, end] = [center-span / 2.0, center+span / 2.0]
 
     else
       [start, end] = [min, max]
@@ -125,9 +136,17 @@ export class DataRange1d extends DataRange
     [start, end] = @_compute_range(min, max)
 
     if @_initial_start?
-      start = @_initial_start
+      if @mapper_type == "log"
+        if @_initial_start > 0
+          start = @_initial_start 
+      else
+        start = @_initial_start
     if @_initial_end?
-      end = @_initial_end
+      if @mapper_type == "log"
+        if @_initial_end > 0
+          end = @_initial_end
+      else
+        end = @_initial_end
 
     # only trigger updates when there are changes
     [_start, _end] = [@start, @end]

@@ -115,7 +115,7 @@ class DataRange1d(DataRange):
     """
 
     range_padding = Float(default=0.1, help="""
-    A percentage of the total range size to add as padding to
+    A fraction of the total range size to add as padding to
     the range start and end.
     """)
 
@@ -127,6 +127,11 @@ class DataRange1d(DataRange):
     end = Float(help="""
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
+    """)
+
+    mapper_type = Either(Auto, Enum("linear", "log"), default="auto", help="""
+    The type of the mapper that this range is associated with. This information is
+    necessary for calculating the start and stop when there is range_padding.
     """)
 
     bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
