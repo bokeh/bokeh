@@ -386,10 +386,10 @@ export const Viridis256  = [0x440154, 0x440255, 0x440357, 0x450558, 0x45065a, 0x
                             0xf6e61f, 0xf8e621, 0xfae622, 0xfde724]
 
 export const Accent3     = Accent8.slice(:3)
-export const Accent4     = [0x7fc97f, 0xbeaed4, 0xfdc086, 0xffff99]
-export const Accent5     = [0x7fc97f, 0xbeaed4, 0xfdc086, 0xffff99, 0x386cb0]
-export const Accent6     = [0x7fc97f, 0xbeaed4, 0xfdc086, 0xffff99, 0x386cb0, 0xf0027f]
-export const Accent7     = [0x7fc97f, 0xbeaed4, 0xfdc086, 0xffff99, 0x386cb0, 0xf0027f, 0xbf5b17]
+export const Accent4     = Accent8.slice(:4)
+export const Accent5     = Accent8.slice(:5)
+export const Accent6     = Accent8.slice(:6)
+export const Accent7     = Accent8.slice(:7)
 export const Accent8     = [0x7fc97f, 0xbeaed4, 0xfdc086, 0xffff99, 0x386cb0, 0xf0027f, 0xbf5b17, 0x666666]
 
 export const Dark2_3     = [0x1b9e77, 0xd95f02, 0x7570b3]
