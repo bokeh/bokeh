@@ -863,16 +863,16 @@ class _PalettesModule(_types.ModuleType):
     # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
     @property
     def Pastel2_3(self):
-        return self.Pastel2_8[:7]
+        return self.Pastel2_8[:3]
     @property
     def Pastel2_4(self):
-        return self.Pastel2_8[:7]
+        return self.Pastel2_8[:4]
     @property
     def Pastel2_5(self):
-        return self.Pastel2_8[:7]
+        return self.Pastel2_8[:5]
     @property
     def Pastel2_6(self):
-        return self.Pastel2_8[:7]
+        return self.Pastel2_8[:6]
     @property
     def Pastel2_7(self):
         return self.Pastel2_8[:7]
