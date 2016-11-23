@@ -587,6 +587,12 @@ setup(
     cmdclass=_cmdclass,
     packages=package_tree('bokeh'),
     package_data={'bokeh': package_data},
+    # use setuptools functionalities
+    entry_points={
+        'console_scripts': [
+            'bokeh = bokeh.command.bootstrap:_main',
+        ],
+    },
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/bokeh/bokeh',
