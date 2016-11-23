@@ -11,10 +11,12 @@ export class Selector extends HasProps
     @setv('timestamp', new Date(), {silent: silent})
     @setv('final', final, {silent: silent})
     if append
-      indices['0d'].indices =  _.union(@indices['0d'].indices, indices['0d'].indices)
+      _xor = (arr_1, arr_2) -> _.difference(_.union(arr_1, arr_2), _.intersection(arr_1, arr_2))
+
+      indices['0d'].indices =  _xor(@indices['0d'].indices, indices['0d'].indices)
       indices['0d'].glyph =  @indices['0d'].glyph or indices['0d'].glyph
-      indices['1d'].indices =  _.union(@indices['1d'].indices, indices['1d'].indices)
-      indices['2d'].indices =  _.union(@indices['2d'].indices, indices['2d'].indices)
+      indices['1d'].indices =  _xor(@indices['1d'].indices, indices['1d'].indices)
+      indices['2d'].indices =  _xor(@indices['2d'].indices, indices['2d'].indices)
     @setv('indices', indices, {silent: silent})
 
   clear: () ->
