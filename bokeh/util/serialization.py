@@ -112,11 +112,16 @@ def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
         use_numpy: toggle numpy as a dependency for testing purposes
     """
     is_numpy = is_numpy and use_numpy
-    if is_numpy and not any(isinstance(el, (list, tuple)) for el in datum):
+    if is_numpy and not any(isinstance(el, (list, tuple, set)) for el in datum):
+        # NOTE: this is necessary, because later .tolist() is used and it will
+        # keep the original, non-serializable set type. Yes, .tolist() doesn't
+        # necessarily return a list.
+        if isinstance(datum, set):
+            datum = list(datum)
         return transform_array(np.asarray(datum))
     datum_copy = []
     for item in datum:
-        if isinstance(item, (list, tuple)):
+        if isinstance(item, (list, tuple, set)):
             datum_copy.append(traverse_data(item))
         elif isinstance(item, float):
             if np.isnan(item):
