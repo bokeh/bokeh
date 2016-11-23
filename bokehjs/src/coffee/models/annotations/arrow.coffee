@@ -58,10 +58,23 @@ export class ArrowView extends AnnotationView
 
     ctx.save()
     for i in [0...@_x_start.length]
+        angle = Math.PI/2 + atan2([@start[0][i], @start[1][i]], [@end[0][i], @end[1][i]])
+        length = Math.sqrt(Math.pow(@start[0][i] - @end[0][i], 2) + Math.pow(@start[1][i] - @end[1][i], 2))
+
+        if @mget('start')
+            start_head_size = @mget('start').size
+        else
+            start_head_size = 0
+
+        if @mget('end')
+            end_head_size = @mget('end').size
+        else
+            end_head_size = 0
+
         @visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
-        ctx.moveTo(@start[0][i], @start[1][i])
-        ctx.lineTo(@end[0][i], @end[1][i])
+        ctx.moveTo(- (length-start_head_size)*Math.sin(angle) + @end[0][i], - (length-start_head_size)*Math.cos(angle) + @end[1][i])
+        ctx.lineTo((length-end_head_size)*Math.sin(angle) + @start[0][i], (length-end_head_size)*Math.cos(angle) + @start[1][i])
 
         if @visuals.line.doit
           ctx.stroke()
