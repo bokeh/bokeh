@@ -44,7 +44,7 @@ class Subcommand(with_metaclass(ABCMeta)):
             self.parser.add_argument(*flags, **arg[1])
 
     @abstractmethod
-    def invoke(self, args):
+    def invoke(self, args, **kwargs):
         ''' Takes over main program flow to perform the subcommand.
 
         Args:

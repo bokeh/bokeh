@@ -50,6 +50,18 @@ def _create_hosts_whitelist(host_list, port):
             raise ValueError("Invalid host value: %s" % host)
     return hosts
 
+
+_tornado_kwargs = ['io_loop',
+                   'extra_patterns',
+                   'secret_key',
+                   'sign_sessions',
+                   'generate_session_ids',
+                   'keep_alive_milliseconds',
+                   'check_unused_sessions_milliseconds',
+                   'unused_session_lifetime_milliseconds',
+                   'stats_log_frequency_milliseconds']
+
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
@@ -71,15 +83,7 @@ class Server(object):
         else:
             self._applications = applications
 
-        tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
-                                                        'extra_patterns',
-                                                        'secret_key',
-                                                        'sign_sessions',
-                                                        'generate_session_ids',
-                                                        'keep_alive_milliseconds',
-                                                        'check_unused_sessions_milliseconds',
-                                                        'unused_session_lifetime_milliseconds',
-                                                        'stats_log_frequency_milliseconds']
+        tornado_kwargs = { key: kwargs[key] for key in _tornado_kwargs
                            if key in kwargs }
 
         prefix = kwargs.get('prefix')
