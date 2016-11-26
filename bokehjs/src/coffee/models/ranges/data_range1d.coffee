@@ -9,15 +9,14 @@ export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
-      start:           [ p.Number         ]
-      end:             [ p.Number         ]
-      range_padding:   [ p.Number, 0.1    ]
-      mapper_type:     [ p.String, "auto" ]
-      flipped:         [ p.Bool,   false  ]
-      follow:          [ p.String         ] # TODO (bev)
-      follow_interval: [ p.Number         ]
-      default_span:    [ p.Number, 2      ]
-      bounds:          [ p.Any            ] # TODO (bev)
+      start:           [ p.Number        ]
+      end:             [ p.Number        ]
+      range_padding:   [ p.Number, 0.1   ]
+      flipped:         [ p.Bool,   false ]
+      follow:          [ p.String        ] # TODO (bev)
+      follow_interval: [ p.Number        ]
+      default_span:    [ p.Number, 2     ]
+      bounds:          [ p.Any           ] # TODO (bev)
       min_interval: [ p.Any ]
       max_interval: [ p.Any ]
     }
@@ -34,6 +33,7 @@ export class DataRange1d extends DataRange
     @_initial_follow = @follow
     @_initial_follow_interval = @follow_interval
     @_initial_default_span = @default_span
+    @_mapper_type = "auto"
 
   @getters {
     min: () -> Math.min(@start, @end)
@@ -85,7 +85,7 @@ export class DataRange1d extends DataRange
     range_padding = @range_padding
     if range_padding? and range_padding > 0
 
-      if @mapper_type == "log"
+      if @_mapper_type == "log"
         log_min = Math.log(min) / Math.log(10)
         log_max = Math.log(max) / Math.log(10) # TODO bases
         if max == min
@@ -136,13 +136,13 @@ export class DataRange1d extends DataRange
     [start, end] = @_compute_range(min, max)
 
     if @_initial_start?
-      if @mapper_type == "log"
+      if @_mapper_type == "log"
         if @_initial_start > 0
-          start = @_initial_start 
+          start = @_initial_start
       else
         start = @_initial_start
     if @_initial_end?
-      if @mapper_type == "log"
+      if @_mapper_type == "log"
         if @_initial_end > 0
           end = @_initial_end
       else

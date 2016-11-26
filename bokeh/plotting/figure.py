@@ -103,8 +103,8 @@ class Figure(Plot):
 
         super(Figure, self).__init__(*arg, **kw)
 
-        self.x_range = _get_range(opts.x_range, opts.x_axis_type)
-        self.y_range = _get_range(opts.y_range, opts.y_axis_type)
+        self.x_range = _get_range(opts.x_range)
+        self.y_range = _get_range(opts.y_range)
 
         _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
         _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)

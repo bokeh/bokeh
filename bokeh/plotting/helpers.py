@@ -183,9 +183,9 @@ def _update_legend(plot, legend_item_label, glyph_renderer):
         legend.items.append(new_item)
 
 
-def _get_range(range_input, axis_type):
+def _get_range(range_input):
     if range_input is None:
-        return DataRange1d(mapper_type=axis_type)
+        return DataRange1d()
     if isinstance(range_input, Range):
         return range_input
     if isinstance(range_input, Sequence):

@@ -129,11 +129,6 @@ class DataRange1d(DataRange):
     automatically computed end value.
     """)
 
-    mapper_type = Either(Auto, Enum("linear", "log"), default="auto", help="""
-    The type of the mapper that this range is associated with. This information is
-    necessary for calculating the start and stop when there is range_padding.
-    """)
-
     bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.

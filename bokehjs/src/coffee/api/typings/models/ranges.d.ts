@@ -26,8 +26,6 @@ declare namespace Bokeh {
   export interface IDataRange1d extends IDataRange {
     range_padding?: number;
 
-    mapper_type?: string;
-
     start?: number;
     end?: number;
 

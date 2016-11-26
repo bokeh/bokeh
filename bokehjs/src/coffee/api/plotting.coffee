@@ -60,13 +60,13 @@ export class Figure extends models.Plot
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
 
+    attrs.x_range = @_get_range(attrs.x_range)
+    attrs.y_range = @_get_range(attrs.y_range)
+
     x_axis_type = if _.isUndefined(attrs.x_axis_type) then "auto" else attrs.x_axis_type
     y_axis_type = if _.isUndefined(attrs.y_axis_type) then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
-
-    attrs.x_range = @_get_range(attrs.x_range, x_axis_type)
-    attrs.y_range = @_get_range(attrs.y_range, y_axis_type)
 
     x_minor_ticks = attrs.x_minor_ticks ? "auto"
     y_minor_ticks = attrs.y_minor_ticks ? "auto"
@@ -285,9 +285,9 @@ export class Figure extends models.Plot
   _marker: (cls, args) ->
     return @_glyph(cls, "x,y", args)
 
-  _get_range: (range, axis_type) ->
+  _get_range: (range) ->
     if not range?
-      return new models.DataRange1d({mapper_type: axis_type})
+      return new models.DataRange1d()
     if range instanceof models.Range
       return range
     if _.isArray(range)
