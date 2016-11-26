@@ -485,7 +485,7 @@ class Serve(Subcommand):
     )
 
 
-    def invoke(self, args):
+    def invoke(self, args, **kwargs):
         argvs = { f : args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 
@@ -577,4 +577,5 @@ class Serve(Subcommand):
 
         log.info("Starting Bokeh server with process id: %d" % getpid())
 
-        server.start()
+        server.start(**kwargs)
+        return server
