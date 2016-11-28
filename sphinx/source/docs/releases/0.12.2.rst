@@ -47,7 +47,7 @@ like below:
     handle = show(plot, notebook_handle=True)
     # Update the plot title in the earlier cell
     plot.title = "New Title"
-    push_notebook(handle)
+    push_notebook(handle=handle)
 
 BokehJS API Changes
 ~~~~~~~~~~~~~~~~~~~
