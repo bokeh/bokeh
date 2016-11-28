@@ -2,7 +2,6 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("background.html")
 
-# create a new plot with a title
 p = figure(plot_width=400, plot_height=400)
 p.background_fill_color = "beige"
 p.background_fill_alpha = 0.5
