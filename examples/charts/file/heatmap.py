@@ -7,7 +7,7 @@ from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.unemployment1948 import data
 
 # setup data sources
-del data['Annual']
+data = data.copy()
 data['Year'] = data['Year'].astype(str)
 unempl = pd.melt(data, var_name='Month', value_name='Unemployment', id_vars=['Year'])
 

@@ -452,12 +452,16 @@ default tooltip:
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips.py
     :source-position: above
 
+
+.. _custom_hover_tooltip:
+
 Custom Tooltip
 ''''''''''''''
 
 It is also possible to supply a custom tooltip template. To do this,
 pass an HTML string, with the Bokeh tooltip field name symbols wherever
-substitutions are desired. An example is shown below:
+substitutions are desired. You can use the ``{safe}`` tag after the column
+name to disable the escaping of HTML in the data source. An example is shown below:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above

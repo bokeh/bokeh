@@ -38,6 +38,7 @@ _burst_into_flames = (error) ->
   # Make message
   message = document.createElement("pre")
   message.style["white-space"] = "unset"
+  message.style["overflow-x"] = "auto"
   message.appendChild(document.createTextNode(error.message ? error))
 
   # Add pieces to box

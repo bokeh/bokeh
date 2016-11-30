@@ -14,7 +14,13 @@ source = ColumnDataSource(
                 'http://bokeh.pydata.org/static/snake3D.png',
                 'http://bokeh.pydata.org/static/snake4_TheRevenge.png',
                 'http://bokeh.pydata.org/static/snakebite.jpg'
-            ]
+            ],
+            fonts=['<i>italics</i>',
+                   '<pre>pre</pre>',
+                   '<b>bold</b>',
+                   '<small>small</small>',
+                   '<del>del</del>'
+                   ]
         )
     )
 
@@ -31,6 +37,9 @@ hover = HoverTool(
             <div>
                 <span style="font-size: 17px; font-weight: bold;">@desc</span>
                 <span style="font-size: 15px; color: #966;">[$index]</span>
+            </div>
+            <div>
+                <span>@fonts{safe}</span>
             </div>
             <div>
                 <span style="font-size: 15px;">Location</span>

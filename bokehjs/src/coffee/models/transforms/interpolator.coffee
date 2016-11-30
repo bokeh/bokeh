@@ -78,7 +78,7 @@ export class Interpolator extends Transform
         return ((a.x > b.x) ? -1 : ((a.x == b.x) ? 0 : 1));
       )
 
-    for k in [0..list.length-1]
+    for k in [0...list.length]
       @_x_sorted[k] = list[k].x;
       @_y_sorted[k] = list[k].y;
 
