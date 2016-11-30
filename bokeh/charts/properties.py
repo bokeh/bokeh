@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.core.properties import (HasProps, Either, String, Int, List, Bool,
-                              PrimitiveProperty, bokeh_integer_types, Array)
+                              PrimitiveProperty, integer_types, Array)
 from .utils import special_columns, title_from_columns
 
 
@@ -83,7 +83,7 @@ class ColumnLabel(Either):
         super(ColumnLabel, self).validate(value)
 
         if self.columns:
-            if type(value) in bokeh_integer_types:
+            if type(value) in integer_types:
                 if len(self.columns) > value:
                     return
                 else:

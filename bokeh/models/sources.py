@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq, Scalar
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
@@ -63,7 +63,7 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Seq(Any), help="""
+    data = Dict(String, Seq(Scalar) | Seq(Seq(Scalar)), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """)

@@ -59,7 +59,6 @@ import dateutil.parser
 import difflib
 from importlib import import_module
 import inspect
-import numbers
 import re
 import sys
 import types
@@ -73,6 +72,9 @@ from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
+from .types import (bool_types, integer_types, float_types, complex_types,
+    date_types, datetime_types, timedelta_types)
+
 from . import enums
 
 pd = import_optional('pandas')
@@ -121,15 +123,6 @@ def value(val):
 
     '''
     return dict(value=val)
-
-bokeh_bool_types = (bool,)
-try:
-    import numpy as np
-    bokeh_bool_types += (np.bool8,)
-except ImportError:
-    pass
-
-bokeh_integer_types = (numbers.Integral,)
 
 # used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
@@ -1017,23 +1010,28 @@ class PrimitiveProperty(PropertyDescriptor):
 
 class Bool(PrimitiveProperty):
     """ Boolean type property. """
-    _underlying_type = bokeh_bool_types
+    _underlying_type = bool_types
 
 class Int(PrimitiveProperty):
     """ Signed integer type property. """
-    _underlying_type = bokeh_integer_types
+    _underlying_type = integer_types
 
 class Float(PrimitiveProperty):
     """ Floating point type property. """
-    _underlying_type = (numbers.Real,)
+    _underlying_type = float_types
 
 class Complex(PrimitiveProperty):
     """ Complex floating point type property. """
-    _underlying_type = (numbers.Complex,)
+    _underlying_type = complex_types
 
 class String(PrimitiveProperty):
     """ String type property. """
     _underlying_type = string_types
+
+class Scalar(PrimitiveProperty):
+
+    _underlying_type = bool_types + integer_types + float_types + complex_types + \
+        string_types + date_types + datetime_types + timedelta_types
 
 class Regex(String):
     """ Regex type property validates that text values match the
@@ -1134,15 +1132,12 @@ class Seq(ContainerProperty):
         super(Seq, self).validate(value)
 
         if value is not None:
-            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
-                if self._is_seq(value):
-                    invalid = []
-                    for item in value:
-                        if not self.item_type.is_valid(item):
-                            invalid.append(item)
-                    raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
-                else:
-                    raise ValueError("expected an element of %s, got %r" % (self, value))
+            if not self._is_seq(value):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
+            elif any(not self.item_type.is_valid(item) for item in value):
+                #invalid = [ item for item in value if self.item_type.is_valid(item) ]
+                #raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
+                raise ValueError("expected an element of %s, got seq with invalid items" % self)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
@@ -1639,19 +1634,22 @@ class Date(PropertyDescriptor):
     """ Date (not datetime) type property.
 
     """
+
+    _underlying_types = date_types
+
     def __init__(self, default=datetime.date.today(), help=None):
         super(Date, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Date, self).validate(value)
 
-        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
+        if not (value is None or isinstance(value, self._underlying_types)):
             raise ValueError("expected a date, string or timestamp, got %r" % value)
 
     def transform(self, value):
         value = super(Date, self).transform(value)
 
-        if isinstance(value, (float,) + bokeh_integer_types):
+        if isinstance(value, (float,) + integer_types):
             try:
                 value = datetime.date.fromtimestamp(value)
             except ValueError:
@@ -1666,33 +1664,16 @@ class Datetime(PropertyDescriptor):
 
     """
 
+    _underlying_types = datetime_types
+
     def __init__(self, default=datetime.date.today(), help=None):
         super(Datetime, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Datetime, self).validate(value)
 
-        datetime_types = (datetime.datetime, datetime.date)
-        try:
-            import numpy as np
-            datetime_types += (np.datetime64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'datetime64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, datetime_types)):
-            return
-
-        if pd and isinstance(value, (pd.Timestamp)):
-            return
-
-        raise ValueError("Expected a datetime instance, got %r" % value)
+        if not (value is None or isinstance(value, self._underlying_types)):
+            raise ValueError("expected a datetime instance, got %r" % value)
 
     def transform(self, value):
         value = super(Datetime, self).transform(value)
@@ -1704,33 +1685,16 @@ class TimeDelta(PropertyDescriptor):
 
     """
 
+    _underlying_types = timedelta_types
+
     def __init__(self, default=datetime.timedelta(), help=None):
         super(TimeDelta, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(TimeDelta, self).validate(value)
 
-        timedelta_types = (datetime.timedelta,)
-        try:
-            import numpy as np
-            timedelta_types += (np.timedelta64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'timedelta64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, timedelta_types)):
-            return
-
-        if pd and isinstance(value, (pd.Timedelta)):
-            return
-
-        raise ValueError("Expected a timedelta instance, got %r" % value)
+        if not (value is None or isinstance(value, self._underlying_types)):
+            raise ValueError("expected a timedelta instance, got %r" % value)
 
     def transform(self, value):
         value = super(TimeDelta, self).transform(value)

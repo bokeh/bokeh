@@ -143,7 +143,8 @@ class CompositeGlyph(HasProps):
             n_rows = len(list(data.values())[0])
 
             # add composite chart index as column
-            data['chart_index'] = [self.label] * n_rows
+            # TODO: data['chart_index'] = [self.label] * n_rows
+            data['chart_index'] = [str(self.label)] * n_rows
 
             # add constant value for each column in chart index
             if isinstance(self.label, dict):

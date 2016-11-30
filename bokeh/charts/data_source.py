@@ -22,7 +22,7 @@ from .properties import ColumnLabel, Column
 from .stats import Stat, Bins
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..core.properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
+from ..core.properties import integer_types, Datetime, List, HasProps, String, Float
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -895,7 +895,7 @@ class ChartDataSource(object):
         if isinstance(value, pd.Series):
             return Column(Float).is_valid(value)
         else:
-            numbers = (float,) + bokeh_integer_types
+            numbers = (float,) + integer_types
             return isinstance(value, numbers)
 
     @staticmethod
