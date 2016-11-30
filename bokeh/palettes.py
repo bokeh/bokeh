@@ -1437,7 +1437,7 @@ class _PalettesModule(_types.ModuleType):
         return { 3: self.Reds3,     4: self.Reds4,     5: self.Reds5,     6: self.Reds6,     7: self.Reds7,     8: self.Reds8,     9: self.Reds9 }
     @property
     def Greys(self):
-        return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9 }
+        return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9,    256: self.Greys256 } # NOQA
     @property
     def PuOr(self):
         return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,     10: self.PuOr10,     11: self.PuOr11 } # NOQA
@@ -1590,6 +1590,7 @@ class _PalettesModule(_types.ModuleType):
     @property
     def small_palettes(self):
         palettes = self.all_palettes
+        del palettes["Greys"][256]
         del palettes["Magma"][256]
         del palettes["Inferno"][256]
         del palettes["Plasma"][256]
