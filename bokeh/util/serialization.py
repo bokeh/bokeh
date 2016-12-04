@@ -56,6 +56,8 @@ def transform_series(obj):
 def flattened_and_shape(array):
     if array.dtype.kind in ('U', 'S', 'O') or array.dtype.name == 'int64':
         return array.tolist()
+    if not array.flags['C_CONTIGUOUS']:
+        array = np.ascontiguousarray(array)
     return  {'data': base64.b64encode(array).decode('utf-8'),
              'shape': array.shape,
              'dtype': array.dtype.name}
