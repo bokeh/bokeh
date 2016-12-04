@@ -31,9 +31,13 @@ export class ImageView extends GlyphView
 
     debugger
     for i in [0...@_image.length]
+      shape = undefined
       if @_image_shape?
-        @_height[i] = @_image_shape[i][0]
-        @_width[i] = @_image_shape[i][1]
+        shape = @_image_shape[i]
+
+      if shape?
+        @_height[i] = shape[0]
+        @_width[i] = shape[1]
       else
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
@@ -46,7 +50,7 @@ export class ImageView extends GlyphView
       ctx = canvas.getContext('2d')
       image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
       cmap = @model.color_mapper
-      if @_image_shape?
+      if shape?
         img = @_image[i]
       else
         img = _.flatten(@_image[i])

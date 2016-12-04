@@ -9,6 +9,7 @@ import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {ColumnDataSource} from "./models/sources/column_data_source"
+import {decode_column_data} from "./core/util/deserialize"
 
 export class DocumentChangedEvent
   constructor : (@document) ->
@@ -630,6 +631,16 @@ export class Document
           if model_id not of references
             console.log("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
+
+        model_type = event_json['model']['type']
+        if event_json['attr'] == 'data' and model_type == 'ColumnDataSource'
+            [data, shapes] = decode_column_data(event_json['new'])
+            for k, v of data
+                event_json['new'][k] = v
+            shape_json = JSON.parse(JSON.stringify(event_json));
+            shape_json['attr'] = '_shapes'
+            shape_json['new'] = shapes
+            events_json.push(shape_json)
 
     # split references into old and new so we know whether to initialize or update
     old_references = {}
