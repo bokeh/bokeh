@@ -20,26 +20,26 @@ export convert_base64 = (input) ->
 
 export decode_column_data = (data) ->
     new_data = {}
-    shapes = {}
+    data_shapes = {}
     for k, v of data
       if v instanceof Array
         arrays = []
         shapes = []
         for arr in v
-          if arr.constructor.name == 'Object'
+          if arr? and arr.constructor.name == 'Object'
             [arr, shape] = convert_base64(arr)
             shapes.push(shape)
             arrays.push(arr)
-          else if arr.constructor.name == 'Array'
+          else if arr? and arr.constructor.name == 'Array'
             shapes.push([])
             arrays.push(arr)
         if shapes.length
           new_data[k] = arrays
-          shapes[k] = shapes
+          data_shapes[k] = shapes
         else
           new_data[k] = v
-      else if v.constructor.name == 'Object'
+      else if v? and v.constructor.name == 'Object'
         [arr, shape] = convert_base64(v)
         new_data[k] = arr
-        shapes[k] = shape
-    return [new_data, shapes]
+        data_shapes[k] = shape
+    return [new_data, data_shapes]
