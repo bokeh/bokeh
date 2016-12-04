@@ -36,6 +36,8 @@ export decode_column_data = (data) ->
         if shapes.length
           new_data[k] = arrays
           shapes[k] = shapes
+        else
+          new_data[k] = v
       else if v.constructor.name == 'Object'
         [arr, shape] = convert_base64(v)
         new_data[k] = arr

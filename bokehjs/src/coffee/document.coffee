@@ -654,9 +654,7 @@ export class Document
           model_type = event_json['model']['type']
           if attr == 'data' and model_type == 'ColumnDataSource'
             [data, shapes] = decode_column_data(event_json['new'])
-            for k, v of data
-                event_json['new'][k] = v
-            patched_obj.setv({ "_shapes": shapes, "#{attr}" : event_json['new']})
+            patched_obj.setv({ "_shapes": shapes, "data" : data})
           else
             value = Document._resolve_refs(event_json['new'], old_references, new_references)
             patched_obj.setv({ "#{attr}" : value })

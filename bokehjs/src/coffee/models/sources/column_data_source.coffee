@@ -16,10 +16,8 @@ export class ColumnDataSource extends DataSource
   initialize: (options) ->
     super(options)
     [data, shapes] = decode_column_data(@data)
-    for k, v of data
-        @data[k] = v
-        if k of shapes
-          @_shapes[k] = shapes[k]
+    @data = data
+    @_shapes = shapes
 
   @define {
       data:         [ p.Any,   {} ]
