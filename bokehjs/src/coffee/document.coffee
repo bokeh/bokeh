@@ -632,16 +632,6 @@ export class Document
             console.log("Got an event for unknown model ", event_json['model'])
             throw new Error("event model wasn't known")
 
-        model_type = event_json['model']['type']
-        if event_json['attr'] == 'data' and model_type == 'ColumnDataSource'
-            [data, shapes] = decode_column_data(event_json['new'])
-            for k, v of data
-                event_json['new'][k] = v
-            shape_json = JSON.parse(JSON.stringify(event_json));
-            shape_json['attr'] = '_shapes'
-            shape_json['new'] = shapes
-            events_json.push(shape_json)
-
     # split references into old and new so we know whether to initialize or update
     old_references = {}
     new_references = {}
@@ -661,8 +651,15 @@ export class Document
             throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
           patched_obj = @_all_models[patched_id]
           attr = event_json['attr']
-          value = Document._resolve_refs(event_json['new'], old_references, new_references)
-          patched_obj.setv({ "#{attr}" : value })
+          model_type = event_json['model']['type']
+          if attr == 'data' and model_type == 'ColumnDataSource'
+            [data, shapes] = decode_column_data(event_json['new'])
+            for k, v of data
+                event_json['new'][k] = v
+            patched_obj.setv({ "_shapes": shapes, "#{attr}" : event_json['new']})
+          else
+            value = Document._resolve_refs(event_json['new'], old_references, new_references)
+            patched_obj.setv({ "#{attr}" : value })
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']
