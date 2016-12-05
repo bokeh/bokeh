@@ -206,7 +206,7 @@ export class GlyphView extends BokehView
       syname = "s#{yname}"
       xname = "_#{xname}"
       yname = "_#{yname}"
-      if _.isArray(@[xname]?[0])
+      if _.isArray(@[xname]?[0]) or @[xname]?[0].buffer instanceof ArrayBuffer
         [ @[sxname], @[syname] ] = [ [], [] ]
         for i in [0...@[xname].length]
           [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])
