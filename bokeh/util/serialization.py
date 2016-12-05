@@ -9,6 +9,7 @@ import base64
 from six import iterkeys
 
 from .dependencies import import_optional
+from ..settings import settings
 
 is_numpy = None
 
@@ -54,7 +55,19 @@ def transform_series(obj):
     return transform_array(vals)
 
 def flattened_and_shape(array):
-    if array.dtype.kind in ('U', 'S', 'O') or array.dtype.name == 'int64':
+    if isinstance(array, np.ma.MaskedArray):
+        array = array.filled(np.nan)  # Set masked values to nan
+    array_samples = np.product(array.shape)
+    if (not settings.use_binary_arrays() or
+        array_samples < settings.binary_array_cutoff() or
+        array.dtype.kind in ('U', 'S', 'O') or
+        array.dtype.name == 'int64'):
+        if np.isnan(array).any() or np.isinf(array).any():
+            transformed = array.astype('object')
+            transformed[np.isnan(array)] = 'NaN'
+            transformed[np.isposinf(array)] = 'Infinity'
+            transformed[np.isneginf(array)] = '-Infinity'
+            return transformed.tolist()
         return array.tolist()
     if not array.flags['C_CONTIGUOUS']:
         array = np.ascontiguousarray(array)
@@ -92,16 +105,7 @@ def transform_array(obj):
         else:
             return flattened_and_shape(obj.astype('datetime64[us]').astype('int64') / 1000.)
     elif obj.dtype.kind == 'm':
-        return flattened_and_shape(obj.astype('timedelta64[us]').astype('int64') / 1000.)
-    elif obj.dtype.kind in ('u', 'i', 'f'):
-        return transform_numerical_array(obj)
-    return flattened_and_shape(obj)
-
-def transform_numerical_array(obj):
-    """handles nans/inf conversion
-    """
-    if isinstance(obj, np.ma.MaskedArray):
-        obj = obj.filled(np.nan)  # Set masked values to nan
+        return flattened_and_shape(obj.astype('timedelta64[us]').astype('int64') / 1000)
     return flattened_and_shape(obj)
 
 def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
