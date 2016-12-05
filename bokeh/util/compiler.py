@@ -4,7 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
-import os
 import six
 import json
 import inspect
