@@ -6,7 +6,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.models.layouts import Row, WidgetBox
+from bokeh.models.layouts import Column, Row, WidgetBox
 from bokeh.models.widgets import (
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
@@ -19,6 +19,8 @@ from bokeh.models.widgets import (
     Paragraph, Div, PreText,
     Panel, Tabs,
 )
+from bokeh.plotting import figure
+from bokeh.sampledata.iris import flowers
 
 button = Button(label="Button (disabled) - still has click event", icon=Icon(icon_name="check"), button_type="primary", disabled=True)
 
@@ -62,10 +64,12 @@ div = Div(text="some <b>text</b>")
 
 pre_text = PreText(text="some text")
 
-tabs = Tabs(tabs=[
-    Panel(title="Tab 1", child=Button(label="Button 1")),
-    Panel(title="Tab 2", child=Button(label="Button 2")),
-])
+def mk_tab(color):
+    plot = figure(width=300, height=300)
+    plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
+    return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
+
+tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 
 widgets = Row(children=[
     WidgetBox(children=[
@@ -83,7 +87,7 @@ widgets = Row(children=[
     ]),
     WidgetBox(children=[
         tabs,
-    ]),
+    ], width=400),
 ])
 
 doc = Document()
