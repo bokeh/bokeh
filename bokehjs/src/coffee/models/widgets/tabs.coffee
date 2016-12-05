@@ -42,7 +42,6 @@ export class TabsView extends WidgetView
       $(panel).html(@child_views[child.id].$el)
 
     @$el.append(html)
-    @$el.tabs
     return @
 
 export class Tabs extends Widget
