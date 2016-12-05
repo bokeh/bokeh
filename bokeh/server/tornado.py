@@ -325,7 +325,7 @@ class BokehTornado(TornadoApplication):
         ''' Start the Bokeh Server application.
 
         Args:
-            start_loop (boolean): whether to start the IO loop
+            start_loop (boolean): whether to start the IO loop (default: True)
 
         Returns:
             None
