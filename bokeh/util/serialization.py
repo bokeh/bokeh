@@ -54,7 +54,20 @@ def transform_series(obj):
     vals = obj.values
     return transform_array(vals)
 
-def flattened_and_shape(array):
+def transform_array_to_list(array):
+    if np.isnan(array).any() or np.isinf(array).any():
+        transformed = array.astype('object')
+        transformed[np.isnan(array)] = 'NaN'
+        transformed[np.isposinf(array)] = 'Infinity'
+        transformed[np.isneginf(array)] = '-Infinity'
+        return transformed.tolist()
+    return array.tolist()
+
+def serialize_array(array):
+    """Transforms array into one of two serialization formats
+    either a list or a dictionary containing the base64
+    encoded data along with the shape and dtype of the data.
+    """
     if isinstance(array, np.ma.MaskedArray):
         array = array.filled(np.nan)  # Set masked values to nan
     array_samples = np.product(array.shape)
@@ -62,13 +75,7 @@ def flattened_and_shape(array):
         array_samples < settings.binary_array_cutoff() or
         array.dtype.kind in ('U', 'S', 'O') or
         array.dtype.name == 'int64'):
-        if np.isnan(array).any() or np.isinf(array).any():
-            transformed = array.astype('object')
-            transformed[np.isnan(array)] = 'NaN'
-            transformed[np.isposinf(array)] = 'Infinity'
-            transformed[np.isneginf(array)] = '-Infinity'
-            return transformed.tolist()
-        return array.tolist()
+        return transform_array_to_list(array)
     if not array.flags['C_CONTIGUOUS']:
         array = np.ascontiguousarray(array)
     return  {'data': base64.b64encode(array).decode('utf-8'),
@@ -76,9 +83,9 @@ def flattened_and_shape(array):
              'dtype': array.dtype.name}
 
 def transform_array(obj):
-    """Transform arrays into lists of json safe types
-    also handles pandas series, and replacing
-    nans and infs with strings
+    """Transform arrays to a serializeable format
+    Converts unserializeable dtypes and returns json serializeable
+    format
     """
     # Check for astype failures (putative Numpy < 1.7)
     try:
@@ -101,12 +108,14 @@ def transform_array(obj):
     if obj.dtype.kind == 'M':
         if legacy_datetime64:
             if obj.dtype == np.dtype('datetime64[ns]'):
-                return flattened_and_shape(obj.astype('int64') / 10**6.0)
+                array = obj.astype('int64') / 10**6.0
         else:
-            return flattened_and_shape(obj.astype('datetime64[us]').astype('int64') / 1000.)
+            array =  obj.astype('datetime64[us]').astype('int64') / 1000
     elif obj.dtype.kind == 'm':
-        return flattened_and_shape(obj.astype('timedelta64[us]').astype('int64') / 1000)
-    return flattened_and_shape(obj)
+        array = obj.astype('timedelta64[us]').astype('int64') / 1000
+    else:
+        array = obj
+    return serialize_array(array)
 
 def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
     """recursively dig until a flat list is found
