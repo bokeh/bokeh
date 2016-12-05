@@ -12,7 +12,6 @@ from concurrent.futures import ProcessPoolExecutor
 import os
 from pprint import pformat
 import signal
-import sys
 
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -323,10 +322,10 @@ class BokehTornado(TornadoApplication):
         return self._resources[root_url]
 
     def start(self, start_loop=True):
-        ''' Start the Bokeh Server application main loop.
+        ''' Start the Bokeh Server application.
 
         Args:
-            start_loop (boolean): False to not actually start event loop, used in tests
+            start_loop (boolean): whether to start the IO loop
 
         Returns:
             None

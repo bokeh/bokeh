@@ -149,14 +149,15 @@ class Server(object):
         ''' Start the Bokeh Server and its background tasks.
 
         Args:
-            start_loop (boolean, optional): whether to start the IO loop after
-               starting background tasks (default: True).
+            start_loop (boolean, optional): whether to start the Tornado
+                IO loop after starting background tasks (default: True).
 
         Returns:
             None
 
         Notes:
-            Keyboard interrupts or sigterm will cause the server to shut down.
+            If start_loop is true, Keyboard interrupts or sigterm will
+            cause the server to shut down.
 
         '''
         self._tornado.start(start_loop=start_loop)
@@ -167,6 +168,9 @@ class Server(object):
         Returns:
             None
 
+        Notes:
+            If start() was called with start_loop=True (the default),
+            this will also stop the Tornado IO loop.
         '''
         self._tornado.stop()
 

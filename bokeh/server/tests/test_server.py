@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from datetime import timedelta
 import pytest
 import logging
 import re
@@ -17,6 +18,7 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
+from bokeh.server.server import Server
 from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
@@ -528,3 +530,28 @@ def test__existing_ioloop_with_multiple_processes_exception():
     with pytest.raises(RuntimeError):
         with ManagedServerLoop(application, num_procs=3):
             pass
+
+
+def test__ioloop_not_forcibly_stopped():
+    # Issue #5494
+    application = Application()
+    loop = IOLoop()
+    loop.make_current()
+    server = Server(application, ioloop=loop)
+    server.start(start_loop=False)
+    result = []
+
+    def f():
+        server.unlisten()
+        server.stop()
+        # If server.stop() were to stop the Tornado IO loop,
+        # g() wouldn't be called and `result` would remain empty.
+        loop.add_timeout(timedelta(seconds=0.01), g)
+
+    def g():
+        result.append(None)
+        loop.stop()
+
+    loop.add_callback(f)
+    loop.start()
+    assert result == [None]
