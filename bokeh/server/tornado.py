@@ -445,7 +445,7 @@ class BokehTornado(TornadoApplication):
         signal.signal(signum, self._sigterm)
 
     _atexit_ran = False
-    def _atexit(self, from_signal=False):
+    def _atexit(self):
         if self._atexit_ran:
             return
         self._atexit_ran = True
