@@ -49,18 +49,14 @@ export class Tabs extends Widget
   type: "Tabs"
   default_view: TabsView
 
-  initialize: (options) ->
-    super(options)
-    @children = (tab.child for tab in @tabs)
-
   @define {
-      tabs:     [ p.Array,   [] ]
-      active:   [ p.Number,  0  ]
-      callback: [ p.Instance    ]
-    }
+    tabs:     [ p.Array,   [] ]
+    active:   [ p.Number,  0  ]
+    callback: [ p.Instance    ]
+  }
 
-  @internal {
-      children: [ p.Array,   [] ]
+  @getters {
+    children: () -> (tab.child for tab in @tabs)
   }
 
   get_layoutable_children: () ->
