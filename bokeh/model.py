@@ -1,3 +1,15 @@
+''' Provide a base class for all objects (called Bokeh Models) that go in
+Bokeh Documents.
+
+The :class:`~bokeh.document.Document` class is the basic unit of serialization
+for Bokeh visualizations and applications. Documents contain collections of
+related Bokeh Models (e.g. ``Plot``, ``Range1d``, etc. ) that can be all
+serialized together.
+
+The :class:`~bokeh.model.Model` class is a base class for all objects that
+can be added to a Document.
+
+'''
 from __future__ import absolute_import, print_function
 
 import logging
@@ -10,7 +22,7 @@ from operator import itemgetter
 from six import iteritems
 
 from .core.json_encoder import serialize_json
-from .core.properties import Any, HasProps, List, MetaHasProps, String
+from .core.properties import Any, Dict, HasProps, Instance, List, MetaHasProps, String
 from .core.query import find
 from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
@@ -19,13 +31,9 @@ from .util.serialization import make_id
 
 
 class Viewable(MetaHasProps):
-    """ Any plot object (Data Model) which has its own View Model in the
+    """ Any Bokeh Model which has its own View Model in the
     persistence layer.
 
-    One thing to keep in mind is that a Viewable should have a single
-    unique representation in the persistence layer, but it might have
-    multiple concurrent client-side Views looking at it.  Those may
-    be from different machines altogether.
     """
 
     # Stores a mapping from subclass __view_model__ names to classes
@@ -75,10 +83,60 @@ class Viewable(MetaHasProps):
             raise KeyError("View model name '%s' not found" % view_model_name)
 
 class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
-    """ Base class for all plot-related objects """
+    ''' Base class for all objects stored in Bokeh ``Document`` instances.
 
-    name = String()
-    tags = List(Any)
+    '''
+
+    name = String(help="""
+    An arbitrary, user-supplied name for this model.
+
+    This name can be useful when querying the document to retrieve specific
+    Bokeh models.
+
+    .. code:: python
+
+        >>> plot.circle([1,2,3], [4,5,6], name="temp")
+        >>> plot.select(name="temp")
+        [GlyphRenderer(id='399d53f5-73e9-44d9-9527-544b761c7705', ...)]
+
+    .. note::
+        No uniqueness guarantees or other conditions are enforced on any names
+        that are provided.
+
+    """)
+
+    tags = List(Any, help="""
+    An optional list of arbitrary, user-supplied values to attach to this
+    model.
+
+    This data can be useful when querying the document to retrieve specific
+    Bokeh models:
+
+    .. code:: python
+
+        >>> r = plot.circle([1,2,3], [4,5,6])
+        >>> r.tags = ["foo", 10]
+        >>> plot.select(tags=['foo', 10])
+        [GlyphRenderer(id='1de4c3df-a83d-480a-899b-fb263d3d5dd9', ...)]
+
+    Or simply a convenient way to attach any necessary metadata to a model
+    that can be accessed by CustomJS callbacks, etc.
+
+    """)
+
+    js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    A mapping of attribute names to lists of CustomJS callbacks, to be set up on
+    BokehJS side when the document is created.
+
+    Typically, rather then modifying this property directly, callbacks should be
+    added using the ``Model.js_on_change`` method:
+
+    .. code:: python
+
+        callback = CustomJS(code="console.log('stuff')")
+        plot.x_range.js_on_change('start', callback)
+
+    """)
 
     def __init__(self, **kwargs):
         self._id = kwargs.pop("id", make_id())
@@ -101,6 +159,48 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     @property
     def document(self):
         return self._document
+
+    def js_on_change(self, event, *callbacks):
+        ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
+
+        On the BokehJS side, change events for model properties have the
+        form ``"change:property_name"``. As a convenience, if the event name
+        passed to this method is also the name of a property on the model,
+        then it will be prefixed with ``"change:"`` automatically:
+
+        .. code:: python
+
+            # these two are equivalent
+            source.js_on_change('data', callback)
+            source.js_on_change('change:data', callback)
+
+        However, there are other kinds of events that can be useful to respond
+        to, in addition to property change events. For example to run a
+        callback whenever data is streamed to a ``ColumnDataSource``, use the
+        ``"stream"`` event on the source:
+
+        .. code:: python
+
+            source.js_on_change('stream', callback)
+
+        '''
+        if len(callbacks) == 0:
+            raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
+
+        # handle any CustomJS callbacks here
+        from bokeh.models.callbacks import CustomJS
+        if not all(isinstance(x, CustomJS) for x in callbacks):
+            raise ValueError("not all callback values are CustomJS instances")
+
+        if event in self.properties():
+            event = "change:%s" % event
+
+        if event not in self.js_callbacks:
+            self.js_callbacks[event] = []
+        for callback in callbacks:
+            if callback in self.js_callbacks[event]:
+                continue
+            self.js_callbacks[event].append(callback)
 
     def trigger(self, attr, old, new, hint=None):
         # The explicit assumption here is that hinted events do not
