@@ -65,7 +65,8 @@ class ColumnDataSource(DataSource):
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
-                 "ColumnDataSource's columns must be of the same length")
+                 "ColumnDataSource's columns must be of the same length",
+                 soft=True)
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.

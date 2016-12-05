@@ -52,6 +52,7 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
+import warnings
 import collections
 from copy import copy
 import datetime
@@ -277,14 +278,20 @@ class PropertyDescriptor(PropertyFactory):
         if isinstance(obj_or_cls, HasProps):
             obj = obj_or_cls
 
-            for fn, msg in self.assertions:
+            for fn, msg, soft in self.assertions:
                 result = fn(obj, value)
+
+                def bring_to_attention(msg):
+                    if soft:
+                        warnings.warn(msg)
+                    else:
+                        raise ValueError(msg)
 
                 if isinstance(result, bool):
                     if not result:
-                        raise ValueError(msg)
+                        bring_to_attention(msg)
                 elif result is not None:
-                    raise ValueError(msg % result)
+                    bring_to_attention(msg % result)
 
         return self._wrap_container(value)
 
@@ -297,8 +304,8 @@ class PropertyDescriptor(PropertyFactory):
         self.alternatives.append((tp, converter))
         return self
 
-    def asserts(self, fn, msg):
-        self.assertions.append((fn, msg))
+    def asserts(self, fn, msg, soft=False):
+        self.assertions.append((fn, msg, soft))
         return self
 
     def __or__(self, other):
