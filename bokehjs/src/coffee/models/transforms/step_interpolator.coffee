@@ -1,10 +1,9 @@
-_ = require "underscore"
-Transform = require "./transform"
-Interpolator = require "./interpolator"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import {Interpolator} from "./interpolator"
+import * as p from "../../core/properties"
 
 
-class StepInterpolator extends Interpolator.Model
+export class StepInterpolator extends Interpolator
 
   @define {
     mode: [ p.TransformStepMode, "after"]
@@ -24,17 +23,17 @@ class StepInterpolator extends Interpolator.Model
         return @_y_sorted[@_y_sorted.length-1]
 
     ind = -1
-    if @get('mode') == "after"
+    if @mode == "after"
       ind = _.findLastIndex(@_x_sorted, (num) ->
         return x >= num
       )
 
-    if @get('mode') == "before"
+    if @mode == "before"
       ind = _.findIndex(@_x_sorted, (num) ->
         return x <= num
       )
 
-    if @get('mode') == "center"
+    if @mode == "center"
       diffs = (Math.abs(tx - x) for tx in @_x_sorted)
       mdiff = _.min(diffs)
       ind = _.findIndex(diffs, (num) ->
@@ -54,6 +53,3 @@ class StepInterpolator extends Interpolator.Model
     for x, idx in xs
       result[idx] = this.compute(x)
     return result
-
-module.exports =
-  Model: StepInterpolator

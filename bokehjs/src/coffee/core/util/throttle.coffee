@@ -16,7 +16,7 @@ delay_animation = window?.requestAnimationFrame ||
 # @param wait [number] time in milliseconds to use for window
 # @return [function] throttled function
 #
-throttle = (func, wait) ->
+export throttle = (func, wait) ->
   [context , args, timeout, result] = [null, null, null, null]
   previous = 0
   pending = false
@@ -38,6 +38,3 @@ throttle = (func, wait) ->
     else if (!timeout and !pending)
       timeout = setTimeout((-> delay_animation(later)), remaining)
     return result
-
-module.exports =
-  throttle: throttle

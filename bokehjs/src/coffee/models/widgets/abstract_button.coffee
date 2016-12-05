@@ -1,11 +1,11 @@
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-build_views = require "../../common/build_views"
-Widget = require "./widget"
-template = require "./button_template"
+import {build_views} from "../../core/build_views"
+import {Widget, WidgetView} from "./widget"
+import template from "./button_template"
 
 
-class AbstractButtonView extends Widget.View
+export class AbstractButtonView extends WidgetView
   events:
     "click": "change_input"
   template: template
@@ -42,7 +42,7 @@ class AbstractButtonView extends Widget.View
     @model.callback?.execute(@model)
 
 
-class AbstractButton extends Widget.Model
+export class AbstractButton extends Widget
   type: "AbstractButton"
   default_view: AbstractButtonView
 
@@ -52,8 +52,3 @@ class AbstractButton extends Widget.Model
     icon:        [ p.Instance          ]
     button_type: [ p.String, "default" ] # TODO (bev)
   }
-
-
-module.exports =
-  Model: AbstractButton
-  View: AbstractButtonView

@@ -3,7 +3,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
 
 describe "column_data_source module", ->
 
@@ -11,7 +11,7 @@ describe "column_data_source module", ->
     r = new ColumnDataSource()
 
     it "should have empty data", ->
-      expect(r.get("data")).to.be.deep.equal {}
+      expect(r.data).to.be.deep.equal {}
 
     it "should have empty columns", ->
       expect(r.columns()).to.be.deep.equal []
@@ -23,7 +23,7 @@ describe "column_data_source module", ->
     r = new ColumnDataSource({data: {foo: []}})
 
     it "should return supplied data", ->
-      expect(r.get("data")).to.be.deep.equal {foo: []}
+      expect(r.data).to.be.deep.equal {foo: []}
 
     it "should return one column", ->
       expect(r.columns()).to.be.deep.equal ["foo"]
@@ -32,7 +32,7 @@ describe "column_data_source module", ->
     r = new ColumnDataSource({data: {foo: [], bar:[]}})
 
     it "should return supplied data", ->
-      expect(r.get("data")).to.be.deep.equal {foo: [], bar: []}
+      expect(r.data).to.be.deep.equal {foo: [], bar: []}
 
     it "should return all columns", ->
       expect((r.columns()).sort()).to.be.deep.equal ["bar", "foo"]

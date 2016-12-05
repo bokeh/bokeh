@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class RayView extends Glyph.View
+export class RayView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -14,8 +14,8 @@ class RayView extends Glyph.View
   _render: (ctx, indices, {sx, sy, slength, _angle}) ->
     if @visuals.line.doit
 
-      width = @renderer.plot_view.frame.get('width')
-      height = @renderer.plot_view.frame.get('height')
+      width = @renderer.plot_view.frame.width
+      height = @renderer.plot_view.frame.height
       inf_len = 2 * (width + height)
       for i in [0...slength.length]
         if slength[i] == 0
@@ -38,10 +38,10 @@ class RayView extends Glyph.View
         ctx.rotate(-_angle[i])
         ctx.translate(-sx[i], -sy[i])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Ray extends Glyph.Model
+export class Ray extends Glyph
   default_view: RayView
 
   type: 'Ray'
@@ -52,7 +52,3 @@ class Ray extends Glyph.Model
       length: [ p.DistanceSpec ]
       angle:  [ p.AngleSpec    ]
     }
-
-module.exports =
-  Model: Ray
-  View: RayView

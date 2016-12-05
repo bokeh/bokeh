@@ -89,6 +89,13 @@ class Settings(object):
         '''
         return self._get_str("DOCS_VERSION", default)
 
+    def docs_missing_api_key_ok(self, default=False):
+        ''' Control whether a missing google API key should cause the
+        docs build to fail immediately.
+
+        '''
+        return self._get_str("DOCS_MISSING_API_KEY_OK", default)
+
     def minified(self, default=None):
         ''' Set whether Bokeh should use minified BokehJS resources.
 
@@ -168,7 +175,7 @@ class Settings(object):
         Bokeh source tree.
 
         '''
-        if self.debugjs:
+        if self._is_dev or self.debugjs:
             bokehjssrcdir = abspath(join(ROOT_DIR, '..', 'bokehjs', 'src'))
 
             if isdir(bokehjssrcdir):
@@ -180,7 +187,7 @@ class Settings(object):
         '''
 
         '''
-        return bokehjsdir(self.debugjs)
+        return bokehjsdir(self._is_dev or self.debugjs)
 
     def js_files(self):
         ''' The JS files in the BokehJS directory.
@@ -206,14 +213,18 @@ class Settings(object):
                     js_files.append(join(root, fname))
         return js_files
 
+    def nodejs_path(self, default=None):
+        return self._get_str("NODEJS_PATH", default)
 
 #: A global settings object that other parts of Bokeh can refer to.
 #:
-#: ``BOKEH_BROWSER`` --- What browser to use when opening plots
+#: ``BOKEH_BROWSER`` --- What browser to use when opening plots.
+#:
 #:   Valid values are any of the browser names understood by the python
 #:   standard library webbrowser_ module.
 #:
-#: ``BOKEH_DEV`` --- Whether to use development mode
+#: ``BOKEH_DEV`` --- Whether to use development mode.
+#:
 #:   This uses absolute paths to development (non-minified) BokehJS components,
 #:   sets logging to ``debug``, makes generated HTML and JSON human-readable,
 #:   etc.
@@ -233,10 +244,9 @@ class Settings(object):
 #: ``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx
 #:   `~bokeh.resources.Resources` class reference for full details.
 #:
-#: ``BOKEH_SIMPLE_IDS`` --- Whether to generate human-friendly object IDs
-#:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-#:   Normally Bokeh generates UUIDs for object identifiers. Setting this variable
-#:   to an affirmative value will re  docs locally.
+#: ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx docs locally.
+#:
+#:   Useful for re-deployment purposes.
 #:
 #:   Set to ``"local"`` to use a locally built dev version of BokehJS.
 #:
@@ -244,23 +254,25 @@ class Settings(object):
 #:       This variable is only used when building documentation from the
 #:       development version.
 #:
-#: ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx
-#:   docs locally. Useful for re-deployment purposes.
+#: ``BOKEH_DOCS_CSS_SERVER`` --- Where to get the CSS stylesheet from.
+#:
+#:   By default use CSS from bokehplots.com
+#:
+#:   .. note::
+#:       This variable is only used when building documentation from the
+#:       development version.
 #:
 #:   Set to ``"local"`` to use a locally built dev version of BokehJS.
 #:
-#:   .. note::
-#:       This variable is only used when building documentation from the
-#:       development version.
+#: ``BOKEH_DOCS_MISSING_API_KEY_OK`` --- Whether the docs build should fail without GOOGLE_API_KEY set.
 #:
-#: ``BOKEH_DOCS_CSS_SERVER`` --- Where to get the css stylesheet from, by
-#:   default this will be bokehplots.com
+#:   By default, set to `no`, which means the docs build will stop immediately
+#:   if the GOOGLE_API_KEY  environment variable is missing. Set to `yes` to
+#:   enable docs builds to proceed (but with non-functional Google Maps examples).
+#:   Useful for development.
 #:
-#:   .. note::
-#:       This variable is only used when building documentation from the
-#:       development version.
+#: ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use.
 #:
-#: ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use
 #:   Valid values are, in order of increasing severity:
 #:
 #:   - ``trace``
@@ -276,13 +288,16 @@ class Settings(object):
 #:       When running server examples, it is the value of this
 #:       ``BOKEH_LOG_LEVEL`` that is set for the server that matters.
 #:
-#: ``BOKEH_MINIFIED`` --- Whether to emit minified JavaScript for ``bokeh.js``
+#: ``BOKEH_MINIFIED`` --- Whether to emit minified JavaScript for ``bokeh.js``.
+#:
 #:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 #:
-#: ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON
+#: ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON.
+#:
 #:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 #:
-#: ``BOKEH_PY_LOG_LEVEL`` --- The Python logging level to set
+#: ``BOKEH_PY_LOG_LEVEL`` --- The Python logging level to set.
+#:
 #:   As in the JS side, valid values are, in order of increasing severity:
 #:
 #:   - ``debug``
@@ -294,21 +309,25 @@ class Settings(object):
 #:
 #:   The default logging level is ``none``.
 #:
-#: ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
+#: ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure.
+#:
 #:   For example:  ``inline``, ``cdn``, ``server``. See the
 #:   :class:`~bokeh.core.resources.Resources` class reference for full details.
 #:
-#: ``BOKEH_ROOTDIR`` --- Root directory to use with ``relative`` resources
+#: ``BOKEH_ROOTDIR`` --- Root directory to use with ``relative`` resources.
+#:
 #:   See the :class:`~bokeh.resources.Resources` class reference for full
 #:   details.
 #:
-#: ``BOKEH_SIMPLE_IDS`` --- Whether to generate human-friendly object IDs
+#: ``BOKEH_SIMPLE_IDS`` --- Whether to generate human-friendly object IDs.
+#:
 #:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 #:   Normally Bokeh generates UUIDs for object identifiers. Setting this variable
 #:   to an affirmative value will result in more friendly simple numeric IDs
 #:   counting up from 1000.
 #:
-#: ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
+#: ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources.
+#:
 #:   See the :class:`~bokeh.resources.Resources` class reference for full details.
 #:
 #: .. _webbrowser: https://docs.python.org/2/library/webbrowser.html

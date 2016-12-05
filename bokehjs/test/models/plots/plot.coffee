@@ -5,13 +5,13 @@ sinon = require 'sinon'
 
 {Document} = utils.require("document")
 
-DataRange1d = utils.require("models/ranges/data_range1d").Model
-Range1d = utils.require("models/ranges/range1d").Model
-PlotCanvas = utils.require("models/plots/plot_canvas").Model
-Plot = utils.require("models/plots/plot").Model
-PlotView = utils.require("models/plots/plot").View
-Toolbar = utils.require("models/tools/toolbar").Model
-
+{CustomJS} = utils.require("models/callbacks/customjs")
+{DataRange1d} = utils.require("models/ranges/data_range1d")
+{Range1d} = utils.require("models/ranges/range1d")
+{PlotCanvas} = utils.require("models/plots/plot_canvas")
+{Plot} = utils.require("models/plots/plot")
+{PlotView} = utils.require("models/plots/plot")
+{Toolbar} = utils.require("models/tools/toolbar")
 
 describe "Plot", ->
   beforeEach ->
@@ -20,7 +20,7 @@ describe "Plot", ->
     toolbar = new Toolbar()
     @p = new Plot({x_range: @x_range, y_range: @y_range, toolbar: toolbar, title: null})
 
-  describe "Plot.View", ->
+  describe "PlotView", ->
 
     afterEach ->
       utils.unstub_canvas()
@@ -128,7 +128,7 @@ describe "Plot", ->
       # TODO(bird) Write this test.
       null
 
-  describe "Plot.Model", ->
+  describe "Plot", ->
 
     afterEach ->
       utils.unstub_canvas()
@@ -150,6 +150,16 @@ describe "Plot", ->
       doc = new Document()
       @p.attach_document(doc)
       expect(@p.plot_canvas.document).to.be.equal doc
+
+    it "should not execute range callbacks on initialization", ->
+      cb = new CustomJS()
+      spy = sinon.spy(cb, 'execute')
+
+      plot = new Plot({
+         x_range: new Range1d({callback: cb})
+         y_range: new Range1d({callback: cb})
+      })
+      expect(spy.called).to.be.false
 
     describe "get_constrained_variables", ->
 

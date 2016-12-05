@@ -1,8 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SingleIntervalTicker = require "./single_interval_ticker"
-util = require "./util"
-p = require "../../core/properties"
+import {SingleIntervalTicker} from "./single_interval_ticker"
+import * as util from "./util"
+import * as p from "../../core/properties"
 
 copy_date = util.copy_date
 last_year_no_later_than = util.last_year_no_later_than
@@ -30,7 +30,7 @@ date_range_by_year = (start_time, end_time) ->
 # A MonthsTicker produces ticks from a fixed subset of months of the year.
 # E.g., MonthsTicker([0, 3, 6, 9]) produces ticks of the 1st of January,
 # April, July, and October of each year.
-class MonthsTicker extends SingleIntervalTicker.Model
+export class MonthsTicker extends SingleIntervalTicker
   type: 'MonthsTicker'
 
   @define {
@@ -39,17 +39,17 @@ class MonthsTicker extends SingleIntervalTicker.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    months = @get('months')
+    months = @months
     interval = if months.length > 1
         (months[1] - months[0]) * ONE_MONTH
       else
         12 * ONE_MONTH
-    @set('interval', interval)
+    @interval = interval
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
     year_dates = date_range_by_year(data_low, data_high)
 
-    months = @get('months')
+    months = @months
     months_of_year = (year_date) ->
       return months.map((month) ->
         month_date = copy_date(year_date)
@@ -66,6 +66,3 @@ class MonthsTicker extends SingleIntervalTicker.Model
       "major": ticks_in_range,
       "minor": []
     }
-
-module.exports =
-  Model: MonthsTicker

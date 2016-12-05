@@ -1,22 +1,9 @@
-_ = require "underscore"
-HasProps = require "./core/has_props"
-p = require "./core/properties"
+import * as _ from "underscore"
+import {HasProps} from "./core/has_props"
+import * as p from "./core/properties"
 
-class Model extends HasProps
+export class Model extends HasProps
   type: "Model"
-
-  _coords: []
-
-  @coords: (coords) ->
-    _coords = this.prototype._coords.concat(coords)
-    this.prototype._coords = _coords
-
-    result = {}
-    for [x, y] in coords
-      result[x] = [ p.NumberSpec ]
-      result[y] = [ p.NumberSpec ]
-
-    @define(result)
 
   @define {
     tags: [ p.Array, [] ]
@@ -40,6 +27,3 @@ class Model extends HasProps
         result[0]
       else
         throw new Error("found more than one object matching given selector")
-
-
-module.exports = Model

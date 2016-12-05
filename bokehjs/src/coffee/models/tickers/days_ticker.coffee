@@ -1,8 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SingleIntervalTicker = require "./single_interval_ticker"
-util = require "./util"
-p = require "../../core/properties"
+import {SingleIntervalTicker} from "./single_interval_ticker"
+import * as util from "./util"
+import * as p from "../../core/properties"
 
 copy_date = util.copy_date
 last_month_no_later_than = util.last_month_no_later_than
@@ -34,7 +34,7 @@ date_range_by_month = (start_time, end_time) ->
 # A DaysTicker produces ticks from a fixed subset of calendar days.
 # E.g., DaysTicker([1, 15]) produces ticks on the 1st and 15th days of each
 # month.
-class DaysTicker extends SingleIntervalTicker.Model
+export class DaysTicker extends SingleIntervalTicker
   type: 'DaysTicker'
 
   @define {
@@ -44,23 +44,23 @@ class DaysTicker extends SingleIntervalTicker.Model
   initialize: (attrs, options) ->
     attrs.num_minor_ticks = 0
     super(attrs, options)
-    days = @get('days')
+    days = @days
     interval = if days.length > 1
         (days[1] - days[0]) * ONE_DAY
       else
         31 * ONE_DAY
-    @set('interval', interval)
+    @interval = interval
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
     month_dates = date_range_by_month(data_low, data_high)
 
-    days = @get('days')
+    days = @days
     days_of_month = (month_date, interval) =>
       dates = []
       for day in days
         day_date = copy_date(month_date)
         day_date.setUTCDate(day)
-        # We can't use all of the values in @get('days'), because they may not
+        # We can't use all of the values in @days, because they may not
         # fall within the current month.  In fact, if, e.g., our month is 28 days
         # and we're marking every third day, we don't want day 28 to show up
         # because it'll be right next to the 1st of the next month.  So we
@@ -70,7 +70,7 @@ class DaysTicker extends SingleIntervalTicker.Model
           dates.push(day_date)
       return dates
 
-    interval = @get('interval')
+    interval = @interval
     day_dates = _.flatten(days_of_month(date, interval) for date in month_dates)
 
     all_ticks = _.invoke(day_dates, 'getTime')
@@ -82,6 +82,3 @@ class DaysTicker extends SingleIntervalTicker.Model
       "major": ticks_in_range,
       "minor": []
     }
-
-module.exports =
-  Model: DaysTicker

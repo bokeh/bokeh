@@ -1,21 +1,21 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-BasicTicker = require "../tickers/basic_ticker"
-BasicTickFormatter = require "../formatters/basic_tick_formatter"
-LinearColorMapper = require "../mappers/linear_color_mapper"
-LinearMapper = require "../mappers/linear_mapper"
-LogMapper = require "../mappers/log_mapper"
-Range1d = require "../ranges/range1d"
+import {Annotation, AnnotationView} from "./annotation"
+import {BasicTicker} from "../tickers/basic_ticker"
+import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
+import {LinearColorMapper} from "../mappers/linear_color_mapper"
+import {LinearMapper} from "../mappers/linear_mapper"
+import {LogMapper} from "../mappers/log_mapper"
+import {Range1d} from "../ranges/range1d"
 
-p = require "../../core/properties"
-text_util = require "../../core/util/text"
+import * as p from "../../core/properties"
+import * as text_util from "../../core/util/text"
 
 SHORT_DIM = 25
 LONG_DIM_MIN_SCALAR = 0.3
 LONG_DIM_MAX_SCALAR = 0.8
 
-class ColorBarView extends Annotation.View
+export class ColorBarView extends AnnotationView
   initialize: (options) ->
     super(options)
     @_set_canvas_image()
@@ -61,7 +61,7 @@ class ColorBarView extends Annotation.View
     # We always want to draw the entire palette linearly, so we create a new
     # LinearColorMapper instance and map a monotonic range of values with
     # length = palette.length to get each palette color in order.
-    cmap = new LinearColorMapper.Model({palette: palette})
+    cmap = new LinearColorMapper({palette: palette})
     buf = cmap.v_map_screen([0...palette.length])
     buf8 = new Uint8ClampedArray(buf)
     image_data.data.set(buf8)
@@ -94,38 +94,38 @@ class ColorBarView extends Annotation.View
 
     legend_margin = @model.margin
     location = @model.location
-    h_range = @plot_view.frame.get('h_range')
-    v_range = @plot_view.frame.get('v_range')
+    h_range = @plot_view.frame.h_range
+    v_range = @plot_view.frame.v_range
 
     if _.isString(location)
       switch location
         when 'top_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('end') - legend_margin
+          x = h_range.start + legend_margin
+          y = v_range.end - legend_margin
         when 'top_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('end') - legend_margin
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.end - legend_margin
         when 'top_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('end') - legend_margin
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.end - legend_margin
         when 'right_center'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.end - legend_margin - legend_width
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
-          x = h_range.get('end') - legend_margin - legend_width
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.end - legend_margin - legend_width
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = v_range.get('start') + legend_margin + legend_height
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = v_range.start + legend_margin + legend_height
         when 'bottom_left'
-          x = h_range.get('start') + legend_margin
-          y = v_range.get('start') + legend_margin + legend_height
+          x = h_range.start + legend_margin
+          y = v_range.start + legend_margin + legend_height
         when 'left_center'
-          x = h_range.get('start') + legend_margin
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = h_range.start + legend_margin
+          y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'
-          x = (h_range.get('end') + h_range.get('start'))/2 - legend_width/2
-          y = (v_range.get('end') + v_range.get('start'))/2 + legend_height/2
+          x = (h_range.end + h_range.start)/2 - legend_width/2
+          y = (v_range.end + v_range.start)/2 + legend_height/2
     else if _.isArray(location) and location.length == 2
       [x, y] = location
 
@@ -244,7 +244,7 @@ class ColorBarView extends Annotation.View
     [sx, sy] = @model._tick_coordinates().major
 
     labels = @model._tick_coordinates().major_labels
-    formatted_labels = @mget('formatter').doFormat(labels)
+    formatted_labels = @model.formatter.doFormat(labels)
 
     @visuals.major_label_text.set_value(ctx)
 
@@ -291,8 +291,8 @@ class ColorBarView extends Annotation.View
     frame = @plot_view.frame
 
     switch panel.side
-      when "left", "right" then yoff = Math.abs(panel.get("top") - frame.get("top"))
-      when "above", "below" then xoff = Math.abs(frame.get("left"))
+      when "left", "right" then yoff = Math.abs(panel.top - frame.top)
+      when "above", "below" then xoff = Math.abs(frame.left)
 
     return {x: xoff, y: yoff}
 
@@ -302,7 +302,7 @@ class ColorBarView extends Annotation.View
     y = @model.padding + @model._title_extent()
     return {x: x, y: y}
 
-class ColorBar extends Annotation.Model
+export class ColorBar extends Annotation
   default_view: ColorBarView
   type: 'ColorBar'
 
@@ -324,8 +324,8 @@ class ColorBar extends Annotation.Model
       height:  [ p.Any,            'auto'      ]
       width:   [ p.Any,            'auto'      ]
       scale_alpha:    [ p.Number,         1.0         ]
-      ticker:         [ p.Instance,    () -> new BasicTicker.Model()         ]
-      formatter:      [ p.Instance,    () -> new BasicTickFormatter.Model()  ]
+      ticker:         [ p.Instance,    () -> new BasicTicker()         ]
+      formatter:      [ p.Instance,    () -> new BasicTickFormatter()  ]
       color_mapper:   [ p.Instance                    ]
       label_standoff: [ p.Number,         5           ]
       margin:  [ p.Number,         30          ]
@@ -397,8 +397,8 @@ class ColorBar extends Annotation.Model
       * The parallel frame dimension * 0.80
     ###
 
-    frame_height = @plot.plot_canvas.frame.get('height')
-    frame_width = @plot.plot_canvas.frame.get('width')
+    frame_height = @plot.plot_canvas.frame.height
+    frame_width = @plot.plot_canvas.frame.width
     title_extent = @_title_extent()
 
     switch @orientation
@@ -444,18 +444,18 @@ class ColorBar extends Annotation.Model
     ###
 
     mapping = {
-      'source_range': new Range1d.Model({
+      'source_range': new Range1d({
         start: @color_mapper.low
         end: @color_mapper.high
       })
-      'target_range': new Range1d.Model({
+      'target_range': new Range1d({
         start: 0
         end: scale_length})
     }
 
     switch @color_mapper.type
-      when "LinearColorMapper" then mapper = new LinearMapper.Model(mapping)
-      when "LogColorMapper" then mapper = new LogMapper.Model(mapping)
+      when "LinearColorMapper" then mapper = new LinearMapper(mapping)
+      when "LogColorMapper" then mapper = new LogMapper(mapping)
 
     return mapper
 
@@ -497,15 +497,11 @@ class ColorBar extends Annotation.Model
 
     # Because we want the scale to be reversed
     if @orientation == 'vertical'
-      major_coords[i] = major_coords[i].map((coord) -> return scale_length - coord)
-      minor_coords[i] = minor_coords[i].map((coord) -> return scale_length - coord)
+      major_coords[i] = new Float64Array((scale_length - coord for coord in major_coords[i]))
+      minor_coords[i] = new Float64Array((scale_length - coord for coord in minor_coords[i]))
 
     return {
       "major": major_coords
       "minor": minor_coords
       "major_labels": major_labels
     }
-
-module.exports =
-  Model: ColorBar
-  View: ColorBarView

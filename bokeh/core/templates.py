@@ -2,6 +2,7 @@
 Bokeh models (e.g. plots, widgets, layouts) in various ways.
 
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_JS
+.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_NB_JS
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_TAG
 .. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.DOC_JS

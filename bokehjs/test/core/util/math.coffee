@@ -35,3 +35,17 @@ describe "math module", ->
     expect(math.atan2([0,0],[1,0])).to.be.closeTo(0, 0.0000001) # horizontal right
     expect(math.atan2([0,0],[-1,0])).to.be.closeTo(Math.PI, 0.0000001) # horizontal left
     expect(math.atan2([1,1],[2,2])).to.be.closeTo(Math.PI/4, 0.0000001)
+
+  it "should clamp between min and max values", ->
+    expect(math.clamp(0, -1, 1)).to.be.equal(0)
+    expect(math.clamp(1, -1, 1)).to.be.equal(1)
+    expect(math.clamp(2, -1, 1)).to.be.equal(1)
+    expect(math.clamp(-1, -1, 1)).to.be.equal(-1)
+    expect(math.clamp(-2, -1, 1)).to.be.equal(-1)
+
+    expect(math.clamp(0, 1, 2)).to.be.equal(1)
+    expect(math.clamp(1, 1, 2)).to.be.equal(1)
+    expect(math.clamp(-1, 1, 2)).to.be.equal(1)
+    expect(math.clamp(1.5, 1, 2)).to.be.equal(1.5)
+    expect(math.clamp(2, 1, 2)).to.be.equal(2)
+    expect(math.clamp(3, 1, 2)).to.be.equal(2)

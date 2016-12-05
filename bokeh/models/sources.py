@@ -4,7 +4,7 @@ from ..core.properties import abstract
 from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
 from ..util.dependencies import import_optional
-from ..util.deprecate import deprecated
+from ..util.deprecation import deprecated
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
 
@@ -192,7 +192,6 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
     def push_notebook(self):
         """ Update a data source for a plot in a Jupyter notebook.
 
@@ -209,6 +208,7 @@ class ColumnDataSource(DataSource):
             None
 
         """
+        deprecated((0, 11, 0), 'ColumnDataSource.push_notebook()', 'bokeh.io.push_notebook()')
         from bokeh.io import push_notebook
         push_notebook()
 

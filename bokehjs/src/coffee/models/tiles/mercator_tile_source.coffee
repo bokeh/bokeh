@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-TileSource = require "./tile_source"
-p = require "../../core/properties"
+import {TileSource} from "./tile_source"
+import * as p from "../../core/properties"
 
-class MercatorTileSource extends TileSource
+export class MercatorTileSource extends TileSource
   type: 'MercatorTileSource'
 
   @define {
@@ -21,16 +21,16 @@ class MercatorTileSource extends TileSource
     @_resolutions = (@get_resolution(z) for z in [0..30])
 
   _computed_initial_resolution: () ->
-    if @get('initial_resolution')?
-      @get('initial_resolution')
+    if @initial_resolution?
+      @initial_resolution
     else
       # TODO testing 2015-11-17, if this codepath is used it seems
       # to use 100% cpu and wedge Chrome
-      2 * Math.PI * 6378137 / @get('tile_size')
+      2 * Math.PI * 6378137 / @tile_size
 
   is_valid_tile: (x, y, z) ->
 
-    if not @get('wrap_around')
+    if not @wrap_around
       if x < 0 or x >= Math.pow(2, z)
         return false
 
@@ -134,24 +134,24 @@ class MercatorTileSource extends TileSource
 
   pixels_to_meters: (px, py, level) ->
     res = @get_resolution(level)
-    mx = px * res - @get('x_origin_offset')
-    my = py * res - @get('y_origin_offset')
+    mx = px * res - @x_origin_offset
+    my = py * res - @y_origin_offset
     return [mx, my]
 
   meters_to_pixels: (mx, my, level) ->
     res = @get_resolution(level)
-    px = (mx + @get('x_origin_offset')) / res
-    py = (my + @get('y_origin_offset')) / res
+    px = (mx + @x_origin_offset) / res
+    py = (my + @y_origin_offset) / res
     return [px, py]
 
   pixels_to_tile: (px, py) ->
-    tx = Math.ceil(px / parseFloat(@get('tile_size')))
+    tx = Math.ceil(px / parseFloat(@tile_size))
     tx = if tx == 0 then tx else tx - 1
-    ty = Math.max(Math.ceil(py / parseFloat(@get('tile_size'))) - 1, 0)
+    ty = Math.max(Math.ceil(py / parseFloat(@tile_size)) - 1, 0)
     return [tx, ty]
 
   pixels_to_raster: (px, py, level) ->
-    mapSize = @get('tile_size') << level
+    mapSize = @tile_size << level
     return [px, mapSize - py]
 
   meters_to_tile: (mx, my, level) ->
@@ -160,8 +160,8 @@ class MercatorTileSource extends TileSource
 
   get_tile_meter_bounds: (tx, ty, level) ->
     # expects tms styles coordinates (bottom-left origin)
-    [xmin, ymin] = @pixels_to_meters(tx * @get('tile_size'), ty * @get('tile_size'), level)
-    [xmax, ymax] = @pixels_to_meters((tx + 1) * @get('tile_size'), (ty + 1) * @get('tile_size'), level)
+    [xmin, ymin] = @pixels_to_meters(tx * @tile_size, ty * @tile_size, level)
+    [xmax, ymax] = @pixels_to_meters((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
 
     if xmin? and ymin? and xmax? and ymax?
       return [xmin, ymin, xmax, ymax]
@@ -206,21 +206,18 @@ class MercatorTileSource extends TileSource
       value = quadKey.charAt(tileZ - i)
       mask = 1 << (i - 1)
 
-      if value == '0'
-        continue
-
-      else if value == '1'
-        tileX |= mask
-
-      else if value == '2'
-        tileY |= mask
-
-      else if value == '3'
-        tileX |= mask
-        tileY |= mask
-
-      else
-        throw new TypeError("Invalid Quadkey: " + quadKey)
+      switch value
+        when '0'
+          continue
+        when '1'
+          tileX |= mask
+        when '2'
+          tileY |= mask
+        when '3'
+          tileX |= mask
+          tileY |= mask
+        else
+          throw new TypeError("Invalid Quadkey: " + quadKey)
 
     return [tileX, tileY, tileZ]
 
@@ -268,7 +265,7 @@ class MercatorTileSource extends TileSource
     return [0, 0, 0]
 
   normalize_xyz: (x, y, z) ->
-    if @get('wrap_around')
+    if @wrap_around
       tile_count = Math.pow(2, z)
       return [((x % tile_count) + tile_count) % tile_count, y, z]
     else
@@ -282,5 +279,3 @@ class MercatorTileSource extends TileSource
 
   calculate_world_x_by_tile_xyz: (x, y, z) ->
     return Math.floor(x / Math.pow(2, z))
-
-module.exports = MercatorTileSource

@@ -1,5 +1,5 @@
 Create an interactive query and visualization dashboard for a set of 
-IBMD movie data. Inspired by the [Shiny Movie Explorer](http://shiny.rstudio.com/gallery/movie-explorer.html).
+IMDB movie data. Inspired by the [Shiny Movie Explorer](http://shiny.rstudio.com/gallery/movie-explorer.html).
 
 #### Setting Up
 

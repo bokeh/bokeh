@@ -4,15 +4,15 @@ sinon = require 'sinon'
 
 {Document} = utils.require("document")
 
-LayoutDOM = utils.require("models/layouts/layout_dom").Model
-DataRange1d = utils.require("models/ranges/data_range1d").Model
-Panel = utils.require("models/widgets/panel").Model
-Plot = utils.require("models/plots/plot").Model
-Tabs = utils.require("models/widgets/tabs").Model
-Toolbar = utils.require("models/tools/toolbar").Model
-Widget = utils.require("models/widgets/widget").Model
+{LayoutDOM} = utils.require("models/layouts/layout_dom")
+{DataRange1d} = utils.require("models/ranges/data_range1d")
+{Panel} = utils.require("models/widgets/panel")
+{Plot} = utils.require("models/plots/plot")
+{Tabs} = utils.require("models/widgets/tabs")
+{Toolbar} = utils.require("models/tools/toolbar")
+{Widget} = utils.require("models/widgets/widget")
 
-describe "Tabs.Model", ->
+describe "Tabs", ->
 
   afterEach ->
     utils.unstub_solver()

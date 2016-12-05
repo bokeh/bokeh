@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-LayoutDOM = require "./layout_dom"
+import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
 
-class SpacerView extends LayoutDOM.View
+export class SpacerView extends LayoutDOMView
   className: "bk-spacer-box"
 
   render: () ->
@@ -19,7 +19,7 @@ class SpacerView extends LayoutDOM.View
     return 1
 
 
-class Spacer extends LayoutDOM.Model
+export class Spacer extends LayoutDOM
   type: 'Spacer'
   default_view: SpacerView
 
@@ -42,6 +42,3 @@ class Spacer extends LayoutDOM.Model
       'box-equal-size-right' : @_width_minus_right
     })
     return constrained_variables
-
-module.exports =
-  Model: Spacer

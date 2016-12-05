@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-p = require "../../../core/properties"
+import {SelectTool, SelectToolView} from "./select_tool"
+import * as p from "../../../core/properties"
 
-class TapToolView extends SelectTool.View
+export class TapToolView extends SelectToolView
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -19,15 +19,15 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    callback = @mget("callback")
+    callback = @model.callback
     @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.plot.tool_events.get('geometries')
+      geometries: @plot_model.plot.tool_events.geometries
 
-    for r in @mget('computed_renderers')
-      ds = r.get('data_source')
-      sm = ds.get('selection_manager')
+    for r in @model.computed_renderers
+      ds = r.data_source
+      sm = ds.selection_manager
 
       view = @plot_view.renderer_views[r.id]
       if @model.behavior == "select"
@@ -46,7 +46,7 @@ class TapToolView extends SelectTool.View
 
     return null
 
-class TapTool extends SelectTool.Model
+export class TapTool extends SelectTool
   default_view: TapToolView
   type: "TapTool"
   tool_name: "Tap"
@@ -58,7 +58,3 @@ class TapTool extends SelectTool.Model
     behavior: [ p.String, "select" ] # TODO: Enum("select", "inspect")
     callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
-
-module.exports =
-  Model: TapTool
-  View: TapToolView

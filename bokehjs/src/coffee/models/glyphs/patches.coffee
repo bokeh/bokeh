@@ -1,10 +1,10 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
 
-class PatchesView extends Glyph.View
+export class PatchesView extends GlyphView
 
   _build_discontinuous_object: (nanned_qs) ->
     # _s is @xs, @ys, @sxs, @sys
@@ -66,10 +66,10 @@ class PatchesView extends Glyph.View
 
   _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
-    [x0, x1] = [xr.get('min'), xr.get('max')]
+    [x0, x1] = [xr.min, xr.max]
 
     yr = @renderer.plot_view.y_range
-    [y0, y1] = [yr.get('min'), yr.get('max')]
+    [y0, y1] = [yr.min, yr.max]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     return (x.i for x in @index.search(bbox))
@@ -176,17 +176,13 @@ class PatchesView extends Glyph.View
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           return @_get_snap_coord(sys[j])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Patches extends Glyph.Model
+export class Patches extends Glyph
   default_view: PatchesView
 
   type: 'Patches'
 
   @coords [ ['xs', 'ys'] ]
   @mixins ['line', 'fill']
-
-module.exports =
-  Model: Patches
-  View: PatchesView

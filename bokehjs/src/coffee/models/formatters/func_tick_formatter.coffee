@@ -1,32 +1,23 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-TickFormatter = require "../formatters/tick_formatter"
+import {TickFormatter} from "../formatters/tick_formatter"
 
-class FuncTickFormatter extends TickFormatter.Model
+export class FuncTickFormatter extends TickFormatter
   type: 'FuncTickFormatter'
 
   @define {
+      args: [ p.Any,     {}           ] # TODO (bev) better type
       code: [ p.String,  ''           ]
-      lang: [ p.String , 'javascript' ] # TODO (bev) enum
     }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+
+  _make_func: () ->
+    return new Function("tick", _.keys(@args)..., "require", @code)
+
   doFormat: (ticks) ->
-    code = @get("code")
-
-    code = switch @get("lang")
-      when "javascript"
-        code
-      when "coffeescript"
-        coffee = require "coffee-script"
-        coffee.compile(code, {bare: true, shiftLine: true})
-
-    # wrap the `code` fxn inside a function and make it a callable
-    # func = new Function("tick", "var a = " + code + "return a(tick)")
-    func = new Function("tick", "var func = " + code + "return func(tick)")
-
-    return _.map(ticks, func)
-
-module.exports =
-  Model: FuncTickFormatter
+    func = @_make_func()
+    return (func(tick, _.values(@args)..., require) for tick in ticks)

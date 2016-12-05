@@ -2,10 +2,10 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-LayoutCanvas = utils.require("core/layout/layout_canvas").Model
+{LayoutCanvas} = utils.require("core/layout/layout_canvas")
 {Strength, Variable}  = utils.require "core/layout/solver"
 
-describe "LayoutCanvas.Model", ->
+describe "LayoutCanvas", ->
 
   it "should should return no constraints", ->
     c = new LayoutCanvas()

@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class RectView extends Glyph.View
+export class RectView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -19,11 +19,11 @@ class RectView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
     else
       @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
     else
       @sh = @_height
 
@@ -130,13 +130,13 @@ class RectView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
   _bounds: (bds) ->
     return @max_wh2_bounds(bds)
 
-class Rect extends Glyph.Model
+export class Rect extends Glyph
   default_view: RectView
 
   type: 'Rect'
@@ -149,7 +149,3 @@ class Rect extends Glyph.Model
       height: [ p.DistanceSpec       ]
       dilate: [ p.Bool,        false ]
     }
-
-module.exports =
-  Model: Rect
-  View: RectView

@@ -1,137 +1,110 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-CategoricalMapper = require "../mappers/categorical_mapper"
-GridMapper = require "../mappers/grid_mapper"
-LinearMapper = require "../mappers/linear_mapper"
-LogMapper = require "../mappers/log_mapper"
-Range1d = require "../ranges/range1d"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
+import {LinearMapper} from "../mappers/linear_mapper"
+import {LogMapper} from "../mappers/log_mapper"
+import {Range1d} from "../ranges/range1d"
 
-{EQ, GE}  = require "../../core/layout/solver"
-LayoutCanvas = require "../../core/layout/layout_canvas"
-{logging} = require "../../core/logging"
-p = require "../../core/properties"
+import {EQ, GE} from "../../core/layout/solver"
+import {LayoutCanvas} from "../../core/layout/layout_canvas"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class CartesianFrame extends LayoutCanvas.Model
+export class CartesianFrame extends LayoutCanvas
   type: 'CartesianFrame'
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @panel = @
 
-    @define_computed_property('x_ranges',
-        () -> @_get_ranges('x')
-      , true)
-    @add_dependencies('x_ranges', this, ['x_range', 'extra_x_ranges'])
+    @_configure_mappers()
+    @listenTo(@, 'change', () => @_configure_mappers())
 
-    @define_computed_property('y_ranges',
-        () -> @_get_ranges('y')
-      , true)
-    @add_dependencies('y_ranges', this, ['y_range', 'extra_y_ranges'])
-
-    @define_computed_property('x_mappers',
-        () -> @_get_mappers('x', @get('x_ranges'), @get('h_range'))
-      , true)
-    @add_dependencies('x_ranges', this, ['x_ranges', 'h_range'])
-
-    @define_computed_property('y_mappers',
-        () -> @_get_mappers('y', @get('y_ranges'), @get('v_range'))
-      , true)
-    @add_dependencies('y_ranges', this, ['y_ranges', 'v_range'])
-
-    @define_computed_property('mapper',
-      () ->
-        new GridMapper.Model({
-          domain_mapper: @get('x_mapper')
-          codomain_mapper: @get('y_mapper')
-        })
-      , true)
-    @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
-
-    @_h_range = new Range1d.Model({
-      start: @get('left'),
-      end:   @get('left') + @get('width')
-    })
-    @define_computed_property('h_range',
-        () =>
-          @_h_range.set('start', @get('left'))
-          @_h_range.set('end',   @get('left') + @get('width'))
-          return @_h_range
-      , false)
-    @add_dependencies('h_range', this, ['left', 'width'])
-
-    @_v_range = new Range1d.Model({
-      start: @get('bottom'),
-      end:   @get('bottom') + @get('height')
-    })
-    @define_computed_property('v_range',
-        () =>
-          @_v_range.set('start', @get('bottom'))
-          @_v_range.set('end',   @get('bottom') + @get('height'))
-          return @_v_range
-      , false)
-    @add_dependencies('v_range', this, ['bottom', 'height'])
     return null
 
   _doc_attached: () ->
-    @listenTo(@document.solver(), 'layout_update', @_update_mappers)
+    @listenTo(@document.solver(), 'layout_update', () => @_update_mappers())
     return null
 
   contains: (vx, vy) ->
     return (
-      vx >= @get('left') and vx <= @get('right') and
-      vy >= @get('bottom') and vy <= @get('top')
+      vx >= @left and vx <= @right and
+      vy >= @bottom and vy <= @top
     )
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
-    vx = @get('x_mappers')[x_name].v_map_to_target(x)
+    vx = @x_mappers[x_name].v_map_to_target(x)
     sx = canvas.v_vx_to_sx(vx)
 
-    vy = @get('y_mappers')[y_name].v_map_to_target(y)
+    vy = @y_mappers[y_name].v_map_to_target(y)
     sy = canvas.v_vy_to_sy(vy)
     return [sx, sy]
 
-  _get_ranges: (dim) ->
+  _get_ranges: (range, extra_ranges) ->
     ranges = {}
-    ranges['default'] = @get("#{dim}_range")
-    extra_ranges = @get("extra_#{dim}_ranges")
+    ranges['default'] = range
     if extra_ranges?
-      for name, range of extra_ranges
-        ranges[name] = range
+      for name, extra_range of extra_ranges
+        ranges[name] = extra_range
     return ranges
 
-  _get_mappers: (dim, ranges, frame_range) ->
+  _get_mappers: (mapper_type, ranges, frame_range) ->
     mappers = {}
     for name, range of ranges
       if range.type == "Range1d" or range.type == "DataRange1d"
-        if @get("#{dim}_mapper_type") == "log"
-          mapper_type = LogMapper.Model
+        if mapper_type == "log"
+          mapper_model = LogMapper
         else
-          mapper_type = LinearMapper.Model
+          mapper_model = LinearMapper
       else if range.type == "FactorRange"
-        mapper_type = CategoricalMapper.Model
+        mapper_model = CategoricalMapper
       else
         logger.warn("unknown range type for range '#{name}': #{range}")
         return null
-      mappers[name] = new mapper_type({
+      mappers[name] = new mapper_model({
         source_range: range
         target_range: frame_range
       })
     return mappers
 
+  _configure_frame_ranges: () ->
+    @_h_range = new Range1d({start: @left,   end: @left   + @width})
+    @_v_range = new Range1d({start: @bottom, end: @bottom + @height})
+
+  _configure_mappers: () ->
+    @_configure_frame_ranges()
+
+    @_x_ranges = @_get_ranges(@x_range, @extra_x_ranges)
+    @_y_ranges = @_get_ranges(@y_range, @extra_y_ranges)
+
+    @_x_mappers = @_get_mappers(@x_mapper_type, @_x_ranges, @_h_range)
+    @_y_mappers = @_get_mappers(@y_mapper_type, @_y_ranges, @_v_range)
+
   _update_mappers: () ->
-    for name, mapper of @get('x_mappers')
-      mapper.set('target_range', @get('h_range'))
-    for name, mapper of @get('y_mappers')
-      mapper.set('target_range', @get('v_range'))
+    @_configure_frame_ranges()
+
+    for name, mapper of @_x_mappers
+      mapper.target_range = @_h_range
+    for name, mapper of @_y_mappers
+      mapper.target_range = @_v_range
     return null
+
+  @getters {
+    h_range:   () -> @_h_range
+    v_range:   () -> @_v_range
+    x_ranges:  () -> @_x_ranges
+    y_ranges:  () -> @_y_ranges
+    x_mappers: () -> @_x_mappers
+    y_mappers: () -> @_y_mappers
+  }
 
   @internal {
     extra_x_ranges: [ p.Any, {} ]
     extra_y_ranges: [ p.Any, {} ]
-    x_range: [ p.Instance ]
-    y_range: [ p.Instance ]
-    x_mapper_type: [ p.Any ]
-    y_mapper_type: [ p.Any ]
+    x_range:        [ p.Instance ]
+    y_range:        [ p.Instance ]
+    x_mapper_type:  [ p.String, 'auto' ]
+    y_mapper_type:  [ p.String, 'auto' ]
   }
 
   get_constraints: () ->
@@ -145,6 +118,3 @@ class CartesianFrame extends LayoutCanvas.Model
     constraints.push(EQ(@_left, @_width, [-1, @_right]))
     constraints.push(EQ(@_bottom, @_height, [-1, @_top]))
     return constraints
-
-module.exports =
-  Model: CartesianFrame

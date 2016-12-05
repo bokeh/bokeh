@@ -1,6 +1,6 @@
-gloo2 = require "gloo2"
-{logger} = require "../../../core/logging"
-{BaseGLGlyph, line_width, attach_float, attach_color} = require "./base"
+import * as gloo2 from "gloo2"
+import {logger} from "../../../core/logging"
+import {BaseGLGlyph, line_width, attach_float, attach_color} from "./base"
 
 
 class MarkerGLGlyph extends BaseGLGlyph
@@ -255,7 +255,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @prog.set_uniform('u_antialias', 'float', [0.8])
 
 
-class CircleGLGlyph extends MarkerGLGlyph
+export class CircleGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'circle'
 
@@ -267,7 +267,7 @@ class CircleGLGlyph extends MarkerGLGlyph
     }
     """
 
-class SquareGLGlyph extends MarkerGLGlyph
+export class SquareGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'square'
 
@@ -279,7 +279,7 @@ class SquareGLGlyph extends MarkerGLGlyph
     }
     """
 
-class AnnulusGLGlyph extends MarkerGLGlyph
+export class AnnulusGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'annulus'
 
@@ -292,7 +292,7 @@ class AnnulusGLGlyph extends MarkerGLGlyph
     }
     """
 
-class DiamondGLGlyph extends MarkerGLGlyph
+export class DiamondGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'diamond'
 
@@ -307,7 +307,7 @@ class DiamondGLGlyph extends MarkerGLGlyph
     }
     """
 
-class TriangleGLGlyph extends MarkerGLGlyph
+export class TriangleGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'triangle'
 
@@ -323,7 +323,7 @@ class TriangleGLGlyph extends MarkerGLGlyph
     }
     """
 
-class InvertedTriangleGLGlyph extends MarkerGLGlyph
+export class InvertedTriangleGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'invertedtriangle'
 
@@ -339,7 +339,7 @@ class InvertedTriangleGLGlyph extends MarkerGLGlyph
     }
     """
 
-class CrossGLGlyph extends MarkerGLGlyph
+export class CrossGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'cross'
 
@@ -352,7 +352,7 @@ class CrossGLGlyph extends MarkerGLGlyph
     }
     """
 
-class CircleCrossGLGlyph extends MarkerGLGlyph
+export class CircleCrossGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'circlecross'
 
@@ -376,7 +376,7 @@ class CircleCrossGLGlyph extends MarkerGLGlyph
     }
     """
 
-class SquareCrossGLGlyph extends MarkerGLGlyph
+export class SquareCrossGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'squarecross'
 
@@ -400,7 +400,7 @@ class SquareCrossGLGlyph extends MarkerGLGlyph
     }
     """
 
-class DiamondCrossGLGlyph extends MarkerGLGlyph
+export class DiamondCrossGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'diamondcross'
 
@@ -427,7 +427,7 @@ class DiamondCrossGLGlyph extends MarkerGLGlyph
     }
     """
 
-class XGLGlyph extends MarkerGLGlyph
+export class XGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'x'
 
@@ -440,7 +440,7 @@ class XGLGlyph extends MarkerGLGlyph
     }
     """
 
-class CircleXGLGlyph extends MarkerGLGlyph
+export class CircleXGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'circlex'
 
@@ -470,7 +470,7 @@ class CircleXGLGlyph extends MarkerGLGlyph
     }
     """
 
-class SquareXGLGlyph extends MarkerGLGlyph
+export class SquareXGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'squarex'
 
@@ -496,7 +496,7 @@ class SquareXGLGlyph extends MarkerGLGlyph
     }
     """
 
-class AsteriskGLGlyph extends MarkerGLGlyph
+export class AsteriskGLGlyph extends MarkerGLGlyph
 
   GLYPH: 'asterisk'
 
@@ -513,21 +513,3 @@ class AsteriskGLGlyph extends MarkerGLGlyph
         return min(max(X, diamond), max(cross, square));
     }
     """
-
-
-module.exports = {
-  CircleGLGlyph: CircleGLGlyph
-  SquareGLGlyph: SquareGLGlyph
-  AnnulusGLGlyph: AnnulusGLGlyph
-  DiamondGLGlyph: DiamondGLGlyph
-  TriangleGLGlyph: TriangleGLGlyph
-  InvertedTriangleGLGlyph: InvertedTriangleGLGlyph
-  CrossGLGlyph: CrossGLGlyph
-  CircleCrossGLGlyph: CircleCrossGLGlyph
-  SquareCrossGLGlyph: SquareCrossGLGlyph
-  DiamondCrossGLGlyph: DiamondCrossGLGlyph
-  XGLGlyph: XGLGlyph
-  CircleXGLGlyph: CircleXGLGlyph
-  SquareXGLGlyph: SquareXGLGlyph
-  AsteriskGLGlyph: AsteriskGLGlyph
-}

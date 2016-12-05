@@ -20,6 +20,13 @@ data = pd.DataFrame(data=dict(AAPL=AAPL['Adj Close'][:1000],
                               Date=AAPL['Date'][:1000])).set_index('Date')
 
 TOOLS="pan,wheel_zoom,box_zoom,reset,save"
+tooltips=[
+        ("Open", "@Open"),
+        ("Close", "@Close"),
+        ("High", "@High"),
+        ("Low", "@Low"),
+        ("Volume", "@Volume")
+    ]
 
 # line simple
 tsline = TimeSeries(
@@ -33,6 +40,11 @@ tsline2 = TimeSeries(
     color=['IBM', 'MSFT', 'AAPL'], dash=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Line Explicit)", tools=TOOLS, ylabel='Stock Prices',
     xlabel='Date')
+
+# line w/ tooltips
+tsline3 = TimeSeries(
+    AAPL, y='Adj Close', x='Date', title="Timeseries (Tooltips)",
+    tooltips=tooltips)
 
 # step
 tsstep = TimeSeries(
@@ -49,4 +61,4 @@ tspoint = TimeSeries(
 
 output_file("timeseries.html", title="timeseries.py example")
 
-show(column(tsline, tsline2, tsstep, tspoint))
+show(column(tsline, tsline2, tsline3, tsstep, tspoint))

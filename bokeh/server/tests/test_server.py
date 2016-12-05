@@ -282,6 +282,19 @@ def extract_sessionid_from_json(html):
     match = sessionid_in_json.search(html)
     return match.group(1)
 
+# examples:
+# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
+# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
+use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
+def extract_use_for_title_from_json(html):
+    from six import string_types
+    if not isinstance(html, string_types):
+        import codecs
+        html = codecs.decode(html, 'utf-8')
+    match = use_for_title_in_json.search(html)
+    return match.group(1)
+
+
 def autoload_url(server):
     return url(server) + \
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
@@ -305,6 +318,18 @@ def test__autocreate_session_autoload():
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
+
+def test__no_set_title_autoload():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = http_get(server.io_loop,
+                            autoload_url(server))
+        js = response.body
+        use_for_title = extract_use_for_title_from_json(js)
+        assert use_for_title == "false"
 
 def test__autocreate_session_doc():
     application = Application()

@@ -1,7 +1,7 @@
 .. _bokeh.models:
 
-``bokeh.models``
-================
+bokeh.models
+============
 
 One of the central design principals of Bokeh is that, regardless of
 how the plot creation code is spelled in Python (or other languages),
@@ -36,9 +36,9 @@ a serialized version of the model looks like.
    models/tickers
    models/tiles
    models/tools
+   models/transforms
    models/widgets.widget
    models/widgets.buttons
-   models/widgets.dialogs
    models/widgets.groups
    models/widgets.icons
    models/widgets.inputs

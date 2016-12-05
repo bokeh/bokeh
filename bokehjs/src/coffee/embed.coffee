@@ -1,16 +1,15 @@
-$ = require "jquery"
-_ = require "underscore"
-Backbone = require "backbone"
-{Promise} = require "es6-promise"
+import * as $ from "jquery"
+import * as _ from "underscore"
+import {Promise} from "es6-promise"
 
-base = require "./base"
-{pull_session} = require "./client"
-{logger, set_log_level} = require "./core/logging"
-{Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
+import * as base from "./base"
+import {pull_session} from "./client"
+import {logger, set_log_level} from "./core/logging"
+import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
-BOKEH_ROOT = "bk-root"
+export BOKEH_ROOT = "bk-root"
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
@@ -28,7 +27,7 @@ _update_comms_callback = (target, doc, comm) ->
     comm.on_msg(_.bind(_handle_notebook_comms, doc))
 
 _init_comms = (target, doc) ->
-  if Jupyter?
+  if Jupyter? and Jupyter.notebook.kernel?
     logger.info("Registering Jupyter comms for target #{target}")
     comm_manager = Jupyter.notebook.kernel.comm_manager
     update_comms = _.partial(_update_comms_callback, target, doc)
@@ -90,10 +89,10 @@ add_model_static = (element, model_id, doc) ->
   _.delay(-> $(element).replaceWith(view.$el))
 
 # Fill element with the roots from doc
-add_document_static = (element, doc, use_for_title) ->
+export add_document_static = (element, doc, use_for_title) ->
   _.delay(-> _render_document_to_element($(element), doc, use_for_title))
 
-add_document_standalone = (document, element, use_for_title=false) ->
+export add_document_standalone = (document, element, use_for_title=false) ->
   return _render_document_to_element($(element), document, use_for_title)
 
 # map { websocket url to map { session id to promise of ClientSession } }
@@ -135,11 +134,11 @@ add_model_from_session = (element, websocket_url, model_id, session_id) ->
       throw error
   )
 
-inject_css = (url) ->
+export inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
   $('body').append(link)
 
-inject_raw_css = (css) ->
+export inject_raw_css = (css) ->
   style = $("<style>").html(css)
   $('body').append(style)
 
@@ -159,7 +158,7 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-embed_items = (docs_json, render_items, websocket_url=null) ->
+export embed_items = (docs_json, render_items, websocket_url=null) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
@@ -182,7 +181,9 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
       fill_render_item_from_script_tag(elem, item)
       container = $('<div>', {class: BOKEH_ROOT})
       elem.replaceWith(container)
-      elem = container
+      child = $('<div>')
+      container.append(child)
+      elem = child
 
     use_for_title = item.use_for_title? and item.use_for_title
 
@@ -209,12 +210,3 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
         (error) ->
           console.log("Error rendering Bokeh items ", error)
       )
-
-module.exports = {
-  embed_items: embed_items
-  add_document_static: add_document_static
-  add_document_standalone: add_document_standalone
-  inject_css: inject_css
-  inject_raw_css: inject_raw_css
-  BOKEH_ROOT: BOKEH_ROOT
-}

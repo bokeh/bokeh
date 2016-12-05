@@ -2,60 +2,63 @@ path = require 'path'
 through = require 'through2'
 gutil = require 'gulp-util'
 coffee = require 'coffee-script'
-eco = require 'eco'
 
-{preprocess} = require "eco/src/preprocessor"
-{indent}     = require "eco/src/util"
+{preprocess} = require "eco/lib/preprocessor"
+{indent}     = require "eco/lib/util"
 
-precompile = (source) ->
+helpers = """
+var __capture = function(callback) {
+  var out = __out, result;
+  __out = [];
+  callback.call(this);
+  result = __out.join('');
+  __out = out;
+  return __safe(result);
+};
+var __sanitize = function(value) {
+  if (value && value.ecoSafe) {
+    return value;
+  } else if (typeof value !== 'undefined' && value != null) {
+    return __escape(value);
+  } else {
+    return '';
+  }
+};
+var __safe = function(value) {
+  if (value && value.ecoSafe) {
+    return value;
+  } else {
+    if (!(typeof value !== 'undefined' && value != null)) value = '';
+    var result = new String(value);
+    result.ecoSafe = true;
+    return result;
+  }
+};
+var __escape = function(value) {
+  return ('' + value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\x22/g, '&quot;');
+};
+"""
+
+compile = (source) ->
   script = coffee.compile(preprocess(source), {noWrap: true})
 
   return """
     function(__obj) {
       if (!__obj) __obj = {};
       var __out = [];
-      var __capture = function(callback) {
-        var out = __out, result;
-        __out = [];
-        callback.call(this);
-        result = __out.join('');
-        __out = out;
-        return __safe(result);
-      };
-      var __sanitize = function(value) {
-        if (value && value.ecoSafe) {
-          return value;
-        } else if (typeof value !== 'undefined' && value != null) {
-          return __escape(value);
-        } else {
-          return '';
-        }
-      };
-      var __safe = function(value) {
-        if (value && value.ecoSafe) {
-          return value;
-        } else {
-          if (!(typeof value !== 'undefined' && value != null)) value = '';
-          var result = new String(value);
-          result.ecoSafe = true;
-          return result;
-        }
-      };
-      var __escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/\x22/g, '&quot;');
-      };
+    #{indent(helpers, 2)}
       (function() {
-    #{indent(script, 4)}
+    #{indent(script.replace(/\n\n+/g, "\n").trim(), 4)}
       }).call(__obj);
       return __out.join('');
     }
   """
 
-module.exports = (opt) ->
+eco = (opt) ->
   transform = (file, enc, cb) ->
     if file.isNull()
       return cb(null, file)
@@ -66,7 +69,7 @@ module.exports = (opt) ->
     dest = gutil.replaceExtension(file.path, '.js')
 
     try
-      data = "module.exports = #{precompile(str)};"
+      data = "export default #{compile(str)};"
     catch err
       return cb(new PluginError('gulp-eco', err))
 
@@ -76,3 +79,8 @@ module.exports = (opt) ->
     return cb(null, file)
 
   return through.obj(transform)
+
+module.exports = {
+  compile: compile
+  eco: eco
+}

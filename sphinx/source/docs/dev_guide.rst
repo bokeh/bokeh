@@ -41,9 +41,6 @@ of Bokeh is outlined in `Bokeh Enhancement Proposal 2`_.
 :ref:`devguide_bokehjs`
     Information specific to developing BokehJS.
 
-:ref:`devguide_notes`
-    Uncategorized trivia, possibly useful for Bokeh developers.
-
 .. _Bokeh Enhancement Proposal 1: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
 .. _Bokeh Enhancement Proposal 2: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
 .. _contact the developers: http://bokehplots.com/pages/contact.html

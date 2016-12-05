@@ -1,33 +1,29 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Axis = require "./axis"
-CategoricalTickFormatter = require "../formatters/categorical_tick_formatter"
-CategoricalTicker = require "../tickers/categorical_ticker"
-{logger} = require "../../core/logging"
+import {Axis, AxisView} from "./axis"
+import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
+import {CategoricalTicker} from "../tickers/categorical_ticker"
+import {logger} from "../../core/logging"
 
-class CategoricalAxisView extends Axis.View
+export class CategoricalAxisView extends AxisView
 
-class CategoricalAxis extends Axis.Model
+export class CategoricalAxis extends Axis
   default_view: CategoricalAxisView
 
   type: 'CategoricalAxis'
 
   @override {
-    ticker:    () -> new CategoricalTicker.Model()
-    formatter: () -> new CategoricalTickFormatter.Model()
+    ticker:    () -> new CategoricalTicker()
+    formatter: () -> new CategoricalTickFormatter()
   }
 
   _computed_bounds: () ->
-    [range, cross_range] = @get('ranges')
+    [range, cross_range] = @ranges
 
-    user_bounds = @get('bounds') ? 'auto'
-    range_bounds = [range.get('min'), range.get('max')]
+    user_bounds = @bounds ? 'auto'
+    range_bounds = [range.min, range.max]
 
     if user_bounds != 'auto'
       logger.warn("Categorical Axes only support user_bounds='auto', ignoring")
 
     return range_bounds
-
-module.exports =
-  Model: CategoricalAxis
-  View: CategoricalAxisView

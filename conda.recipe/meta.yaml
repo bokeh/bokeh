@@ -11,7 +11,7 @@ build:
 extra:
   channels:
     - bokeh
-    - javascript
+    - conda-forge
 
 requirements:
   build:
@@ -55,8 +55,8 @@ test:
     - flake8
     - mock
     - pandas
-    - pytest >=2.9.0
-    - pytest-cov ==1.8.1       [unix]
+    - pytest >=3.0.2
+    - pytest-cov >=1.8.1       [unix]
     - pytest-selenium >=1.2.1  [unix]
     - pytest-xdist
     - pytest-rerunfailures
@@ -65,13 +65,14 @@ test:
     - pillow
     - boto
     - pdiff                 [unix]
+    - nodejs >=4.1
 
     # examples
     - jupyter
     - matplotlib
     - sympy
     - scikit-learn
-    - ggplot
+    - ggplot <=0.9.4
     - seaborn
     - networkx
     - icalendar          [unix]

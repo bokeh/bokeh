@@ -1,22 +1,22 @@
-_ = require "underscore"
-rbush = require "rbush"
-Quad = require "./quad"
-Glyph = require "./glyph"
-CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import * as rbush from "rbush"
+import * as Quad from "./quad"
+import {Glyph, GlyphView} from "./glyph"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class HBarView extends Glyph.View
+export class HBarView extends GlyphView
 
   _map_data: () ->
     vy = @renderer.ymapper.v_map_to_target(@_y)
-    @sy = @plot_view.canvas.v_vy_to_sy(vy)
+    @sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 
     vright = @renderer.xmapper.v_map_to_target(@_right)
     vleft = @renderer.xmapper.v_map_to_target(@_left)
 
-    @sright = @plot_view.canvas.v_vx_to_sx(vright)
-    @sleft = @plot_view.canvas.v_vx_to_sx(vleft)
+    @sright = @renderer.plot_view.canvas.v_vx_to_sx(vright)
+    @sleft = @renderer.plot_view.canvas.v_vx_to_sx(vleft)
 
     @stop = []
     @sbottom = []
@@ -28,7 +28,7 @@ class HBarView extends Glyph.View
 
   _index_data: () ->
     map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper.Model
+      if mapper instanceof CategoricalMapper
         mapper.v_map_to_target(array, true)
       else
         array
@@ -82,7 +82,10 @@ class HBarView extends Glyph.View
 
   scx: (i) -> return (@sleft[i] + @sright[i])/2
 
-class HBar extends Glyph.Model
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
+
+export class HBar extends Glyph
   default_view: HBarView
   type: 'HBar'
 
@@ -93,7 +96,3 @@ class HBar extends Glyph.Model
       left:   [ p.NumberSpec, 0 ]
       right:  [ p.NumberSpec    ]
     }
-
-module.exports =
-  Model: HBar
-  View: HBarView

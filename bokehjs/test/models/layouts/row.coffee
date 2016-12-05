@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-Row = utils.require("models/layouts/row").Model
+{Row} = utils.require("models/layouts/row")
 
-describe "Row.Model", ->
+describe "Row", ->
 
   it "should have _horizontal set to true", ->
     r = new Row()

@@ -32,7 +32,7 @@ from .embed import notebook_div, standalone_html_page_for_models, autoload_serve
 from .models.layouts import LayoutDOM, Row, Column, VBoxForm
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .model import _ModelInDocument
-from .util.deprecate import deprecated
+from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
@@ -225,6 +225,9 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", au
         Calling this function will replace any existing server-side document in the named session.
 
     """
+    deprecated((0, 12, 3), 'bokeh.io.output_server()', """
+    bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
+    """)
 
     _state.output_server(session_id=session_id, url=url, app_path=app_path, autopush=autopush)
 
@@ -294,10 +297,11 @@ def show(obj, browser=None, new="tab", notebook_handle=False):
 
         notebook_handle (bool, optional): create notebook interaction handle (default: False)
             For notebook output, toggles whether a handle which can be
-            used with``push_notebook`` is returned.
+            used with ``push_notebook`` is returned.
+
     Returns:
         when in a jupyter notebook (with ``output_notebook`` enabled)
-        and notebook_handle=True, returns a handle that can be used by
+        and ``notebook_handle=True``, returns a handle that can be used by
         ``push_notebook``, None otherwise.
 
     .. note::
@@ -521,8 +525,19 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
                     document=document, io_loop=io_loop)
 
 def push_notebook(document=None, state=None, handle=None):
-    ''' Update the last-shown plot in a Jupyter notebook with the new data
+    ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
+
+    When working the the notebook, the ``show`` function can be passed the
+    argument ``notebook_handle=True``, which will cause it to return a
+    handle object that can be used to update the Bokeh output later. When
+    ``push_notebook`` is called, any property updates (e.g. plot titles or
+    data source values, etc.) since the last call to ``push_notebook`` or
+    the original ``show`` call are applied to the Bokeh output in the
+    previously rendered Jupyter output cell.
+
+    Several example notebooks can be found in the GitHub repository in
+    the :bokeh-tree:`examples/howto/notebook_comms` directory.
 
     Args:
 
@@ -542,23 +557,26 @@ def push_notebook(document=None, state=None, handle=None):
 
         .. code-block:: python
 
-            from bokeh.io import push_notebook
+            from bokeh.plotting import figure
+            from bokeh.io import output_notebook, push_notebook, show
 
-            # code to create a plot
+            output_notebook()
 
-            show(plot)
+            plot = figure()
+            plot.circle([1,2,3], [4,6,5])
 
+            handle = show(plot, notebook_handle=True)
+
+            # Update the plot title in the earlier cell
             plot.title = "New Title"
-
-            # This will cause the title to update
-            push_notebook()
+            push_notebook(handle=handle)
 
     '''
     if state is None:
         state = _state
 
     if state.server_enabled:
-        raise RuntimeError("output_server() has been called, use push() to push to server")
+        raise RuntimeError("output_server() has been called, which is incompatible with push_notebook")
 
     if not document:
         document = state.document
@@ -571,7 +589,7 @@ def push_notebook(document=None, state=None, handle=None):
         handle = state.last_comms_handle
 
     if not handle:
-        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
+        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 
     to_json = document.to_json()
@@ -604,20 +622,20 @@ def _push_or_save(obj):
     if _state.file and _state.autosave:
         save(obj)
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Row")
 def hplot(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.hplot()', 'bokeh.models.layouts.Row')
     layout = Row(children=list(children), **kwargs)
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.Column")
 def vplot(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.vplot()', 'bokeh.models.layouts.Column')
     layout = Column(children=list(children), **kwargs)
     return layout
 
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def vform(*children, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.io.vform()', 'bokeh.models.layouts.WidgetBox')
     # Returning a VBoxForm, because it has helpers so that
     # Bokeh deprecates gracefully.
     return VBoxForm(*children, **kwargs)

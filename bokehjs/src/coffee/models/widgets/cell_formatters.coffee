@@ -1,18 +1,18 @@
-_ = require "underscore"
-$ = require "jquery"
-Numbro = require "numbro"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import * as Numbro from "numbro"
 
-p = require "../../core/properties"
-Model = require "../../model"
+import * as p from "../../core/properties"
+import {Model} from "../../model"
 
-class CellFormatter extends Model
+export class CellFormatter extends Model
   doFormat: (row, cell, value, columnDef, dataContext) ->
     if value == null
       return ""
     else
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-class StringFormatter extends CellFormatter
+export class StringFormatter extends CellFormatter
   type: 'StringFormatter'
 
   @define {
@@ -24,9 +24,9 @@ class StringFormatter extends CellFormatter
   doFormat: (row, cell, value, columnDef, dataContext) ->
     text = super(row, cell, value, columnDef, dataContext)
 
-    font_style = @get("font_style")
-    text_align = @get("text_align")
-    text_color = @get("text_color")
+    font_style = @font_style
+    text_align = @text_align
+    text_color = @text_color
 
     if font_style? or text_align? or text_color?
       text = $("<span>#{text}</span>")
@@ -39,7 +39,7 @@ class StringFormatter extends CellFormatter
 
     return text
 
-class NumberFormatter extends StringFormatter
+export class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
 
   @define {
@@ -49,16 +49,16 @@ class NumberFormatter extends StringFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    format = @get("format")
-    language = @get("language")
-    rounding = switch @get("rounding")
+    format = @format
+    language = @language
+    rounding = switch @rounding
       when "round", "nearest"   then Math.round
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
     value = Numbro.format(value, format, language, rounding)
     return super(row, cell, value, columnDef, dataContext)
 
-class BooleanFormatter extends CellFormatter
+export class BooleanFormatter extends CellFormatter
   type: 'BooleanFormatter'
 
   @define {
@@ -66,9 +66,9 @@ class BooleanFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    if !!value then $('<i>').addClass(@get("icon")).html() else ""
+    if !!value then $('<i>').addClass(@icon).html() else ""
 
-class DateFormatter extends CellFormatter
+export class DateFormatter extends CellFormatter
   type: 'DateFormatter'
 
   @define {
@@ -76,7 +76,7 @@ class DateFormatter extends CellFormatter
   }
 
   getFormat: () ->
-    format = @get("format")
+    format = @format
     name = switch format
       when "ATOM", "W3C", "RFC-3339", "ISO-8601" then "ISO-8601"
       when "COOKIE"                              then "COOKIE"
@@ -95,7 +95,7 @@ class DateFormatter extends CellFormatter
     date = $.datepicker.formatDate(@getFormat(), new Date(value))
     return super(row, cell, date, columnDef, dataContext)
 
-class HTMLTemplateFormatter extends CellFormatter
+export class HTMLTemplateFormatter extends CellFormatter
   type: 'HTMLTemplateFormatter'
 
   @define {
@@ -103,26 +103,10 @@ class HTMLTemplateFormatter extends CellFormatter
   }
 
   doFormat: (row, cell, value, columnDef, dataContext) ->
-    template = @get("template")
+    template = @template
     if value == null
       return ""
     else
       dataContext = _.extend({}, dataContext, {value: value})
       compiled_template = _.template(template)
       return compiled_template(dataContext)
-
-module.exports =
-  String:
-    Model: StringFormatter
-
-  Number:
-    Model: NumberFormatter
-
-  Boolean:
-    Model: BooleanFormatter
-
-  Date:
-    Model: DateFormatter
-
-  HTMLTemplate:
-    Model: HTMLTemplateFormatter

@@ -1,12 +1,14 @@
-$ = require "jquery"
-_ = require "underscore"
-Backbone = require "backbone"
+import * as $ from "jquery"
+import * as _ from "underscore"
+import * as Backbone from "./backbone"
 
-{logger} = require "./logging"
-property_mixins = require "./property_mixins"
-refs = require "./util/refs"
+import {logger} from "./logging"
+import * as property_mixins from "./property_mixins"
+import * as refs from "./util/refs"
+import * as p from "./properties"
+import {array_max} from "./util/math"
 
-class HasProps extends Backbone.Model
+export class HasProps extends Backbone.Model
 
   props: {}
   mixins: []
@@ -17,12 +19,13 @@ class HasProps extends Backbone.Model
         if this.prototype.props[name]?
           throw new Error("attempted to redefine property '#{this.name}.#{name}'")
 
-        if this.prototype[name]? and name != "url" # TODO: remove when we drop backbone
+        if this.prototype[name]?
           throw new Error("attempted to redefine attribute '#{this.name}.#{name}'")
 
         Object.defineProperty(this.prototype, name, {
-          get: ()      -> this.get(name)
-          set: (value) -> this.set(name, value)
+          # XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
+          get: ()      -> value = this.getv(name); return value
+          set: (value) -> this.setv(name, value); return this
         }, {
           configurable: false
           enumerable: true
@@ -70,12 +73,11 @@ class HasProps extends Backbone.Model
         props[name] = _.extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
-  toString: () -> "#{@type}(#{@id})"
+  @define {
+    id: [ p.Any ]
+  }
 
-  destroy: (options)->
-    # calls super, also unbinds any events bound by listenTo
-    super(options)
-    @stopListening()
+  toString: () -> "#{@type}(#{@id})"
 
   constructor : (attributes, options) ->
     @document = null
@@ -84,7 +86,6 @@ class HasProps extends Backbone.Model
     attrs = attributes || {}
     if not options
       options = {}
-    this.cid = _.uniqueId('c')
     this.attributes = {}
 
     @properties = {}
@@ -93,16 +94,13 @@ class HasProps extends Backbone.Model
         throw new Error("undefined property type for #{@type}.#{name}")
       @properties[name] = new type({obj: @, attr: name, default_value: default_value})
 
-    if options.parse
-      attrs = this.parse(attrs, options) || {}
-
     # Bokeh specific
     this._set_after_defaults = {}
 
-    this.set(attrs, options)
+    this.setv(attrs, options)
 
     # this is maintained by backbone ("changes since the last
-    # set()") and probably isn't relevant to us
+    # setv()") and probably isn't relevant to us
     this.changed = {}
 
     ## bokeh custom constructor code
@@ -111,9 +109,8 @@ class HasProps extends Backbone.Model
     @_computed = {}
 
     # auto generating ID
-    if not _.has(attrs, @idAttribute)
+    if not attrs.id?
       this.id = _.uniqueId(this.type)
-      this.attributes[@idAttribute] = this.id
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
@@ -122,7 +119,7 @@ class HasProps extends Backbone.Model
     if not options.defer_initialization
       this.initialize.apply(this, arguments)
 
-  set: (key, value, options) ->
+  setv: (key, value, options) ->
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
@@ -134,20 +131,20 @@ class HasProps extends Backbone.Model
       attrs[key] = value
     for own key, val of attrs
       prop_name = key
-      if not (prop_name == "id" or @props[prop_name])
-        throw new Error("#{@type}.set('#{prop_name}'): #{prop_name} wasn't declared")
+      if not @props[prop_name]?
+        throw new Error("property #{@type}.#{prop_name} wasn't declared")
 
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
     if not _.isEmpty(attrs)
       old = {}
       for key, value of attrs
-        old[key] = @get(key)
+        old[key] = @getv(key)
       super(attrs, options)
 
       if not options?.silent?
         for key, value of attrs
-          @_tell_document_about_change(key, old[key], @get(key))
+          @_tell_document_about_change(key, old[key], @getv(key))
 
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
@@ -187,10 +184,10 @@ class HasProps extends Backbone.Model
       if prop_spec['use_cache']
         old_val = prop_spec.cache
         prop_spec.cache = undefined
-        new_val = @get(prop_name)
+        new_val = @_get_computed(prop_name)
         firechange = new_val != old_val
       if firechange
-        @trigger('change:' + prop_name, this, @get(prop_name))
+        @trigger('change:' + prop_name, this, @_get_computed(prop_name))
         @trigger('change', this)
 
     prop_spec =
@@ -208,33 +205,24 @@ class HasProps extends Backbone.Model
 
     return prop_spec
 
-  override_computed_property: (prop_name, getter, use_cache=true) ->
-    if _.has(@_computed, prop_name)
-      @_remove_computed_property(prop_name)
-    @define_computed_property(prop_name, getter, use_cache)
-
-  _remove_computed_property: (prop_name) ->
-    # removes the property, unbinding all callbacks that implemented it
-    prop_spec = @_computed[prop_name]
-    dependencies = prop_spec.dependencies
-    for dep in dependencies
-      obj = dep.obj
-      for fld in dep['fields']
-        obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
-    @off("changedep:" + dep)
-    delete @_computed[prop_name]
+  set: (key, value, options) ->
+    logger.warn("HasProps.set('prop_name', value) is deprecated, use HasProps.prop_name = value instead")
+    return @setv(key, value, options)
 
   get: (prop_name) ->
-    if _.has(@_computed, prop_name)
-      return @_get_prop(prop_name)
-    else
-      if not (prop_name == "id" or @props[prop_name])
-        throw new Error("#{@type}.get('#{prop_name}'): #{prop_name} wasn't declared")
+    logger.warn("HasProps.get('prop_name') is deprecated, use HasProps.prop_name instead")
+    return @getv(prop_name)
 
+  getv: (prop_name) ->
+    if not @props[prop_name]?
+      throw new Error("property #{@type}.#{prop_name} wasn't declared")
+    else
       return super(prop_name)
 
-  _get_prop: (prop_name) ->
+  _get_computed: (prop_name) ->
     prop_spec = @_computed[prop_name]
+    if not prop_spec?
+      throw new Error("computed property #{@type}.#{prop_name} wasn't declared")
     if prop_spec.use_cache and prop_spec.cache
       return prop_spec.cache
     else
@@ -251,19 +239,12 @@ class HasProps extends Backbone.Model
   set_subtype: (subtype) ->
     @_subtype = subtype
 
-  sync: (method, model, options) ->
-    # make this a no-op, we sync the whole document never individual models
-    return options.success(model.attributes, null, {})
-
-  defaults: -> throw new Error("don't use HasProps.defaults anymore")
-
   attribute_is_serializable: (attr) ->
-    if attr == "id"
-      return true
     prop = @props[attr]
     if not prop?
       throw new Error("#{@type}.attribute_is_serializable('#{attr}'): #{attr} wasn't declared")
-    return not prop.internal
+    else
+      return not prop.internal
 
   # dict of attributes that should be serialized to the server. We
   # sometimes stick things in attributes that aren't part of the
@@ -275,15 +256,6 @@ class HasProps extends Backbone.Model
       if @attribute_is_serializable(name)
         attrs[name] = value
     return attrs
-
-  # JSON serialization requires special measures to deal with cycles,
-  # which means objects can't be serialized independently but only
-  # as a whole object graph. This catches mistakes where we accidentally
-  # try to serialize an object in the wrong place (for example if
-  # we leave an object instead of a ref in a message we try to send
-  # over the websocket, or if we try to use Backbone's sync stuff)
-  toJSON: (options) ->
-    throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
 
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps
@@ -416,4 +388,15 @@ class HasProps extends Backbone.Model
 
       @document._notify_change(@, attr, old, new_)
 
-module.exports = HasProps
+  materialize_dataspecs: (source) ->
+    data = {}
+    for name, prop of @properties
+      if not prop.dataspec
+        continue
+      # this skips optional properties like radius for circles
+      if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
+        continue
+      data["_#{name}"] = prop.array(source)
+      if prop instanceof p.Distance
+        data["max_#{name}"] = array_max(data["_#{name}"])
+    return data

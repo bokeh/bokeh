@@ -1,10 +1,10 @@
-_ = require "underscore"
-SPrintf = require "sprintf"
-tz = require "timezone"
+import * as _ from "underscore"
+import * as SPrintf from "sprintf"
+import * as tz from "timezone"
 
-TickFormatter = require "./tick_formatter"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {TickFormatter} from "./tick_formatter"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
@@ -36,24 +36,20 @@ _strftime = (t, format) ->
       return format
     return tz(t, format)
 
-DEFAULT_DATETIME_FORMATS = {
-  'microseconds': ['%fus']
-  'milliseconds': ['%3Nms', '%S.%3Ns']
-  'seconds':      ['%Ss']
-  'minsec':       [':%M:%S']
-  'minutes':      [':%M', '%Mm']
-  'hourmin':      ['%H:%M']
-  'hours':        ['%Hh', '%H:%M']
-  'days':         ['%m/%d', '%a%d']
-  'months':       ['%m/%Y', '%b%y']
-  'years':        ['%Y']
-}
-
-class DatetimeTickFormatter extends TickFormatter.Model
+export class DatetimeTickFormatter extends TickFormatter
   type: 'DatetimeTickFormatter'
 
   @define {
-    formats: [ p.Any, DEFAULT_DATETIME_FORMATS ] # TODO (bev)
+    microseconds: [ p.Array, ['%fus'] ]
+    milliseconds: [ p.Array, ['%3Nms', '%S.%3Ns'] ]
+    seconds:      [ p.Array, ['%Ss'] ]
+    minsec:       [ p.Array, [':%M:%S'] ]
+    minutes:      [ p.Array, [':%M', '%Mm'] ]
+    hourmin:      [ p.Array, ['%H:%M'] ]
+    hours:        [ p.Array, ['%Hh', '%H:%M'] ]
+    days:         [ p.Array, ['%m/%d', '%a%d'] ]
+    months:       [ p.Array, ['%m/%Y', '%b%y'] ]
+    years:        [ p.Array, ['%Y'] ]
   }
 
   # Labels of time units, from finest to coarsest.
@@ -71,12 +67,24 @@ class DatetimeTickFormatter extends TickFormatter.Model
 
   _update_width_formats: () ->
     now = tz(new Date())
-    @_width_formats = {}
 
-    for fmt_name, fmt_strings of @formats
+    _widths = (fmt_strings) ->
       sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
       sorted = _.sortBy(_.zip(sizes, fmt_strings), ([size, fmt]) -> size)
-      @_width_formats[fmt_name] = _.zip.apply(_, sorted)
+      return _.zip.apply(_, sorted)
+
+    @_width_formats = {
+      microseconds: _widths(@microseconds)
+      milliseconds: _widths(@milliseconds)
+      seconds:      _widths(@seconds)
+      minsec:       _widths(@minsec)
+      minutes:      _widths(@minutes)
+      hourmin:      _widths(@hourmin)
+      hours:        _widths(@hours)
+      days:         _widths(@days)
+      months:       _widths(@months)
+      years:        _widths(@years)
+    }
 
   # FIXME There is some unfortunate flicker when panning/zooming near the
   # span boundaries.
@@ -87,31 +95,17 @@ class DatetimeTickFormatter extends TickFormatter.Model
     # numbers, as we've worked hard to ensure).  Consequently, we adjust the
     # resolution upwards a small amount (less than any possible step in
     # scales) to make the effective boundaries slightly lower.
-    adjusted_resolution_secs = resolution_secs * 1.1
+    adjusted_secs = resolution_secs * 1.1
 
-    if adjusted_resolution_secs < 1e-3
-      str = "microseconds"
-    else if adjusted_resolution_secs < 1.0
-      str = "milliseconds"
-    else if adjusted_resolution_secs < 60
-      if span_secs >= 60
-        str = "minsec"
-      else
-        str = "seconds"
-    else if adjusted_resolution_secs < 3600
-      if span_secs >= 3600
-        str = "hourmin"
-      else
-        str = "minutes"
-    else if adjusted_resolution_secs < 24*3600
-      str = "hours"
-    else if adjusted_resolution_secs < 31*24*3600
-      str = "days"
-    else if adjusted_resolution_secs < 365*24*3600
-      str = "months"
-    else
-      str = "years"
-    return str
+    return switch
+      when adjusted_secs < 1e-3        then "microseconds"
+      when adjusted_secs < 1.0         then "milliseconds"
+      when adjusted_secs < 60          then (if span_secs >= 60   then "minsec"  else "seconds")
+      when adjusted_secs < 3600        then (if span_secs >= 3600 then "hourmin" else "minutes")
+      when adjusted_secs < 24*3600     then "hours"
+      when adjusted_secs < 31*24*3600  then "days"
+      when adjusted_secs < 365*24*3600 then "months"
+      else                                  "years"
 
   doFormat: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
 
@@ -213,6 +207,3 @@ class DatetimeTickFormatter extends TickFormatter.Model
         labels.push(s)
 
     return labels
-
-module.exports =
-  Model: DatetimeTickFormatter

@@ -335,9 +335,6 @@ def build_js():
 
         print("  - bokeh-api.js          : %6.1f KB" % size("js", "bokeh-api.js"))
         print("  - bokeh-api.min.js      : %6.1f KB" % size("js", "bokeh-api.min.js"))
-
-        print("  - bokeh-compiler.js     : %6.1f KB" % size("js", "bokeh-compiler.js"))
-        print("  - bokeh-compiler.min.js : %6.1f KB" % size("js", "bokeh-compiler.min.js"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -495,6 +492,8 @@ sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojso
 
 package_path(join(SERVER, 'static'))
 package_path(join(ROOT, 'bokeh', 'core', '_templates'))
+package_path(join(ROOT, 'bokeh', 'sphinxext', '_templates'))
+package_path(join(ROOT, 'bokeh', 'server', 'views'), ('.html'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 
 if '--user' in sys.argv:
@@ -593,8 +592,33 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=['bin/bokeh', 'bin/bokeh-server'],
+    scripts=['bin/bokeh'],
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
     zip_safe=False,
+    classifiers=[
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: End Users/Desktop",
+        "Intended Audience :: Financial and Insurance Industry",
+        "Intended Audience :: Healthcare Industry",
+        "Intended Audience :: Information Technology",
+        "Intended Audience :: Legal Industry",
+        "Intended Audience :: Other Audience",
+        "Intended Audience :: Science/Research",
+        "License :: Freely Distributable",
+        "License :: OSI Approved",
+        "License :: OSI Approved :: BSD License :: 3 Clause New or Revised",
+        "Topic :: Office/Business",
+        "Topic :: Office/Business :: Financial",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Scientific/Engineering :: Mathematics",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Utilities",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: JavaScript"
+    ],
     install_requires=REQUIRES
 )

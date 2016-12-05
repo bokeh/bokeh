@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-p = require "../../core/properties"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
 
-class BoxAnnotationView extends Annotation.View
+export class BoxAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
@@ -13,7 +13,7 @@ class BoxAnnotationView extends Annotation.View
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent
     # "data only updates" that tools might want to use
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
       @listenTo(@model, 'data_update', @render)
@@ -23,23 +23,22 @@ class BoxAnnotationView extends Annotation.View
 
   render: () ->
     # don't render if *all* position are null
-    if not @mget('left')? and not @mget('right')? and not @mget('top')? and not @mget('bottom')?
+    if not @model.left? and not @model.right? and not @model.top? and not @model.bottom?
       @$el.hide()
       return null
 
-    @frame = @plot_model.get('frame')
-    @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @frame = @plot_model.frame
+    @canvas = @plot_model.canvas
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.get('h_range').get('start')))
-    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.get('h_range').get('end')))
-    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.get('v_range').get('start')))
-    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.get('v_range').get('end')))
+    sleft   = @canvas.vx_to_sx(@_calc_dim(@model.left,   @model.left_units,   @xmapper, @frame.h_range.start))
+    sright  = @canvas.vx_to_sx(@_calc_dim(@model.right,  @model.right_units,  @xmapper, @frame.h_range.end))
+    sbottom = @canvas.vy_to_sy(@_calc_dim(@model.bottom, @model.bottom_units, @ymapper, @frame.v_range.start))
+    stop    = @canvas.vy_to_sy(@_calc_dim(@model.top,    @model.top_units,    @ymapper, @frame.v_range.end))
 
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       @_css_box(sleft, sright, sbottom, stop)
-
     else
       @_canvas_box(sleft, sright, sbottom, stop)
 
@@ -47,13 +46,13 @@ class BoxAnnotationView extends Annotation.View
     sw = Math.abs(sright-sleft)
     sh = Math.abs(sbottom-stop)
 
-    lw = @mget("line_width").value
-    lc = @mget("line_color").value
-    bc = @mget("fill_color").value
-    ba = @mget("fill_alpha").value
+    lw = @model.line_width.value
+    lc = @model.line_color.value
+    bc = @model.fill_color.value
+    ba = @model.fill_alpha.value
     style = "left:#{sleft}px; width:#{sw}px; top:#{stop}px; height:#{sh}px; border-width:#{lw}px; border-color:#{lc}; background-color:#{bc}; opacity:#{ba};"
     # try our best to honor line dashing in some way, if we can
-    ld = @mget("line_dash")
+    ld = @model.line_dash
     if _.isArray(ld)
       if ld.length < 2
         ld = "solid"
@@ -79,17 +78,17 @@ class BoxAnnotationView extends Annotation.View
 
     ctx.restore()
 
-  _calc_dim: (dim, mapper, frame_extrema) ->
-    if @mget(dim)?
-      if @mget(dim+'_units') == 'data'
-        vdim = mapper.map_to_target(@mget(dim))
+  _calc_dim: (dim, dim_units, mapper, frame_extrema) ->
+    if dim?
+      if dim_units == 'data'
+        vdim = mapper.map_to_target(dim)
       else
-        vdim = @mget(dim)
+        vdim = dim
     else
       vdim = frame_extrema
     return vdim
 
-class BoxAnnotation extends Annotation.Model
+export class BoxAnnotation extends Annotation
   default_view: BoxAnnotationView
 
   type: 'BoxAnnotation'
@@ -118,9 +117,5 @@ class BoxAnnotation extends Annotation.Model
   }
 
   update:({left, right, top, bottom}) ->
-    @set({left: left, right: right, top: top, bottom: bottom}, {silent: true})
+    @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
-
-module.exports =
-  Model: BoxAnnotation
-  View: BoxAnnotationView

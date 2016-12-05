@@ -1,7 +1,7 @@
 .. _bokeh:
 
-``bokeh``
-=========
+bokeh
+=====
 
 The ``bokeh`` module itself contains a few useful functions and attributes:
 

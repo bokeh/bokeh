@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p  = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractIcon = require "./abstract_icon"
-Widget = require "./widget"
+import {AbstractIcon} from "./abstract_icon"
+import {WidgetView} from "./widget"
 
-class IconView extends Widget.View
+export class IconView extends WidgetView
   tagName: "i"
 
   initialize: (options) ->
@@ -16,12 +16,12 @@ class IconView extends Widget.View
   render: () ->
     @$el.empty()
     @$el.addClass("bk-fa")
-    @$el.addClass("bk-fa-" + @mget("icon_name"))
-    size = @mget("size")
+    @$el.addClass("bk-fa-" + @model.icon_name)
+    size = @model.size
     if size? then @$el.css("font-size": size + "em")
-    flip = @mget("flip")
+    flip = @model.flip
     if flip? then @$el.addClass("bk-fa-flip-" + flip)
-    if @mget("spin")
+    if @model.spin
       @$el.addClass("bk-fa-spin")
     return @
 
@@ -29,7 +29,7 @@ class IconView extends Widget.View
     null
 
 
-class Icon extends AbstractIcon.Model
+export class Icon extends AbstractIcon
   type: "Icon"
   default_view: IconView
 
@@ -39,7 +39,3 @@ class Icon extends AbstractIcon.Model
       flip:      [ p.Any             ] # TODO (bev)
       spin:      [ p.Bool,   false   ]
     }
-
-module.exports =
-  Model: Icon
-  View: IconView

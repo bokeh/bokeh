@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import os
 import sys
+import warnings
 
 from bokeh.application import Application
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
@@ -18,6 +19,16 @@ def die(message):
     '''
     print(message, file=sys.stderr)
     sys.exit(1)
+
+DIRSTYLE_MAIN_WARNING = """
+It looks like you might be running the main.py of a directory app directly.
+If this is the case, to enable the features of directory style apps, you must
+call "bokeh serve" on the directory instead. For example:
+
+    bokeh serve my_app_dir/
+
+If this is not the case, renaming main.py will supress this warning.
+"""
 
 def build_single_handler_application(path, argv=None):
     ''' Return a Bokeh application built using a single handler for a file
@@ -44,6 +55,8 @@ def build_single_handler_application(path, argv=None):
         if path.endswith(".ipynb"):
             handler = NotebookHandler(filename=path, argv=argv)
         elif path.endswith(".py"):
+            if path.endswith("main.py"):
+                warnings.warn(DIRSTYLE_MAIN_WARNING)
             handler = ScriptHandler(filename=path, argv=argv)
         else:
             raise ValueError("Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path)

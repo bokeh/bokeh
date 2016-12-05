@@ -1,23 +1,23 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-p = require "../../core/properties"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
 
-{get_text_height} = require "../../core/util/text"
+import {get_text_height} from "../../core/util/text"
 
-class TextAnnotationView extends Annotation.View
+export class TextAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
 
-    @canvas = @plot_model.get('canvas')
-    @frame = @plot_model.get('frame')
+    @canvas = @plot_model.canvas
+    @frame = @plot_model.frame
 
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       @$el.addClass('bk-annotation')
       @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
 
   bind_bokeh_events: () ->
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', @render)
     else
@@ -50,7 +50,7 @@ class TextAnnotationView extends Annotation.View
   _get_size: () ->
     ctx = @plot_view.canvas_view.ctx
     @visuals.text.set_value(ctx)
-    return ctx.measureText(@mget('text')).ascent
+    return ctx.measureText(@model.text).ascent
 
   render: () ->
     return null
@@ -132,10 +132,6 @@ class TextAnnotationView extends Annotation.View
         .css(div_style)
         .show()
 
-class TextAnnotation extends Annotation.Model
+export class TextAnnotation extends Annotation
   type: 'TextAnnotation'
   default_view: TextAnnotationView
-
-module.exports =
-  Model: TextAnnotation
-  View: TextAnnotationView

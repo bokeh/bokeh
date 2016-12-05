@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-BasicTickFormatter = require "./basic_tick_formatter"
-TickFormatter = require "./tick_formatter"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {BasicTickFormatter} from "./basic_tick_formatter"
+import {TickFormatter} from "./tick_formatter"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class LogTickFormatter extends TickFormatter.Model
+export class LogTickFormatter extends TickFormatter
   type: 'LogTickFormatter'
 
   @define {
@@ -14,16 +14,16 @@ class LogTickFormatter extends TickFormatter.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @basic_formatter = new BasicTickFormatter.Model()
-    if not @get('ticker')?
+    @basic_formatter = new BasicTickFormatter()
+    if not @ticker?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
   doFormat: (ticks) ->
     if ticks.length == 0
       return []
 
-    if @get('ticker')?
-      base = @get('ticker').get('base')
+    if @ticker?
+      base = @ticker.base
     else
       base = 10
 
@@ -39,6 +39,3 @@ class LogTickFormatter extends TickFormatter.Model
       labels = @basic_formatter.doFormat(ticks)
 
     return labels
-
-module.exports =
-  Model: LogTickFormatter

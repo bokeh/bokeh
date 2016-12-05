@@ -1,20 +1,20 @@
-_ = require "underscore"
-rbush = require "rbush"
-Quad = require "./quad"
-Glyph = require "./glyph"
-CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import * as rbush from "rbush"
+import * as Quad from "./quad"
+import {Glyph, GlyphView} from "./glyph"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class VBarView extends Glyph.View
+export class VBarView extends GlyphView
 
   _map_data: () ->
     @sx = @renderer.xmapper.v_map_to_target(@_x)
 
     vtop = @renderer.ymapper.v_map_to_target(@_top)
     vbottom = (@renderer.ymapper.v_map_to_target(@_bottom))
-    @stop = @plot_view.canvas.v_vy_to_sy(vtop)
-    @sbottom = @plot_view.canvas.v_vy_to_sy(vbottom)
+    @stop = @renderer.plot_view.canvas.v_vy_to_sy(vtop)
+    @sbottom = @renderer.plot_view.canvas.v_vy_to_sy(vbottom)
 
     @sleft = []
     @sright = []
@@ -26,7 +26,7 @@ class VBarView extends Glyph.View
 
   _index_data: () ->
     map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper.Model
+      if mapper instanceof CategoricalMapper
         mapper.v_map_to_target(array, true)
       else
         array
@@ -80,7 +80,10 @@ class VBarView extends Glyph.View
 
   scy: (i) -> return (@stop[i] + @sbottom[i])/2
 
-class VBar extends Glyph.Model
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
+
+export class VBar extends Glyph
   default_view: VBarView
   type: 'VBar'
 
@@ -91,7 +94,3 @@ class VBar extends Glyph.Model
       top:    [ p.NumberSpec    ]
       bottom: [ p.NumberSpec, 0 ]
     }
-
-module.exports =
-  Model: VBar
-  View: VBarView

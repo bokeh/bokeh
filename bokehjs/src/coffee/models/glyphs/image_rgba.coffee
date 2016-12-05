@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class ImageRGBAView extends Glyph.View
+export class ImageRGBAView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -57,11 +57,11 @@ class ImageRGBAView extends Glyph.View
 
   _map_data: () ->
     switch @model.properties.dw.units
-      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
       when "screen" then @sw = @_dw
 
     switch @model.properties.dh.units
-      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
       when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
@@ -94,7 +94,7 @@ class ImageRGBAView extends Glyph.View
       maxY: d.maxY + @max_dh
     }
 
-class ImageRGBA extends Glyph.Model
+export class ImageRGBA extends Glyph
   default_view: ImageRGBAView
 
   type: 'ImageRGBA'
@@ -114,7 +114,3 @@ class ImageRGBA extends Glyph.Model
     super(attrs, options)
     @properties.rows.optional = true
     @properties.cols.optional = true
-
-module.exports =
-  Model: ImageRGBA
-  View: ImageRGBAView

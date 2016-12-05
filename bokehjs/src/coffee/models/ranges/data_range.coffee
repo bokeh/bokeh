@@ -1,15 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Range = require "./range"
-p = require "../../core/properties"
+import {Range} from "./range"
+import * as p from "../../core/properties"
 
-class DataRange extends Range.Model
+export class DataRange extends Range
   type: 'DataRange'
 
   @define {
       names:     [ p.Array, [] ]
       renderers: [ p.Array, [] ]
     }
-
-module.exports =
-  Model: DataRange

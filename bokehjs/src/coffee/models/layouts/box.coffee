@@ -1,12 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
-p = require "../../core/properties"
+import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
+import * as p from "../../core/properties"
 
-LayoutDOM = require "./layout_dom"
+import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
 
-class BoxView extends LayoutDOM.View
+export class BoxView extends LayoutDOMView
   className: "bk-grid"
 
   bind_bokeh_events: () ->
@@ -32,7 +32,7 @@ class BoxView extends LayoutDOM.View
     return width
 
 
-class Box extends LayoutDOM.Model
+export class Box extends LayoutDOM
   default_view: BoxView
 
   constructor: (attrs, options) ->
@@ -66,7 +66,7 @@ class Box extends LayoutDOM.Model
   }
 
   get_layoutable_children: () ->
-    @get('children')
+    @children
 
   variables_updated: () ->
     # Use trigger to force re-render
@@ -495,7 +495,3 @@ class Box extends LayoutDOM.Model
     'box-cell-align-top',
     'box-cell-align-bottom'
   ]
-
-module.exports =
-  Model: Box
-  View: BoxView

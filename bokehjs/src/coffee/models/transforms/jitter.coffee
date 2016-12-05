@@ -1,9 +1,9 @@
-_ = require "underscore"
-Transform = require "./transform"
-p = require "../../core/properties"
-bokeh_math = require "../../core/util/math"
+import * as _ from "underscore"
+import {Transform} from "./transform"
+import * as p from "../../core/properties"
+import * as bokeh_math from "../../core/util/math"
 
-class Jitter extends Transform.Model
+export class Jitter extends Transform
   @define {
     mean:         [ p.Number      , 0        ]
     width:        [ p.Number      , 1        ]
@@ -12,11 +12,11 @@ class Jitter extends Transform.Model
 
   compute: (x) ->
     # Apply the transform to a single value
-    if @get('distribution') == 'uniform'
-      return(x + @get('mean') + ((bokeh_math.random() - 0.5) * @get('width')))
+    if @distribution == 'uniform'
+      return(x + @mean + ((bokeh_math.random() - 0.5) * @width))
 
-    if @get('distribution') == 'normal'
-      return(x + bokeh_math.rnorm(@get('mean'), @get('width')))
+    if @distribution == 'normal'
+      return(x + bokeh_math.rnorm(@mean, @width))
 
   v_compute: (xs) ->
     # Apply the tranform to a vector of values
@@ -24,6 +24,3 @@ class Jitter extends Transform.Model
     for x, idx in xs
       result[idx] = this.compute(x)
     return result
-
-module.exports =
-  Model: Jitter

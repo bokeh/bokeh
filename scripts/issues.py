@@ -241,30 +241,38 @@ def get_data(query_func, load_data=False, save_data=False):
 # Validation
 #######################################
 def check_issue(issue, after):
+    have_warnings = False
     labels = issue.get('labels', [])
     if 'pull_request' in issue:
         if not any(label['name'].startswith('status: ') for label in labels):
             logging.warn('pull request without status label: {}'.format(issue_line(issue)))
-
+            have_warnings = True
     else:
         if not any(label['name'].startswith('type: ') for label in labels):
-            logging.warn('issue with no type label: {}'.format(issue_line((issue))))
+            if not any(label['name']=="reso: duplicate" for label in labels):
+                logging.warn('issue with no type label: {}'.format(issue_line((issue))))
+                have_warnings = True
 
         if closed_issue(issue, after):
             if not any(label['name'].startswith('reso: ') for label in labels):
                 if not any(label['name'] in IGNORE_ISSUE_TYPE for label in labels):
                     logging.warn('closed issue with no reso label: {}'.format(issue_line((issue))))
+                    have_warnings = True
 
+    return have_warnings
 
 def check_issues(issues, after=None):
     """Checks issues for BEP 1 compliance."""
     issues = closed_issues(issues, after) if after else all_issues(issues)
     issues = sorted(issues, key=ISSUES_SORT_KEY)
 
+    have_warnings = False
+
     for section, issue_group in groupby(issues, key=ISSUES_BY_SECTION):
         for issue in issue_group:
-            check_issue(issue, after)
+            have_warnings |= check_issue(issue, after)
 
+    return have_warnings
 
 #######################################
 # Changelog
@@ -338,7 +346,10 @@ if __name__ == '__main__':
     issues = get_data(partial(query_all_issues, after), load_data=args.load_data, save_data=args.save_data)
 
     if args.check:
-        check_issues(issues)
+        have_warnings = check_issues(issues)
+        if have_warnings:
+            sys.exit(1)
+        sys.exit(0)
 
     if args.release_tag:
         heading = '{} {:>8}:'.format(str(datetime.date.today()), args.release_tag)

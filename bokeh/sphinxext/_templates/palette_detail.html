@@ -1,0 +1,19 @@
+<div class="col-md-4" style="min-height: 230px;">
+    <table>
+      <tr>
+        <th colspan="2"> {{ name }} </th>
+      </tr>
+
+      {% for number in numbers %}
+      <tr>
+
+        <td height='20px' width='30px'> {{ number }} </td>
+
+        {% for color in palette[number] %}
+        <td height="20px" width="20px" style="background-color: {{ color }};"/>
+        {% endfor %}
+
+      </tr>
+      {% endfor %}
+    </table>
+</div>

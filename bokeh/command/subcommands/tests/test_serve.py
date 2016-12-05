@@ -66,11 +66,6 @@ def test_args():
             help="Any command line arguments remaining are passed on to the application handler",
         )),
 
-        ('--develop', dict(
-            action='store_true',
-            help="Enable develop-time features that should not be used in production",
-        )),
-
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",

@@ -5,7 +5,6 @@ import unittest
 from bokeh.plotting import figure
 from bokeh.models.ranges import DataRange1d
 
-
 class TestGlyphRenderer(unittest.TestCase):
     def test_warning_about_colons_in_column_labels_for_axis(self):
         invalid_labels = ['0', '1', '2:0']
@@ -24,8 +23,7 @@ class TestGlyphRenderer(unittest.TestCase):
             'Category labels cannot contain colons',
             '[range:x_range] [first_value: 2:0] '
             '[range:y_range] [first_value: 2:0] '
-            '[renderer: Figure, ViewModel:Plot, ref _id: '
-            '%s]' % plot._id
+            '[renderer: Figure(id=%r, ...)]' % plot._id
         )])
 
     def test_validates_colons_only_in_factorial_range(self):
@@ -43,12 +41,8 @@ class TestGlyphRenderer(unittest.TestCase):
             'MALFORMED_CATEGORY_LABEL',
             'Category labels cannot contain colons',
             '[range:y_range] [first_value: 2:0] '
-            '[renderer: Figure, ViewModel:Plot, ref _id: '
-            '%s]' % plot._id
+            '[renderer: Figure(id=%r, ...)]' % plot._id
         )])
-
-
-
 
 if __name__ == '__main__':
     unittest.main()

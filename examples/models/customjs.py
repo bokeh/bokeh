@@ -27,12 +27,11 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
-customjs = CustomJS(args=dict(source=source), lang="coffeescript", code="""
-  Util = require "util/util"
-  data = source.get('data')
+customjs = CustomJS.from_coffeescript(args=dict(source=source), code="""
+  import {get_indices} from "core/util/selection"
 
-  for i in Util.get_indices(source)
-    color = data['color'][i]
+  for i in get_indices(source)
+    color = source.data['color'][i]
     window.alert("Selected color: #{color}")
 """)
 

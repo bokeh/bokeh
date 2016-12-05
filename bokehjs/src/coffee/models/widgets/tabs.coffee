@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "bootstrap/tab"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/tab"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-tabs_template = require "./tabs_template"
-Widget = require "./widget"
+import tabs_template from "./tabs_template"
+import {Widget, WidgetView} from "./widget"
 
-class TabsView extends Widget.View
+export class TabsView extends WidgetView
 
   render: () ->
     super()
@@ -15,9 +15,9 @@ class TabsView extends Widget.View
       val.$el.detach()
     @$el.empty()
 
-    tabs = @mget('tabs')
-    active = @mget('active')
-    children = @mget('children')
+    tabs = @model.tabs
+    active = @model.active
+    children = @model.children
 
     html = $(tabs_template({
       tabs: tabs
@@ -29,12 +29,12 @@ class TabsView extends Widget.View
       event.preventDefault()
       $(this).tab('show')
       panelId = $(this).attr('href').replace('#tab-','')
-      tabs = that.model.get('tabs')
+      tabs = that.model.tabs
       panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
         return panel.id == panelId
       ))
-      that.model.set('active', panelIdx)
-      that.model.get('callback')?.execute(that.model)
+      that.model.active = panelIdx
+      that.model.callback?.execute(that.model)
 
     $panels = html.children(".bk-bs-tab-pane")
 
@@ -45,13 +45,13 @@ class TabsView extends Widget.View
     @$el.tabs
     return @
 
-class Tabs extends Widget.Model
+export class Tabs extends Widget
   type: "Tabs"
   default_view: TabsView
 
   initialize: (options) ->
     super(options)
-    @children = (tab.get("child") for tab in @tabs)
+    @children = (tab.child for tab in @tabs)
 
   @define {
       tabs:     [ p.Array,   [] ]
@@ -64,7 +64,7 @@ class Tabs extends Widget.Model
   }
 
   get_layoutable_children: () ->
-    return @get('children')
+    return @children
 
   get_edit_variables: () ->
     edit_variables = super()
@@ -79,7 +79,3 @@ class Tabs extends Widget.Model
     for child in @get_layoutable_children()
       constraints = constraints.concat(child.get_constraints())
     return constraints
-
-module.exports =
-  Model: Tabs
-  View: TabsView
