@@ -25,7 +25,7 @@ export class TabsView extends WidgetView
     }))
 
     that = this
-    html.find("> li > a").click (event) ->
+    html.find(".bk-bs-nav a").click (event) ->
       event.preventDefault()
       $(this).tab('show')
       panelId = $(this).attr('href').replace('#tab-','')
@@ -36,7 +36,7 @@ export class TabsView extends WidgetView
       that.model.active = panelIdx
       that.model.callback?.execute(that.model)
 
-    $panels = html.children(".bk-bs-tab-pane")
+    $panels = html.find(".bk-bs-tab-pane")
 
     for [child, panel] in _.zip(children, $panels)
       $(panel).html(@child_views[child.id].$el)
