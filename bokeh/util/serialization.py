@@ -55,7 +55,7 @@ def transform_series(obj):
     return transform_array(vals)
 
 def transform_array_to_list(array):
-    if np.isnan(array).any() or np.isinf(array).any():
+    if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
         transformed = array.astype('object')
         transformed[np.isnan(array)] = 'NaN'
         transformed[np.isposinf(array)] = 'Infinity'
