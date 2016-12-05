@@ -15,8 +15,8 @@ export default (props: ToolbarProps): HTMLElement => {
 
   return (
     <div class={[`bk-toolbar-${props.location}`, `bk-toolbar-${props.sticky}`]}>
+      {logo}
       <div class='bk-button-bar'>
-        {logo}
         <div class='bk-button-bar-list' type="pan" />
         <div class='bk-button-bar-list' type="scroll" />
         <div class='bk-button-bar-list' type="pinch" />
