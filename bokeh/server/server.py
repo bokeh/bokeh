@@ -146,7 +146,7 @@ class Server(object):
         return self._tornado.io_loop
 
     def start(self, start_loop=True):
-        ''' Start the Bokeh Server's IO loop and background tasks.
+        ''' Start the Bokeh Server and its background tasks.
 
         Args:
             start_loop (boolean, optional): whether to start the IO loop after
@@ -162,7 +162,7 @@ class Server(object):
         self._tornado.start(start_loop=start_loop)
 
     def stop(self):
-        ''' Stop the Bokeh Server's IO loop.
+        ''' Stop the Bokeh Server.
 
         Returns:
             None
