@@ -25,16 +25,23 @@ export class ImageRGBAView extends GlyphView
         if i != arg
           continue
 
-      shape = undefined
+      shape = []
       if @_image_shape?
         shape = @_image_shape[i]
 
-      if shape?
+      if shape.length
+        buf = @_image[i].buffer
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
+        flat = _.flatten(@_image[i])
+        buf = new ArrayBuffer(flat.length * 4)
+        color = new Uint32Array(buf)
+        for j in [0...flat.length]
+          color[j] = flat[j]
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
+
       if @image_data[i]? and @image_data[i].width == @_width[i] and @image_data[i].height == @_height[i]
         canvas = @image_data[i]
       else
@@ -43,14 +50,6 @@ export class ImageRGBAView extends GlyphView
         canvas.height = @_height[i]
       ctx = canvas.getContext('2d')
       image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
-      if shape?
-        buf = @_image[i].buffer
-      else
-        flat = _.flatten(@_image[i])
-        buf = new ArrayBuffer(flat.length * 4)
-        color = new Uint32Array(buf)
-        for j in [0...flat.length]
-          color[j] = flat[j]
       buf8 = new Uint8ClampedArray(buf)
       image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
