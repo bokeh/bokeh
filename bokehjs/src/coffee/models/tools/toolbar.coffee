@@ -39,7 +39,7 @@ export class Toolbar extends ToolbarBase
 
         if not _.some(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
-        @listenTo(tool, 'change:active', _.bind(@_active_change, tool))
+        @listenTo(tool, 'change:active', @_active_change.bind(tool))
 
     for et of @gestures
       tools = @gestures[et].tools
