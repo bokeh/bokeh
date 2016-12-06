@@ -18,15 +18,9 @@ export class GeoJSONDataSource extends ColumnDataSource
 
   _update_data: () -> @data = @geojson_to_column_data()
 
-  _get_new_list_array: (length) ->
-    array = new Array(length)
-    list_array = array.map((x) -> [])
-    return list_array
+  _get_new_list_array: (length) -> ([] for i in [0...length])
 
-  _get_new_nan_array: (length) ->
-    array = new Array(length)
-    nan_array = array.map((x) -> NaN)
-    return nan_array
+  _get_new_nan_array: (length) -> (NaN for i in [0...length])
 
   _flatten_function: (accumulator, currentItem) ->
     return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem)
