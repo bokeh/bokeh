@@ -121,8 +121,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
 
     else
       window._bokeh_gmap_loads.push(build_map)
-      window._bokeh_gmap_callback = () ->
-        _.each(window._bokeh_gmap_loads, _.defer)
+      window._bokeh_gmap_callback = () -> window._bokeh_gmap_loads.forEach(_.defer)
       script = document.createElement('script')
       script.type = 'text/javascript'
       script.src = "https://maps.googleapis.com/maps/api/js?key=#{@model.plot.api_key}&callback=_bokeh_gmap_callback"
