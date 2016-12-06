@@ -71,7 +71,7 @@ class ManagedServerLoop(object):
         self._server.stop()
         self._server.io_loop.close()
     def __enter__(self):
-        self._server.start(start_loop=False)
+        self._server.start()
         return self._server
     @property
     def io_loop(self):

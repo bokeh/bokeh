@@ -6,15 +6,13 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
-import atexit
 # NOTE: needs PyPI backport on Python 2 (https://pypi.python.org/pypi/futures)
 from concurrent.futures import ProcessPoolExecutor
 import os
 from pprint import pformat
-import signal
 
 from tornado import gen
-from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import HTTPError
 from tornado.web import StaticFileHandler
@@ -148,7 +146,7 @@ class BokehTornado(TornadoApplication):
 
     def __init__(self, applications, prefix, hosts,
                  extra_websocket_origins,
-                 io_loop=None,
+                 io_loop,
                  extra_patterns=None,
                  secret_key=settings.secret_key_bytes(),
                  sign_sessions=settings.sign_sessions(),
@@ -249,7 +247,7 @@ class BokehTornado(TornadoApplication):
         super(BokehTornado, self).__init__(all_patterns)
 
     def initialize(self,
-                 io_loop=None,
+                 io_loop,
                  keep_alive_milliseconds=37000,
                  # how often to check for unused sessions
                  check_unused_sessions_milliseconds=17000,
@@ -259,10 +257,7 @@ class BokehTornado(TornadoApplication):
                  stats_log_frequency_milliseconds=15000,
                  **kw):
 
-        if io_loop is None:
-            io_loop = IOLoop.current()
         self._loop = io_loop
-        self._loop_owned = False
 
         for app_context in self._applications.values():
             app_context._loop = self._loop
@@ -321,18 +316,8 @@ class BokehTornado(TornadoApplication):
                                                    path_versioner=StaticHandler.append_version)
         return self._resources[root_url]
 
-    def start(self, start_loop=True):
+    def start(self):
         ''' Start the Bokeh Server application.
-
-        Args:
-            start_loop (boolean): whether to start the IO loop (default: True)
-
-        Returns:
-            None
-
-        Notes:
-            Keyboard interrupts or sigterm will cause the server to shut down.
-
         '''
         self._stats_job.start()
         self._cleanup_job.start()
@@ -342,37 +327,18 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_load_hook()
 
-        if start_loop:
-            self._loop_owned = True
-            self.install_shutdown_hooks()
-            try:
-                self._loop.start()
-            except KeyboardInterrupt:
-                print("\nInterrupted, shutting down")
-            self._cleanup()
-
-    def stop(self):
+    def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
+
+        Args:
+            fast (boolean): whether to wait for orderly cleanup (default: True)
 
         Returns:
             None
 
         '''
-        self._cleanup()
-
-        if self._loop_owned:
-            self._loop.stop()
-
-    _cleaned_up = False
-    def _cleanup(self):
         # TODO we should probably close all connections and shut
-        # down all sessions either here or in unlisten() ... but
-        # it isn't that important since in real life it's rare to
-        # do a clean shutdown (vs. a kill-by-signal) anyhow.
-        if self._cleaned_up:
-            return
-        self._cleaned_up = True
-
+        # down all sessions either here or in unlisten()
         for context in self._applications.values():
             context.run_unload_hook()
 
@@ -380,6 +346,9 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job.stop()
         if self._ping_job is not None:
             self._ping_job.stop()
+
+        self._executor.shutdown(wait=wait)
+        self._clients.clear()
 
     @property
     def executor(self):
@@ -436,25 +405,3 @@ class BokehTornado(TornadoApplication):
         """
         res = yield self._executor.submit(_func, *args, **kwargs)
         raise gen.Return(res)
-
-    def install_shutdown_hooks(self, signum=signal.SIGTERM):
-        """
-        Install signal handler and atexit hook for orderly shutdown.
-        """
-        atexit.register(self._atexit)
-        signal.signal(signum, self._sigterm)
-
-    _atexit_ran = False
-    def _atexit(self):
-        if self._atexit_ran:
-            return
-        self._atexit_ran = True
-
-        log.debug("Shutdown: cleaning up")
-        self._executor.shutdown(wait=False)
-        self._clients.clear()
-
-    def _sigterm(self, signum, frame):
-        print("Received signal %d, shutting down" % (signum,))
-        # Tell self._loop.start() to return.
-        self._loop.add_callback_from_signal(self._loop.stop)

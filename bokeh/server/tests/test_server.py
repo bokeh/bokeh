@@ -538,7 +538,7 @@ def test__ioloop_not_forcibly_stopped():
     loop = IOLoop()
     loop.make_current()
     server = Server(application, ioloop=loop)
-    server.start(start_loop=False)
+    server.start()
     result = []
 
     def f():
