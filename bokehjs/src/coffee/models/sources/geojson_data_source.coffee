@@ -20,12 +20,12 @@ export class GeoJSONDataSource extends ColumnDataSource
 
   _get_new_list_array: (length) ->
     array = new Array(length)
-    list_array = _.map(array, (x) -> [])
+    list_array = array.map((x) -> [])
     return list_array
 
   _get_new_nan_array: (length) ->
     array = new Array(length)
-    nan_array = _.map(array, (x) -> NaN)
+    nan_array = array.map((x) -> NaN)
     return nan_array
 
   _flatten_function: (accumulator, currentItem) ->

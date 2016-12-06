@@ -43,7 +43,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
 export jQueryUIPrefixer = (el) ->
   return unless el.className?
   classList = el.className.split " "
-  prefixedClassList = _.map classList, (a) ->
+  prefixedClassList = classList.map (a) ->
     a = a.trim()
     return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
   return prefixedClassList.join " "
