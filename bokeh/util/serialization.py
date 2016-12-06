@@ -130,12 +130,7 @@ def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
     """
     is_numpy = is_numpy and use_numpy
     if is_numpy and all(isinstance(el, np.ndarray) for el in datum):
-        datum_copy = []
-        shapes = []
-        for el in datum:
-            d = transform_array(el)
-            datum_copy.append(d)
-        return datum_copy
+        return [transform_array(el) for el in datum]
     datum_copy = []
     for item in datum:
         if isinstance(item, (list, tuple)):
