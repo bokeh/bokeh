@@ -67,7 +67,7 @@ export class GeoJSONDataSource extends ColumnDataSource
         logger.warn('MultiPoint not supported in Bokeh')
 
       when "MultiLineString"
-        flattened_coord_list = _.reduce(geometry.coordinates, @_flatten_function)
+        flattened_coord_list = geometry.coordinates.reduce(@_flatten_function)
         for coords, j in flattened_coord_list
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
@@ -80,7 +80,7 @@ export class GeoJSONDataSource extends ColumnDataSource
             logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
           exterior_rings.push(polygon[0])
 
-        flattened_coord_list = _.reduce(exterior_rings, @_flatten_function)
+        flattened_coord_list = exterior_rings.reduce(@_flatten_function)
         for coords, j in flattened_coord_list
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
