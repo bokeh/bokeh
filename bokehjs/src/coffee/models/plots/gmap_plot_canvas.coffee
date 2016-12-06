@@ -7,7 +7,7 @@ import * as p from "../../core/properties"
 export class GMapPlotCanvasView extends PlotCanvasView
 
   initialize: (options) ->
-    super(_.defaults(options, @default_options))
+    super(options)
     @zoom_count = 0
 
   getLatLngBounds: () =>
