@@ -19,8 +19,8 @@ export class CompositeTicker extends ContinuousTicker
   # FIXME Enforce this automatically.
 
   @getters {
-    min_intervals: () -> _.invoke(@tickers, 'get_min_interval')
-    max_intervals: () -> _.invoke(@tickers, 'get_max_interval')
+    min_intervals: () -> (ticker.get_min_interval() for ticker in @tickers)
+    max_intervals: () -> (ticker.get_max_interval() for ticker in @tickers)
     min_interval: () -> _.first(@min_intervals)
     max_interval: () -> _.first(@max_intervals)
   }

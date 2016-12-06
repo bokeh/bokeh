@@ -73,7 +73,7 @@ export class DaysTicker extends SingleIntervalTicker
     interval = @interval
     day_dates = _.flatten(days_of_month(date, interval) for date in month_dates)
 
-    all_ticks = _.invoke(day_dates, 'getTime')
+    all_ticks = (day_date.getTime() for day_date in day_dates)
     # FIXME Since the ticks are sorted, this could be done more efficiently.
     ticks_in_range = _.filter(all_ticks,
                               ((tick) -> data_low <= tick <= data_high))
