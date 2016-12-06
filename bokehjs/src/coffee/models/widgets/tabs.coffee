@@ -30,9 +30,7 @@ export class TabsView extends WidgetView
       $(this).tab('show')
       panelId = $(this).attr('href').replace('#tab-','')
       tabs = that.model.tabs
-      panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
-        return panel.id == panelId
-      ))
+      panelIdx = _.findIndex(tabs, (panel) -> panel.id == panelId)
       that.model.active = panelIdx
       that.model.callback?.execute(that.model)
 
