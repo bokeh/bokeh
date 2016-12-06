@@ -110,9 +110,9 @@ def transform_array(obj):
             if obj.dtype == np.dtype('datetime64[ns]'):
                 array = obj.astype('int64') / 10**6.0
         else:
-            array =  obj.astype('datetime64[us]').astype('int64') / 1000
+            array =  obj.astype('datetime64[us]').astype('int64') / 1000.
     elif obj.dtype.kind == 'm':
-        array = obj.astype('timedelta64[us]').astype('int64') / 1000
+        array = obj.astype('timedelta64[us]').astype('int64') / 1000.
     else:
         array = obj
     return serialize_array(array)
