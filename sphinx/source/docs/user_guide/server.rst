@@ -647,9 +647,7 @@ Embedding Bokeh Server as a Library
 -----------------------------------
 
 If you want to embed the Bokeh Server in a larger Tornado-based application
-with other concurrent network services or coroutines, you'll want to handle
-the lifetime of the Tornado IO loop yourself by passing ``start_loop=False``
-to the Bokeh Server's ``start()`` method:
+with other concurrent network services or coroutines, here is how to do it:
 
 .. code-block:: python
 
@@ -664,7 +662,10 @@ to the Bokeh Server's ``start()`` method:
        from bokeh.server.server import Server
        server = Server(bokeh_applications, io_loop=loop,
                        **server_kwargs)
-       server.start(start_loop=False)
+       server.start()
+
+When you ever want to stop the embedded Bokeh Server, call the ``stop()``
+method on the given ``Server`` instance.
 
 
 .. _userguide_server_deployment:
