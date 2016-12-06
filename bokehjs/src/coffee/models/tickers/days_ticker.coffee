@@ -75,8 +75,7 @@ export class DaysTicker extends SingleIntervalTicker
 
     all_ticks = (day_date.getTime() for day_date in day_dates)
     # FIXME Since the ticks are sorted, this could be done more efficiently.
-    ticks_in_range = _.filter(all_ticks,
-                              ((tick) -> data_low <= tick <= data_high))
+    ticks_in_range = all_ticks.filter((tick) -> data_low <= tick <= data_high)
 
     return {
       "major": ticks_in_range,
