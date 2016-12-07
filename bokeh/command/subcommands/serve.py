@@ -324,7 +324,7 @@ import argparse
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
-from bokeh.server.server import Server
+from bokeh.server.server import Server, _tornado_kwargs
 from bokeh.util.string import nice_join
 from bokeh.settings import settings
 
@@ -485,7 +485,7 @@ class Serve(Subcommand):
     )
 
 
-    def invoke(self, args):
+    def invoke(self, args, **kwargs):
         argvs = { f : args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 
@@ -533,6 +533,10 @@ class Serve(Subcommand):
                                                             ]
                           if getattr(args, key, None) is not None }
 
+        for key in _tornado_kwargs:
+            if key in kwargs:
+                server_kwargs[key] = kwargs.pop(key)
+
         server_kwargs['sign_sessions'] = settings.sign_sessions()
         server_kwargs['secret_key'] = settings.secret_key_bytes()
         server_kwargs['generate_session_ids'] = True
@@ -577,4 +581,5 @@ class Serve(Subcommand):
 
         log.info("Starting Bokeh server with process id: %d" % getpid())
 
-        server.start()
+        server.start(**kwargs)
+        return server

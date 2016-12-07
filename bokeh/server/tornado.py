@@ -342,7 +342,7 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_load_hook()
 
-        if start_loop:
+        if start_loop and not self._loop._running:
             try:
                 self._loop.start()
             except KeyboardInterrupt:

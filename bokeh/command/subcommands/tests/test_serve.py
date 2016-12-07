@@ -152,3 +152,15 @@ def test_args():
              type=int,
          )),
     )
+
+
+def test_create_server_manually():
+    from tornado.ioloop import IOLoop
+    loop = IOLoop()
+    argv = ['bokeh', 'examples/app/crossfilter']  # TODO: better test example
+    parser = argparse.ArgumentParser(prog=argv[0])
+    serve = scserve.Serve(parser)
+    args = parser.parse_args(argv[1:])
+    server = serve.invoke(args, start_loop=False, io_loop=loop)
+    assert server.io_loop is loop
+    assert not loop._running
