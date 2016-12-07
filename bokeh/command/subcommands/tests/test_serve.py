@@ -1,11 +1,13 @@
 from __future__ import absolute_import
 
 import argparse
+import re
 import socket
 import subprocess
 import sys
 
 import pytest
+import requests
 
 import bokeh.command.subcommands.serve as scserve
 from bokeh.command.bootstrap import main
@@ -185,3 +187,23 @@ def test_port_not_available():
         out = check_error(["--port", str(port)])
         expected = "Cannot start Bokeh server, port %d is already in use" % port
         assert expected in out
+
+def test_actual_port_printed_out():
+    cmd = [sys.executable, "-m", "bokeh", "serve", "--port", "0"]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    try:
+        pat = re.compile(r'Starting Bokeh server on port (\d+) with applications at paths')
+        for line in p.stdout:
+            print("child stdout:", line)
+            m = pat.search(line.decode())
+            if m is not None:
+                break
+        else:
+            pytest.fail("no matching log line in process output")
+        port = int(m.group(1))
+        assert port > 0
+        r = requests.get("http://localhost:%d/" % (port,))
+        assert r.status_code == 200
+    finally:
+        p.terminate()
+        p.wait()
