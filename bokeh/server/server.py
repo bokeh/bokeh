@@ -7,7 +7,6 @@ import atexit
 import logging
 log = logging.getLogger(__name__)
 import signal
-import sys
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
