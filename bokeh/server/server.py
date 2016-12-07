@@ -156,6 +156,10 @@ class Server(object):
 
     def start(self):
         ''' Start the Bokeh Server and its background tasks.
+
+        Notes:
+            This method does not block and does not affect the state of
+            the Tornado I/O loop.  You must start and stop the loop yourself.
         '''
         assert not self._started, "Already started"
         self._started = True
@@ -175,8 +179,8 @@ class Server(object):
         self._tornado.stop(wait)
 
     def run_until_shutdown(self):
-        ''' Run the Bokeh Server until shutdown is requested by the user.
-        Keyboard interrupts or sigterm will cause the server to shut down.
+        ''' Run the Bokeh Server until shutdown is requested by the user,
+        either via a Keyboard interrupt (Ctrl-C) or SIGTERM.
         '''
         if not self._started:
             self.start()
