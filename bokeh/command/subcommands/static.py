@@ -33,4 +33,4 @@ class Static(Subcommand):
             address_string = ' address ' + server.address
 
         log.info("Starting Bokeh static server on port %d%s", server.port, address_string)
-        server.start()
+        server.run_until_shutdown()
