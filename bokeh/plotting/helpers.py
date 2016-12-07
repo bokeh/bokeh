@@ -550,7 +550,7 @@ def _glyph_function(glyphclass, extra_docs=None):
                                        nonselection_glyph=nsglyph,
                                        selection_glyph=sglyph,
                                        hover_glyph=hglyph,
-                                       mute_glyph=mglyph,
+                                       muted_glyph=mglyph,
                                        **renderer_kws)
 
         if legend_item_label:

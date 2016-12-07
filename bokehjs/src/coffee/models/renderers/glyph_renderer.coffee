@@ -37,9 +37,9 @@ export class GlyphRendererView extends RendererView
     if hover_glyph?
       @hover_glyph = @build_glyph_view(hover_glyph)
 
-    mute_glyph = @model.mute_glyph
-    if mute_glyph?
-      @mute_glyph = @build_glyph_view(mute_glyph)
+    muted_glyph = @model.muted_glyph
+    if muted_glyph?
+      @muted_glyph = @build_glyph_view(muted_glyph)
 
     decimated_glyph = mk_glyph(@model.decimated_defaults)
     @decimated_glyph = @build_glyph_view(decimated_glyph)
@@ -95,8 +95,8 @@ export class GlyphRendererView extends RendererView
       @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
-    if @mute_glyph?
-      @mute_glyph.set_visuals(source)
+    if @muted_glyph?
+      @muted_glyph.set_visuals(source)
 
     length = source.get_length()
     length = 1 if not length?
@@ -164,7 +164,7 @@ export class GlyphRendererView extends RendererView
       nonselection_glyph = @decimated_glyph
       selection_glyph = @selection_glyph
     else
-      glyph = if @model.muted and @mute_glyph? then @mute_glyph else @glyph
+      glyph = if @model.muted and @muted_glyph? then @muted_glyph else @glyph
       nonselection_glyph = @nonselection_glyph
       selection_glyph = @selection_glyph
 
@@ -249,7 +249,7 @@ export class GlyphRenderer extends Renderer
       nonselection_glyph: [ p.Instance               ]
       selection_glyph:    [ p.Instance               ]
       hover_glyph:        [ p.Instance               ]
-      mute_glyph:         [ p.Instance               ]
+      muted_glyph:        [ p.Instance               ]
       muted:              [ p.Bool,        false     ]
     }
 
