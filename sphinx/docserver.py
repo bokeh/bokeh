@@ -10,20 +10,11 @@ from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-
-
 _basedir = os.path.join("..", os.path.dirname(__file__))
 
 app = flask.Flask(__name__, static_path="/unused")
 PORT=5009
 http_server = HTTPServer(WSGIContainer(app))
-
-"""this is a simple server to facilitate developing the docs.  by
-serving up static files from this server, we avoid the need to use a
-symlink.
-
-"""
-
 
 @app.route('/')
 def welcome():
@@ -37,6 +28,10 @@ def send_pic(filename):
     return flask.send_from_directory(
         os.path.join(_basedir,"sphinx/_build/html/"), filename)
 
+@app.route('/scripts/<path:filename>')
+def send_script(filename):
+    return flask.send_from_directory(
+        os.path.join(_basedir,"sphinx/_build/html/scripts/"), filename)
 
 def open_browser():
     # Child process

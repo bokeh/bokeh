@@ -23,7 +23,7 @@ from os.path import abspath, dirname, join
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+needs_sphinx = '1.4'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -34,10 +34,12 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',
+    'bokeh.sphinxext.bokeh_enum',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
     'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',
+    'bokeh.sphinxext.bokeh_options',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
@@ -93,7 +95,9 @@ all_versions = [x.strip() for x in reversed(f.readlines())]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+#
+# NOTE: in these docs all .py script are assumed to be bokeh plot scripts
+exclude_patterns = ['conf.py']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

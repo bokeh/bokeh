@@ -77,12 +77,12 @@ export class Plot extends LayoutDOM
       plots = xr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        xr.plots = plots
+        xr.setv('plots', plots, {silent: true})
     for yr in _.values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        yr.plots = plots
+        yr.setv('plots', plots, {silent: true})
 
     @_horizontal = false
     if @toolbar_location in ['left', 'right']

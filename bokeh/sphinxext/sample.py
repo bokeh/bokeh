@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.model import Model
+from bokeh.core.enums import enumeration
 from bokeh.core.properties import Auto, Either, Enum, Float, Int, List, Tuple
 
 class Foo(Model):
@@ -11,3 +12,6 @@ class Foo(Model):
 class Bar(Model):
     """ This is a Bar model. """
     thing = List(Int, help="doc for thing")
+
+#: This is an enumeration
+baz = enumeration("a", "b", "c")

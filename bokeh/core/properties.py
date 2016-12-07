@@ -86,7 +86,7 @@ def field(name):
         name (str) : name of a data source field to reference for a property.
 
     Returns:
-        dict : `{"field": name}`
+        dict : ``{"field": name}``
 
     Note:
         This function is included for completeness. String values for
@@ -103,7 +103,7 @@ def value(val):
         val (any) : a fixed value to specify for a property.
 
     Returns:
-        dict : `{"value": name}`
+        dict : ``{"value": name}``
 
     Note:
         String values for property specifications are by default interpreted
@@ -169,6 +169,9 @@ class PropertyDescriptor(PropertyFactory):
 
     def __str__(self):
         return self.__class__.__name__
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
     def make_properties(self, base_name):
         return [ BasicProperty(descriptor=self, name=base_name) ]
@@ -373,6 +376,9 @@ class BasicProperty(Property):
         return super(BasicProperty, self).set_from_json(obj,
                                                         self.descriptor.from_json(json, models),
                                                         models)
+
+    def _sphinx_type(self):
+        return self.descriptor._sphinx_type()
 
     @property
     def has_ref(self):
@@ -978,6 +984,10 @@ if IPython:
             super(BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
             self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._bokeh_repr_pretty_(p, cycle)
 
+_PROP_LINK = ":class:`~bokeh.core.properties.%s` "
+_MODEL_LINK = ":class:`~%s` "
+
+
 class PrimitiveProperty(PropertyDescriptor):
     """ A base class for simple property types.
 
@@ -1001,6 +1011,9 @@ class PrimitiveProperty(PropertyDescriptor):
         else:
             expected = nice_join([ cls.__name__ for cls in self._underlying_type ])
             raise DeserializationError("%s expected %s, got %s" % (self, expected, json))
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
 class Bool(PrimitiveProperty):
     """ Boolean type property. """
@@ -1134,6 +1147,9 @@ class Seq(ContainerProperty):
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
 
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__ + "( %s )" % self.item_type._sphinx_type()
+
     def from_json(self, json, models=None):
         if json is None:
             return None
@@ -1200,6 +1216,9 @@ class Dict(ContainerProperty):
     def __str__(self):
         return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
 
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__ + "( %s, %s )" % (self.keys_type._sphinx_type(), self.values_type._sphinx_type())
+
     def from_json(self, json, models=None):
         if json is None:
             return None
@@ -1228,6 +1247,9 @@ class Tuple(ContainerProperty):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__ + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
 
     def from_json(self, json, models=None):
         if json is None:
@@ -1279,6 +1301,10 @@ class Instance(PropertyDescriptor):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
+
+    def _sphinx_type(self):
+        fullname = "%s.%s" % (self.instance_type.__module__, self.instance_type.__name__)
+        return _PROP_LINK % self.__class__.__name__ + "( %s )" % _MODEL_LINK % fullname
 
     def from_json(self, json, models=None):
         if json is None:
@@ -1396,6 +1422,9 @@ class Either(ParameterizedPropertyDescriptor):
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__ + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
+
     def __or__(self, other):
         return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
 
@@ -1428,13 +1457,30 @@ class Enum(String):
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
 
-class Auto(Enum):
+    def _sphinx_type(self):
+        # try to return a link to a proper enum in bokeh.core.enums if possible
+        if self._enum in enums.__dict__.values():
+            for name, obj in enums.__dict__.items():
+                if self._enum is obj:
+                    val = _MODEL_LINK % "%s.%s" % (self._enum.__module__, name)
+        else:
+            val = str(self._enum)
+        return _PROP_LINK % self.__class__.__name__ + "( %s )" % val
 
+class Auto(Enum):
+    """ Accepts the string "auto".
+
+    Useful for properties that can be configured to behave "automatically".
+
+    """
     def __init__(self):
         super(Auto, self).__init__("auto")
 
     def __str__(self):
         return self.__class__.__name__
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
 # Properties useful for defining visual attributes
 class Color(Either):
@@ -1460,6 +1506,9 @@ class Color(Either):
 
     def __str__(self):
         return self.__class__.__name__
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
 
 class MinMaxBounds(Either):
@@ -1500,6 +1549,9 @@ class MinMaxBounds(Either):
             raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
 
         return True
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
 
 class Align(PropertyDescriptor):
@@ -1549,6 +1601,9 @@ class DashPattern(Either):
 
     def __str__(self):
         return self.__class__.__name__
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
 class Size(Float):
     """ Size type property.
@@ -1719,6 +1774,9 @@ class DataSpecProperty(BasicProperty):
         super(DataSpecProperty, self).set_from_json(obj, json, models)
 
 class DataSpec(Either):
+    ''' Represent either a fixed value, or a reference to a column in a data source.
+
+    '''
     def __init__(self, typ, default, help=None):
         super(DataSpec, self).__init__(
             String,
@@ -1759,6 +1817,9 @@ class DataSpec(Either):
 
         # Must be dict, return as-is
         return val
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
 class NumberSpec(DataSpec):
     ''' A DataSpec property that can be set to a numeric fixed value,
@@ -1998,10 +2059,15 @@ class ColorSpec(DataSpec):
         return value
 
 class TitleProp(Either):
+    ''' Accepts a title for a plot
 
+    '''
     def __init__(self, default=None, help=None):
         types = (Instance('bokeh.models.annotations.Title'), String)
         super(TitleProp, self).__init__(*types, default=default, help=help)
+
+    def _sphinx_type(self):
+        return _PROP_LINK % self.__class__.__name__
 
     def transform(self, value):
         if isinstance(value, str):

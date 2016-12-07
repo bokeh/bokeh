@@ -185,7 +185,7 @@ Which results in the output below. The JavaScript code for the implementation
 is automatically included in the rendered document. Scrub the slider to see
 the special header update as the slider moves:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/extensions_putting_together.py
+.. bokeh-plot:: docs/user_guide/examples/extensions_putting_together.py
     :source-position: none
 
 .. _userguide_extensions_supplying_external_resources:
@@ -270,7 +270,7 @@ and improvements to this section for future users.
 :ref:`userguide_extensions_examples_latex`
     Include a third-party JavaScript library in order to render LaTex.
 
-:ref:`userguide_extensions_examples_widget`
+ :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org

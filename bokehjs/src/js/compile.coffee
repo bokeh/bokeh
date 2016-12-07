@@ -6,7 +6,6 @@ coffee = require "coffee-script"
 detective = require "detective"
 jslint = require "jslint"
 less = require "less"
-eco = require "../../gulp/eco"
 argv = require("yargs").argv
 
 mkCoffeescriptError = (error, file) ->
@@ -88,11 +87,6 @@ compile_and_resolve_deps = (input) ->
         return reply({error: mkCoffeescriptError(error, input.file)})
     when "javascript", "typescript"
       code = input.code
-    when "eco"
-      try
-        code = "export default #{eco.compile(input.code)};"
-      catch error
-        return reply({error: mkCoffeescriptError(error, input.file)})
     when "less"
       options = {
         paths: [path.dirname(input.file)]
@@ -114,6 +108,8 @@ compile_and_resolve_deps = (input) ->
       noImplicitAny: false
       target: ts.ScriptTarget.ES5
       module: ts.ModuleKind.CommonJS
+      jsx: "react"
+      reactNamespace: "DOM"
     }
   })
 

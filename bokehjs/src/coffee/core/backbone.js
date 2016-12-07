@@ -224,7 +224,7 @@ _.extend(View.prototype, Events, {
       if (!_.isFunction(method)) method = this[method];
       if (!method) continue;
       var match = key.match(delegateEventSplitter);
-      this.delegate(match[1], match[2], _.bind(method, this));
+      this.delegate(match[1], match[2], method.bind(this));
     }
     return this;
   },

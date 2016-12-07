@@ -151,7 +151,7 @@ export bar = (data, opts={}) ->
     for v, i in row
       columns[i].push(v)
 
-  labels = _.map(columns[0], (v) -> v.toString())
+  labels = columns[0].map((v) -> v.toString())
   columns = columns.slice(1)
 
   yaxis = new models.CategoricalAxis()

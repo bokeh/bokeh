@@ -1,6 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
+sinon = require "sinon"
 
+{CustomJS} = utils.require("models/callbacks/customjs")
 {FactorRange} = utils.require("models/ranges/factor_range")
 
 describe "factor_range module", ->
@@ -61,3 +63,30 @@ describe "factor_range module", ->
 
       expect(r.start).to.be.equal -0.5
       expect(r.end).to.be.equal 0.5
+
+  describe "reset method", ->
+
+    it "should execute callback once", ->
+      cb = new CustomJS()
+      r = new FactorRange({callback: cb})
+      spy = sinon.spy(cb, 'execute')
+      r.reset()
+
+      expect(spy.calledOnce).to.be.true
+
+  describe "changing model attribute", ->
+
+    it "should execute callback once", ->
+      cb = new CustomJS()
+      spy = sinon.spy(cb, 'execute')
+      r = new FactorRange({callback: cb})
+
+      expect(spy.called).to.be.false
+      r.factors = ["A", "B", "C"]
+      expect(spy.calledOnce).to.be.true
+      spy.reset()
+      r.offset = 10
+      expect(spy.calledOnce).to.be.true
+      spy.reset()
+      r.bounds = [1,2]
+      expect(spy.calledOnce).to.be.true

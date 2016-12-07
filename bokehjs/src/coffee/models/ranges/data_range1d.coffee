@@ -140,7 +140,9 @@ export class DataRange1d extends DataRange
       @setv(new_range)
 
     if @bounds == 'auto'
-      @bounds = [start, end]
+      @setv({bounds: [start, end]}, {silent: true})
+
+    @trigger('change')
 
   reset: () ->
     @have_updated_interactively = false
@@ -149,4 +151,5 @@ export class DataRange1d extends DataRange
       follow: @_initial_follow
       follow_interval: @_initial_follow_interval
       default_span: @_initial_default_span
-    })
+    }, {silent: true})
+    @trigger('change')

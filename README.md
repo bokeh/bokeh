@@ -4,7 +4,7 @@ Bokeh
 <table>
 <tr>
   <td>Latest Release</td>
-  <td><img src="https://img.shields.io/pypi/v/bokeh.svg" alt="latest release" /></td>
+  <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="latest release" /></td>
 </tr>
 <tr>
   <td>License</td>
@@ -33,9 +33,7 @@ Bokeh
 <tr>
   <td>PyPI</td>
   <td>
-    <a href="https://pypi.python.org/pypi/bokeh/">
-    <img src="https://img.shields.io/pypi/dm/bokeh.svg" alt="pypi downloads" />
-    </a>
+    <img src="http://bokeh.pydata.org/pip-bokeh-downloads.png" />
   </td>
 </tr>
 <tr>
@@ -43,6 +41,14 @@ Bokeh
   <td>
     <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
     <img src="https://badges.gitter.im/bokeh/bokeh.svg" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>Twitter</td>
+  <td>
+    <a href="https://https://twitter.com/BokehPlots">
+    <img src="https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow" />
     </a>
   </td>
 </tr>
@@ -222,4 +228,4 @@ To contribute to Bokeh, please review the [Developer Guide](http://bokeh.pydata.
 
 Follow us
 ---------
-Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots), on [Vine](https://vine.co/bokehplots), and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
+Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).

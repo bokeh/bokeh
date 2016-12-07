@@ -1,1 +1,0 @@
-<input type="checkbox" <% if @model.active: %>checked<% end %>><%= @model.tool_name %></input>

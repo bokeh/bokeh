@@ -32,6 +32,7 @@ export class CrosshairTool extends InspectTool
   default_view: CrosshairToolView
   type: "CrosshairTool"
   tool_name: "Crosshair"
+  icon: "bk-tool-icon-crosshair"
 
   @define {
       dimensions: [ p.Dimensions, "both"         ]

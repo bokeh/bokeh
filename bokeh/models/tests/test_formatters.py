@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 import pytest
 
 from bokeh.models import FuncTickFormatter, Slider
@@ -14,7 +16,7 @@ def test_functickformatter_from_py_func_no_args():
 
     function_wrapper = formatter.code.replace(js_code, '')
 
-    assert function_wrapper == "formatter();\n"
+    assert function_wrapper == "return formatter();\n"
 
 def test_functickformatter_from_py_func_with_args():
 
@@ -28,7 +30,7 @@ def test_functickformatter_from_py_func_with_args():
 
     function_wrapper = formatter.code.replace(js_code, '')
 
-    assert function_wrapper == "formatter(x);\n"
+    assert function_wrapper == "return formatter(x);\n"
     assert formatter.args['x'] is slider
 
 def test_functickformatter_bad_pyfunc_formats():
@@ -48,33 +50,33 @@ def test_functickformatter_bad_pyfunc_formats():
         FuncTickFormatter.from_py_func(has_non_Model_keyword_argument)
 
 def test_functickformatter_from_coffeescript_no_arg():
-    coffee_code = """\
-square = (x) -> x * x
-return square(tick)
-"""
+    coffee_code = dedent("""
+        square = (x) -> x * x
+        return square(tick)
+        """)
 
     formatter = FuncTickFormatter.from_coffeescript(code=coffee_code)
 
-    assert formatter.code == """\
-"use strict";
-var square;
-square = function (x) {
-    return x * x;
-};
-return square(tick);
-"""
+    assert formatter.code == dedent("""\
+        "use strict";
+        var square;
+        square = function (x) {
+            return x * x;
+        };
+        return square(tick);
+        """)
     assert formatter.args == {}
 
 def test_functickformatter_from_coffeescript_with_args():
-    coffee_code = """\
-return slider.get("value") // 2 + tick
-"""
+    coffee_code = dedent("""
+         return slider.get("value") // 2 + tick
+         """)
 
     slider = Slider()
     formatter = FuncTickFormatter.from_coffeescript(code=coffee_code, args={"slider": slider})
 
-    assert formatter.code == """\
-"use strict";
-return Math.floor(slider.get("value") / 2) + tick;
-"""
+    assert formatter.code == dedent("""\
+        "use strict";
+        return Math.floor(slider.get("value") / 2) + tick;
+        """)
     assert formatter.args == {"slider": slider}

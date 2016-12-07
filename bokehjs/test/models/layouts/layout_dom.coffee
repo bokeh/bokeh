@@ -46,6 +46,12 @@ describe "LayoutDOMView", ->
       layout_view = new LayoutDOMView({ model: @test_layout })
       expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-scale_height'
 
+    it "should set classes from css_classes", ->
+      @test_layout.sizing_mode = 'fixed'
+      @test_layout.css_classes = ['FOO', 'BAR']
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed FOO BAR'
+
     it "should set an id matching the model.id", ->
       # This is used by document to find the model and its parents on resize events
       layout_view = new LayoutDOMView({ model: @test_layout })
