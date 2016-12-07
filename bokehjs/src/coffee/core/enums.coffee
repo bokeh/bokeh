@@ -15,9 +15,16 @@ export LineJoin = ["miter", "round", "bevel"]
 export Location = ["above", "below", "left", "right"]
 
 export LegendLocation = [
-  "top_left", "top_center", "top_right",
-  "left_center", "center", "right_center",
-  "bottom_left", "bottom_center", "bottom_right"
+  # <vertical>_<horizontal>
+  "top_left",    "top_center",    "top_right",
+  "center_left",                  "center_right",
+  "bottom_left", "bottom_center", "bottom_right",
+  # <horizontal>_<vertical>
+  "left_top",    "center_top",    "right_top",
+  "left_center",                  "right_center",
+  "left_bottom", "center_bottom", "right_bottom",
+  # center
+  "center", "center_center",
 ]
 
 export Orientation = ["vertical", "horizontal"]

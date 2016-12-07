@@ -713,23 +713,23 @@ Inside the Plot Area
 For legends in the central layout area, such as those created
 automatically by ``bokeh.plotting``, values for ``location``  can be:
 
-``"top_left"``
+``"top_left"``, ``"left_top"``
 
-``"top_center"``
+``"top_center"``, ``"center_top"``
 
-``"top_right"`` (the default)
+``"top_right"``, ``"right_top"`` (the default)
 
-``"right_center"``
+``"center_right"``, ``"right_center"``
 
-``"bottom_right"``
+``"bottom_right"``, ``"right_bottom"``
 
-``"bottom_center"``
+``"bottom_center"``, ``"center_bottom"``
 
-``"bottom_left"``
+``"bottom_left"``, ``"left_bottom"``
 
-``"left_center"``
+``"center_left"``, ``"left_center"``
 
-``"center"``
+``"center"``, ``"center_center"``
 
 or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
 (pixels from the bottom-left corner).
