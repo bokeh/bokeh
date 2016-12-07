@@ -653,20 +653,16 @@ to integrate Bokeh in such a scenario:
 
 .. code-block:: python
 
-   def add_bokeh_server(loop, bokeh_applications, **server_kwargs):
-       """
-       Start a Bokeh Server instance in the Tornado *loop*
-       with the given *bokeh_applications*.
+   from bokeh.server.server import Server
 
-       *server_kwargs* can contain additional Bokeh Server arguments,
-       such as the ``port`` number to listen on.
-       """
-       from bokeh.server.server import Server
-       server = Server(bokeh_applications, io_loop=loop,
-                       **server_kwargs)
-       # This returns immediately after having started all timers
-       # and services.
-       server.start()
+   server = Server(
+       bokeh_applications,  # list of Bokeh applications
+       io_loop=loop,        # Tornado IOLoop
+       **server_kwargs      # port, num_procs, etc.
+   )
+
+   # start timers and services and immediately return
+   server.start()
 
 When you want to stop the embedded Bokeh Server, call the ``stop()``
 method on the given ``Server`` instance.

@@ -331,14 +331,14 @@ class BokehTornado(TornadoApplication):
         ''' Stop the Bokeh Server application.
 
         Args:
-            fast (boolean): whether to wait for orderly cleanup (default: True)
+            wait (boolean): whether to wait for orderly cleanup (default: True)
 
         Returns:
             None
 
         '''
         # TODO we should probably close all connections and shut
-        # down all sessions either here or in unlisten()
+        # down all sessions here
         for context in self._applications.values():
             context.run_unload_hook()
 
