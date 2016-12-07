@@ -47,10 +47,13 @@ def test_Legend():
         "padding",
         "spacing",
         "items",
-        "level"],
+        "level",
+        "click_policy"],
         prefix('label_', TEXT),
         prefix('border_', LINE),
-        prefix('background_', FILL))
+        prefix('background_', FILL),
+        prefix('hover_', FILL),
+        prefix('inactive_', FILL))
 
 
 def test_ColorBar():
