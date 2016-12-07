@@ -1,8 +1,14 @@
 from __future__ import absolute_import
 
 import argparse
+import socket
+import subprocess
+import sys
+
+import pytest
 
 import bokeh.command.subcommands.serve as scserve
+from bokeh.command.bootstrap import main
 
 def test_create():
     import argparse
@@ -152,3 +158,30 @@ def test_args():
              type=int,
          )),
     )
+
+
+def check_error(args):
+    cmd = [sys.executable, "-m", "bokeh", "serve"] + args
+    try:
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        assert e.returncode == 1
+        out = e.output.decode()
+    else:
+        pytest.fail("command %s unexpected successful" % (cmd,))
+    return out
+
+def test_host_not_available():
+    host = "8.8.8.8"
+    out = check_error(["--address", host])
+    expected = "Cannot start Bokeh server, address %r not available" % host
+    assert expected in out
+
+def test_port_not_available():
+    sock = socket.socket()
+    with sock:
+        sock.bind(('0.0.0.0', 0))
+        port = sock.getsockname()[1]
+        out = check_error(["--port", str(port)])
+        expected = "Cannot start Bokeh server, port %d is already in use" % port
+        assert expected in out
