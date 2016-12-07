@@ -577,5 +577,4 @@ class Serve(Subcommand):
                      sorted(applications.keys()))
 
             log.info("Starting Bokeh server with process id: %d" % getpid())
-
-            server.start()
+            server.run_until_shutdown()

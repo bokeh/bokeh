@@ -3,10 +3,14 @@
 '''
 from __future__ import absolute_import, print_function
 
+import atexit
 import logging
 log = logging.getLogger(__name__)
+import signal
+import sys
 
 from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
 
 from .tornado import BokehTornado
 
@@ -62,7 +66,7 @@ class Server(object):
             Number of worker processes for an app. Default to one. Using 0 will autodetect number of cores
     '''
 
-    def __init__(self, applications, **kwargs):
+    def __init__(self, applications, io_loop=None, **kwargs):
         log.info("Starting Bokeh server version %s" % __version__)
 
         if isinstance(applications, Application):
@@ -70,8 +74,7 @@ class Server(object):
         else:
             self._applications = applications
 
-        tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
-                                                        'extra_patterns',
+        tornado_kwargs = { key: kwargs[key] for key in ['extra_patterns',
                                                         'secret_key',
                                                         'sign_sessions',
                                                         'generate_session_ids',
@@ -93,6 +96,14 @@ class Server(object):
         if 'port' in kwargs:
             self._port = kwargs['port']
 
+        self._started = False
+        self._stopped = False
+
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
+
+        tornado_kwargs['io_loop'] = io_loop
         tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
         tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
         tornado_kwargs['use_index'] = kwargs.get('use_index', True)
@@ -131,32 +142,61 @@ class Server(object):
 
     @property
     def io_loop(self):
-        return self._tornado.io_loop
+        return self._loop
 
-    def start(self, start_loop=True):
-        ''' Start the Bokeh Server's IO loop and background tasks.
-
-        Args:
-            start_loop (boolean, optional): whether to start the IO loop after
-               starting background tasks (default: True).
-
-        Returns:
-            None
+    def start(self):
+        ''' Start the Bokeh Server and its background tasks.
 
         Notes:
-            Keyboard interrupts or sigterm will cause the server to shut down.
-
+            This method does not block and does not affect the state of
+            the Tornado I/O loop.  You must start and stop the loop yourself.
         '''
-        self._tornado.start(start_loop=start_loop)
+        assert not self._started, "Already started"
+        self._started = True
+        self._tornado.start()
 
-    def stop(self):
-        ''' Stop the Bokeh Server's IO loop.
+    def stop(self, wait=True):
+        ''' Stop the Bokeh Server.
+
+        Args:
+            fast (boolean): whether to wait for orderly cleanup (default: True)
 
         Returns:
             None
-
         '''
-        self._tornado.stop()
+        assert not self._stopped, "Already stopped"
+        self._stopped = True
+        self._tornado.stop(wait)
+
+    def run_until_shutdown(self):
+        ''' Run the Bokeh Server until shutdown is requested by the user,
+        either via a Keyboard interrupt (Ctrl-C) or SIGTERM.
+        '''
+        if not self._started:
+            self.start()
+        # Install shutdown hooks
+        atexit.register(self._atexit)
+        signal.signal(signal.SIGTERM, self._sigterm)
+        try:
+            self._loop.start()
+        except KeyboardInterrupt:
+            print("\nInterrupted, shutting down")
+        self.stop()
+
+    _atexit_ran = False
+    def _atexit(self):
+        if self._atexit_ran:
+            return
+        self._atexit_ran = True
+
+        log.debug("Shutdown: cleaning up")
+        if not self._stopped:
+            self.stop(wait=False)
+
+    def _sigterm(self, signum, frame):
+        print("Received signal %d, shutting down" % (signum,))
+        # Tell self._loop.start() to return.
+        self._loop.add_callback_from_signal(self._loop.stop)
 
     def unlisten(self):
         '''Stop listening on ports (Server will no longer be usable after calling this)
