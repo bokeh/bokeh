@@ -10,7 +10,7 @@ import pytest
 import requests
 
 import bokeh.command.subcommands.serve as scserve
-from bokeh.command.bootstrap import main
+
 
 def test_create():
     import argparse
@@ -181,12 +181,14 @@ def test_host_not_available():
 
 def test_port_not_available():
     sock = socket.socket()
-    with sock:
+    try:
         sock.bind(('0.0.0.0', 0))
         port = sock.getsockname()[1]
         out = check_error(["--port", str(port)])
         expected = "Cannot start Bokeh server, port %d is already in use" % port
         assert expected in out
+    finally:
+        sock.close()
 
 def test_actual_port_printed_out():
     cmd = [sys.executable, "-m", "bokeh", "serve", "--port", "0"]
