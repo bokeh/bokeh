@@ -7,7 +7,6 @@ import atexit
 import logging
 log = logging.getLogger(__name__)
 import signal
-import sys
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
@@ -51,6 +50,7 @@ def _create_hosts_whitelist(host_list, port):
         else:
             raise ValueError("Invalid host value: %s" % host)
     return hosts
+
 
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
@@ -123,20 +123,9 @@ class Server(object):
 
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
-        try:
-            self._http.bind(self._port, address=self._address)
-            self._http.start(self._num_procs)
-            self._tornado.initialize(**tornado_kwargs)
-        except OSError as e:
-            import errno
-            if e.errno == errno.EADDRINUSE:
-                log.critical("Cannot start Bokeh server, port %s is already in use", self._port)
-            elif e.errno == errno.EADDRNOTAVAIL:
-                log.critical("Cannot start Bokeh server, address '%s' not available", self._address)
-            else:
-                codename = errno.errorcode[e.errno]
-                log.critical("Cannot start Bokeh server, %s %r", codename, e)
-            sys.exit(1)
+        self._http.bind(self._port, address=self._address)
+        self._http.start(self._num_procs)
+        self._tornado.initialize(**tornado_kwargs)
 
     @property
     def port(self):

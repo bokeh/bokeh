@@ -3,12 +3,19 @@
 '''
 from __future__ import print_function
 
+import contextlib
+import errno
+import logging
 import os
 import sys
 import warnings
 
 from bokeh.application import Application
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
+
+
+log = logging.getLogger(__name__)
+
 
 def die(message):
     ''' Print an error message and exit.
@@ -100,3 +107,18 @@ def build_single_handler_applications(paths, argvs=None):
         applications[route] = application
 
     return applications
+
+
+@contextlib.contextmanager
+def report_server_init_errors(address=None, port=None, **kwargs):
+    try:
+        yield
+    except EnvironmentError as e:
+        if e.errno == errno.EADDRINUSE:
+            log.critical("Cannot start Bokeh server, port %s is already in use", port)
+        elif e.errno == errno.EADDRNOTAVAIL:
+            log.critical("Cannot start Bokeh server, address '%s' not available", address)
+        else:
+            codename = errno.errorcode[e.errno]
+            log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
+        sys.exit(1)
