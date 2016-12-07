@@ -230,18 +230,20 @@ export class Legend extends Annotation
   @mixins ['text:label_', 'fill:inactive_', 'line:border_', 'fill:background_']
 
   @define {
-      orientation:    [ p.Orientation,    'vertical'  ]
-      location:       [ p.Any,            'top_right' ] # TODO (bev)
-      label_standoff: [ p.Number,         5           ]
-      glyph_height:   [ p.Number,         20          ]
-      glyph_width:    [ p.Number,         20          ]
-      label_height:   [ p.Number,         20          ]
-      label_width:    [ p.Number,         20          ]
-      margin:         [ p.Number,         10          ]
-      padding:        [ p.Number,         10          ]
-      spacing:        [ p.Number,         3           ]
-      items:          [ p.Array,          []          ]
-      click_policy:   [ p.Any,            "hide"      ]
+      orientation:      [ p.Orientation,    'vertical'  ]
+      location:         [ p.Any,            'top_right' ] # TODO (bev)
+      label_standoff:   [ p.Number,         5           ]
+      glyph_height:     [ p.Number,         20          ]
+      glyph_width:      [ p.Number,         20          ]
+      label_height:     [ p.Number,         20          ]
+      label_width:      [ p.Number,         20          ]
+      margin:           [ p.Number,         10          ]
+      padding:          [ p.Number,         10          ]
+      spacing:          [ p.Number,         3           ]
+      items:            [ p.Array,          []          ]
+      click_policy:     [ p.Any,            "hide"      ]
+      hover_fill_color: [ p.Color,          "gray"      ]
+      hover_fill_alpha: [ p.Number,         1           ]
   }
 
   @override {
