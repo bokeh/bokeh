@@ -87,6 +87,9 @@ argument:
 
     bokeh serve app_script.py --port=8080
 
+To listen on an arbitrary port, pass ``0`` as the port number.  The actual
+port number will be logged at startup.
+
 Similarly, a specific network address can be specified with the
 ``--address`` argument. For example:
 

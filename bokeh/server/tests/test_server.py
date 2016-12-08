@@ -531,6 +531,12 @@ def test__existing_ioloop_with_multiple_processes_exception():
         with ManagedServerLoop(application, num_procs=3):
             pass
 
+def test__actual_port_number():
+    application = Application()
+    with ManagedServerLoop(application, port=0) as server:
+        port = server.port
+        assert port > 0
+        http_get(server.io_loop, url(server))
 
 def test__ioloop_not_forcibly_stopped():
     # Issue #5494
