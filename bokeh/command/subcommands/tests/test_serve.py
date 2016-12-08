@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import argparse
 import re
@@ -195,8 +195,9 @@ def test_actual_port_printed_out():
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
         pat = re.compile(r'Starting Bokeh server on port (\d+) with applications at paths')
-        for line in p.stdout:
-            print("child stdout:", line)
+        while True:
+            line = p.stdout.readline()
+            print("child stdout>", line)
             m = pat.search(line.decode())
             if m is not None:
                 break
