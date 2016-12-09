@@ -23,6 +23,7 @@ from __future__ import absolute_import
 from six import string_types
 
 from .. import colors, palettes
+from ..util.deprecation import deprecated
 
 class Enumeration(object):
     ''' Represent an enumerated collection of values.
@@ -112,8 +113,17 @@ Dimensions = enumeration("width", "height", "both")
 Orientation = enumeration("horizontal", "vertical")
 
 #: Specify a fixed location for a Bokeh legend
-LegendLocation = Anchor = enumeration("top_left", "top_center", "top_right",
-    "right_center", "bottom_right", "bottom_center", "bottom_left", "left_center", "center")
+LegendLocation = Anchor = enumeration(
+    "top_left",    "top_center",    "top_right",
+    "center_left", "center",        "center_right",
+    "bottom_left", "bottom_center", "bottom_right")
+
+#: Deprecated legend location/anchor
+DeprecatedLegendLocation = DeprecatedAnchor = enumeration("left_center", "right_center")
+def accept_left_right_center(value):
+    deprecated((0, 12, 4), "'left_center' and 'right_center' enumerations",
+                           "'center_left' or 'center_right' respectively")
+    return {"left_center": "center_left", "right_center": "center_right"}[value]
 
 #: Specify a location in plot layouts
 Location = enumeration("above", "below", "left", "right")
