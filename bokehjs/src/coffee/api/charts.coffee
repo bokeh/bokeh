@@ -264,7 +264,7 @@ export bar = (data, opts={}) ->
 
   tooltip = "<div>@labels</div><div>@columns:&nbsp<b>@values</b></div>"
   if orientation == "horizontal"
-    anchor = "right_center"
+    anchor = "center_right"
     attachment = "horizontal"
   else
     anchor = "top_center"
