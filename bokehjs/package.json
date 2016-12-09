@@ -107,8 +107,7 @@
     "@types/hammerjs": "^2.0.33",
 
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
-    "root-require": "^0.3.1",
-    "font-awesome": "^4.6.3"
+    "root-require": "^0.3.1"
   },
   "scripts": {
     "build": "gulp build",
