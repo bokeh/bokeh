@@ -55,7 +55,7 @@ export class ColorMapper extends Model
 
   _is_little_endian: () ->
     buf = new ArrayBuffer(4)
-    buf8 = new Uint8ClampedArray(buf)
+    buf8 = new Uint8Array(buf)
     buf32 = new Uint32Array(buf)
     buf32[1] = 0x0a0b0c0d
 

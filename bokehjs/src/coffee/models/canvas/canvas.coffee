@@ -32,6 +32,13 @@ export class CanvasView extends BokehView
     fixup_measure_text(@ctx)
     fixup_ellipse(@ctx)
 
+    # fixes up a problem with some versions of IE11
+    # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
+    if window.CanvasPixelArray?
+      CanvasPixelArray.prototype.set = (arr) ->
+        for i in [0...@length]
+            @[i] = arr[i]
+
     # map plots reference this attribute
     @map_div = @$('div.bk-canvas-map') ? null
     @set_dims([@model.initial_width, @model.initial_height])
