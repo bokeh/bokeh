@@ -77,6 +77,6 @@ html = template.render(js_resources=js_resources,
                        div=div)
 
 with open(filename, 'w') as f:
-    f.write(html)
+    f.write(html.encode('utf8'))
 
 view(filename)

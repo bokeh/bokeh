@@ -63,6 +63,6 @@ html = template.render(js_resources=js_resources,
 filename = 'embed_multiple_responsive.html'
 
 with open(filename, 'w') as f:
-    f.write(html)
+    f.write(html.encode('utf8'))
 
 view(filename)
