@@ -8,7 +8,7 @@ from six import string_types
 
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
-    AngleUnits, TextAlign, FontStyle
+    AngleUnits, TextAlign, FontStyle, LegendClickPolicy,
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract, value
@@ -128,7 +128,9 @@ class Legend(Annotation):
     The %s for the legend background style when hovered.
     """)
 
-    click_policy = Enum("none", "hide", "mute")
+    click_policy = Enum(LegendClickPolicy, default="none", help="""
+    Defines what happens when a lengend's item is clicked.
+    """)
 
     background_fill_color = Override(default="#ffffff")
 
