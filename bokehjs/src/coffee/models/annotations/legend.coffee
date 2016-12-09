@@ -52,31 +52,31 @@ export class LegendView extends AnnotationView
 
     if _.isString(location)
       switch location
-        when 'top_left', 'left_top'
+        when 'top_left'
           x = h_range.start + legend_margin
           y = v_range.end - legend_margin
-        when 'top_center', 'center_top'
+        when 'top_center'
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = v_range.end - legend_margin
-        when 'top_right', 'right_top'
+        when 'top_right'
           x = h_range.end - legend_margin - legend_width
           y = v_range.end - legend_margin
-        when 'center_right', 'right_center'
+        when 'center_right'
           x = h_range.end - legend_margin - legend_width
           y = (v_range.end + v_range.start)/2 + legend_height/2
-        when 'bottom_right', 'right_bottom'
+        when 'bottom_right'
           x = h_range.end - legend_margin - legend_width
           y = v_range.start + legend_margin + legend_height
-        when 'bottom_center', 'center_bottom'
+        when 'bottom_center'
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = v_range.start + legend_margin + legend_height
-        when 'bottom_left', 'left_bottom'
+        when 'bottom_left'
           x = h_range.start + legend_margin
           y = v_range.start + legend_margin + legend_height
-        when 'center_left', 'left_center'
+        when 'center_left'
           x = h_range.start + legend_margin
           y = (v_range.end + v_range.start)/2 + legend_height/2
-        when 'center', 'center_center'
+        when 'center'
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = (v_range.end + v_range.start)/2 + legend_height/2
     else if _.isArray(location) and location.length == 2

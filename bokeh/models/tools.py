@@ -27,7 +27,9 @@ from ..core.properties import (
     abstract, Float, Color, Percent,
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
-from ..core.enums import Dimension, Dimensions, Location, Anchor
+from ..core.enums import (Dimension, Dimensions, Location, Anchor,
+    DeprecatedAnchor, accept_left_right_center,
+)
 from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
@@ -760,7 +762,7 @@ class HoverTool(Inspection):
     anchor = Enum(Anchor, default="center", help="""
     If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
     point of a tooltip. The default is to attach to the center of a glyph.
-    """)
+    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.

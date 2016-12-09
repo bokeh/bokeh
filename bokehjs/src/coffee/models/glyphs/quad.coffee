@@ -68,15 +68,15 @@ export class QuadView extends GlyphView
     bottom = Math.max(@sbottom[i], @stop[i])  #
 
     switch anchor
-      when 'top_left', 'left_top'           then {x: left,             y: top              }
-      when 'top_center', 'center_top'       then {x: (left + right)/2, y: top              }
-      when 'top_right', 'right_top'         then {x: right,            y: top              }
-      when 'center_right', 'right_center'   then {x: right,            y: (top + bottom)/2 }
-      when 'bottom_right', 'right_bottom'   then {x: right,            y: bottom           }
-      when 'bottom_center', 'center_bottom' then {x: (left + right)/2, y: bottom           }
-      when 'bottom_left', 'left_bottom'     then {x: left,             y: bottom           }
-      when 'center_left', 'left_center'     then {x: left,             y: (top + bottom)/2 }
-      when 'center', 'center_center'        then {x: (left + right)/2, y: (top + bottom)/2 }
+      when 'top_left'      then {x: left,             y: top              }
+      when 'top_center'    then {x: (left + right)/2, y: top              }
+      when 'top_right'     then {x: right,            y: top              }
+      when 'center_right'  then {x: right,            y: (top + bottom)/2 }
+      when 'bottom_right'  then {x: right,            y: bottom           }
+      when 'bottom_center' then {x: (left + right)/2, y: bottom           }
+      when 'bottom_left'   then {x: left,             y: bottom           }
+      when 'center_left'   then {x: left,             y: (top + bottom)/2 }
+      when 'center'        then {x: (left + right)/2, y: (top + bottom)/2 }
 
   scx: (i) ->
     return (@sleft[i] + @sright[i])/2

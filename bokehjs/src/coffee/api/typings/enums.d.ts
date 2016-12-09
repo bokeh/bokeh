@@ -16,16 +16,9 @@ declare namespace Bokeh {
   export type Dimensions = "width" | "height" | "both";
   export type Orientation = "horizontal" | "vertical";
   export type Anchor =
-    // <vertical>_<horizontal>
     "top_left"    | "top_center"    | "top_right"    |
-    "center_left" |                   "center_right" |
-    "bottom_left" | "bottom_center" | "bottom_right" |
-    // <horizontal>_<vertical>
-    "left_top"    | "center_top"    | "right_top"    |
-    "left_center" |                   "right_center" |
-    "left_bottom" | "center_bottom" | "right_bottom" |
-    // center
-    "center" | "center_center";
+    "center_left" | "center"        | "center_right" |
+    "bottom_left" | "bottom_center" | "bottom_right";
   export type LegendLocation = Anchor;
   export type Location = "above" | "below" | "left" | "right";
   export type DashPattern = "solid" | "dashed" | "dotted" | "dotdash" | "dashdot";

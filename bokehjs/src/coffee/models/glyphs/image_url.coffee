@@ -76,15 +76,15 @@ export class ImageURLView extends GlyphView
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
-      when 'top_left', 'left_top'           then [sx       , sy       ]
-      when 'top_center', 'center_top'       then [sx - sw/2, sy       ]
-      when 'top_right', 'right_top'         then [sx - sw  , sy       ]
-      when 'center_right', 'right_center'   then [sx - sw  , sy - sh/2]
-      when 'bottom_right', 'right_bottom'   then [sx - sw  , sy - sh  ]
-      when 'bottom_center', 'center_bottom' then [sx - sw/2, sy - sh  ]
-      when 'bottom_left', 'left_bottom'     then [sx       , sy - sh  ]
-      when 'center_left', 'left_center'     then [sx       , sy - sh/2]
-      when 'center', 'center_center'        then [sx - sw/2, sy - sh/2]
+      when 'top_left'      then [sx       , sy       ]
+      when 'top_center'    then [sx - sw/2, sy       ]
+      when 'top_right'     then [sx - sw  , sy       ]
+      when 'center_right'  then [sx - sw  , sy - sh/2]
+      when 'bottom_right'  then [sx - sw  , sy - sh  ]
+      when 'bottom_center' then [sx - sw/2, sy - sh  ]
+      when 'bottom_left'   then [sx       , sy - sh  ]
+      when 'center_left'   then [sx       , sy - sh/2]
+      when 'center'        then [sx - sw/2, sy - sh/2]
 
   _render_image: (ctx, i, image, sx, sy, sw, sh, angle) ->
     if isNaN(sw[i]) then sw[i] = image.width
