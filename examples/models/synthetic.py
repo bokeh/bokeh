@@ -65,7 +65,7 @@ legends = lambda: [
     LegendItem(label="CR2", renderers=[cr2, ln2]),
     LegendItem(label="CR3", renderers=[cr3]),
 ]
-legend = lambda **kwargs: Legend(background_fill_alpha=0.7, items=legends(), **kwargs)
+legend = lambda **kwargs: Legend(background_fill_alpha=0.7, items=legends(), click_policy="hide", **kwargs)
 
 plot.add_layout(legend(location="left_center", orientation="vertical"))
 plot.add_layout(legend(location="center", orientation="vertical"))

@@ -176,6 +176,7 @@ export class LegendView extends AnnotationView
         continue
 
       active = switch @model.click_policy
+        when "none" then true
         when "hide" then _.every(item.renderers, (r) -> r.visible)
         when "mute" then _.every(item.renderers, (r) -> not r.muted)
 
@@ -241,7 +242,7 @@ export class Legend extends Annotation
       padding:          [ p.Number,         10          ]
       spacing:          [ p.Number,         3           ]
       items:            [ p.Array,          []          ]
-      click_policy:     [ p.Any,            "hide"      ]
+      click_policy:     [ p.Any,            "none"      ]
       hover_fill_color: [ p.Color,          "gray"      ]
       hover_fill_alpha: [ p.Number,         1           ]
   }
