@@ -30,7 +30,6 @@ from .transforms import *
 ### deprecation warning.
 
 from .widgets.buttons import *
-from .widgets.dialogs import *
 from .widgets.groups import *
 from .widgets.icons import *
 from .widgets.inputs import *

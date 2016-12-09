@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-DataRange = require "./data_range"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-bbox = require "../../core/util/bbox"
+import {DataRange} from "./data_range"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import * as bbox from "../../core/util/bbox"
 
-class DataRange1d extends DataRange.Model
+export class DataRange1d extends DataRange
   type: 'DataRange1d'
 
   @define {
@@ -140,7 +140,9 @@ class DataRange1d extends DataRange.Model
       @setv(new_range)
 
     if @bounds == 'auto'
-      @bounds = [start, end]
+      @setv({bounds: [start, end]}, {silent: true})
+
+    @trigger('change')
 
   reset: () ->
     @have_updated_interactively = false
@@ -149,9 +151,5 @@ class DataRange1d extends DataRange.Model
       follow: @_initial_follow
       follow_interval: @_initial_follow_interval
       default_span: @_initial_default_span
-    })
-
-
-
-module.exports =
-  Model: DataRange1d
+    }, {silent: true})
+    @trigger('change')

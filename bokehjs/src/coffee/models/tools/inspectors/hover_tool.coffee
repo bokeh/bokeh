@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-InspectTool = require "./inspect_tool"
-Tooltip = require "../../annotations/tooltip"
-GlyphRenderer = require "../../renderers/glyph_renderer"
-hittest = require "../../../common/hittest"
-{logger} = require "../../../core/logging"
-p = require "../../../core/properties"
-Util = require "../../../util/util"
+import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Tooltip} from "../../annotations/tooltip"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import * as hittest from "../../../core/hittest"
+import {logger} from "../../../core/logging"
+import {replace_placeholders} from "../../../core/util/templating"
+import * as p from "../../../core/properties"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -21,7 +21,7 @@ _color_to_hex = (color) ->
   rgb = blue | (green << 8) | (red << 16)
   return digits[1] + '#' + rgb.toString(16)
 
-class HoverToolView extends InspectTool.View
+export class HoverToolView extends InspectToolView
 
   bind_bokeh_events: () ->
     for r in @model.computed_renderers
@@ -200,13 +200,11 @@ class HoverToolView extends InspectTool.View
           # which patch we're over if there are discontinuous
           # patches.
           pt = renderer.glyph.get_anchor_point(@model.anchor, i, [sx, sy])
-          if pt?
-            {x, y} = pt
-          else
-            {x, y} = renderer.glyph.get_anchor_point("center", i, [sx, sy])
+          if not pt?
+            pt = renderer.glyph.get_anchor_point("center", i, [sx, sy])
 
-          rx = canvas.sx_to_vx(x)
-          ry = canvas.sy_to_vy(y)
+          rx = canvas.sx_to_vx(pt.x)
+          ry = canvas.sy_to_vy(pt.y)
         else
           [rx, ry] = [vx, vy]
 
@@ -244,7 +242,7 @@ class HoverToolView extends InspectTool.View
   _render_tooltips: (ds, i, vars) ->
     tooltips = @model.tooltips
     if _.isString(tooltips)
-      return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
+      return $('<div>').html(replace_placeholders(tooltips, ds, i, vars))
     else if _.isFunction(tooltips)
       return tooltips(ds, vars)
     else
@@ -279,7 +277,7 @@ class HoverToolView extends InspectTool.View
           td.append(span)
         else
           value = value.replace("$~", "$data_")
-          value = Util.replace_placeholders(value, ds, i, vars)
+          value = replace_placeholders(value, ds, i, vars)
           td.append($('<span>').html(value))
 
         row.append(td)
@@ -287,10 +285,10 @@ class HoverToolView extends InspectTool.View
 
       return table
 
-class HoverTool extends InspectTool.Model
+export class HoverTool extends InspectTool
   default_view: HoverToolView
   type: "HoverTool"
-  tool_name: "Hover Tool"
+  tool_name: "Hover"
   icon: "bk-tool-icon-hover"
 
   @define {
@@ -321,7 +319,7 @@ class HoverTool extends InspectTool.Model
 
         if renderers.length == 0
           all_renderers = @plot.renderers
-          renderers = (r for r in all_renderers when r instanceof GlyphRenderer.Model)
+          renderers = (r for r in all_renderers when r instanceof GlyphRenderer)
 
         if names.length > 0
           renderers = (r for r in renderers when names.indexOf(r.name) >= 0)
@@ -337,7 +335,7 @@ class HoverTool extends InspectTool.Model
 
       if tooltips?
         for r in @computed_renderers
-          tooltip = new Tooltip.Model({
+          tooltip = new Tooltip({
             custom: _.isString(tooltips) or _.isFunction(tooltips)
             attachment: @attachment
             show_arrow: @show_arrow
@@ -352,7 +350,3 @@ class HoverTool extends InspectTool.Model
     ttmodels: () -> @_get_computed('ttmodels')
     synthetic_renderers: () -> _.values(@ttmodels)
   }
-
-module.exports =
-  Model: HoverTool
-  View: HoverToolView

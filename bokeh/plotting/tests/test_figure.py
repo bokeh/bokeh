@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import unittest
 import pytest
 
+from bokeh.core.properties import value
 from bokeh.models import (
     BoxZoomTool,
     ColumnDataSource,
@@ -10,10 +11,12 @@ from bokeh.models import (
     LinearAxis,
     PanTool,
     ResetTool,
-    ResizeTool
+    ResizeTool,
+    Title,
 )
 
 import bokeh.plotting as plt
+
 
 
 class TestFigure(unittest.TestCase):
@@ -137,7 +140,7 @@ class TestFigure(unittest.TestCase):
     def test_tools(self):
         TOOLS = "resize,pan,box_zoom,reset,lasso_select"
         fig = plt.figure(tools=TOOLS)
-        expected = [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool]
+        expected = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool]
 
         self.assertEqual(len(fig.tools), len(expected))
         for i, _type in enumerate(expected):
@@ -157,6 +160,7 @@ class TestFigure(unittest.TestCase):
         p.border_fill_color = 'yellow'
         self.assertEqual(p.background_fill_color, 'green')
         self.assertEqual(p.border_fill_color, 'yellow')
+
 
 class TestMarkers(unittest.TestCase):
 
@@ -233,6 +237,19 @@ def test_title_kwarg_no_warning(recwarn):
     assert len(recwarn) == 0
 
 
+def test_figure_title_should_accept_title():
+    title = Title(text='Great Title')
+    plot = plt.figure(title=title)
+    plot.line([1, 2, 3], [1, 2, 3])
+    assert plot.title.text == 'Great Title'
+
+
+def test_figure_title_should_accept_string():
+    plot = plt.figure(title='Great Title 2')
+    plot.line([1, 2, 3], [1, 2, 3])
+    assert plot.title.text == 'Great Title 2'
+
+
 @pytest.fixture
 def source():
     return ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
@@ -244,42 +261,37 @@ def p():
 
 
 def test_glyph_label_is_legend_if_column_in_datasouurce_is_added_as_legend(p, source):
-    renderer = p.circle(x='x', y='y', legend='label', source=source)
-    assert renderer.glyph.label == 'label'
+    p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'label'}
 
 
 def test_glyph_label_is_value_if_column_not_in_datasouurce_is_added_as_legend(p, source):
-    renderer = p.circle(x='x', y='y', legend='milk', source=source)
-    assert renderer.glyph.label == {'value': 'milk'}
+    p.circle(x='x', y='y', legend='milk', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'value': 'milk'}
 
 
 def test_glyph_label_is_just_added_directly_if_not_string(p, source):
-    renderer = p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
-    assert renderer.glyph.label == {'field': 'milk'}
+    p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'milk'}
 
 
-def test_glyph_label_is_None_if_legend_is_none(p, source):
-    renderer = p.circle(x='x', y='y', legend=None, source=source)
-    assert renderer.glyph.label is None
-
-
-def test_cannot_set_legend_and_label(p, source):
-    with pytest.raises(RuntimeError):
-        p.circle(x='x', y='y', legend='label', label='label', source=source)
+def test_no_legend_if_legend_is_none(p, source):
+    p.circle(x='x', y='y', legend=None, source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 0
 
 
 def test_legend_added_when_legend_set(p, source):
     renderer = p.circle(x='x', y='y', legend='label', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
-    assert legends[0].legends == [renderer]
-
-
-def test_legend_added_when_label_set(p, source):
-    renderer = p.circle(x='x', y='y', label='label', source=source)
-    legends = p.select(Legend)
-    assert len(legends) == 1
-    assert legends[0].legends == [renderer]
+    assert legends[0].items[0].renderers == [renderer]
 
 
 def test_legend_not_added_when_no_legend(p, source):
@@ -296,8 +308,31 @@ def test_adding_legend_doesnt_work_when_legends_already_added(p, source):
 
 
 def test_multiple_renderers_correctly_added_to_legend(p, source):
-    square = p.square(x='x', y='y', label='label', source=source)
-    circle = p.circle(x='x', y='y', label='label', source=source)
+    square = p.square(x='x', y='y', legend='square', source=source)
+    circle = p.circle(x='x', y='y', legend='circle', source=source)
     legends = p.select(Legend)
     assert len(legends) == 1
-    assert legends[0].legends == [square, circle]
+    assert legends[0].items[0].renderers == [square]
+    assert legends[0].items[0].label == value('square')
+    assert legends[0].items[1].renderers == [circle]
+    assert legends[0].items[1].label == value('circle')
+
+
+def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(p, source):
+    # 'compound legend string' is just a value
+    square = p.square(x='x', y='y', legend='compound legend string')
+    circle = p.circle(x='x', y='y', legend='compound legend string')
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [square, circle]
+    assert legends[0].items[0].label == {'value': 'compound legend string'}
+
+
+def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(p, source):
+    # label is a field
+    square = p.square(x='x', y='y', legend='label', source=source)
+    circle = p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [square, circle]
+    assert legends[0].items[0].label == {'field': 'label'}

@@ -1,9 +1,9 @@
-_ = require "underscore"
-Transform = require "./transform"
-p = require "../../core/properties"
-{logger} = require "../../core/logging"
+import * as _ from "underscore"
+import {Transform} from "./transform"
+import * as p from "../../core/properties"
+import {logger} from "../../core/logging"
 
-class Interpolator extends Transform.Model
+export class Interpolator extends Transform
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -78,11 +78,8 @@ class Interpolator extends Transform.Model
         return ((a.x > b.x) ? -1 : ((a.x == b.x) ? 0 : 1));
       )
 
-    for k in [0..list.length-1]
+    for k in [0...list.length]
       @_x_sorted[k] = list[k].x;
       @_y_sorted[k] = list[k].y;
 
     @_sorted_dirty = false
-
-module.exports =
-  Model: Interpolator

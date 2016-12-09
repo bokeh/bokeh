@@ -23,11 +23,7 @@
 
     newRequire.modules = modules;
 
-    var lastEntryResult = null;
-
-    for (var i = 0; i < entry.length; i++) {
-        lastEntryResult = newRequire(entry[i]);
-    }
-
-    return lastEntryResult;
+    var main = newRequire(entry[0]);
+    main.require = newRequire;
+    return main;
 })

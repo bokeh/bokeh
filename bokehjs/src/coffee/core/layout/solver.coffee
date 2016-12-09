@@ -1,8 +1,6 @@
-_ = require "underscore"
-Backbone = require "../backbone"
-kiwi = require "kiwi"
-
-{Variable, Expression, Constraint, Operator, Strength} = kiwi
+import * as _ from "underscore"
+import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
+import {Events} from "../events"
 
 _constrainer = (op) ->
   () =>
@@ -15,16 +13,26 @@ _weak_constrainer = (op) ->
     args = [null]
     for arg in arguments
       args.push(arg)
-    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, kiwi.Strength.weak )
+    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, Strength.weak )
 
+export {Variable, Expression, Constraint, Operator, Strength}
 
-class Solver
+export EQ = _constrainer(Operator.Eq)
+export LE = _constrainer(Operator.Le)
+export GE = _constrainer(Operator.Ge)
+
+export WEAK_EQ = _weak_constrainer(Operator.Eq)
+export WEAK_LE = _weak_constrainer(Operator.Le)
+export WEAK_GE = _weak_constrainer(Operator.Ge)
+
+export class Solver
+  _.extend(@prototype, Events)
 
   constructor: () ->
-    @solver = new kiwi.Solver()
+    @solver = new ConstraintSolver()
 
   clear: () ->
-    @solver = new kiwi.Solver()
+    @solver = new ConstraintSolver()
 
   toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
 
@@ -53,23 +61,3 @@ class Solver
 
   suggest_value: (variable, value) ->
     @solver.suggestValue(variable, value)
-
-_.extend(Solver.prototype, Backbone.Events)
-
-module.exports =
-
-  Variable: Variable
-  Expression: Expression
-  Constraint: Constraint
-  Operator: Operator
-  Strength: Strength
-
-  EQ: _constrainer(Operator.Eq)
-  LE: _constrainer(Operator.Le)
-  GE: _constrainer(Operator.Ge)
-
-  WEAK_EQ: _weak_constrainer(Operator.Eq)
-  WEAK_LE: _weak_constrainer(Operator.Le)
-  WEAK_GE: _weak_constrainer(Operator.Ge)
-
-  Solver: Solver

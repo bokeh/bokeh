@@ -1,20 +1,9 @@
-_ = require "underscore"
-ButtonTool = require "../button_tool"
+import * as _ from "underscore"
+import {ButtonTool, ButtonToolView} from "../button_tool"
 
-class GestureToolButtonView extends ButtonTool.ButtonView
+export class GestureToolView extends ButtonToolView
 
-  _clicked: () ->
-    active = @model.active
-    @model.active = not active
-
-class GestureToolView extends ButtonTool.View
-
-class GestureTool extends ButtonTool.Model
+export class GestureTool extends ButtonTool
 
   event_type: null
   default_order: null
-
-module.exports =
-  Model: GestureTool
-  View: GestureToolView
-  ButtonView: GestureToolButtonView

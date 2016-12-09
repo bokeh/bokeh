@@ -59,7 +59,8 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
         categorical variable or color attribute specification to use for coloring the
         histogram, or explicit color as a string.
       agg (str, optional): how to aggregate the bins. Defaults to "count".
-      bins (int, optional): the number of bins to use. Defaults to None to auto select.
+      bins (int or list(float), optional): the number of bins to use, or an explicit
+        list of bin edges. Defaults to None to auto select.
       density (bool, optional): whether to normalize the histogram. Defaults to False.
 
       **kw:

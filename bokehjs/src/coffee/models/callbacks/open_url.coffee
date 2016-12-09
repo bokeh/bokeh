@@ -1,10 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-p = require "../../core/properties"
-Model = require "../../model"
-Util = require "../../util/util"
+import {Model} from "../../model"
+import * as p from "../../core/properties"
+import {get_indices} from "../../core/util/selection"
+import {replace_placeholders} from "../../core/util/templating"
 
-class OpenURL extends Model
+export class OpenURL extends Model
   type: 'OpenURL'
 
   @define {
@@ -12,10 +13,7 @@ class OpenURL extends Model
     }
 
   execute: (data_source) ->
-    for i in Util.get_indices(data_source)
-      url = Util.replace_placeholders(@url, data_source, i)
+    for i in get_indices(data_source)
+      url = replace_placeholders(@url, data_source, i)
       window.open(url)
     null
-
-module.exports =
-  Model: OpenURL

@@ -1,7 +1,5 @@
 from __future__ import absolute_import, print_function
 
-import codecs
-
 from .code import CodeHandler
 
 class ScriptHandler(CodeHandler):
@@ -21,7 +19,7 @@ class ScriptHandler(CodeHandler):
             raise ValueError('Must pass a filename to ScriptHandler')
         filename = kwargs['filename']
 
-        with codecs.open(filename, 'r', 'UTF-8') as f:
+        with open(filename, 'r') as f:
             kwargs['source'] = f.read()
 
         super(ScriptHandler, self).__init__(*args, **kwargs)

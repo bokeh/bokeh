@@ -1,11 +1,12 @@
 ###########################################################################
-# License regarding the Viridis, Magma, Plasma and Inferno color maps:
+# License regarding the Viridis, Magma, Plasma and Inferno colormaps:
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
-# This file and the colormaps in it are released under the CC0 license /
-# public domain dedication. We would appreciate credit if you use or
-# redistribute these colormaps, but do not impose any legal restrictions.
+# The Viridis, Magma, Plasma, and Inferno colormaps are released under the
+# CC0 license / public domain dedication. We would appreciate credit if you
+# use or redistribute these colormaps, but do not impose any legal
+# restrictions.
 #
 # To the extent possible under law, the persons who associated CC0 with
 # mpl-colormaps have waived all copyright and related or neighboring rights
@@ -19,20 +20,49 @@
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
 ###########################################################################
+# License regarding the D3 color palettes (Category10, Category20,
+# Category20b, and Category 20c):
+#
+# Copyright 2010-2015 Mike Bostock
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the author nor the names of contributors may be used to
+#   endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+###########################################################################
 """ Provide a collection of palettes for color mapping.
 
 Palettes are simple plain Python lists of (hex) RGB colors. This module
 containts the following sets of palettes:
 
 * All Brewer palettes
-* Magma
-* Inferno
-* Plasma
-* Viridis
+* Catagorical D3 palettes
+* The new Matplotlib palettes (Magma, Inferno, Plasma, Viridis)
 
 Every pre-built palette is available as a module attributes, e.g.
-``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of every
-all pre-built palettes can be found in the ``__palettes__`` module attribute.
+``bokeh.palettes.YlGn3`` or ``bokeh.palettes.Viridis256``. The name of each
+pre-built palette can be found in the ``__palettes__`` module attribute.
 
 There are functions :func:`~bokeh.palettes.magma`,
 :func:`~bokeh.palettes.inferno`, :func:`~bokeh.palettes.plasma`,
@@ -52,7 +82,10 @@ The complete contents of ``small_palettes`` is show below.
 
 """
 
-class _Palettes(object):
+import sys as _sys
+import types as _types
+
+class _PalettesModule(_types.ModuleType):
     @property
     def YlGn3(self):
         return ["#31a354", "#addd8e", "#f7fcb9"]
@@ -732,6 +765,196 @@ class _Palettes(object):
     def RdYlGn11(self):
         return ["#006837", "#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d73027", "#a50026"]
 
+    # http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
+    @property
+    def Accent3(self):
+        return self.Accent8[:3]
+    @property
+    def Accent4(self):
+        return self.Accent8[:4]
+    @property
+    def Accent5(self):
+        return self.Accent8[:5]
+    @property
+    def Accent6(self):
+        return self.Accent8[:6]
+    @property
+    def Accent7(self):
+        return self.Accent8[:7]
+    @property
+    def Accent8(self):
+        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
+    @property
+    def Dark2_3(self):
+        return self.Dark2_8[:3]
+    @property
+    def Dark2_4(self):
+        return self.Dark2_8[:4]
+    @property
+    def Dark2_5(self):
+        return self.Dark2_8[:5]
+    @property
+    def Dark2_6(self):
+        return self.Dark2_8[:6]
+    @property
+    def Dark2_7(self):
+        return self.Dark2_8[:7]
+    @property
+    def Dark2_8(self):
+        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
+    @property
+    def Paired3(self):
+        return self.Paired12[:3]
+    @property
+    def Paired4(self):
+        return self.Paired12[:4]
+    @property
+    def Paired5(self):
+        return self.Paired12[:5]
+    @property
+    def Paired6(self):
+        return self.Paired12[:6]
+    @property
+    def Paired7(self):
+        return self.Paired12[:7]
+    @property
+    def Paired8(self):
+        return self.Paired12[:8]
+    @property
+    def Paired9(self):
+        return self.Paired12[:9]
+    @property
+    def Paired10(self):
+        return self.Paired12[:10]
+    @property
+    def Paired11(self):
+        return self.Paired12[:11]
+    @property
+    def Paired12(self):
+        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
+    @property
+    def Pastel1_3(self):
+        return self.Pastel1_9[:3]
+    @property
+    def Pastel1_4(self):
+        return self.Pastel1_9[:4]
+    @property
+    def Pastel1_5(self):
+        return self.Pastel1_9[:5]
+    @property
+    def Pastel1_6(self):
+        return self.Pastel1_9[:6]
+    @property
+    def Pastel1_7(self):
+        return self.Pastel1_9[:7]
+    @property
+    def Pastel1_8(self):
+        return self.Pastel1_9[:8]
+    @property
+    def Pastel1_9(self):
+        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
+    @property
+    def Pastel2_3(self):
+        return self.Pastel2_8[:3]
+    @property
+    def Pastel2_4(self):
+        return self.Pastel2_8[:4]
+    @property
+    def Pastel2_5(self):
+        return self.Pastel2_8[:5]
+    @property
+    def Pastel2_6(self):
+        return self.Pastel2_8[:6]
+    @property
+    def Pastel2_7(self):
+        return self.Pastel2_8[:7]
+    @property
+    def Pastel2_8(self):
+        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
+    @property
+    def Set1_3(self):
+        return self.Set1_9[:3]
+    @property
+    def Set1_4(self):
+        return self.Set1_9[:4]
+    @property
+    def Set1_5(self):
+        return self.Set1_9[:5]
+    @property
+    def Set1_6(self):
+        return self.Set1_9[:6]
+    @property
+    def Set1_7(self):
+        return self.Set1_9[:7]
+    @property
+    def Set1_8(self):
+        return self.Set1_9[:8]
+    @property
+    def Set1_9(self):
+        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
+    @property
+    def Set2_3(self):
+        return self.Set2_8[:3]
+    @property
+    def Set2_4(self):
+        return self.Set2_8[:4]
+    @property
+    def Set2_5(self):
+        return self.Set2_8[:5]
+    @property
+    def Set2_6(self):
+        return self.Set2_8[:6]
+    @property
+    def Set2_7(self):
+        return self.Set2_8[:7]
+    @property
+    def Set2_8(self):
+        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
+
+    # http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
+    @property
+    def Set3_3(self):
+        return self.Set3_12[:3]
+    @property
+    def Set3_4(self):
+        return self.Set3_12[:4]
+    @property
+    def Set3_5(self):
+        return self.Set3_12[:5]
+    @property
+    def Set3_6(self):
+        return self.Set3_12[:6]
+    @property
+    def Set3_7(self):
+        return self.Set3_12[:7]
+    @property
+    def Set3_8(self):
+        return self.Set3_12[:8]
+    @property
+    def Set3_9(self):
+        return self.Set3_12[:9]
+    @property
+    def Set3_10(self):
+        return self.Set3_12[:10]
+    @property
+    def Set3_11(self):
+        return self.Set3_12[:11]
+    @property
+    def Set3_12(self):
+        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+
     @property
     def Inferno3(self):
         return ['#000003', '#BA3655', '#FCFEA4']
@@ -944,195 +1167,222 @@ class _Palettes(object):
             '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
             '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
     @property
-    def Accent3(self):
-        return ['#7fc97f', '#beaed4', '#fdc086']
+    def Category10_3(self):
+        return self.Category10_10[:3]
     @property
-    def Accent4(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99']
+    def Category10_4(self):
+        return self.Category10_10[:4]
     @property
-    def Accent5(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0']
+    def Category10_5(self):
+        return self.Category10_10[:5]
     @property
-    def Accent6(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f']
+    def Category10_6(self):
+        return self.Category10_10[:6]
     @property
-    def Accent7(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17']
+    def Category10_7(self):
+        return self.Category10_10[:7]
     @property
-    def Accent8(self):
-        return ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0', '#f0027f', '#bf5b17', '#666666']
+    def Category10_8(self):
+        return self.Category10_10[:8]
+    @property
+    def Category10_9(self):
+        return self.Category10_10[:9]
+    @property
+    def Category10_10(self):
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
     @property
-    def Dark2_3(self):
-        return ['#1b9e77', '#d95f02', '#7570b3']
+    def Category20_3(self):
+        return self.Category20_20[:3]
     @property
-    def Dark2_4(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+    def Category20_4(self):
+        return self.Category20_20[:4]
     @property
-    def Dark2_5(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+    def Category20_5(self):
+        return self.Category20_20[:5]
     @property
-    def Dark2_6(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
+    def Category20_6(self):
+        return self.Category20_20[:6]
     @property
-    def Dark2_7(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d']
+    def Category20_7(self):
+        return self.Category20_20[:7]
     @property
-    def Dark2_8(self):
-        return ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666']
+    def Category20_8(self):
+        return self.Category20_20[:8]
+    @property
+    def Category20_9(self):
+        return self.Category20_20[:9]
+    @property
+    def Category20_10(self):
+        return self.Category20_20[:10]
+    @property
+    def Category20_11(self):
+        return self.Category20_20[:11]
+    @property
+    def Category20_12(self):
+        return self.Category20_20[:12]
+    @property
+    def Category20_13(self):
+        return self.Category20_20[:13]
+    @property
+    def Category20_14(self):
+        return self.Category20_20[:14]
+    @property
+    def Category20_15(self):
+        return self.Category20_20[:15]
+    @property
+    def Category20_16(self):
+        return self.Category20_20[:16]
+    @property
+    def Category20_17(self):
+        return self.Category20_20[:17]
+    @property
+    def Category20_18(self):
+        return self.Category20_20[:18]
+    @property
+    def Category20_19(self):
+        return self.Category20_20[:19]
+    @property
+    def Category20_20(self):
+        return ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=12
     @property
-    def Paired3(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a']
+    def Category20b_3(self):
+        return self.Category20b_20[:3]
     @property
-    def Paired4(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']
+    def Category20b_4(self):
+        return self.Category20b_20[:4]
     @property
-    def Paired5(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99']
+    def Category20b_5(self):
+        return self.Category20b_20[:5]
     @property
-    def Paired6(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c']
+    def Category20b_6(self):
+        return self.Category20b_20[:6]
     @property
-    def Paired7(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f']
+    def Category20b_7(self):
+        return self.Category20b_20[:7]
     @property
-    def Paired8(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']
+    def Category20b_8(self):
+        return self.Category20b_20[:8]
     @property
-    def Paired9(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6']
+    def Category20b_9(self):
+        return self.Category20b_20[:9]
     @property
-    def Paired10(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a']
+    def Category20b_10(self):
+        return self.Category20b_20[:10]
     @property
-    def Paired11(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99']
+    def Category20b_11(self):
+        return self.Category20b_20[:11]
     @property
-    def Paired12(self):
-        return ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']
+    def Category20b_12(self):
+        return self.Category20b_20[:12]
+    @property
+    def Category20b_13(self):
+        return self.Category20b_20[:13]
+    @property
+    def Category20b_14(self):
+        return self.Category20b_20[:14]
+    @property
+    def Category20b_15(self):
+        return self.Category20b_20[:15]
+    @property
+    def Category20b_16(self):
+        return self.Category20b_20[:16]
+    @property
+    def Category20b_17(self):
+        return self.Category20b_20[:17]
+    @property
+    def Category20b_18(self):
+        return self.Category20b_20[:18]
+    @property
+    def Category20b_19(self):
+        return self.Category20b_20[:19]
+    @property
+    def Category20b_20(self):
+        return ['#393b79', '#5254a3', '#6b6ecf', '#9c9ede', '#637939', '#8ca252', '#b5cf6b', '#cedb9c', '#8c6d31', '#bd9e39',
+                '#e7ba52', '#e7cb94', '#843c39', '#ad494a', '#d6616b', '#e7969c', '#7b4173', '#a55194', '#ce6dbd', '#de9ed6']
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel1&n=9
     @property
-    def Pastel1_3(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5']
+    def Category20c_3(self):
+        return self.Category20c_20[:3]
     @property
-    def Pastel1_4(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4']
+    def Category20c_4(self):
+        return self.Category20c_20[:4]
     @property
-    def Pastel1_5(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6']
+    def Category20c_5(self):
+        return self.Category20c_20[:5]
     @property
-    def Pastel1_6(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc']
+    def Category20c_6(self):
+        return self.Category20c_20[:6]
     @property
-    def Pastel1_7(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd']
+    def Category20c_7(self):
+        return self.Category20c_20[:7]
     @property
-    def Pastel1_8(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec']
+    def Category20c_8(self):
+        return self.Category20c_20[:8]
     @property
-    def Pastel1_9(self):
-        return ['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2']
+    def Category20c_9(self):
+        return self.Category20c_20[:9]
+    @property
+    def Category20c_10(self):
+        return self.Category20c_20[:10]
+    @property
+    def Category20c_11(self):
+        return self.Category20c_20[:11]
+    @property
+    def Category20c_12(self):
+        return self.Category20c_20[:12]
+    @property
+    def Category20c_13(self):
+        return self.Category20c_20[:13]
+    @property
+    def Category20c_14(self):
+        return self.Category20c_20[:14]
+    @property
+    def Category20c_15(self):
+        return self.Category20c_20[:15]
+    @property
+    def Category20c_16(self):
+        return self.Category20c_20[:16]
+    @property
+    def Category20c_17(self):
+        return self.Category20c_20[:17]
+    @property
+    def Category20c_18(self):
+        return self.Category20c_20[:18]
+    @property
+    def Category20c_19(self):
+        return self.Category20c_20[:19]
+    @property
+    def Category20c_20(self):
+        return ['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#e6550d', '#fd8d3c', '#fdae6b', '#fdd0a2', '#31a354', '#74c476',
+                '#a1d99b', '#c7e9c0', '#756bb1', '#9e9ac8', '#bcbddc', '#dadaeb', '#636363', '#969696', '#bdbdbd', '#d9d9d9']
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
+    # colorblind friendly palette from http://jfly.iam.u-tokyo.ac.jp/color/
+    # ['orange ', 'skyblue', 'blugren', 'yellow ', 'blue   ', 'vermill', 'redprpl', 'black  '] # key
+    # ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#000000'] # original, poor in b&w
     @property
-    def Pastel2_3(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8']
+    def Colorblind3(self):
+        return self.Colorblind8[:3]
     @property
-    def Pastel2_4(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4']
+    def Colorblind4(self):
+        return self.Colorblind8[:4]
     @property
-    def Pastel2_5(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9']
+    def Colorblind5(self):
+        return self.Colorblind8[:5]
     @property
-    def Pastel2_6(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae']
+    def Colorblind6(self):
+        return self.Colorblind8[:6]
     @property
-    def Pastel2_7(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc']
+    def Colorblind7(self):
+        return self.Colorblind8[:7]
     @property
-    def Pastel2_8(self):
-        return ['#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc']
+    def Colorblind8(self):
+        #      ['blue   ', 'orange ', 'yellow ', 'blugren', 'skyblue', 'vermill', 'redprpl', 'black  '] # key
+        return ['#0072B2', '#E69F00', '#F0E442', '#009E73', '#56B4E9', '#D55E00', '#CC79A7', '#000000'] # reordered
 
-    # http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
-    @property
-    def Set1_3(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a']
-    @property
-    def Set1_4(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
-    @property
-    def Set1_5(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00']
-    @property
-    def Set1_6(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33']
-    @property
-    def Set1_7(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628']
-    @property
-    def Set1_8(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
-    @property
-    def Set1_9(self):
-        return ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
-    @property
-    def Set2_3(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb']
-    @property
-    def Set2_4(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
-    @property
-    def Set2_5(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854']
-    @property
-    def Set2_6(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
-    @property
-    def Set2_7(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494']
-    @property
-    def Set2_8(self):
-        return ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
-
-    # http://colorbrewer2.org/?type=qualitative&scheme=Set3&n=12
-    @property
-    def Set3_3(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada']
-    @property
-    def Set3_4(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
-    @property
-    def Set3_5(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
-    @property
-    def Set3_6(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462']
-    @property
-    def Set3_7(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69']
-    @property
-    def Set3_8(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5']
-    @property
-    def Set3_9(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9']
-    @property
-    def Set3_10(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd']
-    @property
-    def Set3_11(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
-    @property
-    def Set3_12(self):
-        return ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
 
     @property
     def YlGn(self):
@@ -1187,34 +1437,34 @@ class _Palettes(object):
         return { 3: self.Reds3,     4: self.Reds4,     5: self.Reds5,     6: self.Reds6,     7: self.Reds7,     8: self.Reds8,     9: self.Reds9 }
     @property
     def Greys(self):
-        return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9 }
+        return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9,    256: self.Greys256 } # NOQA
     @property
     def PuOr(self):
-        return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,      10: self.PuOr10,     11: self.PuOr11 } # NOQA
+        return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,     10: self.PuOr10,     11: self.PuOr11 } # NOQA
     @property
     def BrBG(self):
-        return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,      10: self.BrBG10,     11: self.BrBG11 } # NOQA
+        return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,     10: self.BrBG10,     11: self.BrBG11 } # NOQA
     @property
     def PRGn(self):
-        return { 3: self.PRGn3,     4: self.PRGn4,     5: self.PRGn5,     6: self.PRGn6,     7: self.PRGn7,     8: self.PRGn8,     9: self.PRGn9,      10: self.PRGn10,     11: self.PRGn11 } # NOQA
+        return { 3: self.PRGn3,     4: self.PRGn4,     5: self.PRGn5,     6: self.PRGn6,     7: self.PRGn7,     8: self.PRGn8,     9: self.PRGn9,     10: self.PRGn10,     11: self.PRGn11 } # NOQA
     @property
     def PiYG(self):
-        return { 3: self.PiYG3,     4: self.PiYG4,     5: self.PiYG5,     6: self.PiYG6,     7: self.PiYG7,     8: self.PiYG8,     9: self.PiYG9,      10: self.PiYG10,     11: self.PiYG11 } # NOQA
+        return { 3: self.PiYG3,     4: self.PiYG4,     5: self.PiYG5,     6: self.PiYG6,     7: self.PiYG7,     8: self.PiYG8,     9: self.PiYG9,     10: self.PiYG10,     11: self.PiYG11 } # NOQA
     @property
     def RdBu(self):
-        return { 3: self.RdBu3,     4: self.RdBu4,     5: self.RdBu5,     6: self.RdBu6,     7: self.RdBu7,     8: self.RdBu8,     9: self.RdBu9,      10: self.RdBu10,     11: self.RdBu11 } # NOQA
+        return { 3: self.RdBu3,     4: self.RdBu4,     5: self.RdBu5,     6: self.RdBu6,     7: self.RdBu7,     8: self.RdBu8,     9: self.RdBu9,     10: self.RdBu10,     11: self.RdBu11 } # NOQA
     @property
     def RdGy(self):
-        return { 3: self.RdGy3,     4: self.RdGy4,     5: self.RdGy5,     6: self.RdGy6,     7: self.RdGy7,     8: self.RdGy8,     9: self.RdGy9,      10: self.RdGy10,     11: self.RdGy11 } # NOQA
+        return { 3: self.RdGy3,     4: self.RdGy4,     5: self.RdGy5,     6: self.RdGy6,     7: self.RdGy7,     8: self.RdGy8,     9: self.RdGy9,     10: self.RdGy10,     11: self.RdGy11 } # NOQA
     @property
     def RdYlBu(self):
-        return { 3: self.RdYlBu3,   4: self.RdYlBu4,   5: self.RdYlBu5,   6: self.RdYlBu6,   7: self.RdYlBu7,   8: self.RdYlBu8,   9: self.RdYlBu9,    10: self.RdYlBu10,   11: self.RdYlBu11 } # NOQA
+        return { 3: self.RdYlBu3,   4: self.RdYlBu4,   5: self.RdYlBu5,   6: self.RdYlBu6,   7: self.RdYlBu7,   8: self.RdYlBu8,   9: self.RdYlBu9,   10: self.RdYlBu10,   11: self.RdYlBu11 } # NOQA
     @property
     def Spectral(self):
-        return { 3: self.Spectral3, 4: self.Spectral4, 5: self.Spectral5, 6: self.Spectral6, 7: self.Spectral7, 8: self.Spectral8, 9: self.Spectral9,  10: self.Spectral10, 11: self.Spectral11 } # NOQA
+        return { 3: self.Spectral3, 4: self.Spectral4, 5: self.Spectral5, 6: self.Spectral6, 7: self.Spectral7, 8: self.Spectral8, 9: self.Spectral9, 10: self.Spectral10, 11: self.Spectral11 } # NOQA
     @property
     def RdYlGn(self):
-        return { 3: self.RdYlGn3,   4: self.RdYlGn4,   5: self.RdYlGn5,   6: self.RdYlGn6,   7: self.RdYlGn7,   8: self.RdYlGn8,   9: self.RdYlGn9,    10: self.RdYlGn10,   11: self.RdYlGn11 } # NOQA
+        return { 3: self.RdYlGn3,   4: self.RdYlGn4,   5: self.RdYlGn5,   6: self.RdYlGn6,   7: self.RdYlGn7,   8: self.RdYlGn8,   9: self.RdYlGn9,   10: self.RdYlGn10,   11: self.RdYlGn11 } # NOQA
     @property
     def Accent(self):
         return { 3: self.Accent3,   4: self.Accent4,   5: self.Accent5,   6: self.Accent6,   7: self.Accent7,   8: self.Accent8 }
@@ -1223,7 +1473,7 @@ class _Palettes(object):
         return { 3: self.Dark2_3,   4: self.Dark2_4,   5: self.Dark2_5,   6: self.Dark2_6,   7: self.Dark2_7,   8: self.Dark2_8 }
     @property
     def Paired(self):
-        return { 3: self.Paired3,   4: self.Paired4,   5: self.Paired5,   6: self.Paired6,   7: self.Paired7,   8: self.Paired8,   9: self.Paired9,    10: self.Paired10,   11: self.Paired11, 12: self.Paired12 } # NOQA
+        return { 3: self.Paired3,   4: self.Paired4,   5: self.Paired5,   6: self.Paired6,   7: self.Paired7,   8: self.Paired8,   9: self.Paired9,   10: self.Paired10,   11: self.Paired11,  12: self.Paired12 } # NOQA
     @property
     def Pastel1(self):
         return { 3: self.Pastel1_3, 4: self.Pastel1_4, 5: self.Pastel1_5, 6: self.Pastel1_6, 7: self.Pastel1_7, 8: self.Pastel1_8, 9: self.Pastel1_9 }
@@ -1238,20 +1488,44 @@ class _Palettes(object):
         return { 3: self.Set2_3,    4: self.Set2_4,    5: self.Set2_5,    6: self.Set2_6,    7: self.Set2_7,    8: self.Set2_8 }
     @property
     def Set3(self):
-        return { 3: self.Set3_3,    4: self.Set3_4,    5: self.Set3_5,    6: self.Set3_6,    7: self.Set3_7,    8: self.Set3_8,    9: self.Set3_9,     10: self.Set3_10,    11: self.Set3_11, 12: self.Set3_12 } # NOQA
-
+        return { 3: self.Set3_3,    4: self.Set3_4,    5: self.Set3_5,    6: self.Set3_6,    7: self.Set3_7,    8: self.Set3_8,    9: self.Set3_9,    10: self.Set3_10,    11: self.Set3_11,   12: self.Set3_12 } # NOQA
     @property
     def Magma(self):
-        return { 3: self.Magma3,   4: self.Magma4,   5: self.Magma5,   6: self.Magma6,   7: self.Magma7,   8: self.Magma8,   9: self.Magma9,    10: self.Magma10,   11: self.Magma11,   256: self.Magma256 } # NOQA
+        return { 3: self.Magma3,    4: self.Magma4,    5: self.Magma5,    6: self.Magma6,    7: self.Magma7,    8: self.Magma8,    9: self.Magma9,    10: self.Magma10,    11: self.Magma11,   256: self.Magma256 } # NOQA
     @property
     def Inferno(self):
-        return { 3: self.Inferno3, 4: self.Inferno4, 5: self.Inferno5, 6: self.Inferno6, 7: self.Inferno7, 8: self.Inferno8, 9: self.Inferno9,  10: self.Inferno10, 11: self.Inferno11, 256: self.Inferno256 } # NOQA
+        return { 3: self.Inferno3,  4: self.Inferno4,  5: self.Inferno5,  6: self.Inferno6,  7: self.Inferno7,  8: self.Inferno8,  9: self.Inferno9,  10: self.Inferno10,  11: self.Inferno11, 256: self.Inferno256 } # NOQA
     @property
     def Plasma(self):
-        return { 3: self.Plasma3,  4: self.Plasma4,  5: self.Plasma5,  6: self.Plasma6,  7: self.Plasma7,  8: self.Plasma8,  9: self.Plasma9,   10: self.Plasma10,  11: self.Plasma11,  256: self.Plasma256 } # NOQA
+        return { 3: self.Plasma3,   4: self.Plasma4,   5: self.Plasma5,   6: self.Plasma6,   7: self.Plasma7,   8: self.Plasma8,   9: self.Plasma9,   10: self.Plasma10,   11: self.Plasma11,  256: self.Plasma256 } # NOQA
     @property
     def Viridis(self):
-        return { 3: self.Viridis3, 4: self.Viridis4, 5: self.Viridis5, 6: self.Viridis6, 7: self.Viridis7, 8: self.Viridis8, 9: self.Viridis9,  10: self.Viridis10, 11: self.Viridis11, 256: self.Viridis256 } # NOQA
+        return { 3: self.Viridis3,  4: self.Viridis4,  5: self.Viridis5,  6: self.Viridis6,  7: self.Viridis7,  8: self.Viridis8,  9: self.Viridis9,  10: self.Viridis10,  11: self.Viridis11, 256: self.Viridis256 } # NOQA
+    @property
+    def Category10(self):
+        return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6,
+                 7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9, 10: self.Category10_10 }
+    @property
+    def Category20(self):
+        return { 3:  self.Category20_3,   4:  self.Category20_4,   5:  self.Category20_5,   6:  self.Category20_6,   7:  self.Category20_7,
+                 8:  self.Category20_8,   9:  self.Category20_9,   10: self.Category20_10,  11: self.Category20_11,  12: self.Category20_12,
+                 13: self.Category20_13,  14: self.Category20_14,  15: self.Category20_15,  16: self.Category20_16,  17: self.Category20_17,
+                 18: self.Category20_18,  19: self.Category20_19,  20: self.Category20_20 }
+    @property
+    def Category20b(self):
+        return { 3:  self.Category20b_3,  4:  self.Category20b_4,  5:  self.Category20b_5,  6:  self.Category20b_6,  7:  self.Category20b_7,
+                 8:  self.Category20b_8,  9:  self.Category20b_9,  10: self.Category20b_10, 11: self.Category20b_11, 12: self.Category20b_12,
+                 13: self.Category20b_13, 14: self.Category20b_14, 15: self.Category20b_15, 16: self.Category20b_16, 17: self.Category20b_17,
+                 18: self.Category20b_18, 19: self.Category20b_19, 20: self.Category20b_20 }
+    @property
+    def Category20c(self):
+        return { 3:  self.Category20c_3,  4:  self.Category20c_4,  5:  self.Category20c_5,  6:  self.Category20c_6,  7:  self.Category20c_7,
+                 8:  self.Category20c_8,  9:  self.Category20c_9,  10: self.Category20c_10, 11: self.Category20c_11, 12: self.Category20c_12,
+                 13: self.Category20c_13, 14: self.Category20c_14, 15: self.Category20c_15, 16: self.Category20c_16, 17: self.Category20c_17,
+                 18: self.Category20c_18, 19: self.Category20c_19, 20: self.Category20c_20 }
+    @property
+    def Colorblind(self):
+        return { 3: self.Colorblind3, 4: self.Colorblind4, 5: self.Colorblind5, 6: self.Colorblind6, 7: self.Colorblind7, 8: self.Colorblind8 }
 
     @property
     def brewer(self):
@@ -1294,17 +1568,29 @@ class _Palettes(object):
         }
 
     @property
+    def d3(self):
+        return {
+            "Category10"  : self.Category10,
+            "Category20"  : self.Category20,
+            "Category20b" : self.Category20b,
+            "Category20c" : self.Category20c,
+        }
+
+    @property
     def all_palettes(self):
         palettes = self.brewer
-        palettes["Magma"]   = self.Magma
-        palettes["Inferno"] = self.Inferno
-        palettes["Plasma"]  = self.Plasma
-        palettes["Viridis"] = self.Viridis
+        palettes.update(self.d3)
+        palettes["Colorblind"] = self.Colorblind
+        palettes["Magma"]      = self.Magma
+        palettes["Inferno"]    = self.Inferno
+        palettes["Plasma"]     = self.Plasma
+        palettes["Viridis"]    = self.Viridis
         return palettes
 
     @property
     def small_palettes(self):
         palettes = self.all_palettes
+        del palettes["Greys"][256]
         del palettes["Magma"][256]
         del palettes["Inferno"][256]
         del palettes["Plasma"][256]
@@ -1318,6 +1604,9 @@ class _Palettes(object):
             name = name + "_" if name[-1].isdigit() else name
             __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
         return __palettes__
+
+    def __dir__(self):
+        return [name for name in dir(type(self)) if not name.startswith('_')]
 
     def _linear_cmap_func_generator(self, name, cmap):
         import math
@@ -1349,12 +1638,9 @@ class _Palettes(object):
     def gray(self):
         return self._linear_cmap_func_generator('gray', self.Greys256)
 
-import sys as _sys
-import types as _types
 
-class _PalettesModule(_types.ModuleType, _Palettes):
-    def __dir__(self):
-        return list(self.__dict__.keys()) + \
-               [ name for name in dir(_Palettes) if not name.startswith("_") ]
-
-_sys.modules['bokeh.palettes'] = _PalettesModule('bokeh.palettes')
+# need to explicitly transfer the docstring for Sphinx docs to build correctly
+_mod = _PalettesModule('bokeh.palettes')
+_mod.__doc__ = __doc__
+_sys.modules['bokeh.palettes'] = _mod
+del _mod, _sys, _types

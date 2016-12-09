@@ -1,13 +1,13 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-BokehView = require "../../core/bokeh_view"
-{Visuals} = require "../../core/visuals"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-proj = require "../../core/util/projections"
-Model = require "../../model"
+import {BokehView} from "../../core/bokeh_view"
+import {Visuals} from "../../core/visuals"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import * as proj from "../../core/util/projections"
+import {Model} from "../../model"
 
-class RendererView extends BokehView
+export class RendererView extends BokehView
 
   initialize: (options) ->
     super(options)
@@ -34,15 +34,10 @@ class RendererView extends BokehView
   map_to_screen: (x, y) ->
     @plot_view.map_to_screen(x, y, @model.x_range_name, @model.y_range_name)
 
-class Renderer extends Model
+export class Renderer extends Model
   type: "Renderer"
 
   @define {
     level: [ p.RenderLevel, null ]
     visible: [ p.Bool, true ]
   }
-
-module.exports = {
-  Model: Renderer
-  View: RendererView
-}

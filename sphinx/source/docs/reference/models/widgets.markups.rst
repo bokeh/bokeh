@@ -1,5 +1,7 @@
-``bokeh.models.widgets.markups``
---------------------------------
+.. _bokeh.models.widgets.markups:
+
+bokeh.models.widgets.markups
+----------------------------
 
 .. automodule:: bokeh.models.widgets.markups
    :members:

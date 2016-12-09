@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class ImageURLView extends Glyph.View
+export class ImageURLView extends GlyphView
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change:global_alpha', @renderer.request_render)
@@ -76,15 +76,15 @@ class ImageURLView extends Glyph.View
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
-      when "top_left"      then [sx       , sy       ]
-      when "top_center"    then [sx - sw/2, sy       ]
-      when "top_right"     then [sx - sw  , sy       ]
-      when "right_center"  then [sx - sw  , sy - sh/2]
-      when "bottom_right"  then [sx - sw  , sy - sh  ]
-      when "bottom_center" then [sx - sw/2, sy - sh  ]
-      when "bottom_left"   then [sx       , sy - sh  ]
-      when "left_center"   then [sx       , sy - sh/2]
-      when "center"        then [sx - sw/2, sy - sh/2]
+      when 'top_left'      then [sx       , sy       ]
+      when 'top_center'    then [sx - sw/2, sy       ]
+      when 'top_right'     then [sx - sw  , sy       ]
+      when 'center_right'  then [sx - sw  , sy - sh/2]
+      when 'bottom_right'  then [sx - sw  , sy - sh  ]
+      when 'bottom_center' then [sx - sw/2, sy - sh  ]
+      when 'bottom_left'   then [sx       , sy - sh  ]
+      when 'center_left'   then [sx       , sy - sh/2]
+      when 'center'        then [sx - sw/2, sy - sh/2]
 
   _render_image: (ctx, i, image, sx, sy, sw, sh, angle) ->
     if isNaN(sw[i]) then sw[i] = image.width
@@ -107,7 +107,7 @@ class ImageURLView extends Glyph.View
       ctx.drawImage(image, sx, sy, sw[i], sh[i])
     ctx.restore()
 
-class ImageURL extends Glyph.Model
+export class ImageURL extends Glyph
   default_view: ImageURLView
 
   type: 'ImageURL'
@@ -125,7 +125,3 @@ class ImageURL extends Glyph.Model
       retry_attempts: [ p.Number,    0          ]
       retry_timeout:  [ p.Number,    0          ]
   }
-
-module.exports =
-  Model: ImageURL
-  View: ImageURLView

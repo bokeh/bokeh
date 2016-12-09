@@ -14,7 +14,7 @@ from ..core.validation.warnings import (
     BOTH_CHILD_AND_ROOT,
 )
 from ..core.enums import SizingMode
-from ..core.properties import abstract, Bool, Enum, Int, Instance, List
+from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Seq, String
 from ..embed import notebook_div
 from ..model import Model
 from ..util.deprecation import deprecated
@@ -64,6 +64,11 @@ class LayoutDOM(Model):
     ``"scale_both"`` elements will responsively resize to fir both the width and height available,
     *while maintaining the original aspect ratio*.
 
+    """)
+
+    css_classes = Seq(String, help="""
+    A list of css class names to add to this DOM element. Note: the class names are
+    simply added as-is, no other guarantees are provided.
     """)
 
     @property

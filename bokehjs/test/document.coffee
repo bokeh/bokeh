@@ -6,9 +6,9 @@ sinon = require "sinon"
 
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
 {GE, Strength, Variable}  = utils.require "core/layout/solver"
-js_version = utils.require "version"
+js_version = utils.require("version").version
 {Models} = utils.require "base"
-Model = utils.require "model"
+{Model} = utils.require "model"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
@@ -534,6 +534,47 @@ describe "Document", ->
     # does not reset title
     expect(d.title()).to.equal 'Foo'
 
+  it "throws on destructive move of itself", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(d.title()).to.equal DEFAULT_TITLE
+    d.add_root(new AnotherModel())
+    d.add_root(new AnotherModel())
+    d.set_title('Foo')
+    expect(d.roots().length).to.equal 2
+    expect(d.title()).to.equal 'Foo'
+    try
+      d.destructively_move(d)
+    catch e
+      got_error = true
+      expect(e.message).to.include('Attempted to overwrite a document with itself')
+    expect(got_error).to.equal(true)
+
+it "can destructively move", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(d.title()).to.equal DEFAULT_TITLE
+    d.add_root(new AnotherModel())
+    d.add_root(new AnotherModel())
+    d.set_title('Foo')
+    expect(d.roots().length).to.equal 2
+    expect(d.title()).to.equal 'Foo'
+
+    d2 = new Document()
+    expect(d2.roots().length).to.equal 0
+    expect(d2.title()).to.equal DEFAULT_TITLE
+    d2.add_root(new SomeModel())
+    d2.set_title('Bar')
+    expect(d2.roots().length).to.equal 1
+    expect(d2.title()).to.equal 'Bar'
+
+    d2.destructively_move(d)
+    expect(d.roots().length).to.equal 1
+    expect(d.roots()[0].foo).to.equal 2
+    expect(d.title()).to.equal 'Bar'
+
+    expect(d2.roots().length).to.equal 0
+
   it "checks for versions matching", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
@@ -542,6 +583,7 @@ describe "Document", ->
     expect(d.roots().length).to.equal 1
     d.set_title("Foo")
 
+    old_log_level = logging.logger.level.name
     logging.set_log_level("warn")
     json = d.to_json_string()
     parsed = JSON.parse(json)
@@ -572,6 +614,9 @@ describe "Document", ->
     parsed['version'] = "#{js_version}dev123-bar"
     out = stderrTrap -> Document.from_json_string(JSON.stringify(parsed))
     expect(out).to.be.equal ""
+
+    # need to reset old log level
+    logging.set_log_level(old_log_level)
 
   it "can serialize with one model in it", ->
     d = new Document()
@@ -969,7 +1014,7 @@ describe "Document", ->
     spy = sinon.spy(s, 'suggest_value')
     root_model = new ModelWithConstrainedVariables({sizing_mode: "scale_both"})
     d.add_root(root_model)
-    d.resize(width=200, height=300)
+    d.resize(200, 300)
     expect(spy.callCount).is.equal(4)
     expect(spy.calledWithExactly(d._doc_width, 200)).is.true
     expect(spy.calledWithExactly(d._doc_height, 300)).is.true

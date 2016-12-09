@@ -1,26 +1,24 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
 
-Canvas = require "../canvas/canvas"
-CartesianFrame = require "../canvas/cartesian_frame"
-DataRange1d = require "../ranges/data_range1d"
-GlyphRenderer = require "../renderers/glyph_renderer"
-LayoutDOM = require "../layouts/layout_dom"
+import {Canvas} from "../canvas/canvas"
+import {CartesianFrame} from "../canvas/cartesian_frame"
+import {DataRange1d} from "../ranges/data_range1d"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {LayoutDOM} from "../layouts/layout_dom"
 
-build_views = require "../../common/build_views"
-UIEvents = require "../../common/ui_events"
+import {build_views} from "../../core/build_views"
+import {UIEvents} from "../../core/ui_events"
+import {LayoutCanvas} from "../../core/layout/layout_canvas"
+import {Visuals} from "../../core/visuals"
+import {BokehView} from "../../core/bokeh_view"
+import {EQ, GE} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import * as enums from "../../core/enums"
+import * as p from "../../core/properties"
+import {throttle} from "../../core/util/throttle"
+import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
-enums = require "../../core/enums"
-LayoutCanvas = require "../../core/layout/layout_canvas"
-{Visuals} = require "../../core/visuals"
-BokehView = require "../../core/bokeh_view"
-{EQ, GE} = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-{throttle} = require "../../core/util/throttle"
-update_panel_constraints = require("../../core/layout/side_panel").update_constraints
-
-class PlotCanvasView extends BokehView
+export class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
 
   state: { history: [], index: -1 }
@@ -81,10 +79,7 @@ class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents({
-      toolbar: @model.toolbar
-      hit_area: @canvas_view.$el
-    })
+    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.$el)
 
     @levels = {}
     for level in enums.RenderLevel
@@ -129,14 +124,14 @@ class PlotCanvasView extends BokehView
     has_bounds = false
 
     for xr in _.values(frame.x_ranges)
-      if xr instanceof DataRange1d.Model
+      if xr instanceof DataRange1d
         xr.update(bounds, 0, @model.id)
         if xr.follow
           follow_enabled = true
       has_bounds = true if xr.bounds?
 
     for yr in _.values(frame.y_ranges)
-      if yr instanceof DataRange1d.Model
+      if yr instanceof DataRange1d
         yr.update(bounds, 1, @model.id)
         if yr.follow
           follow_enabled = true
@@ -212,14 +207,14 @@ class PlotCanvasView extends BokehView
   get_selection: () ->
     selection = []
     for renderer in @model.plot.renderers
-      if renderer instanceof GlyphRenderer.Model
+      if renderer instanceof GlyphRenderer
         selected = renderer.data_source.selected
         selection[renderer.id] = selected
     selection
 
   update_selection: (selection) ->
     for renderer in @model.plot.renderers
-      if renderer not instanceof GlyphRenderer.Model
+      if renderer not instanceof GlyphRenderer
         continue
       ds = renderer.data_source
       if selection?
@@ -301,7 +296,6 @@ class PlotCanvasView extends BokehView
       rng.have_updated_interactively = true
       if rng.start != range_info['start'] or rng.end != range_info['end']
           rng.setv(range_info)
-          rng.callback?.execute(rng)
 
   _get_weight_to_constrain_interval: (rng, range_info) ->
       # Get the weight by which a range-update can be applied
@@ -334,10 +328,8 @@ class PlotCanvasView extends BokehView
     if not range_info?
       for name, rng of @frame.x_ranges
         rng.reset()
-        rng.callback?.execute(rng)
       for name, rng of @frame.y_ranges
         rng.reset()
-        rng.callback?.execute(rng)
       @update_dataranges()
     else
       range_info_iter = []
@@ -490,7 +482,7 @@ class PlotCanvasView extends BokehView
       delete @model.document._unrendered_plots[@id]
       if _.isEmpty(@model.document._unrendered_plots)
         @model.document._unrendered_plots = null
-        _.delay($.proxy(@model.document.resize, @model.document), 1)
+        _.delay(@model.document.resize.bind(@model.document), 1)
 
   resize: () ->
     # Set the plot and canvas to the current model's size
@@ -568,21 +560,21 @@ class PlotCanvasView extends BokehView
       @visuals.background_fill.set_value(ctx)
       ctx.fillRect(frame_box...)
 
-class PlotCanvas extends LayoutDOM.Model
+export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
 
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @canvas = new Canvas.Model({
+    @canvas = new Canvas({
       map: @use_map ? false
       initial_width: @plot.plot_width,
       initial_height: @plot.plot_height,
       use_hidpi: @plot.hidpi
     })
 
-    @frame = new CartesianFrame.Model({
+    @frame = new CartesianFrame({
       x_range: @plot.x_range,
       extra_x_ranges: @plot.extra_x_ranges,
       x_mapper_type: @plot.x_mapper_type,
@@ -591,10 +583,10 @@ class PlotCanvas extends LayoutDOM.Model
       y_mapper_type: @plot.y_mapper_type,
     })
 
-    @above_panel = new LayoutCanvas.Model()
-    @below_panel = new LayoutCanvas.Model()
-    @left_panel = new LayoutCanvas.Model()
-    @right_panel = new LayoutCanvas.Model()
+    @above_panel = new LayoutCanvas()
+    @below_panel = new LayoutCanvas()
+    @left_panel = new LayoutCanvas()
+    @right_panel = new LayoutCanvas()
 
     logger.debug("#{@type} initialized")
 
@@ -734,8 +726,3 @@ class PlotCanvas extends LayoutDOM.Model
   # find a better way, but this was expedient for now.
   plot_canvas: () ->
     return @
-
-module.exports = {
-  Model: PlotCanvas
-  View: PlotCanvasView
-}

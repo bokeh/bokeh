@@ -37,7 +37,7 @@ from bokeh.core.enums import (
     FontStyle,
     TextAlign, TextBaseline,
     Direction,
-    Units, AngleUnits, DatetimeUnits,
+    AngleUnits,
     Dimension,
     Anchor, Location, LegendLocation,
     DashPattern,
@@ -46,7 +46,7 @@ from bokeh.core.enums import (
 
 # fool flake8
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
- Units, AngleUnits, DatetimeUnits, Dimension, Anchor, Location, LegendLocation,
+ AngleUnits, Dimension, Anchor, Location, LegendLocation,
  DashPattern, ButtonType, MapType, Color, NamedIcon)
 
 

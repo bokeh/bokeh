@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-p = require "../../core/properties"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
 
-class BoxAnnotationView extends Annotation.View
+export class BoxAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
@@ -88,7 +88,7 @@ class BoxAnnotationView extends Annotation.View
       vdim = frame_extrema
     return vdim
 
-class BoxAnnotation extends Annotation.Model
+export class BoxAnnotation extends Annotation
   default_view: BoxAnnotationView
 
   type: 'BoxAnnotation'
@@ -119,7 +119,3 @@ class BoxAnnotation extends Annotation.Model
   update:({left, right, top, bottom}) ->
     @setv({left: left, right: right, top: top, bottom: bottom}, {silent: true})
     @trigger('data_update')
-
-module.exports =
-  Model: BoxAnnotation
-  View: BoxAnnotationView

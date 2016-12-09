@@ -1,5 +1,7 @@
-``bokeh.models.widgets.panels``
--------------------------------
+.. _bokeh.models.widgets.panels:
+
+bokeh.models.widgets.panels
+---------------------------
 
 .. automodule:: bokeh.models.widgets.panels
    :members:

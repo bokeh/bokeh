@@ -1,44 +1,43 @@
-module.exports =
-  AngleUnits: ["deg", "rad"]
+export AngleUnits = ["deg", "rad"]
 
-  Dimension: ["width", "height"]
+export Dimension = ["width", "height"]
 
-  Dimensions: ["width", "height", "both"]
+export Dimensions = ["width", "height", "both"]
 
-  Direction: ["clock", "anticlock"]
+export Direction = ["clock", "anticlock"]
 
-  FontStyle: ["normal", "italic", "bold"]
+export FontStyle = ["normal", "italic", "bold"]
 
-  LineCap: ["butt", "round", "square"]
+export LineCap = ["butt", "round", "square"]
 
-  LineJoin: ["miter", "round", "bevel"]
+export LineJoin = ["miter", "round", "bevel"]
 
-  Location: ["above", "below", "left", "right"]
+export Location = ["above", "below", "left", "right"]
 
-  LegendLocation: [
-    "top_left", "top_center", "top_right",
-    "left_center", "center", "right_center",
-    "bottom_left", "bottom_center", "bottom_right"
-  ]
+export LegendLocation = [
+  "top_left",    "top_center",    "top_right",
+  "center_left", "center",        "center_right",
+  "bottom_left", "bottom_center", "bottom_right",
+]
 
-  Orientation: ["vertical", "horizontal"]
+export Orientation = ["vertical", "horizontal"]
 
-  RenderLevel: ["image", "underlay", "glyph", "annotation", "overlay"]
+export RenderLevel = ["image", "underlay", "glyph", "annotation", "overlay"]
 
-  RenderMode: ["canvas", "css"]
+export RenderMode = ["canvas", "css"]
 
-  Side: ["left", "right"]
+export Side = ["left", "right"]
 
-  SpatialUnits: ["screen", "data"]
+export SpatialUnits = ["screen", "data"]
 
-  StartEnd: ["start", "end"]
+export StartEnd = ["start", "end"]
 
-  TextAlign: ["left", "right", "center"]
+export TextAlign = ["left", "right", "center"]
 
-  TextBaseline: ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+export TextBaseline = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
 
-  DistributionTypes: ["uniform", "normal"]
+export DistributionTypes = ["uniform", "normal"]
 
-  TransformStepModes: ["after", "before", "center"]
+export TransformStepModes = ["after", "before", "center"]
 
-  SizingMode: ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+export SizingMode = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]

@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "../glyphs/glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "../glyphs/glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class MarkerView extends Glyph.View
+export class MarkerView extends GlyphView
 
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     # using objects like this seems a little wonky, since the keys are coerced to
@@ -115,7 +115,7 @@ class MarkerView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-class Marker extends Glyph.Model
+export class Marker extends Glyph
 
   @coords [ ['x', 'y'] ]
   @mixins ['line', 'fill']
@@ -123,8 +123,3 @@ class Marker extends Glyph.Model
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
     angle: [ p.AngleSpec,    0                             ]
   }
-
-
-module.exports =
-  Model: Marker
-  View: MarkerView

@@ -1,10 +1,10 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
 
-class PatchesView extends Glyph.View
+export class PatchesView extends GlyphView
 
   _build_discontinuous_object: (nanned_qs) ->
     # _s is @xs, @ys, @sxs, @sys
@@ -179,14 +179,10 @@ class PatchesView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Patches extends Glyph.Model
+export class Patches extends Glyph
   default_view: PatchesView
 
   type: 'Patches'
 
   @coords [ ['xs', 'ys'] ]
   @mixins ['line', 'fill']
-
-module.exports =
-  Model: Patches
-  View: PatchesView

@@ -6,15 +6,15 @@ utils = require "../../utils"
 {Strength, Variable}  = utils.require("core/layout/solver")
 
 {Document} = utils.require("document")
-LayoutDOM = utils.require("models/layouts/layout_dom").Model
-LayoutDOMView = utils.require("models/layouts/layout_dom").View
+{LayoutDOM} = utils.require("models/layouts/layout_dom")
+{LayoutDOMView} = utils.require("models/layouts/layout_dom")
 
 dom_left = 12
 dom_top = 13
 width = 111
 height = 443
 
-describe "LayoutDOM.View", ->
+describe "LayoutDOMView", ->
 
   describe "initialize", ->
     afterEach ->
@@ -45,6 +45,12 @@ describe "LayoutDOM.View", ->
       @test_layout.sizing_mode = 'scale_height'
       layout_view = new LayoutDOMView({ model: @test_layout })
       expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-scale_height'
+
+    it "should set classes from css_classes", ->
+      @test_layout.sizing_mode = 'fixed'
+      @test_layout.css_classes = ['FOO', 'BAR']
+      layout_view = new LayoutDOMView({ model: @test_layout })
+      expect(layout_view.$el.attr('class')).to.be.equal 'bk-layout-fixed FOO BAR'
 
     it "should set an id matching the model.id", ->
       # This is used by document to find the model and its parents on resize events
@@ -220,7 +226,7 @@ describe "LayoutDOM.View", ->
       null
 
 
-describe "LayoutDOM.Model", ->
+describe "LayoutDOM", ->
 
   it "should have default sizing_mode of fixed", ->
     l = new LayoutDOM()

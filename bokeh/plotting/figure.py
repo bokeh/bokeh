@@ -3,16 +3,90 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
+from six import string_types
+
+from ..core.properties import Auto, Either, Enum, Float, Int, Seq, Instance, String, Tuple
+from ..core.enums import HorizontalLocation, VerticalLocation
 from ..models import Plot
+from ..models.annotations import Title
+from ..models.ranges import Range
+from ..models.tools import Tool
 from ..models import glyphs, markers
-from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
+from ..util.options import Options
 from ..util._plot_arg_helpers import _convert_responsive
+from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
+
+
+class FigureOptions(Options):
+
+    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    Tools the plot should start with.
+    """)
+
+    x_range = Either(Tuple(Float, Float), Seq(String), Instance(Range), help="""
+    Customize the x-range of the plot.
+    """)
+
+    y_range = Either(Tuple(Float, Float), Seq(String), Instance(Range), help="""
+    Customize the x-range of the plot.
+    """)
+
+    x_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent x-axis major ticks.
+    """)
+
+    y_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent y-axis major ticks.
+    """)
+
+    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    Where the x-axis should be located.
+    """)
+
+    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    Where the y-axis should be located.
+    """)
+
+    x_axis_label = String(default="", help="""
+    A label for the x-axis.
+    """)
+
+    y_axis_label = String(default="", help="""
+    A label for the y-axis.
+    """)
+
+    active_drag = Either(Auto, String, Instance(Tool), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_scroll = Either(Auto, String, Instance(Tool), default="auto", help="""
+    Which scroll tool should initially be active.
+    """)
+
+    active_tap = Either(Auto, String, Instance(Tool), default="auto", help="""
+    Which tap tool should initially be active.
+    """)
+
+    x_axis_type = Either(Auto, Enum("linear", "log", "datetime"), default="auto", help="""
+    The type of the x-axis.
+    """)
+
+    y_axis_type = Either(Auto, Enum("linear", "log", "datetime"), default="auto", help="""
+    The type of the y-axis.
+    """)
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
+
+    In addition to all the Bokeh model property attributes documented below,
+    the ``Figure`` initializer also accepts the following options, which can
+    help simplify configuration:
+
+    .. bokeh-options:: FigureOptions
+        :module: bokeh.plotting.figure
 
     '''
 
@@ -21,42 +95,23 @@ class Figure(Plot):
 
     def __init__(self, *arg, **kw):
 
-        tools = kw.pop("tools", DEFAULT_TOOLS)
+        opts = FigureOptions(kw)
 
-        x_range = kw.pop("x_range", None)
-        y_range = kw.pop("y_range", None)
-
-        x_axis_type = kw.pop("x_axis_type", "auto")
-        y_axis_type = kw.pop("y_axis_type", "auto")
-
-        x_minor_ticks = kw.pop('x_minor_ticks', 'auto')
-        y_minor_ticks = kw.pop('y_minor_ticks', 'auto')
-
-        x_axis_location = kw.pop("x_axis_location", "below")
-        y_axis_location = kw.pop("y_axis_location", "left")
-
-        x_axis_label = kw.pop("x_axis_label", "")
-        y_axis_label = kw.pop("y_axis_label", "")
-
-        title_text = kw.pop("title", None)
-
-        active_drag = kw.pop('active_drag', 'auto')
-        active_scroll = kw.pop('active_scroll', 'auto')
-        active_tap = kw.pop('active_tap', 'auto')
+        title = kw.get("title", None)
+        if isinstance(title, string_types):
+            kw['title'] = Title(text=title)
 
         super(Figure, self).__init__(*arg, **kw)
 
-        self.title.text = title_text
+        self.x_range = _get_range(opts.x_range)
+        self.y_range = _get_range(opts.y_range)
 
-        self.x_range = _get_range(x_range)
-        self.y_range = _get_range(y_range)
+        _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
+        _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
 
-        _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range, 0)
-        _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range, 1)
-
-        tool_objs, tool_map = _process_tools_arg(self, tools)
+        tool_objs, tool_map = _process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, active_drag, active_scroll, active_tap)
+        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_scroll, opts.active_tap)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
@@ -571,13 +626,20 @@ class WebGLFigure(Figure):
     __view_model__ = "WebGLPlot"
 
 def figure(**kwargs):
-    ''' Create a new :class:`~bokeh.plotting.Figure` for plotting, and add it to
-    the current document.
+    ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
+
+    In addition to the standard :class:`~bokeh.plotting.figure.Figure`
+    property values (e.g. ``plot_width`` or ``sizing_mode``) the following
+    additional options can be passed as well:
+
+    .. bokeh-options:: FigureOptions
+        :module: bokeh.plotting.figure
 
     Returns:
        Figure
 
     '''
+
     if 'plot_width' in kwargs and 'width' in kwargs:
         raise ValueError("figure() called with both 'plot_width' and 'width' supplied, supply only one")
     if 'plot_height' in kwargs and 'height' in kwargs:

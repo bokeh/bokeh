@@ -23,11 +23,11 @@ class Popup(Callback):
 class MyRow(Row):
 
     __implementation__ = """
-Row = require "models/layouts/row"
-p = require "core/properties"
-require "./custom"
+import {Row, RowView} from "models/layouts/row"
+import * as p from "core/properties"
+import "./custom.less"
 
-class MyRowView extends Row.View
+export class MyRowView extends RowView
   render: () ->
     super()
     @$el.addClass("bk-my-row")
@@ -36,7 +36,7 @@ class MyRowView extends Row.View
       borderColor: "#{@model.border_color}"
     })
 
-class MyRow extends Row.Model
+export class MyRow extends Row
   type: "MyRow"
   default_view: MyRowView
 
@@ -44,11 +44,6 @@ class MyRow extends Row.Model
     border_width: [ p.Number, 3 ]
     border_color: [ p.Color, "black" ]
   }
-
-module.exports = {
-  Model: MyRow
-  View: MyRowView
-}
 """
 
     border_width = Int(3)
@@ -57,20 +52,15 @@ module.exports = {
 class MyRow2(MyRow):
 
     __implementation__ = CoffeeScript("""
-MyRow = require "custom/my_row"
+import {MyRow, MyRowView} from "custom/my_row"
 
-class MyRow2View extends MyRow.View
+export class MyRow2View extends MyRowView
   render: () ->
     super()
 
-class MyRow2 extends MyRow.Model
+export class MyRow2 extends MyRow
   type: "MyRow2"
   default_view: MyRow2View
-
-module.exports = {
-  Model: MyRow2
-  View: MyRow2View
-}
 """)
 
 source = ColumnDataSource(

@@ -1,7 +1,7 @@
 .. _bokeh.charts:
 
-``bokeh.charts``
-================
+bokeh.charts
+============
 
 Chart Options
 -------------

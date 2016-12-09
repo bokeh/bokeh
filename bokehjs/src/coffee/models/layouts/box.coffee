@@ -1,12 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{EQ, GE, Strength, Variable, WEAK_EQ}  = require "../../core/layout/solver"
-p = require "../../core/properties"
+import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
+import * as p from "../../core/properties"
 
-LayoutDOM = require "./layout_dom"
+import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
 
-class BoxView extends LayoutDOM.View
+export class BoxView extends LayoutDOMView
   className: "bk-grid"
 
   bind_bokeh_events: () ->
@@ -15,24 +15,24 @@ class BoxView extends LayoutDOM.View
 
   get_height: () ->
     children = @model.get_layoutable_children()
-    child_heights = _.map(children, ((child) -> child._height._value))
+    child_heights = children.map((child) -> child._height._value)
     if @model._horizontal
-      height = _.reduce(child_heights, ((a, b) -> Math.max(a, b)))
+      height = child_heights.reduce((a, b) -> Math.max(a, b))
     else
-      height = _.reduce(child_heights, ((a, b) -> a + b))
+      height = child_heights.reduce((a, b) -> a + b)
     return height
 
   get_width: () ->
     children = @model.get_layoutable_children()
-    child_widths = _.map(children, ((child) -> child._width._value))
+    child_widths = children.map((child) -> child._width._value)
     if @model._horizontal
-      width = _.reduce(child_widths, ((a, b) -> a + b))
+      width = child_widths.reduce((a, b) -> a + b)
     else
-      width = _.reduce(child_widths, ((a, b) -> Math.max(a, b)))
+      width = child_widths.reduce((a, b) -> Math.max(a, b))
     return width
 
 
-class Box extends LayoutDOM.Model
+export class Box extends LayoutDOM
   default_view: BoxView
 
   constructor: (attrs, options) ->
@@ -394,8 +394,8 @@ class Box extends LayoutDOM.Model
             leaves[0].push(child)
             leaves[1].push(child)
 
-    # console.log("  start leaves ", _.map(leaves[0], (leaf) -> leaf.id))
-    # console.log("  end leaves ", _.map(leaves[1], (leaf) -> leaf.id))
+    # console.log("  start leaves ", leaves[0].map((leaf) -> leaf.id)
+    # console.log("  end leaves ", leaves[1].map((leaf) -> leaf.id)
 
     return leaves
 
@@ -495,7 +495,3 @@ class Box extends LayoutDOM.Model
     'box-cell-align-top',
     'box-cell-align-bottom'
   ]
-
-module.exports =
-  Model: Box
-  View: BoxView

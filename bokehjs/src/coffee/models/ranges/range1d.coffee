@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Range = require "./range"
-p = require "../../core/properties"
+import {Range} from "./range"
+import * as p from "../../core/properties"
 
-class Range1d extends Range.Model
+export class Range1d extends Range
   type: 'Range1d'
 
   @define {
@@ -18,7 +18,7 @@ class Range1d extends Range.Model
     if @bounds == 'auto'
       min = Math.min(@_initial_start, @_initial_end)
       max = Math.max(@_initial_start, @_initial_end)
-      @bounds = [min, max]
+      @setv({bounds: [min, max]}, {silent: true})
 
   constructor: () ->
     # new Range1d({start: start, end: end}) or Range1d(start, end)
@@ -42,8 +42,6 @@ class Range1d extends Range.Model
   }
 
   reset: () ->
-    @setv({start: @_initial_start, end: @_initial_end})
+    @setv({start: @_initial_start, end: @_initial_end}, {silent: true})
     @_set_auto_bounds()
-
-module.exports =
-  Model: Range1d
+    @trigger('change')

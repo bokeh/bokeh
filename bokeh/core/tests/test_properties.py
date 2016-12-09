@@ -10,7 +10,7 @@ from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override, Include, MinMaxBounds, TitleProp)
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds, TitleProp)
 
 from bokeh.models import Plot
 from bokeh.models.annotations import Title
@@ -475,6 +475,59 @@ class TestNumberSpec(unittest.TestCase):
         # but regular assignment overwrites the previous dict-ness
         a.x = dict(field="baz")
         self.assertDictEqual(a.x, dict(field="baz"))
+
+class TestFontSizeSpec(unittest.TestCase):
+    def test_font_size_from_string(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
+
+        a = Foo()
+        self.assertIs(a.x, None)
+
+        for unit in css_units.split("|"):
+
+            v = '10%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            v = '10.2%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            f = '_10%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+            f = '_10.2%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+        for unit in css_units.upper().split("|"):
+            v = '10%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            v = '10.2%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            f = '_10%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+            f = '_10.2%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
 
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):

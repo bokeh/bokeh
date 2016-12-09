@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-BoxAnnotation = require "../../annotations/box_annotation"
-p = require "../../../core/properties"
+import {SelectTool, SelectToolView} from "./select_tool"
+import {BoxAnnotation} from "../../annotations/box_annotation"
+import * as p from "../../../core/properties"
 
-class BoxSelectToolView extends SelectTool.View
+export class BoxSelectToolView extends SelectToolView
 
   _pan_start: (e) ->
     canvas = @plot_view.canvas
@@ -95,7 +95,7 @@ class BoxSelectToolView extends SelectTool.View
 
     return
 
-DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"
@@ -110,7 +110,7 @@ DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   line_dash: [4, 4]
 })
 
-class BoxSelectTool extends SelectTool.Model
+export class BoxSelectTool extends SelectTool
   default_view: BoxSelectToolView
   type: "BoxSelectTool"
   tool_name: "Box Select"
@@ -128,7 +128,3 @@ class BoxSelectTool extends SelectTool.Model
   @getters {
     tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
   }
-
-module.exports =
-  Model: BoxSelectTool
-  View: BoxSelectToolView

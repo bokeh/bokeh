@@ -1,0 +1,5 @@
+export {Transform}          from "./transform"
+export {Jitter}             from "./jitter"
+export {Interpolator}       from "./interpolator"
+export {LinearInterpolator} from "./linear_interpolator"
+export {StepInterpolator}   from "./step_interpolator"

@@ -1,10 +1,10 @@
-_ = require "underscore"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import * as p from "../../core/properties"
 
-Model = require "../../model"
+import {Model} from "../../model"
 
 
-class ColorMapper extends Model
+export class ColorMapper extends Model
   type: "ColorMapper"
 
   @define {
@@ -21,8 +21,8 @@ class ColorMapper extends Model
       @_palette = @_build_palette(@palette)
     )
 
-  v_map_screen: (data) ->
-    values = @_get_values(data, @_palette)
+  v_map_screen: (data, image_glyph=false) ->
+    values = @_get_values(data, @_palette, image_glyph)
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)
 
@@ -49,7 +49,7 @@ class ColorMapper extends Model
     values = @_get_values(xs, @palette)
     return values
 
-  _get_values: (data, palette) ->
+  _get_values: (data, palette, image_glyph=false) ->
     # Should be defined by subclass
     return []
 
@@ -74,6 +74,3 @@ class ColorMapper extends Model
     for i in [0...palette.length]
       new_palette[i] = _convert(palette[i])
     return new_palette
-
-module.exports =
-  Model: ColorMapper

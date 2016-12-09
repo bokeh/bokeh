@@ -1,6 +1,6 @@
-Ticker = require "./ticker"
+import {Ticker} from "./ticker"
 
-class CategoricalTicker extends Ticker.Model
+export class CategoricalTicker extends Ticker
   type: 'CategoricalTicker'
 
   get_ticks: (start, end, range, {desired_n_ticks}) ->
@@ -14,6 +14,3 @@ class CategoricalTicker extends Ticker.Model
       "major": majors
       "minor": []
     }
-
-module.exports =
-  Model: CategoricalTicker

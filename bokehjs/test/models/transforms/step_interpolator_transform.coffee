@@ -3,8 +3,8 @@ utils = require "../../utils"
 
 {Collections} = utils.require "base"
 
-StepInterpolator = utils.require('models/transforms/step_interpolator').Model
-ColumnDataSource = utils.require('models/sources/column_data_source').Model
+{StepInterpolator} = utils.require('models/transforms/step_interpolator')
+{ColumnDataSource} = utils.require('models/sources/column_data_source')
 
 describe "step_interpolator_transform module", ->
   source = {start: 0, end: 10}

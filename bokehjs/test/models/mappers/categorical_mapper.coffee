@@ -2,9 +2,9 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-CategoricalMapper = utils.require("models/mappers/categorical_mapper").Model
-FactorRange = utils.require("models/ranges/factor_range").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
+{FactorRange} = utils.require("models/ranges/factor_range")
+{Range1d} = utils.require("models/ranges/range1d")
 
 close = (a, b) -> Math.abs(a-b)<10e-7
 

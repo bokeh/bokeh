@@ -1,10 +1,11 @@
-_ = require("underscore")
-$ = require("jquery")
-sprintf = require("sprintf")
-{Document} = require("../document")
-embed = require("../embed")
-{BOKEH_ROOT} = require("../embed")
-models = require("./models")
+import * as _ from "underscore"
+import * as $ from "jquery"
+import * as sprintf from "sprintf"
+import {Document} from "../document"
+import * as embed from "../embed"
+import {BOKEH_ROOT} from "../embed"
+import * as models from "./models"
+import {startsWith} from "../core/util/string"
 
 _default_tooltips = [
   ["index", "$index"],
@@ -51,7 +52,7 @@ _known_tools = {
 _with_default = (value, default_value) ->
   if value == undefined then default_value else value
 
-class Figure extends models.Plot
+export class Figure extends models.Plot
 
   constructor: (attributes={}, options={}) ->
     attrs = _.clone(attributes)
@@ -103,7 +104,7 @@ class Figure extends models.Plot
 
     @add_tools(@_process_tools(tools)...)
 
-    @_legend = new models.Legend({plot: this})
+    @_legend = new models.Legend({plot: this, items: []})
     @add_renderers(@_legend)
 
   Object.defineProperty this.prototype, "xgrid", {
@@ -235,11 +236,11 @@ class Figure extends models.Plot
         do (param, i) ->
           attrs[param] = args[i]
 
-    legend = attrs.legend
+    legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
-    has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
-    has_hglyph = _.any(_.keys(attrs), (key) -> key.startsWith("hover_"))
+    has_sglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "selection_"))
+    has_hglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
     nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
@@ -358,22 +359,39 @@ class Figure extends models.Plot
 
     return objs
 
-  _update_legend: (legend_name, glyph_renderer) ->
-    legends = _.clone(@_legend.legends)
+  _process_legend: (legend, source) ->
+    legend_item_label = null
+    if legend?
+      if _.isString(legend)
+        legend_item_label = { value: legend }
+        if source? and source.column_names?
+          if legend in source.column_names
+            legend_item_label = { field: legend }
+      else
+        legend_item_label = legend
+    return legend_item_label
 
-    for [name, renderers] in legends
-      if name == legend_name
-        renderers.push(glyph_renderer)
-        @_legend.legends = legends
-        return
+  _update_legend: (legend_item_label, glyph_renderer) ->
+    added = false
+    for item in @_legend.items
+      if _.isEqual(item.label, legend_item_label)
+        if item.label.value?
+          item.renderers.push(glyph_renderer)
+          added = true
+          break
+        if item.label.field? and glyph_renderer.data_source == item.renderers[0].data_source
+          item.renderers.push(glyph_renderer)
+          added = true
+          break
+    if not added
+      new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      @_legend.items.push(new_item)
 
-    legends.push([legend_name, [glyph_renderer]])
-    @_legend.legends = legends
 
-figure = (attributes={}, options={}) ->
+export figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
 
-show = (obj, target) ->
+export show = (obj, target) ->
   multiple = _.isArray(obj)
 
   doc = new Document()
@@ -394,9 +412,9 @@ show = (obj, target) ->
   else
     return views
 
-color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
+export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
-gridplot = (children, options={}) ->
+export gridplot = (children, options={}) ->
   toolbar_location = if _.isUndefined(options.toolbar_location) then 'above' else options.toolbar_location
   sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
   toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
@@ -443,11 +461,3 @@ gridplot = (children, options={}) ->
     grid
 
   return layout
-
-module.exports = {
-  Figure: Figure
-  figure: figure
-  show  : show
-  color : color
-  gridplot: gridplot
-}

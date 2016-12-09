@@ -3,34 +3,98 @@
 JavaScript Callbacks
 --------------------
 
-Bokeh exposes various callbacks that can be specified from Python that trigger
-actions inside the browser's JavaScript runtime. This kind of JavaScript
-callback can be used to add interesting interactions to Bokeh documents without
-the need to use a Bokeh server (but can also be used in conjuction with a
-Bokeh server).
+While the main goal of Bokeh is to provide a path to create rich interactive
+visualizations in the browser, purely from python, there will always be
+specialized use-cases that are outside the capabilities of the core library.
+For this reason, Bokeh provides different ways for users to supply custom
+JavaScript when necessary, so that users
 
-.. _userguide_interaction_actions_openurl:
+One mechanism is the ability to add entire new custom extension models,
+as described in :ref:`userguide_extensions`. However it is also possible
+to supply small snippets of JavaScript as callbacks to use, e.g when property
+values change. This kind of callback can be used to add interesting
+interactions to Bokeh documents without the need to use a Bokeh server (but
+can also be used in conjunction with a Bokeh server).
 
-OpenURL
-~~~~~~~
+.. _userguide_interaction_actions_customjs:
 
-Opening an URL when users click on a glyph (for instance a circle marker) is
-a very popular feature. Bokeh lets users enable this feature by exposing an
-OpenURL callback object that can be passed to a Tap tool in order to have that
-action called whenever the users clicks on the glyph.
+CustomJS for Generic Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following code shows how to use the OpenURL action combined with a TapTool
-to open an URL whenever the user clicks on a circle.
+To supply a snippet of JavaScript code that should be executed (in the
+browser) when some event occurs, use the ``CustomJS`` model:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_open_url.py
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS(args=dict(xr=plot.x_range), code="""
+
+    // JavaScript code goes here
+
+    var a = 10;
+
+    // the model that triggered the callback is cb_obj:
+    var b = cb_obj.value;
+
+    // models passed as args are automagically available
+    xr.start = a;
+    xr.end = b;
+
+    """)
+
+Note that in addition to the ``code`` property, ``CustomJS`` also accepts
+an ``args`` property that maps string names to Bokeh models. Any Bokeh
+models that are configured in ``args`` (on the "Python side") will
+automatically be available to the JavaScript code by the corresponding name.
+Additionally, the model that triggers the callback (i.e. the model that
+the callback is attached to) will be available as ``cb_obj``.
+
+These ``CustomJS`` callbacks can be attached to property change events on
+any Bokeh model, using the ``js_on_change`` method of Bokeh models:
+
+.. code:: python
+
+    p = figure()
+
+    # execute a callback whenever p.x_range.start changes
+    p.x_range.js_on_change('start', callback)
+
+It should be mentioned that the first parameter to ``js_on_change`` is the
+name of actually the name of a Backbone event. The full format for a property
+change event is, e.g. ``"change:start"`` but Bokeh will automatically
+convert any property name into one of these Backbone change events for you.
+Additionally, some Bokeh models have additional specialized events. For
+example, the ``ColumnDataSource`` also supports ``"patch"`` and ``"stream"``
+events, for executing ``CustomJS`` callbacks whenever the data source is
+patched or streamed to.
+
+Below is an example that shows how to attach a ``CustomJS`` callback to a
+``Slider`` widget, so that whenever the slider value updates, the callback
+is executed to update some data:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_js_on_change.py
     :source-position: above
 
-Now you have learned how to open an URL when the user clicks on a glyph.
+
+CustomJS for Specialized Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the generic mechanism described above for adding ``CustomJS``
+callbacks to Bokeh models, there are also a some Bokeh models that have a
+``.callback`` property specifically for executing ``CustomJS`` in response
+to specific events or situations.
+
+.. warning::
+    The callbacks described below were added early to Bokeh in an ad-hoc
+    fashion. Many of them can be accomplished with the generic mechanism
+    described above, and as such, may be deprecated in favor of the generic
+    mechanism in the future.
 
 .. _userguide_interaction_actions_widget_callbacks:
 
 CustomJS for Widgets
-~~~~~~~~~~~~~~~~~~~~
+''''''''''''''''''''
 
 Bokeh lets you express even more advanced callbacks that must be called on
 the Javascript side in order to add custom logic and interactivity when a
@@ -43,13 +107,13 @@ as the ``callback`` argument to a Widget object.
 The code below shows an example of CustomJS set on a slider Widget that
 changes the source of a plot when the slider is used.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: above
 
 .. _userguide_interaction_actions_tool_callbacks:
 
 CustomJS for Tools
-~~~~~~~~~~~~~~~~~~
+''''''''''''''''''
 
 Bokeh allows for some tool events to trigger custom Javascript callbacks that
 have access to the tool's attributes. Below, a callback on the BoxSelectTool
@@ -57,13 +121,13 @@ uses the selection box dimensions (accessed in the geometry field of the
 cb_data object that is injected into the Callback code attribute), in order to
 add a Rect glyph to the plot with identical dimensions.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_tools.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_tools.py
     :source-position: above
 
 .. _userguide_interaction_actions_selection_callbacks:
 
 CustomJS for Selections
-~~~~~~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''''''
 
 Bokeh also provides the means to specify the same kind of callback to be
 executed whenever a selection changes. As a simple demonstration, the example
@@ -71,40 +135,55 @@ below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
 similar way.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_selections.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections.py
     :source-position: above
 
 Another more sophisticated example is shown below. It computes the average `y`
 value of any selected points (including multiple disjoint selections), and draws
 a line through that value.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_selections_lasso_mean.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
     :source-position: above
 
 .. _userguide_interaction_actions_hover_callbacks:
 
 CustomJS for Hover
-~~~~~~~~~~~~~~~~~~
+''''''''''''''''''
 
 The HoverTool has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
 hover tool is over.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_hover.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_hover.py
     :source-position: above
 
 .. _userguide_interaction_actions_range_update_callbacks:
 
 CustomJS for Range Update
-~~~~~~~~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''''''''
 
 With Bokeh, ranges have a callback attribute that accept a Callback instance
 and execute javascript code on range updates that are triggered by tool
 interactions such as a box zoom, wheel scroll or pan.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_range_update.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
     :source-position: above
 
+
+.. _userguide_interaction_actions_in coffeescript:
+
+CustomJS with CoffeeScript code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to write the code for ``CustomJS`` callbacks in `CoffeeScript`_.
+To accomplish this, use the ``from_coffeescript`` class method, which accepts
+the same ``args`` and ``code`` parameters:
+
+.. code:: python
+
+    callback = CustomJS.from_coffeescript(args=dict(p=plot), code="""
+    # coffeescript code here
+    """)
 
 .. _userguide_interaction_actions_in_python:
 
@@ -126,7 +205,7 @@ JavaScript. To use this functionality you need the Flexx library
     and functions (e.g., BokehJS Backbone models).
 
 For more information about the subset of Python that is supported in
-callbacks, see the `<PyScript documentation_>`_.
+callbacks, see the `PyScript documentation`_.
 
 We recommend using ``window.x`` for variables specific to JavaScript
 to avoid confusion and help static code analysis tools. You can add
@@ -164,7 +243,27 @@ to avoid confusion and help static code analysis tools. You can add
 
     show(layout)
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: none
 
+.. _userguide_interaction_actions_openurl:
+
+OpenURL
+~~~~~~~
+
+Opening an URL when users click on a glyph (for instance a circle marker) is
+a very popular feature. Bokeh lets users enable this feature by exposing an
+OpenURL callback object that can be passed to a Tap tool in order to have that
+action called whenever the users clicks on the glyph.
+
+The following code shows how to use the OpenURL action combined with a TapTool
+to open an URL whenever the user clicks on a circle.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_open_url.py
+    :source-position: above
+
+Please note that ``OpenURL`` callbacks specifically and only work with
+``TapTool``.
+
+.. _CoffeeScript: http://coffeescript.org
 .. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript

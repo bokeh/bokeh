@@ -19,8 +19,7 @@ p2 = figure(title="Another Legend Example", tools=TOOLS)
 p2.circle(x, y, legend="sin(x)")
 p2.line(x, y, legend="sin(x)")
 
-p2.line(x, 2*y, legend="2*sin(x)",
-        line_dash=(4, 4), line_color="orange", line_width=2)
+p2.line(x, 2*y, legend="2*sin(x)", line_dash=(4, 4), line_color="orange", line_width=2)
 
 p2.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
 p2.line(x, 3*y, legend="3*sin(x)", line_color="green")

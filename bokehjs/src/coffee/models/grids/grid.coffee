@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-GuideRenderer = require "../renderers/guide_renderer"
-Renderer = require "../renderers/renderer"
-p = require "../../core/properties"
+import {GuideRenderer} from "../renderers/guide_renderer"
+import {RendererView} from "../renderers/renderer"
+import * as p from "../../core/properties"
 
-class GridView extends Renderer.View
+export class GridView extends RendererView
   initialize: (attrs, options) ->
     super(attrs, options)
     @_x_range_name = @model.x_range_name
@@ -60,7 +60,7 @@ class GridView extends Renderer.View
       ctx.stroke()
     return
 
-class Grid extends GuideRenderer.Model
+export class Grid extends GuideRenderer
   default_view: GridView
 
   type: 'Grid'
@@ -149,7 +149,3 @@ class Grid extends GuideRenderer.Model
       coords[j].push(dim_j)
 
     return coords
-
-module.exports =
-  Model: Grid
-  View: GridView

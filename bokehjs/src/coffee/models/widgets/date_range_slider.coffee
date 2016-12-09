@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "jqrangeslider/jQDateRangeSlider"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "jqrangeslider/jQDateRangeSlider"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 
-class DateRangeSliderView extends InputWidget.View
+export class DateRangeSliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
@@ -44,7 +44,7 @@ class DateRangeSliderView extends InputWidget.View
 
     return @
 
-class DateRangeSlider extends InputWidget.Model
+export class DateRangeSlider extends InputWidget
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
@@ -63,7 +63,3 @@ class DateRangeSlider extends InputWidget.Model
       scales
       ###
     }
-
-module.exports =
-  Model: DateRangeSlider
-  View: DateRangeSliderView

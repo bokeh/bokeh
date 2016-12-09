@@ -1,14 +1,13 @@
-_ = require "jquery"
-$ = require "underscore"
+import * as _ from "underscore"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
-multiselecttemplate = require "./multiselecttemplate"
+import multiselecttemplate from "./multiselecttemplate"
 
 
-class MultiSelectView extends InputWidget.View
+export class MultiSelectView extends InputWidgetView
   tagName: "div"
   template: multiselecttemplate
   events:
@@ -32,7 +31,8 @@ class MultiSelectView extends InputWidget.View
 
   render_selection: () =>
     values = {}
-    _.map(@model.value, (x) -> values[x] = true)
+    for x in @model.value
+      values[x] = true
     @$('option').each((el) =>
       el = @$(el)
       if values[el.attr('value')]
@@ -47,7 +47,7 @@ class MultiSelectView extends InputWidget.View
       @model.value = []
     super()
 
-class MultiSelect extends InputWidget.Model
+export class MultiSelect extends InputWidget
   type: "MultiSelect"
   default_view: MultiSelectView
 
@@ -55,7 +55,3 @@ class MultiSelect extends InputWidget.Model
       value:   [ p.Array, [] ]
       options: [ p.Array, [] ]
     }
-
-module.exports =
-  Model: MultiSelect
-  View: MultiSelectView

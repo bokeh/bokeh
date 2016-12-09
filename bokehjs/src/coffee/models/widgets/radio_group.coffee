@@ -1,12 +1,11 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-Widget = require "./widget"
+import {Widget, WidgetView} from "./widget"
 
-
-class RadioGroupView extends Widget.View
+export class RadioGroupView extends WidgetView
   tagName: "div"
   events:
     "change input": "change_input"
@@ -42,7 +41,7 @@ class RadioGroupView extends Widget.View
     @model.callback?.execute(@model)
 
 
-class RadioGroup extends Widget.Model
+export class RadioGroup extends Widget
   type: "RadioGroup"
   default_view: RadioGroupView
 
@@ -52,7 +51,3 @@ class RadioGroup extends Widget.Model
       inline:   [ p.Bool,  false ]
       callback: [ p.Instance ]
     }
-
-module.exports =
-  Model: RadioGroup
-  View: RadioGroupView

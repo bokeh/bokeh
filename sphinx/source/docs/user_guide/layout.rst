@@ -44,7 +44,7 @@ Columns
 
 To display plots or widgets in a vertical fashion, use the |column| function:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/layout_vertical.py
+.. bokeh-plot:: docs/user_guide/examples/layout_vertical.py
     :source-position: above
 
 .. _userguide_layout_layout_rows:
@@ -54,7 +54,7 @@ Rows
 
 To display plots horizontally, use the |row| function.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/layout_horizontal.py
+.. bokeh-plot:: docs/user_guide/examples/layout_horizontal.py
     :source-position: above
 
 .. _userguide_layout_widgets:
@@ -64,7 +64,7 @@ Widgets
 
 Layout a group of widgets with the |widgetbox| function.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/layout_widgets.py
+.. bokeh-plot:: docs/user_guide/examples/layout_widgets.py
     :source-position: above
 
 .. _userguide_layout_layout_gridplot:
@@ -78,7 +78,7 @@ tools into a single toolbar, and the currently active tool is the same
 for all plots in the grid. It is possible to leave "empty" spaces in
 the grid by passing ``None`` instead of a plot object.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/layout_grid.py
+.. bokeh-plot:: docs/user_guide/examples/layout_grid.py
     :source-position: above
 
 For convenience you can also just pass a list of plots, and specify the
@@ -104,7 +104,7 @@ you can set the option ``merge_tools`` to ``False``.
     You cannot use ``None`` with the ``ncols`` argument. It must only be a list
     of ``Plot`` objects at once.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/layout_grid_convenient.py
+.. bokeh-plot:: docs/user_guide/examples/layout_grid_convenient.py
     :source-position: above
 
 .. _userguide_layout_layout:

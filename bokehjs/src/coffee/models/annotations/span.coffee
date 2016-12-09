@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-p = require "../../core/properties"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
 
-class SpanView extends Annotation.View
+export class SpanView extends AnnotationView
 
   initialize: (options) ->
     super(options)
@@ -83,7 +83,7 @@ class SpanView extends Annotation.View
         vdim = location
       return vdim
 
-class Span extends Annotation.Model
+export class Span extends Annotation
   default_view: SpanView
 
   type: 'Span'
@@ -107,7 +107,3 @@ class Span extends Annotation.Model
     for_hover: [ p.Boolean, false ]
     computed_location: [ p.Number, null ]
   }
-
-module.exports =
-  Model: Span
-  View: SpanView

@@ -1,9 +1,8 @@
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractButton = require "./abstract_button"
+import {AbstractButton, AbstractButtonView} from "./abstract_button"
 
-
-class ToggleView extends AbstractButton.View
+export class ToggleView extends AbstractButtonView
 
   render: () ->
     super()
@@ -17,7 +16,7 @@ class ToggleView extends AbstractButton.View
     super()
     @model.active = not @model.active
 
-class Toggle extends AbstractButton.Model
+export class Toggle extends AbstractButton
   type: "Toggle"
   default_view: ToggleView
 
@@ -28,7 +27,3 @@ class Toggle extends AbstractButton.Model
   @override {
     label: "Toggle"
   }
-
-module.exports =
-  Model: Toggle
-  View: ToggleView

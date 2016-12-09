@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ImagePool = require "./image_pool"
-Renderer = require "../renderers/renderer"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {ImagePool} from "./image_pool"
+import {Renderer, RendererView} from "../renderers/renderer"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class DynamicImageView extends Renderer.View
+export class DynamicImageView extends RendererView
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -106,7 +106,7 @@ class DynamicImageView extends Renderer.View
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
-class DynamicImageRenderer extends Renderer.Model
+export class DynamicImageRenderer extends Renderer
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
 
@@ -119,7 +119,3 @@ class DynamicImageRenderer extends Renderer.Model
   @override {
     level: 'underlay'
   }
-
-module.exports =
-  Model: DynamicImageRenderer
-  View: DynamicImageView

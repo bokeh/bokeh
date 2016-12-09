@@ -1,20 +1,19 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-LayoutDOM = require "../layouts/layout_dom"
-Title = require "../annotations/title"
-Toolbar = require "../tools/toolbar"
-ToolEvents = require "../../common/tool_events"
-PlotCanvas = require("./plot_canvas").Model
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {Title} from "../annotations/title"
+import {Toolbar} from "../tools/toolbar"
+import {ToolEvents} from "../tools/tool_events"
+import {PlotCanvas} from "./plot_canvas"
 
-ColumnDataSource = require "../sources/column_data_source"
-GlyphRenderer = require "../renderers/glyph_renderer"
-Title = require "../annotations/title"
+import {ColumnDataSource} from "../sources/column_data_source"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
 
-class PlotView extends LayoutDOM.View
+export class PlotView extends LayoutDOMView
   className: "bk-plot-layout"
 
   bind_bokeh_events: () ->
@@ -68,7 +67,7 @@ class PlotView extends LayoutDOM.View
   get_width: () ->
     return @model._height._value * @model.get_aspect_ratio()
 
-class Plot extends LayoutDOM.Model
+export class Plot extends LayoutDOM
   type: 'Plot'
   default_view: PlotView
 
@@ -78,12 +77,12 @@ class Plot extends LayoutDOM.Model
       plots = xr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        xr.plots = plots
+        xr.setv('plots', plots, {silent: true})
     for yr in _.values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
       if _.isArray(plots)
         plots = plots.concat(@)
-        yr.plots = plots
+        yr.setv('plots', plots, {silent: true})
 
     @_horizontal = false
     if @toolbar_location in ['left', 'right']
@@ -102,7 +101,7 @@ class Plot extends LayoutDOM.Model
 
     # Add the title to layout
     if @title?
-      title = if _.isString(@title) then new Title.Model({text: @title}) else @title
+      title = if _.isString(@title) then new Title({text: @title}) else @title
       @add_layout(title, @title_location)
 
     @_plot_canvas = @_plot_canvas_factory()
@@ -154,9 +153,9 @@ class Plot extends LayoutDOM.Model
 
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
-      source = new ColumnDataSource.Model()
+      source = new ColumnDataSource()
     attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
-    renderer = new GlyphRenderer.Model(attrs)
+    renderer = new GlyphRenderer(attrs)
     @add_renderers(renderer)
     return renderer
 
@@ -305,14 +304,14 @@ class Plot extends LayoutDOM.Model
   @mixins ['line:outline_', 'fill:background_', 'fill:border_']
 
   @define {
-      toolbar:           [ p.Instance, () -> new Toolbar.Model() ]
+      toolbar:           [ p.Instance, () -> new Toolbar() ]
       toolbar_location:  [ p.Location, 'right'                ]
       toolbar_sticky:    [ p.Bool, true                       ]
 
       plot_width:        [ p.Number,   600                    ]
       plot_height:       [ p.Number,   600                    ]
 
-      title:             [ p.Any, () -> new Title.Model({text: ""})] # TODO: p.Either(p.Instance(Title), p.String)
+      title:             [ p.Any, () -> new Title({text: ""})] # TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                ]
 
       h_symmetry:        [ p.Bool,     true                   ]
@@ -333,7 +332,7 @@ class Plot extends LayoutDOM.Model
       x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
       y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
 
-      tool_events:       [ p.Instance, () -> new ToolEvents.Model() ]
+      tool_events:       [ p.Instance, () -> new ToolEvents() ]
 
       lod_factor:        [ p.Number,   10                     ]
       lod_interval:      [ p.Number,   300                    ]
@@ -362,7 +361,3 @@ class Plot extends LayoutDOM.Model
         renderers = renderers.concat(tool.synthetic_renderers)
       return renderers
   }
-
-module.exports =
-  View: PlotView
-  Model: Plot

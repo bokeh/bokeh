@@ -3,13 +3,13 @@ utils = require "../utils"
 
 p = properties = utils.require "core/properties"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 enums = utils.require "core/enums"
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
 svg_colors = utils.require "core/util/svg_colors"
-Transform = utils.require "models/transforms/transform"
+{Transform} = utils.require "models/transforms/transform"
 
-class TestTransform extends Transform.Model
+class TestTransform extends Transform
   compute: (x) -> x+1
   v_compute: (xs) ->
     ret = []
@@ -104,17 +104,6 @@ describe "properties module", ->
       it "should set a value spec for non-object attr values", ->
         p = new properties.Property({obj: new SomeHasProps(a: 10), attr: 'a'})
         expect(p.spec).to.be.deep.equal {value: 10}
-
-    describe "re-setting obj and attr properties", ->
-      it "should throw an Error", ->
-        prop = new properties.Property({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
-        fn = ->
-          prop.setv('obj', new SomeHasProps(a: {value: 20}))
-        expect(fn).to.throw Error, "attempted to reset 'obj' on Property"
-        fn = ->
-          prop.setv('attr', 'b')
-        expect(fn).to.throw Error, "attempted to reset 'attr' on Property"
-
 
     describe "value", ->
       it "should return a value if there is a value spec", ->

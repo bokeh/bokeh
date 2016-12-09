@@ -1,16 +1,16 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-SelectionManager = utils.require "common/selection_manager"
+{SelectionManager} = utils.require "core/selection_manager"
 
-SomeMarker = utils.require("models/markers/index").CircleX.Model
-GlyphRenderer = utils.require("models/renderers/glyph_renderer").Model
-GlyphRendererView = utils.require("models/renderers/glyph_renderer").View
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
-LinearMapper = utils.require("models/mappers/linear_mapper").Model
-Range1d = utils.require("models/ranges/range1d").Model
+SomeMarker = utils.require("models/markers/index").CircleX
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{GlyphRendererView} = utils.require("models/renderers/glyph_renderer")
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{LinearMapper} = utils.require("models/mappers/linear_mapper")
+{Range1d} = utils.require("models/ranges/range1d")
 
-hittest = utils.require "common/hittest"
+hittest = utils.require "core/hittest"
 empty_selection = hittest.create_hit_test_result()
 
 describe "SelectionManager", ->

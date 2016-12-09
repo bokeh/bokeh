@@ -1,6 +1,6 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Model = require "../../model"
+import {Model} from "../../model"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.
@@ -14,7 +14,7 @@ Model = require "../../model"
 # magnitudes.  To make it possible to select Tickers programmatically, they
 # also support some additional methods: get_interval(), get_min_interval(),
 # and get_max_interval().
-class Ticker extends Model
+export class Ticker extends Model
   type: 'Ticker'
 
   # Generates a nice series of ticks for a given range.
@@ -46,6 +46,3 @@ class Ticker extends Model
       "major": ticks
       "minor": minor_ticks
     }
-
-module.exports =
-  Model: Ticker

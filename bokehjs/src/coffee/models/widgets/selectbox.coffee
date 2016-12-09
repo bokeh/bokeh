@@ -1,14 +1,14 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
-template = require "./selecttemplate"
+import template from "./selecttemplate"
 
 
-class SelectView extends InputWidget.View
+export class SelectView extends InputWidgetView
   template: template
   events:
     "change select": "change_input"
@@ -32,7 +32,7 @@ class SelectView extends InputWidget.View
     super()
 
 
-class Select extends InputWidget.Model
+export class Select extends InputWidget
   type: "Select"
   default_view: SelectView
 
@@ -40,7 +40,3 @@ class Select extends InputWidget.Model
       value:   [ p.String, '' ]
       options: [ p.Any,    [] ] # TODO (bev) is this used?
     }
-
-module.exports =
-  Model: Select
-  View: SelectView

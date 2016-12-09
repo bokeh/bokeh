@@ -20,6 +20,10 @@ gulp.task "test:document", ->
   gulp.src ["./test", "./test/document.coffee"], read: false
     .pipe mocha()
 
+gulp.task "test:model", ->
+  gulp.src ["./test", "./test/model.coffee"], read: false
+    .pipe mocha()
+
 gulp.task "test:models", ->
   gulp.src ["./test", "./test/models"], read: false
     .pipe mocha()

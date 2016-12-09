@@ -6,9 +6,9 @@ sinon = require "sinon"
 {Strength, Variable}  = utils.require("core/layout/solver")
 
 {Document} = utils.require("document")
-Toolbar = utils.require("models/tools/toolbar").Model
+{Toolbar} = utils.require("models/tools/toolbar")
 
-describe "Toolbar.View", ->
+describe "ToolbarView", ->
 
   afterEach ->
     utils.unstub_solver()
@@ -27,15 +27,6 @@ describe "Toolbar.View", ->
     tb_view.render()
     expect(spy.calledOnce).is.true
     expect(spy.args[0][0]['location']).is.equal 'below'
-
-  it "render should call template with above toolbar_location if location is None", ->
-    # We need to set above so toolbar looks nice
-    @test_tb.toolbar_location = null
-    tb_view = new @test_tb.default_view({ model: @test_tb })
-    spy = sinon.spy(tb_view, 'template')
-    tb_view.render()
-    expect(spy.calledOnce).is.true
-    expect(spy.args[0][0]['location']).is.equal 'above'
 
   it "render should set the appropriate positions and paddings on the element in box mode", ->
     dom_left = 12
@@ -69,7 +60,7 @@ describe "Toolbar.View", ->
     expect(tb_view.$el.attr('style')).to.be.undefined
 
 
-describe "Toolbar.Model", ->
+describe "Toolbar", ->
 
   it "should have 6 variables", ->
     tb = new Toolbar()

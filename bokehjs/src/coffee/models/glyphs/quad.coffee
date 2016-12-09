@@ -1,15 +1,15 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
-CategoricalMapper = require "../mappers/categorical_mapper"
-hittest = require "../../common/hittest"
+import {Glyph, GlyphView} from "./glyph"
+import {CategoricalMapper} from "../mappers/categorical_mapper"
+import * as hittest from "../../core/hittest"
 
-class QuadView extends Glyph.View
+export class QuadView extends GlyphView
 
   _index_data: () ->
     map_to_synthetic = (mapper, array) ->
-      if mapper instanceof CategoricalMapper.Model
+      if mapper instanceof CategoricalMapper
         mapper.v_map_to_target(array, true)
       else
         array
@@ -68,15 +68,15 @@ class QuadView extends Glyph.View
     bottom = Math.max(@sbottom[i], @stop[i])  #
 
     switch anchor
-      when "top_left"      then {x: left,             y: top              }
-      when "top_center"    then {x: (left + right)/2, y: top              }
-      when "top_right"     then {x: right,            y: top              }
-      when "right_center"  then {x: right,            y: (top + bottom)/2 }
-      when "bottom_right"  then {x: right,            y: bottom           }
-      when "bottom_center" then {x: (left + right)/2, y: bottom           }
-      when "bottom_left"   then {x: left,             y: bottom           }
-      when "left_center"   then {x: left,             y: (top + bottom)/2 }
-      when "center"        then {x: (left + right)/2, y: (top + bottom)/2 }
+      when 'top_left'      then {x: left,             y: top              }
+      when 'top_center'    then {x: (left + right)/2, y: top              }
+      when 'top_right'     then {x: right,            y: top              }
+      when 'center_right'  then {x: right,            y: (top + bottom)/2 }
+      when 'bottom_right'  then {x: right,            y: bottom           }
+      when 'bottom_center' then {x: (left + right)/2, y: bottom           }
+      when 'bottom_left'   then {x: left,             y: bottom           }
+      when 'center_left'   then {x: left,             y: (top + bottom)/2 }
+      when 'center'        then {x: (left + right)/2, y: (top + bottom)/2 }
 
   scx: (i) ->
     return (@sleft[i] + @sright[i])/2
@@ -87,14 +87,10 @@ class QuadView extends Glyph.View
   draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Quad extends Glyph.Model
+export class Quad extends Glyph
   default_view: QuadView
 
   type: 'Quad'
 
   @coords [['right', 'bottom'], ['left', 'top']]
   @mixins ['line', 'fill']
-
-module.exports =
-  Model: Quad
-  View: QuadView

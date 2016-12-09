@@ -1,10 +1,10 @@
-_ = require("underscore")
-$ = require("jquery")
-sprintf = require("sprintf")
-{Document} = require("../document")
-embed = require("../embed")
-models = require("./models")
-palettes = require("./palettes")
+import * as _ from "underscore"
+import * as $ from "jquery"
+import * as sprintf from "sprintf"
+import {Document} from "../document"
+import * as embed from "../embed"
+import * as models from "./models"
+import * as palettes from "./palettes"
 
 sum = (array) ->
   return array.reduce(((a, b) => a + b), 0)
@@ -25,7 +25,7 @@ is_dark = ([r, g, b]) ->
   l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
   return l >= 0.6
 
-pie = (data, opts={}) ->
+export pie = (data, opts={}) ->
   labels = []
   values = []
 
@@ -142,7 +142,7 @@ pie = (data, opts={}) ->
 
   return plot
 
-bar = (data, opts={}) ->
+export bar = (data, opts={}) ->
   column_names = data[0]
   rows = data.slice(1)
 
@@ -151,7 +151,7 @@ bar = (data, opts={}) ->
     for v, i in row
       columns[i].push(v)
 
-  labels = _.map(columns[0], (v) -> v.toString())
+  labels = columns[0].map((v) -> v.toString())
   columns = columns.slice(1)
 
   yaxis = new models.CategoricalAxis()
@@ -264,7 +264,7 @@ bar = (data, opts={}) ->
 
   tooltip = "<div>@labels</div><div>@columns:&nbsp<b>@values</b></div>"
   if orientation == "horizontal"
-    anchor = "right_center"
+    anchor = "center_right"
     attachment = "horizontal"
   else
     anchor = "top_center"
@@ -280,8 +280,3 @@ bar = (data, opts={}) ->
   plot.add_tools(hover)
 
   return plot
-
-module.exports = {
-  pie: pie
-  bar: bar
-}

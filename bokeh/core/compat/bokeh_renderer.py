@@ -21,12 +21,14 @@ from six import string_types
 
 from ...layouts import gridplot
 from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, LinearAxis, Plot, CategoricalAxis, Legend)
+                     Grid, LinearAxis, Plot, CategoricalAxis, Legend, LegendItem)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ...plotting import DEFAULT_TOOLS
 from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
+
+from ..properties import value
 
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_color, convert_dashes, get_props_cycled, xkcd_line
@@ -39,10 +41,11 @@ pd = import_optional('pandas')
 
 class BokehRenderer(Renderer):
 
-    def __init__(self, use_pd, xkcd):
+    def __init__(self, tools, use_pd, xkcd):
         "Initial setup."
         self.fig = None
         self.use_pd = use_pd
+        self.tools = tools
         self.xkcd = xkcd
         self.zorder = {}
         self.handles = {}
@@ -59,7 +62,7 @@ class BokehRenderer(Renderer):
     def close_figure(self, fig):
         "Complete the plot: add tools."
         # Add tools
-        tool_objs, tools_map = _process_tools_arg(self.plot, DEFAULT_TOOLS)
+        tool_objs, tools_map = _process_tools_arg(self.plot, self.tools)
         self.plot.add_tools(*tool_objs)
 
         # Simple or Grid plot setup
@@ -165,7 +168,7 @@ class BokehRenderer(Renderer):
         lgnd = Legend(location="top_right")
         try:
             for label, obj in zip(props['labels'], props['handles']):
-                lgnd.legends.append((label, [self.handles[id(obj)]]))
+                lgnd.items.append(LegendItem(label=value(label), renderers=[self.handles[id(obj)]]))
             self.plot.add_layout(lgnd)
         except KeyError:
             pass

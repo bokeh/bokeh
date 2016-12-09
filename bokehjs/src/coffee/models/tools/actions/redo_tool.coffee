@@ -1,6 +1,6 @@
-ActionTool = require "./action_tool"
+import {ActionTool, ActionToolView} from "./action_tool"
 
-class RedoToolView extends ActionTool.View
+export class RedoToolView extends ActionToolView
 
   initialize: (options) ->
     super(options)
@@ -9,7 +9,7 @@ class RedoToolView extends ActionTool.View
   do: () ->
     @plot_view.redo()
 
-class RedoTool extends ActionTool.Model
+export class RedoTool extends ActionTool
   default_view: RedoToolView
   type: "RedoTool"
   tool_name: "Redo"
@@ -18,8 +18,3 @@ class RedoTool extends ActionTool.Model
   @override {
     disabled: true
   }
-
-module.exports = {
-  Model: RedoTool
-  View: RedoToolView
-}

@@ -1,11 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-GlyphRenderer = require "../renderers/glyph_renderer"
-p = require "../../core/properties"
-{get_text_height} = require "../../core/util/text"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
+import {get_text_height} from "../../core/util/text"
 
-class LegendView extends Annotation.View
+export class LegendView extends AnnotationView
   initialize: (options) ->
     super(options)
 
@@ -33,9 +32,9 @@ class LegendView extends Annotation.View
 
     max_label_width = _.max(_.values(@text_widths))
 
-    legend_margin = @model.legend_margin
-    legend_padding = @model.legend_padding
-    legend_spacing = @model.legend_spacing
+    legend_margin = @model.margin
+    legend_padding = @model.padding
+    legend_spacing = @model.spacing
     label_standoff =  @model.label_standoff
 
     if @model.orientation == "vertical"
@@ -62,7 +61,7 @@ class LegendView extends Annotation.View
         when 'top_right'
           x = h_range.end - legend_margin - legend_width
           y = v_range.end - legend_margin
-        when 'right_center'
+        when 'center_right'
           x = h_range.end - legend_margin - legend_width
           y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
@@ -74,7 +73,7 @@ class LegendView extends Annotation.View
         when 'bottom_left'
           x = h_range.start + legend_margin
           y = v_range.start + legend_margin + legend_height
-        when 'left_center'
+        when 'center_left'
           x = h_range.start + legend_margin
           y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'
@@ -89,7 +88,7 @@ class LegendView extends Annotation.View
     return {x: x, y: y, width: legend_width, height: legend_height}
 
   render: () ->
-    if @model.legends.length == 0
+    if @model.items.length == 0
       return
 
     ctx = @plot_view.canvas_view.ctx
@@ -97,10 +96,7 @@ class LegendView extends Annotation.View
 
     ctx.save()
     @_draw_legend_box(ctx, bbox)
-    if @model.legends[0] instanceof GlyphRenderer.Model
-      @_draw_legends_from_renderers(ctx, bbox)
-    else
-      @_draw_legends_from_legends_spec(ctx, bbox)
+    @_draw_legend_items(ctx, bbox)
     ctx.restore()
 
   _draw_legend_box: (ctx, bbox) ->
@@ -115,16 +111,16 @@ class LegendView extends Annotation.View
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 
-  _draw_legends_from_renderers: (ctx, bbox) ->
+  _draw_legend_items: (ctx, bbox) ->
     glyph_height = @model.glyph_height
     glyph_width = @model.glyph_width
-    legend_spacing = @model.legend_spacing
+    legend_spacing = @model.spacing
     label_standoff = @model.label_standoff
-    xoffset = yoffset = @model.legend_padding
+    xoffset = yoffset = @model.padding
 
-    for renderer in @model.legends
-      labels = renderer.get_labels_from_glyph_label_prop()
-      field = renderer.get_field_from_glyph_label_prop()
+    for item in @model.items
+      labels = item.get_labels_list_from_label_prop()
+      field = item.get_field_from_label_prop()
 
       if labels.length == 0
         continue
@@ -141,31 +137,9 @@ class LegendView extends Annotation.View
 
         @visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + @max_label_height / 2.0)
-        view = @plot_view.renderer_views[renderer.id]
-        view.draw_legend(ctx, x1, x2, y1, y2, field, label)
-
-  _draw_legends_from_legends_spec: (ctx, bbox) ->
-    glyph_height = @model.glyph_height
-    glyph_width = @model.glyph_width
-    legend_spacing = @model.legend_spacing
-    label_standoff = @model.label_standoff
-    xoffset = yoffset = @model.legend_padding
-
-    for [legend_name, glyph_renderers], idx in @model.legends
-      x1 = bbox.x + xoffset
-      y1 = bbox.y + yoffset
-      x2 = x1 + glyph_width
-      y2 = y1 + glyph_height
-      if @model.orientation == "vertical"
-        yoffset += @max_label_height + legend_spacing
-      else
-        xoffset += @text_widths[legend_name] + glyph_width + label_standoff + legend_spacing
-
-      @visuals.label_text.set_value(ctx)
-      ctx.fillText(legend_name, x2 + label_standoff, y1 + @max_label_height / 2.0)
-      for renderer in glyph_renderers
-        view = @plot_view.renderer_views[renderer.id]
-        view.draw_legend(ctx, x1, x2, y1, y2)
+        for r in item.renderers
+          view = @plot_view.renderer_views[r.id]
+          view.draw_legend(ctx, x1, x2, y1, y2, field, label)
 
   _get_size: () ->
     bbox = @compute_legend_bbox()
@@ -181,25 +155,22 @@ class LegendView extends Annotation.View
     y = @model.panel._top._value
     return {x: x, y: -y}
 
-class Legend extends Annotation.Model
+export class Legend extends Annotation
   default_view: LegendView
 
   type: 'Legend'
 
   get_legend_names: () ->
     legend_names = []
-    for item in @legends
-      if item instanceof GlyphRenderer.Model
-        labels = item.get_labels_from_glyph_label_prop()
-        legend_names = legend_names.concat(labels)
-      else
-        legend_names.push(item[0])
+    for item in @items
+      labels = item.get_labels_list_from_label_prop()
+      legend_names = legend_names.concat(labels)
     return legend_names
+
 
   @mixins ['text:label_', 'line:border_', 'fill:background_']
 
   @define {
-      legends:        [ p.Array,          []          ]
       orientation:    [ p.Orientation,    'vertical'  ]
       location:       [ p.Any,            'top_right' ] # TODO (bev)
       label_standoff: [ p.Number,         5           ]
@@ -207,9 +178,10 @@ class Legend extends Annotation.Model
       glyph_width:    [ p.Number,         20          ]
       label_height:   [ p.Number,         20          ]
       label_width:    [ p.Number,         20          ]
-      legend_margin:  [ p.Number,         10          ]
-      legend_padding: [ p.Number,         10          ]
-      legend_spacing: [ p.Number,         3           ]
+      margin:         [ p.Number,         10          ]
+      padding:        [ p.Number,         10          ]
+      spacing:        [ p.Number,         3           ]
+      items:          [ p.Array,          []          ]
   }
 
   @override {
@@ -221,7 +193,3 @@ class Legend extends Annotation.Model
     label_text_font_size: "10pt"
     label_text_baseline: "middle"
   }
-
-module.exports =
-  Model: Legend
-  View: LegendView

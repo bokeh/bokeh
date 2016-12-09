@@ -1,8 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ActionTool = require "./action_tool"
+import {ActionTool, ActionToolView} from "./action_tool"
 
-class SaveToolView extends ActionTool.View
+export class SaveToolView extends ActionToolView
 
   do: () ->
     canvas = @plot_view.get_canvas_element()
@@ -18,12 +18,8 @@ class SaveToolView extends ActionTool.View
       link.target = "_blank"
       link.dispatchEvent(new MouseEvent('click'))
 
-class SaveTool extends ActionTool.Model
+export class SaveTool extends ActionTool
   default_view: SaveToolView
   type: "SaveTool"
   tool_name: "Save"
   icon: "bk-tool-icon-save"
-
-module.exports =
-  Model: SaveTool
-  View: SaveToolView

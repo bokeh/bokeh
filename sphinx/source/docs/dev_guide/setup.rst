@@ -28,55 +28,78 @@ This will create a ``bokeh`` directory at your location. This ``bokeh``
 directory is referred to as the "source checkout" for the remainder of
 this document.
 
+.. _devguide_configuring_git:
+
+Configuring Git
+---------------
+
+There are a few configurations you can make locally that will help make
+working with the repository safer and easier.
+
 .. _devguide_suggested_git_hooks:
 
 Git Hooks
----------
+~~~~~~~~~
 
-In order to help prevent some accidental situations, here are two git hooks
+In order to help prevent some accidental situations, here are some git hooks
 that may be useful. The scripts below should be places in the ``.git/hooks``
-directory, and be marked executable with e.g. ``chmod +x pre-commit``. For
-more information on git hooks, see `this reference`_.
+directory in th top level of the cloned GitHub repository, and be marked
+executable with e.g. ``chmod +x pre-commit``. For more information on git
+hooks, see `this reference`_.
 
 
 ``pre-commit``
-~~~~~~~~~~~~~~
 
-This git hook runs the code quality tests before allowing a commit to
-proceed. Note that all the standard testing dependencies musts be installed
-in order for this hook to function.
+    This git hook runs the code quality tests before allowing a commit to
+    proceed. Note that all the standard testing dependencies musts be installed
+    in order for this hook to function.
 
-.. code-block:: sh
+    .. code-block:: sh
 
-    #!/bin/bash
+        #!/bin/bash
 
-    py.test -m quality
-    exit $?
+        py.test -m quality
+        exit $?
 
 ``pre-push``
-~~~~~~~~~~~~
 
-This git hook prevents accidental pushes to ``master`` on GitHub.
+    This git hook prevents accidental pushes to ``master`` on GitHub.
+
+    .. code-block:: sh
+
+        #!/bin/bash
+
+        protected_branch='master'
+        current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+        if [ $protected_branch = $current_branch ]
+        then
+            read -p "You're about to push master, is that what you intended? [y|n] " -n 1 -r < /dev/tty
+            echo
+            if echo $REPLY | grep -E '^[Yy]$' > /dev/null
+            then
+                exit 0 # push will execute
+            fi
+            exit 1 # push will not execute
+        else
+            exit 0 # push will execute
+        fi
+
+.. _devguide_suggested_git_aliases:
+
+Git Aliases
+~~~~~~~~~~~
+
+There are also some useful aliases that can be added to the ``.gitconfig`` file located in your home directory.
+
+The following alias adds a ``git resolve`` command that will automatically open up your editor to resolve any merge conflicts.
 
 .. code-block:: sh
 
-    #!/bin/bash
+    [alias]
+        resolve = !sh -c 'vim -p $(git status -s | grep "^UU" | cut -c4-)'
 
-    protected_branch='master'
-    current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
-
-    if [ $protected_branch = $current_branch ]
-    then
-        read -p "You're about to push master, is that what you intended? [y|n] " -n 1 -r < /dev/tty
-        echo
-        if echo $REPLY | grep -E '^[Yy]$' > /dev/null
-        then
-            exit 0 # push will execute
-        fi
-        exit 1 # push will not execute
-    else
-        exit 0 # push will execute
-    fi
+You can replace ``vim`` with whatever your favorite editor command is.
 
 .. _devguide_building_bokehjs:
 
@@ -85,8 +108,8 @@ Building BokehJS
 
 The BokehJS build process is handled by Gulp_, which in turn depends on
 `Node.js <NodeJS>`_. Gulp is used to compile CoffeeScript and Less (CSS)
-sources (as well as Eco templates), and to combine these resources into
-optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
+sources, and to combine these resources into optimized and minified
+``bokeh.js`` and ``bokeh.css`` files.
 
 Install npm and node
 ~~~~~~~~~~~~~~~~~~~~
@@ -105,7 +128,6 @@ Alternatively, on Ubuntu you can use ``apt-get``:
 .. code-block:: sh
 
     apt-get install npm node
-
 
 Install Gulp and necessary plugins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -260,7 +282,7 @@ in the Github repository.
 In addition to the build and test dependencies, you must also have the base
 dependencies for Bokeh installed. A simple way to install these dependencies
 is to install Bokeh via ``conda install`` or ``pip install`` before running
-``setup.py``.  Alternatively, you can download them indivually. The
+``setup.py``.  Alternatively, you can download them individually. The
 dependencies include:
 
 * jinja2
@@ -355,6 +377,35 @@ For Bokeh server examples, add ``BOKEH_DEV=true`` to the server invocation:
 .. code-block:: sh
 
     BOKEH_DEV=true bokeh serve example-server.py
+
+Browser caching
+---------------
+
+During development, depending on the type of configured resources,
+aggressive browser caching can sometimes cause new BokehJS code changes to
+not be picked up. It is recommended that during normal development,
+browser caching be disabled. Instructions for different browsers can be
+found here:
+
+* `Chrome <https://developer.chrome.com/devtools/docs/settings>`__
+* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`__
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
+* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`__
+
+Additionally some browsers also provide a "private mode" that may disable
+caching automatically.
+
+Even with caching disabled, on some browsers, it may still be required to
+sometimes force a page reload. Keyboard shortcuts for forcing page
+refreshes can be found here:
+
+* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`__ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`__ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`__
+* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`__
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`__
+* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`__ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`__
+
+If it appears that new changes are not being executed when they should be, it
+is recommended to try this first.
 
 .. _contact the developers: http://bokehplots.com/pages/contact.html
 .. _GitHub: https://github.com

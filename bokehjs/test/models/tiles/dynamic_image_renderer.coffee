@@ -2,8 +2,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-DynamicImageRenderer = utils.require "models/tiles/dynamic_image_renderer"
-ImageSource = utils.require "models/tiles/image_source"
+{ImageSource} = utils.require "models/tiles/image_source"
 
 describe "dynamic image renderer", ->
 
@@ -14,7 +13,7 @@ describe "dynamic image renderer", ->
         url : 'http://test/{height}/{width}/{xmin}/{ymin}/{xmax}/{ymax}.png'
 
       expect_url = 'http://test/5/6/1/2/3/4.png'
-      image_source = new ImageSource.Model(image_options)
+      image_source = new ImageSource(image_options)
       expect(image_source.get_image_url(1,2,3,4,5,6)).to.be.equal(expect_url)
 
     it "should successfully set extra_url_vars property", ->
@@ -27,7 +26,7 @@ describe "dynamic image renderer", ->
         url : 'http://{test_key}/{test_key2}/{XMIN}/{YMIN}/{XMAX}/{YMAX}.png'
         extra_url_vars : test_extra_url_vars
 
-      image_source = new ImageSource.Model(image_options)
+      image_source = new ImageSource(image_options)
       expect_url = 'http://test_value/test_value2/0/0/0/0.png'
       expect(image_source.extra_url_vars).to.have.any.keys('test_key')
       expect(image_source.extra_url_vars).to.have.any.keys('test_key2')

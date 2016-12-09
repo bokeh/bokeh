@@ -7,8 +7,6 @@ to various resources in the Bokeh Github repository:
 
 ``:bokeh-issue:`` : link to an issue
 
-``:bokeh-milestone:`` : link to a milestone page
-
 ``:bokeh-pull:`` : link to a pull request
 
 ``:bokeh-tree:`` : (versioned) link to a source tree URL
@@ -19,16 +17,14 @@ Examples
 The following code::
 
     The repo history shows that :bokeh-commit:`bf19bcb` was made in
-    in :bokeh-pull:`1698`, which closed :bokeh-issue:`1694` as part of
-    :bokeh-milestone:`0.8`. This included updating all of the files in
-    the :bokeh-tree:`examples` subdirectory.
+    in :bokeh-pull:`1698`, which closed :bokeh-issue:`1694`. This included
+    updating all of the files in the :bokeh-tree:`examples` subdirectory.
 
 yields the output:
 
 The repo history shows that :bokeh-commit:`bf19bcb` was made in
-in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
-:bokeh-milestone:`0.8`. This included updating all of the files in
-the :bokeh-tree:`examples` subdirectory.
+in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694`. This included
+updating all of the files in the :bokeh-tree:`examples` subdirectory.
 
 """
 from __future__ import absolute_import
@@ -72,18 +68,6 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
     node = make_gh_link_node(app, rawtext, 'issue', 'issue', 'issues', str(issue_num), options)
-    return [node], []
-
-def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
-
-    Returns 2 part tuple containing list of nodes to insert into the
-    document and a list of system messages.  Both are allowed to be
-    empty.
-
-    """
-    app = inliner.document.settings.env.app
-    node = make_gh_link_node(app, rawtext, 'milestone', 'milestone', 'milestones', text, options)
     return [node], []
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -171,14 +155,13 @@ def _try_url(app, url, role):
         request.get_method = lambda : 'HEAD'
         response = urllib.request.urlopen(request, timeout=5)
     except (urllib.error.HTTPError, urllib.error.URLError):
-        app.warn("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
+        app.info("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
     else:
         if response.getcode() >= 400:
-            app.warn("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
+            app.info("URL '%s' for :bokeh-%s: role is not available on GitHub" % (url, role))
 
 def setup(app):
     app.add_role('bokeh-commit', bokeh_commit)
     app.add_role('bokeh-issue', bokeh_issue)
-    app.add_role('bokeh-milestone', bokeh_milestone)
     app.add_role('bokeh-pull', bokeh_pull)
     app.add_role('bokeh-tree', bokeh_tree)

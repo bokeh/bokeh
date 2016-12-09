@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-TickFormatter = require "./tick_formatter"
-p = require "../../core/properties"
+import {TickFormatter} from "./tick_formatter"
+import * as p from "../../core/properties"
 
-class BasicTickFormatter extends TickFormatter.Model
+export class BasicTickFormatter extends TickFormatter
   type: 'BasicTickFormatter'
 
   @define {
@@ -82,6 +82,3 @@ class BasicTickFormatter extends TickFormatter.Model
           return labels
 
     return labels
-
-module.exports =
-  Model: BasicTickFormatter

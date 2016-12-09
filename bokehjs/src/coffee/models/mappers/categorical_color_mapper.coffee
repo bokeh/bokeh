@@ -1,10 +1,9 @@
-_ = require "underscore"
-p = require "../../core/properties"
+import * as _ from "underscore"
+import * as p from "../../core/properties"
 
-ColorMapper = require "./color_mapper"
+import {ColorMapper} from "./color_mapper"
 
-
-class CategoricalColorMapper extends ColorMapper.Model
+export class CategoricalColorMapper extends ColorMapper
   type: "CategoricalColorMapper"
 
   @define {
@@ -22,6 +21,3 @@ class CategoricalColorMapper extends ColorMapper.Model
         color = palette[key]
       values.push(color)
     return values
-
-module.exports =
-  Model: CategoricalColorMapper

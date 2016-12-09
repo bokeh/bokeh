@@ -1,12 +1,12 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import {Widget, WidgetView} from "./widget"
+import {BokehView} from "../../core/bokeh_view"
+import * as p from "../../core/properties"
 
 
-class CheckboxGroupView extends Widget.View
+export class CheckboxGroupView extends WidgetView
   events:
     "change input": "change_input"
 
@@ -40,7 +40,7 @@ class CheckboxGroupView extends Widget.View
     @model.active = active
     @model.callback?.execute(@model)
 
-class CheckboxGroup extends Widget.Model
+export class CheckboxGroup extends Widget
   type: "CheckboxGroup"
   default_view: CheckboxGroupView
 
@@ -50,7 +50,3 @@ class CheckboxGroup extends Widget.Model
       inline:   [ p.Bool,  false ]
       callback: [ p.Instance ]
     }
-
-module.exports =
-  Model: CheckboxGroup
-  View: CheckboxGroupView

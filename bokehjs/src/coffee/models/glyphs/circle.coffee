@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class CircleView extends Glyph.View
+export class CircleView extends GlyphView
 
   _index_data: () ->
     return @_xy_index()
@@ -204,7 +204,7 @@ class CircleView extends Glyph.View
     data = {sx: sx, sy: sy, sradius: sradius}
     @_render(ctx, indices, data)
 
-class Circle extends Glyph.Model # XXX: Marker.Model
+export class Circle extends Glyph # XXX: Marker
   default_view: CircleView
 
   type: 'Circle'
@@ -221,7 +221,3 @@ class Circle extends Glyph.Model # XXX: Marker.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @properties.radius.optional = true
-
-module.exports =
-  Model: Circle
-  View: CircleView

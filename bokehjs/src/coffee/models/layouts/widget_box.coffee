@@ -1,17 +1,16 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-build_views = require "../../common/build_views"
+import {build_views} from "../../core/build_views"
+import {BokehView} from "../../core/bokeh_view"
+import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-BokehView = require "../../core/bokeh_view"
-{WEAK_EQ, GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-
-LayoutDOM = require "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 
-class WidgetBoxView extends LayoutDOM.View
+export class WidgetBoxView extends LayoutDOMView
   className: "bk-widget-box"
 
   initialize: (options) ->
@@ -80,7 +79,7 @@ class WidgetBoxView extends LayoutDOM.View
       return width
 
 
-class WidgetBox extends LayoutDOM.Model
+export class WidgetBox extends LayoutDOM
   type: 'WidgetBox'
   default_view: WidgetBoxView
 
@@ -136,6 +135,3 @@ class WidgetBox extends LayoutDOM.Model
   @define {
     'children': [ p.Array, [] ]
   }
-
-module.exports =
-  Model: WidgetBox
