@@ -108,7 +108,7 @@ export class ColorBarView extends AnnotationView
         when 'top_right'
           x = h_range.end - legend_margin - legend_width
           y = v_range.end - legend_margin
-        when 'right_center'
+        when 'center_right'
           x = h_range.end - legend_margin - legend_width
           y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
@@ -120,7 +120,7 @@ export class ColorBarView extends AnnotationView
         when 'bottom_left'
           x = h_range.start + legend_margin
           y = v_range.start + legend_margin + legend_height
-        when 'left_center'
+        when 'center_left'
           x = h_range.start + legend_margin
           y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'

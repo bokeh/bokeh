@@ -719,7 +719,7 @@ automatically by ``bokeh.plotting``, values for ``location``  can be:
 
 ``"top_right"`` (the default)
 
-``"right_center"``
+``"center_right"``
 
 ``"bottom_right"``
 
@@ -727,7 +727,7 @@ automatically by ``bokeh.plotting``, values for ``location``  can be:
 
 ``"bottom_left"``
 
-``"left_center"``
+``"center_left"``
 
 ``"center"``
 
