@@ -4,7 +4,16 @@ export {version} from "./version"
 
 import * as _ from "underscore"
 import * as $ from "jquery"
-export {_, $}
+Object.defineProperty(module.exports, "_", {
+  get: () ->
+    console.warn("Bokeh._ is deprecated. You have to provide your own copy of underscore if necessary.")
+    return _
+})
+Object.defineProperty(module.exports, "$", {
+  get: () ->
+    console.warn("Bokeh.$ is deprecated. You have to provide your own copy of jquery if necessary.")
+    return $
+})
 
 import * as embed from "./embed"
 export {embed}
