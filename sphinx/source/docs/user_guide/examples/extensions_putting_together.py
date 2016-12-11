@@ -25,7 +25,7 @@ export class CustomView extends LayoutDOMView
     # like draw to the HTML canvas. In this case though, we change the
     # contents of the <div>, based on the current slider value.
     @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
-    @$('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
+    @$el.find('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
 
 export class Custom extends LayoutDOM
 

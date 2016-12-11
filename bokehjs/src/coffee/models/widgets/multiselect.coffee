@@ -33,8 +33,8 @@ export class MultiSelectView extends InputWidgetView
     values = {}
     for x in @model.value
       values[x] = true
-    @$('option').each((el) =>
-      el = @$(el)
+    @$el.find('option').each((el) =>
+      el = @$el.find(el)
       if values[el.attr('value')]
         el.attr('selected', 'selected')
     )

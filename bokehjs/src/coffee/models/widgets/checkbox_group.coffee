@@ -36,7 +36,7 @@ export class CheckboxGroupView extends WidgetView
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$("input") when checkbox.checked)
+    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
     @model.active = active
     @model.callback?.execute(@model)
 

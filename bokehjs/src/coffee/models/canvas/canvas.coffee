@@ -40,15 +40,15 @@ export class CanvasView extends BokehView
             @[i] = arr[i]
 
     # map plots reference this attribute
-    @map_div = @$('div.bk-canvas-map') ? null
+    @map_div = @$el.find('div.bk-canvas-map') ? null
     @set_dims([@model.initial_width, @model.initial_height])
     logger.debug("CanvasView initialized")
 
   get_canvas_element: () ->
-    return @$('canvas.bk-canvas')[0]
+    return @$el.find('canvas.bk-canvas')[0]
 
   get_ctx: () ->
-    canvas_el = @$('canvas.bk-canvas')
+    canvas_el = @$el.find('canvas.bk-canvas')
     ctx = canvas_el[0].getContext('2d')
     return ctx
 
@@ -69,7 +69,7 @@ export class CanvasView extends BokehView
 
       # Scale the canvas (this resets the context's state)
       @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
-      canvas_el = @$('.bk-canvas')
+      canvas_el = @$el.find('.bk-canvas')
       canvas_el.css({
         width: width
         height: height

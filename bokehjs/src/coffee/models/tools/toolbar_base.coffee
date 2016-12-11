@@ -30,21 +30,21 @@ export class ToolbarBaseView extends LayoutDOMView
       sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'
     }))
 
-    buttons = @$(".bk-button-bar-list[type='inspectors']")
+    buttons = @$el.find(".bk-button-bar-list[type='inspectors']")
     for obj in @model.inspectors
       buttons.append(new OnOffButtonView({model: obj}).el)
 
-    buttons = @$(".bk-button-bar-list[type='help']")
+    buttons = @$el.find(".bk-button-bar-list[type='help']")
     for obj in @model.help
       buttons.append(new ActionToolButtonView({model: obj}).el)
 
-    buttons = @$(".bk-button-bar-list[type='actions']")
+    buttons = @$el.find(".bk-button-bar-list[type='actions']")
     for obj in @model.actions
       buttons.append(new ActionToolButtonView({model: obj}).el)
 
     gestures = @model.gestures
     for et of gestures
-      buttons = @$(".bk-button-bar-list[type='#{et}']")
+      buttons = @$el.find(".bk-button-bar-list[type='#{et}']")
       for obj in gestures[et].tools
         buttons.append(new OnOffButtonView({model: obj}).el)
 
