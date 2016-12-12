@@ -55,6 +55,11 @@ class CodeHandler(Handler):
 
         module = self._runner.new_module()
 
+        # One reason modules are stored is to prevent the module
+        # from being gc'd before the document is. A symptom of a
+        # gc'd module is that its globals become None. Additionally
+        # stored modules are used to provide correct paths to
+        # custom models resolver.
         sys.modules[module.__name__] = module
         doc._modules.append(module)
 
