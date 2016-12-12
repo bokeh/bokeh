@@ -1,10 +1,12 @@
 from __future__ import absolute_import, print_function
 
 import argparse
+import contextlib
 import re
 import socket
 import subprocess
 import sys
+import time
 
 import pytest
 import requests
@@ -162,6 +164,22 @@ def test_args():
     )
 
 
+@contextlib.contextmanager
+def run_bokeh_serve(args):
+    cmd = [sys.executable, "-m", "bokeh", "serve"] + args
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    try:
+        yield p
+    except Exception:
+        p.terminate()
+        p.wait()
+        print("---- An error occurred, subprocess stdout follows ----")
+        print(p.stdout.read().decode())
+        raise
+    else:
+        p.terminate()
+        p.wait()
+
 def check_error(args):
     cmd = [sys.executable, "-m", "bokeh", "serve"] + args
     try:
@@ -191,9 +209,8 @@ def test_port_not_available():
         sock.close()
 
 def test_actual_port_printed_out():
-    cmd = [sys.executable, "-m", "bokeh", "serve", "--port", "0"]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    try:
+    cmd = [sys.executable, "-m", "bokeh", "serve", ]
+    with run_bokeh_serve(["--port", "0"]) as p:
         pat = re.compile(r'Starting Bokeh server on port (\d+) with applications at paths')
         while True:
             line = p.stdout.readline()
@@ -207,6 +224,3 @@ def test_actual_port_printed_out():
         assert port > 0
         r = requests.get("http://localhost:%d/" % (port,))
         assert r.status_code == 200
-    finally:
-        p.terminate()
-        p.wait()

@@ -109,10 +109,6 @@ class Server(object):
         self._started = False
         self._stopped = False
 
-        if io_loop is None:
-            io_loop = IOLoop.current()
-        self._loop = io_loop
-
         port = kwargs.get('port', DEFAULT_SERVER_PORT)
         self._address = kwargs.get('address') or None
 
@@ -124,14 +120,12 @@ class Server(object):
 
         sockets, self._port = _bind_sockets(self._address, port)
         try:
-            tornado_kwargs['io_loop'] = io_loop
             tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
             tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
             tornado_kwargs['use_index'] = kwargs.get('use_index', True)
             tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
 
             self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
-            self._tornado.initialize(**tornado_kwargs)
             self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
             self._http.start(self._num_procs)
             self._http.add_sockets(sockets)
@@ -140,6 +134,13 @@ class Server(object):
             for s in sockets:
                 s.close()
             raise
+
+        # Can only instantiate the IO loop after HTTPServer.start() was
+        # called because of `num_procs`, see issue #5524
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
+        self._tornado.initialize(io_loop=io_loop, **tornado_kwargs)
 
     @property
     def port(self):

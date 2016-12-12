@@ -146,7 +146,6 @@ class BokehTornado(TornadoApplication):
 
     def __init__(self, applications, prefix, hosts,
                  extra_websocket_origins,
-                 io_loop,
                  extra_patterns=None,
                  secret_key=settings.secret_key_bytes(),
                  sign_sessions=settings.sign_sessions(),
