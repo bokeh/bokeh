@@ -6,7 +6,6 @@ import re
 import socket
 import subprocess
 import sys
-import time
 
 import pytest
 import requests
@@ -209,7 +208,6 @@ def test_port_not_available():
         sock.close()
 
 def test_actual_port_printed_out():
-    cmd = [sys.executable, "-m", "bokeh", "serve", ]
     with run_bokeh_serve(["--port", "0"]) as p:
         pat = re.compile(r'Starting Bokeh server on port (\d+) with applications at paths')
         while True:
