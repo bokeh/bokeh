@@ -24,7 +24,7 @@ _handle_notebook_comms = (msg) ->
 
 _update_comms_callback = (target, doc, comm) ->
   if target == comm.target_name
-    comm.on_msg(_.bind(_handle_notebook_comms, doc))
+    comm.on_msg(_handle_notebook_comms.bind(doc))
 
 _init_comms = (target, doc) ->
   if Jupyter? and Jupyter.notebook.kernel?
@@ -36,7 +36,7 @@ _init_comms = (target, doc) ->
     try
       comm_manager.register_target(target, (comm, msg) ->
         logger.info("Registering Jupyter comms for target #{target}")
-        comm.on_msg(_.bind(_handle_notebook_comms, doc))
+        comm.on_msg(_handle_notebook_comms.bind(doc))
       )
     catch e
       logger.warn("Jupyter comms failed to register. push_notebook() will not function. (exception reported: #{e})")

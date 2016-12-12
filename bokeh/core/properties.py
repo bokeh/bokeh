@@ -355,7 +355,7 @@ class BasicProperty(Property):
         self.__doc__ = self.descriptor.__doc__
 
     def __str__(self):
-        return "%s:%s" % (self.name, self.descriptor)
+        return "%s" % self.descriptor
 
     def class_default(self, cls):
         """Get the default value for a specific subtype of HasProps,

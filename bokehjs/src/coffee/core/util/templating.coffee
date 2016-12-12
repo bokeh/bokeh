@@ -16,7 +16,7 @@ _format_number = (number) ->
   else
     return "#{number}" # get strings for categorical types
 
-export replace_placeholders = (string, data_source, i, special_vars={}) ->
+export replace_placeholders = (string, data_source, i, special_vars = {}) ->
   string = string.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) => "#{prefix}@$#{name}"
 
   string = string.replace /(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
@@ -28,13 +28,16 @@ export replace_placeholders = (string, data_source, i, special_vars={}) ->
       else
         data_source.get_column(name)?[i]
 
-    replacement =
-      if not value? then "???"
+    replacement = null
+    if not value?
+      replacement = "???"
+    else
+      if format == 'safe'
+        return '#{prefix}#{value}'
+      else if format?
+        replacement = Numbro.format(value, format)
       else
-        if format?
-          Numbro.format(value, format)
-        else
-          _format_number(value)
-    "#{prefix}#{_.escape(replacement)}"
+        replacement = _format_number(value)
+    replacement = "#{prefix}#{_.escape(replacement)}"
 
   return string

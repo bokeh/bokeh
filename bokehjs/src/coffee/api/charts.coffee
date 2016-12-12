@@ -151,7 +151,7 @@ export bar = (data, opts={}) ->
     for v, i in row
       columns[i].push(v)
 
-  labels = _.map(columns[0], (v) -> v.toString())
+  labels = columns[0].map((v) -> v.toString())
   columns = columns.slice(1)
 
   yaxis = new models.CategoricalAxis()
@@ -264,7 +264,7 @@ export bar = (data, opts={}) ->
 
   tooltip = "<div>@labels</div><div>@columns:&nbsp<b>@values</b></div>"
   if orientation == "horizontal"
-    anchor = "right_center"
+    anchor = "center_right"
     attachment = "horizontal"
   else
     anchor = "top_center"

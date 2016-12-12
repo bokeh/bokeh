@@ -32,6 +32,7 @@ export class AbstractButtonView extends WidgetView
     $button = @$el.find('button')
 
     if icon?
+      $button.prepend("&nbsp;")
       $button.prepend(@icon_views[icon.id].$el)
 
     $button.prop("disabled", @model.disabled)

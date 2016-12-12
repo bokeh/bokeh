@@ -54,7 +54,7 @@ export class ImageView extends GlyphView
       image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
       cmap = @model.color_mapper
       buf = cmap.v_map_screen(img, true)
-      buf8 = new Uint8ClampedArray(buf)
+      buf8 = new Uint8Array(buf)
       image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       @image_data[i] = canvas

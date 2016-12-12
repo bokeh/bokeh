@@ -209,7 +209,6 @@ Running ``python scatter.py`` will print out:
 .. code-block:: shell
 
     script type="text/javascript">
-        Bokeh.$(function() {
         var docs_json = { DOCUMENT DATA HERE }
         var render_items = [
           {"docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
@@ -224,7 +223,6 @@ Running ``python scatter.py`` will print out:
         ];
 
         Bokeh.embed.embed_items(docs_json, render_items);
-    });
     </script>
 
         {'Green': '\n<div class="bk-root">\n    <div class="plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>', 'Blue': '\n<div class="bk-root">\n    <div class="plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>', 'Red': '\n<div class="bk-root">\n    <div class="plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'}

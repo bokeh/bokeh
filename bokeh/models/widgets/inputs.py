@@ -44,6 +44,10 @@ class TextInput(InputWidget):
     widget by hitting Enter or clicking outside of the text box area.
     """)
 
+    placeholder = String(default="", help="""
+    Placeholder for empty input field
+    """)
+
 
 class AutocompleteInput(TextInput):
     """ Single-line input widget with auto-completion. """

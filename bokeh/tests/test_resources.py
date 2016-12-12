@@ -8,27 +8,13 @@ import bokeh.resources as resources
 from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls, websocket_url_for_server_url
 
-
 # if BOKEH_RESOURCES is set many tests in this file fail
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-WRAPPER = """Bokeh.$(function() {
-    foo
-});"""
-
-
-WRAPPER_DEV = '''require(["jquery", "main"], function($, Bokeh) {
-Bokeh.set_log_level("info");
-    Bokeh.$(function() {
-        foo
-    });
-});'''
-
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
-
 
 ## Test JSResources
 

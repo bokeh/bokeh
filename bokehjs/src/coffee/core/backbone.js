@@ -151,12 +151,6 @@ _.extend(View.prototype, Events, {
   // The default `tagName` of a View's element is `"div"`.
   tagName: 'div',
 
-  // jQuery delegate for element lookup, scoped to DOM elements within the
-  // current view. This should be preferred to global lookups where possible.
-  $: function(selector) {
-    return this.$el.find(selector);
-  },
-
   // Initialize is an empty function by default. Override it with your own
   // initialization logic.
   initialize: function(){},
@@ -224,7 +218,7 @@ _.extend(View.prototype, Events, {
       if (!_.isFunction(method)) method = this[method];
       if (!method) continue;
       var match = key.match(delegateEventSplitter);
-      this.delegate(match[1], match[2], _.bind(method, this));
+      this.delegate(match[1], match[2], method.bind(this));
     }
     return this;
   },

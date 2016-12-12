@@ -15,6 +15,9 @@ export class LayoutDOMView extends BokehView
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.sizing_mode}")
+    if @model.css_classes?
+      for cls in @model.css_classes
+        @$el.addClass(cls)
     @child_views = {}
 
     # init_solver = false becuase we only need to init solver on subsequent
@@ -254,6 +257,7 @@ export class LayoutDOM extends Model
       width:       [ p.Number              ]
       disabled:    [ p.Bool,       false   ]
       sizing_mode: [ p.SizingMode, "fixed" ]
+      css_classes: [ p.Array               ]
     }
 
   @internal {

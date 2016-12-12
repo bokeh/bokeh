@@ -108,8 +108,8 @@ Building BokehJS
 
 The BokehJS build process is handled by Gulp_, which in turn depends on
 `Node.js <NodeJS>`_. Gulp is used to compile CoffeeScript and Less (CSS)
-sources (as well as Eco templates), and to combine these resources into
-optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
+sources, and to combine these resources into optimized and minified
+``bokeh.js`` and ``bokeh.css`` files.
 
 Install npm and node
 ~~~~~~~~~~~~~~~~~~~~
