@@ -62,7 +62,7 @@ export class IonRangeSliderView extends InputWidgetView
     input = @$el.find('.slider')[0]
     slider = jQuery(input).ionRangeSlider(opts)
     range = [from, to]
-    @$( "##{ @model.id }" ).val( range.join(' - '))
+    @$el.find( "##{ @model.id }" ).val( range.join(' - '))
     @$el.find('.bk-slider-parent').height(@model.height)
     return @
 
@@ -74,7 +74,7 @@ export class IonRangeSliderView extends InputWidgetView
   slide: (data) =>
     range = [data.from, data.to]
     value = range.join(' - ')
-    @$( "##{ @model.id }" ).val( value )
+    @$el.find( "##{ @model.id }" ).val( value )
     @model.range = range
     if @callbackWrapper then @callbackWrapper()
 
