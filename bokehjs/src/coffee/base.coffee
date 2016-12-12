@@ -20,6 +20,8 @@ Models.register = (name, model) -> overrides[name] = model
 Models.unregister = (name) -> delete overrides[name]
 
 Models.register_models = (models, force=false, errorFn=null) ->
+  return if not models?
+
   for own name, model of models
     if force or not _all_models.hasOwnProperty(name)
       _all_models[name] = model

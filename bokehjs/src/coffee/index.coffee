@@ -22,12 +22,14 @@ bokehjs = () ->
       can use jsdom library to configure window and document.")
 
   Bokeh = require './main'
-  _ = Bokeh._
 
   load_plugin = (path) ->
     plugin = require(path)
-    _.extend(Bokeh, _.omit(plugin, "models"))
-    Bokeh.Models.register_models(plugin.models ? {})
+    Bokeh.Models.register_models(plugin.models)
+
+    for name in plugin
+      if name != "models"
+        Bokeh[name] = plugin[name]
 
   load_plugin('./api')
   load_plugin('./models/widgets/main')
