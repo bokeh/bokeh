@@ -8,12 +8,12 @@ This example shows how to add a double-ended slider widget to the plot.
 The single normal Bokeh slider controls the power of the line.
 The double ended sliders control the x range for the line.
 
-.. .. bokeh-plot:: docs/user_guide/examples/extensions_example_widget_plot.py
-..    :source-position: none
+.. bokeh-plot:: docs/user_guide/examples/extensions_example_widget.py
+    :source-position: none
 
 Python script:
 
-.. literalinclude:: ../examples/extensions_example_widget._py
+.. literalinclude:: ../examples/extensions_example_widget.py
    :language: python
 
 Coffeescript for ion range slider:

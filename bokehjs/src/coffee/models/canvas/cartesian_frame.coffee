@@ -56,6 +56,7 @@ export class CartesianFrame extends LayoutCanvas
           mapper_model = LogMapper
         else
           mapper_model = LinearMapper
+        range._mapper_type = mapper_type
       else if range.type == "FactorRange"
         mapper_model = CategoricalMapper
       else

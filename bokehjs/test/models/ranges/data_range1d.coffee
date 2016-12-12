@@ -160,6 +160,13 @@ describe "datarange1d module", ->
       r.default_span = 4
       expect(r._compute_range(3, 3)).to.be.deep.equal [1, 5]
 
+    it "should use default_span as powers of 10 when _mapper_type='log'", ->
+      r = new DataRange1d()
+      r._mapper_type = "log"
+      expect(r._compute_range(100, 100)).to.be.deep.equal [9.988493699365053, 1001.1519555381683]
+      r.default_span = 4
+      expect(r._compute_range(100, 100)).to.be.deep.equal [0.9988493699365047, 10011.519555381703]
+
     it "should swap max, min when flipped", ->
       r = new DataRange1d()
       r.flipped = true
@@ -203,6 +210,12 @@ describe "datarange1d module", ->
       r = new DataRange1d()
       r.range_padding = 0.5
       expect(r._compute_range(1, 3)).to.be.deep.equal [0.5, 3.5]
+
+    it "should apply range_padding logly when _mapper_type='log'", ->
+      r = new DataRange1d()
+      r.range_padding = 0.5
+      r._mapper_type = "log"
+      expect(r._compute_range(0.01, 10)).to.be.deep.equal [0.0017782794100389264, 56.23413251903488]
 
   describe "_compute_min_max", ->
 

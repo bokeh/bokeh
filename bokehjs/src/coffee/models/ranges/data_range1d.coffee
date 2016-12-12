@@ -33,6 +33,7 @@ export class DataRange1d extends DataRange
     @_initial_follow = @follow
     @_initial_follow_interval = @follow_interval
     @_initial_default_span = @default_span
+    @_mapper_type = "auto"
 
   @getters {
     min: () -> Math.min(@start, @end)
@@ -84,13 +85,23 @@ export class DataRange1d extends DataRange
     range_padding = @range_padding
     if range_padding? and range_padding > 0
 
-      if max == min
-        span = @default_span
-      else
-        span = (max-min)*(1+range_padding)
+      if @_mapper_type == "log"
+        log_min = Math.log(min) / Math.log(10)
+        log_max = Math.log(max) / Math.log(10)
+        if max == min
+          span = @default_span + 0.001
+        else
+          span = (log_max-log_min)*(1+range_padding)
+        center = (log_min+log_max) / 2.0
+        [start, end] = [Math.pow(10, center-span / 2.0), Math.pow(10, center+span / 2.0)]
 
-      center = (max+min)/2.0
-      [start, end] = [center-span/2.0, center+span/2.0]
+      else
+        if max == min
+          span = @default_span
+        else
+          span = (max-min)*(1+range_padding)
+        center = (max+min) / 2.0
+        [start, end] = [center-span / 2.0, center+span / 2.0]
 
     else
       [start, end] = [min, max]
@@ -125,9 +136,17 @@ export class DataRange1d extends DataRange
     [start, end] = @_compute_range(min, max)
 
     if @_initial_start?
-      start = @_initial_start
+      if @_mapper_type == "log"
+        if @_initial_start > 0
+          start = @_initial_start
+      else
+        start = @_initial_start
     if @_initial_end?
-      end = @_initial_end
+      if @_mapper_type == "log"
+        if @_initial_end > 0
+          end = @_initial_end
+      else
+        end = @_initial_end
 
     # only trigger updates when there are changes
     [_start, _end] = [@start, @end]

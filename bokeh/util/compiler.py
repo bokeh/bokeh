@@ -4,7 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
-import os
 import six
 import json
 import inspect
@@ -20,21 +19,20 @@ from .string import snakify
 _plugin_prelude = \
 """
 (function outer(modules, cache, entry) {
-  if (typeof Bokeh !== "undefined") {
-    var _ = Bokeh._;
-
+  if (Bokeh != null) {
     for (var name in modules) {
       Bokeh.require.modules[name] = modules[name];
     }
 
     for (var i = 0; i < entry.length; i++) {
-        var exports = Bokeh.require(entry[i]);
+      var plugin = Bokeh.require(entry[i]);
+      Bokeh.Models.register_models(plugin.models);
 
-        if (_.isObject(exports.models)) {
-          Bokeh.Models.register_models(exports.models);
+      for (var name in plugin) {
+        if (name !== "models") {
+          Bokeh[name] = plugin[name];
         }
-
-        _.extend(Bokeh, _.omit(exports, "models"));
+      }
     }
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
@@ -201,19 +199,11 @@ class CustomModel(object):
 
     @property
     def file(self):
-        try:
-            file = inspect.getfile(self.cls)
-        except TypeError:
-            return None
-        else:
-            return abspath(file)
+        return abspath(inspect.getfile(self.cls))
 
     @property
     def path(self):
-        if self.file is None:
-            return os.getcwd()
-        else:
-            return dirname(self.file)
+        return dirname(self.file)
 
     @property
     def implementation(self):

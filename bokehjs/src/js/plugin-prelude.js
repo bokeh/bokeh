@@ -1,19 +1,18 @@
 (function outer(modules, cache, entry) {
-  if (typeof Bokeh !== "undefined") {
-    var _ = Bokeh._;
-
+  if (Bokeh != null) {
     for (var name in modules) {
       Bokeh.require.modules[name] = modules[name];
     }
 
     for (var i = 0; i < entry.length; i++) {
-        var exports = Bokeh.require(entry[i]);
+      var plugin = Bokeh.require(entry[0]);
+      Bokeh.Models.register_models(plugin.models);
 
-        if (_.isObject(exports.models)) {
-          Bokeh.Models.register_models(exports.models);
+      for (var name in plugin) {
+        if (name !== "models") {
+          Bokeh[name] = plugin[name];
         }
-
-        _.extend(Bokeh, _.omit(exports, "models"));
+      }
     }
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
