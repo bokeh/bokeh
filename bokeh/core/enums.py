@@ -22,7 +22,7 @@ from __future__ import absolute_import
 
 from six import string_types
 
-from .. import colors, icons, palettes
+from .. import colors, palettes
 from ..util.deprecation import deprecated
 
 class Enumeration(object):
@@ -142,9 +142,6 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger", "
 
 #: Specify one of the 137 named CSS colors
 NamedColor = enumeration(*colors.__colors__, case_sensitive=False)
-
-#: Specify the name of an from :ref:`bokeh.icons`
-NamedIcon = enumeration(*icons.__icons__)
 
 #: Specify the name of a palette from :ref:`bokeh.palettes`
 Palette = enumeration(*palettes.__palettes__)

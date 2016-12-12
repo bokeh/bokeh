@@ -91,6 +91,7 @@ compile_and_resolve_deps = (input) ->
       options = {
         paths: [path.dirname(input.file)]
         compress: true
+        ieCompat: false
       }
       return less.render input.code, options, (error, output) ->
         if error?

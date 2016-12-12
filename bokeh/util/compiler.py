@@ -127,6 +127,20 @@ def _run_nodejs(script, input):
     else:
         return AttrDict(json.loads(stdout.decode()))
 
+def _run_npm(argv):
+    if _nodejs is None:
+        raise RuntimeError('node.js is needed to allow compilation of custom models ' +
+                           '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
+
+    _npm = join(dirname(_nodejs), "npm")
+    proc = Popen([_npm] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    (_stdout, errout) = proc.communicate()
+
+    if len(errout) > 0:
+        raise RuntimeError(errout)
+    else:
+        return None
+
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compile.js")
     return _run_nodejs(compilejs_script, dict(code=code, lang=lang, file=file))
@@ -221,6 +235,10 @@ class CustomModel(object):
         return impl
 
     @property
+    def dependencies(self):
+        return getattr(self.cls, "__dependencies__", {})
+
+    @property
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
@@ -237,6 +255,8 @@ def gen_custom_models_static():
     if not custom_models:
         return None
 
+    ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
+
     exports = []
     modules = []
 
@@ -244,10 +264,17 @@ def gen_custom_models_static():
         known_modules = json.loads(f.read())
 
     known_modules = set(known_modules["bokehjs"] + known_modules["widgets"])
-
     custom_impls = {}
 
-    for model in sorted(custom_models.values(), key=lambda model: model.full_name):
+    dependencies = []
+    for model in ordered_models:
+        dependencies.extend(list(model.dependencies.items()))
+
+    if dependencies:
+        dependencies = sorted(dependencies, key=lambda name_version: name_version[0])
+        _run_npm(["install"] + [ name + "@" + version for (name, version) in dependencies ])
+
+    for model in ordered_models:
         impl = model.implementation
         compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
