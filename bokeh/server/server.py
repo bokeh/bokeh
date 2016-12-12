@@ -3,12 +3,14 @@
 '''
 from __future__ import absolute_import, print_function
 
+import atexit
 import logging
 log = logging.getLogger(__name__)
-
-import sys
+import signal
 
 from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
+from tornado import netutil
 
 from .tornado import BokehTornado
 
@@ -50,6 +52,21 @@ def _create_hosts_whitelist(host_list, port):
             raise ValueError("Invalid host value: %s" % host)
     return hosts
 
+
+def _bind_sockets(address, port):
+    '''Like tornado.netutil.bind_sockets(), but also returns the
+    assigned port number.
+    '''
+    ss = netutil.bind_sockets(port=port or 0, address=address)
+    assert len(ss)
+    ports = {s.getsockname()[1] for s in ss}
+    assert len(ports) == 1, "Multiple ports assigned??"
+    actual_port = ports.pop()
+    if port:
+        assert actual_port == port
+    return ss, actual_port
+
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
@@ -63,7 +80,7 @@ class Server(object):
             Number of worker processes for an app. Default to one. Using 0 will autodetect number of cores
     '''
 
-    def __init__(self, applications, **kwargs):
+    def __init__(self, applications, io_loop=None, **kwargs):
         log.info("Starting Bokeh server version %s" % __version__)
 
         if isinstance(applications, Application):
@@ -71,8 +88,7 @@ class Server(object):
         else:
             self._applications = applications
 
-        tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
-                                                        'extra_patterns',
+        tornado_kwargs = { key: kwargs[key] for key in ['extra_patterns',
                                                         'secret_key',
                                                         'sign_sessions',
                                                         'generate_session_ids',
@@ -90,21 +106,15 @@ class Server(object):
             prefix = "/" + prefix
         self._prefix = prefix
 
-        self._port = DEFAULT_SERVER_PORT
-        if 'port' in kwargs:
-            self._port = kwargs['port']
+        self._started = False
+        self._stopped = False
 
-        tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
-        tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
-        tornado_kwargs['use_index'] = kwargs.get('use_index', True)
-        tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
 
-        self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
-        self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
-        self._address = None
-
-        if 'address' in kwargs:
-            self._address = kwargs['address']
+        port = kwargs.get('port', DEFAULT_SERVER_PORT)
+        self._address = kwargs.get('address') or None
 
         self._num_procs = kwargs.get('num_procs', 1)
         if self._num_procs != 1:
@@ -112,29 +122,37 @@ class Server(object):
                       'User code has ran before attempting to run multiple '
                       'processes. This is considered an unsafe operation.')
 
-        # these queue a callback on the ioloop rather than
-        # doing the operation immediately (I think - havocp)
+        sockets, self._port = _bind_sockets(self._address, port)
         try:
-            self._http.bind(self._port, address=self._address)
-            self._http.start(self._num_procs)
+            tornado_kwargs['io_loop'] = io_loop
+            tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
+            tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
+            tornado_kwargs['use_index'] = kwargs.get('use_index', True)
+            tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
+
+            self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
             self._tornado.initialize(**tornado_kwargs)
-        except OSError as e:
-            import errno
-            if e.errno == errno.EADDRINUSE:
-                log.critical("Cannot start Bokeh server, port %s is already in use", self._port)
-            elif e.errno == errno.EADDRNOTAVAIL:
-                log.critical("Cannot start Bokeh server, address '%s' not available", self._address)
-            else:
-                codename = errno.errorcode[e.errno]
-                log.critical("Cannot start Bokeh server, %s %r", codename, e)
-            sys.exit(1)
+            self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
+            self._http.start(self._num_procs)
+            self._http.add_sockets(sockets)
+
+        except Exception:
+            for s in sockets:
+                s.close()
+            raise
 
     @property
     def port(self):
+        '''The actual port number the server is listening on for HTTP
+        requests.
+        '''
         return self._port
 
     @property
     def address(self):
+        '''The address the server is listening on for HTTP requests
+        (may be empty or None).
+        '''
         return self._address
 
     @property
@@ -143,32 +161,61 @@ class Server(object):
 
     @property
     def io_loop(self):
-        return self._tornado.io_loop
+        return self._loop
 
-    def start(self, start_loop=True):
-        ''' Start the Bokeh Server's IO loop and background tasks.
-
-        Args:
-            start_loop (boolean, optional): whether to start the IO loop after
-               starting background tasks (default: True).
-
-        Returns:
-            None
+    def start(self):
+        ''' Start the Bokeh Server and its background tasks.
 
         Notes:
-            Keyboard interrupts or sigterm will cause the server to shut down.
-
+            This method does not block and does not affect the state of
+            the Tornado I/O loop.  You must start and stop the loop yourself.
         '''
-        self._tornado.start(start_loop=start_loop)
+        assert not self._started, "Already started"
+        self._started = True
+        self._tornado.start()
 
-    def stop(self):
-        ''' Stop the Bokeh Server's IO loop.
+    def stop(self, wait=True):
+        ''' Stop the Bokeh Server.
+
+        Args:
+            fast (boolean): whether to wait for orderly cleanup (default: True)
 
         Returns:
             None
-
         '''
-        self._tornado.stop()
+        assert not self._stopped, "Already stopped"
+        self._stopped = True
+        self._tornado.stop(wait)
+
+    def run_until_shutdown(self):
+        ''' Run the Bokeh Server until shutdown is requested by the user,
+        either via a Keyboard interrupt (Ctrl-C) or SIGTERM.
+        '''
+        if not self._started:
+            self.start()
+        # Install shutdown hooks
+        atexit.register(self._atexit)
+        signal.signal(signal.SIGTERM, self._sigterm)
+        try:
+            self._loop.start()
+        except KeyboardInterrupt:
+            print("\nInterrupted, shutting down")
+        self.stop()
+
+    _atexit_ran = False
+    def _atexit(self):
+        if self._atexit_ran:
+            return
+        self._atexit_ran = True
+
+        log.debug("Shutdown: cleaning up")
+        if not self._stopped:
+            self.stop(wait=False)
+
+    def _sigterm(self, signum, frame):
+        print("Received signal %d, shutting down" % (signum,))
+        # Tell self._loop.start() to return.
+        self._loop.add_callback_from_signal(self._loop.stop)
 
     def unlisten(self):
         '''Stop listening on ports (Server will no longer be usable after calling this)

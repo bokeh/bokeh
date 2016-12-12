@@ -5,7 +5,7 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..core.enums import Direction, Anchor
+from ..core.enums import Direction, Anchor, DeprecatedAnchor, accept_left_right_center
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
@@ -230,7 +230,7 @@ class HBar(Glyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('y', 'height', 'left', 'right')
+    _args = ('y', 'height', 'right', 'left')
 
     y = NumberSpec(help="""
     The y-coordinates of the centers of the horizontal bars.
@@ -444,7 +444,7 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
-    """)
+    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
 
     retry_attempts = Int(0, help="""
     Number of attempts to retry loading the images from the specified URL.

@@ -87,6 +87,9 @@ argument:
 
     bokeh serve app_script.py --port=8080
 
+To listen on an arbitrary port, pass ``0`` as the port number.  The actual
+port number will be logged at startup.
+
 Similarly, a specific network address can be specified with the
 ``--address`` argument. For example:
 
@@ -331,7 +334,7 @@ from bokeh.settings import settings
 from os import getpid
 
 from ..subcommand import Subcommand
-from ..util import build_single_handler_applications, die
+from ..util import build_single_handler_applications, die, report_server_init_errors
 
 LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
@@ -557,24 +560,24 @@ class Serve(Subcommand):
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
 
-        server = Server(applications, **server_kwargs)
+        with report_server_init_errors(**server_kwargs):
+            server = Server(applications, **server_kwargs)
 
-        if args.show:
-            # we have to defer opening in browser until we start up the server
-            def show_callback():
-                for route in applications.keys():
-                    server.show(route)
-            server.io_loop.add_callback(show_callback)
+            if args.show:
+                # we have to defer opening in browser until we start up the server
+                def show_callback():
+                    for route in applications.keys():
+                        server.show(route)
+                server.io_loop.add_callback(show_callback)
 
-        address_string = ''
-        if server.address is not None and server.address != '':
-            address_string = ' address ' + server.address
+            address_string = ''
+            if server.address is not None and server.address != '':
+                address_string = ' address ' + server.address
 
-        log.info("Starting Bokeh server on port %d%s with applications at paths %r",
-                 server.port,
-                 address_string,
-                 sorted(applications.keys()))
+            log.info("Starting Bokeh server on port %d%s with applications at paths %r",
+                     server.port,
+                     address_string,
+                     sorted(applications.keys()))
 
-        log.info("Starting Bokeh server with process id: %d" % getpid())
-
-        server.start()
+            log.info("Starting Bokeh server with process id: %d" % getpid())
+            server.run_until_shutdown()

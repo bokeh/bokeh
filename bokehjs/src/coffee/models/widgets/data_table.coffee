@@ -95,8 +95,7 @@ export class DataProvider
     @updateSource()
 
 export class DataTableView extends WidgetView
-  attributes:
-    class: "bk-data-table"
+  className: "bk-data-table"
 
   initialize: (options) ->
     super(options)
@@ -128,8 +127,7 @@ export class DataTableView extends WidgetView
     # console.log("DataTableView::updateSelection",
     #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @model.scroll_to_selection and not _.any(_.map(indices, (index) ->
-        cur_grid_range["top"] <= index and index <= cur_grid_range["bottom"]))
+    if @model.scroll_to_selection and not _.any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
       # console.log("DataTableView::updateSelection", min_index, indices)
       min_index = Math.max(0, Math.min.apply(null, indices) - 1)
       @grid.scrollRowToTop(min_index)

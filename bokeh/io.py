@@ -569,7 +569,7 @@ def push_notebook(document=None, state=None, handle=None):
 
             # Update the plot title in the earlier cell
             plot.title = "New Title"
-            push_notebook(handle)
+            push_notebook(handle=handle)
 
     '''
     if state is None:

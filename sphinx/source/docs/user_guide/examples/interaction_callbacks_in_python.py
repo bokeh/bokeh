@@ -1,6 +1,6 @@
 from bokeh.layouts import column
 from bokeh.models import CustomJS, ColumnDataSource, Slider
-from bokeh.plotting import Figure, output_file, show
+from bokeh.plotting import figure, output_file, show
 
 output_file("callback.html")
 
@@ -9,7 +9,7 @@ y = x
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-plot = Figure(plot_width=400, plot_height=400)
+plot = figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 def callback(source=source, window=None):

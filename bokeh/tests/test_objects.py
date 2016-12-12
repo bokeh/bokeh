@@ -124,8 +124,8 @@ class TestModel(unittest.TestCase):
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
 
-        self.assertEqual(set(["name", "tags"]), testObject.properties())
-        self.assertDictEqual(dict(name=None, tags=[]), testObject.properties_with_values(include_defaults=True))
+        self.assertEqual(set(["name", "tags", "js_callbacks"]), testObject.properties())
+        self.assertDictEqual(dict(name=None, tags=[], js_callbacks={}), testObject.properties_with_values(include_defaults=True))
         self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
 
     def test_ref(self):
@@ -198,12 +198,13 @@ class TestModel(unittest.TestCase):
                            "id" : obj._id,
                            "name" : None,
                            "tags" : [],
+                           'js_callbacks': {},
                            "foo" : 42,
                            "bar" : "world" },
                          json)
         self.assertEqual(('{"bar":"world",' +
                           '"child":{"id":"%s","type":"SomeModelToJson"},' +
-                          '"foo":42,"id":"%s","name":null,"tags":[]}') %
+                          '"foo":42,"id":"%s","js_callbacks":{},"name":null,"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
 

@@ -33,8 +33,6 @@ mean = Slider(title="mean", value=0, start=-0.01, end=0.01, step=0.001)
 stddev = Slider(title="stddev", value=0.04, start=0.01, end=0.1, step=0.01)
 mavg = Select(value=MA12, options=[MA12, MA26, EMA12, EMA26])
 
-curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", plot_width=1000)))
-
 def _create_prices(t):
     last_average = 100 if t==0 else source.data['average'][-1]
     returns = asarray(lognormal(mean.value, stddev.value, 1))
@@ -94,6 +92,8 @@ def update(t):
     new_data['macdh'] = [macd - macd9]
 
     source.stream(new_data, 300)
+
+curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", plot_width=1000)))
 
 curdoc().add_periodic_callback(update, 50)
 curdoc().title = "OHLC"

@@ -21,6 +21,6 @@ Coffeescript for ion range slider:
 .. literalinclude:: ../examples/extensions_ion_range_slider.coffee
    :language: coffee
 
-Eco template for ion range slider:
+Template for ion range slider:
 
-.. literalinclude:: ../examples/extensions_ion_range_slider_template.eco
+.. literalinclude:: ../examples/extensions_ion_range_slider_template.tsx

@@ -61,7 +61,7 @@ script:
 - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration && -n "${SAUCELABS}" ]]; then
   travis_stop_sauce_connect; fi
 - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then py.test -m quality ; fi
-- if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( cd sphinx; make SPHINXOPTS=-v
+- if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( cd sphinx; GOOGLE_API_KEY=${GOOGLE_API_KEY:-"junk"} make SPHINXOPTS=-v
   all ) ; fi
 - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
   export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi

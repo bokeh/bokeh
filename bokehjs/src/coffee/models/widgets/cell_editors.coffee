@@ -11,8 +11,7 @@ import {Model} from "../../model"
 export class CellEditorView extends BokehView
 
   tagName: "div"
-  attributes:
-    class: "bk-cell-editor"
+  className: "bk-cell-editor"
 
   input: null
 

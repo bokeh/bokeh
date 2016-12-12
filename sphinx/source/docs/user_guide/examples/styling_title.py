@@ -2,7 +2,6 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("title.html")
 
-# create a new plot with a title
 p = figure(plot_width=400, plot_height=400, title="Some Title")
 p.title.text_color = "olive"
 p.title.text_font = "times"

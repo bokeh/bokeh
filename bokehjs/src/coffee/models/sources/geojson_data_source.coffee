@@ -18,15 +18,9 @@ export class GeoJSONDataSource extends ColumnDataSource
 
   _update_data: () -> @data = @geojson_to_column_data()
 
-  _get_new_list_array: (length) ->
-    array = new Array(length)
-    list_array = _.map(array, (x) -> [])
-    return list_array
+  _get_new_list_array: (length) -> ([] for i in [0...length])
 
-  _get_new_nan_array: (length) ->
-    array = new Array(length)
-    nan_array = _.map(array, (x) -> NaN)
-    return nan_array
+  _get_new_nan_array: (length) -> (NaN for i in [0...length])
 
   _flatten_function: (accumulator, currentItem) ->
     return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem)
@@ -67,7 +61,7 @@ export class GeoJSONDataSource extends ColumnDataSource
         logger.warn('MultiPoint not supported in Bokeh')
 
       when "MultiLineString"
-        flattened_coord_list = _.reduce(geometry.coordinates, @_flatten_function)
+        flattened_coord_list = geometry.coordinates.reduce(@_flatten_function)
         for coords, j in flattened_coord_list
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]
@@ -80,7 +74,7 @@ export class GeoJSONDataSource extends ColumnDataSource
             logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
           exterior_rings.push(polygon[0])
 
-        flattened_coord_list = _.reduce(exterior_rings, @_flatten_function)
+        flattened_coord_list = exterior_rings.reduce(@_flatten_function)
         for coords, j in flattened_coord_list
           data.xs[i][j] = coords[0]
           data.ys[i][j] = coords[1]

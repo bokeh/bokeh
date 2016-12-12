@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {Canvas} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
@@ -546,7 +545,7 @@ export class PlotCanvasView extends BokehView
       delete @model.document._unrendered_plots[@id]
       if _.isEmpty(@model.document._unrendered_plots)
         @model.document._unrendered_plots = null
-        _.delay($.proxy(@model.document.resize, @model.document), 1)
+        _.delay(@model.document.resize.bind(@model.document), 1)
 
   resize: () ->
     # Set the plot and canvas to the current model's size

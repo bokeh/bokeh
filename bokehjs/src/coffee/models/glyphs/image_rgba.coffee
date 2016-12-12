@@ -43,7 +43,7 @@ export class ImageRGBAView extends GlyphView
         color = new Uint32Array(buf)
         for j in [0...flat.length]
           color[j] = flat[j]
-        buf8 = new Uint8ClampedArray(buf)
+        buf8 = new Uint8Array(buf)
         image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       @image_data[i] = canvas

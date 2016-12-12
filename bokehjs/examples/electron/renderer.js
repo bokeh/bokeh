@@ -26,7 +26,7 @@ const indices = _.range(N).map((i) => i.toString())
 const radii = _.range(N).map((i) => Math.random()*0.4 + 1.7)
 
 const colors = []
-for (let [r, g] of _.zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y))) {
+for (const [r, g] of _.zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y))) {
   colors.push(plt.color(r, g, 150))
 }
 
