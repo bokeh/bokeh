@@ -57,8 +57,7 @@ conda install --yes $DEPS_RUN
 conda install --yes $DEPS_TEST
 
 # conda nb extension is installed by default and breaks notebook image diff tests
-jupyter-nbextension disable nb_conda_kernels --py --sys-prefix
-jupyter-serverextension disable nb_conda_kernels --py --sys-prefix
+conda remove --yes nb_conda_kernels
 
 conda install --yes nodejs
 echo "node version $(node -v)"
