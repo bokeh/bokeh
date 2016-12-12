@@ -87,9 +87,9 @@ export class DataRange1d extends DataRange
 
       if @_mapper_type == "log"
         log_min = Math.log(min) / Math.log(10)
-        log_max = Math.log(max) / Math.log(10) # TODO bases
+        log_max = Math.log(max) / Math.log(10)
         if max == min
-          span = Math.log(@default_span) / Math.log(10)
+          span = @default_span + 0.001
         else
           span = (log_max-log_min)*(1+range_padding)
         center = (log_min+log_max) / 2.0
