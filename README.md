@@ -33,7 +33,7 @@ Bokeh
 <tr>
   <td>PyPI</td>
   <td>
-    <img src="http://bokeh.pydata.org/pip-bokeh-downloads.png" />
+    <img src="http://bokeh.pydata.org/pip-bokeh-badge.png" />
   </td>
 </tr>
 <tr>

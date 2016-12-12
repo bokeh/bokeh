@@ -7,10 +7,10 @@ import atexit
 import logging
 log = logging.getLogger(__name__)
 import signal
-import sys
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from tornado import netutil
 
 from .tornado import BokehTornado
 
@@ -52,6 +52,21 @@ def _create_hosts_whitelist(host_list, port):
             raise ValueError("Invalid host value: %s" % host)
     return hosts
 
+
+def _bind_sockets(address, port):
+    '''Like tornado.netutil.bind_sockets(), but also returns the
+    assigned port number.
+    '''
+    ss = netutil.bind_sockets(port=port or 0, address=address)
+    assert len(ss)
+    ports = {s.getsockname()[1] for s in ss}
+    assert len(ports) == 1, "Multiple ports assigned??"
+    actual_port = ports.pop()
+    if port:
+        assert actual_port == port
+    return ss, actual_port
+
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
@@ -91,10 +106,6 @@ class Server(object):
             prefix = "/" + prefix
         self._prefix = prefix
 
-        self._port = DEFAULT_SERVER_PORT
-        if 'port' in kwargs:
-            self._port = kwargs['port']
-
         self._started = False
         self._stopped = False
 
@@ -102,18 +113,8 @@ class Server(object):
             io_loop = IOLoop.current()
         self._loop = io_loop
 
-        tornado_kwargs['io_loop'] = io_loop
-        tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
-        tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
-        tornado_kwargs['use_index'] = kwargs.get('use_index', True)
-        tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
-
-        self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
-        self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
-        self._address = None
-
-        if 'address' in kwargs:
-            self._address = kwargs['address']
+        port = kwargs.get('port', DEFAULT_SERVER_PORT)
+        self._address = kwargs.get('address') or None
 
         self._num_procs = kwargs.get('num_procs', 1)
         if self._num_procs != 1:
@@ -121,29 +122,37 @@ class Server(object):
                       'User code has ran before attempting to run multiple '
                       'processes. This is considered an unsafe operation.')
 
-        # these queue a callback on the ioloop rather than
-        # doing the operation immediately (I think - havocp)
+        sockets, self._port = _bind_sockets(self._address, port)
         try:
-            self._http.bind(self._port, address=self._address)
-            self._http.start(self._num_procs)
+            tornado_kwargs['io_loop'] = io_loop
+            tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host'), self._port)
+            tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin'), self._port)
+            tornado_kwargs['use_index'] = kwargs.get('use_index', True)
+            tornado_kwargs['redirect_root'] = kwargs.get('redirect_root', True)
+
+            self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
             self._tornado.initialize(**tornado_kwargs)
-        except OSError as e:
-            import errno
-            if e.errno == errno.EADDRINUSE:
-                log.critical("Cannot start Bokeh server, port %s is already in use", self._port)
-            elif e.errno == errno.EADDRNOTAVAIL:
-                log.critical("Cannot start Bokeh server, address '%s' not available", self._address)
-            else:
-                codename = errno.errorcode[e.errno]
-                log.critical("Cannot start Bokeh server, %s %r", codename, e)
-            sys.exit(1)
+            self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
+            self._http.start(self._num_procs)
+            self._http.add_sockets(sockets)
+
+        except Exception:
+            for s in sockets:
+                s.close()
+            raise
 
     @property
     def port(self):
+        '''The actual port number the server is listening on for HTTP
+        requests.
+        '''
         return self._port
 
     @property
     def address(self):
+        '''The address the server is listening on for HTTP requests
+        (may be empty or None).
+        '''
         return self._address
 
     @property

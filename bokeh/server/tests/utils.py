@@ -6,10 +6,10 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.websocket import websocket_connect
 
 def url(server, prefix=""):
-    return "http://localhost:" + str(server._port) + prefix + "/"
+    return "http://localhost:" + str(server.port) + prefix + "/"
 
 def ws_url(server, prefix=""):
-    return "ws://localhost:" + str(server._port) + prefix + "/ws"
+    return "ws://localhost:" + str(server.port) + prefix + "/ws"
 
 def http_get(io_loop, url, host=None):
     result = {}

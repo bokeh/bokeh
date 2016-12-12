@@ -23,6 +23,8 @@ in this directory. Navigate to
 """
 from __future__ import print_function
 
+import io
+
 from numpy import pi
 
 from bokeh.client import push_session
@@ -173,7 +175,7 @@ html = """
 </html>
 """ % autoload_server(layout, session_id=session.id)
 
-with open("widget.html", "w+") as f:
+with io.open("widget.html", mode='w+', encoding='utf-8') as f:
     f.write(html)
 
 print(__doc__)

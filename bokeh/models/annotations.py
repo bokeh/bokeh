@@ -9,6 +9,7 @@ from six import string_types
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
     AngleUnits, TextAlign, FontStyle, LegendClickPolicy,
+    DeprecatedLegendLocation, accept_left_right_center,
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract, value
@@ -101,7 +102,7 @@ class Legend(Annotation):
     ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
-    """)
+    """).accepts(Enum(DeprecatedLegendLocation), accept_left_right_center)
 
     orientation = Enum(Orientation, default="vertical", help="""
     Whether the legend entries should be placed vertically or horizontally
