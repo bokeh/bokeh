@@ -9,6 +9,7 @@ MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
+notebook ==4.2.1
 EOF
 )
 
