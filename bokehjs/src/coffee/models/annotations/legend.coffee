@@ -141,6 +141,8 @@ export class LegendView extends AnnotationView
           view = @plot_view.renderer_views[r.id]
           view.draw_legend(ctx, x1, x2, y1, y2, field, label)
 
+    return null
+
   _get_size: () ->
     bbox = @compute_legend_bbox()
     side = @model.panel.side
