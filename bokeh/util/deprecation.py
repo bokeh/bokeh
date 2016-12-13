@@ -1,11 +1,7 @@
 import six
 import warnings
 
-class BokehDeprecationWarning(DeprecationWarning):
-    """ A specific ``DeprecationWarning`` subclass for Bokeh deprecations.
-    Used to selectively filter Bokeh deprecations for unconditional display.
-
-    """
+from .warnings import BokehDeprecationWarning
 
 def warn(message, stacklevel=2):
     warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)

@@ -72,6 +72,7 @@ from six import string_types, iteritems, StringIO
 from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
+from ..util.warnings import BokehUserWarning
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
@@ -291,7 +292,7 @@ class PropertyDescriptor(PropertyFactory):
 
                 def bring_to_attention(msg):
                     if soft:
-                        warnings.warn(msg)
+                        warnings.warn(msg, BokehUserWarning)
                     else:
                         raise ValueError(msg)
 
