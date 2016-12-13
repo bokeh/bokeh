@@ -1,50 +1,80 @@
-.. role:: raw-html(raw)
-   :format: html
-
 .. raw:: html
 
-    <p>
-    <table cellspacing="0" class="mosaic docs-home">
+    <table class="mosaic docs-home">
+
     <tr>
-
-:raw-html:`<td>`  |image|         :raw-html:`</td>`
-:raw-html:`<td>`  |anscombe|      :raw-html:`</td>`
-:raw-html:`<td>`  |stocks|        :raw-html:`</td>`
-:raw-html:`<td>`  |lorenz|        :raw-html:`</td>`
-:raw-html:`<td>`  |candlestick|   :raw-html:`</td>`
-:raw-html:`<td>`  |scatter|       :raw-html:`</td>`
-:raw-html:`<td>`  |splom|         :raw-html:`</td>`
-
-.. raw:: html
-
-    </tr><tr>
-
-:raw-html:`<td>`  |iris|          :raw-html:`</td>`
-:raw-html:`<td>`  |histogram|     :raw-html:`</td>`
-:raw-html:`<td>`  |periodic|      :raw-html:`</td>`
-:raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
-:raw-html:`<td>`  |burtin|        :raw-html:`</td>`
-:raw-html:`<td>`  |streamline|    :raw-html:`</td>`
-:raw-html:`<td>`  |image_rgba|    :raw-html:`</td>`
-
-.. raw:: html
-
-    </tr><tr>
-
-:raw-html:`<td>`  |stacked|       :raw-html:`</td>`
-:raw-html:`<td>`  |quiver|        :raw-html:`</td>`
-:raw-html:`<td>`  |elements|      :raw-html:`</td>`
-:raw-html:`<td>`  |boxplot|       :raw-html:`</td>`
-:raw-html:`<td>`  |categorical|   :raw-html:`</td>`
-:raw-html:`<td>`  |unemployment|  :raw-html:`</td>`
-:raw-html:`<td>`  |les_mis|       :raw-html:`</td>`
-
-
-.. raw:: html
-
+    <td>
+      <a href="docs/gallery/image.html"><img alt="image" src="_images/image_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/anscombe.html"><img alt="anscombe" src="_images/anscombe_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/stocks.html"><img alt="stocks" src="_images/stocks_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/lorenz.html"><img alt="lorenz" src="_images/lorenz_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/candlestick.html"><img alt="candlestick" src="_images/candlestick_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/color_scatter.html"><img alt="scatter" src="_images/scatter_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/iris_splom.html"><img alt="splom" src="_images/splom_t.png" /></a>
+    </td>
     </tr>
+
+    <tr>
+    <td>
+      <a href="docs/gallery/iris.html"><img alt="iris" src="_images/iris_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/histogram.html"><img alt="histogram" src="_images/histogram_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/periodic.html"><img alt="periodic" src="_images/periodic_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/texas.html"><img alt="choropleth" src="_images/choropleth_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/burtin.html"><img alt="burtin" src="_images/burtin_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/streamline.html"><img alt="streamline" src="_images/streamline_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/image_rgba.html"><img alt="image_rgba" src="_images/image_rgba_t.png" /></a>
+    </td>
+    </tr>
+
+    <tr>
+    <td>
+      <a href="docs/gallery/brewer.html"><img alt="stacked" src="_images/stacked_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/quiver.html"><img alt="quiver" src="_images/quiver_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/elements.html"><img alt="elements" src="_images/elements_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/boxplot.html"><img alt="boxplot" src="_images/boxplot_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/categorical.html"><img alt="categorical" src="_images/categorical_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/unemployment.html"><img alt="unemployment" src="_images/unemployment_t.png" /></a>
+    </td>
+    <td>
+      <a href="docs/gallery/les_mis.html"><img alt="les_mis" src="_images/les_mis_t.png" /></a>
+    </td>
+    </tr>
+
     </table>
-    </p>
 
 .. |image| image:: _images/thumbs/image_t.png
     :target: docs/gallery/image.html

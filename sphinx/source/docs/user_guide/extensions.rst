@@ -113,7 +113,7 @@ extensions in the next section.
         # like draw to the HTML canvas. In this case though, we change the
         # contents of the <div>, based on the current slider value.
         @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
-        @$('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
+        @$el.find('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
 
     export class Custom extends LayoutDOM
 
@@ -270,7 +270,7 @@ and improvements to this section for future users.
 :ref:`userguide_extensions_examples_latex`
     Include a third-party JavaScript library in order to render LaTex.
 
- :ref:`userguide_extensions_examples_widget`
+:ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org

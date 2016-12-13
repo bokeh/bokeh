@@ -1409,6 +1409,9 @@ class TestProperties(unittest.TestCase):
         self.assertTrue(prop.is_valid("BLUE"))
         self.assertFalse(prop.is_valid("foobar"))
 
+        self.assertEqual(prop.transform((0, 127, 255)), "rgb(0, 127, 255)")
+        self.assertEqual(prop.transform((0, 127, 255, 0.1)), "rgba(0, 127, 255, 0.1)")
+
     def test_Align(self):
         prop = Align() # TODO
         assert prop

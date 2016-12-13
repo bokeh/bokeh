@@ -63,7 +63,7 @@ export class ColorBarView extends AnnotationView
     # length = palette.length to get each palette color in order.
     cmap = new LinearColorMapper({palette: palette})
     buf = cmap.v_map_screen([0...palette.length])
-    buf8 = new Uint8ClampedArray(buf)
+    buf8 = new Uint8Array(buf)
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
 
@@ -108,7 +108,7 @@ export class ColorBarView extends AnnotationView
         when 'top_right'
           x = h_range.end - legend_margin - legend_width
           y = v_range.end - legend_margin
-        when 'right_center'
+        when 'center_right'
           x = h_range.end - legend_margin - legend_width
           y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'bottom_right'
@@ -120,7 +120,7 @@ export class ColorBarView extends AnnotationView
         when 'bottom_left'
           x = h_range.start + legend_margin
           y = v_range.start + legend_margin + legend_height
-        when 'left_center'
+        when 'center_left'
           x = h_range.start + legend_margin
           y = (v_range.end + v_range.start)/2 + legend_height/2
         when 'center'

@@ -21,7 +21,7 @@ customLabeler = (bundle, parentLabels, fn) ->
     for own name, dep of row.deps
       opts = {
         basedir: path.dirname(row.file)
-        extensions: ['.js', '.coffee', '.eco']
+        extensions: ['.js', '.coffee']
       }
 
       if not dep?
@@ -67,7 +67,7 @@ namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (ro
   modName ?= depModMap[modPath]
   modName ?= path
     .relative(cwd, modPath)
-    .replace(/\.(coffee|js|eco)$/, "")
+    .replace(/\.(coffee|js)$/, "")
     .split(path.sep).join("/")
     .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
 

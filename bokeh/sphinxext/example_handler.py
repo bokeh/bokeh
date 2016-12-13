@@ -1,3 +1,5 @@
+import sys
+
 from ..application.handlers.code_runner import _CodeRunner
 from ..application.handlers.handler import Handler
 from ..io import set_curdoc, curdoc
@@ -20,6 +22,9 @@ class ExampleHandler(Handler):
             return
 
         module = self._runner.new_module()
+
+        sys.modules[module.__name__] = module
+        doc._modules.append(module)
 
         old_doc = curdoc()
         set_curdoc(doc)

@@ -19,12 +19,13 @@ path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
 insert = require('gulp-insert')
+rootRequire = require("root-require")
+
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
 gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
-{eco} = require '../eco'
 ts = require 'gulp-typescript'
 
 {namedLabeler} = require "../labeler"
@@ -41,26 +42,14 @@ gulp.task "scripts:js", () ->
       .pipe(rename((path) -> path.extname = '.ts'))
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
-gulp.task "scripts:eco", () ->
-  gulp.src('./src/coffee/**/*.eco')
-      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
-      .pipe(eco())
-      .pipe(rename((path) -> path.extname = '.ts'))
-      .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
-
 gulp.task "scripts:ts", () ->
-  gulp.src("./src/coffee/**/*.ts")
+  prefix = "./src/coffee/**"
+  gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
       .pipe(gulp.dest(paths.buildDir.jsTree + '_ts'))
 
-tsjsOpts = {
-  noImplicitAny: false
-  noEmitOnError: false
-  module: "commonjs"
-  moduleResolution: "node"
-  target: "ES5"
-}
+tsconfig = rootRequire("./tsconfig.json")
 
-gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scripts:ts"], () ->
+gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
   error = (err) ->
     if not argv.tsjs?
       return
@@ -76,8 +65,9 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:eco", "scrip
         if not ((found and must) or (not found and not must))
           return
     gutil.log(msg)
-  gulp.src(paths.buildDir.jsTree + '_ts/**/*.ts')
-      .pipe(ts(tsjsOpts, ts.reporter.nullReporter()).on('error', error))
+  prefix = paths.buildDir.jsTree + '_ts/**'
+  gulp.src(["#{prefix}/*.ts", "#{prefix}/*.tsx"])
+      .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:tsjs"]

@@ -486,7 +486,7 @@ export class Document
         if not _.isEqual(old_value, new_value)
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
 
-    _.filter(events, (e) -> e != null)
+    events.filter((e) -> e != null)
 
   # we use this to detect changes during document deserialization
   # (in model constructors and initializers)

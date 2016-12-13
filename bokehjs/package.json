@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.4dev6",
+  "version": "0.12.4dev8",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -24,7 +24,6 @@
     "cheerio": "^0.19.0",
     "coffeeify": "^0.7.0",
     "del": "^1.1.1",
-    "eco": "^1.1.0-rc-3",
     "gulp": "^3.9.0",
     "gulp-change": "^1.0.0",
     "gulp-insert": "^0.5.0",
@@ -66,7 +65,8 @@
     "detective": "^4.3.1",
     "jslint": "^0.10.3",
     "less": "^2.7.1",
-    "request": "^2.74.0"
+    "request": "^2.74.0",
+    "source-map-support": "^0.4.6"
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -107,8 +107,7 @@
     "@types/hammerjs": "^2.0.33",
 
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
-    "root-require": "^0.3.1",
-    "font-awesome": "^4.6.3"
+    "root-require": "^0.3.1"
   },
   "scripts": {
     "build": "gulp build",

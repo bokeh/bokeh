@@ -24,7 +24,7 @@
 
   function display_loaded() {
     if (window.Bokeh !== undefined) {
-      Bokeh.$("#{{ elementid }}").text("BokehJS successfully loaded.");
+      document.getElementById("{{ elementid }}").textContent = "BokehJS successfully loaded.";
     } else if (Date.now() < window._bokeh_timeout) {
       setTimeout(display_loaded, 100)
     }

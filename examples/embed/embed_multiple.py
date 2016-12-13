@@ -1,3 +1,5 @@
+import io
+
 from jinja2 import Template
 
 from bokeh.embed import components
@@ -76,7 +78,7 @@ html = template.render(js_resources=js_resources,
                        script=script,
                        div=div)
 
-with open(filename, 'w') as f:
+with io.open(filename, mode='w', encoding='utf-8') as f:
     f.write(html)
 
 view(filename)

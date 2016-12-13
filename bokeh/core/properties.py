@@ -69,6 +69,7 @@ from operator import itemgetter
 
 from six import string_types, iteritems, StringIO
 
+from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
@@ -379,7 +380,7 @@ class BasicProperty(Property):
         self.__doc__ = self.descriptor.__doc__
 
     def __str__(self):
-        return "%s:%s" % (self.name, self.descriptor)
+        return "%s" % self.descriptor
 
     def class_default(self, cls):
         """Get the default value for a specific subtype of HasProps,
@@ -1528,6 +1529,11 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent))
         super(Color, self).__init__(*types, default=default, help=help)
+
+    def transform(self, value):
+        if isinstance(value, tuple):
+            value = RGB(*value).to_css()
+        return value
 
     def __str__(self):
         return self.__class__.__name__

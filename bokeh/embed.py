@@ -30,23 +30,25 @@ from .util.string import encode_utf8
 from .util.serialization import make_id
 from .util.deprecation import deprecated
 
-def _prefix(text, prefix):
-    return "\n".join([ prefix + line for line in text.split("\n") ])
-
-def _indent(text):
-    return _prefix(text, "    ")
-
-def _wrap(pre, text, post):
-    return '%s%s%s' % (pre, _indent(text), post)
-
-def _wrap_in_function(code):
-    return _wrap('Bokeh.$(function() {\n', code, '\n});')
+def _indent(text, n=2):
+    return "\n".join([ " "*n + line for line in text.split("\n") ])
 
 def _wrap_in_safely(code):
-    return _wrap('Bokeh.safely(function() {\n', code, '\n});')
+    return """\
+Bokeh.safely(function() {
+%(code)s
+});""" % dict(code=_indent(code, 2))
 
 def _wrap_in_onload(code):
-    return _wrap('document.addEventListener("DOMContentLoaded", function(event) {\n', code, '\n});')
+    return """\
+(function() {
+  var fn = function() {
+%(code)s
+  };
+  if (document.readyState != "loading") fn();
+  else document.addEventListener("DOMContentLoaded", fn);
+})();
+""" % dict(code=_indent(code, 4))
 
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
@@ -247,7 +249,7 @@ def notebook_div(model, notebook_comms_target=None):
     else:
         notebook_comms_target = ''
 
-    script = _wrap_in_function(DOC_JS.render(
+    script = _wrap_in_onload(DOC_JS.render(
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
     ))
@@ -446,10 +448,10 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
-    plot_js = _wrap_in_function(_wrap_in_safely(DOC_JS.render(
+    plot_js = _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
         websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items)
+        render_items=serialize_json(render_items),
     )))
 
     if wrap_script:

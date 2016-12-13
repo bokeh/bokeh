@@ -368,9 +368,11 @@ def gridplot(*args, **kwargs):
         row_tools = []
         row_children = []
         for item in row:
-            if merge_tools and isinstance(item, Plot):
-                row_tools = row_tools + item.toolbar.tools
-                item.toolbar_location = None
+            if merge_tools:
+                if item is not None:
+                    for plot in item.select(dict(type=Plot)):
+                        row_tools = row_tools + plot.toolbar.tools
+                        plot.toolbar_location = None
             if item is None:
                 for neighbor in row:
                     if isinstance(neighbor, Plot):

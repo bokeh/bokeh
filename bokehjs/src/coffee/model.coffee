@@ -6,9 +6,16 @@ export class Model extends HasProps
   type: "Model"
 
   @define {
-    tags: [ p.Array, [] ]
-    name: [ p.String    ]
+    tags:         [ p.Array, [] ]
+    name:         [ p.String    ]
+    js_callbacks: [ p.Any,   {} ]
   }
+
+  initialize: (options) ->
+    super(options)
+    for evt, callbacks of @js_callbacks
+      for cb in callbacks
+        @listenTo(@, evt, () -> cb.execute(@))
 
   select: (selector) ->
     if selector.prototype instanceof Model

@@ -1,6 +1,7 @@
-import pandas as pd
+import io
 
 from jinja2 import Template
+import pandas as pd
 
 from bokeh.core.properties import field
 from bokeh.embed import file_html
@@ -124,6 +125,6 @@ title = "Bokeh - Gapminder Bubble Plot"
 html = file_html(layout, resources=(js_resources, None), title=title, template=template)
 
 output_file = 'gapminder.html'
-with open(output_file, 'w') as f:
+with io.open(output_file, mode='w', encoding='utf-8') as f:
     f.write(html)
 view(output_file)

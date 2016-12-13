@@ -642,6 +642,32 @@ and the server, there is network traffic between the python client and the
 server as well. Depending on the particular usage, this could be a
 significant consideration.
 
+
+Embedding Bokeh Server as a Library
+-----------------------------------
+
+It can be useful to embed the Bokeh Server in a larger Tornado-based
+application with other concurrent network services or coroutines, while
+letting the application handle the lifetime of the I/O loop.  Here is how
+to integrate Bokeh in such a scenario:
+
+.. code-block:: python
+
+   from bokeh.server.server import Server
+
+   server = Server(
+       bokeh_applications,  # list of Bokeh applications
+       io_loop=loop,        # Tornado IOLoop
+       **server_kwargs      # port, num_procs, etc.
+   )
+
+   # start timers and services and immediately return
+   server.start()
+
+When you want to stop the embedded Bokeh Server, call the ``stop()``
+method on the given ``Server`` instance.
+
+
 .. _userguide_server_deployment:
 
 Deployment Scenarios

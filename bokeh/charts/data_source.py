@@ -294,7 +294,7 @@ class ChartDataSource(object):
             dims (List(Str), optional): list of valid dimensions for the chart.
             required_dims (List(List(Str)), optional): list of list of valid dimensional
                 selections for the chart.
-            selections (Dict(dimension, List(Column)), optional): mapping between a
+            selections (Dict(String, List(Column)), optional): mapping between a
                 dimension and the column name(s) associated with it. This represents what
                 the user selected for the current chart.
             column_assigner (:class:`ColumnAssigner`, optional): a reference to a

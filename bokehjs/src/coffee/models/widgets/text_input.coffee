@@ -29,7 +29,7 @@ export class TextInputView extends InputWidgetView
     return @
 
   change_input: () ->
-    value = @$('input').val()
+    value = @$el.find('input').val()
     logger.debug("widget/text_input: value = #{value}")
     @model.value = value
     super()

@@ -4,6 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import os
+import sys
 
 from bokeh.io import set_curdoc, curdoc
 
@@ -54,12 +55,13 @@ class CodeHandler(Handler):
 
         module = self._runner.new_module()
 
-        # This is to prevent the module from being gc'd before the
-        # document is.  A symptom of a gc'd module is that its
-        # globals become None.
-        if not hasattr(doc, '_CodeHandler__modules'):
-            setattr(doc, '_CodeHandler__modules', [])
-        doc.__modules.append(module)
+        # One reason modules are stored is to prevent the module
+        # from being gc'd before the document is. A symptom of a
+        # gc'd module is that its globals become None. Additionally
+        # stored modules are used to provide correct paths to
+        # custom models resolver.
+        sys.modules[module.__name__] = module
+        doc._modules.append(module)
 
         old_doc = curdoc()
         set_curdoc(doc)

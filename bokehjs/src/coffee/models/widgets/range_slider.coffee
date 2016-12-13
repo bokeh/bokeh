@@ -48,7 +48,7 @@ export class RangeSliderView extends InputWidgetView
     }
     @$el.find('.slider').slider(opts)
     if @model.title?
-      @$( "##{ @model.id }" ).val( @$('.slider').slider('values').join(' - ') )
+      @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('values').join(' - ') )
     @$el.find('.bk-slider-parent').height(@model.height)
     bk_handle = @$el.find('.bk-ui-slider-handle')
     # Map bk handle to ui handle - otherwise slide doesn't work
@@ -66,7 +66,7 @@ export class RangeSliderView extends InputWidgetView
     values_str = values.join(' - ')
     logger.debug("range-slide value = #{values_str}")
     if @model.title?
-      @$( "##{ @model.id }" ).val( values_str )
+      @$el.find( "##{ @model.id }" ).val( values_str )
     @model.range = values
     if @callbackWrapper then @callbackWrapper()
 
