@@ -8,7 +8,9 @@ import {BokehView} from "core/bokeh_view"
 import {logger} from "core/logging"
 import {extend} from "core/util/object"
 
-export class LayoutDOMView extends BokehView
+import {Layoutable, LayoutableView} from "./layoutable"
+
+export class LayoutDOMView extends LayoutableView
 
   initialize: (options) ->
     super(options)
@@ -134,7 +136,7 @@ export class LayoutDOMView extends BokehView
 
 
 
-export class LayoutDOM extends Model
+export class LayoutDOM extends Layoutable
   type: "LayoutDOM"
 
   initialize: (attrs, options) ->
@@ -247,7 +249,3 @@ export class LayoutDOM extends Model
       sizing_mode: [ p.SizingMode, "fixed" ]
       css_classes: [ p.Array               ]
     }
-
-  @internal {
-      layoutable: [ p.Bool, true ]
-  }
