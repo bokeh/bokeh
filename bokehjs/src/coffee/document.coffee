@@ -11,6 +11,7 @@ import {extend, values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
+import {Layoutable} from "./models/layouts/layoutable"
 
 export class DocumentChangedEvent
   constructor : (@document) ->
@@ -98,7 +99,7 @@ export class Document
     @_solver.add_edit_variable(@_doc_width)
     @_solver.add_edit_variable(@_doc_height)
     for model in @_roots
-      if model.layoutable
+      if model instanceof Layoutable
         @_add_layoutable(model)
 
   solver: () ->
@@ -119,7 +120,7 @@ export class Document
 
   _resize: (width=null, height=null) ->
     for root in @_roots
-      if root.layoutable isnt true
+      if root not instanceof Layoutable
         continue
 
       vars = root.get_constrained_variables()
@@ -227,7 +228,7 @@ export class Document
   roots: () -> @_roots
 
   _add_layoutable: (model) ->
-    if model.layoutable isnt true
+    if model not instanceof Layoutable
       throw new Error("Cannot add non-layoutable - #{model}")
 
     editables = model.get_edit_variables()

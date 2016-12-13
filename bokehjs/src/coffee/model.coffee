@@ -1,6 +1,9 @@
 import {HasProps} from "./core/has_props"
+import {BokehView} from "./core/bokeh_view"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
+
+export {BokehView as View}
 
 export class Model extends HasProps
   type: "Model"

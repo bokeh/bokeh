@@ -9,6 +9,7 @@ sinon = require "sinon"
 js_version = utils.require("version").version
 {Models} = utils.require "base"
 {Model} = utils.require "model"
+{Layoutable} = utils.require "models/layouts/layoutable"
 logging = utils.require "core/logging"
 p = utils.require "core/properties"
 
@@ -75,7 +76,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 
-class LayoutableModel extends Model
+class LayoutableModel extends Layoutable
   type: 'LayoutableModel'
 
   get_constraints: () ->
@@ -86,10 +87,6 @@ class LayoutableModel extends Model
 
   get_constrained_variables: () ->
     {}
-
-  @internal {
-    layoutable: [ p.Bool, true ]
-  }
 Models.register('LayoutableModel', LayoutableModel)
 
 class ModelWithConstraint extends LayoutableModel
