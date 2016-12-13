@@ -42,12 +42,12 @@ from bokeh.core.enums import (
     Anchor, Location, LegendLocation,
     DashPattern,
     ButtonType, MapType,
-    NamedColor as Color, NamedIcon)
+    NamedColor as Color)
 
 # fool flake8
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
  AngleUnits, Dimension, Anchor, Location, LegendLocation,
- DashPattern, ButtonType, MapType, Color, NamedIcon)
+ DashPattern, ButtonType, MapType, Color)
 
 
 def test_AnnularWedge():

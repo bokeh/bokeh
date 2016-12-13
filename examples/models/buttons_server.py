@@ -4,7 +4,7 @@ from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.layouts import WidgetBox
 from bokeh.models.widgets import (
-    Icon, Button, Toggle, Dropdown, CheckboxGroup, RadioGroup,
+    Button, Toggle, Dropdown, CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
 )
 
@@ -32,7 +32,7 @@ def checkbox_button_group_handler(active):
 def radio_button_group_handler(active):
     print("radio_button_group_handler: %s" % active)
 
-button = Button(label="Button (disabled) - still has click event", icon=Icon(icon_name="check"), button_type="primary", disabled=True)
+button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 button.on_click(button_handler)
 
 toggle = Toggle(label="Toggle button", button_type="success")

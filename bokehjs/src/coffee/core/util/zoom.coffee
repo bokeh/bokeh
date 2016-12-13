@@ -1,4 +1,20 @@
+import {clamp} from "./math"
+
 # Module for zoom-related functions
+
+export scale_highlow = (range, factor, center=null) ->
+  [low, high] = [range.start, range.end]
+  x = if center? then center else (high + low) / 2.0
+  x0 = low - (low - x) * factor
+  x1 = high - (high - x) * factor
+  return [x0, x1]
+
+export get_info = (mappers, [x0, x1]) ->
+  info = {}
+  for name, mapper of mappers
+    [start, end] = mapper.v_map_from_target([x0, x1], true)
+    info[name] = {start: start, end: end}
+  return info
 
 export scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
   """
@@ -8,62 +24,33 @@ export scale_range = (frame, factor, h_axis=true, v_axis=true, center=null) ->
   Parameters:
     frame : CartesianFrame
     factor : Number
-    center : object, optional
-      of form {'x': Number, 'y', Number}
     h_axis : Boolean, optional
       whether to zoom the horizontal axis (default = true)
     v_axis : Boolean, optional
       whether to zoom the horizontal axis (default = true)
+    center : object, optional
+      of form {'x': Number, 'y', Number}
 
   Returns:
     object:
   """
 
-  hr = frame.h_range
-  vr = frame.v_range
-
   # clamp the  magnitude of factor, if it is > 1 bad things happen
-  if factor > 0.9
-    factor = 0.9
-  else if factor < -0.9
-    factor = -0.9
+  factor = clamp(factor, -0.9, 0.9)
 
-  [vx_low, vx_high] = [hr.start, hr.end]
-  [vy_low, vy_high] = [vr.start, vr.end]
+  hfactor = if h_axis then factor else 0
+  [vx0, vx1] = scale_highlow(frame.h_range, hfactor, center?.x)
+  xrs = get_info(frame.x_mappers, [vx0, vx1])
 
-  vx = if center? then center.x else (vx_high + vx_low) / 2.0
-  vy = if center? then center.y else (vy_high + vy_low) / 2.0
-
-  if h_axis
-    sx0 = vx_low  - (vx_low  - vx)*factor
-    sx1 = vx_high - (vx_high - vx)*factor
-  else
-    sx0 = vx_low
-    sx1 = vx_high
-
-  if v_axis
-    sy0 = vy_low  - (vy_low  - vy)*factor
-    sy1 = vy_high - (vy_high - vy)*factor
-  else
-    sy0 = vy_low
-    sy1 = vy_high
-
-  xrs = {}
-  for name, mapper of frame.x_mappers
-    [start, end] = mapper.v_map_from_target([sx0, sx1])
-    xrs[name] = {start: start, end: end}
-
-  yrs = {}
-  for name, mapper of frame.y_mappers
-    [start, end] = mapper.v_map_from_target([sy0, sy1])
-    yrs[name] = {start: start, end: end}
+  vfactor = if v_axis then factor else 0
+  [vy0, vy1] = scale_highlow(frame.v_range, vfactor, center?.y)
+  yrs = get_info(frame.y_mappers, [vy0, vy1])
 
   # OK this sucks we can't set factor independently in each direction. It is used
   # for GMap plots, and GMap plots always preserve aspect, so effective the value
   # of 'dimensions' is ignored.
-  zoom_info = {
+  return {
     xrs: xrs
     yrs: yrs
     factor: factor
   }
-  return zoom_info

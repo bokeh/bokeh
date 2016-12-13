@@ -31,9 +31,10 @@ export class MultiSelectView extends InputWidgetView
 
   render_selection: () =>
     values = {}
-    _.map(@model.value, (x) -> values[x] = true)
-    @$('option').each((el) =>
-      el = @$(el)
+    for x in @model.value
+      values[x] = true
+    @$el.find('option').each((el) =>
+      el = @$el.find(el)
       if values[el.attr('value')]
         el.attr('selected', 'selected')
     )

@@ -16,9 +16,6 @@ _.uniqueId = (prefix) ->
   else
     return uuid;
 
-_.isNullOrUndefined = (x) ->
-  return _.isNull(x) || _.isUndefined(x)
-
 _.setdefault = (obj, key, value) ->
   if _.has(obj, key)
     return obj[key]

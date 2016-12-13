@@ -4,7 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
-import os
 import six
 import json
 import inspect
@@ -20,21 +19,20 @@ from .string import snakify
 _plugin_prelude = \
 """
 (function outer(modules, cache, entry) {
-  if (typeof Bokeh !== "undefined") {
-    var _ = Bokeh._;
-
+  if (Bokeh != null) {
     for (var name in modules) {
       Bokeh.require.modules[name] = modules[name];
     }
 
     for (var i = 0; i < entry.length; i++) {
-        var exports = Bokeh.require(entry[i]);
+      var plugin = Bokeh.require(entry[i]);
+      Bokeh.Models.register_models(plugin.models);
 
-        if (_.isObject(exports.models)) {
-          Bokeh.Models.register_models(exports.models);
+      for (var name in plugin) {
+        if (name !== "models") {
+          Bokeh[name] = plugin[name];
         }
-
-        _.extend(Bokeh, _.omit(exports, "models"));
+      }
     }
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
@@ -129,6 +127,20 @@ def _run_nodejs(script, input):
     else:
         return AttrDict(json.loads(stdout.decode()))
 
+def _run_npm(argv):
+    if _nodejs is None:
+        raise RuntimeError('node.js is needed to allow compilation of custom models ' +
+                           '("conda install -c bokeh nodejs" or follow https://nodejs.org/en/download/)')
+
+    _npm = join(dirname(_nodejs), "npm")
+    proc = Popen([_npm] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    (_stdout, errout) = proc.communicate()
+
+    if len(errout) > 0:
+        raise RuntimeError(errout)
+    else:
+        return None
+
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compile.js")
     return _run_nodejs(compilejs_script, dict(code=code, lang=lang, file=file))
@@ -160,12 +172,6 @@ class JavaScript(Inline):
     def lang(self):
         return "javascript"
 
-class Eco(Inline):
-
-    @property
-    def lang(self):
-        return "eco"
-
 class Less(Inline):
 
     @property
@@ -183,16 +189,14 @@ class FromFile(Implementation):
     def lang(self):
         if self.file.endswith(".coffee"):
             return "coffeescript"
-        if self.file.endswith(".ts"):
+        if self.file.endswith((".ts", ".tsx")):
             return "typescript"
         if self.file.endswith(".js"):
             return "javascript"
-        if self.file.endswith(".eco"):
-            return "eco"
         if self.file.endswith((".css", ".less")):
             return "less"
 
-exts = (".coffee", ".ts", ".js", ".eco", ".css", ".less")
+exts = (".coffee", ".ts", ".tsx", ".js", ".css", ".less")
 
 class CustomModel(object):
     def __init__(self, cls):
@@ -209,19 +213,11 @@ class CustomModel(object):
 
     @property
     def file(self):
-        try:
-            file = inspect.getfile(self.cls)
-        except TypeError:
-            return None
-        else:
-            return abspath(file)
+        return abspath(inspect.getfile(self.cls))
 
     @property
     def path(self):
-        if self.file is None:
-            return os.getcwd()
-        else:
-            return dirname(self.file)
+        return dirname(self.file)
 
     @property
     def implementation(self):
@@ -237,6 +233,10 @@ class CustomModel(object):
             impl = impl.__class__(impl.code, (self.file or "<string>") + ":" + self.name)
 
         return impl
+
+    @property
+    def dependencies(self):
+        return getattr(self.cls, "__dependencies__", {})
 
     @property
     def module(self):
@@ -255,6 +255,8 @@ def gen_custom_models_static():
     if not custom_models:
         return None
 
+    ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
+
     exports = []
     modules = []
 
@@ -262,10 +264,17 @@ def gen_custom_models_static():
         known_modules = json.loads(f.read())
 
     known_modules = set(known_modules["bokehjs"] + known_modules["widgets"])
-
     custom_impls = {}
 
-    for model in sorted(custom_models.values(), key=lambda model: model.full_name):
+    dependencies = []
+    for model in ordered_models:
+        dependencies.extend(list(model.dependencies.items()))
+
+    if dependencies:
+        dependencies = sorted(dependencies, key=lambda name_version: name_version[0])
+        _run_npm(["install"] + [ name + "@" + version for (name, version) in dependencies ])
+
+    for model in ordered_models:
         impl = model.implementation
         compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 

@@ -36,7 +36,7 @@ export class RadioGroupView extends WidgetView
     return @
 
   change_input: () ->
-    active = (i for radio, i in @$("input") when radio.checked)
+    active = (i for radio, i in @$el.find("input") when radio.checked)
     @model.active = active[0]
     @model.callback?.execute(@model)
 

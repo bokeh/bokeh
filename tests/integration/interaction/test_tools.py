@@ -26,7 +26,7 @@ def generate_plot():
             data = cb_obj.data,
             selected_names = '';
 
-        Bokeh.$.each(indices, function(i, index) {
+        indices.forEach(function(index) {
             selected_names += data['name'][index];
         });
 

@@ -91,6 +91,47 @@ components when rendered:
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_missing_points.py
     :source-position: above
 
+.. _userguide_plotting_bars_rects:
+
+Bars and Rectangles
+~~~~~~~~~~~~~~~~~~~
+
+Rectangles
+''''''''''
+
+To draw *axis aligned* rectangles ("quads") by specifying the ``left``,
+``right``, ``top``, and ``bottom`` positions, use the |quad| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
+    :source-position: above
+
+To draw arbitrary rectangles by specifying a center point, width, height,
+and angle, use the |rect| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
+    :source-position: above
+
+Bars
+''''
+
+When drawing rectangular bars (often representing intervals) it is often
+more convenient to have coordinates that are a hybrid of the two systems
+above. Bokeh provides the |hbar| and |vbar| glyphs function for this
+purpose.
+
+To draw vertical bars by specifying a (center) x-coordinate, width, and
+top and bottom endpoints, use the |vbar| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_vbar.py
+    :source-position: above
+
+To draw horizontal bars by specifying a (center) y-coordinate, height,
+and left and right endpoints, use the |hbar| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_hbar.py
+    :source-position: above
+
+
 .. _userguide_plotting_patch_glyphs:
 
 Patch Glyphs
@@ -133,23 +174,10 @@ patch objects, that have multiple disjoint components when rendered:
     Hit testing on patch objects with ``NaN`` values is not currently
     supported.
 
-.. _userguide_plotting_quads_rects:
+.. _userguide_plotting_ovals_ellipses:
 
-Rectangles, Ovals and Ellipses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To draw *axis aligned* rectangles ("quads"), use the |quad| glyph function,
-which accepts ``left``, ``right``, ``top``, and ``bottom`` values to specify
-positions:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
-    :source-position: above
-
-To draw arbitrary rectangles by specifying a center point, a width, height,
-and angle, use the |rect| glyph function:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
-    :source-position: above
+Ovals and Ellipses
+~~~~~~~~~~~~~~~~~~
 
 The |oval| glyph method accepts the same properties as |rect|, but renders
 oval shapes:
@@ -389,6 +417,7 @@ The section on adding annotations to plots has moved.  Please see
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
+.. |hbar|              replace:: :func:`~bokeh.plotting.figure.Figure.hbar`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`
@@ -407,5 +436,6 @@ The section on adding annotations to plots has moved.  Please see
 .. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
+.. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.rect`
 .. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`

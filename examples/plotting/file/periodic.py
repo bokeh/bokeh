@@ -4,6 +4,7 @@ from bokeh.sampledata.periodic_table import elements
 
 romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
+elements = elements.copy()
 elements["atomic mass"] = elements["atomic mass"].astype(str)
 
 elements["period"] = [romans[x-1] for x in elements.period]

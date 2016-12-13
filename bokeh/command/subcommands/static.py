@@ -6,7 +6,9 @@ log = logging.getLogger(__name__)
 from bokeh.server.server import Server
 
 from ..subcommand import Subcommand
+from ..util import report_server_init_errors
 from .serve import base_serve_args
+
 
 class Static(Subcommand):
     ''' Subcommand to launch the Bokeh static server. '''
@@ -26,11 +28,12 @@ class Static(Subcommand):
         _allowed_keys = ['port', 'address']
         server_kwargs = { key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None }
 
-        server = Server(applications, **server_kwargs)
+        with report_server_init_errors(**server_kwargs):
+            server = Server(applications, **server_kwargs)
 
-        address_string = ''
-        if server.address is not None and server.address != '':
-            address_string = ' address ' + server.address
+            address_string = ''
+            if server.address is not None and server.address != '':
+                address_string = ' address ' + server.address
 
-        log.info("Starting Bokeh static server on port %d%s", server.port, address_string)
-        server.start()
+            log.info("Starting Bokeh static server on port %d%s", server.port, address_string)
+            server.run_until_shutdown()

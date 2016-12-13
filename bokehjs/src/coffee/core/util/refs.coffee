@@ -42,7 +42,7 @@ export is_ref = (arg) ->
 #
 export convert_to_ref = (value) ->
   if _.isArray(value)
-    return _.map(value, convert_to_ref)
+    return value.map(convert_to_ref)
   else
     if value instanceof HasProps
       return value.ref()

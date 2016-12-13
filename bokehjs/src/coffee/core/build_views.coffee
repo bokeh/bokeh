@@ -18,7 +18,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
   # * view_option: array, optional view specific options passed in to the construction of the view
 
   created_views = []
-  newmodels = _.filter(view_models, (x) -> return not _.has(view_storage, x.id))
+  newmodels = view_models.filter((x) -> not _.has(view_storage, x.id))
 
   for model, i_model in newmodels
     view_specific_option = _.extend({}, options, {'model': model})
@@ -43,7 +43,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
 export jQueryUIPrefixer = (el) ->
   return unless el.className?
   classList = el.className.split " "
-  prefixedClassList = _.map classList, (a) ->
+  prefixedClassList = classList.map (a) ->
     a = a.trim()
     return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
   return prefixedClassList.join " "

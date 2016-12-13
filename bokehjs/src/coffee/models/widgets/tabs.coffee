@@ -21,46 +21,39 @@ export class TabsView extends WidgetView
 
     html = $(tabs_template({
       tabs: tabs
-      active: (i) -> if i == active then 'bk-bs-active' else ''
+      active_tab_id: tabs[active].id
     }))
 
     that = this
-    html.find("> li > a").click (event) ->
+    html.find(".bk-bs-nav a").click (event) ->
       event.preventDefault()
       $(this).tab('show')
       panelId = $(this).attr('href').replace('#tab-','')
       tabs = that.model.tabs
-      panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
-        return panel.id == panelId
-      ))
+      panelIdx = _.findIndex(tabs, (panel) -> panel.id == panelId)
       that.model.active = panelIdx
       that.model.callback?.execute(that.model)
 
-    $panels = html.children(".bk-bs-tab-pane")
+    $panels = html.find(".bk-bs-tab-pane")
 
     for [child, panel] in _.zip(children, $panels)
       $(panel).html(@child_views[child.id].$el)
 
     @$el.append(html)
-    @$el.tabs
     return @
 
 export class Tabs extends Widget
   type: "Tabs"
   default_view: TabsView
 
-  initialize: (options) ->
-    super(options)
-    @children = (tab.child for tab in @tabs)
-
   @define {
-      tabs:     [ p.Array,   [] ]
-      active:   [ p.Number,  0  ]
-      callback: [ p.Instance    ]
-    }
+    tabs:     [ p.Array,   [] ]
+    active:   [ p.Number,  0  ]
+    callback: [ p.Instance    ]
+  }
 
-  @internal {
-      children: [ p.Array,   [] ]
+  @getters {
+    children: () -> (tab.child for tab in @tabs)
   }
 
   get_layoutable_children: () ->

@@ -23,6 +23,8 @@ in this directory. Navigate to
 """
 from __future__ import print_function
 
+import io
+
 from numpy import pi, cos, sin, linspace, roll
 
 from bokeh.client import push_session
@@ -40,10 +42,12 @@ rmax = r_base + sin(r_x) + 1
 colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
           "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-# figure() function auto-adds the figure to curdoc()
 p = figure(x_range=(-11, 11), y_range=(-11, 11))
 r = p.annular_wedge(0, 0, rmin, rmax, theta[:-1], theta[1:],
                     fill_color=colors, line_color="white")
+
+# add the plot to curdoc
+curdoc().add_root(p)
 
 # open a session which will keep our local doc in sync with server
 session = push_session(curdoc())
@@ -57,7 +61,7 @@ html = """
 </html>
 """ % autoload_server(p, session_id=session.id)
 
-with open("animated.html", "w+") as f:
+with io.open("animated.html", mode='w+', encoding='utf-8') as f:
     f.write(html)
 
 print(__doc__)

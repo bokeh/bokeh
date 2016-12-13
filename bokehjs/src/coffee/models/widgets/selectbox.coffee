@@ -26,7 +26,7 @@ export class SelectView extends InputWidgetView
     return @
 
   change_input: () ->
-    value = @$('select').val()
+    value = @$el.find('select').val()
     logger.debug("selectbox: value = #{value}")
     @model.value = value
     super()

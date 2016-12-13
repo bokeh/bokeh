@@ -58,9 +58,8 @@ export class MonthsTicker extends SingleIntervalTicker
 
     month_dates = _.flatten(months_of_year(date) for date in year_dates)
 
-    all_ticks = _.invoke(month_dates, 'getTime')
-    ticks_in_range = _.filter(all_ticks,
-                              ((tick) -> data_low <= tick <= data_high))
+    all_ticks = (month_date.getTime() for month_date in month_dates)
+    ticks_in_range = all_ticks.filter((tick) -> data_low <= tick <= data_high)
 
     return {
       "major": ticks_in_range,

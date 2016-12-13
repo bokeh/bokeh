@@ -5,6 +5,8 @@ library.
 """
 from __future__ import absolute_import
 
+import sys
+
 import logging
 logger = logging.getLogger(__file__)
 
@@ -298,6 +300,12 @@ class Document(object):
         self._callbacks = {}
         self._session_callbacks = {}
         self._session_context = None
+        self._modules = []
+
+    def __del__(self):
+        for module in self._modules:
+            if module.__name__ in sys.modules:
+                del sys.modules[module.__name__]
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''

@@ -27,7 +27,9 @@ from ..core.properties import (
     abstract, Float, Color, Percent,
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
-from ..core.enums import Dimension, Dimensions, Location, Anchor
+from ..core.enums import (Dimension, Dimensions, Location, Anchor,
+    DeprecatedAnchor, accept_left_right_center,
+)
 from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
@@ -640,6 +642,8 @@ class HoverTool(Inspection):
             ("fill color", "$color[hex, swatch]:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
+            ("baz", "@baz{safe}"),
+            ("total", "@total{$0,0.00}"
         ]
 
     You can also supply a ``Callback`` to the HoverTool, to build custom
@@ -715,6 +719,17 @@ class HoverTool(Inspection):
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
 
+    Additional format options ``safe`` and `Numbro format codes <http://numbrojs.com/format.html>`_
+    can be included in a post-fix brace block on field names. ::
+
+        [("total", "@total{$0,0.00}"),
+         ("data", "@data{safe}")]
+
+    Including ``{safe}`` after a field name will override automatic escaping
+    of the tooltip data source. Any HTML tags in the data tags will be rendered
+    as HTML in the resulting HoverTool output. See :ref:`custom_hover_tooltip` for a
+    more detailed example.
+
     ``None`` is also a valid value for tooltips. This turns off the
     rendering of tooltips. This is mostly useful when supplying other
     actions on hover via the callback property.
@@ -747,7 +762,7 @@ class HoverTool(Inspection):
     anchor = Enum(Anchor, default="center", help="""
     If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
     point of a tooltip. The default is to attach to the center of a glyph.
-    """)
+    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.
