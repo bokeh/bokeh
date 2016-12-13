@@ -2,6 +2,7 @@ _ = require "underscore"
 
 {expect} = require "chai"
 utils = require "../../utils"
+{ stdoutTrap, stderrTrap } = require 'logtrap'
 
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 
@@ -56,4 +57,32 @@ describe "column_data_source module", ->
       r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
       expect(r.get_length()).to.be.equal 2
 
-    it "should raise an error if column lengths are inconsistent"
+    it "should not alert for consistent column lengths (including zero)", ->
+      r = new ColumnDataSource({data: {foo: []}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [], bar:[]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [10]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [10], bar:[10]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+    it "should alert if column lengths are inconsistent", ->
+      r = new ColumnDataSource({data: {foo: [1], bar: [1,2]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal "[bokeh] data source has columns of inconsistent lengths\n"
+
+      r = new ColumnDataSource({data: {foo: [1], bar: [1,2], baz: [1]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal "[bokeh] data source has columns of inconsistent lengths\n"

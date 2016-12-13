@@ -32,14 +32,14 @@ export class ColumnDataSource extends DataSource
       when 0
         return null # XXX: don't guess, treat on case-by-case basis
       when 1
+        return lengths[0]
+      else
         msg = "data source has columns of inconsistent lengths"
         if soft
           logger.warn(msg)
           return lengths[0]
         else
           throw new Error(msg)
-      else
-        return lengths[0]
 
   columns: () ->
     # return the column names in this data source
