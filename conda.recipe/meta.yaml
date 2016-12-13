@@ -56,15 +56,15 @@ test:
     - mock
     - pandas
     - pytest >=3.0.2
-    - pytest-cov >=1.8.1       [unix]
-    - pytest-selenium >=1.2.1  [unix]
+    - pytest-cov >=1.8.1     [unix]
+    - pytest-selenium >=1.7
     - pytest-xdist
     - pytest-rerunfailures
-    - beautiful-soup        [unix]
+    - beautiful-soup         [unix]
     - scipy
     - pillow
     - boto
-    - pdiff                 [unix]
+    - pdiff                  [unix]
     - nodejs >=4.1
 
     # examples
