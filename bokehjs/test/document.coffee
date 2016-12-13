@@ -1004,21 +1004,6 @@ it "can destructively move", ->
     d.add_root(new ModelWithEditVariableAndConstraint())
     expect(spy.calledOnce).is.true
 
-  it "add_root sets the _is_root property of model to true", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables()
-    expect(root_model._is_root).is.undefined
-    d.add_root(root_model)
-    expect(root_model._is_root).is.true
-
-  it "remove_root sets the _is_root property of model to false", ->
-    d = new Document()
-    root_model = new ModelWithConstrainedVariables()
-    d.add_root(root_model)
-    expect(root_model._is_root).is.true
-    d.remove_root(root_model)
-    expect(root_model._is_root).is.false
-
   # TODO(bird) - We're not using window - so need to find a new
   # way to test the size was set correctly.
   it.skip "resize suggests value for width and height of document", ->

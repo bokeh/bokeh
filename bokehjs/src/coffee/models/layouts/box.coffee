@@ -344,7 +344,7 @@ export class Box extends LayoutDOM
   # once with horizontal=true and once with horizontal=false)
   _align_inner_cell_edges_constraints: () ->
     constraints = []
-    if @_is_root
+    if @ in @document.roots()
       flattened = @_flatten_cell_edge_variables(@_horizontal)
       for key, variables of flattened
         if variables.length > 1
