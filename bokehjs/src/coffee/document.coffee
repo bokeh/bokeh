@@ -224,8 +224,7 @@ export class Document
 
     @_all_models = recomputed
 
-  roots : () ->
-    @_roots
+  roots: () -> @_roots
 
   _add_layoutable: (model) ->
     if model.layoutable isnt true
@@ -257,7 +256,6 @@ export class Document
     @_push_all_models_freeze()
     try
       @_roots.push(model)
-      model._is_root = true # TODO get rid of this?
     finally
       @_pop_all_models_freeze()
 
@@ -273,7 +271,6 @@ export class Document
     @_push_all_models_freeze()
     try
       @_roots.splice(i, 1)
-      model._is_root = false
     finally
       @_pop_all_models_freeze()
 
