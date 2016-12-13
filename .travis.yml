@@ -65,9 +65,9 @@ script:
   # Examples tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then 
       if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then 
+        echo "Examples run disabled by commit"; else
         export BOKEH_DEFAULT_DIFF=FETCH_HEAD; 
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; 
-        echo "Examples run disabled by commit"; else
         py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; 
       fi; 
     fi
