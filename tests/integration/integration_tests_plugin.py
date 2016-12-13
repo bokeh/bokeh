@@ -19,11 +19,6 @@ def selenium(selenium):
     return selenium
 
 
-@pytest.fixture(scope='session')
-def base_url(request, file_server):
-    return file_server.where_is('')
-
-
 @pytest.fixture
 def output_file_url(request, file_server):
 
