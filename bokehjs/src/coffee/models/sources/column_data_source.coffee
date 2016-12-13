@@ -25,24 +25,21 @@ export class ColumnDataSource extends DataSource
   get_column: (colname) ->
     return @data[colname] ? null
 
-  get_length: () ->
-    data = @data
-    if _.keys(data).length == 0
-      return null # XXX: don't guess, treat on case-by-case basis
-    else
-      lengths = _.uniq((val.length for key, val of data))
+  get_length: (soft=true) ->
+    lengths = _.uniq((val.length for _key, val of @data))
 
-      if lengths.length > 1
-        logger.debug("data source has columns of inconsistent lengths")
-
-      return lengths[0]
-
-      # TODO: this causes **a lot** of errors currently
-      #
-      # if lengths.length == 1
-      #     return lengths[0]
-      # else
-      #     throw new Error("data source has columns of inconsistent lengths")
+    switch lengths.length
+      when 0
+        return null # XXX: don't guess, treat on case-by-case basis
+      when 1
+        msg = "data source has columns of inconsistent lengths"
+        if soft
+          logger.warn(msg)
+          return lengths[0]
+        else
+          throw new Error(msg)
+      else
+        return lengths[0]
 
   columns: () ->
     # return the column names in this data source
