@@ -4,6 +4,8 @@ _ = require "underscore"
 utils = require "../../utils"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
+{set_log_level} = utils.require "core/logging"
+
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
 
 describe "column_data_source module", ->
@@ -58,6 +60,7 @@ describe "column_data_source module", ->
       expect(r.get_length()).to.be.equal 2
 
     it "should not alert for consistent column lengths (including zero)", ->
+      set_log_level("info")
       r = new ColumnDataSource({data: {foo: []}})
       out = stderrTrap -> r.get_length()
       expect(out).to.be.equal ""
@@ -79,6 +82,7 @@ describe "column_data_source module", ->
       expect(out).to.be.equal ""
 
     it "should alert if column lengths are inconsistent", ->
+      set_log_level("info")
       r = new ColumnDataSource({data: {foo: [1], bar: [1,2]}})
       out = stderrTrap -> r.get_length()
       expect(out).to.be.equal "[bokeh] data source has columns of inconsistent lengths\n"
