@@ -27,7 +27,7 @@ matrix:
     - python: 3.4
       env: GROUP=examples
     # Linting and Docs
-    - python: 2.7
+    - python: 3.4
       env: GROUP=flake_docs
     # Integration test
     - python: 3.4
