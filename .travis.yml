@@ -23,9 +23,7 @@ matrix:
       env: GROUP=unit
     - python: 3.5
       env: GROUP=unit
-    # Examples on python 2 and python 3
-    - python: 2.7
-      env: GROUP=examples
+    # Examples on python 3 (not doing python 2 for now due to nb_conda_kernel issue)
     - python: 3.4
       env: GROUP=examples
     # Linting and Docs
