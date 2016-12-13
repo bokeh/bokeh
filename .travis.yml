@@ -26,8 +26,8 @@ matrix:
     # Examples on python 3 (not doing python 2 for now as travis never exits)
     - python: 3.4
       env: GROUP=examples
-    # Linting and Docs
-    - python: 3.4
+    # Linting and Docs (no python3 version of fabric)
+    - python: 2.7
       env: GROUP=flake_docs
     # Integration test
     - python: 3.4
