@@ -1,10 +1,13 @@
 from __future__ import absolute_import
 
+import warnings
+
 from ..core.properties import abstract
 from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
+from ..util.warnings import BokehUserWarning
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
 
@@ -65,8 +68,7 @@ class ColumnDataSource(DataSource):
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
-                 "ColumnDataSource's columns must be of the same length",
-                 soft=True)
+                 lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
