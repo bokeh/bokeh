@@ -118,6 +118,10 @@ export class PlotCanvasView extends BokehView
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
 
+  @getters {
+    canvas_overlays: () -> @$el.find('.bk-canvas-overlays')
+  }
+
   init_webgl: () ->
     ctx = @canvas_view.ctx
 

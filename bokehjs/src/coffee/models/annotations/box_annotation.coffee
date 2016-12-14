@@ -6,7 +6,7 @@ import * as p from "../../core/properties"
 export class BoxAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
-    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
+    @$el.appendTo(@plot_view.canvas_overlays)
     @$el.addClass('bk-shading')
     @$el.hide()
 
