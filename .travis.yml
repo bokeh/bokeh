@@ -98,6 +98,7 @@ script:
     if [[ "$GROUP" == examples ]]; then 
       echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html";
     fi; 
+    ps auxwww
     echo "********** END POOR MAN LOGGER ************"
 
 after_success: |
@@ -127,7 +128,6 @@ after_success: |
   else
       echo "Not building because there is no tag."
   fi
-  ps auxwww
 
 notifications:
   flowdock:
