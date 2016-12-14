@@ -105,11 +105,22 @@ Integration tests
 
 The integration tests use `selenium webdriver`_ to test bokeh in the browser.
 
+A proportion of the selenium tests run on Firefox and can be run on your local
+machine. However, due to current limitations in the test suite these tests must
+be run with a specific combination of dependencies. In particular, only Firefox
+47 and Firefox 45 are known to work. For more information see the open issue:
+https://github.com/bokeh/bokeh/issues/5559
+
+To download a specific version of firefox go to https://ftp.mozilla.org/pub/firefox/releases/
+
+Unzip the release and note the location of the application under ``bin``
+directory.
+
 To run just the integration tests, run the command:
 
 .. code-block:: sh
 
-    py.test -m integration --html=tests/pytest-report.html
+    py.test -m integration --html=tests/pytest-report.html --driver Firefox --firefox-path /path/to/firefox/application
 
 The --html is optional, but it will allow you to see the report that will also
 be generated on TravisCI.
