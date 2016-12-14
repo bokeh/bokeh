@@ -8,11 +8,11 @@ example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
 
 
 class Flags(object):
-    file = 1 << 1
-    server = 1 << 2
-    notebook = 1 << 3
-    animated = 1 << 4
-    skip = 1 << 5
+    file     = 1 << 0
+    server   = 1 << 1
+    notebook = 1 << 2
+    animated = 1 << 3
+    skip     = 1 << 4
 
 
 def example_type(flags):
@@ -30,20 +30,26 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
     if skip is not None:
         skip = set(skip)
 
+    def get_flags(f):
+        if example_type is not None:
+            return example_type
+        elif "server" in f or "animate" in f:
+            return Flags.server
+        else:
+            return Flags.file
+
     for f in os.listdir(example_path):
         flags = 0
 
         if f.startswith(('_', '.')):
             continue
         elif f.endswith(".py"):
-            if example_type is not None:
-                flags |= example_type
-            elif "server" in f or "animate" in f:
-                flags |= Flags.server
-            else:
-                flags |= Flags.file
+            flags |= get_flags(f)
         elif f.endswith(".ipynb"):
             flags |= Flags.notebook
+        elif os.path.isdir(os.path.join(example_path, f)):
+            f = os.path.join(f, f + ".py")
+            flags |= get_flags(f)
         else:
             continue
 
