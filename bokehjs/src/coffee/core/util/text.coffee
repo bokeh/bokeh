@@ -1,31 +1,36 @@
-import * as $ from "jquery"
+import {div, span} from "./dom"
 
 cache = {}
+
+offset = (element) ->
+  rect = element.getBoundingClientRect()
+  return {
+    top:  rect.top  + document.body.scrollTop
+    left: rect.left + document.body.scrollLeft
+  }
 
 export get_text_height = (font) ->
   if cache[font]?
     return cache[font]
-  text = $('<span>Hg</span>').css({ font: font })
-  block = $('<div style="display: inline-block; width: 1px; height: 0px;">
-             </div>')
 
-  div = $('<div></div>')
-  div.append(text, block)
+  text = span({style: { font: font }}, "Hg")
+  block = div({style: { display: "inline-block", width: "1px", height: "0px" }})
 
-  body = $('body')
-  body.append(div)
+  elem = div({}, text, block)
+  document.body.appendChild(elem)
 
   try
     result = {}
 
-    block.css({ verticalAlign: 'baseline' })
-    result.ascent = block.offset().top - text.offset().top
+    block.style.verticalAlign = "baseline"
+    ascent = offset(block).top - offset(text).top
 
-    block.css({ verticalAlign: 'bottom' })
-    result.height = block.offset().top - text.offset().top
+    block.style.verticalAlign = "bottom"
+    result.height = offset(block).top - offset(text).top
 
     result.descent = result.height - result.ascent
   finally
-    div.remove()
+    document.body.removeChild(elem)
+
   cache[font] = result
   return result
