@@ -1,30 +1,54 @@
-import {isBoolean, isString, isArray, flatten} from "underscore";
+import {isBoolean, isString, isArray, isObject, flatten} from "underscore"
 
-export function createElement(type: string, props: { [name: string]: any },
-    ...children: Array<string | HTMLElement | Array<string | HTMLElement>>): HTMLElement {
-  let elem;
-  if (type === "fragment") {
-    elem = document.createDocumentFragment();
+type HTMLAttrs = { [name: string]: any }
+type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
+
+const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChildren): HTMLElement => {
+  let element
+  if (tag === "fragment") {
+    element = document.createDocumentFragment()
   } else {
-    elem = document.createElement(type);
-    for (let k in props) {
-      let v = props[k];
-      if (k === "className")
-        k = "class";
-      if (k === "class" && isArray(v))
-        v = v.filter(c => c != null).join(" ");
-      if (v == null || isBoolean(v) && !v)
+    element = document.createElement(tag)
+    for (const attr in attrs) {
+      const value = attrs[attr]
+
+      if (value == null || isBoolean(value) && !value)
         continue
-      elem.setAttribute(k, v);
+
+      if (attr === "class" && isArray(value)) {
+        for (const cls of value) {
+          if (cls != null) element.classList.add(cls)
+        }
+        continue
+      }
+
+      if (attr === "style" && isObject(value)) {
+        for (const prop in value) {
+          element.style.setProperty(prop, value[prop])
+        }
+        continue
+      }
+
+      element.setAttribute(attr, value)
     }
   }
 
-  for (const v of flatten(children, true)) {
-    if (v instanceof HTMLElement)
-      elem.appendChild(v);
-    else if (isString(v))
-      elem.appendChild(document.createTextNode(v))
+  for (const child of flatten(children, true)) {
+    if (child instanceof HTMLElement)
+      element.appendChild(child)
+    else if (isString(child))
+      element.appendChild(document.createTextNode(child))
   }
 
-  return elem;
+  return element
 }
+
+export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLChildren): HTMLElement {
+  return _createElement(tag)(attrs, ...children)
+}
+
+export const
+  div = _createElement("div"),
+  span = _createElement("span"),
+  link = _createElement("link"),
+  style = _createElement("style");
