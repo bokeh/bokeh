@@ -127,6 +127,7 @@ after_success: |
   else
       echo "Not building because there is no tag."
   fi
+  ps auxwww
 
 notifications:
   flowdock:
