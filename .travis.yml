@@ -98,7 +98,7 @@ script:
     if [[ "$GROUP" == examples ]]; then 
       echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html";
     fi; 
-    ps auxwww
+    ps -ef
     echo "********** END POOR MAN LOGGER ************"
 
 after_success: |
