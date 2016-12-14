@@ -52,7 +52,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-import warnings
 import collections
 from copy import copy
 import datetime
@@ -72,7 +71,6 @@ from six import string_types, iteritems, StringIO
 from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
-from ..util.warnings import BokehUserWarning
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
@@ -287,20 +285,23 @@ class PropertyDescriptor(PropertyFactory):
         if isinstance(obj_or_cls, HasProps):
             obj = obj_or_cls
 
-            for fn, msg, soft in self.assertions:
-                result = fn(obj, value)
-
-                def bring_to_attention(msg):
-                    if soft:
-                        warnings.warn(msg, BokehUserWarning)
-                    else:
-                        raise ValueError(msg)
+            for fn, msg_or_fn in self.assertions:
+                if isinstance(fn, bool):
+                    result = fn
+                else:
+                    result = fn(obj, value)
 
                 if isinstance(result, bool):
                     if not result:
-                        bring_to_attention(msg)
+                        if isinstance(msg_or_fn, string_types):
+                            raise ValueError(msg_or_fn)
+                        else:
+                            msg_or_fn()
                 elif result is not None:
-                    bring_to_attention(msg % result)
+                    if isinstance(msg_or_fn, string_types):
+                        raise ValueError(msg_or_fn % result)
+                    else:
+                        msg_or_fn(result)
 
         return self._wrap_container(value)
 
@@ -313,8 +314,8 @@ class PropertyDescriptor(PropertyFactory):
         self.alternatives.append((tp, converter))
         return self
 
-    def asserts(self, fn, msg, soft=False):
-        self.assertions.append((fn, msg, soft))
+    def asserts(self, fn, msg_or_fn):
+        self.assertions.append((fn, msg_or_fn))
         return self
 
     def __or__(self, other):
