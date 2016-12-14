@@ -10,6 +10,7 @@ from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, Int, NumberSpec, StringSpec)
+from ..util.deprecation import deprecated
 
 from .mappers import ColorMapper, LinearColorMapper
 
@@ -342,11 +343,11 @@ class ImageRGBA(Glyph):
 
     rows = NumberSpec(None, help="""
     The numbers of rows in the images
-    """)
+    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
 
     cols = NumberSpec(None, help="""
     The numbers of columns in the images
-    """)
+    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
 
     dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
