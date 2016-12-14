@@ -1,7 +1,7 @@
 language: python
 
 sudo: 
-  false
+  true
 
 env:
   global:
@@ -23,7 +23,9 @@ matrix:
       env: GROUP=unit
     - python: 3.5
       env: GROUP=unit
-    # Examples on python 3 (not doing python 2 for now as travis never exits)
+    # Examples 
+    - python: 2.7
+      env: GROUP=examples
     - python: 3.4
       env: GROUP=examples
     # Linting and Docs (no python3 version of fabric)
@@ -96,6 +98,7 @@ script:
     if [[ "$GROUP" == examples ]]; then 
       echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html";
     fi; 
+    ps -ef;
     echo "********** END POOR MAN LOGGER ************"
 
 after_success: |
