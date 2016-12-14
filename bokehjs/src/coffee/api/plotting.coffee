@@ -1,11 +1,11 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 import * as sprintf from "sprintf"
 import {Document} from "../document"
 import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {startsWith} from "../core/util/string"
+import {div} from "../core/util/dom"
 
 _default_tooltips = [
   ["index", "$index"],
@@ -402,10 +402,23 @@ export show = (obj, target) ->
     for _obj in obj
       doc.add_root(_obj)
 
-  div = $("<div class=#{BOKEH_ROOT}>")
-  $(target ? "body").append(div)
+  if not target?
+    element = document.body
+  else if _.isString(target)
+    element = document.querySelector(target)
+    if not element?
+      throw new Error("'#{target}' selector didn't match any elements")
+  else if target instanceof HTMLElement
+    element = target
+  else if $? and target instanceof $
+    element = target[0]
+  else
+    throw new Error("target should be HTMLElement, string selector, $ or null")
 
-  views = embed.add_document_standalone(doc, div)
+  root = div({class: BOKEH_ROOT})
+  element.appendChild(root)
+
+  views = embed.add_document_standalone(doc, root)
 
   if not multiple
     return views[obj.id]
