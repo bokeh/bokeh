@@ -57,7 +57,7 @@ test:
     - pandas
     - pytest >=3.0.2
     - pytest-cov >=1.8.1     [unix]
-    - pytest-selenium==1.6.0
+    - pytest-selenium==1.6.0 [unix]
     - selenium==2.53.6
     - pytest-xdist
     - pytest-rerunfailures
