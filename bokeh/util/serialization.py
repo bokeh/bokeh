@@ -166,7 +166,7 @@ def decode_base64_dict(data):
     Decode base64 encoded data into numpy array.
     """
     b64 = base64.b64decode(data['data'])
-    array = np.fromstring(base64.b64decode(b64), dtype=data['dtype'])
+    array = np.fromstring(b64, dtype=data['dtype'])
     if len(data['shape']) > 1:
         array = array.reshape(data['shape'])
     return array
