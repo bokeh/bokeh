@@ -1,0 +1,245 @@
+@buttonHeight: 28px;
+@buttonWidth: 30px;
+@buttonColor: lightgray;
+
+.bk-button-bar{
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 2px;
+}
+
+.bk-toolbar-button {
+  &:focus {
+    outline: none;
+  }
+
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
+
+.bk-button-bar-list {
+  margin: 0;
+  padding: 0;
+  .bk-toolbar-button {
+    list-style-type: none;
+    position: relative;
+    float: left;
+
+    display: block;
+  }
+}
+
+.bk-button-bar-list .bk-toolbar-button {
+  width: @buttonWidth;
+  height: @buttonHeight;
+  padding: 5px;
+  border: none;
+  background-color: transparent;
+}
+
+.bk-button-bar-list .bk-toolbar-button .bk-btn-icon {
+  display: block;
+  position: relative;
+  height: 16px;
+  margin: 0;
+  border: none;
+  background-size: contain;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.bk-button-bar-list .bk-toolbar-button .bk-tip {
+  display: none;
+}
+
+.bk-button-bar-list .bk-toolbar-button .bk-tip:before {
+  display: none;
+  content: " ";
+  position: relative;
+  width: 100%;
+  background-position: top left;
+  background-repeat: no-repeat;
+}
+
+.bk-button-bar-list .bk-toolbar-button:hover .bk-tip:before {
+  display: inline-block;  // Can this be merged with above
+}
+
+.bk-button-bar-list .bk-toolbar-button:hover {
+  background: transparent;
+}
+
+
+.bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
+  z-index: 100;
+  white-space: nowrap;
+  background-color: #fff;
+  opacity: 0.95;
+  border: #e5e5e5 solid 1px;
+  display: inline-block;
+  position: relative;
+  float: left;
+  padding: 5px 10px;
+  &:before {
+    display: block !important;
+  }
+}
+
+.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
+  top: 10px;
+  left: -10px;
+}
+
+.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
+  top: -50px;
+  left: -10px;
+}
+
+.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
+   top: -22px;
+   left: 26px;
+}
+
+.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button:hover .bk-tip {
+   float: right;
+   top: -22px;
+   left: -26px;
+}
+
+.bk-toolbar-above .bk-button-bar-list .bk-toolbar-button.bk-active {
+  border-bottom: 2px solid #26aae1;
+}
+
+.bk-toolbar-below .bk-button-bar-list .bk-toolbar-button.bk-active {
+  border-top: 2px solid #26aae1;
+}
+
+.bk-toolbar-right .bk-button-bar-list .bk-toolbar-button.bk-active {
+  border-left: 2px solid #26aae1;
+}
+
+.bk-toolbar-left .bk-button-bar-list .bk-toolbar-button.bk-active {
+  border-right: 2px solid #26aae1;
+}
+
+
+.bk-button-bar > .bk-toolbar-button.bk-active {
+  border-bottom: 1px solid #26aae1;
+}
+
+// If the toolbar is not sticky - add the line
+.bk-toolbar-above.bk-toolbar-not-sticky {
+  border-bottom: 1px solid #e5e5e5;
+}
+.bk-toolbar-below.bk-toolbar-not-sticky {
+  border-top: 1px solid #e5e5e5;
+}
+.bk-toolbar-left.bk-toolbar-not-sticky {
+  border-right: 1px solid #e5e5e5;
+}
+.bk-toolbar-right.bk-toolbar-not-sticky {
+  border-left: 1px solid #e5e5e5;
+}
+
+// Small visual tweaks to button bar offset (not sure we need these)
+.bk-toolbar-above  .bk-button-bar {
+  top: 2px;
+}
+.bk-toolbar-right .bk-button-bar {
+  left: 1px;
+}
+
+.bk-toolbar-above,
+.bk-toolbar-below {
+  margin: 0;
+  position: absolute;
+  right: 0px;
+  .bk-logo {
+    float: right;
+    margin-right: -1px;
+  }
+  .bk-button-bar {
+    padding: 0;
+    float: right;
+    position: relative;
+    .bk-button-bar-list {
+      float: left;
+      &[type='help'] {
+        .bk-toolbar-button {
+          .bk-tip {
+             float: right;
+          }
+        }
+      }
+    }
+  }
+}
+
+.bk-toolbar-left,
+.bk-toolbar-right {
+  margin: 0;
+  position: absolute;
+  top: 0px;
+  .bk-logo  {
+    margin-top: -1px;
+  }
+  .bk-button-bar {
+    position: relative;
+    &:before, &:after {
+      content: " ";
+      display: block;
+      height: 0;
+      clear: both;
+    }
+    .bk-button-bar-list {
+      .bk-toolbar-button {
+        clear: both;
+      }
+    }
+  }
+}
+
+
+// Positioning tweaks - can't seem to get solver to do it right
+.bk-toolbar-box .bk-toolbar-below {
+  top: -1px;
+}
+.bk-toolbar-box .bk-toolbar-right {
+  top: -1px;
+  right: 0px;
+}
+
+.bk-button-bar-list:empty {
+  display: none;
+}
+
+.bk-toolbar-above, .bk-toolbar-below {
+  .bk-button-bar-list + .bk-button-bar-list {
+    &:before {
+      content: " ";
+      float: left;
+      background-color: @buttonColor;
+      height: 10px;
+      width: 1px;
+      margin: 10px 3px 0px 3px;
+    }
+  }
+}
+
+.bk-toolbar-left, .bk-toolbar-right {
+  .bk-button-bar-list + .bk-button-bar-list {
+    &:before {
+      content: " ";
+      float: none;
+      clear: both;
+      display: block;
+      background-color: @buttonColor;
+      height: 1px;
+      width: 10px;
+      margin: 3px 0 3px 10px;
+    }
+  }
+}

@@ -1,5 +1,5 @@
-_ = require "underscore"
-AdaptiveTicker = require "./adaptive_ticker"
+import * as _ from "underscore"
+import {AdaptiveTicker} from "./adaptive_ticker"
 
 range = (start, stop, step) ->
   if _.isUndefined(stop) # one param defined
@@ -15,7 +15,7 @@ range = (start, stop, step) ->
     i += step
   return result
 
-class LogTicker extends AdaptiveTicker.Model
+export class LogTicker extends AdaptiveTicker
   type: 'LogTicker'
 
   @override {
@@ -24,7 +24,7 @@ class LogTicker extends AdaptiveTicker.Model
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
 
-    num_minor_ticks = @get('num_minor_ticks')
+    num_minor_ticks = @num_minor_ticks
     minor_ticks = []
 
     if data_low <= 0 #Hotfix
@@ -33,7 +33,7 @@ class LogTicker extends AdaptiveTicker.Model
     if data_low > data_high
       [data_low, data_high] = [data_high, data_low]
 
-    base = @get('base')
+    base = @base
 
     log_low = Math.log(data_low) / Math.log(base)
     log_high = Math.log(data_high) / Math.log(base)
@@ -84,6 +84,3 @@ class LogTicker extends AdaptiveTicker.Model
       "major": ticks
       "minor": minor_ticks
     }
-
-module.exports =
-  Model: LogTicker

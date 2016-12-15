@@ -25,8 +25,9 @@ from collections import defaultdict
 import numpy as np
 
 from ..core.enums import enumeration
+from ..core.properties import value
 from ..models import (
-    CategoricalAxis, DatetimeAxis, glyphs, Grid, Legend, LinearAxis, markers,
+    CategoricalAxis, DatetimeAxis, glyphs, Grid, Legend, LegendItem, LinearAxis, markers,
     Plot, HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
@@ -228,7 +229,7 @@ class Chart(Plot):
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))
 
-    def add_legend(self, legends):
+    def add_legend(self, chart_legends):
         """Add the legend to your plot, and the plot to a new Document.
 
         It also add the Document to a new Session in the case of server output.
@@ -245,8 +246,11 @@ class Chart(Plot):
         else:
             location = self._legend
 
+        items = []
+        for legend in chart_legends:
+            items.append(LegendItem(label=value(legend[0]), renderers=legend[1]))
         if location:
-            legend = Legend(location=location, legends=legends)
+            legend = Legend(location=location, items=items)
             self.add_layout(legend)
 
     def make_axis(self, dim, location, scale, label):

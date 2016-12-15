@@ -25,20 +25,12 @@ functionality.
 .. automodule:: bokeh.util.dependencies
   :members:
 
-.. _bokeh.util.deprecate:
+.. _bokeh.util.deprecation:
 
-``bokeh.util.deprecate``
-------------------------
+``bokeh.util.deprecation``
+--------------------------
 
-.. automodule:: bokeh.util.deprecate
-
-.. _bokeh.util.functions:
-
-``bokeh.util.functions``
-------------------------
-
-.. automodule:: bokeh.util.functions
-  :members:
+.. automodule:: bokeh.util.deprecation
 
 .. _bokeh.util.future:
 
@@ -62,6 +54,14 @@ functionality.
 -----------------------
 
 .. automodule:: bokeh.util.notebook
+  :members:
+
+.. _bokeh.util.options:
+
+``bokeh.util.options``
+----------------------
+
+.. automodule:: bokeh.util.options
   :members:
 
 .. _bokeh.util.paths:

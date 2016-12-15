@@ -19,11 +19,6 @@ def selenium(selenium):
     return selenium
 
 
-@pytest.fixture(scope='session')
-def base_url(request, file_server):
-    return file_server.where_is('')
-
-
 @pytest.fixture
 def output_file_url(request, file_server):
 
@@ -67,6 +62,7 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture()
 def test_browser():
     # If version is None, latest will be used
+    # Latest is Firefox 45 as of Dec 13, 2016
     return {"browserName": "firefox", "platform": "Linux", "version": None}
 
 

@@ -60,9 +60,4 @@ Notes:
  - you may want to specify the docs_version by using environment variable
    `BOKEH_DOCS_VERSION` (http://bokeh.pydata.org/en/latest/docs/dev_guide/setup.html#bokeh-docs-version)
 
-objects.graffle
-===============
-The objects.graffle file was created using the commercial OmniGraffle package. It 
-was exported as a PNG image in _images/objects.png.
-
 

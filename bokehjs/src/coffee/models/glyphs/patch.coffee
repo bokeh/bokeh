@@ -1,8 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
-class PatchView extends Glyph.View
+export class PatchView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -46,17 +46,13 @@ class PatchView extends Glyph.View
       ctx.closePath()
       ctx.stroke()
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Patch extends Glyph.Model
+export class Patch extends Glyph
   default_view: PatchView
 
   type: 'Patch'
 
   @coords [['x', 'y']]
   @mixins ['line', 'fill']
-
-module.exports =
-  Model: Patch
-  View: PatchView

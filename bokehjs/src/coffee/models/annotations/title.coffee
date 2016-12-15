@@ -1,12 +1,12 @@
-TextAnnotation = require "./text_annotation"
-p = require "../../core/properties"
-{Visuals} = require "../renderers/renderer"
+import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import * as p from "../../core/properties"
+import * as Visuals from "../../core/visuals"
 
-class TitleView extends TextAnnotation.View
+export class TitleView extends TextAnnotationView
 
   initialize: (options) ->
     super(options)
-    @visuals.text = new Visuals.text({obj: @model, prefix: ""})
+    @visuals.text = new Visuals.Text(@model)
 
     # Use side_panel heuristics to determine unset text props
     ctx = @plot_view.canvas_view.ctx
@@ -21,15 +21,15 @@ class TitleView extends TextAnnotation.View
     switch @model.panel.side
       when 'left'
         vx = 0
-        vy = @_get_text_location(@mget('align'), @frame.get('v_range')) + @mget('offset')
+        vy = @_get_text_location(@model.align, @frame.v_range) + @model.offset
       when 'right'
-        vx = @canvas.get('right') - 1 #fudge factor due to error in text height measurement
-        vy = @canvas.get('height') - @_get_text_location(@mget('align'), @frame.get('v_range')) - @mget('offset')
+        vx = @canvas.right - 1 #fudge factor due to error in text height measurement
+        vy = @canvas.height - @_get_text_location(@model.align, @frame.v_range) - @model.offset
       when 'above'
-        vx = @_get_text_location(@mget('align'), @frame.get('h_range')) + @mget('offset')
-        vy = @canvas.get('top') - 10 # Corresponds to the +10 added in get_size
+        vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
+        vy = @canvas.top - 10 # Corresponds to the +10 added in get_size
       when 'below'
-        vx = @_get_text_location(@mget('align'), @frame.get('h_range')) + @mget('offset')
+        vx = @_get_text_location(@model.align, @frame.h_range) + @model.offset
         vy = 0
 
     sx = @canvas.vx_to_sx(vx)
@@ -39,11 +39,11 @@ class TitleView extends TextAnnotation.View
   _get_text_location: (alignment, range) ->
     switch alignment
       when 'left'
-        text_location = range.get('start')
+        text_location = range.start
       when 'center'
-        text_location = (range.get('end') + range.get('start'))/2
+        text_location = (range.end + range.start)/2
       when 'right'
-        text_location = range.get('end')
+        text_location = range.end
     return text_location
 
   render: () ->
@@ -68,7 +68,7 @@ class TitleView extends TextAnnotation.View
       @visuals.text.set_value(ctx)
       return ctx.measureText(text).ascent + 10
 
-class Title extends TextAnnotation.Model
+export class Title extends TextAnnotation
   default_view: TitleView
 
   type: 'Title'
@@ -97,7 +97,3 @@ class Title extends TextAnnotation.Model
     text_align:    [ p.TextAlign,     'left'  ]
     text_baseline: [ p.TextBaseline, 'bottom' ]
   }
-
-module.exports =
-  Model: Title
-  View: TitleView

@@ -467,7 +467,7 @@ of interest to look out for in this example:
 Bokeh Plot Server
 =================
 
-Bokeh also comes with an optional server component, the ``bokeh-server``. It
+Bokeh also comes with an optional server component, the Bokeh Server. It
 possible to create many interesting and interactive visualizations without
 using the Bokeh server, as we have seen above. However, the Bokeh server
 affords many novel and powerful capabilities, including:
@@ -564,7 +564,6 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 

@@ -1,16 +1,15 @@
-_ = require "underscore"
-$2 = require "jquery-ui/slider"
+import * as _ from "underscore"
+import "jquery-ui/slider"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-InputWidget = require "./input_widget"
-Widget = require "./widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
-slidertemplate = require "./slidertemplate"
+import slidertemplate from "./slidertemplate"
 
 
-class SliderView extends InputWidget.View
+export class SliderView extends InputWidgetView
   tagName: "div"
   template: slidertemplate
 
@@ -21,25 +20,25 @@ class SliderView extends InputWidget.View
     html = @template(@model.attributes)
     @$el.html(html)
     @callbackWrapper = null
-    if @mget('callback_policy') == 'continuous'
+    if @model.callback_policy == 'continuous'
       @callbackWrapper = () ->
-        @mget('callback')?.execute(@model)
-    if @mget('callback_policy') == 'throttle' and @mget('callback')
+        @model.callback?.execute(@model)
+    if @model.callback_policy == 'throttle' and @model.callback
       @callbackWrapper = _.throttle(() ->
-        @mget('callback')?.execute(@model)
-      , @mget('callback_throttle'))
+        @model.callback?.execute(@model)
+      , @model.callback_throttle)
     @render()
 
   render: () ->
     super()
-    max = @mget('end')
-    min = @mget('start')
-    step = @mget('step') or ((max - min)/50)
+    max = @model.end
+    min = @model.start
+    step = @model.step or ((max - min)/50)
     logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
     opts = {
-      orientation: @mget('orientation'),
+      orientation: @model.orientation,
       animate: "fast",
-      value: @mget('value'),
+      value: @model.value,
       min: min,
       max: max,
       step: step,
@@ -47,22 +46,24 @@ class SliderView extends InputWidget.View
       slide: @slide
     }
     @$el.find('.slider').slider(opts)
-    @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
-    @$el.find('.bk-slider-parent').height(@mget('height'))
+    if @model.title?
+      @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('value') )
+    @$el.find('.bk-slider-parent').height(@model.height)
     return @
 
   slidestop: (event, ui) =>
-    if @mget('callback_policy') == 'mouseup' or @mget('callback_policy') == 'throttle'
-      @mget('callback')?.execute(@model)
+    if @model.callback_policy == 'mouseup' or @model.callback_policy == 'throttle'
+      @model.callback?.execute(@model)
 
   slide: (event, ui) =>
     value = ui.value
     logger.debug("slide value = #{value}")
-    @$( "##{ @mget('id') }" ).val( ui.value )
-    @mset('value', value)
+    if @model.title?
+      @$el.find( "##{ @model.id }" ).val( ui.value )
+    @model.value = value
     if @callbackWrapper then @callbackWrapper()
 
-class Slider extends InputWidget.Model
+export class Slider extends InputWidget
   type: "Slider"
   default_view: SliderView
 
@@ -75,7 +76,3 @@ class Slider extends InputWidget.Model
       callback_throttle: [ p.Number,      200          ]
       callback_policy:   [ p.String,      "throttle"   ] # TODO (bev) enum
     }
-
-module.exports =
-  Model: Slider
-  View: SliderView

@@ -14,10 +14,10 @@ from ..core.validation.warnings import (
     BOTH_CHILD_AND_ROOT,
 )
 from ..core.enums import SizingMode
-from ..core.properties import abstract, Bool, Enum, Int, Instance, List
+from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Seq, String
 from ..embed import notebook_div
 from ..model import Model
-from ..util.deprecate import deprecated
+from ..util.deprecation import deprecated
 
 
 @abstract
@@ -66,15 +66,15 @@ class LayoutDOM(Model):
 
     """)
 
-    # TODO: (mp) Not yet, because it breaks plotting/notebook examples.
-    # Rename to _repr_html_ if we decide to enable this by default.
-    def __repr_html__(self):
-        return notebook_div(self)
+    css_classes = Seq(String, help="""
+    A list of css class names to add to this DOM element. Note: the class names are
+    simply added as-is, no other guarantees are provided.
+    """)
 
     @property
     def html(self):
         from IPython.core.display import HTML
-        return HTML(self.__repr_html__())
+        return HTML(notebook_div(self))
 
 
 class Spacer(LayoutDOM):
@@ -220,13 +220,13 @@ def VBox(*args, **kwargs):
 
 # ---- DEPRECATIONS
 
-@deprecated("Bokeh 0.12.0", "bokeh.layouts.gridplot")
 def GridPlot(*args, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.models.layout.GridPlot', 'bokeh.layouts.gridplot')
     from bokeh.layouts import gridplot
     return gridplot(*args, **kwargs)
 
-@deprecated("Bokeh 0.12.0", "bokeh.models.layouts.WidgetBox")
 def VBoxForm(*args, **kwargs):
+    deprecated((0, 12, 0), 'bokeh.models.layout.VBoxForm', 'bokeh.models.layouts.WidgetBox')
     from bokeh.models.widgets.widget import Widget
 
     if len(args) > 0 and "children" in kwargs:

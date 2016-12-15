@@ -1,50 +1,53 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-TextAnnotation = require "./text_annotation"
-ColumnDataSource = require "../sources/column_data_source"
-p = require "../../core/properties"
+import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {ColumnDataSource} from "../sources/column_data_source"
+import * as p from "../../core/properties"
 
-class LabelSetView extends TextAnnotation.View
+export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
     super(options)
 
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-    @set_data(@mget('source'))
-    @set_visuals(@mget('source'))
+    @set_data(@model.source)
 
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       for i in [0...@_text.length]
         @title_div = $("<div>").addClass('bk-annotation-child').hide()
         @title_div.appendTo(@$el)
 
   bind_bokeh_events: () ->
-    if @mget('render_mode') == 'css'
+    if @model.render_mode == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'change', () ->
-        @set_data(@mget('source'))
+        @set_data(@model.source)
         @render())
-      @listenTo(@mget('source'), 'change', () ->
-        @set_data(@mget('source'))
+      @listenTo(@model.source, 'change', () ->
+        @set_data(@model.source)
         @render())
     else
       @listenTo(@model, 'change', () ->
-        @set_data(@mget('source'))
+        @set_data(@model.source)
         @plot_view.request_render())
-      @listenTo(@mget('source'), 'change', () ->
-        @set_data(@mget('source'))
+      @listenTo(@model.source, 'change', () ->
+        @set_data(@model.source)
         @plot_view.request_render())
 
+  set_data: (source) ->
+    super(source)
+    @visuals.warm_cache(source)
+
   _map_data: () ->
-    if @mget('x_units') == "data"
+    if @model.x_units == "data"
       vx = @xmapper.v_map_to_target(@_x)
     else
       vx = @_x.slice(0) # make deep copy to not mutate
     sx = @canvas.v_vx_to_sx(vx)
 
-    if @mget('y_units') == "data"
+    if @model.y_units == "data"
       vy = @ymapper.v_map_to_target(@_y)
     else
       vy = @_y.slice(0) # make deep copy to not mutate
@@ -57,7 +60,7 @@ class LabelSetView extends TextAnnotation.View
 
     [sx, sy] = @_map_data()
 
-    if @mget('render_mode') == 'canvas'
+    if @model.render_mode == 'canvas'
       for i in [0...@_text.length]
         @_v_canvas_text(ctx, i, @_text[i], sx[i] + @_x_offset[i], sy[i] - @_y_offset[i], @_angle[i])
     else
@@ -151,33 +154,29 @@ class LabelSetView extends TextAnnotation.View
                    .css(div_style)
                    .show()
 
-class LabelSet extends TextAnnotation.Model
+export class LabelSet extends TextAnnotation
   default_view: LabelSetView
 
   type: 'Label'
 
   @mixins ['text', 'line:border_', 'fill:background_']
 
-  @coords [['x', 'y']]
-
   @define {
-      x_units:      [ p.SpatialUnits, 'data'            ]
-      y_units:      [ p.SpatialUnits, 'data'            ]
-      text:         [ p.StringSpec,   { field: "text" } ]
-      angle:        [ p.AngleSpec,    0                 ]
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      source:       [ p.Instance,     () -> new ColumnDataSource.Model()  ]
-      x_range_name: [ p.String,      'default'          ]
-      y_range_name: [ p.String,      'default'          ]
-      render_mode:  [ p.RenderMode,  'canvas'           ]
-    }
+    x:            [ p.NumberSpec                      ]
+    y:            [ p.NumberSpec                      ]
+    x_units:      [ p.SpatialUnits, 'data'            ]
+    y_units:      [ p.SpatialUnits, 'data'            ]
+    text:         [ p.StringSpec,   { field: "text" } ]
+    angle:        [ p.AngleSpec,    0                 ]
+    x_offset:     [ p.NumberSpec,   { value: 0 }      ]
+    y_offset:     [ p.NumberSpec,   { value: 0 }      ]
+    source:       [ p.Instance,     () -> new ColumnDataSource()  ]
+    x_range_name: [ p.String,      'default'          ]
+    y_range_name: [ p.String,      'default'          ]
+    render_mode:  [ p.RenderMode,  'canvas'           ]
+  }
 
   @override {
     background_fill_color: null
     border_line_color: null
   }
-
-module.exports =
-  Model: LabelSet
-  View: LabelSetView

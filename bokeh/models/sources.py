@@ -1,12 +1,13 @@
 from __future__ import absolute_import
 
-from ..core import validation
-from ..core.validation.errors import COLUMN_LENGTHS
+import warnings
+
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
 from ..model import Model
 from ..util.dependencies import import_optional
-from ..util.deprecate import deprecated
+from ..util.deprecation import deprecated
+from ..util.warnings import BokehUserWarning
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
 
@@ -63,10 +64,11 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Any, help="""
+    data = Dict(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
-    """)
+    """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
+                 lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
 
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
@@ -192,7 +194,6 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
     def push_notebook(self):
         """ Update a data source for a plot in a Jupyter notebook.
 
@@ -209,15 +210,9 @@ class ColumnDataSource(DataSource):
             None
 
         """
+        deprecated((0, 11, 0), 'ColumnDataSource.push_notebook()', 'bokeh.io.push_notebook()')
         from bokeh.io import push_notebook
         push_notebook()
-
-    @validation.error(COLUMN_LENGTHS)
-    def _check_column_lengths(self):
-        lengths = set(len(x) for x in self.data.values())
-        if len(lengths) > 1:
-            return str(self)
-
 
     def stream(self, new_data, rollover=None):
         ''' Efficiently update data source columns with new append-only data.

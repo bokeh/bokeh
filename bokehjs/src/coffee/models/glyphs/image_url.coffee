@@ -1,11 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class ImageURLView extends Glyph.View
-
+export class ImageURLView extends GlyphView
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change:global_alpha', @renderer.request_render)
@@ -16,8 +15,8 @@ class ImageURLView extends Glyph.View
     if not @image? or @image.length != @_url.length
       @image = (null for img in @_url)
 
-    retry_attempts = @mget('retry_attempts')
-    retry_timeout = @mget('retry_timeout')
+    retry_attempts = @model.retry_attempts
+    retry_timeout = @model.retry_timeout
 
     @retries = (retry_attempts for img in @_url)
 
@@ -44,16 +43,22 @@ class ImageURLView extends Glyph.View
     # XXX: remove this when `null` handling is improved.
     ws = (if @_w? then @_w else NaN for x in @_x)
     hs = (if @_h? then @_h else NaN for x in @_x)
-    @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @mget('dilate'))
+
+    switch @model.properties.w.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, ws, 'edge', @model.dilate)
+      when "screen" then @sw = ws
+
+    switch @model.properties.h.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, hs, 'edge', @model.dilate)
+      when "screen" then @sh = hs
 
   _render: (ctx, indices, {_url, image, sx, sy, sw, sh, _angle}) ->
 
     # TODO (bev): take actual border width into account when clipping
     frame = @renderer.plot_view.frame
     ctx.rect(
-      frame.get('left')+1, frame.get('bottom')+1,
-      frame.get('width')-2, frame.get('height')-2,
+      frame.left+1, frame.bottom+1,
+      frame.width-2, frame.height-2,
     )
     ctx.clip()
 
@@ -71,26 +76,26 @@ class ImageURLView extends Glyph.View
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
-      when "top_left"      then [sx       , sy       ]
-      when "top_center"    then [sx - sw/2, sy       ]
-      when "top_right"     then [sx - sw  , sy       ]
-      when "right_center"  then [sx - sw  , sy - sh/2]
-      when "bottom_right"  then [sx - sw  , sy - sh  ]
-      when "bottom_center" then [sx - sw/2, sy - sh  ]
-      when "bottom_left"   then [sx       , sy - sh  ]
-      when "left_center"   then [sx       , sy - sh/2]
-      when "center"        then [sx - sw/2, sy - sh/2]
+      when 'top_left'      then [sx       , sy       ]
+      when 'top_center'    then [sx - sw/2, sy       ]
+      when 'top_right'     then [sx - sw  , sy       ]
+      when 'center_right'  then [sx - sw  , sy - sh/2]
+      when 'bottom_right'  then [sx - sw  , sy - sh  ]
+      when 'bottom_center' then [sx - sw/2, sy - sh  ]
+      when 'bottom_left'   then [sx       , sy - sh  ]
+      when 'center_left'   then [sx       , sy - sh/2]
+      when 'center'        then [sx - sw/2, sy - sh/2]
 
   _render_image: (ctx, i, image, sx, sy, sw, sh, angle) ->
     if isNaN(sw[i]) then sw[i] = image.width
     if isNaN(sh[i]) then sh[i] = image.height
 
-    anchor = @mget('anchor')
+    anchor = @model.anchor
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
     ctx.save()
 
-    ctx.globalAlpha = @mget("global_alpha")
+    ctx.globalAlpha = @model.global_alpha
 
     if angle[i]
       ctx.translate(sx, sy)
@@ -102,7 +107,7 @@ class ImageURLView extends Glyph.View
       ctx.drawImage(image, sx, sy, sw[i], sh[i])
     ctx.restore()
 
-class ImageURL extends Glyph.Model
+export class ImageURL extends Glyph
   default_view: ImageURLView
 
   type: 'ImageURL'
@@ -114,13 +119,9 @@ class ImageURL extends Glyph.Model
       anchor:         [ p.Anchor,    'top_left' ]
       global_alpha:   [ p.Number,    1.0        ]
       angle:          [ p.AngleSpec, 0          ]
-      w:              [ p.NumberSpec            ]
-      h:              [ p.NumberSpec            ]
+      w:              [ p.DistanceSpec          ]
+      h:              [ p.DistanceSpec          ]
       dilate:         [ p.Bool,      false      ]
       retry_attempts: [ p.Number,    0          ]
       retry_timeout:  [ p.Number,    0          ]
   }
-
-module.exports =
-  Model: ImageURL
-  View: ImageURLView

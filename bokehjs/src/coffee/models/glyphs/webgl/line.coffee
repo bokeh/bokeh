@@ -1,7 +1,7 @@
-gloo2 = require "gloo2"
-{logger} = require "../../../core/logging"
-{BaseGLGlyph, line_width, attach_float, attach_color, color2rgba} = require "./base"
-
+import * as gloo2 from "gloo2"
+import {logger} from "../../../core/logging"
+import {color2rgba} from "../../../core/util/color"
+import {BaseGLGlyph, line_width, attach_float, attach_color} from "./base"
 
 class DashAtlas
 
@@ -69,7 +69,7 @@ class DashAtlas
     return [Z, period]
 
 
-class LineGLGlyph extends BaseGLGlyph
+export class LineGLGlyph extends BaseGLGlyph
 
     GLYPH: 'line'
 
@@ -905,8 +905,3 @@ class LineGLGlyph extends BaseGLGlyph
       @cumsum = cumsum  # L[-1] in Nico's code
       @vbo_segment.set_size(@V_segment.length*4)
       @vbo_segment.set_data(0, @V_segment)
-
-
-module.exports = {
-  LineGLGlyph: LineGLGlyph
-}

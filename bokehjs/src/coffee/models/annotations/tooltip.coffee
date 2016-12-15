@@ -1,11 +1,11 @@
-$ = require "jquery"
-_ = require "underscore"
+import * as $ from "jquery"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {Annotation, AnnotationView} from "./annotation"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class TooltipView extends Annotation.View
+export class TooltipView extends AnnotationView
   className: "bk-tooltip"
 
   initialize: (options) ->
@@ -26,32 +26,32 @@ class TooltipView extends Annotation.View
     @$el.empty()
     @$el.hide()
 
-    @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
+    @$el.toggleClass("bk-tooltip-custom", @model.custom)
 
     if _.isEmpty(data)
       return
 
     for val in data
       [vx, vy, content] = val
-      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
+      if @model.inner_only and not @plot_view.frame.contains(vx, vy)
           continue
       tip = $('<div />').appendTo(@$el)
       tip.append(content)
-    sx = @plot_view.mget('canvas').vx_to_sx(vx)
-    sy = @plot_view.mget('canvas').vy_to_sy(vy)
+    sx = @plot_view.model.canvas.vx_to_sx(vx)
+    sy = @plot_view.model.canvas.vy_to_sy(vy)
 
     attachment = @model.attachment
     switch attachment
       when "horizontal"
-        width = @plot_view.frame.get('width')
-        left = @plot_view.frame.get('left')
+        width = @plot_view.frame.width
+        left = @plot_view.frame.left
         if vx - left < width/2
           side = 'right'
         else
           side = 'left'
       when "vertical"
-        height = @plot_view.frame.get('height')
-        bottom = @plot_view.frame.get('bottom')
+        height = @plot_view.frame.height
+        bottom = @plot_view.frame.bottom
         if vy - bottom < height/2
           side = 'below'
         else
@@ -91,7 +91,7 @@ class TooltipView extends Annotation.View
       @$el.css({top: top, left: left})
       @$el.show()
 
-class Tooltip extends Annotation.Model
+export class Tooltip extends Annotation
   default_view: TooltipView
 
   type: 'Tooltip'
@@ -121,7 +121,3 @@ class Tooltip extends Annotation.Model
 
     # TODO (bev) not sure why this is now necessary
     @trigger('change:data')
-
-module.exports =
-  Model: Tooltip
-  View: TooltipView

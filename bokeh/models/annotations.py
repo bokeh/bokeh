@@ -4,20 +4,33 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
+from six import string_types
+
 from ..core.enums import (
     Orientation, LegendLocation, SpatialUnits, Dimension, RenderMode,
-    AngleUnits, TextAlign, FontStyle
+    AngleUnits, TextAlign, FontStyle, DeprecatedLegendLocation, accept_left_right_center,
 )
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract, value
 from ..core.properties import (
-    Bool, Int, String, Enum, Instance, List, Dict, Tuple,
+    Bool, Int, String, Enum, Instance, List, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq, StringSpec,
     AngleSpec, Angle, FontSizeSpec, ColorSpec
 )
+from ..core import validation
+from ..core.validation.errors import (
+    BAD_COLUMN_NAME,
+    NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
+)
+from ..model import Model
+from ..util.deprecation import deprecated
 
+from .formatters import TickFormatter, BasicTickFormatter
+from .mappers import ContinuousColorMapper
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
+from .tickers import Ticker, BasicTicker
+
 
 @abstract
 class Annotation(Renderer):
@@ -31,24 +44,64 @@ class Annotation(Renderer):
 
     level = Override(default="annotation")
 
+
 @abstract
 class TextAnnotation(Annotation):
     """ Base class for annotation models.
 
     """
 
+
+class LegendItem(Model):
+
+    def __init__(self, *args, **kwargs):
+        super(LegendItem, self).__init__(*args, **kwargs)
+        if isinstance(self.label, string_types):
+            # Allow convenience of setting label as a string
+            self.label = value(self.label)
+
+    label = StringSpec(default=None, help="""
+    A label for this legend. Can be a string, or a column of a
+    ColumnDataSource. If ``label`` is a field, then it must
+    be in the renderers' data_source.
+    """)
+
+    renderers = List(Instance(GlyphRenderer), help="""
+    A list of the glyph renderers to draw in the legend. If ``label`` is a field,
+    then all data_sources of renderers must be the same.
+    """)
+
+    @validation.error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
+    def _check_data_sources_on_renderers(self):
+        if self.label and 'field' in self.label:
+            if len({r.data_source for r in self.renderers}) != 1:
+                return str(self)
+
+    @validation.error(BAD_COLUMN_NAME)
+    def _check_field_label_on_data_source(self):
+        if self.label and 'field' in self.label:
+            if len(self.renderers) < 1:
+                return str(self)
+            source = self.renderers[0].data_source
+            if self.label.get('field') not in source.column_names:
+                return str(self)
+
+
 class Legend(Annotation):
     """ Render informational legends for a plot.
 
     """
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float),
-        default="top_right", help="""
+    __deprecated_attributes__ = (
+        'legends', 'legend_margin', 'legend_padding', 'legend_spacing'
+    )
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
     ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
-    """)
+    """).accepts(Enum(DeprecatedLegendLocation), accept_left_right_center)
 
     orientation = Enum(Orientation, default="vertical", help="""
     Whether the legend entries should be placed vertically or horizontally
@@ -77,7 +130,7 @@ class Legend(Annotation):
 
     label_text_baseline = Override(default='middle')
 
-    label_text_font_size = Override(default={ 'value' : '10pt' })
+    label_text_font_size = Override(default={'value': '10pt'})
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
@@ -99,33 +152,239 @@ class Legend(Annotation):
     The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
-    legend_margin = Int(10, help="""
+    margin = Int(10, help="""
     Amount of margin around the legend.
     """)
 
-    legend_padding = Int(10, help="""
+    padding = Int(10, help="""
     Amount of padding around the contents of the legend.
     """)
 
-    legend_spacing = Int(3, help="""
+    spacing = Int(3, help="""
     Amount of spacing between legend entries.
     """)
 
-    legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""
-    A list of tuples that maps text labels to the legend to corresponding
-    renderers that should draw sample representations for those labels.
+    items = List(Instance(LegendItem), help="""
+    A list of legend items to be rendered in the legend.
 
-    .. note::
-        The ``legends`` attribute may also be set from a dict or OrderedDict.
-        If a dict is used, the order of the legend entries is unspecified.
+    This can be specified explicitly, for instance:
 
-    """).accepts(
-        Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
-    )
+    .. code-block:: python
+
+        legend = Legend(items=[
+            LegendItem(label="sin(x)", renderers=[r0, r1]),
+            LegendItem(label="2*sin(x)", renderers=[r2]),
+            LegendItem(label="3*sin(x)", renderers=[r3, r4])
+        ])
+
+    But can also be given more compactly as a list of tuples:
+
+    .. code-block:: python
+
+        legend = Legend(items=[
+            ("sin(x)"   , [r0, r1]),
+            ("2*sin(x)" , [r2]),
+            ("3*sin(x)" , [r3, r4])
+        ])
+
+    where each tuple is of the form: *(label, renderers)*.
+
+    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
+
+    @property
+    def legends(self):
+        deprecated((0, 12, 3), 'legends', 'Legend.items')
+        return self.items
+
+    @legends.setter
+    def legends(self, legends):
+        deprecated((0, 12, 3), 'legends', 'Legend.items')
+        # Legends are [('label', [glyph_renderer_1, glyph_renderer_2]), ....]
+        # Or {'label', [glyph_renderer_1, glyph_renderer_2], ....}
+        if isinstance(legends, dict):
+            legends = list(legends.items())
+        items_list = []
+        for legend in legends:
+            item = LegendItem()
+            item.label = value(legend[0])
+            item.renderers = legend[1]
+            items_list.append(item)
+        self.items = items_list
+
+    @property
+    def legend_margin(self):
+        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
+        return self.margin
+
+    @legend_margin.setter
+    def legend_margin(self, margin):
+        deprecated((0, 12, 3), 'legend_margin', 'Legend.margin')
+        self.margin = margin
+
+    @property
+    def legend_padding(self):
+        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
+        return self.padding
+
+    @legend_padding.setter
+    def legend_padding(self, padding):
+        deprecated((0, 12, 3), 'legend_padding', 'Legend.padding')
+        self.padding = padding
+
+    @property
+    def legend_spacing(self):
+        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
+        return self.spacing
+
+    @legend_spacing.setter
+    def legend_spacing(self, spacing):
+        deprecated((0, 12, 3), 'legend_spacing', 'Legend.spacing')
+        self.spacing = spacing
+
+
+class ColorBar(Annotation):
+    """ Render a color bar based on a color mapper for a plot.
+    """
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
+    The location where the color bar should draw itself. It's either one of
+    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
+
+    .. warning::
+        If the color bar is placed in a side panel, the location will likely
+        have to be set to `(0,0)`.
+    """)
+
+    orientation = Enum(Orientation, default="vertical", help="""
+    Whether the color bar should be oriented vertically or horizontally.
+    """)
+
+    height = Either(Auto, Int(), help="""
+    The height (in pixels) that the color scale should occupy.
+    """)
+
+    width = Either(Auto, Int(), help="""
+    The width (in pixels) that the color scale should occupy.
+    """)
+
+    scale_alpha = Float(1.0, help="""
+    The alpha with which to render the color scale.
+    """)
+
+    title = String(help="""
+    The title text to render.
+    """)
+
+    title_props = Include(TextProps, help="""
+    The %s values for the title text.
+    """)
+
+    title_text_font_size = Override(default={'value': "10pt"})
+
+    title_text_font_style = Override(default="italic")
+
+    title_standoff = Int(2, help="""
+    The distance (in pixels) to separate the title from the color bar.
+    """)
+
+    ticker = Instance(Ticker, default=lambda: BasicTicker(), help="""
+    A Ticker to use for computing locations of axis components.
+    """)
+
+    formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
+    A TickFormatter to use for formatting the visual appearance of ticks.
+    """)
+
+    color_mapper = Instance(ContinuousColorMapper, help="""
+    A continuous color mapper containing a color palette to render.
+
+    .. warning::
+        If the `low` and `high` attributes of the ColorMapper aren't set, ticks
+        and tick labels won't be rendered.
+    """)
+
+    margin = Int(30, help="""
+    Amount of margin (in pixels) around the outside of the color bar.
+    """)
+
+    padding = Int(10, help="""
+    Amount of padding (in pixels) between the color scale and color bar border.
+    """)
+
+    major_label_props = Include(TextProps, help="""
+    The %s of the major tick labels.
+    """)
+
+    major_label_text_align = Override(default="center")
+
+    major_label_text_baseline = Override(default="middle")
+
+    major_label_text_font_size = Override(default={'value': "8pt"})
+
+    label_standoff = Int(5, help="""
+    The distance (in pixels) to separate the tick labels from the color bar.
+    """)
+
+    major_tick_props = Include(LineProps, help="""
+    The %s of the major ticks.
+    """)
+
+    major_tick_line_color = Override(default="#ffffff")
+
+    major_tick_in = Int(default=5, help="""
+    The distance (in pixels) that major ticks should extend into the
+    main plot area.
+    """)
+
+    major_tick_out = Int(default=0, help="""
+    The distance (in pixels) that major ticks should extend out of the
+    main plot area.
+    """)
+
+    minor_tick_props = Include(LineProps, help="""
+    The %s of the minor ticks.
+    """)
+
+    minor_tick_line_color = Override(default=None)
+
+    minor_tick_in = Int(default=0, help="""
+    The distance (in pixels) that minor ticks should extend into the
+    main plot area.
+    """)
+
+    minor_tick_out = Int(default=0, help="""
+    The distance (in pixels) that major ticks should extend out of the
+    main plot area.
+    """)
+
+    bar_props = Include(LineProps, help="""
+    The %s for the color scale bar outline.
+    """)
+
+    bar_line_color = Override(default=None)
+
+    border_props = Include(LineProps, help="""
+    The %s for the color bar border outline.
+    """)
+
+    border_line_color = Override(default=None)
+
+    background_props = Include(FillProps, help="""
+    The %s for the color bar background style.
+    """)
+
+    background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=0.95)
+
 
 def _DEFAULT_ARROW():
     from .arrow_heads import OpenHead
     return OpenHead()
+
 
 class Arrow(Annotation):
     """ Render an arrow as an annotation.

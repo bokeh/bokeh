@@ -1,10 +1,10 @@
-_ = require "underscore"
-Numbro = require "numbro"
+import * as _ from "underscore"
+import * as Numbro from "numbro"
 
-TickFormatter = require "./tick_formatter"
-p = require "../../core/properties"
+import {TickFormatter} from "./tick_formatter"
+import * as p from "../../core/properties"
 
-class NumeralTickFormatter extends TickFormatter.Model
+export class NumeralTickFormatter extends TickFormatter
   type: 'NumeralTickFormatter'
 
   @define {
@@ -15,16 +15,12 @@ class NumeralTickFormatter extends TickFormatter.Model
     }
 
   doFormat: (ticks) ->
-    format = @get("format")
-    language = @get("language")
-    rounding = switch @get("rounding")
+    format = @format
+    language = @language
+    rounding = switch @rounding
       when "round", "nearest"   then Math.round
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
 
     labels = ( Numbro.format(tick, format, language, rounding) for tick in ticks )
     return labels
-
-
-module.exports =
-  Model: NumeralTickFormatter

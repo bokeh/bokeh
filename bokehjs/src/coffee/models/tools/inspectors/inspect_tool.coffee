@@ -1,30 +1,9 @@
-_ = require "underscore"
-Backbone = require "backbone"
-Tool = require "../tool"
-inspect_tool_list_item_template = require "./inspect_tool_list_item_template"
+import * as _ from "underscore"
+import {ButtonTool, ButtonToolView} from "../button_tool"
 
-class InspectToolListItemView extends Backbone.View
-  className: "bk-toolbar-inspector"
-  template: inspect_tool_list_item_template
-  events: {
-    'click [type="checkbox"]': '_clicked'
-  }
+export class InspectToolView extends ButtonToolView
 
-  initialize: (options) ->
-    @listenTo(@model, 'change:active', @render)
-    @render()
-
-  render: () ->
-    @$el.html(@template({model: @model}))
-    return @
-
-  _clicked: (e) ->
-    active = @model.get('active')
-    @model.set('active', not active)
-
-class InspectToolView extends Tool.View
-
-class InspectTool extends Tool.Model
+export class InspectTool extends ButtonTool
   event_type: "move"
 
   @override {
@@ -40,9 +19,3 @@ class InspectTool extends Tool.Model
   _exit_inner: () ->
 
   _exit_outer: () ->
-
-
-module.exports =
-  Model: InspectTool
-  View: InspectToolView
-  ListItemView: InspectToolListItemView

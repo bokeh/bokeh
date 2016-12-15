@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class ImageRGBAView extends Glyph.View
+export class ImageRGBAView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -43,7 +43,7 @@ class ImageRGBAView extends Glyph.View
         color = new Uint32Array(buf)
         for j in [0...flat.length]
           color[j] = flat[j]
-        buf8 = new Uint8ClampedArray(buf)
+        buf8 = new Uint8Array(buf)
         image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       @image_data[i] = canvas
@@ -56,8 +56,13 @@ class ImageRGBAView extends Glyph.View
         @max_dh = _.max(@_dh)
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+    switch @model.properties.dw.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
+      when "screen" then @sw = @_dw
+
+    switch @model.properties.dh.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
+      when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
@@ -89,7 +94,7 @@ class ImageRGBAView extends Glyph.View
       maxY: d.maxY + @max_dh
     }
 
-class ImageRGBA extends Glyph.Model
+export class ImageRGBA extends Glyph
   default_view: ImageRGBAView
 
   type: 'ImageRGBA'
@@ -100,8 +105,8 @@ class ImageRGBA extends Glyph.Model
       image:  [ p.NumberSpec       ] # TODO (bev) array spec?
       rows:   [ p.NumberSpec       ]
       cols:   [ p.NumberSpec       ]
-      dw:     [ p.NumberSpec       ]
-      dh:     [ p.NumberSpec       ]
+      dw:     [ p.DistanceSpec     ]
+      dh:     [ p.DistanceSpec     ]
       dilate: [ p.Bool,      false ]
   }
 
@@ -109,7 +114,3 @@ class ImageRGBA extends Glyph.Model
     super(attrs, options)
     @properties.rows.optional = true
     @properties.cols.optional = true
-
-module.exports =
-  Model: ImageRGBA
-  View: ImageRGBAView

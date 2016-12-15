@@ -1,0 +1,60 @@
+0.12.2 (Sept 2016)
+==================
+
+We're pleased to announce the release of Bokeh 0.12.2! This minor update
+adds a few "small in footprint, but big in impact" features and several bug
+fixes including:
+
+* Client-side color mapping support for all glyphs
+* New color bar annotation
+* Support for loading external resources in custom models
+  - Check out the new LaTeX example at: `LaTeX`_
+* Hit-testing support for MultiLine glyphs
+* Improved hover tooltip default styling
+* Addition of the Brewer qualitative color palettes
+* Fix intermittent issues with BokehJS loading in Jupyter Notebooks
+* Split of the Bokeh JS API into a stand-alone bundle
+* Many small bug fixes
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features.
+
+Migration Guide
+---------------
+
+Jupyter Notebook output changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As part of the changes to ensure that the BokehJS client library has loaded
+before attempting to render plots in the notebook, a new ``notebook_handle``
+argument was added to the ``bokeh.io.show`` method. When set to ``True`` (with
+``output_notebook`` enabled), the ``show`` method will return a handle that
+can be used with ``push_notebook``.
+
+For users who rely on the notebook handles to update plots out of their render
+order, you'll have to add ``notebook_handle=True`` to your ``show`` invocations
+like below:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+    from bokeh.io import output_notebook, push_notebook, show
+    output_notebook()
+    plot = figure()
+    plot.circle([1,2,3], [4,6,5])
+    handle = show(plot, notebook_handle=True)
+    # Update the plot title in the earlier cell
+    plot.title = "New Title"
+    push_notebook(handle=handle)
+
+BokehJS API Changes
+~~~~~~~~~~~~~~~~~~~
+
+In order to shrink the size of the main BokehJS library and reduce pageload
+times, the Bokeh JS API has been separated into it's own bokeh-api(.min).js
+bundle. For users requiring the JS API, it will be necessary to add the new
+resource to their HTML templates.
+
+.. _LaTeX: http://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html#examples

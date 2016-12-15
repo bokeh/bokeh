@@ -20,27 +20,27 @@ class LatexLabel(Label):
     __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
     __implementation__ = """
-Label = require "models/annotations/label"
+import {Label, LabelView} from "models/annotations/label"
 
-class LatexLabelView extends Label.View
+export class LatexLabelView extends LabelView
   render: () ->
     ctx = @plot_view.canvas_view.ctx
 
     # Here because AngleSpec does units tranform and label doesn't support specs
-    switch @mget('angle_units')
-      when "rad" then angle = -1 * @mget('angle')
-      when "deg" then angle = -1 * @mget('angle') * Math.PI/180.0
+    switch @model.angle_units
+      when "rad" then angle = -1 * @model.angle
+      when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
-    if @mget('x_units') == "data"
-      vx = @xmapper.map_to_target(@mget('x'))
+    if @model.x_units == "data"
+      vx = @xmapper.map_to_target(@model.x)
     else
-      vx = @mget('x')
+      vx = @model.x
     sx = @canvas.vx_to_sx(vx)
 
-    if @mget('y_units') == "data"
-      vy = @ymapper.map_to_target(@mget('y'))
+    if @model.y_units == "data"
+      vy = @ymapper.map_to_target(@model.y)
     else
-      vy = @mget('y')
+      vy = @model.y
     sy = @canvas.vy_to_sy(vy)
 
     if @model.panel?
@@ -48,17 +48,13 @@ class LatexLabelView extends Label.View
       sx += panel_offset.x
       sy += panel_offset.y
 
-    latex = katex.renderToString(@mget('text'), {displayMode: true})
+    latex = katex.renderToString(@model.text, {displayMode: true})
 
-    @_css_text(ctx, latex, sx + @mget('x_offset'), sy - @mget('y_offset'), angle)
+    @_css_text(ctx, latex, sx + @model.x_offset, sy - @model.y_offset, angle)
 
-class LatexLabel extends Label.Model
+export class LatexLabel extends Label
   type: 'LatexLabel'
   default_view: LatexLabelView
-
-module.exports =
-  Model: LatexLabel
-  View: LatexLabelView
 """
 
 x = np.arange(0.0, 1.0 + 0.01, 0.01)

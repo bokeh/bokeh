@@ -6,11 +6,12 @@ run = require 'run-sequence'
 reporter = ts.reporter.nullReporter()
 
 compile = (name) ->
-  project = ts.createProject("./examples/#{name}/tsconfig.json")
+  project = ts.createProject("./examples/#{name}/tsconfig.json", {
+    typescript: require('typescript')
+  })
   project.src()
-         .pipe(ts(project, {}, reporter).on('error', (err) -> gutil.log(err.message)))
-         .js
-         .pipe(gulp.dest("./"))
+         .pipe(project(reporter).on('error', (err) -> gutil.log(err.message)))
+         .pipe(gulp.dest("./examples/#{name}/"))
 
 examples = ["anscombe", "burtin", "charts", "donut", "hover", "legends", "linked", "tap", "stocks"]
 

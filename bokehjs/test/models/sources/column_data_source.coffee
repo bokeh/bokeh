@@ -2,8 +2,11 @@ _ = require "underscore"
 
 {expect} = require "chai"
 utils = require "../../utils"
+{ stdoutTrap, stderrTrap } = require 'logtrap'
 
-ColumnDataSource = utils.require("models/sources/column_data_source").Model
+{set_log_level} = utils.require "core/logging"
+
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
 
 describe "column_data_source module", ->
 
@@ -11,7 +14,7 @@ describe "column_data_source module", ->
     r = new ColumnDataSource()
 
     it "should have empty data", ->
-      expect(r.get("data")).to.be.deep.equal {}
+      expect(r.data).to.be.deep.equal {}
 
     it "should have empty columns", ->
       expect(r.columns()).to.be.deep.equal []
@@ -23,7 +26,7 @@ describe "column_data_source module", ->
     r = new ColumnDataSource({data: {foo: []}})
 
     it "should return supplied data", ->
-      expect(r.get("data")).to.be.deep.equal {foo: []}
+      expect(r.data).to.be.deep.equal {foo: []}
 
     it "should return one column", ->
       expect(r.columns()).to.be.deep.equal ["foo"]
@@ -32,7 +35,7 @@ describe "column_data_source module", ->
     r = new ColumnDataSource({data: {foo: [], bar:[]}})
 
     it "should return supplied data", ->
-      expect(r.get("data")).to.be.deep.equal {foo: [], bar: []}
+      expect(r.data).to.be.deep.equal {foo: [], bar: []}
 
     it "should return all columns", ->
       expect((r.columns()).sort()).to.be.deep.equal ["bar", "foo"]
@@ -56,4 +59,34 @@ describe "column_data_source module", ->
       r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
       expect(r.get_length()).to.be.equal 2
 
-    it "should raise an error if column lengths are inconsistent"
+    it "should not alert for consistent column lengths (including zero)", ->
+      set_log_level("info")
+      r = new ColumnDataSource({data: {foo: []}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [], bar:[]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [10]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [10], bar:[10]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+      r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal ""
+
+    it "should alert if column lengths are inconsistent", ->
+      set_log_level("info")
+      r = new ColumnDataSource({data: {foo: [1], bar: [1,2]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal "[bokeh] data source has columns of inconsistent lengths\n"
+
+      r = new ColumnDataSource({data: {foo: [1], bar: [1,2], baz: [1]}})
+      out = stderrTrap -> r.get_length()
+      expect(out).to.be.equal "[bokeh] data source has columns of inconsistent lengths\n"

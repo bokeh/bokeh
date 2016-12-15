@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Model = require "../../model"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Model} from "../../model"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class DataSource extends Model
+export class DataSource extends Model
   type: 'DataSource'
 
   @define {
@@ -15,12 +15,9 @@ class DataSource extends Model
   initialize: (options) ->
     super(options)
     @listenTo @, 'change:selected', () =>
-      callback = @get('callback')
+      callback = @callback
       if callback?
         if _.isFunction(callback)
           callback(@)
         else
           callback.execute(@)
-
-module.exports =
-  Model: DataSource

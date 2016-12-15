@@ -53,25 +53,6 @@ class TestTabs(unittest.TestCase):
         self.assertEqual(tab.tabs, [])
         self.assertEqual(tab.active, 0)
 
-class TestDialog(unittest.TestCase):
-
-    def setUp(self):
-        from bokeh.models.widgets.dialogs import Dialog
-        self.dialogCls = Dialog
-
-    def test_expected_props(self):
-        expected_properties = set(['visible', 'closable', 'title', 'content', 'buttons'])
-        actual_properties = get_prop_set(self.dialogCls)
-        self.assertTrue(expected_properties.issubset(actual_properties))
-
-    def test_props_defaults(self):
-        dialog = self.dialogCls()
-        self.assertFalse(dialog.visible)
-        self.assertTrue(dialog.closable)
-        self.assertEqual(dialog.title, "")
-        self.assertEqual(dialog.content, "")
-        self.assertEqual(dialog.buttons, [])
-
 
 if __name__ == "__main__":
     unittest.main()

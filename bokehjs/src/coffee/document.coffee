@@ -1,19 +1,19 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-{Models} = require "./base"
-js_version = require("./version")
-{EQ, Solver, Variable} = require "./core/layout/solver"
-{logger} = require "./core/logging"
-HasProps = require "./core/has_props"
-{is_ref} = require "./core/util/refs"
-{MultiDict, Set} = require "./core/util/data_structures"
-ColumnDataSource = require "./models/sources/column_data_source"
+import {Models} from "./base"
+import {version as js_version} from "./version"
+import {EQ, Solver, Variable} from "./core/layout/solver"
+import {logger} from "./core/logging"
+import {HasProps} from "./core/has_props"
+import {is_ref} from "./core/util/refs"
+import {MultiDict, Set} from "./core/util/data_structures"
+import {ColumnDataSource} from "./models/sources/column_data_source"
 
-class DocumentChangedEvent
+export class DocumentChangedEvent
   constructor : (@document) ->
 
-class ModelChangedEvent extends DocumentChangedEvent
+export class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
     super @document
   json : (references) ->
@@ -43,7 +43,7 @@ class ModelChangedEvent extends DocumentChangedEvent
       'new' : value_json
     }
 
-class TitleChangedEvent extends DocumentChangedEvent
+export class TitleChangedEvent extends DocumentChangedEvent
   constructor : (@document, @title) ->
     super @document
   json : (references) ->
@@ -52,7 +52,7 @@ class TitleChangedEvent extends DocumentChangedEvent
       'title' : @title
     }
 
-class RootAddedEvent extends DocumentChangedEvent
+export class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
   json : (references) ->
@@ -62,7 +62,7 @@ class RootAddedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
-class RootRemovedEvent extends DocumentChangedEvent
+export class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
   json : (references) ->
@@ -71,11 +71,11 @@ class RootRemovedEvent extends DocumentChangedEvent
       'model' : @model.ref()
     }
 
-DEFAULT_TITLE = "Bokeh Application"
+export DEFAULT_TITLE = "Bokeh Application"
 
 # This class should match the API of the Python Document class
 # as much as possible.
-class Document
+export class Document
 
   constructor : () ->
     @_title = DEFAULT_TITLE
@@ -89,7 +89,7 @@ class Document
     @_solver = new Solver()
     @_init_solver()
 
-    $(window).on("resize", $.proxy(@resize, @))
+    $(window).on("resize", () => @resize())
 
   _init_solver : () ->
     @_solver.clear()
@@ -102,21 +102,20 @@ class Document
   solver: () ->
     @_solver
 
-  resize: () ->
+  resize: (width=null, height=null) ->
     # Notes on resizing (xx:yy means event yy on object xx):
     # window:event -> document.resize() -> solver:resize
     #   -> LayoutDOM.render()
     #   -> PlotCanvas.resize() -> solver:update_layout
 
-    # Ideally the solver would  settle in one pass (can that be done?),
+    # Ideally the solver would settle in one pass (can that be done?),
     # but it currently needs two passes to get it right.
     # Seems to be needed everywhere on initialization, and on Windows
     # it seems necessary on each Draw
-    @_resize()
-    @_resize()
+    @_resize(width, height)
+    @_resize(width, height)
 
-  _resize: () ->
-
+  _resize: (width=null, height=null) ->
     for root in @_roots
       if root.layoutable isnt true
         continue
@@ -129,15 +128,16 @@ class Document
       root_div = $("#modelid_#{root.id}")
 
       # Start working upwards until you find a height to pin against - usually .bk-root
-      target_height = 0
-      measuring = root_div
-      while target_height == 0
-        measuring = measuring.parent()
-        target_height = measuring.height()
+      if _.isNull(width)
+        target_height = 0
+        measuring = root_div
+        while target_height == 0
+          measuring = measuring.parent()
+          target_height = measuring.height()
 
-      # Once we've found that grab the width of this element
-      width = measuring.width()
-      height = target_height
+        # Once we've found that grab the width of this element
+        width = measuring.width()
+        height = target_height
 
       # Set the constraints on root
       if vars.width?
@@ -159,7 +159,7 @@ class Document
     finally
       @_pop_all_models_freeze()
 
-  _destructively_move : (dest_doc) ->
+  destructively_move : (dest_doc) ->
     if dest_doc is @
       throw new Error("Attempted to overwrite a document with itself")
 
@@ -168,19 +168,15 @@ class Document
     # to the new doc or else models referenced from multiple
     # roots could be in both docs at once, which isn't allowed.
     roots = []
-    @_push_all_models_freeze()
-    try
-      while @_roots.length > 0
-        @remove_root(@_roots[0])
-        roots.push(r)
-    finally
-        @_pop_all_models_freeze()
+    for r in @_roots
+      roots.push(r)
+    @clear()
 
     for r in roots
       if r.document != null
         throw new Error("Somehow we didn't detach #{r}")
-    if _all_models.length != 0
-        throw new Error("_all_models still had stuff in it: #{ @_all_models }")
+    if _.size(@_all_models) != 0
+      throw new Error("@_all_models still had stuff in it: #{ @_all_models }")
 
     for r in roots
       dest_doc.add_root(r)
@@ -217,13 +213,13 @@ class Document
 
     for d in to_detach.values
       d.detach_document()
-      name = d.get('name')
+      name = d.name
       if name != null
         @_all_models_by_name.remove_value(name, d)
 
     for a in to_attach.values
       a.attach_document(@)
-      name = a.get('name')
+      name = a.name
       if name != null
         @_all_models_by_name.add_value(name, a)
 
@@ -439,7 +435,7 @@ class Document
     # this first pass removes all 'refs' replacing them with real instances
     foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        instance.set(attrs)
+        instance.setv(attrs)
 
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->
@@ -490,7 +486,7 @@ class Document
         if not _.isEqual(old_value, new_value)
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
 
-    _.filter(events, (e) -> e != null)
+    events.filter((e) -> e != null)
 
   # we use this to detect changes during document deserialization
   # (in model constructors and initializers)
@@ -596,7 +592,7 @@ class Document
 
   replace_with_json : (json) ->
     replacement = Document.from_json(json)
-    replacement._destructively_move(@)
+    replacement.destructively_move(@)
 
   create_json_patch_string : (events) ->
     JSON.stringify(@create_json_patch(events))
@@ -647,59 +643,49 @@ class Document
     Document._initialize_references_json(references_json, old_references, new_references)
 
     for event_json in events_json
+      switch event_json.kind
+        when 'ModelChanged'
+          patched_id = event_json['model']['id']
+          if patched_id not of @_all_models
+            throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
+          patched_obj = @_all_models[patched_id]
+          attr = event_json['attr']
+          value = Document._resolve_refs(event_json['new'], old_references, new_references)
+          patched_obj.setv({ "#{attr}" : value })
 
-      if event_json['kind'] == 'ModelChanged'
-        patched_id = event_json['model']['id']
-        if patched_id not of @_all_models
-          throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
-        patched_obj = @_all_models[patched_id]
-        attr = event_json['attr']
-        value = Document._resolve_refs(event_json['new'], old_references, new_references)
-        patched_obj.set({ "#{attr}" : value })
+        when 'ColumnsStreamed'
+          column_source_id = event_json['column_source']['id']
+          if column_source_id not of @_all_models
+            throw new Error("Cannot stream to #{column_source_id} which is not in the document")
+          column_source = @_all_models[column_source_id]
+          if column_source not instanceof ColumnDataSource
+            throw new Error("Cannot stream to non-ColumnDataSource")
+          data = event_json['data']
+          rollover = event_json['rollover']
+          column_source.stream(data, rollover)
 
-      else if event_json['kind'] == 'ColumnsStreamed'
-        column_source_id = event_json['column_source']['id']
-        if column_source_id not of @_all_models
-          throw new Error("Cannot stream to #{column_source_id} which is not in the document")
-        column_source = @_all_models[column_source_id]
-        if column_source not instanceof ColumnDataSource.Model
-          throw new Error("Cannot stream to non-ColumnDataSource")
-        data = event_json['data']
-        rollover = event_json['rollover']
-        column_source.stream(data, rollover)
+        when 'ColumnsPatched'
+          column_source_id = event_json['column_source']['id']
+          if column_source_id not of @_all_models
+            throw new Error("Cannot patch #{column_source_id} which is not in the document")
+          column_source = @_all_models[column_source_id]
+          if column_source not instanceof ColumnDataSource
+            throw new Error("Cannot patch non-ColumnDataSource")
+          patches = event_json['patches']
+          column_source.patch(patches)
 
-      else if event_json['kind'] == 'ColumnsPatched'
-        column_source_id = event_json['column_source']['id']
-        if column_source_id not of @_all_models
-          throw new Error("Cannot patch #{column_source_id} which is not in the document")
-        column_source = @_all_models[column_source_id]
-        if column_source not instanceof ColumnDataSource.Model
-          throw new Error("Cannot patch non-ColumnDataSource")
-        patches = event_json['patches']
-        column_source.patch(patches)
+        when 'RootAdded'
+          root_id = event_json['model']['id']
+          root_obj = references[root_id]
+          @add_root(root_obj)
 
-      else if event_json['kind'] == 'RootAdded'
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        @add_root(root_obj)
+        when 'RootRemoved'
+          root_id = event_json['model']['id']
+          root_obj = references[root_id]
+          @remove_root(root_obj)
 
-      else if event_json['kind'] == 'RootRemoved'
-        root_id = event_json['model']['id']
-        root_obj = references[root_id]
-        @remove_root(root_obj)
+        when 'TitleChanged'
+          @set_title(event_json['title'])
 
-      else if event_json['kind'] == 'TitleChanged'
-        @set_title(event_json['title'])
-
-      else
-        throw new Error("Unknown patch event " + JSON.stringify(event_json))
-
-module.exports = {
-  Document : Document
-  DocumentChangedEvent : DocumentChangedEvent
-  ModelChangedEvent : ModelChangedEvent
-  TitleChangedEvent : TitleChangedEvent
-  RootAddedEvent : RootAddedEvent
-  RootRemovedEvent : RootRemovedEvent
-  DEFAULT_TITLE : DEFAULT_TITLE
-}
+        else
+          throw new Error("Unknown patch event " + JSON.stringify(event_json))

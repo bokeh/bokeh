@@ -12,8 +12,10 @@ from ..model import Model
 from ..core.properties import abstract
 from ..core.properties import (Bool, Int, String, Enum, Auto, List, Dict,
     Either, Instance)
-from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage, ScriptingLanguage
+from ..core.enums import RoundingFunction, NumeralLanguage
 from ..util.dependencies import import_required
+from ..util.deprecation import deprecated
+from ..util.compiler import nodejs_compile, CompilationError
 
 @abstract
 class TickFormatter(Model):
@@ -213,110 +215,136 @@ class FuncTickFormatter(TickFormatter):
     @classmethod
     def from_py_func(cls, func):
         """ Create a FuncTickFormatter instance from a Python function. The
-        function is translated to Javascript using PyScript.
+        function is translated to JavaScript using PyScript. The variable
+        ``tick`` will contain the unformatted tick value and can be expected to
+        be present in the function namespace at render time.
 
-        .. warning::
-            The function can have only a single positional argument and return
-            a single value.
+        Example:
+
+        .. code-block:: python
+
+            code = '''
+                def ticker():
+                    return "{:.0f} + {:.2f}".format(tick, tick % 1)
+            '''
+
+        The python function must have no positional arguments. It's
+        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        arguments to the function.
+
         """
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pyscript = import_required('flexx.pyscript',
                                    'To use Python functions for CustomJS, you need Flexx ' +
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
+        argspec = inspect.getargspec(func)
 
-        arg = inspect.getargspec(func)[0]
-        if len(arg) != 1:
-            raise ValueError("Function `func` can have only one argument, but %d were supplied." % len(arg))
+        default_names = argspec.args
+        default_values = argspec.defaults or []
 
-        # Set the transpiled functions as `formatter` so that we can call it
-        code = pyscript.py2js(func, 'formatter')
-        # We wrap the transpiled function into an anonymous function with a single
-        # arg that matches that of func.
-        wrapped_code = "function (%s) {%sreturn formatter(%s)};" % (arg[0], code, arg[0])
+        if len(default_names) - len(default_values) != 0:
+            raise ValueError("Function `func` may only contain keyword arguments.")
 
-        return cls(code=wrapped_code, lang='javascript')
+        if default_values and not any([isinstance(value, Model) for value in default_values]):
+            raise ValueError("Default value must be a plot object.")
+
+        func_kwargs = dict(zip(default_names, default_values))
+
+        # Wrap the code attr in a function named `formatter` and call it
+        # with arguments that match the `args` attr
+        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(default_names)
+
+        return cls(code=code, args=func_kwargs)
+
+    @classmethod
+    def from_coffeescript(cls, code, args={}):
+        """ Create a FuncTickFormatter instance from a CoffeeScript snippet.
+        The function body is translated to JavaScript using node. The variable
+        ``tick`` will contain the unformatted tick value and can be expected to
+        be present in the code snippet namespace at render time.
+
+        Example:
+
+        .. code-block:: coffeescript
+
+            code = '''
+                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
+            '''
+        """
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        if "error" in compiled:
+            raise CompilationError(compiled.error)
+        else:
+            return cls(code=compiled.code, args=args)
+
+    args = Dict(String, Instance(Model), help="""
+    A mapping of names to Bokeh plot objects. These objects are made
+    available to the formatter code snippet as the values of named
+    parameters to the callback.
+    """)
 
     code = String(default="", help="""
-    An anonymous JavaScript or CoffeeScript function expression to reformat a
-    single tick to the desired format.
+    A snippet of JavaScript code that reformats a single tick to the desired
+    format. The variable ``tick`` will contain the unformatted tick value and
+    can be expected to be present in the code snippet namespace at render time.
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: javascript
 
             code = '''
-            function (tick) {
-                // Convert from minutes to seconds and add units str
-                return tick * 60 + " seconds"
-            };
+                return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
             '''
-
-    .. warning::
-        The function can have only a single positional argument and return
-        a single value.
-
     """)
 
-    lang = Enum(ScriptingLanguage, default="javascript", help="""
-    The implementation scripting language of the snippet. This can be either
-    raw JavaScript or CoffeeScript. In CoffeeScript's case, the snippet will
-    be compiled at runtime (in a web browser), so you don't need to have
-    node.js/io.js, etc. installed.
-    """)
+def DEFAULT_DATETIME_FORMATS():
+    deprecated((0, 12, 3), 'DEFAULT_DATETIME_FORMATS', 'individual DatetimeTickFormatter fields')
+    return {
+        'microseconds': ['%fus'],
+        'milliseconds': ['%3Nms', '%S.%3Ns'],
+        'seconds':      ['%Ss'],
+        'minsec':       [':%M:%S'],
+        'minutes':      [':%M', '%Mm'],
+        'hourmin':      ['%H:%M'],
+        'hours':        ['%Hh', '%H:%M'],
+        'days':         ['%m/%d', '%a%d'],
+        'months':       ['%m/%Y', '%b%y'],
+        'years':        ['%Y'],
+    }
 
-DEFAULT_DATETIME_FORMATS = lambda : {
-    'microseconds': ['%fus'],
-    'milliseconds': ['%3Nms', '%S.%3Ns'],
-    'seconds':      ['%Ss'],
-    'minsec':       [':%M:%S'],
-    'minutes':      [':%M', '%Mm'],
-    'hourmin':      ['%H:%M'],
-    'hours':        ['%Hh', '%H:%M'],
-    'days':         ['%m/%d', '%a%d'],
-    'months':       ['%m/%Y', '%b%y'],
-    'years':        ['%Y'],
-}
+def _DATETIME_TICK_FORMATTER_HELP(field):
+    return """
+    Formats for displaying datetime values in the %s range.
+
+    See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
+    """ % field
 
 class DatetimeTickFormatter(TickFormatter):
-    """ Display tick values from a continuous range as formatted
-    datetimes.
+    """ A ``TickFormatter`` for displaying datetime values nicely across a
+    range of scales.
 
-    """
+    ``DatetimeTickFormatter`` has the following properties for setting formats
+    at different scales scales:
 
-    formats = Dict(Enum(DatetimeUnits), List(String), default=DEFAULT_DATETIME_FORMATS, help="""
-    User defined formats for displaying datetime values.
+    * ``microseconds``
+    * ``milliseconds``
+    * ``seconds``
+    * ``minsec``
+    * ``minutes``
+    * ``hourmin``
+    * ``hours``
+    * ``days``
+    * ``months``
+    * ``years``
 
-    The enum values correspond roughly to different "time scales". The
-    corresponding value is a list of `strftime`_ formats to use for
+    Each scale property can be set to format or list of formats to use for
     formatting datetime tick values that fall in in that "time scale".
-
     By default, only the first format string passed for each time scale
     will be used. By default, all leading zeros are stripped away from
-    the formatted labels. These behaviors cannot be changed as of now.
-
-    An example of specifying the same date format over a range of time scales::
-
-        DatetimeTickFormatter(
-            formats=dict(
-                hours=["%B %Y"],
-                days=["%B %Y"],
-                months=["%B %Y"],
-                years=["%B %Y"],
-            )
-        )
+    the formatted labels.
 
     This list of supported `strftime`_ formats is reproduced below.
-
-
-    .. warning::
-        The client library BokehJS uses the `timezone`_ library to
-        format datetimes. The inclusion of the list below is based on the
-        claim that `timezone`_ makes to support "the full compliment
-        of GNU date format specifiers." However, this claim has not
-        been tested exhaustively against this list. If you find formats
-        that do not function as expected, please submit a `github issue`_,
-        so that the documentation can be updated appropriately.
 
     %a
         The abbreviated name of the day of the week according to the
@@ -488,8 +516,92 @@ class DatetimeTickFormatter(TickFormatter):
     %%
         A literal '%' character.
 
+    .. warning::
+        The client library BokehJS uses the `timezone`_ library to
+        format datetimes. The inclusion of the list below is based on the
+        claim that `timezone`_ makes to support "the full compliment
+        of GNU date format specifiers." However, this claim has not
+        been tested exhaustively against this list. If you find formats
+        that do not function as expected, please submit a `github issue`_,
+        so that the documentation can be updated appropriately.
+
     .. _strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    """)
+    """
+    microseconds = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
+                        default=['%fus']).accepts(String, lambda fmt: [fmt])
+
+    milliseconds = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
+                        default=['%3Nms', '%S.%3Ns']).accepts(String, lambda fmt: [fmt])
+
+    seconds      = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
+                        default=['%Ss']).accepts(String, lambda fmt: [fmt])
+
+    minsec       = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
+                        default=[':%M:%S']).accepts(String, lambda fmt: [fmt])
+
+    minutes      = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
+                        default=[':%M', '%Mm']).accepts(String, lambda fmt: [fmt])
+
+    hourmin      = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
+                        default=['%H:%M']).accepts(String, lambda fmt: [fmt])
+
+    hours        = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
+                        default=['%Hh', '%H:%M']).accepts(String, lambda fmt: [fmt])
+
+    days         = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
+                        default=['%m/%d', '%a%d']).accepts(String, lambda fmt: [fmt])
+
+    months       = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
+                        default=['%m/%Y', '%b%y']).accepts(String, lambda fmt: [fmt])
+
+    years        = List(String,
+                        help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
+                        default=['%Y']).accepts(String, lambda fmt: [fmt])
+
+    __deprecated_attributes__ = ('formats',)
+
+    @property
+    def formats(self):
+        ''' A dictionary containing formats for all scales.
+
+        THIS PROPERTY IS DEPRECTATED. Use individual DatetimeTickFormatter fields instead.
+
+        '''
+        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
+        return dict(
+            microseconds = self.microseconds,
+            milliseconds = self.milliseconds,
+            seconds      = self.seconds,
+            minsec       = self.minsec,
+            minutes      = self.minutes,
+            hourmin      = self.hourmin,
+            hours        = self.hours,
+            days         = self.days,
+            months       = self.months,
+            years        = self.years)
+
+    @formats.setter
+    def formats(self, value):
+        deprecated((0, 12, 3), 'DatetimeTickFormatter.formats', 'individual DatetimeTickFormatter fields')
+        if 'microseconds' in value: self.microseconds = value['microseconds']
+        if 'milliseconds' in value: self.milliseconds = value['milliseconds']
+        if 'seconds'      in value: self.seconds      = value['seconds']
+        if 'minsec'       in value: self.minsec       = value['minsec']
+        if 'minutes'      in value: self.minutes      = value['minutes']
+        if 'hourmin'      in value: self.hourmin      = value['hourmin']
+        if 'hours'        in value: self.hours        = value['hours']
+        if 'days'         in value: self.days         = value['days']
+        if 'months'       in value: self.months       = value['months']
+        if 'years'        in value: self.years        = value['years']

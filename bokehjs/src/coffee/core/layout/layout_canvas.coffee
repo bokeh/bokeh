@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{Variable, EQ, GE, Strength}  = require "./solver"
-Model = require "../../model"
-p = require "../properties"
+import {Variable, EQ, GE, Strength} from "./solver"
+import {Model} from "../../model"
+import * as p from "../properties"
 
-class LayoutCanvas extends Model
+export class LayoutCanvas extends Model
   type: 'LayoutCanvas'
 
   initialize: (attrs, options)->
@@ -16,13 +16,15 @@ class LayoutCanvas extends Model
     @_right = new Variable("right #{@id}")
     @_bottom = new Variable("bottom #{@id}")
 
-    # TODO (bird) - I'd like to get rid of these to reduce confusion
-    @define_computed_property('height', @_get_var, false)
-    @define_computed_property('width', @_get_var, false)
-    @define_computed_property('right', @_get_var, false)
-    @define_computed_property('left', @_get_var, false)
-    @define_computed_property('top', @_get_var, false)
-    @define_computed_property('bottom', @_get_var, false)
+  # TODO (bird) - I'd like to get rid of these to reduce confusion
+  @getters {
+    height: () -> @_height.value()
+    width: () -> @_width.value()
+    right: () -> @_right.value()
+    left: () -> @_left.value()
+    top: () -> @_top.value()
+    bottom: () -> @_bottom.value()
+  }
 
   @internal {
     layout_location: [ p.Any ]
@@ -36,11 +38,4 @@ class LayoutCanvas extends Model
     editables.push({edit_variable: @_height, strength: Strength.strong})
     return editables
 
-  get_constraints: () ->
-    []
-
-  _get_var: (prop_name) ->
-    return @['_' + prop_name].value()
-
-module.exports =
-  Model: LayoutCanvas
+  get_constraints: () -> []

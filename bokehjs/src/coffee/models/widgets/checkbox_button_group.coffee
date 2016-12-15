@@ -1,14 +1,14 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "bootstrap/button"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/button"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
-template = require "./button_group_template"
+import {Widget, WidgetView} from "./widget"
+import {BokehView} from "../../core/bokeh_view"
+import * as p from "../../core/properties"
+import template from "./button_group_template"
 
 
-class CheckboxButtonGroupView extends Widget.View
+export class CheckboxButtonGroupView extends WidgetView
   events:
     "change input": "change_input"
   template: template
@@ -31,19 +31,19 @@ class CheckboxButtonGroupView extends Widget.View
       if i in active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("button_type"))
+      $label.addClass("bk-bs-btn-" + @model.button_type)
       if i in active then $label.addClass("bk-bs-active")
       @$el.find('.bk-bs-btn-group').append($label)
 
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$("input") when checkbox.checked)
+    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
     @model.active = active
-    @mget('callback')?.execute(@model)
+    @model.callback?.execute(@model)
 
 
-class CheckboxButtonGroup extends Widget.Model
+export class CheckboxButtonGroup extends Widget
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
@@ -53,7 +53,3 @@ class CheckboxButtonGroup extends Widget.Model
       button_type: [ p.String, "default" ]
       callback:    [ p.Instance ]
     }
-
-module.exports =
-  Model: CheckboxButtonGroup
-  View: CheckboxButtonGroupView

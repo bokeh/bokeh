@@ -1,22 +1,23 @@
-_ = require "underscore"
-$ = require "jquery"
-Model = require "../../model"
-p = require "../../core/properties"
-{GE, EQ, Strength, Variable}  = require "../../core/layout/solver"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import {Model} from "../../model"
+import * as p from "../../core/properties"
+import {GE, EQ, Strength, Variable} from "../../core/layout/solver"
 
-build_views = require "../../common/build_views"
+import {build_views} from "../../core/build_views"
+import {BokehView} from "../../core/bokeh_view"
+import {logger} from "../../core/logging"
 
-BokehView = require "../../core/bokeh_view"
-{logger} = require "../../core/logging"
-
-
-class LayoutDOMView extends BokehView
+export class LayoutDOMView extends BokehView
 
   initialize: (options) ->
     super(options)
     # Provides a hook so document can measure
     @$el.attr("id", "modelid_#{@model.id}")
     @$el.addClass("bk-layout-#{@model.sizing_mode}")
+    if @model.css_classes?
+      for cls in @model.css_classes
+        @$el.addClass(cls)
     @child_views = {}
 
     # init_solver = false becuase we only need to init solver on subsequent
@@ -145,7 +146,7 @@ class LayoutDOMView extends BokehView
 
 
 
-class LayoutDOM extends Model
+export class LayoutDOM extends Model
   type: "LayoutDOM"
 
   initialize: (attrs, options) ->
@@ -256,12 +257,9 @@ class LayoutDOM extends Model
       width:       [ p.Number              ]
       disabled:    [ p.Bool,       false   ]
       sizing_mode: [ p.SizingMode, "fixed" ]
+      css_classes: [ p.Array               ]
     }
 
   @internal {
       layoutable: [ p.Bool, true ]
   }
-
-module.exports =
-  Model: LayoutDOM
-  View: LayoutDOMView

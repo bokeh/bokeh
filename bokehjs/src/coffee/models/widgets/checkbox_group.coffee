@@ -1,12 +1,12 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import {Widget, WidgetView} from "./widget"
+import {BokehView} from "../../core/bokeh_view"
+import * as p from "../../core/properties"
 
 
-class CheckboxGroupView extends Widget.View
+export class CheckboxGroupView extends WidgetView
   events:
     "change input": "change_input"
 
@@ -19,14 +19,14 @@ class CheckboxGroupView extends Widget.View
     super()
     @$el.empty()
 
-    active = @mget("active")
-    for label, i in @mget("labels")
+    active = @model.active
+    for label, i in @model.labels
       $input = $('<input type="checkbox">').attr(value: "#{i}")
-      if @mget("disabled") then $input.prop("disabled", true)
+      if @model.disabled then $input.prop("disabled", true)
       if i in active then $input.prop("checked", true)
 
       $label = $('<label></label>').text(label).prepend($input)
-      if @mget("inline")
+      if @model.inline
           $label.addClass("bk-bs-checkbox-inline")
           @$el.append($label)
       else
@@ -36,11 +36,11 @@ class CheckboxGroupView extends Widget.View
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$("input") when checkbox.checked)
+    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
     @model.active = active
-    @mget('callback')?.execute(@model)
+    @model.callback?.execute(@model)
 
-class CheckboxGroup extends Widget.Model
+export class CheckboxGroup extends Widget
   type: "CheckboxGroup"
   default_view: CheckboxGroupView
 
@@ -50,7 +50,3 @@ class CheckboxGroup extends Widget.Model
       inline:   [ p.Bool,  false ]
       callback: [ p.Instance ]
     }
-
-module.exports =
-  Model: CheckboxGroup
-  View: CheckboxGroupView

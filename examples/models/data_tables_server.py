@@ -87,7 +87,7 @@ class DataTables(object):
         ]
         cty_hover_tool = HoverTool(renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
         hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
-        select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
+        select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions='width')
         plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
         controls = WidgetBox(manufacturer_select, model_select, transmission_select, drive_select, class_select)
@@ -138,4 +138,5 @@ class DataTables(object):
 
 if __name__ == "__main__":
     data_tables = DataTables()
+    data_tables.document.validate()
     data_tables.run(True)

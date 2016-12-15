@@ -80,8 +80,8 @@ def trail_map(data):
     lat = (min(data.lat) + max(data.lat)) / 2
 
     map_options = GMapOptions(lng=lon, lat=lat, zoom=13)
-    plot = GMapPlot(title="%s - Trail Map" % name, map_options=map_options,
-                    plot_width=800, plot_height=800, api_key=API_KEY)
+    plot = GMapPlot(plot_width=800, plot_height=800, map_options=map_options, api_key=API_KEY)
+    plot.title.text = "%s - Trail Map" % name
     plot.x_range = DataRange1d()
     plot.y_range = DataRange1d()
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
@@ -138,6 +138,7 @@ doc = Document()
 doc.add_root(layout)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Trail map and altitude profile"))

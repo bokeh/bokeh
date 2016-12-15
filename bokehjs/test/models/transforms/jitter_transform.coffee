@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {Collections} = utils.require "base"
-Jitter = utils.require("models/transforms/jitter").Model
+{Jitter} = utils.require("models/transforms/jitter")
 bokeh_math  = utils.require("core/util/math")
 
 describe "Jitter transform module", ->
@@ -29,7 +29,7 @@ describe "Jitter transform module", ->
 
   describe "Jitter with uniform", ->
     transform = generate_jitter()
-    transform.set('distribution', 'uniform')
+    transform.distribution = 'uniform'
 
     it "should average the fixed values", ->
       N = 100
@@ -46,7 +46,7 @@ describe "Jitter transform module", ->
 
   describe "Jitter with normal", ->
     transform = generate_jitter()
-    transform.set('distribution', 'normal')
+    transform.distribution = 'normal'
 
     it "should average the fixed values", ->
       N = 100

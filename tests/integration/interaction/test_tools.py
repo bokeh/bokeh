@@ -22,11 +22,11 @@ def generate_plot():
     plot.circle(x='x', y='y', radius=0.2, source=source)
 
     source.callback = CustomJS(code="""
-        var indices = cb_obj.get('selected')['1d'].indices,
-            data = cb_obj.get('data'),
+        var indices = cb_obj.selected['1d'].indices,
+            data = cb_obj.data,
             selected_names = '';
 
-        Bokeh.$.each(indices, function(i, index) {
+        indices.forEach(function(index) {
             selected_names += data['name'][index];
         });
 

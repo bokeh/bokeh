@@ -1,7 +1,7 @@
-_ = require "underscore"
-LinearMapper = require "./linear_mapper"
+import * as _ from "underscore"
+import {LinearMapper} from "./linear_mapper"
 
-class CategoricalMapper extends LinearMapper.Model
+export class CategoricalMapper extends LinearMapper
 
   map_to_target: (x, return_synthetic=false) ->
     if _.isNumber(x)
@@ -9,14 +9,14 @@ class CategoricalMapper extends LinearMapper.Model
         return x
       else
         return super(x)
-    range = @get('source_range')
-    factors = range.get('factors')
+    range = @source_range
+    factors = range.factors
     if x.indexOf(':') >= 0
       [factor, percent] = x.split(':')
       percent = parseFloat(percent)
-      result = factors.indexOf(factor) + 0.5 + range.get('offset') + percent
+      result = factors.indexOf(factor) + 0.5 + range.offset + percent
     else
-      result = factors.indexOf(x) + 1 + range.get('offset')
+      result = factors.indexOf(x) + 1 + range.offset
     if return_synthetic
       return result
     else
@@ -28,17 +28,17 @@ class CategoricalMapper extends LinearMapper.Model
         return xs
       else
         return super(xs)
-    range = @get('source_range')
-    factors = range.get('factors')
+    range = @source_range
+    factors = range.factors
     results = Array(xs.length)
     for i in [0...xs.length]
       x = xs[i]
       if x.indexOf(':') >= 0
         [factor, percent] = x.split(':')
         percent = parseFloat(percent)
-        results[i] = factors.indexOf(factor) + 0.5 + range.get('offset') + percent
+        results[i] = factors.indexOf(factor) + 0.5 + range.offset + percent
       else
-        results[i] = factors.indexOf(x) + 1 + range.get('offset')
+        results[i] = factors.indexOf(x) + 1 + range.offset
     if return_synthetic
       return results
     else
@@ -48,9 +48,9 @@ class CategoricalMapper extends LinearMapper.Model
     xprime = super(xprime)
     if skip_cat
       return xprime
-    range = @get('source_range')
-    factors = range.get('factors')
-    return factors[Math.floor(xprime - 0.5 - range.get('offset'))]
+    range = @source_range
+    factors = range.factors
+    return factors[Math.floor(xprime - 0.5 - range.offset)]
 
   v_map_from_target: (xprimes, skip_cat=false) ->
     x = super(xprimes)
@@ -59,11 +59,8 @@ class CategoricalMapper extends LinearMapper.Model
     if skip_cat
       return x
     result = Array(x)
-    range = @get('source_range')
-    factors = range.get('factors')
+    range = @source_range
+    factors = range.factors
     for i in [0...xprimes.length]
-      result[i] = factors[Math.floor(x[i] - 0.5 - range.get('offset'))]
+      result[i] = factors[Math.floor(x[i] - 0.5 - range.offset)]
     return result
-
-module.exports =
-  Model: CategoricalMapper

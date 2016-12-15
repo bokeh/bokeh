@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{EQ, GE} = require "./solver"
-LayoutCanvas = require "./layout_canvas"
+import {EQ, GE} from "./solver"
+import {LayoutCanvas} from "./layout_canvas"
 
-p = require "../../core/properties"
-{logger} = require "../../core/logging"
+import * as p from "../../core/properties"
+import {logger} from "../../core/logging"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # title text, based on it's location and orientation
@@ -144,12 +144,11 @@ _align_lookup_positive = {
 #         height or width. Extending to full height or width means it's easy to
 #         calculate mid-way for alignment.
 
-
-update_constraints = (view) ->
+export update_constraints = (view) ->
   v = view
 
   if v.model.props.visible?
-    if v.mget('visible') is false
+    if v.model.visible is false
       # if not visible, avoid applying constraints until visible again
       return
 
@@ -176,7 +175,7 @@ update_constraints = (view) ->
   if not v._full_set?
     v._full_set = false
   if not v._full_set
-    side = v.model.panel.get('side')
+    side = v.model.panel.side
     if side in ['above', 'below']
       s.add_constraint(EQ(v.model.panel._width, [-1, v.plot_model.canvas._width]))
     if side in ['left', 'right']
@@ -184,7 +183,7 @@ update_constraints = (view) ->
     v._full_set = true
 
 
-class SidePanel extends LayoutCanvas.Model
+export class SidePanel extends LayoutCanvas
 
   @internal {
     side: [ p.String ]
@@ -193,29 +192,29 @@ class SidePanel extends LayoutCanvas.Model
 
   initialize: (attrs, options)->
     super(attrs, options)
-    side = @get('side')
-    if side == "above"
-      @_dim = 0
-      @_normals = [0, -1]
-      @_size = @_height
-      @_anchor = @_bottom
-    else if side == "below"
-      @_dim = 0
-      @_normals = [0, 1]
-      @_size = @_height
-      @_anchor = @_top
-    else if side == "left"
-      @_dim = 1
-      @_normals = [-1, 0]
-      @_size = @_width
-      @_anchor = @_right
-    else if side == "right"
-      @_dim = 1
-      @_normals = [1, 0]
-      @_size = @_width
-      @_anchor = @_left
-    else
-      logger.error("unrecognized side: '#{ side }'")
+    switch @side
+      when "above"
+        @_dim = 0
+        @_normals = [0, -1]
+        @_size = @_height
+        @_anchor = @_bottom
+      when "below"
+        @_dim = 0
+        @_normals = [0, 1]
+        @_size = @_height
+        @_anchor = @_top
+      when "left"
+        @_dim = 1
+        @_normals = [-1, 0]
+        @_size = @_width
+        @_anchor = @_right
+      when "right"
+        @_dim = 1
+        @_normals = [1, 0]
+        @_size = @_width
+        @_anchor = @_left
+      else
+        logger.error("unrecognized side: '#{ @side }'")
 
   get_constraints: () ->
     #
@@ -236,7 +235,7 @@ class SidePanel extends LayoutCanvas.Model
     return constraints
 
   apply_label_text_heuristics: (ctx, orient) ->
-    side = @get('side')
+    side = @side
 
     if _.isString(orient)
       baseline = _baseline_lookup[side][orient]
@@ -259,9 +258,5 @@ class SidePanel extends LayoutCanvas.Model
     return ctx
 
   get_label_angle_heuristic: (orient) ->
-    side = @get('side')
+    side = @side
     return _angle_lookup[side][orient]
-
-module.exports =
-  Model: SidePanel
-  update_constraints: update_constraints

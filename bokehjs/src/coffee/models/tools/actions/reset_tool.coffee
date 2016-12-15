@@ -1,8 +1,8 @@
-ActionTool = require "./action_tool"
+import {ActionTool, ActionToolView} from "./action_tool"
 
-p = require "../../../core/properties"
+import * as p from "../../../core/properties"
 
-class ResetToolView extends ActionTool.View
+export class ResetToolView extends ActionToolView
 
   do: () ->
     @plot_view.clear_state()
@@ -11,7 +11,7 @@ class ResetToolView extends ActionTool.View
     if @model.reset_size
       @plot_view.reset_dimensions()
 
-class ResetTool extends ActionTool.Model
+export class ResetTool extends ActionTool
   default_view: ResetToolView
   type: "ResetTool"
   tool_name: "Reset"
@@ -20,8 +20,3 @@ class ResetTool extends ActionTool.Model
   @define {
     reset_size: [ p.Bool, true ]
   }
-
-module.exports = {
-  Model: ResetTool
-  View: ResetToolView
-}

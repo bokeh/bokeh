@@ -1,12 +1,12 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ImagePool = require "./image_pool"
-tile_utils = require "./tile_utils"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-Model = require "../../model"
+import {ImagePool} from "./image_pool"
+import {ProjectionUtils} from "./tile_utils"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import {Model} from "../../model"
 
-class TileSource extends Model
+export class TileSource extends Model
   type: 'TileSource'
 
   @define {
@@ -27,7 +27,7 @@ class TileSource extends Model
 
   constructor: (options={}) ->
     super
-    @utils = new tile_utils.ProjectionUtils()
+    @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
     @normalize_case()
@@ -40,7 +40,7 @@ class TileSource extends Model
 
   normalize_case:() ->
     '''Note: should probably be refactored into subclasses.'''
-    url = @get('url')
+    url = @url
     url = url.replace('{x}','{X}')
     url = url.replace('{y}','{Y}')
     url = url.replace('{z}','{Z}')
@@ -49,7 +49,7 @@ class TileSource extends Model
     url = url.replace('{ymin}','{YMIN}')
     url = url.replace('{xmax}','{XMAX}')
     url = url.replace('{ymax}','{YMAX}')
-    @set('url', url)
+    @url = url
 
   update: () ->
     logger.debug("TileSource: tile cache count: #{Object.keys(@tiles).length}")
@@ -93,7 +93,7 @@ class TileSource extends Model
       delete @tiles[key]
 
   get_image_url: (x, y, z) ->
-    image_url = @string_lookup_replace(@get('url'), @get('extra_url_vars'))
+    image_url = @string_lookup_replace(@url, @extra_url_vars)
     return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
   retain_neighbors: (reference_tile) ->
@@ -110,5 +110,3 @@ class TileSource extends Model
 
   quadkey_to_tile_xyz: (quadkey) ->
     throw Error("Not Implemented")
-
-module.exports = TileSource

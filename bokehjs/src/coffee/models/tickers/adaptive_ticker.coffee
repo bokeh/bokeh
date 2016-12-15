@@ -1,8 +1,8 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{argmin} = require "./util"
-ContinuousTicker = require "./continuous_ticker"
-p = require "../../core/properties"
+import {argmin} from "./util"
+import {ContinuousTicker} from "./continuous_ticker"
+import * as p from "../../core/properties"
 
 # Forces a number x into a specified range [min_val, max_val].
 clamp = (x, min_val, max_val) ->
@@ -16,7 +16,7 @@ log = (x, base=Math.E) ->
 # AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
 # following:
 # ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
-class AdaptiveTicker extends ContinuousTicker.Model
+export class AdaptiveTicker extends ContinuousTicker
   type: 'AdaptiveTicker'
 
   @define {
@@ -37,9 +37,9 @@ class AdaptiveTicker extends ContinuousTicker.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    prefix_mantissa =  _.last(@get('mantissas')) / @get('base')
-    suffix_mantissa = _.first(@get('mantissas')) * @get('base')
-    @extended_mantissas = _.flatten([prefix_mantissa, @get('mantissas'), suffix_mantissa])
+    prefix_mantissa =  _.last(@mantissas) / @base
+    suffix_mantissa = _.first(@mantissas) * @base
+    @extended_mantissas = _.flatten([prefix_mantissa, @mantissas, suffix_mantissa])
 
     @base_factor = if @get_min_interval() == 0.0 then 1.0 else @get_min_interval()
 
@@ -47,8 +47,8 @@ class AdaptiveTicker extends ContinuousTicker.Model
     data_range = data_high - data_low
     ideal_interval = @get_ideal_interval(data_low, data_high, desired_n_ticks)
 
-    interval_exponent = Math.floor(log(ideal_interval / @base_factor, @get('base')))
-    ideal_magnitude = Math.pow(@get('base'), interval_exponent) * @base_factor
+    interval_exponent = Math.floor(log(ideal_interval / @base_factor, @base))
+    ideal_magnitude = Math.pow(@base, interval_exponent) * @base_factor
     ideal_mantissa = ideal_interval / ideal_magnitude
 
     # An untested optimization.
@@ -63,6 +63,3 @@ class AdaptiveTicker extends ContinuousTicker.Model
     interval = best_mantissa * ideal_magnitude
 
     return clamp(interval, @get_min_interval(), @get_max_interval())
-
-module.exports =
-  Model: AdaptiveTicker

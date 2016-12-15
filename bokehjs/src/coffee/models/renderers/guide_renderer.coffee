@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Renderer = require "./renderer"
-p = require "../../core/properties"
+import {Renderer} from "./renderer"
+import * as p from "../../core/properties"
 
-class GuideRenderer extends Renderer.Model
+export class GuideRenderer extends Renderer
   type: 'GuideRenderer'
 
   @define {
@@ -13,6 +13,3 @@ class GuideRenderer extends Renderer.Model
   @override {
     level: 'overlay'
   }
-
-module.exports =
-  Model: GuideRenderer

@@ -1,31 +1,27 @@
-Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
-p = require "../../core/properties"
+import {Annotation} from "./annotation"
+import {Visuals} from "../../core/visuals"
+import * as p from "../../core/properties"
 
-class ArrowHead extends Annotation.Model
+export class ArrowHead extends Annotation
   type: 'ArrowHead'
 
   initialize: (options) ->
     super(options)
-    @visuals = {}
-    for spec in @mixins
-      [name, prefix] = spec.split(":")
-      prefix ?= ""
-      @visuals[prefix+name] = new Renderer.Visuals[name]({obj: @, prefix: prefix})
+    @visuals = new Visuals(@)
 
   render: (ctx, i) ->
     null
 
-class OpenHead extends ArrowHead
+export class OpenHead extends ArrowHead
   type: 'OpenHead'
 
   render: (ctx, i) ->
-    if @visuals["line"].doit
-      @visuals["line"].set_vectorize(ctx, i)
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.stroke()
 
   @mixins ['line']
@@ -34,25 +30,25 @@ class OpenHead extends ArrowHead
       size:  [ p.Number,   25            ]
     }
 
-class NormalHead extends ArrowHead
+export class NormalHead extends ArrowHead
   type: 'NormalHead'
 
   render: (ctx, i) ->
-    if @visuals["fill"].doit
-      @visuals["fill"].set_vectorize(ctx, i)
+    if @visuals.fill.doit
+      @visuals.fill.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.closePath()
       ctx.fill()
 
-    if @visuals["line"].doit
-      @visuals["line"].set_vectorize(ctx, i)
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
+      ctx.lineTo(-0.5*@size, @size)
       ctx.closePath()
       ctx.stroke()
 
@@ -66,27 +62,27 @@ class NormalHead extends ArrowHead
     fill_color: 'black'
   }
 
-class VeeHead extends ArrowHead
+export class VeeHead extends ArrowHead
   type: 'VeeHead'
 
   render: (ctx, i) ->
-    if @visuals["fill"].doit
-      @visuals["fill"].set_vectorize(ctx, i)
+    if @visuals.fill.doit
+      @visuals.fill.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
-      ctx.lineTo(0, 0.5*@get("size"))
+      ctx.lineTo(-0.5*@size, @size)
+      ctx.lineTo(0, 0.5*@size)
       ctx.closePath()
       ctx.fill()
 
-    if @visuals["line"].doit
-      @visuals["line"].set_vectorize(ctx, i)
+    if @visuals.line.doit
+      @visuals.line.set_vectorize(ctx, i)
       ctx.beginPath()
-      ctx.moveTo(0.5*@get("size"), @get("size"))
+      ctx.moveTo(0.5*@size, @size)
       ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*@get("size"), @get("size"))
-      ctx.lineTo(0, 0.5*@get("size"))
+      ctx.lineTo(-0.5*@size, @size)
+      ctx.lineTo(0, 0.5*@size)
       ctx.closePath()
       ctx.stroke()
 
@@ -99,9 +95,3 @@ class VeeHead extends ArrowHead
   @override {
     fill_color: 'black'
   }
-
-module.exports = {
-  OpenHead: {Model: OpenHead}
-  NormalHead: {Model: NormalHead}
-  VeeHead: {Model: VeeHead}
-}

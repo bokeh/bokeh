@@ -1,13 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/dropdown"
 
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-AbstractButton = require "./abstract_button"
+import {AbstractButton, AbstractButtonView} from "./abstract_button"
+import template from "./dropdown_template"
 
-template = require "./dropdown_template"
-
-class DropdownView extends AbstractButton.View
+export class DropdownView extends AbstractButtonView
   template: template
 
   render: () ->
@@ -27,6 +27,7 @@ class DropdownView extends AbstractButton.View
 
     @$el.find('.bk-bs-dropdown-menu').append(items)
     @$el.find('button').val(@model.default_value)
+    @$el.find('button').dropdown()
     return @
 
   set_value: (value) ->
@@ -37,7 +38,7 @@ class DropdownView extends AbstractButton.View
 
 
 
-class Dropdown extends AbstractButton.Model
+export class Dropdown extends AbstractButton
   type: "Dropdown"
   default_view: DropdownView
 
@@ -50,7 +51,3 @@ class Dropdown extends AbstractButton.Model
   @override {
     label: "Dropdown"
   }
-
-module.exports =
-  Model: Dropdown
-  View: DropdownView

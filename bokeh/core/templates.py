@@ -2,6 +2,7 @@
 Bokeh models (e.g. plots, widgets, layouts) in various ways.
 
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_JS
+.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_NB_JS
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_TAG
 .. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.DOC_JS
@@ -34,4 +35,5 @@ NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
 NOTEBOOK_DIV = _env.get_template("notebook_div.html")
 
 AUTOLOAD_JS = _env.get_template("autoload_js.js")
+AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
 AUTOLOAD_TAG = _env.get_template("autoload_tag.html")

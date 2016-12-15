@@ -2,14 +2,14 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-SidePanel = utils.require("core/layout/side_panel").Model
+{SidePanel} = utils.require("core/layout/side_panel")
 
 {Document} = utils.require "document"
 
-Annotation = utils.require("models/annotations/annotation").Model
+{Annotation} = utils.require("models/annotations/annotation")
 
 
-describe "Annotation.Model", ->
+describe "Annotation", ->
 
   beforeEach ->
     @annotation = new Annotation()

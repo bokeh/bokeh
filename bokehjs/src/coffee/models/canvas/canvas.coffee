@@ -1,22 +1,22 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-canvas_template = require "./canvas_template"
-LayoutCanvas = require "../../core/layout/layout_canvas"
+import canvas_template from "./canvas_template"
+import {LayoutCanvas} from "../../core/layout/layout_canvas"
 
-BokehView = require "../../core/bokeh_view"
-{GE, EQ} = require "../../core/layout/solver"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} = require "../../core/util/canvas"
+import {BokehView} from "../../core/bokeh_view"
+import {GE, EQ} from "../../core/layout/solver"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "../../core/util/canvas"
 
-class CanvasView extends BokehView
+export class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
   template: canvas_template
 
   initialize: (options) ->
     super(options)
 
-    html = @template({ map: @mget('map') })
+    html = @template({ map: @model.map })
     @$el.html(html)
 
     # create the canvas context that gets passed around for drawing
@@ -32,16 +32,23 @@ class CanvasView extends BokehView
     fixup_measure_text(@ctx)
     fixup_ellipse(@ctx)
 
+    # fixes up a problem with some versions of IE11
+    # ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
+    if window.CanvasPixelArray?
+      CanvasPixelArray.prototype.set = (arr) ->
+        for i in [0...@length]
+            @[i] = arr[i]
+
     # map plots reference this attribute
-    @map_div = @$('div.bk-canvas-map') ? null
+    @map_div = @$el.find('div.bk-canvas-map') ? null
     @set_dims([@model.initial_width, @model.initial_height])
     logger.debug("CanvasView initialized")
 
   get_canvas_element: () ->
-    return @$('canvas.bk-canvas')[0]
+    return @$el.find('canvas.bk-canvas')[0]
 
   get_ctx: () ->
-    canvas_el = @$('canvas.bk-canvas')
+    canvas_el = @$el.find('canvas.bk-canvas')
     ctx = canvas_el[0].getContext('2d')
     return ctx
 
@@ -61,8 +68,8 @@ class CanvasView extends BokehView
       })
 
       # Scale the canvas (this resets the context's state)
-      @pixel_ratio = ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
-      canvas_el = @$('.bk-canvas')
+      @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
+      canvas_el = @$el.find('.bk-canvas')
       canvas_el.css({
         width: width
         height: height
@@ -110,7 +117,7 @@ class CanvasView extends BokehView
 
     s.update_variables(trigger)
 
-class Canvas extends LayoutCanvas.Model
+export class Canvas extends LayoutCanvas
   type: 'Canvas'
   default_view: CanvasView
 
@@ -133,38 +140,35 @@ class Canvas extends LayoutCanvas.Model
     # Note: +1 to account for 1px canvas dilation
     return @_height._value - (y + 1)
 
-  # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
+  # vectorized versions of vx_to_sx/vy_to_sy
   v_vx_to_sx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
-    return xx
+    return new Float64Array(xx)
 
   v_vy_to_sy: (yy) ->
+    _yy = new Float64Array(yy.length)
     height = @_height._value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = height - (y + 1)
-    return yy
+      _yy[idx] = height - (y + 1)
+    return _yy
 
-  # transform underlying screen coordinates to view coordinates
   sx_to_vx: (x) -> x
 
   sy_to_vy: (y) ->
     # Note: +1 to account for 1px canvas dilation
-    return @get('height') - (y + 1)
+    return @_height._value - (y + 1)
 
-  # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
+  # vectorized versions of sx_to_vx/sy_to_vy
   v_sx_to_vx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
-    return xx
+    return new Float64Array(xx)
 
   v_sy_to_vy: (yy) ->
+    _yy = new Float64Array(yy.length)
     height = @_height._value
     # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = height - (y + 1)
-    return yy
+      _yy[idx] = height - (y + 1)
+    return _yy
 
   get_constraints: () ->
     constraints = super()
@@ -177,7 +181,3 @@ class Canvas extends LayoutCanvas.Model
     constraints.push(EQ(@_width, [-1, @_right]))
     constraints.push(EQ(@_height, [-1, @_top]))
     return constraints
-
-module.exports =
-  Model: Canvas
-  View: CanvasView

@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
-Model = require "../../model"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
+import {Model} from "../../model"
 
-class ImageSource extends Model
+export class ImageSource extends Model
   type: 'ImageSource'
 
   @define {
@@ -19,14 +19,14 @@ class ImageSource extends Model
 
   normalize_case:() ->
     '''Note: should probably be refactored into subclasses.'''
-    url = @get('url')
+    url = @url
     url = url.replace('{xmin}','{XMIN}')
     url = url.replace('{ymin}','{YMIN}')
     url = url.replace('{xmax}','{XMAX}')
     url = url.replace('{ymax}','{YMAX}')
     url = url.replace('{height}','{HEIGHT}')
     url = url.replace('{width}','{WIDTH}')
-    @set('url', url)
+    @url = url
 
   string_lookup_replace: (str, lookup) ->
     result_str = str
@@ -41,8 +41,5 @@ class ImageSource extends Model
     delete @images[image_obj.cache_key]
 
   get_image_url: (xmin, ymin, xmax, ymax, height, width) ->
-    image_url = @string_lookup_replace(@get('url'), @get('extra_url_vars'))
+    image_url = @string_lookup_replace(@url, @extra_url_vars)
     return image_url.replace("{XMIN}", xmin).replace("{YMIN}", ymin).replace("{XMAX}", xmax).replace("{YMAX}", ymax).replace("{WIDTH}", width).replace("{HEIGHT}", height)
-
-module.exports =
-  Model : ImageSource

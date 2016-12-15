@@ -1,10 +1,12 @@
-_ = require "underscore"
-Backbone = require "backbone"
+import * as _ from "underscore"
+import * as Backbone from "./backbone"
 
-class BokehView extends Backbone.View
+export class BokehView extends Backbone.View
   initialize: (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
+
+  toString: () -> "#{@model.type}View(#{@id})"
 
   bind_bokeh_events: () ->
 
@@ -14,9 +16,3 @@ class BokehView extends Backbone.View
         val.off(null, null, this)
     @trigger('remove', this)
     super()
-
-  mget: ()-> @model.get.apply(@model, arguments)
-
-  mset: ()-> return @model.set.apply(@model, arguments)
-
-module.exports = BokehView

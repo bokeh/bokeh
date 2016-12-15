@@ -3,7 +3,7 @@ utils = require "../../utils"
 
 refs = utils.require "core/util/refs"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 
 class Foo extends HasProps
   type: 'Foo'

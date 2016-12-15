@@ -5,6 +5,8 @@ library.
 """
 from __future__ import absolute_import
 
+import sys
+
 import logging
 logger = logging.getLogger(__file__)
 
@@ -37,7 +39,7 @@ from .model import Model
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
-from .util.deprecate import deprecated
+from .util.deprecation import deprecated
 from .util.version import __version__
 from .util.serialization import make_id
 
@@ -140,6 +142,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
+
 
 class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
@@ -296,6 +299,13 @@ class Document(object):
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = {}
         self._session_callbacks = {}
+        self._session_context = None
+        self._modules = []
+
+    def __del__(self):
+        for module in self._modules:
+            if module.__name__ in sys.modules:
+                del sys.modules[module.__name__]
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
@@ -373,6 +383,10 @@ class Document(object):
         return list(self._roots)
 
     @property
+    def session_context(self):
+        return self._session_context
+
+    @property
     def title(self):
         return self._title
 
@@ -416,6 +430,7 @@ class Document(object):
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
+
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
 
@@ -438,7 +453,6 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
 
@@ -453,6 +467,7 @@ class Document(object):
             None
 
         """
+        deprecated((0, 11, 0), 'Document.add()', 'Document.add_root()')
         for obj in objects:
             self.add_root(obj)
 

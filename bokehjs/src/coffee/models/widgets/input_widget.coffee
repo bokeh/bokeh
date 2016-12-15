@@ -1,19 +1,19 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Widget = require "./widget"
-p = require "../../core/properties"
+import {Widget, WidgetView} from "./widget"
+import * as p from "../../core/properties"
 
-class InputWidgetView extends Widget.View
+export class InputWidgetView extends WidgetView
 
   render: () ->
     super()
     @$el.find('input').prop("disabled", @model.disabled)
 
   change_input: () ->
-    @mget('callback')?.execute(@model)
+    @model.callback?.execute(@model)
 
 
-class InputWidget extends Widget.Model
+export class InputWidget extends Widget
   type: "InputWidget"
   default_view: InputWidgetView
 
@@ -21,7 +21,3 @@ class InputWidget extends Widget.Model
       callback: [ p.Instance   ]
       title:    [ p.String, '' ]
     }
-
-module.exports =
-  Model: InputWidget
-  View: InputWidgetView

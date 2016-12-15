@@ -2,18 +2,18 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-Axis = utils.require("models/axes/axis").Model
-BasicTicker = utils.require("models/tickers/basic_ticker").Model
-BasicTickFormatter = utils.require("models/formatters/basic_tick_formatter").Model
-Plot = utils.require("models/plots/plot").Model
-PlotCanvas = utils.require("models/plots/plot_canvas").Model
-PlotView = utils.require("models/plots/plot").View
-Range1d = utils.require("models/ranges/range1d").Model
-SidePanel = utils.require("core/layout/side_panel").Model
-Toolbar = utils.require("models/tools/toolbar").Model
+{Axis} = utils.require("models/axes/axis")
+{BasicTicker} = utils.require("models/tickers/basic_ticker")
+{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
+{Plot} = utils.require("models/plots/plot")
+{PlotCanvas} = utils.require("models/plots/plot_canvas")
+{PlotView} = utils.require("models/plots/plot")
+{Range1d} = utils.require("models/ranges/range1d")
+{SidePanel} = utils.require("core/layout/side_panel")
+{Toolbar} = utils.require("models/tools/toolbar")
 {Document} = utils.require "document"
 
-describe "Axis.Model", ->
+describe "Axis", ->
 
   it "should have a SidePanel after add_panel is called", ->
     doc = new Document()
@@ -51,7 +51,7 @@ describe "Axis.Model", ->
     doc.add_root(p)
     expect(axis.panel).to.be.an.instanceOf(SidePanel)
 
-describe "Axis.View", ->
+describe "AxisView", ->
 
   afterEach ->
     utils.unstub_canvas()
@@ -81,7 +81,6 @@ describe "Axis.View", ->
     sinon.stub(plot_canvas_view, 'update_constraints')
     @axis_view = new @axis.default_view({
       model: @axis
-      plot_model: plot.plot_canvas
       plot_view: plot_canvas_view
     })
 
@@ -92,11 +91,11 @@ describe "Axis.View", ->
     expect(@axis_view._tick_label_extent()).to.be.above @axis.major_label_standoff
 
   it "_axis_label_extent should be greater than axis_label_standoff", ->
-    @axis.set('axis_label', 'Left axis label')
+    @axis.axis_label = 'Left axis label'
     expect(@axis_view._axis_label_extent()).to.be.above @axis.axis_label_standoff
 
   it "_axis_label_extent should be greater than the font_size", ->
-    @axis.set('axis_label', 'Left axis label')
+    @axis.axis_label = 'Left axis label'
     expect(@axis_view._axis_label_extent()).to.be.above 0
     expect(@axis_view._axis_label_extent()).to.be.below 10
 

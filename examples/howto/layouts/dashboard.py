@@ -22,7 +22,7 @@ def bollinger():
     p = figure(x_axis_type='datetime', tools=tools)
     p.patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
 
-    p.title = 'Bollinger Bands'
+    p.title.text = 'Bollinger Bands'
     p.title_location = 'left'
     p.title.align = 'left'
     p.plot_height = 600
@@ -43,11 +43,11 @@ def slider():
     plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
     callback = CustomJS(args=dict(source=source), code="""
-        var data = source.get('data');
-        var A = amp.get('value')
-        var k = freq.get('value')
-        var phi = phase.get('value')
-        var B = offset.get('value')
+        var data = source.data;
+        var A = amp.value;
+        var k = freq.value;
+        var phi = phase.value;
+        var B = offset.value;
         x = data['x']
         y = data['y']
         for (i = 0; i < x.length; i++) {

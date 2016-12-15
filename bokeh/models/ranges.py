@@ -115,7 +115,7 @@ class DataRange1d(DataRange):
     """
 
     range_padding = Float(default=0.1, help="""
-    A percentage of the total range size to add as padding to
+    A fraction of the total range size to add as padding to
     the range start and end.
     """)
 
@@ -188,7 +188,8 @@ class DataRange1d(DataRange):
     """)
 
     default_span = Float(default=2.0, help="""
-    A default width for the interval, in case ``start`` is equal to ``end``.
+    A default width for the interval, in case ``start`` is equal to ``end``
+    (if used with a log axis, default_span is in powers of 10).
     """)
 
     def __init__(self, *args, **kwargs):

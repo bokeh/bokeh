@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from datetime import timedelta
 import pytest
 import logging
 import re
@@ -17,6 +18,7 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
+from bokeh.server.server import Server
 from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
@@ -226,6 +228,50 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
 
+def test__request_in_session_context():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "?foo=10")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # do we have a request
+        assert session_context.request is not None
+
+
+def test__request_in_session_context_has_arguments():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server) + "?foo=10")
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # test if we can get the argument from the request
+        assert session_context.request.arguments['foo'] == [b'10']
+
+def test__no_request_arguments_in_session_context():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        response = http_get(server.io_loop,
+                            url(server))
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        server_session = server.get_session('/', sessionid)
+        server_doc = server_session.document
+        session_context = server_doc.session_context
+        # if we do not pass any arguments to the url, the request arguments
+        # should be empty
+        assert len(session_context.request.arguments) == 0
+
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
@@ -237,6 +283,19 @@ def extract_sessionid_from_json(html):
         html = codecs.decode(html, 'utf-8')
     match = sessionid_in_json.search(html)
     return match.group(1)
+
+# examples:
+# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
+# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
+use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
+def extract_use_for_title_from_json(html):
+    from six import string_types
+    if not isinstance(html, string_types):
+        import codecs
+        html = codecs.decode(html, 'utf-8')
+    match = use_for_title_in_json.search(html)
+    return match.group(1)
+
 
 def autoload_url(server):
     return url(server) + \
@@ -261,6 +320,18 @@ def test__autocreate_session_autoload():
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
+
+def test__no_set_title_autoload():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = http_get(server.io_loop,
+                            autoload_url(server))
+        js = response.body
+        use_for_title = extract_use_for_title_from_json(js)
+        assert use_for_title == "false"
 
 def test__autocreate_session_doc():
     application = Application()
@@ -459,3 +530,34 @@ def test__existing_ioloop_with_multiple_processes_exception():
     with pytest.raises(RuntimeError):
         with ManagedServerLoop(application, num_procs=3):
             pass
+
+def test__actual_port_number():
+    application = Application()
+    with ManagedServerLoop(application, port=0) as server:
+        port = server.port
+        assert port > 0
+        http_get(server.io_loop, url(server))
+
+def test__ioloop_not_forcibly_stopped():
+    # Issue #5494
+    application = Application()
+    loop = IOLoop()
+    loop.make_current()
+    server = Server(application, ioloop=loop)
+    server.start()
+    result = []
+
+    def f():
+        server.unlisten()
+        server.stop()
+        # If server.stop() were to stop the Tornado IO loop,
+        # g() wouldn't be called and `result` would remain empty.
+        loop.add_timeout(timedelta(seconds=0.01), g)
+
+    def g():
+        result.append(None)
+        loop.stop()
+
+    loop.add_callback(f)
+    loop.start()
+    assert result == [None]

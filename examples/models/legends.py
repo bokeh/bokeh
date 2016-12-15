@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    PanTool, WheelZoomTool, SaveTool, Legend,
+    PanTool, WheelZoomTool, SaveTool, Legend
 )
 from bokeh.resources import INLINE
 
@@ -45,27 +45,49 @@ from bokeh.core.enums import LegendLocation
 
 # Add legends in names positions e.g. 'top_right', 'top_left' (see plot for all)
 for location in LegendLocation:
-    legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, orientation="vertical")
+    legend = Legend(items=[
+        (location, [line]),
+        ("other", [circle]),
+    ], location=location, orientation="vertical")
     plot.add_layout(legend)
 
 # Add legend at fixed positions
-legend = Legend(legends=[("x: 300px, y: 150px (horizontal)", [line]), ("other", [circle])], location=(300, 150), orientation="horizontal")
+legend = Legend(items=[
+    ("x: 300px, y: 150px (horizontal)", [line]),
+    ("other", [circle]),
+], location=(300, 150), orientation="horizontal")
 plot.add_layout(legend)
 
 # Add legend in side panels
-legend = Legend(legends=[("x: 0px, y: 0px (horizontal | above panel)", [line]), ("other", [circle])], location=(0, 0), orientation="horizontal")
+legend = Legend(items=[
+    ("x: 0px, y: 0px (horizontal | above panel)", [line]),
+    ("other", [circle]),
+], location=(0, 0), orientation="horizontal")
 plot.add_layout(legend, 'above')
-legend = Legend(legends=[("x: 0px, y: 0px (horizontal | below panel)", [line]), ("other", [circle])], location=(0, 0), orientation="horizontal")
+
+legend = Legend(items=[
+    ("x: 0px, y: 0px (horizontal | below panel)", [line]),
+    ("other", [circle]),
+], location=(0, 0), orientation="horizontal")
 plot.add_layout(legend, 'below')
-legend = Legend(legends=[("x: 0px, y: 0px (vertical | left)", [line]), ("other", [circle])], location=(0, -HEIGHT/2), orientation="vertical")
+
+legend = Legend(items=[
+    ("x: 0px, y: 0px (vertical | left)", [line]),
+    ("other", [circle]),
+], location=(0, -HEIGHT/2), orientation="vertical")
 plot.add_layout(legend, 'left')
-legend = Legend(legends=[("x: 0px, y: 0px (vertical | right)", [line]), ("other", [circle])], location=(0, -HEIGHT/2), orientation="vertical")
+
+legend = Legend(items=[
+    ("x: 0px, y: 0px (vertical | right)", [line]),
+    ("other", [circle]),
+], location=(0, -HEIGHT/2), orientation="vertical")
 plot.add_layout(legend, 'right')
 
 doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "legends.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Legends Example"))

@@ -1,3 +1,1 @@
-version = '0.12.2dev1'
-
-module.exports = version
+export version = '0.12.4dev9'

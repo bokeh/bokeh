@@ -1,40 +1,41 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-InspectTool = require "./inspect_tool"
-Span = require "../../annotations/span"
-p = require "../../../core/properties"
+import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Span} from "../../annotations/span"
+import * as p from "../../../core/properties"
 
-class CrosshairToolView extends InspectTool.View
+export class CrosshairToolView extends InspectToolView
 
   _move: (e) ->
-    if not @mget('active')
+    if not @model.active
       return
-    frame = @plot_model.get('frame')
-    canvas = @plot_model.get('canvas')
+
+    frame = @plot_model.frame
+    canvas = @plot_model.canvas
+
     vx = canvas.sx_to_vx(e.bokeh.sx)
     vy = canvas.sy_to_vy(e.bokeh.sy)
-    for dim in @mget('dimensions')
-      span = @mget('spans')[dim]
-      if not frame.contains(vx, vy)
-        span.unset('computed_location')
-      else
-        if dim == "width"
-          span.set('computed_location', vy)
-        else
-          span.set('computed_location', vx)
+    if not frame.contains(vx, vy)
+      vx = vy = null
 
-  _move_exit: (e)->
-    for dim in @mget('dimensions')
-      span = @mget('spans')[dim]
-      span.unset('computed_location')
+    @_update_spans(vx, vy)
 
-class CrosshairTool extends InspectTool.Model
+  _move_exit: (e) ->
+    @_update_spans(null, null)
+
+  _update_spans: (x, y) ->
+    dims = @model.dimensions
+    if dims in ['width',  'both'] then @model.spans.width.computed_location  = y
+    if dims in ['height', 'both'] then @model.spans.height.computed_location = x
+
+export class CrosshairTool extends InspectTool
   default_view: CrosshairToolView
   type: "CrosshairTool"
   tool_name: "Crosshair"
+  icon: "bk-tool-icon-crosshair"
 
   @define {
-      dimensions: [ p.Array, ["width", "height"] ]
+      dimensions: [ p.Dimensions, "both"         ]
       line_color: [ p.Color, 'black'             ]
       line_width: [ p.Number, 1                  ]
       line_alpha: [ p.Number, 1.0                ]
@@ -46,40 +47,31 @@ class CrosshairTool extends InspectTool.Model
     spans:          [ p.Any ]
   }
 
+  @getters {
+    tooltip: () -> @_get_dim_tooltip("Crosshair", @dimensions)
+    synthetic_renderers: () -> _.values(@spans)
+  }
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          "Crosshair",
-          @_check_dims(@get('dimensions'), "crosshair tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
-
     @spans = {
-      width: new Span.Model({
+      width: new Span({
         for_hover: true
         dimension: "width",
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
+        render_mode: @render_mode
+        location_units: @location_units
+        line_color: @line_color
+        line_width: @line_width
+        line_alpha: @line_alpha
       }),
-      height: new Span.Model({
+      height: new Span({
         for_hover: true
         dimension: "height"
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
+        render_mode: @render_mode
+        location_units: @location_units
+        line_color: @line_color
+        line_width: @line_width
+        line_alpha: @line_alpha
       })
     }
-
-    @override_computed_property('synthetic_renderers', (() => _.values(@get("spans"))), true)
-
-module.exports =
-  Model: CrosshairTool
-  View: CrosshairToolView

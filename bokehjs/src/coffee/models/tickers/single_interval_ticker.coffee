@@ -1,32 +1,21 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ContinuousTicker = require "./continuous_ticker"
-p = require "../../core/properties"
+import {ContinuousTicker} from "./continuous_ticker"
+import * as p from "../../core/properties"
 
 # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
 # regardless of the input range.  It's not very useful by itself, but can
 # be used as part of a CompositeTicker below.
-class SingleIntervalTicker extends ContinuousTicker.Model
+export class SingleIntervalTicker extends ContinuousTicker
   type: 'SingleIntervalTicker'
 
   @define {
-      interval: [ p.Number ]
-    }
+    interval: [ p.Number ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('min_interval',
-        () -> @get('interval')
-      , true)
-    @add_dependencies('min_interval', this, ['interval'])
+  @getters {
+    min_interval: () -> @interval
+    max_interval: () -> @interval
+  }
 
-    @define_computed_property('max_interval',
-        () -> @get('interval')
-      , true)
-    @add_dependencies('max_interval', this, ['interval'])
-
-  get_interval: (data_low, data_high, n_desired_ticks) ->
-    return @get('interval')
-
-module.exports =
-  Model: SingleIntervalTicker
+  get_interval: (data_low, data_high, n_desired_ticks) -> @interval

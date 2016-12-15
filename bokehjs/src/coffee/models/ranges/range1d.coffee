@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Range = require "./range"
-p = require "../../core/properties"
+import {Range} from "./range"
+import * as p from "../../core/properties"
 
-class Range1d extends Range.Model
+export class Range1d extends Range
   type: 'Range1d'
 
   @define {
@@ -15,10 +15,10 @@ class Range1d extends Range.Model
     }
 
   _set_auto_bounds: () ->
-    if @get('bounds') == 'auto'
+    if @bounds == 'auto'
       min = Math.min(@_initial_start, @_initial_end)
       max = Math.max(@_initial_start, @_initial_end)
-      @set('bounds', [min, max])
+      @setv({bounds: [min, max]}, {silent: true})
 
   constructor: () ->
     # new Range1d({start: start, end: end}) or Range1d(start, end)
@@ -31,24 +31,17 @@ class Range1d extends Range.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @define_computed_property('min',
-        () -> Math.min(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('min', this, ['start', 'end'])
-
-    @define_computed_property('max',
-        () -> Math.max(@get('start'), @get('end'))
-      , true)
-    @add_dependencies('max', this, ['start', 'end'])
-
-    @_initial_start = @get('start')
-    @_initial_end = @get('end')
+    @_initial_start = @start
+    @_initial_end = @end
 
     @_set_auto_bounds()
+
+  @getters {
+    min: () -> Math.min(@start, @end)
+    max: () -> Math.max(@start, @end)
+  }
 
   reset: () ->
-    @set({start: @_initial_start, end: @_initial_end})
+    @setv({start: @_initial_start, end: @_initial_end}, {silent: true})
     @_set_auto_bounds()
-
-module.exports =
-  Model: Range1d
+    @trigger('change')

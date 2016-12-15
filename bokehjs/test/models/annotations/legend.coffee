@@ -2,17 +2,42 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-SidePanel = utils.require("core/layout/side_panel").Model
+{SidePanel} = utils.require("core/layout/side_panel")
 
 {Document} = utils.require "document"
 
-Legend = utils.require("models/annotations/legend").Model
-LegendView = utils.require("models/annotations/legend").View
+{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{Legend} = utils.require("models/annotations/legend")
+{LegendView} = utils.require("models/annotations/legend")
+{LegendItem} = utils.require("models/annotations/legend_item")
 
 HEIGHT = 333
 WIDTH = 222
 
-describe "Legend.View", ->
+describe "Legend", ->
+
+  describe "get_legend_names", ->
+
+    it "should return the results of get_labels_from_glyph_label_prop", ->
+      source = new ColumnDataSource({
+        data: {
+          label: ['l1', 'l2', 'l2', 'l1']
+        },
+        selection_manager: null,
+      })
+      gr = new GlyphRenderer({'data_source': source})
+      item_1 = new LegendItem({'label': {'field': 'label'}, 'renderers': [gr]})
+      item_2 = new LegendItem({'label': {'value': 'l3'}})
+
+      legend = new Legend({
+        items: [item_1, item_2]
+      })
+      labels = legend.get_legend_names()
+      expect(labels).to.be.deep.equal ['l1', 'l2', 'l3']
+
+
+describe "LegendView", ->
 
   afterEach ->
     LegendView.prototype.compute_legend_bbox.restore()

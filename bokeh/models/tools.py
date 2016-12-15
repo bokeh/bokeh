@@ -23,17 +23,32 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..model import Model
-from ..core.properties import abstract, Float, Color
 from ..core.properties import (
+    abstract, Float, Color, Percent,
     Any, Auto, Bool, String, Enum, Instance, Either, List, Dict, Tuple, Override
 )
-from ..core.enums import Dimension, Location, Anchor
+from ..core.enums import (Dimension, Dimensions, Location, Anchor,
+    DeprecatedAnchor, accept_left_right_center,
+)
+from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .renderers import Renderer
 from .layouts import LayoutDOM, Box
 
+def _deprecated_dimensions(tool):
+    def transformer(value):
+        deprecated((0, 12, 3), "List(Enum(Dimension)) in %s.dimensions" % tool, "Enum(Dimensions)")
+
+        if "width" in value and "height" in value:
+            return "both"
+        elif "width" in value or "height" in value:
+            return value
+        else:
+            raise ValueError("empty dimensions' list doesn't make sense")
+
+    return transformer
 
 class ToolEvents(Model):
     """
@@ -166,11 +181,27 @@ class PanTool(Drag):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the pan tool is constrained to act in. By default
     the pan tool will pan in any dimension, but can be configured to only
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("PanTool"))
+
+class WheelPanTool(Scroll):
+    """ *toolbar icon*: |wheel_pan_icon|
+
+    The wheel pan tool allows the user to pan the plot along the configured
+    dimension using the scroll wheel.
+
+    .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
+        :height: 18pt
+
+    """
+
+    dimension = Enum(Dimension, default="width", help="""
+    Which dimension the wheel pan tool is constrained to act in. By
+    default the wheel pan tool will pan the plot along the x-axis.
     """)
 
 
@@ -190,12 +221,12 @@ class WheelZoomTool(Scroll):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the wheel zoom tool is constrained to act in. By
     default the wheel zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("WheelZoomTool"))
 
 
 class SaveTool(Action):
@@ -291,7 +322,7 @@ class TapTool(Tap):
 
 
 class CrosshairTool(Inspection):
-    """ *toolbar icon*: |inspector_icon|
+    """ *toolbar icon*: |crosshair_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
     at all times, but can be configured in the inspector's menu
@@ -302,17 +333,17 @@ class CrosshairTool(Inspection):
     configured to draw across only one dimension by setting the
     ``dimension`` property to only ``width`` or ``height``.
 
-    .. |inspector_icon| image:: /_images/icons/Inspector.png
+    .. |crosshair_icon| image:: /_images/icons/Crosshair.png
         :height: 18pt
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the crosshair tool is to track. By default, both a
     vertical and horizontal line will be drawn. If only "width" is supplied,
     only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("CrosshairTool"))
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
@@ -368,7 +399,7 @@ class BoxZoomTool(Drag):
 
     """
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the zoom box is to be free in. By default,
     users may freely draw zoom boxes with any dimensions. If only
     "width" is supplied, the box will be constrained to span the entire
@@ -376,7 +407,7 @@ class BoxZoomTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxZoomTool"))
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -390,6 +421,49 @@ class BoxZoomTool(Drag):
         If the tool is restricted to one dimension, this value has
         no effect.
 
+    """)
+
+class ZoomInTool(Action):
+    """ *toolbar icon*: |zoom_in_icon|
+
+    The zoom-in tool allows users to click a button to zoom in
+    by a fixed amount.
+
+    .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+        :height: 18pt
+
+    """
+    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the zoom-in tool is constrained to act in. By
+    default the zoom-in zoom tool will zoom in any dimension, but can be
+    configured to only zoom horizontally across the width of the plot, or
+    vertically across the height of the plot.
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomInTool"))
+
+    factor = Percent(default=0.1, help="""
+    Percentage to zoom for each click of the zoom-in tool.
+    """)
+
+class ZoomOutTool(Action):
+    """ *toolbar icon*: |zoom_out_icon|
+
+    The zoom-out tool allows users to click a button to zoom out
+    by a fixed amount.
+
+    .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
+        :height: 18pt
+
+    """
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the zoom-out tool is constrained to act in. By
+    default the zoom-out tool will zoom in any dimension, but can be
+    configured to only zoom horizontally across the width of the plot, or
+    vertically across the height of the plot.
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("ZoomOutTool"))
+
+    factor = Percent(default=0.1, help="""
+    Percentage to zoom for each click of the zoom-in tool.
     """)
 
 
@@ -425,7 +499,7 @@ class BoxSelectTool(Drag):
     event, or only once, when the selection region is completed. Default: False
     """)
 
-    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box selection is to be free in. By default,
     users may freely draw selections boxes with any dimensions. If only
     "width" is supplied, the box will be constrained to span the entire
@@ -433,7 +507,7 @@ class BoxSelectTool(Drag):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
-    """)
+    """).accepts(List(Enum(Dimension)), _deprecated_dimensions("BoxSelectTool"))
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.
@@ -545,7 +619,7 @@ class PolySelectTool(Tap):
     """)
 
 class HoverTool(Inspection):
-    """ *toolbar icon*: |inspector_icon|
+    """ *toolbar icon*: |crosshair_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
     all times, but can be configured in the inspector's menu associated
@@ -568,6 +642,8 @@ class HoverTool(Inspection):
             ("fill color", "$color[hex, swatch]:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
+            ("baz", "@baz{safe}"),
+            ("total", "@total{$0,0.00}"
         ]
 
     You can also supply a ``Callback`` to the HoverTool, to build custom
@@ -584,7 +660,6 @@ class HoverTool(Inspection):
             * annulus
             * arc
             * bezier
-            * gear
             * image
             * image_rgba
             * image_url
@@ -596,7 +671,7 @@ class HoverTool(Inspection):
             * segment
             * text
 
-    .. |hover_icon| image:: /_images/icons/Inspector.png
+    .. |hover_icon| image:: /_images/icons/Hover.png
         :height: 18pt
     """
 
@@ -644,6 +719,17 @@ class HoverTool(Inspection):
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
 
+    Additional format options ``safe`` and `Numbro format codes <http://numbrojs.com/format.html>`_
+    can be included in a post-fix brace block on field names. ::
+
+        [("total", "@total{$0,0.00}"),
+         ("data", "@data{safe}")]
+
+    Including ``{safe}`` after a field name will override automatic escaping
+    of the tooltip data source. Any HTML tags in the data tags will be rendered
+    as HTML in the resulting HoverTool output. See :ref:`custom_hover_tooltip` for a
+    more detailed example.
+
     ``None`` is also a valid value for tooltips. This turns off the
     rendering of tooltips. This is mostly useful when supplying other
     actions on hover via the callback property.
@@ -676,7 +762,7 @@ class HoverTool(Inspection):
     anchor = Enum(Anchor, default="center", help="""
     If point policy is set to `"snap_to_data"`, `anchor` defines the attachment
     point of a tooltip. The default is to attach to the center of a glyph.
-    """)
+    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
 
     attachment = Enum("horizontal", "vertical", help="""
     Whether tooltip's arrow should appear in the horizontal or vertical dimension.

@@ -15,9 +15,9 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import re
 import json
 from os.path import basename, join, relpath
-import re
 
 from six import string_types
 
@@ -26,8 +26,8 @@ from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
 
 from .util.paths import bokehjsdir
-from .util.string import snakify
 from .util.session_id import generate_session_id
+from .util.compiler import gen_custom_models_static
 from .model import Model
 
 DEFAULT_SERVER_HOST = "localhost"
@@ -138,12 +138,6 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _cdn_base_url():
     return "https://cdn.pydata.org"
 
-# XXX: this shouldn't be here, however we mix classes and global functions and
-# we end up with code like this. This module needs a redesign and rewrite soon.
-_component_filter = {
-    'js' : [],
-    'css': ['bokeh-compiler'],
-}
 
 def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
@@ -169,8 +163,7 @@ def _get_cdn_urls(components, version=None, minified=True):
         return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'urls'     : lambda kind: [ mk_url(component, kind) \
-            for component in components if component not in _component_filter[kind] ],
+        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
         'messages' : [],
     }
 
@@ -194,8 +187,7 @@ def _get_server_urls(components, root_url, minified=True, path_versioner=None):
         return '%sstatic/%s' % (root_url, path)
 
     return {
-        'urls'     : lambda kind: [ mk_url(component, kind) \
-            for component in components if component not in _component_filter[kind] ],
+        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
         'messages' : [],
     }
 
@@ -208,8 +200,7 @@ class BaseResources(object):
                  minified=True, log_level="info", root_url=None,
                  path_versioner=None, components=None):
 
-        self.components = components if components is not None \
-            else ["bokeh", "bokeh-widgets", "bokeh-compiler"]
+        self.components = components if components is not None else ["bokeh", "bokeh-widgets"]
 
         self.mode = settings.resources(mode);           del mode
         self.root_dir = settings.rootdir(root_dir);     del root_dir
@@ -271,8 +262,7 @@ class BaseResources(object):
     def _file_paths(self, kind):
         bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
-        files = [ "%s%s.%s" % (component, minified, kind) \
-            for component in self.components if component not in _component_filter[kind] ]
+        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
         paths = [ join(bokehjs_dir, kind, file) for file in files ]
         return paths
 
@@ -281,16 +271,18 @@ class BaseResources(object):
 
         external_resources = []
 
-        for cls in Model.model_class_reverse_map.values():
+        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external = getattr(cls, resource_attr, None)
 
             if isinstance(external, string_types):
-                external_resources.append(external)
+                if external not in external_resources:
+                    external_resources.append(external)
             elif isinstance(external, list):
-                external_resources.extend(external)
+                for e in external:
+                    if e not in external_resources:
+                        external_resources.append(e)
 
-        # Return only unique external resources
-        return list(set(external_resources))
+        return external_resources
 
 
     def _cdn_urls(self):
@@ -393,98 +385,11 @@ class JSResources(BaseResources):
         if self.log_level is not None:
             raw.append('Bokeh.set_log_level("%s");' % self.log_level)
 
-        custom_models = self._render_custom_models_static()
+        custom_models = gen_custom_models_static()
         if custom_models is not None:
             raw.append(custom_models)
 
         return raw
-
-    _plugin_template = \
-"""
-(function outer(modules, cache, entry) {
-  if (typeof Bokeh !== "undefined") {
-    for (var name in modules) {
-      var module = modules[name];
-
-      if (typeof(module) === "string") {
-        try {
-          coffee = Bokeh.require("coffee-script")
-        } catch (e) {
-          throw new Error("Compiler requested but failed to import. Make sure bokeh-compiler(-min).js was included.")
-        }
-
-        function compile(code) {
-          var body = coffee.compile(code, {bare: true, shiftLine: true});
-          return new Function("require", "module", "exports", body);
-        }
-
-        modules[name] = [compile(module), {}];
-      }
-    }
-
-    for (var name in modules) {
-      Bokeh.require.modules[name] = modules[name];
-    }
-
-    for (var i = 0; i < entry.length; i++) {
-      Bokeh.Models.register_locations(Bokeh.require(entry[i]));
-    }
-  } else {
-    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
-  }
-})({
- "custom/main":[function(require,module,exports){
-   module.exports = { %(exports)s };
- }, {}],
- %(models)s
-}, {}, ["custom/main"]);
-"""
-
-    def _render_custom_models_static(self):
-        def _escape_code(code):
-            """ Escape JS/CS source code, so that it can be embedded in a JS string.
-
-            This is based on https://github.com/joliss/js-string-escape.
-            """
-            def escape(match):
-                ch = match.group(0)
-
-                if ch == '"' or ch == "'" or ch == '\\':
-                    return '\\' + ch
-                elif ch == '\n':
-                    return '\\n'
-                elif ch == '\r':
-                    return '\\r'
-                elif ch == '\u2028':
-                    return '\\u2028'
-                elif ch == '\u2029':
-                    return '\\u2029'
-
-            return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
-
-        custom_models = {}
-
-        for cls in Model.model_class_reverse_map.values():
-            impl = getattr(cls, "__implementation__", None)
-
-            if impl is not None:
-                custom_models[(cls.__module__, cls.__name__)] = impl
-
-        if not custom_models:
-            return None
-
-        exports = []
-        models = []
-
-        for (_, model_name), impl in sorted(custom_models.items(), key=lambda arg: arg[0]):
-            module_name = "custom/%s" % snakify(model_name)
-            exports.append('%s: require("%s")' % (model_name, module_name))
-            models.append('"%s": "%s"' % (module_name, _escape_code(impl)))
-
-        exports = ",\n".join(exports)
-        models = ",\n".join(models)
-
-        return self._plugin_template % dict(exports=exports, models=models)
 
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)

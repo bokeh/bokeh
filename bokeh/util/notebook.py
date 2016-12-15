@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, hide_banner=False):
+def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -18,6 +18,9 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
         hide_banner (bool, optional):
             whether to hide the Bokeh banner (default: False)
 
+        load_timeout (int, optional) :
+            Timeout in milliseconds when plots assume load timed out (default: 5000)
+
     .. warning::
         Clearing the output cell containing the published BokehJS
         resources HTML code may cause Bokeh CSS styling to be removed.
@@ -26,23 +29,20 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
         None
 
     '''
-    html, js = _load_notebook_html(resources, verbose, hide_banner)
+    html, js = _load_notebook_html(resources, verbose, hide_banner, load_timeout)
     publish_display_data({'text/html': html})
     publish_display_data({'application/javascript': js})
 
 FINALIZE_JS = """
-Bokeh.$("#%s").text("BokehJS successfully loaded");
-var kernel = Jupyter.notebook.kernel
-if (kernel.execute !== undefined) {
-    kernel.execute("import bokeh.io; bokeh.io._nb_loaded = True");
-}
+document.getElementById("%s").textContent = "BokehJS is loading...";
 """
 
-def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
+def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
+                        load_timeout=5000):
     global _notebook_loaded
 
     from .. import __version__
-    from ..core.templates import AUTOLOAD_JS, NOTEBOOK_LOAD
+    from ..core.templates import AUTOLOAD_NB_JS, NOTEBOOK_LOAD
     from ..util.serialization import make_id
     from ..resources import CDN
 
@@ -75,12 +75,14 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
         hide_banner   = hide_banner,
     )
 
-    js = AUTOLOAD_JS.render(
+    js = AUTOLOAD_NB_JS.render(
+        elementid = '' if hide_banner else element_id,
         js_urls  = resources.js_files,
         css_urls = resources.css_files,
-        js_raw   = resources.js_raw + [FINALIZE_JS % element_id],
+        js_raw   = resources.js_raw + ([] if hide_banner else [FINALIZE_JS % element_id]),
         css_raw  = resources.css_raw_str,
         force    = 1,
+        timeout  = load_timeout
     )
 
     return html, js

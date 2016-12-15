@@ -13,7 +13,7 @@ from bokeh.util.future import with_metaclass
 def large_plot(n):
     from bokeh.models import (
         Plot, LinearAxis, Grid, GlyphRenderer,
-        ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
+        ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, ResizeTool, SaveTool, ResetTool
     )
     from bokeh.models.layouts import VBox
@@ -36,13 +36,15 @@ def large_plot(n):
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
         plot.renderers.append(renderer)
         pan = PanTool()
+        zoom_in = ZoomInTool()
+        zoom_out = ZoomOutTool()
         wheel_zoom = WheelZoomTool()
         box_zoom = BoxZoomTool()
         box_select = BoxSelectTool()
         resize = ResizeTool()
         save = SaveTool()
         reset = ResetTool()
-        tools = [pan, wheel_zoom, box_zoom, box_select, resize, save, reset]
+        tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, resize, save, reset]
         plot.add_tools(*tools)
         vbox.children.append(plot)
         objects |= set([
@@ -122,8 +124,8 @@ class TestModel(unittest.TestCase):
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
 
-        self.assertEqual(set(["name", "tags"]), testObject.properties())
-        self.assertDictEqual(dict(name=None, tags=[]), testObject.properties_with_values(include_defaults=True))
+        self.assertEqual(set(["name", "tags", "js_callbacks"]), testObject.properties())
+        self.assertDictEqual(dict(name=None, tags=[], js_callbacks={}), testObject.properties_with_values(include_defaults=True))
         self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
 
     def test_ref(self):
@@ -196,12 +198,13 @@ class TestModel(unittest.TestCase):
                            "id" : obj._id,
                            "name" : None,
                            "tags" : [],
+                           'js_callbacks': {},
                            "foo" : 42,
                            "bar" : "world" },
                          json)
         self.assertEqual(('{"bar":"world",' +
                           '"child":{"id":"%s","type":"SomeModelToJson"},' +
-                          '"foo":42,"id":"%s","name":null,"tags":[]}') %
+                          '"foo":42,"id":"%s","js_callbacks":{},"name":null,"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
 

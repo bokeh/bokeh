@@ -1,15 +1,15 @@
-ActionTool = require "./action_tool"
+import {ActionTool, ActionToolView} from "./action_tool"
 
-class RedoToolView extends ActionTool.View
+export class RedoToolView extends ActionToolView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@plot_view, "state_changed", () => @model.set('disabled', not @plot_view.can_redo()))
+    @listenTo(@plot_view, "state_changed", () => @model.disabled = not @plot_view.can_redo())
 
   do: () ->
     @plot_view.redo()
 
-class RedoTool extends ActionTool.Model
+export class RedoTool extends ActionTool
   default_view: RedoToolView
   type: "RedoTool"
   tool_name: "Redo"
@@ -18,8 +18,3 @@ class RedoTool extends ActionTool.Model
   @override {
     disabled: true
   }
-
-module.exports = {
-  Model: RedoTool
-  View: RedoToolView
-}

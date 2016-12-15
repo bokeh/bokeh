@@ -6,10 +6,10 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.websocket import websocket_connect
 
 def url(server, prefix=""):
-    return "http://localhost:" + str(server._port) + prefix + "/"
+    return "http://localhost:" + str(server.port) + prefix + "/"
 
 def ws_url(server, prefix=""):
-    return "ws://localhost:" + str(server._port) + prefix + "/ws"
+    return "ws://localhost:" + str(server.port) + prefix + "/ws"
 
 def http_get(io_loop, url, host=None):
     result = {}
@@ -71,7 +71,7 @@ class ManagedServerLoop(object):
         self._server.stop()
         self._server.io_loop.close()
     def __enter__(self):
-        self._server.start(start_loop=False)
+        self._server.start()
         return self._server
     @property
     def io_loop(self):

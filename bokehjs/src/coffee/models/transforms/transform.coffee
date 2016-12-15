@@ -1,10 +1,4 @@
-_ = require "underscore"
-Model = require "../../model"
+import * as _ from "underscore"
+import {Model} from "../../model"
 
-class Transform extends Model
-
-  defaults: ->
-    return _.extend({}, super())
-
-module.exports =
-  Model: Transform
+export class Transform extends Model
