@@ -8,7 +8,7 @@ from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.warnings import BokehUserWarning
-from ..util.serialization import transform_column_source_data
+from ..util.serialization import transform_column_source_data, decode_column_data
 from .callbacks import Callback
 
 pd = import_optional('pandas')
@@ -173,6 +173,22 @@ class ColumnDataSource(DataSource):
         if 'data' in attrs:
             attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs
+
+    def set_from_json(self, name, json, models=None):
+        """ Sets a property of the object using JSON and a dictionary mapping
+        model ids to model instances. The model instances are necessary if the
+        JSON contains references to models.
+        """
+        if name == 'data':
+            decoded = decode_column_data(json)
+            prop = self.lookup(name)
+            prop.__set__(self, decoded)
+        elif name in self.properties():
+            #logger.debug("Patching attribute %s of %r", attr, patched_obj)
+            prop = self.lookup(name)
+            prop.set_from_json(self, json, models)
+        else:
+            logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def remove(self, name):
         """ Remove a column of data.

@@ -661,12 +661,7 @@ class Document(object):
         for obj in references_json:
             obj_id = obj['id']
             obj_attrs = obj['attributes']
-            obj_type = obj['type']
-
             instance = references[obj_id]
-
-            if obj_type == 'ColumnDataSource' and 'data' in obj_attrs:
-                obj_attrs['data'] = decode_column_data(obj_attrs['data'])
             instance.update_from_json(obj_attrs, models=references)
 
     @classmethod
