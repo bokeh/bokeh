@@ -19,7 +19,6 @@ JS_CODE = """
 # Pandas, etc.) to web presentations using the Bokeh server.
 
 # These "require" lines are similar to python "import" statements
-import * as _ from "underscore"
 import * as $ from "jquery"
 
 import * as p from "core/properties"

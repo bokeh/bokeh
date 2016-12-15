@@ -2,9 +2,6 @@ from bokeh.core.properties import String, Instance
 from bokeh.models import LayoutDOM, Slider
 
 CODE ="""
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 

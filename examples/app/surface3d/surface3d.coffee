@@ -9,9 +9,6 @@
 # Making it easy to hook up python data analytics tools (NumPy, SciPy,
 # Pandas, etc.) to web presentations using the Bokeh server.
 
-import * as _ from "underscore"
-import * as $ from "jquery"
-
 import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 

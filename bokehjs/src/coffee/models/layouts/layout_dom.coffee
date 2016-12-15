@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 import {Model} from "../../model"
 import * as p from "../../core/properties"
 import {GE, EQ, Strength, Variable} from "../../core/layout/solver"

@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 import "jqrangeslider/jQDateRangeSlider"
 
 import * as p from "../../core/properties"

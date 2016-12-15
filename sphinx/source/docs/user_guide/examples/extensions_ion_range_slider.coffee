@@ -1,7 +1,6 @@
 # These are similar to python imports. BokehJS vendors its own versions
 # of Underscore and JQuery. They are available as show here.
 import * as _ from "underscore"
-import * as $ from "jquery"
 # The "core/properties" module has all the property types
 import * as p from "core/properties"
 

@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {logger} from "../../core/logging"
 import {EQ, Variable} from "../../core/layout/solver"

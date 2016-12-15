@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {build_views} from "../../core/build_views"
 import {BokehView} from "../../core/bokeh_view"
