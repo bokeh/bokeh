@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {Models} from "./base"
 import {version as js_version} from "./version"
@@ -89,7 +88,7 @@ export class Document
     @_solver = new Solver()
     @_init_solver()
 
-    $(window).on("resize", () => @resize())
+    window.addEventListener("resize", () => @resize())
 
   _init_solver : () ->
     @_solver.clear()
@@ -125,7 +124,7 @@ export class Document
         continue
 
       # Find the html element
-      root_div = $("#modelid_#{root.id}")
+      root_div = document.getElementById("modelid_#{root.id}")
 
       # Start working upwards until you find a height to pin against - usually .bk-root
       if _.isNull(width)

@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
@@ -6,6 +5,7 @@ import * as base from "./base"
 import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
+import {div, link, style} from "./core/util/dom"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -56,11 +56,11 @@ _render_document_to_element = (element, document, use_for_title) ->
   render_model = (model) ->
     view = _create_view(model)
     views[model.id] = view
-    $(element).append(view.$el)
+    element.appendChild(view.el)
   unrender_model = (model) ->
     if model.id of views
       view = views[model.id]
-      $(element).remove(view.$el)
+      element.removeChild(view.el)
       delete views[model.id]
       delete base.index[model.id]
 
@@ -86,14 +86,14 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  _.delay(-> $(element).replaceWith(view.$el))
+  _.delay(-> element.outerHTML = view.el)
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
-  _.delay(-> _render_document_to_element($(element), doc, use_for_title))
+  _.delay(-> _render_document_to_element(element, doc, use_for_title))
 
 export add_document_standalone = (document, element, use_for_title=false) ->
-  return _render_document_to_element($(element), document, use_for_title)
+  return _render_document_to_element(element, document, use_for_title)
 
 # map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
@@ -128,19 +128,19 @@ add_model_from_session = (element, websocket_url, model_id, session_id) ->
       if not model?
         throw new Error("Did not find model #{model_id} in session")
       view = _create_view(model)
-      $(element).replaceWith(view.$el)
+      element.outerHTML = view.el
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
       throw error
   )
 
 export inject_css = (url) ->
-  link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
-  $('body').append(link)
+  element = link({href: url, rel: "stylesheet", type: "text/css"})
+  document.body.appendChild(element)
 
 export inject_raw_css = (css) ->
-  style = $("<style>").html(css)
-  $('body').append(style)
+  element = style({}, css)
+  document.body.appendChild(element)
 
 # pull missing render item fields from data- attributes
 fill_render_item_from_script_tag = (script, item) ->
@@ -169,25 +169,23 @@ export embed_items = (docs_json, render_items, websocket_url=null) ->
       _init_comms(item.notebook_comms_target, docs[docid])
 
     element_id = item['elementid']
-    elem = $('#' + element_id);
-    if elem.length == 0
+    elem = document.getElementById(element_id)
+    if not elem?
       throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
-    if elem.length > 1
-      throw new Error("Error rendering Bokeh model: found too many tags with id: #{element_id}")
-    if not document.body.contains(elem[0])
+    if not document.body.contains(elem)
       throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
 
-    if elem.prop("tagName") == "SCRIPT"
+    if elem.tagName == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
-      container = $('<div>', {class: BOKEH_ROOT})
-      elem.replaceWith(container)
-      child = $('<div>')
-      container.append(child)
+      container = div({class: BOKEH_ROOT})
+      elem.outerHTML = container
+      child = div()
+      container.appendChild(child)
       elem = child
 
     use_for_title = item.use_for_title? and item.use_for_title
 
-    promise = null;
+    promise = null
     if item.modelid?
       if item.docid?
         add_model_static(elem, item.modelid, docs[item.docid])
