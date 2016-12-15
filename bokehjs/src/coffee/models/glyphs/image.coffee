@@ -34,7 +34,7 @@ export class ImageView extends GlyphView
       if @_image_shape?
         shape = @_image_shape[i]
 
-      if shape.length
+      if shape.length > 0
         img = @_image[i]
         @_height[i] = shape[0]
         @_width[i] = shape[1]

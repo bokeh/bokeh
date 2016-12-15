@@ -29,7 +29,20 @@ export class ImageRGBAView extends GlyphView
       if @_image_shape?
         shape = @_image_shape[i]
 
-      if shape.length
+      # Note specifying rows and cols is deprecated and this can soon
+      # be removed.
+      if @_rows?
+        @_height[i] = @_rows[i]
+        @_width[i] = @_cols[i]
+        if shape.length > 0
+          buf = @_image[i].buffer
+        else
+          flat = @_image[i]
+          buf = new ArrayBuffer(flat.length * 4)
+          color = new Uint32Array(buf)
+          for j in [0...flat.length]
+            color[j] = flat[j]
+      else if shape.length > 0
         buf = @_image[i].buffer
         @_height[i] = shape[0]
         @_width[i] = shape[1]
