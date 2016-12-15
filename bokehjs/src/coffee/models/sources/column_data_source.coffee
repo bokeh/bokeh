@@ -5,7 +5,7 @@ import * as hittest from "../../core/hittest"
 import {SelectionManager} from "../../core/selection_manager"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {decode_column_data} from "../../core/util/deserialize"
+import * as serialization from "../../core/util/serialization"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.
@@ -15,7 +15,7 @@ export class ColumnDataSource extends DataSource
 
   initialize: (options) ->
     super(options)
-    [@data, @_shapes] = decode_column_data(@data)
+    [@data, @_shapes] = serialization.decode_column_data(@data)
 
   @define {
       data:         [ p.Any,   {} ]
@@ -49,6 +49,17 @@ export class ColumnDataSource extends DataSource
       #     return lengths[0]
       # else
       #     throw new Error("data source has columns of inconsistent lengths")
+
+  attributes_as_json: (include_defaults=true, value_to_json=ColumnDataSource._value_to_json) ->
+    attrs = {}
+    for own key, value of @serializable_attributes()
+      if key == 'data'
+        value = serialization.encode_column_data(value, @_shapes)
+      if include_defaults
+        attrs[key] = value
+      else if key of @_set_after_defaults
+        attrs[key] = value
+    value_to_json("attributes", attrs, @)
 
   columns: () ->
     # return the column names in this data source

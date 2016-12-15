@@ -160,3 +160,32 @@ def transform_column_source_data(data):
         else:
             data_copy[key] = traverse_data(data[key])
     return data_copy
+
+def decode_base64_dict(data):
+    """
+    Decode base64 encoded data into numpy array.
+    """
+    b64 = base64.b64decode(data['data'])
+    array = np.fromstring(base64.b64decode(b64), dtype=data['dtype'])
+    if len(data['shape']) > 1:
+        array = array.reshape(data['shape'])
+    return array
+
+def decode_column_data(data):
+    """
+    Decodes base64 encoded column source data.
+    """
+    new_data = {}
+    for k, v in data.items():
+        if isinstance(v, dict) and 'shape' in v:
+            new_data[k] = decode_base64_dict(v)
+        elif isinstance(v, list):
+            new_list = []
+            for el in v:
+                if isinstance(el, dict) and 'shape' in el:
+                    el = decode_base64_dict(el)
+                new_list.append(el)
+            new_data[k] = new_list
+        else:
+            new_data[k] = v
+    return new_data

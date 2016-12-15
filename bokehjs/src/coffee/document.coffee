@@ -7,9 +7,9 @@ import {EQ, Solver, Variable} from "./core/layout/solver"
 import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
+import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {ColumnDataSource} from "./models/sources/column_data_source"
-import {decode_column_data} from "./core/util/deserialize"
 
 export class DocumentChangedEvent
   constructor : (@document) ->

@@ -41,7 +41,7 @@ from .themes import Theme
 from .util.callback_manager import _check_callback
 from .util.deprecation import deprecated
 from .util.version import __version__
-from .util.serialization import make_id
+from .util.serialization import make_id, decode_column_data
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -661,9 +661,12 @@ class Document(object):
         for obj in references_json:
             obj_id = obj['id']
             obj_attrs = obj['attributes']
+            obj_type = obj['type']
 
             instance = references[obj_id]
 
+            if obj_type == 'ColumnDataSource' and 'data' in obj_attrs:
+                obj_attrs['data'] = decode_column_data(obj_attrs['data'])
             instance.update_from_json(obj_attrs, models=references)
 
     @classmethod
@@ -967,7 +970,12 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references)
+                model_type = event_json['model']['type']
+                if attr == 'data' and model_type == 'ColumnDataSource':
+                    data = decode_column_data(value)
+                    patched_obj.set_from_json(attr, data, models=references)
+                else:
+                    patched_obj.set_from_json(attr, value, models=references)
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
