@@ -1,8 +1,8 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {div} from "../../core/util/dom"
 import * as p from "../../core/properties"
 
 export class LabelSetView extends TextAnnotationView
@@ -16,7 +16,7 @@ export class LabelSetView extends TextAnnotationView
 
     if @model.render_mode == 'css'
       for i in [0...@_text.length]
-        @title_div = $("<div>").addClass('bk-annotation-child').hide()
+        @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
         @title_div.appendTo(@$el)
 
   bind_bokeh_events: () ->

@@ -1,7 +1,7 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 import {BokehView} from "../../core/bokeh_view"
 import {Tool, ToolView} from "./tool"
+import {div, span} from "../../core/util/dom"
 import * as p from "../../core/properties"
 
 export class ButtonToolButtonView extends BokehView
@@ -16,8 +16,8 @@ export class ButtonToolButtonView extends BokehView
     @render()
 
   render: () ->
-    icon = $("<div class='bk-btn-icon'>").addClass(@model.icon)
-    tip = $("<span class='bk-tip'>").text(@model.tooltip)
+    icon = div({class: ['bk-btn-icon', @model.icon]})
+    tip = span({class: 'bk-tip'}, @model.tooltip)
     @$el.empty().append([icon, tip])
     @$el.prop("disabled", @model.disabled)
 

@@ -1,14 +1,13 @@
-import * as $ from "jquery"
-
 import {Markup, MarkupView} from "./markup"
+import {p} from "../../core/util/dom"
 
 export class ParagraphView extends MarkupView
 
   render: () ->
     super()
     # This overrides default user-agent styling and helps layout work
-    $para = $('<p style="margin: 0;"></p>').text(@model.text)
-    @$el.find('.bk-markup').append($para)
+    content = p({style: {margin: 0}}, @model.text)
+    @$el.find('.bk-markup').append(content)
 
 export class Paragraph extends Markup
   type: "Paragraph"

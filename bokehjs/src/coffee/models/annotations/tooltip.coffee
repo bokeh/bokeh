@@ -1,8 +1,8 @@
-import * as $ from "jquery"
 import * as _ from "underscore"
 
 import {Annotation, AnnotationView} from "./annotation"
 import {logger} from "../../core/logging"
+import {div} from "../../core/util/dom"
 import * as p from "../../core/properties"
 
 export class TooltipView extends AnnotationView
@@ -35,8 +35,8 @@ export class TooltipView extends AnnotationView
       [vx, vy, content] = val
       if @model.inner_only and not @plot_view.frame.contains(vx, vy)
           continue
-      tip = $('<div />').appendTo(@$el)
-      tip.append(content)
+      tip = div({}, content)
+      @$el.append(tip)
     sx = @plot_view.model.canvas.vx_to_sx(vx)
     sy = @plot_view.model.canvas.vy_to_sy(vy)
 

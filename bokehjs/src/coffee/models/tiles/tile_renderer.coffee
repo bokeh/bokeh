@@ -1,10 +1,10 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {ImagePool} from "./image_pool"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {logger} from "../../core/logging"
+import {div} from "../../core/util/dom"
 import * as p from "../../core/properties"
 
 export class TileRendererView extends RendererView
@@ -43,21 +43,21 @@ export class TileRendererView extends RendererView
         bottom_offset = @map_plot.min_border_bottom + border_width
         right_offset = @map_frame.right - @map_frame.width
         max_width = @map_frame.width - border_width
-        @attributionEl = $('<div>')
-          .html(attribution)
-          .addClass('bk-tile-attribution')
-          .css({
-            'position': 'absolute'
-            'bottom': "#{bottom_offset}px"
-            'right': "#{right_offset}px"
+        @attributionEl = div({
+          class: 'bk-tile-attribution'
+          style: {
+            position: 'absolute'
+            bottom: "#{bottom_offset}px"
+            right: "#{right_offset}px"
             'max-width': "#{max_width}px"
             'background-color': 'rgba(255,255,255,0.8)'
             'font-size': '9pt'
             'font-family': 'sans-serif'
-          })
+          }
+        }, attribution)
 
         overlays = @plot_view.$el.find('div.bk-canvas-events')
-        @attributionEl.appendTo(overlays)
+        overlays.append(@attributionEl)
 
   _map_data: () ->
     @initial_extent = @get_extent()

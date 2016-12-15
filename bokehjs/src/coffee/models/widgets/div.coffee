@@ -1,17 +1,18 @@
-import * as $ from "jquery"
 
 import {Markup, MarkupView} from "./markup"
+import {div} from "../../core/util/dom"
 import * as p from "../../core/properties"
 
 export class DivView extends MarkupView
 
   render: () ->
     super()
-    if @model.render_as_text == true
-      $content = $('<div></div>').text(@model.text)
+    content = div()
+    if @model.render_as_text
+      content.textContent = @model.text
     else
-      $content = $('<div></div>').html(@model.text)
-    @$el.find('.bk-markup').append($content)
+      content.innerHTML = @model.text
+    @$el.find('.bk-markup').append(content)
     return @
 
 export class Div extends Markup
