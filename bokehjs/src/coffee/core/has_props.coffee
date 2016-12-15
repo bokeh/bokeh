@@ -6,6 +6,7 @@ import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
+import {serialize_array} from "./util/serialization"
 import {array_max} from "./util/math"
 
 export class HasProps extends Backbone.Model
@@ -260,6 +261,8 @@ export class HasProps extends Backbone.Model
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps
       value.ref()
+    else if v?.buffer instanceof ArrayBuffer
+      serialize_array(v, [v.length])
     else if _.isArray(value)
       ref_array = []
       for v, i in value
