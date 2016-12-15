@@ -78,9 +78,7 @@ def serialize_array(array):
         return transform_array_to_list(array)
     if not array.flags['C_CONTIGUOUS']:
         array = np.ascontiguousarray(array)
-    return  {'data': base64.b64encode(array).decode('utf-8'),
-             'shape': array.shape,
-             'dtype': array.dtype.name}
+    return encode_base64_dict(array)
 
 def transform_array(obj):
     """Transform arrays to a serializeable format
@@ -160,6 +158,13 @@ def transform_column_source_data(data):
         else:
             data_copy[key] = traverse_data(data[key])
     return data_copy
+
+def encode_base64_dict(array):
+    return  {
+        'data'  : base64.b64encode(array).decode('utf-8'),
+        'shape' : array.shape,
+        'dtype' : array.dtype.name
+    }
 
 def decode_base64_dict(data):
     """
