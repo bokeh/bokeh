@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {div} from "../../core/util/dom"
+import {div} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class LabelSetView extends TextAnnotationView

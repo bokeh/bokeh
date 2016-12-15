@@ -1,5 +1,5 @@
 import {Markup, MarkupView} from "./markup"
-import {pre} from "../../core/util/dom"
+import {pre} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class PreTextView extends MarkupView

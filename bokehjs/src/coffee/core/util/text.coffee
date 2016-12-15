@@ -1,4 +1,4 @@
-import {div, span} from "./dom"
+import {div, span} from "../dom"
 
 cache = {}
 

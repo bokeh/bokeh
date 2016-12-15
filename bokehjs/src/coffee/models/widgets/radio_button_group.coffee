@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import "bootstrap/button"
 
-import {input, label} from "../../core/util/dom"
+import {input, label} from "../../core/dom"
 import * as p from "../../core/properties"
 
 import {Widget, WidgetView} from "./widget"

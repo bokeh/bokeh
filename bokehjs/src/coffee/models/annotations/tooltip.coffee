@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {Annotation, AnnotationView} from "./annotation"
 import {logger} from "../../core/logging"
-import {div} from "../../core/util/dom"
+import {div} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class TooltipView extends AnnotationView

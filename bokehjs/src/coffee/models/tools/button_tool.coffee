@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import {BokehView} from "../../core/bokeh_view"
 import {Tool, ToolView} from "./tool"
-import {div, span} from "../../core/util/dom"
+import {div, span} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class ButtonToolButtonView extends BokehView

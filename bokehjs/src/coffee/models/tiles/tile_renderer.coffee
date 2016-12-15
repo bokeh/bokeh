@@ -4,7 +4,7 @@ import {ImagePool} from "./image_pool"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {logger} from "../../core/logging"
-import {div} from "../../core/util/dom"
+import {div} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class TileRendererView extends RendererView

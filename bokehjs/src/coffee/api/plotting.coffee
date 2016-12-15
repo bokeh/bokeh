@@ -5,7 +5,7 @@ import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {startsWith} from "../core/util/string"
-import {div} from "../core/util/dom"
+import {div} from "../core/dom"
 
 _default_tooltips = [
   ["index", "$index"],
