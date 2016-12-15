@@ -4,11 +4,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 import io
+import os
+import sys
 import six
 import json
-import inspect
 import hashlib
-from os.path import dirname, join, abspath, exists
+from os.path import dirname, join, abspath, exists, isabs
 from subprocess import Popen, PIPE
 
 from ..model import Model
@@ -146,7 +147,8 @@ def nodejs_compile(code, lang="javascript", file=None):
     return _run_nodejs(compilejs_script, dict(code=code, lang=lang, file=file))
 
 class Implementation(object):
-    pass
+
+    file = None
 
 class Inline(Implementation):
 
@@ -213,11 +215,23 @@ class CustomModel(object):
 
     @property
     def file(self):
-        return abspath(inspect.getfile(self.cls))
+        module = sys.modules[self.cls.__module__]
+
+        if hasattr(module, "__file__"):
+            return abspath(module.__file__)
+        else:
+            return None
 
     @property
     def path(self):
-        return dirname(self.file)
+        path = getattr(self.cls, "__base_path__", None)
+
+        if path is not None:
+            return path
+        elif self.file is not None:
+            return dirname(self.file)
+        else:
+            return os.getcwd()
 
     @property
     def implementation(self):
@@ -225,7 +239,7 @@ class CustomModel(object):
 
         if isinstance(impl, six.string_types):
             if "\n" not in impl and impl.endswith(exts):
-                impl = FromFile(join(self.path, impl))
+                impl = FromFile(impl if isabs(impl) else join(self.path, impl))
             else:
                 impl = CoffeeScript(impl)
 
