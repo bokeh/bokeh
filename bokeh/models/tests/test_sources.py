@@ -148,5 +148,46 @@ class TestColumnDataSource(unittest.TestCase):
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)])))
         self.assertEqual(stuff['kw'], {})
 
+    def test_data_column_lengths(self):
+        # TODO: use this when soft=False
+        #
+        #with self.assertRaises(ValueError):
+        #    ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
+        #
+        #ds = ColumnDataSource()
+        #with self.assertRaises(ValueError):
+        #    ds.data = dict(a=[10, 11], b=[20, 21, 22])
+        #
+        #ds = ColumnDataSource(data=dict(a=[10, 11]))
+        #with self.assertRaises(ValueError):
+        #    ds.data["b"] = [20, 21, 22]
+        #
+        #ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
+        #with self.assertRaises(ValueError):
+        #    ds.data.update(dict(a=[10, 11, 12]))
+
+        with warnings.catch_warnings(record=True) as warns:
+            ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
+            self.assertEquals(len(warns), 1)
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+
+        ds = ColumnDataSource()
+        with warnings.catch_warnings(record=True) as warns:
+            ds.data = dict(a=[10, 11], b=[20, 21, 22])
+            self.assertEquals(len(warns), 1)
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+
+        ds = ColumnDataSource(data=dict(a=[10, 11]))
+        with warnings.catch_warnings(record=True) as warns:
+            ds.data["b"] = [20, 21, 22]
+            self.assertEquals(len(warns), 1)
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+
+        ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
+        with warnings.catch_warnings(record=True) as warns:
+            ds.data.update(dict(a=[10, 11, 12]))
+            self.assertEquals(len(warns), 1)
+            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+
 if __name__ == "__main__":
     unittest.main()
