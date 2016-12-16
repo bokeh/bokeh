@@ -3,7 +3,8 @@ from __future__ import absolute_import
 import warnings
 
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
+from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enum,
+                               JSON, Seq, ColumnData)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
@@ -64,7 +65,7 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Seq(Any), help="""
+    data = ColumnData(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
@@ -168,27 +169,6 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def _to_json_like(self, include_defaults):
-        attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
-        if 'data' in attrs:
-            attrs['data'] = transform_column_source_data(attrs['data'])
-        return attrs
-
-    def set_from_json(self, name, json, models=None):
-        """ Sets a property of the object using JSON and a dictionary mapping
-        model ids to model instances. The model instances are necessary if the
-        JSON contains references to models.
-        """
-        if name == 'data':
-            decoded = decode_column_data(json)
-            prop = self.lookup(name)
-            prop.__set__(self, decoded)
-        elif name in self.properties():
-            #logger.debug("Patching attribute %s of %r", attr, patched_obj)
-            prop = self.lookup(name)
-            prop.set_from_json(self, json, models)
-        else:
-            logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def remove(self, name):
         """ Remove a column of data.

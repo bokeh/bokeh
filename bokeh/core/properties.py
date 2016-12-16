@@ -72,6 +72,7 @@ from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
+from ..util.serialization import transform_column_source_data, decode_column_data
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 from . import enums
@@ -1254,6 +1255,24 @@ class Dict(ContainerProperty):
             return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(json) }
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+
+class ColumnData(Dict):
+    """Property holding column data in form of a dict. Also applies
+    encoding and decoding to the data.
+    """
+
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, dict):
+            decoded = decode_column_data(json)
+            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(decoded) }
+        else:
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+
+    def serializable_value(self, obj):
+        value = self.__get__(obj)
+        return transform_column_source_data(value)
 
 class Tuple(ContainerProperty):
     """ Tuple type property. """

@@ -63,27 +63,35 @@ def transform_array_to_list(array):
         return transformed.tolist()
     return array.tolist()
 
-def serialize_array(array):
+def encoding_disabled(array):
+    """Checks if array should be serialized"""
+    array_samples = np.product(array.shape)
+    return (not settings.use_binary_arrays() or
+            array_samples < settings.binary_array_cutoff() or
+            array.dtype.kind in ('U', 'S', 'O') or
+            array.dtype.name == 'int64')
+
+def serialize_array(array, force_list=False):
     """Transforms array into one of two serialization formats
     either a list or a dictionary containing the base64
     encoded data along with the shape and dtype of the data.
     """
     if isinstance(array, np.ma.MaskedArray):
         array = array.filled(np.nan)  # Set masked values to nan
-    array_samples = np.product(array.shape)
-    if (not settings.use_binary_arrays() or
-        array_samples < settings.binary_array_cutoff() or
-        array.dtype.kind in ('U', 'S', 'O') or
-        array.dtype.name == 'int64'):
+    if (encoding_disabled(array) or force_list):
         return transform_array_to_list(array)
     if not array.flags['C_CONTIGUOUS']:
         array = np.ascontiguousarray(array)
     return encode_base64_dict(array)
 
-def transform_array(obj):
+def transform_array(obj, force_list=False):
     """Transform arrays to a serializeable format
     Converts unserializeable dtypes and returns json serializeable
     format
+
+    Args:
+        obj (np.ndarray) : array to be transformed
+        force_list : force a list based representation
     """
     # Check for astype failures (putative Numpy < 1.7)
     try:
@@ -113,7 +121,7 @@ def transform_array(obj):
         array = obj.astype('timedelta64[us]').astype('int64') / 1000.
     else:
         array = obj
-    return serialize_array(array)
+    return serialize_array(array, force_list)
 
 def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
     """recursively dig until a flat list is found

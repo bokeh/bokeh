@@ -72,7 +72,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return transform_series(obj)
         elif isinstance(obj, np.ndarray):
-            return transform_array(obj)
+            return transform_array(obj, force_list=True)
         elif isinstance(obj, Model):
             return obj.ref
         elif isinstance(obj, HasProps):
