@@ -350,7 +350,10 @@ class Property(object):
         value to appear simpler for developer convenience.
 
         """
-        return self.__get__(obj)
+        value = self.__get__(obj)
+        if hasattr(self.descriptor, 'serialize_value'):
+            return self.descriptor.serialize_value(value)
+        return value
 
     def set_from_json(self, obj, json, models):
         """Sets from a JSON value.
@@ -1182,7 +1185,7 @@ class Seq(ContainerProperty):
     def from_json(self, json, models=None):
         if json is None:
             return None
-        elif isinstance(json, list):
+        elif isinstance(json, (list, np.ndarray)):
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
@@ -1270,8 +1273,7 @@ class ColumnData(Dict):
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
-    def serializable_value(self, obj):
-        value = self.__get__(obj)
+    def serialize_value(self, value):
         return transform_column_source_data(value)
 
 class Tuple(ContainerProperty):
