@@ -37,7 +37,7 @@ export class ColumnDataSource extends DataSource
         msg = "data source has columns of inconsistent lengths"
         if soft
           logger.warn(msg)
-          return lengths[0]
+          return lengths.sort()[0]
         else
           throw new Error(msg)
 
