@@ -20,6 +20,7 @@ export class MultiSelectView extends InputWidgetView
     @listenTo(@model, 'change:options', @render)
     @listenTo(@model, 'change:name', @render)
     @listenTo(@model, 'change:title', @render)
+    @listenTo(@model, 'change:size', @render)
 
   render: () ->
     super()
@@ -38,6 +39,7 @@ export class MultiSelectView extends InputWidgetView
       if values[el.attr('value')]
         el.attr('selected', 'selected')
     )
+    @$el.find('select').attr('size', this.model.size)
 
   change_input: () ->
     value = @$el.find('select').val()
@@ -54,4 +56,5 @@ export class MultiSelect extends InputWidget
   @define {
       value:   [ p.Array, [] ]
       options: [ p.Array, [] ]
+      size:    [ p.Number, 4 ]  # 4 is the HTML default
     }
