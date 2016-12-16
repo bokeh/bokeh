@@ -9,7 +9,6 @@ from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.warnings import BokehUserWarning
-from ..util.serialization import transform_column_source_data, decode_column_data
 from .callbacks import Callback
 
 pd = import_optional('pandas')
