@@ -16,6 +16,7 @@ export class DocumentChangedEvent
 
 export class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
+    @value_json = HasProps._value_to_json('new_', @new_, @model)
     super @document
   json : (references) ->
 
@@ -23,11 +24,8 @@ export class ModelChangedEvent extends DocumentChangedEvent
       console.log("'id' field is immutable and should never be in a ModelChangedEvent ", @)
       throw new Error("'id' field should never change, whatever code just set it is wrong")
 
-    value = @new_
-    value_json = HasProps._value_to_json('new_', value, @model)
-
     value_refs = {}
-    HasProps._value_record_references(value, value_refs, true) # true = recurse
+    HasProps._value_record_references(@new_, value_refs, true) # true = recurse
 
     if @model.id of value_refs and @model != value
       # we know we don't want a whole new copy of the obj we're
@@ -41,7 +39,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
       'kind' : 'ModelChanged',
       'model' : @model.ref(),
       'attr' : @attr,
-      'new' : value_json
+      'new' : @value_json
     }
 
 export class TitleChangedEvent extends DocumentChangedEvent
