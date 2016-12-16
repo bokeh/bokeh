@@ -391,7 +391,7 @@ class ClientSession
           if event.new_ instanceof HasProps
             if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event.new_.id
               return true
-          else if _.isEqual(patch_new, event.value_json)
+          else if _.isEqual(patch_new, event.new_)
             return true
     else if event instanceof RootAddedEvent
         for event_json in patch.content['events']
