@@ -263,6 +263,42 @@ describe "datarange1d module", ->
       expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal {minX: 0, maxX: 10, minY: 5, maxY: 6}
       expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal {minX: 0, maxX: 15, minY: 5, maxY: 6}
 
+  describe "update", ->
+
+    it "should update its start and end values", ->
+      r = new DataRange1d()
+      p = new TestObject()
+      g = new TestObject()
+      g.type = "GlyphRenderer"
+      g.id = 1
+      p.renderers = [g]
+      r.plots = [p]
+
+      bds = {
+        1: {minX: -10, maxX: -6, minY: 5, maxY: 6}
+      }
+
+      r.update(bds, 0, 1)
+      expect(r.start).to.be.equal -10.2
+
+    it "should not update its start or end values to NaN when log", ->
+      r = new DataRange1d()
+      r._mapper_type = "log"
+      p = new TestObject()
+      g = new TestObject()
+      g.type = "GlyphRenderer"
+      g.id = 1
+      p.renderers = [g]
+      r.plots = [p]
+
+      bds = {
+        1: {minX: -10, maxX: -6, minY: 5, maxY: 6}
+      }
+
+      r.update(bds, 0, 1)
+      expect(r.start).to.be.equal r.start #test will fail when r.start is NaN because NaN != NaN
+      expect(r.end).to.be.equal r.end
+
   describe "changing model attribute", ->
 
     it "should execute callback once", ->
