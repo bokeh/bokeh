@@ -47,26 +47,37 @@ export decode_column_data = (data) ->
       [arr, shape] = convert_base64(v)
       new_data[k] = arr
       data_shapes[k] = shape
+    else
+      new_data[k] = v
+      data_shapes[k] = []
   return [new_data, data_shapes]
 
 export encode_column_data = (data, shapes) ->
   new_data = {}
   for k, v of data
     if v?.buffer instanceof ArrayBuffer
-      v = serialize_array(v, shapes[k])
+      v = serialize_array(v, shapes?[k])
     else if _.isArray(v)
       new_array = []
       for i in [0...v.length]
         if v[i]?.buffer instanceof ArrayBuffer
-          new_array.push(serialize_array(v[i], shapes[k][i]))
+          new_array.push(serialize_array(v[i], shapes?[k]?[i]))
         else
           new_array.push(v[i])
       v = new_array
     new_data[k] = v
   return new_data
 
+_arrayBufferToBase64 = (buffer) ->
+    binary = ''
+    bytes = new Uint8Array( buffer )
+    len = bytes.byteLength
+    for i in [0...len]
+        binary += String.fromCharCode(bytes[i])
+    return window.btoa( binary );
+
 export serialize_array = (array, shape) ->
-    b64 = base64.fromByteArray(array)
+    b64 = _arrayBufferToBase64(array.buffer)
     dtype = DTYPES[array.constructor.name]
     data =
       data: b64,

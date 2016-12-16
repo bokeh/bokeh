@@ -261,8 +261,6 @@ export class HasProps extends Backbone.Model
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps
       value.ref()
-    else if value?.buffer instanceof ArrayBuffer
-      serialize_array(value, [value.length])
     else if _.isArray(value)
       ref_array = []
       for v, i in value
