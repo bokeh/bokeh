@@ -16,8 +16,19 @@ is_numpy = None
 try:
     import numpy as np
     is_numpy = True
+    array_types = set([
+        np.dtype(np.float32),
+        np.dtype(np.float64),
+        np.dtype(np.uint8),
+        np.dtype(np.int8),
+        np.dtype(np.uint16),
+        np.dtype(np.int16),
+        np.dtype(np.uint32),
+        np.dtype(np.int32),
+    ])
 except ImportError:
     is_numpy = False
+    array_types = set()
 
 pd = import_optional('pandas')
 
@@ -65,11 +76,18 @@ def transform_array_to_list(array):
 
 def encoding_disabled(array):
     """Checks if array should be serialized"""
+
+    # user setting to disable overrides everything else
+    if not settings.use_binary_arrays():
+        return True
+
+    # disable for non-supported dtypes
+    if array.dtype not in array_types:
+        return True
+
+    # disable if the array size is less than the settings threshold
     array_samples = np.product(array.shape)
-    return (not settings.use_binary_arrays() or
-            array_samples < settings.binary_array_cutoff() or
-            array.dtype.kind in ('U', 'S', 'O') or
-            array.dtype.name == 'int64')
+    return array_samples < settings.binary_array_cutoff()
 
 def serialize_array(array, force_list=False):
     """Transforms array into one of two serialization formats
@@ -168,7 +186,7 @@ def transform_column_source_data(data):
     return data_copy
 
 def encode_base64_dict(array):
-    return  {
+    return {
         'data'  : base64.b64encode(array).decode('utf-8'),
         'shape' : array.shape,
         'dtype' : array.dtype.name
