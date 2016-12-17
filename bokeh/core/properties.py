@@ -125,9 +125,11 @@ def value(val):
     return dict(value=val)
 
 bokeh_bool_types = (bool,)
+bokeh_seq_types = (list,)
 try:
     import numpy as np
     bokeh_bool_types += (np.bool8,)
+    bokeh_seq_types += (np.ndarray,)
 except ImportError:
     pass
 
@@ -1185,7 +1187,9 @@ class Seq(ContainerProperty):
     def from_json(self, json, models=None):
         if json is None:
             return None
-        elif isinstance(json, (list, np.ndarray)):
+        elif isinstance(json, bokeh_seq_types):
+            if isinstance(self.item_type, Any):
+                return json
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
