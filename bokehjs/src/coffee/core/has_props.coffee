@@ -387,7 +387,7 @@ export class HasProps extends Backbone.Model
       if need_invalidate
         @document._invalidate_all_models()
 
-      if options?.notify
+      if not options? or options.notify == true
         @document._notify_change(@, attr, old, new_)
 
   materialize_dataspecs: (source) ->
