@@ -317,6 +317,7 @@ export class HasProps extends Backbone.Model
           immediate = v._immediate_references()
           for obj in immediate
             HasProps._value_record_references(obj, result, true) # true=recurse
+    else if v?.buffer instanceof ArrayBuffer
     else if _.isArray(v)
       for elem in v
         HasProps._value_record_references(elem, result, recurse)
