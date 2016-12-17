@@ -31,7 +31,7 @@ _base64ToArrayBuffer = (base64) ->
   return bytes.buffer
 
 decode_base64 = (input) ->
-  bytes = _base64ToArrayBuffer(input['data'])
+  bytes = _base64ToArrayBuffer(input['__ndarray__'])
   dtype = input['dtype']
   if dtype of ARRAY_TYPES
     array = new ARRAY_TYPES[dtype](bytes)
@@ -42,7 +42,7 @@ encode_base64 = (array, shape) ->
   b64 = _arrayBufferToBase64(array.buffer)
   dtype = DTYPES[array.constructor.name]
   data =
-    data: b64,
+    __ndarray__: b64,
     shape: shape,
     dtype: dtype
   return data
@@ -55,7 +55,7 @@ export decode_column_data = (data) ->
       arrays = []
       shapes = []
       for arr in v
-        if _.isObject(arr) and 'shape' of arr
+        if _.isObject(arr) and '__ndarray__' of arr
           [arr, shape] = decode_base64(arr)
           shapes.push(shape)
           arrays.push(arr)
@@ -67,7 +67,7 @@ export decode_column_data = (data) ->
         data_shapes[k] = shapes
       else
         new_data[k] = v
-    else if _.isObject(v) and 'shape' of v
+    else if _.isObject(v) and '__ndarray__' of v
       [arr, shape] = decode_base64(v)
       new_data[k] = arr
       data_shapes[k] = shape

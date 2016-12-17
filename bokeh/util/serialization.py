@@ -187,16 +187,16 @@ def transform_column_source_data(data):
 
 def encode_base64_dict(array):
     return {
-        'data'  : base64.b64encode(array).decode('utf-8'),
-        'shape' : array.shape,
-        'dtype' : array.dtype.name
+        '__ndarray__'  : base64.b64encode(array.data).decode('utf-8'),
+        'shape'        : array.shape,
+        'dtype'        : array.dtype.name
     }
 
 def decode_base64_dict(data):
     """
     Decode base64 encoded data into numpy array.
     """
-    b64 = base64.b64decode(data['data'])
+    b64 = base64.b64decode(data['__ndarray__'])
     array = np.fromstring(b64, dtype=data['dtype'])
     if len(data['shape']) > 1:
         array = array.reshape(data['shape'])
@@ -208,12 +208,12 @@ def decode_column_data(data):
     """
     new_data = {}
     for k, v in data.items():
-        if isinstance(v, dict) and 'shape' in v:
+        if isinstance(v, dict) and '__ndarray__' in v:
             new_data[k] = decode_base64_dict(v)
         elif isinstance(v, list):
             new_list = []
             for el in v:
-                if isinstance(el, dict) and 'shape' in el:
+                if isinstance(el, dict) and '__ndarray__' in el:
                     el = decode_base64_dict(el)
                 new_list.append(el)
             new_data[k] = new_list

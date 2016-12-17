@@ -95,8 +95,8 @@ def test_encode_base64_dict():
             assert 'dtype' in d
             assert d['dtype'] == a.dtype.name
 
-            assert 'data' in d
-            b64 = base64.b64decode(d['data'])
+            assert '__ndarray__' in d
+            b64 = base64.b64decode(d['__ndarray__'])
             aa = np.fromstring(b64, dtype=d['dtype'])
             assert np.array_equal(a, aa)
 
@@ -107,9 +107,9 @@ def test_decode_base64_dict():
             a.reshape(shape)
             data = base64.b64encode(a).decode('utf-8')
             d = {
-                'data'  : data,
-                'dtype' : a.dtype.name,
-                'shape' : a.shape
+                '__ndarray__'  : data,
+                'dtype'        : a.dtype.name,
+                'shape'        : a.shape
             }
             aa = bus.decode_base64_dict(d)
 
