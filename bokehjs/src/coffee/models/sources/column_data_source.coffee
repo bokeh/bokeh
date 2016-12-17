@@ -108,10 +108,10 @@ export class ColumnDataSource extends DataSource
         attrs[key] = value
     value_to_json("attributes", attrs, @)
 
-  _tell_document_about_change: (attr, old, new_) ->
-    if attr == 'data'
+  _tell_document_about_change: (attr, old, new_, options) ->
+    if attr == 'data' and options?.notify
       new_ = serialization.encode_column_data(new_, @_shapes)
-    super(attr, old, new_)
+    super(attr, old, new_, options)
 
   columns: () ->
     # return the column names in this data source

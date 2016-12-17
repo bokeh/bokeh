@@ -144,7 +144,7 @@ export class HasProps extends Backbone.Model
 
       if not options?.silent?
         for key, value of attrs
-          @_tell_document_about_change(key, old[key], @getv(key))
+          @_tell_document_about_change(key, old[key], @getv(key), options)
 
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
@@ -360,7 +360,7 @@ export class HasProps extends Backbone.Model
     # This should only be called by the Document implementation to unset the document field
     @document = null
 
-  _tell_document_about_change: (attr, old, new_) ->
+  _tell_document_about_change: (attr, old, new_, options) ->
     if not @attribute_is_serializable(attr)
       return
 
@@ -386,7 +386,8 @@ export class HasProps extends Backbone.Model
       if need_invalidate
         @document._invalidate_all_models()
 
-      @document._notify_change(@, attr, old, new_)
+      if options?.notify
+        @document._notify_change(@, attr, old, new_)
 
   materialize_dataspecs: (source) ->
     # Note: this should be moved to a function separate from HasProps
