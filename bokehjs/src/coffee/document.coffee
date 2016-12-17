@@ -657,7 +657,7 @@ export class Document
             patched_obj.setv({ "_shapes": shapes, "data" : data}, {notify: false})
           else
             value = Document._resolve_refs(event_json['new'], old_references, new_references)
-            patched_obj.setv({ "#{attr}" : value })
+            patched_obj.setv({ "#{attr}" : value }, {notify: false})
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']
