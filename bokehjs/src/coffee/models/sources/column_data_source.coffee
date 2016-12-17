@@ -109,7 +109,7 @@ export class ColumnDataSource extends DataSource
     value_to_json("attributes", attrs, @)
 
   _tell_document_about_change: (attr, old, new_, options) ->
-    if attr == 'data' and options?.notify
+    if attr == 'data' and (not options?.notify? or options.notify == true)
       new_ = serialization.encode_column_data(new_, @_shapes)
     super(attr, old, new_, options)
 
