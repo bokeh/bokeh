@@ -6,7 +6,6 @@ import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
-import {serialize_array} from "./util/serialization"
 import {array_max} from "./util/math"
 
 export class HasProps extends Backbone.Model

@@ -94,7 +94,6 @@
     "sprintf": "^0.1.5",
     "timezone": "^1.0.6",
     "hammerjs": "^2.0.4",
-    "base64-js": "^1.2.0",
 
     "@types/es6-promise": "^0.0.32",
     "@types/underscore": "^1.7.33",
@@ -106,7 +105,6 @@
     "@types/sprintf": "^0.0.28",
     "@types/timezone-js": "^0.0.28",
     "@types/hammerjs": "^2.0.33",
-    "@types/base64-js": "^1.2.0",
 
     "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
     "root-require": "^0.3.1"
