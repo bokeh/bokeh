@@ -15,11 +15,8 @@ for k, v of ARRAY_TYPES
     DTYPES[v.name] = k
 
 _arrayBufferToBase64 = (buffer) ->
-  binary = []
   bytes = new Uint8Array( buffer )
-  len = bytes.byteLength
-  for i in [0...len]
-    binary.push(String.fromCharCode(bytes[i]))
+  binary = (String.fromCharCode(b) for b in bytes)
   return btoa( binary.join("") )
 
 _base64ToArrayBuffer = (base64) ->
