@@ -7,6 +7,7 @@ p = utils.require "core/properties"
 
 {CustomJS} = utils.require("models/callbacks/customjs")
 {DataRange1d} = utils.require("models/ranges/data_range1d")
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 
 class TestObject extends HasProps
   type: 'TestObject'
@@ -107,15 +108,13 @@ describe "datarange1d module", ->
     it "should add renderers from one plot", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       p.renderers = [g]
       r.plots = [p]
       expect(r.computed_renderers()).to.be.deep.equal [g]
 
       r = new DataRange1d()
-      g2 = new TestObject()
-      g2.type = "GlyphRenderer"
+      g2 = new GlyphRenderer()
       p.renderers = [g, g2]
       r.plots = [p]
       expect(r.computed_renderers()).to.be.deep.equal [g, g2]
@@ -124,13 +123,11 @@ describe "datarange1d module", ->
     it "should add renderers from multiple plot", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       p.renderers = [g]
 
       p2 = new TestObject()
-      g2 = new TestObject()
-      g2.type = "GlyphRenderer"
+      g2 = new GlyphRenderer()
       p2.renderers = [g2]
 
       r.plots = [p, p2]
@@ -139,13 +136,11 @@ describe "datarange1d module", ->
     it "should respect user-set renderers", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       p.renderers = [g]
 
       p2 = new TestObject()
-      g2 = new TestObject()
-      g2.type = "GlyphRenderer"
+      g2 = new GlyphRenderer()
       p2.renderers = [g2]
 
       r.plots = [p, p2]
@@ -268,8 +263,7 @@ describe "datarange1d module", ->
     it "should update its start and end values", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       g.id = 1
       p.renderers = [g]
       r.plots = [p]
@@ -285,8 +279,7 @@ describe "datarange1d module", ->
       r = new DataRange1d()
       r._mapper_type = "log"
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       g.id = 1
       p.renderers = [g]
       r.plots = [p]
