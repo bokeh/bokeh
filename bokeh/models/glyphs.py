@@ -507,7 +507,7 @@ class MultiLine(Glyph):
     """)
 
     ys = NumberSpec(help="""
-    The x-coordinates for all the lines, given as a "list of lists".
+    The y-coordinates for all the lines, given as a "list of lists".
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
