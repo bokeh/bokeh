@@ -101,7 +101,9 @@ class MultiSelect(InputWidget):
     """)
 
     size = Int(default=4, help="""
-    The number of visible options in the dropdown list.
+    The number of visible options in the dropdown list. (This uses the
+    ``select`` HTML element's ``size`` attribute. Some browsers might not
+    show less than 3 options.)
     """)
 
 class Slider(InputWidget):
