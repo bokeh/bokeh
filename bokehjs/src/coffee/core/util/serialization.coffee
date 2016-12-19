@@ -27,7 +27,7 @@ _base64ToArrayBuffer = (base64) ->
     bytes[i] = binary_string.charCodeAt(i)
   return bytes.buffer
 
-decode_base64 = (input) ->
+export decode_base64 = (input) ->
   bytes = _base64ToArrayBuffer(input['__ndarray__'])
   dtype = input['dtype']
   if dtype of ARRAY_TYPES
@@ -35,7 +35,7 @@ decode_base64 = (input) ->
   shape = input['shape']
   return [array, shape]
 
-encode_base64 = (array, shape) ->
+export encode_base64 = (array, shape) ->
   b64 = _arrayBufferToBase64(array.buffer)
   dtype = DTYPES[array.constructor.name]
   data =

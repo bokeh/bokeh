@@ -4,6 +4,9 @@ mocha = require "gulp-mocha"
 paths = require "../paths"
 utils = require "../utils"
 
+global.atob = require "atob"
+global.btoa = require "btoa"
+
 gulp.task "test", ["defaults:generate"], ->
   gulp.src ["./test", "./test/all.coffee"], read: false
     .pipe mocha()
