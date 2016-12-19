@@ -65,6 +65,9 @@ class CallbackManager(object):
         '''
         if len(callbacks) == 0:
             raise ValueError("on_change takes an attribute name and one or more callbacks, got only one parameter")
+        if attr not in self.properties():
+            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
+
         _callbacks = self._callbacks.setdefault(attr, [])
         for callback in callbacks:
 
