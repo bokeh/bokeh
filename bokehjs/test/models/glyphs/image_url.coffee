@@ -38,7 +38,7 @@ describe "ImageURL module", ->
 
       image = image_url_view.image[0]
       expect(image).to.be.instanceof(Object)
-      expect(image.src).to.be.equal("file://image.jpg/")
+      expect(image.src).to.be.equal("image.jpg")
 
     it "`_map_data` should correctly map data if w and h units are 'data'", ->
       # ImageURLView._map_data is called by ImageURLView.map_data

@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 
 import {DataRange} from "./data_range"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as bbox from "../../core/util/bbox"
@@ -48,7 +49,7 @@ export class DataRange1d extends DataRange
     if renderers.length == 0
       for plot in @plots
         all_renderers = plot.renderers
-        rs = (r for r in all_renderers when r.type == "GlyphRenderer")
+        rs = (r for r in all_renderers when r instanceof GlyphRenderer)
         renderers = renderers.concat(rs)
 
     if names.length > 0
@@ -86,6 +87,10 @@ export class DataRange1d extends DataRange
     if range_padding? and range_padding > 0
 
       if @_mapper_type == "log"
+        if min <= 0 #hotfix
+          min = 1
+        if max <= 0
+          max = 10
         log_min = Math.log(min) / Math.log(10)
         log_max = Math.log(max) / Math.log(10)
         if max == min
