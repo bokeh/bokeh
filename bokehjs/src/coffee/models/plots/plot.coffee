@@ -345,6 +345,9 @@ export class Plot extends LayoutDOM
       min_border_left:   [ p.Number,   null                   ]
       min_border_bottom: [ p.Number,   null                   ]
       min_border_right:  [ p.Number,   null                   ]
+
+      inner_width:       [ p.Number                           ]
+      inner_height:      [ p.Number                           ]
     }
 
   @override {

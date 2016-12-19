@@ -443,6 +443,12 @@ export class PlotCanvasView extends BokehView
     @listenTo(@model.plot, 'change', @request_render)
     @listenTo(@model.plot, 'destroy', () => @remove())
     @listenTo(@model.plot.document.solver(), 'layout_update', () => @request_render())
+    @listenTo(@model.plot.document.solver(), 'layout_update', () =>
+      @model.plot.setv({
+        inner_width: Math.round(@frame.width)
+        inner_height: Math.round(@frame.height)
+      })
+    )
     @listenTo(@model.plot.document.solver(), 'resize', () => @resize())
     @listenTo(@canvas, 'change:pixel_ratio', () => @request_render())
 
