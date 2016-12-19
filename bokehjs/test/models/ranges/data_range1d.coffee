@@ -7,6 +7,7 @@ p = utils.require "core/properties"
 
 {CustomJS} = utils.require("models/callbacks/customjs")
 {DataRange1d} = utils.require("models/ranges/data_range1d")
+{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
 
 class TestObject extends HasProps
   type: 'TestObject'
@@ -107,15 +108,13 @@ describe "datarange1d module", ->
     it "should add renderers from one plot", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       p.renderers = [g]
       r.plots = [p]
       expect(r.computed_renderers()).to.be.deep.equal [g]
 
       r = new DataRange1d()
-      g2 = new TestObject()
-      g2.type = "GlyphRenderer"
+      g2 = new GlyphRenderer()
       p.renderers = [g, g2]
       r.plots = [p]
       expect(r.computed_renderers()).to.be.deep.equal [g, g2]
@@ -124,13 +123,11 @@ describe "datarange1d module", ->
     it "should add renderers from multiple plot", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       p.renderers = [g]
 
       p2 = new TestObject()
-      g2 = new TestObject()
-      g2.type = "GlyphRenderer"
+      g2 = new GlyphRenderer()
       p2.renderers = [g2]
 
       r.plots = [p, p2]
@@ -139,13 +136,11 @@ describe "datarange1d module", ->
     it "should respect user-set renderers", ->
       r = new DataRange1d()
       p = new TestObject()
-      g = new TestObject()
-      g.type = "GlyphRenderer"
+      g = new GlyphRenderer()
       p.renderers = [g]
 
       p2 = new TestObject()
-      g2 = new TestObject()
-      g2.type = "GlyphRenderer"
+      g2 = new GlyphRenderer()
       p2.renderers = [g2]
 
       r.plots = [p, p2]
@@ -262,6 +257,40 @@ describe "datarange1d module", ->
 
       expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal {minX: 0, maxX: 10, minY: 5, maxY: 6}
       expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal {minX: 0, maxX: 15, minY: 5, maxY: 6}
+
+  describe "update", ->
+
+    it "should update its start and end values", ->
+      r = new DataRange1d()
+      p = new TestObject()
+      g = new GlyphRenderer()
+      g.id = 1
+      p.renderers = [g]
+      r.plots = [p]
+
+      bds = {
+        1: {minX: -10, maxX: -6, minY: 5, maxY: 6}
+      }
+
+      r.update(bds, 0, 1)
+      expect(r.start).to.be.equal -10.2
+
+    it "should not update its start or end values to NaN when log", ->
+      r = new DataRange1d()
+      r._mapper_type = "log"
+      p = new TestObject()
+      g = new GlyphRenderer()
+      g.id = 1
+      p.renderers = [g]
+      r.plots = [p]
+
+      bds = {
+        1: {minX: -10, maxX: -6, minY: 5, maxY: 6}
+      }
+
+      r.update(bds, 0, 1)
+      expect(r.start).not.to.be.NaN
+      expect(r.end).not.to.be.NaN
 
   describe "changing model attribute", ->
 
