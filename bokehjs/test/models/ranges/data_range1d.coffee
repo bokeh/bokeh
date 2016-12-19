@@ -289,8 +289,8 @@ describe "datarange1d module", ->
       }
 
       r.update(bds, 0, 1)
-      expect(r.start).to.be.equal r.start #test will fail when r.start is NaN because NaN != NaN
-      expect(r.end).to.be.equal r.end
+      expect(r.start).not.to.be.NaN
+      expect(r.end).not.to.be.NaN
 
   describe "changing model attribute", ->
 
