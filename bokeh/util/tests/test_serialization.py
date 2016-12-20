@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 
-import numpy as np
 import base64
 
+import numpy as np
+import pandas as pd
+
 import bokeh.util.serialization as bus
-from bokeh.settings import settings
 
 def test_id():
     assert len(bus.make_id()) == 36
@@ -29,58 +30,78 @@ def test_traverse_with_numpy():
 def test_traverse_without_numpy():
     assert bus.traverse_data(testing, False) == expected
 
-def test_encoding_disabled_by_settings():
+def test_transform_array_force_list_default():
+    dt_ok = bus.BINARY_ARRAY_TYPES
+    for dt in dt_ok:
+        a = np.empty(shape=10, dtype=dt)
+        out = bus.transform_array(a)
+        assert isinstance(out, dict)
 
-    assert len(bus.array_types) > 0
+def test_transform_array_force_list_true():
+    dt_ok = bus.BINARY_ARRAY_TYPES
+    for dt in dt_ok:
+        a = np.empty(shape=10, dtype=dt)
+        out = bus.transform_array(a, force_list=True)
+        assert isinstance(out, list)
 
-    cutoff = settings.binary_array_cutoff()
+def test_transform_series_force_list_default():
 
-    assert cutoff > 0
+    # default int seems to be int64
+    df = pd.Series([1, 3, 5, 6, 8])
+    out = bus.transform_series(df)
+    assert isinstance(out, list)
 
-    dts = set(np.typeDict.values()) - set([np.void])
+    df = pd.Series([1, 3, 5, 6, 8], dtype=np.int32)
+    out = bus.transform_series(df)
+    assert isinstance(out, dict)
 
-    for dt in dts:
-        a = np.empty(shape=cutoff-1, dtype=dt)
-        assert bus.encoding_disabled(a)
+    df = pd.Series([1.0, 3, 5, 6, 8])
+    out = bus.transform_series(df)
+    assert isinstance(out, dict)
 
+    df = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
+    out = bus.transform_series(df)
+    assert isinstance(out, dict)
 
-def test_encoding_disabled_by_cutoff():
+def test_transform_series_force_list_true():
 
-    import os
-    os.environ["BOKEH_USE_BINARY_ARRAYS"] = "no"
+    df = pd.Series([1, 3, 5, 6, 8])
+    out = bus.transform_series(df, force_list=True)
+    assert isinstance(out, list)
 
-    assert len(bus.array_types) > 0
+    df = pd.Series([1, 3, 5, 6, 8], dtype=np.int32)
+    out = bus.transform_series(df, force_list=True)
+    assert isinstance(out, list)
 
-    cutoff = settings.binary_array_cutoff()
+    df = pd.Series([1.0, 3, 5, 6, 8])
+    out = bus.transform_series(df, force_list=True)
+    assert isinstance(out, list)
 
-    assert cutoff > 0
+    df = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
+    out = bus.transform_series(df, force_list=True)
+    assert isinstance(out, list)
 
-    dts = set(np.typeDict.values()) - set([np.void])
+def test_transform_array_to_list():
+    dt_ok = bus.BINARY_ARRAY_TYPES
+    for dt in dt_ok:
+        a = np.empty(shape=10, dtype=dt)
+        out = bus.transform_array_to_list(a)
+        assert isinstance(out, list)
 
-    for dt in dts:
-        a = np.empty(shape=cutoff+1, dtype=dt)
-        assert bus.encoding_disabled(a)
+def test_array_encoding_disabled_by_dtype():
 
-    del os.environ["BOKEH_USE_BINARY_ARRAYS"]
+    assert len(bus.BINARY_ARRAY_TYPES) > 0
 
-def test_encoding_disabled_by_dtype():
-
-    assert len(bus.array_types) > 0
-
-    cutoff = settings.binary_array_cutoff()
-
-    assert cutoff > 0
-
-    dt_ok = bus.array_types
+    dt_ok = bus.BINARY_ARRAY_TYPES
     dt_bad = set(np.dtype(x) for x in set(np.typeDict.values()) - set([np.void])) - dt_ok
 
     for dt in dt_ok:
-        a = np.empty(shape=cutoff+1, dtype=dt)
-        assert not bus.encoding_disabled(a)
+        a = np.empty(shape=10, dtype=dt)
+        assert not bus.array_encoding_disabled(a)
 
     for dt in dt_bad:
-        a = np.empty(shape=cutoff+1, dtype=dt)
-        assert bus.encoding_disabled(a)
+        a = np.empty(shape=10, dtype=dt)
+        assert bus.array_encoding_disabled(a)
 
 def test_encode_base64_dict():
     for dt in [np.float32, np.float64, np.int64]:

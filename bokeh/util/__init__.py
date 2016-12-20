@@ -128,4 +128,10 @@ functionality.
 .. automodule:: bokeh.util.version
   :members:
 
+``bokeh.util.warnings``
+-----------------------
+
+.. automodule:: bokeh.util.warnings
+  :members:
+
 '''

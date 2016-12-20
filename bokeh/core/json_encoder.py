@@ -20,6 +20,9 @@ from ..util.serialization import transform_series, transform_array
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
 
+NP_EPOCH = np.datetime64('1970-01-01T00:00:00Z')
+NP_MS_DELTA = np.timedelta64(1, 'ms')
+
 class BokehJSONEncoder(json.JSONEncoder):
     ''' Encode values to be used in Bokeh documents or communicated to
     a Bokeh server.
@@ -29,6 +32,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         ''' Handle special scalars, use default json encoder otherwise
 
         '''
+
         # Pandas Timestamp
         if pd and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / 10**6.0  #nanosecond to millisecond
@@ -38,47 +42,62 @@ class BokehJSONEncoder(json.JSONEncoder):
             return int(obj)
         elif np.issubdtype(type(obj), np.bool_):
             return bool(obj)
+
         # Datetime (datetime is a subclass of date)
         elif isinstance(obj, dt.datetime):
             return time.mktime(obj.timetuple()) * 1000. + obj.microsecond / 1000.
+
         # Timedelta (timedelta is class in the datetime library)
         elif isinstance(obj, dt.timedelta):
             return obj.total_seconds() * 1000.
+
         # Date
         elif isinstance(obj, dt.date):
             return time.mktime(obj.timetuple()) * 1000.
+
         # Numpy datetime64
         elif isinstance(obj, np.datetime64):
-            epoch_delta = obj - np.datetime64('1970-01-01T00:00:00Z')
-            return (epoch_delta / np.timedelta64(1, 'ms'))
+            epoch_delta = obj - NP_EPOCH
+            return (epoch_delta / NP_MS_DELTA)
+
         # Time
         elif isinstance(obj, dt.time):
             return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
         elif rd and isinstance(obj, rd.relativedelta):
-            return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
-                minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
+            return dict(years=obj.years,
+                        months=obj.months,
+                        days=obj.days,
+                        hours=obj.hours,
+                        minutes=obj.minutes,
+                        seconds=obj.seconds,
+                        microseconds=obj.microseconds)
+
         # Decimal
         elif isinstance(obj, decimal.Decimal):
             return float(obj)
+
         else:
             return super(BokehJSONEncoder, self).default(obj)
 
     def default(self, obj):
-        #argh! local import!
         from ..model import Model
         from ..colors import Color
         from .properties import HasProps
-        ## array types
+
+        # array types -- use force_list here, only binary
+        # encoding CDS columns for now
         if pd and isinstance(obj, (pd.Series, pd.Index)):
-            return transform_series(obj)
+            return transform_series(obj, force_list=True)
         elif isinstance(obj, np.ndarray):
             return transform_array(obj, force_list=True)
+
         elif isinstance(obj, Model):
             return obj.ref
         elif isinstance(obj, HasProps):
             return obj.properties_with_values(include_defaults=False)
         elif isinstance(obj, Color):
             return obj.to_css()
+
         else:
             return self.transform_python_types(obj)
 

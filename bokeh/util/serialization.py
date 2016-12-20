@@ -1,5 +1,11 @@
-""" Functions for helping with serialization and deserialization of
+"""
+Functions for helping with serialization and deserialization of
 Bokeh objects.
+
+Certain NunPy array dtypes can be serialized to a binary format for
+performance and efficiency. The list of supported dtypes is:
+
+%s
 
 """
 from __future__ import absolute_import
@@ -9,14 +15,13 @@ import base64
 from six import iterkeys
 
 from .dependencies import import_optional
-from ..settings import settings
 
 is_numpy = None
 
 try:
     import numpy as np
     is_numpy = True
-    array_types = set([
+    BINARY_ARRAY_TYPES = set([
         np.dtype(np.float32),
         np.dtype(np.float64),
         np.dtype(np.uint8),
@@ -28,7 +33,9 @@ try:
     ])
 except ImportError:
     is_numpy = False
-    array_types = set()
+    BINARY_ARRAY_TYPES = set()
+
+__doc__ = __doc__ % ("\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
 pd = import_optional('pandas')
 
@@ -59,67 +66,53 @@ def make_id():
         new_id = uuid.uuid4()
     return str(new_id)
 
-def transform_series(obj):
-    """transforms pandas series into array of values
+def array_encoding_disabled(array):
+    """ Determine whether an array may be binary encoded.
+
+    The NumPy array dtypes that can be encoded are:
+
+    %s
+
+    Args:
+        array (np.ndarray) : the array to check
+
+    Returns:
+        bool
+
     """
-    vals = obj.values
-    return transform_array(vals)
 
-def transform_array_to_list(array):
-    if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
-        transformed = array.astype('object')
-        transformed[np.isnan(array)] = 'NaN'
-        transformed[np.isposinf(array)] = 'Infinity'
-        transformed[np.isneginf(array)] = '-Infinity'
-        return transformed.tolist()
-    return array.tolist()
+    # disable binary encoding for non-supported dtypes
+    return array.dtype not in BINARY_ARRAY_TYPES
 
-def encoding_disabled(array):
-    """Checks if array should be serialized"""
+array_encoding_disabled.__doc__ = array_encoding_disabled.__doc__ % ("\n    ".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
-    # user setting to disable overrides everything else
-    if not settings.use_binary_arrays():
-        return True
+def transform_array(array, force_list=False):
+    """ Transform a NumPy arrays into serialized format
 
-    # disable for non-supported dtypes
-    if array.dtype not in array_types:
-        return True
-
-    # disable if the array size is less than the settings threshold
-    array_samples = np.product(array.shape)
-    return array_samples < settings.binary_array_cutoff()
-
-def serialize_array(array, force_list=False):
-    """Transforms array into one of two serialization formats
-    either a list or a dictionary containing the base64
-    encoded data along with the shape and dtype of the data.
-    """
-    if isinstance(array, np.ma.MaskedArray):
-        array = array.filled(np.nan)  # Set masked values to nan
-    if (encoding_disabled(array) or force_list):
-        return transform_array_to_list(array)
-    if not array.flags['C_CONTIGUOUS']:
-        array = np.ascontiguousarray(array)
-    return encode_base64_dict(array)
-
-def transform_array(obj, force_list=False):
-    """Transform arrays to a serializeable format
-    Converts unserializeable dtypes and returns json serializeable
+    Converts un-serializable dtypes and returns JSON serializable
     format
 
     Args:
-        obj (np.ndarray) : array to be transformed
-        force_list : force a list based representation
+        array (np.ndarray) : a NumPy array to be transformed
+        force_list (bool, optional) : whether to only output to standard lists
+            This function can encode some dtypes using a binary encoding, but
+            setting this argument to True will override that and cause only
+            standard Python lists to be emitted. (default: False)
+
+    Returns:
+        JSON
+
     """
+
     # Check for astype failures (putative Numpy < 1.7)
     try:
         dt2001 = np.datetime64('2001')
         legacy_datetime64 = (dt2001.astype('int64') ==
                              dt2001.astype('datetime64[ms]').astype('int64'))
-    ## For compatibility with PyPy that doesn't have datetime64
     except AttributeError as e:
         if e.args == ("'module' object has no attribute 'datetime64'",):
             import sys
+            # for compatibility with PyPy that doesn't have datetime64
             if 'PyPy' in sys.version:
                 legacy_datetime64 = False
                 pass
@@ -128,37 +121,99 @@ def transform_array(obj, force_list=False):
         else:
             raise e
 
-    ## not quite correct, truncates to ms..
-    if obj.dtype.kind == 'M':
+    # not quite correct, truncates to ms..
+    if array.dtype.kind == 'M':
         if legacy_datetime64:
-            if obj.dtype == np.dtype('datetime64[ns]'):
-                array = obj.astype('int64') / 10**6.0
+            if array.dtype == np.dtype('datetime64[ns]'):
+                array = array.astype('int64') / 10**6.0
         else:
-            array =  obj.astype('datetime64[us]').astype('int64') / 1000.
-    elif obj.dtype.kind == 'm':
-        array = obj.astype('timedelta64[us]').astype('int64') / 1000.
-    else:
-        array = obj
+            array =  array.astype('datetime64[us]').astype('int64') / 1000.
+
+    elif array.dtype.kind == 'm':
+        array = array.astype('timedelta64[us]').astype('int64') / 1000.
+
     return serialize_array(array, force_list)
 
-def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
-    """recursively dig until a flat list is found
-    if numpy is available convert the flat list to a numpy array
-    and send off to transform_array() to handle nan, inf, -inf
-    otherwise iterate through items in array converting non-json items
+def transform_array_to_list(array):
+    """ Transforms a NumPy array into a list of values
 
     Args:
-        datum (list) : a list of values or lists
-        is_numpy: True if numpy is present (see imports)
-        use_numpy: toggle numpy as a dependency for testing purposes
+        array (np.nadarray) : the NumPy array series to transform
+
+    Returns:
+        list or dict
+
+    """
+    if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
+        transformed = array.astype('object')
+        transformed[np.isnan(array)] = 'NaN'
+        transformed[np.isposinf(array)] = 'Infinity'
+        transformed[np.isneginf(array)] = '-Infinity'
+        return transformed.tolist()
+    return array.tolist()
+
+def transform_series(series, force_list=False):
+    """ Transforms a Pandas series into serialized form
+
+    Args:
+        series (pd.Series) : the Pandas series to transform
+        force_list (bool, optional) : whether to only output to standard lists
+            This function can encode some dtypes using a binary encoding, but
+            setting this argument to True will override that and cause only
+            standard Python lists to be emitted. (default: False)
+
+    Returns:
+        list or dict
+
+    """
+    vals = series.values
+    return transform_array(vals, force_list)
+
+def serialize_array(array, force_list=False):
+    """ Transforms a NumPy array into serialized form.
+
+    Args:
+        array (np.ndarray) : the NumPy array to transform
+        force_list (bool, optional) : whether to only output to standard lists
+            This function can encode some dtypes using a binary encoding, but
+            setting this argument to True will override that and cause only
+            standard Python lists to be emitted. (default: False)
+
+    Returns:
+        list or dict
+
+    """
+    if isinstance(array, np.ma.MaskedArray):
+        array = array.filled(np.nan)  # Set masked values to nan
+    if (array_encoding_disabled(array) or force_list):
+        return transform_array_to_list(array)
+    if not array.flags['C_CONTIGUOUS']:
+        array = np.ascontiguousarray(array)
+    return encode_base64_dict(array)
+
+def traverse_data(obj, is_numpy=is_numpy, use_numpy=True):
+    """ Recursively traverse an object until a flat list is found.
+
+    If NumPy is available, the flat list is converted to a numpy array
+    and passed to transform_array() to handle ``nan``, ``inf``, and
+    ``-inf``.
+
+    Otherwise, iterate through all items, converting non-JSON items
+
+    Args:
+        obj (list) : a list of values or lists
+        is_numpy (bool, optional): Whether NumPy is availanble
+            (default: True if NumPy is importable)
+        use_numpy (bool, optional) toggle NumPy as a dependency for testing
+            This argument is only useful for testing (default: True)
     """
     is_numpy = is_numpy and use_numpy
-    if is_numpy and all(isinstance(el, np.ndarray) for el in datum):
-        return [transform_array(el) for el in datum]
-    datum_copy = []
-    for item in datum:
+    if is_numpy and all(isinstance(el, np.ndarray) for el in obj):
+        return [transform_array(el) for el in obj]
+    obj_copy = []
+    for item in obj:
         if isinstance(item, (list, tuple)):
-            datum_copy.append(traverse_data(item))
+            obj_copy.append(traverse_data(item))
         elif isinstance(item, float):
             if np.isnan(item):
                 item = 'NaN'
@@ -166,14 +221,20 @@ def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
                 item = 'Infinity'
             elif np.isneginf(item):
                 item = '-Infinity'
-            datum_copy.append(item)
+            obj_copy.append(item)
         else:
-            datum_copy.append(item)
-    return datum_copy
+            obj_copy.append(item)
+    return obj_copy
 
 def transform_column_source_data(data):
-    """iterate through the data of a ColumnSourceData object replacing
-    non-JSON-compliant objects with compliant ones
+    """ Transform ColumnSourceData data to a serialized format
+
+    Args:
+        data (dict) : the mapping of names to data columns to transform
+
+    Returns:
+        JSON compatible dict
+
     """
     data_copy = {}
     for key in iterkeys(data):
@@ -186,6 +247,26 @@ def transform_column_source_data(data):
     return data_copy
 
 def encode_base64_dict(array):
+    ''' Encode a NumPy array using base64:
+
+    The encoded format is a dict with the following structure:
+
+    .. code:: python
+
+        {
+            '__ndarray__' : << base64 encoded array data >>,
+            'shape'       : << array shape >>,
+            'dtype'       : << dtype name >>,
+        }
+
+    Args:
+
+        array (np.ndarray) : an array to encode
+
+    Returns:
+        dict
+
+    '''
     return {
         '__ndarray__'  : base64.b64encode(array.data).decode('utf-8'),
         'shape'        : array.shape,
@@ -193,8 +274,16 @@ def encode_base64_dict(array):
     }
 
 def decode_base64_dict(data):
-    """
-    Decode base64 encoded data into numpy array.
+    """ Decode a base64 encoded array into a NumPy array.
+
+    Args:
+        data (dict) : encoded array data to decode
+
+    Data should have the format encoded by :func:`encode_base64_dict`.
+
+    Returns:
+        np.ndarray
+
     """
     b64 = base64.b64decode(data['__ndarray__'])
     array = np.fromstring(b64, dtype=data['dtype'])

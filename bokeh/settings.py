@@ -171,17 +171,6 @@ class Settings(object):
         '''
         return self._get_bool("SIGN_SESSIONS", default)
 
-    def use_binary_arrays(self, default=True):
-        ''' Set whether array data should be sent using binary encoding
-        '''
-        return self._get_bool("USE_BINARY_ARRAYS", default)
-
-    def binary_array_cutoff(self, default=100):
-        ''' Set the number of samples in an array before binary encoding
-        is enabled
-        '''
-        return self._get_int("BINARY_ARRAY_CUTOFF", default)
-
     # Server settings go here:
 
     def bokehjssrcdir(self):
@@ -232,13 +221,6 @@ class Settings(object):
 
 #: A global settings object that other parts of Bokeh can refer to.
 #:
-#:
-#: ``BOKEH_BINARY_ARRAY_CUTOFF`` --- Number of samples before arrays are encoded.
-#:
-#:   Valid values include all positive integers. Ensures that binary array
-#:   encoding is only applied to large arrays, avoiding the overhead
-#:   in small cases. Only applies when ``BOKEH_USE_BINARY_ARRAYS`` is
-#:   enabled.
 #:
 #: ``BOKEH_BROWSER`` --- What browser to use when opening plots.
 #:
@@ -347,12 +329,6 @@ class Settings(object):
 #:   Normally Bokeh generates UUIDs for object identifiers. Setting this variable
 #:   to an affirmative value will result in more friendly simple numeric IDs
 #:   counting up from 1000.
-#:
-#: ``BOKEH_USE_BINARY_ARRAYS`` --- Whether to encode data arrays before sending them.
-#:
-#:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-#:   Can have a huge effect on performance because encoding and decoding
-#:   arrays as raw strings can be very slow.
 #:
 #: ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources.
 #:
