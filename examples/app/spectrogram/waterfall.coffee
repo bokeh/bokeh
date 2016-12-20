@@ -62,10 +62,11 @@ export class WaterfallRendererView extends RendererView
     ctx.translate(0, -sy)
 
     for i in [0...sx.length]
-      cctx = @canvas[i].getContext('2d')
-      image = cctx.getImageData(0, 0, @model.tile_width, @model.gram_length)
-      image.data.set(new Uint8Array(@image[i].buffer))
-      cctx.putImageData(image, 0, 0)
+      if i == @tile
+        cctx = @canvas[i].getContext('2d')
+        image = cctx.getImageData(0, 0, @model.tile_width, @model.gram_length)
+        image.data.set(new Uint8Array(@image[i].buffer))
+        cctx.putImageData(image, 0, 0)
       ctx.drawImage(@canvas[i], sx[i], sy, sw, sh)
 
     ctx.translate(0, sy)
