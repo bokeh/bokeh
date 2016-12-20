@@ -72,7 +72,7 @@ from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
-from ..util.serialization import transform_column_source_data, decode_column_data
+from ..util.serialization import transform_column_source_data, decode_base64_dict
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 from . import enums
@@ -125,11 +125,9 @@ def value(val):
     return dict(value=val)
 
 bokeh_bool_types = (bool,)
-bokeh_seq_types = (list,)
 try:
     import numpy as np
     bokeh_bool_types += (np.bool8,)
-    bokeh_seq_types += (np.ndarray,)
 except ImportError:
     pass
 
@@ -1187,9 +1185,7 @@ class Seq(ContainerProperty):
     def from_json(self, json, models=None):
         if json is None:
             return None
-        elif isinstance(json, bokeh_seq_types):
-            if isinstance(self.item_type, Any):
-                return json
+        elif isinstance(json, list):
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
@@ -1268,17 +1264,30 @@ class ColumnData(Dict):
     encoding and decoding to the data.
     """
 
+    def serialize_value(self, value):
+        return transform_column_source_data(value)
+
+class ColumnArray(Seq):
+    """ Property holding column source arrays, which handles deserialization
+    of base64 encoded numpy arrays.
+    """
+
     def from_json(self, json, models=None):
         if json is None:
             return None
-        elif isinstance(json, dict):
-            decoded = decode_column_data(json)
-            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(decoded) }
+        if isinstance(json, dict) and '__ndarray__' in json:
+            return decode_base64_dict(json)
+        elif isinstance(json, list):
+            data = []
+            for item in json:
+                if isinstance(item, dict) and '__ndarray__' in item:
+                    item = decode_base64_dict(item)
+                else:
+                    item = self.item_type.from_json(item, models)
+                data.append(item)
+            return self._new_instance(data)
         else:
-            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
-
-    def serialize_value(self, value):
-        return transform_column_source_data(value)
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
 class Tuple(ContainerProperty):
     """ Tuple type property. """

@@ -4,7 +4,7 @@ import warnings
 
 from ..core.properties import abstract
 from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enum,
-                               JSON, Seq, ColumnData)
+                               JSON, Seq, ColumnData, ColumnArray)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
@@ -64,7 +64,7 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = ColumnData(String, Seq(Any), help="""
+    data = ColumnData(String, ColumnArray(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
