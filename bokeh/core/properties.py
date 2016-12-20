@@ -895,6 +895,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
            dict : mapping from property names to their values
 
         '''
+        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults)
+
+    def query_properties_with_values(self, query, include_defaults=True):
         result = dict()
         if include_defaults:
             keys = self.properties()
@@ -905,7 +908,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         for key in keys:
             prop = self.lookup(key)
-            if not prop.serialized:
+            if not query(prop):
                 continue
 
             value = prop.serializable_value(self)
