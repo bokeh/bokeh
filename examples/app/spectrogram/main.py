@@ -30,7 +30,7 @@ waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
 waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
 waterfall_plot.grid.grid_line_color = None
-#waterfall_plot.background_fill_color = "#024768"
+waterfall_plot.background_fill_color = "#024768"
 waterfall_plot.renderers.append(waterfall_renderer)
 
 signal_source = ColumnDataSource(data=dict(t=[], y=[]))
