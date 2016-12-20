@@ -4,7 +4,7 @@ import warnings
 
 from ..core.properties import abstract
 from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enum,
-                               JSON, Seq, ColumnData, ColumnArray)
+                               JSON, ColumnData, ColumnArray)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
