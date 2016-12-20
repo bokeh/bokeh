@@ -344,6 +344,10 @@ class Property(object):
         """ The default as computed for a certain class, ignoring any per-instance theming."""
         raise NotImplementedError("Implement class_default()")
 
+    def serialize_value(self, value):
+        """ Allows specifying custom serialization behavior for a property value"""
+        return value
+
     def serializable_value(self, obj):
         """Gets the value as it should be serialized, which differs from
         the __get__ value occasionally when we allow the __get__
@@ -351,9 +355,7 @@ class Property(object):
 
         """
         value = self.__get__(obj)
-        if hasattr(self.descriptor, 'serialize_value'):
-            return self.descriptor.serialize_value(value)
-        return value
+        return self.descriptor.serialize_value(value)
 
     def set_from_json(self, obj, json, models):
         """Sets from a JSON value.
