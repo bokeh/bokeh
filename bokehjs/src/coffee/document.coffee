@@ -240,7 +240,7 @@ export class Document
       @_solver.add_edit_variable(edit_variable, strength)
 
     for constraint in constraints
-      @_solver.add_constraint(constraint)
+      @_solver.add_constraint(constraint, false)
 
     if vars.width?
       @_solver.add_constraint(EQ(vars.width, @_doc_width))
