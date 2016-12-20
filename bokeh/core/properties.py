@@ -239,6 +239,10 @@ class PropertyDescriptor(PropertyFactory):
         into a value for this property."""
         return json
 
+    def serialize_value(self, value):
+        """Change the value into a JSON serializable format."""
+        return value
+
     def transform(self, value):
         """Change the value into the canonical format for this property."""
         return value
@@ -343,10 +347,6 @@ class Property(object):
     def class_default(self, cls):
         """ The default as computed for a certain class, ignoring any per-instance theming."""
         raise NotImplementedError("Implement class_default()")
-
-    def serialize_value(self, value):
-        """ Allows specifying custom serialization behavior for a property value"""
-        return value
 
     def serializable_value(self, obj):
         """Gets the value as it should be serialized, which differs from
@@ -1266,30 +1266,36 @@ class ColumnData(Dict):
     encoding and decoding to the data.
     """
 
+    def from_json(self, json, models=None):
+        """
+        Decodes column source data encoded as lists or base64 strings.
+        """
+        if json is None:
+            return None
+        elif not isinstance(json, dict):
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+        new_data = {}
+        for key, value in json.items():
+            key = self.keys_type.from_json(key, models)
+            if isinstance(value, dict) and '__ndarray__' in value:
+                new_data[key] = decode_base64_dict(value)
+            elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
+                new_list = []
+                for el in value:
+                    if isinstance(el, dict) and '__ndarray__' in el:
+                        el = decode_base64_dict(el)
+                    elif isinstance(el, list):
+                        el = self.values_type.from_json(el)
+                    new_list.append(el)
+                new_data[key] = new_list
+            else:
+                new_data[key] = self.values_type.from_json(value, models)
+        return new_data
+
+
     def serialize_value(self, value):
         return transform_column_source_data(value)
 
-class ColumnArray(Seq):
-    """ Property holding column source arrays, which handles deserialization
-    of base64 encoded numpy arrays.
-    """
-
-    def from_json(self, json, models=None):
-        if json is None:
-            return None
-        if isinstance(json, dict) and '__ndarray__' in json:
-            return decode_base64_dict(json)
-        elif isinstance(json, list):
-            data = []
-            for item in json:
-                if isinstance(item, dict) and '__ndarray__' in item:
-                    item = decode_base64_dict(item)
-                else:
-                    item = self.item_type.from_json(item, models)
-                data.append(item)
-            return self._new_instance(data)
-        else:
-            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
 class Tuple(ContainerProperty):
     """ Tuple type property. """
