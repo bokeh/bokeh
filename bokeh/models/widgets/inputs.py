@@ -96,8 +96,14 @@ class MultiSelect(InputWidget):
     """)
 
     callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current dropdown value
+    A callback to run in the browser whenever the current selection value
     changes.
+    """)
+
+    size = Int(default=4, help="""
+    The number of visible options in the dropdown list. (This uses the
+    ``select`` HTML element's ``size`` attribute. Some browsers might not
+    show less than 3 options.)
     """)
 
 class Slider(InputWidget):
