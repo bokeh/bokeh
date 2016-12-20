@@ -218,6 +218,10 @@ class PropertyDescriptor(PropertyFactory):
         """
         return self._serialized
 
+    @property
+    def readonly(self):
+        return self._readonly
+
     def matches(self, new, old):
         # XXX: originally this code warned about not being able to compare values, but that
         # doesn't make sense, because most comparisons involving numpy arrays will fail with
@@ -366,6 +370,10 @@ class Property(object):
         raise NotImplementedError("Implement serialized()")
 
     @property
+    def readonly(self):
+        raise NotImplementedError("Implement readonly()")
+
+    @property
     def has_ref(self):
         """ True if the property can refer to another HasProps instance."""
         raise NotImplementedError("Implement has_ref()")
@@ -397,6 +405,10 @@ class BasicProperty(Property):
     @property
     def serialized(self):
         return self.descriptor.serialized
+
+    @property
+    def readonly(self):
+        return self.descriptor.readonly
 
     def set_from_json(self, obj, json, models=None):
         """Sets using the result of serializable_value().
