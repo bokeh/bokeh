@@ -50,7 +50,8 @@ for leaf in leaves(all_tree, model_class):
         continue
     defaults = {}
     instance = klass()
-    for name, default in instance.properties_with_values().items():
+    props_with_values = instance.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
+    for name, default in props_with_values.items():
         if isinstance(default, Model):
             ref = default.ref
             raw_attrs = default._to_json_like(include_defaults=True)

@@ -160,6 +160,21 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     def document(self):
         return self._document
 
+    def on_change(self, attr, *callbacks):
+        ''' Add a callback on this object to trigger when ``attr`` changes.
+
+        Args:
+            attr (str) : an attribute name on this object
+            callback (callable) : a callback function to register
+
+        Returns:
+            None
+
+        '''
+        if attr not in self.properties():
+            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
+        super(Model, self).on_change(attr, *callbacks)
+
     def js_on_change(self, event, *callbacks):
         ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
 

@@ -158,9 +158,10 @@ class PropertyFactory(object):
 class PropertyDescriptor(PropertyFactory):
     """ Base class for a description of a property, not associated yet with an attribute name or a class."""
 
-    def __init__(self, default=None, help=None, serialized=True):
+    def __init__(self, default=None, help=None, serialized=True, readonly=False):
         """ This is how the descriptor is created in the class declaration. """
-        self._serialized = serialized
+        self._serialized = False if readonly else serialized
+        self._readonly = readonly
         self._default = default
         self.__doc__ = help
         self.alternatives = []
@@ -216,6 +217,10 @@ class PropertyDescriptor(PropertyFactory):
         information already available in other properties, for example.
         """
         return self._serialized
+
+    @property
+    def readonly(self):
+        return self._readonly
 
     def matches(self, new, old):
         # XXX: originally this code warned about not being able to compare values, but that
@@ -354,7 +359,7 @@ class Property(object):
     def set_from_json(self, obj, json, models):
         """Sets from a JSON value.
         """
-        return self.__set__(obj, json)
+        return self._internal_set(obj, json)
 
     @property
     def serialized(self):
@@ -363,6 +368,10 @@ class Property(object):
         information already available in other properties, for example.
         """
         raise NotImplementedError("Implement serialized()")
+
+    @property
+    def readonly(self):
+        raise NotImplementedError("Implement readonly()")
 
     @property
     def has_ref(self):
@@ -396,6 +405,10 @@ class BasicProperty(Property):
     @property
     def serialized(self):
         return self.descriptor.serialized
+
+    @property
+    def readonly(self):
+        return self.descriptor.readonly
 
     def set_from_json(self, obj, json, models=None):
         """Sets using the result of serializable_value().
@@ -490,6 +503,12 @@ class BasicProperty(Property):
             raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
                                (self.name, obj.__class__.__name__))
 
+        if self.descriptor._readonly:
+            raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
+
+        self._internal_set(obj, value)
+
+    def _internal_set(self, obj, value):
         value = self.descriptor.prepare_value(obj, self.name, value)
 
         old = self.__get__(obj)
@@ -876,6 +895,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
            dict : mapping from property names to their values
 
         '''
+        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults)
+
+    def query_properties_with_values(self, query, include_defaults=True):
         result = dict()
         if include_defaults:
             keys = self.properties()
@@ -886,7 +908,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         for key in keys:
             prop = self.lookup(key)
-            if not prop.serialized:
+            if not query(prop):
                 continue
 
             value = prop.serializable_value(self)

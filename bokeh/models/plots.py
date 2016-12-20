@@ -505,6 +505,28 @@ class Plot(LayoutDOM):
 
     """)
 
+    inner_width = Int(readonly=True, help="""
+    This is the exact width of the plotting canvas, i.e. the width of
+    the actual plot, without toolbars etc. Note this is computed in a
+    web browser, so this property will work only in backends capable of
+    bidirectional communication (server, notebook).
+
+    .. note::
+        This is an experimental feature and the API may change in near future.
+
+    """)
+
+    inner_height = Int(readonly=True, help="""
+    This is the exact height of the plotting canvas, i.e. the height of
+    the actual plot, without toolbars etc. Note this is computed in a
+    web browser, so this property will work only in backends capable of
+    bidirectional communication (server, notebook).
+
+    .. note::
+        This is an experimental feature and the API may change in near future.
+
+    """)
+
     background_props = Include(FillProps, help="""
     The %s for the plot background style.
     """)
