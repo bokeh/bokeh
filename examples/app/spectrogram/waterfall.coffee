@@ -1,67 +1,84 @@
-import * as _ from "underscore"
-
 import * as p from "core/properties"
-import {DataSource} from "models/sources/data_source"
+import {Renderer, RendererView} from "models/renderers/renderer"
 import {LinearColorMapper} from "models/mappers/linear_color_mapper"
 
-export class WaterfallSource extends DataSource
-  type: 'WaterfallSource'
+export class WaterfallRendererView extends RendererView
+  initialize: (options) ->
+    super(options)
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @_cmap = new LinearColorMapper({'palette': @palette, low: 0, high: 5})
+    N = Math.ceil(@model.num_grams/@model.tile_width) + 1
+    [w, h] = [@model.tile_width, @model.gram_length]
 
-    num_images = Math.ceil(@num_grams/@tile_width) + 1
+    @image = []
+    @canvas = []
+    for i in [0...N]
+      canvas = document.createElement('canvas')
+      [canvas.width, canvas.height] = [w, h]
+      @canvas.push(canvas)
+      @image.push(new Uint32Array(w*h))
 
-    images = new Array(num_images)
-    for i in [0..(num_images-1)]
-      images[i] = new ArrayBuffer(@gram_length * @tile_width * 4)
+    @x = new Array(N)
+    for i in [0...N]
+      @x[i] = -@model.num_grams + @model.tile_width*(i-1)
 
-    xs = new Array(num_images)
-    for i in [0...num_images]
-      xs[i] = -@tile_width*(i+2)
+    [@col, @tile] = [0, 0]
+    @cmap = new LinearColorMapper({'palette': @model.palette, low: 0, high: 5})
+    @xmapper = @plot_view.frame.x_mappers['default']
+    @ymapper = @plot_view.frame.y_mappers['default']
+    @max_freq = @plot_view.y_range.end
 
-    @_col = 0
+    @listenTo(@model, 'change', @request_render)
 
-    @_tile = 0
+  render: () ->
+    ctx = @plot_view.canvas_view.ctx
 
-    @attributes.data = {image: images, x: xs}
+    for i in [0...@x.length]
+      @x[i] += 1
 
-    @listenTo(@, 'change:latest', () => @update())
+    @col -= 1
+    if @col < 0
+      @col = @model.tile_width - 1
+      @tile -= 1
+      if @tile < 0
+        @tile = @x.length - 1
+      @x[@tile] = -@model.tile_width
 
-  update: () ->
-    buf = @_cmap.v_map_screen(@latest)
+    buf32 = new Uint32Array(@cmap.v_map_screen(@model.latest))
+    for i in [0...@model.gram_length]
+      @image[@tile][i*@model.tile_width+@col] = buf32[i]
 
-    for i in [0...@data.x.length]
-      @data.x[i] += 1
+    sx = @plot_view.canvas.v_vx_to_sx(@xmapper.v_map_to_target(@x))
+    sy = @plot_view.canvas.vy_to_sy(@ymapper.map_to_target(0))
+    sw = Math.ceil(@xmapper.map_to_target(@model.tile_width) - @xmapper.map_to_target(0))
+    sh = Math.ceil(@ymapper.map_to_target(@max_freq))
 
-    @_col -= 1
-    if @_col == -1
+    ctx.save()
 
-      @_col = @tile_width - 1
-      @_tile -= 1
+    smoothing = ctx.getImageSmoothingEnabled()
+    ctx.setImageSmoothingEnabled(false)
 
-      if @_tile == -1
-        @_tile = @data.x.length - 1
+    ctx.translate(0, sy)
+    ctx.scale(1, -1)
+    ctx.translate(0, -sy)
 
-      @data.x[@_tile] = -@tile_width
+    for i in [0...sx.length]
+      cctx = @canvas[i].getContext('2d')
+      image = cctx.getImageData(0, 0, @model.tile_width, @model.gram_length)
+      image.data.set(new Uint8Array(@image[i].buffer))
+      cctx.putImageData(image, 0, 0)
+      ctx.drawImage(@canvas[i], sx[i], sy, sw, sh)
 
-    image32 = new Uint32Array(@data.image[@_tile])
-    buf32 = new Uint32Array(buf)
+    ctx.translate(0, sy)
+    ctx.scale(1, -1)
+    ctx.translate(0, -sy)
 
-    for i in [0...@gram_length]
-      image32[i*@tile_width+@_col] = buf32[i]
+    ctx.setImageSmoothingEnabled(smoothing)
 
-  columns: () ->
-    return _.keys(@data)
+    ctx.restore()
 
-  get_column: (colname) ->
-    return @data[colname] ? null
-
-  get_length: () ->
-    lengths = _.uniq((val.length for key, val of @data))
-    return lengths[0]
-
+export class WaterfallRenderer extends Renderer
+  type: 'WaterfallRenderer'
+  default_view: WaterfallRendererView
   @define {
     latest:      [ p.Any ]
     palette:     [ p.Any ]
@@ -69,9 +86,4 @@ export class WaterfallSource extends DataSource
     gram_length: [ p.Int ]
     tile_width:  [ p.Int ]
   }
-
-  @internal {
-    data:         [ p.Any,   {} ]
-    column_names: [ p.Array, [] ]
-    inspected:    [ p.Any       ]
-  }
+  @override { level: "glyph" }
