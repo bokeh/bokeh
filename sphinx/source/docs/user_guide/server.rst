@@ -240,6 +240,7 @@ The optional components are
 * A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
 
 * A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
+Custom variables can be passed to the template via the ``curdoc().template_variables`` dictionary.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
