@@ -3,7 +3,7 @@ import {Promise} from "es6-promise"
 
 import {HasProps} from "./core/has_props"
 import {logger} from "./core/logging"
-import {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} from "./document"
+import {Document, ModelChangedEvent} from "./document"
 
 export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export DEFAULT_SESSION_ID = "default"
@@ -384,26 +384,26 @@ class ClientSession
     @request_server_info().then((ignored) -> undefined)
 
   _should_suppress_on_change : (patch, event) ->
-    if event instanceof ModelChangedEvent
+    if event['kind'] == 'ModelChanged'
       for event_json in patch.content['events']
-        if event_json['kind'] == 'ModelChanged' and event_json['model']['id'] == event.model.id and event_json['attr'] == event.attr
+        if event_json['kind'] == 'ModelChanged' and event_json['model']['id'] == event['model']['id'] and event_json['attr'] == event['attr']
           patch_new = event_json['new']
-          if event.new_ instanceof HasProps
-            if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event.new_.id
+          if typeof event['new'] == 'object'
+            if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event['new']['id']
               return true
-          else if _.isEqual(patch_new, event.new_)
+          else if _.isEqual(patch_new, event['new'])
             return true
-    else if event instanceof RootAddedEvent
+    else if event['kind'] == 'RootAdded'
         for event_json in patch.content['events']
-          if event_json['kind'] == 'RootAdded' and event_json['model']['id'] == event.model.id
+          if event_json['kind'] == 'RootAdded' and event_json['model']['id'] == event['model']['id']
             return true
-    else if event instanceof RootRemovedEvent
+    else if event['kind'] == 'RootRemoved'
         for event_json in patch.content['events']
-          if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event.model.id
+          if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event['model']['id']
             return true
-    else if event instanceof TitleChangedEvent
+    else if event['kind'] == 'TitleChanged'
         for event_json in patch.content['events']
-          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event.title
+          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event['title']
             return true
 
     return false
@@ -413,6 +413,8 @@ class ClientSession
     if event.setter_id == @id
       return
 
+    json_patch = @document.create_json_patch([event])
+    if @_current_patch? and @_should_suppress_on_change(@_current_patch, json_patch['events'][0])
       return
 
     # Filter out changes to attributes that aren't server-visible
@@ -421,7 +423,7 @@ class ClientSession
 
     # TODO (havocp) the connection may be closed here, which will
     # cause this send to throw an error - need to deal with it more cleanly.
-    patch = Message.create('PATCH-DOC', {}, @document.create_json_patch([event]))
+    patch = Message.create('PATCH-DOC', {}, json_patch)
     @_connection.send(patch)
 
   _handle_patch : (message) ->
