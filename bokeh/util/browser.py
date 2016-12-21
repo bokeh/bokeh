@@ -5,6 +5,9 @@ import webbrowser
 
 from ..settings import settings
 
+# todo: need this locally
+ICON = 'http://bokeh.pydata.org/en/latest/_static/images/favicon.ico'
+
 def get_browser_controller(browser=None):
     browser = settings.browser(browser)
 
@@ -15,12 +18,20 @@ def get_browser_controller(browser=None):
                     pass
 
             controller = DummyWebBrowser()
+        elif browser.lower() in ('xul', ):
+            from flexx.webruntime import launch
+            class XulWebBrowser(object):
+                def open(self, url, new=0, autoraise=True):
+                    self.c = launch(url,  browser, title='Bokeh plot', icon=ICON)
+
+            controller = XulWebBrowser()
         else:
             controller = webbrowser.get(browser)
     else:
         controller = webbrowser
 
     return controller
+
 
 def view(location, browser=None, new="same", autoraise=True):
         ''' Opens a browser to view the specified location.
