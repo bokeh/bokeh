@@ -2,6 +2,7 @@ import * as _ from "underscore"
 
 import {DataSource} from "./data_source"
 import * as hittest from "../../core/hittest"
+import {HasProps} from "../../core/has_props"
 import {SelectionManager} from "../../core/selection_manager"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
@@ -108,10 +109,11 @@ export class ColumnDataSource extends DataSource
         attrs[key] = value
     value_to_json("attributes", attrs, @)
 
-  _tell_document_about_change: (attr, old, new_, options) ->
-    if attr == 'data' and (not options?.notify? or options.notify == true)
-      new_ = serialization.encode_column_data(new_, @_shapes)
-    super(attr, old, new_, options)
+  @_value_to_json: (key, value, optional_parent_object) ->
+    if _.isObject(value) and key == 'data'
+      serialization.encode_column_data(value, optional_parent_object._shapes)
+    else
+      HasProps._value_to_json(key, value, optional_parent_object)
 
   columns: () ->
     # return the column names in this data source

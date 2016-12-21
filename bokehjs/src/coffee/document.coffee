@@ -24,7 +24,10 @@ export class ModelChangedEvent extends DocumentChangedEvent
       throw new Error("'id' field should never change, whatever code just set it is wrong")
 
     value = @new_
-    value_json = HasProps._value_to_json('new_', value, @model)
+    if @model instanceof HasProps
+      value_json = @model.constructor._value_to_json(@attr, value, @model)
+    else
+      value_json = HasProps._value_to_json(@attr, value, @model)
 
     value_refs = {}
     HasProps._value_record_references(value, value_refs, true) # true = recurse
