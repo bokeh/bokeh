@@ -30,7 +30,8 @@ class DocHandler(SessionHandler):
         page = server_html_page_for_session(session.id, self.application.resources(self.request),
                                             title=session.document.title,
                                             template=session.document.template,
-                                            websocket_url=websocket_url)
+                                            websocket_url=websocket_url,
+                                            template_variables=session.document.template_variables)
 
         self.set_header("Content-Type", 'text/html')
         self.write(page)

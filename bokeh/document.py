@@ -301,6 +301,7 @@ class Document(object):
         self._session_callbacks = {}
         self._session_context = None
         self._modules = []
+        self._template_variables = {}
 
     def __del__(self):
         for module in self._modules:
@@ -407,6 +408,10 @@ class Document(object):
         if not isinstance(template, jinja2.Template):
             raise ValueError("Document templates must be Jinja2 Templates")
         self._template = template
+
+    @property
+    def template_variables(self):
+        return self._template_variables
 
     @property
     def theme(self):
