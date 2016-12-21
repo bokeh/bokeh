@@ -409,7 +409,10 @@ class ClientSession
     return false
 
   _document_changed : (event) ->
-    if @_current_patch? and @_should_suppress_on_change(@_current_patch, event)
+    # Filter out events that were initiated by the ClientSession itself
+    if event.setter_id == @id
+      return
+
       return
 
     # Filter out changes to attributes that aren't server-visible
@@ -424,7 +427,7 @@ class ClientSession
   _handle_patch : (message) ->
     @_current_patch = message
     try
-      @document.apply_json_patch(message.content)
+      @document.apply_json_patch(message.content, @id)
     finally
       @_current_patch = null
 

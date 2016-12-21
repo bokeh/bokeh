@@ -15,7 +15,7 @@ export class DocumentChangedEvent
   constructor : (@document) ->
 
 export class ModelChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @attr, @old, @new_) ->
+  constructor : (@document, @model, @attr, @old, @new_, @setter_id) ->
     super @document
   json : (references) ->
 
@@ -318,12 +318,12 @@ export class Document
       cb(event)
 
   # called by the model
-  _notify_change : (model, attr, old, new_) ->
+  _notify_change : (model, attr, old, new_, options) ->
     if attr == 'name'
       @_all_models_by_name.remove_value(old, model)
       if new_ != null
         @_all_models_by_name.add_value(new_, model)
-    @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
+    @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_, options?.setter_id))
 
   @_references_json : (references, include_defaults=true) ->
     references_json = []
@@ -619,7 +619,7 @@ export class Document
   apply_json_patch_string: (patch) ->
     @apply_json_patch(JSON.parse(patch))
 
-  apply_json_patch: (patch) ->
+  apply_json_patch: (patch, setter_id) ->
     references_json = patch['references']
     events_json = patch['events']
     references = Document._instantiate_references_json(references_json, @_all_models)
@@ -657,10 +657,10 @@ export class Document
           model_type = event_json['model']['type']
           if attr == 'data' and model_type == 'ColumnDataSource'
             [data, shapes] = decode_column_data(event_json['new'])
-            patched_obj.setv({_shapes: shapes, data: data}, {notify: false})
+            patched_obj.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
           else
             value = Document._resolve_refs(event_json['new'], old_references, new_references)
-            patched_obj.setv({ "#{attr}" : value }, {notify: false})
+            patched_obj.setv({ "#{attr}" : value }, {setter_id: setter_id})
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']
