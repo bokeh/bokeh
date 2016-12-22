@@ -279,7 +279,13 @@ Examples:
 
 """)
 
-    image = _glyph_function(glyphs.Image)
+    image = _glyph_function(glyphs.Image, """
+.. note::
+    If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+    exception will be raised. If neither is passed, then the ``Greys9``
+    palette will be used as a default.
+
+""")
 
     image_rgba = _glyph_function(glyphs.ImageRGBA, """
 .. note::
