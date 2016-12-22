@@ -29,7 +29,7 @@ calls it with the rendered model.
     return new Date();
   }
 
-  var force = {{ force|json }};
+  var force = {{ force|default(False)|json }};
 
   if (typeof (window._bokeh_onload_callbacks) === "undefined" || force === true) {
     window._bokeh_onload_callbacks = [];
