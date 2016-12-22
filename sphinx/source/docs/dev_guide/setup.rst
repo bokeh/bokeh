@@ -193,6 +193,9 @@ step of the build by issuing:
 
     gulp dev-build
 
+The non-minified javascript can be used by setting the environment variable
+``BOKEH_MINIFIED=false`` in the shell.
+
 To direct Gulp to automatically watch the source tree for changes and
 trigger a recompile if any source file changes:
 

@@ -65,6 +65,7 @@ class CallbackManager(object):
         '''
         if len(callbacks) == 0:
             raise ValueError("on_change takes an attribute name and one or more callbacks, got only one parameter")
+
         _callbacks = self._callbacks.setdefault(attr, [])
         for callback in callbacks:
 
