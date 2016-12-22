@@ -101,7 +101,7 @@ class DocumentPatchedEvent(DocumentChangedEvent):
             receiver._document_patched(self)
 
 class ModelChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model, attr, old, new, serializable_new, hint=None):
+    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter_id=None):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
         self.attr = attr
@@ -109,6 +109,10 @@ class ModelChangedEvent(DocumentPatchedEvent):
         self.new = new
         self.serializable_new = serializable_new
         self.hint = hint
+        if setter_id is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
+            self.setter_id = hint.setter_id
+        else:
+            self.setter_id = setter_id
 
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
@@ -116,11 +120,12 @@ class ModelChangedEvent(DocumentPatchedEvent):
             receiver._document_model_changed(self)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
-    def __init__(self, document, column_source, data, rollover):
+    def __init__(self, document, column_source, data, rollover, setter_id=None):
         super(ColumnsStreamedEvent, self).__init__(document)
         self.column_source = column_source
         self.data = data
         self.rollover = rollover
+        self.setter_id = setter_id
 
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
@@ -128,10 +133,11 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             receiver._columns_streamed(self)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
-    def __init__(self, document, column_source, patches):
+    def __init__(self, document, column_source, patches, setter_id=None):
         super(ColumnsPatchedEvent, self).__init__(document)
         self.column_source = column_source
         self.patches = patches
+        self.setter_id = setter_id
 
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
@@ -609,7 +615,7 @@ class Document(object):
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
-    def _notify_change(self, model, attr, old, new, hint=None):
+    def _notify_change(self, model, attr, old, new, hint=None, setter_id=None):
         ''' Called by Model when it changes
         '''
         # if name changes, update by-name index
@@ -623,7 +629,7 @@ class Document(object):
             serializable_new = model.lookup(attr).serializable_value(model)
         else:
             serializable_new = None
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint))
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter_id))
 
     @classmethod
     def _references_json(cls, references):
@@ -655,7 +661,7 @@ class Document(object):
         return references
 
     @classmethod
-    def _initialize_references_json(cls, references_json, references):
+    def _initialize_references_json(cls, references_json, references, setter_id=None):
         '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
         for obj in references_json:
@@ -664,7 +670,7 @@ class Document(object):
 
             instance = references[obj_id]
 
-            instance.update_from_json(obj_attrs, models=references)
+            instance.update_from_json(obj_attrs, models=references, setter_id=None)
 
     @classmethod
     def _value_record_references(cls, all_references, v, result):
@@ -939,7 +945,7 @@ class Document(object):
         json_parsed = loads(patch)
         self.apply_json_patch(json_parsed)
 
-    def apply_json_patch(self, patch):
+    def apply_json_patch(self, patch, setter_id=None):
         ''' Apply a JSON patch object created by parsing the result of create_json_patch_string() '''
         references_json = patch['references']
         events_json = patch['events']
@@ -967,7 +973,7 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references)
+                patched_obj.set_from_json(attr, value, models=references, setter_id=setter_id)
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
@@ -975,14 +981,14 @@ class Document(object):
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json['rollover']
-                source.stream(data, rollover)
+                source.stream(data, rollover, setter_id)
             elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
                     raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 patches = event_json['patches']
-                source.patch(patches)
+                source.patch(patches, setter_id)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]

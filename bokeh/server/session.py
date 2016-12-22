@@ -165,8 +165,7 @@ class ServerSession(object):
         return wrapped
 
     def _document_patched(self, event):
-        may_suppress = self._current_patch is not None and \
-                       self._current_patch.should_suppress_on_change(event)
+        may_suppress = event.setter_id == self.id
 
         if self._pending_writes is None:
             raise RuntimeError("_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes")
@@ -214,7 +213,7 @@ class ServerSession(object):
         self._current_patch = message
         self._current_patch_connection = connection
         try:
-            message.apply_to_document(self.document)
+            message.apply_to_document(self.document, self.id)
         finally:
             self._current_patch = None
             self._current_patch_connection = None

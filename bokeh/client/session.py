@@ -350,8 +350,7 @@ class ClientSession(object):
             self._callbacks.remove_all_callbacks()
 
     def _document_patched(self, event):
-
-        if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
+        if event.setter_id == self.id:
             log.debug("Not sending notification back to server for a change it requested")
             return
 
@@ -364,7 +363,7 @@ class ClientSession(object):
     def _handle_patch(self, message):
         self._current_patch = message
         try:
-            message.apply_to_document(self.document)
+            message.apply_to_document(self.document, self.id)
         finally:
             self._current_patch = None
 
