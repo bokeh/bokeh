@@ -54,10 +54,10 @@
 """ Provide a collection of palettes for color mapping.
 
 Palettes are simple plain Python lists of (hex) RGB colors. This module
-containts the following sets of palettes:
+contains the following sets of palettes:
 
 * All Brewer palettes
-* Catagorical D3 palettes
+* Categorical D3 palettes
 * The new Matplotlib palettes (Magma, Inferno, Plasma, Viridis)
 
 Every pre-built palette is available as a module attributes, e.g.
@@ -75,6 +75,10 @@ The Brewer palettes are also collected and grouped by name in a
 Finally, all "small" palettes (i.e. excluding the 256 color ones) are
 collected and grouped similarly in a ``small_palettes`` attribute.
 The complete contents of ``small_palettes`` is show below.
+
+You can also use any of the 256-color perceptually uniform Bokeh
+palettes from the external `colorcet <https://bokeh.github.io/colorcet>`_
+package, if you install it and import it before use.
 
 ----
 
