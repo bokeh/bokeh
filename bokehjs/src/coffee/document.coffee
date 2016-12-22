@@ -45,7 +45,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
     }
 
 export class TitleChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @title) ->
+  constructor : (@document, @title, @setter_id) ->
     super @document
   json : (references) ->
     {
@@ -54,7 +54,7 @@ export class TitleChangedEvent extends DocumentChangedEvent
     }
 
 export class RootAddedEvent extends DocumentChangedEvent
-  constructor : (@document, @model) ->
+  constructor : (@document, @model, @setter_id) ->
     super @document
   json : (references) ->
     HasProps._value_record_references(@model, references, true)
@@ -64,7 +64,7 @@ export class RootAddedEvent extends DocumentChangedEvent
     }
 
 export class RootRemovedEvent extends DocumentChangedEvent
-  constructor : (@document, @model) ->
+  constructor : (@document, @model, @setter_id) ->
     super @document
   json : (references) ->
     {
@@ -250,7 +250,7 @@ export class Document
 
     @_solver.update_variables()
 
-  add_root : (model) ->
+  add_root : (model, setter_id) ->
     logger.debug("Adding root: #{model}")
 
     if model in @_roots
@@ -265,9 +265,9 @@ export class Document
 
     @_init_solver()
 
-    @_trigger_on_change(new RootAddedEvent(@, model))
+    @_trigger_on_change(new RootAddedEvent(@, model, setter_id))
 
-  remove_root : (model) ->
+  remove_root : (model, setter_id) ->
     i = @_roots.indexOf(model)
     if i < 0
       return
@@ -281,15 +281,15 @@ export class Document
 
     @_init_solver()
 
-    @_trigger_on_change(new RootRemovedEvent(@, model))
+    @_trigger_on_change(new RootRemovedEvent(@, model, setter_id))
 
   title : () ->
     @_title
 
-  set_title : (title) ->
+  set_title : (title, setter_id) ->
     if title != @_title
       @_title = title
-      @_trigger_on_change(new TitleChangedEvent(@, title))
+      @_trigger_on_change(new TitleChangedEvent(@, title, setter_id))
 
   get_model_by_id : (model_id) ->
     if model_id of @_all_models
@@ -683,15 +683,15 @@ export class Document
         when 'RootAdded'
           root_id = event_json['model']['id']
           root_obj = references[root_id]
-          @add_root(root_obj)
+          @add_root(root_obj, setter_id)
 
         when 'RootRemoved'
           root_id = event_json['model']['id']
           root_obj = references[root_id]
-          @remove_root(root_obj)
+          @remove_root(root_obj, setter_id)
 
         when 'TitleChanged'
-          @set_title(event_json['title'])
+          @set_title(event_json['title'], setter_id)
 
         else
           throw new Error("Unknown patch event " + JSON.stringify(event_json))
