@@ -241,8 +241,7 @@ The optional components are
 
 * A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
-Custom variables can be passed to the template via the ``curdoc().template_variables`` 
-dictionary in place:
+Custom variables can be passed to the template via the ``curdoc().template_variables`` dictionary in place:
 
 .. code-block:: python
 
