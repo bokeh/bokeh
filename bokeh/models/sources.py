@@ -171,7 +171,7 @@ class ColumnDataSource(DataSource):
     def _to_json_like(self, include_defaults):
         attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
         if 'data' in attrs:
-            attrs['data'] = transform_column_source_data(attrs['data'])
+            attrs['data'], attrs['_shapes'] = transform_column_source_data(attrs['data'])
         return attrs
 
     def remove(self, name):

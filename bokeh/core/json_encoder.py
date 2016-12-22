@@ -34,7 +34,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return obj.value / 10**6.0  #nanosecond to millisecond
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
-        elif np.issubdtype(type(obj), np.int):
+        elif np.issubdtype(type(obj), np.integer):
             return int(obj)
         elif np.issubdtype(type(obj), np.bool_):
             return bool(obj)

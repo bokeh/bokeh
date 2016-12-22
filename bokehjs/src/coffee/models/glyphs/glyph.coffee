@@ -181,7 +181,7 @@ export class GlyphView extends BokehView
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
 
-    @_set_data()
+    @_set_data(source)
 
     @index = @_index_data()
 
