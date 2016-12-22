@@ -383,38 +383,9 @@ class ClientSession
   force_roundtrip : () ->
     @request_server_info().then((ignored) -> undefined)
 
-  _should_suppress_on_change : (patch, event) ->
-    if event['kind'] == 'ModelChanged'
-      for event_json in patch.content['events']
-        if event_json['kind'] == 'ModelChanged' and event_json['model']['id'] == event['model']['id'] and event_json['attr'] == event['attr']
-          patch_new = event_json['new']
-          if typeof event['new'] == 'object'
-            if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event['new']['id']
-              return true
-          else if _.isEqual(patch_new, event['new'])
-            return true
-    else if event['kind'] == 'RootAdded'
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'RootAdded' and event_json['model']['id'] == event['model']['id']
-            return true
-    else if event['kind'] == 'RootRemoved'
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event['model']['id']
-            return true
-    else if event['kind'] == 'TitleChanged'
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event['title']
-            return true
-
-    return false
-
   _document_changed : (event) ->
     # Filter out events that were initiated by the ClientSession itself
     if event.setter_id == @id
-      return
-
-    json_patch = @document.create_json_patch([event])
-    if @_current_patch? and @_should_suppress_on_change(@_current_patch, json_patch['events'][0])
       return
 
     # Filter out changes to attributes that aren't server-visible
@@ -423,7 +394,7 @@ class ClientSession
 
     # TODO (havocp) the connection may be closed here, which will
     # cause this send to throw an error - need to deal with it more cleanly.
-    patch = Message.create('PATCH-DOC', {}, json_patch)
+    patch = Message.create('PATCH-DOC', {}, @document.create_json_patch([event]))
     @_connection.send(patch)
 
   _handle_patch : (message) ->
