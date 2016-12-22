@@ -145,20 +145,23 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
             receiver._columns_patched(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, title):
+    def __init__(self, document, title, setter_id=None):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
+        self.setter_id = setter_id
 
 
 class RootAddedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model):
+    def __init__(self, document, model, setter_id=None):
         super(RootAddedEvent, self).__init__(document)
         self.model = model
+        self.setter_id = setter_id
 
 class RootRemovedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model):
+    def __init__(self, document, model, setter_id=None):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
+        self.setter_id = setter_id
 
 class SessionCallbackAdded(DocumentChangedEvent):
     def __init__(self, document, callback):
@@ -398,11 +401,7 @@ class Document(object):
 
     @title.setter
     def title(self, title):
-        if title is None:
-            raise ValueError("Document title may not be None")
-        if self._title != title:
-            self._title = title
-            self._trigger_on_change(TitleChangedEvent(self, title))
+        self._set_title(title)
 
     @property
     def template(self):
@@ -436,8 +435,14 @@ class Document(object):
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
+    def _set_title(self, title, setter_id=None):
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self._trigger_on_change(TitleChangedEvent(self, title, setter_id))
 
-    def add_root(self, model):
+    def add_root(self, model, setter_id=None):
         ''' Add a model as a root model to this Document.
 
         Any changes to this model (including to other models referred to
@@ -457,7 +462,7 @@ class Document(object):
             self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootAddedEvent(self, model))
+        self._trigger_on_change(RootAddedEvent(self, model, setter_id))
 
     def add(self, *objects):
         """ Call add_root() on each object.
@@ -477,7 +482,7 @@ class Document(object):
         for obj in objects:
             self.add_root(obj)
 
-    def remove_root(self, model):
+    def remove_root(self, model, setter_id=None):
         ''' Remove a model as root model from this Document.
 
         Changes to this model may still trigger "on_change" callbacks
@@ -491,7 +496,7 @@ class Document(object):
             self._roots.remove(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootRemovedEvent(self, model))
+        self._trigger_on_change(RootRemovedEvent(self, model, setter_id))
 
     def get_model_by_id(self, model_id):
         ''' Get the model object for the given ID or None if not found'''
@@ -992,13 +997,13 @@ class Document(object):
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.add_root(root_obj)
+                self.add_root(root_obj, setter_id)
             elif event_json['kind'] == 'RootRemoved':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.remove_root(root_obj)
+                self.remove_root(root_obj, setter_id)
             elif event_json['kind'] == 'TitleChanged':
-                self.title = event_json['title']
+                self._set_title(event_json['title'], setter_id)
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 

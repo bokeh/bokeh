@@ -165,7 +165,7 @@ class ServerSession(object):
         return wrapped
 
     def _document_patched(self, event):
-        may_suppress = event.setter_id == self.id
+        may_suppress = getattr(event, 'setter_id', None) == self.id
 
         if self._pending_writes is None:
             raise RuntimeError("_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes")

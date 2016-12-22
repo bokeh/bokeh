@@ -350,7 +350,7 @@ class ClientSession(object):
             self._callbacks.remove_all_callbacks()
 
     def _document_patched(self, event):
-        if event.setter_id == self.id:
+        if getattr(event, 'setter_id', None) == self.id:
             log.debug("Not sending notification back to server for a change it requested")
             return
 
