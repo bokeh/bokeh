@@ -4,9 +4,12 @@ Bokeh objects.
 """
 from __future__ import absolute_import
 
+import base64
+
 from six import iterkeys
 
 from .dependencies import import_optional
+from ..settings import settings
 
 is_numpy = None
 
@@ -51,10 +54,38 @@ def transform_series(obj):
     vals = obj.values
     return transform_array(vals)
 
+def transform_array_to_list(array):
+    if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
+        transformed = array.astype('object')
+        transformed[np.isnan(array)] = 'NaN'
+        transformed[np.isposinf(array)] = 'Infinity'
+        transformed[np.isneginf(array)] = '-Infinity'
+        return transformed.tolist()
+    return array.tolist()
+
+def serialize_array(array):
+    """Transforms array into one of two serialization formats
+    either a list or a dictionary containing the base64
+    encoded data along with the shape and dtype of the data.
+    """
+    if isinstance(array, np.ma.MaskedArray):
+        array = array.filled(np.nan)  # Set masked values to nan
+    array_samples = np.product(array.shape)
+    if (not settings.use_binary_arrays() or
+        array_samples < settings.binary_array_cutoff() or
+        array.dtype.kind in ('U', 'S', 'O') or
+        array.dtype.name == 'int64'):
+        return transform_array_to_list(array)
+    if not array.flags['C_CONTIGUOUS']:
+        array = np.ascontiguousarray(array)
+    return  {'data': base64.b64encode(array).decode('utf-8'),
+             'shape': array.shape,
+             'dtype': array.dtype.name}
+
 def transform_array(obj):
-    """Transform arrays into lists of json safe types
-    also handles pandas series, and replacing
-    nans and infs with strings
+    """Transform arrays to a serializeable format
+    Converts unserializeable dtypes and returns json serializeable
+    format
     """
     # Check for astype failures (putative Numpy < 1.7)
     try:
@@ -77,28 +108,14 @@ def transform_array(obj):
     if obj.dtype.kind == 'M':
         if legacy_datetime64:
             if obj.dtype == np.dtype('datetime64[ns]'):
-                return (obj.astype('int64') / 10**6.0).tolist()
+                array = obj.astype('int64') / 10**6.0
         else:
-            return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
+            array =  obj.astype('datetime64[us]').astype('int64') / 1000.
     elif obj.dtype.kind == 'm':
-        return (obj.astype('timedelta64[us]').astype('int64') / 1000).tolist()
-    elif obj.dtype.kind in ('u', 'i', 'f'):
-        return transform_numerical_array(obj)
-    return obj.tolist()
-
-def transform_numerical_array(obj):
-    """handles nans/inf conversion
-    """
-    if isinstance(obj, np.ma.MaskedArray):
-        obj = obj.filled(np.nan)  # Set masked values to nan
-    if not np.isnan(obj).any() and not np.isinf(obj).any():
-        return obj.tolist()
+        array = obj.astype('timedelta64[us]').astype('int64') / 1000.
     else:
-        transformed = obj.astype('object')
-        transformed[np.isnan(obj)] = 'NaN'
-        transformed[np.isposinf(obj)] = 'Infinity'
-        transformed[np.isneginf(obj)] = '-Infinity'
-        return transformed.tolist()
+        array = obj
+    return serialize_array(array)
 
 def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
     """recursively dig until a flat list is found
@@ -112,8 +129,8 @@ def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
         use_numpy: toggle numpy as a dependency for testing purposes
     """
     is_numpy = is_numpy and use_numpy
-    if is_numpy and not any(isinstance(el, (list, tuple)) for el in datum):
-        return transform_array(np.asarray(datum))
+    if is_numpy and all(isinstance(el, np.ndarray) for el in datum):
+        return [transform_array(el) for el in datum]
     datum_copy = []
     for item in datum:
         if isinstance(item, (list, tuple)):

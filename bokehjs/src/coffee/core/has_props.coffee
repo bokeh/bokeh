@@ -389,6 +389,7 @@ export class HasProps extends Backbone.Model
       @document._notify_change(@, attr, old, new_)
 
   materialize_dataspecs: (source) ->
+    # Note: this should be moved to a function separate from HasProps
     data = {}
     for name, prop of @properties
       if not prop.dataspec
@@ -397,6 +398,8 @@ export class HasProps extends Backbone.Model
       if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
         continue
       data["_#{name}"] = prop.array(source)
+      if name of source._shapes
+        data["_#{name}_shape"] = source._shapes[name]
       if prop instanceof p.Distance
         data["max_#{name}"] = array_max(data["_#{name}"])
     return data

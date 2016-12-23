@@ -5,6 +5,7 @@ import * as hittest from "../../core/hittest"
 import {SelectionManager} from "../../core/selection_manager"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {decode_column_data} from "../../core/util/deserialize"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.
@@ -12,14 +13,19 @@ import * as p from "../../core/properties"
 export class ColumnDataSource extends DataSource
   type: 'ColumnDataSource'
 
+  initialize: (options) ->
+    super(options)
+    [@data, @_shapes] = decode_column_data(@data)
+
   @define {
-      data:              [ p.Any,      {} ]
-      column_names:      [ p.Array,    [] ]
+      data:         [ p.Any,   {} ]
+      column_names: [ p.Array, [] ]
     }
 
   @internal {
     selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
     inspected:         [ p.Any ]
+    _shapes:           [ p.Any, {}]
   }
 
   get_column: (colname) ->

@@ -9,6 +9,7 @@ import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {ColumnDataSource} from "./models/sources/column_data_source"
+import {decode_column_data} from "./core/util/deserialize"
 
 export class DocumentChangedEvent
   constructor : (@document) ->
@@ -650,8 +651,13 @@ export class Document
             throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
           patched_obj = @_all_models[patched_id]
           attr = event_json['attr']
-          value = Document._resolve_refs(event_json['new'], old_references, new_references)
-          patched_obj.setv({ "#{attr}" : value })
+          model_type = event_json['model']['type']
+          if attr == 'data' and model_type == 'ColumnDataSource'
+            [data, shapes] = decode_column_data(event_json['new'])
+            patched_obj.setv({ "_shapes": shapes, "data" : data})
+          else
+            value = Document._resolve_refs(event_json['new'], old_references, new_references)
+            patched_obj.setv({ "#{attr}" : value })
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']
