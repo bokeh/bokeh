@@ -76,17 +76,9 @@ class State(object):
 
         session_id (str) : a default session ID for Bokeh server output
 
-        autoadd (bool) : whether certain functions automatically add roots to the document
-
-        autosave (bool) : whether certain functions automatically save the file
-
-        autopush (bool): whether certain functions automatically push to the server
-
     """
 
     def __init__(self):
-        # TODO (havocp) right now there's no way to turn off autoadd
-        self._autoadd = True
         self.last_comms_handle = None
         self.reset()
 
@@ -132,29 +124,11 @@ class State(object):
     def app_path(self):
         return self._session_coords.app_path
 
-    @property
-    def autoadd(self):
-        return self._autoadd
-
-    @autoadd.setter
-    def autoadd(self, val):
-        self._autoadd = val
-
-    @property
-    def autosave(self):
-        return self._autosave
-
-    @property
-    def autopush(self):
-        return self._autopush
-
     def _reset_keeping_doc(self):
         self._file = None
         self._notebook = False
         self._session_coords = _SessionCoordinates(dict())
         self._server_enabled = False
-        self._autosave = False
-        self._autopush = False
 
     def _reset_with_doc(self, doc):
         self._document = doc
@@ -172,7 +146,7 @@ class State(object):
         '''
         self._reset_with_doc(Document())
 
-    def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
         """Output to a standalone HTML file.
 
         Does not change the current Document from curdoc(). File,
@@ -185,12 +159,6 @@ class State(object):
 
             title (str, optional) : a title for the HTML document
 
-            autosave (bool, optional) : whether to automatically save (default: False)
-                If True, then Bokeh plotting APIs may opt to automatically
-                save the file more frequently (e.g., after any plotting
-                command). If False, then the file is only saved upon calling
-                :func:`show` or :func:`save`.
-
             mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
                 One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
                 ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
@@ -201,8 +169,7 @@ class State(object):
 
         .. warning::
             This output file will be overwritten on every save, e.g., each time
-            show() or save() is invoked, or any time a Bokeh plotting API
-            causes a save, if ``autosave`` is True.
+            show() or save() is invoked.
 
         """
         self._file = {
@@ -210,7 +177,6 @@ class State(object):
             'resources' : Resources(mode=mode, root_dir=root_dir),
             'title'     : title
         }
-        self._autosave = autosave
 
         if os.path.isfile(filename):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
@@ -231,8 +197,7 @@ class State(object):
         """
         self._notebook = True
 
-    def output_server(self, session_id=DEFAULT_SESSION_ID, url="default",
-                      app_path='/', autopush=False):
+    def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", app_path='/'):
         """Store Bokeh plots and objects on a Bokeh server.
 
         File, server, and notebook output may be active at the
@@ -251,12 +216,6 @@ class State(object):
 
             app_path (str, optional) : relative path of the app on the Bokeh server (default: "/")
 
-            autopush (bool, optional) : whether to automatically push (default: False)
-                If True, then Bokeh plotting APIs may opt to automatically
-                push the document more frequently (e.g., after any plotting
-                command). If False, then the document is only pushed upon calling
-                :func:`show` or :func:`push`.
-
         Returns:
             None
 
@@ -268,5 +227,4 @@ class State(object):
                                                         url=url,
                                                         app_path=app_path))
 
-        self._autopush = autopush
         self._server_enabled = True
