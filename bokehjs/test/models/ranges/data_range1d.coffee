@@ -264,15 +264,15 @@ describe "datarange1d module", ->
       r = new DataRange1d()
       p = new TestObject()
       g = new GlyphRenderer()
-      g.id = 1
+      g.id = "id"
       p.renderers = [g]
       r.plots = [p]
 
       bds = {
-        1: {minX: -10, maxX: -6, minY: 5, maxY: 6}
+        "id": {minX: -10, maxX: -6, minY: 5, maxY: 6}
       }
 
-      r.update(bds, 0, 1)
+      r.update(bds, 0, "id")
       expect(r.start).to.be.equal -10.2
 
     it "should not update its start or end values to NaN when log", ->
@@ -280,15 +280,15 @@ describe "datarange1d module", ->
       r._mapper_type = "log"
       p = new TestObject()
       g = new GlyphRenderer()
-      g.id = 1
+      g.id = "id"
       p.renderers = [g]
       r.plots = [p]
 
       bds = {
-        1: {minX: -10, maxX: -6, minY: 5, maxY: 6}
+        "id": {minX: Infinity, maxX: -Infinity, minY: 5, maxY: 6}
       }
 
-      r.update(bds, 0, 1)
+      r.update(bds, 0, "id")
       expect(r.start).not.to.be.NaN
       expect(r.end).not.to.be.NaN
 

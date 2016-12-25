@@ -38,3 +38,10 @@ describe "Glyph (using Rect as a concrete Glyph)", ->
       log_bounds = glyph_view.log_bounds()
 
       expect(log_bounds).to.be.deep.equal({ minX: 1, minY: 10, maxX: 4, maxY: 30 })
+
+    it "should calculate log bounds when NaNs are present", ->
+      data = {x: [1, 2, 3, 4], y: [-20, 0, 10, NaN]}
+      glyph_view = create_glyph_view(@glyph, data)
+      log_bounds = glyph_view.log_bounds()
+
+      expect(log_bounds).to.be.deep.equal({ minX: 1, minY: 10, maxX: 3, maxY: 10 })
