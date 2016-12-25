@@ -5,6 +5,20 @@ export empty = () -> {
   maxY: -Infinity
 }
 
+export positive_x = () -> {
+  minX:  Number.MIN_VALUE,
+  minY: -Infinity,
+  maxX:  Infinity,
+  maxY:  Infinity
+}
+
+export positive_y = () -> {
+  minX:  -Infinity,
+  minY:  Number.MIN_VALUE,
+  maxX:  Infinity,
+  maxY:  Infinity
+}
+
 export union = (a, b) ->
   r = {}
   r.minX = Math.min(a.minX, b.minX)

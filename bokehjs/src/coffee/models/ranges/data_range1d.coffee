@@ -87,9 +87,9 @@ export class DataRange1d extends DataRange
     if range_padding? and range_padding > 0
 
       if @_mapper_type == "log"
-        if min <= 0 #hotfix
-          min = 1
-        if max <= 0
+        if isNaN(min) or not isFinite(min)
+          min = 0.1
+        if isNaN(max) or not isFinite(max)
           max = 10
         log_min = Math.log(min) / Math.log(10)
         log_max = Math.log(max) / Math.log(10)
