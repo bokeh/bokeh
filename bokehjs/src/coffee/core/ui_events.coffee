@@ -11,12 +11,12 @@ import {logger} from "./logging"
 export class UIEvents
   _.extend(@prototype, Events)
 
-  # new (toolbar: Toolbar, hit_area: $Element)
+  # new (toolbar: Toolbar, hit_area: Element)
   constructor: (@toolbar, @hit_area) ->
     @_configure_hammerjs()
 
   _configure_hammerjs: () ->
-    @hammer = new Hammer(@hit_area[0])
+    @hammer = new Hammer(@hit_area)
 
     # This is to be able to distinguish double taps from single taps
     @hammer.get('doubletap').recognizeWith('tap')
@@ -42,10 +42,10 @@ export class UIEvents
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    @hit_area.mousemove((e) => @_mouse_move(e))
-    @hit_area.mouseenter((e) => @_mouse_enter(e))
-    @hit_area.mouseleave((e) => @_mouse_exit(e))
-    @hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
+    $(@hit_area).mousemove((e) => @_mouse_move(e))
+    $(@hit_area).mouseenter((e) => @_mouse_enter(e))
+    $(@hit_area).mouseleave((e) => @_mouse_exit(e))
+    $(@hit_area).mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
 
