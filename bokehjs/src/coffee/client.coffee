@@ -349,7 +349,6 @@ class ClientConnection
 class ClientSession
 
   constructor : (@_connection, @document, @id) ->
-    @_current_patch = null
     # we save the bound function so we can remove it later
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
@@ -398,11 +397,7 @@ class ClientSession
     @_connection.send(patch)
 
   _handle_patch : (message) ->
-    @_current_patch = message
-    try
-      @document.apply_json_patch(message.content, @id)
-    finally
-      @_current_patch = null
+    @document.apply_json_patch(message.content, @id)
 
 # Returns a promise of a ClientSession
 # The returned promise has a close() method
