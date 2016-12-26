@@ -343,7 +343,7 @@ class Property(object):
     def __get__(self, obj, owner=None):
         raise NotImplementedError("Implement __get__")
 
-    def __set__(self, obj, value, setter_id=None):
+    def __set__(self, obj, value, setter=None):
         raise NotImplementedError("Implement __set__")
 
     def __delete__(self, obj):
@@ -362,10 +362,10 @@ class Property(object):
         value = self.__get__(obj)
         return self.descriptor.serialize_value(value)
 
-    def set_from_json(self, obj, json, models, setter_id=None):
+    def set_from_json(self, obj, json, models, setter=None):
         """Sets from a JSON value.
         """
-        return self._internal_set(obj, json, setter_id)
+        return self._internal_set(obj, json, setter)
 
     @property
     def serialized(self):
@@ -416,12 +416,12 @@ class BasicProperty(Property):
     def readonly(self):
         return self.descriptor.readonly
 
-    def set_from_json(self, obj, json, models=None, setter_id=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         """Sets using the result of serializable_value().
         """
         return super(BasicProperty, self).set_from_json(obj,
                                                         self.descriptor.from_json(json, models),
-                                                        models, setter_id)
+                                                        models, setter)
 
     def _sphinx_type(self):
         return self.descriptor._sphinx_type()
@@ -448,9 +448,9 @@ class BasicProperty(Property):
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def _trigger(self, obj, old, value, hint=None, setter_id=None):
+    def _trigger(self, obj, old, value, hint=None, setter=None):
         if hasattr(obj, 'trigger'):
-            obj.trigger(self.name, old, value, hint, setter_id)
+            obj.trigger(self.name, old, value, hint, setter)
 
     def _get_default(self, obj):
         if self.name in obj._property_values:
@@ -475,7 +475,7 @@ class BasicProperty(Property):
 
         return default
 
-    def _real_set(self, obj, old, value, hint=None, setter_id=None):
+    def _real_set(self, obj, old, value, hint=None, setter=None):
         # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may
         # need refining later if this assumption changes.
         unchanged = self.descriptor.matches(value, old) and (hint is None)
@@ -501,9 +501,9 @@ class BasicProperty(Property):
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._trigger(obj, old, value, hint, setter_id)
+        self._trigger(obj, old, value, hint, setter)
 
-    def __set__(self, obj, value, setter_id=None):
+    def __set__(self, obj, value, setter=None):
         if not hasattr(obj, '_property_values'):
             # Initial values should be passed in to __init__, not set directly
             raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
@@ -512,13 +512,13 @@ class BasicProperty(Property):
         if self.descriptor._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
-        self._internal_set(obj, value)
+        self._internal_set(obj, value, setter)
 
-    def _internal_set(self, obj, value, setter_id=None):
+    def _internal_set(self, obj, value, setter=None):
         value = self.descriptor.prepare_value(obj, self.name, value)
 
         old = self.__get__(obj)
-        self._real_set(obj, old, value, setter_id=setter_id)
+        self._real_set(obj, old, value, setter=setter)
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers. In this case,
@@ -798,7 +798,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def set_from_json(self, name, json, models=None, setter_id=None):
+    def set_from_json(self, name, json, models=None, setter=None):
         """ Sets a property of the object using JSON and a dictionary mapping
         model ids to model instances. The model instances are necessary if the
         JSON contains references to models.
@@ -807,7 +807,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         if name in self.properties():
             #logger.debug("Patching attribute %s of %r", attr, patched_obj)
             prop = self.lookup(name)
-            prop.set_from_json(self, json, models, setter_id)
+            prop.set_from_json(self, json, models, setter)
         else:
             logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -816,10 +816,10 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes, models=None, setter_id=None):
+    def update_from_json(self, json_attributes, models=None, setter=None):
         """ Updates the object's properties from a JSON attributes dictionary. """
         for k, v in json_attributes.items():
-            self.set_from_json(k, v, models, setter_id)
+            self.set_from_json(k, v, models, setter)
 
     def _clone(self):
         """ Returns a duplicate of this object with all its properties
@@ -1853,7 +1853,7 @@ class DataSpecProperty(BasicProperty):
     def serializable_value(self, obj):
         return self.descriptor.to_serializable(obj, self.name, getattr(obj, self.name))
 
-    def set_from_json(self, obj, json, models=None, setter_id=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         if isinstance(json, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
             # assuming the serialized dict is compatible with that.
@@ -1868,7 +1868,7 @@ class DataSpecProperty(BasicProperty):
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
-        super(DataSpecProperty, self).set_from_json(obj, json, models, setter_id)
+        super(DataSpecProperty, self).set_from_json(obj, json, models, setter)
 
 class DataSpec(Either):
     ''' Represent either a fixed value, or a reference to a column in a data source.
@@ -1989,13 +1989,13 @@ class UnitsSpecProperty(DataSpecProperty):
                 self.units_prop.__set__(obj, units)
         return value
 
-    def __set__(self, obj, value, setter_id=None):
+    def __set__(self, obj, value, setter=None):
         value = self._extract_units(obj, value)
-        super(UnitsSpecProperty, self).__set__(obj, value, setter_id)
+        super(UnitsSpecProperty, self).__set__(obj, value, setter)
 
-    def set_from_json(self, obj, json, models=None, setter_id=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         json = self._extract_units(obj, json)
-        super(UnitsSpecProperty, self).set_from_json(obj, json, models, setter_id)
+        super(UnitsSpecProperty, self).set_from_json(obj, json, models, setter)
 
 class UnitsSpec(NumberSpec):
     ''' A numeric DataSpec property with units.

@@ -42,5 +42,5 @@ class patch_doc_1(Message):
 
         return msg
 
-    def apply_to_document(self, doc, setter_id=None):
-        doc.apply_json_patch(self.content, setter_id)
+    def apply_to_document(self, doc, setter=None):
+        doc.apply_json_patch(self.content, setter)

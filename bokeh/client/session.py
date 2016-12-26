@@ -206,7 +206,6 @@ class ClientSession(object):
         from ._connection import ClientConnection
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
-        self._current_patch = None
         from bokeh.util.tornado import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
 
@@ -350,7 +349,7 @@ class ClientSession(object):
             self._callbacks.remove_all_callbacks()
 
     def _document_patched(self, event):
-        if getattr(event, 'setter_id', None) == self.id:
+        if event.setter is self:
             log.debug("Not sending notification back to server for a change it requested")
             return
 
@@ -361,11 +360,7 @@ class ClientSession(object):
         self._connection._send_patch_document(self._id, event)
 
     def _handle_patch(self, message):
-        self._current_patch = message
-        try:
-            message.apply_to_document(self.document, self.id)
-        finally:
-            self._current_patch = None
+        message.apply_to_document(self.document, self)
 
     def _session_callback_added(self, event):
         self._callbacks.add_session_callback(event.callback)

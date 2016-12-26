@@ -209,7 +209,7 @@ class ColumnDataSource(DataSource):
         from bokeh.io import push_notebook
         push_notebook()
 
-    def stream(self, new_data, rollover=None, setter_id=None):
+    def stream(self, new_data, rollover=None, setter=None):
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -277,9 +277,9 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             raise ValueError("All streaming column updates must be the same length")
 
-        self.data._stream(self.document, self, new_data, rollover, setter_id)
+        self.data._stream(self.document, self, new_data, rollover, setter)
 
-    def patch(self, patches, setter_id=None):
+    def patch(self, patches, setter=None):
         ''' Efficiently update data source columns at specific locations
 
         If it is only necessary to update a small subset of data in a
@@ -323,7 +323,7 @@ class ColumnDataSource(DataSource):
             if max_ind >= len(self.data[name]):
                 raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
 
-        self.data._patch(self.document, self, patches, setter_id)
+        self.data._patch(self.document, self, patches, setter)
 
 class GeoJSONDataSource(ColumnDataSource):
 
