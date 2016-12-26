@@ -6,7 +6,6 @@ import * as p from "../../core/properties"
 import {Widget, WidgetView} from "./widget"
 
 export class RadioGroupView extends WidgetView
-  tagName: "div"
   events:
     "change input": "change_input"
 

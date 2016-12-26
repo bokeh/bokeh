@@ -10,7 +10,6 @@ import slidertemplate from "./slidertemplate"
 
 
 export class SliderView extends InputWidgetView
-  tagName: "div"
   template: slidertemplate
 
   initialize: (options) ->

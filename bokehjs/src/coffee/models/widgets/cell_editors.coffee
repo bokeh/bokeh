@@ -10,7 +10,6 @@ import {Model} from "../../model"
 
 export class CellEditorView extends BokehView
 
-  tagName: "div"
   className: "bk-cell-editor"
 
   input: null
