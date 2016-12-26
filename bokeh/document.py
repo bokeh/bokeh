@@ -667,7 +667,7 @@ class Document(object):
 
             instance = references[obj_id]
 
-            instance.update_from_json(obj_attrs, models=references, setter=None)
+            instance.update_from_json(obj_attrs, models=references, setter=setter)
 
     @classmethod
     def _value_record_references(cls, all_references, v, result):
