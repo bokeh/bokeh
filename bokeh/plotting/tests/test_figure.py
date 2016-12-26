@@ -161,6 +161,19 @@ class TestFigure(unittest.TestCase):
         self.assertEqual(p.background_fill_color, 'green')
         self.assertEqual(p.border_fill_color, 'yellow')
 
+    def test_columnsource_auto_conversion_from_dict(self):
+        p = plt.figure()
+        dct = {'x': [1, 2, 3], 'y': [2, 3, 4]}
+        p.circle(x='x', y='y', source=dct)
+
+    def test_columnsource_auto_conversion_from_pandas(self):
+        from bokeh.util.dependencies import import_optional
+        pd = import_optional('pandas')
+        if pd:
+            p = plt.figure()
+            df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
+            p.circle(x='x', y='y', source=df)
+
 
 class TestMarkers(unittest.TestCase):
 
