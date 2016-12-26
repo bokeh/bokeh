@@ -230,6 +230,40 @@ class Basictest(unittest.TestCase):
         self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
         self.assertTrue('y' in o.properties_with_values(include_defaults=False))
 
+    def test_readonly(self):
+        class Readonly(HasProps):
+            x = Int(12, readonly=True)    # with default
+            y = Int(readonly=True)        # without default
+            z = String("hello")
+
+        o = Readonly()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, None)
+        self.assertEqual(o.z, 'hello')
+
+        # readonly props are still in the list of props
+        self.assertTrue('x' in o.properties())
+        self.assertTrue('y' in o.properties())
+        self.assertTrue('z' in o.properties())
+
+        # but they aren't in the dict of props with values
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('z' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('z' not in o.properties_with_values(include_defaults=False))
+
+        with self.assertRaises(RuntimeError):
+            o.x = 7
+        with self.assertRaises(RuntimeError):
+            o.y = 7
+        o.z = "xyz"
+
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, None)
+        self.assertEqual(o.z, 'xyz')
+
     def test_include_defaults(self):
         class IncludeDefaultsTest(HasProps):
             x = Int(12)

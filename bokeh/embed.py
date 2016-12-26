@@ -616,7 +616,8 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
     bundle = _bundle_for_objs_and_resources(None, resources)
     return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
 
-def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE):
+def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE,
+                                 template_variables=None):
     elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
@@ -625,5 +626,9 @@ def server_html_page_for_session(session_id, resources, title, websocket_url, te
         # no 'modelid' implies the entire session document
     }]
 
+    if template_variables is None:
+        template_variables = {}
+
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template,
+            websocket_url=websocket_url, template_variables=template_variables)

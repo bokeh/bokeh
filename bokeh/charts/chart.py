@@ -336,6 +336,8 @@ class Chart(Plot):
 
     ellipse = _glyph_function(glyphs.Ellipse)
 
+    hbar = _glyph_function(glyphs.HBar)
+
     image = _glyph_function(glyphs.Image)
 
     image_rgba = _glyph_function(glyphs.ImageRGBA)
@@ -373,6 +375,8 @@ class Chart(Plot):
     text = _glyph_function(glyphs.Text)
 
     triangle = _glyph_function(markers.Triangle)
+
+    vbar = _glyph_function(glyphs.VBar)
 
     wedge = _glyph_function(glyphs.Wedge)
 

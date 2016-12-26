@@ -16,9 +16,12 @@ Bokeh models (e.g. plots, widgets, layouts) in various ways.
 '''
 from __future__ import absolute_import
 
-from jinja2 import Environment, PackageLoader
+import json
+
+from jinja2 import Environment, PackageLoader, Markup
 
 _env = Environment(loader=PackageLoader('bokeh.core', '_templates'))
+_env.filters['json'] = lambda obj: Markup(json.dumps(obj))
 
 JS_RESOURCES = _env.get_template("js_resources.html")
 CSS_RESOURCES = _env.get_template("css_resources.html")

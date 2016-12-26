@@ -20,7 +20,7 @@ class _CodeRunner(object):
 
         try:
             nodes = ast.parse(source, path)
-            self._code = compile(nodes, filename=path, mode='exec')
+            self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
         except SyntaxError as e:
             self._failed = True
             self._error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))

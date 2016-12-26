@@ -94,7 +94,7 @@ something like:
 
 .. code-block:: html
 
-    <div class="plotdiv" id="8ed68feb-d258-4953-9dfb-fb1c13326509"></div>
+    <div class="bk-plotdiv" id="8ed68feb-d258-4953-9dfb-fb1c13326509"></div>
 
 These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
@@ -225,7 +225,7 @@ Running ``python scatter.py`` will print out:
         Bokeh.embed.embed_items(docs_json, render_items);
     </script>
 
-        {'Green': '\n<div class="bk-root">\n    <div class="plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>', 'Blue': '\n<div class="bk-root">\n    <div class="plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>', 'Red': '\n<div class="bk-root">\n    <div class="plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'}
+        {'Green': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>', 'Blue': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>', 'Red': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'}
 
 Then inserting the script and div elements into this boilerplate:
 
