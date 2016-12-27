@@ -7,7 +7,8 @@ import re
 import warnings
 
 import numpy as np
-from six import string_types
+import sys
+from six import string_types, reraise
 
 from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
@@ -513,6 +514,19 @@ def _glyph_function(glyphclass, extra_docs=None):
         is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
+        if not isinstance(source, ColumnDataSource):
+            try:
+                # try converting the soruce to ColumnDataSource
+                source = ColumnDataSource(source)
+            except ValueError as err:
+                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                    curr_type=str(type(source)),
+                    err=err.message
+                )
+                reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+            # update reddered_kws so that others can use the new source
+            renderer_kws['data_source'] = source
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
