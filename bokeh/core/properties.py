@@ -1,23 +1,32 @@
-""" Properties are objects that can be assigned as class level
-attributes on Bokeh models, to provide automatic serialization
-and validation.
+""" Properties are objects that can be assigned as class attributes on Bokeh
+models, to provide automatic serialization, validation, and documentation.
 
-For example, the following defines a model that has integer,
-string, and list[float] properties:
+There are many property types defined in the module, for example ``Int`` to
+represent integral values, ``Seq`` to represent sequences (e.g. lists or
+tuples, etc.). Properties can also be combined: ``Seq(Float)`` represents
+a seqeunce of floating point values.
+
+For example, the following defines a model that has integer, string, and
+list[float] properties:
 
 .. code-block:: python
 
-    class Model(HasProps):
+    class SomeModel(Model):
         foo = Int
-        bar = String
-        baz = List(Float)
+        bar = String(default="something")
+        baz = List(Float, help="docs for baz prop")
 
-The properties of this class can be initialized by specifying
-keyword arguments to the initializer:
+As seen, properties can be declared as just the property type, e.g.
+``foo = Int``, in which case the properties are automatically instantiated
+on new Model objects. Or the property can be instantiated on the class,
+and configured with default values and help strings.
+
+The properties of this class can be initialized by specifying keyword
+arguments to the initializer:
 
 .. code-block:: python
 
-    m = Model(foo=10, bar="a str", baz=[1,2,3,4])
+    m = SomeModel(foo=10, bar="a str", baz=[1,2,3,4])
 
 But also by setting the attributes on an instance:
 
@@ -32,19 +41,21 @@ result in a ``ValueError`` exception:
 
     >>> m.foo = 2.3
     Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 585, in __setattr__
-        super(HasProps, self).__setattr__(name, value)
-      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 159, in __set__
-        raise e
-      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 152, in __set__
-        self.validate(value)
-      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 707, in validate
-        (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
-    ValueError: expected a value of type int8, int16, int32, int64 or int, got 2.3 of type float
 
-Additionally, properties know how to serialize themselves, to be understood
-by BokehJS.
+      << traceback omitted >>
+
+    ValueError: expected a value of type Integral, got 2.3 of type float
+
+Models with properties know how to serialize themselves, to be understood
+by BokehJS. Additionally, any help strings provided on properties can be
+easily and automatically extracted with the Sphinx extensions in the
+:ref:`bokeh.sphinxext` module.
+
+.. |Color| replace:: :func:`~bokeh.core.properties.Color`
+.. |DataSpec| replace:: :func:`~bokeh.core.properties.DataSpec`
+.. |field| replace:: :func:`~bokeh.core.properties.field`
+.. |value| replace:: :func:`~bokeh.core.properties.value`
+
 
 """
 from __future__ import absolute_import, print_function
@@ -80,16 +91,17 @@ pd = import_optional('pandas')
 IPython = import_optional('IPython')
 
 def field(name):
-    ''' Convenience function do explicitly mark a field specification for
-    a Bokeh model property.
+    ''' Convenience function to explicitly return a "field" specification for
+    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
-        name (str) : name of a data source field to reference for a property.
+        name (str) : name of a data source field to reference for a
+            ``DataSpec`` property.
 
     Returns:
         dict : ``{"field": name}``
 
-    Note:
+    .. note::
         This function is included for completeness. String values for
         property specifications are by default interpreted as field names.
 
@@ -97,16 +109,16 @@ def field(name):
     return dict(field=name)
 
 def value(val):
-    ''' Convenience function do explicitly mark a value specification for
-    a Bokeh model property.
+    ''' Convenience function to explicitly return a "value" specification for
+    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
-        val (any) : a fixed value to specify for a property.
+        val (any) : a fixed value to specify for a ``DataSpec`` property.
 
     Returns:
         dict : ``{"value": name}``
 
-    Note:
+    ..note::
         String values for property specifications are by default interpreted
         as field names. This function is especially useful when you want to
         specify a fixed value with text properties.
@@ -1829,7 +1841,86 @@ class DataSpecProperty(BasicProperty):
         super(DataSpecProperty, self).set_from_json(obj, json, models)
 
 class DataSpec(Either):
-    ''' Represent either a fixed value, or a reference to a column in a data source.
+    ''' Base class for properties that can represent either a fixed value,
+    or a reference to a column in a data source.
+
+    Many Bokeh models have properties that a user might want to set either
+    to a single fixed value, or to have the property take values from some
+    column in a data source. As a concrete example consider a glyph with
+    an ``x`` property for location. We might want to set all the glyphs
+    that get drawn to have the same location, say ``x=10``. It would be
+    convenient to  just be able to write:
+
+    .. code-block:: python
+
+        glyph.x = 10
+
+    Alternatively, maybe the each glyph that gets drawn should have a
+    different location, according to the "pressure" column of a data
+    source. In this case we would like to be able to write:
+
+    .. code-block:: python
+
+        glyph.x = "pressure"
+
+    Bokeh ``DataSpec`` properties (and subclasses) afford this ease of
+    and consistency of expression. Ultimately, all ``DataSpec`` properties
+    resolve to dictionary values, with either a ``"value"`` key, or a
+    ``"field"`` key, depending on how it is set.
+
+    For instance:
+
+    .. code-block:: python
+
+        glyph.x = 10          # => { 'value': 10 }
+
+        glyph.x = "pressure"  # => { 'field': 'pressure' }
+
+    When these underlying dictionary dictionary values are received in
+    the browser, BokehJS knows how to interpret them and take the correct,
+    expected action (i.e., draw the glyph at ``x=10``, or draw the glyph
+    with ``x`` coordinates from the "pressure" column). In this way, both
+    use-cases may be expressed easily in python, without having to handle
+    anything differently, from the user perspective.
+
+    It is worth noting that ``DataSpec`` properties can also be set directly
+    with properly formed dictionary values:
+
+    .. code-block:: python
+
+        glyph.x = { 'value': 10 }         # same as glyph.x = 10
+
+        glyph.x = { 'field': 'pressure' } # same as glyph.x = "pressure"
+
+    Setting the property directly as a dict can be useful in certain
+    situations. For instance some ``DataSpec`` subclasses also add a
+    ``"units"`` key to the dictionary. This key is often set automatically,
+    but the dictionary format provides a direct mechanism to override as
+    necessary. Additionally, ``DataSpec`` can have a ``"transform"`` key,
+    that specifies a client-side transform that should be applied to any
+    fixed or field values before they are uses. As an example, you might want
+    to apply a ``Jitter`` transform to the ``x`` values:
+
+    .. code-block:: python
+
+        glyph.x = { 'value': 10, 'transform': Jitter(width=0.4) }
+
+    Note that ``DataSpec`` is not normally useful on its own. Typically,
+    a model will define properties using one of the sublclasses such
+    as :class:`~bokeh.core.properties.NumberSpec` or
+    :class:`~bokeh.core.properties.ColorSpec`. For example, a Bokeh
+    model with ``x``, ``y`` and ``color`` properties that can handle
+    fixed values or columns automatically might look like:
+
+    .. code-block:: python
+
+        class SomeModel(Model):
+
+            x = NumberSpec(default=0, help="docs for x")
+
+            y = NumberSpec(default=0, help="docs for y")
+
+            color = ColorSpec(help="docs for color") # defaults to None
 
     '''
     def __init__(self, typ, default, help=None):
@@ -1877,24 +1968,35 @@ class DataSpec(Either):
         return _PROP_LINK % self.__class__.__name__
 
 class NumberSpec(DataSpec):
-    ''' A DataSpec property that can be set to a numeric fixed value,
-    or a data source column name referring to column of numeric data.
+    ''' A |DataSpec| property that can be set to a fixed value that is a
+    number, or to a data source column name referring to a column of
+    numeric data.
+
+    .. code-block:: python
+
+        m.location = 10.3  # value
+
+        m.location = "foo" # field
 
     '''
     def __init__(self, default=None, help=None):
         super(NumberSpec, self).__init__(Float, default=default, help=help)
 
 class StringSpec(DataSpec):
-    ''' A DataSpec property that can be set to a string fixed value,
-    or a data source column name referring to column of string data.
+    ''' A |DataSpec| property that can be set to a fixed value that is a
+    string, or to a data source column name referring to a column of string
+    data.
 
-    .. note::
-        Because acceptable fixed values and field names are both strings,
-        it is often necessary to use the |field| and |value| functions
-        explicitly to disambiguate.
+    Because acceptable fixed values and field names are both strings, it can
+    be necessary explicitly to disambiguate these possibilities. By default,
+    string values are interpreted as fields, but the |value| function can be
+    used to specify that a string should interpreted as a value:
 
-    .. |field| replace:: :func:`~bokeh.core.properties.field`
-    .. |value| replace:: :func:`~bokeh.core.properties.value`
+    .. code-block:: python
+
+        m.title = value("foo") # value
+
+        m.title = "foo"        # field
 
     '''
     def __init__(self, default, help=None):
@@ -1908,13 +2010,21 @@ class StringSpec(DataSpec):
         return super(StringSpec, self).prepare_value(cls, name, value)
 
 class FontSizeSpec(DataSpec):
-    ''' A DataSpec property that can be set to a font size fixed value,
-    or a data source column name referring to column of font size data.
+    ''' A |DataSpec| property that can be set to a fixed value that is a font
+    size, or to a data source column name referring to a column of font size
+    data.
 
-    ``FontSizeSpec`` tries to determine if the a string value is a valid
-    CSS unit of length, e.g ``"10pt"`` or ``"1.5em"``. If the string can be
-    interpreted as a CSS length, then the DataSpec is a value spec.
-    Otherwise, setting a string value will result in a field spec.
+    The ``FontSizeSpec`` property attempts to first interpret string values as
+    font sizes (i.e. valid CSS length values). Otherwise string values are
+    interpreted as field names. For example:
+
+    .. code-block:: python
+
+        m.font_size = "10pt"  # value
+
+        m.font_size = "1.5em" # value
+
+        m.font_size = "foo"   # field
 
     A full list of all valid CSS length units can be found here:
 
@@ -1956,7 +2066,8 @@ class UnitsSpecProperty(DataSpecProperty):
         super(UnitsSpecProperty, self).set_from_json(obj, json, models)
 
 class UnitsSpec(NumberSpec):
-    ''' A numeric DataSpec property with units.
+    ''' A base class for numeric :class:`~bokeh.core.properties.DataSpec`
+    properties that should also have units.
 
     '''
     def __init__(self, default, units_type, units_default, help=None):
@@ -2050,8 +2161,30 @@ class DataDistanceSpec(NumberSpec):
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
 class ColorSpec(DataSpec):
-    ''' A DataSpec property that can be set to a Color fixed value,
-    or a data source column name referring to column of color data.
+    ''' A |DataSpec| property that can be set to a fixed value that is a
+    |Color|, or a data source column name referring to a column of color
+    data.
+
+    The ``ColorSpec`` property attempts to first interpret string values as
+    colors. Otherwise, string values are interpreted as field names. For
+    example:
+
+    .. code-block:: python
+
+        m.color = "#a4225f"   # value (hex color string)
+
+        m.color = "firebrick" # value (named CSS color string)
+
+        m.color = "foo"       # field (named "foo")
+
+    This automatic interpretation can be override using the dict format
+    directly, or by using the |field| function:
+
+    .. code-block:: python
+
+        m.color = { "field": "firebrick" } # field (named "firebrick")
+
+        m.color = field("firebrick")       # field (named "firebrick")
 
     '''
     def __init__(self, default, help=None):
