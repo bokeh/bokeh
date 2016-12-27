@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import unittest
 import pytest
+import pandas as pd
 
 from bokeh.core.properties import value
 from bokeh.models import (
@@ -167,12 +168,9 @@ class TestFigure(unittest.TestCase):
         p.circle(x='x', y='y', source=dct)
 
     def test_columnsource_auto_conversion_from_pandas(self):
-        from bokeh.util.dependencies import import_optional
-        pd = import_optional('pandas')
-        if pd:
-            p = plt.figure()
-            df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
-            p.circle(x='x', y='y', source=df)
+        p = plt.figure()
+        df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
+        p.circle(x='x', y='y', source=df)
 
 
 class TestMarkers(unittest.TestCase):

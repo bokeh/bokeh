@@ -519,8 +519,7 @@ def _glyph_function(glyphclass, extra_docs=None):
                 # try converting the soruce to ColumnDataSource
                 source = ColumnDataSource(source)
             except ValueError as err:
-                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n" \
-                      "Original error: {err}".format(
+                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
                     curr_type=str(type(source)),
                     err=err.message
                 )
