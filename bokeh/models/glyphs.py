@@ -258,7 +258,20 @@ class HBar(Glyph):
     """)
 
 class Image(Glyph):
-    """ Render images given as scalar data together with a color mapper. """
+    """ Render images given as scalar data together with a color mapper.
+
+    In addition to the defined model properties, ``Image`` also can accept
+    a keyword argument ``palette`` in place of an explicit ``color_mapper``.
+    The value should be a list of colors, or the name of one of the built-in
+    palettes in ``bokeh.palettes``. This palette will be used to automatically
+    construct a ``ColorMapper`` model for the ``color_mapper`` property.
+
+    .. note::
+        If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+        exception will be raised. If neither is passed, then the ``Greys9``
+        palette will be used as a default.
+
+    """
 
     def __init__(self, **kwargs):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
@@ -274,6 +287,14 @@ class Image(Glyph):
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+
+    # a hook to specify any additional kwargs handled by an initializer
+    _extra_kws = {
+        'palette': (
+            'str or list[color value]',
+            'a palette to construct a value for the color mapper property from'
+        )
+    }
 
     image = NumberSpec(help="""
     The arrays of scalar data for the images to be colormapped.

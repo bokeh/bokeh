@@ -485,7 +485,7 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
 
     kwlines = []
     kws = glyphclass.properties() - set(argspecs)
-    for kw in sorted(kws):
+    for kw in kws:
         prop = getattr(glyphclass, kw)
         if prop.__doc__:
             typ = prop.__class__.__name__
@@ -494,6 +494,10 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
             typ = str(prop)
             desc = ""
         kwlines.append(_arg_template % (kw, typ, desc, prop.class_default(glyphclass)))
+    extra_kws = getattr(glyphclass, '_extra_kws', {})
+    for kw, (typ, desc) in extra_kws.items():
+        kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
+    kwlines.sort()
 
     arglines = []
     for arg, spec in argspecs.items():
