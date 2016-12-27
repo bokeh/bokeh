@@ -1,3 +1,6 @@
+''' Provide functions and classes to help with various JS and CSS compilation.
+
+'''
 from __future__ import absolute_import
 
 import logging
@@ -79,11 +82,16 @@ _module_template = \
 """"%(module)s": [function(require, module, exports) {\n%(code)s\n}, %(deps)s]"""
 
 class AttrDict(dict):
+    ''' Provide a dict subclass that supports access by named attributes.
+
+    '''
     def __getattr__(self, key):
         return self[key]
 
 class CompilationError(RuntimeError):
+    ''' A RuntimeError subclass for reporting JS compilation errors.
 
+    '''
     def __init__(self, error):
         super(CompilationError, self).__init__()
         self.line = error.get("line")
@@ -198,6 +206,7 @@ class FromFile(Implementation):
         if self.file.endswith((".css", ".less")):
             return "less"
 
+#: recognized extensions that can be compiled
 exts = (".coffee", ".ts", ".tsx", ".js", ".css", ".less")
 
 class CustomModel(object):
