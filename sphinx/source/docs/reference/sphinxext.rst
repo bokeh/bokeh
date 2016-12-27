@@ -51,6 +51,13 @@ bokeh_palette
 
 .. automodule:: bokeh.sphinxext.bokeh_palette
 
+.. _bokeh.sphinxext.bokeh_palette_group:
+
+bokeh_palette_group
+-------------------
+
+.. automodule:: bokeh.sphinxext.bokeh_palette_group
+
 .. _bokeh.sphinxext.bokeh_plot:
 
 bokeh_plot

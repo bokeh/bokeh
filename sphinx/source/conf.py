@@ -42,6 +42,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_options',
     'bokeh.sphinxext.bokeh_palette',
+    'bokeh.sphinxext.bokeh_palette_group',
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_sitemap',
