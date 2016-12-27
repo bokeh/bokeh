@@ -3,8 +3,6 @@
 '''
 from __future__ import absolute_import
 
-from bokeh.model import Model
-from bokeh.document import ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent
 from json import loads
 from ..message import Message
 from . import register
