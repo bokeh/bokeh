@@ -48,7 +48,19 @@ export function createElement(tag: string, attrs: HTMLAttrs, ...children: HTMLCh
 }
 
 export const
-  div = _createElement("div"),
-  span = _createElement("span"),
-  link = _createElement("link"),
-  style = _createElement("style");
+  div    = _createElement("div"),
+  span   = _createElement("span"),
+  link   = _createElement("link"),
+  style  = _createElement("style"),
+  a      = _createElement("a"),
+  p      = _createElement("p"),
+  pre    = _createElement("pre"),
+  table  = _createElement("table"),
+  tr     = _createElement("tr"),
+  td     = _createElement("td"),
+  input  = _createElement("input"),
+  label  = _createElement("label"),
+  canvas = _createElement("canvas"),
+  ul     = _createElement("ul"),
+  ol     = _createElement("ol"),
+  li     = _createElement("li");
