@@ -1,4 +1,4 @@
-''' Provide a collection of general utilities usefil for implementing Bokeh
+''' Provide a collection of general utilities useful for implementing Bokeh
 functionality.
 
 .. _bokeh.util.browser:
@@ -15,6 +15,14 @@ functionality.
 -------------------------------
 
 .. automodule:: bokeh.util.callback_manager
+  :members:
+
+.. _bokeh.util.compiler:
+
+``bokeh.util.compiler``
+-----------------------
+
+.. automodule:: bokeh.util.compiler
   :members:
 
 .. _bokeh.util.dependencies:
@@ -80,6 +88,14 @@ functionality.
 .. automodule:: bokeh.util.platform
   :members:
 
+.. _bokeh.util.plot_utils:
+
+``bokeh.util.plot_utils``
+-------------------------
+
+.. automodule:: bokeh.util.plot_utils
+  :members:
+
 .. _bokeh.util.serialization:
 
 ``bokeh.util.serialization``
@@ -126,6 +142,14 @@ functionality.
 ----------------------
 
 .. automodule:: bokeh.util.version
+  :members:
+
+.. _bokeh.util.warnings:
+
+``bokeh.util.warnings``
+-----------------------
+
+.. automodule:: bokeh.util.warnings
   :members:
 
 '''

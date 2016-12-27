@@ -830,7 +830,8 @@ to a global static directory during your deployment process. See
 Apache
 ''''''
 
-Another common HTTP server and proxy is Apache:
+Another common HTTP server and proxy is Apache. Here is sample confuguration
+for running a Bokeh server behind Apache:
 
 .. code-block:: apache
 
@@ -864,6 +865,18 @@ The above configuration aliases `/static` to the location of the Bokeh
 static resources directory, however it is also possible (and probably
 preferable) to copy the Bokeh static resources to whatever standard
 static files location is configured for Apache as part of the deployment.
+
+Note that you may also need to enable some modules for the above
+configuration:
+
+.. code-block:: sh
+
+    a2enmod proxy
+    a2enmod http_proxy
+    a2enmod proxy_wstunnel
+    apache2ctl restart
+
+These might need to be run with ``sudo``, depending on your system.
 
 As before, you would run the Bokeh server with the command:
 
