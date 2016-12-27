@@ -6,6 +6,7 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
+import collections
 import datetime as dt
 import decimal
 import json
@@ -73,6 +74,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return transform_series(obj)
         elif isinstance(obj, np.ndarray):
             return transform_array(obj)
+        elif isinstance(obj, collections.deque):
+            return list(map(self.default, obj))
         elif isinstance(obj, Model):
             return obj.ref
         elif isinstance(obj, HasProps):
