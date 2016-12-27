@@ -86,3 +86,10 @@ export function offset(element: HTMLElement) {
     left: rect.left + document.body.scrollLeft,
   }
 }
+
+export function replaceWith(element: HTMLElement, replacement: HTMLElement) {
+  const parent = element.parentNode
+  if (parent != null) {
+    parent.replaceChild(replacement, element)
+  }
+}

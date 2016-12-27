@@ -5,7 +5,7 @@ import * as base from "./base"
 import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
-import {div, link, style} from "./core/dom"
+import {div, link, style, replaceWith} from "./core/dom"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -86,7 +86,7 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  _.delay(-> element.outerHTML = view.el)
+  _.delay(-> replaceWith(element, view.el))
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
@@ -128,7 +128,7 @@ add_model_from_session = (element, websocket_url, model_id, session_id) ->
       if not model?
         throw new Error("Did not find model #{model_id} in session")
       view = _create_view(model)
-      element.outerHTML = view.el
+      replaceWith(element, view.el)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
       throw error
@@ -178,7 +178,7 @@ export embed_items = (docs_json, render_items, websocket_url=null) ->
     if elem.tagName == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
       container = div({class: BOKEH_ROOT})
-      elem.outerHTML = container
+      replaceWith(elem, container)
       child = div()
       container.appendChild(child)
       elem = child
