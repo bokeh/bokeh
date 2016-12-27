@@ -64,3 +64,25 @@ export const
   ul     = _createElement("ul"),
   ol     = _createElement("ol"),
   li     = _createElement("li");
+
+export function empty(element: HTMLElement) {
+  let child
+  while (child = element.firstChild) {
+    element.removeChild(child)
+  }
+}
+
+export function position(element: HTMLElement) {
+  return {
+    top: element.offsetTop,
+    left: element.offsetLeft,
+  }
+}
+
+export function offset(element: HTMLElement) {
+  const rect = element.getBoundingClientRect()
+  return {
+    top:  rect.top  + document.body.scrollTop,
+    left: rect.left + document.body.scrollLeft,
+  }
+}

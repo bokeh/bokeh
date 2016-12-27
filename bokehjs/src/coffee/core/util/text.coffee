@@ -1,13 +1,6 @@
-import {div, span} from "../dom"
+import {div, span, offset} from "../dom"
 
 cache = {}
-
-offset = (element) ->
-  rect = element.getBoundingClientRect()
-  return {
-    top:  rect.top  + document.body.scrollTop
-    left: rect.left + document.body.scrollLeft
-  }
 
 export get_text_height = (font) ->
   if cache[font]?
