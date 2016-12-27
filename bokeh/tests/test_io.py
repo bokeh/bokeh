@@ -53,12 +53,12 @@ class DefaultStateTester(unittest.TestCase):
 class testOutputFile(DefaultStateTester):
 
     def test_noarg(self):
-        default_kwargs = dict(title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None)
+        default_kwargs = dict(title="Bokeh Plot", mode="cdn", root_dir=None)
         io.output_file("foo.html")
         self._check_func_called(io._state.output_file, ("foo.html",), default_kwargs)
 
     def test_args(self):
-        kwargs = dict(title="title", autosave=True, mode="cdn", root_dir="foo")
+        kwargs = dict(title="title", mode="cdn", root_dir="foo")
         io.output_file("foo.html", **kwargs)
         self._check_func_called(io._state.output_file, ("foo.html",), kwargs)
 
@@ -81,12 +81,12 @@ class TestOutputNotebook(DefaultStateTester):
 class TestOutputServer(DefaultStateTester):
 
     def test_noarg(self):
-        default_kwargs = dict(session_id="default", url="default", app_path='/', autopush=False)
+        default_kwargs = dict(session_id="default", url="default", app_path='/')
         io.output_server()
         self._check_func_called(io._state.output_server, (), default_kwargs)
 
     def test_args(self):
-        kwargs = dict(session_id="foo", url="http://example.com", app_path='/foo', autopush=True)
+        kwargs = dict(session_id="foo", url="http://example.com", app_path='/foo')
         io.output_server(**kwargs)
         self._check_func_called(io._state.output_server, (), kwargs)
 

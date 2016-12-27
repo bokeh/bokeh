@@ -5,6 +5,8 @@ import unittest
 from bokeh.application.handlers import CodeHandler
 from bokeh.document import Document
 
+from bokeh.util.testing import skipIfPy3
+
 script_adds_two_roots = """
 from bokeh.io import curdoc
 from bokeh.model import Model
@@ -26,6 +28,16 @@ class TestCodeHandler(unittest.TestCase):
     def test_empty_script(self):
         doc = Document()
         handler = CodeHandler(source="# This script does nothing", filename="path/to/test_filename")
+        handler.modify_document(doc)
+        if handler.failed:
+            raise RuntimeError(handler.error)
+
+        assert not doc.roots
+
+    @skipIfPy3("this test doesn't have a Python 3 equivalent")
+    def test_exec_and___future___flags(self):
+        doc = Document()
+        handler = CodeHandler(source="exec(\"print \\\"XXX\\\"\")", filename="path/to/test_filename")
         handler.modify_document(doc)
         if handler.failed:
             raise RuntimeError(handler.error)

@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import unittest
 from unittest import skipIf
 
+from collections import deque
 import datetime as dt
 import time
 
@@ -136,6 +137,10 @@ class TestSerializeJson(unittest.TestCase):
         serialized = self.serialize(delta)
         deserialized = self.deserialize(serialized)
         assert deserialized == delta.total_seconds() * 1000
+
+    def test_deque(self):
+        """Test that a deque is deserialized as a list."""
+        self.assertEqual(self.serialize(deque([0, 1, 2])), '[0,1,2]')
 
 if __name__ == "__main__":
     unittest.main()

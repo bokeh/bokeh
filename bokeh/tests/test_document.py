@@ -30,6 +30,11 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
 
+    def test_default_template_vars(self):
+        d = document.Document()
+        assert not d.roots
+        assert d.template_variables == {}
+
     def test_add_roots(self):
         d = document.Document()
         assert not d.roots

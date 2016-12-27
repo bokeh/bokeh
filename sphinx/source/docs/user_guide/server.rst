@@ -241,6 +241,16 @@ The optional components are
 
 * A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
 
+Custom variables can be passed to the template via the ``curdoc().template_variables`` dictionary in place:
+
+.. code-block:: python
+
+    # set a new single key/value
+    curdoc().template_variables["user_id"] = user_id
+
+    # or update multiple at once
+    curdoc().template_variables.update(first_name="Mary", last_name="Jones")
+
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
 to include data files or custom user defined models in your directory

@@ -97,7 +97,7 @@ class _CommsHandle(object):
         self._json[doc] = json
 
 
-def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
+def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
@@ -110,12 +110,6 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         filename (str) : a filename for saving the HTML document
 
         title (str, optional) : a title for the HTML document (default: "Bokeh Plot")
-
-        autosave (bool, optional) : whether to automatically save (default: False)
-            If True, then Bokeh plotting APIs may opt to automatically
-            save the file more frequently (e.g., after any plotting
-            command). If False, then the file is only saved upon calling
-            :func:`show` or :func:`save`.
 
         mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
             One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
@@ -134,14 +128,12 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
 
     .. warning::
         This output file will be overwritten on every save, e.g., each time
-        show() or save() is invoked, or any time a Bokeh plotting API
-        causes a save, if ``autosave`` is True.
+        show() or save() is invoked.
 
     '''
     _state.output_file(
         filename,
         title=title,
-        autosave=autosave,
         mode=mode,
         root_dir=root_dir
     )
@@ -181,7 +173,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
 # usually we default session_id to "generate a random one" but
 # here we default to a hardcoded one. This is to support local
 # usage e.g. with a notebook.
-def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", autopush=False):
+def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/"):
     """ Configure the default output state to push its document to a
     session on a Bokeh server.
 
@@ -212,12 +204,6 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", au
 
         app_path (str, optional) : relative path of the app on the Bokeh server (default: "/")
 
-        autopush (bool, optional) : whether to automatically push (default: False)
-            If True, then Bokeh plotting APIs may opt to automatically
-            push the document more frequently (e.g., after any plotting
-            command). If False, then the document is only pushed upon calling
-            :func:`show` or :func:`push`.
-
     Returns:
         None
 
@@ -229,7 +215,7 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", au
     bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
     """)
 
-    _state.output_server(session_id=session_id, url=url, app_path=app_path, autopush=autopush)
+    _state.output_server(session_id=session_id, url=url, app_path=app_path)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -615,12 +601,6 @@ def _remove_roots(subplots):
     for sub in subplots:
         if sub in doc.roots:
             doc.remove_root(sub)
-
-def _push_or_save(obj):
-    if _state.server_enabled and _state.autopush:
-        push()
-    if _state.file and _state.autosave:
-        save(obj)
 
 def hplot(*children, **kwargs):
     deprecated((0, 12, 0), 'bokeh.io.hplot()', 'bokeh.models.layouts.Row')
