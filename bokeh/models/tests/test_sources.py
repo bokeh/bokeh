@@ -117,12 +117,13 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))
         ds._document = "doc"
         stuff = {}
+        mock_setter = object()
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._stream = mock
-        ds.stream(dict(a=[11, 12], b=[21, 22]), "foo")
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo"))
+        ds.stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter))
         self.assertEqual(stuff['kw'], {})
 
     def test_patch_bad_data(self):
@@ -141,12 +142,13 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
+        mock_setter = object()
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]))
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)])))
+        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter))
         self.assertEqual(stuff['kw'], {})
 
     def test_data_column_lengths(self):
