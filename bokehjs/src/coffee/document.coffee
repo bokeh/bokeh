@@ -127,16 +127,13 @@ export class Document
       root_div = document.getElementById("modelid_#{root.id}")
 
       # Start working upwards until you find a height to pin against - usually .bk-root
-      if _.isNull(width)
-        target_height = 0
+      if root_div? and width == null
         measuring = root_div
-        while target_height == 0
-          measuring = measuring.parent()
-          target_height = measuring.height()
-
-        # Once we've found that grab the width of this element
-        width = measuring.width()
-        height = target_height
+        while true
+          measuring = measuring.parentNode
+          {width, height} = measuring.getBoundingClientRect()
+          if height != 0
+            break
 
       # Set the constraints on root
       if vars.width?
