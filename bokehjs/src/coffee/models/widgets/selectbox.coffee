@@ -23,6 +23,7 @@ export class SelectView extends InputWidgetView
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
+    @make_html_label()
     return @
 
   change_input: () ->

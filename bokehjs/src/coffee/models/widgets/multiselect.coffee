@@ -27,6 +27,7 @@ export class MultiSelectView extends InputWidgetView
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
+    @make_html_label()
     @render_selection()
     return @
 
@@ -44,7 +45,6 @@ export class MultiSelectView extends InputWidgetView
     @$el.find('select').attr('size', this.model.size)
 
   change_input: () ->
-    # Haven't checked if :focus selector works for IE <= 7
     is_focused = @$el.find('select:focus').size()
     value = @$el.find('select').val()
     if value
