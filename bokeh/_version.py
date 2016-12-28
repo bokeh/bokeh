@@ -10,6 +10,8 @@
 
 """Git implementation of _version.py."""
 
+from __future__ import print_function
+
 import errno
 import os
 import re
@@ -234,10 +236,15 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
 
     # if there is a tag matching tag_prefix, this yields TAG-NUM-gHEX[-dirty]
     # if there isn't one, this yields HEX[-dirty] (no NUM)
-    describe_out, rc = run_command(GITS, ["describe", "--tags", "--dirty",
-                                          "--always", "--long",
-                                          "--match", "%s*" % tag_prefix],
-                                   cwd=root)
+    # NOTE: I am encountering a baffling issue, where windows (possibly due
+    # to cygwin, although I am not using it) is expanding * even though
+    # shell=False! As a temporary workaround, I've remove the --match
+    # argument since tag_prefix is empty in the bokeh setup config.
+    describe_args = ["describe", "--tags", "--dirty",
+                     "--always", "--long"]
+    if tag_prefix:
+        describe_args.extend(["--match", "%s*" % tag_prefix])
+    describe_out, rc = run_command(GITS, describe_args, cwd=root)
     # --long was added in git-1.5.5
     if describe_out is None:
         raise NotThisMethod("'git describe' failed")
