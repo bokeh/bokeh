@@ -2130,6 +2130,10 @@ class UnitsSpec(NumberSpec):
     def to_serializable(self, obj, name, val):
         d = super(UnitsSpec, self).to_serializable(obj, name, val)
         if d is not None and 'units' not in d:
+            # d is a PropertyValueDict at this point, we need to convert it to
+            # a plain dict if we are going to modify its value, otherwise a
+            # notify_change that should not happen will be triggered
+            d = dict(d)
             d["units"] = getattr(obj, name+"_units")
         return d
 
