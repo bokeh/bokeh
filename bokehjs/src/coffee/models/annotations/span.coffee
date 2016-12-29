@@ -7,7 +7,7 @@ export class SpanView extends AnnotationView
 
   initialize: (options) ->
     super(options)
-    @$el.appendTo(@plot_view.canvas_overlays)
+    @plot_view.canvas_overlays.appendChild(@el)
     @$el.css({position: 'absolute'})
     @$el.hide()
 

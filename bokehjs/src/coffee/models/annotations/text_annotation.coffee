@@ -14,7 +14,7 @@ export class TextAnnotationView extends AnnotationView
 
     if @model.render_mode == 'css'
       @$el.addClass('bk-annotation')
-      @$el.appendTo(@plot_view.canvas_overlays)
+      @plot_view.canvas_overlays.appendChild(@el)
 
   bind_bokeh_events: () ->
     if @model.render_mode == 'css'

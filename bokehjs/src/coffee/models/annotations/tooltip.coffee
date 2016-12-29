@@ -11,7 +11,7 @@ export class TooltipView extends AnnotationView
   initialize: (options) ->
     super(options)
     # TODO (bev) really probably need multiple divs
-    @$el.appendTo(@plot_view.canvas_overlays)
+    @plot_view.canvas_overlays.appendChild(@el)
     @$el.css({'z-index': 1010})
     @$el.hide()
 
