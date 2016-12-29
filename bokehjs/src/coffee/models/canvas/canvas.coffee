@@ -40,7 +40,7 @@ export class CanvasView extends BokehView
             @[i] = arr[i]
 
     # map plots reference this attribute
-    @map_div = @$el.find('div.bk-canvas-map') ? null
+    @map_div = @el.querySelector('div.bk-canvas-map')
     @set_dims([@model.initial_width, @model.initial_height])
     logger.debug("CanvasView initialized")
 
