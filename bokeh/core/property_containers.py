@@ -1,15 +1,69 @@
-''' Provide special versions of list, dict, that can be used for property
-values.
+''' Provide special versions of list and dict, that can automatically notify
+about changes when used for property values.
 
 Mutations to these values are detected, and the properties owning the
-collection is notified of the changes.
+collection is notified of the changes. Consider the following model
+definition:
+
+.. code-block:: python
+
+    class SomeModel(Model):
+
+        options = List(String)
+
+If we have an instance of this model, ``m`` then we can set the entire
+value of the ``options`` property at once:
+
+.. code-block:: python
+
+    m.options = ["foo", "bar"]
+
+When we do this in the context of a Bokeh server application that is being
+viewed in a browser, this change is automatically noticed, and the
+corresponding BokehJS property in the browser is synchronized, possibly
+causing some change in the visual state of the application in the browser.
+
+But it is also desirable that changes *inside* the ``options`` list also
+be detected. That is, the following kinds of operations should also be
+automatically synchronized between BokehJS and a Bokeh server:
+
+.. code-block:: python
+
+    m.options.append("baz")
+
+    m.options[2] = "quux"
+
+    m.options.insert(0, "bar")
+
+The classes in this module provide this functionality.
+
 
 '''
 from __future__ import absolute_import, print_function
 
 def notify_owner(func):
-    ''' A decorator for mutating methods of property container classes, to
-    notify a the owner that a mutating change has occurred.
+    ''' A decorator for mutating methods of property container classes
+    that notifies owners of the property container about mutating changes.
+
+    Args:
+        func (callable) : the container method to wrap in a notification
+
+    Returns:
+        wrapped method
+
+    Examples:
+
+        A ``__setitem__`` could be wrapped like this:
+
+        .. code-block:: python
+
+            # x[i] = y
+            @notify_owner
+            def __setitem__(self, i, y):
+                return super(PropertyValueDict, self).__setitem__(i, y)
+
+    The returned wrapped method will have a docstring indicating what
+    original method it is wrapping.
 
     '''
     def wrapper(*args, **kwargs):
@@ -18,17 +72,22 @@ def notify_owner(func):
         result = func(*args, **kwargs)
         self._notify_owners(old)
         return result
+    wrapper.__doc__ = "Container method ``%s`` instrumented to notify property owners" % func.__name__
     return wrapper
 
 class PropertyValueContainer(object):
     ''' A base class for property container classes that support change
     notifications on mutating operations.
 
+    This class maintains an internal list of property owners, and also
+    provides a private mechanism for methods wrapped with
+    :func:`~bokeh.core.property_containers.notify_owners` to update
+    those owners when mutating changes occur.
+
     '''
     def __init__(self, *args, **kwargs):
         self._owners = set()
-        # this flag is set to True by HasProps when it wraps
-        # a default value
+        # this flag is set to True by HasProps when it wraps a default value
         self._unmodified_default_value = False
         super(PropertyValueContainer, self).__init__(*args, **kwargs)
 
@@ -46,12 +105,45 @@ class PropertyValueContainer(object):
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
-# This is supposed to override every mutating method
-# on list and send change notification to the
-# properties it's a value of.
 class PropertyValueList(PropertyValueContainer, list):
-    ''' A list property value that supports change notifications on mutating
-    operations.
+    ''' A list property value container that supports change notifications on
+    mutating operations.
+
+    When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
+    transparently created to wrap those values. These ``PropertyValueList``
+    values are subject to normal property validation. If the property type
+    ``foo = List(Str)`` then attempting to set ``x.foo[0] = 10`` will raise
+    an error.
+
+    Instances of ``PropertyValueList`` can be explicitly created by passing
+    any object that the standard list initializer accepts, for example:
+
+    .. code-block:: python
+
+        >>> PropertyValueList([10, 20])
+        [10, 20]
+
+        >>> PropertyValueList((10, 20))
+        [10, 20]
+
+    The following mutating operations on lists automatically trigger
+    notifications:
+
+    .. code-block:: python
+
+        del x[y]
+        del x[i:j]
+        x += y
+        x *= y
+        x[i] = y
+        x[i:j] = y
+        x.append
+        x.extend
+        x.insert
+        x.pop
+        x.remote
+        x.reverse
+        x.sort
 
     '''
 
@@ -120,8 +212,41 @@ class PropertyValueList(PropertyValueContainer, list):
         return super(PropertyValueList, self).sort(**kwargs)
 
 class PropertyValueDict(PropertyValueContainer, dict):
-    ''' A dict property value that supports change notifications on mutating
-    opertations.
+    ''' A dict property value container that supports change notifications on
+    mutating operations.
+
+    When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
+    transparently created to wrap those values. These ``PropertyValueList``
+    values are subject to normal property validation. If the property type
+    ``foo = Dict(Str, Str)`` then attempting to set ``x.foo['bar'] = 10`` will
+    raise an error.
+
+    Instances of ``PropertyValueDict`` can be eplicitly created by passing
+    any object that the standard dict initializer accepts, for example:
+
+    .. code-block:: python
+
+        >>> PropertyValueDict(dict(a=10, b=20))
+        {'a': 10, 'b': 20}
+
+        >>> PropertyValueDict(a=10, b=20)
+        {'a': 10, 'b': 20}
+
+        >>> PropertyValueDict([('a', 10), ['b', 20]])
+        {'a': 10, 'b': 20}
+
+    The following mutating operations on dicts automatically trigger
+    notifications:
+
+    .. code-block:: python
+
+        del x[y]
+        x[i] = y
+        x.clear
+        x.pop
+        x.popitem
+        x.setdefault
+        x.update
 
     '''
     def __init__(self, *args, **kwargs):
@@ -160,11 +285,32 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
-    # notifies owners explicitly
+    # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None, setter=None):
+        ''' Internal implmentation to handle special-casing stream events
+        on ``ColumnDataSource`` columns.
 
-        # NOTE: assumes stream data validity has already been verified
+        Normally any changes to the ``.data`` dict attribute on a
+        ``ColumnDataSource`` triggers a notification, causing all of the data
+        to be synchronized between server and clients.
 
+        The ``.stream`` method on column data sources exists to provide a
+        more efficient way to perform streaming (i.e. append-only) updates
+        to a data source, without having to perform a full synchronization,
+        which would needlessly re-send all the data.
+
+        To accomplish this, this function bypasses the wrapped methods on
+        ``PropertyValueDict`` and uses the unwrapped versions on the dict
+        superclass directly. It then explicitly makes a notification, adding
+        a special ``ColumnsStreamedEvent`` hint to the message that contains
+        only the small streamed data and that BokehJS can apply efficiently
+        to synchronize.
+
+        .. warning::
+            This function assumes the integrity of ``new_data`` has already
+            been verified.
+
+        '''
         old = self._saved_copy()
 
         import numpy as np
@@ -186,11 +332,32 @@ class PropertyValueDict(PropertyValueContainer, dict):
         self._notify_owners(old,
                             hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
 
-    # notifies owners explicitly
+    # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc, source, patches, setter=None):
+        ''' Internal implmentation to handle special-casing patch events
+        on ``ColumnDataSource`` columns.
 
-        # NOTE: assumes patch validity has already been verified
+        Normally any changes to the ``.data`` dict attribute on a
+        ``ColumnDataSource`` triggers a notification, causing all of the data
+        to be synchronized between server and clients.
 
+        The ``.patch`` method on column data sources exists to provide a
+        more efficient way to perform patching (i.e. random access) updates
+        to a data source, without having to perform a full synchronization,
+        which would needlessly re-send all the data.
+
+        To accomplish this, this function bypasses the wrapped methods on
+        ``PropertyValueDict`` and uses the unwrapped versions on the dict
+        superclass directly. It then explicitly makes a notification, adding
+        a special ``ColumnsPatchedEvent`` hint to the message that contains
+        only the small streamed data and that BokehJS can apply efficiently
+        to synchronize.
+
+        .. warning::
+            This function assumes the integrity of ``new_data`` has already
+            been verified.
+
+        '''
         old = self._saved_copy()
 
         for name, patch in patches.items():
