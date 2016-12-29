@@ -3,12 +3,12 @@ from __future__ import absolute_import
 import warnings
 
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON, Seq
+from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enum,
+                               JSON, Seq, ColumnData)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.warnings import BokehUserWarning
-from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
 
 pd = import_optional('pandas')
@@ -64,7 +64,7 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Seq(Any), help="""
+    data = ColumnData(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
@@ -168,11 +168,6 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def _to_json_like(self, include_defaults):
-        attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
-        if 'data' in attrs:
-            attrs['data'] = transform_column_source_data(attrs['data'])
-        return attrs
 
     def remove(self, name):
         """ Remove a column of data.
@@ -214,7 +209,7 @@ class ColumnDataSource(DataSource):
         from bokeh.io import push_notebook
         push_notebook()
 
-    def stream(self, new_data, rollover=None):
+    def stream(self, new_data, rollover=None, setter=None):
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -282,9 +277,9 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             raise ValueError("All streaming column updates must be the same length")
 
-        self.data._stream(self.document, self, new_data, rollover)
+        self.data._stream(self.document, self, new_data, rollover, setter)
 
-    def patch(self, patches):
+    def patch(self, patches, setter=None):
         ''' Efficiently update data source columns at specific locations
 
         If it is only necessary to update a small subset of data in a
@@ -328,7 +323,7 @@ class ColumnDataSource(DataSource):
             if max_ind >= len(self.data[name]):
                 raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
 
-        self.data._patch(self.document, self, patches)
+        self.data._patch(self.document, self, patches, setter)
 
 class GeoJSONDataSource(ColumnDataSource):
 

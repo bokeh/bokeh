@@ -144,7 +144,7 @@ export class HasProps extends Backbone.Model
 
       if not options?.silent?
         for key, value of attrs
-          @_tell_document_about_change(key, old[key], @getv(key))
+          @_tell_document_about_change(key, old[key], @getv(key), options)
 
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
@@ -317,6 +317,7 @@ export class HasProps extends Backbone.Model
           immediate = v._immediate_references()
           for obj in immediate
             HasProps._value_record_references(obj, result, true) # true=recurse
+    else if v.buffer instanceof ArrayBuffer
     else if _.isArray(v)
       for elem in v
         HasProps._value_record_references(elem, result, recurse)
@@ -360,7 +361,7 @@ export class HasProps extends Backbone.Model
     # This should only be called by the Document implementation to unset the document field
     @document = null
 
-  _tell_document_about_change: (attr, old, new_) ->
+  _tell_document_about_change: (attr, old, new_, options) ->
     if not @attribute_is_serializable(attr)
       return
 
@@ -386,9 +387,10 @@ export class HasProps extends Backbone.Model
       if need_invalidate
         @document._invalidate_all_models()
 
-      @document._notify_change(@, attr, old, new_)
+      @document._notify_change(@, attr, old, new_, options)
 
   materialize_dataspecs: (source) ->
+    # Note: this should be moved to a function separate from HasProps
     data = {}
     for name, prop of @properties
       if not prop.dataspec
@@ -397,6 +399,8 @@ export class HasProps extends Backbone.Model
       if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
         continue
       data["_#{name}"] = prop.array(source)
+      if name of source._shapes
+        data["_#{name}_shape"] = source._shapes[name]
       if prop instanceof p.Distance
         data["max_#{name}"] = array_max(data["_#{name}"])
     return data

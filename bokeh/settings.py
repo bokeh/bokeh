@@ -36,6 +36,9 @@ class Settings(object):
     def _get_str(self, key, default, dev=None):
         return self._get(key, self._dev_or_default(default, dev))
 
+    def _get_int(self, key, default, dev=None):
+        return int(self._get(key, self._dev_or_default(default, dev)))
+
     def _get_bool(self, key, default, dev=None):
         value = self._get(key)
 
@@ -217,6 +220,7 @@ class Settings(object):
         return self._get_str("NODEJS_PATH", default)
 
 #: A global settings object that other parts of Bokeh can refer to.
+#:
 #:
 #: ``BOKEH_BROWSER`` --- What browser to use when opening plots.
 #:

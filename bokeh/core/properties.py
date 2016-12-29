@@ -83,6 +83,7 @@ from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.future import with_metaclass
+from ..util.serialization import transform_column_source_data, decode_base64_dict
 from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 from . import enums
@@ -255,6 +256,10 @@ class PropertyDescriptor(PropertyFactory):
         into a value for this property."""
         return json
 
+    def serialize_value(self, value):
+        """Change the value into a JSON serializable format."""
+        return value
+
     def transform(self, value):
         """Change the value into the canonical format for this property."""
         return value
@@ -350,7 +355,7 @@ class Property(object):
     def __get__(self, obj, owner=None):
         raise NotImplementedError("Implement __get__")
 
-    def __set__(self, obj, value):
+    def __set__(self, obj, value, setter=None):
         raise NotImplementedError("Implement __set__")
 
     def __delete__(self, obj):
@@ -366,12 +371,13 @@ class Property(object):
         value to appear simpler for developer convenience.
 
         """
-        return self.__get__(obj)
+        value = self.__get__(obj)
+        return self.descriptor.serialize_value(value)
 
-    def set_from_json(self, obj, json, models):
+    def set_from_json(self, obj, json, models, setter=None):
         """Sets from a JSON value.
         """
-        return self._internal_set(obj, json)
+        return self._internal_set(obj, json, setter)
 
     @property
     def serialized(self):
@@ -422,12 +428,12 @@ class BasicProperty(Property):
     def readonly(self):
         return self.descriptor.readonly
 
-    def set_from_json(self, obj, json, models=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         """Sets using the result of serializable_value().
         """
         return super(BasicProperty, self).set_from_json(obj,
                                                         self.descriptor.from_json(json, models),
-                                                        models)
+                                                        models, setter)
 
     def _sphinx_type(self):
         return self.descriptor._sphinx_type()
@@ -454,9 +460,9 @@ class BasicProperty(Property):
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def _trigger(self, obj, old, value, hint=None):
+    def _trigger(self, obj, old, value, hint=None, setter=None):
         if hasattr(obj, 'trigger'):
-            obj.trigger(self.name, old, value, hint)
+            obj.trigger(self.name, old, value, hint, setter)
 
     def _get_default(self, obj):
         if self.name in obj._property_values:
@@ -481,7 +487,7 @@ class BasicProperty(Property):
 
         return default
 
-    def _real_set(self, obj, old, value, hint=None):
+    def _real_set(self, obj, old, value, hint=None, setter=None):
         # Currently as of Bokeh 0.11.1, all hinted events modify in place. However this may
         # need refining later if this assumption changes.
         unchanged = self.descriptor.matches(value, old) and (hint is None)
@@ -507,9 +513,9 @@ class BasicProperty(Property):
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._trigger(obj, old, value, hint)
+        self._trigger(obj, old, value, hint, setter)
 
-    def __set__(self, obj, value):
+    def __set__(self, obj, value, setter=None):
         if not hasattr(obj, '_property_values'):
             # Initial values should be passed in to __init__, not set directly
             raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
@@ -518,13 +524,13 @@ class BasicProperty(Property):
         if self.descriptor._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
-        self._internal_set(obj, value)
+        self._internal_set(obj, value, setter)
 
-    def _internal_set(self, obj, value):
+    def _internal_set(self, obj, value, setter=None):
         value = self.descriptor.prepare_value(obj, self.name, value)
 
         old = self.__get__(obj)
-        self._real_set(obj, old, value)
+        self._real_set(obj, old, value, setter=setter)
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers. In this case,
@@ -804,7 +810,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def set_from_json(self, name, json, models=None):
+    def set_from_json(self, name, json, models=None, setter=None):
         """ Sets a property of the object using JSON and a dictionary mapping
         model ids to model instances. The model instances are necessary if the
         JSON contains references to models.
@@ -813,7 +819,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         if name in self.properties():
             #logger.debug("Patching attribute %s of %r", attr, patched_obj)
             prop = self.lookup(name)
-            prop.set_from_json(self, json, models)
+            prop.set_from_json(self, json, models, setter)
         else:
             logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -822,10 +828,10 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes, models=None):
+    def update_from_json(self, json_attributes, models=None, setter=None):
         """ Updates the object's properties from a JSON attributes dictionary. """
         for k, v in json_attributes.items():
-            self.set_from_json(k, v, models)
+            self.set_from_json(k, v, models, setter)
 
     def _clone(self):
         """ Returns a duplicate of this object with all its properties
@@ -1288,6 +1294,42 @@ class Dict(ContainerProperty):
             return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(json) }
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+
+class ColumnData(Dict):
+    """Property holding column data in form of a dict. Also applies
+    encoding and decoding to the data.
+    """
+
+    def from_json(self, json, models=None):
+        """
+        Decodes column source data encoded as lists or base64 strings.
+        """
+        if json is None:
+            return None
+        elif not isinstance(json, dict):
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+        new_data = {}
+        for key, value in json.items():
+            key = self.keys_type.from_json(key, models)
+            if isinstance(value, dict) and '__ndarray__' in value:
+                new_data[key] = decode_base64_dict(value)
+            elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
+                new_list = []
+                for el in value:
+                    if isinstance(el, dict) and '__ndarray__' in el:
+                        el = decode_base64_dict(el)
+                    elif isinstance(el, list):
+                        el = self.values_type.from_json(el)
+                    new_list.append(el)
+                new_data[key] = new_list
+            else:
+                new_data[key] = self.values_type.from_json(value, models)
+        return new_data
+
+
+    def serialize_value(self, value):
+        return transform_column_source_data(value)
+
 
 class Tuple(ContainerProperty):
     """ Tuple type property. """
@@ -1823,7 +1865,7 @@ class DataSpecProperty(BasicProperty):
     def serializable_value(self, obj):
         return self.descriptor.to_serializable(obj, self.name, getattr(obj, self.name))
 
-    def set_from_json(self, obj, json, models=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         if isinstance(json, dict):
             # we want to try to keep the "format" of the data spec as string, dict, or number,
             # assuming the serialized dict is compatible with that.
@@ -1838,7 +1880,7 @@ class DataSpecProperty(BasicProperty):
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
-        super(DataSpecProperty, self).set_from_json(obj, json, models)
+        super(DataSpecProperty, self).set_from_json(obj, json, models, setter)
 
 class DataSpec(Either):
     ''' Base class for properties that can represent either a fixed value,
@@ -2057,13 +2099,13 @@ class UnitsSpecProperty(DataSpecProperty):
                 self.units_prop.__set__(obj, units)
         return value
 
-    def __set__(self, obj, value):
+    def __set__(self, obj, value, setter=None):
         value = self._extract_units(obj, value)
-        super(UnitsSpecProperty, self).__set__(obj, value)
+        super(UnitsSpecProperty, self).__set__(obj, value, setter)
 
-    def set_from_json(self, obj, json, models=None):
+    def set_from_json(self, obj, json, models=None, setter=None):
         json = self._extract_units(obj, json)
-        super(UnitsSpecProperty, self).set_from_json(obj, json, models)
+        super(UnitsSpecProperty, self).set_from_json(obj, json, models, setter)
 
 class UnitsSpec(NumberSpec):
     ''' A base class for numeric :class:`~bokeh.core.properties.DataSpec`
@@ -2088,6 +2130,10 @@ class UnitsSpec(NumberSpec):
     def to_serializable(self, obj, name, val):
         d = super(UnitsSpec, self).to_serializable(obj, name, val)
         if d is not None and 'units' not in d:
+            # d is a PropertyValueDict at this point, we need to convert it to
+            # a plain dict if we are going to modify its value, otherwise a
+            # notify_change that should not happen will be triggered
+            d = dict(d)
             d["units"] = getattr(obj, name+"_units")
         return d
 

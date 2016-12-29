@@ -1,13 +1,13 @@
 from os.path import dirname, join
 
-from bokeh.core.properties import List, Float, Seq, Color, Int
-from bokeh.models import DataSource
+from bokeh.core.properties import Color, Float, Int, Override, Seq
+from bokeh.models import Renderer
 
-class WaterfallSource(DataSource):
+class WaterfallRenderer(Renderer):
 
-    __implementation__ = open(join(dirname(__file__), "waterfall.coffee")).read()
+    __implementation__ = join(dirname(__file__), "waterfall.coffee")
 
-    latest = List(Float)
+    latest = Seq(Float)
 
     palette = Seq(Color)
 
@@ -17,5 +17,4 @@ class WaterfallSource(DataSource):
 
     tile_width = Int()
 
-    @property
-    def column_names(self): return ['x', 'image']
+    level = Override(default="glyph")

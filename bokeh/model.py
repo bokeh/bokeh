@@ -217,7 +217,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 continue
             self.js_callbacks[event].append(callback)
 
-    def trigger(self, attr, old, new, hint=None):
+    def trigger(self, attr, old, new, hint=None, setter=None):
         # The explicit assumption here is that hinted events do not
         # need to go through all the same invalidation steps. Currently
         # as of Bokeh 0.11.1 the only hinted event is ColumnsStreamedEvent.
@@ -234,7 +234,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint)
+        super(Model, self).trigger(attr, old, new, hint, setter)
 
     @property
     def ref(self):

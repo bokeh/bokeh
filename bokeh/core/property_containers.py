@@ -161,7 +161,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
     # notifies owners explicitly
-    def _stream(self, doc, source, new_data, rollover=None):
+    def _stream(self, doc, source, new_data, rollover=None, setter=None):
 
         # NOTE: assumes stream data validity has already been verified
 
@@ -184,10 +184,10 @@ class PropertyValueDict(PropertyValueContainer, dict):
         from ..document import ColumnsStreamedEvent
 
         self._notify_owners(old,
-                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover))
+                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
 
     # notifies owners explicitly
-    def _patch(self, doc, source, patches):
+    def _patch(self, doc, source, patches, setter=None):
 
         # NOTE: assumes patch validity has already been verified
 
@@ -200,4 +200,4 @@ class PropertyValueDict(PropertyValueContainer, dict):
         from ..document import ColumnsPatchedEvent
 
         self._notify_owners(old,
-                            hint=ColumnsPatchedEvent(doc, source, patches))
+                            hint=ColumnsPatchedEvent(doc, source, patches, setter))

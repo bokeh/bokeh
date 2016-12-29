@@ -34,3 +34,5 @@ for own key, val of global.window
 global.HTMLElement = global.window.HTMLElement
 global.Event = global.window.Event
 global.Image = global.window.Image
+global.atob = require "atob"
+global.btoa = require "btoa"
