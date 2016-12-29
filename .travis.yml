@@ -1,6 +1,6 @@
 language: python
 
-sudo: 
+sudo:
   false
 
 env:
@@ -34,7 +34,7 @@ matrix:
     # Integration test
     - python: 3.4
       env: GROUP=integration
-      addons: 
+      addons:
         sauce_connect: true
 
 branches:
@@ -56,54 +56,54 @@ install:
 
 script:
   # Unit tests
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then 
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=3 -s -m js;
     fi
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then 
-      py.test --rerun=5 -m 'not (examples or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc; 
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
+      py.test --rerun=5 -m 'not (examples or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc;
     fi
   # Examples tests
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then 
-      if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then 
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then
+      if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
         echo "Examples run disabled by commit"; else
-        export BOKEH_DEFAULT_DIFF=FETCH_HEAD; 
-        export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; 
-        py.test -v -m examples --rerun=5 --upload --examplereport=examples.html; 
-      fi; 
+        export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
+        export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
+        py.test -v -m examples --rerun=5 --upload --examplereport=examples.html;
+      fi;
     fi
   # Linting
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then 
-      py.test -m quality ; 
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
+      py.test -m quality ;
     fi
   # Build docs
-  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then 
-      cd sphinx; 
-      GOOGLE_API_KEY=${GOOGLE_API_KEY:-"junk"} make SPHINXOPTS=-v all; 
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
+      cd sphinx;
+      GOOGLE_API_KEY=${GOOGLE_API_KEY:-"junk"} make SPHINXOPTS=-v all;
     fi
   # Integration tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then
       if [ "$SAUCELABS" == "true" ]; then
-        py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload; 
+        py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload;
       fi;
     fi
 
   # Poor mans logger
-  - echo "***** POOR MAN LOGGER ******"; 
-    echo $BOKEH_DEFAULT_DIFF; 
+  - echo "***** POOR MAN LOGGER ******";
+    echo $BOKEH_DEFAULT_DIFF;
     echo $TRAVIS_COMMIT_MSG;
-    echo $TRAVIS_PULL_REQUEST; 
-    if [[ "$GROUP" == integration ]]; then 
+    echo $TRAVIS_PULL_REQUEST;
+    if [[ "$GROUP" == integration ]]; then
       echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/tests/pytest-report.html";
-    fi; 
-    if [[ "$GROUP" == examples ]]; then 
+    fi;
+    if [[ "$GROUP" == examples ]]; then
       echo "https://s3.amazonaws.com/bokeh-travis/$TRAVIS_JOB_ID/examples.html";
-    fi; 
+    fi;
     killall python;
     ps -efw;
     echo "********** END POOR MAN LOGGER ************"
 
 after_success: |
-  if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7' && "$GROUP" == flake_docs ]]; then
+  if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '3.4' && "$GROUP" == flake_docs ]]; then
       # Install some additional dependencies
       conda install anaconda-client --yes
       conda install -c conda-forge fabric3
