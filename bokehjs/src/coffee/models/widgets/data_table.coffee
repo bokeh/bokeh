@@ -193,6 +193,7 @@ export class DataTableView extends WidgetView
         selected['1d'].indices = args.rows
         @model.source.selected = selected
 
+    @_prefix_ui()
     return @
 
 export class DataTable extends TableWidget

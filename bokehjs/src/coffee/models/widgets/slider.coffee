@@ -48,6 +48,7 @@ export class SliderView extends InputWidgetView
     if @model.title?
       @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('value') )
     @$el.find('.bk-slider-parent').height(@model.height)
+    @_prefix_ui()
     return @
 
   slidestop: (event, ui) =>

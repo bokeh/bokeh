@@ -30,6 +30,7 @@ export class CellEditorView extends BokehView
     @$el.append(@$input)
     @renderEditor()
     @disableNavigation()
+    @_prefix_ui()
     return @
 
   renderEditor: () ->

@@ -54,6 +54,7 @@ export class RangeSliderView extends InputWidgetView
     if bk_handle.length == 2
       bk_handle[0].style.left = @$el.find('.ui-slider-handle')[0].style.left
       bk_handle[1].style.left = @$el.find('.ui-slider-handle')[1].style.left
+    @_prefix_ui()
     return @
 
   slidestop: (event, ui) =>

@@ -12,6 +12,13 @@ export class WidgetView extends LayoutDOMView
     if @model.width
       @$el.width(@model.width)
 
+  _prefix_ui: () ->
+    for el in @el.querySelectorAll("*[class*='ui-']")
+      classList = []
+      for cls in el.classList
+        classList.push(if cls.indexOf("ui-") == 0 then "bk-#{cls}" else cls)
+      el.classList = classList.join(" ")
+    return null
 
 export class Widget extends LayoutDOM
   type: "Widget"
