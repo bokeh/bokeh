@@ -58,14 +58,22 @@ export class GlyphView extends BokehView
   log_bounds: () ->
     if not @index?
       return bbox.empty()
-    log_x_index = rbush()
-    log_y_index = rbush()
-    positive_x_pts = @index.search(bbox.positive_x())
-    positive_y_pts = @index.search(bbox.positive_y())
-    log_x_index.load(positive_x_pts)
-    log_y_index.load(positive_y_pts)
-    bb = {minX: log_x_index.data.minX, minY: log_y_index.data.minY, maxX:log_x_index.data.maxX, maxY:log_y_index.data.maxY}
-    return bb
+
+    bb = bbox.empty()
+    positive_x_bbs = @index.search(bbox.positive_x())
+    positive_y_bbs = @index.search(bbox.positive_y())
+    for x in positive_x_bbs
+      if x.minX < bb.minX
+        bb.minX = x.minX
+      if x.maxX > bb.maxX
+        bb.maxX = x.maxX
+    for y in positive_y_bbs
+      if y.minY < bb.minY
+        bb.minY = y.minY
+      if y.maxY > bb.maxY
+        bb.maxY = y.maxY
+
+    return @_bounds(bb)
 
   # this is available for subclasses to use, if appropriate.
   max_wh2_bounds: (bds) ->
