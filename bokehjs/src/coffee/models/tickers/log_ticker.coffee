@@ -27,12 +27,6 @@ export class LogTicker extends AdaptiveTicker
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []
 
-    if data_low <= 0 #Hotfix
-      data_low = 1
-
-    if data_low > data_high
-      [data_low, data_high] = [data_high, data_low]
-
     base = @base
 
     log_low = Math.log(data_low) / Math.log(base)
