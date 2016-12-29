@@ -106,7 +106,7 @@ after_success: |
   if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '3.4' && "$GROUP" == flake_docs ]]; then
       # Install some additional dependencies
       conda install anaconda-client --yes
-      conda install -c conda-forge fabric3
+      conda install -c conda-forge fabric3 --yes
       # Decrypt some files and place them in the correct location
       openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
       tar xvf secrets.tar
