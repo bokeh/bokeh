@@ -42,7 +42,7 @@ def get_config():
     # _version.py
     cfg = VersioneerConfig()
     cfg.VCS = "git"
-    cfg.style = ""
+    cfg.style = "git-describe"
     cfg.tag_prefix = ""
     cfg.parentdir_prefix = "Bokeh-"
     cfg.versionfile_source = "bokeh/_version.py"
