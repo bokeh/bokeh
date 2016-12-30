@@ -16,7 +16,7 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnDataSource, GeoJSONDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecation import deprecated
@@ -518,7 +518,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
-        if not isinstance(source, ColumnDataSource):
+        if not isinstance(source, (ColumnDataSource, GeoJSONDataSource)):
             try:
                 # try converting the soruce to ColumnDataSource
                 source = ColumnDataSource(source)

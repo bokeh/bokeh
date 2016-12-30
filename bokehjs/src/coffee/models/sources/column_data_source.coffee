@@ -58,29 +58,28 @@ export patch_to_column = (col, patch) ->
     [ind, value] = patch[i]
     col[ind] = value
 
-# Datasource where the data is defined column-wise, i.e. each key in the
-# the data attribute is a column name, and its value is an array of scalars.
-# Each column should be the same length.
-export class ColumnDataSource extends DataSource
-  type: 'ColumnDataSource'
 
-  initialize: (options) ->
-    super(options)
-    [@data, @_shapes] = serialization.decode_column_data(@data)
+# Abstract baseclass for column based data sources, where the column
+# based data may be supplied directly or be computed from an attribute
+export class ColumnarDataSource extends DataSource
+  type: 'ColumnarDataSource'
 
   @define {
-      data:         [ p.Any,   {} ]
-      column_names: [ p.Array, [] ]
-    }
+    column_names: [ p.Array, [] ]
+  }
 
   @internal {
     selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
     inspected:         [ p.Any ]
-    _shapes:           [ p.Any, {}]
+    _shapes:      [ p.Any, {}]
   }
 
   get_column: (colname) ->
     return @data[colname] ? null
+
+  columns: () ->
+    # return the column names in this data source
+    return _.keys(@data)
 
   get_length: (soft=true) ->
     lengths = _.uniq((val.length for _key, val of @data))
@@ -98,6 +97,21 @@ export class ColumnDataSource extends DataSource
         else
           throw new Error(msg)
 
+
+# Datasource where the data is defined column-wise, i.e. each key in the
+# the data attribute is a column name, and its value is an array of scalars.
+# Each column should be the same length.
+export class ColumnDataSource extends ColumnarDataSource
+  type: 'ColumnDataSource'
+
+  initialize: (options) ->
+    super(options)
+    [@data, @_shapes] = serialization.decode_column_data(@data)
+
+  @define {
+    data:         [ p.Any,   {} ]
+  }
+
   attributes_as_json: (include_defaults=true, value_to_json=ColumnDataSource._value_to_json) ->
     attrs = {}
     for own key, value of @serializable_attributes()
@@ -114,10 +128,6 @@ export class ColumnDataSource extends DataSource
       serialization.encode_column_data(value, optional_parent_object._shapes)
     else
       HasProps._value_to_json(key, value, optional_parent_object)
-
-  columns: () ->
-    # return the column names in this data source
-    return _.keys(@data)
 
   stream: (new_data, rollover) ->
     data = @data

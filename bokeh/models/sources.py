@@ -325,13 +325,12 @@ class ColumnDataSource(DataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class GeoJSONDataSource(ColumnDataSource):
+class GeoJSONDataSource(DataSource):
 
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.
     """)
-
 
 @abstract
 class RemoteSource(ColumnDataSource):
