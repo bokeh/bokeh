@@ -533,6 +533,7 @@ class Serve(Subcommand):
                                                               'unused_session_lifetime_milliseconds',
                                                               'stats_log_frequency_milliseconds',
                                                               'use_xheaders',
+                                                              'default_server_port'
                                                             ]
                           if getattr(args, key, None) is not None }
 
@@ -573,7 +574,8 @@ class Serve(Subcommand):
             address_string = ''
             if server.address is not None and server.address != '':
                 address_string = ' address ' + server.address
-
+         
+          server_kwargs['default_server_port'] = DEFAULT_PORT  
             log.info("Starting Bokeh server on port %d%s with applications at paths %r",
                      server.port,
                      address_string,
