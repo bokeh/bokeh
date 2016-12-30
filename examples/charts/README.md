@@ -21,6 +21,12 @@ There are two subdirectories:
 
 * `file` examples that output to static HTML files
 
+* `server`
+
+The example code for charts using Jupyter/Ipython notebooks is located under "howto"
+../howto/charts
+
+
 * `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
 
 Many of the examples in `notebook` also contain explanatory discussion of various different chart options. 
