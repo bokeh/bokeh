@@ -8,7 +8,17 @@ from functools import partial
 from six import string_types
 
 def _validator(code_or_name, validator_type):
+    ''' Internal shared implementation to handle both error and warning
+    validation checks.
 
+    Args:
+        code code_or_name (int or str) : a defined error code or custom message
+        validator_type (str) : either "error" or "warning"
+
+    Returns:
+        validation decorator
+
+    '''
     if validator_type == "error":
         from .errors import codes
         from .errors import EXT
@@ -16,7 +26,7 @@ def _validator(code_or_name, validator_type):
         from .warnings import codes
         from .warnings import EXT
     else:
-        pass
+        pass # TODO (bev) ValueError?
 
     def decorator(func):
         def wrapper(*args, **kw):
@@ -35,71 +45,72 @@ def _validator(code_or_name, validator_type):
 
     return decorator
 
-error = partial(_validator, validator_type="error")
-error.__doc__ = ''' Mark a validator method for a Bokeh error condition
+_error = partial(_validator, validator_type="error")
+def error(code_or_name):
+    ''' Decorator to mark a validator method for a Bokeh error condition
 
-Args:
-    code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+    Args:
+        code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
 
-Returns:
-    callable : decorator for Bokeh model methods
+    Returns:
+        callable : decorator for Bokeh model methods
 
-Examples:
+    Examples:
 
-The first example uses a numeric code for a standard error provided in
-``bokeh.validation.errors``. This usage is primarily of interest to Bokeh
-core developers.
+    The first example uses a numeric code for a standard error provided in
+    ``bokeh.validation.errors``. This usage is primarily of interest to Bokeh
+    core developers.
 
-.. code-block:: python
+    .. code-block:: python
 
-    from bokeh.validation.errors import REQUIRED_RANGES
+        from bokeh.validation.errors import REQUIRED_RANGES
 
-    @error(REQUIRED_RANGES)
-    def _check_no_glyph_renderers(self):
+        @error(REQUIRED_RANGES)
+        def _check_no_glyph_renderers(self):
 
-The second example shows how a custom warning check can be implemented by
-passing an arbitrary string label to the decorator. This usage is primarily
-of interest to anyone extending Bokeh with their own custom models.
+    The second example shows how a custom warning check can be implemented by
+    passing an arbitrary string label to the decorator. This usage is primarily
+    of interest to anyone extending Bokeh with their own custom models.
 
-.. code-block:: python
+    .. code-block:: python
 
-    @error("MY_CUSTOM_WARNING")
-    def _check_my_custom_warning(self):
+        @error("MY_CUSTOM_WARNING")
+        def _check_my_custom_warning(self):
 
+    '''
+    return _error(code_or_name)
 
-'''
+_warning = partial(_validator, validator_type="warning")
+def warning(code_or_name):
+    ''' Decorator to mark a validator method for a Bokeh error condition
 
-warning = partial(_validator, validator_type="warning")
-warning.__doc__ = ''' Mark a validator method for a Bokeh error condition
+    Args:
+        code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
 
-Args:
-    code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+    Returns:
+        callable : decorator for Bokeh model methods
 
-Returns:
-    callable : decorator for Bokeh model methods
+    Examples:
 
-Examples:
+    The first example uses a numeric code for a standard warning provided in
+    ``bokeh.validation.warnings``. This usage is primarily of interest to Bokeh
+    core developers.
 
-The first example uses a numeric code for a standard warning provided in
-``bokeh.validation.warnings``. This usage is primarily of interest to Bokeh
-core developers.
+    .. code-block:: python
 
-.. code-block:: python
+        from bokeh.validation.warnings import NO_DATA_RENDERERS
 
-    from bokeh.validation.warnings import NO_DATA_RENDERERS
+        @warning(NO_DATA_RENDERERS)
+        def _check_no_glyph_renderers(self):
 
-    @warning(NO_DATA_RENDERERS)
-    def _check_no_glyph_renderers(self):
+    The second example shows how a custom warning check can be implemented by
+    passing an arbitrary string label to the decorator. This usage is primarily
+    of interest to anyone extending Bokeh with their own custom models.
 
-The second example shows how a custom warning check can be implemented by
-passing an arbitrary string label to the decorator. This usage is primarily
-of interest to anyone extending Bokeh with their own custom models.
+    .. code-block:: python
 
-.. code-block:: python
+        @warning("MY_CUSTOM_WARNING")
+        def _check_my_custom_warning(self):
 
-    @warning("MY_CUSTOM_WARNING")
-    def _check_my_custom_warning(self):
-
-
-
-'''
+    '''
+    return _warning(code_or_name)

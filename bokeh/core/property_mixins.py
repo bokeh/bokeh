@@ -1,18 +1,55 @@
-""" Classes that can be mixed-in to Bokeh model classes to add sets of
-related properties in bulk. """
+''' Mix-in classes that bulk add groups of properties to Bokeh models.
 
+Some groups of properties often show up in Bokeh models together. For
+instance, any model that exposes a fill color property for use when
+rendering will almost always want to expose a fill alpha as well. To
+reduce boilerplate code and simplify defining models with these sets
+of properties, use the mix-in classes in this module:
+
+* |FillProps| --- properties for fill color and alpha
+
+* |LineProps| --- properties for line color, dashing, width, etc.
+
+* |TextProps| --- properties for text color, font, etc.
+
+To include these properties in a Bokeh model, use the |Include| property
+as shown here:
+
+.. code-block:: python
+
+    class SomeGlyph(Glyph):
+
+        fill_props = Include(FillProps, use_prefix=False, help="""
+        The %s values for the annular wedges.
+        """)
+
+This adds all the fill properties ``fill_color`` and ``fill_alpha`` to this
+model with one simple statement. Note that the help string contains a
+placeholder format `%s`. When docs for this class are rendered by the
+:ref:`bokeh.sphinxext.bokeh_model` Sphinx extension, the placeholder will
+be replaced with more information specific to each property. The setting
+``use_prefix`` means that the names of the properties added to ``SomeGlyph``
+are exactly ``fill_alpha`` and ``fill_color``. Some situations require a
+different usage, for more information see the docs for |Include|.
+
+.. |Include| replace:: :class:`~bokeh.core.properties.Include`
+
+.. |FillProps| replace:: :class:`~bokeh.core.property_mixins.FillProps`
+.. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
+.. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
+
+'''
 from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
-from .properties import (
-    value, HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
+from .properties import ColorSpec, DashPattern, Enum, FontSizeSpec, HasProps, Int, NumberSpec, String, value
 
 class FillProps(HasProps):
-    """ Properties to use when performing fill operations while rendering.
+    ''' Properties relevant to rendering fill regions.
 
     Mirrors the BokehJS ``properties.Fill`` class.
 
-    """
+    '''
 
     fill_color = ColorSpec(default="gray", help="""
     A color to use to fill paths with.
@@ -37,11 +74,11 @@ class FillProps(HasProps):
     """)
 
 class LineProps(HasProps):
-    """ Properties to use when performing stroke operations while rendering.
+    ''' Properties relevant to rendering path operations.
 
     Mirrors the BokehJS ``properties.Line`` class.
 
-    """
+    '''
 
     line_color = ColorSpec(default="black", help="""
     A color to use to stroke paths with.
@@ -115,8 +152,7 @@ class LineProps(HasProps):
     """)
 
 class TextProps(HasProps):
-    """ Properties to use when performing text drawing operations while
-    rendering.
+    ''' Properties relevant to rendering text.
 
     Mirrors the BokehJS ``properties.Text`` class.
 
@@ -124,7 +160,7 @@ class TextProps(HasProps):
         There is currently only support for filling text. An interface
         to stroke the outlines of text has not yet been exposed.
 
-    """
+    '''
 
     text_font = String("helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
