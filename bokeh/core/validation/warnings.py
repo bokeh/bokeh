@@ -16,6 +16,9 @@ validation checks.
 1004 *(BOTH_CHILD_AND_ROOT)*
     Each component can be rendered in only one place, can't be both a root and in a layout.
 
+1005 (*SNAPPED_TOOLBAR_ANNOTATIONS*)
+    Snapped toolbars and annotations on the same side MAY overlap visually.
+
 9999 *(EXT)*
     Indicates that a custom warning check has failed.
 

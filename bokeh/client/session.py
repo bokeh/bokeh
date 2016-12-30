@@ -51,7 +51,7 @@ def push_session(document, session_id=None, url='default', app_path='/', io_loop
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
        Returns:
-            session : ClientSession
+            ClientSession
                 A new ClientSession connected to the server
 
     """
@@ -100,7 +100,7 @@ def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
         io_loop (``tornado.ioloop.IOLoop``, optional) :
             The IOLoop to use for the websocket
     Returns:
-        session (ClientSession) :
+        ClientSession :
             A new ClientSession connected to the server
 
     """

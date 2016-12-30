@@ -55,6 +55,10 @@ def error(code_or_name):
     Returns:
         callable : decorator for Bokeh model methods
 
+    The function that is decoratate should have a name that starts with
+    ``_check``, and return a string message in case a bad condition is
+    detected, and ``None`` if no bad condition is detected.
+
     Examples:
 
     The first example uses a numeric code for a standard error provided in
@@ -67,6 +71,7 @@ def error(code_or_name):
 
         @error(REQUIRED_RANGES)
         def _check_no_glyph_renderers(self):
+            if bad_condition: return "message"
 
     The second example shows how a custom warning check can be implemented by
     passing an arbitrary string label to the decorator. This usage is primarily
@@ -76,6 +81,7 @@ def error(code_or_name):
 
         @error("MY_CUSTOM_WARNING")
         def _check_my_custom_warning(self):
+            if bad_condition: return "message"
 
     '''
     return _error(code_or_name)
@@ -90,6 +96,10 @@ def warning(code_or_name):
     Returns:
         callable : decorator for Bokeh model methods
 
+    The function that is decoratate should have a name that starts with
+    ``_check``, and return a string message in case a bad condition is
+    detected, and ``None`` if no bad condition is detected.
+
     Examples:
 
     The first example uses a numeric code for a standard warning provided in
@@ -102,6 +112,7 @@ def warning(code_or_name):
 
         @warning(NO_DATA_RENDERERS)
         def _check_no_glyph_renderers(self):
+            if bad_condition: return "message"
 
     The second example shows how a custom warning check can be implemented by
     passing an arbitrary string label to the decorator. This usage is primarily
@@ -111,6 +122,7 @@ def warning(code_or_name):
 
         @warning("MY_CUSTOM_WARNING")
         def _check_my_custom_warning(self):
+            if bad_condition: return "message"
 
     '''
     return _warning(code_or_name)

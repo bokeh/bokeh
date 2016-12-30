@@ -1,41 +1,27 @@
-""" This is the utils module that collects convenience functions and code that are
+''' This is the utils module that collects convenience functions and code that are
 useful for charts ecosystem.
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+'''
 from __future__ import absolute_import, division, print_function
 
-import itertools
-import json
 from collections import OrderedDict, defaultdict
 from copy import copy
+import itertools
+import json
 from math import cos, sin
-from colorsys import hsv_to_rgb
 
-from pandas.io.json import json_normalize
+from colorsys import hsv_to_rgb
 import pandas as pd
+from pandas.io.json import json_normalize
 import numpy as np
 from six import iteritems
 
-from ..models.glyphs import (
+from bokeh.models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
-    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
-from ..models.sources import ColumnDataSource
-from ..plotting.helpers import DEFAULT_PALETTE
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
+    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X
+)
+from bokeh.plotting.helpers import DEFAULT_PALETTE
+from bokeh.models.sources import ColumnDataSource
 
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
 

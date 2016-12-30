@@ -11,8 +11,8 @@ from six import class_types
 from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
 
 from bokeh.model import Model
-from bokeh.core.properties import Property
 from bokeh.core.enums import Enumeration
+from bokeh.core.property.descriptors import PropertyDescriptor
 
 class EnumDocumenter(ModuleLevelDocumenter):
     directivetype = 'bokeh-enum'
@@ -30,7 +30,7 @@ class PropDocumenter(AttributeDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, Property)
+        return isinstance(member, PropertyDescriptor)
 
 class ModelDocumenter(ClassDocumenter):
     directivetype = 'bokeh-model'

@@ -5,7 +5,8 @@ from __future__ import absolute_import
 
 import warnings
 
-from ...core.properties import abstract, HasProps
+from ...core.has_props import HasProps
+from ...core.properties import abstract
 from ...core.properties import Bool, Int, String, Enum, Instance, List, Tuple, Override
 from ...core.enums import ButtonType
 from ..callbacks import Callback
