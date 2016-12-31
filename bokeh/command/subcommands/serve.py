@@ -532,8 +532,7 @@ class Serve(Subcommand):
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',
                                                               'stats_log_frequency_milliseconds',
-                                                              'use_xheaders',
-                                                              'default_server_port'
+                                                              'use_xheaders'
                                                             ]
                           if getattr(args, key, None) is not None }
 
@@ -560,6 +559,7 @@ class Serve(Subcommand):
 
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
+        server_kwargs['port'] = DEFAULT_SERVER_PORT
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
@@ -574,8 +574,7 @@ class Serve(Subcommand):
             address_string = ''
             if server.address is not None and server.address != '':
                 address_string = ' address ' + server.address
-         
-          server_kwargs['default_server_port'] = DEFAULT_PORT  
+           
             log.info("Starting Bokeh server on port %d%s with applications at paths %r",
                      server.port,
                      address_string,
