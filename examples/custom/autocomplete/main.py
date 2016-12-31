@@ -1,6 +1,7 @@
 """
 Example bokeh app for custom extensions to render a simple autocomplete
-text input box, using JQuery, awesomplete libraries respectively.
+text input box, using JQuery, awesomplete, jquery-textext, and jquery-tokeninput
+libraries respectively.
 
 As it turns out, there are a lot of independent autocomplete implementations.
 Some suggested libraries appear in these lists (many focus on ajax
@@ -26,6 +27,8 @@ from bokeh.plotting import curdoc
 
 from awesomplete_input import AwesompleteInput
 from autocomplete_input import AutocompleteInput
+# from textext_input import TextExtInput
+from token_input import TokenInput
 
 # Properties for autocompletion
 completions = dir(__builtins__)
@@ -45,7 +48,23 @@ awes_input = AwesompleteInput(completions=completions,
                               min_chars=min_chars,
                               auto_first=auto_first,
                               title="awesomplete")
-all_inputs = [auto_input, awes_input]
+# FIXME
+# Please note that these input widgets are not currently functional.
+# The main issues:
+#  1. CSS is not yet figured out, especially after the first pss.
+#  2. Both of these autocompleters support tags, and do not directly
+#     update the textinput's value field. Have not yet done any
+#     wiring for such.
+#  3. Selecting an autocompletion and then losing focus / pressing enter
+#     does not seem to trigger an on_change() callback.
+## text_input = TextExtInput(completions=completions,
+##                           title="textext")
+token_input = TokenInput(completions=completions,
+                         title="token")
+all_inputs = [auto_input,
+              awes_input,
+              # text_input,
+              token_input]
 
 new_input = TextInput(value="foo bar",
                       placeholder="option",
@@ -64,8 +83,9 @@ checkboxes = CheckboxButtonGroup(labels=["Auto Focus First",
 # autocompletion widgets, such as those with multiple tags.
 def on_input_value_update(attr, old_value, new_value):
     """Display current contents of autocompletion inputs"""
-    div_values.text = "Current values:" + " | ".join([a.value for a in all_inputs])
-for a_input in all_inputs:
+    div_values.text = "Current values:" + " | ".join([a.value for a in (auto_input, awes_input)] +
+                                                     [str(a.values) for a in (token_input,)])
+for a_input in [auto_input, awes_input]:
     a_input.on_change("value", on_input_value_update)
 
 # Register callbacks to change properties of autocompletion menus,
