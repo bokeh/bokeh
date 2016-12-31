@@ -183,7 +183,7 @@ export class PlotCanvasView extends BokehView
     calculate_log_bounds = false
     for r in _.values(frame.x_ranges).concat(_.values(frame.y_ranges))
       if r instanceof DataRange1d
-        if r._mapper_type == "log"
+        if r.mapper_hint == "log"
           calculate_log_bounds = true
 
     for k, v of @renderer_views
@@ -200,7 +200,7 @@ export class PlotCanvasView extends BokehView
 
     for xr in _.values(frame.x_ranges)
       if xr instanceof DataRange1d
-        if xr._mapper_type == "log"
+        if xr.mapper_hint == "log"
           xr.update(log_bounds, 0, @model.id)
         else
           xr.update(bounds, 0, @model.id)
@@ -210,7 +210,7 @@ export class PlotCanvasView extends BokehView
 
     for yr in _.values(frame.y_ranges)
       if yr instanceof DataRange1d
-        if yr._mapper_type == "log"
+        if yr.mapper_hint == "log"
           yr.update(log_bounds, 1, @model.id)
         else
           yr.update(bounds, 1, @model.id)
