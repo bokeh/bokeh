@@ -178,24 +178,38 @@ export class PlotCanvasView extends BokehView
     # Update any DataRange1ds here
     frame = @model.frame
     bounds = {}
+    log_bounds = {}
+
+    calculate_log_bounds = false
+    for r in _.values(frame.x_ranges).concat(_.values(frame.y_ranges))
+      if r instanceof DataRange1d
+        if r.mapper_hint == "log"
+          calculate_log_bounds = true
+
     for k, v of @renderer_views
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
+      if calculate_log_bounds
+        log_bds = v.glyph?.log_bounds?()
+        if log_bds?
+          log_bounds[k] = log_bds
 
     follow_enabled = false
     has_bounds = false
 
     for xr in _.values(frame.x_ranges)
       if xr instanceof DataRange1d
-        xr.update(bounds, 0, @model.id)
+        bounds_to_use = if xr.mapper_hint == "log" then log_bounds else bounds
+        xr.update(bounds_to_use, 0, @model.id)
         if xr.follow
           follow_enabled = true
       has_bounds = true if xr.bounds?
 
     for yr in _.values(frame.y_ranges)
       if yr instanceof DataRange1d
-        yr.update(bounds, 1, @model.id)
+        bounds_to_use = if yr.mapper_hint == "log" then log_bounds else bounds
+        yr.update(bounds_to_use, 1, @model.id)
         if yr.follow
           follow_enabled = true
       has_bounds = true if yr.bounds?
