@@ -70,6 +70,16 @@ describe "Rect", ->
         height: {value: 20}
       })
 
+      @set_mappers = (glyph_view) ->
+        mapper = new LinearMapper({
+          source_range: new Range1d({start: 0, end: 100})
+          target_range: new Range1d({start: 0, end: 200})
+        })
+        glyph_view.renderer.xmapper = mapper
+        glyph_view.renderer.ymapper = mapper
+        glyph_view.renderer.plot_view.frame.x_mappers['default'] = mapper
+        glyph_view.renderer.plot_view.frame.y_mappers['default'] = mapper
+
     it "should calculate bounds based on data including width and height", ->
       data = {x: [0, 1, 2, 3], y: [0, 1, 2, 3]}
       glyph_view = create_glyph_view(@glyph, data)
@@ -83,6 +93,46 @@ describe "Rect", ->
       log_bounds = glyph_view.log_bounds()
 
       expect(log_bounds).to.be.deep.equal({ minX: -4, minY: -9, maxX: 8, maxY: 13 })
+
+    it "`_map_data` should correctly map data if width and height units are 'data'", ->
+      data = {x: [1], y: [2]}
+      glyph_view = create_glyph_view(@glyph, data)
+
+      @set_mappers(glyph_view)
+      glyph_view.map_data()
+      expect(glyph_view.sw).to.be.deep.equal([20])
+      expect(glyph_view.sh).to.be.deep.equal([40])
+
+    it "`_map_data` should correctly map data if width and height units are 'screen'", ->
+      data = {x: [1], y: [2]}
+      glyph_view = create_glyph_view(@glyph, data)
+
+      glyph_view.model.properties.width.units = "screen"
+      glyph_view.model.properties.height.units = "screen"
+
+      @set_mappers(glyph_view)
+      glyph_view.map_data()
+      expect(glyph_view.sw).to.be.deep.equal([10])
+      expect(glyph_view.sh).to.be.deep.equal([20])
+
+    it "`_map_data` should map values for x0 and y1 when width/height units are 'data'", ->
+      data = {x: [1], y: [2]}
+      glyph_view = create_glyph_view(@glyph, data)
+
+      glyph_view.map_data()
+      expect(glyph_view.sx0).to.be.deep.equal({'0': 0})
+      expect(glyph_view.sy1).to.be.deep.equal({'0': -1})
+
+    it "`_map_data` should map values for x0 and y1 when width/height units are 'screen'", ->
+      data = {x: [1], y: [2]}
+      glyph_view = create_glyph_view(@glyph, data)
+
+      glyph_view.model.properties.width.units = "screen"
+      glyph_view.model.properties.height.units = "screen"
+
+      glyph_view.map_data()
+      expect(glyph_view.sx0).to.be.deep.equal([-5])
+      expect(glyph_view.sy1).to.be.deep.equal([-11])
 
     describe "hit-testing", ->
 
@@ -104,16 +154,6 @@ describe "Rect", ->
       describe "_hit_point", ->
 
         beforeEach ->
-          @set_mappers = (glyph_view) ->
-            mapper = new LinearMapper({
-              source_range: new Range1d({start: 0, end: 100})
-              target_range: new Range1d({start: 0, end: 200})
-            })
-            glyph_view.renderer.xmapper = mapper
-            glyph_view.renderer.ymapper = mapper
-            glyph_view.renderer.plot_view.frame.x_mappers['default'] = mapper
-            glyph_view.renderer.plot_view.frame.y_mappers['default'] = mapper
-
           @geometry1 = { vx: 190, vy: 220 }
           @geometry2 = { vx: 195, vy: 210 }
           @geometry3 = { vx: 186, vy: 186 }
