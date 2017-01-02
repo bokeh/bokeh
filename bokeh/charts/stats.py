@@ -434,9 +434,9 @@ class Histogram(BinnedStat):
         for i, b in enumerate(binned):
             width = bin_bounds[i+1] - bin_bounds[i]
             if i == 0:
-                lbl = "[%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
+                lbl = "[%f, %f]" % (bin_bounds[i], bin_bounds[i+1])
             else:
-                lbl = "(%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
+                lbl = "(%f, %f]" % (bin_bounds[i], bin_bounds[i+1])
             self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max(),
                 width=width))
 
