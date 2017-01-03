@@ -38,6 +38,7 @@ import sys
 
 from bokeh import __version__
 from bokeh.settings import settings
+from bokeh.util.compiler import nodejs_version, npmjs_version
 
 from ..subcommand import Subcommand
 
@@ -72,3 +73,5 @@ class Info(Subcommand):
             print("IPython version     :  %s" % ipy_version)
             print("Bokeh version       :  %s" % __version__)
             print("BokehJS static path :  %s" % settings.bokehjsdir())
+            print("node.js version     :  %s" % nodejs_version() or "(not installed)")
+            print("npm version         :  %s" % npmjs_version() or "(not installed)")
