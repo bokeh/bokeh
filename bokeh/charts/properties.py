@@ -1,20 +1,20 @@
-""" Properties for modeling Chart inputs, constraints, and dependencies.
+''' Properties for modeling Chart inputs, constraints, and dependencies.
 
 selection spec:
     [['x'], ['x', 'y']]
     [{'x': categorical, 'y': numerical}]
 
-"""
-
+'''
 from __future__ import absolute_import
 
 import numpy as np
 import pandas as pd
 
-from bokeh.core.properties import (HasProps, Either, String, Int, List, Bool,
-                              PrimitiveProperty, bokeh_integer_types, Array)
-from .utils import special_columns, title_from_columns
+from bokeh.core.has_props import HasProps
+from bokeh.core.property.bases import PrimitiveProperty
+from bokeh.core.properties import Array, bokeh_integer_types, Bool, Either, Int, List, String
 
+from .utils import special_columns, title_from_columns
 
 class Column(Array):
     """Represents column-oriented data.

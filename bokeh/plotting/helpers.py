@@ -133,7 +133,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
         if isinstance(val, string_types):
             continue
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
+        if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple)):
             continue
 
         if isinstance(val, np.ndarray) and val.ndim != 1:

@@ -64,15 +64,15 @@ class BokehPropDirective(BokehDirective):
         model_obj = model()
 
         try:
-            prop = getattr(model_obj.__class__, prop_name)
+            descriptor = getattr(model_obj.__class__, prop_name)
         except AttributeError:
             raise SphinxError("Unable to generate reference docs for %s, no property '%s' in %s" % (self.arguments[0], prop_name, model_name))
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,
             module=self.options['module'],
-            type_info=prop._sphinx_type(),
-            doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
+            type_info=descriptor.property._sphinx_type(),
+            doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 
         return self._parse(rst_text, "<bokeh-prop>")

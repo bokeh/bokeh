@@ -10,4 +10,3 @@ serialization for a large collection of useful types. Mixin and container
 classes provide for easy bulk addition of properties to model classes.
 
 .. automodule:: bokeh.core.properties
-    :members:
