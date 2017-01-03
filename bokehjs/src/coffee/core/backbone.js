@@ -258,22 +258,17 @@ _.extend(View.prototype, Events, {
   // an element from the `id`, `className` and `tagName` properties.
   _ensureElement: function() {
     if (!this.el) {
-      var attrs = _.extend({}, _.result(this, 'attributes'));
-      if (this.id) attrs.id = _.result(this, 'id');
-      if (this.className) attrs['class'] = _.result(this, 'className');
       this.setElement(this._createElement(_.result(this, 'tagName')));
-      this._setAttributes(attrs);
+      if (this.id) {
+        this.el.setAttribute('id', _.result(this, 'id'));
+      }
+      if (this.className) {
+        this.el.setAttribute('class', _.result(this, 'className'));
+      }
     } else {
       this.setElement(_.result(this, 'el'));
     }
-  },
-
-  // Set attributes from a hash on this view's element.  Exposed for
-  // subclasses using an alternative DOM manipulation API.
-  _setAttributes: function(attributes) {
-    this.$el.attr(attributes);
   }
-
 });
 
 Model.getter = View.getter = function(name, get) {
