@@ -135,7 +135,7 @@ def _run(app, argv, input=None):
     if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
-        return stdout
+        return stdout.decode()
 
 def _run_nodejs(argv, input=None):
     return _run(_nodejs, argv, input)
@@ -160,7 +160,7 @@ def npmjs_version():
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compile.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
-    return AttrDict(json.loads(output.decode()))
+    return AttrDict(json.loads(output))
 
 class Implementation(object):
 
