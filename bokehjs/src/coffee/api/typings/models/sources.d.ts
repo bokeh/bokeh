@@ -21,6 +21,12 @@ declare namespace Bokeh {
     data?: Data;
   }
 
+  export var GeoJSONDataSource: { new(attributes?: IGeoJSONDataSource, options?: ModelOpts): GeoJSONDataSource };
+  export interface GeoJSONDataSource extends ColumnarDataSource, IGeoJSONDataSource {}
+  export interface IGeoJSONDataSource extends IColumnarDataSource {
+    geojson?: JsObj;
+  }
+
   export interface RemoteSource extends DataSource, IRemoteSource {}
   export interface IRemoteSource extends IDataSource {
     data_url?: string;

@@ -7,4 +7,5 @@ declare namespace Bokeh {
             [Int, Int, Int, Percent];  // RGBA(r, g, b, a)
   export type FontSize = string;
   export type Map<T> = {[key: string]: T};
+  export type JsObj = Map<any>;
 }
