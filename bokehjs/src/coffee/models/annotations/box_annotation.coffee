@@ -46,21 +46,22 @@ export class BoxAnnotationView extends AnnotationView
     sw = Math.abs(sright-sleft)
     sh = Math.abs(sbottom-stop)
 
-    lw = @model.line_width.value
-    lc = @model.line_color.value
-    bc = @model.fill_color.value
-    ba = @model.fill_alpha.value
-    style = "left:#{sleft}px; width:#{sw}px; top:#{stop}px; height:#{sh}px; border-width:#{lw}px; border-color:#{lc}; background-color:#{bc}; opacity:#{ba};"
+    @el.style.left = "#{sleft}px"
+    @el.style.width = "#{sw}px"
+    @el.style.top = "#{stop}px"
+    @el.style.height = "#{sh}px"
+    @el.style.borderWidth = "#{@model.line_width.value}px"
+    @el.style.borderColor = @model.line_color.value
+    @el.style.backgroundColor = @model.fill_color.value
+    @el.style.opacity = @model.fill_alpha.value
+
     # try our best to honor line dashing in some way, if we can
     ld = @model.line_dash
     if _.isArray(ld)
-      if ld.length < 2
-        ld = "solid"
-      else
-        ld = "dashed"
+      ld = if ld.length < 2 then "solid" else "dashed"
     if _.isString(ld)
-      style += " border-style:#{ld};"
-    @$el.attr('style', style)
+      @el.style.borderStyle = ld
+
     @$el.show()
 
   _canvas_box: (sleft, sright, sbottom, stop) ->
