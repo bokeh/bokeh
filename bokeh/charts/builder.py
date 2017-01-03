@@ -29,7 +29,7 @@ from .properties import Dimension, ColumnLabel
 from .utils import collect_attribute_columns, label_from_index_dict, build_hover_tooltips
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
-from ..models.sources import ColumnDataSource
+from ..models.sources import ColumnarDataSource, ColumnDataSource
 from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either, Enum)
 from ..core.enums import SortDirection
@@ -233,7 +233,7 @@ class Builder(HasProps):
     Valid values are: `ascending` or `descending`.
     """)
 
-    source = Instance(ColumnDataSource)
+    source = Instance(ColumnarDataSource)
 
     tooltips = Either(List(Tuple(String, String)), List(String), Bool, default=None,
                       help="""

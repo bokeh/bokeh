@@ -48,7 +48,17 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnDataSource(DataSource):
+@abstract
+class ColumnarDataSource(DataSource):
+    """ A baseclass for data source types, which can be mapped onto
+    a columnar format. Not useful to instantiate on its own.
+    """
+
+    column_names = List(String, help="""
+    An list of names for all the columns in this DataSource.
+    """)
+
+class ColumnDataSource(ColumnarDataSource):
     """ Maps names of columns to sequences or arrays.
 
     If the ColumnDataSource initializer is called with a single argument that
@@ -70,9 +80,6 @@ class ColumnDataSource(DataSource):
     """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
                  lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
 
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
 
     def __init__(self, *args, **kw):
         """ If called with a single argument that is a dict or
@@ -325,7 +332,7 @@ class ColumnDataSource(DataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class GeoJSONDataSource(DataSource):
+class GeoJSONDataSource(ColumnarDataSource):
 
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can

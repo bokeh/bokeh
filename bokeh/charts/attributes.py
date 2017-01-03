@@ -10,7 +10,7 @@ from bokeh.charts.utils import marker_types
 from bokeh.charts.data_source import ChartDataSource
 from bokeh.charts.stats import Bins
 from bokeh.core.enums import DashPattern
-from bokeh.models.sources import ColumnDataSource
+from bokeh.models.sources import ColumnDataSource, ColumnarDataSource
 from bokeh.core.properties import (HasProps, String, List, Instance, Either, Any, Dict,
                               Bool, Override)
 
@@ -28,7 +28,7 @@ class AttrSpec(HasProps):
     AttrSpec with data and column values and update all derived property values.
     """
 
-    data = Instance(ColumnDataSource)
+    data = Instance(ColumnarDataSource)
 
     iterable = List(Any, default=None)
 
