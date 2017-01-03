@@ -44,7 +44,7 @@ export class LayoutDOMView extends BokehView
       # read from @child_views because then we don't get guaranteed ordering.
       # Which is a problem in non-box layouts.
       child_view = @child_views[child.id]
-      @$el.append(child_view.$el)
+      @el.appendChild(child_view.el)
 
     @bind_bokeh_events()
 

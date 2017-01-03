@@ -56,8 +56,8 @@ export class TileRendererView extends RendererView
           }
         }, attribution)
 
-        overlays = @plot_view.$el.find('div.bk-canvas-events')
-        overlays.append(@attributionEl)
+        overlays = @plot_view.el.querySelector('div.bk-canvas-events')
+        overlays.appendChild(@attributionEl)
 
   _map_data: () ->
     @initial_extent = @get_extent()

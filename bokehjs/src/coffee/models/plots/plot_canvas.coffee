@@ -80,7 +80,7 @@ export class PlotCanvasView extends BokehView
 
     @canvas = @model.canvas
     @canvas_view = new @canvas.default_view({'model': @canvas})
-    @$el.append(@canvas_view.el)
+    @el.appendChild(@canvas_view.el)
     @canvas_view.render(true)
 
     # If requested, try enabling webgl

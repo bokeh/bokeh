@@ -36,7 +36,7 @@ export class TooltipView extends AnnotationView
       if @model.inner_only and not @plot_view.frame.contains(vx, vy)
           continue
       tip = div({}, content)
-      @$el.append(tip)
+      @el.appendChild(tip)
     sx = @plot_view.model.canvas.vx_to_sx(vx)
     sy = @plot_view.model.canvas.vy_to_sy(vy)
 
