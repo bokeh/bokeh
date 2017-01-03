@@ -30,7 +30,7 @@ def test_run(capsys):
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 5
+    assert len(lines) == 7
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Bokeh version")
