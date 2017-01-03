@@ -5,10 +5,10 @@ Bokeh properties work by contributing Python descriptor objects to
 to the Bokeh property class, which handles validation, serialization, and
 documentation needs.
 
-The ``PropertyFactory`` class provides two methods ``autocreate`` and
+The ``PropertyDescriptorFactory`` class provides two methods ``autocreate`` and
 ``make_descriptors`` that are used by the metaclass ``MetaHasProps`` during
-class creation. to install the necessary descriptors corresponding to the
-declared properties.
+class creation to create and install the necessary descriptors corresponding
+to the declared properties.
 
 This machinery helps to make Bokeh much more user friendly. For example,
 the DataSpec properties mediate between fixed values and references to column
@@ -39,7 +39,7 @@ details around validation, serialization, and documentation.
 
 '''
 
-class PropertyFactory(object):
+class PropertyDescriptorFactory(object):
     ''' Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familar "property"
@@ -101,8 +101,9 @@ class PropertyFactory(object):
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
 
-        Subclasses of ``PropertyFactory`` are responsible for implementing
-        this function to return descriptors specific to their needs.
+        Subclasses of ``PropertyDescriptorFactory`` are responsible for
+        implementing this function to return descriptors specific to their
+        needs.
 
         '''
         raise NotImplementedError("make_descriptors not implemented")

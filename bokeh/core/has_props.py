@@ -28,7 +28,7 @@ from ..util.dependencies import import_optional
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property.containers import PropertyValueContainer
-from .property.factory import PropertyFactory
+from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
 
 IPython = import_optional('IPython')
@@ -83,9 +83,9 @@ class MetaHasProps(type):
 
         generators = dict()
         for name, generator in class_dict.items():
-            if isinstance(generator, PropertyFactory):
+            if isinstance(generator, PropertyDescriptorFactory):
                 generators[name] = generator
-            elif isinstance(generator, type) and issubclass(generator, PropertyFactory):
+            elif isinstance(generator, type) and issubclass(generator, PropertyDescriptorFactory):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass

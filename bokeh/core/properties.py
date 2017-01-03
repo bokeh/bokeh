@@ -116,9 +116,8 @@ from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.serialization import transform_column_source_data, decode_base64_dict
 from ..util.string import nice_join
-from .property.bases import (
-    ContainerProperty, ParameterizedProperty, Property,
-    PropertyFactory,  PrimitiveProperty, DeserializationError)
+from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
+from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from . import enums
 
@@ -1853,7 +1852,7 @@ def value(val):
 # intentional transitive import to put Override in this module, DO NOT REMOVE
 from .property.override import Override ; Override
 
-class Include(PropertyFactory):
+class Include(PropertyDescriptorFactory):
     ''' Include "mix-in" property collection in a Bokeh model.
 
     See :ref:`bokeh.core.property_mixins` for more details.

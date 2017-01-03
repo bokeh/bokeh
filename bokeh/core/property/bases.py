@@ -19,13 +19,13 @@ from six import string_types
 
 from ...util.string import nice_join
 from .containers import PropertyValueList, PropertyValueDict
+from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
-from .factory import PropertyFactory
 
 class DeserializationError(Exception):
     pass
 
-class Property(PropertyFactory):
+class Property(PropertyDescriptorFactory):
     ''' Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 

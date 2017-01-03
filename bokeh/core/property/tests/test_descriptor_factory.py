@@ -1,8 +1,8 @@
 import pytest
 
-import bokeh.core.property.factory as pf
+import bokeh.core.property.descriptor_factory as pf
 
-class Child(pf.PropertyFactory):
+class Child(pf.PropertyDescriptorFactory):
     pass
 
 def test_autocreate():
@@ -11,6 +11,6 @@ def test_autocreate():
     assert isinstance(value, Child)
 
 def test_make_descriptors_not_implemented():
-    obj = pf.PropertyFactory()
+    obj = pf.PropertyDescriptorFactory()
     with pytest.raises(NotImplementedError):
         obj.make_descriptors("foo")
