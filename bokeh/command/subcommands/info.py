@@ -42,6 +42,14 @@ from bokeh.util.compiler import nodejs_version, npmjs_version
 
 from ..subcommand import Subcommand
 
+def ipython_version():
+    try:
+        import IPython
+    except ImportError:
+        return None
+    else:
+        return IPython.__version__
+
 class Info(Subcommand):
     ''' Subcommand to print information about Bokeh and Bokeh server configuration.
 
@@ -64,14 +72,11 @@ class Info(Subcommand):
         if args.static:
             print(settings.bokehjsdir())
         else:
-            try:
-                import IPython
-                ipy_version = IPython.__version__
-            except ImportError:
-                ipy_version = "Not installed"
+            if_installed = lambda version_or_none: version_or_none or "(not installed)"
+
             print("Python version      :  %s" % sys.version.split('\n')[0])
-            print("IPython version     :  %s" % ipy_version)
+            print("IPython version     :  %s" % if_installed(ipython_version()))
             print("Bokeh version       :  %s" % __version__)
             print("BokehJS static path :  %s" % settings.bokehjsdir())
-            print("node.js version     :  %s" % nodejs_version() or "(not installed)")
-            print("npm version         :  %s" % npmjs_version() or "(not installed)")
+            print("node.js version     :  %s" % if_installed(nodejs_version()))
+            print("npm version         :  %s" % if_installed(npmjs_version()))
