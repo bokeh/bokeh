@@ -106,53 +106,43 @@ export class LabelSetView extends TextAnnotationView
     ctx.restore()
 
   _v_css_text: (ctx, i, text, sx, sy, angle) ->
+    $el = @$el.children().eq(i)
+    $el.html(text)
+    el = $el[0]
+
     @visuals.text.set_vectorize(ctx, i)
     bbox_dims = @_calculate_bounding_box_dimensions(ctx, text)
 
     # attempt to support vector-style ("8 4 8") line dashing for css mode
     ld = @visuals.border_line.line_dash.value()
     if _.isArray(ld)
-      if ld.length < 2
-        line_dash = "solid"
-      else
-        line_dash = "dashed"
+      line_dash = if ld.length < 2 then "solid" else "dashed"
     if _.isString(ld)
-        line_dash = ld
+      line_dash = ld
 
     @visuals.border_line.set_vectorize(ctx, i)
     @visuals.background_fill.set_vectorize(ctx, i)
 
-    div_style = {
-      'position': 'absolute'
-      'left': "#{sx + bbox_dims[0]}px"
-      'top': "#{sy + bbox_dims[1]}px"
-      'color': "#{@visuals.text.text_color.value()}"
-      'opacity': "#{@visuals.text.text_alpha.value()}"
-      'font': "#{@visuals.text.font_value()}"
-      'line-height': "normal" # needed to prevent ipynb css override
-      }
+    el.style.position = 'absolute'
+    el.style.left = "#{sx + bbox_dims[0]}px"
+    el.style.top = "#{sy + bbox_dims[1]}px"
+    el.style.color = "#{@visuals.text.text_color.value()}"
+    el.style.opacity = "#{@visuals.text.text_alpha.value()}"
+    el.style.font = "#{@visuals.text.font_value()}"
+    el.style.lineHeight = "normal" # needed to prevent ipynb css override
 
     if angle
-      _.extend(div_style, {
-        'transform': "rotate(#{angle}rad)"
-        })
+      el.style.transform = "rotate(#{angle}rad)"
 
     if @visuals.background_fill.doit
-      _.extend(div_style, {
-        'background-color': "#{@visuals.background_fill.color_value()}"
-      })
+      el.style.backgroundColor = "#{@visuals.background_fill.color_value()}"
 
     if @visuals.border_line.doit
-      _.extend(div_style, {
-        'border-style': "#{line_dash}"
-        'border-width': "#{@visuals.border_line.line_width.value()}"
-        'border-color': "#{@visuals.border_line.color_value()}"
-      })
+      el.style.borderStyle = "#{line_dash}"
+      el.style.borderWidth = "#{@visuals.border_line.line_width.value()}"
+      el.style.borderColor = "#{@visuals.border_line.color_value()}"
 
-    @$el.children().eq(i)
-                   .html(text)
-                   .css(div_style)
-                   .show()
+    $el.show()
 
 export class LabelSet extends TextAnnotation
   default_view: LabelSetView
