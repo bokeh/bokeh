@@ -22,7 +22,7 @@ from ..builder import create_and_build, Builder
 from ..utils import (build_wedge_source, build_wedge_text_source,
                      build_agg_tooltip, derive_aggregation)
 from ..attributes import ColorAttr, CatAttr
-from ...models.sources import ColumnarDataSource, ColumnDataSource
+from ...models.sources import ColumnDataSource
 from ...models.glyphs import AnnularWedge, Text
 from ...models.renderers import GlyphRenderer
 from ...models.ranges import Range1d
@@ -143,8 +143,8 @@ class DonutBuilder(Builder):
 
     agg = String(default='sum')
 
-    chart_data = Instance(ColumnarDataSource)
-    text_data = Instance(ColumnarDataSource)
+    chart_data = Instance(ColumnDataSource)
+    text_data = Instance(ColumnDataSource)
 
     level_width = Float(default=1.5)
     level_spacing = Either(Float, List(Float), default=0.0)

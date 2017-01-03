@@ -4,7 +4,7 @@ from six import iteritems
 import pandas as pd
 
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.sources import ColumnarDataSource, ColumnDataSource
+from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import (HasProps, String, Either, Float, Color, Instance, List,
                               Any, Dict)
 from .properties import ColumnLabel, Column
@@ -51,7 +51,7 @@ class CompositeGlyph(HasProps):
         """)
 
     # derived from inputs
-    source = Instance(ColumnarDataSource, help="""The data source used for the contained
+    source = Instance(ColumnDataSource, help="""The data source used for the contained
         glyph renderers. Simple glyphs part of the composite glyph might not use the
         column data source.""")
     renderers = List(Instance(GlyphRenderer))
@@ -100,8 +100,8 @@ class CompositeGlyph(HasProps):
                 if isinstance(data, dict):
                     source = ColumnDataSource(data)
 
-                if not isinstance(source, ColumnarDataSource) and source is not None:
-                    raise TypeError('build_source must return dict or ColumnarDataSource.')
+                if not isinstance(source, ColumnDataSource) and source is not None:
+                    raise TypeError('build_source must return dict or ColumnDataSource.')
                 else:
                     self.source = self.add_chart_index(source)
 
@@ -132,7 +132,7 @@ class CompositeGlyph(HasProps):
             dict or `ColumnDataSource`: returns the same type of data provided
         """
 
-        if isinstance(data, ColumnarDataSource):
+        if isinstance(data, ColumnDataSource):
             source = data
             data = source.data
         else:

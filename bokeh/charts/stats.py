@@ -17,7 +17,7 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-from bokeh.models.sources import ColumnarDataSource, ColumnDataSource
+from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import (HasProps, Float, Either, String, Date, Datetime, Int,
                               Bool, List, Instance)
 from .properties import Column, EitherColumn, ColumnLabel
@@ -33,7 +33,7 @@ class Stat(HasProps):
     # inputs
     column = ColumnLabel(help="""A column to use for the stat calculation. Required
         when providing a ColumnDataSource as input.""")
-    source = Instance(ColumnarDataSource, help="""One option for providing the data
+    source = Instance(ColumnDataSource, help="""One option for providing the data
         source for stat calculation.""")
     values = EitherColumn(Column(Float), Column(Int), Column(String),
                   Column(Date), Column(Datetime), Column(Bool), default=None, help="""
@@ -66,7 +66,7 @@ class Stat(HasProps):
         if isinstance(data, pd.DataFrame):
             data = ColumnDataSource(data)
 
-        if isinstance(data, ColumnarDataSource):
+        if isinstance(data, ColumnDataSource):
             self.source = data
             if column is not None:
                 self.column = column

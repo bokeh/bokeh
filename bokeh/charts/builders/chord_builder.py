@@ -28,7 +28,7 @@ from bokeh.charts.utils import color_in_equal_space, help
 from bokeh.models import Range1d
 from bokeh.models.glyphs import Arc, Bezier, Text
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.sources import ColumnarDataSource, ColumnDataSource
+from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import Instance, Bool, String, Array, Float, Any, Seq, Either, Int
 
 
@@ -73,9 +73,9 @@ class ChordBuilder(Builder):
 
     values = Dimension('values')
 
-    arcs_data = Instance(ColumnarDataSource)
-    text_data = Instance(ColumnarDataSource)
-    connection_data = Instance(ColumnarDataSource)
+    arcs_data = Instance(ColumnDataSource)
+    text_data = Instance(ColumnDataSource)
+    connection_data = Instance(ColumnDataSource)
 
     origin = String()
     destination = String()
