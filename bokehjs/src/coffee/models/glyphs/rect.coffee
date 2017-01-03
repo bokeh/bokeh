@@ -19,18 +19,27 @@ export class RectView extends GlyphView
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
+      x0 = (@_x[i] - @_width[i]/2 for i in [0...@_x.length])
+      vx0 = @renderer.xmapper.v_map_to_target(x0)
+      @sx0 = @renderer.plot_view.canvas.v_vx_to_sx(vx0)
+      @sw = @sdist(@renderer.xmapper, x0, @_width, 'edge', @model.dilate)
     else
       @sw = @_width
+      @sx0 = (@sx[i] - @sw[i]/2 for i in [0...@sx.length])
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
+      y0 = (@_y[i] - @_height[i]/2 for i in [0...@_y.length])
+      y1 = (@_y[i] + @_height[i]/2 for i in [0...@_y.length])
+      vy1 = @renderer.ymapper.v_map_to_target(y1)
+      @sy1 = @renderer.plot_view.canvas.v_vy_to_sy(vy1)
+      @sh = @sdist(@renderer.ymapper, y0, @_height, 'edge', @model.dilate)
     else
       @sh = @_height
+      @sy1 = (@sy[i] - @sh[i]/2 for i in [0...@sy.length])
 
-  _render: (ctx, indices, {sx, sy, sw, sh, _angle}) ->
+  _render: (ctx, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) ->
     if @visuals.fill.doit
       for i in indices
-        if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+_angle[i])
+        if isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])
           continue
 
         #no need to test the return value, we call fillRect for every glyph anyway
@@ -43,14 +52,14 @@ export class RectView extends GlyphView
           ctx.rotate(-_angle[i])
           ctx.translate(-sx[i], -sy[i])
         else
-          ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+          ctx.fillRect(sx0[i], sy1[i], sw[i], sh[i])
 
     if @visuals.line.doit
       ctx.beginPath()
 
       for i in indices
 
-        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i])
+        if isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])
           continue
 
         # fillRect does not fill zero-height or -width rects, but rect(...)
@@ -66,7 +75,7 @@ export class RectView extends GlyphView
           ctx.rotate(-_angle[i])
           ctx.translate(-sx[i], -sy[i])
         else
-          ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+          ctx.rect(sx0[i], sy1[i], sw[i], sh[i])
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
