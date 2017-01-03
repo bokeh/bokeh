@@ -35,7 +35,9 @@ def test_run(capsys):
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Bokeh version")
     assert lines[3].startswith("BokehJS static")
-    assert lines[4] == ""
+    assert lines[4].startswith("node.js version")
+    assert lines[5].startswith("npm version")
+    assert lines[6] == ""
     assert err == ""
 
 def test_run_static(capsys):
