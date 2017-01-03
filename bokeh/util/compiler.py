@@ -131,7 +131,7 @@ def _run_nodejs(script, input):
     proc = Popen([_nodejs, script], stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=json.dumps(input).encode())
 
-    if len(errout) > 0:
+    if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
         return AttrDict(json.loads(stdout.decode()))
@@ -145,7 +145,7 @@ def _run_npm(argv):
     proc = Popen([_npm] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (_stdout, errout) = proc.communicate()
 
-    if len(errout) > 0:
+    if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
         return None
