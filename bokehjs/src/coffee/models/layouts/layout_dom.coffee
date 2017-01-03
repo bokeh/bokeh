@@ -99,39 +99,31 @@ export class LayoutDOMView extends BokehView
       s.suggest_value(@model._width, width)
       s.suggest_value(@model._height, height)
       s.update_variables()
-      @$el.css({
-        width: width
-        height: height
-      })
+      @el.style.width = width
+      @el.style.height = height
 
     if @model.sizing_mode is 'scale_width'
       height = @get_height()
 
       s.suggest_value(@model._height, height)
       s.update_variables()
-      @$el.css({
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.width = @model._width._value
+      @el.style.height = @model._height._value
 
     if @model.sizing_mode is 'scale_height'
       width = @get_width()
 
       s.suggest_value(@model._width, width)
       s.update_variables()
-      @$el.css({
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.width = @model._width._value
+      @el.style.height = @model._height._value
 
     if @model.sizing_mode is 'stretch_both'
-      @$el.css({
-        position: 'absolute'
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.position = 'absolute'
+      @el.style.left = @model._dom_left._value
+      @el.style.top = @model._dom_top._value
+      @el.style.width = @model._width._value
+      @el.style.height = @model._height._value
 
   get_height: () ->
     # Subclasses should implement this to explain

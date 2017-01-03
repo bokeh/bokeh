@@ -16,12 +16,10 @@ export class ToolbarBaseView extends LayoutDOMView
 
   render: () ->
     if @model.sizing_mode != 'fixed'
-      @$el.css({
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.left = @model._dom_left._value
+      @el.style.top = @model._dom_top._value
+      @el.style.width = @model._width._value
+      @el.style.height = @model._height._value
 
     @$el.html(@template({
       logo: @model.logo

@@ -12,7 +12,7 @@ export class TooltipView extends AnnotationView
     super(options)
     # TODO (bev) really probably need multiple divs
     @plot_view.canvas_overlays.appendChild(@el)
-    @$el.css({'z-index': 1010})
+    @el.style.zIndex = 1010
     @$el.hide()
 
   bind_bokeh_events: () ->
@@ -88,7 +88,8 @@ export class TooltipView extends AnnotationView
     # two hits, not colocated and one is off the screen, that can
     # be problematic
     if @$el.children().length > 0
-      @$el.css({top: top, left: left})
+      @el.style.top = top
+      @el.style.left = left
       @$el.show()
 
 export class Tooltip extends Annotation

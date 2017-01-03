@@ -8,7 +8,7 @@ export class SpanView extends AnnotationView
   initialize: (options) ->
     super(options)
     @plot_view.canvas_overlays.appendChild(@el)
-    @$el.css({position: 'absolute'})
+    @el.style.position = "absolute"
     @$el.hide()
 
   bind_bokeh_events: () ->
@@ -50,15 +50,13 @@ export class SpanView extends AnnotationView
       height = frame.height
 
     if @model.render_mode == "css"
-      @$el.css({
-        'top': stop,
-        'left': sleft,
-        'width': "#{width}px",
-        'height': "#{height}px"
-        'z-index': 1000
-        'background-color': @model.properties.line_color.value()
-        'opacity': @model.properties.line_alpha.value()
-      })
+      @el.style.top = stop
+      @el.style.left = sleft
+      @el.style.width = "#{width}px"
+      @el.style.height = "#{height}px"
+      @el.style.zIndex = 1000
+      @el.style.backgroundColor = @model.properties.line_color.value()
+      @el.style.opacity = @model.properties.line_alpha.value()
       @$el.show()
 
     else if @model.render_mode == "canvas"

@@ -169,11 +169,11 @@ export class DataTableView extends WidgetView
       autoEdit: false
 
     if width?
-      @$el.css(width: "#{@model.width}px")
+      @el.style.width = "#{@model.width}px"
     else
-      @$el.css(width: "#{@model.default_width}px")
+      @el.style.width = "#{@model.default_width}px"
     if height? and height != "auto"
-      @$el.css(height: "#{@model.height}px")
+      @el.style.height = "#{@model.height}px"
 
     @data = new DataProvider(@model.source)
     @grid = new SlickGrid(@el, @data, columns, options)
