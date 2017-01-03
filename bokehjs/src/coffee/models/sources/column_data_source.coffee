@@ -1,9 +1,7 @@
 import * as _ from "underscore"
 
-import {DataSource} from "./data_source"
-import * as hittest from "../../core/hittest"
+import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "../../core/has_props"
-import {SelectionManager} from "../../core/selection_manager"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as serialization from "../../core/util/serialization"
@@ -57,45 +55,6 @@ export patch_to_column = (col, patch) ->
   for i in [0...patch.length]
     [ind, value] = patch[i]
     col[ind] = value
-
-
-# Abstract baseclass for column based data sources, where the column
-# based data may be supplied directly or be computed from an attribute
-export class ColumnarDataSource extends DataSource
-  type: 'ColumnarDataSource'
-
-  @define {
-    column_names: [ p.Array, [] ]
-  }
-
-  @internal {
-    selection_manager: [ p.Instance, (self) -> new SelectionManager({source: self}) ]
-    inspected:         [ p.Any ]
-    _shapes:      [ p.Any, {}]
-  }
-
-  get_column: (colname) ->
-    return @data[colname] ? null
-
-  columns: () ->
-    # return the column names in this data source
-    return _.keys(@data)
-
-  get_length: (soft=true) ->
-    lengths = _.uniq((val.length for _key, val of @data))
-
-    switch lengths.length
-      when 0
-        return null # XXX: don't guess, treat on case-by-case basis
-      when 1
-        return lengths[0]
-      else
-        msg = "data source has columns of inconsistent lengths"
-        if soft
-          logger.warn(msg)
-          return lengths.sort()[0]
-        else
-          throw new Error(msg)
 
 
 # Datasource where the data is defined column-wise, i.e. each key in the
