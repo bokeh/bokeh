@@ -7,6 +7,7 @@ mousewheel($)
 
 import {Events} from "./events"
 import {logger} from "./logging"
+import {offset} from "./dom"
 
 export class UIEvents
   _.extend(@prototype, Events)
@@ -42,12 +43,13 @@ export class UIEvents
     @hammer.on('rotate', (e) => @_rotate(e))
     @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    $(@hit_area).mousemove((e) => @_mouse_move(e))
-    $(@hit_area).mouseenter((e) => @_mouse_enter(e))
-    $(@hit_area).mouseleave((e) => @_mouse_exit(e))
+    @hit_area.addEventListener("mousemove", (e) => @_mouse_move(e))
+    @hit_area.addEventListener("mouseenter", (e) => @_mouse_enter(e))
+    @hit_area.addEventListener("mouseleave", (e) => @_mouse_exit(e))
     $(@hit_area).mousewheel((e, delta) => @_mouse_wheel(e, delta))
-    $(document).keydown((e) => @_key_down(e))
-    $(document).keyup((e) => @_key_up(e))
+
+    document.addEventListener("keydown", (e) => @_key_down(e))
+    document.addEventListener("keyup", (e) => @_key_up(e))
 
   register_tool: (tool_view) ->
     et = tool_view.model.event_type
@@ -130,18 +132,14 @@ export class UIEvents
     else
       x = e.pointers[0].pageX
       y = e.pointers[0].pageY
-    offset = $(e.target).offset()
-    left = offset.left ? 0
-    top = offset.top ? 0
+    {left, top} = offset(e.target)
     e.bokeh = {
       sx: x - left
       sy: y - top
     }
 
   _bokify_jq: (e) ->
-    offset = $(e.currentTarget).offset()
-    left = offset.left ? 0
-    top = offset.top ? 0
+    {left, top} = offset(e.currentTarget)
     e.bokeh = {
       sx: e.pageX - left
       sy: e.pageY - top
