@@ -174,7 +174,7 @@ _.extend(View.prototype, Events, {
   // attached to it. Exposed for subclasses using an alternative DOM
   // manipulation API.
   _removeElement: function() {
-    this.$el.remove();
+    this.el.parentNode.removeChild(this.el);
   },
 
   // Change the view's element (`this.el` property) and re-delegate the
