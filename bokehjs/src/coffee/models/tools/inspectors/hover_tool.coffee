@@ -260,23 +260,23 @@ export class HoverToolView extends InspectToolView
           [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
           column = ds.get_column(colname)
           if not column?
-            span = span({}, "#{colname} unknown")
-            cell.appendChild(span)
+            el = span({}, "#{colname} unknown")
+            cell.appendChild(el)
             continue
           hex = opts?.indexOf("hex") >= 0
           swatch = opts?.indexOf("swatch") >= 0
           color = column[i]
           if not color?
-            span = span({}, "(null)")
-            cell.appendChild(span)
+            el = span({}, "(null)")
+            cell.appendChild(el)
             continue
           if hex
             color = _color_to_hex(color)
-          span = span({}, color)
-          cell.appendChild(span)
+          el = span({}, color)
+          cell.appendChild(el)
           if swatch
-            span = span({class: 'bk-tooltip-color-block', style: {backgroundColor: color}}, " ")
-            cell.appendChild(span)
+            el = span({class: 'bk-tooltip-color-block', style: {backgroundColor: color}}, " ")
+            cell.appendChild(el)
         else
           value = value.replace("$~", "$data_")
           el = span()
