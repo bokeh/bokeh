@@ -24,7 +24,7 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
 
       if (attr === "style" && isObject(value)) {
         for (const prop in value) {
-          element.style.setProperty(prop, value[prop])
+          element.style[prop] = value[prop]
         }
         continue
       }
