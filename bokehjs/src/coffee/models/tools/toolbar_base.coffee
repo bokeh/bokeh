@@ -2,6 +2,7 @@ import * as _ from "underscore"
 
 import {logger} from "../../core/logging"
 import {EQ, Variable} from "../../core/layout/solver"
+import {empty} from "../../core/dom"
 import * as p from "../../core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -15,13 +16,15 @@ export class ToolbarBaseView extends LayoutDOMView
   template: toolbar_template
 
   render: () ->
+    empty(@el)
+
     if @model.sizing_mode != 'fixed'
       @el.style.left = @model._dom_left._value
       @el.style.top = @model._dom_top._value
       @el.style.width = @model._width._value
       @el.style.height = @model._height._value
 
-    @$el.html(@template({
+    @el.appendChild(@template({
       logo: @model.logo
       location: @model.toolbar_location
       sticky: if @model.toolbar_sticky then 'sticky' else 'not-sticky'

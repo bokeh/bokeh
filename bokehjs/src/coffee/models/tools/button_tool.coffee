@@ -1,7 +1,7 @@
 import * as _ from "underscore"
 import {BokehView} from "../../core/bokeh_view"
 import {Tool, ToolView} from "./tool"
-import {div, span} from "../../core/dom"
+import {div, span, empty} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class ButtonToolButtonView extends BokehView
@@ -16,10 +16,12 @@ export class ButtonToolButtonView extends BokehView
     @render()
 
   render: () ->
+    empty(@el)
+    @el.disabled = @model.disabled
     icon = div({class: ['bk-btn-icon', @model.icon]})
     tip = span({class: 'bk-tip'}, @model.tooltip)
-    @$el.empty().append([icon, tip])
-    @$el.prop("disabled", @model.disabled)
+    @el.appendChild(icon)
+    @el.appendChild(tip)
 
   _clicked: (e) ->
 
