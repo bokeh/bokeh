@@ -1,5 +1,6 @@
 import * as _ from "underscore"
 import {Model} from "../../model"
+import {empty} from "../../core/dom"
 import * as p from "../../core/properties"
 import {GE, EQ, Strength, Variable} from "../../core/layout/solver"
 
@@ -12,11 +13,11 @@ export class LayoutDOMView extends BokehView
   initialize: (options) ->
     super(options)
     # Provides a hook so document can measure
-    @$el.attr("id", "modelid_#{@model.id}")
-    @$el.addClass("bk-layout-#{@model.sizing_mode}")
+    @el.setAttribute("id", "modelid_#{@model.id}")
+    @el.classList.add("bk-layout-#{@model.sizing_mode}")
     if @model.css_classes?
       for cls in @model.css_classes
-        @$el.addClass(cls)
+        @el.classList.add(cls)
     @child_views = {}
 
     # init_solver = false becuase we only need to init solver on subsequent
@@ -37,7 +38,7 @@ export class LayoutDOMView extends BokehView
     @child_views = {}
     build_views(@child_views, children)
 
-    @$el.empty()
+    empty(@el)
 
     for child in children
       # Look-up the child_view in @child_views and then append We can't just
