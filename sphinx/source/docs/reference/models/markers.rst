@@ -4,5 +4,9 @@ bokeh.models.markers
 --------------------
 
 .. automodule:: bokeh.models.markers
-   :members:
-   :undoc-members:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   markers/*
