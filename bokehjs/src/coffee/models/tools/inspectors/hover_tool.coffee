@@ -28,7 +28,7 @@ export class HoverToolView extends InspectToolView
     for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
 
-    @plot_view.canvas_view.$el.style.cursor = "crosshair"
+    @plot_view.canvas_view.el.style.cursor = "crosshair"
 
   _clear: () ->
 
