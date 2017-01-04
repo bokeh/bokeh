@@ -65,7 +65,15 @@ export const
   ol     = _createElement("ol"),
   li     = _createElement("li");
 
-export function empty(element: HTMLElement) {
+export function show(element: HTMLElement): void {
+  element.style.display = ""
+}
+
+export function hide(element: HTMLElement): void {
+  element.style.display = "none"
+}
+
+export function empty(element: HTMLElement): void {
   let child
   while (child = element.firstChild) {
     element.removeChild(child)
