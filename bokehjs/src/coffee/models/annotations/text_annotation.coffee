@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 
 import {Annotation, AnnotationView} from "./annotation"
+import {show, hide} from "../../core/dom"
 import * as p from "../../core/properties"
 
 import {get_text_height} from "../../core/util/text"
@@ -13,7 +14,7 @@ export class TextAnnotationView extends AnnotationView
     @frame = @plot_model.frame
 
     if @model.render_mode == 'css'
-      @$el.addClass('bk-annotation')
+      @el.classList.add('bk-annotation')
       @plot_view.canvas_overlays.appendChild(@el)
 
   bind_bokeh_events: () ->
@@ -83,7 +84,7 @@ export class TextAnnotationView extends AnnotationView
     ctx.restore()
 
   _css_text: (ctx, text, sx, sy, angle) ->
-    @$el.hide()
+    hide(@el)
 
     @visuals.text.set_value(ctx)
     bbox_dims = @_calculate_bounding_box_dimensions(ctx, text)
@@ -120,8 +121,8 @@ export class TextAnnotationView extends AnnotationView
       @el.style.borderWidth = "#{@visuals.border_line.line_width.value()}"
       @el.style.borderColor = "#{@visuals.border_line.color_value()}"
 
-    @$el.html(text)
-        .show()
+    @el.textContent = text
+    show(@el)
 
 export class TextAnnotation extends Annotation
   type: 'TextAnnotation'

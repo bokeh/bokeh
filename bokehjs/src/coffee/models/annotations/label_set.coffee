@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {div} from "../../core/dom"
+import {div, show} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class LabelSetView extends TextAnnotationView
@@ -17,7 +17,7 @@ export class LabelSetView extends TextAnnotationView
     if @model.render_mode == 'css'
       for i in [0...@_text.length]
         @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
-        @title_div.appendTo(@$el)
+        @el.append(@title_div)
 
   bind_bokeh_events: () ->
     if @model.render_mode == 'css'
@@ -106,9 +106,8 @@ export class LabelSetView extends TextAnnotationView
     ctx.restore()
 
   _v_css_text: (ctx, i, text, sx, sy, angle) ->
-    $el = @$el.children().eq(i)
-    $el.html(text)
-    el = $el[0]
+    el = @el.childNodes[i]
+    el.textContent = text
 
     @visuals.text.set_vectorize(ctx, i)
     bbox_dims = @_calculate_bounding_box_dimensions(ctx, text)
@@ -142,7 +141,7 @@ export class LabelSetView extends TextAnnotationView
       el.style.borderWidth = "#{@visuals.border_line.line_width.value()}"
       el.style.borderColor = "#{@visuals.border_line.color_value()}"
 
-    $el.show()
+    show(el)
 
 export class LabelSet extends TextAnnotation
   default_view: LabelSetView

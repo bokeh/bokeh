@@ -1,14 +1,15 @@
 import * as _ from "underscore"
 
 import {Annotation, AnnotationView} from "./annotation"
+import {show, hide} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class BoxAnnotationView extends AnnotationView
   initialize: (options) ->
     super(options)
     @plot_view.canvas_overlays.appendChild(@el)
-    @$el.addClass('bk-shading')
-    @$el.hide()
+    @el.classList.add("bk-shading")
+    hide(@el)
 
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent
@@ -24,7 +25,7 @@ export class BoxAnnotationView extends AnnotationView
   render: () ->
     # don't render if *all* position are null
     if not @model.left? and not @model.right? and not @model.top? and not @model.bottom?
-      @$el.hide()
+      hide(@el)
       return null
 
     @frame = @plot_model.frame
@@ -62,7 +63,7 @@ export class BoxAnnotationView extends AnnotationView
     if _.isString(ld)
       @el.style.borderStyle = ld
 
-    @$el.show()
+    show(@el)
 
   _canvas_box: (sleft, sright, sbottom, stop) ->
     ctx = @plot_view.canvas_view.ctx
