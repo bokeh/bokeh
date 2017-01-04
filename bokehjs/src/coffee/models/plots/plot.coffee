@@ -33,10 +33,10 @@ export class PlotView extends LayoutDOMView
       s.suggest_value(@model._width, width)
       s.suggest_value(@model._height, height)
       @el.style.position = 'absolute'
-      @el.style.left = @model._dom_left._value
-      @el.style.top = @model._dom_top._value
-      @el.style.width = @model._width.value()
-      @el.style.height = @model._height.value()
+      @el.style.left = "#{@model._dom_left._value}px"
+      @el.style.top = "#{@model._dom_top._value}px"
+      @el.style.width = "#{@model._width.value()}px"
+      @el.style.height = "#{@model._height.value()}px"
 
   get_width_height: () ->
       parent_height = @el.parentNode.clientHeight

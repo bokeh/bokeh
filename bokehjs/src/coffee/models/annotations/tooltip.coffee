@@ -94,8 +94,8 @@ export class TooltipView extends AnnotationView
     # two hits, not colocated and one is off the screen, that can
     # be problematic
     if @el.childNodes.length > 0
-      @el.style.top = top
-      @el.style.left = left
+      @el.style.top = "#{top}px"
+      @el.style.left = "#{left}px"
       show(@el)
 
 export class Tooltip extends Annotation

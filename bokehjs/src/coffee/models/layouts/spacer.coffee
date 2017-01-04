@@ -9,8 +9,8 @@ export class SpacerView extends LayoutDOMView
   render: () ->
     super()
     if @sizing_mode is 'fixed'
-      @el.style.width = @model.width
-      @el.style.height = @model.height
+      @el.style.width = "#{@model.width}px"
+      @el.style.height = "#{@model.height}px"
 
   get_height: () ->
     # spacer must always have some height

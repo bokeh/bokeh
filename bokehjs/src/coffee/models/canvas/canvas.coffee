@@ -60,14 +60,14 @@ export class CanvasView extends BokehView
     # only resize the canvas when the canvas dimensions change unless force==true
     if not _.isEqual(@last_dims, [width, height, dpr]) or force
 
-      @el.style.width = width
-      @el.style.height = height
+      @el.style.width = "#{width}px"
+      @el.style.height = "#{height}px"
 
       # Scale the canvas (this resets the context's state)
       @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
       canvas_el = @get_canvas_element()
-      canvas_el.style.width = width
-      canvas_el.style.height = height
+      canvas_el.style.width = "#{width}px"
+      canvas_el.style.height = "#{height}px"
       canvas_el.setAttribute('width', width*ratio)
       canvas_el.setAttribute('height', height*ratio)
 

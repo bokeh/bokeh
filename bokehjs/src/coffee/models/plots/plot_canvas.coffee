@@ -578,10 +578,10 @@ export class PlotCanvasView extends BokehView
 
     # This allows the plot canvas to be positioned around the toolbar
     @el.style.position = 'absolute'
-    @el.style.left = @model._dom_left._value
-    @el.style.top = @model._dom_top._value
-    @el.style.width = @model._width._value
-    @el.style.height = @model._height._value
+    @el.style.left = "#{@model._dom_left._value}px"
+    @el.style.top = "#{@model._dom_top._value}px"
+    @el.style.width = "#{@model._width._value}px"
+    @el.style.height = "#{@model._height._value}px"
 
   update_constraints: () ->
     s = @model.document.solver()

@@ -51,8 +51,8 @@ export class SpanView extends AnnotationView
       height = frame.height
 
     if @model.render_mode == "css"
-      @el.style.top = stop
-      @el.style.left = sleft
+      @el.style.top = "#{stop}px"
+      @el.style.left = "#{sleft}px"
       @el.style.width = "#{width}px"
       @el.style.height = "#{height}px"
       @el.style.zIndex = 1000
