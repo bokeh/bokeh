@@ -2,7 +2,8 @@ from __future__ import absolute_import, print_function
 
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
-from bokeh.models import GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
+from bokeh.layouts import gridplot
+from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
 from bokeh.models.glyphs import Text, Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -48,11 +49,11 @@ def make_calendar(year, month, firstweekday="Mon"):
     xdr = FactorRange(factors=list(day_names))
     ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
 
-    plot = Plot(title=month_names[month], x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
-    plot.title_text_align = "left"
-    plot.title_text_font_size = "12pt"
-    plot.title_text_color = "darkolivegreen"
-    plot.title_standoff = 25
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
+    plot.title.text = month_names[month]
+    plot.title.text_font_size = "12pt"
+    plot.title.text_color = "darkolivegreen"
+    plot.title.offset = 25
     plot.min_border_left = 0
     plot.min_border_bottom = 5
 
@@ -78,12 +79,13 @@ def make_calendar(year, month, firstweekday="Mon"):
     return plot
 
 months = [ [ make_calendar(2014, 3*i + j + 1) for j in range(3) ] for i in range(4) ]
-grid = GridPlot(toolbar_location=None, children=months)
+grid = gridplot(toolbar_location=None, children=months)
 
 doc = Document()
 doc.add_root(grid)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "calendars.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Calendar 2014"))

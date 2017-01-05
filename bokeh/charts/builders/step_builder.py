@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the Line class which lets you build your Line charts just
+This is the Step class which lets you build your Step charts just
 passing the arguments to the Chart class and calling the proper functions.
 """
 # -----------------------------------------------------------------------------

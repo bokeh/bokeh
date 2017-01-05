@@ -1,15 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-bokehgl = require "./bokehgl"
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class CircleView extends Glyph.View
-
-  _init_gl: (gl) ->
-    # This is how you enable gl for a glyph
-    @glglyph = new bokehgl.CircleGLGlyph(gl, this)
+export class CircleView extends GlyphView
 
   _index_data: () ->
     return @_xy_index()
@@ -28,34 +23,34 @@ class CircleView extends Glyph.View
       @sradius = (s/2 for s in @_size)
 
   _mask_data: (all_indices) ->
-    hr = @renderer.plot_view.frame.get('h_range')
-    vr = @renderer.plot_view.frame.get('v_range')
+    hr = @renderer.plot_view.frame.h_range
+    vr = @renderer.plot_view.frame.v_range
 
     # check for radius first
     if @_radius? and @model.properties.radius.units == "data"
-      sx0 = hr.get('start')
-      sx1 = hr.get('end')
+      sx0 = hr.start
+      sx1 = hr.end
       [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
       x0 -= @max_radius
       x1 += @max_radius
 
-      sy0 = vr.get('start')
-      sy1 = vr.get('end')
+      sy0 = vr.start
+      sy1 = vr.end
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
       y0 -= @max_radius
       y1 += @max_radius
 
     else
-      sx0 = hr.get('start') - @max_size
-      sx1 = hr.get('end') + @max_size
+      sx0 = hr.start - @max_size
+      sx1 = hr.end + @max_size
       [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
 
-      sy0 = vr.get('start') - @max_size
-      sy1 = vr.get('end') + @max_size
+      sy0 = vr.start - @max_size
+      sy1 = vr.end + @max_size
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
 
@@ -99,7 +94,7 @@ class CircleView extends Glyph.View
       [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (pt[4].i for pt in @index.search(bbox))
+    candidates = (pt.i for pt in @index.search(bbox))
 
     hits = []
     if @_radius? and @model.properties.radius.units == "data"
@@ -131,13 +126,13 @@ class CircleView extends Glyph.View
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      [xb, yb] = this.bounds()
+      {minX, minY, maxX, maxY} = this.bounds()
       result = hittest.create_hit_test_result()
 
       if geometry.direction == 'h'
         # use circle bounds instead of current pointer y coordinates
-        y0 = yb[0]
-        y1 = yb[1]
+        y0 = minY
+        y1 = maxY
         if @_radius? and @model.properties.radius.units == "data"
           vx0 = vx - @max_radius
           vx1 = vx + @max_radius
@@ -149,8 +144,8 @@ class CircleView extends Glyph.View
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
       else
         # use circle bounds instead of current pointer x coordinates
-        x0 = xb[0]
-        x1 = xb[1]
+        x0 = minX
+        x1 = maxX
         if @_radius? and @model.properties.radius.units == "data"
           vy0 = vy - @max_radius
           vy1 = vy + @max_radius
@@ -162,7 +157,7 @@ class CircleView extends Glyph.View
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
       bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      hits = (xx[4].i for xx in @index.search(bbox))
+      hits = (xx.i for xx in @index.search(bbox))
 
       result['1d'].indices = hits
       return result
@@ -172,11 +167,11 @@ class CircleView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search(bbox))
+    result['1d'].indices = (x.i for x in @index.search(bbox))
     return result
 
   _hit_poly: (geometry) ->
-    [vx, vy] = [_.clone(geometry.vx), _.clone(geometry.vy)]
+    [vx, vy] = [geometry.vx, geometry.vy]
     sx = @renderer.plot_view.canvas.v_vx_to_sx(vx)
     sy = @renderer.plot_view.canvas.v_vy_to_sy(vy)
 
@@ -195,23 +190,21 @@ class CircleView extends Glyph.View
 
   # circle does not inherit from marker (since it also accepts radius) so we
   # must supply a draw_legend for it  here
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     # using objects like this seems a little wonky, since the keys are coerced to
     # stings, but it works
-    indices = [reference_point]
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
     sradius = { }
-    sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
+    sradius[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
 
     data = {sx: sx, sy: sy, sradius: sradius}
     @_render(ctx, indices, data)
 
-class Circle extends Glyph.Model # XXX: Marker.Model
+export class Circle extends Glyph # XXX: Marker
   default_view: CircleView
 
   type: 'Circle'
@@ -228,7 +221,3 @@ class Circle extends Glyph.Model # XXX: Marker.Model
   initialize: (attrs, options) ->
     super(attrs, options)
     @properties.radius.optional = true
-
-module.exports =
-  Model: Circle
-  View: CircleView

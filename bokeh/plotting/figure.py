@@ -3,19 +3,90 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-from ..io import curdoc, curstate
-from ..models import Axis, Grid, Legend, Plot
-from ..models import glyphs, markers
-from .helpers import (
-    _list_attr_splat, _get_range, _process_axis_and_grid,
-    _process_tools_arg, _glyph_function
-)
+from six import string_types
 
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+from ..core.properties import Auto, Either, Enum, Float, Int, Seq, Instance, String, Tuple
+from ..core.enums import HorizontalLocation, VerticalLocation
+from ..models import Plot
+from ..models.annotations import Title
+from ..models.ranges import Range
+from ..models.tools import Tool
+from ..models import glyphs, markers
+from ..util.options import Options
+from ..util._plot_arg_helpers import _convert_responsive
+from .helpers import _get_range, _process_axis_and_grid, _process_tools_arg, _glyph_function, _process_active_tools
+
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
+
+
+class FigureOptions(Options):
+
+    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    Tools the plot should start with.
+    """)
+
+    x_range = Either(Tuple(Float, Float), Seq(String), Instance(Range), help="""
+    Customize the x-range of the plot.
+    """)
+
+    y_range = Either(Tuple(Float, Float), Seq(String), Instance(Range), help="""
+    Customize the x-range of the plot.
+    """)
+
+    x_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent x-axis major ticks.
+    """)
+
+    y_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent y-axis major ticks.
+    """)
+
+    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    Where the x-axis should be located.
+    """)
+
+    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    Where the y-axis should be located.
+    """)
+
+    x_axis_label = String(default="", help="""
+    A label for the x-axis.
+    """)
+
+    y_axis_label = String(default="", help="""
+    A label for the y-axis.
+    """)
+
+    active_drag = Either(Auto, String, Instance(Tool), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_scroll = Either(Auto, String, Instance(Tool), default="auto", help="""
+    Which scroll tool should initially be active.
+    """)
+
+    active_tap = Either(Auto, String, Instance(Tool), default="auto", help="""
+    Which tap tool should initially be active.
+    """)
+
+    x_axis_type = Either(Auto, Enum("linear", "log", "datetime"), default="auto", help="""
+    The type of the x-axis.
+    """)
+
+    y_axis_type = Either(Auto, Enum("linear", "log", "datetime"), default="auto", help="""
+    The type of the y-axis.
+    """)
 
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
+
+    In addition to all the Bokeh model property attributes documented below,
+    the ``Figure`` initializer also accepts the following options, which can
+    help simplify configuration:
+
+    .. bokeh-options:: FigureOptions
+        :module: bokeh.plotting.figure
 
     '''
 
@@ -24,96 +95,23 @@ class Figure(Plot):
 
     def __init__(self, *arg, **kw):
 
-        tools = kw.pop("tools", DEFAULT_TOOLS)
+        opts = FigureOptions(kw)
 
-        x_range = kw.pop("x_range", None)
-        y_range = kw.pop("y_range", None)
-
-        x_axis_type = kw.pop("x_axis_type", "auto")
-        y_axis_type = kw.pop("y_axis_type", "auto")
-
-        x_minor_ticks = kw.pop('x_minor_ticks', 'auto')
-        y_minor_ticks = kw.pop('y_minor_ticks', 'auto')
-
-        x_axis_location = kw.pop("x_axis_location", "below")
-        y_axis_location = kw.pop("y_axis_location", "left")
-
-        x_axis_label = kw.pop("x_axis_label", "")
-        y_axis_label = kw.pop("y_axis_label", "")
+        title = kw.get("title", None)
+        if isinstance(title, string_types):
+            kw['title'] = Title(text=title)
 
         super(Figure, self).__init__(*arg, **kw)
 
-        self.x_range = _get_range(x_range)
-        self.y_range = _get_range(y_range)
+        self.x_range = _get_range(opts.x_range)
+        self.y_range = _get_range(opts.y_range)
 
-        _process_axis_and_grid(self, x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, self.x_range, 0)
-        _process_axis_and_grid(self, y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, self.y_range, 1)
+        _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
+        _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
 
-        tool_objs = _process_tools_arg(self, tools)
+        tool_objs, tool_map = _process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
-
-    def _axis(self, *sides):
-        objs = []
-        for s in sides:
-            objs.extend(getattr(self, s, []))
-        axis = [obj for obj in objs if isinstance(obj, Axis)]
-        return _list_attr_splat(axis)
-
-    @property
-    def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
-
-        """
-        return self._axis("above", "below")
-
-    @property
-    def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
-
-        """
-        return self._axis("left", "right")
-
-    @property
-    def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
-
-        """
-        return _list_attr_splat(self.xaxis + self.yaxis)
-
-    @property
-    def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
-
-        """
-        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
-        return _list_attr_splat(legends)
-
-    def _grid(self, dimension):
-        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
-        return _list_attr_splat(grid)
-
-    @property
-    def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
-
-        """
-        return self._grid(0)
-
-    @property
-    def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
-
-        """
-        return self._grid(1)
-
-    @property
-    def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
-
-        """
-        return _list_attr_splat(self.xgrid + self.ygrid)
-
-
+        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_scroll, opts.active_tap)
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
@@ -251,7 +249,43 @@ Examples:
 
 """)
 
-    image = _glyph_function(glyphs.Image)
+    hbar = _glyph_function(glyphs.HBar, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
+
+        show(plot)
+""")
+
+    ellipse = _glyph_function(glyphs.Ellipse, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
+                     color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
+    image = _glyph_function(glyphs.Image, """
+.. note::
+    If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+    exception will be raised. If neither is passed, then the ``Greys9``
+    palette will be used as a default.
+
+""")
 
     image_rgba = _glyph_function(glyphs.ImageRGBA, """
 .. note::
@@ -503,6 +537,21 @@ Examples:
 
 """)
 
+    vbar = _glyph_function(glyphs.VBar, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.vbar(x=[1, 2, 3], width=0.5, bottom=0, top=[1,2,3], color="#CAB2D6")
+
+        show(plot)
+
+""")
+
     wedge = _glyph_function(glyphs.Wedge, """
 Examples:
 
@@ -544,7 +593,8 @@ Examples:
             marker (str, optional): a valid marker_type, defaults to "circle"
             color (color value, optional): shorthand to set both fill and line color
             source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
-                If none is supplied, one is created for the user automatically.
+                An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
+                if needed. If none is supplied, one is created for the user automatically.
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
 
         Examples:
@@ -573,26 +623,36 @@ Examples:
 
 
 def figure(**kwargs):
-    ''' Create a new :class:`~bokeh.plotting.Figure` for plotting, and add it to
-    the current document.
+    ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
+
+    In addition to the standard :class:`~bokeh.plotting.figure.Figure`
+    property values (e.g. ``plot_width`` or ``sizing_mode``) the following
+    additional options can be passed as well:
+
+    .. bokeh-options:: FigureOptions
+        :module: bokeh.plotting.figure
 
     Returns:
        Figure
 
     '''
+
     if 'plot_width' in kwargs and 'width' in kwargs:
-        raise ValueError("figure() called but both plot_width and width supplied, supply only one")
+        raise ValueError("figure() called with both 'plot_width' and 'width' supplied, supply only one")
     if 'plot_height' in kwargs and 'height' in kwargs:
-        raise ValueError("figure() called but both plot_height and height supplied, supply only one")
+        raise ValueError("figure() called with both 'plot_height' and 'height' supplied, supply only one")
     if 'height' in kwargs:
         kwargs['plot_height'] = kwargs.pop('height')
     if 'width' in kwargs:
         kwargs['plot_width'] = kwargs.pop('width')
 
+    if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+        raise ValueError("figure() called with both 'responsive' and 'sizing_mode' supplied, supply only one")
+    if 'responsive' in kwargs:
+        kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
+        del kwargs['responsive']
+
     fig = Figure(**kwargs)
-    curdoc()._current_plot = fig # TODO (havocp) store this on state, not doc?
-    if curstate().autoadd:
-        curdoc().add_root(fig)
     return fig
 
 

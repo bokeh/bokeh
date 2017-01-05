@@ -20,6 +20,10 @@ gulp.task "test:document", ->
   gulp.src ["./test", "./test/document.coffee"], read: false
     .pipe mocha()
 
+gulp.task "test:model", ->
+  gulp.src ["./test", "./test/model.coffee"], read: false
+    .pipe mocha()
+
 gulp.task "test:models", ->
   gulp.src ["./test", "./test/models"], read: false
     .pipe mocha()
@@ -28,11 +32,12 @@ gulp.task "test:utils", ->
   gulp.src ["./test", "./test/utils.coffee"], read: false
     .pipe mocha()
 
-gulp.task "test:test_common", ["defaults:generate"], ->
-  gulp.src ["./test", "./test/test_common"], read: false
+gulp.task "test:common", ["defaults:generate"], ->
+  gulp.src ["./test", "./test/common"], read: false
+    .pipe mocha()
+
+gulp.task "test:size", ->
+  gulp.src ["./test", "./test/size.coffee"], read: false
     .pipe mocha()
 
 utils.buildWatchTask "test", paths.test.watchSources
-
-
-# require "./test_common"

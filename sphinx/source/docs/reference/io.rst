@@ -1,8 +1,7 @@
-
 .. _bokeh.io:
 
-``bokeh.io``
-============
+bokeh.io
+========
 
 .. automodule:: bokeh.io
   :members:

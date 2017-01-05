@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5"
+  },
+  "files": [
+    "../../src/coffee/api/typings.d.ts",
+    "charts.ts"
+  ]
+}

@@ -1,22 +1,28 @@
-_ = require "underscore"
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-class MarkupView extends BokehView
+import {Widget, WidgetView} from "./widget"
+import template from "./markup_template"
+
+
+export class MarkupView extends WidgetView
+  template: template
+
   initialize: (options) ->
     super(options)
     @render()
     @listenTo(@model, 'change', @render)
 
   render: () ->
-    if @mget('height')
-      @$el.height(@mget('height'))
-    if @mget('width')
-      @$el.width(@mget('width'))
+    super()
+    @$el.empty()
+    @$el.html(@template())
+    if @model.height
+      @$el.height(@model.height)
+    if @model.width
+      @$el.width(@model.width)
 
 
-class Markup extends Widget.Model
+export class Markup extends Widget
   type: "Markup"
 
   initialize: (options) ->
@@ -24,14 +30,4 @@ class Markup extends Widget.Model
 
   @define {
     text: [ p.String, '' ]
-    width: [ p.Number, 500]
-    height: [ p.Number, 400]
   }
-
-module.exports =
-  Model: Markup
-  View: MarkupView
-
-
-
-

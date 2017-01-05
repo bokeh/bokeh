@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class AnnulusView extends Glyph.View
+export class AnnulusView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -71,7 +71,7 @@ class AnnulusView extends Glyph.View
     hits = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt[4].i for pt in @index.search(bbox))
+    for i in (pt.i for pt in @index.search(bbox))
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x)
@@ -89,26 +89,24 @@ class AnnulusView extends Glyph.View
       .value()
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
-    indices = [reference_point]
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
 
     r = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.5
     sinner_radius = { }
-    sinner_radius[reference_point] = r*0.4
+    sinner_radius[index] = r*0.4
     souter_radius = { }
-    souter_radius[reference_point] = r*0.8
+    souter_radius[index] = r*0.8
 
     data = {sx: sx, sy: sy, sinner_radius: sinner_radius, souter_radius: souter_radius}
 
     @_render(ctx, indices, data)
 
-class Annulus extends Glyph.Model
+export class Annulus extends Glyph
   default_view: AnnulusView
 
   type: 'Annulus'
@@ -119,7 +117,3 @@ class Annulus extends Glyph.Model
       inner_radius: [ p.DistanceSpec ]
       outer_radius: [ p.DistanceSpec ]
     }
-
-module.exports =
-  Model: Annulus
-  View: AnnulusView

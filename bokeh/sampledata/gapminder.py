@@ -30,7 +30,7 @@ for dataset in datasets:
         setattr(
             sys.modules[__name__],
             dataset,
-            pd.read_csv(filename, index_col='Country')
+            pd.read_csv(filename, index_col='Country', encoding='utf-8')
         )
     except (IOError, OSError):
         raise RuntimeError('Could not load gapminder data file "%s". Please execute bokeh.sampledata.download()' % filename)

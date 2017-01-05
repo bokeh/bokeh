@@ -1,8 +1,6 @@
-_ = require "underscore"
-Backbone = require "backbone"
-kiwi = require "kiwi"
-
-{Variable, Expression, Constraint, Operator, Strength} = kiwi
+import * as _ from "underscore"
+import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
+import {Events} from "../events"
 
 _constrainer = (op) ->
   () =>
@@ -10,13 +8,39 @@ _constrainer = (op) ->
     Expression.apply(expr, arguments)
     return new Constraint(expr, op)
 
-class Solver
+_weak_constrainer = (op) ->
+  () ->
+    args = [null]
+    for arg in arguments
+      args.push(arg)
+    new Constraint( new (Function.prototype.bind.apply(Expression, args)), op, Strength.weak )
+
+export {Variable, Expression, Constraint, Operator, Strength}
+
+export EQ = _constrainer(Operator.Eq)
+export LE = _constrainer(Operator.Le)
+export GE = _constrainer(Operator.Ge)
+
+export WEAK_EQ = _weak_constrainer(Operator.Eq)
+export WEAK_LE = _weak_constrainer(Operator.Le)
+export WEAK_GE = _weak_constrainer(Operator.Ge)
+
+export class Solver
+  _.extend(@prototype, Events)
 
   constructor: () ->
-    @num_constraints = 0
-    @solver = new kiwi.Solver()
+    @solver = new ConstraintSolver()
 
-  toString: () -> "Solver[num_constraints=#{@num_constraints}]"
+  clear: () ->
+    @solver = new ConstraintSolver()
+
+  toString: () -> "Solver[num_constraints=#{@num_constraints()}, num_edit_variables=#{@num_edit_variables()}]"
+
+  num_constraints: () ->
+    @solver._cnMap._array.length
+
+  num_edit_variables: () ->
+    @solver._editMap._array.length
 
   update_variables: (trigger=true) ->
     @solver.updateVariables()
@@ -24,36 +48,16 @@ class Solver
       @trigger('layout_update')
 
   add_constraint: (constraint) ->
-    @num_constraints += 1
     @solver.addConstraint(constraint)
 
   remove_constraint: (constraint) ->
-    @num_constraints -= 1
     @solver.removeConstraint(constraint)
 
-  add_edit_variable: (variable, strength=Strength.strong) ->
-    @num_constraints += 1
+  add_edit_variable: (variable, strength) ->
     @solver.addEditVariable(variable, strength)
 
   remove_edit_variable: (variable) ->
-    @num_constraints -= 1
     @solver.removeEditVariable(variable, strength)
 
   suggest_value: (variable, value) ->
     @solver.suggestValue(variable, value)
-
-_.extend(Solver.prototype, Backbone.Events)
-
-module.exports =
-
-  Variable: Variable
-  Expression: Expression
-  Constraint: Constraint
-  Operator: Operator
-  Strength: Strength
-
-  EQ: _constrainer(Operator.Eq)
-  LE: _constrainer(Operator.Le)
-  GE: _constrainer(Operator.Ge)
-
-  Solver: Solver

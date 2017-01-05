@@ -1,10 +1,7 @@
-TickFormatter = require "../formatters/tick_formatter"
+import {TickFormatter} from "../formatters/tick_formatter"
 
-class CategoricalTickFormatter extends TickFormatter.Model
+export class CategoricalTickFormatter extends TickFormatter
   type: 'CategoricalTickFormatter'
 
   doFormat: (ticks) ->
     return ticks
-
-module.exports =
-  Model: CategoricalTickFormatter

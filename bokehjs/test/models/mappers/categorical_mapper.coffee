@@ -2,9 +2,9 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 
-CategoricalMapper = utils.require("models/mappers/categorical_mapper").Model
-FactorRange = utils.require("models/ranges/factor_range").Model
-Range1d = utils.require("models/ranges/range1d").Model
+{CategoricalMapper} = utils.require("models/mappers/categorical_mapper")
+{FactorRange} = utils.require("models/ranges/factor_range")
+{Range1d} = utils.require("models/ranges/range1d")
 
 close = (a, b) -> Math.abs(a-b)<10e-7
 
@@ -161,7 +161,7 @@ describe "categorical mapper module", ->
   describe "source updates", ->
     new_factors = ['a', 'b', 'c', 'd']
     mapper = generate_mapper()
-    mapper.get('source_range').set('factors', new_factors)
+    mapper.source_range.factors = new_factors
 
     test_mapping = (key, expected) ->
       expect(mapper.map_to_target key).to.equal expected
@@ -249,6 +249,3 @@ describe "categorical mapper module", ->
 
       values = generate_mapper(-1).v_map_to_target ['baz:0.3', 'baz:0.7']
       expect(values).to.deep.equal new Float64Array [66, 74]
-
-
-

@@ -1,21 +1,20 @@
-""" CollisionModifiers and DataOperators used to specify Chart manipulations.
+''' CollisionModifiers and DataOperators used to specify Chart manipulations.
 
 The general approach for these operations is to use a class for modeling the
 operation, which is lazy evaluated, and doesn't require the data on initialization.
 
 An associated, user-facing function is provided for a more friendly interface.
-"""
-
+'''
 from __future__ import absolute_import
 
 from copy import copy
 
-from bokeh.core.properties import Override, String, List, Instance
+from bokeh.core.properties import Instance, List, Override, String
+
 from .data_source import DataOperator
 from .models import CollisionModifier
 from .properties import ColumnLabel
-from .stats import Stat, Count, stats
-
+from .stats import Count, Stat, stats
 
 class Stack(CollisionModifier):
     """Cumulates elements in the order of grouped values.
@@ -142,7 +141,7 @@ def stack(*comp_glyphs, **kwargs):
 
     Args:
         *comp_glyphs (:class:`CompositeGlyph`): a sequence of glyphs to stack
-         
+
     Returns:
         comp_glyphs: a list of composite glyphs
 

@@ -19,20 +19,36 @@ from warnings import warn
 from six import string_types
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
+    AUTOLOAD_JS, AUTOLOAD_NB_JS, AUTOLOAD_TAG,
+    FILE, NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from .model import Model, _ModelInDocument
+from .model import Model, _ModelInDocument, _ModelInEmptyDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 from .util.serialization import make_id
+from .util.deprecation import deprecated
 
-def _wrap_in_function(code):
-    # indent and wrap Bokeh function def around
-    code = "\n".join(["    " + line for line in code.split("\n")])
-    return 'Bokeh.$(function() {\n%s\n});' % code
+def _indent(text, n=2):
+    return "\n".join([ " "*n + line for line in text.split("\n") ])
+
+def _wrap_in_safely(code):
+    return """\
+Bokeh.safely(function() {
+%(code)s
+});""" % dict(code=_indent(code, 2))
+
+def _wrap_in_onload(code):
+    return """\
+(function() {
+  var fn = function() {
+%(code)s
+  };
+  if (document.readyState != "loading") fn();
+  else document.addEventListener("DOMContentLoaded", fn);
+})();
+""" % dict(code=_indent(code, 4))
 
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
@@ -105,9 +121,8 @@ def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
 
     '''
     if resources is not None:
-        warn('Because the ``resources`` argument is no longer needed, '
-             'it is deprecated and no longer has any effect',
-             DeprecationWarning, stacklevel=2)
+        deprecated('Because the ``resources`` argument is no longer needed, '
+                   'it is deprecated and no longer has any effect.')
 
     # 1) Convert single items and dicts into list
 
@@ -165,22 +180,6 @@ def _use_widgets(objs):
     else:
         return False
 
-def _use_compiler(objs):
-    from .models.callbacks import CustomJS
-
-    def _needs_compiler(obj):
-        return hasattr(obj, "__implementation__") or (isinstance(obj, CustomJS) and obj.lang == "coffeescript")
-
-    for obj in objs:
-        if isinstance(obj, Document):
-            if _use_compiler(obj.roots):
-                return True
-        else:
-            if any(_needs_compiler(ref) for ref in obj.references()):
-                return True
-    else:
-        return False
-
 def _bundle_for_objs_and_resources(objs, resources):
     if isinstance(resources, BaseResources):
         js_resources = css_resources = resources
@@ -199,14 +198,11 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets =  _use_widgets(objs) if objs else True
-    use_compiler = _use_compiler(objs) if objs else True
 
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.components:
             js_resources.components.remove("bokeh-widgets")
-        if not use_compiler and "bokeh-compiler" in js_resources.components:
-            js_resources.components.remove("bokeh-compiler")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None
@@ -215,13 +211,12 @@ def _bundle_for_objs_and_resources(objs, resources):
         css_resources = deepcopy(css_resources)
         if not use_widgets and "bokeh-widgets" in css_resources.components:
             css_resources.components.remove("bokeh-widgets")
-        if not use_compiler and "bokeh-compiler" in css_resources.components:
-            css_resources.components.remove("bokeh-compiler")
         bokeh_css = css_resources.render_css()
     else:
         bokeh_css = None
 
     return bokeh_js, bokeh_css
+
 
 def notebook_div(model, notebook_comms_target=None):
     ''' Return HTML for a div that will display a Bokeh plot in an
@@ -245,21 +240,28 @@ def notebook_div(model, notebook_comms_target=None):
     '''
     model = _check_one_model(model)
 
-    with _ModelInDocument(model):
+    with _ModelInEmptyDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
-    item['notebook_comms_target'] = notebook_comms_target
+    if notebook_comms_target:
+        item['notebook_comms_target'] = notebook_comms_target
+    else:
+        notebook_comms_target = ''
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    script = _wrap_in_onload(DOC_JS.render(
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
+    ))
     resources = EMPTY
 
-    js = AUTOLOAD_JS.render(
+    js = AUTOLOAD_NB_JS.render(
+        comms_target=notebook_comms_target,
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
-        elementid = item['elementid'],
+        elementid = item['elementid']
     )
     div = _div_for_render_item(item)
 
@@ -341,13 +343,13 @@ def autoload_static(model, resources, script_path):
     script = _script_for_render_items(docs_json, render_items, wrap_script=False)
     item = render_items[0]
 
-    js = AUTOLOAD_JS.render(
+    js = _wrap_in_onload(AUTOLOAD_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
         css_raw = resources.css_raw_str,
         elementid = item['elementid'],
-    )
+    ))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
@@ -400,10 +402,14 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
 
-    .. note:: It is a very bad idea to use the same ``session_id``
-        for every page load; you are likely to create scalability
-        and security problems. So ``autoload_server()`` should be
-        called again on each page load.
+    .. note::
+        Bokeh apps embedded using ``autoload_server`` will NOT set the browser
+        window title.
+
+    .. warning::
+        It is a very bad idea to use the same ``session_id`` for every page
+        load; you are likely to create scalability and security problems. So
+        ``autoload_server()`` should be called again on each page load.
 
     '''
 
@@ -442,11 +448,11 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
-    plot_js = _wrap_in_function(DOC_JS.render(
+    plot_js = _wrap_in_onload(_wrap_in_safely(DOC_JS.render(
         websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items)
-    ))
+        render_items=serialize_json(render_items),
+    )))
 
     if wrap_script:
         return SCRIPT_TAG.render(js_code=plot_js)
@@ -610,7 +616,8 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
     bundle = _bundle_for_objs_and_resources(None, resources)
     return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
 
-def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE):
+def server_html_page_for_session(session_id, resources, title, websocket_url, template=FILE,
+                                 template_variables=None):
     elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
@@ -619,5 +626,9 @@ def server_html_page_for_session(session_id, resources, title, websocket_url, te
         # no 'modelid' implies the entire session document
     }]
 
+    if template_variables is None:
+        template_variables = {}
+
     bundle = _bundle_for_objs_and_resources(None, resources)
-    return _html_page_for_render_items(bundle, {}, render_items, title, template=template, websocket_url=websocket_url)
+    return _html_page_for_render_items(bundle, {}, render_items, title, template=template,
+            websocket_url=websocket_url, template_variables=template_variables)

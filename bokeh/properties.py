@@ -1,6 +1,5 @@
-
-from bokeh.util.deprecate import deprecated_module
-deprecated_module('bokeh.properties', '0.11', 'use bokeh.core.properties instead')
-del deprecated_module
+from bokeh.util.deprecation import deprecated
+deprecated((0, 11, 0), 'bokeh.properties', 'bokeh.core.properties')
+del deprecated
 
 from .core.properties import * # NOQA

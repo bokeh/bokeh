@@ -1,168 +1,58 @@
-_ = require "underscore"
-$ = require "jquery"
+import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import * as p from "../../core/properties"
 
-Annotation = require "./annotation"
-ColumnDataSource = require "../sources/column_data_source"
-Renderer = require "../renderers/renderer"
-p = require "../../core/properties"
-
-class LabelView extends Renderer.View
+export class LabelView extends TextAnnotationView
   initialize: (options) ->
     super(options)
-    if not @mget('source')?
-      this.mset('source', new ColumnDataSource.Model())
-    @canvas = @plot_model.get('canvas')
-    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
-    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
-    @set_data()
+    @canvas = @plot_model.canvas
+    @xmapper = @plot_view.frame.x_mappers[@model.x_range_name]
+    @ymapper = @plot_view.frame.y_mappers[@model.y_range_name]
 
-  bind_bokeh_events: () ->
-    if @mget('render_mode') == 'css'
-      # dispatch CSS update immediately
-      @listenTo(@model, 'change', @render)
-      @listenTo(@mget('source'), 'change', () ->
-        @set_data()
-        @render())
-    else
-      @listenTo(@model, 'change', @plot_view.request_render)
-      @listenTo(@mget('source'), 'change', () ->
-        @set_data()
-        @plot_view.request_render())
+    @visuals.warm_cache(null)
 
-  set_data: () ->
-    super(@mget('source'))
-    @set_visuals(@mget('source'))
-
-  _set_data: () ->
-    @label_div = ($("<div>").addClass('label').hide() for i in @_text)
-    @width = (null for i in @_text)
-    @height = (null for i in @_text)
-    @x_shift = (null for i in @_text)
-    @y_shift = (null for i in @_text)
-
-    ld = @mget("border_line_dash")
-    if _.isArray(ld)
-      if ld.length < 2
-        @line_dash = "solid"
-      else
-        @line_dash = "dashed"
-    if _.isString(ld)
-        @line_dash = ld
-
+  _get_size: () ->
     ctx = @plot_view.canvas_view.ctx
-    for i in [0...@_text.length]
-      @visuals.text.set_vectorize(ctx, i)
-      @width[i] = ctx.measureText(@_text[i]).width
-      @height[i] = ctx.measureText(@_text[i]).ascent / 1.175
-      [ @x_shift[i], @y_shift[i] ] = @_calculate_offset(ctx, @height[i], @width[i])
+    @visuals.text.set_value(ctx)
 
-  _map_data: () ->
-    if @mget('x_units') == "data"
-      vx = @xmapper.v_map_to_target(@_x)
-    else
-      vx = @_x.slice(0) # make deep copy to not mutate
-    sx = @canvas.v_vx_to_sx(vx)
-
-    if @mget('y_units') == "data"
-      vy = @ymapper.v_map_to_target(@_y)
-    else
-      vy = @_y.slice(0) # make deep copy to not mutate
-
-    sy = @canvas.v_vy_to_sy(vy)
-
-    return [sx, sy]
-
-  _calculate_offset: (ctx, height, width) ->
-
-    switch ctx.textAlign
-      when 'left' then x_shift = 0
-      when 'center' then x_shift = -width / 2
-      when 'right' then x_shift = -width
-
-    # guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
-    switch ctx.textBaseline
-      when 'top' then y_shift = 0.0
-      when 'middle' then y_shift = -0.5 * height
-      when 'bottom' then y_shift = -1.0 * height
-      when 'alphabetic' then y_shift = -0.8 * height
-      when 'hanging' then y_shift = -0.17 * height
-      when 'ideographic' then y_shift = -0.83 * height
-
-    return [x_shift, y_shift]
+    side = @model.panel.side
+    if side == "above" or side == "below"
+      height = ctx.measureText(@model.text).ascent
+      return height
+    if side == 'left' or side == 'right'
+      width = ctx.measureText(@model.text).width
+      return width
 
   render: () ->
-    [@sx, @sy] = @_map_data()
-    if @mget('render_mode') == 'canvas'
-      @_canvas_text()
+    ctx = @plot_view.canvas_view.ctx
+
+    # Here because AngleSpec does units tranform and label doesn't support specs
+    switch @model.angle_units
+      when "rad" then angle = -1 * @model.angle
+      when "deg" then angle = -1 * @model.angle * Math.PI/180.0
+
+    if @model.x_units == "data"
+      vx = @xmapper.map_to_target(@model.x)
     else
-      @_css_text()
+      vx = @model.x
+    sx = @canvas.vx_to_sx(vx)
 
-  _canvas_text: () ->
-    ctx = @plot_view.canvas_view.ctx
-    for i in [0...@_text.length]
-      ctx.save()
+    if @model.y_units == "data"
+      vy = @ymapper.map_to_target(@model.y)
+    else
+      vy = @model.y
+    sy = @canvas.vy_to_sy(vy)
 
-      ctx.rotate(@mget('angle'))
-      ctx.translate(@sx[i] + @_x_offset[i], @sy[i] - @_y_offset[i])
+    if @model.panel?
+      panel_offset = @_get_panel_offset()
+      sx += panel_offset.x
+      sy += panel_offset.y
 
-      ctx.beginPath()
-      ctx.rect(@x_shift[i], @y_shift[i], @width[i], @height[i])
+    if @model.render_mode == 'canvas'
+      @_canvas_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
+    else
+      @_css_text(ctx, @model.text, sx + @model.x_offset, sy - @model.y_offset, angle)
 
-      if @visuals.background_fill.doit
-        @visuals.background_fill.set_vectorize(ctx, i)
-        ctx.fill()
-
-      if @visuals.border_line.doit
-        @visuals.border_line.set_vectorize(ctx, i)
-        ctx.stroke()
-
-      if @visuals.text.doit
-        @visuals.text.set_vectorize(ctx, i)
-        ctx.fillText(@_text[i], 0, 0)
-      ctx.restore()
-
-  _css_text: () ->
-    ctx = @plot_view.canvas_view.ctx
-
-    for i in [0...@_text.length]
-      @visuals.text.set_vectorize(ctx, i)
-      @visuals.border_line.set_vectorize(ctx, i)
-      @visuals.background_fill.set_vectorize(ctx, i)
-
-      if not @label_div[i].style?
-        @label_div[i].appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-
-      @label_div[i].hide()
-
-      div_style = {
-        'position': 'absolute'
-        'top': "#{@sy[i] - @_y_offset[i] + @y_shift[i]}px"
-        'left': "#{@sx[i] + @_x_offset[i] + @x_shift[i]}px"
-        'color': "#{@_text_color[i]}"
-        'opacity': "#{@_text_alpha[i]}"
-        'font-size': "#{@_text_font_size[i]}"
-        'font-family': "#{@mget('text_font')}"
-        'background-color': "#{@visuals.background_fill.color_value()}"
-        }
-
-      if @visuals.background_fill.doit
-        _.extend(div_style, {
-          'background-color': "#{@visuals.background_fill.color_value()}"
-        })
-
-      if @visuals.border_line.doit
-        _.extend(div_style, {
-          'border-style': "#{@line_dash}"
-          'border-width': "#{@_border_line_width[i]}"
-          'border-color': "#{@visuals.border_line.color_value()}"
-        })
-
-      @label_div[i]
-        .html(@_text[i])
-        .css(div_style)
-        .show()
-
-class Label extends Annotation.Model
+export class Label extends TextAnnotation
   default_view: LabelView
 
   type: 'Label'
@@ -170,25 +60,21 @@ class Label extends Annotation.Model
   @mixins ['text', 'line:border_', 'fill:background_']
 
   @define {
-      x:            [ p.NumberSpec,                     ]
-      x_units:      [ p.SpatialUnits, 'data'            ]
-      y:            [ p.NumberSpec,                     ]
-      y_units:      [ p.SpatialUnits, 'data'            ]
-      text:         [ p.StringSpec,   { field :"text" } ]
-      angle:        [ p.AngleSpec,    0                 ]
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ]
-      source:       [ p.Instance                        ]
-      x_range_name: [ p.String,      'default'          ]
-      y_range_name: [ p.String,      'default'          ]
-      render_mode:  [ p.RenderMode,  'canvas'           ]
+      x:            [ p.Number,                      ]
+      x_units:      [ p.SpatialUnits, 'data'         ]
+      y:            [ p.Number,                      ]
+      y_units:      [ p.SpatialUnits, 'data'         ]
+      text:         [ p.String,                      ]
+      angle:        [ p.Angle,       0               ]
+      angle_units:  [ p.AngleUnits,  'rad'           ]
+      x_offset:     [ p.Number,      0               ]
+      y_offset:     [ p.Number,      0               ]
+      x_range_name: [ p.String,      'default'       ]
+      y_range_name: [ p.String,      'default'       ]
+      render_mode:  [ p.RenderMode,  'canvas'        ]
     }
 
   @override {
     background_fill_color: null
     border_line_color: null
   }
-
-module.exports =
-  Model: Label
-  View: LabelView

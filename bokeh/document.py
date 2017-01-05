@@ -5,10 +5,27 @@ library.
 """
 from __future__ import absolute_import
 
+import sys
+
 import logging
 logger = logging.getLogger(__file__)
 
-from functools import wraps
+# There is a problem with using @wraps decorator in combination with functools.partial.
+# This issue is not present in Python 3.
+# This redefinition will be triggered only if issue affects user,
+# otherwise regular definition of @wraps will be used.
+#
+# this code snippet was originally posted in followig stack overflow discussion:
+# http://stackoverflow.com/a/28752007
+
+from functools import wraps, partial, WRAPPER_ASSIGNMENTS
+try:
+    wraps(partial(wraps))(wraps)
+except AttributeError:
+    @wraps(wraps)
+    def wraps(obj, attr_names=WRAPPER_ASSIGNMENTS, wraps=wraps):
+        return wraps(obj, assigned=(name for name in attr_names if hasattr(obj, name)))
+
 from json import loads
 
 import jinja2
@@ -22,7 +39,7 @@ from .model import Model
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
-from .util.deprecate import deprecated
+from .util.deprecation import deprecated
 from .util.version import __version__
 from .util.serialization import make_id
 
@@ -67,16 +84,15 @@ def without_document_lock(f):
     return wrapper
 
 class DocumentChangedEvent(object):
-    def __init__(self, document):
+    def __init__(self, document, setter=None):
         self.document = document
+        self.setter = setter
 
     def dispatch(self, receiver):
         if hasattr(receiver, '_document_changed'):
             receiver._document_changed(self)
 
 class DocumentPatchedEvent(DocumentChangedEvent):
-    def __init__(self, document):
-        self.document = document
 
     def dispatch(self, receiver):
         super(DocumentPatchedEvent, self).dispatch(receiver)
@@ -84,8 +100,10 @@ class DocumentPatchedEvent(DocumentChangedEvent):
             receiver._document_patched(self)
 
 class ModelChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model, attr, old, new, serializable_new, hint=None):
-        super(ModelChangedEvent, self).__init__(document)
+    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter=None):
+        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
+            setter = hint.setter
+        super(ModelChangedEvent, self).__init__(document, setter)
         self.model = model
         self.attr = attr
         self.old = old
@@ -99,8 +117,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
             receiver._document_model_changed(self)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
-    def __init__(self, document, column_source, data, rollover):
-        super(ColumnsStreamedEvent, self).__init__(document)
+    def __init__(self, document, column_source, data, rollover, setter=None):
+        super(ColumnsStreamedEvent, self).__init__(document, setter)
         self.column_source = column_source
         self.data = data
         self.rollover = rollover
@@ -110,19 +128,31 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         if hasattr(receiver, '_columns_streamed'):
             receiver._columns_streamed(self)
 
+class ColumnsPatchedEvent(DocumentPatchedEvent):
+    def __init__(self, document, column_source, patches, setter=None):
+        super(ColumnsPatchedEvent, self).__init__(document, setter)
+        self.column_source = column_source
+        self.patches = patches
+
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_columns_patched'):
+            receiver._columns_patched(self)
+
 class TitleChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, title):
-        super(TitleChangedEvent, self).__init__(document)
+    def __init__(self, document, title, setter=None):
+        super(TitleChangedEvent, self).__init__(document, setter)
         self.title = title
 
+
 class RootAddedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model):
-        super(RootAddedEvent, self).__init__(document)
+    def __init__(self, document, model, setter=None):
+        super(RootAddedEvent, self).__init__(document, setter)
         self.model = model
 
 class RootRemovedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model):
-        super(RootRemovedEvent, self).__init__(document)
+    def __init__(self, document, model, setter=None):
+        super(RootRemovedEvent, self).__init__(document, setter)
         self.model = model
 
 class SessionCallbackAdded(DocumentChangedEvent):
@@ -212,7 +242,7 @@ class _MultiValuedDict(object):
             raise ValueError("Can't put None in this dict")
         if isinstance(value, set):
             raise ValueError("Can't put sets in this dict")
-        existing = self._dict.get(key, None)
+        existing = self._dict.get(key)
         if existing is None:
             self._dict[key] = value
         elif isinstance(existing, set):
@@ -223,7 +253,7 @@ class _MultiValuedDict(object):
     def remove_value(self, key, value):
         if key is None:
             raise ValueError("Key is None")
-        existing = self._dict.get(key, None)
+        existing = self._dict.get(key)
         if isinstance(existing, set):
             existing.discard(value)
             if len(existing) == 0:
@@ -234,7 +264,7 @@ class _MultiValuedDict(object):
             pass
 
     def get_one(self, k, duplicate_error):
-        existing = self._dict.get(k, None)
+        existing = self._dict.get(k)
         if isinstance(existing, set):
             if len(existing) == 1:
                 return next(iter(existing))
@@ -244,7 +274,7 @@ class _MultiValuedDict(object):
             return existing
 
     def get_all(self, k):
-        existing = self._dict.get(k, None)
+        existing = self._dict.get(k)
         if existing is None:
             return []
         elif isinstance(existing, set):
@@ -270,6 +300,14 @@ class Document(object):
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = {}
         self._session_callbacks = {}
+        self._session_context = None
+        self._modules = []
+        self._template_variables = {}
+
+    def __del__(self):
+        for module in self._modules:
+            if module.__name__ in sys.modules:
+                del sys.modules[module.__name__]
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
@@ -347,16 +385,16 @@ class Document(object):
         return list(self._roots)
 
     @property
+    def session_context(self):
+        return self._session_context
+
+    @property
     def title(self):
         return self._title
 
     @title.setter
     def title(self, title):
-        if title is None:
-            raise ValueError("Document title may not be None")
-        if self._title != title:
-            self._title = title
-            self._trigger_on_change(TitleChangedEvent(self, title))
+        self._set_title(title)
 
     @property
     def template(self):
@@ -367,6 +405,10 @@ class Document(object):
         if not isinstance(template, jinja2.Template):
             raise ValueError("Document templates must be Jinja2 Templates")
         self._template = template
+
+    @property
+    def template_variables(self):
+        return self._template_variables
 
     @property
     def theme(self):
@@ -390,7 +432,14 @@ class Document(object):
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
-    def add_root(self, model):
+    def _set_title(self, title, setter=None):
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self._trigger_on_change(TitleChangedEvent(self, title, setter))
+
+    def add_root(self, model, setter=None):
         ''' Add a model as a root model to this Document.
 
         Any changes to this model (including to other models referred to
@@ -401,13 +450,17 @@ class Document(object):
         if model in self._roots:
             return
         self._push_all_models_freeze()
+        # TODO(bird) Should we do some kind of reporting of how many LayoutDOM
+        # items are in the document roots. In vanilla bokeh cases e.g.
+        # output_file, output_server more than one LayoutDOM is probably not
+        # going to go well. But in embedded cases, you may well want more than
+        # one.
         try:
             self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootAddedEvent(self, model))
+        self._trigger_on_change(RootAddedEvent(self, model, setter))
 
-    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
 
@@ -422,10 +475,11 @@ class Document(object):
             None
 
         """
+        deprecated((0, 11, 0), 'Document.add()', 'Document.add_root()')
         for obj in objects:
             self.add_root(obj)
 
-    def remove_root(self, model):
+    def remove_root(self, model, setter=None):
         ''' Remove a model as root model from this Document.
 
         Changes to this model may still trigger "on_change" callbacks
@@ -439,11 +493,11 @@ class Document(object):
             self._roots.remove(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootRemovedEvent(self, model))
+        self._trigger_on_change(RootRemovedEvent(self, model, setter))
 
     def get_model_by_id(self, model_id):
         ''' Get the model object for the given ID or None if not found'''
-        return self._all_models.get(model_id, None)
+        return self._all_models.get(model_id)
 
     def get_model_by_name(self, name):
         ''' Get the model object for the given name or None if not found'''
@@ -461,7 +515,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             seq[Model]
@@ -480,7 +534,7 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             Model
@@ -499,8 +553,8 @@ class Document(object):
 
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
-            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) :
+                name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
+                updates (dict) :
 
         Returns:
             None
@@ -563,7 +617,7 @@ class Document(object):
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
-    def _notify_change(self, model, attr, old, new, hint=None):
+    def _notify_change(self, model, attr, old, new, hint=None, setter=None):
         ''' Called by Model when it changes
         '''
         # if name changes, update by-name index
@@ -577,7 +631,7 @@ class Document(object):
             serializable_new = model.lookup(attr).serializable_value(model)
         else:
             serializable_new = None
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint))
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter))
 
     @classmethod
     def _references_json(cls, references):
@@ -609,7 +663,7 @@ class Document(object):
         return references
 
     @classmethod
-    def _initialize_references_json(cls, references_json, references):
+    def _initialize_references_json(cls, references_json, references, setter=None):
         '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
         for obj in references_json:
@@ -618,7 +672,7 @@ class Document(object):
 
             instance = references[obj_id]
 
-            instance.update_from_json(obj_attrs, models=references)
+            instance.update_from_json(obj_attrs, models=references, setter=setter)
 
     @classmethod
     def _value_record_references(cls, all_references, v, result):
@@ -667,8 +721,8 @@ class Document(object):
                                                                value_refs))
 
         for key in shared:
-            old_value = from_obj['attributes'].get(key, None)
-            new_value = to_obj['attributes'].get(key, None)
+            old_value = from_obj['attributes'].get(key)
+            new_value = to_obj['attributes'].get(key)
 
             if old_value is None and new_value is None:
                 continue
@@ -839,6 +893,11 @@ class Document(object):
                                          'column_source' : event.hint.column_source.ref,
                                          'data' : event.hint.data,
                                          'rollover' : event.hint.rollover })
+
+                elif isinstance(event.hint, ColumnsPatchedEvent):
+                    json_events.append({ 'kind' : 'ColumnsPatched',
+                                         'column_source' : event.hint.column_source.ref,
+                                         'patches' : event.hint.patches })
                 else:
                     value = event.serializable_new
 
@@ -888,7 +947,7 @@ class Document(object):
         json_parsed = loads(patch)
         self.apply_json_patch(json_parsed)
 
-    def apply_json_patch(self, patch):
+    def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object created by parsing the result of create_json_patch_string() '''
         references_json = patch['references']
         events_json = patch['events']
@@ -916,25 +975,32 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references)
+                patched_obj.set_from_json(attr, value, models=references, setter=setter)
             elif event_json['kind'] == 'ColumnsStreamed':
+                source_id = event_json['column_source']['id']
+                if source_id not in self._all_models:
+                    raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
+                source = self._all_models[source_id]
+                data = event_json['data']
+                rollover = event_json['rollover']
+                source.stream(data, rollover, setter)
+            elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
                     raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
-                data = event_json['data']
-                rollover = event_json['rollover']
-                source.stream(data, rollover)
+                patches = event_json['patches']
+                source.patch(patches, setter)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.add_root(root_obj)
+                self.add_root(root_obj, setter)
             elif event_json['kind'] == 'RootRemoved':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.remove_root(root_obj)
+                self.remove_root(root_obj, setter)
             elif event_json['kind'] == 'TitleChanged':
-                self.title = event_json['title']
+                self._set_title(event_json['title'], setter)
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 

@@ -3,12 +3,13 @@ from __future__ import print_function
 import numpy as np
 import sympy as sy
 
+from bokeh.core.properties import value
 from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
-from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend
-from bokeh.models.widgets import Slider, TextInput, Dialog
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend, LegendItem
+from bokeh.models.widgets import Slider, TextInput, PreText
+from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
 session = push_session(document)
@@ -35,11 +36,9 @@ def taylor(fx, xs, order, x_range=(0, 1), n=200):
 def update_data():
     x, fy, ty = taylor(expr, xs, order, (-2*sy.pi, 2*sy.pi), 200)
 
-    plot.title = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
-    legend.legends = [
-        ("%s"         % expr, [line_f_glyph]),
-        ("taylor(%s)" % expr, [line_t_glyph]),
-    ]
+    plot.title.text = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
+    legend.items[0].label = value("%s" % expr)
+    legend.items[1].label = value("taylor(%s)" % expr)
     source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
 
@@ -68,6 +67,10 @@ xgrid = Grid(dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 
 legend = Legend(location="top_right")
+legend.items = [
+    LegendItem(label=value("%s" % expr), renderers=[line_f_glyph]),
+    LegendItem(label=value("taylor(%s)" % expr), renderers=[line_t_glyph]),
+]
 plot.add_layout(legend)
 
 def on_slider_value_change(attr, old, new):
@@ -76,29 +79,31 @@ def on_slider_value_change(attr, old, new):
     update_data()
 
 def on_text_value_change(attr, old, new):
+    global expr
+
     try:
-        global expr
         expr = sy.sympify(new, dict(x=xs))
-    except (sy.SympifyError, TypeError, ValueError) as exception:
-        dialog.content = str(exception)
-        dialog.visible = True
+    except Exception as exception:
+        errbox.text = str(exception)
     else:
+        errbox.text = ""
         update_data()
 
-dialog = Dialog(title="Invalid expression")
-
-slider = Slider(start=1, end=20, value=order, step=1, title="Order:")
+slider = Slider(start=1, end=20, value=order, step=1, title="Order",callback_policy='mouseup')
 slider.on_change('value', on_slider_value_change)
 
 text = TextInput(value=str(expr), title="Expression:")
 text.on_change('value', on_text_value_change)
 
-inputs = HBox(children=[slider, text])
-layout = VBox(children=[inputs, plot, dialog])
+errbox = PreText()
+
+inputs = WidgetBox(children=[slider, text, errbox], width=600)
+layout = Column(children=[inputs, plot])
 update_data()
 document.add_root(layout)
 session.show(layout)
 
 if __name__ == "__main__":
+    document.validate()
     print("\npress ctrl-C to exit")
     session.loop_until_closed()

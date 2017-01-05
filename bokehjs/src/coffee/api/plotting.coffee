@@ -1,9 +1,11 @@
-_ = require("underscore")
-$ = require("jquery")
-sprintf = require("sprintf")
-{Document} = require("../document")
-embed = require("../embed")
-models = require("./models")
+import * as _ from "underscore"
+import * as $ from "jquery"
+import * as sprintf from "sprintf"
+import {Document} from "../document"
+import * as embed from "../embed"
+import {BOKEH_ROOT} from "../embed"
+import * as models from "./models"
+import {startsWith} from "../core/util/string"
 
 _default_tooltips = [
   ["index", "$index"],
@@ -11,30 +13,36 @@ _default_tooltips = [
   ["canvas (x, y)", "($sx, $sy)"],
 ]
 
-_default_tools = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
+_default_tools = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 _known_tools = {
-  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: ["width", "height"])
-  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: ["width"])
-  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: ["height"])
-  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width", "height"])
-  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["width"])
-  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: ["height"])
-  save:         (plot) -> new models.PreviewSaveTool(plot: plot)
+  pan:          (plot) -> new models.PanTool(plot: plot, dimensions: 'both')
+  xpan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'width')
+  ypan:         (plot) -> new models.PanTool(plot: plot, dimensions: 'height')
+  wheel_zoom:   (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'both')
+  xwheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'width')
+  ywheel_zoom:  (plot) -> new models.WheelZoomTool(plot: plot, dimensions: 'height')
+  zoom_in:      (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'both')
+  xzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'width')
+  yzoom_in:     (plot) -> new models.ZoomInTool(plot: plot, dimensions: 'height')
+  zoom_out:     (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'both')
+  xzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'width')
+  yzoom_out:    (plot) -> new models.ZoomOutTool(plot: plot, dimensions: 'height')
   resize:       (plot) -> new models.ResizeTool(plot: plot)
-  click:        (plot) -> new models.TapTool(plot: plot)
+  click:        (plot) -> new models.TapTool(plot: plot, behavior: "inspect")
   tap:          (plot) -> new models.TapTool(plot: plot)
   crosshair:    (plot) -> new models.CrosshairTool(plot: plot)
   box_select:   (plot) -> new models.BoxSelectTool(plot: plot)
-  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: ['width'])
-  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: ['height'])
+  xbox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'width')
+  ybox_select:  (plot) -> new models.BoxSelectTool(plot: plot, dimensions: 'height')
   poly_select:  (plot) -> new models.PolySelectTool(plot: plot)
   lasso_select: (plot) -> new models.LassoSelectTool(plot: plot)
-  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width', 'height'])
-  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['width'])
-  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: ['height'])
+  box_zoom:     (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'both')
+  xbox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'width')
+  ybox_zoom:    (plot) -> new models.BoxZoomTool(plot: plot, dimensions: 'height')
   hover:        (plot) -> new models.HoverTool(plot: plot, tooltips: _default_tooltips)
-  previewsave:  (plot) -> new models.PreviewSaveTool(plot: plot)
+  save:         (plot) -> new models.SaveTool(plot: plot)
+  previewsave:  (plot) -> new models.SaveTool(plot: plot)
   undo:         (plot) -> new models.UndoTool(plot: plot)
   redo:         (plot) -> new models.RedoTool(plot: plot)
   reset:        (plot) -> new models.ResetTool(plot: plot)
@@ -44,7 +52,7 @@ _known_tools = {
 _with_default = (value, default_value) ->
   if value == undefined then default_value else value
 
-class Figure extends models.Plot
+export class Figure extends models.Plot
 
   constructor: (attributes={}, options={}) ->
     attrs = _.clone(attributes)
@@ -55,8 +63,8 @@ class Figure extends models.Plot
     attrs.x_range = @_get_range(attrs.x_range)
     attrs.y_range = @_get_range(attrs.y_range)
 
-    x_axis_type = attrs.x_axis_type ? "auto"
-    y_axis_type = attrs.y_axis_type ? "auto"
+    x_axis_type = if _.isUndefined(attrs.x_axis_type) then "auto" else attrs.x_axis_type
+    y_axis_type = if _.isUndefined(attrs.y_axis_type) then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
@@ -96,6 +104,9 @@ class Figure extends models.Plot
 
     @add_tools(@_process_tools(tools)...)
 
+    @_legend = new models.Legend({plot: this, items: []})
+    @add_renderers(@_legend)
+
   Object.defineProperty this.prototype, "xgrid", {
     get: () -> @renderers.filter((r) -> r instanceof models.Grid and r.dimension == 0)[0] # TODO
   }
@@ -116,7 +127,8 @@ class Figure extends models.Plot
   annulus:           (args...) -> @_glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args)
   arc:               (args...) -> @_glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args)
   bezier:            (args...) -> @_glyph(models.Bezier,       "x0,y0,x1,y1,cx0,cy0,cx1,cy1",                         args)
-  gear:              (args...) -> @_glyph(models.Gear,         "x,y,module,teeth",                                    args)
+  circle:            (args...) -> @_glyph(models.Circle,       "x,y",                                                 args)
+  ellipse:           (args...) -> @_glyph(models.Ellipse,      "x,y,width,height",                                    args)
   image:             (args...) -> @_glyph(models.Image,        "color_mapper,image,rows,cols,x,y,dw,dh",              args)
   image_rgba:        (args...) -> @_glyph(models.ImageRGBA,    "image,rows,cols,x,y,dw,dh",                           args)
   image_url:         (args...) -> @_glyph(models.ImageURL,     "url,x,y,w,h",                                         args)
@@ -134,7 +146,6 @@ class Figure extends models.Plot
   wedge:             (args...) -> @_glyph(models.Wedge,        "x,y,radius,start_angle,end_angle",                    args)
 
   asterisk:          (args...) -> @_marker(models.Asterisk,         args)
-  circle:            (args...) -> @_marker(models.Circle,           args)
   circle_cross:      (args...) -> @_marker(models.CircleCross,      args)
   circle_x:          (args...) -> @_marker(models.CircleX,          args)
   cross:             (args...) -> @_marker(models.Cross,            args)
@@ -225,11 +236,11 @@ class Figure extends models.Plot
         do (param, i) ->
           attrs[param] = args[i]
 
-    legend = attrs.legend
+    legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
-    has_sglyph = _.any(_.keys(attrs), (key) -> key.startsWith("selection_"))
-    has_hglyph = _.any(_.keys(attrs), (key) -> key.startsWith("hover_"))
+    has_sglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "selection_"))
+    has_hglyph = _.any(_.keys(attrs), (key) -> startsWith(key, "hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
     nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
@@ -296,19 +307,17 @@ class Figure extends models.Plot
         else
           @y_mapper_type = 'log'
 
-      axis = new axiscls({plot: if axis_location? then this else null})
+      axis = new axiscls()
 
       if axis.ticker instanceof models.ContinuousTicker
         axis.ticker.num_minor_ticks = @_get_num_minor_ticks(axiscls, minor_ticks)
       if axis_label.length != 0
         axis.axis_label = axis_label
 
-      grid = new models.Grid({plot: this, dimension: dim, ticker: axis.ticker})
+      grid = new models.Grid({dimension: dim, ticker: axis.ticker})
 
-      if axis_location?
-        this[axis_location] = (this[axis_location] ? []).concat([axis])
-
-      @add_renderers(axis, grid)
+      @add_layout(axis, axis_location)
+      @add_layout(grid)
 
   _get_axis_class: (axis_type, range) ->
     if not axis_type?
@@ -350,33 +359,39 @@ class Figure extends models.Plot
 
     return objs
 
-  _update_legend: (legend_name, glyph_renderer) ->
-    legends = @renderers.filter((r) -> r instanceof models.Legend)
-
-    switch legends.length
-      when 0
-        legend = new models.Legend({plot: this})
-        @add_renderers(legend)
-      when 1
-        legend = legends[0]
+  _process_legend: (legend, source) ->
+    legend_item_label = null
+    if legend?
+      if _.isString(legend)
+        legend_item_label = { value: legend }
+        if source? and source.column_names?
+          if legend in source.column_names
+            legend_item_label = { field: legend }
       else
-        throw new Error("plot configured with more than one legend")
+        legend_item_label = legend
+    return legend_item_label
 
-    legends = _.clone(legend.legends)
+  _update_legend: (legend_item_label, glyph_renderer) ->
+    added = false
+    for item in @_legend.items
+      if _.isEqual(item.label, legend_item_label)
+        if item.label.value?
+          item.renderers.push(glyph_renderer)
+          added = true
+          break
+        if item.label.field? and glyph_renderer.data_source == item.renderers[0].data_source
+          item.renderers.push(glyph_renderer)
+          added = true
+          break
+    if not added
+      new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      @_legend.items.push(new_item)
 
-    for [name, renderers] in legends
-      if name == legend_name
-        renderers.push(glyph_renderer)
-        legend.legends = legends
-        return
 
-    legends.push([legend_name, [glyph_renderer]])
-    legend.legends = legends
-
-figure = (attributes={}, options={}) ->
+export figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
 
-show = (obj, target) ->
+export show = (obj, target) ->
   multiple = _.isArray(obj)
 
   doc = new Document()
@@ -387,7 +402,7 @@ show = (obj, target) ->
     for _obj in obj
       doc.add_root(_obj)
 
-  div = $("<div class='bk-root'>")
+  div = $("<div class=#{BOKEH_ROOT}>")
   $(target ? "body").append(div)
 
   views = embed.add_document_standalone(doc, div)
@@ -397,11 +412,52 @@ show = (obj, target) ->
   else
     return views
 
-color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
+export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
-module.exports = {
-  Figure: Figure
-  figure: figure
-  show  : show
-  color : color
-}
+export gridplot = (children, options={}) ->
+  toolbar_location = if _.isUndefined(options.toolbar_location) then 'above' else options.toolbar_location
+  sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
+  toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
+
+  tools = []
+  rows = []
+
+  for row in children
+    row_tools = []
+    row_children = []
+    for item in row
+      if item instanceof models.Plot
+        row_tools = row_tools.concat(item.toolbar.tools)
+        item.toolbar_location = null
+      if item == null
+        for neighbor in row
+          if neighbor instanceof models.Plot
+            break
+        item = new models.Spacer({width: neighbor.plot_width, height: neighbor.plot_height})
+      if item instanceof models.LayoutDOM
+        item.sizing_mode = sizing_mode
+        row_children.push(item)
+      else
+        throw new Error("only LayoutDOM items can be inserted into Grid")
+    tools = tools.concat(row_tools)
+    row = new models.Row({children: row_children, sizing_mode: sizing_mode})
+    rows.push(row)
+
+  grid = new models.Column({children: rows, sizing_mode: sizing_mode})
+
+  layout = if toolbar_location
+    toolbar = new models.ToolbarBox({tools: tools, sizing_mode: toolbar_sizing_mode, toolbar_location: toolbar_location})
+
+    switch toolbar_location
+      when 'above'
+        new models.Column({children: [toolbar, grid], sizing_mode: sizing_mode})
+      when 'below'
+        new models.Column({children: [grid, toolbar], sizing_mode: sizing_mode})
+      when 'left'
+        new models.Row({children: [toolbar, grid], sizing_mode: sizing_mode})
+      when 'right'
+        new models.Row({children: [grid, toolbar], sizing_mode: sizing_mode})
+  else
+    grid
+
+  return layout

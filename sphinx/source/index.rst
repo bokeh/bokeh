@@ -25,6 +25,7 @@ the :ref:`devguide`.
 
 .. toctree::
     :hidden:
+    :glob:
 
     docs/installation
     docs/user_guide
@@ -34,6 +35,7 @@ the :ref:`devguide`.
     docs/user_guide/plotting
     docs/user_guide/charts
     docs/user_guide/compat
+    docs/user_guide/annotations
     docs/user_guide/styling
     docs/user_guide/tools
     docs/user_guide/layout
@@ -44,32 +46,16 @@ the :ref:`devguide`.
     docs/user_guide/embed
     docs/user_guide/webgl
     docs/user_guide/geo
+    docs/user_guide/bokehjs
+    docs/user_guide/extensions
     docs/user_guide/info
     docs/user_guide/tutorials
     docs/reference
-    docs/reference/bokeh
-    docs/reference/charts
-    docs/reference/client
-    docs/reference/core
-    docs/reference/document
-    docs/reference/driving
-    docs/reference/embed
-    docs/reference/icons
-    docs/reference/io
-    docs/reference/model
-    docs/reference/models
-    docs/reference/mpl
-    docs/reference/palettes
-    docs/reference/plotting
-    docs/reference/resources
-    docs/reference/sampledata
-    docs/reference/server
-    docs/reference/settings
-    docs/reference/sphinxext
-    docs/reference/themes
-    docs/reference/tile_providers
-    docs/reference/util
-    docs/reference/bokehjs
+    docs/reference/*
+    docs/releases/0.12.3
+    docs/releases/0.12.2
+    docs/releases/0.12.1
+    docs/releases/0.12.0
     docs/releases/0.11.1
     docs/releases/0.11.0
     docs/releases/0.10.0
@@ -96,10 +82,10 @@ the :ref:`devguide`.
     docs/releases/0.1.0
     docs/dev_guide
     docs/dev_guide/setup
-    docs/dev_guide/documentation
+    docs/dev_guide/env_vars
     docs/dev_guide/testing
-    docs/dev_guide/objects
+    docs/dev_guide/documentation
+    docs/dev_guide/models
     docs/dev_guide/server
     docs/dev_guide/bindings
-    docs/dev_guide/notes
     docs/dev_guide/bokehjs

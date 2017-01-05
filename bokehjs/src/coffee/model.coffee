@@ -1,14 +1,21 @@
-_ = require "underscore"
-HasProps = require "./core/has_props"
-p = require "./core/properties"
+import * as _ from "underscore"
+import {HasProps} from "./core/has_props"
+import * as p from "./core/properties"
 
-class Model extends HasProps
+export class Model extends HasProps
   type: "Model"
 
   @define {
-    tags: [ p.Array, [] ]
-    name: [ p.String    ]
+    tags:         [ p.Array, [] ]
+    name:         [ p.String    ]
+    js_callbacks: [ p.Any,   {} ]
   }
+
+  initialize: (options) ->
+    super(options)
+    for evt, callbacks of @js_callbacks
+      for cb in callbacks
+        @listenTo(@, evt, () -> cb.execute(@))
 
   select: (selector) ->
     if selector.prototype instanceof Model
@@ -27,5 +34,3 @@ class Model extends HasProps
         result[0]
       else
         throw new Error("found more than one object matching given selector")
-
-module.exports = Model

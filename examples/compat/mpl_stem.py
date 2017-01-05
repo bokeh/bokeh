@@ -13,4 +13,4 @@ plt.setp(baseline, 'color', 'r', 'linewidth', 2)
 
 output_file("mpl_stem.html", title="mpl_stem.py example")
 
-show(mpl.to_bokeh())
+show(mpl.to_bokeh(tools='pan, wheel_zoom, crosshair'))

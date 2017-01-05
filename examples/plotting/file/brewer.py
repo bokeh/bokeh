@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 
@@ -30,7 +29,7 @@ colors = brewer["Spectral"][len(areas)]
 
 x2 = np.hstack((data['x'][::-1], data['x']))
 
-p = figure()
+p = figure(x_range=(0, 19), y_range=(0, 800))
 p.grid.minor_grid_line_color = '#eeeeee'
 
 p.patches([x2] * len(areas), [areas[cat] for cat in categories],

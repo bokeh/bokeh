@@ -1,28 +1,46 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "../glyphs/glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "../glyphs/glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class MarkerView extends Glyph.View
+export class MarkerView extends GlyphView
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
     # using objects like this seems a little wonky, since the keys are coerced to
     # stings, but it works
-    indices = [reference_point]
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
     size = { }
-    size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+    size[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
     angle = { }
-    angle[reference_point] = 0
+    angle[index] = 0
 
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
+
+  _render: (ctx, indices, {sx, sy, _size, _angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+_size[i]+_angle[i])
+        continue
+
+      r = _size[i]/2
+
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
+
+      if _angle[i]
+        ctx.rotate(_angle[i])
+
+      @_render_one(ctx, i, sx[i], sy[i], r, @visuals.line, @visuals.fill)
+
+      if _angle[i]
+        ctx.rotate(-_angle[i])
+
+      ctx.translate(-sx[i], -sy[i])
 
   _index_data: () ->
     @_xy_index()
@@ -30,18 +48,18 @@ class MarkerView extends Glyph.View
   _mask_data: (all_indices) ->
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
-    hr = @renderer.plot_view.frame.get('h_range')
-    vx0 = hr.get('start') - @max_size
-    vx1 = hr.get('end') + @max_size
+    hr = @renderer.plot_view.frame.h_range
+    vx0 = hr.start - @max_size
+    vx1 = hr.end + @max_size
     [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
 
-    vr = @renderer.plot_view.frame.get('v_range')
-    vy0 = vr.get('start') - @max_size
-    vy1 = vr.get('end') + @max_size
+    vr = @renderer.plot_view.frame.v_range
+    vy0 = vr.start - @max_size
+    vy1 = vr.end + @max_size
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
@@ -57,7 +75,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    candidates = (x[4].i for x in @index.search(bbox))
+    candidates = (x.i for x in @index.search(bbox))
 
     hits = []
     for i in candidates
@@ -77,7 +95,7 @@ class MarkerView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search(bbox))
+    result['1d'].indices = (x.i for x in @index.search(bbox))
     return result
 
   _hit_poly: (geometry) ->
@@ -97,7 +115,7 @@ class MarkerView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-class Marker extends Glyph.Model
+export class Marker extends Glyph
 
   @coords [ ['x', 'y'] ]
   @mixins ['line', 'fill']
@@ -105,7 +123,3 @@ class Marker extends Glyph.Model
     size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
     angle: [ p.AngleSpec,    0                             ]
   }
-
-module.exports =
-  Model: Marker
-  View: MarkerView

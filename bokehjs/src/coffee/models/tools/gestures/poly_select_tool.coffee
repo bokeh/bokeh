@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-PolyAnnotation = require "../../annotations/poly_annotation"
-p = require "../../../core/properties"
+import {SelectTool, SelectToolView} from "./select_tool"
+import {PolyAnnotation} from "../../annotations/poly_annotation"
+import * as p from "../../../core/properties"
 
-class PolySelectToolView extends SelectTool.View
+export class PolySelectToolView extends SelectToolView
 
   initialize: (options) ->
     super(options)
@@ -12,7 +12,7 @@ class PolySelectToolView extends SelectTool.View
     @data = null
 
   _active_change: () ->
-    if not @mget('active')
+    if not @model.active
       @_clear_data()
 
   _keyup: (e) ->
@@ -27,7 +27,7 @@ class PolySelectToolView extends SelectTool.View
 
   _clear_data: () ->
     @data = null
-    @mget('overlay').update({xs:[], ys:[]})
+    @model.overlay.update({xs:[], ys:[]})
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -41,7 +41,7 @@ class PolySelectToolView extends SelectTool.View
     @data.vx.push(vx)
     @data.vy.push(vy)
 
-    overlay = @mget('overlay')
+    overlay = @model.overlay
     new_data = {}
     new_data.vx = _.clone(@data.vx)
     new_data.vy = _.clone(@data.vy)
@@ -54,17 +54,17 @@ class PolySelectToolView extends SelectTool.View
       vy: vy
     }
 
-    for r in @mget('computed_renderers')
-      ds = r.get('data_source')
-      sm = ds.get('selection_manager')
-      sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
+    for r in @model.computed_renderers
+      ds = r.data_source
+      sm = ds.selection_manager
+      sm.select(@, @plot_view.renderer_views[r.id], geometry, final, append)
 
     @_save_geometry(geometry, final, append)
     @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 
     return null
 
-DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
+DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation({
   level: "overlay"
   xs_units: "screen"
   ys_units: "screen"
@@ -76,7 +76,7 @@ DEFAULT_POLY_OVERLAY = () -> new PolyAnnotation.Model({
   line_dash: [4, 4]
 })
 
-class PolySelectTool extends SelectTool.Model
+export class PolySelectTool extends SelectTool
   default_view: PolySelectToolView
   type: "PolySelectTool"
   tool_name: "Poly Select"
@@ -87,7 +87,3 @@ class PolySelectTool extends SelectTool.Model
   @define {
       overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
     }
-
-module.exports =
-  Model: PolySelectTool
-  View: PolySelectToolView

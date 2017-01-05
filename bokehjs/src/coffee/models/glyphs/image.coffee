@@ -1,11 +1,20 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "../glyphs/glyph"
-LinearColorMapper = require "../mappers/linear_color_mapper"
-p = require "../../core/properties"
-{Greys9} = require '../../palettes/palettes'
+import {Glyph, GlyphView} from "./glyph"
+import {LinearColorMapper} from "../mappers/linear_color_mapper"
+import * as p from "../../core/properties"
 
-class ImageView extends Glyph.View
+export class ImageView extends GlyphView
+
+  initialize: (options) ->
+    super(options)
+    @listenTo(@model.color_mapper, 'change', @_update_image)
+
+  _update_image: () ->
+    # Only reset image_data if already initialized
+    if @image_data?
+      @_set_data()
+      @renderer.plot_view.request_render()
 
   _index_data: () ->
     @_xy_index()
@@ -21,24 +30,31 @@ class ImageView extends Glyph.View
       @_height = new Array(@_image.length)
 
     for i in [0...@_image.length]
-      if @_rows?
-        @_height[i] = @_rows[i]
-        @_width[i] = @_cols[i]
-      else
-        @_height[i] = @_image[i].length
-        @_width[i] = @_image[i][0].length
-      canvas = document.createElement('canvas')
-      canvas.width = @_width[i]
-      canvas.height = @_height[i]
-      ctx = canvas.getContext('2d')
-      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
-      cmap = @mget('color_mapper')
-      if @_rows?
+      shape = []
+      if @_image_shape?
+        shape = @_image_shape[i]
+
+      if shape.length > 0
         img = @_image[i]
+        @_height[i] = shape[0]
+        @_width[i] = shape[1]
       else
         img = _.flatten(@_image[i])
-      buf = cmap.v_map_screen(img)
-      buf8 = new Uint8ClampedArray(buf)
+        @_height[i] = @_image[i].length
+        @_width[i] = @_image[i][0].length
+
+      if @image_data[i]? and @image_data[i].width == @_width[i] and @image_data[i].height == @_height[i]
+        canvas = @image_data[i]
+      else
+        canvas = document.createElement('canvas')
+        canvas.width = @_width[i]
+        canvas.height = @_height[i]
+
+      ctx = canvas.getContext('2d')
+      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
+      cmap = @model.color_mapper
+      buf = cmap.v_map_screen(img, true)
+      buf8 = new Uint8Array(buf)
       image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       @image_data[i] = canvas
@@ -52,8 +68,13 @@ class ImageView extends Glyph.View
       @_xy_index()
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @mget('dilate'))
+    switch @model.properties.dw.units
+      when "data" then @sw = @sdist(@renderer.xmapper, @_x, @_dw, 'edge', @model.dilate)
+      when "screen" then @sw = @_dw
+
+    switch @model.properties.dh.units
+      when "data" then @sh = @sdist(@renderer.ymapper, @_y, @_dh, 'edge', @model.dilate)
+      when "screen" then @sh = @_dh
 
   _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
@@ -78,13 +99,18 @@ class ImageView extends Glyph.View
     ctx.setImageSmoothingEnabled(old_smoothing)
 
   bounds: () ->
-    bb = @index.data.bbox
-    return [
-      [bb[0], bb[2]+@max_dw],
-      [bb[1], bb[3]+@max_dh]
-    ]
+    d = @index.data
+    return {
+      minX: d.minX,
+      minY: d.minY,
+      maxX: d.maxX + @max_dw,
+      maxY: d.maxY + @max_dh
+    }
 
-class Image extends Glyph.Model
+# NOTE: this needs to be redefined here, because palettes are located in bokeh-api.js bundle
+Greys9 = () -> [0x000000, 0x252525, 0x525252, 0x737373, 0x969696, 0xbdbdbd, 0xd9d9d9, 0xf0f0f0, 0xffffff]
+
+export class Image extends Glyph
   default_view: ImageView
 
   type: 'Image'
@@ -93,12 +119,8 @@ class Image extends Glyph.Model
   @mixins []
   @define {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
-      dw:           [ p.NumberSpec       ]
-      dh:           [ p.NumberSpec       ]
+      dw:           [ p.DistanceSpec     ]
+      dh:           [ p.DistanceSpec     ]
       dilate:       [ p.Bool,      false ]
-      color_mapper: [ p.Instance,  () -> new LinearColorMapper.Model(palette: Greys9) ]
+      color_mapper: [ p.Instance,  () -> new LinearColorMapper({palette: Greys9()}) ]
   }
-
-module.exports =
-  Model: Image
-  View: ImageView

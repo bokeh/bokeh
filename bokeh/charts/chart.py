@@ -1,43 +1,25 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
+''' This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
 This is the main Chart class which is able to build several plots using the low
 level Bokeh API. It setups all the plot characteristics and lets you plot
 different chart types, taking OrderedDict as the main input. It also supports
 the generation of several outputs (file, server, notebook).
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
+'''
 from __future__ import absolute_import
 
-import warnings
 from collections import defaultdict
+import warnings
+
 import numpy as np
 
-from ..core.enums import enumeration, LegendLocation
-from ..models import (
-    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
-    HoverTool, FactorRange
-)
-from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg
-from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
-                          String, Tuple, Override)
-from ..util.deprecate import deprecated
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
+from bokeh.core.enums import enumeration
+from bokeh.core.properties import Auto, Either, Enum, String, value
+from bokeh.models import CategoricalAxis, DatetimeAxis, FactorRange, glyphs, Grid, HoverTool, Legend, LegendItem, LinearAxis, markers, Plot
+from bokeh.plotting import DEFAULT_TOOLS
+from bokeh.plotting.helpers import _process_tools_arg, _glyph_function, _process_active_tools
+from bokeh.util._plot_arg_helpers import _convert_responsive
 
 Scale = enumeration('linear', 'categorical', 'datetime')
 
@@ -46,8 +28,9 @@ class ChartDefaults(object):
         """Apply this defaults to a chart."""
 
         if not isinstance(chart, Chart):
-            raise ValueError("ChartsDefaults should be only used on Chart \
-            objects but it's being used on %s instead." % chart)
+            raise ValueError(
+                "ChartsDefaults should be only used on Chart objects but it's being used on %s instead." % chart
+            )
 
         all_props = set(chart.properties_with_values(include_defaults=True))
         dirty_props = set(chart.properties_with_values(include_defaults=False))
@@ -71,18 +54,6 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
-    legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
-    A location where the legend should draw itself.
-    """)
-
-    xgrid = Bool(True, help="""
-    Whether to draw an x-grid.
-    """)
-
-    ygrid = Bool(True, help="""
-    Whether to draw an y-grid.
-    """)
-
     xlabel = String(None, help="""
     A label for the x-axis. (default: None)
     """)
@@ -99,19 +70,55 @@ class Chart(Plot):
     What kind of scale to use for the y-axis.
     """)
 
-    title_text_font_size = Override(default={ 'value' : '14pt' })
-
-    responsive = Override(default=False)
-
     _defaults = defaults
 
-    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height')
+    __deprecated_attributes__ = (
+        'filename', 'server', 'notebook', 'width', 'height', 'xgrid', 'ygrid', 'legend'
+        'background_fill', 'border_fill', 'logo', 'tools',
+        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
+        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
+    )
+
+    _xgrid = True
+    _ygrid = True
+    _legend = True
+
+    @Plot.xgrid.setter
+    def xgrid(self, value):
+        warnings.warn("Non-functional 'xgrid' setter has been removed; use 'xgrid' keyword argument to Chart instead")
+
+    @Plot.ygrid.setter
+    def ygrid(self, value):
+        warnings.warn("Non-functional 'ygrid' setter has been removed; use 'ygrid' keyword argument to Chart instead")
+
+    @Plot.legend.setter
+    def legend(self, value):
+        warnings.warn("Non-functional 'legend' setter has been removed; use 'legend' keyword argument to Chart instead")
 
     def __init__(self, *args, **kwargs):
         # pop tools as it is also a property that doesn't match the argument
         # supported types
         tools = kwargs.pop('tools', None)
+        for name in ['xgrid', 'ygrid', 'legend']:
+            if name in kwargs:
+                kwargs["_" + name] = kwargs[name]
+                del kwargs[name]
+
+        if 'responsive' in kwargs and 'sizing_mode' in kwargs:
+            raise ValueError("Chart initialized with both 'responsive' and 'sizing_mode' supplied, supply only one")
+        if 'responsive' in kwargs:
+            kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
+            del kwargs['responsive']
+
+        self._active_drag = kwargs.pop('active_drag', 'auto')
+        self._active_scroll = kwargs.pop('active_scroll', 'auto')
+        self._active_tap = kwargs.pop('active_tap', 'auto')
+
+        title_text = kwargs.pop("title", None)
+
         super(Chart, self).__init__(*args, **kwargs)
+
+        self.title.text = title_text
 
         defaults.apply(self)
 
@@ -124,10 +131,6 @@ class Chart(Plot):
             if k in kwargs:
                 setattr(self, k, kwargs[k])
 
-        # TODO (bev) have to force serialization of overriden defaults on subtypes for now
-        self.title_text_font_size = "10pt"
-        self.title_text_font_size = "14pt"
-
         self._glyphs = []
         self._built = False
 
@@ -138,7 +141,8 @@ class Chart(Plot):
         self._scales = defaultdict(list)
         self._tooltips = []
 
-        self.create_tools(self._tools)
+        if hasattr(self, '_tools'):
+            self.create_tools(self._tools, self._active_drag, self._active_scroll, self._active_tap)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -176,7 +180,7 @@ class Chart(Plot):
         if ygrid:
             self.make_grid(1, self._yaxis.ticker)
 
-    def create_tools(self, tools):
+    def create_tools(self, tools, active_drag, active_scroll, active_tap):
         """Create tools if given tools=True input.
 
         Only adds tools if given boolean and does not already have
@@ -189,25 +193,25 @@ class Chart(Plot):
             # in case tools == False just exit
             return
 
-        if len(self.tools) == 0:
+        if len(self.toolbar.tools) == 0:
             # if no tools customization let's create the default tools
-            tool_objs = _process_tools_arg(self, tools)
+            tool_objs, tool_map = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
+            _process_active_tools(self.toolbar, tool_map, self._active_drag, self._active_scroll, self._active_tap)
 
     def start_plot(self):
         """Add the axis, grids and tools
         """
         self.create_axes()
-        self.create_grids(self.xgrid, self.ygrid)
+        self.create_grids(self._xgrid, self._ygrid)
 
-        # Add tools if supposed to
-        if self.tools:
-            self.create_tools(self.tools)
+        if self.toolbar.tools:
+            self.create_tools(self._tools, self._active_drag, self._active_scroll, self._active_tap)
 
         if len(self._tooltips) > 0:
             self.add_tools(HoverTool(tooltips=self._tooltips))
 
-    def add_legend(self, legends):
+    def add_legend(self, chart_legends):
         """Add the legend to your plot, and the plot to a new Document.
 
         It also add the Document to a new Session in the case of server output.
@@ -219,13 +223,16 @@ class Chart(Plot):
                 labels.
         """
         location = None
-        if self.legend is True:
+        if self._legend is True:
             location = "top_left"
         else:
-            location = self.legend
+            location = self._legend
 
+        items = []
+        for legend in chart_legends:
+            items.append(LegendItem(label=value(legend[0]), renderers=legend[1]))
         if location:
-            legend = Legend(location=location, legends=legends)
+            legend = Legend(location=location, items=items)
             self.add_layout(legend)
 
     def make_axis(self, dim, location, scale, label):
@@ -287,73 +294,72 @@ class Chart(Plot):
 
         return grid
 
+    annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
-    @property
-    def filename(self):
-        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_file
-        output_file("default.html")
+    annulus = _glyph_function(glyphs.Annulus)
 
-    @filename.setter
-    def filename(self, filename):
-        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_file
-        output_file(filename)
+    arc = _glyph_function(glyphs.Arc)
 
-    @property
-    def server(self):
-        warnings.warn("Chart property 'server' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_server
-        output_server("default")
+    asterisk = _glyph_function(markers.Asterisk)
 
-    @server.setter
-    def server(self, session_id):
-        warnings.warn("Chart property 'server' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_server
-        if session_id:
-            if isinstance(session_id, bool):
-                session_id='default'
-            output_server(session_id)
+    bezier = _glyph_function(glyphs.Bezier)
 
-    @property
-    def notebook(self):
-        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_notebook
-        output_notebook()
+    circle = _glyph_function(markers.Circle)
 
-    @notebook.setter
-    def notebook(self, flag):
-        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
-            and will be removed in the future.")
-        from bokeh.io import output_notebook
-        output_notebook()
+    circle_cross = _glyph_function(markers.CircleCross)
 
-    @deprecated("Bokeh 0.11", "bokeh.io.show")
-    def show(self):
-        import bokeh.io
-        bokeh.io.show(self)
+    circle_x = _glyph_function(markers.CircleX)
 
-    @property
-    def width(self):
-        warnings.warn("Chart property 'width' was deprecated in 0.11 \
-            and will be removed in the future.")
-        return self.plot_width
+    cross = _glyph_function(markers.Cross)
 
-    @width.setter
-    def width(self, width):
-        self.plot_width = width
+    diamond = _glyph_function(markers.Diamond)
 
-    @property
-    def height(self):
-        warnings.warn("Chart property 'height' was deprecated in 0.11 \
-            and will be removed in the future.")
-        return self.plot_height
+    diamond_cross = _glyph_function(markers.DiamondCross)
 
-    @height.setter
-    def height(self, height):
-        self.plot_height = height
+    ellipse = _glyph_function(glyphs.Ellipse)
+
+    hbar = _glyph_function(glyphs.HBar)
+
+    image = _glyph_function(glyphs.Image)
+
+    image_rgba = _glyph_function(glyphs.ImageRGBA)
+
+    image_url = _glyph_function(glyphs.ImageURL)
+
+    inverted_triangle = _glyph_function(markers.InvertedTriangle)
+
+    line = _glyph_function(glyphs.Line)
+
+    multi_line = _glyph_function(glyphs.MultiLine)
+
+    oval = _glyph_function(glyphs.Oval)
+
+    patch = _glyph_function(glyphs.Patch)
+
+    patches = _glyph_function(glyphs.Patches)
+
+    quad = _glyph_function(glyphs.Quad)
+
+    quadratic = _glyph_function(glyphs.Quadratic)
+
+    ray = _glyph_function(glyphs.Ray)
+
+    rect = _glyph_function(glyphs.Rect)
+
+    segment = _glyph_function(glyphs.Segment)
+
+    square = _glyph_function(markers.Square)
+
+    square_cross = _glyph_function(markers.SquareCross)
+
+    square_x = _glyph_function(markers.SquareX)
+
+    text = _glyph_function(glyphs.Text)
+
+    triangle = _glyph_function(markers.Triangle)
+
+    vbar = _glyph_function(glyphs.VBar)
+
+    wedge = _glyph_function(glyphs.Wedge)
+
+    x = _glyph_function(markers.X)

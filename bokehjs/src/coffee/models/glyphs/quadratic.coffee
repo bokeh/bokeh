@@ -1,7 +1,7 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
 # Formula from: http://pomax.nihongoresources.com/pages/bezier/
 #
@@ -21,7 +21,7 @@ _qbb = (u, v, w) ->
     bd = u*Math.pow((1-t), 2) + 2*v*(1-t)*t + w*Math.pow(t, 2)
     return [Math.min(u, w, bd), Math.max(u, w, bd)]
 
-class QuadraticView extends Glyph.View
+export class QuadraticView extends GlyphView
 
   _index_data: () ->
     index = rbush()
@@ -33,7 +33,7 @@ class QuadraticView extends Glyph.View
       [x0, x1] = _qbb(@_x0[i], @_cx[i], @_x1[i])
       [y0, y1] = _qbb(@_y0[i], @_cy[i], @_y1[i])
 
-      pts.push([x0, y0, x1, y1, {'i': i}])
+      pts.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i: i})
 
     index.load(pts)
     return index
@@ -51,17 +51,13 @@ class QuadraticView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Quadratic extends Glyph.Model
+export class Quadratic extends Glyph
   default_view: QuadraticView
 
   type: 'Quadratic'
 
   @coords [['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']]
   @mixins ['line']
-
-module.exports =
-  Model: Quadratic
-  View: QuadraticView

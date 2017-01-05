@@ -1,33 +1,29 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-ActionTool = require "./action_tool"
-p = require "../../../core/properties"
+import {ActionTool, ActionToolView} from "./action_tool"
+import * as p from "../../../core/properties"
 
-class HelpToolView extends ActionTool.View
+export class HelpToolView extends ActionToolView
   do: () ->
-  	window.open(@mget('redirect'))
+    window.open(@model.redirect)
 
-class HelpTool extends ActionTool.Model
+export class HelpTool extends ActionTool
   default_view: HelpToolView
   type: "HelpTool"
   tool_name: "Help"
   icon: "bk-tool-icon-help"
 
   @define {
-      help_tooltip: [
-        p.String,
-        'Click the question mark to learn more about Bokeh plot tools.'
-      ]
-      redirect:     [
-        p.String
-        'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
-      ]
-    }
+    help_tooltip: [
+      p.String,
+      'Click the question mark to learn more about Bokeh plot tools.'
+    ]
+    redirect:     [
+      p.String
+      'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
+    ]
+  }
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @override_computed_property('tooltip', () ->@get('help_tooltip'))
-
-module.exports =
-  Model: HelpTool,
-  View: HelpToolView,
+  @getters {
+    tooltip: () -> @help_tooltip
+  }

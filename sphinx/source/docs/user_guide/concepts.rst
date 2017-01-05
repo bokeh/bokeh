@@ -86,9 +86,6 @@ interactive usage are:
 ``output_notebook``
     For displaying Bokeh visualizations inline in Jupyter notebook cells.
 
-``output_server``
-    For installing Bokeh applications on a running Bokeh server.
-
 These functions are most often used together with the ``show`` or ``save``
 functions. Scripts that output with these typically look something like:
 
@@ -144,11 +141,11 @@ For more information on the command line tool see :ref:`userguide_cli`.
 Interfaces
 ----------
 
-Bokeh is intended to provide a quick and simple interface to data scientists 
-and domain experts who do not want to be distracted by the details of the 
-software, and also provide a richly detailed interface to application 
-developers and software engineers who may want more control or access to more 
-sophisticated features. Because of this, Bokeh takes a layered approach and 
+Bokeh is intended to provide a quick and simple interface to data scientists
+and domain experts who do not want to be distracted by the details of the
+software, and also provide a richly detailed interface to application
+developers and software engineers who may want more control or access to more
+sophisticated features. Because of this, Bokeh takes a layered approach and
 offers programming interfaces appropriate to different levels, as well as some
 compatibility interfaces to make use of existing code from other
 libraries. This section provides an overview of the different interfaces
@@ -224,7 +221,7 @@ users will want to create |Figure| objects by using the |figure| function.
 A prototypical example of the |bokeh.plotting| usage is show below, along
 with the resulting plot:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_plotting.py
+.. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
     :source-position: above
 
 The main observation is that the typical usage involves creating plots objects
@@ -262,7 +259,7 @@ The interface includes chart types such as: |Bar|, |BoxPlot|, |Histogram|,
 |Timeseries|, and many others. One simple example using |Scatter| is shown
 below:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_charts.py
+.. bokeh-plot:: docs/user_guide/examples/concepts_charts.py
     :source-position: above
 
 Important to note is that the same output functions are used across different
@@ -283,7 +280,7 @@ plots very easily. There are several examples in the :ref:`gallery`. Here is
 a quick example that shows a Seaborn_ plot converted to a Bokeh plot with
 just one additional line of code:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_other_interfaces.py
+.. bokeh-plot:: docs/user_guide/examples/concepts_other_interfaces.py
     :source-position: above
 
 .. _Backbone: http://backbonejs.org
@@ -305,7 +302,6 @@ just one additional line of code:
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 

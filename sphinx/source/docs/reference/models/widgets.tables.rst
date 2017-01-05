@@ -1,5 +1,7 @@
-``bokeh.models.widgets.tables``
--------------------------------
+.. _bokeh.models.widgets.tables:
+
+bokeh.models.widgets.tables
+---------------------------
 
 .. automodule:: bokeh.models.widgets.tables
    :members:

@@ -1,10 +1,10 @@
-
 from bokeh.models import HoverTool, ColumnDataSource
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 
 romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
+elements = elements.copy()
 elements["atomic mass"] = elements["atomic mass"].astype(str)
 
 elements["period"] = [romans[x-1] for x in elements.period]
@@ -42,7 +42,7 @@ source = ColumnDataSource(
     )
 )
 
-p = figure(title="Periodic Table", tools="resize,hover,save",
+p = figure(title="Periodic Table", tools="hover,save",
            x_range=group_range, y_range=list(reversed(romans)))
 p.plot_width = 1200
 p.toolbar_location = None
@@ -82,6 +82,4 @@ p.select_one(HoverTool).tooltips = [
     ("electronic configuration", "@electronic"),
 ]
 
-output_file("periodic.html", title="periodic.py example")
-
-show(p)
+show(p)  # Change to save(p) to save but not show the HTML file

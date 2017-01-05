@@ -1,28 +1,25 @@
-_ = require("underscore")
+import "./core/util/underscore"
 
-Bokeh = {}
-Bokeh.require = require
-Bokeh.version = '0.11.1'
+export {version} from "./version"
 
-# binding the libs that bokeh uses so others can reference them
-Bokeh._                 = require("underscore")
-Bokeh.$                 = require("jquery")
+import * as _ from "underscore"
+import * as $ from "jquery"
+Object.defineProperty(module.exports, "_", {
+  get: () ->
+    console.warn("Bokeh._ was deprecated in Bokeh 0.12.4 and will be removed.
+                  You have to provide your own copy of underscore if necessary.")
+    return _
+})
+Object.defineProperty(module.exports, "$", {
+  get: () ->
+    console.warn("Bokeh.$ was deprecated in Bokeh 0.12.4 and will be removed.
+                  You have to provide your own copy of jquery if necessary.")
+    return $
+})
 
-Bokeh.Backbone          = require("backbone")
-Bokeh.Backbone.$        = Bokeh.$
+import * as embed from "./embed"
+export {embed}
 
-# set up logger
-logging = require("./core/logging")
-Bokeh.logger            = logging.logger
-Bokeh.set_log_level     = logging.set_log_level
-
-Bokeh.index             = require("./base").index
-Bokeh.embed             = require("./embed")
-
-Bokeh.Models            = require("./base").Models
-
-_.extend(Bokeh, require("./api"))
-
-# Here for backwards capability?
-Bokeh.Bokeh = Bokeh
-module.exports = Bokeh
+export {logger, set_log_level} from "./core/logging"
+export {Models, index}         from "./base"
+export {safely}                from "./safely"

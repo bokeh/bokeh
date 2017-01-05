@@ -9,7 +9,7 @@ import sys
 from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
-from tests.plugins.constants import __version__, default_diff
+from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git
 from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id, S3_URL
 
@@ -26,6 +26,8 @@ PY3 = sys.version_info[0] == 3
 if not PY3:
     from codecs import open
 
+default_diff = os.environ.get("BOKEH_DEFAULT_DIFF")
+default_upload = default_diff is not None
 
 def pytest_addoption(parser):
     parser.addoption(

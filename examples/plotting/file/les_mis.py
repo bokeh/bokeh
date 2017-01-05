@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from bokeh.plotting import figure, show, output_file
@@ -42,7 +41,7 @@ source = ColumnDataSource(data=dict(
 ))
 
 p = figure(title="Les Mis Occurrences",
-           x_axis_location="above", tools="resize,hover,save",
+           x_axis_location="above", tools="hover,save",
            x_range=list(reversed(names)), y_range=names)
 
 p.plot_width = 800
@@ -55,7 +54,8 @@ p.axis.major_label_standoff = 0
 p.xaxis.major_label_orientation = np.pi/3
 
 p.rect('xname', 'yname', 0.9, 0.9, source=source,
-       color='colors', alpha='alphas', line_color=None)
+       color='colors', alpha='alphas', line_color=None,
+       hover_line_color='black', hover_color='colors')
 
 p.select_one(HoverTool).tooltips = [
     ('names', '@yname, @xname'),

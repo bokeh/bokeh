@@ -1,67 +1,44 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/dropdown"
 
-AbstractButton = require "./abstract_button"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-class DropdownView extends BokehView
-  tagName: "div"
+import {AbstractButton, AbstractButtonView} from "./abstract_button"
+import template from "./dropdown_template"
 
-  initialize: (options) ->
-    super(options)
-    @render()
-    @listenTo(@model, 'change', @render)
+export class DropdownView extends AbstractButtonView
+  template: template
 
   render: () ->
-    @$el.empty()
+    super()
 
-    split = @mget("default_value")?
-
-    $button = $('<button></button>')
-    $button.addClass("bk-bs-btn")
-    $button.addClass("bk-bs-btn-" + @mget("button_type"))
-    $button.text(@mget("label"))
-
-    $caret = $('<span class="bk-bs-caret"></span>')
-    if not split
-      $button.addClass("bk-bs-dropdown-toggle")
-      $button.attr("data-bk-bs-toggle", "dropdown")
-      $button.append(document.createTextNode(" "))
-      $button.append($caret)
-      $toggle = $('')
-    else
-      $button.click(() => @change_input(@mget("default_value")))
-      $toggle = $('<button></button>')
-      $toggle.addClass("bk-bs-btn")
-      $toggle.addClass("bk-bs-btn-" + @mget("type"))
-      $toggle.addClass("bk-bs-dropdown-toggle")
-      $toggle.attr("data-bk-bs-toggle", "dropdown")
-      $toggle.append($caret)
-
-    $menu = $('<ul class="bk-bs-dropdown-menu"></ul>')
-    $divider = $('<li class="bk-bs-divider"></li>')
-
-    for item in @mget("menu")
+    items = []
+    for item in @model.menu
       $item = if item?
         [label, value] = item
-        $a = $('<a></a>').text(label).data('value', value)
+        $a = $("<a data-value='#{value}'>#{label}</a>")
         that = this
-        $a.click((e) -> that.change_input($(this).data('value')))
+        $a.click((e) -> that.set_value($(this).data('value')))
         $('<li></li>').append($a)
       else
-        $divider
-      $menu.append($item)
+        $('<li class="bk-bs-divider"></li>')
+      items.push($item)
 
-    @$el.addClass("bk-bs-btn-group")
-    @$el.append([$button, $toggle, $menu])
+    @$el.find('.bk-bs-dropdown-menu').append(items)
+    @$el.find('button').val(@model.default_value)
+    @$el.find('button').dropdown()
     return @
 
-  change_input: (value) ->
-    @mset('value', value)
-    @mget('callback')?.execute(@model)
+  set_value: (value) ->
+    # Set the bokeh model to value
+    @model.value = value
+    # Set the html button value to value
+    @$el.find('button').val(value)
 
-class Dropdown extends AbstractButton.Model
+
+
+export class Dropdown extends AbstractButton
   type: "Dropdown"
   default_view: DropdownView
 
@@ -74,7 +51,3 @@ class Dropdown extends AbstractButton.Model
   @override {
     label: "Dropdown"
   }
-
-module.exports =
-  Model: Dropdown
-  View: DropdownView

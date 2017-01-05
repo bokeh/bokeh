@@ -1,17 +1,15 @@
-_ = require "underscore"
+import * as $ from "jquery"
 
-Paragraph = require "./paragraph"
-p = require "../../core/properties"
+import {Markup, MarkupView} from "./markup"
+import * as p from "../../core/properties"
 
-class PreTextView extends Paragraph.View
-  tagName: "pre"
-  attributes:
-    style: "overflow:scroll"
+export class PreTextView extends MarkupView
 
-class PreText extends Paragraph.Model
+  render: () ->
+    super()
+    $pre = $('<pre style="overflow: auto"></pre>').text(@model.text)
+    @$el.find('.bk-markup').append($pre)
+
+export class PreText extends Markup
   type: "PreText"
   default_view: PreTextView
-
-module.exports =
-  Model: PreText
-  View: PreTextView

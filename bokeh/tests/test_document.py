@@ -30,6 +30,11 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
 
+    def test_default_template_vars(self):
+        d = document.Document()
+        assert not d.roots
+        assert d.template_variables == {}
+
     def test_add_roots(self):
         d = document.Document()
         assert not d.roots
@@ -328,6 +333,36 @@ class TestDocument(unittest.TestCase):
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
+    def test_patch_notification(self):
+        d = document.Document()
+        assert not d.roots
+        m = ColumnDataSource(data=dict(a=[10,11], b=[20,21]))
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert curdoc() is not d
+        events = []
+        curdoc_from_listener = []
+        def listener(event):
+            curdoc_from_listener.append(curdoc())
+            events.append(event)
+        d.on_change(listener)
+        m.patch(dict(a=[(0, 1)], b=[(0,0), (1,1)]))
+        assert events
+        event = events[0]
+        assert isinstance(event, document.ModelChangedEvent)
+        assert isinstance(event.hint, document.ColumnsPatchedEvent)
+        assert event.document == d
+        assert event.model == m
+        assert event.hint.column_source == m
+        assert event.hint.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
+        assert event.attr == 'data'
+        # old == new because stream events update in-place
+        assert event.old == dict(a=[1, 11], b=[0, 1])
+        assert event.new == dict(a=[1, 11], b=[0, 1])
+        assert len(curdoc_from_listener) == 1
+        assert curdoc_from_listener[0] is d
+
+
     def test_change_notification_removal(self):
         d = document.Document()
         assert not d.roots
@@ -446,6 +481,27 @@ class TestDocument(unittest.TestCase):
         assert len(events) == 2
         assert isinstance(events[0], document.SessionCallbackAdded)
         assert isinstance(events[1], document.SessionCallbackRemoved)
+
+    def test_add_partial_callback(self):
+        from functools import partial
+        d = document.Document()
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def _cb(): pass
+        cb = partial(_cb)
+
+        callback = d.add_timeout_callback(cb, 1)
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+        assert callback.timeout == 1
 
     def test_add_remove_next_tick_callback(self):
         d = document.Document()
@@ -611,7 +667,7 @@ class TestDocument(unittest.TestCase):
         assert len(d.roots) == 1
 
         def patch_test(new_value):
-            serializable_new = root1.lookup('foo').descriptor.to_serializable(root1,
+            serializable_new = root1.lookup('foo').property.to_serializable(root1,
                                                                               'foo',
                                                                               new_value)
             event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, new_value,
@@ -731,9 +787,11 @@ class TestDocument(unittest.TestCase):
         assert len(d._all_models) == 0
         p1 = figure(tools=[])
         N = 10
-        x = np.linspace(0, 4*np.pi, N)
+        x = np.linspace(0, 4 * np.pi, N)
         y = np.sin(x)
-        p1.scatter(x,y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+        p1.scatter(x, y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+        # figure does not automatically add itself to the document
+        d.add_root(p1)
         assert len(d.roots) == 1
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
@@ -751,7 +809,7 @@ class TestDocument(unittest.TestCase):
 
         before = d.to_json()
 
-        root1.foo=47
+        root1.foo = 47
 
         after = d.to_json()
 

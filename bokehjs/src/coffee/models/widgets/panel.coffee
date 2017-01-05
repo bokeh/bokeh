@@ -1,21 +1,18 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-class PanelView extends BokehView
+import {Widget, WidgetView} from "./widget"
 
-  initialize: (options) ->
-    super(options)
-    @render()
+export class PanelView extends WidgetView
 
   render: () ->
+    super()
     @$el.empty()
     return @
 
-class Panel extends Widget.Model
+export class Panel extends Widget
   type: "Panel"
   default_view: PanelView
 
@@ -24,7 +21,3 @@ class Panel extends Widget.Model
       child:    [ p.Instance       ]
       closable: [ p.Bool,    false ]
     }
-
-module.exports =
-  Model: Panel
-  View: PanelView

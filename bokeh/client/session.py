@@ -7,14 +7,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from ._connection import ClientConnection
-
 from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
                               server_url_for_websocket_url,
                               _SessionCoordinates )
 from bokeh.document import Document
 from bokeh.util.session_id import generate_session_id
-from bokeh.util.tornado import _DocumentCallbackGroup
 
 DEFAULT_SESSION_ID = "default"
 
@@ -54,7 +51,7 @@ def push_session(document, session_id=None, url='default', app_path='/', io_loop
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
        Returns:
-            session : ClientSession
+            ClientSession
                 A new ClientSession connected to the server
 
     """
@@ -103,7 +100,7 @@ def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
         io_loop (``tornado.ioloop.IOLoop``, optional) :
             The IOLoop to use for the websocket
     Returns:
-        session (ClientSession) :
+        ClientSession :
             A new ClientSession connected to the server
 
     """
@@ -206,9 +203,10 @@ class ClientSession(object):
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
+        from ._connection import ClientConnection
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
-        self._current_patch = None
+        from bokeh.util.tornado import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
 
     def _attach_document(self, document):
@@ -271,11 +269,14 @@ class ClientSession(object):
         if self._document is None:
             self._attach_document(doc)
 
-
-    def show(self, browser=None, new="tab"):
+    def show(self, obj=None, browser=None, new="tab"):
         """ Open a browser displaying this session.
 
         Args:
+            obj (LayoutDOM object, optional) : a Layout (Row/Column),
+                Plot or Widget object to display. The object will be added
+                to the session's document.
+
             browser (str, optional) : browser to show with (default: None)
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
@@ -288,7 +289,9 @@ class ClientSession(object):
                 opens a new tab. If **new** is 'window', then opens a new window.
 
         """
-        show_session(session=self)
+        if obj and obj not in self.document.roots:
+            self.document.add_root(obj)
+        show_session(session=self, browser=browser, new=new)
 
     @classmethod
     def _ensure_session_id(cls, session_id):
@@ -346,8 +349,7 @@ class ClientSession(object):
             self._callbacks.remove_all_callbacks()
 
     def _document_patched(self, event):
-
-        if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
+        if event.setter is self:
             log.debug("Not sending notification back to server for a change it requested")
             return
 
@@ -358,11 +360,7 @@ class ClientSession(object):
         self._connection._send_patch_document(self._id, event)
 
     def _handle_patch(self, message):
-        self._current_patch = message
-        try:
-            message.apply_to_document(self.document)
-        finally:
-            self._current_patch = None
+        message.apply_to_document(self.document, self)
 
     def _session_callback_added(self, event):
         self._callbacks.add_session_callback(event.callback)

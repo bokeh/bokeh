@@ -7,7 +7,7 @@
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
-from mock import patch, Mock
+from mock import patch, Mock, PropertyMock
 import unittest
 
 import bokeh.io as io
@@ -30,6 +30,7 @@ class testCurstate(unittest.TestCase):
     def test(self):
         self.assertEqual(io.curstate(), io._state)
 
+
 class DefaultStateTester(unittest.TestCase):
 
     def _check_func_called(self, func, args, kwargs):
@@ -40,19 +41,24 @@ class DefaultStateTester(unittest.TestCase):
     def setUp(self):
         self._orig_state = io._state
         io._state = Mock()
+        doc = Mock()
+        roots = PropertyMock(return_value=[])
+        type(doc).roots = roots
+        io._state.document = doc
 
     def tearDown(self):
         io._state = self._orig_state
+        io._state.document.clear()
 
 class testOutputFile(DefaultStateTester):
 
     def test_noarg(self):
-        default_kwargs = dict(title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None)
+        default_kwargs = dict(title="Bokeh Plot", mode="cdn", root_dir=None)
         io.output_file("foo.html")
         self._check_func_called(io._state.output_file, ("foo.html",), default_kwargs)
 
     def test_args(self):
-        kwargs = dict(title="title", autosave=True, mode="cdn", root_dir="foo")
+        kwargs = dict(title="title", mode="cdn", root_dir="foo")
         io.output_file("foo.html", **kwargs)
         self._check_func_called(io._state.output_file, ("foo.html",), kwargs)
 
@@ -60,14 +66,14 @@ class TestOutputNotebook(DefaultStateTester):
 
     @patch('bokeh.io.load_notebook')
     def test_noarg(self, mock_load_notebook):
-        default_load_notebook_args = (None, False, False)
+        default_load_notebook_args = (None, False, False, 5000)
         io.output_notebook()
         self._check_func_called(io._state.output_notebook, (), {})
         self._check_func_called(mock_load_notebook, default_load_notebook_args, {})
 
     @patch('bokeh.io.load_notebook')
     def test_args(self, mock_load_notebook):
-        load_notebook_args = (Resources(), True, True)
+        load_notebook_args = (Resources(), True, True, 1000)
         io.output_notebook(*load_notebook_args)
         self._check_func_called(io._state.output_notebook, (), {})
         self._check_func_called(mock_load_notebook, load_notebook_args, {})
@@ -75,12 +81,12 @@ class TestOutputNotebook(DefaultStateTester):
 class TestOutputServer(DefaultStateTester):
 
     def test_noarg(self):
-        default_kwargs = dict(session_id="default", url="default", app_path='/', autopush=False)
+        default_kwargs = dict(session_id="default", url="default", app_path='/')
         io.output_server()
         self._check_func_called(io._state.output_server, (), default_kwargs)
 
     def test_args(self):
-        kwargs = dict(session_id="foo", url="http://example.com", app_path='/foo', autopush=True)
+        kwargs = dict(session_id="foo", url="http://example.com", app_path='/foo')
         io.output_server(**kwargs)
         self._check_func_called(io._state.output_server, (), kwargs)
 
@@ -257,15 +263,34 @@ class TestShow(DefaultStateTester):
 
     @patch('bokeh.io._show_with_state')
     def test_default_args(self, mock__show_with_state):
-        default_kwargs = dict(browser=None, new="tab")
+        default_kwargs = dict(browser=None, new="tab", notebook_handle=False)
         io.show("obj", **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", io._state, None, "tab"), {})
+        self._check_func_called(mock__show_with_state, ("obj", io._state, None, "tab"), {'notebook_handle': False})
 
     @patch('bokeh.io._show_with_state')
     def test_explicit_args(self, mock__show_with_state):
-        default_kwargs = dict(browser="browser", new="new")
+        default_kwargs = dict(browser="browser", new="new", notebook_handle=True)
         io.show("obj", **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {})
+        self._check_func_called(mock__show_with_state, ("obj", io._state, "browser", "new"), {'notebook_handle': True})
+
+
+@patch('bokeh.io._show_with_state')
+def test_show_adds_obj_to_document_if_not_already_there(m):
+    assert io._state.document.roots == []
+    p = Plot()
+    io.show(p)
+    assert p in io._state.document.roots
+
+
+@patch('bokeh.io._show_with_state')
+def test_show_doesnt_duplicate_if_already_there(m):
+    io._state.document.clear()
+    p = Plot()
+    io.show(p)
+    assert io._state.document.roots == [p]
+    io.show(p)
+    assert io._state.document.roots == [p]
+
 
 class Test_ShowWithState(DefaultStateTester):
 
@@ -280,19 +305,19 @@ class Test_ShowWithState(DefaultStateTester):
         s = io.State()
         s.output_notebook()
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_server_with_state.called)
         self.assertFalse(mock__show_file_with_state.called)
 
         s.output_file("foo.html")
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
         s._session = Mock
         io._show_with_state("obj", s, "browser", "new")
-        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s, False), {})
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
@@ -332,15 +357,15 @@ class Test_ShowFileWithState(DefaultStateTester):
         s = io.State()
         s.output_file("foo.html")
         controller = Mock()
-        mock_abspath.return_value = "abspath"
+        mock_save.return_value = "savepath"
 
         io._show_file_with_state("obj", s, "window", controller)
         self._check_func_called(mock_save, ("obj",), {"state": s})
-        self._check_func_called(controller.open, ("file://abspath",), {"new": 1})
+        self._check_func_called(controller.open, ("file://savepath",), {"new": 1})
 
         io._show_file_with_state("obj", s, "tab", controller)
         self._check_func_called(mock_save, ("obj",), {"state": s})
-        self._check_func_called(controller.open, ("file://abspath",), {"new": 2})
+        self._check_func_called(controller.open, ("file://savepath",), {"new": 2})
 
 class Test_ShowNotebookWithState(DefaultStateTester):
 
@@ -352,7 +377,7 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         s._server_enabled = True
         mock_autoload_server.return_value = "snippet"
 
-        io._show_notebook_with_state("obj", s)
+        io._show_notebook_with_state("obj", s, True)
         self._check_func_called(mock_push, (), {"state": s})
         self._check_func_called(mock_publish_display_data, ({"text/html":"snippet"},), {})
 
@@ -364,7 +389,9 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         s = io.State()
         mock_notebook_div.return_value = "notebook_div"
 
-        io._show_notebook_with_state("obj", s)
+        io._nb_loaded = True
+        io._show_notebook_with_state("obj", s, True)
+        io._nb_loaded = False
         self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
 
 class Test_ShowServerWithState(DefaultStateTester):
@@ -392,40 +419,16 @@ class TestResetOutput(DefaultStateTester):
         io.reset_output()
         self.assertTrue(io._state.reset.called)
 
-class LayoutGeneratorTester(unittest.TestCase):
 
-    def _test_layout_added_to_root(self, layout_generator, children=None):
-        layout = layout_generator(self.component if children is None else children)
-        self.assertIn(layout, io.curdoc().roots)
-        io.curdoc().clear()
+def _test_layout_added_to_root(layout_generator, children=None):
+    layout = layout_generator(Plot() if children is None else children)
+    assert layout in io.curdoc().roots
+    io.curdoc().clear()
 
-    def _test_children_removed_from_root(self, layout_generator, children=None):
-        io.curdoc().add_root(self.component if children is None else children[0][0])
-        layout = layout_generator(self.component if children is None else children)
-        self.assertNotIn(self.component, io.curdoc().roots)
-        io.curdoc().clear()
 
-    def setUp(self):
-        self.component = Plot() #must be Plot to test gridplot
-
-class testLayoutGeneration(LayoutGeneratorTester):
-
-    def test_gridplot(self):
-        children = [[self.component]]
-        self._test_layout_added_to_root(io.gridplot, children)
-        self._test_children_removed_from_root(io.gridplot, children)
-
-    def test_hplot(self):
-        self._test_layout_added_to_root(io.hplot)
-        self._test_children_removed_from_root(io.hplot)
-
-    def test_vplot(self):
-        self._test_layout_added_to_root(io.vplot)
-        self._test_children_removed_from_root(io.vplot)
-
-    def test_vform(self):
-        self._test_layout_added_to_root(io.vform)
-        self._test_children_removed_from_root(io.vform)
-
-if __name__ == "__main__":
-    unittest.main()
+def _test_children_removed_from_root(layout_generator, children=None):
+    component = Plot()
+    io.curdoc().add_root(component if children is None else children[0][0])
+    layout_generator(component if children is None else children)
+    assert component not in io.curdoc().roots
+    io.curdoc().clear()

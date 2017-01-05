@@ -1,12 +1,13 @@
 import pandas as pd
 
-from bokeh.charts import HeatMap, bins, output_file, show, vplot
+from bokeh.charts import HeatMap, bins, output_file, show
+from bokeh.layouts import column, gridplot
 from bokeh.palettes import RdYlGn6, RdYlGn9
 from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.unemployment1948 import data
 
 # setup data sources
-del data['Annual']
+data = data.copy()
 data['Year'] = data['Year'].astype(str)
 unempl = pd.melt(data, var_name='Month', value_name='Unemployment', id_vars=['Year'])
 
@@ -22,7 +23,7 @@ hm1 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'))
 
 hm2 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl', stat='mean')
 
-hm3 = HeatMap(autompg, x=bins('mpg'), y=bins('displ', bin_count=15),
+hm3 = HeatMap(autompg, x=bins('mpg'), y=bins('displ', bins=15),
               values='cyl', stat='mean')
 
 hm4 = HeatMap(autompg, x=bins('mpg'), y='cyl', values='displ', stat='mean')
@@ -42,8 +43,12 @@ hm8 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl',
 hm9 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
 
 hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
-              sort_dim={'x': False}, width=1000)
+              sort_dim={'x': False}, width=900, plot_height=500)
 
 output_file("heatmap.html", title="heatmap.py example")
 
-show(vplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9, hm10))
+show(column(
+  gridplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9,
+           ncols=2, plot_width=400, plot_height=400),
+  hm10)
+)

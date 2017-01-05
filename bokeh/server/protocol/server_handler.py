@@ -26,10 +26,10 @@ class ServerHandler(object):
 
     @gen.coroutine
     def handle(self, message, connection):
-        handler = self._handlers.get((message.msgtype, message.revision), None)
+        handler = self._handlers.get((message.msgtype, message.revision))
 
         if handler is None:
-            handler = self._handlers.get(message.msgtype, None)
+            handler = self._handlers.get(message.msgtype)
 
         if handler is None:
             raise ProtocolError("%s not expected on server" % message)
@@ -45,4 +45,3 @@ class ServerHandler(object):
     @gen.coroutine
     def _server_info_req(self, message, connection):
         raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid']))
-

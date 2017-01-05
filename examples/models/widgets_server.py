@@ -13,7 +13,7 @@ from bokeh.models import (
 from bokeh.models.widgets import (
     Button, TableColumn, DataTable,
     DateEditor, DateFormatter, IntEditor)
-from bokeh.models.layouts import VBox
+from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
 session = push_session(document)
@@ -31,7 +31,8 @@ def make_plot():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot.title.text = "Product downloads"
 
     line = Line(x="dates", y="downloads", line_color="blue")
     plot.add_glyph(source, line)
@@ -64,9 +65,9 @@ def make_layout():
     data_table = DataTable(source=source, columns=columns, width=400, height=400, editable=True)
     button = Button(label="Randomize data", button_type="success")
     button.on_click(click_handler)
-    buttons = VBox(children=[button])
-    vbox = VBox(children=[buttons, plot, data_table])
-    return vbox
+    buttons = WidgetBox(children=[button], width=400)
+    column = Column(children=[buttons, plot, data_table])
+    return column
 
 layout = make_layout()
 document.add_root(layout)
@@ -74,5 +75,6 @@ document.add_root(layout)
 session.show(layout)
 
 if __name__ == "__main__":
+    document.validate()
     print("\npress ctrl-C to exit")
     session.loop_until_closed()

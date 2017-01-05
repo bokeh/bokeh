@@ -13,7 +13,7 @@ global.WebSocket = require("websocket").w3cwebsocket
 
 {Document, ModelChangedEvent} = utils.require "document"
 {pull_session} = utils.require "client"
-Range1d = utils.require("models/ranges/range1d").Model
+{Range1d} = utils.require("models/ranges/range1d")
 
 # Promise works in a very annoying way, make it
 # have resolve and reject methods instead
@@ -169,8 +169,8 @@ describe "Client", ->
               try
                 expect(session2.document.roots().length).to.equal 1
                 root = session2.document.roots()[0]
-                expect(root.get('start')).to.equal 123
-                expect(root.get('end')).to.equal 456
+                expect(root.start).to.equal 123
+                expect(root.end).to.equal 456
                 expect(session2.document.title()).to.equal "Hello Title"
               catch e
                 console.log("Exception was ", e)

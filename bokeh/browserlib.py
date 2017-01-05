@@ -1,6 +1,5 @@
-
-from bokeh.util.deprecate import deprecated_module
-deprecated_module('bokeh.browserlib', '0.11', 'use bokeh.util.browser instead')
-del deprecated_module
+from bokeh.util.deprecation import deprecated
+deprecated((0, 11, 0), 'bokeh.browserlib', 'bokeh.util.browser')
+del deprecated
 
 from .util.browser import * # NOQA

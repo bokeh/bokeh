@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function
 
 import yaml
 
-from ..core.properties import HasProps
+from ..core.has_props import HasProps
 
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
@@ -107,5 +107,3 @@ class Theme(object):
         # the dict.
         if len(_empty_dict) > 0:
             raise RuntimeError("Somebody put stuff in _empty_dict")
-
-

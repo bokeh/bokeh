@@ -2,14 +2,13 @@
 
 from __future__ import absolute_import
 
-import sys
 from types import FunctionType
 from ..model import Model
 from ..util.dependencies import import_required
+from ..util.compiler import nodejs_compile, CompilationError
 
 from ..core.properties import abstract
-from ..core.properties import Dict, Instance, String, Enum
-from ..core.enums import ScriptingLanguage
+from ..core.properties import Dict, Instance, String
 
 
 @abstract
@@ -48,7 +47,16 @@ class CustomJS(Callback):
         # Get JS code, we could rip out the function def, or just
         # call the function. We do the latter.
         code = pyscript.py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
-        return cls(code=code, args=args, lang='javascript')
+        return cls(code=code, args=args)
+
+    @classmethod
+    def from_coffeescript(cls, code, args={}):
+        """ Create a ``CustomJS`` instance from CoffeeScript code. """
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        if "error" in compiled:
+            raise CompilationError(compiled.error)
+        else:
+            return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
@@ -57,17 +65,13 @@ class CustomJS(Callback):
     """)
 
     code = String(default="", help="""
-    A snippet of JavaScript/CoffeeScript code to execute in the browser. The
+    A snippet of JavaScript code to execute in the browser. The
     code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the HoverTool).
-    """)
 
-    lang = Enum(ScriptingLanguage, default="javascript", help="""
-    The implementation scripting language of the snippet. This can be either
-    raw JavaScript or CoffeeScript. In CoffeeScript's case, the snippet will
-    be compiled at runtime (in a web browser), so you don't need to have
-    node.js/io.js, etc. installed.
+    .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
+
     """)

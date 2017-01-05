@@ -1,6 +1,29 @@
 from __future__ import absolute_import, print_function
+import pytest
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 from bokeh.models import ColumnDataSource, Rect, BoxSelectTool, CustomJS
+
+from tests.plugins.utils import warn
+
+
+def has_no_console_errors(selenium):
+    """
+    Helper function to detect console errors.
+    """
+    logs = selenium.get_log('browser')
+    severe_errors = [l for l in logs if l.get('level') == 'SEVERE']
+    non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
+    if len(non_network_errors) == 0:
+        return True
+    else:
+        pytest.fail('Console errors: %s' % non_network_errors)
+    if len(non_network_errors) == 0 and len(severe_errors) != 0:
+        warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
 
 
 class value_to_be_present_in_datahash(object):
@@ -54,6 +77,18 @@ class element_to_finish_resizing(object):
             return False
 
 
+def wait_for_canvas_resize(canvas, test_driver):
+    try:
+        wait = WebDriverWait(test_driver, 1)
+        wait.until(element_to_start_resizing(canvas))
+        wait.until(element_to_finish_resizing(canvas))
+    except TimeoutException:
+        # Resize may or may not happen instantaneously,
+        # Put the waits in to give some time, but allow test to
+        # try and process.
+        pass
+
+
 def add_visual_box_select(plot):
     """
     Add a box select tool to your plot which draws a Rect on box select. This can
@@ -75,7 +110,7 @@ def add_visual_box_select(plot):
     rect = Rect(x='x', y='y', width='width', height='height', fill_alpha=0.3, fill_color='#009933')
     callback = CustomJS(args=dict(source=source), code="""
         // get data source from Callback args
-        var data = source.get('data');
+        var data = source.data;
 
         /// get BoxSelectTool dimensions from cb_data parameter of Callback
         var geometry = cb_data['geometry'];

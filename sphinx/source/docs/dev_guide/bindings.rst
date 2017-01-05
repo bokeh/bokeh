@@ -1,4 +1,3 @@
-
 .. _devguide_bindings:
 
 Language Bindings
@@ -36,21 +35,17 @@ rbokeh
   for Bokeh to the R language.
 
 bokeh.jl
-  Created by `@samuelcolvin <samuelcolvin_>`_, the `bokeh.jl <bokeh_jl_>`_ project
-  brings Bokeh to Julia users.
+  Originally created by `@samuelcolvin <samuelcolvin_>`_, the
+  `bokeh.jl <bokeh_jl_>`_ project brings Bokeh to Julia users.
+
+  **The bokeh.jl binding is currently unmaintained**. If you are interested in
+  picking up the bokeh.jl work, please contact the core devs.
 
 bokeh-scala
   The `bokeh-scala <bokeh_scala_>`_ exposes Bokeh in the Scala language. The
   project was created by the Bokeh core dev team's own `@mattpap <mattpap_>`_.
 
-bokeh.lua
-  The `iTorch <bokeh_lua_>`_ project, created by Facebook, integrates Bokeh
-  as the solution for interactive plotting in a Jupyter notebook. Minimal Lua
-  bindings were generated to support this effort.
-
-
 .. _bokeh_jl: https://github.com/bokeh/Bokeh.jl
-.. _bokeh_lua: https://github.com/facebook/iTorch
 .. _bokeh_r: http://hafen.github.io/rbokeh/
 .. _bokeh_scala: https://github.com/bokeh/bokeh-scala
 .. _hafen: https://github.com/hafen

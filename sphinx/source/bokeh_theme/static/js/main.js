@@ -12,6 +12,25 @@ $(document).ready(function() {
     });
   });
 
+  $.ajax({
+    url: "/en/latest/version.txt",
+    cache: false,
+    success: function(data) {
+      v = $.trim(data)
+      style = "font-family: sans-serif;font-size: 16px;width: 100%;text-align: center;background-color: pink;color: firebrick;padding: 5px;padding-top:12px; padding-bottom:12px;"
+      loc = window.location.pathname;
+      dev = /^\/en\/dev/
+      if (dev.exec(loc)) {
+        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="http://bokeh.pydata.org/en/latest/">http://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        $('html:first').prepend(content);
+      }
+      else if (v != window._BOKEH_CURRENT_VERSION) {
+        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="http://bokeh.pydata.org/en/latest/">http://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        $('body').prepend(content);
+      }
+    }
+  });
+
   var loc = window.location.pathname;
 
   if (loc.split('docs/').length == 1 ) {

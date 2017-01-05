@@ -4,9 +4,8 @@ from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Patches
-from bokeh.models import (
-    Plot, DataRange1d, ColumnDataSource, ResizeTool
-)
+from bokeh.models import Plot, DataRange1d, ColumnDataSource
+from bokeh.palettes import Viridis11
 from bokeh.resources import INLINE
 from bokeh.sampledata import us_states, us_counties, unemployment
 
@@ -24,16 +23,14 @@ state_source = ColumnDataSource(
     )
 )
 
-colors = ["#F1EEF6", "#D4B9DA", "#C994C7", "#DF65B0", "#DD1C77", "#980043"]
-
 county_colors = []
 for county_id in us_counties:
     if us_counties[county_id]["state"] in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]:
         continue
     try:
         rate = unemployment[county_id]
-        idx = min(int(rate/2), 5)
-        county_colors.append(colors[idx])
+        idx = min(int(rate/2), 10)
+        county_colors.append(Viridis11[idx])
     except KeyError:
         county_colors.append("black")
 
@@ -49,7 +46,9 @@ xdr = DataRange1d()
 ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, min_border=0, border_fill_color="white",
-            title="2009 Unemployment Data", plot_width=1300, plot_height=800, toolbar_location="left")
+            plot_width=1300, plot_height=700)
+plot.title.text = "2009 Unemployment Data"
+plot.toolbar_location = None
 
 county_patches = Patches(xs="county_xs", ys="county_ys", fill_color="county_colors", fill_alpha=0.7, line_color="white", line_width=0.5)
 plot.add_glyph(county_source, county_patches)
@@ -57,12 +56,11 @@ plot.add_glyph(county_source, county_patches)
 state_patches = Patches(xs="state_xs", ys="state_ys", fill_alpha=0.0, line_color="#884444", line_width=2)
 plot.add_glyph(state_source, state_patches)
 
-plot.add_tools(ResizeTool())
-
 doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "choropleth.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Choropleth of all US counties, Unemployment 2009"))

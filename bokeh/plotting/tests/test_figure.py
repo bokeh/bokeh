@@ -1,10 +1,24 @@
 from __future__ import absolute_import
 import unittest
+import pytest
+import pandas as pd
 
+from bokeh.core.properties import value
 from bokeh.models import (
-    LinearAxis, PanTool, BoxZoomTool, LassoSelectTool, ResetTool, ResizeTool)
+    BoxZoomTool,
+    ColumnDataSource,
+    LassoSelectTool,
+    Legend,
+    LinearAxis,
+    PanTool,
+    ResetTool,
+    ResizeTool,
+    Title,
+)
 
 import bokeh.plotting as plt
+
+
 
 class TestFigure(unittest.TestCase):
 
@@ -124,13 +138,10 @@ class TestFigure(unittest.TestCase):
         p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.grid), 2)
 
-    def test_legend(self):
-        pass
-
     def test_tools(self):
         TOOLS = "resize,pan,box_zoom,reset,lasso_select"
         fig = plt.figure(tools=TOOLS)
-        expected = [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool]
+        expected = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool]
 
         self.assertEqual(len(fig.tools), len(expected))
         for i, _type in enumerate(expected):
@@ -150,6 +161,17 @@ class TestFigure(unittest.TestCase):
         p.border_fill_color = 'yellow'
         self.assertEqual(p.background_fill_color, 'green')
         self.assertEqual(p.border_fill_color, 'yellow')
+
+    def test_columnsource_auto_conversion_from_dict(self):
+        p = plt.figure()
+        dct = {'x': [1, 2, 3], 'y': [2, 3, 4]}
+        p.circle(x='x', y='y', source=dct)
+
+    def test_columnsource_auto_conversion_from_pandas(self):
+        p = plt.figure()
+        df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
+        p.circle(x='x', y='y', source=df)
+
 
 class TestMarkers(unittest.TestCase):
 
@@ -220,5 +242,108 @@ class TestMarkers(unittest.TestCase):
         with self.assertRaises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
 
-if __name__ == "__main__":
-    unittest.main()
+
+def test_title_kwarg_no_warning(recwarn):
+    plt.figure(title="title")
+    assert len(recwarn) == 0
+
+
+def test_figure_title_should_accept_title():
+    title = Title(text='Great Title')
+    plot = plt.figure(title=title)
+    plot.line([1, 2, 3], [1, 2, 3])
+    assert plot.title.text == 'Great Title'
+
+
+def test_figure_title_should_accept_string():
+    plot = plt.figure(title='Great Title 2')
+    plot.line([1, 2, 3], [1, 2, 3])
+    assert plot.title.text == 'Great Title 2'
+
+
+@pytest.fixture
+def source():
+    return ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
+
+
+@pytest.fixture
+def p():
+    return plt.figure()
+
+
+def test_glyph_label_is_legend_if_column_in_datasouurce_is_added_as_legend(p, source):
+    p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'label'}
+
+
+def test_glyph_label_is_value_if_column_not_in_datasouurce_is_added_as_legend(p, source):
+    p.circle(x='x', y='y', legend='milk', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'value': 'milk'}
+
+
+def test_glyph_label_is_just_added_directly_if_not_string(p, source):
+    p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].label == {'field': 'milk'}
+
+
+def test_no_legend_if_legend_is_none(p, source):
+    p.circle(x='x', y='y', legend=None, source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 0
+
+
+def test_legend_added_when_legend_set(p, source):
+    renderer = p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [renderer]
+
+
+def test_legend_not_added_when_no_legend(p, source):
+    p.circle(x='x', y='y', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 0
+
+
+def test_adding_legend_doesnt_work_when_legends_already_added(p, source):
+    p.add_layout(Legend())
+    p.add_layout(Legend())
+    with pytest.raises(RuntimeError):
+        p.circle(x='x', y='y', legend='label', source=source)
+
+
+def test_multiple_renderers_correctly_added_to_legend(p, source):
+    square = p.square(x='x', y='y', legend='square', source=source)
+    circle = p.circle(x='x', y='y', legend='circle', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [square]
+    assert legends[0].items[0].label == value('square')
+    assert legends[0].items[1].renderers == [circle]
+    assert legends[0].items[1].label == value('circle')
+
+
+def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(p, source):
+    # 'compound legend string' is just a value
+    square = p.square(x='x', y='y', legend='compound legend string')
+    circle = p.circle(x='x', y='y', legend='compound legend string')
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [square, circle]
+    assert legends[0].items[0].label == {'value': 'compound legend string'}
+
+
+def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(p, source):
+    # label is a field
+    square = p.square(x='x', y='y', legend='label', source=source)
+    circle = p.circle(x='x', y='y', legend='label', source=source)
+    legends = p.select(Legend)
+    assert len(legends) == 1
+    assert legends[0].items[0].renderers == [square, circle]
+    assert legends[0].items[0].label == {'field': 'label'}

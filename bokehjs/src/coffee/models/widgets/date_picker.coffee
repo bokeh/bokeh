@@ -1,34 +1,32 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "jquery-ui/datepicker"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "jquery-ui/datepicker"
 
-InputWidget = require "./input_widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-class DatePickerView extends BokehView
+import {InputWidget, InputWidgetView} from "./input_widget"
+
+
+export class DatePickerView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
-    @render()
-
-  render: () ->
-    @$el.empty()
-    $label = $('<label>').text(@mget("title"))
-    $datepicker = $("<div>").datepicker({
-      defaultDate: new Date(@mget('value'))
-      minDate: if @mget('min_date')? then new Date(@mget('min_date')) else null
-      maxDate: if @mget('max_date')? then new Date(@mget('max_date')) else null
+    @label = $('<label>').text(@model.title)
+    @input = $('<input type="text">')
+    @datepicker = @input.datepicker({
+      defaultDate: new Date(@model.value)
+      minDate: if @model.min_date? then new Date(@model.min_date) else null
+      maxDate: if @model.max_date? then new Date(@model.max_date) else null
       onSelect: @onSelect
     })
-    @$el.append([$label, $datepicker])
-    return @
+    @$el.append([@label, @input])
 
   onSelect: (dateText, ui) =>
-    @mset('value', new Date(dateText))
-    @mget('callback')?.execute(@model)
+    d = new Date(dateText)
+    @model.value = d.toString()
+    @model.callback?.execute(@model)
 
-class DatePicker extends InputWidget.Model
+export class DatePicker extends InputWidget
   type: "DatePicker"
   default_view: DatePickerView
 
@@ -38,7 +36,3 @@ class DatePicker extends InputWidget.Model
       min_date: [ p.Any             ]
       max_date: [ p.Any             ]
     }
-
-module.exports =
-  Model: DatePicker
-  View: DatePickerView

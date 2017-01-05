@@ -1,3 +1,4 @@
+import io
 import random
 
 from jinja2 import Template
@@ -20,7 +21,7 @@ red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
 blue = figure(responsive=False, tools='pan', **PLOT_OPTIONS)
 blue.scatter(data(), data(), color="blue", **SCATTER_OPTIONS)
 
-green = figure(responsive=True, tools='pan,resize', **PLOT_OPTIONS)
+green = figure(responsive=True, tools='pan', **PLOT_OPTIONS)
 green.scatter(data(), data(), color="green", **SCATTER_OPTIONS)
 
 ########## RENDER PLOTS ################
@@ -38,7 +39,7 @@ template = Template('''<!DOCTYPE html>
     <h2>Resize the window to see some plots resizing</h2>
     <h3>Red - pan tool, responsive</h3>
     {{ plot_div.red }}
-    <h3>Green - pan and resize tools, responsive (maintains new aspect ratio)</h3>
+    <h3>Green - pan tool, responsive (maintains new aspect ratio)</h3>
     {{ plot_div.green }}
     <h3>Blue - pan tool, not responsive</h3>
     {{ plot_div.blue }}
@@ -62,7 +63,7 @@ html = template.render(js_resources=js_resources,
 
 filename = 'embed_multiple_responsive.html'
 
-with open(filename, 'w') as f:
+with io.open(filename, mode='w', encoding='utf-8') as f:
     f.write(html)
 
 view(filename)

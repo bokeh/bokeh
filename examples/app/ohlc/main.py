@@ -1,8 +1,9 @@
 from numpy import asarray, cumprod, convolve, exp, ones
 from numpy.random import lognormal, gamma, uniform
 
-from bokeh.models import ColumnDataSource, Slider, VBox, HBox, Select, GridPlot
-from bokeh.plotting import curdoc, Figure
+from bokeh.layouts import row, column, gridplot
+from bokeh.models import ColumnDataSource, Slider, Select
+from bokeh.plotting import curdoc, figure
 from bokeh.driving import count
 
 BUFSIZE = 200
@@ -13,7 +14,7 @@ source = ColumnDataSource(dict(
     ma=[], macd=[], macd9=[], macdh=[], color=[]
 ))
 
-p = Figure(plot_height=600, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None)
+p = figure(plot_height=500, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None, y_axis_location="right")
 p.x_range.follow = "end"
 p.x_range.follow_interval = 100
 p.x_range.range_padding = 0
@@ -23,7 +24,7 @@ p.line(x='time', y='ma', alpha=0.8, line_width=2, color='orange', source=source)
 p.segment(x0='time', y0='low', x1='time', y1='high', line_width=2, color='black', source=source)
 p.segment(x0='time', y0='open', x1='time', y1='close', line_width=8, color='color', source=source)
 
-p2 = Figure(plot_height=250, x_range=p.x_range, tools="xpan,xwheel_zoom,xbox_zoom,reset")
+p2 = figure(plot_height=250, x_range=p.x_range, tools="xpan,xwheel_zoom,xbox_zoom,reset", y_axis_location="right")
 p2.line(x='time', y='macd', color='red', source=source)
 p2.line(x='time', y='macd9', color='blue', source=source)
 p2.segment(x0='time', y0=0, x1='time', y1='macdh', line_width=6, color='black', alpha=0.5, source=source)
@@ -31,8 +32,6 @@ p2.segment(x0='time', y0=0, x1='time', y1='macdh', line_width=6, color='black', 
 mean = Slider(title="mean", value=0, start=-0.01, end=0.01, step=0.001)
 stddev = Slider(title="stddev", value=0.04, start=0.01, end=0.1, step=0.01)
 mavg = Select(value=MA12, options=[MA12, MA26, EMA12, EMA26])
-
-curdoc().add_root(VBox(HBox(mean, stddev, mavg, width=800), GridPlot(children=[[p], [p2]])))
 
 def _create_prices(t):
     last_average = 100 if t==0 else source.data['average'][-1]
@@ -90,9 +89,11 @@ def update(t):
     macd_series = source.data['macd'] + [macd]
     macd9 = _ema(macd_series[-26:], 9)[0]
     new_data['macd9'] = [macd9]
-
     new_data['macdh'] = [macd - macd9]
 
     source.stream(new_data, 300)
 
+curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", plot_width=1000)))
+
 curdoc().add_periodic_callback(update, 50)
+curdoc().title = "OHLC"

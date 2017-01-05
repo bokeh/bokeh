@@ -1,73 +1,37 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-{logger} = require "./core/logging"
+import * as models from "./models/index"
 
-# add some useful functions to underscore
-require("./core/util/underscore").patch()
+export overrides = {}
+_all_models = _.extend({}, models)
 
-locations = require("./common/models")
+export Models = (name) ->
+  model = overrides[name] ? _all_models[name]
 
-overrides = {}
-
-make_cache = (locations) ->
-  result = {}
-  for name, spec of locations
-    if _.isArray(spec)
-      subspec = spec[0]
-      suffix = spec[1] ? ""
-      for subname, mod of subspec
-        modname = subname + suffix
-        result[modname] = mod
-    else
-      result[name] = spec
-  return result
-
-_mod_cache = null # XXX: do NOT access directly outside _get_mod_cache()
-
-_get_mod_cache = () ->
-  if not _mod_cache?
-    _mod_cache = make_cache(locations)
-  _mod_cache
-
-Models = (typename) ->
-  mod_cache = _get_mod_cache()
-
-  if overrides[typename]
-    return overrides[typename]
-
-  mod = mod_cache[typename] # mod == module
-
-  if not mod?
-    throw new Error("Module `#{typename}' does not exists. The problem may be two fold. Either
+  if not model?
+    throw new Error("Model `#{name}' does not exists. The problem may be two fold. Either
                      a model was requested that's available in an extra bundle, e.g. a widget,
                      or a custom model was requested, but it wasn't registered before first
                      usage.")
 
-  return mod.Model
+  return model
 
 Models.register = (name, model) -> overrides[name] = model
 Models.unregister = (name) -> delete overrides[name]
 
-Models.register_locations = (locations, force=false, errorFn=null) ->
-  mod_cache = _get_mod_cache()
-  cache = make_cache(locations)
+Models.register_models = (models, force=false, errorFn=null) ->
+  return if not models?
 
-  for own name, module of cache
-    if force or not mod_cache.hasOwnProperty(name)
-      mod_cache[name] = module
+  for own name, model of models
+    if force or not _all_models.hasOwnProperty(name)
+      _all_models[name] = model
     else
       errorFn?(name)
 
-Models.registered_names = () ->
-  Object.keys(_get_mod_cache())
+Models.registered_names = () -> Object.keys(_all_models)
 
 # "index" is a map from the toplevel model IDs rendered by
 # embed.coffee, to the view objects for those models.  It doesn't
 # contain all views, only those explicitly rendered to an element
 # by embed.coffee.
-index = {}
-
-module.exports =
-  overrides: overrides # for testing only
-  index: index
-  Models: Models
+export index = {}

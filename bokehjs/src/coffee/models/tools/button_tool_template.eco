@@ -1,4 +1,0 @@
-<button type="button" class="bk-toolbar-button hover">
-  <div class='bk-btn-icon <%= @model.icon %>' />
-  <span class='tip'><%= @model.get('tooltip') %></span>
-</button>

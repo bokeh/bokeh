@@ -13,8 +13,8 @@ import unittest
 import pytest
 
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot
-from bokeh.models.tools import PanTool
+from bokeh.models import GlyphRenderer, Label, Range1d, FactorRange, Plot, LinearAxis, GridPlot
+from bokeh.models.tools import PanTool, Toolbar
 
 
 class TestPlotSelect(unittest.TestCase):
@@ -67,23 +67,36 @@ class TestPlotSelect(unittest.TestCase):
         )
 
 
-def test_plot_add_annotation_method():
+def test_plot_add_layout_raises_error_if_not_render():
     plot = figure()
-
     with pytest.raises(ValueError):
-        plot.add_annotation(Range1d())
+        plot.add_layout(Range1d())
 
+
+def test_plot_add_layout_raises_error_if_plot_already_on_annotation():
+    plot = figure()
     with pytest.raises(ValueError):
-        plot.add_annotation(Label(plot=figure()))
+        plot.add_layout(Label(plot=plot))
 
+
+def test_plot_add_layout_adds_label_to_plot_renderers():
+    plot = figure()
     label = Label()
-    plot.add_annotation(label)
-
+    plot.add_layout(label)
     assert label in plot.renderers
 
-def test_responsive_property_is_false_by_default():
+
+def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
     plot = figure()
-    assert plot.responsive is False
+    axis = LinearAxis()
+    plot.add_layout(axis, 'left')
+    assert axis in plot.renderers
+    assert axis in plot.left
+
+
+def test_sizing_mode_property_is_fixed_by_default():
+    plot = figure()
+    assert plot.sizing_mode is 'fixed'
 
 
 class BaseTwinAxis(object):
@@ -122,5 +135,39 @@ class TestLinearTwinAxis(BaseTwinAxis, unittest.TestCase):
         return Range1d(0, 42)
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_setting_logo_on_plot_declaration_sets_them_on_toolbar():
+    plot = Plot(logo='grey')
+    assert plot.toolbar.logo == 'grey', "Remove this test when deprecation cycle is over"
+
+
+def test_setting_tools_on_plot_declaration_sets_them_on_toolbar():
+    pan = PanTool()
+    plot = Plot(tools=[pan])
+    assert plot.toolbar.tools == [pan], "Remove this test when deprecation cycle is over"
+
+
+def test_plot_raises_error_if_toolbar_and_logo_are_set():
+    with pytest.raises(ValueError):
+        Plot(logo='grey', toolbar=Toolbar())
+
+
+def test_plot_raises_error_if_toolbar_and_tools_are_set():
+    with pytest.raises(ValueError):
+        Plot(tools=[PanTool()], toolbar=Toolbar())
+
+
+def test_plot_with_no_title_specified_creates_an_empty_title():
+    plot = Plot()
+    assert plot.title.text == ""
+
+
+############
+#
+# Test GridPlot
+#
+############
+
+
+def test_grid_plot_sizing_mode_property_is_fixed_by_default():
+    gp = GridPlot()
+    assert gp.sizing_mode is 'fixed'

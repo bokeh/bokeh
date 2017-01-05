@@ -1,11 +1,11 @@
-$ = require "jquery"
-_ = require "underscore"
+import * as $ from "jquery"
+import * as _ from "underscore"
 
-RemoteDataSource = require "./remote_data_source"
-{logger} = require "../../core/logging"
-p = require "../../core/properties"
+import {RemoteDataSource} from "./remote_data_source"
+import {logger} from "../../core/logging"
+import * as p from "../../core/properties"
 
-class AjaxDataSource extends RemoteDataSource.Model
+export class AjaxDataSource extends RemoteDataSource
   type: 'AjaxDataSource'
 
   @define {
@@ -23,30 +23,30 @@ class AjaxDataSource extends RemoteDataSource.Model
 
   setup : (plot_view, glyph) =>
     @pv = plot_view
-    @get_data(@get('mode'))
-    if @get('polling_interval')
-      @interval = setInterval(@get_data, @get('polling_interval'),
-                              @get('mode'), @get('max_size'),
-                              @get('if_modified'))
+    @get_data(@mode)
+    if @polling_interval
+      @interval = setInterval(@get_data, @polling_interval,
+                              @mode, @max_size,
+                              @if_modified)
 
   get_data : (mode, max_size=0, if_modified=false) =>
     $.ajax(
       dataType: 'json'
       ifModified: if_modified
-      url : @get('data_url')
+      url : @data_url
       xhrField :
         withCredentials : true
-      method : @get('method')
-      contentType : @get('content_type')
-      headers : @get('http_headers')
+      method : @method
+      contentType : @content_type
+      headers : @http_headers
     ).done((data) =>
       if mode == 'replace'
-        @set('data', data)
+        @data = data
       else if mode == 'append'
-        original_data = @get('data')
+        original_data = @data
         for column in @columns()
           data[column] = original_data[column].concat(data[column])[-max_size..]
-        @set('data', data)
+        @data = data
       else
         logger.error("unsupported mode: " + mode)
       logger.trace(data)
@@ -55,6 +55,3 @@ class AjaxDataSource extends RemoteDataSource.Model
       logger.error(arguments)
     )
     return null
-
-module.exports =
-  Model: AjaxDataSource

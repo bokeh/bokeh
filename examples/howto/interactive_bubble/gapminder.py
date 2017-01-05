@@ -1,26 +1,29 @@
-import pandas as pd
+import io
 
 from jinja2 import Template
+import pandas as pd
 
-from bokeh.util.browser import view
-from bokeh.models import (
-    ColumnDataSource, Plot, Circle, Range1d,
-    LinearAxis, HoverTool, Text,
-    SingleIntervalTicker, CustomJS, Slider
-)
-from bokeh.palettes import Spectral6
-from bokeh.plotting import vplot
-from bokeh.resources import JSResources
+from bokeh.core.properties import field
 from bokeh.embed import file_html
+from bokeh.layouts import column
+from bokeh.models import (
+    ColumnDataSource, Plot, Circle, Range1d, LinearAxis, HoverTool, Text,
+    SingleIntervalTicker, CustomJS, Slider, CategoricalColorMapper, Legend,
+    LegendItem,
+)
+from bokeh.models.annotations import Title
+from bokeh.palettes import Spectral6
+from bokeh.resources import JSResources
+from bokeh.util.browser import view
 
 from data import process_data
 
-fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions = process_data()
+fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
 
 sources = {}
 
-region_color = regions_df['region_color']
-region_color.name = 'region_color'
+region_name = regions_df.Group
+region_name.name = 'region'
 
 for year in years:
     fertility = fertility_df[year]
@@ -29,7 +32,7 @@ for year in years:
     life.name = 'life'
     population = population_df_size[year]
     population.name = 'population'
-    new_df = pd.concat([fertility, life, population, region_color], axis=1)
+    new_df = pd.concat([fertility, life, population, region_name], axis=1)
     sources['_' + str(year)] = ColumnDataSource(new_df)
 
 dictionary_of_sources = dict(zip([x for x in years], ['_%s' % x for x in years]))
@@ -40,12 +43,14 @@ ydr = Range1d(20, 100)
 plot = Plot(
     x_range=xdr,
     y_range=ydr,
-    title="",
+    title=Title(text=''),
     plot_width=800,
     plot_height=400,
     outline_line_color=None,
     toolbar_location=None,
+    min_border=20,
 )
+
 AXIS_FORMATS = dict(
     minor_tick_in=None,
     minor_tick_out=None,
@@ -77,33 +82,27 @@ text = Text(x=2, y=35, text='year', text_font_size='150pt', text_color='#EEEEEE'
 plot.add_glyph(text_source, text)
 
 # Add the circle
+color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions_list)
 renderer_source = sources['_%s' % years[0]]
 circle_glyph = Circle(
     x='fertility', y='life', size='population',
-    fill_color='region_color', fill_alpha=0.8,
+    fill_color={'field': 'region', 'transform': color_mapper},
+    fill_alpha=0.8,
     line_color='#7c7e71', line_width=0.5, line_alpha=0.5)
 circle_renderer = plot.add_glyph(renderer_source, circle_glyph)
 
 # Add the hover (only against the circle and not other plot elements)
 tooltips = "@index"
 plot.add_tools(HoverTool(tooltips=tooltips, renderers=[circle_renderer]))
-
-
-# Add the legend
-text_x = 7
-text_y = 95
-for i, region in enumerate(regions):
-    plot.add_glyph(Text(x=text_x, y=text_y, text=[region], text_font_size='10pt', text_color='#666666'))
-    plot.add_glyph(Circle(x=text_x - 0.1, y=text_y + 2, fill_color=Spectral6[i], size=10, line_color=None, fill_alpha=0.8))
-    text_y = text_y - 5
+plot.add_layout(Legend(items=[LegendItem(label=field('region'), renderers=[circle_renderer])]))
 
 # Add the slider
 code = """
-    var year = slider.get('value'),
+    var year = slider.value,
         sources = %s,
-        new_source_data = sources[year].get('data');
-    renderer_source.set('data', new_source_data);
-    text_source.set('data', {'year': [String(year)]});
+        new_source_data = sources[year].data;
+    renderer_source.data = new_source_data;
+    text_source.data = {'year': [String(year)]};
 """ % js_source_array
 
 callback = CustomJS(args=sources, code=code)
@@ -114,7 +113,7 @@ callback.args["text_source"] = text_source
 
 
 # Stick the plot and the slider together
-layout = vplot(plot, slider)
+layout = column(plot, slider)
 
 # Open our custom template
 with open('gapminder_template.jinja', 'r') as f:
@@ -126,6 +125,6 @@ title = "Bokeh - Gapminder Bubble Plot"
 html = file_html(layout, resources=(js_resources, None), title=title, template=template)
 
 output_file = 'gapminder.html'
-with open(output_file, 'w') as f:
+with io.open(output_file, mode='w', encoding='utf-8') as f:
     f.write(html)
 view(output_file)

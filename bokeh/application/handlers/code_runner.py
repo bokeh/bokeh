@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function
 
-from os.path import abspath, dirname
 from types import ModuleType
 import os
 import sys
@@ -21,7 +20,7 @@ class _CodeRunner(object):
 
         try:
             nodes = ast.parse(source, path)
-            self._code = compile(nodes, filename=path, mode='exec')
+            self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
         except SyntaxError as e:
             self._failed = True
             self._error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
@@ -31,6 +30,7 @@ class _CodeRunner(object):
         self._path = path
         self._source = source
         self._argv = argv
+        self.ran = False
 
     @property
     def source(self):
@@ -63,7 +63,7 @@ class _CodeRunner(object):
 
         module_name = 'bk_script_' + make_id().replace('-', '')
         module = ModuleType(module_name)
-        module.__dict__['__file__'] = abspath(self._path)
+        module.__dict__['__file__'] = os.path.abspath(self._path)
 
         return module
 
@@ -75,8 +75,7 @@ class _CodeRunner(object):
             _cwd = os.getcwd()
             _sys_path = list(sys.path)
             _sys_argv = list(sys.argv)
-            os.chdir(dirname(self._path))
-            sys.path.insert(0, '')
+            sys.path.insert(0, os.path.dirname(self._path))
             sys.argv = [os.path.basename(self._path)] + self._argv
 
             exec(self._code, module.__dict__)
@@ -96,3 +95,4 @@ class _CodeRunner(object):
             os.chdir(_cwd)
             sys.path = _sys_path
             sys.argv = _sys_argv
+            self.ran = True

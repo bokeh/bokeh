@@ -44,13 +44,32 @@ If you would like to hide the toolbar entirely, pass ``None``.
 Below is some code that positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_location`` value.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
+.. bokeh-plot:: docs/user_guide/examples/tools_position_toolbar_clash.py
+    :source-position: above
+
+Note that the toolbar position clashes with the default axes, in this case
+setting the ``toolbar_sticky`` option to ``False`` will move the toolbar
+to outside of the region where the axis is drawn.
+
+.. bokeh-plot:: docs/user_guide/examples/tools_position_toolbar.py
     :source-position: above
 
 .. _userguide_tools_specifying_tools:
 
 Specifying Tools
 ----------------
+
+At the lowest ``bokeh.models`` level, tools are added to a ``Plot`` by
+passing instances of ``Tool`` objects to the ``add_tools`` method:
+
+.. code-block:: python
+
+    plot = Plot()
+    plot.add_tools(LassoSelectTool())
+    plot.add_tools(WheelZoomTool())
+
+This explicit way of adding tools works with any Bokeh ``Plot`` or
+``Plot`` subclass, such as ``Figure`` or ``Chart``.
 
 Tools can be specified by passing the ``tools`` parameter to the |figure|
 function or to any |bokeh.charts| Chart function. The tools parameter
@@ -65,16 +84,67 @@ containing tool shortcut names:
 
 .. code-block:: python
 
-    tools = "pan,wheel_zoom,box_zoom,reset,resize"
+    tools = "pan,wheel_zoom,box_zoom,reset"
 
 However, this method does not allow setting properties of the tools.
-To use shortcut names but also add tools with properties, one can
-also call the ``add_tools`` method:
+
+Finally, it is also always possible to add new tools to a plot by passing
+a tool object to the ``add_tools`` method of a plot. This can also be done
+in conjunction with the ``tools`` keyword described above:
 
 .. code-block:: python
 
-    fig = figure(tools="pan,wheel_zoom,box_zoom,reset,resize")
-    fig.add_tools(BoxSelectTool(dimensions=["width"]))
+    plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
+    plot.add_tools(BoxSelectTool(dimensions=["width"]))
+
+.. _userguide_tools_setting_active_tools:
+
+Setting the Active Tools
+------------------------
+
+Bokeh toolbars can have (at most) one active tool from each kind of gesture
+(drag, scroll, tap). By default, Bokeh will use a default pre-defined
+order of preference to choose one of each kind from the set of configured
+tools, to be active.
+
+However it is possible to exert control over which tool is active. At the
+lowest ``bokeh.models`` level, this is accomplished by using the ``active_drag``,
+``active_scroll``, and ``active_tap`` properties of ``Toolbar``. These
+properties can take the following values:
+
+* ``None`` --- there is no active tool of this kind
+* ``"auto"`` --- Bokeh chooses a tool of this kind to be active (possibly none)
+* a ``Tool`` instance --- Bokeh sets the given tool to be the active tool
+
+As an example:
+
+.. code-block:: python
+
+    # configure so that no drag tools are active
+    plot.toolbar.active_drag = None
+
+    # configure so that Bokeh chooses what (if any) scroll tool is active
+    plot.toolbar.active_scroll = "auto"
+
+    # configure so that a specific PolySelect tap tool is active
+    plot.toolbar.active_tap = poly_select
+
+The default value for all of these properties is ``"auto"``.
+
+Active tools can be specified by passing the these properties as keyword
+arguments to the |figure| function or to any |bokeh.charts| Chart function.
+In this case, it is also possible to pass any one of the string names for,
+ease of configuration:
+
+.. code-block:: python
+
+    # configures the lasso tool to be active
+    plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
+
+.. _userguide_tools_builtin_tools:
+
+Built-in Tools
+--------------
 
 .. _userguide_tools_pandrag:
 
@@ -141,7 +211,7 @@ respectively.
 ResizeTool
 ''''''''''
 
-* name: ``'resize_select'``
+* name: ``'resize'``
 * icon: |resize_icon|
 
 The resize tool allows the user to left-drag a mouse or drag a finger to resize
@@ -206,6 +276,16 @@ just the x-axis or just the y-axis by setting the ``dimensions`` property to
 a list containing ``width`` or ``height``. Additionally, there are tool aliases
 ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
+WheelPanTool
+'''''''''''''
+
+* name: ``'xwheel_pan'``, ``'ywheel_pan'``
+* icon: |wheel_pan_icon|
+
+The wheel pan tool will translate the plot window along the specified
+dimension without changing the window's aspect ratio. The tool will respect any
+min and max values and ranges preventing panning beyond these values.
+
 .. _userguide_tools_actions:
 
 Actions
@@ -238,8 +318,8 @@ ResetTool
 
 The reset tool will restore the plot ranges to their original values.
 
-PreviewSaveTool
-'''''''''''''''
+SaveTool
+''''''''
 
 * name: ``'save'``
 * icon: |save_icon|
@@ -247,12 +327,38 @@ PreviewSaveTool
 The save tool pops up a modal dialog that allows the user to save a PNG image
 of the plot.
 
+ZoomInTool
+''''''''''
+
+* name: ``'zoom_in'``, ``'xzoom_in'``, ``'yzoom_in'``
+* icon: |zoom_in_icon|
+
+The zoom-in tool will increase the zoom of the plot. It will respect any min and max
+values and ranges preventing zooming in and out beyond these.
+
+It is also possible to constraint the wheel zoom tool to only act on either
+just the x-axis or just the y-axis by setting the ``dimensions`` property to
+a list containing ``width`` or ``height``. Additionally, there are tool aliases
+``'xzoom_in'`` and ``'yzoom_in'``, respectively.
+
+ZoomOutTool
+'''''''''''
+
+* name: ``'zoom_out'``, ``'xzoom_out'``, ``'yzoom_out'``
+* icon: |zoom_out_icon|
+
+The zoom-out tool will decrease the zoom level of the plot. It will respect any min and
+max values and ranges preventing zooming in and out beyond these.
+
+It is also possible to constraint the wheel zoom tool to only act on either
+just the x-axis or just the y-axis by setting the ``dimensions`` property to
+a list containing ``width`` or ``height``. Additionally, there are tool aliases
+``'xzoom_in'`` and ``'yzoom_in'``, respectively.
+
 .. _userguide_tools_inspectors:
 
 Inspectors
 ~~~~~~~~~~
-
-* menu icon: |inspector_icon|
 
 Inspectors are passive tools that annotate or otherwise report information about
 the plot, based on the current cursor position. Any number of inspectors may be
@@ -263,6 +369,7 @@ CrosshairTool
 '''''''''''''
 
 * name: ``'crosshair'``
+* menu icon: |crosshair_icon|
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. The crosshair tool may be configured to draw
@@ -273,6 +380,7 @@ HoverTool
 '''''''''
 
 * name: ``'hover'``
+* menu icon: |hover_icon|
 
 The hover tool pops up a tooltip div whenever the cursor is over a glyph.
 The information comes from the glyphs data source and is configurable through
@@ -287,12 +395,12 @@ toolbar.
 Try running the code and changing the name of tools being added to the
 tools with valid values
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_string.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_string.py
     :source-position: above
 
 or with a list of the tool instances:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_instance.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_instance.py
     :source-position: above
 
 Setting Tool Visuals
@@ -341,17 +449,21 @@ the right:
 Here is a complete example of how to configure and use the hover tool with
 default tooltip:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_tooltips.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips.py
     :source-position: above
+
+
+.. _custom_hover_tooltip:
 
 Custom Tooltip
 ''''''''''''''
 
 It is also possible to supply a custom tooltip template. To do this,
 pass an HTML string, with the Bokeh tooltip field name symbols wherever
-substitutions are desired. An example is shown below:
+substitutions are desired. You can use the ``{safe}`` tag after the column
+name to disable the escaping of HTML in the data source. An example is shown below:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_custom_tooltip.py
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above
 
 Selection Overlays
@@ -383,10 +495,17 @@ general sense of the interaction to be preserved mid-flight, while maintaining
 interactive performance. There are four properties on |Plot| objects that control
 LOD behavior:
 
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_factor
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_interval
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_threshold
-.. bokeh-prop:: bokeh.models.plots.Plot.lod_timeout
+.. bokeh-prop:: Plot.lod_factor
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_interval
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_threshold
+    :module: bokeh.models.plots
+
+.. bokeh-prop:: Plot.lod_timeout
+    :module: bokeh.models.plots
 
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
@@ -405,7 +524,9 @@ LOD behavior:
     :height: 14pt
 .. |help_icon| image:: /_images/icons/Help.png
     :height: 14pt
-.. |inspector_icon| image:: /_images/icons/Inspector.png
+.. |crosshair_icon| image:: /_images/icons/Crosshair.png
+    :height: 14pt
+.. |hover_icon| image:: /_images/icons/Hover.png
     :height: 14pt
 .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
     :height: 14pt
@@ -425,5 +546,11 @@ LOD behavior:
     :height: 14pt
 .. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt
+.. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
+    :height: 14pt
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
+    :height: 14pt
+.. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+    :height: 14pt
+.. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt

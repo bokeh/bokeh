@@ -36,21 +36,9 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from os.path import basename
 
-import jinja2
-
 from sphinx.directives.code import CodeBlock
 
-
-PROLOGUE_TEMPLATE = jinja2.Template(u"""
-<div class="expander">
-  <a href="javascript:void(0)" class="expander-trigger expander-hidden">{{ heading }}</a>
-  <div class="expander-content">
-""")
-
-EPILOGUE_TEMPLATE = jinja2.Template(u"""
-  </div>
-</div>
-""")
+from .templates import CCB_PROLOGUE, CCB_EPILOGUE
 
 
 class collapsible_code_block(nodes.General, nodes.Element):
@@ -84,14 +72,14 @@ class CollapsibleCodeBlock(CodeBlock):
 
 def html_visit_collapsible_code_block(self, node):
     self.body.append(
-        PROLOGUE_TEMPLATE.render(
+        CCB_PROLOGUE.render(
             id=node['target_id'],
             heading=node['heading']
         )
     )
 
 def html_depart_collapsible_code_block(self, node):
-    self.body.append(EPILOGUE_TEMPLATE.render())
+    self.body.append(CCB_EPILOGUE.render())
 
 def setup(app):
     app.add_node(
@@ -102,9 +90,3 @@ def setup(app):
         )
     )
     app.add_directive('collapsible-code-block', CollapsibleCodeBlock)
-
-
-
-
-
-

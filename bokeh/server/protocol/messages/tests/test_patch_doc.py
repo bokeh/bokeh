@@ -4,6 +4,7 @@ import unittest
 
 import bokeh.document as document
 from bokeh.model import Model
+from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
@@ -51,7 +52,7 @@ class TestPatchDocument(unittest.TestCase):
         foos.sort()
         assert foos == [ 2, 42 ]
 
-    def test_should_suppress_model_changed(self):
+    def test_patch_event_contains_setter(self):
         sample = self._sample_doc()
         root = None
         other_root = None
@@ -64,66 +65,38 @@ class TestPatchDocument(unittest.TestCase):
         assert other_root is not None
         new_child = AnotherModelInTestPatchDoc(bar=56)
 
-        # integer property changed
-        event1 = document.ModelChangedEvent(sample, root, 'foo', root.foo, 42, 42)
-        msg = Protocol("1.0").create("PATCH-DOC", [event1])
-        assert msg.should_suppress_on_change(event1)
-        assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'foo', root.foo, 43, 43))
-        assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'bar', root.foo, 43, 43))
-        assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'foo', root.foo, 43, 43))
+        cds = ColumnDataSource(data={'a': [0, 1, 2]})
+        sample.add_root(cds)
+
+        mock_session = object()
+        def sample_document_callback_assert(event):
+            """Asserts that setter is correctly set on event"""
+            assert event.setter is mock_session
+        sample.on_change(sample_document_callback_assert)
 
         # Model property changed
-        event2 = document.ModelChangedEvent(sample, root, 'child', root.child, new_child, new_child)
-        msg2 = Protocol("1.0").create("PATCH-DOC", [event2])
-        assert msg2.should_suppress_on_change(event2)
-        assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'child', root.child, other_root, other_root))
-        assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'blah', root.child, new_child, new_child))
-        assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, new_child, new_child))
-
-        # Model property changed to None
-        event3 = document.ModelChangedEvent(sample, root, 'child', root.child, None, None)
-        msg3 = Protocol("1.0").create("PATCH-DOC", [event3])
-        assert msg3.should_suppress_on_change(event3)
-        assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'child', root.child, other_root, other_root))
-        assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'blah', root.child, None, None))
-        assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, None, None))
-
-        # Model property changed from None
-        event4 = document.ModelChangedEvent(sample, other_root, 'child', other_root.child, None, None)
-        msg4 = Protocol("1.0").create("PATCH-DOC", [event4])
-        assert msg4.should_suppress_on_change(event4)
-        assert not msg4.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, root, root))
-        assert not msg4.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'blah', other_root.child, None, None))
-        assert not msg4.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'child', other_root.child, None, None))
+        event = document.ModelChangedEvent(sample, root, 'child', root.child, new_child, new_child)
+        msg = Protocol("1.0").create("PATCH-DOC", [event])
+        msg.apply_to_document(sample, mock_session)
 
         # RootAdded
-        event5 = document.RootAddedEvent(sample, root)
-        msg5 = Protocol("1.0").create("PATCH-DOC", [event5])
-        assert msg5.should_suppress_on_change(event5)
-        assert not msg5.should_suppress_on_change(document.RootAddedEvent(sample, other_root))
-        assert not msg5.should_suppress_on_change(document.RootRemovedEvent(sample, root))
+        event2 = document.RootAddedEvent(sample, root)
+        msg2 = Protocol("1.0").create("PATCH-DOC", [event2])
+        msg2.apply_to_document(sample, mock_session)
 
         # RootRemoved
-        event6 = document.RootRemovedEvent(sample, root)
-        msg6 = Protocol("1.0").create("PATCH-DOC", [event6])
-        assert msg6.should_suppress_on_change(event6)
-        assert not msg6.should_suppress_on_change(document.RootRemovedEvent(sample, other_root))
-        assert not msg6.should_suppress_on_change(document.RootAddedEvent(sample, root))
+        event3 = document.RootRemovedEvent(sample, root)
+        msg3 = Protocol("1.0").create("PATCH-DOC", [event3])
+        msg3.apply_to_document(sample, mock_session)
 
         # ColumnsStreamed
-        event7 = document.ModelChangedEvent(sample, root, 'data', 10, None, None,
-                                            hint=document.ColumnsStreamedEvent(sample, root, {}, None))
-        msg7 = Protocol("1.0").create("PATCH-DOC", [event7])
-        assert msg7.should_suppress_on_change(event7)
-        assert not msg7.should_suppress_on_change(
-            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
-                                       hint=document.ColumnsStreamedEvent(sample, root, {}, 10))
-        )
-        assert not msg7.should_suppress_on_change(
-            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
-                                       hint=document.ColumnsStreamedEvent(sample, root, {"a": [10]}, None))
-        )
-        assert not msg7.should_suppress_on_change(
-            document.ModelChangedEvent(sample, root, 'data', 10, None, None,
-                                       hint=document.ColumnsStreamedEvent(sample, other_root, {}, None))
-        )
+        event4 = document.ModelChangedEvent(sample, cds, 'data', 10, None, None,
+                                            hint=document.ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session))
+        msg4 = Protocol("1.0").create("PATCH-DOC", [event4])
+        msg4.apply_to_document(sample, mock_session)
+
+        # ColumnsPatched
+        event5 = document.ModelChangedEvent(sample, cds, 'data', 10, None, None,
+                                            hint=document.ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}))
+        msg5 = Protocol("1.0").create("PATCH-DOC", [event5])
+        msg5.apply_to_document(sample, mock_session)

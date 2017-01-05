@@ -1,8 +1,7 @@
-
 .. _bokeh.sphinxext:
 
-``bokeh.sphinxext``
-===================
+bokeh.sphinxext
+===============
 
 In order to help automate and simplify the generation of Bokeh
 documentation, several Sphinx extensions have been created. Most
@@ -16,6 +15,13 @@ bokeh_autodoc
 -------------
 
 .. automodule:: bokeh.sphinxext.bokeh_autodoc
+
+.. _bokeh.sphinxext.bokeh_enum:
+
+bokeh_enum
+----------
+
+.. automodule:: bokeh.sphinxext.bokeh_enum
 
 .. _bokeh.sphinxext.bokeh_gallery:
 
@@ -45,6 +51,13 @@ bokeh_palette
 
 .. automodule:: bokeh.sphinxext.bokeh_palette
 
+.. _bokeh.sphinxext.bokeh_palette_group:
+
+bokeh_palette_group
+-------------------
+
+.. automodule:: bokeh.sphinxext.bokeh_palette_group
+
 .. _bokeh.sphinxext.bokeh_plot:
 
 bokeh_plot
@@ -63,7 +76,7 @@ bokeh_prop
 .. _bokeh.sphinxext.bokeh_sitemap:
 
 bokeh_sitemap
-----------------------
+-------------
 
 .. automodule:: bokeh.sphinxext.bokeh_sitemap
 
@@ -73,5 +86,3 @@ collapsible_code_block
 ----------------------
 
 .. automodule:: bokeh.sphinxext.collapsible_code_block
-
-

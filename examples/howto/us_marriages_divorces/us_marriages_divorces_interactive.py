@@ -60,7 +60,7 @@ hover = HoverTool(
     mode='vline')
 
 # Select the tools that will be available to the chart
-TOOLS = ['pan,wheel_zoom,box_zoom,reset,save,resize'] + [hover]
+TOOLS = ['pan,wheel_zoom,box_zoom,reset,save'] + [hover]
 
 bplot = figure(tools=TOOLS, width=800, height=500, x_axis_type=None)
 
@@ -74,7 +74,7 @@ bplot.yaxis.formatter = NumeralTickFormatter(format='0.0a')
 bplot.yaxis.axis_label = '# per 1,000 people'
 
 # Provide a descriptive title for the chart
-bplot.title = '144 years of marriage and divorce in the U.S.'
+bplot.title.text = '144 years of marriage and divorce in the U.S.'
 
 # Finally, plot the data!
 # Note that the data source determines what is plotted and what shows in

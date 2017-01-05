@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class OvalView extends Glyph.View
+export class OvalView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -51,36 +51,31 @@ class OvalView extends Glyph.View
       ctx.rotate(-@_angle[i])
       ctx.translate(-sx[i], -sy[i])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
-    indices = [reference_point]
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    indices = [index]
     sx = { }
-    sx[reference_point] = (x0+x1)/2
+    sx[index] = (x0+x1)/2
     sy = { }
-    sy[reference_point] = (y0+y1)/2
+    sy[index] = (y0+y1)/2
 
-    scale = @sw[reference_point] / @sh[reference_point]
+    scale = @sw[index] / @sh[index]
     d = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.8
     sw = { }
     sh = { }
     if scale > 1
-      sw[reference_point] = d
-      sh[reference_point] = d/scale
+      sw[index] = d
+      sh[index] = d/scale
     else
-      sw[reference_point] = d*scale
-      sh[reference_point] = d
+      sw[index] = d*scale
+      sh[index] = d
 
     data = {sx, sy, sw, sh}
     @_render(ctx, indices, data)
 
   _bounds: (bds) ->
-    return [
-      [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
-      [bds[1][0]-@max_h2, bds[1][1]+@max_h2]
-    ]
+    return @max_wh2_bounds(bds)
 
-class Oval extends Glyph.Model
+export class Oval extends Glyph
   default_view: OvalView
 
   type: 'Oval'
@@ -92,7 +87,3 @@ class Oval extends Glyph.Model
       width:  [ p.DistanceSpec     ]
       height: [ p.DistanceSpec     ]
     }
-
-module.exports =
-  Model: Oval
-  View: OvalView

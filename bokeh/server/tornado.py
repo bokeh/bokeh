@@ -6,15 +6,13 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
-import atexit
 # NOTE: needs PyPI backport on Python 2 (https://pypi.python.org/pypi/futures)
 from concurrent.futures import ProcessPoolExecutor
 import os
 from pprint import pformat
-import signal
 
 from tornado import gen
-from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import HTTPError
 from tornado.web import StaticFileHandler
@@ -22,6 +20,7 @@ from tornado.web import StaticFileHandler
 from bokeh.resources import Resources
 from bokeh.settings import settings
 
+from .views.root_handler import RootHandler
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
@@ -31,13 +30,19 @@ from .views.static_handler import StaticHandler
 def match_host(host, pattern):
     """ Match host against pattern
 
-    >>> match_host('192.168.0.1', '192.168.0.1')
+    >>> match_host('192.168.0.1:80', '192.168.0.1:80')
     True
+    >>> match_host('192.168.0.1:80', '192.168.0.1')
+    True
+    >>> match_host('192.168.0.1:80', '192.168.0.1:8080')
+    False
     >>> match_host('192.168.0.1', '192.168.0.2')
     False
     >>> match_host('192.168.0.1', '192.168.*.*')
     True
     >>> match_host('alice', 'alice')
+    True
+    >>> match_host('alice:80', 'alice')
     True
     >>> match_host('alice', 'bob')
     False
@@ -45,7 +50,31 @@ def match_host(host, pattern):
     False
     >>> match_host('alice', '*')
     True
+    >>> match_host('alice', '*:*')
+    True
+    >>> match_host('alice:80', '*')
+    True
+    >>> match_host('alice:80', '*:80')
+    True
+    >>> match_host('alice:8080', '*:80')
+    False
+
     """
+    if ':' in host:
+        host, host_port = host.rsplit(':', 1)
+    else:
+        host_port = None
+
+    if ':' in pattern:
+        pattern, pattern_port = pattern.rsplit(':', 1)
+        if pattern_port == '*':
+            pattern_port = None
+    else:
+        pattern_port = None
+
+    if pattern_port is not None and host_port != pattern_port:
+        return False
+
     host = host.split('.')
     pattern = pattern.split('.')
 
@@ -111,13 +140,12 @@ class BokehTornado(TornadoApplication):
         check_unused_sessions_milliseconds (int) : number of milliseconds between check for unused sessions
         unused_session_lifetime_milliseconds (int) : number of milliseconds for unused session lifetime
         stats_log_frequency_milliseconds (int) : number of milliseconds between logging stats
-        develop (boolean) : True for develop mode
+        use_index (boolean) : True to generate an index of the running apps in the RootHandler
 
     '''
 
     def __init__(self, applications, prefix, hosts,
                  extra_websocket_origins,
-                 io_loop=None,
                  extra_patterns=None,
                  secret_key=settings.secret_key_bytes(),
                  sign_sessions=settings.sign_sessions(),
@@ -130,13 +158,11 @@ class BokehTornado(TornadoApplication):
                  unused_session_lifetime_milliseconds=15000,
                  # how often to log stats
                  stats_log_frequency_milliseconds=15000,
-                 develop=False):
+                 use_index=True,
+                 redirect_root=True):
 
         self._prefix = prefix
-
-        if io_loop is None:
-            io_loop = IOLoop.current()
-        self._loop = io_loop
+        self.use_index = use_index
 
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
@@ -154,7 +180,6 @@ class BokehTornado(TornadoApplication):
         self._hosts = set(hosts)
         self._websocket_origins = self._hosts | set(extra_websocket_origins)
         self._resources = {}
-        self._develop = develop
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
@@ -165,7 +190,7 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v, self._develop, self._loop)
+            self._applications[k] = ApplicationContext(v)
 
         extra_patterns = extra_patterns or []
         all_patterns = []
@@ -200,8 +225,16 @@ class BokehTornado(TornadoApplication):
                 all_patterns.append((route, StaticFileHandler, { "path" : app.static_path }))
 
         for p in extra_patterns + toplevel_patterns:
-            prefixed_pat = (self._prefix+p[0],) + p[1:]
-            all_patterns.append(prefixed_pat)
+            if p[1] == RootHandler:
+                if self.use_index:
+                    data = {"applications": self._applications,
+                            "prefix": self._prefix,
+                            "use_redirect": redirect_root}
+                    prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
+                    all_patterns.append(prefixed_pat)
+            else:
+                prefixed_pat = (self._prefix + p[0],) + p[1:]
+                all_patterns.append(prefixed_pat)
 
         for pat in all_patterns:
             _whitelist(pat[1])
@@ -212,9 +245,24 @@ class BokehTornado(TornadoApplication):
 
         super(BokehTornado, self).__init__(all_patterns)
 
+    def initialize(self,
+                 io_loop,
+                 keep_alive_milliseconds=37000,
+                 # how often to check for unused sessions
+                 check_unused_sessions_milliseconds=17000,
+                 # how long unused sessions last
+                 unused_session_lifetime_milliseconds=15000,
+                 # how often to log stats
+                 stats_log_frequency_milliseconds=15000,
+                 **kw):
+
+        self._loop = io_loop
+
+        for app_context in self._applications.values():
+            app_context._loop = self._loop
+
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
-        self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats,
                                            stats_log_frequency_milliseconds,
                                            io_loop=self._loop)
@@ -267,18 +315,8 @@ class BokehTornado(TornadoApplication):
                                                    path_versioner=StaticHandler.append_version)
         return self._resources[root_url]
 
-    def start(self, start_loop=True):
-        ''' Start the Bokeh Server application main loop.
-
-        Args:
-            start_loop (boolean): False to not actually start event loop, used in tests
-
-        Returns:
-            None
-
-        Notes:
-            Keyboard interrupts or sigterm will cause the server to shut down.
-
+    def start(self):
+        ''' Start the Bokeh Server application.
         '''
         self._stats_job.start()
         self._cleanup_job.start()
@@ -288,24 +326,18 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_load_hook()
 
-        if start_loop:
-            try:
-                self._loop.start()
-            except KeyboardInterrupt:
-                print("\nInterrupted, shutting down")
-
-    def stop(self):
+    def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
+
+        Args:
+            wait (boolean): whether to wait for orderly cleanup (default: True)
 
         Returns:
             None
 
         '''
         # TODO we should probably close all connections and shut
-        # down all sessions either here or in unlisten() ... but
-        # it isn't that important since in real life it's rare to
-        # do a clean shutdown (vs. a kill-by-signal) anyhow.
-
+        # down all sessions here
         for context in self._applications.values():
             context.run_unload_hook()
 
@@ -314,7 +346,8 @@ class BokehTornado(TornadoApplication):
         if self._ping_job is not None:
             self._ping_job.stop()
 
-        self._loop.stop()
+        self._executor.shutdown(wait=wait)
+        self._clients.clear()
 
     @property
     def executor(self):
@@ -371,34 +404,3 @@ class BokehTornado(TornadoApplication):
         """
         res = yield self._executor.submit(_func, *args, **kwargs)
         raise gen.Return(res)
-
-    @gen.coroutine
-    def _start_async(self):
-        try:
-            atexit.register(self._atexit)
-            signal.signal(signal.SIGTERM, self._sigterm)
-        except Exception:
-            self.exit(1)
-
-    _atexit_ran = False
-    def _atexit(self):
-        if self._atexit_ran:
-            return
-        self._atexit_ran = True
-
-        self._stats_job.stop()
-        IOLoop.clear_current()
-        loop = IOLoop()
-        loop.make_current()
-        loop.run_sync(self._cleanup)
-
-    def _sigterm(self, signum, frame):
-        print("Received SIGTERM, shutting down")
-        self.stop()
-        self._atexit()
-
-    @gen.coroutine
-    def _cleanup(self):
-        log.debug("Shutdown: cleaning up")
-        self._executor.shutdown(wait=False)
-        self._clients.clear()

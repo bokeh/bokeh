@@ -1,4 +1,3 @@
-
 import itertools
 
 import numpy as np
@@ -6,7 +5,7 @@ import numpy as np
 from bokeh.plotting import ColumnDataSource, figure, show, output_file
 from bokeh.models import HoverTool
 
-TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,save"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
@@ -29,8 +28,8 @@ source = ColumnDataSource(data=dict(
 
 p = figure(title="Hoverful Scatter", tools=TOOLS)
 
-p.circle(x, y, radius=radii, source=source,
-         fill_color=colors, fill_alpha=0.6, line_color=None)
+p.circle(x='x', y='y', radius='radius', source=source,
+         fill_color='colors', fill_alpha=0.6, line_color=None)
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
        text_baseline="middle", text_align="center")

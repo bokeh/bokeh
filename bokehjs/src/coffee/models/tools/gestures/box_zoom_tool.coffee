@@ -1,18 +1,18 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-GestureTool = require "./gesture_tool"
-BoxAnnotation = require "../../annotations/box_annotation"
-p = require "../../../core/properties"
+import {GestureTool, GestureToolView} from "./gesture_tool"
+import {BoxAnnotation} from "../../annotations/box_annotation"
+import * as p from "../../../core/properties"
 
-class BoxZoomToolView extends GestureTool.View
+export class BoxZoomToolView extends GestureToolView
 
   _match_aspect: (basepoint, curpoint, frame) ->
 
     # aspect ratio of plot frame
-    hend = frame.get('h_range').get('end')
-    hstart = frame.get('h_range').get('start')
-    vend = frame.get('v_range').get('end')
-    vstart = frame.get('v_range').get('start')
+    hend = frame.h_range.end
+    hstart = frame.h_range.start
+    vend = frame.v_range.end
+    vstart = frame.v_range.start
     w = hend - hstart
     h = vend - vstart
     a = w/h
@@ -91,15 +91,15 @@ class BoxZoomToolView extends GestureTool.View
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
-    frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    frame = @plot_model.frame
+    dims = @model.dimensions
 
-    if @mget('match_aspect') and dims.length == 2
+    if @model.match_aspect and dims == 'both'
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
-    @mget('overlay').update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
+    @model.overlay.update({left: vx[0], right: vx[1], top: vy[1], bottom: vy[0]})
 
     return null
 
@@ -109,17 +109,17 @@ class BoxZoomToolView extends GestureTool.View
       canvas.sx_to_vx(e.bokeh.sx)
       canvas.sy_to_vy(e.bokeh.sy)
     ]
-    frame = @plot_model.get('frame')
-    dims = @mget('dimensions')
+    frame = @plot_model.frame
+    dims = @model.dimensions
 
-    if @mget('match_aspect') and dims.length == 2
+    if @model.match_aspect and dims == 'both'
       [vx, vy] = @_match_aspect(@_baseboint, curpoint, frame)
     else
       [vx, vy] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
     @_update(vx, vy)
 
-    @mget('overlay').update({left: null, right: null, top: null, bottom: null})
+    @model.overlay.update({left: null, right: null, top: null, bottom: null})
     @_baseboint = null
     return null
 
@@ -131,12 +131,12 @@ class BoxZoomToolView extends GestureTool.View
       return
 
     xrs = {}
-    for name, mapper of @plot_view.frame.get('x_mappers')
+    for name, mapper of @plot_view.frame.x_mappers
       [start, end] = mapper.v_map_from_target(vx, true)
       xrs[name] = {start: start, end: end}
 
     yrs = {}
-    for name, mapper of @plot_view.frame.get('y_mappers')
+    for name, mapper of @plot_view.frame.y_mappers
       [start, end] = mapper.v_map_from_target(vy, true)
       yrs[name] = {start: start, end: end}
 
@@ -148,7 +148,7 @@ class BoxZoomToolView extends GestureTool.View
     @plot_view.push_state('box_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info)
 
-DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
+DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation({
   level: "overlay"
   render_mode: "css"
   top_units: "screen"
@@ -163,7 +163,7 @@ DEFAULT_BOX_OVERLAY = () -> new BoxAnnotation.Model({
   line_dash: [4, 4]
 })
 
-class BoxZoomTool extends GestureTool.Model
+export class BoxZoomTool extends GestureTool
   default_view: BoxZoomToolView
   type: "BoxZoomTool"
   tool_name: "Box Zoom"
@@ -171,22 +171,12 @@ class BoxZoomTool extends GestureTool.Model
   event_type: "pan"
   default_order: 20
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @override_computed_property('tooltip', () ->
-        @_get_dim_tooltip(
-          @tool_name,
-          @_check_dims(@get('dimensions'), "box zoom tool")
-        )
-      , false)
-    @add_dependencies('tooltip', this, ['dimensions'])
+  @getters {
+    tooltip: () -> @_get_dim_tooltip(@tool_name, @dimensions)
+  }
 
   @define {
-      dimensions:   [ p.Array,    ["width", "height"] ]
-      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
-      match_aspect: [ p.Bool,     false               ]
-    }
-
-module.exports =
-  Model: BoxZoomTool
-  View: BoxZoomToolView
+    dimensions:   [ p.Dimensions, "both"            ]
+    overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ]
+    match_aspect: [ p.Bool,     false               ]
+  }

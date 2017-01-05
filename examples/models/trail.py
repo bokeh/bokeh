@@ -13,7 +13,7 @@ from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 from bokeh.models.glyphs import Line, Patches
-from bokeh.models.layouts import VBox
+from bokeh.models.layouts import Column
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     DataRange1d, ColumnDataSource,
@@ -69,15 +69,19 @@ def prep_data(dataset):
 
     return df
 
-title = "Obiszów MTB XCM"
+name = "Obiszów MTB XCM"
 
+# Google Maps now requires an API key. You can find out how to get one here:
+# https://developers.google.com/maps/documentation/javascript/get-api-key
+API_KEY = "XXXXXXXXXXX"
 
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2
     lat = (min(data.lat) + max(data.lat)) / 2
 
     map_options = GMapOptions(lng=lon, lat=lat, zoom=13)
-    plot = GMapPlot(title="%s - Trail Map" % title, map_options=map_options, plot_width=800, plot_height=800)
+    plot = GMapPlot(plot_width=800, plot_height=800, map_options=map_options, api_key=API_KEY)
+    plot.title.text = "%s - Trail Map" % name
     plot.x_range = DataRange1d()
     plot.y_range = DataRange1d()
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
@@ -90,9 +94,10 @@ def trail_map(data):
 
 
 def altitude_profile(data):
-    plot = Plot(title="%s - Altitude Profile" % title, plot_width=800, plot_height=400)
+    plot = Plot(plot_width=800, plot_height=400)
+    plot.title.text = "%s - Altitude Profile" % name
     plot.x_range = DataRange1d()
-    plot.y_range = DataRange1d()
+    plot.y_range = DataRange1d(range_padding=0)
 
     xaxis = LinearAxis(axis_label="Distance (km)")
     plot.add_layout(xaxis, 'below')
@@ -100,9 +105,8 @@ def altitude_profile(data):
     yaxis = LinearAxis(axis_label="Altitude (m)")
     plot.add_layout(yaxis, 'left')
 
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
-    plot.renderers.extend([xgrid, ygrid])
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))  # x grid
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))  # y grid
 
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
@@ -128,12 +132,13 @@ data = prep_data(obiszow_mtb_xcm)
 trail = trail_map(data)
 altitude = altitude_profile(data)
 
-layout = VBox(children=[altitude, trail])
+layout = Column(children=[altitude, trail])
 
 doc = Document()
 doc.add_root(layout)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Trail map and altitude profile"))

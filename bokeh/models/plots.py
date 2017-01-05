@@ -4,64 +4,37 @@
 from __future__ import absolute_import
 
 from six import string_types
-import warnings
 
 from ..core.query import find
 from ..core import validation
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
-    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..core.enums import Location
-from ..core.property_mixins import LineProps, TextProps, FillProps
-from ..model import Model
-from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
-from ..util.string import nice_join
 from ..core.validation.errors import REQUIRED_RANGE
+from ..core.validation.warnings import (
+    MISSING_RENDERERS, NO_DATA_RENDERERS, MALFORMED_CATEGORY_LABEL,
+    SNAPPED_TOOLBAR_ANNOTATIONS)
+from ..core.enums import Location
+from ..core.property_mixins import LineProps, FillProps
+from ..core.properties import (
+    Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include, Override, TitleProp)
+from ..util.string import nice_join
+from ..util.deprecation import deprecated
 
-from .annotations import Annotation
+from .annotations import Legend, Title
+from .axes import Axis
 from .glyphs import Glyph
-from .ranges import Range, Range1d, FactorRange
+from .grids import Grid
+from .ranges import Range, FactorRange
 from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, ToolEvents
-from .component import Component
+from .tools import Tool, ToolEvents, Toolbar
+from .layouts import LayoutDOM
 
-def _select_helper(args, kwargs):
-    """
-    Allow flexible selector syntax.
-    Returns:
-        a dict
-    """
-    if len(args) > 1:
-        raise TypeError("select accepts at most ONE positional argument.")
+from ..util.plot_utils import _list_attr_splat, _select_helper
 
-    if len(args) > 0 and len(kwargs) > 0:
-        raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+# We create an empty title by default
+DEFAULT_TITLE = lambda: Title(text="")
 
-    if len(args) == 0 and len(kwargs) == 0:
-        raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
-
-    if args:
-        arg = args[0]
-        if isinstance(arg, dict):
-            selector = arg
-        elif isinstance(arg, string_types):
-            selector = dict(name=arg)
-        elif issubclass(arg, Model):
-            selector = {"type" : arg}
-        else:
-            raise RuntimeError("Selector must be a dictionary, string or plot object.")
-
-    else:
-        selector = kwargs
-    return selector
-
-class LayoutBox(Model):
-    ''' Represents an **on-canvas** layout.
-
-    '''
-
-class Plot(Component):
+class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
@@ -70,13 +43,25 @@ class Plot(Component):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
 
+        if "toolbar" in kwargs and "logo" in kwargs:
+            raise ValueError("Conflicing properties set on plot: toolbar, logo.")
+
+        if "toolbar" in kwargs and "tools" in kwargs:
+            raise ValueError("Conflicing properties set on plot: toolbar, tools.")
+
+        if "toolbar" not in kwargs:
+            tools = kwargs.pop('tools', [])
+            logo = kwargs.pop('logo', 'normal')
+
+            kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
+
         if "border_fill" in kwargs and "border_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
 
         if "background_fill" in kwargs and "background_fill_color" in kwargs:
             raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
-        super(Plot, self).__init__(**kwargs)
+        super(LayoutDOM, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
@@ -128,7 +113,6 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -156,6 +140,76 @@ class Plot(Component):
 
         '''
         return self in gridplot.column(col)
+
+    def _axis(self, *sides):
+        objs = []
+        for s in sides:
+            objs.extend(getattr(self, s, []))
+        axis = [obj for obj in objs if isinstance(obj, Axis)]
+        return _list_attr_splat(axis)
+
+    @property
+    def xaxis(self):
+        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+
+        """
+        return self._axis("above", "below")
+
+    @property
+    def yaxis(self):
+        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+
+        """
+        return self._axis("left", "right")
+
+    @property
+    def axis(self):
+        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+
+        """
+        return _list_attr_splat(self.xaxis + self.yaxis)
+
+    @property
+    def legend(self):
+        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+
+        """
+        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        return _list_attr_splat(legends)
+
+    def _grid(self, dimension):
+        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+        return _list_attr_splat(grid)
+
+    @property
+    def xgrid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+
+        """
+        return self._grid(0)
+
+    @property
+    def ygrid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+
+        """
+        return self._grid(1)
+
+    @property
+    def grid(self):
+        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+
+        """
+        return _list_attr_splat(self.xgrid + self.ygrid)
+
+    @property
+    def tools(self):
+        return self.toolbar.tools
+
+    @tools.setter
+    def tools(self, tools):
+        self.toolbar.tools = tools
+
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
@@ -186,7 +240,7 @@ class Plot(Component):
             getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
-        ''' Adds an tools to the plot.
+        ''' Adds tools to the plot.
 
         Args:
             *tools (Tool) : the tools to add to the Plot
@@ -204,7 +258,7 @@ class Plot(Component):
             tool.plot = self
             if hasattr(tool, 'overlay'):
                 self.renderers.append(tool.overlay)
-            self.tools.append(tool)
+            self.toolbar.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
@@ -222,7 +276,7 @@ class Plot(Component):
             Glyph initializer.
 
         Returns:
-            Glyph
+            GlyphRenderer
 
         '''
         if glyph is not None:
@@ -239,26 +293,6 @@ class Plot(Component):
         g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
-
-    def add_annotation(self, annotation, **kwargs):
-        '''Adds new Annotation into the Plot.renderers
-
-        Args:
-            annotation (Annotation) : instance of annotation to add to plot
-        Returns:
-            Annotation
-
-        '''
-        if not isinstance(annotation, Annotation):
-            raise ValueError("'annotation' argument to add_annotation must be Annotation subclass")
-
-        if annotation.plot is not None:
-            raise ValueError("annotation %s to be added already has 'plot' attribute set" % annotation)
-
-        annotation.plot = self
-
-        self.renderers.append(annotation)
-        return annotation
 
     def add_tile(self, tile_source, **kw):
         '''Adds new TileRenderer into the Plot.renderers
@@ -334,7 +368,20 @@ class Plot(Component):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
-    __deprecated_attributes__ = ('background_fill', 'border_fill')
+    @validation.warning(SNAPPED_TOOLBAR_ANNOTATIONS)
+    def _check_snapped_toolbar_and_axis(self):
+        if not self.toolbar_sticky: return
+        if self.toolbar_location is None: return
+
+        objs = getattr(self, self.toolbar_location)
+        if len(objs) > 0:
+            return str(self)
+
+    __deprecated_attributes__ = (
+        'background_fill', 'border_fill', 'logo', 'tools', 'responsive',
+        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
+        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
+    )
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -378,30 +425,20 @@ class Plot(Component):
     Whether to use HiDPI mode when available.
     """)
 
-    title_standoff = Int(default=8, help="""
-    How far (in screen units) to place a title away from the central
-    plot region.
+    title = TitleProp(default=DEFAULT_TITLE, help="""
+    A title for the plot. Can be a text string or a Title annotation. Default is Title(text="").
     """)
 
-    title = String('', help="""
-    A title for the plot.
+    title_location = Enum(Location, default="above", help="""
+    Where the title will be located. Titles on the left or right side
+    will be rotated.
     """)
-
-    title_props = Include(TextProps, help="""
-    The %s for the plot title.
-    """)
-
-    title_text_align = Override(default='center')
-
-    title_text_baseline = Override(default='alphabetic')
-
-    title_text_font_size = Override(default={ 'value' : '20pt' })
 
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
     """)
 
-    outline_line_color = Override(default="#aaaaaa")
+    outline_line_color = Override(default="#e5e5e5")
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
@@ -412,15 +449,27 @@ class Plot(Component):
     setup is performed.
     """)
 
-    tools = List(Instance(Tool), help="""
-    A list of tools to add to the plot.
+    toolbar = Instance(Toolbar, help="""
+        The toolbar associated with this plot which holds all the tools.
+
+        The toolbar is automatically created with the plot.
+    """)
+
+    toolbar_location = Enum(Location, default="right", help="""
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
+    """)
+
+    toolbar_sticky = Bool(default=True, help="""
+    Stick the toolbar to the edge of the plot. Default: True. If False,
+    the toolbar will be outside of the axes, titles etc.
     """)
 
     tool_events = Instance(ToolEvents, help="""
     A ToolEvents object to share and report tool events.
     """)
 
-    left  = List(Instance(Renderer), help="""
+    left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)
 
@@ -428,24 +477,12 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
-    # plot titles are not proper renderers
-    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
+    above = List(Instance(Renderer), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
     below = List(Instance(Renderer), help="""
     A list of renderers to occupy the area below of the plot.
-    """)
-
-    toolbar_location = Enum(Location, help="""
-    Where the toolbar will be located. If set to None, no toolbar
-    will be attached to the plot.
-    """)
-
-    logo = Enum("normal", "grey", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
     """)
 
     plot_height = Int(600, help="""
@@ -468,41 +505,27 @@ class Plot(Component):
 
     """)
 
-    @property
-    def background_fill(self):
-        warnings.warn(
-            """
-            Plot property 'background_fill' was deprecated in Bokeh
-            0.11.0 and will be removed. Use 'background_fill_color' instead.
-            """)
-        return self.background_fill_color
+    inner_width = Int(readonly=True, help="""
+    This is the exact width of the plotting canvas, i.e. the width of
+    the actual plot, without toolbars etc. Note this is computed in a
+    web browser, so this property will work only in backends capable of
+    bidirectional communication (server, notebook).
 
-    @background_fill.setter
-    def background_fill(self, color):
-        warnings.warn(
-            """
-            Plot property 'background_fill' was deprecated in Bokeh
-            0.11.0 and will be removed. Use 'background_fill_color' instead.
-            """)
-        self.background_fill_color = color
+    .. note::
+        This is an experimental feature and the API may change in near future.
 
-    @property
-    def border_fill(self):
-        warnings.warn(
-            """
-            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
-            will be removed. Use 'border_fill_color' instead.
-            """)
-        return self.border_fill_color
+    """)
 
-    @border_fill.setter
-    def border_fill(self, color):
-        warnings.warn(
-            """
-            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
-            will be removed. Use 'border_fill_color' instead.
-            """)
-        self.border_fill_color = color
+    inner_height = Int(readonly=True, help="""
+    This is the exact height of the plotting canvas, i.e. the height of
+    the actual plot, without toolbars etc. Note this is computed in a
+    web browser, so this property will work only in backends capable of
+    bidirectional communication (server, notebook).
+
+    .. note::
+        This is an experimental feature and the API may change in near future.
+
+    """)
 
     background_props = Include(FillProps, help="""
     The %s for the plot background style.
@@ -516,7 +539,7 @@ class Plot(Component):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(50, help="""
+    min_border_top = Int(help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -526,7 +549,7 @@ class Plot(Component):
 
     """)
 
-    min_border_bottom = Int(50, help="""
+    min_border_bottom = Int(help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -536,7 +559,7 @@ class Plot(Component):
 
     """)
 
-    min_border_left = Int(50, help="""
+    min_border_left = Int(help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -546,7 +569,7 @@ class Plot(Component):
 
     """)
 
-    min_border_right = Int(50, help="""
+    min_border_right = Int(help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 
@@ -556,7 +579,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(50, help="""
+    min_border = Int(5, help="""
     A convenience property to set all all the ``min_border_X`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
@@ -566,7 +589,6 @@ class Plot(Component):
     Whether the total horizontal padding on both sides of the plot will
     be made equal (the left or right padding amount, whichever is larger).
     """)
-
 
     v_symmetry = Bool(False, help="""
     Whether the total vertical padding on both sides of the plot will
@@ -600,95 +622,160 @@ class Plot(Component):
     support this will render via WebGL instead of the 2D canvas.
     """)
 
-    responsive = Bool(False, help="""
-    If True, the plot will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
-    act only to set the initial aspect ratio.
-    .. warning::
+    #
+    # DEPRECATED PROPERTIES
+    #
 
-       The responsive setting is known not to work with HBox layout and may not work
-       in combination with other widgets or layouts.
-    """)
+    @property
+    def responsive(self):
+        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode')
+        return self.sizing_mode != "fixed"
 
+    @responsive.setter
+    def responsive(self, value):
+        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode', """
+        Plot.sizing_mode which accepts one of five modes:
 
-class GridPlot(Component):
-    """ A 2D grid of plots rendered on separate canvases in an HTML table.
+            fixed, scale_width, scale_height, scale_both, stretch_both
 
-    """
+        'responsive = False' is the equivalent of 'sizing_mode = "fixed"'
 
-    # TODO (bev) really, GridPlot should be a layout, not a Plot subclass
-    @validation.error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        pass
-    @validation.warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
-        pass
+        'responsive = True' is the equivalent of 'sizing_mode = "scale_width"'
+        """)
+        if value is True:
+            self.sizing_mode = "scale_width"
+        elif value is False:
+            self.sizing_mode = "fixed"
+        else:
+            raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
 
-    @validation.warning(NO_DATA_RENDERERS)
-    def _check_no_data_renderers(self):
-        pass
+    @property
+    def background_fill(self):
+        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
+        return self.background_fill_color
 
-    @validation.warning(EMPTY_LAYOUT)
-    def _check_empty_layout(self):
-        from itertools import chain
-        if not list(chain(self.children)):
-            return str(self)
+    @background_fill.setter
+    def background_fill(self, color):
+        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
+        self.background_fill_color = color
 
-    children = List(List(Instance(Plot)), default=[[]], help="""
-    An array of plots to display in a grid, given as a list of lists of
-    Plot objects. To leave a position in the grid empty, pass None for
-    that position in the ``children`` list.
-    """)
+    @property
+    def border_fill(self):
+        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
+        return self.border_fill_color
 
-    border_space = Int(0, help="""
-    Distance (in pixels) between adjacent plots.
-    """)
+    @border_fill.setter
+    def border_fill(self, color):
+        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
+        self.border_fill_color = color
 
-    toolbar_location = Enum(Location, default="left", help="""
-    Where the toolbar will be located. If set to None, no toolbar
-    will be attached to the plot.
-    """)
+    @property
+    def logo(self):
+        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
+        return self.toolbar.logo
 
-    def select(self, *args, **kwargs):
-        ''' Query this object and all of its references for objects that
-        match the given selector. See Plot.select for detailed usage information.
+    @logo.setter
+    def logo(self, value):
+        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
+        self.toolbar.logo = value
 
-        Returns:
-            seq[Model]
-        '''
+    @property
+    def title_standoff(self):
+        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
+        return self.title.offset
 
-        selector = _select_helper(args, kwargs)
+    @title_standoff.setter
+    def title_standoff(self, value):
+        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
+        self.title.offset = value
 
-        # Want to pass selector that is a dictionary
-        from ..plotting.helpers import _list_attr_splat
-        return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
+    @property
+    def title_text_font(self):
+        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
+        return self.title.text_font
 
-    def column(self, col):
-        ''' Return a given column of plots from this GridPlot.
+    @title_text_font.setter
+    def title_text_font(self, value):
+        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
+        self.title.text_font = value
 
-        Args:
-            col (int) : index of the column to return
+    @property
+    def title_text_font_size(self):
+        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
+        return self.title.text_font_size
 
-        Returns:
-            seq[Plot] : column of plots
+    @title_text_font_size.setter
+    def title_text_font_size(self, value):
+        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
+        self.title.text_font_size = value
 
-        '''
-        try:
-            return [row[col] for row in self.children]
-        except:
-            return []
+    @property
+    def title_text_font_style(self):
+        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
+        return self.title.text_font_style
 
-    def row(self, row):
-        ''' Return a given row of plots from this GridPlot.
+    @title_text_font_style.setter
+    def title_text_font_style(self, value):
+        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
+        self.title.text_font_style = value
 
-        Args:
-            rwo (int) : index of the row to return
+    @property
+    def title_text_color(self):
+        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
+        return self.title.text_color
 
-        Returns:
-            seq[Plot] : row of plots
+    @title_text_color.setter
+    def title_text_color(self, value):
+        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
+        self.title.text_color = value
 
-        '''
-        try:
-            return self.children[row]
-        except:
-            return []
+    @property
+    def title_text_alpha(self):
+        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
+        return self.title.text_alpha
+
+    @title_text_alpha.setter
+    def title_text_alpha(self, value):
+        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
+        self.title.text_alpha = value
+
+    @property
+    def title_text_align(self):
+        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
+        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
+        available on the new Title object. There is a new ``plot.title.title_align`` which is
+        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
+        If you need the exact ``title_text_align`` behavior, please add a title by creating a
+        Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
+        return self.title.align
+
+    @title_text_align.setter
+    def title_text_align(self, value):
+        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
+        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
+        available on the new Title object. There is a new ``plot.title.title_align`` which is
+        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
+        If you need the exact ``title_text_align`` behavior, please add a title by creating a
+        Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
+        self.title.align = value
+
+    @property
+    def title_text_baseline(self):
+        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
+        available on the new Title object. If you need to alter the text_baseline, please
+        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)
+        return None
+
+    @title_text_baseline.setter
+    def title_text_baseline(self, value):
+        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
+        available on the new Title object. If you need to alter the text_baseline, please
+        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
+        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
+        """)

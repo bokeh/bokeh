@@ -1,10 +1,10 @@
-_ = require "underscore"
-rbush = require "rbush"
+import * as _ from "underscore"
+import * as rbush from "rbush"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
 
-class PatchesView extends Glyph.View
+export class PatchesView extends GlyphView
 
   _build_discontinuous_object: (nanned_qs) ->
     # _s is @xs, @ys, @sxs, @sys
@@ -54,29 +54,31 @@ class PatchesView extends Glyph.View
         ys = yss[i][j]
         if xs.length == 0
           continue
-        pts.push([
-          _.min(xs), _.min(ys),
-          _.max(xs), _.max(ys),
-          {'i': i}
-        ])
+        pts.push({
+          minX: _.min(xs),
+          minY: _.min(ys),
+          maxX: _.max(xs),
+          maxY: _.max(ys),
+          i: i
+        })
     index.load(pts)
     return index
 
   _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
-    [x0, x1] = [xr.get('min'), xr.get('max')]
+    [x0, x1] = [xr.min, xr.max]
 
     yr = @renderer.plot_view.y_range
-    [y0, y1] = [yr.get('min'), yr.get('max')]
+    [y0, y1] = [yr.min, yr.max]
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return (x[4].i for x in @index.search(bbox))
+    return (x.i for x in @index.search(bbox))
 
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
     # This is the earliest we can build them, and only build them once
-    @sxss = @_build_discontinuous_object(sxs)
-    @syss = @_build_discontinuous_object(sys)
+    @renderer.sxss = @_build_discontinuous_object(sxs)
+    @renderer.syss = @_build_discontinuous_object(sys)
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
@@ -126,13 +128,13 @@ class PatchesView extends Glyph.View
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
 
-    candidates = (x[4].i for x in @index.search([x, y, x, y]))
+    candidates = (x.i for x in @index.search({minX: x, minY: y, maxX: x, maxY: y}))
 
     hits = []
     for i in [0...candidates.length]
       idx = candidates[i]
-      sxs = @sxss[idx]
-      sys = @syss[idx]
+      sxs = @renderer.sxss[idx]
+      sys = @renderer.syss[idx]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           hits.push(idx)
@@ -148,43 +150,39 @@ class PatchesView extends Glyph.View
       return sum / array.length
 
   scx: (i, sx, sy) ->
-    if @sxss[i].length is 1
+    if @renderer.sxss[i].length is 1
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sxs[i])
     else
       # We have discontinuous objects, so we need to find which
       # one we're in, we can use point_in_poly again
-      sxs = @sxss[i]
-      sys = @syss[i]
+      sxs = @renderer.sxss[i]
+      sys = @renderer.syss[i]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           return @_get_snap_coord(sxs[j])
     return null
 
   scy: (i, sx, sy) ->
-    if @syss[i].length is 1
+    if @renderer.syss[i].length is 1
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sys[i])
     else
       # We have discontinuous objects, so we need to find which
       # one we're in, we can use point_in_poly again
-      sxs = @sxss[i]
-      sys = @syss[i]
+      sxs = @renderer.sxss[i]
+      sys = @renderer.syss[i]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           return @_get_snap_coord(sys[j])
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class Patches extends Glyph.Model
+export class Patches extends Glyph
   default_view: PatchesView
 
   type: 'Patches'
 
   @coords [ ['xs', 'ys'] ]
   @mixins ['line', 'fill']
-
-module.exports =
-  Model: Patches
-  View: PatchesView

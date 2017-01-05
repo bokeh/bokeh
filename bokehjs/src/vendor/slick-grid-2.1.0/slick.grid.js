@@ -1366,7 +1366,7 @@ function SlickGrid(container, data, columns, options) {
 
     if (formatter.format !== undefined) {
       var model = formatter;
-      function format(row, cell, value, columnDef, dataContext) {
+      var format = function foo(row, cell, value, columnDef, dataContext) {
         return model.format(row, cell, value, columnDef, dataContext);
       }
       formatter = format
@@ -2138,7 +2138,7 @@ function SlickGrid(container, data, columns, options) {
     if (rowsCache[row]) {
       var $cell = $(getCellNode(row, cell));
 
-      function toggleCellClass(times) {
+      var toggleCellClass = function foo(times) {
         if (!times) {
           return;
         }

@@ -16,7 +16,7 @@ handleOutput = (data) ->
 
 gulp.task "install", ->
   # installs js and css
-  # note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py 
+  # note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py
   setup = spawn "python", ["setup.py", "--install_js"], {cwd: "../"}
   for output in ["stdout", "stderr"]
     setup[output].setEncoding "utf8"

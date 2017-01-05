@@ -23,13 +23,16 @@ in this directory. Navigate to
 """
 from __future__ import print_function
 
+import io
+
 from numpy import pi
 
-from bokeh.document import Document
 from bokeh.client import push_session
+from bokeh.document import Document
 from bokeh.embed import autoload_server
+from bokeh.layouts import row, column
 from bokeh.models import (Plot, DataRange1d, LinearAxis, CategoricalAxis,
-                          Legend, HBox, VBox, ColumnDataSource, Grid, Line,
+                          Legend, ColumnDataSource, Grid, Line,
                           SingleIntervalTicker, Quad, Select, FactorRange)
 from bokeh.sampledata.population import load_population
 
@@ -68,7 +71,10 @@ def pyramid():
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
-    plot.add_layout(Legend(legends=[("Male", [male_quad_glyph]), ("Female", [female_quad_glyph])]))
+    plot.add_layout(Legend(items=[
+        ("Male"   , [male_quad_glyph]),
+        ("Female" , [female_quad_glyph]),
+    ]))
 
     return plot
 
@@ -89,11 +95,12 @@ def population():
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
     line_predicted_glyph = plot.add_glyph(source_predicted, line_predicted)
 
-    plot.add_layout(
-        Legend(
-            location="bottom_right",
-            legends=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
-        )
+    plot.add_layout(Legend(
+        location="bottom_right",
+        items=[
+            ("known"     , [line_known_glyph]),
+            ("predicted" , [line_predicted_glyph]),
+        ])
     )
 
     return plot
@@ -150,8 +157,8 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = HBox(children=[year_select, location_select])
-    layout = VBox(children=[controls, pyramid(), population()])
+    controls = row(children=[year_select, location_select])
+    layout = column(children=[controls, pyramid(), population()])
 
     return layout
 
@@ -168,7 +175,7 @@ html = """
 </html>
 """ % autoload_server(layout, session_id=session.id)
 
-with open("widget.html", "w+") as f:
+with io.open("widget.html", mode='w+', encoding='utf-8') as f:
     f.write(html)
 
 print(__doc__)
@@ -178,4 +185,3 @@ document.add_root(layout)
 if __name__ == "__main__":
     print("\npress ctrl-C to exit")
     session.loop_until_closed()
-

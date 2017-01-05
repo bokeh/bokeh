@@ -65,6 +65,16 @@ Text Properties
 
 .. _userguide_styling_colors:
 
+Visible property
+~~~~~~~~~~~~~~~~
+
+Glyph renderers, axes, and grids all have a visible property that can be used to turn them on
+and off. This can be particulartly useful in interactive examples with bokeh server or CustomJS.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_visible_property.py
+    :source-position: above
+
+
 Specifying Colors
 ~~~~~~~~~~~~~~~~~
 
@@ -94,7 +104,7 @@ Additionally, there is also the freedom to use a combination of the two, or no
 alpha at all. The following figure demonstrates each possible combination of
 the inputs for line and fill alphas:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_specifying_colors.py
+.. bokeh-plot:: docs/user_guide/examples/styling_specifying_colors.py
     :source-position: none
 
 .. note::
@@ -104,6 +114,19 @@ the inputs for line and fill alphas:
     corresponding ``line`` and ``fill`` properties. However, you can still
     provide ``fill|line_alpha`` or ``fill|line_color`` in combination with
     the ``color``/``alpha`` keywords, and the former will take precedence.
+
+.. _userguide_styling_arrow_annotations:
+
+Styling Arrow Annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are several `ArrowHead` subtypes that can be applied to Arrow
+annotations. Setting the `start` or `end` property to None will
+cause no arrow head to be applied at the specified arrow end. Double-sided
+arrows can be created by setting both `start` and `end` styles.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_arrow_annotations.py
+    :source-position: none
 
 .. _userguide_styling_units:
 
@@ -173,7 +196,7 @@ not the toolbar). If you are using the |bokeh.plotting| or |bokeh.charts|
 interfaces, then these values can be passed to |figure| or the Chart function
 as a convenience:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_dimensions.py
+.. bokeh-plot:: docs/user_guide/examples/styling_dimensions.py
     :source-position: above
 
 
@@ -193,6 +216,10 @@ those parameters will be used to calculate the initial aspect ratio for your
 plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
+For more precise control over how the plot scales to fill its container,
+see the documentation for :ref:`bokeh.models.layouts`, in particular the
+``sizing_mode`` property of :class:`~bokeh.models.layouts.LayoutDOM`.
+
 .. warning::
     This feature is known not to work when combined with HBox.
     This is a new feature and may have other issues when used in different circumstances.
@@ -207,10 +234,10 @@ Title
 ~~~~~
 
 The styling of the plot title is controlled by a set of `Text Properties`_
-on the |Plot|, that are prefixed with ``title_``. For instance, to set the
-color of the title text, use ``title_text_color``:
+on a |Title| annotation available as the ``.title`` property of the |Plot|.
+For instance, to set the color of the title text, use ``plot.title.text_color``:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_title.py
+.. bokeh-plot:: docs/user_guide/examples/styling_title.py
     :source-position: above
 
 .. _userguide_styling_plot_background:
@@ -221,7 +248,7 @@ Background
 The background fill style is controlled by the ``background_fill_color`` and
 ``background_fill_alpha`` properties of the |Plot| object:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_background_fill.py
+.. bokeh-plot:: docs/user_guide/examples/styling_background_fill.py
     :source-position: above
 
 .. _userguide_styling_plot_border:
@@ -244,7 +271,7 @@ minimum border on each side (in screen units) with the properties
 Additionally, setting ``min_border`` will apply a minimum border setting
 to all sides as a convenience. The ``min_border`` default value is 40px.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_min_border.py
+.. bokeh-plot:: docs/user_guide/examples/styling_min_border.py
     :source-position: above
 
 .. _userguide_styling_plot_outline:
@@ -256,7 +283,7 @@ The styling of the outline of the plotting area is controlled by a set of
 `Line Properties`_ on the |Plot|, that are prefixed with ``outline_``. For
 instance, to set the color of the outline, use ``outline_line_color``:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_plot_outline_line_color.py
+.. bokeh-plot:: docs/user_guide/examples/styling_plot_outline_line_color.py
     :source-position: above
 
 .. _userguide_styling_glyphs:
@@ -284,7 +311,7 @@ Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 
 This is the object to set fill, line, or text property values for:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_properties.py
+.. bokeh-plot:: docs/user_guide/examples/styling_glyph_properties.py
     :source-position: above
 
 .. _userguide_styling_selected_unselected_glyphs:
@@ -307,7 +334,7 @@ effect on the selected and nonselected glyphs. To clear the selection
 and restore the original state, click anywhere in the plot *outside* of a
 circle.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections_plotting_glyph.py
+.. bokeh-plot:: docs/user_guide/examples/styling_glyph_selections_plotting_glyph.py
     :source-position: above
 
 If you just need to set the color or alpha parameters of the selected or
@@ -315,7 +342,7 @@ nonselected glyphs, this can be accomplished even more simply by providing
 color and alpha arguments to the glyph function, prefixed by ``"selection_"``
 or ``"nonselection_"``. The plot below demonstrates this technique:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections_plotting_params.py
+.. bokeh-plot:: docs/user_guide/examples/styling_glyph_selections_plotting_params.py
     :source-position: above
 
 The same could also be achieved with the models interface as follows:
@@ -347,7 +374,7 @@ analogous to setting the ``selection_glyph`` or ``nonselection_glyph``, or
 by passing color or alpha parameters prefixed with ``"hover_"``. The example
 below demonstrates the latter method:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_hover.py
+.. bokeh-plot:: docs/user_guide/examples/styling_glyph_hover.py
     :source-position: above
 
 .. note::
@@ -363,7 +390,7 @@ Some Bokeh tools also have configurable visual attributes. For instance the
 various region selection tools and box zoom tool all have an ``overlay``
 whose line and fill properties may be set:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tool_overlays.py
+.. bokeh-plot:: docs/user_guide/examples/styling_tool_overlays.py
     :source-position: above
 
 .. _userguide_styling_axes:
@@ -397,7 +424,7 @@ many there may be).
 Below is code that will set some of the properties of axes. You can
 execute this code, and try setting other properties as well.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_axis_properties.py
+.. bokeh-plot:: docs/user_guide/examples/styling_axis_properties.py
     :source-position: above
 
 .. _userguide_styling_axes_labels:
@@ -412,7 +439,7 @@ to set the color of the label, set ``axis_label_text_color``. Finally, to
 change the distance between the axis label and the major tick labels, set
 the ``axis_label_standoff`` property:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_labels.py
+.. bokeh-plot:: docs/user_guide/examples/styling_labels.py
     :source-position: above
 
 .. _userguide_styling_axes_bounds:
@@ -424,7 +451,7 @@ Sometimes it is useful to limit the bounds where axes are drawn. This can be
 accomplished by setting the ``bounds`` property of an axis object to a 2-tuple
 of *(start, end)*:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_bounds.py
+.. bokeh-plot:: docs/user_guide/examples/styling_bounds.py
     :source-position: above
 
 .. _userguide_styling_axes_tick_lines:
@@ -445,7 +472,7 @@ useful.
 This ticker model allows users to specify exact tick locations
 explicitly.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_fixed_ticker.py
+.. bokeh-plot:: docs/user_guide/examples/styling_fixed_ticker.py
     :source-position: above
 
 Tick Lines
@@ -460,7 +487,7 @@ out of the plotting area the ticks extend, with the properties
 ``major_tick_in``/``major_tick_out`` and ``minor_tick_in``/``minor_tick_out``.
 These values are in screen units, and negative values are acceptable.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tick_lines.py
+.. bokeh-plot:: docs/user_guide/examples/styling_tick_lines.py
     :source-position: above
 
 .. _userguide_styling_axes_tick_label_formats:
@@ -495,7 +522,7 @@ To control tick formatting at a finer grained level, use one of the
 The |NumeralTickFormatter| has a ``format`` property that can be used
 to control the text formatting of axis ticks.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_numerical_tick_formatter.py
+.. bokeh-plot:: docs/user_guide/examples/styling_numerical_tick_formatter.py
     :source-position: above
 
 Many additional formats are available, see the full |NumeralTickFormatter|
@@ -508,11 +535,36 @@ The |PrintfTickFormatter| has a ``format`` property that can be used
 to control the text formatting of axis ticks using ``printf`` style
 format strings.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_printf_tick_formatter.py
+.. bokeh-plot:: docs/user_guide/examples/styling_printf_tick_formatter.py
     :source-position: above
 
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the :ref:`refguide`.
+
+``FuncTickFormatter``
+'''''''''''''''''''''
+
+The |FuncTickFormatter| allows arbitrary tick formatting to be performed by
+supplying a JavaScript snippet as the ``code`` property. For convenience,
+there are also ``from_py_func`` and ``from_coffeescript`` class methods
+that can convert a python function or coffeescript snippet into JavaScript
+automatically. In all cases, the variable ``tick`` will contain the unformatted
+tick value and can be expected to be present in the snippet or function
+namespace at render time. The example below demonstrates configuring a
+|FuncTickFormatter| from pure JavaScript:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_func_tick_formatter.py
+    :source-position: above
+
+The above plot could also be generated by converting a python function using
+``from_py_func``:
+
+.. code-block:: python
+
+    def ticker():
+        return "{:.0f} + {:.2f}".format(tick, tick % 1)
+
+    p.yaxis.formatter = FuncTickFormatter.from_py_func(ticker)
 
 .. _userguide_styling_axes_tick_label_orientation:
 
@@ -524,7 +576,7 @@ The orientation of major tick labels can be controlled with the
 values ``"horizontal"`` or ``"vertical"`` or a floating point number
 that gives the angle (in radians) to rotate from the horizontal:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tick_label_orientation.py
+.. bokeh-plot:: docs/user_guide/examples/styling_tick_label_orientation.py
     :source-position: above
 
 ----
@@ -575,7 +627,7 @@ The visual appearance of grid lines is controlled by a collection of
 color of grid lines, use ``grid_line_color``. To hide grid lines, set
 their line color to ``None``.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_grid_lines.py
+.. bokeh-plot:: docs/user_guide/examples/styling_grid_lines.py
     :source-position: above
 
 Minor Lines
@@ -586,7 +638,7 @@ The visual appearance of minor grid lines is controlled by a collection of
 color of grid lines, use ``minor_grid_line_color``. By default, minor grid
 lines are hidden (i.e., their line color is set to ``None``).
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_minor_grid_lines.py
+.. bokeh-plot:: docs/user_guide/examples/styling_minor_grid_lines.py
     :source-position: above
 
 .. _userguide_styling_grid_bands:
@@ -600,7 +652,7 @@ collection of `Fill Properties`_, prefixed with ``band_``. For instance,
 to set the color of grid bands, use ``band_fill_color``. To hide grid
 bands, set their fill color to ``None`` (this is the default).
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_grid_band_fill.py
+.. bokeh-plot:: docs/user_guide/examples/styling_grid_band_fill.py
     :source-position: above
 
 .. _userguide_styling_grid_bounds:
@@ -612,7 +664,7 @@ Grids also support setting explicit bounds between which they are drawn.
 They are set in an identical fashion to axes bounds, with a 2-tuple
 of *(start, end)*:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_grid_bounds.py
+.. bokeh-plot:: docs/user_guide/examples/styling_grid_bounds.py
     :source-position: above
 
 
@@ -629,7 +681,7 @@ Legends
 -------
 
 Similar to the convenience methods for axes and grids, there is a
-|legend| method on |Plot| that can be used to obtain a plot's legend
+|legend| method on |Plot| that can be used to obtain a plot's |Legend|
 objects:
 
 .. code-block:: python
@@ -653,7 +705,13 @@ Location
 ~~~~~~~~
 
 The location of the legend labels is controlled by the ``location``
-property. Valid values for this property are either:
+property.
+
+Inside the Plot Area
+''''''''''''''''''''
+
+For legends in the central layout area, such as those created
+automatically by ``bokeh.plotting``, values for ``location``  can be:
 
 ``"top_left"``
 
@@ -661,7 +719,7 @@ property. Valid values for this property are either:
 
 ``"top_right"`` (the default)
 
-``"right_center"``
+``"center_right"``
 
 ``"bottom_right"``
 
@@ -669,20 +727,28 @@ property. Valid values for this property are either:
 
 ``"bottom_left"``
 
-``"left_center"``
+``"center_left"``
 
 ``"center"``
 
 or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
 (pixels from the bottom-left corner).
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_location.py
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_location.py
     :source-position: above
 
-.. note::
-    It is currently not possible to position a legend outside the plot area,
-    or in an optimal, automatically computed location within the canvas.
-    These and other improvements are planned.
+Outside the Plot Area
+'''''''''''''''''''''
+
+It is also possible to position a legend outside the central area, by using the
+``add_layout`` method of plots, but doing so requires creating the |Legend|
+object directly:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_location_outside.py
+    :source-position: above
+
+In this use-case, the location must be specified absolutely. Future releases
+will add additional options for laying out legend positions.
 
 Orientation
 ~~~~~~~~~~~
@@ -696,7 +762,7 @@ Valid values for this property are:
 
 The default orientation is ``"vertical"``.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_orientation.py
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_orientation.py
     :source-position: above
 
 Label Text
@@ -706,7 +772,7 @@ The visual appearance of the legend labels is controlled by a collection of
 `Text Properties`_, prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_label_text.py
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_label_text.py
     :source-position: above
 
 Border
@@ -717,7 +783,7 @@ The visual appearance of the legend border is controlled by a collection of
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_border.py
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_border.py
     :source-position: above
 
 Background
@@ -728,7 +794,7 @@ of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
 color of the background, use ``background_fill_color``. To make the background
 transparent, set the ``background_fill_alpha`` to ``0``.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_background.py
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_background.py
     :source-position: above
 
 Dimensions
@@ -737,20 +803,38 @@ Dimensions
 There are several properties that can be used to control the layout,
 spacing, etc. of the legend components:
 
-.. bokeh-prop:: bokeh.models.annotations.Legend.label_standoff
-.. bokeh-prop:: bokeh.models.annotations.Legend.label_width
-.. bokeh-prop:: bokeh.models.annotations.Legend.label_height
-.. bokeh-prop:: bokeh.models.annotations.Legend.glyph_width
-.. bokeh-prop:: bokeh.models.annotations.Legend.glyph_height
-.. bokeh-prop:: bokeh.models.annotations.Legend.legend_padding
-.. bokeh-prop:: bokeh.models.annotations.Legend.legend_spacing
+.. bokeh-prop:: Legend.label_standoff
+    :module: bokeh.models.annotations
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_dimensions.py
+.. bokeh-prop:: Legend.label_width
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.label_height
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.glyph_width
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.glyph_height
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.padding
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.spacing
+    :module: bokeh.models.annotations
+
+.. bokeh-prop:: Legend.margin
+    :module: bokeh.models.annotations
+
+
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_dimensions.py
     :source-position: above
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
-
+.. |Title| replace:: :class:`~bokeh.models.annotations.Title`
+.. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
@@ -763,6 +847,7 @@ spacing, etc. of the legend components:
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+.. |FuncTickFormatter| replace:: :class:`~bokeh.models.formatters.FuncTickFormatter`
 .. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`

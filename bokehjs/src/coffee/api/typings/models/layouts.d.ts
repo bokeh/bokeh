@@ -1,20 +1,32 @@
 declare namespace Bokeh {
-    export interface Layout extends Component, ILayout {}
-    export interface ILayout extends IComponent {
-        width?: Int;
-        height?: Int;
-    }
+  export interface LayoutDOM extends Model, ILayoutDOM {}
+  export interface ILayoutDOM extends IModel {
+    width?: Int;
+    height?: Int;
+    disabled?: boolean;
+    sizing_mode?: SizingMode;
+  }
 
-    export interface BaseBox extends Layout, IBaseBox {}
-    export interface IBaseBox extends ILayout {
-        children?: Array<Component>;
-    }
+  export var Spacer: {
+    new(attributes?: ISpacer, options?: ModelOpts): Spacer;
+  }
+  export interface Spacer extends LayoutDOM {}
+  export interface ISpacer extends ILayoutDOM {}
 
-    export var HBox: { new(attributes?: IHBox, options?: ModelOpts): HBox };
-    export interface HBox extends BaseBox, IHBox {}
-    export interface IHBox extends IBaseBox {}
+  export interface Box extends LayoutDOM, IBox {}
+  export interface IBox extends ILayoutDOM {
+    children?: Array<LayoutDOM>;
+  }
 
-    export var VBox: { new(attributes?: IVBox, options?: ModelOpts): VBox };
-    export interface VBox extends BaseBox, IVBox {}
-    export interface IVBox extends IBaseBox {}
+  export var Row: {
+    new(attributes?: IRow, options?: ModelOpts): Row;
+  }
+  export interface Row extends Box {}
+  export interface IRow extends IBox {}
+
+  export var Column: {
+    new(attributes?: IColumn, options?: ModelOpts): Column;
+  }
+  export interface Column extends Box {}
+  export interface IColumn extends IBox {}
 }

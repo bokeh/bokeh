@@ -72,7 +72,6 @@ class ServerSession(object):
         self._subscribed_connections = set()
         self._last_unsubscribe_time = current_time()
         self._lock = locks.Lock()
-        self._current_patch = None
         self._current_patch_connection = None
         self._document.on_change_dispatch_to(self)
         self._callbacks = _DocumentCallbackGroup(io_loop)
@@ -165,8 +164,7 @@ class ServerSession(object):
         return wrapped
 
     def _document_patched(self, event):
-        may_suppress = self._current_patch is not None and \
-                       self._current_patch.should_suppress_on_change(event)
+        may_suppress = event.setter is self
 
         if self._pending_writes is None:
             raise RuntimeError("_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes")
@@ -211,12 +209,10 @@ class ServerSession(object):
 
     @_needs_document_lock
     def _handle_patch(self, message, connection):
-        self._current_patch = message
         self._current_patch_connection = connection
         try:
-            message.apply_to_document(self.document)
+            message.apply_to_document(self.document, self)
         finally:
-            self._current_patch = None
             self._current_patch_connection = None
 
         return connection.ok(message)

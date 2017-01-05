@@ -1,11 +1,11 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
-{angle_between} = require "../../core/util/math"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
+import {angle_between} from "../../core/util/math"
 
-class AnnularWedgeView extends Glyph.View
+export class AnnularWedgeView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -76,7 +76,7 @@ class AnnularWedgeView extends Glyph.View
     candidates = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt[4].i for pt in @index.search(bbox))
+    for i in (pt.i for pt in @index.search(bbox))
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
       sx0 = @renderer.xmapper.map_to_target(x, true)
@@ -104,10 +104,18 @@ class AnnularWedgeView extends Glyph.View
       .value()
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
-class AnnularWedge extends Glyph.Model
+  _scxy: (i) ->
+    r = (@sinner_radius[i] + @souter_radius[i])/2
+    a = (@_start_angle[i]  + @_end_angle[i])   /2
+    return {x: @sx[i] + r*Math.cos(a), y: @sy[i] + r*Math.sin(a)}
+
+  scx: (i) -> @_scxy(i).x
+  scy: (i) -> @_scxy(i).y
+
+export class AnnularWedge extends Glyph
   default_view: AnnularWedgeView
 
   type: 'AnnularWedge'
@@ -121,7 +129,3 @@ class AnnularWedge extends Glyph.Model
       start_angle:  [ p.AngleSpec                ]
       end_angle:    [ p.AngleSpec                ]
     }
-
-module.exports =
-  Model: AnnularWedge
-  View: AnnularWedgeView

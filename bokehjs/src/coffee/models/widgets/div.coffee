@@ -1,27 +1,23 @@
-_ = require "underscore"
+import * as $ from "jquery"
 
-Markup = require "./markup"
-p = require "../../core/properties"
+import {Markup, MarkupView} from "./markup"
+import * as p from "../../core/properties"
 
-class DivView extends Markup.View
-  tagName: "div"
+export class DivView extends MarkupView
 
   render: () ->
     super()
-    if @mget('render_as_text') == true
-      @$el.text(@mget('text'))
+    if @model.render_as_text == true
+      $content = $('<div></div>').text(@model.text)
     else
-      @$el.html(@mget('text'))
+      $content = $('<div></div>').html(@model.text)
+    @$el.find('.bk-markup').append($content)
     return @
 
-class Div extends Markup.Model
+export class Div extends Markup
   type: "Div"
   default_view: DivView
 
   @define {
     render_as_text: [ p.Bool,   false]
   }
-
-module.exports =
-  Model: Div
-  View: DivView

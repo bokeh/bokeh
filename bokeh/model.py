@@ -1,28 +1,40 @@
+''' Provide a base class for all objects (called Bokeh Models) that go in
+Bokeh Documents.
+
+The :class:`~bokeh.document.Document` class is the basic unit of serialization
+for Bokeh visualizations and applications. Documents contain collections of
+related Bokeh Models (e.g. ``Plot``, ``Range1d``, etc. ) that can be all
+serialized together.
+
+The :class:`~bokeh.model.Model` class is a base class for all objects that
+can be added to a Document.
+
+'''
 from __future__ import absolute_import, print_function
 
 import logging
 logger = logging.getLogger(__file__)
 
+from contextlib import contextmanager
 from json import loads
+from operator import itemgetter
 
 from six import iteritems
 
 from .core.json_encoder import serialize_json
-from .core.properties import Any, HasProps, List, MetaHasProps, String
+from .core.properties import Any, Dict, Instance, List, String
+from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
 from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
 
+
 class Viewable(MetaHasProps):
-    """ Any plot object (Data Model) which has its own View Model in the
+    """ Any Bokeh Model which has its own View Model in the
     persistence layer.
 
-    One thing to keep in mind is that a Viewable should have a single
-    unique representation in the persistence layer, but it might have
-    multiple concurrent client-side Views looking at it.  Those may
-    be from different machines altogether.
     """
 
     # Stores a mapping from subclass __view_model__ names to classes
@@ -72,10 +84,60 @@ class Viewable(MetaHasProps):
             raise KeyError("View model name '%s' not found" % view_model_name)
 
 class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
-    """ Base class for all plot-related objects """
+    ''' Base class for all objects stored in Bokeh ``Document`` instances.
 
-    name = String()
-    tags = List(Any)
+    '''
+
+    name = String(help="""
+    An arbitrary, user-supplied name for this model.
+
+    This name can be useful when querying the document to retrieve specific
+    Bokeh models.
+
+    .. code:: python
+
+        >>> plot.circle([1,2,3], [4,5,6], name="temp")
+        >>> plot.select(name="temp")
+        [GlyphRenderer(id='399d53f5-73e9-44d9-9527-544b761c7705', ...)]
+
+    .. note::
+        No uniqueness guarantees or other conditions are enforced on any names
+        that are provided.
+
+    """)
+
+    tags = List(Any, help="""
+    An optional list of arbitrary, user-supplied values to attach to this
+    model.
+
+    This data can be useful when querying the document to retrieve specific
+    Bokeh models:
+
+    .. code:: python
+
+        >>> r = plot.circle([1,2,3], [4,5,6])
+        >>> r.tags = ["foo", 10]
+        >>> plot.select(tags=['foo', 10])
+        [GlyphRenderer(id='1de4c3df-a83d-480a-899b-fb263d3d5dd9', ...)]
+
+    Or simply a convenient way to attach any necessary metadata to a model
+    that can be accessed by CustomJS callbacks, etc.
+
+    """)
+
+    js_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    A mapping of attribute names to lists of CustomJS callbacks, to be set up on
+    BokehJS side when the document is created.
+
+    Typically, rather then modifying this property directly, callbacks should be
+    added using the ``Model.js_on_change`` method:
+
+    .. code:: python
+
+        callback = CustomJS(code="console.log('stuff')")
+        plot.x_range.js_on_change('start', callback)
+
+    """)
 
     def __init__(self, **kwargs):
         self._id = kwargs.pop("id", make_id())
@@ -87,8 +149,8 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
-        self._document = doc
         doc.theme.apply_to_model(self)
+        self._document = doc
 
     def _detach_document(self):
         '''This should only be called by the Document implementation to unset the document field'''
@@ -99,7 +161,64 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     def document(self):
         return self._document
 
-    def trigger(self, attr, old, new, hint=None):
+    def on_change(self, attr, *callbacks):
+        ''' Add a callback on this object to trigger when ``attr`` changes.
+
+        Args:
+            attr (str) : an attribute name on this object
+            callback (callable) : a callback function to register
+
+        Returns:
+            None
+
+        '''
+        if attr not in self.properties():
+            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
+        super(Model, self).on_change(attr, *callbacks)
+
+    def js_on_change(self, event, *callbacks):
+        ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
+
+        On the BokehJS side, change events for model properties have the
+        form ``"change:property_name"``. As a convenience, if the event name
+        passed to this method is also the name of a property on the model,
+        then it will be prefixed with ``"change:"`` automatically:
+
+        .. code:: python
+
+            # these two are equivalent
+            source.js_on_change('data', callback)
+            source.js_on_change('change:data', callback)
+
+        However, there are other kinds of events that can be useful to respond
+        to, in addition to property change events. For example to run a
+        callback whenever data is streamed to a ``ColumnDataSource``, use the
+        ``"stream"`` event on the source:
+
+        .. code:: python
+
+            source.js_on_change('stream', callback)
+
+        '''
+        if len(callbacks) == 0:
+            raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
+
+        # handle any CustomJS callbacks here
+        from bokeh.models.callbacks import CustomJS
+        if not all(isinstance(x, CustomJS) for x in callbacks):
+            raise ValueError("not all callback values are CustomJS instances")
+
+        if event in self.properties():
+            event = "change:%s" % event
+
+        if event not in self.js_callbacks:
+            self.js_callbacks[event] = []
+        for callback in callbacks:
+            if callback in self.js_callbacks[event]:
+                continue
+            self.js_callbacks[event].append(callback)
+
+    def trigger(self, attr, old, new, hint=None, setter=None):
         # The explicit assumption here is that hinted events do not
         # need to go through all the same invalidation steps. Currently
         # as of Bokeh 0.11.1 the only hinted event is ColumnsStreamedEvent.
@@ -116,7 +235,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint)
+        super(Model, self).trigger(attr, old, new, hint, setter)
 
     @property
     def ref(self):
@@ -341,8 +460,85 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         return serialize_json(json_like)
 
     def __str__(self):
-        return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
-                self.__view_model__, getattr(self, "_id", None))
+        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
+
+    __repr__ = __str__
+
+    def _bokeh_repr_pretty_(self, p, cycle):
+        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        _id = getattr(self, "_id", None)
+
+        if cycle:
+            p.text(name)
+            p.text('(id=')
+            p.pretty(_id)
+            p.text(', ...)')
+        else:
+            with p.group(4, '%s(' % name, ')'):
+                props = self.properties_with_values().items()
+                sorted_props = sorted(props, key=itemgetter(0))
+                all_props = [('id', _id)] + sorted_props
+                for i, (prop, value) in enumerate(all_props):
+                    if i == 0:
+                        p.breakable('')
+                    else:
+                        p.text(',')
+                        p.breakable()
+                    p.text(prop)
+                    p.text('=')
+                    p.pretty(value)
+
+    def _repr_html_(self):
+        module = self.__class__.__module__
+        name = self.__class__.__name__
+
+        _id = getattr(self, "_id", None)
+
+        cls_name = make_id()
+
+        def row(c):
+            return '<div style="display: table-row;">' + c + '</div>'
+        def hidden_row(c):
+            return '<div class="%s" style="display: none;">%s</div>' % (cls_name, c)
+        def cell(c):
+            return '<div style="display: table-cell;">' + c + '</div>'
+
+        html = ''
+        html += '<div style="display: table;">'
+
+        ellipsis_id = make_id()
+        ellipsis = '<span id="%s" style="cursor: pointer;">&hellip;)</span>' % ellipsis_id
+
+        prefix = cell('<b title="%s.%s">%s</b>(' % (module, name, name))
+        html += row(prefix + cell('id' + '&nbsp;=&nbsp;' + repr(_id) + ', ' + ellipsis))
+
+        props = self.properties_with_values().items()
+        sorted_props = sorted(props, key=itemgetter(0))
+        all_props = sorted_props
+        for i, (prop, value) in enumerate(all_props):
+            end = ')' if i == len(all_props)-1 else ','
+            html += hidden_row(cell("") + cell(prop + '&nbsp;=&nbsp;' + repr(value) + end))
+
+        html += '</div>'
+        html += """
+<script>
+(function() {
+  var expanded = false;
+  var ellipsis = document.getElementById("%(ellipsis_id)s");
+  ellipsis.addEventListener("click", function() {
+    var rows = document.getElementsByClassName("%(cls_name)s");
+    for (var i = 0; i < rows.length; i++) {
+      var el = rows[i];
+      el.style.display = expanded ? "none" : "table-row";
+    }
+    ellipsis.innerHTML = expanded ? "&hellip;)" : "&lsaquo;&lsaquo;&lsaquo;";
+    expanded = !expanded;
+  });
+})();
+</script>
+""" % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
+
+        return html
 
 def _find_some_document(models):
     from .document import Document
@@ -400,3 +596,21 @@ class _ModelInDocument(object):
     def __enter__(self):
         for model in self._to_remove_after:
             self._doc.add_root(model)
+
+
+@contextmanager
+def _ModelInEmptyDocument(model):
+    from .document import Document
+    full_doc = _find_some_document([model])
+
+    model._document = None
+    for ref in model.references():
+        ref._document = None
+    empty_doc = Document()
+    empty_doc.add_root(model)
+
+    yield model
+
+    model._document = full_doc
+    for ref in model.references():
+        ref._document = full_doc

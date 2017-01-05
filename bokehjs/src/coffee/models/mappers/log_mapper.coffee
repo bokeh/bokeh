@@ -1,17 +1,21 @@
-Model = require "../../model"
-p = require "../../core/properties"
+import {Model} from "../../model"
+import * as p from "../../core/properties"
 
-class LogMapper extends Model
+export class LogMapper extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
     @define_computed_property('mapper_state', @_mapper_state, true)
     @add_dependencies('mapper_state', this, ['source_range', 'target_range'])
-    @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
-    @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
+    @add_dependencies('mapper_state', @source_range, ['start', 'end'])
+    @add_dependencies('mapper_state', @target_range, ['start', 'end'])
+
+  @getters {
+    mapper_state: () -> @_get_computed('mapper_state')
+  }
 
   map_to_target: (x) ->
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
 
     result = 0
 
@@ -28,7 +32,7 @@ class LogMapper extends Model
     return result
 
   v_map_to_target: (xs) ->
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
 
     result = new Float64Array(xs.length)
 
@@ -48,7 +52,7 @@ class LogMapper extends Model
     return result
 
   map_from_target: (xprime) ->
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
     intermediate = (xprime - offset) / scale
     intermediate = Math.exp(inter_scale * intermediate + inter_offset)
 
@@ -56,7 +60,7 @@ class LogMapper extends Model
 
   v_map_from_target: (xprimes) ->
     result = new Float64Array(xprimes.length)
-    [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+    [scale, offset, inter_scale, inter_offset] = @mapper_state
     intermediate = xprimes.map (i) -> (i - offset) / scale
     for x, idx in xprimes
       result[idx] = Math.exp(inter_scale * intermediate[idx] + inter_offset)
@@ -88,10 +92,10 @@ class LogMapper extends Model
     return [start, end]
 
   _mapper_state: () ->
-    source_start = @get('source_range').get('start')
-    source_end   = @get('source_range').get('end')
-    target_start = @get('target_range').get('start')
-    target_end   = @get('target_range').get('end')
+    source_start = @source_range.start
+    source_end   = @source_range.end
+    target_start = @target_range.start
+    target_end   = @target_range.end
 
     screen_range = target_end - target_start
     [start, end] = @_get_safe_scale(source_start, source_end)
@@ -112,6 +116,3 @@ class LogMapper extends Model
     source_range: [ p.Any ]
     target_range: [ p.Any ]
   }
-
-module.exports =
-  Model: LogMapper

@@ -1,10 +1,8 @@
-
 import numpy as np
 
-from bokeh.document import Document
 from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import ImageURL
-from bokeh.plotting import show
+from bokeh.io import curdoc, show
 
 url = "http://bokeh.pydata.org/en/latest/_static/images/logo.png"
 N = 5
@@ -44,7 +42,6 @@ plot.add_layout(yaxis,'left')
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
-doc = Document( )
-doc.add_root(plot)
+curdoc().add_root(plot)
 
 show(plot)

@@ -1,0 +1,39 @@
+.bk-canvas-wrapper {
+  position: relative;
+  font-size: 12pt;
+  float: left;
+}
+
+.bk-canvas {
+  clear: both;
+  position: absolute;
+  font-size: 12pt;
+}
+
+.bk-canvas-wrapper .bk-canvas-map {
+  position: absolute !important;
+  z-index: -5;
+}
+
+.bk-canvas-map {
+  position: absolute;
+  border: 0;
+  z-index: -5;
+}
+
+.bk-canvas-wrapper .bk-resize-popup {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAEnSURBVEiJzZXBioQwDIb/XQuF6U3wCRSEvv8zeFOoB2++QD14aqHSOntYtthxdHesDptTk4Z+hKR/PqqquuNi+7wa8DYIWTplWSJN0yDBGAMhBJxzhyFBJY8AACCErGKv2u4L1lp0XRdVBfBLTwghuN1uUYBNiDHGn4uiQJZl50GmaYJSCm3bou/700BBT4QQAL57IaUEAOR57kEAMAxDHMRaG1wuQc45aK1fBqwgz+wHpJSCUuoayBJ01P6/djHG/jR1hzWDMQbOuZedvak7XAljzAMe/xGlFEmSeP9wJVv/SGsNzjmcc2iaJg6yBbLWghASqHf0dEkpAwl6thpOGWGl1O46iIZQSsE5Dxp9OsQ5h3meV/FxHP05erdaa1HX9W7OW2TlC31ceRWbb5+AAAAAAElFTkSuQmCC);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  cursor: se-resize;
+}
+
+.bk-canvas-wrapper:hover .bk-resize-popup{
+  display: block;
+}

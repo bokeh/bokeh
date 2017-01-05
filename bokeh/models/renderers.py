@@ -16,7 +16,7 @@ from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_F
 
 from .glyphs import Glyph
 from .images import ImageSource
-from .sources import DataSource, RemoteSource
+from .sources import DataSource, RemoteSource, ColumnDataSource
 from .tiles import TileSource, WMTSTileSource
 
 @abstract
@@ -26,6 +26,10 @@ class Renderer(Model):
 
     level = Enum(RenderLevel, help="""
     Specifies the level in which to paint this renderer.
+    """)
+
+    visible = Bool(default=True, help="""
+    Is the renderer visible. Default: True
     """)
 
 @abstract
@@ -100,6 +104,7 @@ class GlyphRenderer(DataRenderer):
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
             if name not in specs: continue
             if not isinstance(item, dict): continue
+            if not isinstance(self.data_source, ColumnDataSource): continue
             if 'field' in item and item['field'] not in self.data_source.column_names:
                 missing.add(item['field'])
         if missing:

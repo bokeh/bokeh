@@ -9,6 +9,7 @@ MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
+notebook ==4.2.3
 EOF
 )
 
@@ -20,12 +21,24 @@ python -V
 
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
 conda install --yes $DEPS_TRAVIS
 
-conda config --add channels bokeh
+conda config --append channels bokeh
+conda config --append channels conda-forge
+conda config --get channels
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
+
+NOARCH_DIR="$HOME/miniconda/conda-bld/noarch"
+echo "noarch build output contents:"
+ls -l $NOARCH_DIR
+
+BUILD_FILE_COUNT="$(ls $NOARCH_DIR | wc -l)"
+if [ $BUILD_FILE_COUNT != 3 ]; then
+   echo "noarch build has wrong number of files"
+   exit 1
+fi
 
 conda install bokeh --use-local --yes
 
@@ -43,6 +56,9 @@ EOF
 
 conda install --yes $DEPS_RUN
 conda install --yes $DEPS_TEST
+
+# conda nb extension is installed by default and breaks notebook image diff tests
+python -m nb_conda_kernels.install --disable --prefix=/home/travis/miniconda
 
 conda install --yes nodejs
 echo "node version $(node -v)"

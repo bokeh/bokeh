@@ -23,8 +23,9 @@ updated = json.dumps({
 
 source = GeoJSONDataSource(geojson=original)
 
-p = figure(tools='box_select')
-p.circle(x='x', y='y', line_color=None, fill_alpha=0.8, source=source)
+p = figure(tools='box_select', x_range=(-5, 1), y_range=(49, 56),
+           title="geojson updating on and off")
+p.circle(x='x', y='y', size=10, line_color=None, fill_alpha=0.8, source=source)
 
 # open a session to keep our local document in sync with server
 session = push_session(curdoc())
@@ -34,8 +35,8 @@ def update(i):
     # alternate between original/updated
     source.geojson = [original, updated][i]
 
-curdoc().add_periodic_callback(update, 100)
+curdoc().add_periodic_callback(update, 300)
 
-session.show() # open the document in a browser
+session.show(p) # open the document in a browser
 
 session.loop_until_closed() # run forever

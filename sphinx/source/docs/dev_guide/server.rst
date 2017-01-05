@@ -1,7 +1,7 @@
 .. _devguide_server:
 
-Bokeh Server Architecture
-=========================
+Server Architecture
+===================
 
 This chapter is a "deep dive" into Bokeh server's internals... it
 assumes you're already familiar with the information on Bokeh
@@ -404,4 +404,3 @@ in-process; share ``server.io_loop`` with a client and you can
 test any aspect of the server. Check out the existing tests for
 lots of examples. Anytime you add a new websocket message or http
 endpoint, be sure to add tests!
-

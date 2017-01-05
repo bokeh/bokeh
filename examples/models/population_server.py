@@ -12,7 +12,7 @@ from bokeh.models import (
 )
 from bokeh.sampledata.population import load_population
 from bokeh.models.widgets import Select
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models.layouts import WidgetBox, Column
 
 document = Document()
 session = push_session(document)
@@ -26,13 +26,14 @@ location = "World"
 years = [str(x) for x in sorted(df.Year.unique())]
 locations = sorted(df.Location.unique())
 
-source_pyramid = ColumnDataSource(data=dict())
+source_pyramid = ColumnDataSource(data=dict(female=[], male=[], groups=[], shifted=[]))
+
 
 def pyramid():
     xdr = DataRange1d()
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=500, toolbar_location=None)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
@@ -48,20 +49,24 @@ def pyramid():
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
-    plot.add_layout(Legend(legends=[("Male", [male_quad_glyph]), ("Female", [female_quad_glyph])]))
+    plot.add_layout(Legend(items=[
+        ("Male"   , [male_quad_glyph]),
+        ("Female" , [female_quad_glyph]),
+    ]))
 
     return plot
 
 source_known = ColumnDataSource(data=dict(x=[], y=[]))
 source_predicted = ColumnDataSource(data=dict(x=[], y=[]))
 
+
 def population():
     xdr = FactorRange(factors=years)
     ydr = DataRange1d()
 
-    plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
+    plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=150, toolbar_location=None)
 
-    plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
+    plot.add_layout(CategoricalAxis(major_label_orientation=pi / 4), 'below')
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
     line_known_glyph = plot.add_glyph(source_known, line_known)
@@ -72,11 +77,12 @@ def population():
     plot.add_layout(
         Legend(
             location="bottom_right",
-            legends=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
+            items=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
         )
     )
 
     return plot
+
 
 def update_pyramid():
     pyramid = df[(df.Location == location) & (df.Year == year)]
@@ -86,8 +92,8 @@ def update_pyramid():
 
     total = male.Value.sum() + female.Value.sum()
 
-    male_percent = -male.Value/total
-    female_percent = female.Value/total
+    male_percent = -male.Value / total
+    female_percent = female.Value / total
 
     groups = male.AgeGrpStart.tolist()
     shifted = groups[1:] + [groups[-1] + 5]
@@ -99,9 +105,10 @@ def update_pyramid():
         female=female_percent,
     )
 
+
 def update_population():
     population = df[df.Location == location].groupby(df.Year).Value.sum()
-    aligned_revision = revision//10 * 10
+    aligned_revision = revision // 10 * 10
 
     known = population[population.index <= aligned_revision]
     predicted = population[population.index >= aligned_revision]
@@ -109,19 +116,23 @@ def update_population():
     source_known.data = dict(x=known.index.map(str), y=known.values)
     source_predicted.data = dict(x=predicted.index.map(str), y=predicted.values)
 
+
 def update_data():
     update_population()
     update_pyramid()
+
 
 def on_year_change(attr, old, new):
     global year
     year = int(new)
     update_data()
 
+
 def on_location_change(attr, old, new):
     global location
     location = new
     update_data()
+
 
 def create_layout():
     year_select = Select(title="Year:", value="2010", options=years)
@@ -130,8 +141,8 @@ def create_layout():
     year_select.on_change('value', on_year_change)
     location_select.on_change('value', on_location_change)
 
-    controls = HBox(children=[year_select, location_select])
-    layout = VBox(children=[controls, pyramid(), population()])
+    controls = WidgetBox(children=[year_select, location_select], height=150, width=600)
+    layout = Column(children=[controls, pyramid(), population()])
 
     return layout
 
@@ -142,5 +153,6 @@ document.add_root(layout)
 session.show(layout)
 
 if __name__ == "__main__":
+    document.validate()
     print("\npress ctrl-C to exit")
     session.loop_until_closed()

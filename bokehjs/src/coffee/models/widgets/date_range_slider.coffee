@@ -1,12 +1,13 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "jqrangeslider/jQDateRangeSlider"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "jqrangeslider/jQDateRangeSlider"
 
-InputWidget = require "./input_widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-class DateRangeSliderView extends BokehView
+import {InputWidget, InputWidgetView} from "./input_widget"
+
+
+export class DateRangeSliderView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
@@ -14,11 +15,12 @@ class DateRangeSliderView extends BokehView
     @listenTo(@model, 'change', () => @render)
 
   render: () ->
+    super()
     @$el.empty()
 
-    [value_min, value_max] = @mget("value")
-    [range_min, range_max] = @mget("range")
-    [bounds_min, bounds_max] = @mget("bounds")
+    [value_min, value_max] = @model.value
+    [range_min, range_max] = @model.range
+    [bounds_min, bounds_max] = @model.bounds
 
     @$el.dateRangeSlider({
       defaultValues: { min: new Date(value_min), max: new Date(value_max) },
@@ -27,22 +29,22 @@ class DateRangeSliderView extends BokehView
           min: if _.isObject(range_min) then range_min else false,
           max: if _.isObject(range_max) then range_max else false,
       },
-      step: @mget("step") or {},
+      step: @model.step or {},
       # formatter
       # scales
-      enabled: @mget("enabled"),
-      arrows: @mget("arrows"),
-      valueLabels: @mget("value_labels"),
-      wheelMode: @mget("wheel_mode"),
+      enabled: @model.enabled,
+      arrows: @model.arrows,
+      valueLabels: @model.value_labels,
+      wheelMode: @model.wheel_mode,
     })
 
     @$el.on "userValuesChanged", (event, data) =>
-      @mset('value', [data.values.min, data.values.max])
-      @mget('callback')?.execute(@model)
+      @model.value = [data.values.min, data.values.max]
+      @model.callback?.execute(@model)
 
     return @
 
-class DateRangeSlider extends InputWidget.Model
+export class DateRangeSlider extends InputWidget
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
@@ -61,7 +63,3 @@ class DateRangeSlider extends InputWidget.Model
       scales
       ###
     }
-
-module.exports =
-  Model: DateRangeSlider
-  View: DateRangeSliderView

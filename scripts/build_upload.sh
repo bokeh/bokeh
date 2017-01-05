@@ -137,17 +137,17 @@ curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.min.js";
 
+# push the api js files
+curl -XPUT -T bokehjs/build/js/bokeh-api.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
+-H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-api-$complete_version.js";
+curl -XPUT -T bokehjs/build/js/bokeh-api.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
+-H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-api-$complete_version.min.js";
+
 # push the widgets js files
 curl -XPUT -T bokehjs/build/js/bokeh-widgets.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
 -H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-widgets-$complete_version.js";
 curl -XPUT -T bokehjs/build/js/bokeh-widgets.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
 -H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-widgets-$complete_version.min.js";
-
-# push the compiler js files
-curl -XPUT -T bokehjs/build/js/bokeh-compiler.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
--H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-compiler-$complete_version.js";
-curl -XPUT -T bokehjs/build/js/bokeh-compiler.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
--H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-compiler-$complete_version.min.js";
 
 # push the css files
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \

@@ -2,58 +2,52 @@
 utils = require "../utils"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
-logging = utils.require "core/logging"
+{Logger, logger, set_log_level} = utils.require "core/logging"
 
 describe "logging module", ->
 
-  describe "exports", ->
-    it "should have levels", ->
-      expect("levels" of logging).to.be.true
-
-    it "should have logger", ->
-      expect("logger" of logging).to.be.true
-
-    it "should have set_log_level", ->
-      expect("set_log_level" of logging).to.be.true
-
   describe "logger", ->
     it "should default to log level 'info'", ->
-      expect(logging.logger.level).to.be.equal logging.levels.info
+      debugger;
+      expect(logger.level).to.be.equal(Logger.INFO)
 
   describe "set_log_level", ->
 
     describe "sets accepted levels", ->
 
       it "trace", ->
-        out = stdoutTrap -> logging.set_log_level("trace")
-        expect(out).to.be.equal "Bokeh: setting log level to: 'trace'\n"
-        expect(logging.logger.level).to.be.equal logging.levels.trace
+        out = stdoutTrap -> set_log_level("trace")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'trace'\n"
+        expect(logger.level).to.be.equal(Logger.TRACE)
 
       it "debug", ->
-        out = stdoutTrap -> logging.set_log_level("debug")
-        expect(out).to.be.equal "Bokeh: setting log level to: 'debug'\n"
-        expect(logging.logger.level).to.be.equal logging.levels.debug
+        out = stdoutTrap -> set_log_level("debug")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'debug'\n"
+        expect(logger.level).to.be.equal(Logger.DEBUG)
 
       it "info", ->
-        out = stdoutTrap -> logging.set_log_level("info")
-        expect(out).to.be.equal "Bokeh: setting log level to: 'info'\n"
-        expect(logging.logger.level).to.be.equal logging.levels.info
+        out = stdoutTrap -> set_log_level("info")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'info'\n"
+        expect(logger.level).to.be.equal(Logger.INFO)
       it "warn", ->
-        out = stdoutTrap -> logging.set_log_level("warn")
-        expect(out).to.be.equal "Bokeh: setting log level to: 'warn'\n"
-        expect(logging.logger.level).to.be.equal logging.levels.warn
+        out = stdoutTrap -> set_log_level("warn")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'warn'\n"
+        expect(logger.level).to.be.equal(Logger.WARN)
       it "error", ->
-        out = stdoutTrap -> logging.set_log_level("error")
-        expect(out).to.be.equal "Bokeh: setting log level to: 'error'\n"
-        expect(logging.logger.level).to.be.equal logging.levels.error
+        out = stdoutTrap -> set_log_level("error")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'error'\n"
+        expect(logger.level).to.be.equal(Logger.ERROR)
 
       it "fatal", ->
-        out = stdoutTrap -> logging.set_log_level("fatal")
-        expect(out).to.be.equal "Bokeh: setting log level to: 'fatal'\n"
-        expect(logging.logger.level).to.be.equal logging.levels.fatal
+        out = stdoutTrap -> set_log_level("fatal")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'fatal'\n"
+        expect(logger.level).to.be.equal(Logger.FATAL)
+
+      it "off", ->
+        out = stdoutTrap -> set_log_level("off")
+        expect(out).to.be.equal "[bokeh] setting log level to: 'off'\n"
+        expect(logger.level).to.be.equal(Logger.OFF)
 
     it "ignores unknown levels", ->
-      out = stdoutTrap -> logging.set_log_level("bad")
-      expect(out).to.be.equal "Bokeh: Unrecognized logging level 'bad' passed to Bokeh.set_log_level, ignoring.\nBokeh: Valid log levels are: trace,debug,info,warn,error,fatal\n"
-
-
+      out = stdoutTrap -> set_log_level("bad")
+      expect(out).to.be.equal("[bokeh] unrecognized logging level 'bad' passed to Bokeh.set_log_level(), ignoring\n[bokeh] valid log levels are: trace, debug, info, warn, error, fatal, off\n")

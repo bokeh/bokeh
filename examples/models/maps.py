@@ -16,11 +16,16 @@ map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13
 [{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"},{"lightness":33}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2e5d4"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#c5dac6"}]},{"featureType":"poi.park","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":20}]},{"featureType":"road","elementType":"all","stylers":[{"lightness":20}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#c5c6c6"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#e4d7c6"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#fbfaf7"}]},{"featureType":"water","elementType":"all","stylers":[{"visibility":"on"},{"color":"#acbcc9"}]}]
 """)
 
+# Google Maps now requires an API key. You can find out how to get one here:
+# https://developers.google.com/maps/documentation/javascript/get-api-key
+API_KEY = "XXXXXXXXXXX"
+
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
-    title="Austin"
+    api_key=API_KEY,
 )
+plot.title.text = "Austin"
 
 source = ColumnDataSource(
     data=dict(
@@ -43,6 +48,7 @@ doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "maps.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Google Maps Example"))

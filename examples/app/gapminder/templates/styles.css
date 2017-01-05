@@ -1,0 +1,53 @@
+html {
+    width: 100%;
+}
+body {
+    min-width: 600px;
+    max-width: 900px;
+    width: 75%;
+    margin: auto;
+}
+.content {
+    margin: 2em;
+}
+h1 {
+    margin: 2em 0 0 0;
+    color: #2e484c;
+    font-family: 'Julius Sans One', sans-serif;
+    font-size: 1.8em;
+    text-transform: uppercase;
+}
+a:link {
+    font-weight: bold;
+    text-decoration: none;
+    color: #0d8ba1;
+}
+a:visited {
+    font-weight: bold;
+    text-decoration: none;
+    color: #1a5952;
+}
+a:hover, a:focus, a:active {
+    text-decoration: underline;
+    color: #9685BA;
+}
+p {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.2em;
+    text-align: justify;
+    text-justify: inter-word;
+}
+.videoWrapper {
+    margin-top: 30px;
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 25px;
+    height: 0;
+}
+.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}

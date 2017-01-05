@@ -1,50 +1,37 @@
-_ = require "underscore"
-Backbone = require "backbone"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import {BokehView} from "../../core/bokeh_view"
+import {Tool, ToolView} from "./tool"
+import * as p from "../../core/properties"
 
-Tool = require "./tool"
-button_tool_template = require "./button_tool_template"
-p = require "../../core/properties"
+export class ButtonToolButtonView extends BokehView
+  tagName: "button"
+  className: "bk-toolbar-button"
 
-class ButtonToolButtonView extends Backbone.View
-  tagName: "li"
-  template: button_tool_template
-
-  events: () ->
-    # TODO (bev) this seems to work OK but maybe there is a better way
-    if 'ontouchstart' of document
-      return { 'touchstart .bk-toolbar-button': '_clicked' }
-    else
-      return { 'click .bk-toolbar-button': '_clicked' }
+  events: () -> { 'click': '_clicked' }
 
   initialize: (options) ->
     super(options)
-    @$el.html(@template({model: @model}))
-    @listenTo(@model, 'change:active', () => @render())
-    @listenTo(@model, 'change:disabled', () => @render())
+    @listenTo(@model, 'change', () => @render())
     @render()
 
   render: () ->
-    @$el.children('button')
-        .prop("disabled", @model.get('disabled'))
-        .toggleClass('active', @model.get('active'))
-    return @
+    icon = $("<div class='bk-btn-icon'>").addClass(@model.icon)
+    tip = $("<span class='bk-tip'>").text(@model.tooltip)
+    @$el.empty().append([icon, tip])
+    @$el.prop("disabled", @model.disabled)
 
   _clicked: (e) ->
 
-class ButtonToolView extends Tool.View
+export class ButtonToolView extends ToolView
 
-class ButtonTool extends Tool.Model
+export class ButtonTool extends Tool
   icon: null
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @define_computed_property('tooltip', () -> @tool_name)
+  @getters {
+    tooltip: () -> @tool_name
+  }
 
   @internal {
     disabled: [ p.Boolean, false ]
   }
-
-module.exports =
-  Model: ButtonTool
-  View: ButtonToolView
-  ButtonView: ButtonToolButtonView

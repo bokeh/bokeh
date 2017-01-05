@@ -1,4 +1,4 @@
-''' Provide a collection of general utilities usefil for implementing Bokeh
+''' Provide a collection of general utilities useful for implementing Bokeh
 functionality.
 
 .. _bokeh.util.browser:
@@ -17,6 +17,14 @@ functionality.
 .. automodule:: bokeh.util.callback_manager
   :members:
 
+.. _bokeh.util.compiler:
+
+``bokeh.util.compiler``
+-----------------------
+
+.. automodule:: bokeh.util.compiler
+  :members:
+
 .. _bokeh.util.dependencies:
 
 ``bokeh.util.dependencies``
@@ -25,20 +33,12 @@ functionality.
 .. automodule:: bokeh.util.dependencies
   :members:
 
-.. _bokeh.util.deprecate:
+.. _bokeh.util.deprecation:
 
-``bokeh.util.deprecate``
-------------------------
+``bokeh.util.deprecation``
+--------------------------
 
-.. automodule:: bokeh.util.deprecate
-
-.. _bokeh.util.functions:
-
-``bokeh.util.functions``
-------------------------
-
-.. automodule:: bokeh.util.functions
-  :members:
+.. automodule:: bokeh.util.deprecation
 
 .. _bokeh.util.future:
 
@@ -64,6 +64,14 @@ functionality.
 .. automodule:: bokeh.util.notebook
   :members:
 
+.. _bokeh.util.options:
+
+``bokeh.util.options``
+----------------------
+
+.. automodule:: bokeh.util.options
+  :members:
+
 .. _bokeh.util.paths:
 
 ``bokeh.util.paths``
@@ -78,6 +86,14 @@ functionality.
 -----------------------
 
 .. automodule:: bokeh.util.platform
+  :members:
+
+.. _bokeh.util.plot_utils:
+
+``bokeh.util.plot_utils``
+-------------------------
+
+.. automodule:: bokeh.util.plot_utils
   :members:
 
 .. _bokeh.util.serialization:
@@ -126,6 +142,14 @@ functionality.
 ----------------------
 
 .. automodule:: bokeh.util.version
+  :members:
+
+.. _bokeh.util.warnings:
+
+``bokeh.util.warnings``
+-----------------------
+
+.. automodule:: bokeh.util.warnings
   :members:
 
 '''

@@ -13,7 +13,9 @@ from bokeh.models import ColumnDataSource, Range1d, Plot
 xdr = Range1d(start=-1.25, end=1.25)
 ydr = Range1d(start=-1.25, end=1.25)
 
-plot = Plot(title="Speedometer", x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+plot.title.text = "Speedometer"
+plot.toolbar_location = None
 
 start_angle = pi + pi/4
 end_angle = -pi/4
@@ -111,6 +113,7 @@ doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "gauges.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Gauges"))

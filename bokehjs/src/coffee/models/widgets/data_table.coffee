@@ -1,20 +1,27 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "jquery-ui/sortable"
-SlickGrid = require "slick_grid/slick.grid"
-RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
-CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "jquery-ui/sortable"
+import * as SlickGrid from "slick_grid/slick.grid"
+import * as RowSelectionModel from "slick_grid/plugins/slick.rowselectionmodel"
+import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectcolumn"
 
-TableWidget = require "./table_widget"
-hittest = require "../../common/hittest"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
-DOMUtil = require "../../util/dom_util"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class DataProvider
+import {TableWidget} from "./table_widget"
+import {WidgetView} from "./widget"
+
+wait_for_element = (el, fn) ->
+  handler = () =>
+    if $.contains(document.documentElement, el)
+      clearInterval(interval)
+      fn()
+  interval = setInterval(handler, 50)
+
+export class DataProvider
 
   constructor: (@source) ->
-    @data = @source.get('data')
+    @data = @source.data
     @fields = _.keys(@data)
 
     if not _.contains(@fields, "index")
@@ -52,7 +59,7 @@ class DataProvider
     @updateSource()
 
   updateSource: () ->
-    # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
+    # XXX: We should say `@source.data = @data`, but data was updated in-place,
     # so that would be a no-op. We have to trigger change events manually instead.
     @source.trigger("change:data", @, @source.attributes['data'])
 
@@ -87,25 +94,29 @@ class DataProvider
 
     @updateSource()
 
-class DataTableView extends BokehView
-  attributes:
-    class: "bk-data-table"
+export class DataTableView extends WidgetView
+  className: "bk-data-table"
 
   initialize: (options) ->
     super(options)
-    DOMUtil.waitForElement(@el, () => @render())
+    wait_for_element(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
-    source = @mget("source")
+    source = @model.source
     @listenTo(source, 'change:data', () => @updateGrid())
     @listenTo(source, 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
-    @data = new DataProvider(@mget("source"))
-    @grid.setData(@data)
+    @data.constructor(@model.source)
+    @grid.invalidate()
     @grid.render()
 
+    # XXX: Workaround for `@model.source.trigger('change')` not triggering an event within python.
+    # But we still need it to trigger render updates
+    @model.source.data = @model.source.data
+    @model.source.trigger('change')
+
   updateSelection: () ->
-    selected = @mget("source").get("selected")
+    selected = @model.source.selected
     indices = selected['1d'].indices
     @grid.setSelectedRows(indices)
     # If the selection is not in the current slickgrid viewport, scroll the
@@ -116,8 +127,7 @@ class DataTableView extends BokehView
     # console.log("DataTableView::updateSelection",
     #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @mget("scroll_to_selection") and not _.any(_.map(indices, (index) ->
-        cur_grid_range["top"] <= index and index <= cur_grid_range["bottom"]))
+    if @model.scroll_to_selection and not _.any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
       # console.log("DataTableView::updateSelection", min_index, indices)
       min_index = Math.max(0, Math.min.apply(null, indices) - 1)
       @grid.scrollRowToTop(min_index)
@@ -137,33 +147,35 @@ class DataTableView extends BokehView
     }
 
   render: () ->
-    columns = (column.toColumn() for column in @mget("columns"))
+    columns = (column.toColumn() for column in @model.columns)
 
-    if @mget("selectable") == "checkbox"
+    if @model.selectable == "checkbox"
       checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
       columns.unshift(checkboxSelector.getColumnDefinition())
 
-    if @mget("row_headers") and @mget("source").get_column("index")?
+    if @model.row_headers and @model.source.get_column("index")?
       columns.unshift(@newIndexColumn())
 
-    width = @mget("width")
-    height = @mget("height")
+    width = @model.width
+    height = @model.height
 
     options =
-      enableCellNavigation: @mget("selectable") != false
+      enableCellNavigation: @model.selectable != false
       enableColumnReorder: true
-      forceFitColumns: @mget("fit_columns")
+      forceFitColumns: @model.fit_columns
       autoHeight: height == "auto"
-      multiColumnSort: @mget("sortable")
-      editable: @mget("editable")
+      multiColumnSort: @model.sortable
+      editable: @model.editable
       autoEdit: false
 
     if width?
-      @$el.css(width: "#{@mget("width")}px")
+      @$el.css(width: "#{@model.width}px")
+    else
+      @$el.css(width: "#{@model.default_width}px")
     if height? and height != "auto"
-      @$el.css(height: "#{@mget("height")}px")
+      @$el.css(height: "#{@model.height}px")
 
-    @data = new DataProvider(@mget("source"))
+    @data = new DataProvider(@model.source)
     @grid = new SlickGrid(@el, @data, columns, options)
 
     @grid.onSort.subscribe (event, args) =>
@@ -172,25 +184,23 @@ class DataTableView extends BokehView
       @grid.invalidate()
       @grid.render()
 
-    if @mget("selectable") != false
+    if @model.selectable != false
       @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
       if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
 
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
         selected = hittest.create_hit_test_result()
         selected['1d'].indices = args.rows
-        @mget("source").set("selected", selected)
+        @model.source.selected = selected
 
     return @
 
-class DataTable extends TableWidget.Model
+export class DataTable extends TableWidget
   type: 'DataTable'
   default_view: DataTableView
 
   @define {
       columns:             [ p.Array,  []    ]
-      width:               [ p.Number        ]
-      height:              [ p.Number, 400   ]
       fit_columns:         [ p.Bool,   true  ]
       sortable:            [ p.Bool,   true  ]
       editable:            [ p.Bool,   false ]
@@ -199,6 +209,10 @@ class DataTable extends TableWidget.Model
       scroll_to_selection: [ p.Bool,   true  ]
     }
 
-module.exports =
-  Model: DataTable
-  View: DataTableView
+  @override {
+    height: 400
+  }
+
+  @internal {
+    default_width:        [ p.Number, 600   ]
+  }

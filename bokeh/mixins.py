@@ -1,6 +1,5 @@
-
-from bokeh.util.deprecate import deprecated_module
-deprecated_module('bokeh.mixins', '0.11', 'use bokeh.core.property_mixins instead')
-del deprecated_module
+from bokeh.util.deprecation import deprecated
+deprecated((0, 11, 0), 'bokeh.mixins', 'bokeh.core.property_mixins')
+del deprecated
 
 from .core.property_mixins import * # NOQA

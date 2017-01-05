@@ -13,20 +13,22 @@
 
 from __future__ import absolute_import
 
-import itertools
 import warnings
 
 import matplotlib as mpl
 import numpy as np
 from six import string_types
 
+from ...layouts import gridplot
 from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
+                     Grid, LinearAxis, Plot, CategoricalAxis, Legend, LegendItem)
 from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ...plotting import DEFAULT_TOOLS
 from ...plotting.helpers import _process_tools_arg
 from ...util.dependencies import import_optional
+
+from ..properties import value
 
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_color, convert_dashes, get_props_cycled, xkcd_line
@@ -39,10 +41,11 @@ pd = import_optional('pandas')
 
 class BokehRenderer(Renderer):
 
-    def __init__(self, use_pd, xkcd):
+    def __init__(self, tools, use_pd, xkcd):
         "Initial setup."
         self.fig = None
         self.use_pd = use_pd
+        self.tools = tools
         self.xkcd = xkcd
         self.zorder = {}
         self.handles = {}
@@ -59,7 +62,7 @@ class BokehRenderer(Renderer):
     def close_figure(self, fig):
         "Complete the plot: add tools."
         # Add tools
-        tool_objs = _process_tools_arg(self.plot, DEFAULT_TOOLS)
+        tool_objs, tools_map = _process_tools_arg(self.plot, self.tools)
         self.plot.add_tools(*tool_objs)
 
         # Simple or Grid plot setup
@@ -82,9 +85,9 @@ class BokehRenderer(Renderer):
                              plot_width=self.width,
                              plot_height=self.height)
 
-                _plot.title = ""
+                _plot.title.text = ''
                 # and add new tools
-                _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
+                _tool_objs, _tool_map = _process_tools_arg(_plot, DEFAULT_TOOLS)
                 _plot.add_tools(*_tool_objs)
                 # clean the plot ref from axis and grids
                 _plot_rends = subrends[i]
@@ -112,14 +115,14 @@ class BokehRenderer(Renderer):
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
-            grid = GridPlot(children=n.tolist())
+            grid = gridplot(n.tolist())
             self.fig = grid
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
         # Get axes, title and grid into class attributes.
         self.ax = ax
-        self.plot.title = ax.get_title()
+        self.plot.title.text = ax.get_title()
         # to avoid title conversion by draw_text later
 
         #Make sure that all information about the axes are passed to the properties
@@ -147,12 +150,15 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        background_fill_color = convert_color(ax.get_axis_bgcolor())
+        if hasattr(ax, 'get_facecolor'):
+            background_fill_color = convert_color(ax.get_facecolor())
+        else:
+            background_fill_color = convert_color(ax.get_axis_bgcolor())
         self.plot.background_fill_color = background_fill_color
         if self.xkcd:
-            self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
-            self.plot.title_text_font_style = "bold"
-            self.plot.title_text_color = "black"
+            self.plot.title.text_font = "Comic Sans MS, Textile, cursive"
+            self.plot.title.text_font_style = "bold"
+            self.plot.title.text_color = "black"
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         self._axes = getattr(self, "_axes", [0])
@@ -162,7 +168,7 @@ class BokehRenderer(Renderer):
         lgnd = Legend(location="top_right")
         try:
             for label, obj in zip(props['labels'], props['handles']):
-                lgnd.legends.append((label, [self.handles[id(obj)]]))
+                lgnd.items.append(LegendItem(label=value(label), renderers=[self.handles[id(obj)]]))
             self.plot.add_layout(lgnd)
         except KeyError:
             pass
@@ -189,7 +195,6 @@ class BokehRenderer(Renderer):
         source = ColumnDataSource()
         line.x = source.add(x)
         line.y = source.add(y)
-
         line.line_color = convert_color(style['color'])
         line.line_width = style['linewidth']
         line.line_alpha = style['alpha']
@@ -209,6 +214,7 @@ class BokehRenderer(Renderer):
         y = data[:, 1]
 
         marker_map = {
+            ".": Circle,
             "o": Circle,
             "s": Square,
             "+": Cross,
@@ -243,7 +249,59 @@ class BokehRenderer(Renderer):
 
     def draw_path(self, data, coordinates, pathcodes, style,
                   offset=None, offset_coordinates="data", mplobj=None):
+        warnings.warn("Path drawing has performance issues, please use mpl PathCollection instead")
         pass
+
+    def draw_path_collection(self, paths, path_coordinates, path_transforms,
+                             offsets, offset_coordinates, offset_order,
+                             styles, mplobj=None):
+        "Given a mpl PathCollection instance create a Bokeh Marker glyph."
+        x = offsets[:, 0]
+        y = offsets[:, 1]
+        style = styles
+
+        warnings.warn("Path marker shapes currently not handled, defaulting to Circle")
+        marker = Circle()
+        source = ColumnDataSource()
+        marker.x = source.add(x)
+        marker.y = source.add(y)
+
+        if len(style['facecolor']) > 1:
+            fill_color = []
+            for color in style['facecolor']:
+                # Apparently there is an issue with ColumnDataSources and rgb/a tuples, converting to hex
+                fill_color.append('#%02x%02x%02x' % convert_color(tuple(map(tuple,[color]))[0]))
+            marker.fill_color = source.add(fill_color)
+        else:
+            marker.fill_color = convert_color(tuple(map(tuple,style['facecolor']))[0])
+
+        if len(style['edgecolor']) > 1:
+            edge_color = []
+            for color in style['edgecolor']:
+                # Apparently there is an issue with ColumnDataSources, line_color, and rgb/a tuples, converting to hex
+                edge_color.append('#%02x%02x%02x' % convert_color(tuple(map(tuple,[color]))[0]))
+            marker.line_color = source.add(edge_color)
+        else:
+            marker.line_color = convert_color(tuple(map(tuple,style['edgecolor']))[0])
+
+        if len(style['linewidth']) > 1:
+            line_width = []
+            for width in style['linewidth']:
+                line_width.append(width)
+            marker.line_width = source.add(line_width)
+        else:
+            marker.line_width = style['linewidth'][0]
+
+        if len(mplobj.get_axes().collections) > 1:
+            warnings.warn("Path marker sizes support is limited and may not display as expected")
+            marker.size = mplobj.get_sizes()[0]/mplobj.get_axes().collections[-1].get_sizes()[0]*20
+        else:
+            marker.size = 5
+        marker.fill_alpha = marker.line_alpha = style['alpha']
+
+        r = self.plot.add_glyph(source, marker)
+        self.zorder[r._id] = style['zorder']
+        self.handles[id(mplobj)] = r
 
     def draw_text(self, text, position, coordinates, style,
                   text_type=None, mplobj=None):

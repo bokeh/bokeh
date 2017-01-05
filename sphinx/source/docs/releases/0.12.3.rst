@@ -1,0 +1,132 @@
+0.12.2 (Oct 2016)
+=================
+
+Bokeh Version ``0.12.2`` is a minor, incremental update that adds a few new
+small features and fixes several bugs. Some of the highlights include:
+
+* BokehJS reduced in size by nearly twenty percent
+* New Categorical color mapper
+* Tap tool and tooltips working for VBar and HBar
+* Better hover tool support for some Charts
+* Auto-generate legends from data in a column
+* Many small bugfixes
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features.
+
+Migration Guide
+---------------
+
+As the project approaches a 1.0 release, it is necessary to make some changes
+to bring interfaces and functionality up to a point that can be maintained
+long-term. We try to limit such changes as much as possible, and have a
+period of deprecation.
+
+Specifying Font Sizes
+'''''''''''''''''''''
+
+Setting text font size properties directly as strings (e.g. ``font_size="10pt"``)
+has been UN-DEPRECATED. This usage will continue to work, without any further
+deprecation warning. (https://github.com/bokeh/bokeh/pull/5274)
+
+
+output_server
+'''''''''''''
+
+The ``output_server`` function is deprecated and will be removed in the near
+future. Use ``bokeh.client`` functions such as ``push_session`` instead.
+(https://github.com/bokeh/bokeh/pull/5225)
+
+Glyph Methods and Data Sources
+''''''''''''''''''''''''''''''
+
+It is now deprecated to supply both sequence literals and an explicit source
+to glyph methods. For example:
+
+.. code-block:: python
+
+    p.circle([1,2,3], y='foo', source=source)  # BAD
+
+Either provide only sequence literals, e.g:
+
+.. code-block:: python
+
+    p.circle([1,2,3], y=[4,5,6])
+
+or put all data into the explicitly provided source, e.g:
+
+.. code-block:: python
+
+    p.circle(x='foo, y='foo', source=source)
+
+The older usage will continue to function for some time with a deprecation
+warning, and will result in an error in a future release.
+(https://github.com/bokeh/bokeh/pull/5187)
+
+FuncTickFormatter
+'''''''''''''''''
+
+`FuncTickFormatter` instances using JavaScript or CoffeeScript now require
+code snippets (i.e., function bodies) instead of full function definitions.
+Additionally, these formatters now accept Bokeh models as arguments so that
+the models can be readily available to the formatter function code.
+(https://github.com/bokeh/bokeh/pull/4659/files)
+
+Legend
+''''''
+
+Several legend properties had duplicative ``legend_`` prefixes. The following
+property names have been changed:
+
+================== =================
+old property name  new property name
+================== =================
+``legend_margin``  ``margin``
+``legend_padding`` ``padding``
+``legend_spacing`` ``spacing``
+================== =================
+
+The old property names will continue to work for some time with a deprecation
+warning.
+
+Additionally, the ``legends`` property of Legend has been renamed to ``items``,
+and given a new type. The new type now accepts a list of ``LegendItem models``,
+instead of a list of tuples. The previous format is still accepted for
+convenience and compatibility and values are converted automatically. The
+``legends`` property  will also continue to work for some time with a
+deprecation warning.(https://github.com/bokeh/bokeh/pull/5229)
+
+Dimensions
+''''''''''
+
+Specifying dimensions for tools has changed. The ``'x'`` and ``'y'`` aliases
+for ``'width'`` and ``'height'`` have been **immediately removed**.
+Additionally, instead of ``List(Enum(Dimension)``, dimensions are now specified
+more simply as ``Enum(Dimension)`` with valid values ``"width"``, ``"height"``,
+and ``"both"``. The previous format will continue to work for some time and be
+converted automatically with a deprecation warning.
+(https://github.com/bokeh/bokeh/pull/5225)
+
+
+BokehJS Notes
+'''''''''''''
+
+* The BokehJS codebase organization has been cleaned up. The file
+  ``common/hittest.coffee`` has been moved to ``core/hittest.coffee``. Other
+  files that are unlikely to be used directly by users have also been moved.
+  (https://github.com/bokeh/bokeh/pull/5266)
+
+
+* The BokehJS class ``GlyphView`` no longer inherits from ``Renderer.View``,
+  it now subclasses ``BokehView``. (https://github.com/bokeh/bokeh/pull/5189)
+
+
+* The BokehJS palettes are now only available in the ``bokeh-api.js`` bundle,
+  and not in ``bokeh.[min].js`` (https://github.com/bokeh/bokeh/pull/5183)
+
+
+* The BokehJS bundle ``bokeh-compiler.js`` has been removed completely. All
+  Coffeescript code (for extension modules, etc.) is now pre-compiled by the
+  Bokeh Python library. (https://github.com/bokeh/bokeh/pull/4946)

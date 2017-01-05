@@ -1,10 +1,10 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
+import * as p from "../../core/properties"
 
-class RectView extends Glyph.View
+export class RectView extends GlyphView
 
   _set_data: () ->
     @max_w2 = 0
@@ -19,11 +19,11 @@ class RectView extends Glyph.View
 
   _map_data: () ->
     if @model.properties.width.units == "data"
-      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @_x, @_width, 'center', @model.dilate)
     else
       @sw = @_width
     if @model.properties.height.units == "data"
-      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @_y, @_height, 'center', @model.dilate)
     else
       @sh = @_height
 
@@ -79,7 +79,7 @@ class RectView extends Glyph.View
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     result = hittest.create_hit_test_result()
-    result['1d'].indices = (x[4].i for x in @index.search(bbox))
+    result['1d'].indices = (x.i for x in @index.search(bbox))
     return result
 
   _hit_point: (geometry) ->
@@ -108,7 +108,7 @@ class RectView extends Glyph.View
     hits = []
 
     bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for i in (pt[4].i for pt in @index.search(bbox))
+    for i in (pt.i for pt in @index.search(bbox))
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
@@ -130,16 +130,13 @@ class RectView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1, index)
 
   _bounds: (bds) ->
-    return [
-      [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
-      [bds[1][0]-@max_h2, bds[1][1]+@max_h2]
-    ]
+    return @max_wh2_bounds(bds)
 
-class Rect extends Glyph.Model
+export class Rect extends Glyph
   default_view: RectView
 
   type: 'Rect'
@@ -152,7 +149,3 @@ class Rect extends Glyph.Model
       height: [ p.DistanceSpec       ]
       dilate: [ p.Bool,        false ]
     }
-
-module.exports =
-  Model: Rect
-  View: RectView

@@ -5,7 +5,7 @@
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
-  <title>{{ SITENAME }}</title>
+  <title>{{ title }} &mdash; {{ shorttitle }}</title>
   <meta name="description" content="{{ DESCRIPTION }}">
   <meta name="author" content="{{ AUTHOR }}">
 
@@ -15,7 +15,14 @@
 
   <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600%7CNoto+Sans:400,700' rel='stylesheet' type='text/css'>
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ['Source Sans Pro']
+      }
+    });
+  </script>
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -26,6 +33,9 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
+  </script>
   <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 
   <!-- Favicon

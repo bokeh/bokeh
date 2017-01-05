@@ -25,4 +25,3 @@ def test_series_input(test_data):
     hist_builder = HistogramBuilder(test_data.auto_data.mpg)
     hist_builder.create()
     assert len(hist_builder.comp_glyphs) > 0
-

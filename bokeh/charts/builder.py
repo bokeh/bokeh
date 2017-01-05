@@ -1,42 +1,28 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
+''' This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
 This is the Builder class, a minimal prototype class to build more chart
 types on top of it.
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
+'''
 from __future__ import absolute_import
 
-import warnings
+import numpy as np
 from six import string_types
-from .attributes import AttrSpec, ColorAttr, CatAttr
+
+from bokeh.core.enums import SortDirection
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Bool, Color, Dict, Either, Enum, Instance, List, String, Tuple
+from bokeh.models.ranges import FactorRange, Range, Range1d
+from bokeh.models.sources import ColumnDataSource
+from bokeh.util.deprecation import deprecated
+
+from .attributes import AttrSpec, CatAttr, ColorAttr
 from .chart import Chart
-from .data_source import ChartDataSource
+from .data_source import ChartDataSource, OrderedAssigner
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns, label_from_index_dict, build_hover_tooltips
-from .data_source import OrderedAssigner
-from ..models.ranges import Range, Range1d, FactorRange
-from ..models.sources import ColumnDataSource
-from ..core.properties import (HasProps, Instance, List, String, Dict,
-                          Color, Bool, Tuple, Either, Enum)
-from ..core.enums import SortDirection
-from ..io import curdoc, curstate
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
+from .utils import build_hover_tooltips, collect_attribute_columns, label_from_index_dict
 
 def create_and_build(builder_class, *data, **kws):
     """A factory function for handling Chart and Builder generation.
@@ -66,14 +52,10 @@ def create_and_build(builder_class, *data, **kws):
     builder = builder_class(*data, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
+    chart_kws = {k: v for k, v in kws.items() if k not in builder_props}
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
     chart.start_plot()
-
-    curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
-    if curstate().autoadd:
-        curdoc().add_root(chart)
 
     return chart
 
@@ -343,7 +325,7 @@ class Builder(HasProps):
                 attributes[attr_name] = attr
 
             # if we are given columns, use those
-            elif isinstance(attr, str) or isinstance(attr, list):
+            elif isinstance(attr, (str, list)):
                 attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
                 # override palette if available
@@ -601,16 +583,12 @@ class Builder(HasProps):
 
     @property
     def sort_legend(self):
-        warnings.warn("Chart property `sort_legend` was deprecated in 0.12 \
-            and will be removed in the future. Use `legend_sort_field` and \
-            `legend_sort_direction` instead.")
+        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
         return [(self.legend_sort_field, self.legend_sort_direction)]
 
     @sort_legend.setter
     def sort_legend(self, value):
-        warnings.warn("Chart property 'sort_legend' was deprecated in 0.12 \
-            and will be removed in the future. Use `legend_sort_field` and \
-            `legend_sort_direction` instead.")
+        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
         self.legend_sort_field, direction = value[0]
         if direction:
             self.legend_sort_direction = "ascending"
@@ -674,12 +652,12 @@ class XYBuilder(Builder):
         """
         dim_ref = getattr(self, dim)
         values = dim_ref.data
-        dtype = dim_ref.dtype.name
+        dtype = dim_ref.dtype
 
         sort = self.sort_dim.get(dim)
 
         # object data or single value
-        if dtype == 'object':
+        if dtype.name == 'object':
             factors = values.drop_duplicates()
             if sort:
                 # TODO (fpliger):   this handles pandas API change so users do not experience
@@ -692,7 +670,7 @@ class XYBuilder(Builder):
 
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
-        elif 'datetime' in dtype:
+        elif np.issubdtype(dtype, np.datetime64):
             setattr(self, dim + 'scale', 'datetime')
             return Range1d(start=start, end=end)
         else:

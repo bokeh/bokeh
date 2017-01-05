@@ -1,41 +1,27 @@
-""" This is the utils module that collects convenience functions and code that are
+''' This is the utils module that collects convenience functions and code that are
 useful for charts ecosystem.
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+'''
 from __future__ import absolute_import, division, print_function
 
-import itertools
-import json
 from collections import OrderedDict, defaultdict
 from copy import copy
+import itertools
+import json
 from math import cos, sin
-from colorsys import hsv_to_rgb
 
-from pandas.io.json import json_normalize
+from colorsys import hsv_to_rgb
 import pandas as pd
+from pandas.io.json import json_normalize
 import numpy as np
 from six import iteritems
 
-from ..models.glyphs import (
+from bokeh.models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
-    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
-from ..models.sources import ColumnDataSource
-from ..plotting.helpers import DEFAULT_PALETTE
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
+    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X
+)
+from bokeh.plotting.helpers import DEFAULT_PALETTE
+from bokeh.models.sources import ColumnDataSource
 
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -343,7 +329,7 @@ def derive_aggregation(dim_cols, agg_col, agg):
     to charts, such as not specifying dimensions to aggregate on, not specifying an
     aggregation, and/or not specifying a column to aggregate on.
     """
-    if dim_cols == 'index' or agg_col == 'index' or dim_cols == None:
+    if dim_cols == 'index' or agg_col == 'index' or dim_cols is None:
         agg = None
         agg_col = None
     elif agg_col is None:
@@ -652,3 +638,38 @@ def color_in_equal_space(hue, saturation=0.55, value=2.3):
     hue += golden_ratio
     hue %= 1
     return '#{:02X}{:02X}{:02X}'.format(*tuple(int(a*100) for a in hsv_to_rgb(hue, saturation, value)))
+
+
+def add_tooltips_columns(renderer, tooltips, group):
+    """
+
+    Args:
+        renderer (GlyphRenderer): renderer for the glyph to be modified.
+        tooltips (bool, list(str), list(tuple)): valid tooltips string as
+            defined in the builder class.
+        group (DataGroup): group of data containing missing columns.
+
+    Returns:
+        renderer (GlyphRenderer): renderer with missing columns added
+
+    """
+    current_columns = renderer.data_source.data.keys()
+
+    # find columns specified in tooltips
+    if isinstance(tooltips[0], tuple):
+        tooltips_columns = [pair[1].replace('@', '') for pair in tooltips]
+    elif isinstance(tooltips[0], str):
+        tooltips_columns = tooltips
+    else:
+        tooltips_columns = []
+
+    for column in tooltips_columns:
+
+        if column in current_columns:
+            continue
+        elif '$' in column:
+            continue
+
+        renderer.data_source.add(group.get_values(column), column)
+
+    return renderer

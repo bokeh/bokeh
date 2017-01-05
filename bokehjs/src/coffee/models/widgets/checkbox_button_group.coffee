@@ -1,15 +1,17 @@
-_ = require "underscore"
-$ = require "jquery"
-$1 = require "bootstrap/button"
+import * as _ from "underscore"
+import * as $ from "jquery"
+import "bootstrap/button"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import {Widget, WidgetView} from "./widget"
+import {BokehView} from "../../core/bokeh_view"
+import * as p from "../../core/properties"
+import template from "./button_group_template"
 
-class CheckboxButtonGroupView extends BokehView
-  tagName: "div"
+
+export class CheckboxButtonGroupView extends WidgetView
   events:
     "change input": "change_input"
+  template: template
 
   initialize: (options) ->
     super(options)
@@ -17,29 +19,31 @@ class CheckboxButtonGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
+
     @$el.empty()
+    html = @template()
+    @$el.append(html)
 
-    @$el.addClass("bk-bs-btn-group")
-    @$el.attr("data-bk-bs-toggle", "buttons")
-
-    active = @mget("active")
-    for label, i in @mget("labels")
+    active = @model.active
+    for label, i in @model.labels
       $input = $('<input type="checkbox">').attr(value: "#{i}")
       if i in active then $input.prop("checked", true)
       $label = $('<label class="bk-bs-btn"></label>')
       $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @mget("button_type"))
+      $label.addClass("bk-bs-btn-" + @model.button_type)
       if i in active then $label.addClass("bk-bs-active")
-      @$el.append($label)
+      @$el.find('.bk-bs-btn-group').append($label)
 
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$("input") when checkbox.checked)
-    @mset('active', active)
-    @mget('callback')?.execute(@model)
+    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
+    @model.active = active
+    @model.callback?.execute(@model)
 
-class CheckboxButtonGroup extends Widget.Model
+
+export class CheckboxButtonGroup extends Widget
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
@@ -47,8 +51,5 @@ class CheckboxButtonGroup extends Widget.Model
       active:      [ p.Array,  []        ]
       labels:      [ p.Array,  []        ]
       button_type: [ p.String, "default" ]
+      callback:    [ p.Instance ]
     }
-
-module.exports =
-  Model: CheckboxButtonGroup
-  View: CheckboxButtonGroupView

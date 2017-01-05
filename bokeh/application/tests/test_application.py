@@ -6,7 +6,6 @@ from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
 from bokeh.model import Model
 from bokeh.core.properties import Int, Instance
-from bokeh.core.templates import FILE, PLOT_DIV
 
 class AnotherModelInTestApplication(Model):
     bar = Int(1)
@@ -87,4 +86,3 @@ def test_excess_static_path():
     with pytest.raises(RuntimeError) as e:
         a.add(handler2)
     assert "More than one static path" in str(e)
-

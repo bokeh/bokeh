@@ -1,6 +1,7 @@
-from bokeh.io import vplot
+from bokeh.document import Document
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
 from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
+from bokeh.models.layouts import Column
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
@@ -26,7 +27,7 @@ columns = [
     TableColumn(field="cty",          title="City MPG",     editor=IntEditor()),
     TableColumn(field="hwy",          title="Highway MPG",  editor=IntEditor()),
 ]
-data_table = DataTable(source=source, columns=columns, editable=True)
+data_table = DataTable(source=source, columns=columns, editable=True, width=1000)
 
 plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
@@ -55,14 +56,18 @@ tooltips = [
 ]
 cty_hover_tool = HoverTool(renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
 hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
-select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
+select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions='width')
 plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
-layout = vplot(plot, data_table)
+layout = Column(plot, data_table)
+
+doc = Document()
+doc.add_root(layout)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "data_tables.html"
     with open(filename, "w") as f:
-        f.write(file_html(layout, INLINE, "Data Tables"))
+        f.write(file_html(doc, INLINE, "Data Tables"))
     print("Wrote %s" % filename)
     view(filename)

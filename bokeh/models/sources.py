@@ -1,13 +1,14 @@
 from __future__ import absolute_import
 
-from ..core import validation
-from ..core.validation.errors import COLUMN_LENGTHS
+import warnings
+
 from ..core.properties import abstract
-from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..core.properties import (Any, Int, String, Instance, List, Dict, Bool, Enum,
+                               JSON, Seq, ColumnData)
 from ..model import Model
 from ..util.dependencies import import_optional
-from ..util.deprecate import deprecated
-from ..util.serialization import transform_column_source_data
+from ..util.deprecation import deprecated
+from ..util.warnings import BokehUserWarning
 from .callbacks import Callback
 
 pd = import_optional('pandas')
@@ -22,7 +23,7 @@ class DataSource(Model):
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
-        '2d': {'indices': []}
+        '2d': {}
     }, help="""
     A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
 
@@ -47,7 +48,17 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnDataSource(DataSource):
+@abstract
+class ColumnarDataSource(DataSource):
+    """ A baseclass for data source types, which can be mapped onto
+    a columnar format. Not useful to instantiate on its own.
+    """
+
+    column_names = List(String, help="""
+    An list of names for all the columns in this DataSource.
+    """)
+
+class ColumnDataSource(ColumnarDataSource):
     """ Maps names of columns to sequences or arrays.
 
     If the ColumnDataSource initializer is called with a single argument that
@@ -63,14 +74,12 @@ class ColumnDataSource(DataSource):
 
     """
 
-    data = Dict(String, Any, help="""
+    data = ColumnData(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The data can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
-    """)
+    """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
+                 lambda: warnings.warn("ColumnDataSource's columns must be of the same length", BokehUserWarning))
 
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
 
     def __init__(self, *args, **kw):
         """ If called with a single argument that is a dict or
@@ -114,7 +123,6 @@ class ColumnDataSource(DataSource):
         return new_data
 
     @classmethod
-    @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
     def from_df(cls, data):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
@@ -126,8 +134,6 @@ class ColumnDataSource(DataSource):
             dict(str, list)
 
         """
-        import warnings
-        warnings.warn("Method deprecated in Bokeh 0.9.3")
         return cls._data_from_df(data)
 
     def to_df(self):
@@ -154,7 +160,7 @@ class ColumnDataSource(DataSource):
         Args:
             data (seq) : new data to add
             name (str, optional) : column name to use.
-                If not supplied, generate a name go the form "Series ####"
+                If not supplied, generate a name of the form "Series ####"
 
         Returns:
             str:  the column name used
@@ -169,11 +175,6 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def _to_json_like(self, include_defaults):
-        attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
-        if 'data' in attrs:
-            attrs['data'] = transform_column_source_data(attrs['data'])
-        return attrs
 
     def remove(self, name):
         """ Remove a column of data.
@@ -195,7 +196,6 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
     def push_notebook(self):
         """ Update a data source for a plot in a Jupyter notebook.
 
@@ -212,17 +212,50 @@ class ColumnDataSource(DataSource):
             None
 
         """
+        deprecated((0, 11, 0), 'ColumnDataSource.push_notebook()', 'bokeh.io.push_notebook()')
         from bokeh.io import push_notebook
         push_notebook()
 
-    @validation.error(COLUMN_LENGTHS)
-    def _check_column_lengths(self):
-        lengths = set(len(x) for x in self.data.values())
-        if len(lengths) > 1:
-            return str(self)
+    def stream(self, new_data, rollover=None, setter=None):
+        ''' Efficiently update data source columns with new append-only data.
+
+        In cases where it is necessary to update data columns in, this method
+        can efficiently send only the new data, instead of requiring the
+        entire data set to be re-sent.
+
+        Args:
+            new_data (dict[str, seq]) : a mapping of column names to sequences of
+                new data to append to each column.
+
+                All columns of the data source must be present in ``new_data``,
+                with identical-length append data.
+
+            rollover (int, optional) : A maximum column size, above which data
+                from the start of the column begins to be discarded. If None,
+                then columns will continue to grow unbounded (default: None)
+
+        Returns:
+            None
+
+        Raises:
+            ValueError
+
+        Example:
 
 
-    def stream(self, new_data, rollover=None):
+        .. code-block:: python
+
+            source = ColumnDataSource(data=dict(foo=[], bar=[]))
+
+            # has new, identical-length updates for all columns in source
+            new_data = {
+                'foo' : [10, 20],
+                'bar' : [100, 200],
+            }
+
+            source.stream(new_data)
+
+        '''
         import numpy as np
 
         newkeys = set(new_data.keys())
@@ -231,7 +264,9 @@ class ColumnDataSource(DataSource):
             missing = oldkeys - newkeys
             extra = newkeys - oldkeys
             if missing and extra:
-                raise ValueError("Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra))))
+                raise ValueError(
+                    "Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra)))
+                )
             elif missing:
                 raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
             else:
@@ -249,15 +284,60 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             raise ValueError("All streaming column updates must be the same length")
 
-        self.data._stream(self.document, self, new_data, rollover)
+        self.data._stream(self.document, self, new_data, rollover, setter)
 
-class GeoJSONDataSource(ColumnDataSource):
+    def patch(self, patches, setter=None):
+        ''' Efficiently update data source columns at specific locations
+
+        If it is only necessary to update a small subset of data in a
+        ColumnDataSource, this method can be used to efficiently update only
+        the subset, instead of requiring the entire data set to be sent.
+
+        This method should be passed a dictionary that maps column names to
+        lists of tuples, each of the form ``(index, new_value)``. The value
+        at the given index for that column will be updated with the new value.
+
+        Args:
+            patches (dict[str, list[tuple]]) : lists of patches for each column.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError
+
+        Example:
+
+        .. code-block:: python
+
+            source = ColumnDataSource(data=dict(foo=[10, 20], bar=[100, 200]))
+
+            patches = {
+                'foo' : [ (0, 1) ],
+                'bar' : [ (0, 101), (1, 201) ],
+            }
+
+            source.patch(patches)
+
+        '''
+        extra = set(patches.keys()) - set(self.data.keys())
+
+        if extra:
+            raise ValueError("Can only patch existing columns (extra: %s)" % ", ".join(sorted(extra)))
+
+        for name, patch in patches.items():
+            max_ind = max(x[0] for x in patch)
+            if max_ind >= len(self.data[name]):
+                raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (max_ind, name))
+
+        self.data._patch(self.document, self, patches, setter)
+
+class GeoJSONDataSource(ColumnarDataSource):
 
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.
     """)
-
 
 @abstract
 class RemoteSource(ColumnDataSource):

@@ -1,8 +1,7 @@
-
 .. _bokeh:
 
-``bokeh``
-=========
+bokeh
+=====
 
 The ``bokeh`` module itself contains a few useful functions and attributes:
 
@@ -12,4 +11,3 @@ The ``bokeh`` module itself contains a few useful functions and attributes:
 .. autofunction:: bokeh.license
 
 .. autofunction:: bokeh.test
-

@@ -162,7 +162,8 @@ source = ColumnDataSource(dict(
 xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
-plot = Plot(title="CSS3 Color Names", x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
+plot = Plot(x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
+plot.title.text = "CSS3 Color Names"
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
 rect_renderer = plot.add_glyph(source, rect)
@@ -186,6 +187,7 @@ doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "colors.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "CSS3 Color Names"))

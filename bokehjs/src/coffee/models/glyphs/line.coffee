@@ -1,13 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-bokehgl = require "./bokehgl"
-Glyph = require "./glyph"
-hittest = require "../../common/hittest"
+import {Glyph, GlyphView} from "./glyph"
+import * as hittest from "../../core/hittest"
 
-class LineView extends Glyph.View
-
-  _init_gl: (gl) ->
-    @glglyph = new bokehgl.LineGLGlyph(gl, this)
+export class LineView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -104,17 +100,13 @@ class LineView extends Glyph.View
     res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
     return [res.x, res.y]
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Line extends Glyph.Model
+export class Line extends Glyph
   default_view: LineView
 
   type: 'Line'
 
   @coords [['x', 'y']]
   @mixins ['line']
-
-module.exports =
-  Model: Line
-  View: LineView

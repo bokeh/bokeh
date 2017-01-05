@@ -1,10 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Annotation = require "./annotation"
-Renderer = require "../renderers/renderer"
-p = require "../../core/properties"
+import {Annotation, AnnotationView} from "./annotation"
+import * as p from "../../core/properties"
 
-class PolyAnnotationView extends Renderer.View
+export class PolyAnnotationView extends AnnotationView
 
   bind_bokeh_events: () ->
     # need to respond to either normal BB change events or silent
@@ -13,8 +12,8 @@ class PolyAnnotationView extends Renderer.View
     @listenTo(@model, 'data_update', @plot_view.request_render)
 
   render: (ctx) ->
-    xs = @mget('xs')
-    ys = @mget('ys')
+    xs = @model.xs
+    ys = @model.ys
 
     if xs.length != ys.length
       return null
@@ -26,9 +25,9 @@ class PolyAnnotationView extends Renderer.View
     ctx = @plot_view.canvas_view.ctx
 
     for i in [0...xs.length]
-      if @mget('xs_units') == 'screen'
+      if @model.xs_units == 'screen'
         vx = xs[i]
-      if @mget('ys_units') == 'screen'
+      if @model.ys_units == 'screen'
         vy = ys[i]
       sx = canvas.vx_to_sx(vx)
       sy = canvas.vy_to_sy(vy)
@@ -48,7 +47,7 @@ class PolyAnnotationView extends Renderer.View
       @visuals.fill.set_value(ctx)
       ctx.fill()
 
-class PolyAnnotation extends Annotation.Model
+export class PolyAnnotation extends Annotation
   default_view: PolyAnnotationView
 
   type: "PolyAnnotation"
@@ -69,13 +68,8 @@ class PolyAnnotation extends Annotation.Model
     fill_alpha: 0.4
     line_color: "#cccccc"
     line_alpha: 0.3
-    line_alpha: 0.3
   }
 
   update:({xs, ys}) ->
-    @set({xs: xs, ys: ys}, {silent: true})
+    @setv({xs: xs, ys: ys}, {silent: true})
     @trigger('data_update')
-
-module.exports =
-  Model: PolyAnnotation
-  View: PolyAnnotationView

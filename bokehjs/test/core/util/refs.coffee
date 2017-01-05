@@ -3,7 +3,7 @@ utils = require "../../utils"
 
 refs = utils.require "core/util/refs"
 
-HasProps = utils.require "core/has_props"
+{HasProps} = utils.require "core/has_props"
 
 class Foo extends HasProps
   type: 'Foo'
@@ -79,4 +79,3 @@ describe "refs module", ->
       foo1 = new Foo()
       foo2 = new Foo()
       expect(refs.convert_to_ref([foo1, foo2])).to.be.deep.equal [foo1.ref(), foo2.ref()]
-

@@ -28,16 +28,88 @@ This will create a ``bokeh`` directory at your location. This ``bokeh``
 directory is referred to as the "source checkout" for the remainder of
 this document.
 
-.. _devguide_building_bokehjs:
+.. _devguide_configuring_git:
 
+Configuring Git
+---------------
+
+There are a few configurations you can make locally that will help make
+working with the repository safer and easier.
+
+.. _devguide_suggested_git_hooks:
+
+Git Hooks
+~~~~~~~~~
+
+In order to help prevent some accidental situations, here are some git hooks
+that may be useful. The scripts below should be places in the ``.git/hooks``
+directory in th top level of the cloned GitHub repository, and be marked
+executable with e.g. ``chmod +x pre-commit``. For more information on git
+hooks, see `this reference`_.
+
+
+``pre-commit``
+
+    This git hook runs the code quality tests before allowing a commit to
+    proceed. Note that all the standard testing dependencies musts be installed
+    in order for this hook to function.
+
+    .. code-block:: sh
+
+        #!/bin/bash
+
+        py.test -m quality
+        exit $?
+
+``pre-push``
+
+    This git hook prevents accidental pushes to ``master`` on GitHub.
+
+    .. code-block:: sh
+
+        #!/bin/bash
+
+        protected_branch='master'
+        current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+        if [ $protected_branch = $current_branch ]
+        then
+            read -p "You're about to push master, is that what you intended? [y|n] " -n 1 -r < /dev/tty
+            echo
+            if echo $REPLY | grep -E '^[Yy]$' > /dev/null
+            then
+                exit 0 # push will execute
+            fi
+            exit 1 # push will not execute
+        else
+            exit 0 # push will execute
+        fi
+
+.. _devguide_suggested_git_aliases:
+
+Git Aliases
+~~~~~~~~~~~
+
+There are also some useful aliases that can be added to the ``.gitconfig`` file located in your home directory.
+
+The following alias adds a ``git resolve`` command that will automatically open up your editor to resolve any merge conflicts.
+
+.. code-block:: sh
+
+    [alias]
+        resolve = !sh -c 'vim -p $(git status -s | grep "^UU" | cut -c4-)'
+
+You can replace ``vim`` with whatever your favorite editor command is.
+
+.. _devguide_building_bokehjs:
 
 Building BokehJS
 ----------------
 
 The BokehJS build process is handled by Gulp_, which in turn depends on
 `Node.js <NodeJS>`_. Gulp is used to compile CoffeeScript and Less (CSS)
-sources (as well as Eco templates), and to combine these resources into
-optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
+sources, and to combine these resources into optimized and minified
+``bokeh.js`` and ``bokeh.css`` files.
 
 Install npm and node
 ~~~~~~~~~~~~~~~~~~~~
@@ -57,16 +129,16 @@ Alternatively, on Ubuntu you can use ``apt-get``:
 
     apt-get install npm node
 
-
 Install Gulp and necessary plugins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you have npm and Node.js installed, you must use them to install
 the required dependencies before you can build BokehJS.
-Execute the following command in the ``bokehjs`` subdirectory:
+Execute the following commands:
 
 .. code-block:: sh
 
+    cd bokehjs
     npm install
 
 This command will install the necessary packages into the ``node_modules``
@@ -120,6 +192,9 @@ step of the build by issuing:
 .. code-block:: sh
 
     gulp dev-build
+
+The non-minified javascript can be used by setting the environment variable
+``BOKEH_MINIFIED=false`` in the shell.
 
 To direct Gulp to automatically watch the source tree for changes and
 trigger a recompile if any source file changes:
@@ -176,8 +251,8 @@ With either mode, you will be prompted for how to install BokehJS, e.g.:
 You may skip this prompt by supplying the appropriate command line option
 to ``setup.py``:
 
-* ``--build_js``
-* ``--install_js``
+* ``--build-js``
+* ``--install-js``
 
 If you have any problems with the steps here, please `contact the developers`_.
 
@@ -199,11 +274,26 @@ which include:
 * pytest-selenium >= 1.0
 * mock
 * websocket-client
+* flake8
+* boto
 
 Both the build and test dependencies can potentially change between releases
 and be out of sync with the hosted Bokeh site documentation, so the best way
 to view the current required packages is the review the meta.yaml_ file included
 in the Github repository.
+
+In addition to the build and test dependencies, you must also have the base
+dependencies for Bokeh installed. A simple way to install these dependencies
+is to install Bokeh via ``conda install`` or ``pip install`` before running
+``setup.py``.  Alternatively, you can download them individually. The
+dependencies include:
+
+* jinja2
+* numpy
+* dateutil
+* pyyaml
+* requests
+* tornado
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 
@@ -291,135 +381,37 @@ For Bokeh server examples, add ``BOKEH_DEV=true`` to the server invocation:
 
     BOKEH_DEV=true bokeh serve example-server.py
 
-Environment Variables
----------------------
+Browser caching
+---------------
 
-There are several environment variables that can be useful for developers:
+During development, depending on the type of configured resources,
+aggressive browser caching can sometimes cause new BokehJS code changes to
+not be picked up. It is recommended that during normal development,
+browser caching be disabled. Instructions for different browsers can be
+found here:
 
-``BOKEH_BROWSER``
-~~~~~~~~~~~~~~~~~
-What browser to use when opening plots
-Valid values are any of the browser names understood by the python
-standard library webbrowser_ module.
+* `Chrome <https://developer.chrome.com/devtools/docs/settings>`__
+* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`__
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
+* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`__
 
-``BOKEH_DEV``
-~~~~~~~~~~~~~~
-Whether to use development mode
-This uses absolute paths to development (non-minified) BokehJS components,
-sets logging to ``debug``, makes generated HTML and JSON human-readable,
-etc.
+Additionally some browsers also provide a "private mode" that may disable
+caching automatically.
 
-This is a meta variable equivalent to the following environment variables:
+Even with caching disabled, on some browsers, it may still be required to
+sometimes force a page reload. Keyboard shortcuts for forcing page
+refreshes can be found here:
 
-- ``BOKEH_BROWSER=none``
-- ``BOKEH_LOG_LEVEL=debug``
-- ``BOKEH_MINIFIED=false``
-- ``BOKEH_PRETTY=true``
-- ``BOKEH_PY_LOG_LEVEL=debug``
-- ``BOKEH_RESOURCES=absolute-dev``
-- ``BOKEH_SIMPLE_IDS=true``
+* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`__ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`__ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`__
+* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`__
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`__
+* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`__ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`__
 
-Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+If it appears that new changes are not being executed when they should be, it
+is recommended to try this first.
 
-``BOKEH_DOCS_CDN``
-~~~~~~~~~~~~~~~~~~~~
-What version of BokehJS to use when building sphinx docs locally.
-
-.. note::
-    Set to ``"local"`` to use a locally built dev version of BokehJS.
-
-    This variable is only used when building documentation from the
-    development version.
-
-``BOKEH_DOCS_VERSION``
-~~~~~~~~~~~~~~~~~~~~~~
-What version of Bokeh to show when building sphinx docs locally. Useful for re-deployment purposes.
-
-.. note::
-    Set to ``"local"`` to use a locally built dev version of BokehJS.
-
-    This variable is only used when building documentation from the
-    development version.
-
-``BOKEH_DOCS_CSS_SERVER``
-~~~~~~~~~~~~~~~~~~~~~~~~~
-Where to get the css stylesheet from, by default this will be bokehplots.com
-
-.. note::
-    This variable is only used when building documentation from the
-    development version.
-
-``BOKEH_LOG_LEVEL``
-~~~~~~~~~~~~~~~~~~~
-The BokehJS console logging level to use Valid values are, in order of increasing severity:
-
-  - ``trace``
-  - ``debug``
-  - ``info``
-  - ``warn``
-  - ``error``
-  - ``fatal``
-
-The default logging level is ``info``.
-
-.. note::
-    When running server examples, it is the value of this
-    ``BOKEH_LOG_LEVEL`` that is set for the server that matters.
-
-``BOKEH_MINIFIED``
-~~~~~~~~~~~~~~~~~~~
-Whether to emit minified JavaScript for ``bokeh.js``
-Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-
-``BOKEH_PRETTY``
-~~~~~~~~~~~~~~~~~
-Whether to emit "pretty printed" JSON
-Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-
-``BOKEH_PY_LOG_LEVEL``
-~~~~~~~~~~~~~~~~~~~~~~~
-The Python logging level to set
-As in the JS side, valid values are, in order of increasing severity:
-
-  - ``debug``
-  - ``info``
-  - ``warn``
-  - ``error``
-  - ``fatal``
-  - ``none``
-
-The default logging level is ``none``.
-
-``BOKEH_RESOURCES``
-~~~~~~~~~~~~~~~~~~~~
-What kind of BokehJS resources to configure
-For example:  ``inline``, ``cdn``, ``server``. See the
-:class:`~bokeh.resources.Resources` class reference for full details.
-
-``BOKEH_ROOTDIR``
-~~~~~~~~~~~~~~~~~~
-Root directory to use with ``relative`` resources
-See the :class:`~bokeh.resources.Resources` class reference for full
-details.
-
-``BOKEH_SIMPLE_IDS``
-~~~~~~~~~~~~~~~~~~~~~~~
-Whether to generate human-friendly object IDs
-Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-Normally Bokeh generates UUIDs for object identifiers. Setting this variable
-to an affirmative value will result in more friendly simple numeric IDs
-counting up from 1000.
-
-``BOKEH_VERSION``
-~~~~~~~~~~~~~~~~~
-What version of BokehJS to use with ``cdn`` resources
-See the :class:`~bokeh.resources.Resources` class reference for full details.
-
-.. _anaconda.org: https://anaconda.org
-.. _conda: http://conda.pydata.org/
 .. _contact the developers: http://bokehplots.com/pages/contact.html
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
-.. _NodeJS: http://nodejs.org/
-.. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+.. _this reference: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks

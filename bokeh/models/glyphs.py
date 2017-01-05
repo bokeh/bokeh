@@ -5,13 +5,14 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..core.enums import Direction, Anchor
+from ..core.enums import Direction, Anchor, DeprecatedAnchor, accept_left_right_center
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, Int, NumberSpec, StringSpec)
+from ..util.deprecation import deprecated
 
-from .mappers import LinearColorMapper
+from .mappers import ColorMapper, LinearColorMapper
 
 @abstract
 class Glyph(Model):
@@ -186,75 +187,91 @@ class Bezier(Glyph):
     The %s values for the Bézier curves.
     """)
 
-class Gear(Glyph):
-    """ Render gears.
+class Ellipse(Glyph):
+    u""" Render ellipses. """
 
-    The details and nomenclature concerning gear construction can
-    be quite involved. For more information, consult the `Wikipedia
-    article for Gear`_.
-
-    .. _Wikipedia article for Gear: http://en.wikipedia.org/wiki/Gear
-    """
-
-    __example__ = "tests/glyphs/Gear.py"
+    __example__ = "tests/glyphs/Ellipse.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal')
+    _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec(help="""
-    The x-coordinates of the center of the gears.
+    The x-coordinates of the centers of the ellipses.
     """)
 
     y = NumberSpec(help="""
-    The y-coordinates of the center of the gears.
+    The y-coordinates of the centers of the ellipses.
     """)
 
-    angle = AngleSpec(default=0, help="""
-    The angle the gears are rotated from horizontal. [rad]
+    width = DistanceSpec(help="""
+    The widths of each ellipse.
     """)
 
-    module = NumberSpec(help="""
-    A scaling factor, given by::
-
-        m = p / pi
-
-    where *p* is the circular pitch, defined as the distance from one
-    face of a tooth to the corresponding face of an adjacent tooth on
-    the same gear, measured along the pitch circle. [float]
+    height = DistanceSpec(help="""
+    The heights of each ellipse.
     """)
 
-    teeth = NumberSpec(help="""
-    How many teeth the gears have. [int]
-    """)
-
-    pressure_angle = NumberSpec(default=20, help="""
-    The complement of the angle between the direction that the teeth
-    exert force on each other, and the line joining the centers of the
-    two gears. [deg]
-    """)
-
-    # TODO: (bev) evidently missing a test for default value
-    shaft_size = NumberSpec(default=0.3, help="""
-    The central gear shaft size as a percentage of the overall gear
-    size. [float]
-    """)
-
-    # TODO: (bev) evidently missing a test for default value
-    internal = NumberSpec(default=False, help="""
-    Whether the gear teeth are internal. [bool]
+    angle = AngleSpec(default=0.0, help="""
+    The angle the ellipses are rotated from horizontal. [rad]
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the gears.
+    The %s values for the ovals.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the gears.
+    The %s values for the ovals.
+    """)
+
+class HBar(Glyph):
+    """ Render horizontal bars, given a center coordinate, height and (left, right) coordinates. """
+
+    __example__ = "tests/glyphs/HBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('y', 'height', 'right', 'left')
+
+    y = NumberSpec(help="""
+    The y-coordinates of the centers of the horizontal bars.
+    """)
+
+    height = NumberSpec(help="""
+    The heights of the vertical bars.
+    """)
+
+    left = NumberSpec(default=0, help="""
+    The x-coordinates of the left edges.
+    """)
+
+    right = NumberSpec(help="""
+    The x-coordinates of the right edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
     """)
 
 class Image(Glyph):
-    """ Render images given as scalar data together with a color mapper. """
+    """ Render images given as scalar data together with a color mapper.
+
+    In addition to the defined model properties, ``Image`` also can accept
+    a keyword argument ``palette`` in place of an explicit ``color_mapper``.
+    The value should be a list of colors, or the name of one of the built-in
+    palettes in ``bokeh.palettes``. This palette will be used to automatically
+    construct a ``ColorMapper`` model for the ``color_mapper`` property.
+
+    .. note::
+        If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+        exception will be raised. If neither is passed, then the ``Greys9``
+        palette will be used as a default.
+
+    """
 
     def __init__(self, **kwargs):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
@@ -263,15 +280,6 @@ class Image(Glyph):
             # Use a palette (given or default)
             palette = kwargs.pop('palette', 'Greys9')
             mapper = LinearColorMapper(palette)
-
-            reserve_val = kwargs.pop('reserve_val', None)
-            if reserve_val is not None:
-                mapper.reserve_val = reserve_val
-
-            reserve_color = kwargs.pop('reserve_color', None)
-            if reserve_color is not None:
-                mapper.reserve_color = reserve_color
-
             kwargs['color_mapper'] = mapper
 
         super(Image, self).__init__(**kwargs)
@@ -279,6 +287,14 @@ class Image(Glyph):
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+
+    # a hook to specify any additional kwargs handled by an initializer
+    _extra_kws = {
+        'palette': (
+            'str or list[color value]',
+            'a palette to construct a value for the color mapper property from'
+        )
+    }
 
     image = NumberSpec(help="""
     The arrays of scalar data for the images to be colormapped.
@@ -316,7 +332,7 @@ class Image(Glyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    color_mapper = Instance(LinearColorMapper, help="""
+    color_mapper = Instance(ColorMapper, help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
@@ -348,11 +364,11 @@ class ImageRGBA(Glyph):
 
     rows = NumberSpec(None, help="""
     The numbers of rows in the images
-    """)
+    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.rows", "2D array representation"))
 
     cols = NumberSpec(None, help="""
     The numbers of columns in the images
-    """)
+    """).asserts(False, lambda: deprecated((0, 12, 4), "ImageRGBA.cols", "2D array representation"))
 
     dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
@@ -450,7 +466,7 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
-    """)
+    """).accepts(Enum(DeprecatedAnchor), accept_left_right_center)
 
     retry_attempts = Int(0, help="""
     Number of attempts to retry loading the images from the specified URL.
@@ -519,7 +535,8 @@ class Oval(Glyph):
 
     .. note::
         This glyph renders ovals using Bézier curves, which are similar,
-        but not identical to ellipses.
+        but not identical to ellipses. In particular, widths equal to heights
+        will not render circles. Use the ``Ellipse`` glyph for that.
     """
 
     __example__ = "tests/glyphs/Oval.py"
@@ -853,6 +870,39 @@ class Text(Glyph):
 
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
+    """)
+
+class VBar(Glyph):
+    """ Render vertical bars, given a center coordinate, width and (top, bottom) coordinates. """
+
+    __example__ = "tests/glyphs/VBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'width', 'top', 'bottom')
+
+    x = NumberSpec(help="""
+    The x-coordinates of the centers of the vertical bars.
+    """)
+
+    width = NumberSpec(help="""
+    The widths of the vertical bars.
+    """)
+
+    bottom = NumberSpec(default=0, help="""
+    The y-coordinates of the bottom edges.
+    """)
+
+    top = NumberSpec(help="""
+    The y-coordinates of the top edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
     """)
 
 class Wedge(Glyph):

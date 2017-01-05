@@ -6,13 +6,16 @@ import copy
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
-from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.core.property.containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
+
 def large_plot(n):
-    from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
-        ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool)
+    from bokeh.models import (
+        Plot, LinearAxis, Grid, GlyphRenderer,
+        ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
+        BoxSelectTool, ResizeTool, SaveTool, ResetTool
+    )
     from bokeh.models.layouts import VBox
     from bokeh.models.glyphs import Line
 
@@ -32,21 +35,25 @@ def large_plot(n):
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
         plot.renderers.append(renderer)
-        pan = PanTool(plot=plot)
-        wheel_zoom = WheelZoomTool(plot=plot)
-        box_zoom = BoxZoomTool(plot=plot)
-        box_select = BoxSelectTool(plot=plot)
-        resize = ResizeTool(plot=plot)
-        previewsave = PreviewSaveTool(plot=plot)
-        reset = ResetTool(plot=plot)
-        tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
-        plot.tools.extend(tools)
+        pan = PanTool()
+        zoom_in = ZoomInTool()
+        zoom_out = ZoomOutTool()
+        wheel_zoom = WheelZoomTool()
+        box_zoom = BoxZoomTool()
+        box_select = BoxSelectTool()
+        resize = ResizeTool()
+        save = SaveTool()
+        reset = ResetTool()
+        tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, resize, save, reset]
+        plot.add_tools(*tools)
         vbox.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
-                        renderer, glyph, plot.tool_events, box_zoom.overlay, box_select.overlay] +
-                        tickers + tools)
+        objects |= set([
+            source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph,
+            plot.toolbar, plot.tool_events, plot.title, box_zoom.overlay, box_select.overlay] +
+            tickers + tools)
 
     return vbox, objects
+
 
 class TestViewable(unittest.TestCase):
 
@@ -117,8 +124,8 @@ class TestModel(unittest.TestCase):
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
 
-        self.assertEqual(set(["name", "tags"]), testObject.properties())
-        self.assertDictEqual(dict(name=None, tags=[]), testObject.properties_with_values(include_defaults=True))
+        self.assertEqual(set(["name", "tags", "js_callbacks"]), testObject.properties())
+        self.assertDictEqual(dict(name=None, tags=[], js_callbacks={}), testObject.properties_with_values(include_defaults=True))
         self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
 
     def test_ref(self):
@@ -126,7 +133,8 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'type': 'Model', 'id': 'test_id'}, testObject.ref)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.core.properties import HasProps, Instance, Int
+        from bokeh.core.has_props import HasProps
+        from bokeh.core.properties import Instance, Int
 
         class T(self.pObjectClass):
             t = Int(0)
@@ -191,12 +199,13 @@ class TestModel(unittest.TestCase):
                            "id" : obj._id,
                            "name" : None,
                            "tags" : [],
+                           'js_callbacks': {},
                            "foo" : 42,
                            "bar" : "world" },
                          json)
         self.assertEqual(('{"bar":"world",' +
                           '"child":{"id":"%s","type":"SomeModelToJson"},' +
-                          '"foo":42,"id":"%s","name":null,"tags":[]}') %
+                          '"foo":42,"id":"%s","js_callbacks":{},"name":null,"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
 

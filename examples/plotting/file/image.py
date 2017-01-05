@@ -1,9 +1,8 @@
-
 import numpy as np
 
 from bokeh.plotting import figure, show, output_file
 
-N = 1000
+N = 500
 x = np.linspace(0, 10, N)
 y = np.linspace(0, 10, N)
 xx, yy = np.meshgrid(x, y)

@@ -1,14 +1,21 @@
 from __future__ import absolute_import
+
 import datetime
 import unittest
 import numpy as np
+import pandas as pd
 from copy import copy
 
-from bokeh.core.properties import (
-    HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
-    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override, Include, MinMaxBounds)
+from bokeh.core.properties import (field, value,
+    NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
+    Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
+    Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec,
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds, TitleProp)
+
+from bokeh.core.has_props import HasProps
+
+from bokeh.models import Plot
+from bokeh.models.annotations import Title
 
 class Basictest(unittest.TestCase):
 
@@ -224,6 +231,40 @@ class Basictest(unittest.TestCase):
         self.assertTrue('y' in o.properties_with_values(include_defaults=True))
         self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
         self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_readonly(self):
+        class Readonly(HasProps):
+            x = Int(12, readonly=True)    # with default
+            y = Int(readonly=True)        # without default
+            z = String("hello")
+
+        o = Readonly()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, None)
+        self.assertEqual(o.z, 'hello')
+
+        # readonly props are still in the list of props
+        self.assertTrue('x' in o.properties())
+        self.assertTrue('y' in o.properties())
+        self.assertTrue('z' in o.properties())
+
+        # but they aren't in the dict of props with values
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('z' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('z' not in o.properties_with_values(include_defaults=False))
+
+        with self.assertRaises(RuntimeError):
+            o.x = 7
+        with self.assertRaises(RuntimeError):
+            o.y = 7
+        o.z = "xyz"
+
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, None)
+        self.assertEqual(o.z, 'xyz')
 
     def test_include_defaults(self):
         class IncludeDefaultsTest(HasProps):
@@ -470,6 +511,59 @@ class TestNumberSpec(unittest.TestCase):
         # but regular assignment overwrites the previous dict-ness
         a.x = dict(field="baz")
         self.assertDictEqual(a.x, dict(field="baz"))
+
+class TestFontSizeSpec(unittest.TestCase):
+    def test_font_size_from_string(self):
+        class Foo(HasProps):
+            x = FontSizeSpec(default=None)
+
+        css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
+
+        a = Foo()
+        self.assertIs(a.x, None)
+
+        for unit in css_units.split("|"):
+
+            v = '10%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            v = '10.2%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            f = '_10%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+            f = '_10.2%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+        for unit in css_units.upper().split("|"):
+            v = '10%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            v = '10.2%s' % unit
+            a.x = v
+            self.assertEqual(a.x, dict(value=v))
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(value=v))
+
+            f = '_10%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
+
+            f = '_10.2%s' % unit
+            a.x = f
+            self.assertEqual(a.x, f)
+            self.assertEqual(a.lookup('x').serializable_value(a), dict(field=f))
 
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):
@@ -829,37 +923,34 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
-        try:
-            import numpy as np
-            self.assertTrue(prop.is_valid(np.bool8(False)))
-            self.assertTrue(prop.is_valid(np.bool8(True)))
-            self.assertFalse(prop.is_valid(np.int8(0)))
-            self.assertFalse(prop.is_valid(np.int8(1)))
-            self.assertFalse(prop.is_valid(np.int16(0)))
-            self.assertFalse(prop.is_valid(np.int16(1)))
-            self.assertFalse(prop.is_valid(np.int32(0)))
-            self.assertFalse(prop.is_valid(np.int32(1)))
-            self.assertFalse(prop.is_valid(np.int64(0)))
-            self.assertFalse(prop.is_valid(np.int64(1)))
-            self.assertFalse(prop.is_valid(np.uint8(0)))
-            self.assertFalse(prop.is_valid(np.uint8(1)))
-            self.assertFalse(prop.is_valid(np.uint16(0)))
-            self.assertFalse(prop.is_valid(np.uint16(1)))
-            self.assertFalse(prop.is_valid(np.uint32(0)))
-            self.assertFalse(prop.is_valid(np.uint32(1)))
-            self.assertFalse(prop.is_valid(np.uint64(0)))
-            self.assertFalse(prop.is_valid(np.uint64(1)))
-            self.assertFalse(prop.is_valid(np.float16(0)))
-            self.assertFalse(prop.is_valid(np.float16(1)))
-            self.assertFalse(prop.is_valid(np.float32(0)))
-            self.assertFalse(prop.is_valid(np.float32(1)))
-            self.assertFalse(prop.is_valid(np.float64(0)))
-            self.assertFalse(prop.is_valid(np.float64(1)))
-            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
-            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+        self.assertTrue(prop.is_valid(np.bool8(False)))
+        self.assertTrue(prop.is_valid(np.bool8(True)))
+        self.assertFalse(prop.is_valid(np.int8(0)))
+        self.assertFalse(prop.is_valid(np.int8(1)))
+        self.assertFalse(prop.is_valid(np.int16(0)))
+        self.assertFalse(prop.is_valid(np.int16(1)))
+        self.assertFalse(prop.is_valid(np.int32(0)))
+        self.assertFalse(prop.is_valid(np.int32(1)))
+        self.assertFalse(prop.is_valid(np.int64(0)))
+        self.assertFalse(prop.is_valid(np.int64(1)))
+        self.assertFalse(prop.is_valid(np.uint8(0)))
+        self.assertFalse(prop.is_valid(np.uint8(1)))
+        self.assertFalse(prop.is_valid(np.uint16(0)))
+        self.assertFalse(prop.is_valid(np.uint16(1)))
+        self.assertFalse(prop.is_valid(np.uint32(0)))
+        self.assertFalse(prop.is_valid(np.uint32(1)))
+        self.assertFalse(prop.is_valid(np.uint64(0)))
+        self.assertFalse(prop.is_valid(np.uint64(1)))
+        self.assertFalse(prop.is_valid(np.float16(0)))
+        self.assertFalse(prop.is_valid(np.float16(1)))
+        self.assertFalse(prop.is_valid(np.float32(0)))
+        self.assertFalse(prop.is_valid(np.float32(1)))
+        self.assertFalse(prop.is_valid(np.float64(0)))
+        self.assertFalse(prop.is_valid(np.float64(1)))
+        self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+        self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+        if hasattr(np, "complex256"):
             self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
-        except ImportError:
-            pass
 
     def test_Int(self):
         prop = Int()
@@ -878,37 +969,34 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
-        try:
-            import numpy as np
-            # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
-            # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
-            self.assertTrue(prop.is_valid(np.int8(0)))
-            self.assertTrue(prop.is_valid(np.int8(1)))
-            self.assertTrue(prop.is_valid(np.int16(0)))
-            self.assertTrue(prop.is_valid(np.int16(1)))
-            self.assertTrue(prop.is_valid(np.int32(0)))
-            self.assertTrue(prop.is_valid(np.int32(1)))
-            self.assertTrue(prop.is_valid(np.int64(0)))
-            self.assertTrue(prop.is_valid(np.int64(1)))
-            self.assertTrue(prop.is_valid(np.uint8(0)))
-            self.assertTrue(prop.is_valid(np.uint8(1)))
-            self.assertTrue(prop.is_valid(np.uint16(0)))
-            self.assertTrue(prop.is_valid(np.uint16(1)))
-            self.assertTrue(prop.is_valid(np.uint32(0)))
-            self.assertTrue(prop.is_valid(np.uint32(1)))
-            self.assertTrue(prop.is_valid(np.uint64(0)))
-            self.assertTrue(prop.is_valid(np.uint64(1)))
-            self.assertFalse(prop.is_valid(np.float16(0)))
-            self.assertFalse(prop.is_valid(np.float16(1)))
-            self.assertFalse(prop.is_valid(np.float32(0)))
-            self.assertFalse(prop.is_valid(np.float32(1)))
-            self.assertFalse(prop.is_valid(np.float64(0)))
-            self.assertFalse(prop.is_valid(np.float64(1)))
-            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
-            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+        # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
+        # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
+        self.assertTrue(prop.is_valid(np.int8(0)))
+        self.assertTrue(prop.is_valid(np.int8(1)))
+        self.assertTrue(prop.is_valid(np.int16(0)))
+        self.assertTrue(prop.is_valid(np.int16(1)))
+        self.assertTrue(prop.is_valid(np.int32(0)))
+        self.assertTrue(prop.is_valid(np.int32(1)))
+        self.assertTrue(prop.is_valid(np.int64(0)))
+        self.assertTrue(prop.is_valid(np.int64(1)))
+        self.assertTrue(prop.is_valid(np.uint8(0)))
+        self.assertTrue(prop.is_valid(np.uint8(1)))
+        self.assertTrue(prop.is_valid(np.uint16(0)))
+        self.assertTrue(prop.is_valid(np.uint16(1)))
+        self.assertTrue(prop.is_valid(np.uint32(0)))
+        self.assertTrue(prop.is_valid(np.uint32(1)))
+        self.assertTrue(prop.is_valid(np.uint64(0)))
+        self.assertTrue(prop.is_valid(np.uint64(1)))
+        self.assertFalse(prop.is_valid(np.float16(0)))
+        self.assertFalse(prop.is_valid(np.float16(1)))
+        self.assertFalse(prop.is_valid(np.float32(0)))
+        self.assertFalse(prop.is_valid(np.float32(1)))
+        self.assertFalse(prop.is_valid(np.float64(0)))
+        self.assertFalse(prop.is_valid(np.float64(1)))
+        self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+        self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+        if hasattr(np, "complex256"):
             self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
-        except ImportError:
-            pass
 
     def test_Float(self):
         prop = Float()
@@ -927,37 +1015,34 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
-        try:
-            import numpy as np
-            # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
-            # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
-            self.assertTrue(prop.is_valid(np.int8(0)))
-            self.assertTrue(prop.is_valid(np.int8(1)))
-            self.assertTrue(prop.is_valid(np.int16(0)))
-            self.assertTrue(prop.is_valid(np.int16(1)))
-            self.assertTrue(prop.is_valid(np.int32(0)))
-            self.assertTrue(prop.is_valid(np.int32(1)))
-            self.assertTrue(prop.is_valid(np.int64(0)))
-            self.assertTrue(prop.is_valid(np.int64(1)))
-            self.assertTrue(prop.is_valid(np.uint8(0)))
-            self.assertTrue(prop.is_valid(np.uint8(1)))
-            self.assertTrue(prop.is_valid(np.uint16(0)))
-            self.assertTrue(prop.is_valid(np.uint16(1)))
-            self.assertTrue(prop.is_valid(np.uint32(0)))
-            self.assertTrue(prop.is_valid(np.uint32(1)))
-            self.assertTrue(prop.is_valid(np.uint64(0)))
-            self.assertTrue(prop.is_valid(np.uint64(1)))
-            self.assertTrue(prop.is_valid(np.float16(0)))
-            self.assertTrue(prop.is_valid(np.float16(1)))
-            self.assertTrue(prop.is_valid(np.float32(0)))
-            self.assertTrue(prop.is_valid(np.float32(1)))
-            self.assertTrue(prop.is_valid(np.float64(0)))
-            self.assertTrue(prop.is_valid(np.float64(1)))
-            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
-            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+        # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
+        # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
+        self.assertTrue(prop.is_valid(np.int8(0)))
+        self.assertTrue(prop.is_valid(np.int8(1)))
+        self.assertTrue(prop.is_valid(np.int16(0)))
+        self.assertTrue(prop.is_valid(np.int16(1)))
+        self.assertTrue(prop.is_valid(np.int32(0)))
+        self.assertTrue(prop.is_valid(np.int32(1)))
+        self.assertTrue(prop.is_valid(np.int64(0)))
+        self.assertTrue(prop.is_valid(np.int64(1)))
+        self.assertTrue(prop.is_valid(np.uint8(0)))
+        self.assertTrue(prop.is_valid(np.uint8(1)))
+        self.assertTrue(prop.is_valid(np.uint16(0)))
+        self.assertTrue(prop.is_valid(np.uint16(1)))
+        self.assertTrue(prop.is_valid(np.uint32(0)))
+        self.assertTrue(prop.is_valid(np.uint32(1)))
+        self.assertTrue(prop.is_valid(np.uint64(0)))
+        self.assertTrue(prop.is_valid(np.uint64(1)))
+        self.assertTrue(prop.is_valid(np.float16(0)))
+        self.assertTrue(prop.is_valid(np.float16(1)))
+        self.assertTrue(prop.is_valid(np.float32(0)))
+        self.assertTrue(prop.is_valid(np.float32(1)))
+        self.assertTrue(prop.is_valid(np.float64(0)))
+        self.assertTrue(prop.is_valid(np.float64(1)))
+        self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+        self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+        if hasattr(np, "complex256"):
             self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
-        except ImportError:
-            pass
 
     def test_Complex(self):
         prop = Complex()
@@ -976,37 +1061,34 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
-        try:
-            import numpy as np
-            # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
-            # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
-            self.assertTrue(prop.is_valid(np.int8(0)))
-            self.assertTrue(prop.is_valid(np.int8(1)))
-            self.assertTrue(prop.is_valid(np.int16(0)))
-            self.assertTrue(prop.is_valid(np.int16(1)))
-            self.assertTrue(prop.is_valid(np.int32(0)))
-            self.assertTrue(prop.is_valid(np.int32(1)))
-            self.assertTrue(prop.is_valid(np.int64(0)))
-            self.assertTrue(prop.is_valid(np.int64(1)))
-            self.assertTrue(prop.is_valid(np.uint8(0)))
-            self.assertTrue(prop.is_valid(np.uint8(1)))
-            self.assertTrue(prop.is_valid(np.uint16(0)))
-            self.assertTrue(prop.is_valid(np.uint16(1)))
-            self.assertTrue(prop.is_valid(np.uint32(0)))
-            self.assertTrue(prop.is_valid(np.uint32(1)))
-            self.assertTrue(prop.is_valid(np.uint64(0)))
-            self.assertTrue(prop.is_valid(np.uint64(1)))
-            self.assertTrue(prop.is_valid(np.float16(0)))
-            self.assertTrue(prop.is_valid(np.float16(1)))
-            self.assertTrue(prop.is_valid(np.float32(0)))
-            self.assertTrue(prop.is_valid(np.float32(1)))
-            self.assertTrue(prop.is_valid(np.float64(0)))
-            self.assertTrue(prop.is_valid(np.float64(1)))
-            self.assertTrue(prop.is_valid(np.complex64(1.0+1.0j)))
-            self.assertTrue(prop.is_valid(np.complex128(1.0+1.0j)))
+        # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
+        # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
+        self.assertTrue(prop.is_valid(np.int8(0)))
+        self.assertTrue(prop.is_valid(np.int8(1)))
+        self.assertTrue(prop.is_valid(np.int16(0)))
+        self.assertTrue(prop.is_valid(np.int16(1)))
+        self.assertTrue(prop.is_valid(np.int32(0)))
+        self.assertTrue(prop.is_valid(np.int32(1)))
+        self.assertTrue(prop.is_valid(np.int64(0)))
+        self.assertTrue(prop.is_valid(np.int64(1)))
+        self.assertTrue(prop.is_valid(np.uint8(0)))
+        self.assertTrue(prop.is_valid(np.uint8(1)))
+        self.assertTrue(prop.is_valid(np.uint16(0)))
+        self.assertTrue(prop.is_valid(np.uint16(1)))
+        self.assertTrue(prop.is_valid(np.uint32(0)))
+        self.assertTrue(prop.is_valid(np.uint32(1)))
+        self.assertTrue(prop.is_valid(np.uint64(0)))
+        self.assertTrue(prop.is_valid(np.uint64(1)))
+        self.assertTrue(prop.is_valid(np.float16(0)))
+        self.assertTrue(prop.is_valid(np.float16(1)))
+        self.assertTrue(prop.is_valid(np.float32(0)))
+        self.assertTrue(prop.is_valid(np.float32(1)))
+        self.assertTrue(prop.is_valid(np.float64(0)))
+        self.assertTrue(prop.is_valid(np.float64(1)))
+        self.assertTrue(prop.is_valid(np.complex64(1.0+1.0j)))
+        self.assertTrue(prop.is_valid(np.complex128(1.0+1.0j)))
+        if hasattr(np, "complex256"):
             self.assertTrue(prop.is_valid(np.complex256(1.0+1.0j)))
-        except ImportError:
-            pass
 
     def test_String(self):
         prop = String()
@@ -1044,6 +1126,37 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Seq(self):
+        with self.assertRaises(TypeError):
+            prop = Seq()
+
+        prop = Seq(Int)
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertTrue(prop.is_valid(()))
+        self.assertTrue(prop.is_valid([]))
+        self.assertTrue(prop.is_valid(np.array([])))
+        self.assertFalse(prop.is_valid(set([])))
+        self.assertFalse(prop.is_valid({}))
+        self.assertTrue(prop.is_valid((1, 2)))
+        self.assertTrue(prop.is_valid([1, 2]))
+        self.assertTrue(prop.is_valid(np.array([1, 2])))
+        self.assertFalse(prop.is_valid({1, 2}))
+        self.assertFalse(prop.is_valid({1: 2}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        df = pd.DataFrame([1, 2])
+        self.assertTrue(prop.is_valid(df.index))
+        self.assertTrue(prop.is_valid(df.iloc[0]))
 
     def test_List(self):
         with self.assertRaises(TypeError):
@@ -1136,6 +1249,16 @@ class TestProperties(unittest.TestCase):
 
         self.assertFalse(prop.is_valid(Bar()))
         self.assertFalse(prop.is_valid(Baz()))
+
+    def test_Instance_from_json(self):
+        class MapOptions(HasProps):
+            lat = Float
+            lng = Float
+            zoom = Int(12)
+
+        v1 = Instance(MapOptions).from_json(dict(lat=1, lng=2))
+        v2 = MapOptions(lat=1, lng=2)
+        self.assertTrue(v1.equals(v2))
 
     def test_Interval(self):
         with self.assertRaises(TypeError):
@@ -1322,9 +1445,8 @@ class TestProperties(unittest.TestCase):
         self.assertTrue(prop.is_valid("BLUE"))
         self.assertFalse(prop.is_valid("foobar"))
 
-    def test_Align(self):
-        prop = Align() # TODO
-        assert prop
+        self.assertEqual(prop.transform((0, 127, 255)), "rgb(0, 127, 255)")
+        self.assertEqual(prop.transform((0, 127, 255, 0.1)), "rgba(0, 127, 255, 0.1)")
 
     def test_DashPattern(self):
         prop = DashPattern()
@@ -1445,13 +1567,104 @@ class TestProperties(unittest.TestCase):
         # Invalid values
         self.assertFalse(prop.is_valid((datetime.date(2012, 10, 1), 22)))
 
+def test_HasProps_equals():
+    class Foo(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    class FooUnrelated(HasProps):
+        x = Int(12)
+        y = String("hello")
+        z = List(Int, [1,2,3])
+
+    v = Foo().equals(Foo())
+    assert v is True
+
+    v = Foo(x=1).equals(Foo(x=1))
+    assert v is True
+
+    v = Foo(x=1).equals(Foo(x=2))
+    assert v is False
+
+    v = Foo(x=1).equals(1)
+    assert v is False
+
+    v = Foo().equals(FooUnrelated())
+    assert v is False
+
 def test_HasProps_clone():
-    from bokeh.models import Plot
     p1 = Plot(plot_width=1000)
     c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
-if __name__ == "__main__":
-    unittest.main()
+def test_HasProps_pretty():
+    class Foo1(HasProps):
+        a = Int(12)
+        b = String("hello")
+
+    assert Foo1().pretty() == "bokeh.core.tests.test_properties.Foo1(a=12, b='hello')"
+
+    class Foo2(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+
+    assert Foo2().pretty() == "bokeh.core.tests.test_properties.Foo2(a=12, b='hello', c=[1, 2, 3])"
+
+    class Foo3(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+        d = Float(None)
+
+    assert Foo3().pretty() == "bokeh.core.tests.test_properties.Foo3(a=12, b='hello', c=[1, 2, 3], d=None)"
+
+    class Foo4(HasProps):
+        a = Int(12)
+        b = String("hello")
+        c = List(Int, [1, 2, 3])
+        d = Float(None)
+        e = Instance(Foo1, lambda: Foo1())
+
+    assert Foo4().pretty() == """\
+bokeh.core.tests.test_properties.Foo4(
+    a=12,
+    b='hello',
+    c=[1, 2, 3],
+    d=None,
+    e=bokeh.core.tests.test_properties.Foo1(a=12, b='hello'))"""
+
+    class Foo5(HasProps):
+        foo6 = Any            # can't use Instance(".core.tests.test_properties.Foo6")
+
+    class Foo6(HasProps):
+        foo5 = Instance(Foo5)
+
+    f5 = Foo5()
+    f6 = Foo6(foo5=f5)
+    f5.foo6 = f6
+
+    assert f5.pretty() == """\
+bokeh.core.tests.test_properties.Foo5(
+    foo6=bokeh.core.tests.test_properties.Foo6(
+        foo5=bokeh.core.tests.test_properties.Foo5(...)))"""
+
+def test_titleprop_transforms_string_into_title_object():
+    class Foo(HasProps):
+        title = TitleProp
+    f = Foo(title="hello")
+    assert isinstance(f.title, Title)
+    assert f.title.text == "hello"
+
+def test_field_function():
+    assert field("foo") == dict(field="foo")
+    # TODO (bev) would like this to work I think
+    #assert field("foo", transform="junk") == dict(field="foo", transform="junk")
+
+def test_value_function():
+    assert value("foo") == dict(value="foo")
+    # TODO (bev) would like this to work I think
+    #assert value("foo", transform="junk") == dict(value="foo", transform="junk")

@@ -1,11 +1,11 @@
-_ = require "underscore"
-$ = require "jquery"
+import * as _ from "underscore"
+import * as $ from "jquery"
 
-Widget = require "./widget"
-BokehView = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import * as p from "../../core/properties"
 
-class RadioGroupView extends BokehView
+import {Widget, WidgetView} from "./widget"
+
+export class RadioGroupView extends WidgetView
   tagName: "div"
   events:
     "change input": "change_input"
@@ -16,17 +16,18 @@ class RadioGroupView extends BokehView
     @listenTo(@model, 'change', @render)
 
   render: () ->
+    super()
     @$el.empty()
 
     name = _.uniqueId("RadioGroup")
-    active = @mget("active")
-    for label, i in @mget("labels")
+    active = @model.active
+    for label, i in @model.labels
       $input = $('<input type="radio">').attr(name: name, value: "#{i}")
-      if @mget("disabled") then $input.prop("disabled", true)
+      if @model.disabled then $input.prop("disabled", true)
       if i == active then $input.prop("checked", true)
 
       $label = $('<label></label>').text(label).prepend($input)
-      if @mget("inline")
+      if @model.inline
           $label.addClass("bk-bs-radio-inline")
           @$el.append($label)
       else
@@ -35,10 +36,12 @@ class RadioGroupView extends BokehView
     return @
 
   change_input: () ->
-    active = (i for radio, i in @$("input") when radio.checked)
-    @mset('active', active[0])
+    active = (i for radio, i in @$el.find("input") when radio.checked)
+    @model.active = active[0]
+    @model.callback?.execute(@model)
 
-class RadioGroup extends Widget.Model
+
+export class RadioGroup extends Widget
   type: "RadioGroup"
   default_view: RadioGroupView
 
@@ -46,8 +49,5 @@ class RadioGroup extends Widget.Model
       active:   [ p.Any,   null  ] # TODO (bev) better type?
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
+      callback: [ p.Instance ]
     }
-
-module.exports =
-  Model: RadioGroup
-  View: RadioGroupView

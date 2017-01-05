@@ -1,5 +1,0 @@
-<label for="<%= @id %>"> <%= @title %>: </label>
-<input type="text" id="<%= @id %>" readonly style="border:0; color:#f6931f; font-weight:bold;">
-<div class="bk-slider-<%=@orientation%>">
-  <div class="slider " id="<%=@id%>">
-</div>

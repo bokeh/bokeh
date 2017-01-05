@@ -5,29 +5,16 @@ import unittest
 import os
 
 import bokeh.resources as resources
+from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls, websocket_url_for_server_url
-
 
 # if BOKEH_RESOURCES is set many tests in this file fail
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-WRAPPER = """Bokeh.$(function() {
-    foo
-});"""
-
-
-WRAPPER_DEV = '''require(["jquery", "main"], function($, Bokeh) {
-Bokeh.set_log_level("info");
-    Bokeh.$(function() {
-        foo
-    });
-});'''
-
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
-
 
 ## Test JSResources
 
@@ -41,7 +28,7 @@ def test_js_resources_inline_has_no_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.js_raw) == 4
+    assert len(r.js_raw) == 3
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
     assert hasattr(r, 'css_raw') is False
     assert r.messages == []
@@ -99,7 +86,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "inline")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(len(r.js_raw), 4)
+        self.assertEqual(len(r.js_raw), 3)
         self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
         self.assertEqual(len(r.css_raw), 2)
         self.assertEqual(r.messages, [])
@@ -150,8 +137,7 @@ class TestResources(unittest.TestCase):
                                 path_versioner=versioner)
 
         self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
-                                      'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
-                                      'http://foo/static/js/bokeh-compiler.min.js?v=VERSIONED'])
+                                      'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED'])
         self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
                                        'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED'])
 
@@ -217,3 +203,58 @@ class TestResources(unittest.TestCase):
 
         for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
             self.assertRaises(ValueError, resources.Resources, mode, root_url="foo")
+
+
+## Test external resources
+
+def test_external_js_and_css_resource_embedding():
+    """ This test method has to be at the end of the test modules because
+    subclassing a Model causes the CustomModel to be added as a Viewable and
+    messes up the Resources state for the other tests.
+    """
+
+    # External resources can be defined as a string or list of strings
+    class CustomModel1(Model):
+        __javascript__ = "external_js_1"
+        __css__ = "external_css_1"
+
+    class CustomModel2(Model):
+        __javascript__ = ["external_js_2", "external_js_3"]
+        __css__ = ["external_css_2", "external_css_3"]
+
+    class CustomModel3(Model):
+        __javascript__ = ["external_js_1", "external_js_3"]
+        __css__ = ["external_css_1", "external_css_2"]
+
+    r = resources.Resources()
+
+    assert "external_js_1" in r.js_files
+    assert "external_css_1" in r.css_files
+
+    assert "external_js_2" in r.js_files
+    assert "external_js_3" in r.js_files
+    assert "external_css_2" in r.css_files
+    assert "external_css_3" in r.css_files
+
+    # Deduplication should keep the first instance of every file
+    assert r.css_files.count("external_css_1") == 1
+    assert r.css_files.count("external_css_2") == 1
+    assert r.js_files.count("external_js_3") == 1
+    assert r.js_files.count("external_js_1") == 1
+
+
+def test_external_js_and_css_resource_ordering():
+    class ZClass(Model):
+        __javascript__ = "z_class"
+
+    class AClass(Model):
+        __javascript__ = "a_class"
+
+    r = resources.Resources()
+
+    # a_class is before z_class because they're sorted alphabetically
+    assert r.js_files.index("a_class") < r.js_files.index("z_class")
+
+    # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
+    assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
+    assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")

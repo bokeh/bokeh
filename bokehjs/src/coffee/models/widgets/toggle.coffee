@@ -1,59 +1,29 @@
-_  = require "underscore"
+import * as p from "../../core/properties"
 
-AbstractButton = require "./abstract_button"
-BokehView  = require "../../core/bokeh_view"
-p = require "../../core/properties"
+import {AbstractButton, AbstractButtonView} from "./abstract_button"
 
-class ToggleView extends BokehView
-  tagName: "button"
-  events:
-    "click": "change_input"
-
-  initialize: (options) ->
-    super(options)
-    @render()
-    @listenTo(@model, 'change', @render)
+export class ToggleView extends AbstractButtonView
 
   render: () ->
-    icon = @mget('icon')
-    if icon?
-      build_views(@views, [icon])
-      for own key, val of @views
-        val.$el.detach()
-
-    @$el.empty()
-    @$el.addClass("bk-bs-btn")
-    @$el.addClass("bk-bs-btn-" + @mget("button_type"))
-    if @mget("disabled") then @$el.attr("disabled", "disabled")
-
-    label = @mget("label")
-    if icon?
-      @$el.append(@views[icon.id].$el)
-      label = " #{label}"
-    @$el.append(document.createTextNode(label))
-
-    if @mget("active")
-      @$el.addClass("bk-bs-active")
+    super()
+    if @model.active
+      @$el.find('button').addClass("bk-bs-active")
     else
-      @$el.removeClass("bk-bs-active")
+      @$el.find('button').removeClass("bk-bs-active")
     return @
 
   change_input: () ->
-    @mset('active', not @mget('active'))
-    @mget('callback')?.execute(@model)
+    super()
+    @model.active = not @model.active
 
-class Toggle extends AbstractButton.Model
+export class Toggle extends AbstractButton
   type: "Toggle"
   default_view: ToggleView
 
   @define {
-      active: [ p. Bool, false ]
-    }
+    active: [ p. Bool, false ]
+  }
 
   @override {
     label: "Toggle"
   }
-
-module.exports =
-  Model: Toggle
-  View: ToggleView

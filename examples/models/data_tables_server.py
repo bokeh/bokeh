@@ -9,7 +9,7 @@ from bokeh.models import (
 from bokeh.models.widgets import (
     Select, DataTable, TableColumn, StringFormatter,
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
 class DataTables(object):
@@ -58,7 +58,7 @@ class DataTables(object):
             TableColumn(field="cty",          title="City MPG",     editor=IntEditor()),
             TableColumn(field="hwy",          title="Highway MPG",  editor=IntEditor()),
         ]
-        data_table = DataTable(source=self.source, columns=columns, editable=True)
+        data_table = DataTable(source=self.source, columns=columns, editable=True, width=1300)
 
         plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
@@ -87,15 +87,12 @@ class DataTables(object):
         ]
         cty_hover_tool = HoverTool(renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
         hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
-        select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
+        select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions='width')
         plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
-
-        controls = VBox(children=[
-            manufacturer_select, model_select, transmission_select,
-             drive_select, class_select])
-        top_panel = HBox(children=[controls, plot])
-        layout = VBox(children=[top_panel, data_table])
+        controls = WidgetBox(manufacturer_select, model_select, transmission_select, drive_select, class_select)
+        top_panel = Row(controls, plot)
+        layout = Column(top_panel, data_table)
 
         return layout
 
@@ -141,4 +138,5 @@ class DataTables(object):
 
 if __name__ == "__main__":
     data_tables = DataTables()
+    data_tables.document.validate()
     data_tables.run(True)

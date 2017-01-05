@@ -57,12 +57,12 @@ sprint["MedalLine"]    = sprint.Medal.map(lambda medal: line_color[medal])
 sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).map(lambda args: selected_name(*args))
 
 source = ColumnDataSource(sprint)
-title = "Usain Bolt vs. 116 years of Olympic sprinters"
 
 xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)                  # XXX: +2 is poor-man's padding (otherwise misses last tick)
 ydr = DataRange1d(range_padding=0.05) # XXX: should be 2 years (both sides)
 
-plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=1000, plot_height=600, toolbar_location=None, outline_line_color=None)
+plot = Plot(x_range=xdr, y_range=ydr, plot_width=1000, plot_height=600, toolbar_location=None, outline_line_color=None)
+plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
 
 xticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
 xaxis = LinearAxis(ticker=xticker, axis_line_color=None, major_tick_line_color=None,
@@ -106,8 +106,9 @@ doc = Document()
 doc.add_root(plot)
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "sprint.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, title))
+        f.write(file_html(doc, INLINE, plot.title.text))
     print("Wrote %s" % filename)
     view(filename)

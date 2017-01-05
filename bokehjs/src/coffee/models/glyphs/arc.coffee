@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-Glyph = require "./glyph"
-p = require "../../core/properties"
+import {Glyph, GlyphView} from "./glyph"
+import * as p from "../../core/properties"
 
-class ArcView extends Glyph.View
+export class ArcView extends GlyphView
 
   _index_data: () ->
     @_xy_index()
@@ -27,10 +27,10 @@ class ArcView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
-  draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend_for_index: (ctx, x0, x1, y0, y1, index) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1, index)
 
-class Arc extends Glyph.Model
+export class Arc extends Glyph
   default_view: ArcView
 
   type: 'Arc'
@@ -43,7 +43,3 @@ class Arc extends Glyph.Model
       start_angle: [ p.AngleSpec                ]
       end_angle:   [ p.AngleSpec                ]
     }
-
-module.exports =
-  Model: Arc
-  View: ArcView

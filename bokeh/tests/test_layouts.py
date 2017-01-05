@@ -1,36 +1,31 @@
-from __future__ import absolute_import
+from bokeh.plotting import figure
 
-from bokeh.plotting import Figure
-from bokeh.models.layouts import HBox, VBox, VBoxForm
-from bokeh.models.widgets import Slider
-from bokeh.models.sources import ColumnDataSource
+import bokeh.layouts as lyt
 
-import pytest
+def test_gridplot_merge_tools_flat():
+    p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-## component subclasses are layouts, widgets and plots
-components = [HBox(), VBox(), VBoxForm(), Slider(), Figure()]
+    lyt.gridplot([[p1, p2], [p3, p4]], merge_tools=True)
 
-def check_props(layout):
-    assert layout.width == None
-    assert layout.height == None
-    assert layout.children == []
+    for p in p1, p2, p3, p4:
+        assert p.toolbar_location is None
 
-def check_children_prop(layout_callable):
-    layout1 = layout_callable(*components)
-    assert layout1.children == components
-    layout2 = layout_callable(children=components)
-    assert layout2.children == components
-    with pytest.raises(ValueError): ## Should raise exception for non-Component child
-        layout_callable(ColumnDataSource())
+def test_gridplot_merge_tools_with_None():
+    p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-def test_VBox():
-    yield check_props, VBox()
-    yield check_children_prop, VBox
+    lyt.gridplot([[p1, None, p2], [p3, p4, None]], merge_tools=True)
 
-def test_HBox():
-    yield check_props, HBox()
-    yield check_children_prop, HBox
+    for p in p1, p2, p3, p4:
+        assert p.toolbar_location is None
 
-def test_VBoxForm():
-    yield check_props, VBoxForm()
-    yield check_children_prop, VBoxForm
+
+def test_gridplot_merge_tools_nested():
+    p1, p2, p3, p4, p5, p6, p7 = figure(), figure(), figure(), figure(), figure(), figure(), figure()
+    r1 = lyt.row(p1, p2)
+    r2 = lyt.row(p3, p4)
+    c = lyt.column(lyt.row(p5), lyt.row(p6))
+
+    lyt.gridplot([[r1, r2], [c, p7]], merge_tools=True)
+
+    for p in p1, p2, p3, p4, p5, p6, p7:
+        assert p.toolbar_location is None

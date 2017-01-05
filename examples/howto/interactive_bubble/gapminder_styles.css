@@ -1,4 +1,4 @@
-/* 
+/*
  * General Theme
  *
  */
@@ -8,7 +8,7 @@
   line-height: 1.42857143;
   color: #333333;
   background-color: #ffffff;
-  width: 800px; 
+  width: 800px;
   margin: auto;
 }
 
@@ -23,7 +23,7 @@
  *
  * MAIN BOKEH SETUP
  *
- */ 
+ */
 .bk-plot-wrapper table,
 .bk-plot-wrapper tr,
 .bk-plot-wrapper td {
@@ -32,21 +32,25 @@
   margin: 0 !important;
 }
 
+
+
 .bk-canvas {
   clear: both;
   position: absolute;
 }
 
-.bk-canvas-wrapper {
+.bk-grid-column {
   position: relative;
   float: left;
+  margin-top: 50px;
+  margin-bottom: 70px;
 }
 
 /*
  *
  * HOVER
  *
- */ 
+ */
 
 
 /* Bokeh - plain styling */
@@ -134,13 +138,19 @@
  *
  * SLIDER
  *
-*/  
+*/
 
-.plotdiv input,
-.plotdiv label {
+.bk-plotdiv input,
+.bk-plotdiv label {
     display: none;
 }
 
+
+.bk-widget-box {
+  width: 800px;
+  height: 90px;
+  margin-top: 10px;
+}
 
 .bk-slider-horizontal {
   width: 705px;
@@ -192,4 +202,24 @@
 
 .bk-ui-slider .bk-ui-slider-handle:focus {
     outline: none;
+}
+
+.bk-slider-parent input[type="text"] {
+  display: inline-block;
+  border: 0;
+  font-weight: 600;
+  margin-left: 4px;
+  font-size: 13px;
+  vertical-align: text-bottom;
+  padding: 0;
+  min-width: 20px;
+  /* Add in defaults to counteract bokehplots.com css */
+  background-color: inherit;
+  border-radius: inherit;
+  box-shadow: inherit;
+  box-sizing: inherit;
+  font-family: inherit;
+  margin-bottom: inherit;
+  transition: inherit;
+  width: inherit;
 }

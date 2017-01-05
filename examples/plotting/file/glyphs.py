@@ -1,6 +1,7 @@
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file, vplot
+from bokeh.layouts import gridplot
+from bokeh.plotting import figure, show, output_file
 
 N = 9
 
@@ -33,6 +34,11 @@ children.append(p)
 
 p = figure(title="circle")
 p.circle(x, y, radius=0.1, color="#3288BD")
+children.append(p)
+
+p = figure(title="ellipse")
+p.ellipse(x, y, 15, 25, angle=-0.7, color="#1D91C0",
+       width_units="screen", height_units="screen")
 children.append(p)
 
 p = figure(title="line")
@@ -135,4 +141,4 @@ children.append(p)
 
 output_file("glyphs.html", title="glyphs.py example")
 
-show(vplot(*children))  # open a browser
+show(gridplot(children, ncols=3, plot_width=200, plot_height=200))  # open a browser

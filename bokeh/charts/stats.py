@@ -1,4 +1,4 @@
-""" Statistical methods used to define or modify position of glyphs.
+''' Statistical methods used to define or modify position of glyphs.
 
 References:
     Wilkinson L. The Grammer of Graphics, sections 7, 7.1
@@ -10,18 +10,17 @@ Method Types:
     - Smooth: Produces values representing smoothed versions of the input data.
     - Link: Produces edges from pairs of nodes in a graph.
 
-"""
-
+'''
 from __future__ import absolute_import
 
 import numpy as np
 import pandas as pd
 
 from bokeh.models.sources import ColumnDataSource
-from bokeh.core.properties import (HasProps, Float, Either, String, Date, Datetime, Int,
-                              Bool, List, Instance)
-from .properties import Column, EitherColumn, ColumnLabel
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Bool, Date, Datetime, Either, Float, Instance, Int, List, String
 
+from .properties import Column, ColumnLabel, EitherColumn
 
 class Stat(HasProps):
     """Represents a statistical operation to summarize a column of data.
@@ -166,6 +165,7 @@ class Bin(Stat):
     center = Either(Float, List(Float))
 
     stat = Instance(Stat, default=Count())
+    width = Float()
 
     def __init__(self, bin_label, values=None, source=None, **properties):
         if isinstance(bin_label, tuple):
@@ -220,7 +220,14 @@ class BinStats(Stat):
 
     Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
-    bin_count = Either(Int, Float)
+    bins = Either(Int, Float, List(Float), default=None, help="""
+    If bins is an int, it defines the number of equal-width bins in the
+    given range. If bins is a sequence, it defines the
+    bin edges, including the rightmost edge, allowing for non-uniform
+    bin widths.
+
+    (default: None, use Freedman-Diaconis rule)
+    """)
     bin_width = Float(default=None, help='Use Freedman-Diaconis rule if None.')
     q1 = Quantile(interval=0.25)
     q3 = Quantile(interval=0.75)
@@ -229,13 +236,14 @@ class BinStats(Stat):
     def __init__(self, values=None, column=None, **properties):
         properties['values'] = values
         properties['column'] = column or 'values'
+
         super(BinStats, self).__init__(**properties)
 
     def update(self):
         values = self.get_data()
         self.q1.set_data(values)
         self.q3.set_data(values)
-        if self.bin_count is None:
+        if self.bins is None:
             self.calc_num_bins(values)
 
     def calc_num_bins(self, values):
@@ -251,23 +259,20 @@ class BinStats(Stat):
         else:
             self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
 
-        self.bin_count = int(np.ceil((values.max() - values.min()) / self.bin_width))
+        self.bins = int(np.ceil((values.max() - values.min()) / self.bin_width))
 
-        if self.bin_count <= 1:
-            self.bin_count = 3
+        if self.bins <= 1:
+            self.bins = 3
 
     def calculate(self):
         pass
 
 
-class Bins(Stat):
-    """Bins and aggregates dimensions for plotting.
+class BinnedStat(Stat):
+    """ Base class for shared functionality accross bins and aggregates
+    dimensions for plotting.
 
-    Takes the inputs and produces a list of bins that can be iterated over and
-    inspected for their metadata. The bins provide easy access to consistent labeling,
-    bounds, and values.
     """
-
     bin_stat = Instance(BinStats, help="""
         A mapping between each dimension and associated binning calculations.
         """)
@@ -280,11 +285,6 @@ class Bins(Stat):
 
     stat = Instance(Stat, default=Count(), help="""
         The statistical operation to be used on the values in each bin.
-        """)
-
-    bin_count = Int(help="""
-        An optional list of the number of bins to use for each dimension. If a single
-        value is provided, then the same number of bins will be used for each.
         """)
 
     bin_column = String()
@@ -303,12 +303,12 @@ class Bins(Stat):
             stat = stats[stat]()
 
         properties['column'] = column or 'vals'
-        properties['bins'] = bins
         properties['stat'] = stat
         properties['values'] = values
         properties['source'] = source
+        self._bins = bins
+        super(BinnedStat, self).__init__(**properties)
 
-        super(Bins, self).__init__(**properties)
 
     def _get_stat(self):
         stat_kwargs = {}
@@ -320,7 +320,7 @@ class Bins(Stat):
         elif self.values is not None:
             stat_kwargs['values'] = self.values
 
-        stat_kwargs['bin_count'] = self.bin_count
+        stat_kwargs['bins'] = self._bins
 
         return BinStats(**stat_kwargs)
 
@@ -328,13 +328,33 @@ class Bins(Stat):
         self.bin_stat = self._get_stat()
         self.bin_stat.update()
 
+
+class Bins(BinnedStat):
+    """Bins and aggregates dimensions for plotting.
+
+    Takes the inputs and produces a list of bins that can be iterated over and
+    inspected for their metadata. The bins provide easy access to consistent labeling,
+    bounds, and values.
+    """
+
     def calculate(self):
 
         bin_str = '_bin'
         self.bin_column = self.column + bin_str
         bin_models = []
 
-        binned, bin_bounds = pd.cut(self.bin_stat.get_data(), self.bin_stat.bin_count,
+        data = self.bin_stat.get_data()
+        bins = self.bin_stat.bins
+
+        # Choose bin bounds when data range is ill-defined; pd.cut()
+        # does not handle this well for values that are <= 0
+        if data.size < 2:
+            raise ValueError('Histogram data must have at least two elements.')
+        if data.ndim == 1 and data.std() == 0:
+            margin = 0.01 * abs(float(data[0])) or 0.01
+            bins = np.linspace(data[0] - margin, data[0] + margin, bins+1)
+
+        binned, bin_bounds = pd.cut(data, bins,
                                     retbins=True, include_lowest=True, precision=0)
 
         self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
@@ -376,7 +396,51 @@ class Bins(Stat):
                                     reverse=~ascending))
 
 
-def bins(data, values=None, column=None, bin_count=None, labels=None,
+class Histogram(BinnedStat):
+    """Bins and aggregates dimensions for plotting.
+
+    Takes the inputs and produces a list of bins that can be iterated over and
+    inspected for their metadata. The bins provide easy access to consistent labeling,
+    bounds, and values.
+    """
+
+    density = Bool(False, help="""
+    Whether to normalize the histogram.
+
+    If True, the result is the value of the probability *density* function
+    at the bin, normalized such that the *integral* over the range is 1. If
+    False, the result will contain the number of samples in each bin.
+
+    For more info check ``numpy.histogram`` function documentation.
+
+    (default: False)
+    """)
+
+    def calculate(self):
+        bin_str = '_bin'
+        self.bin_column = self.column + bin_str
+
+        data = self.bin_stat.get_data()
+        bins = self.bin_stat.bins
+
+        binned, bin_bounds = np.histogram(
+                        np.array(data), density=self.density, bins=bins
+                    )
+
+        self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
+        self.bins = []
+
+        for i, b in enumerate(binned):
+            width = bin_bounds[i+1] - bin_bounds[i]
+            if i == 0:
+                lbl = "[%f, %f]" % (bin_bounds[i], bin_bounds[i+1])
+            else:
+                lbl = "(%f, %f]" % (bin_bounds[i], bin_bounds[i+1])
+            self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max(),
+                width=width))
+
+
+def bins(data, values=None, column=None, bins=None, labels=None,
          **kwargs):
     """Specify binning or bins to be used for column or values."""
 
@@ -386,7 +450,7 @@ def bins(data, values=None, column=None, bin_count=None, labels=None,
     else:
         column = None
 
-    return Bins(values=values, column=column, bin_count=bin_count, **kwargs)
+    return Bins(values=values, column=column, bins=bins, **kwargs)
 
 
 stats = {

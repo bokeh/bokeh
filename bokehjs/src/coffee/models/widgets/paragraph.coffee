@@ -1,20 +1,15 @@
-_ = require "underscore"
+import * as $ from "jquery"
 
-Markup = require "./markup"
-p = require "../../core/properties"
+import {Markup, MarkupView} from "./markup"
 
-class ParagraphView extends Markup.View
-  tagName: "p"
+export class ParagraphView extends MarkupView
 
   render: () ->
     super()
-    @$el.text(@mget('text'))
-    return @
+    # This overrides default user-agent styling and helps layout work
+    $para = $('<p style="margin: 0;"></p>').text(@model.text)
+    @$el.find('.bk-markup').append($para)
 
-class Paragraph extends Markup.Model
+export class Paragraph extends Markup
   type: "Paragraph"
   default_view: ParagraphView
-
-module.exports =
-  Model: Paragraph
-  View: ParagraphView

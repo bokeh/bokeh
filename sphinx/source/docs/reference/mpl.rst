@@ -1,8 +1,7 @@
-
 .. _bokeh.mpl:
 
-``bokeh.mpl``
-=============
+bokeh.mpl
+=========
 
 .. automodule:: bokeh.mpl
   :members:

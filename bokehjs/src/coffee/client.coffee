@@ -1,12 +1,12 @@
-_ = require "underscore"
-{Promise} = require "es6-promise"
+import * as _ from "underscore"
+import {Promise} from "es6-promise"
 
-HasProps = require "./core/has_props"
-{logger} = require "./core/logging"
-{Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
+import {HasProps} from "./core/has_props"
+import {logger} from "./core/logging"
+import {Document, ModelChangedEvent} from "./document"
 
-DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
-DEFAULT_SESSION_ID = "default"
+export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
+export DEFAULT_SESSION_ID = "default"
 
 class Message
   constructor : (@header, @metadata, @content) ->
@@ -298,7 +298,7 @@ class ClientConnection
       @_pending_ack[1](new Error("Lost websocket connection, #{event.code} (#{event.reason})"))
       @_pending_ack = null
 
-    pop_pending = () ->
+    pop_pending = () =>
       for reqid, promise_funcs of @_pending_replies
         delete @_pending_replies[reqid]
         return promise_funcs
@@ -349,7 +349,6 @@ class ClientConnection
 class ClientSession
 
   constructor : (@_connection, @document, @id) ->
-    @_current_patch = null
     # we save the bound function so we can remove it later
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
@@ -383,33 +382,9 @@ class ClientSession
   force_roundtrip : () ->
     @request_server_info().then((ignored) -> undefined)
 
-  _should_suppress_on_change : (patch, event) ->
-    if event instanceof ModelChangedEvent
-      for event_json in patch.content['events']
-        if event_json['kind'] == 'ModelChanged' and event_json['model']['id'] == event.model.id and event_json['attr'] == event.attr
-          patch_new = event_json['new']
-          if event.new_ instanceof HasProps
-            if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event.new_.id
-              return true
-          else if _.isEqual(patch_new, event.new_)
-            return true
-    else if event instanceof RootAddedEvent
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'RootAdded' and event_json['model']['id'] == event.model.id
-            return true
-    else if event instanceof RootRemovedEvent
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event.model.id
-            return true
-    else if event instanceof TitleChangedEvent
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event.title
-            return true
-
-    return false
-
   _document_changed : (event) ->
-    if @_current_patch? and @_should_suppress_on_change(@_current_patch, event)
+    # Filter out events that were initiated by the ClientSession itself
+    if event.setter_id == @id
       return
 
     # Filter out changes to attributes that aren't server-visible
@@ -422,17 +397,13 @@ class ClientSession
     @_connection.send(patch)
 
   _handle_patch : (message) ->
-    @_current_patch = message
-    try
-      @document.apply_json_patch(message.content)
-    finally
-      @_current_patch = null
+    @document.apply_json_patch(message.content, @id)
 
 # Returns a promise of a ClientSession
 # The returned promise has a close() method
 # in case you want to close before getting a session;
 # session.close() works too once you have a session.
-pull_session = (url, session_id) ->
+export pull_session = (url, session_id) ->
   rejecter = null
   connection = null
   promise = new Promise (resolve, reject) ->
@@ -458,8 +429,3 @@ pull_session = (url, session_id) ->
   promise.close = () ->
     connection.close()
   promise
-
-module.exports =
-  pull_session: pull_session
-  DEFAULT_SERVER_WEBSOCKET_URL: DEFAULT_SERVER_WEBSOCKET_URL
-  DEFAULT_SESSION_ID: DEFAULT_SESSION_ID

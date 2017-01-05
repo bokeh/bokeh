@@ -1,5 +1,4 @@
-
-fixup_line_dash = (ctx) ->
+export fixup_line_dash = (ctx) ->
   if (!ctx.setLineDash)
     ctx.setLineDash = (dash) ->
       ctx.mozDash = dash
@@ -8,7 +7,7 @@ fixup_line_dash = (ctx) ->
     ctx.getLineDash = () ->
       return ctx.mozDash
 
-fixup_line_dash_offset = (ctx) ->
+export fixup_line_dash_offset = (ctx) ->
   ctx.setLineDashOffset = (dash_offset) ->
     ctx.lineDashOffset = dash_offset
     ctx.mozDashOffset = dash_offset
@@ -16,7 +15,7 @@ fixup_line_dash_offset = (ctx) ->
   ctx.getLineDashOffset = () ->
     return ctx.mozDashOffset
 
-fixup_image_smoothing = (ctx) ->
+export fixup_image_smoothing = (ctx) ->
   ctx.setImageSmoothingEnabled = (value) ->
     ctx.imageSmoothingEnabled = value;
     ctx.mozImageSmoothingEnabled = value;
@@ -25,7 +24,7 @@ fixup_image_smoothing = (ctx) ->
   ctx.getImageSmoothingEnabled = () ->
     return ctx.imageSmoothingEnabled ? true
 
-fixup_measure_text = (ctx) ->
+export fixup_measure_text = (ctx) ->
   if ctx.measureText and not ctx.html5MeasureText?
     ctx.html5MeasureText = ctx.measureText
 
@@ -35,7 +34,7 @@ fixup_measure_text = (ctx) ->
       textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
       return textMetrics
 
-get_scale_ratio = (ctx, hidpi) ->
+export get_scale_ratio = (ctx, hidpi) ->
   if hidpi
     devicePixelRatio = window.devicePixelRatio || 1
     backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
@@ -47,9 +46,30 @@ get_scale_ratio = (ctx, hidpi) ->
   else
     return 1
 
-module.exports =
-  fixup_image_smoothing: fixup_image_smoothing
-  fixup_line_dash: fixup_line_dash
-  fixup_line_dash_offset: fixup_line_dash_offset
-  fixup_measure_text: fixup_measure_text
-  get_scale_ratio: get_scale_ratio
+export fixup_ellipse = (ctx) ->
+  # implementing the ctx.ellipse function with bezier curves
+  # we don't implement the startAngle, endAngle and anticlockwise arguments.
+  ellipse_bezier = (x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise = false) ->
+    c = 0.551784 # see http://www.tinaja.com/glib/ellipse4.pdf
+
+    ctx.translate(x, y)
+    ctx.rotate(rotation)
+
+    rx = radiusX
+    ry = radiusY
+    if anticlockwise
+      rx = -radiusX
+      ry = -radiusY
+
+    ctx.moveTo(-rx, 0) # start point of first curve
+    ctx.bezierCurveTo(-rx,  ry * c, -rx * c,  ry, 0,  ry)
+    ctx.bezierCurveTo( rx * c,  ry,  rx,  ry * c,  rx, 0)
+    ctx.bezierCurveTo( rx, -ry * c,  rx * c, -ry, 0, -ry)
+    ctx.bezierCurveTo(-rx * c, -ry, -rx, -ry * c, -rx, 0)
+
+    ctx.rotate(-rotation)
+    ctx.translate(-x, -y)
+    return
+
+  if (!ctx.ellipse)
+    ctx.ellipse = ellipse_bezier

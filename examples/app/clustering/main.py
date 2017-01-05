@@ -2,8 +2,9 @@ import numpy as np
 np.random.seed(0)
 
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, VBox, HBox, Select, Slider
-from bokeh.plotting import Figure
+from bokeh.layouts import widgetbox, row, column
+from bokeh.models import ColumnDataSource, Select, Slider
+from bokeh.plotting import figure
 from bokeh.palettes import Spectral6
 
 from sklearn import cluster, datasets
@@ -96,7 +97,7 @@ spectral = np.hstack([Spectral6] * 20)
 colors = [spectral[i] for i in y]
 
 # set up plot (styling in theme.yaml)
-plot = Figure(toolbar_location=None, title=algorithm)
+plot = figure(toolbar_location=None, title=algorithm)
 source = ColumnDataSource(data=dict(x=X[:, 0], y=X[:, 1], colors=colors))
 plot.circle('x', 'y', fill_color='colors', line_color=None, source=source)
 
@@ -121,23 +122,27 @@ datasets_names = [
 
 algorithm_select = Select(value='MiniBatchKMeans',
                           title='Select algorithm:',
+                          width=200,
                           options=clustering_algorithms)
 
 dataset_select = Select(value='Noisy Circles',
                         title='Select dataset:',
+                        width=200,
                         options=datasets_names)
 
 samples_slider = Slider(title="Number of samples",
                         value=1500.0,
                         start=1000.0,
                         end=3000.0,
-                        step=100)
+                        step=100,
+                        width=400)
 
 clusters_slider = Slider(title="Number of clusters",
                          value=2.0,
                          start=2.0,
                          end=10.0,
-                         step=1)
+                         step=1,
+                         width=400)
 
 # set up callbacks
 def update_algorithm_or_clusters(attrname, old, new):
@@ -149,11 +154,9 @@ def update_algorithm_or_clusters(attrname, old, new):
     X, y_pred = clustering(X, algorithm, n_clusters)
     colors = [spectral[i] for i in y_pred]
 
-    source.data['colors'] = colors
-    source.data['x'] = X[:, 0]
-    source.data['y'] = X[:, 1]
+    source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
-    plot.title = algorithm
+    plot.title.text = algorithm
 
 def update_samples_or_dataset(attrname, old, new):
     global X, y
@@ -167,9 +170,7 @@ def update_samples_or_dataset(attrname, old, new):
     X, y_pred = clustering(X, algorithm, n_clusters)
     colors = [spectral[i] for i in y_pred]
 
-    source.data['x'] = X[:, 0]
-    source.data['y'] = X[:, 1]
-    source.data['colors'] = colors
+    source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
 algorithm_select.on_change('value', update_algorithm_or_clusters)
 clusters_slider.on_change('value', update_algorithm_or_clusters)
@@ -178,8 +179,9 @@ dataset_select.on_change('value', update_samples_or_dataset)
 samples_slider.on_change('value', update_samples_or_dataset)
 
 # set up layout
-selects = HBox(dataset_select, algorithm_select)
-inputs = VBox(samples_slider, clusters_slider, selects)
+selects = row(dataset_select, algorithm_select, width=420)
+inputs = column(selects, widgetbox(samples_slider, clusters_slider))
 
 # add to document
-curdoc().add_root(HBox(inputs, plot, width=800))
+curdoc().add_root(row(inputs, plot))
+curdoc().title = "Clustering"

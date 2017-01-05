@@ -39,4 +39,3 @@ Should be replaced with the more explicit code:
     p.line()
     p.circle()
     show(p)
-

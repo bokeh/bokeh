@@ -1,10 +1,6 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-AdaptiveTicker = require "./adaptive_ticker"
+import {AdaptiveTicker} from "./adaptive_ticker"
 
-class BasicTicker extends AdaptiveTicker.Model
+export class BasicTicker extends AdaptiveTicker
   type: 'BasicTicker'
-
-module.exports =
-  Model: BasicTicker
-

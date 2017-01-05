@@ -1,85 +1,208 @@
-''' The query module provides functions for searching Bokeh object
-graphs for objects that match specified criteria.
-
-Queries are specified as selectors similar to MongoDB style query
-selectors.
-
-Examples::
-
-    .. code-block:: python
-
-        # find all objects with type "grid"
-        find(p, {'type': 'grid'})
-
-        # find all objects with type "grid" or "axis"
-        find(p, {OR: [
-            {'type': 'grid'}, {'type': 'axis'}
-        ]})
-
-        # same query, using IN operator
-        find(p, {'type': {IN: ['grid', 'axis']})
-
-        # find all plot objects on the 'left' layout of the Plot
-        list(find(p, {'layout': 'left'}, {'plot': p}))
-
-        # find all subplots in column 0
-        find(p, {type: 'plot', 'column: 0}, {'gridplot': p})
-
-        # find all subplots the last row
-        find(p, {type: 'plot', 'row': -1}, {'gridplot': p})
+''' The query module provides functions for searching collections of Bokeh
+models for instances that match specified criteria.
 
 '''
-
 from __future__ import absolute_import
 
 from six import string_types
 
-class OR(object): pass
+class OR(object):
+    ''' Form disjunctions from other query predicates.
 
-class IN(object): pass
-class GT(object): pass
-class LT(object): pass
-class EQ(object): pass
-class GEQ(object): pass
-class LEQ(object): pass
-class NEQ(object): pass
+    Construct an ``OR`` expression by making a dict with ``OR`` as the key,
+    and a list of other query expressions as the value:
+
+    .. code-block:: python
+
+        # matches any Axis subclasses or models with .name == "mycircle"
+        { OR: [dict(type=Axis), dict(name="mycircle")] }
+
+    '''
+    pass
+
+class IN(object):
+    ''' Predicate to test if property values are in some collection.
+
+    Construct and ``IN`` predicate as a dict with ``IN`` as the key,
+    and a list of values to check against.
+
+    .. code-block:: python
+
+        # matches any models with .name in ['a', 'mycircle', 'myline']
+        dict(name={ IN: ['a', 'mycircle', 'myline'] })
+
+    '''
+    pass
+
+class GT(object):
+    ''' Predicate to test if property values are greater than some value.
+
+    Construct and ``GT`` predicate as a dict with ``GT`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size > 10
+        dict(size={ GT: 10 })
+
+    '''
+    pass
+
+class LT(object):
+    ''' Predicate to test if property values are less than some value.
+
+    Construct and ``LT`` predicate as a dict with ``LT`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size < 10
+        dict(size={ LT: 10 })
+
+    '''
+    pass
+
+class EQ(object):
+    ''' Predicate to test if property values are equal to some value.
+
+    Construct and ``EQ`` predicate as a dict with ``EQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size == 10
+        dict(size={ EQ: 10 })
+
+    '''
+    pass
+
+class GEQ(object):
+    ''' Predicate to test if property values are greater than or equal to
+    some value.
+
+    Construct and ``GEQ`` predicate as a dict with ``GEQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size >= 10
+        dict(size={ GEQ: 10 })
+
+    '''
+    pass
+
+class LEQ(object):
+    ''' Predicate to test if property values are less than or equal to
+    some value.
+
+    Construct and ``LEQ`` predicate as a dict with ``LEQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size <= 10
+        dict(size={ LEQ: 10 })
+
+    '''
+    pass
+
+class NEQ(object):
+    ''' Predicate to test if property values are unequal to some value.
+
+    Construct and ``NEQ`` predicate as a dict with ``NEQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size != 10
+        dict(size={ NEQ: 10 })
+
+    '''
+    pass
+
+# realizations of the abstract predicate operators
+_operators = {
+   IN:  lambda x, y: x in y,
+   GT:  lambda x, y: x > y,
+   LT:  lambda x, y: x < y,
+   EQ:  lambda x, y: x == y,
+   GEQ: lambda x, y: x >= y,
+   LEQ: lambda x, y: x <= y,
+   NEQ: lambda x, y: x != y,
+}
+
+# realization of the OR operator
+def _or(obj, selectors):
+    return any(match(obj, selector) for selector in selectors)
 
 
 def match(obj, selector, context=None):
-    ''' Test whether a particular object matches a given
-    selector.
+    ''' Test whether a given Bokeh model matches a given selector.
 
     Args:
-        obj (Model) : object to Test
+        obj (Model) : object to test
         selector (JSON-like) : query selector
-            See module docs for details
+        context (dict) : kwargs to supply callable query attributes
 
     Returns:
         bool : True if the object matches, False otherwise
 
+    In general, the selectors have the form:
+
+    .. code-block:: python
+
+        { attrname : predicate }
+
+    Where a predicate is constructed from the operators ``EQ``, ``GT``, etc.
+    and is used to compare against values of model attributes named
+    ``attrname``.
+
+    For example:
+
+    .. code-block:: python
+
+        >>> from bokeh.plotting import figure
+        >>> p = figure(plot_width=400)
+
+        >>> match(p, {'plot_width': {EQ: 400}})
+        True
+
+        >>> match(p, {'plot_width': {GT: 500}})
+        False
+
     There are two selector keys that are handled especially. The first
-    is 'type', which will do an isinstance check::
+    is 'type', which will do an isinstance check:
 
-        >>> from bokeh.plotting import line
+    .. code-block:: python
+
+        >>> from bokeh.plotting import figure
         >>> from bokeh.models import Axis
-        >>> p = line([1,2,3], [4,5,6])
-        >>> len(list(p.select({'type': Axis})))
-        2
+        >>> p = figure()
 
-    There is also a 'tags' attribute that `Model` objects have,
-    that is a list of user-supplied values. The 'tags' selector key can
-    be used to query against this list of tags. An object matches if
-    any of the tags in the selector match any of the tags on the
-    object::
+        >>> match(p.xaxis[0], {'type': Axis})
+        True
 
-        >>> from bokeh.plotting import line
-        >>> from bokeh.models import Axis
-        >>> p = line([1,2,3], [4,5,6])
-        >>> p.tags = ["my plot", 10]
-        >>> len(list(p.select({'tags': "my plot"})))
-        1
-        >>> len(list(p.select({'tags': ["my plot", 10]})))
-        1
+        >>> match(p.title, {'type': Axis})
+        False
+
+    There is also a ``'tags'`` attribute that ``Model`` objects have, that
+    is a list of user-supplied values. The ``'tags'`` selector key can be
+    used to query against this list of tags. An object matches if any of the
+    tags in the selector match any of the tags on the object:
+
+    .. code-block:: python
+
+        >>> from bokeh.plotting import figure
+        >>> p = figure(tags = ["my plot", 10])
+
+        >>> match(p, {'tags': "my plot"})
+        True
+
+        >>> match(p, {'tags': ["my plot", 10]})
+        True
+
+        >>> match(p, {'tags': ["foo"]})
+        False
 
     '''
     context = context or {}
@@ -139,33 +262,38 @@ def match(obj, selector, context=None):
 
 
 def find(objs, selector, context=None):
-    ''' Query an object and all of its contained references
-    and yield objects that match the given selector.
+    ''' Query a collection of Bokeh models and yield any that match the
+    a selector.
 
     Args:
-        obj (Model) : object to query
+        obj (Model) : object to test
         selector (JSON-like) : query selector
-            See module docs for details
+        context (dict) : kwargs to supply callable query attributes
 
     Yields:
         Model : objects that match the query
 
+    Queries are specified as selectors similar to MongoDB style query
+    selectors, as described for :func:`~bokeh.core.query.match`.
+
     Examples:
+
+        .. code-block:: python
+
+            # find all objects with type Grid
+            find(p.references(), {'type': Grid})
+
+            # find all objects with type Grid or Axis
+            find(p.references(), {OR: [
+                {'type': Grid}, {'type': Axis}
+            ]})
+
+            # same query, using IN operator
+            find(p.references(), {'type': {IN: [Grid, Axis]}})
+
+            # find all plot objects on the 'left' layout of the Plot
+            # here layout is a method that takes a plot as context
+            find(p.references(), {'layout': 'left'}, {'plot': p})
 
     '''
     return (obj for obj in objs if match(obj, selector, context))
-
-
-def _or(obj, selectors):
-    return any(match(obj, selector) for selector in selectors)
-
-
-_operators = {
-   IN:  lambda x, y: x in y,
-   GT:  lambda x, y: x > y,
-   LT:  lambda x, y: x < y,
-   EQ:  lambda x, y: x == y,
-   GEQ: lambda x, y: x >= y,
-   LEQ: lambda x, y: x <= y,
-   NEQ: lambda x, y: x != y,
-}

@@ -1,3 +1,4 @@
+import io
 
 from jinja2 import Template
 
@@ -49,10 +50,19 @@ template = Template('''<!DOCTYPE html>
         {{ js_resources }}
         {{ css_resources }}
         {{ script }}
+        <style>
+            .embed-wrapper {
+                width: 50%;
+                height: 400px;
+                margin: auto;
+            }
+        </style>
     </head>
     <body>
         {% for key in div.keys() %}
+            <div class="embed-wrapper">
             {{ div[key] }}
+            </div>
         {% endfor %}
     </body>
 </html>
@@ -68,7 +78,7 @@ html = template.render(js_resources=js_resources,
                        script=script,
                        div=div)
 
-with open(filename, 'w') as f:
+with io.open(filename, mode='w', encoding='utf-8') as f:
     f.write(html)
 
 view(filename)

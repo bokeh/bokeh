@@ -1,9 +1,9 @@
-_ = require "underscore"
+import * as _ from "underscore"
 
-SelectTool = require "./select_tool"
-p = require "../../../core/properties"
+import {SelectTool, SelectToolView} from "./select_tool"
+import * as p from "../../../core/properties"
 
-class TapToolView extends SelectTool.View
+export class TapToolView extends SelectToolView
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -19,27 +19,34 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    callback = @mget("callback")
+    callback = @model.callback
     @_save_geometry(geometry, final, append)
 
     cb_data =
-      geometries: @plot_model.get('tool_events').get('geometries')
+      geometries: @plot_model.plot.tool_events.geometries
 
-    for r in @mget('computed_renderers')
-      ds = r.get('data_source')
-      sm = ds.get('selection_manager')
-      sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
-      if callback?
+    for r in @model.computed_renderers
+      ds = r.data_source
+      sm = ds.selection_manager
+
+      view = @plot_view.renderer_views[r.id]
+      if @model.behavior == "select"
+        did_hit = sm.select(@, view, geometry, final, append)
+      else
+        did_hit = sm.inspect(@, view, geometry, {geometry: geometry})
+
+      if did_hit and callback?
         if _.isFunction(callback)
           callback(ds, cb_data)
         else
           callback.execute(ds, cb_data)
 
-    @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+    if @model.behavior == "select"
+      @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
 
     return null
 
-class TapTool extends SelectTool.Model
+export class TapTool extends SelectTool
   default_view: TapToolView
   type: "TapTool"
   tool_name: "Tap"
@@ -48,9 +55,6 @@ class TapTool extends SelectTool.Model
   default_order: 10
 
   @define {
+    behavior: [ p.String, "select" ] # TODO: Enum("select", "inspect")
     callback: [ p.Any ] # TODO: p.Either(p.Instance(Callback), p.Function) ]
   }
-
-module.exports =
-  Model: TapTool
-  View: TapToolView

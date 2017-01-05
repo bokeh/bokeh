@@ -1,20 +1,16 @@
-Ticker = require "./ticker"
+import {Ticker} from "./ticker"
 
-class CategoricalTicker extends Ticker.Model
+export class CategoricalTicker extends Ticker
   type: 'CategoricalTicker'
 
   get_ticks: (start, end, range, {desired_n_ticks}) ->
     majors = []
-    factors = range.get("factors")
+    factors = range.factors
     for i in [0...factors.length]
-      ii = i + range.get('offset')
+      ii = i + range.offset
       if (ii+1) > start and (ii+1) < end
         majors.push(factors[i])
     return {
       "major": majors
       "minor": []
     }
-
-module.exports =
-  Model: CategoricalTicker
-

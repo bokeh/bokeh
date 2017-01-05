@@ -1,13 +1,28 @@
-empty = () ->
-  return [[Infinity, -Infinity], [Infinity, -Infinity]]
+export empty = () -> {
+  minX:  Infinity
+  minY:  Infinity
+  maxX: -Infinity
+  maxY: -Infinity
+}
 
-union = (a, b) ->
-  a[0][0] = Math.min(a[0][0], b[0][0])
-  a[0][1] = Math.max(a[0][1], b[0][1])
-  a[1][0] = Math.min(a[1][0], b[1][0])
-  a[1][1] = Math.max(a[1][1], b[1][1])
-  return a
+export positive_x = () -> {
+  minX:  Number.MIN_VALUE
+  minY: -Infinity
+  maxX:  Infinity
+  maxY:  Infinity
+}
 
-module.exports =
-  empty: empty
-  union: union
+export positive_y = () -> {
+  minX:  -Infinity
+  minY:  Number.MIN_VALUE
+  maxX:  Infinity
+  maxY:  Infinity
+}
+
+export union = (a, b) ->
+  r = {}
+  r.minX = Math.min(a.minX, b.minX)
+  r.maxX = Math.max(a.maxX, b.maxX)
+  r.minY = Math.min(a.minY, b.minY)
+  r.maxY = Math.max(a.maxY, b.maxY)
+  return r

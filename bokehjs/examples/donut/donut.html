@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Web Browser Market Share</title>
+    <link rel="stylesheet" href="../../build/css/bokeh.css" type="text/css" />
+    <script type="text/javascript" src="../../build/js/bokeh.js"></script>
+    <script type="text/javascript" src="../../build/js/bokeh-api.js"></script>
+  </head>
+  <body>
+    <script id="data" type="text/csv">
+      2016      , Chrome  , IE   , Firefox  , Safari   , Opera
+      March     , 69.9    , 6.1  , 17.8     , 3.6      , 1.3
+      February  , 69.0    , 6.2  , 18.6     , 3.7      , 1.3
+      January   , 68.4    , 6.2  , 18.8     , 3.7      , 1.4
+      2015      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 68.0    , 6.3  , 19.1     , 3.7      , 1.5
+      November  , 67.4    , 6.8  , 19.2     , 3.9      , 1.5
+      October   , 66.5    , 6.9  , 20.0     , 3.8      , 1.4
+      September , 65.9    , 7.2  , 20.6     , 3.6      , 1.4
+      August    , 64.0    , 6.6  , 21.2     , 4.5      , 2.2
+      July      , 63.3    , 6.5  , 21.6     , 4.9      , 2.5
+      June      , 64.8    , 7.1  , 21.3     , 3.8      , 1.8
+      May       , 64.9    , 7.1  , 21.5     , 3.8      , 1.6
+      April     , 63.9    , 8.0  , 21.6     , 3.8      , 1.5
+      March     , 63.7    , 7.7  , 22.1     , 3.9      , 1.5
+      February  , 62.5    , 8.0  , 22.9     , 3.9      , 1.5
+      January   , 61.9    , 7.8  , 23.4     , 3.8      , 1.6
+      2014      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 61.6    , 8.0  , 23.6     , 3.7      , 1.6
+      November  , 60.1    , 9.8  , 23.4     , 3.7      , 1.6
+      October   , 60.4    , 9.5  , 23.4     , 3.9      , 1.6
+      September , 59.6    , 9.9  , 24.0     , 3.6      , 1.6
+      August    , 60.1    , 8.3  , 24.7     , 3.7      , 1.8
+      July      , 59.8    , 8.5  , 24.9     , 3.5      , 1.7
+      June      , 59.3    , 8.8  , 25.1     , 3.7      , 1.8
+      May       , 59.2    , 8.9  , 24.9     , 3.8      , 1.8
+      April     , 58.4    , 9.4  , 25.0     , 4.0      , 1.8
+      March     , 57.5    , 9.7  , 25.6     , 3.9      , 1.8
+      February  , 56.4    , 9.8  , 26.4     , 4.0      , 1.9
+      January   , 55.7    , 10.2 , 26.9     , 3.9      , 1.8
+      2013      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 55.8    , 9.0  , 26.8     , 3.8      , 1.9
+      November  , 54.8    , 10.5 , 26.8     , 4.0      , 1.8
+      October   , 54.1    , 11.7 , 27.2     , 3.8      , 1.7
+      September , 53.2    , 12.1 , 27.8     , 3.9      , 1.7
+      August    , 52.9    , 11.8 , 28.2     , 3.9      , 1.8
+      July      , 52.8    , 11.8 , 28.9     , 3.6      , 1.6
+      June      , 52.1    , 12.0 , 28.9     , 3.9      , 1.7
+      May       , 52.9    , 12.6 , 27.7     , 4.0      , 1.6
+      April     , 52.7    , 12.7 , 27.9     , 4.0      , 1.7
+      March     , 51.7    , 13.0 , 28.5     , 4.1      , 1.8
+      February  , 50.0    , 13.5 , 29.6     , 4.1      , 1.8
+      January   , 48.4    , 14.3 , 30.2     , 4.2      , 1.9
+      2012      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 46.9    , 14.7 , 31.1     , 4.2      , 2.1
+      November  , 46.3    , 15.1 , 31.2     , 4.4      , 2.0
+      October   , 44.9    , 16.1 , 31.8     , 4.3      , 2.0
+      September , 44.1    , 16.4 , 32.2     , 4.2      , 2.1
+      August    , 43.7    , 16.2 , 32.8     , 4.0      , 2.2
+      July      , 42.9    , 16.3 , 33.7     , 3.9      , 2.1
+      June      , 41.7    , 16.7 , 34.4     , 4.1      , 2.2
+      May       , 39.3    , 18.1 , 35.2     , 4.3      , 2.2
+      April     , 38.3    , 18.3 , 35.8     , 4.5      , 2.3
+      March     , 37.3    , 18.9 , 36.3     , 4.4      , 2.3
+      February  , 36.3    , 19.5 , 37.1     , 4.5      , 2.3
+      January   , 35.3    , 20.1 , 37.2     , 4.3      , 2.4
+      2011      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 34.6    , 20.2 , 37.7     , 4.2      , 2.5
+      November  , 33.4    , 21.2 , 38.1     , 4.2      , 2.4
+      October   , 32.3    , 21.7 , 38.7     , 4.2      , 2.4
+      September , 30.5    , 22.9 , 39.7     , 4.0      , 2.2
+      August    , 30.3    , 22.4 , 40.6     , 3.8      , 2.3
+      July      , 29.4    , 22.0 , 42.0     , 3.6      , 2.4
+      June      , 27.9    , 23.2 , 42.2     , 3.7      , 2.4
+      May       , 25.9    , 24.9 , 42.4     , 4.0      , 2.4
+      April     , 25.6    , 24.3 , 42.9     , 4.1      , 2.6
+      March     , 25.0    , 25.8 , 42.2     , 4.0      , 2.5
+      February  , 24.1    , 26.5 , 42.4     , 4.1      , 2.5
+      January   , 23.8    , 26.6 , 42.8     , 4.0      , 2.5
+      2010      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 22.4    , 27.5 , 43.5     , 3.8      , 2.2
+      November  , 20.5    , 28.6 , 44.0     , 4.0      , 2.3
+      October   , 19.2    , 29.7 , 44.1     , 3.9      , 2.2
+      September , 17.3    , 31.1 , 45.1     , 3.7      , 2.2
+      August    , 17.0    , 30.7 , 45.8     , 3.5      , 2.3
+      July      , 16.7    , 30.4 , 46.4     , 3.4      , 2.3
+      June      , 15.9    , 31.0 , 46.6     , 3.6      , 2.1
+      May       , 14.5    , 32.2 , 46.9     , 3.5      , 2.2
+      April     , 13.6    , 33.4 , 46.4     , 3.7      , 2.2
+      March     , 12.3    , 34.9 , 46.2     , 3.7      , 2.2
+      February  , 11.6    , 35.3 , 46.5     , 3.8      , 2.1
+      January   , 10.8    , 36.2 , 46.3     , 3.7      , 2.2
+      2009      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 9.8     , 37.2 , 46.4     , 3.6      , 2.3
+      November  , 8.5     , 37.7 , 47.0     , 3.8      , 2.3
+      October   , 8.0     , 37.5 , 47.5     , 3.8      , 2.3
+      September , 7.1     , 39.6 , 46.6     , 3.6      , 2.2
+      August    , 7.0     , 39.3 , 47.4     , 3.3      , 2.1
+      July      , 6.5     , 39.4 , 47.9     , 3.3      , 2.1
+      June      , 6.0     , 40.7 , 47.3     , 3.1      , 2.1
+      May       , 5.5     , 41.0 , 47.7     , 3.0      , 2.2
+      April     , 4.9     , 42.1 , 47.1     , 3.0      , 2.2
+      March     , 4.2     , 43.3 , 46.5     , 3.1      , 2.3
+      February  , 4.0     , 43.6 , 46.4     , 3.0      , 2.2
+      January   , 3.9     , 44.8 , 45.5     , 3.0      , 2.3
+      2008      , Chrome  , IE   , Firefox  , Safari   , Opera
+      December  , 3.6     , 46.0 , 44.4     , 2.7      , 2.4
+      November  , 3.1     , 47.0 , 44.2     , 2.7      , 2.3
+      October   , 3.0     , 47.4 , 44.0     , 2.8      , 2.2
+      September , 3.1     , 49.0 , 42.6     , 2.7      , 2.0
+      August    ,         , 51.0 , 43.7     , 2.6      , 2.1
+      July      ,         , 52.4 , 42.6     , 2.5      , 1.9
+      June      ,         , 54.2 , 41.0     , 2.6      , 1.7
+      May       ,         , 54.4 , 39.8     , 2.4      , 1.5
+      April     ,         , 54.8 , 39.1     , 2.2      , 1.4
+      March     ,         , 53.9 , 37.0     , 2.1      , 1.4
+      February  ,         , 54.7 , 36.5     , 2.0      , 1.4
+      January   ,         , 54.7 , 36.4     , 1.9      , 1.4
+      2007      , Mozilla , IE   , Firefox  , Safari   , Opera
+      November  , 1.2     , 56.0 , 36.3     , 1.8      , 1.6
+      September , 1.2     , 57.2 , 35.4     , 1.6      , 1.5
+      July      , 1.4     , 58.5 , 34.5     , 1.5      , 1.9
+      May       , 1.3     , 58.9 , 33.7     , 1.5      , 1.7
+      March     , 1.3     , 58.7 , 31.8     , 1.6      , 1.6
+      January   , 1.5     , 58.6 , 31.0     , 1.7      , 1.5
+      2006      , Mozilla , IE   , Firefox  , Netscape , Opera
+      November  , 2.5     , 60.6 , 29.9     , 0.2      , 1.5
+      September , 2.3     , 62.1 , 27.3     , 0.4      , 1.6
+      July      , 2.3     , 62.4 , 25.5     , 0.4      , 1.4
+      May       , 2.3     , 63.0 , 25.7     , 0.3      , 1.5
+      March     , 2.4     , 64.7 , 24.5     , 0.5      , 1.5
+      January   , 3.1     , 66.0 , 25.0     , 0.5      , 1.6
+      2005      , Mozilla , IE   , Firefox  , Netscape , Opera
+      November  , 2.8     , 68.9 , 23.6     , 0.4      , 1.5
+      September , 2.5     , 75.5 , 18.0     , 0.4      , 1.2
+      July      , 2.6     , 73.8 , 19.8     , 0.5      , 1.2
+      May       , 3.1     , 71.6 , 21.0     , 0.7      , 1.3
+      March     , 3.3     , 72.5 , 18.9     , 1.0      , 1.9
+      January   , 3.4     , 74.5 , 16.6     , 1.1      , 1.9
+      2004      , Mozilla , IE   , Netscape , Opera
+      November  , 16.5    , 76.2 , 1.7      , 1.6
+      September , 13.7    , 79.0 , 2.0      , 1.7
+      July      , 12.6    , 80.4 , 2.2      , 1.6
+      May       , 9.5     , 81.9 , 2.4      , 1.6
+      March     , 7.9     , 82.8 , 2.8      , 1.4
+      January   , 5.5     , 84.7 , 2.4      , 1.5
+      2003      , Mozilla , IE   , Netscape , Opera
+      November  , 7.2     , 84.9 , 2.6      , 1.9
+      September , 6.2     , 86.6 , 2.7      , 1.8
+      July      , 5.7     , 87.2 , 2.7      , 1.7
+      May       , 4.6     , 87.7 , 3.3      , 1.4
+      March     , 4.2     , 88.0 , 3.4      , 1.2
+      January   , 4.0     , 84.6 , 4.0      ,
+    </script>
+
+    <script id="info" type="text/csv">
+      IE       , Microsoft Internet Explorer , skyblue   , data:image/png;base64,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
+      Firefox  , Mozilla Firefox             , tomato    , data:image/png;base64,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
+      Chrome   , Google Chrome               , seagreen  , data:image/png;base64,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
+      Mozilla  , The Mozilla Suite           , red
+      Safari   , Apple Safari                , orchid    , data:image/png;base64,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
+      Opera    , Opera and Opera Mini        , firebrick , data:image/png;base64,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
+      Netscape , Netscape Navigator          , darkcyan
+    </script>
+
+    <script type="text/javascript" src="donut.js"></script>
+  </body>
+</html>

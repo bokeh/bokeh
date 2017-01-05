@@ -1,64 +1,67 @@
 from __future__ import print_function
 
-from bokeh.core.properties import String
+from bokeh.core.properties import String, Int, Color
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
-from bokeh.models.layouts import HBox
+from bokeh.models.layouts import Row
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
+from bokeh.util.compiler import CoffeeScript
 
 class Popup(Callback):
 
-    __implementation__ = """
-_ = require "underscore"
-Util = require "util/util"
-Model = require "model"
-p = require "core/properties"
-
-class Popup extends Model
-  type: "Popup"
-
-  execute: (data_source) ->
-    for i in Util.get_indices(data_source)
-      message = Util.replace_placeholders(@get("message"), data_source, i)
-      window.alert(message)
-    null
-
-  @define {
-    message: [ p.String, "" ]
-  }
-
-module.exports =
-  Model: Popup
-"""
+    __implementation__ = "popup.coffee"
 
     message = String("", help="""
     Message to display in a popup window. This can be a template string,
     which will be formatted with data from the data source.
     """)
 
-class MyHBox(HBox):
+class MyRow(Row):
 
     __implementation__ = """
-HBox = require "models/layouts/hbox"
+import {Row, RowView} from "models/layouts/row"
+import * as p from "core/properties"
+import "./custom.less"
 
-class MyHBoxView extends HBox.View
+export class MyRowView extends RowView
   render: () ->
     super()
-    @$el.css({border: "5px solid black"})
+    @$el.addClass("bk-my-row")
+    @$el.css({
+      borderWidth: "#{@model.border_width}px"
+      borderColor: "#{@model.border_color}"
+    })
 
-class MyHBox extends HBox.Model
-  type: "MyHBox"
-  default_view: MyHBoxView
+export class MyRow extends Row
+  type: "MyRow"
+  default_view: MyRowView
 
-module.exports = {
-  Model: MyHBox
-  View: MyHBoxView
-}
+  @define {
+    border_width: [ p.Number, 3 ]
+    border_color: [ p.Color, "black" ]
+  }
 """
+
+    border_width = Int(3)
+    border_color = Color("black")
+
+class MyRow2(MyRow):
+
+    __implementation__ = CoffeeScript("""
+import {MyRow, MyRowView} from "custom/my_row"
+
+export class MyRow2View extends MyRowView
+  render: () ->
+    super()
+
+export class MyRow2 extends MyRow
+  type: "MyRow2"
+  default_view: MyRow2View
+""")
 
 source = ColumnDataSource(
     data = dict(
@@ -83,9 +86,10 @@ tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected colo
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add_root(MyHBox(children=[plot]))
+doc.add_root(MyRow2(children=[plot]))
 
 if __name__ == "__main__":
+    doc.validate()
     filename = "custom.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Demonstration of user-defined models"))

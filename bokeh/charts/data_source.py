@@ -1,12 +1,7 @@
-"""The classes and functionality used to transform data inputs to consistent types."""
-# -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-# -----------------------------------------------------------------------------
+''' The classes and functionality used to transform data inputs to consistent
+types.
 
+'''
 from __future__ import absolute_import
 
 from copy import copy
@@ -18,12 +13,13 @@ import pandas as pd
 from six import iteritems
 from six.moves import zip
 
-from .properties import ColumnLabel, Column
-from .stats import Stat, Bins
-from .utils import collect_attribute_columns, special_columns, gen_column_names
-from ..models.sources import ColumnDataSource
-from ..core.properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import bokeh_integer_types, Datetime, Float, List, String
+from bokeh.models.sources import ColumnDataSource
 
+from .properties import Column, ColumnLabel
+from .stats import Bins, Stat
+from .utils import collect_attribute_columns, gen_column_names, special_columns
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
 ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]
@@ -137,10 +133,6 @@ class DataGroup(object):
     The DataGroup contains a map from the labels of each attribute
     associated with an :class:`AttrSpec` to the value of the attribute assigned to the
     DataGroup.
-
-    .. note::
-        resets the index on the input data
-
     """
 
     def __init__(self, label, data, attr_specs):
@@ -150,11 +142,11 @@ class DataGroup(object):
             label (str): the label for the group based on unique values of each column
             data (:class:`pandas.DataFrame`): the subset of data associated with the group
             attr_specs dict(str, :class:`AttrSpec`): mapping between attribute name and
-            the associated :class:`AttrSpec`.
+                the associated :class:`AttrSpec`.
 
         """
         self.label = label
-        self.data = data.reset_index()
+        self.data = data
         self.attr_specs = attr_specs
 
     def get_values(self, selection):
@@ -167,9 +159,7 @@ class DataGroup(object):
             :class:`pandas.DataFrame`
 
         """
-        if selection in special_columns:
-            return special_columns[selection](self.data)
-        elif isinstance(selection, str):
+        if isinstance(selection, str):
             return self.data[selection]
         elif isinstance(selection, list) and len(selection) == 1:
             return self.data[selection[0]]
@@ -300,7 +290,7 @@ class ChartDataSource(object):
             dims (List(Str), optional): list of valid dimensions for the chart.
             required_dims (List(List(Str)), optional): list of list of valid dimensional
                 selections for the chart.
-            selections (Dict(dimension, List(Column)), optional): mapping between a
+            selections (Dict(String, List(Column)), optional): mapping between a
                 dimension and the column name(s) associated with it. This represents what
                 the user selected for the current chart.
             column_assigner (:class:`ColumnAssigner`, optional): a reference to a
@@ -767,7 +757,7 @@ class ChartDataSource(object):
             arrays = list(chain.from_iterable(arrays))
             column_names = column_names or gen_column_names(len(arrays))
             cols = copy(column_names)
-            dims = kwargs.get('dims', None) or DEFAULT_DIMS
+            dims = kwargs.get('dims', DEFAULT_DIMS)
 
             # derive column selections
             for dim, list_of_array in zip(dims, list_of_arrays):
