@@ -17,7 +17,7 @@ export class LabelSetView extends TextAnnotationView
     if @model.render_mode == 'css'
       for i in [0...@_text.length]
         @title_div = div({class: 'bk-annotation-child', style: {display: "none"}})
-        @el.append(@title_div)
+        @el.appendChild(@title_div)
 
   bind_bokeh_events: () ->
     if @model.render_mode == 'css'
