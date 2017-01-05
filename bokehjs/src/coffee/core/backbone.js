@@ -139,9 +139,6 @@ export var View = function(options) {
   this.initialize.apply(this, arguments);
 };
 
-// Cached regex to split keys for `delegate`.
-var delegateEventSplitter = /^(\S+)\s*(.*)$/;
-
 // List of view options to be set as properties.
 var viewOptions = ['model', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
@@ -177,12 +174,8 @@ _.extend(View.prototype, Events, {
     this.el.parentNode.removeChild(this.el);
   },
 
-  // Change the view's element (`this.el` property) and re-delegate the
-  // view's events on the new element.
   setElement: function(element) {
-    this.undelegateEvents();
     this._setElement(element);
-    this.delegateEvents();
     return this;
   },
 
@@ -196,55 +189,6 @@ _.extend(View.prototype, Events, {
     this.el = this.$el[0];
   },
 
-  // Set callbacks, where `this.events` is a hash of
-  //
-  // *{"event selector": "callback"}*
-  //
-  //     {
-  //       'mousedown .title':  'edit',
-  //       'click .button':     'save',
-  //       'click .open':       function(e) { ... }
-  //     }
-  //
-  // pairs. Callbacks will be bound to the view, with `this` set properly.
-  // Uses event delegation for efficiency.
-  // Omitting the selector binds the event to `this.el`.
-  delegateEvents: function(events) {
-    events || (events = _.result(this, 'events'));
-    if (!events) return this;
-    this.undelegateEvents();
-    for (var key in events) {
-      var method = events[key];
-      if (!_.isFunction(method)) method = this[method];
-      if (!method) continue;
-      var match = key.match(delegateEventSplitter);
-      this.delegate(match[1], match[2], method.bind(this));
-    }
-    return this;
-  },
-
-  // Add a single event listener to the view's element (or a child element
-  // using `selector`). This only works for delegate-able events: not `focus`,
-  // `blur`, and not `change`, `submit`, and `reset` in Internet Explorer.
-  delegate: function(eventName, selector, listener) {
-    this.$el.on(eventName + '.delegateEvents' + this.id, selector, listener);
-    return this;
-  },
-
-  // Clears all callbacks previously bound to the view by `delegateEvents`.
-  // You usually don't need to use this, but may wish to if you have multiple
-  // Backbone views attached to the same DOM element.
-  undelegateEvents: function() {
-    if (this.$el) this.$el.off('.delegateEvents' + this.id);
-    return this;
-  },
-
-  // A finer-grained `undelegateEvents` for removing a single delegated event.
-  // `selector` and `listener` are both optional.
-  undelegate: function(eventName, selector, listener) {
-    this.$el.off(eventName + '.delegateEvents' + this.id, selector, listener);
-    return this;
-  },
 
   // Produces a DOM element to be assigned to your view. Exposed for
   // subclasses using an alternative DOM manipulation API.
