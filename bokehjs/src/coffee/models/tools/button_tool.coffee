@@ -8,11 +8,10 @@ export class ButtonToolButtonView extends BokehView
   tagName: "button"
   className: "bk-toolbar-button"
 
-  events: () -> { 'click': '_clicked' }
-
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change', () => @render())
+    @el.addEventListener("click", (e) => @_clicked(e))
     @render()
 
   render: () ->
