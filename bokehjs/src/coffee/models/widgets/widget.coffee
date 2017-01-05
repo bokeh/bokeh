@@ -1,4 +1,6 @@
 import * as _ from "underscore"
+import * as $ from "jquery"
+
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
 # Cached regex to split keys for `delegate`.
@@ -25,6 +27,15 @@ export class WidgetView extends LayoutDOMView
     return null
 
   # START backbone
+
+  # Creates the `this.el` and `this.$el` references for this view using the
+  # given `el`. `el` can be a CSS selector or an HTML string, a jQuery
+  # context or an element. Subclasses can override this to utilize an
+  # alternative DOM manipulation API and are only required to set the
+  # `this.el` property.
+  _setElement: (el) ->
+    @$el = if el instanceof $ then el else $(el)
+    @el = @$el[0]
 
   # Change the view's element (`this.el` property) and re-delegate the
   # view's events on the new element.

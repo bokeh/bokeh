@@ -6,7 +6,6 @@
 //     http://backbonejs.org
 
 import * as _ from "underscore";
-import * as $ from "jquery";
 
 import {Events} from './events';
 
@@ -179,16 +178,10 @@ _.extend(View.prototype, Events, {
     return this;
   },
 
-  // Creates the `this.el` and `this.$el` references for this view using the
-  // given `el`. `el` can be a CSS selector or an HTML string, a jQuery
-  // context or an element. Subclasses can override this to utilize an
-  // alternative DOM manipulation API and are only required to set the
-  // `this.el` property.
+  // Creates the `this.el`.
   _setElement: function(el) {
-    this.$el = el instanceof $ ? el : $(el);
-    this.el = this.$el[0];
+    this.el = el;
   },
-
 
   // Produces a DOM element to be assigned to your view. Exposed for
   // subclasses using an alternative DOM manipulation API.
