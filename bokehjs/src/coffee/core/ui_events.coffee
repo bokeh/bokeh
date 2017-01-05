@@ -1,13 +1,10 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 import * as Hammer from "hammerjs"
-
-import * as mousewheel from "jquery-mousewheel"
-mousewheel($)
 
 import {Events} from "./events"
 import {logger} from "./logging"
 import {offset} from "./dom"
+import {getDeltaY} from "./util/wheel"
 
 export class UIEvents
   _.extend(@prototype, Events)
@@ -46,7 +43,8 @@ export class UIEvents
     @hit_area.addEventListener("mousemove", (e) => @_mouse_move(e))
     @hit_area.addEventListener("mouseenter", (e) => @_mouse_enter(e))
     @hit_area.addEventListener("mouseleave", (e) => @_mouse_exit(e))
-    $(@hit_area).mousewheel((e, delta) => @_mouse_wheel(e, delta))
+
+    @hit_area.addEventListener("wheel", (e) => @_mouse_wheel(e))
 
     document.addEventListener("keydown", (e) => @_key_down(e))
     document.addEventListener("keyup", (e) => @_key_up(e))
@@ -212,9 +210,9 @@ export class UIEvents
     @_bokify_jq(e)
     @trigger('move:exit', e)
 
-  _mouse_wheel: (e, delta) ->
+  _mouse_wheel: (e) ->
     @_bokify_jq(e)
-    e.bokeh.delta = delta
+    e.bokeh.delta = getDeltaY(e)
     @_trigger('scroll', e)
 
   _key_down: (e) ->

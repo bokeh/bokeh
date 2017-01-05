@@ -33,18 +33,7 @@ export class WheelZoomToolView extends GestureToolView
     h_axis = dims in ['width', 'both'] and hr.min < vx < hr.max
     v_axis = dims in ['height', 'both'] and vr.min < vy < vr.max
 
-    # we need a browser-specific multiplier to have similar experiences
-    if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
-      multiplier = 20
-    else
-      multiplier = 1
-
-    if e.originalEvent?.deltaY?
-      delta = -e.originalEvent.deltaY * multiplier
-    else
-      delta = e.bokeh.delta
-
-    factor  = @model.speed * delta
+    factor = @model.speed * e.bokeh.delta
 
     zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: vx, y: vy})
 

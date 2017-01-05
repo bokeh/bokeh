@@ -1,7 +1,6 @@
 /// <reference types="@types/es6-promise" />
 /// <reference types="@types/underscore" />
 /// <reference types="@types/jquery" />
-/// <reference types="@types/jquery-mousewheel" />
 /// <reference types="@types/jqueryui" />
 /// <reference types="@types/rbush" />
 /// <reference types="@types/proj4" />

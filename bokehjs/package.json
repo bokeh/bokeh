@@ -98,7 +98,6 @@
     "@types/es6-promise": "^0.0.32",
     "@types/underscore": "^1.7.33",
     "@types/jquery": "^2.0.32",
-    "@types/jquery-mousewheel": "^3.1.4",
     "@types/jqueryui": "^1.11.31",
     "@types/rbush": "^2.0.2",
     "@types/proj4": "^2.3.2",
