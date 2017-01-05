@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
