@@ -6,29 +6,31 @@
  * http://jquery.org/license
  */
 
-function getLineHeight(element: HTMLElement) {
-    const parent = element.offsetParent || document.body
-
-    return parseInt(getComputedStyle(parent).fontSize, 10)  ||
-           parseInt(getComputedStyle(element).fontSize, 10) || 16
+function fontSize(element: Element): number | null {
+  return parseInt(getComputedStyle(element).fontSize, 10) || null
 }
 
-function getPageHeight(element: HTMLElement) {
+function lineHeight(element: HTMLElement): number {
+  const parent = element.offsetParent || document.body
+  return fontSize(parent) || fontSize(element) || 16
+}
+
+function pageHeight(element: HTMLElement): number {
   return element.clientHeight // XXX: should be content height?
 }
 
 export function getDeltaY(event: WheelEvent) {
-  var deltaY = -event.deltaY
+  let deltaY = -event.deltaY
 
-  switch (event.deltaMode) {
-    case event.DOM_DELTA_LINE:
-      var lineHeight = getLineHeight(event.target)
-      deltaY *= lineHeight
-      break
-    case event.DOM_DELTA_PAGE:
-      var pageHeight = getPageHeight(event.target)
-      deltaY *= pageHeight
-      break
+  if (event.target instanceof HTMLElement) {
+    switch (event.deltaMode) {
+      case event.DOM_DELTA_LINE:
+        deltaY *= lineHeight(event.target)
+        break
+      case event.DOM_DELTA_PAGE:
+        deltaY *= pageHeight(event.target)
+        break
+    }
   }
 
   return deltaY
