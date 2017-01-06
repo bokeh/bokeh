@@ -370,8 +370,7 @@ Some Current Protocol Caveats
    changes.
 
 3. At the moment, we do not optimize binary data by sending it
-   over binary websocket frames. If we did, we could copy it
-   directly into typed arrays on the JavaScript side.
+   over binary websocket frames.
 
 
 HTTP Endpoints
@@ -392,6 +391,56 @@ In brief:
 Bokeh server isn't intended to be a general-purpose web
 framework. You can however pass new endpoints to ``Server`` using
 the ``extra_patterns`` parameter and the Tornado APIs.
+
+Additional details
+------------------
+
+Events
+^^^^^^
+
+In general whenever a model property is modified, the new value is
+first validated, and the ``Document`` is notified of the change. Just
+as models may have ``on_change`` callbacks, so can a
+``Document``. When a ``Document`` is notified of a change to one of
+its models it will generate the appropriate event (usually a
+``ModelChangedEvent``) and trigger the ``on_change`` callbacks,
+passing them this new event. Sessions are one such callback, which
+will turn the event into a patch that can be sent across the web
+socket connection. When a message is received by the client or server
+session it will extract the patch and apply it directly to the
+``Document``.
+
+In order to avoid events bouncing back and forth between client and
+server (as each patch would generate new events, which would in turn
+be sent back), the session informs the ``Document`` that it was
+responsible for generating the patch and any subsequent events that
+are generated. In this way, when a ``Session`` is notified of a change
+to the document it can check whether the ``event.setter`` is identical
+with itself and therefore skip processing the event.
+
+Serialization
+^^^^^^^^^^^^^
+
+In general all the concepts above are agnostic as to how precisely the
+models and change events are encoded and decoded. Each model and its
+properties are responsible for converting their values to a JSON-like
+format, which can be sent across the Websocket connection. One
+difficulty here is that one model can reference other models, often in
+highly interconnected and even circular ways. Therefore during the
+conversion to a JSON-like format all references by one model to other
+models are replaced with ID references.  Additionally models and
+properties can define special serialization behaviors, one such
+example is the ``ColumnData`` property on a ``ColumnDataSource``,
+which will convert NumPy arrays to a base64 encoded representation,
+which is significantly more efficient than sending numeric arrays in a
+string based format. The ``ColumnData`` property
+``serializable_value`` method applies this encoding and the from_json
+method will convert the data back. Equivalently the JS-based
+``ColumnDataSource`` knows how to interpret the base64 encoded data
+and converts it to Javascript typed arrays and its
+``attributes_as_json`` methods also knows how to encode the data. In
+this way models can implement optimized serialization formats.
+
 
 Testing
 -------
