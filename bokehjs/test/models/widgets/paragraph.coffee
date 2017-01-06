@@ -19,4 +19,4 @@ describe "Paragraph.View render", ->
     p_view = new p.default_view({ model: p })
     p_view.render()
     expected_style = "margin: 0px;"
-    expect(p_view.$el.find('p').attr('style')).to.contain expected_style
+    expect(p_view.el.querySelector('p').style.cssText).to.contain expected_style

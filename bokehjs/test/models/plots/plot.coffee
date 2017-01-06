@@ -47,7 +47,7 @@ describe "Plot", ->
       plot_view.render()
       # Note we do not set margin & padding on Plot
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-      expect(plot_view.$el.attr('style')).to.be.equal expected_style
+      expect(plot_view.el.style.cssText).to.be.equal expected_style
 
     it "should call suggest value with the model height and width if sizing_mode is scale_both", ->
       @p.sizing_mode = 'scale_both'

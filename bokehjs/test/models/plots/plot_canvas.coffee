@@ -263,7 +263,7 @@ describe "PlotCanvasView resize", ->
     @plot_canvas.sizing_mode = 'stretch_both'
     @plot_canvas_view.resize()
     expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-    expect(@plot_canvas_view.$el.attr('style')).to.be.equal expected_style
+    expect(@plot_canvas_view.el.style.cssText).to.be.equal expected_style
 
   it "should call canvas.set_dims with width & height if sizing_mode is box, and trigger true", ->
     spy = sinon.spy(@plot_canvas_view.canvas_view, 'set_dims')
