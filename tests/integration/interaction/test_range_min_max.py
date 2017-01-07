@@ -62,7 +62,7 @@ def pan_plot(selenium, pan_x=None, pan_y=None):
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
     # Enable the pan tool
-    pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] button')
+    pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] .bk-toolbar-button')
     pan_button = pan_buttons[0]
     if 'active' not in pan_button.get_attribute('class'):
         pan_button.click()
@@ -217,7 +217,7 @@ def zoom_plot(selenium):
     canvas = selenium.find_element_by_tag_name('canvas')
     wait_for_canvas_resize(canvas, selenium)
     # Enable the box zoom tool
-    pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] button')
+    pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] .bk-toolbar-button')
     zoom_button = pan_buttons[1]
     if 'active' not in zoom_button.get_attribute('class'):
         zoom_button.click()
