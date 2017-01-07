@@ -5,7 +5,6 @@ import {Tool, ToolView} from "./tool"
 import * as p from "../../core/properties"
 
 export class ButtonToolButtonView extends BokehView
-  tagName: "button"
   className: "bk-toolbar-button"
 
   events: () -> { 'click': '_clicked' }
