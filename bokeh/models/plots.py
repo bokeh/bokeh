@@ -650,26 +650,6 @@ class Plot(LayoutDOM):
             raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
 
     @property
-    def background_fill(self):
-        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
-        return self.background_fill_color
-
-    @background_fill.setter
-    def background_fill(self, color):
-        deprecated((0, 11, 0), 'Plot.background_fill', 'Plot.background_fill_color')
-        self.background_fill_color = color
-
-    @property
-    def border_fill(self):
-        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
-        return self.border_fill_color
-
-    @border_fill.setter
-    def border_fill(self, color):
-        deprecated((0, 11, 0), 'Plot.border_fill', 'Plot.border_fill_color')
-        self.border_fill_color = color
-
-    @property
     def logo(self):
         deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
         return self.toolbar.logo
