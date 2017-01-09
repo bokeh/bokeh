@@ -17,7 +17,6 @@ from ..core.properties import (
     Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override)
 from ..util.string import nice_join
-from ..util.deprecation import deprecated
 
 from .annotations import Legend, Title
 from .axes import Axis
@@ -51,12 +50,6 @@ class Plot(LayoutDOM):
             logo = kwargs.pop('logo', 'normal')
 
             kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
-
-        if "border_fill" in kwargs and "border_fill_color" in kwargs:
-            raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
-
-        if "background_fill" in kwargs and "background_fill_color" in kwargs:
-            raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
 
         super(LayoutDOM, self).__init__(**kwargs)
 
@@ -374,12 +367,6 @@ class Plot(LayoutDOM):
         if len(objs) > 0:
             return str(self)
 
-    __deprecated_attributes__ = (
-        'background_fill', 'border_fill', 'logo', 'tools', 'responsive',
-        'title_text_baseline', 'title_text_align', 'title_text_alpha', 'title_text_color',
-        'title_text_font_style', 'title_text_font_size', 'title_text_font', 'title_standoff'
-    )
-
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
     """)
@@ -618,141 +605,3 @@ class Plot(LayoutDOM):
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
     """)
-
-    #
-    # DEPRECATED PROPERTIES
-    #
-
-    @property
-    def responsive(self):
-        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode')
-        return self.sizing_mode != "fixed"
-
-    @responsive.setter
-    def responsive(self, value):
-        deprecated((0, 12, 0), 'Plot.responsive', 'Plot.sizing_mode', """
-        Plot.sizing_mode which accepts one of five modes:
-
-            fixed, scale_width, scale_height, scale_both, stretch_both
-
-        'responsive = False' is the equivalent of 'sizing_mode = "fixed"'
-
-        'responsive = True' is the equivalent of 'sizing_mode = "scale_width"'
-        """)
-        if value is True:
-            self.sizing_mode = "scale_width"
-        elif value is False:
-            self.sizing_mode = "fixed"
-        else:
-            raise ValueError("Plot.responsive only accepts True or False, got: %r" % value)
-
-    @property
-    def logo(self):
-        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
-        return self.toolbar.logo
-
-    @logo.setter
-    def logo(self, value):
-        deprecated((0, 12, 0), 'Plot.logo', 'Plot.toolbar.logo')
-        self.toolbar.logo = value
-
-    @property
-    def title_standoff(self):
-        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
-        return self.title.offset
-
-    @title_standoff.setter
-    def title_standoff(self, value):
-        deprecated((0, 12, 0), 'Plot.title_standoff', 'Plot.title.offset')
-        self.title.offset = value
-
-    @property
-    def title_text_font(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
-        return self.title.text_font
-
-    @title_text_font.setter
-    def title_text_font(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font', 'Plot.title.text_font')
-        self.title.text_font = value
-
-    @property
-    def title_text_font_size(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
-        return self.title.text_font_size
-
-    @title_text_font_size.setter
-    def title_text_font_size(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font_size', 'Plot.title.text_font_size')
-        self.title.text_font_size = value
-
-    @property
-    def title_text_font_style(self):
-        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
-        return self.title.text_font_style
-
-    @title_text_font_style.setter
-    def title_text_font_style(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_font_style', 'Plot.title.text_font_style')
-        self.title.text_font_style = value
-
-    @property
-    def title_text_color(self):
-        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
-        return self.title.text_color
-
-    @title_text_color.setter
-    def title_text_color(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_color', 'Plot.title.text_color')
-        self.title.text_color = value
-
-    @property
-    def title_text_alpha(self):
-        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
-        return self.title.text_alpha
-
-    @title_text_alpha.setter
-    def title_text_alpha(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_alpha', 'Plot.title.text_alpha')
-        self.title.text_alpha = value
-
-    @property
-    def title_text_align(self):
-        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
-        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
-        available on the new Title object. There is a new ``plot.title.title_align`` which is
-        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
-        If you need the exact ``title_text_align`` behavior, please add a title by creating a
-        Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        return self.title.align
-
-    @title_text_align.setter
-    def title_text_align(self, value):
-        deprecated((0, 12, 0), 'Plot.title_text_align', 'Plot.title.align')
-        deprecated("""``title_text_align`` was deprecated in 0.12.0 and is no longer
-        available on the new Title object. There is a new ``plot.title.title_align`` which is
-        similar but not exactly the same. The new ``title_align`` both positions and aligns the title.
-        If you need the exact ``title_text_align`` behavior, please add a title by creating a
-        Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        self.title.align = value
-
-    @property
-    def title_text_baseline(self):
-        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
-        available on the new Title object. If you need to alter the text_baseline, please
-        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
-        return None
-
-    @title_text_baseline.setter
-    def title_text_baseline(self, value):
-        deprecated("""title_text_baseline was deprecated in 0.12.0 and is no longer
-        available on the new Title object. If you need to alter the text_baseline, please
-        add a title by creating a Label (``bokeh.models.annotations.Label``) and manually adding
-        it to the plot by doing, for example ``plot.add_layout(Label(), 'above')``.
-        """)
