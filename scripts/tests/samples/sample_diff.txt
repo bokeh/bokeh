@@ -14,7 +14,6 @@ DELETED bokeh.models.widgets.layouts.BaseBox
 DELETED bokeh.models.widgets.layouts.HBox
 DELETED bokeh.models.widgets.layouts.Layout
 DELETED bokeh.models.widgets.layouts.VBox
-DELETED bokeh.models.widgets.layouts.VBoxForm
 DELETED bokeh.application.handlers.script.ScriptHandler.failed
 DELETED bokeh.application.handlers.script.ScriptHandler.error_detail
 DELETED bokeh.application.handlers.script.ScriptHandler.url_path
@@ -23,7 +22,6 @@ DELETED bokeh.application.handlers.script.ScriptHandler.error
 DELETED bokeh.server.session.ServerSession.seconds_since_last_unsubscribe
 DELETED bokeh.models.sources.BlazeDataSource
 DELETED bokeh.models.plots.LayoutBox
-DELETED bokeh.models.plots.GridPlot
 ADDED bokeh.charts.glyphs.ArcGlyph
 ADDED bokeh.charts.attributes.AttrSpec.series
 ADDED bokeh.models.widgets.buttons.ButtonLike
