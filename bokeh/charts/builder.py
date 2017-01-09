@@ -15,7 +15,6 @@ from bokeh.core.has_props import HasProps
 from bokeh.core.properties import Bool, Color, Dict, Either, Enum, Instance, List, String, Tuple
 from bokeh.models.ranges import FactorRange, Range, Range1d
 from bokeh.models.sources import ColumnDataSource
-from bokeh.util.deprecation import deprecated
 
 from .attributes import AttrSpec, CatAttr, ColorAttr
 from .chart import Chart
@@ -198,14 +197,6 @@ class Builder(HasProps):
 
     sort_dim = Dict(String, Bool, default={})
 
-    sort_legend = List(Tuple(String, Bool), help="""
-        List of tuples to use for sorting the legend, in order that they should be
-        used for sorting. This sorting can be different than the sorting used for the
-        rest of the chart. For example, you might want to sort only on the column
-        assigned to the color attribute, or sort it descending. The order of each tuple
-        is (Column, Ascending).
-        """)
-
     legend_sort_field = String(help="""
         Attribute that should be used to sort the legend, for example: color,
         dash, maker, etc. Valid values for this property depend on the type
@@ -227,7 +218,7 @@ class Builder(HasProps):
         using the valid input for the `HoverTool` tooltips kwarg.
         """)
 
-    __deprecated_attributes__ = ('sort_legend',)
+    __deprecated_attributes__ = ()
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -580,20 +571,6 @@ class Builder(HasProps):
                 return list(sorted(legends, key=foo, reverse=reverse))
 
         return legends
-
-    @property
-    def sort_legend(self):
-        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
-        return [(self.legend_sort_field, self.legend_sort_direction)]
-
-    @sort_legend.setter
-    def sort_legend(self, value):
-        deprecated((0, 12, 0), 'Chart.sort_legend', 'Chart.legend_sort_field')
-        self.legend_sort_field, direction = value[0]
-        if direction:
-            self.legend_sort_direction = "ascending"
-        else:
-            self.legend_sort_direction = "descending"
 
 class XYBuilder(Builder):
     """Implements common functionality for XY Builders."""

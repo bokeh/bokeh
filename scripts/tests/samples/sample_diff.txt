@@ -75,7 +75,6 @@ ADDED bokeh.charts.utils.comp_glyphs_to_df
 ADDED bokeh.models.mappers.LogColorMapper
 ADDED bokeh.models.glyphs.Ellipse
 ADDED bokeh.server.session.ServerSession.milliseconds_since_last_unsubscribe
-ADDED bokeh.charts.builder.Builder.sort_legend
 ADDED bokeh.models.widgets.markups.Div
 ADDED bokeh.models.formatters.FuncTickFormatter
 ADDED bokeh.core.properties.TimeDelta
