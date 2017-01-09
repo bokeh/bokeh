@@ -96,12 +96,12 @@ class Basictest(unittest.TestCase):
         self.assertEqual(f.x, 12)
         self.assertEqual(f.y, "red")
         self.assertEqual(f.z, "blah")
-        f.set(**dict(x=20, y="green", z="hello"))
+        f.update(**dict(x=20, y="green", z="hello"))
         self.assertEqual(f.x, 20)
         self.assertEqual(f.y, "green")
         self.assertEqual(f.z, "hello")
         with self.assertRaises(ValueError):
-            f.set(y="orange")
+            f.update(y="orange")
 
     def test_no_parens(self):
         class Foo(HasProps):

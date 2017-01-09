@@ -6,10 +6,6 @@
     classes or their methods will be applicable to any standard usage or to
     anyone who is not directly developing on Bokeh's own infrastructure.
 
-.. |HasProps| replace:: :class:`~bokeh.core.has_props.HasProps`
-.. |Property| replace:: :class:`~bokeh.core.property.bases.Property`
-.. |PropertyDescriptor| replace:: :class:`~bokeh.core.property.descriptors.PropertyDescriptor`
-
 '''
 from __future__ import absolute_import
 
@@ -535,39 +531,6 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             result[key] = value
 
         return result
-
-    def set(self, **kwargs):
-        ''' Updates the object's properties from the given keyword arguments.
-
-        THIS FUNCTION IS DEPRECATED. Use the .update method instead.
-
-        Returns:
-            None
-
-        Examples:
-
-            The following are equivalent:
-
-            .. code-block:: python
-
-                from bokeh.models import Range1d
-
-                r = Range1d
-
-                # set properties individually:
-                r.start = 10
-                r.end = 20
-
-                # update properties together:
-                r.update(start=10, end=20)
-
-        '''
-
-        from bokeh.util.deprecation import deprecated
-        deprecated((0, 12, 4), 'set method', 'update method')
-
-        for kw in kwargs:
-            setattr(self, kw, kwargs[kw])
 
     # TODO (bev) could this return an empty dict instead of None?
     def themed_values(self):

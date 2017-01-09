@@ -9,10 +9,8 @@ export Models = (name) ->
   model = overrides[name] ? _all_models[name]
 
   if not model?
-    throw new Error("Model `#{name}' does not exists. The problem may be two fold. Either
-                     a model was requested that's available in an extra bundle, e.g. a widget,
-                     or a custom model was requested, but it wasn't registered before first
-                     usage.")
+    throw new Error("Model `#{name}' does not exist. This could be due to a widget
+                     or a custom model not being registered before first usage.")
 
   return model
 

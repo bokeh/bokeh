@@ -127,7 +127,7 @@ def test_HasProps_update_from_json_passes_models_and_setter(mock_set):
 
 def test_HasProps_set():
     c = Child()
-    c.set(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
     assert c.ds1 == dict(field="foo")
     assert c.lst1 == []
