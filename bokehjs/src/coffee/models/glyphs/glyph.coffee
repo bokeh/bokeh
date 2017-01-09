@@ -55,6 +55,26 @@ export class GlyphView extends BokehView
     bb = {minX: d.minX, minY: d.minY, maxX: d.maxX, maxY: d.maxY}
     return @_bounds(bb)
 
+  log_bounds: () ->
+    if not @index?
+      return bbox.empty()
+
+    bb = bbox.empty()
+    positive_x_bbs = @index.search(bbox.positive_x())
+    positive_y_bbs = @index.search(bbox.positive_y())
+    for x in positive_x_bbs
+      if x.minX < bb.minX
+        bb.minX = x.minX
+      if x.maxX > bb.maxX
+        bb.maxX = x.maxX
+    for y in positive_y_bbs
+      if y.minY < bb.minY
+        bb.minY = y.minY
+      if y.maxY > bb.maxY
+        bb.maxY = y.maxY
+
+    return @_bounds(bb)
+
   # this is available for subclasses to use, if appropriate.
   max_wh2_bounds: (bds) ->
     return {
@@ -181,7 +201,7 @@ export class GlyphView extends BokehView
     if @glglyph?
       @glglyph.set_data_changed(@_x.length)
 
-    @_set_data()
+    @_set_data(source)
 
     @index = @_index_data()
 
@@ -206,7 +226,7 @@ export class GlyphView extends BokehView
       syname = "s#{yname}"
       xname = "_#{xname}"
       yname = "_#{yname}"
-      if _.isArray(@[xname]?[0])
+      if _.isArray(@[xname]?[0]) or @[xname]?[0]?.buffer instanceof ArrayBuffer
         [ @[sxname], @[syname] ] = [ [], [] ]
         for i in [0...@[xname].length]
           [sx, sy] = @map_to_screen(@[xname][i], @[yname][i])

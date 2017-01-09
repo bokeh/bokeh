@@ -12,6 +12,7 @@ except ImportError as e:
     is_pandas = False
 
 from bokeh.models.sources import DataSource, ColumnDataSource
+from bokeh.util.serialization import transform_column_source_data
 
 class TestColumnDataSource(unittest.TestCase):
 
@@ -116,12 +117,13 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))
         ds._document = "doc"
         stuff = {}
+        mock_setter = object()
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._stream = mock
-        ds.stream(dict(a=[11, 12], b=[21, 22]), "foo")
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo"))
+        ds.stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter))
         self.assertEqual(stuff['kw'], {})
 
     def test_patch_bad_data(self):
@@ -140,12 +142,13 @@ class TestColumnDataSource(unittest.TestCase):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
+        mock_setter = object()
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]))
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)])))
+        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter))
         self.assertEqual(stuff['kw'], {})
 
     def test_data_column_lengths(self):
@@ -188,6 +191,33 @@ class TestColumnDataSource(unittest.TestCase):
             ds.data.update(dict(a=[10, 11, 12]))
             self.assertEquals(len(warns), 1)
             self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length")
+
+    def test_set_data_from_json_list(self):
+        ds = ColumnDataSource()
+        data = {"foo": [1, 2, 3]}
+        ds.set_from_json('data', data)
+        self.assertEquals(ds.data, data)
+
+    def test_set_data_from_json_base64(self):
+        ds = ColumnDataSource()
+        data = {"foo": np.arange(3)}
+        json = transform_column_source_data(data)
+        ds.set_from_json('data', json)
+        self.assertTrue(np.array_equal(ds.data["foo"], data["foo"]))
+
+    def test_set_data_from_json_nested_base64(self):
+        ds = ColumnDataSource()
+        data = {"foo": [[np.arange(3)]]}
+        json = transform_column_source_data(data)
+        ds.set_from_json('data', json)
+        self.assertTrue(np.array_equal(ds.data["foo"], data["foo"]))
+
+    def test_set_data_from_json_nested_base64_and_list(self):
+        ds = ColumnDataSource()
+        data = {"foo": [np.arange(3), [1, 2, 3]]}
+        json = transform_column_source_data(data)
+        ds.set_from_json('data', json)
+        self.assertTrue(np.array_equal(ds.data["foo"], data["foo"]))
 
 if __name__ == "__main__":
     unittest.main()

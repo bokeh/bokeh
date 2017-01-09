@@ -23,8 +23,9 @@ the :ref:`devguide`.
 
 .. include:: docs/includes/hero.txt
 
-.. toctree::
+.. bokeh-index-toctree::
     :hidden:
+    :glob:
 
     docs/installation
     docs/user_guide
@@ -50,57 +51,7 @@ the :ref:`devguide`.
     docs/user_guide/info
     docs/user_guide/tutorials
     docs/reference
-    docs/reference/bokeh
-    docs/reference/charts
-    docs/reference/client
-    docs/reference/core
-    docs/reference/document
-    docs/reference/driving
-    docs/reference/embed
-    docs/reference/icons
-    docs/reference/io
-    docs/reference/layouts
-    docs/reference/model
-    docs/reference/models
-    docs/reference/mpl
-    docs/reference/palettes
-    docs/reference/plotting
-    docs/reference/resources
-    docs/reference/sampledata
-    docs/reference/server
-    docs/reference/settings
-    docs/reference/sphinxext
-    docs/reference/themes
-    docs/reference/tile_providers
-    docs/reference/util
-    docs/releases/0.12.3
-    docs/releases/0.12.2
-    docs/releases/0.12.1
-    docs/releases/0.12.0
-    docs/releases/0.11.1
-    docs/releases/0.11.0
-    docs/releases/0.10.0
-    docs/releases/0.9.3
-    docs/releases/0.9.2
-    docs/releases/0.9.1
-    docs/releases/0.9.0
-    docs/releases/0.8.2
-    docs/releases/0.8.1
-    docs/releases/0.8.0
-    docs/releases/0.7.1
-    docs/releases/0.7.0
-    docs/releases/0.6.1
-    docs/releases/0.6.0
-    docs/releases/0.5.2
-    docs/releases/0.5.1
-    docs/releases/0.5.0
-    docs/releases/0.4.4
-    docs/releases/0.4.2
-    docs/releases/0.4.1
-    docs/releases/0.4.0
-    docs/releases/0.3.0
-    docs/releases/0.2.0
-    docs/releases/0.1.0
+    docs/reference/*
     docs/dev_guide
     docs/dev_guide/setup
     docs/dev_guide/env_vars
@@ -110,3 +61,4 @@ the :ref:`devguide`.
     docs/dev_guide/server
     docs/dev_guide/bindings
     docs/dev_guide/bokehjs
+    docs/releases/*

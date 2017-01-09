@@ -1,5 +1,4 @@
 declare namespace Bokeh {
-  type JsObj = Map<any>;
 
   export var Document: {
     new(attributes?: IDocument): Document

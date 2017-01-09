@@ -7,7 +7,8 @@ import re
 import warnings
 
 import numpy as np
-from six import string_types
+import sys
+from six import string_types, reraise
 
 from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
@@ -15,7 +16,7 @@ from ..models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
     LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnDataSource, GlyphRenderer)
+    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..util.deprecation import deprecated
@@ -132,7 +133,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
         if isinstance(val, string_types):
             continue
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
+        if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple)):
             continue
 
         if isinstance(val, np.ndarray) and val.ndim != 1:
@@ -484,7 +485,7 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
 
     kwlines = []
     kws = glyphclass.properties() - set(argspecs)
-    for kw in sorted(kws):
+    for kw in kws:
         prop = getattr(glyphclass, kw)
         if prop.__doc__:
             typ = prop.__class__.__name__
@@ -493,6 +494,10 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
             typ = str(prop)
             desc = ""
         kwlines.append(_arg_template % (kw, typ, desc, prop.class_default(glyphclass)))
+    extra_kws = getattr(glyphclass, '_extra_kws', {})
+    for kw, (typ, desc) in extra_kws.items():
+        kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
+    kwlines.sort()
 
     arglines = []
     for arg, spec in argspecs.items():
@@ -513,6 +518,19 @@ def _glyph_function(glyphclass, extra_docs=None):
         is_user_source = kwargs.get('source', None) is not None
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
+        if not isinstance(source, ColumnarDataSource):
+            try:
+                # try converting the soruce to ColumnDataSource
+                source = ColumnDataSource(source)
+            except ValueError as err:
+                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                    curr_type=str(type(source)),
+                    err=err.message
+                )
+                reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+
+            # update reddered_kws so that others can use the new source
+            renderer_kws['data_source'] = source
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)

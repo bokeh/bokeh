@@ -3,8 +3,6 @@
 '''
 from __future__ import absolute_import
 
-from bokeh.model import Model
-from bokeh.document import ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent
 from json import loads
 from ..message import Message
 from . import register
@@ -42,51 +40,5 @@ class patch_doc_1(Message):
 
         return msg
 
-    def should_suppress_on_change(self, event):
-        '''Checks whether the patch caused an on_change for the given event'''
-        if isinstance(event, ModelChangedEvent):
-            for event_json in self.content['events']:
-                if event_json['kind'] == 'ModelChanged' and \
-                   event_json['model']['id'] == event.model._id and \
-                   event_json['attr'] == event.attr:
-                    patch_new = event_json['new']
-                    if isinstance(event.new, Model):
-                        if patch_new is not None and 'id' in patch_new and patch_new['id'] == event.new._id:
-                            return True
-                    else:
-                        if patch_new == event.serializable_new:
-                            return True
-                elif event_json['kind'] == 'ColumnsStreamed' and \
-                   event_json['column_source']['id'] == event.hint.column_source._id and \
-                   event_json['data'] == event.hint.data and \
-                   event_json['rollover'] == event.hint.rollover:
-                    return True
-                elif event_json['kind'] == 'ColumnsPatched' and \
-                   event_json['column_source']['id'] == event.hint.column_source._id and \
-                   event_json['patches'].keys() == event.hint.patches.keys():
-                    for name in event.hint.patches:
-                        if event_json['patches'][name] != [list(x) for x in event.hint.patches[name]]:
-                            return False
-                    return True
-        elif isinstance(event, RootAddedEvent):
-            for event_json in self.content['events']:
-                if event_json['kind'] == 'RootAdded' and \
-                   event_json['model']['id'] == event.model._id:
-                    return True
-        elif isinstance(event, RootRemovedEvent):
-            for event_json in self.content['events']:
-                if event_json['kind'] == 'RootRemoved' and \
-                   event_json['model']['id'] == event.model._id:
-                    return True
-        elif isinstance(event, TitleChangedEvent):
-            for event_json in self.content['events']:
-                if event_json['kind'] == 'TitleChanged' and \
-                   event_json['title'] == event.title:
-                    return True
-        else:
-            raise RuntimeError("should_suppress_on_change needs to handle " + repr(event))
-
-        return False
-
-    def apply_to_document(self, doc):
-        doc.apply_json_patch(self.content)
+    def apply_to_document(self, doc, setter=None):
+        doc.apply_json_patch(self.content, setter)

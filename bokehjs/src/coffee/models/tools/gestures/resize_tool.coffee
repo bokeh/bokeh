@@ -61,7 +61,7 @@ export class ResizeToolView extends GestureToolView
 
   _update: (dx, dy) ->
     new_width = @cw + dx
-    new_height = @cw + dy
+    new_height = @ch + dy
     if new_width < 100 or new_height < 100
       # TODO (bird) This should probably be more intelligent, so that resize can
       # go as small as possible without breaking, but 100 x 100 seems reasonable

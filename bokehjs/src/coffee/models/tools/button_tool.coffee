@@ -5,7 +5,6 @@ import {div, span, empty} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class ButtonToolButtonView extends BokehView
-  tagName: "button"
   className: "bk-toolbar-button"
 
   initialize: (options) ->

@@ -1,44 +1,28 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
+''' This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
 This is the Builder class, a minimal prototype class to build more chart
 types on top of it.
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
+'''
 from __future__ import absolute_import
 
 import numpy as np
-
 from six import string_types
-from .attributes import AttrSpec, ColorAttr, CatAttr
+
+from bokeh.core.enums import SortDirection
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Bool, Color, Dict, Either, Enum, Instance, List, String, Tuple
+from bokeh.models.ranges import FactorRange, Range, Range1d
+from bokeh.models.sources import ColumnDataSource
+from bokeh.util.deprecation import deprecated
+
+from .attributes import AttrSpec, CatAttr, ColorAttr
 from .chart import Chart
-from .data_source import ChartDataSource
+from .data_source import ChartDataSource, OrderedAssigner
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns, label_from_index_dict, build_hover_tooltips
-from .data_source import OrderedAssigner
-from ..models.ranges import Range, Range1d, FactorRange
-from ..models.sources import ColumnDataSource
-from ..core.properties import (HasProps, Instance, List, String, Dict,
-                          Color, Bool, Tuple, Either, Enum)
-from ..core.enums import SortDirection
-from ..util.deprecation import deprecated
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
+from .utils import build_hover_tooltips, collect_attribute_columns, label_from_index_dict
 
 def create_and_build(builder_class, *data, **kws):
     """A factory function for handling Chart and Builder generation.

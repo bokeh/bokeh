@@ -28,7 +28,7 @@ def get_non_stale_scroll_button(selenium):
     attempts = 0
     while attempts < 4 and not used:
         try:
-            scroll_button = selenium.find_element_by_css_selector('.bk-button-bar-list[type="scroll"] button')
+            scroll_button = selenium.find_element_by_css_selector('.bk-button-bar-list[type="scroll"] .bk-toolbar-button')
             scroll_button.get_attribute('class')
             used = True
         except StaleElementReferenceException:

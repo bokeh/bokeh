@@ -6,6 +6,7 @@ import {EQ, Solver, Variable} from "./core/layout/solver"
 import {logger} from "./core/logging"
 import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
+import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
@@ -13,7 +14,7 @@ export class DocumentChangedEvent
   constructor : (@document) ->
 
 export class ModelChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @model, @attr, @old, @new_) ->
+  constructor : (@document, @model, @attr, @old, @new_, @setter_id) ->
     super @document
   json : (references) ->
 
@@ -22,7 +23,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
       throw new Error("'id' field should never change, whatever code just set it is wrong")
 
     value = @new_
-    value_json = HasProps._value_to_json('new_', value, @model)
+    value_json = @model.constructor._value_to_json(@attr, value, @model)
 
     value_refs = {}
     HasProps._value_record_references(value, value_refs, true) # true = recurse
@@ -43,7 +44,7 @@ export class ModelChangedEvent extends DocumentChangedEvent
     }
 
 export class TitleChangedEvent extends DocumentChangedEvent
-  constructor : (@document, @title) ->
+  constructor : (@document, @title, @setter_id) ->
     super @document
   json : (references) ->
     {
@@ -52,7 +53,7 @@ export class TitleChangedEvent extends DocumentChangedEvent
     }
 
 export class RootAddedEvent extends DocumentChangedEvent
-  constructor : (@document, @model) ->
+  constructor : (@document, @model, @setter_id) ->
     super @document
   json : (references) ->
     HasProps._value_record_references(@model, references, true)
@@ -62,7 +63,7 @@ export class RootAddedEvent extends DocumentChangedEvent
     }
 
 export class RootRemovedEvent extends DocumentChangedEvent
-  constructor : (@document, @model) ->
+  constructor : (@document, @model, @setter_id) ->
     super @document
   json : (references) ->
     {
@@ -245,7 +246,7 @@ export class Document
 
     @_solver.update_variables()
 
-  add_root : (model) ->
+  add_root : (model, setter_id) ->
     logger.debug("Adding root: #{model}")
 
     if model in @_roots
@@ -260,9 +261,9 @@ export class Document
 
     @_init_solver()
 
-    @_trigger_on_change(new RootAddedEvent(@, model))
+    @_trigger_on_change(new RootAddedEvent(@, model, setter_id))
 
-  remove_root : (model) ->
+  remove_root : (model, setter_id) ->
     i = @_roots.indexOf(model)
     if i < 0
       return
@@ -276,15 +277,15 @@ export class Document
 
     @_init_solver()
 
-    @_trigger_on_change(new RootRemovedEvent(@, model))
+    @_trigger_on_change(new RootRemovedEvent(@, model, setter_id))
 
   title : () ->
     @_title
 
-  set_title : (title) ->
+  set_title : (title, setter_id) ->
     if title != @_title
       @_title = title
-      @_trigger_on_change(new TitleChangedEvent(@, title))
+      @_trigger_on_change(new TitleChangedEvent(@, title, setter_id))
 
   get_model_by_id : (model_id) ->
     if model_id of @_all_models
@@ -310,12 +311,12 @@ export class Document
       cb(event)
 
   # called by the model
-  _notify_change : (model, attr, old, new_) ->
+  _notify_change : (model, attr, old, new_, options) ->
     if attr == 'name'
       @_all_models_by_name.remove_value(old, model)
       if new_ != null
         @_all_models_by_name.add_value(new_, model)
-    @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
+    @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_, options?.setter_id))
 
   @_references_json : (references, include_defaults=true) ->
     references_json = []
@@ -611,7 +612,7 @@ export class Document
   apply_json_patch_string: (patch) ->
     @apply_json_patch(JSON.parse(patch))
 
-  apply_json_patch: (patch) ->
+  apply_json_patch: (patch, setter_id) ->
     references_json = patch['references']
     events_json = patch['events']
     references = Document._instantiate_references_json(references_json, @_all_models)
@@ -646,8 +647,13 @@ export class Document
             throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
           patched_obj = @_all_models[patched_id]
           attr = event_json['attr']
-          value = Document._resolve_refs(event_json['new'], old_references, new_references)
-          patched_obj.setv({ "#{attr}" : value })
+          model_type = event_json['model']['type']
+          if attr == 'data' and model_type == 'ColumnDataSource'
+            [data, shapes] = decode_column_data(event_json['new'])
+            patched_obj.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
+          else
+            value = Document._resolve_refs(event_json['new'], old_references, new_references)
+            patched_obj.setv({ "#{attr}" : value }, {setter_id: setter_id})
 
         when 'ColumnsStreamed'
           column_source_id = event_json['column_source']['id']
@@ -673,15 +679,15 @@ export class Document
         when 'RootAdded'
           root_id = event_json['model']['id']
           root_obj = references[root_id]
-          @add_root(root_obj)
+          @add_root(root_obj, setter_id)
 
         when 'RootRemoved'
           root_id = event_json['model']['id']
           root_obj = references[root_id]
-          @remove_root(root_obj)
+          @remove_root(root_obj, setter_id)
 
         when 'TitleChanged'
-          @set_title(event_json['title'])
+          @set_title(event_json['title'], setter_id)
 
         else
           throw new Error("Unknown patch event " + JSON.stringify(event_json))

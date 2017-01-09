@@ -1,8 +1,19 @@
-""" The document module provides the Document class, which is a container
-for all Bokeh objects that must be reflected to the client side BokehJS
-library.
+''' Provide the ``Document`` class, which is a container for Bokeh Models to
+be reflected to the client side BokehJS library.
 
-"""
+As a concrete example, consider a column layout with ``Slider`` and ``Select``
+widgets, and a plot with some tools, an axis and grid, and a glyph renderer
+for circles. A simplified representation oh this document might look like the
+figure below:
+
+.. figure:: /_images/document.svg
+    :align: center
+    :width: 65%
+
+    A Bokeh Document is a collection of Bokeh Models (e.g. plots, tools,
+    glyphs, etc.) that can be serialized as a single collection.
+
+'''
 from __future__ import absolute_import
 
 import sys
@@ -84,16 +95,15 @@ def without_document_lock(f):
     return wrapper
 
 class DocumentChangedEvent(object):
-    def __init__(self, document):
+    def __init__(self, document, setter=None):
         self.document = document
+        self.setter = setter
 
     def dispatch(self, receiver):
         if hasattr(receiver, '_document_changed'):
             receiver._document_changed(self)
 
 class DocumentPatchedEvent(DocumentChangedEvent):
-    def __init__(self, document):
-        self.document = document
 
     def dispatch(self, receiver):
         super(DocumentPatchedEvent, self).dispatch(receiver)
@@ -101,8 +111,10 @@ class DocumentPatchedEvent(DocumentChangedEvent):
             receiver._document_patched(self)
 
 class ModelChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model, attr, old, new, serializable_new, hint=None):
-        super(ModelChangedEvent, self).__init__(document)
+    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter=None):
+        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
+            setter = hint.setter
+        super(ModelChangedEvent, self).__init__(document, setter)
         self.model = model
         self.attr = attr
         self.old = old
@@ -116,8 +128,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
             receiver._document_model_changed(self)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
-    def __init__(self, document, column_source, data, rollover):
-        super(ColumnsStreamedEvent, self).__init__(document)
+    def __init__(self, document, column_source, data, rollover, setter=None):
+        super(ColumnsStreamedEvent, self).__init__(document, setter)
         self.column_source = column_source
         self.data = data
         self.rollover = rollover
@@ -128,8 +140,8 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             receiver._columns_streamed(self)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
-    def __init__(self, document, column_source, patches):
-        super(ColumnsPatchedEvent, self).__init__(document)
+    def __init__(self, document, column_source, patches, setter=None):
+        super(ColumnsPatchedEvent, self).__init__(document, setter)
         self.column_source = column_source
         self.patches = patches
 
@@ -139,19 +151,19 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
             receiver._columns_patched(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, title):
-        super(TitleChangedEvent, self).__init__(document)
+    def __init__(self, document, title, setter=None):
+        super(TitleChangedEvent, self).__init__(document, setter)
         self.title = title
 
 
 class RootAddedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model):
-        super(RootAddedEvent, self).__init__(document)
+    def __init__(self, document, model, setter=None):
+        super(RootAddedEvent, self).__init__(document, setter)
         self.model = model
 
 class RootRemovedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model):
-        super(RootRemovedEvent, self).__init__(document)
+    def __init__(self, document, model, setter=None):
+        super(RootRemovedEvent, self).__init__(document, setter)
         self.model = model
 
 class SessionCallbackAdded(DocumentChangedEvent):
@@ -282,7 +294,14 @@ class _MultiValuedDict(object):
             return [existing]
 
 class Document(object):
-    '''
+    ''' The basic unit of serialization for Bokeh.
+
+    Document instances collect Bokeh models (e.g. plots, layouts, widgets,
+    etc.) so that they may be reflected into the BokehJS client runtime.
+    Because models may refer to other models (e.g., a plot *has* a list of
+    renderers), it is not generally useful or meaningful to convert individual
+    models to JSON. Accordingly,  the ``Document`` is thus the smallest unit
+    of serialization for Bokeh.
 
     '''
     def __init__(self, **kwargs):
@@ -291,9 +310,6 @@ class Document(object):
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
         self._template = FILE
-
-        # TODO (bev) add vars, stores
-
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._all_models_by_name = _MultiValuedDict()
@@ -309,7 +325,13 @@ class Document(object):
                 del sys.modules[module.__name__]
 
     def clear(self):
-        ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
+        ''' Remove all content from the document (including roots, vars, stores)
+        but do not reset title.
+
+        Returns:
+            None
+
+        '''
         self._push_all_models_freeze()
         try:
             while len(self._roots) > 0:
@@ -319,7 +341,16 @@ class Document(object):
             self._pop_all_models_freeze()
 
     def _destructively_move(self, dest_doc):
-        '''Move all fields in this doc to the dest_doc, leaving this doc empty'''
+        ''' Move all data in this doc to the dest_doc, leaving this doc empty.
+
+        Args:
+            dest_doc (Document) :
+                The Bokeh document to populate with data from this one
+
+        Returns:
+            None
+
+        '''
         if dest_doc is self:
             raise RuntimeError("Attempted to overwrite a document with itself")
         dest_doc.clear()
@@ -381,26 +412,37 @@ class Document(object):
 
     @property
     def roots(self):
+        ''' A list of all the root models in this Document.
+
+        '''
         return list(self._roots)
 
     @property
     def session_context(self):
+        ''' The ``SessionContext`` for this document.
+
+        '''
         return self._session_context
 
     @property
     def title(self):
+        ''' A title for this document.
+
+        This title will be set on standalone HTML documents, but not e.g. when
+        ``autoload_server`` is used.
+
+        '''
         return self._title
 
     @title.setter
     def title(self, title):
-        if title is None:
-            raise ValueError("Document title may not be None")
-        if self._title != title:
-            self._title = title
-            self._trigger_on_change(TitleChangedEvent(self, title))
+        self._set_title(title)
 
     @property
     def template(self):
+        ''' A Jinja2 template to use for rendering this document.
+
+        '''
         return self._template
 
     @template.setter
@@ -411,20 +453,27 @@ class Document(object):
 
     @property
     def template_variables(self):
+        ''' A dictionary of template variables to pass when rendering
+        ``self.template``.
+
+        '''
         return self._template_variables
 
     @property
     def theme(self):
-        """ Get the current Theme instance affecting models in this Document. Never returns None."""
+        ''' The current ``Theme`` instance affecting models in this Document.
+
+        Setting this to ``None`` sets the default theme. (i.e this property
+        never returns ``None``.)
+
+        Changing theme may trigger model change events on the models in the
+        document if the theme modifies any model properties.
+
+        '''
         return self._theme
 
     @theme.setter
     def theme(self, theme):
-        """ Set the current Theme instance affecting models in this Document.
-        Setting this to None sets the default theme. Changing theme may trigger
-        model change events on the models in the Document if the theme modifies
-        any model properties.
-        """
         if theme is None:
             theme = default_theme
         if not isinstance(theme, Theme):
@@ -435,13 +484,34 @@ class Document(object):
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
+    def _set_title(self, title, setter=None):
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self._trigger_on_change(TitleChangedEvent(self, title, setter))
 
-    def add_root(self, model):
-        ''' Add a model as a root model to this Document.
+    def add_root(self, model, setter=None):
+        ''' Add a model as a root of this Document.
 
         Any changes to this model (including to other models referred to
-        by it) will trigger "on_change" callbacks registered on this
-        Document.
+        by it) will trigger ``on_change`` callbacks registered on this
+        document.
+
+        Args:
+            model (Model) :
+                The model to add as a root of this document.
+
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
+
+                In the context of a Bokeh server application, incoming updates
+                to properties will be annotated with the session that is
+                doing the updating. This value is propagated through any
+                subsequent change notifications that the update triggers.
+                The session can compare the event setter to itself, and
+                suppress any updates that originate from itself.
 
         '''
         if model in self._roots:
@@ -456,7 +526,7 @@ class Document(object):
             self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootAddedEvent(self, model))
+        self._trigger_on_change(RootAddedEvent(self, model, setter))
 
     def add(self, *objects):
         """ Call add_root() on each object.
@@ -476,12 +546,28 @@ class Document(object):
         for obj in objects:
             self.add_root(obj)
 
-    def remove_root(self, model):
+    def remove_root(self, model, setter=None):
         ''' Remove a model as root model from this Document.
 
-        Changes to this model may still trigger "on_change" callbacks
-        on this Document, if the model is still referred to by other
+        Changes to this model may still trigger ``on_change`` callbacks
+        on this document, if the model is still referred to by other
         root models.
+
+        Args:
+            model (Model) :
+                The model to add as a root of this document.
+
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
+
+                In the context of a Bokeh server application, incoming updates
+                to properties will be annotated with the session that is
+                doing the updating. This value is propagated through any
+                subsequent change notifications that the update triggers.
+                The session can compare the event setter to itself, and
+                suppress any updates that originate from itself.
+
         '''
         if model not in self._roots:
             return # TODO (bev) ValueError?
@@ -490,14 +576,32 @@ class Document(object):
             self._roots.remove(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootRemovedEvent(self, model))
+        self._trigger_on_change(RootRemovedEvent(self, model, setter))
 
     def get_model_by_id(self, model_id):
-        ''' Get the model object for the given ID or None if not found'''
+        ''' Find the model for the given ID in this document, or ``None`` if it
+        is not found.
+
+        Args:
+            model_id (str) : The ID of the model to search for
+
+        Returns:
+            Model or None
+
+        '''
         return self._all_models.get(model_id)
 
     def get_model_by_name(self, name):
-        ''' Get the model object for the given name or None if not found'''
+        ''' Find the model for the given name in this document, or ``None`` if
+        it is not found.
+
+        Args:
+            name (str) : The name of the model to search for
+
+        Returns:
+            Model or None
+
+        '''
         return self._all_models_by_name.get_one(name, "Found more than one model named '%s'" % name)
 
     def _is_single_string_selector(self, selector, field):
@@ -534,7 +638,7 @@ class Document(object):
                 name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
-            Model
+            Model or None
 
         '''
         result = list(self.select(selector))
@@ -562,7 +666,8 @@ class Document(object):
                 setattr(obj, key, val)
 
     def on_change(self, *callbacks):
-        ''' Invoke callback if the document or any Model reachable from its roots changes.
+        ''' Provide callbacks to invovke if the document or any Model reachable
+        from its roots changes.
 
         '''
         for callback in callbacks:
@@ -578,9 +683,10 @@ class Document(object):
             self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
     def remove_on_change(self, *callbacks):
-        ''' Remove a callback added earlier with on_change()
+        ''' Remove a callback added earlier with ``on_change``.
 
-            Throws an error if the callback wasn't added
+        Raises:
+            KeyError, if the callback was never added
 
         '''
         for callback in callbacks:
@@ -614,7 +720,7 @@ class Document(object):
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
-    def _notify_change(self, model, attr, old, new, hint=None):
+    def _notify_change(self, model, attr, old, new, hint=None, setter=None):
         ''' Called by Model when it changes
         '''
         # if name changes, update by-name index
@@ -628,7 +734,7 @@ class Document(object):
             serializable_new = model.lookup(attr).serializable_value(model)
         else:
             serializable_new = None
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint))
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter))
 
     @classmethod
     def _references_json(cls, references):
@@ -660,7 +766,7 @@ class Document(object):
         return references
 
     @classmethod
-    def _initialize_references_json(cls, references_json, references):
+    def _initialize_references_json(cls, references_json, references, setter=None):
         '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
         for obj in references_json:
@@ -669,7 +775,7 @@ class Document(object):
 
             instance = references[obj_id]
 
-            instance.update_from_json(obj_attrs, models=references)
+            instance.update_from_json(obj_attrs, models=references, setter=setter)
 
     @classmethod
     def _value_record_references(cls, all_references, v, result):
@@ -833,7 +939,12 @@ class Document(object):
         return serialize_json(json, indent=indent)
 
     def to_json(self):
-        ''' Convert the document to a JSON object. '''
+        ''' Convert this document to a JSON object.
+
+        Return:
+            JSON-data
+
+        '''
 
         # this is a total hack to go via a string, needed because
         # our BokehJSONEncoder goes straight to a string.
@@ -842,13 +953,30 @@ class Document(object):
 
     @classmethod
     def from_json_string(cls, json):
-        ''' Load a document from JSON. '''
+        ''' Load a document from JSON.
+
+        json (str) :
+            A string with a JSON-encoded document to create a new Document
+            from.
+
+        Returns:
+            Document
+
+        '''
         json_parsed = loads(json)
         return cls.from_json(json_parsed)
 
     @classmethod
     def from_json(cls, json):
-        ''' Load a document from JSON. '''
+        ''' Load a document from JSON.
+
+        json (JSON-data) :
+            A JSON-encoded document to create a new Document from.
+
+        Returns:
+            Document
+
+        '''
         roots_json = json['roots']
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
@@ -865,18 +993,28 @@ class Document(object):
         return doc
 
     def replace_with_json(self, json):
-        ''' Overwrite everything in this document with the JSON-encoded document '''
+        ''' Overwrite everything in this document with the JSON-encoded
+        document.
+
+        json (JSON-data) :
+            A JSON-encoded document to overwrite this one.
+
+        Returns:
+            None
+
+        '''
         replacement = self.from_json(json)
         replacement._destructively_move(self)
 
     def create_json_patch_string(self, events):
-        ''' Create a JSON string describing a patch to be applied with apply_json_patch_string()
+        ''' Create a JSON string describing a patch to be applied.
 
-            Args:
-              events : list of events to be translated into patches
+        Args:
+          events : list of events to be translated into patches
 
-            Returns:
-              str :  JSON string which can be applied to make the given updates to obj
+        Returns:
+          str :  JSON string which can be applied to make the given updates to obj
+
         '''
         references = set()
         json_events = []
@@ -940,12 +1078,40 @@ class Document(object):
         return serialize_json(json)
 
     def apply_json_patch_string(self, patch):
-        ''' Apply a JSON patch string created by create_json_patch_string() '''
+        ''' Apply a JSON patch provided as a string.
+
+        Args:
+            patch (str) :
+
+        Returns:
+            None
+
+        '''
         json_parsed = loads(patch)
         self.apply_json_patch(json_parsed)
 
-    def apply_json_patch(self, patch):
-        ''' Apply a JSON patch object created by parsing the result of create_json_patch_string() '''
+    def apply_json_patch(self, patch, setter=None):
+        ''' Apply a JSON patch object and process any resulting events.
+
+        Args:
+            patch (JSON-data) :
+                The JSON-object containing the patch to apply.
+
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
+
+                In the context of a Bokeh server application, incoming updates
+                to properties will be annotated with the session that is
+                doing the updating. This value is propagated through any
+                subsequent change notifications that the update triggers.
+                The session can compare the event setter to itself, and
+                suppress any updates that originate from itself.
+
+        Returns:
+            None
+
+        '''
         references_json = patch['references']
         events_json = patch['events']
         references = self._instantiate_references_json(references_json)
@@ -972,7 +1138,7 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references)
+                patched_obj.set_from_json(attr, value, models=references, setter=setter)
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
@@ -980,28 +1146,34 @@ class Document(object):
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json['rollover']
-                source.stream(data, rollover)
+                source.stream(data, rollover, setter)
             elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
                 if source_id not in self._all_models:
                     raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 patches = event_json['patches']
-                source.patch(patches)
+                source.patch(patches, setter)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.add_root(root_obj)
+                self.add_root(root_obj, setter)
             elif event_json['kind'] == 'RootRemoved':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.remove_root(root_obj)
+                self.remove_root(root_obj, setter)
             elif event_json['kind'] == 'TitleChanged':
-                self.title = event_json['title']
+                self._set_title(event_json['title'], setter)
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 
     def validate(self):
+        ''' Perform integrity checks on the modes in this document.
+
+        Returns:
+            None
+
+        '''
         # logging.basicConfig is a no-op if there's already
         # some logging configured. We want to make sure warnings
         # go somewhere so configure here if nobody has.
@@ -1014,9 +1186,33 @@ class Document(object):
 
     @property
     def session_callbacks(self):
+        ''' A list of all the session callbacks on this document.
+
+        '''
         return list(self._session_callbacks.values())
 
     def _add_session_callback(self, callback_obj, callback, one_shot):
+        ''' Internal implementation for adding session callbacks.
+
+        Args:
+            callback_obj (SessionCallback) :
+                A session callback object that wraps a callable and is
+                passed to ``trigger_on_change``.
+
+            callback (callable) :
+                A callable to execute when session events happen.
+
+            one_shot (bool) :
+                Whether the callback should immediately auto-remove itself
+                after one execution.
+
+        Returns:
+            SessionCallback passed in as ``callback_obj``.
+
+        Raises:
+            ValueError, if the callback has been previously added
+
+        '''
         if callback in self._session_callbacks:
             raise ValueError("callback has already been added")
         if one_shot:
@@ -1040,9 +1236,14 @@ class Document(object):
         ''' Add a callback to be invoked on a session periodically.
 
         Args:
-            callback (callable) : the callback function to execute
-            period_milliseconds (int) : the number of milliseconds that should
-                be between each callback execution.
+            callback (callable) :
+                A callback function to execute periodically
+
+            period_milliseconds (int) :
+                Number of milliseconds between each callback execution.
+
+        Returns:
+            PeriodicCallback
 
         .. note::
             Periodic callbacks only work within the context of a Bokeh server
@@ -1056,15 +1257,29 @@ class Document(object):
         return self._add_session_callback(cb, callback, one_shot=False)
 
     def remove_periodic_callback(self, callback):
-        ''' Remove a callback added earlier with add_periodic_callback()
+        ''' Remove a callback added earlier with ``add_periodic_callback``
 
-            Throws an error if the callback wasn't added
+        Returns:
+            None
+
+        Raises:
+            KeyError, if the callback was never added
 
         '''
         self._remove_session_callback(callback)
 
     def add_timeout_callback(self, callback, timeout_milliseconds):
         ''' Add callback to be invoked once, after a specified timeout passes.
+
+        Args:
+            callback (callable) :
+                A callback function to execute after timeout
+
+            timeout_milliseconds (int) :
+                Number of milliseconds before callback execution.
+
+        Returns:
+            TimeoutCallback
 
         .. note::
             Timeout callbacks only work within the context of a Bokeh server
@@ -1078,15 +1293,26 @@ class Document(object):
         return self._add_session_callback(cb, callback, one_shot=True)
 
     def remove_timeout_callback(self, callback):
-        ''' Remove a callback added earlier with add_timeout_callback()
+        ''' Remove a callback added earlier with ``add_timeout_callback``.
 
-            Throws an error if the callback wasn't added
+        Returns:
+            None
+
+        Raises:
+            KeyError, if the callback was never added
 
         '''
         self._remove_session_callback(callback)
 
     def add_next_tick_callback(self, callback):
-        ''' Add callback to be invoked once on the next "tick" of the event loop.
+        ''' Add callback to be invoked once on the next tick of the event loop.
+
+        Args:
+            callback (callable) :
+                A callback function to execute on the next tick.
+
+        Returns:
+            NextTickCallback
 
         .. note::
             Next tick callbacks only work within the context of a Bokeh server
@@ -1098,18 +1324,26 @@ class Document(object):
         return self._add_session_callback(cb, callback, one_shot=True)
 
     def remove_next_tick_callback(self, callback):
-        ''' Remove a callback added earlier with add_next_tick_callback()
+        ''' Remove a callback added earlier with ``add_next_tick_callback``.
 
-            Throws an error if the callback wasn't added
+        Returns:
+            None
+
+        Raises:
+            KeyError, if the callback was never added
 
         '''
         self._remove_session_callback(callback)
 
     def _remove_session_callback(self, callback):
-        ''' Remove a callback added earlier with add_periodic_callback()
-        or add_timeout_callback()
+        ''' Remove a callback added earlier with ``add_periodic_callback``
+        or ``add_timeout_callback``.
 
-            Throws an error if the callback wasn't added
+        Returns:
+            None
+
+        Raises:
+            KeyError, if the callback was never added
 
         '''
         if callback not in self._session_callbacks:

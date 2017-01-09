@@ -1,20 +1,30 @@
 declare namespace Bokeh {
   export interface DataSource extends Model, IDataSource {}
   export interface IDataSource extends IModel {
-    column_names?: Array<string>;
     selected?: Selected;
-    inspected?: Selected;
     callback?: Callback | ((source: this) => void);
   }
 
   type Data = Map<ArrayLike<any>>;
 
+  export interface ColumnarDataSource extends DataSource, IColumnarDataSource { };
+  export interface IColumnarDataSource extends IDataSource {
+    column_names?: Array<string>;
+    inspected?: Selected;
+  }
+
   export var ColumnDataSource: { new(attributes?: IColumnDataSource, options?: ModelOpts): ColumnDataSource };
-  export interface ColumnDataSource extends DataSource, IColumnDataSource {
+  export interface ColumnDataSource extends ColumnarDataSource, IColumnDataSource {
     stream(new_data: Data, rollover: number): void;
   }
-  export interface IColumnDataSource extends IDataSource {
+  export interface IColumnDataSource extends IColumnarDataSource {
     data?: Data;
+  }
+
+  export var GeoJSONDataSource: { new(attributes?: IGeoJSONDataSource, options?: ModelOpts): GeoJSONDataSource };
+  export interface GeoJSONDataSource extends ColumnarDataSource, IGeoJSONDataSource {}
+  export interface IGeoJSONDataSource extends IColumnarDataSource {
+    geojson?: JsObj;
   }
 
   export interface RemoteSource extends DataSource, IRemoteSource {}

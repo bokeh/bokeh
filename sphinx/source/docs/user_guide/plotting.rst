@@ -365,14 +365,17 @@ for the value of either of these parameters.
 Log Scale Axes
 ~~~~~~~~~~~~~~
 
-When dealing with data that grows quick (e.g., exponentially), it is often
-desired to plot one axis on a log scale. Another use-scenario involves
-fitting data to a power law, in which case is it desired to plot with both
-axes on a log scale.
+When dealing with data that grows exponentially or is of many orders of magnitude,
+it is often necessary to have one axis on a log scale. Another scenario involves
+plotting data that has a power law relationship, when it is desirable to use log
+scales on both axes.
 
 As we saw above, the |figure| function accepts ``x_axis_type`` and
 ``y_axis_type`` as arguments. To specify a log axis, pass ``"log"`` for
 the value of either of these parameters.
+
+By default, log axis ranges are calculated to fit around positive valued data. To
+set your own ranges, see the section on :ref:`userguide_plotting_setting_ranges`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_log_scale_axis.py
     :source-position: above

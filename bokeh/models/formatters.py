@@ -324,19 +324,13 @@ class DatetimeTickFormatter(TickFormatter):
     """ A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.
 
-    ``DatetimeTickFormatter`` has the following properties for setting formats
-    at different scales scales:
+    ``DatetimeTickFormatter`` has the following properties (listed together
+    with their default values) that can be used to control the formatting
+    of axis ticks at different scales scales:
 
-    * ``microseconds``
-    * ``milliseconds``
-    * ``seconds``
-    * ``minsec``
-    * ``minutes``
-    * ``hourmin``
-    * ``hours``
-    * ``days``
-    * ``months``
-    * ``years``
+    .. code-block:: python
+
+        {defaults}
 
     Each scale property can be set to format or list of formats to use for
     formatting datetime tick values that fall in in that "time scale".
@@ -605,3 +599,11 @@ class DatetimeTickFormatter(TickFormatter):
         if 'days'         in value: self.days         = value['days']
         if 'months'       in value: self.months       = value['months']
         if 'years'        in value: self.years        = value['years']
+
+# This is to automate documentation of DatetimeTickFormatter formats and their defaults
+_df = DatetimeTickFormatter()
+_df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years']
+_df_defaults = _df.properties_with_values()
+_df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
+DatetimeTickFormatter.__doc__ = DatetimeTickFormatter.__doc__.format(defaults=_df_defaults_string)
+del _df, _df_fields, _df_defaults, _df_defaults_string

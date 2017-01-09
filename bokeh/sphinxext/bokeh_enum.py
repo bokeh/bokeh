@@ -45,7 +45,8 @@ class BokehEnumDirective(BokehDirective):
     optional_arguments = 2
 
     option_spec = {
-        'module': unchanged
+        'module': unchanged,
+        'noindex': lambda x: True, # directives.flag weirdly returns None
     }
 
     def run(self):
@@ -70,6 +71,7 @@ class BokehEnumDirective(BokehDirective):
         rst_text = ENUM_DETAIL.render(
             name=name,
             module=self.options['module'],
+            noindex=self.options.get('noindex', False),
             content=self.content,
             shortrepr=shortrepr,
             fullrepr=fullrepr,

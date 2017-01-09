@@ -1,8 +1,39 @@
 # -*- coding: utf-8 -*-
-""" Models for display visual shapes whose attributes can be associated
-with data columns from data sources.
+''' Display a variety of visual shapes whose attributes can be associated
+with data columns from ``ColumnDataSources``.
 
-"""
+The full list of glyphs built into Bokeh is given below:
+
+* :class:`~bokeh.models.glyphs.AnnularWedge`
+* :class:`~bokeh.models.glyphs.Annulus`
+* :class:`~bokeh.models.glyphs.Arc`
+* :class:`~bokeh.models.glyphs.Bezier`
+* :class:`~bokeh.models.glyphs.Ellipse`
+* :class:`~bokeh.models.glyphs.HBar`
+* :class:`~bokeh.models.glyphs.Image`
+* :class:`~bokeh.models.glyphs.ImageRGBA`
+* :class:`~bokeh.models.glyphs.ImageURL`
+* :class:`~bokeh.models.glyphs.Line`
+* :class:`~bokeh.models.glyphs.MultiLine`
+* :class:`~bokeh.models.glyphs.Oval`
+* :class:`~bokeh.models.glyphs.Patch`
+* :class:`~bokeh.models.glyphs.Patches`
+* :class:`~bokeh.models.glyphs.Quad`
+* :class:`~bokeh.models.glyphs.Quadratic`
+* :class:`~bokeh.models.glyphs.Ray`
+* :class:`~bokeh.models.glyphs.Rect`
+* :class:`~bokeh.models.glyphs.Segment`
+* :class:`~bokeh.models.glyphs.Text`
+* :class:`~bokeh.models.glyphs.VBar`
+* :class:`~bokeh.models.glyphs.Wedge`
+
+All these glyphs share a minimal common interface through their base class
+``Glyph``:
+
+.. autoclass:: Glyph
+    :members:
+
+'''
 from __future__ import absolute_import
 
 from ..core.enums import Direction, Anchor, DeprecatedAnchor, accept_left_right_center
@@ -258,7 +289,20 @@ class HBar(Glyph):
     """)
 
 class Image(Glyph):
-    """ Render images given as scalar data together with a color mapper. """
+    """ Render images given as scalar data together with a color mapper.
+
+    In addition to the defined model properties, ``Image`` also can accept
+    a keyword argument ``palette`` in place of an explicit ``color_mapper``.
+    The value should be a list of colors, or the name of one of the built-in
+    palettes in ``bokeh.palettes``. This palette will be used to automatically
+    construct a ``ColorMapper`` model for the ``color_mapper`` property.
+
+    .. note::
+        If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+        exception will be raised. If neither is passed, then the ``Greys9``
+        palette will be used as a default.
+
+    """
 
     def __init__(self, **kwargs):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
@@ -274,6 +318,14 @@ class Image(Glyph):
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+
+    # a hook to specify any additional kwargs handled by an initializer
+    _extra_kws = {
+        'palette': (
+            'str or list[color value]',
+            'a palette to construct a value for the color mapper property from'
+        )
+    }
 
     image = NumberSpec(help="""
     The arrays of scalar data for the images to be colormapped.
