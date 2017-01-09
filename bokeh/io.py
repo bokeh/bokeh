@@ -32,12 +32,11 @@ from .embed import notebook_div, standalone_html_page_for_models, autoload_serve
 from .models.layouts import LayoutDOM, Row, Column, VBoxForm
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .model import _ModelInDocument
+import bokeh.util.browser as browserlib  # full import needed for test mocking to work
 from .util.deprecation import deprecated
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
-import bokeh.util.browser as browserlib  # full import needed for test mocking to work
-from .client import DEFAULT_SESSION_ID, push_session, show_session
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -173,7 +172,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
 # usually we default session_id to "generate a random one" but
 # here we default to a hardcoded one. This is to support local
 # usage e.g. with a notebook.
-def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/"):
+def output_server(session_id=None, url="default", app_path="/"):
     """ Configure the default output state to push its document to a
     session on a Bokeh server.
 
@@ -215,6 +214,10 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/"):
     bokeh.client sessions as described at http://bokeh.pydata.org/en/latest/docs/user_guide/server.html#connecting-with-bokeh-client"
     """)
 
+    # limit heavyweight import to only when needed
+    from .client import DEFAULT_SESSION_ID
+    if session_id is None:
+        session_id = DEFAULT_SESSION_ID
     _state.output_server(session_id=session_id, url=url, app_path=app_path)
 
 def set_curdoc(doc):
@@ -338,6 +341,9 @@ def _show_notebook_with_state(obj, state, notebook_handle):
             return handle
 
 def _show_server_with_state(obj, state, new, controller):
+    # limit heavyweight import to only when needed
+    from .client import show_session
+
     push(state=state)
     show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
                  new=new, controller=controller)
@@ -451,6 +457,8 @@ def _save_helper(obj, filename, resources, title, validate):
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(session_id, url, app_path, document, io_loop):
+    # limit heavyweight import to only when needed
+    from .client import push_session
     session = push_session(document, session_id=session_id, url=url, app_path=app_path, io_loop=io_loop)
     session.close()
     session.loop_until_closed()
