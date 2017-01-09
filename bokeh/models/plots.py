@@ -15,7 +15,7 @@ from ..core.enums import Location
 from ..core.property_mixins import LineProps, FillProps
 from ..core.properties import (
     Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override, TitleProp)
+    List, Dict, Include, Override)
 from ..util.string import nice_join
 from ..util.deprecation import deprecated
 
@@ -30,9 +30,6 @@ from .tools import Tool, ToolEvents, Toolbar
 from .layouts import LayoutDOM
 
 from ..util.plot_utils import _list_attr_splat, _select_helper
-
-# We create an empty title by default
-DEFAULT_TITLE = lambda: Title(text="")
 
 class Plot(LayoutDOM):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -425,8 +422,8 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = TitleProp(default=DEFAULT_TITLE, help="""
-    A title for the plot. Can be a text string or a Title annotation. Default is Title(text="").
+    title = Instance(Title, default=lambda: Title(text=""), help="""
+    A title for the plot. Can be a text string or a Title annotation.
     """)
 
     title_location = Enum(Location, default="above", help="""

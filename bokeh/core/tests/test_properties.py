@@ -10,12 +10,11 @@ from bokeh.core.properties import (field, value,
     NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds, TitleProp)
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds)
 
 from bokeh.core.has_props import HasProps
 
 from bokeh.models import Plot
-from bokeh.models.annotations import Title
 
 class Basictest(unittest.TestCase):
 
@@ -1651,13 +1650,6 @@ bokeh.core.tests.test_properties.Foo4(
 bokeh.core.tests.test_properties.Foo5(
     foo6=bokeh.core.tests.test_properties.Foo6(
         foo5=bokeh.core.tests.test_properties.Foo5(...)))"""
-
-def test_titleprop_transforms_string_into_title_object():
-    class Foo(HasProps):
-        title = TitleProp
-    f = Foo(title="hello")
-    assert isinstance(f.title, Title)
-    assert f.title.text == "hello"
 
 def test_field_function():
     assert field("foo") == dict(field="foo")

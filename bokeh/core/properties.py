@@ -113,7 +113,6 @@ from six import string_types, iteritems
 
 from ..colors import RGB
 from ..util.dependencies import import_optional
-from ..util.deprecation import deprecated
 from ..util.serialization import transform_column_source_data, decode_base64_dict
 from ..util.string import nice_join
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
@@ -1141,35 +1140,6 @@ class TimeDelta(Property):
             return
 
         raise ValueError("Expected a timedelta instance, got %r" % value)
-
-class TitleProp(Either):
-    ''' Accept a title value for a plot (possibly transforming a plain string).
-
-    .. note::
-        This property exists only to support a deprecation, and will be removed
-        in the future once the deprecation is completed.
-
-    '''
-    def __init__(self, default=None, help=None):
-        types = (Instance('bokeh.models.annotations.Title'), String)
-        super(TitleProp, self).__init__(*types, default=default, help=help)
-
-    def transform(self, value):
-        if isinstance(value, str):
-            from bokeh.models.annotations import Title
-            deprecated('''Setting Plot property 'title' using a string was deprecated in 0.12.0,
-            and will be removed. The title is now an object on Plot (which holds all of it's
-            styling properties). Please use Plot.title.text instead.
-
-            SERVER USERS: If you were using plot.title to have the server update the plot title
-            in a callback, you MUST update to plot.title.text as the title object cannot currently
-            be replaced after initialization.
-            ''')
-            value = Title(text=value)
-        return value
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 #------------------------------------------------------------------------------
 # Container properties

@@ -80,7 +80,6 @@ ADDED bokeh.server.session.ServerSession.milliseconds_since_last_unsubscribe
 ADDED bokeh.charts.builder.Builder.sort_legend
 ADDED bokeh.models.widgets.markups.Div
 ADDED bokeh.models.formatters.FuncTickFormatter
-ADDED bokeh.core.properties.TitleProp
 ADDED bokeh.core.properties.TimeDelta
 ADDED bokeh.server.tornado.match_host
 ADDED bokeh.server.tornado.BokehTornado.initialize
