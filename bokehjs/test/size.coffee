@@ -4,7 +4,6 @@ path = require "path"
 {expect} = require "chai"
 
 build_dir = path.normalize("#{__dirname}/../build")
-console.log(build_dir)
 
 LIMITS = {
   "css/bokeh-widgets.min.css": 527
