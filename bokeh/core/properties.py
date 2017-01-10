@@ -88,13 +88,6 @@ Special Properties
 .. autoclass:: Include
 .. autoclass:: Override
 
-.. |Color| replace:: :func:`~bokeh.core.properties.Color`
-.. |DataSpec| replace:: :func:`~bokeh.core.properties.DataSpec`
-.. |field| replace:: :func:`~bokeh.core.properties.field`
-.. |HasProps| replace:: :func:`~bokeh.core.has_props.HasProps`
-.. |value| replace:: :func:`~bokeh.core.properties.value`
-
-
 '''
 from __future__ import absolute_import, print_function
 

@@ -607,7 +607,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: Freely Distributable",
         "License :: OSI Approved",
-        "License :: OSI Approved :: BSD License :: 3 Clause New or Revised",
         "Topic :: Office/Business",
         "Topic :: Office/Business :: Financial",
         "Topic :: Scientific/Engineering",

@@ -41,9 +41,6 @@ df = pd.DataFrame(MSFT)[:50]
 # xaxis date labels used in the custom TickFormatter
 date_labels = [date.strftime('%b %d') for date in pd.to_datetime(df["date"])]
 
-mids = (df.open + df.close)/2
-spans = abs(df.close-df.open)
-
 inc = df.close > df.open
 dec = df.open > df.close
 w = 0.5
@@ -55,13 +52,13 @@ p.xaxis.major_label_orientation = pi/4
 p.grid[0].ticker.desired_num_ticks = 6
 
 # use the custom TickFormatter. You must always define date_labels
-p.xaxis[0].formatter = DateGapTickFormatter(date_labels = date_labels)
+p.xaxis.formatter = DateGapTickFormatter(date_labels=date_labels)
 
 # x coordinates must be integers. If, for example, df.index are
 # datetimes, you should replace them with a integer sequence
 p.segment(df.index, df.high, df.index, df.low, color="black")
-p.rect(df.index[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="black")
-p.rect(df.index[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="black")
+p.vbar(df.index[inc], w, df.open[inc], df.close[inc], fill_color="#D5E1DD", line_color="black")
+p.vbar(df.index[dec], w, df.open[dec], df.close[dec], fill_color="#F2583E", line_color="black")
 
 output_file("custom_datetime_axis.html", title="custom_datetime_axis.py example")
 

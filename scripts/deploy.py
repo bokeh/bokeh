@@ -341,42 +341,13 @@ def update_docs_versions():
         failed("Could not write new version to file %r" % filename, str(e).split("\n"))
     else:
         passed("Appended version %r to %r" % (CONFIG.new_version, filename))
-        commit(filename, new_version)
-
-    # Update Sphinx toctree
-
-    filename = 'sphinx/source/index.rst'
-    path = join(CONFIG.top_dir, filename)
-    new_line = "    docs/releases/{version}\n".format(version=CONFIG.new_version)
-    with open(path, "r") as f:
-        lines = f.readlines()
-        if any(line==new_line for line in lines):
-            print(blue("[SKIP] ") + "Sphinx toctree already has entry for version %r" % CONFIG.new_version)
-        else:
-            ii = None
-            for i, line in enumerate(lines):
-                if line.startswith("    docs/releases"):
-                    ii = i
-                    break
-            if ii is None:
-                failed("Error updating toctree")
-
-            new_line = "    docs/releases/%s\n" % CONFIG.new_version
-        lines.insert(i, new_line)
-
-    try:
-        with open(path, 'w') as f:
-            f.writelines(lines)
-    except Exception as e:
-        failed("Could not write new toctree to file %r" % filename, str(e).split("\n"))
-    else:
-        passed("Appended version %r to %r" % (CONFIG.new_version, filename))
-        commit(filename, new_version)
+        commit(filename, CONFIG.new_version)
 
 def update_changelog():
     try:
         out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
         passed("Updated CHANGELOG with new closed issues")
+        commit("CHANGELOG", CONFIG.new_version)
     except CalledProcessError as e:
         out = e.output.decode('utf-8')
         if "HTTP Error 403: Forbidden" in out:

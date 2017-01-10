@@ -68,13 +68,6 @@ that can be used to attach Bokeh properties to Bokeh models.
 
 .. _descriptor protocol: https://docs.python.org/3/howto/descriptor.html
 
-.. |DataSpec| replace:: :class:`~bokeh.core.properties.DataSpec`
-.. |HasProps| replace:: :class:`~bokeh.core.has_props.HasProps`
-.. |Property| replace:: :class:`~bokeh.core.properties.Property`
-.. |PropertyContainer| replace:: :class:`~bokeh.core.property.containers.PropertyContainer`
-.. |PropertyDescriptor| replace:: :class:`~bokeh.core.property.descriptor.PropertyDescriptor`
-.. |UnitsSpec| replace:: :class:`~bokeh.core.properties.UnitsSpec`
-
 '''
 from __future__ import absolute_import
 
