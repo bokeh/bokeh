@@ -8,7 +8,7 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {Toolbar} from "../tools/toolbar"
 import {ToolEvents} from "../tools/tool_events"
-import {PlotCanvas} from "./plot_canvas"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -64,6 +64,9 @@ export class PlotView extends LayoutDOMView
 
   get_width: () ->
     return @model._height._value * @model.get_aspect_ratio()
+
+  save: (name) ->
+    (view for view in _.values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
 
 export class Plot extends LayoutDOM
   type: 'Plot'

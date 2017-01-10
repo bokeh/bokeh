@@ -645,6 +645,19 @@ export class PlotCanvasView extends BokehView
       @visuals.background_fill.set_value(ctx)
       ctx.fillRect(frame_box...)
 
+  save: (name) ->
+    canvas = @get_canvas_element()
+
+    if canvas.msToBlob?
+      blob = canvas.msToBlob()
+      window.navigator.msSaveBlob(blob, name)
+    else
+      link = document.createElement('a')
+      link.href = canvas.toDataURL('image/png')
+      link.download = name
+      link.target = "_blank"
+      link.dispatchEvent(new MouseEvent('click'))
+
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'
   default_view: PlotCanvasView
