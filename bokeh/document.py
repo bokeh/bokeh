@@ -50,7 +50,6 @@ from .model import Model
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
-from .util.deprecation import deprecated
 from .util.version import __version__
 from .util.serialization import make_id
 
@@ -527,24 +526,6 @@ class Document(object):
         finally:
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model, setter))
-
-    def add(self, *objects):
-        """ Call add_root() on each object.
-
-        .. warning::
-            This function should only be called on top level objects such
-            as Plot, and Layout containers.
-
-        Args:
-            *objects (Model) : objects to add to the Document
-
-        Returns:
-            None
-
-        """
-        deprecated((0, 11, 0), 'Document.add()', 'Document.add_root()')
-        for obj in objects:
-            self.add_root(obj)
 
     def remove_root(self, model, setter=None):
         ''' Remove a model as root model from this Document.

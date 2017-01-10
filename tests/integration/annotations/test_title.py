@@ -23,9 +23,9 @@ def test_the_default_titles_settings_and_ensure_outside_any_axes(output_file_url
             plot_width=400, plot_height=200,
             x_range=Range1d(0, 2), y_range=Range1d(0, 2),
             toolbar_location=None,
-            title="Title %s - %s" % (location, title_align),
             title_location=location,
         )
+        plot.title.text = "Title %s - %s" % (location, title_align)
         plot.title.align = title_align
         plot.add_glyph(source, Circle(x='x', y='y', radius=0.4))
         plot.add_layout(LinearAxis(), location)

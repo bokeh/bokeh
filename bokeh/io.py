@@ -29,7 +29,7 @@ import warnings
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
-from .models.layouts import LayoutDOM, Row, Column, VBoxForm
+from .models.layouts import LayoutDOM
 from .layouts import gridplot, GridSpec ; gridplot, GridSpec
 from .model import _ModelInDocument
 from .util.deprecation import deprecated
@@ -601,21 +601,3 @@ def _remove_roots(subplots):
     for sub in subplots:
         if sub in doc.roots:
             doc.remove_root(sub)
-
-def hplot(*children, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.io.hplot()', 'bokeh.models.layouts.Row')
-    layout = Row(children=list(children), **kwargs)
-    return layout
-
-
-def vplot(*children, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.io.vplot()', 'bokeh.models.layouts.Column')
-    layout = Column(children=list(children), **kwargs)
-    return layout
-
-
-def vform(*children, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.io.vform()', 'bokeh.models.layouts.WidgetBox')
-    # Returning a VBoxForm, because it has helpers so that
-    # Bokeh deprecates gracefully.
-    return VBoxForm(*children, **kwargs)
