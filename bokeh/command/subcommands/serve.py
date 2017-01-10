@@ -573,7 +573,7 @@ class Serve(Subcommand):
             address_string = ''
             if server.address is not None and server.address != '':
                 address_string = ' address ' + server.address
-           
+
             log.info("Starting Bokeh server on port %d%s with applications at paths %r",
                      server.port,
                      address_string,
