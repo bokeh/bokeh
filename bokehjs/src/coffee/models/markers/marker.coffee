@@ -17,7 +17,7 @@ export class MarkerView extends GlyphView
     size = { }
     size[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
     angle = { }
-    angle[index] = 0
+    angle[index] = @_angle[index]
 
     data = {sx:sx, sy:sy, _size: size, _angle: angle}
     @_render(ctx, indices, data)
