@@ -30,11 +30,9 @@ import "./custom.less"
 export class MyRowView extends RowView
   render: () ->
     super()
-    @$el.addClass("bk-my-row")
-    @$el.css({
-      borderWidth: "#{@model.border_width}px"
-      borderColor: "#{@model.border_color}"
-    })
+    @el.classList.add("bk-my-row")
+    @el.style.borderWidth = "#{@model.border_width}px"
+    @el.style.borderColor = @model.border_color
 
 export class MyRow extends Row
   type: "MyRow"
