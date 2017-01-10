@@ -1,2 +1,2 @@
-export {Plot}     from "./plot"
-export {GMapPlot} from "./gmap_plot"
+export {Plot}                  from "./plot"
+export {GMapPlot, GMapOptions} from "./gmap_plot"
