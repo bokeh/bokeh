@@ -352,7 +352,7 @@ base_serve_args = (
         metavar = 'PORT',
         type    = int,
         help    = "Port to listen on",
-        default = None
+        default = DEFAULT_SERVER_PORT
     )),
 
     ('--address', dict(
@@ -559,7 +559,6 @@ class Serve(Subcommand):
 
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
-        server_kwargs['port'] = DEFAULT_SERVER_PORT
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
