@@ -341,12 +341,13 @@ def update_docs_versions():
         failed("Could not write new version to file %r" % filename, str(e).split("\n"))
     else:
         passed("Appended version %r to %r" % (CONFIG.new_version, filename))
-        commit(filename, new_version)
+        commit(filename, CONFIG.new_version)
 
 def update_changelog():
     try:
         out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
         passed("Updated CHANGELOG with new closed issues")
+        commit("CHANGELOG", CONFIG.new_version)
     except CalledProcessError as e:
         out = e.output.decode('utf-8')
         if "HTTP Error 403: Forbidden" in out:
