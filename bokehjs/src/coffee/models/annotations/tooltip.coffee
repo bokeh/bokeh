@@ -69,6 +69,8 @@ export class TooltipView extends AnnotationView
 
     arrow_size = 10 # XXX: keep in sync with less
 
+    show(@el) # XXX: {offset,client}Width() gives 0 when display="none"
+
     switch side
       when "right"
         @el.classList.add("bk-left")
@@ -96,7 +98,8 @@ export class TooltipView extends AnnotationView
     if @el.childNodes.length > 0
       @el.style.top = "#{top}px"
       @el.style.left = "#{left}px"
-      show(@el)
+    else
+      hide(@el)
 
 export class Tooltip extends Annotation
   default_view: TooltipView
