@@ -12,6 +12,9 @@ import requests
 
 import bokeh.command.subcommands.serve as scserve
 
+from bokeh.resources import DEFAULT_SERVER_PORT
+
+
 
 def test_create():
     import argparse
