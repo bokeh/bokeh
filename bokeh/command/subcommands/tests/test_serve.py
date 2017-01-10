@@ -37,7 +37,7 @@ def test_args():
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
-            default = None
+            default = DEFAULT_SERVER_PORT
         )),
 
         ('--address', dict(
