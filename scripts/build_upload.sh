@@ -104,7 +104,7 @@ anaconda -t $bintoken upload -u bokeh $BUILD_PATH/bokeh*.tar.bz2 -c $channel --f
 
 # create, register and upload pypi pkgs to pypi and anaconda.org
 # zip is currently not working on anaconda.org
-python setup.py $register sdist --formats=gztar,zip $upload
+python setup.py $register sdist --formats=gztar $upload
 echo "sdist pkg built"
 if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"

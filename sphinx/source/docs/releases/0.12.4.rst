@@ -1,0 +1,182 @@
+0.12.4 (Jan 2017)
+=================
+
+Bokeh Version ``0.12.4`` is an incremental update that adds a few important
+features and fixes several bugs. Some of the highlights include:
+
+* Efficient binary array protocol. (:bokeh-issue:`2204`)
+* A general mechanism to add ``CustomJS`` callbacks to any property. (:bokeh-issue:`5498`)
+* Several fixes to log plots. (:bokeh-issue:`2789`, :bokeh-issue:`3834`, :bokeh-issue:`5389`, :bokeh-issue:`5549`, :bokeh-issue:`5576`)
+* Fixes related to custom extensions. (:bokeh-issue:`5315`, :bokeh-issue:`5590`)
+* Guidance and examples for embedding a Bokeh server directly in standalone scripts, Jupyter notebooks, and Tornado and Flask applications.
+* Support for read-only (client-side) properties, e.g. plot inner dimensions (:bokeh-issue:`5199`)
+* Improved documentation for the :ref:`bokeh.palettes` module. (:bokeh-issue:`5619`)
+* Major refactor of ``bokeh.core`` including expanded documentation and tests (:bokeh-issue:`5626`, :bokeh-issue:`5627`)
+
+
+Many other small bugfixes and docs additions. For full details see the :bokeh-tree:`CHANGELOG`.
+
+NOTE: the 0.12.x series is the last planned release series before a
+version 1.0 release. The focus of the 1.0 release will be implementing
+build automation to enforce API stability, and a very small number of
+high value features. For more information see the `project roadmap`_.
+
+Migration Guide
+---------------
+
+As the project approaches a 1.0 release, it is necessary to make some changes
+to bring interfaces and functionality up to a point that can be maintained
+long-term. We try to limit such changes as much as possible, and have a
+period of deprecation.
+
+Broken Dialog Removed
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``Dialog`` widget has been broken for some time. Due to lack of user
+reports about it, and because custom extensions now provide a path for users
+to integrate third party JS dialog libaries, this widget has been removed
+immediately.
+
+Custom Extension Import/Export
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BokehJS is making a slow migration to TypeScript to support long-term stability
+and maintainability.
+This necessitates some short term changes for writing custom extensions.
+
+JavaScript extension code with ``requires`` and ``module.exports``, such as:
+
+.. code-block:: python
+
+    Model = require "model"
+
+    class DateGapTickFormatter extends TickFormatter
+        # implementation here
+
+    module.exports =
+        Model: DateGapTickFormatter
+
+should be re-written as:
+
+.. code-block:: python
+
+    import {Model} from "model"
+
+    export class DateGapTickFormatter extends TickFormatter
+        # implementation here
+
+Legend Locations
+~~~~~~~~~~~~~~~~
+
+To improve consistency, the following locations names have changed:
+
+================= =================
+old location name new location name
+================= =================
+``left_center``   ``center_left``
+``right_center``  ``center_right``
+================= =================
+
+The old location names will continue to work for some time with a
+deprecation warning.
+
+App Current Directory
+~~~~~~~~~~~~~~~~~~~~~
+
+Directory style apps no longer ``chdir`` into the app directory. The module
+attribute ``__file__`` should be used to construct any file paths relative
+to ``main.py`` for use with ``open``, etc.
+
+Window Titles
+~~~~~~~~~~~~~
+
+Bokeh apps embedded with ``autoload_server`` will no longer set the browser
+window title.
+
+Positional Argument Order For ``hbar``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to provide much improved interactive help (true function signatures
+and rich auto-generated docstrings) the order of the ``left`` and ``right``
+parameters to ``hbar`` had to be swapped (cannot have non-default args after
+a default arg). The new function signature is:
+
+.. code-block:: python
+
+    p.hbar(y, height, right, left=0, **kwargs)
+
+Old ``bokeh-server`` Command Removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since 0.11, the old ``bokeh-server`` command remained and only printed a
+message directing to information about using ``bokeh serve``. It has been
+removed completely.
+
+Cruft ``auto`` Functions removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following functions in ``bokeh.io`` were long unused and have been
+removed: ``autoadd``, ``autopush``, and ``autosave``.
+
+Eco Templates No Longer Supported
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BokehJS has migrated to using ``.tsx`` templates. Provisional support for
+including ``.eco`` templates has been removed from both BokehJS and the
+Bokeh Python library.
+
+BokehJS BackboneView ``$`` Removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In part of a longer effort to remove the JQuery dependency from BokehJS
+entirely, the ``$`` attribute that BokehJS added to ``BackboneView``
+has been removed. Use e.g., ``@$el.find`` instead.
+
+Additionally, use of ``Bokeh.$`` and ``Bokeh._``
+
+Refactor of ``bokeh.core``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is expected that all of these these changes should be below the level
+that standard users will ever be exposed to. These changes are listed here
+for completeness.
+
+The overly large ``bokeh.core.properties`` module has been split up. This
+improves maintainability and allows the contents of ``bokeh.core.properties``
+to limited to things of that might be useful to users writing custom models.
+The new file structure:
+
+* :ref:`bokeh.core.has_props`
+* :ref:`bokeh.core.properties`
+* :ref:`bokeh.core.property.bases`
+* :ref:`bokeh.core.property.containers`
+* :ref:`bokeh.core.property.descriptors`
+* :ref:`bokeh.core.property.descriptor_factory`
+* :ref:`bokeh.core.property.override`
+
+The following class names have been changed to improve intent and clarity
+(i.e. only things that are actually Python descriptors are named "Descriptor"):
+
+=================================== ===============================
+old class name                      new class name
+=================================== ===============================
+``PropertyFactory``                 ``PropertyDescriptorFactory``
+``PropertyDescriptor``              ``Property``
+``ParameterizedPropertyDescriptor`` ``ParameterizedProperty``
+``BasicProperty``                   ``BasicPropertyDescriptor``
+``DataSpecProperty``                ``DataSpecPropertyDescriptor``
+``UnitsSpecProperty``               ``UnitsSpecPropertyDescriptor``
+=================================== ===============================
+
+The following unused and non-useful properties were removed in this effort:
+``Align``, ``Event``, ``Function``, and ``This``.
+
+The default value for the ``owner`` parameter of the ``__get__`` method
+on property descriptors was an unnecessary change to the standard Python
+descriptor protocol, and has been removed.
+
+Additionally, the ``HasProps.set`` method has been removed. The name caused
+problems with the Sphinx docs build, and it was an unnecessary duplicate of
+``HasProps.update`` (which should be used instead).
+
+.. _project roadmap: http://bokehplots.com/pages/roadmap.html

@@ -1,8 +1,39 @@
 # -*- coding: utf-8 -*-
-""" Models for display visual shapes whose attributes can be associated
-with data columns from data sources.
+''' Display a variety of visual shapes whose attributes can be associated
+with data columns from ``ColumnDataSources``.
 
-"""
+The full list of glyphs built into Bokeh is given below:
+
+* :class:`~bokeh.models.glyphs.AnnularWedge`
+* :class:`~bokeh.models.glyphs.Annulus`
+* :class:`~bokeh.models.glyphs.Arc`
+* :class:`~bokeh.models.glyphs.Bezier`
+* :class:`~bokeh.models.glyphs.Ellipse`
+* :class:`~bokeh.models.glyphs.HBar`
+* :class:`~bokeh.models.glyphs.Image`
+* :class:`~bokeh.models.glyphs.ImageRGBA`
+* :class:`~bokeh.models.glyphs.ImageURL`
+* :class:`~bokeh.models.glyphs.Line`
+* :class:`~bokeh.models.glyphs.MultiLine`
+* :class:`~bokeh.models.glyphs.Oval`
+* :class:`~bokeh.models.glyphs.Patch`
+* :class:`~bokeh.models.glyphs.Patches`
+* :class:`~bokeh.models.glyphs.Quad`
+* :class:`~bokeh.models.glyphs.Quadratic`
+* :class:`~bokeh.models.glyphs.Ray`
+* :class:`~bokeh.models.glyphs.Rect`
+* :class:`~bokeh.models.glyphs.Segment`
+* :class:`~bokeh.models.glyphs.Text`
+* :class:`~bokeh.models.glyphs.VBar`
+* :class:`~bokeh.models.glyphs.Wedge`
+
+All these glyphs share a minimal common interface through their base class
+``Glyph``:
+
+.. autoclass:: Glyph
+    :members:
+
+'''
 from __future__ import absolute_import
 
 from ..core.enums import Direction, Anchor, DeprecatedAnchor, accept_left_right_center

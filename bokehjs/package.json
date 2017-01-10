@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.4rc1",
+  "version": "0.12.4",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -28,7 +28,6 @@
     "gulp-change": "^1.0.0",
     "gulp-insert": "^0.5.0",
     "gulp-less": "^3.0.2",
-    "gulp-mocha": "^2.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-task-listing": "^1.0.0",

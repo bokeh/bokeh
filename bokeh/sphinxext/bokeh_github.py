@@ -45,7 +45,7 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=Non
 
     """
     app = inliner.document.settings.env.app
-    node = make_gh_link_node(app, rawtext, 'commit', 'commit', 'commit', text, options)
+    node = make_gh_link_node(app, rawtext, 'commit', 'commit ', 'commit', text, options)
     return [node], []
 
 def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -67,7 +67,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
             '"%s" is invalid.' % text, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = make_gh_link_node(app, rawtext, 'issue', 'issue', 'issues', str(issue_num), options)
+    node = make_gh_link_node(app, rawtext, 'issue', '#', 'issues', str(issue_num), options)
     return [node], []
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -89,7 +89,7 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
             '"%s" is invalid.' % text, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = make_gh_link_node(app, rawtext, 'pull', 'pull request', 'pull', str(issue_num), options)
+    node = make_gh_link_node(app, rawtext, 'pull', 'pull request ', 'pull', str(issue_num), options)
     return [node], []
 
 def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -144,7 +144,7 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     _try_url(app, url, role)
     set_classes(options)
     node = nodes.reference(
-        rawtext, kind + ' ' + utils.unescape(id), refuri=url, **options)
+        rawtext, kind + utils.unescape(id), refuri=url, **options)
     return node
 
 

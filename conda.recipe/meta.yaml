@@ -19,6 +19,7 @@ requirements:
     - setuptools
     - nodejs >=4.1
     - six
+    - packaging
     - python-dateutil
     - numpy
     - yaml
@@ -54,6 +55,7 @@ test:
     - coverage
     - flake8
     - mock
+    - packaging
     - pandas
     - pytest >=3.0.2
     - pytest-cov >=1.8.1     [unix]
