@@ -8,7 +8,6 @@ import * as proj from "../../core/util/projections"
 import {BokehView} from "../../core/bokeh_view"
 import {Model} from "../../model"
 import {Visuals} from "../../core/visuals"
-import * as bokehgl from "./webgl/main"
 import {logger} from "../../core/logging"
 
 export class GlyphView extends BokehView
@@ -18,17 +17,6 @@ export class GlyphView extends BokehView
     @_nohit_warned = {}
     @renderer = options.renderer
     @visuals = new Visuals(@model)
-
-    # Init gl (this should really be done anytime renderer is set,
-    # and not done if it isn't ever set, but for now it only
-    # matters in the unit tests because we build a view without a
-    # renderer there)
-    if @renderer?.plot_view?
-      ctx = @renderer.plot_view.canvas_view.ctx
-      if ctx.glcanvas?
-        Cls = bokehgl[@model.type + 'GLGlyph']
-        if Cls
-          @glglyph = new Cls(ctx.glcanvas.gl, @)
 
   set_visuals: (source) ->
     @visuals.warm_cache(source)

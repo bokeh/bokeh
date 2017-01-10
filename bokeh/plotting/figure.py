@@ -621,6 +621,16 @@ Examples:
 
         return getattr(self, markertype)(*args, **kwargs)
 
+class WebGLFigure(Figure):
+    ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
+    creation with default axes, grids, tools, etc., and support rendering
+    with WebGL, if available. This requires addition of `bokeh-gl.min.js`
+    bundle.
+
+    '''
+
+    __subtype__ = "WebGLFigure"
+    __view_model__ = "WebGLPlot"
 
 def figure(**kwargs):
     ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
@@ -652,7 +662,10 @@ def figure(**kwargs):
         kwargs['sizing_mode'] = _convert_responsive(kwargs['responsive'])
         del kwargs['responsive']
 
-    fig = Figure(**kwargs)
+    webgl = kwargs.pop('webgl', False)
+    cls = Figure if not webgl else WebGLFigure
+
+    fig = cls(**kwargs)
     return fig
 
 

@@ -1,5 +1,3 @@
-# Used by webgl to convert colors to rgba tuples.
-
 import * as svg_colors from "./svg_colors"
 
 _component2hex = (v) ->

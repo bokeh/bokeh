@@ -18,19 +18,6 @@ import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
-# Notes on WebGL support:
-# Glyps can be rendered into the original 2D canvas, or in a (hidden)
-# webgl canvas that we create below. In this way, the rest of bokehjs
-# can keep working as it is, and we can incrementally update glyphs to
-# make them use GL.
-#
-# When the author or user wants to, we try to create a webgl canvas,
-# which is saved on the ctx object that gets passed around during drawing.
-# The presence (and not-being-false) of the ctx.glcanvas attribute is the
-# marker that we use throughout that determines whether we have gl support.
-
-global_gl_canvas = null
-
 export class PlotCanvasView extends BokehView
   className: "bk-plot-wrapper"
 
@@ -83,10 +70,7 @@ export class PlotCanvasView extends BokehView
     @$el.append(@canvas_view.el)
     @canvas_view.render(true)
 
-    # If requested, try enabling webgl
-    if @model.plot.webgl or window.location.search.indexOf('webgl=1') > 0
-      if window.location.search.indexOf('webgl=0') == -1
-        @init_webgl()
+    @init_webgl()
 
     @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
@@ -111,68 +95,21 @@ export class PlotCanvasView extends BokehView
     @update_dataranges()
 
     @unpause()
-    logger.debug("PlotView initialized")
+    logger.debug("#{@model.type} initialized")
 
     return this
 
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
 
+  glyph_view_factory: (model, renderer) ->
+    new model.default_view({model: model, renderer: renderer})
+
   init_webgl: () ->
-    ctx = @canvas_view.ctx
-
-    # We use a global invisible canvas and gl context. By having a global context,
-    # we avoid the limitation of max 16 contexts that most browsers have.
-    glcanvas = global_gl_canvas
-    if not glcanvas?
-      global_gl_canvas = glcanvas = document.createElement('canvas')
-      opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
-      glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
-
-    # If WebGL is available, we store a reference to the gl canvas on
-    # the ctx object, because that's what gets passed everywhere.
-    if glcanvas.gl?
-      ctx.glcanvas = glcanvas
-    else
-      logger.warn('WebGL is not supported, falling back to 2D canvas.')
-      # Do not set @canvas_view.ctx.glcanvas
 
   prepare_webgl: (ratio, frame_box) ->
-    # Prepare WebGL for a drawing pass
-    ctx = @canvas_view.ctx
-    canvas = @canvas_view.get_canvas_element()
-    if ctx.glcanvas
-      # Sync canvas size
-      ctx.glcanvas.width = canvas.width
-      ctx.glcanvas.height = canvas.height
-      # Prepare GL for drawing
-      gl = ctx.glcanvas.gl
-      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
-      # Clipping
-      gl.enable(gl.SCISSOR_TEST)
-      flipped_top = ctx.glcanvas.height - ratio * (frame_box[1] + frame_box[3])
-      gl.scissor(ratio * frame_box[0], flipped_top, ratio * frame_box[2], ratio * frame_box[3])
-      # Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
-      #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
 
   blit_webgl: (ratio) ->
-    # This should be called when the ctx has no state except the HIDPI transform
-    ctx = @canvas_view.ctx
-    if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      # to remove the hidpi transform, then blit, then restore.
-      # ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('drawing with WebGL')
-      ctx.restore()
-      ctx.drawImage(ctx.glcanvas, 0, 0)
-      # Set back hidpi transform
-      ctx.save()
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
 
   update_dataranges: () ->
     # Update any DataRange1ds here
@@ -494,7 +431,7 @@ export class PlotCanvasView extends BokehView
       logger.warn('could not set initial ranges')
 
   render: (force_canvas=false) ->
-    logger.trace("PlotCanvas.render(force_canvas=#{force_canvas}) for #{@model.id}")
+    logger.trace("#{@model.type}.render(force_canvas=#{force_canvas}) for #{@model.id}")
 
     if not @model.document?
       return
@@ -671,7 +608,7 @@ export class PlotCanvas extends LayoutDOM
     @left_panel = new LayoutCanvas()
     @right_panel = new LayoutCanvas()
 
-    logger.debug("PlotCanvas initialized")
+    logger.debug("#{@type} initialized")
 
   add_renderer_to_canvas_side: (renderer, side) ->
     # Calling this method after a plot has been initialized may (will?)
@@ -694,7 +631,7 @@ export class PlotCanvas extends LayoutDOM
     @below_panel.attach_document(@document)
     @left_panel.attach_document(@document)
     @right_panel.attach_document(@document)
-    logger.debug("PlotCanvas attached to document")
+    logger.debug("#{@type} attached to document")
 
   @override {
     # We should find a way to enforce this

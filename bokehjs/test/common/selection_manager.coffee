@@ -34,8 +34,6 @@ describe "SelectionManager", ->
       get: (param) ->
         if param is 'x_mappers' or param is 'y_mappers'
           {'default': mapper_normal}
-    canvas_view:
-      ctx: {'glcanvas': null}
   }
 
   plot_view_stub_reverse = {
@@ -43,8 +41,6 @@ describe "SelectionManager", ->
       get: (param) ->
         if param is 'x_mappers' or param is 'y_mappers'
           {'default': mapper_reverse}
-    canvas_view:
-      ctx: {'glcanvas': null}
   }
 
   plot_model_stub = {

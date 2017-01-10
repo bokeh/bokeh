@@ -74,7 +74,5 @@ declare namespace Bokeh {
   lod_interval?: Int;
   lod_timeout?: Int;
 
-  webgl?: boolean;
   hidpi?: boolean;
- }
 }

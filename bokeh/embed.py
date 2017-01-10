@@ -166,16 +166,19 @@ def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
 
 def _use_widgets(objs):
     from .models.widgets import Widget
+    return _query_object_graph(objs, lambda obj: isinstance(obj, Widget))
 
-    def _needs_widgets(obj):
-        return isinstance(obj, Widget)
+def _use_webgl(objs):
+    from .plotting.figure import WebGLFigure
+    return _query_object_graph(objs, lambda obj: isinstance(obj, WebGLFigure))
 
+def _query_object_graph(objs, query):
     for obj in objs:
         if isinstance(obj, Document):
-            if _use_widgets(obj.roots):
+            if _query_object_graph(obj.roots, query):
                 return True
         else:
-            if any(_needs_widgets(ref) for ref in obj.references()):
+            if any(query(ref) for ref in obj.references()):
                 return True
     else:
         return False
@@ -197,12 +200,15 @@ def _bundle_for_objs_and_resources(objs, resources):
     from copy import deepcopy
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
-    use_widgets =  _use_widgets(objs) if objs else True
+    use_widgets = _use_widgets(objs) if objs else True
+    use_webgl   = _use_webgl(objs) if objs else False
 
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.components:
             js_resources.components.remove("bokeh-widgets")
+        if use_webgl and "bokeh-gl" not in js_resources.components:
+            js_resources.components.append("bokeh-gl")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None
