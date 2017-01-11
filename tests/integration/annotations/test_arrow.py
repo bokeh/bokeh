@@ -34,6 +34,11 @@ def test_arrow(output_file_url, selenium, screenshot):
     plot.add_layout(arrow1)
     plot.add_layout(arrow2)
 
+     # test arrow body clipping
+    plot.add_layout(Arrow(start=VeeHead(line_width=1, fill_color="white"), x_start=6, y_start=4, x_end=8, y_end=5, line_width=10))
+    plot.add_layout(Arrow(start=NormalHead(line_width=1, fill_color="white"), x_start=6, y_start=3, x_end=8, y_end=4, line_width=10))
+    plot.add_layout(Arrow(start=OpenHead(line_width=1), x_start=6, y_start=2, x_end=8, y_end=3, line_width=10))
+
     # Save the plot and start the test
     save(plot)
     selenium.get(output_file_url)
