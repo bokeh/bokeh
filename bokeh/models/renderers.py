@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from ..model import Model
 from ..core.enums import RenderLevel
 from ..core.properties import abstract
-from ..core.properties import String, Enum, Instance, Float, Bool, Override
+from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
 from ..core import validation
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 
@@ -131,14 +131,20 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Instance(Glyph, help="""
+    selection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
     An optional glyph used for selected points.
+
+    If set to "auto" then the standard glyph will be used for selected
+    points.
     """)
 
-    nonselection_glyph = Instance(Glyph, help="""
+    nonselection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
+
+    If set to "auto" then a glyph with a low alpha value (0.1) will
+    be used for non-selected points.
     """)
 
     hover_glyph = Instance(Glyph, help="""

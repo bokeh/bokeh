@@ -25,11 +25,15 @@ export class GlyphRendererView extends RendererView
 
     selection_glyph = @model.selection_glyph
     if not selection_glyph?
+      selection_glyph = mk_glyph({fill: {}, line: {}})
+    else if selection_glyph == "auto"
       selection_glyph = mk_glyph(@model.selection_defaults)
     @selection_glyph = @build_glyph_view(selection_glyph)
 
     nonselection_glyph = @model.nonselection_glyph
     if not nonselection_glyph?
+      nonselection_glyph = mk_glyph({fill: {}, line: {}})
+    else if nonselection_glyph == "auto"
       nonselection_glyph = mk_glyph(@model.nonselection_defaults)
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
@@ -236,13 +240,13 @@ export class GlyphRenderer extends Renderer
     return index
 
   @define {
-      x_range_name:       [ p.String,      'default' ]
-      y_range_name:       [ p.String,      'default' ]
-      data_source:        [ p.Instance               ]
-      glyph:              [ p.Instance               ]
-      hover_glyph:        [ p.Instance               ]
-      nonselection_glyph: [ p.Instance               ]
-      selection_glyph:    [ p.Instance               ]
+      x_range_name:       [ p.String,  'default' ]
+      y_range_name:       [ p.String,  'default' ]
+      data_source:        [ p.Instance           ]
+      glyph:              [ p.Instance           ]
+      hover_glyph:        [ p.Instance           ]
+      nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"
+      selection_glyph:    [ p.Any,      'auto'   ] # Instance or "auto"
     }
 
   @override {
