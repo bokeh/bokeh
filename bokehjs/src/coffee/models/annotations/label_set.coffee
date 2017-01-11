@@ -138,7 +138,7 @@ export class LabelSetView extends TextAnnotationView
 
     if @visuals.border_line.doit
       el.style.borderStyle = "#{line_dash}"
-      el.style.borderWidth = "#{@visuals.border_line.line_width.value()}"
+      el.style.borderWidth = "#{@visuals.border_line.line_width.value()}px"
       el.style.borderColor = "#{@visuals.border_line.color_value()}"
 
     show(el)
