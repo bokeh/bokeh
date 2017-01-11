@@ -170,7 +170,10 @@ _.extend(View.prototype, Events, {
   // attached to it. Exposed for subclasses using an alternative DOM
   // manipulation API.
   _removeElement: function() {
-    this.el.parentNode.removeChild(this.el);
+    var parent = this.el.parentNode;
+    if (parent != null) {
+      parent.removeChild(this.el);
+    }
   },
 
   setElement: function(element) {
