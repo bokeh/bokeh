@@ -135,7 +135,7 @@ def _run(app, argv, input=None):
     if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
-        return stdout.decode()
+        return stdout.decode('utf-8')
 
 def _run_nodejs(argv, input=None):
     return _run(_nodejs, argv, input)
