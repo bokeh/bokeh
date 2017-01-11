@@ -7,8 +7,10 @@ import * as p from "../../core/properties"
 
 import {BokehView} from "../../core/bokeh_view"
 import {Model} from "../../model"
+import {JQueryable} from "./jqueryable"
 
 export class CellEditorView extends BokehView
+  _.extend(@prototype, JQueryable)
 
   className: "bk-cell-editor"
 
