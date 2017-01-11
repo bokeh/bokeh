@@ -12,7 +12,7 @@ export JQueryable = {
       classList = []
       for cls in el.classList
         classList.push(if cls.indexOf("ui-") == 0 then "bk-#{cls}" else cls)
-      el.classList = classList.join(" ")
+      el.className = classList.join(" ")
     return null
 
   # START backbone
