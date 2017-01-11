@@ -8,7 +8,7 @@ import {WidgetView} from "models/widgets/widget"
 import "./fontawesome.less"
 
 export class FontAwesomeIconView extends WidgetView
-  tagName: "i"
+  tagName: "span"
 
   initialize: (options) ->
     super(options)
