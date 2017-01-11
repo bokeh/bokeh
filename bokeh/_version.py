@@ -239,7 +239,7 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     # to cygwin, although I am not using it) is expanding * even though
     # shell=False! As a temporary workaround, I've remove the --match
     # argument since tag_prefix is empty in the bokeh setup config.
-    describe_args = ["describe", "--tags", "--dirty", "--always"]
+    describe_args = ["describe", "--tags", "--dirty", "--always", "--long"]
     
     if tag_prefix:
         describe_args.extend(["--match", "%s*" % tag_prefix])
