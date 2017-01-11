@@ -36,9 +36,7 @@ export class TileRendererView extends RendererView
     attribution = @model.tile_source.attribution
 
     if _.isString(attribution) and attribution.length > 0
-      if @attributionEl?
-        @attributionEl.html(attribution)
-      else
+      if not @attributionEl?
         border_width = @map_plot.outline_line_width
         bottom_offset = @map_plot.min_border_bottom + border_width
         right_offset = @map_frame.right - @map_frame.width
@@ -54,10 +52,12 @@ export class TileRendererView extends RendererView
             'font-size': '9pt'
             'font-family': 'sans-serif'
           }
-        }, attribution)
+        })
 
         overlays = @plot_view.el.querySelector('div.bk-canvas-events')
         overlays.appendChild(@attributionEl)
+
+      @attributionEl.innerHTML = attribution
 
   _map_data: () ->
     @initial_extent = @get_extent()
