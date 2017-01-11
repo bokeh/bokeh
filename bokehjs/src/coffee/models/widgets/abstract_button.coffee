@@ -23,7 +23,7 @@ export class AbstractButtonView extends WidgetView
     if icon?
       build_views(@icon_views, [icon])
       for own key, val of @icon_views
-        val.$el.detach()
+        val.el.parentNode?.removeChild(val.el)
 
     @$el.empty()
     html = @template(@model.attributes)

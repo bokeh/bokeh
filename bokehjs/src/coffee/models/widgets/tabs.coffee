@@ -11,8 +11,8 @@ export class TabsView extends WidgetView
 
   render: () ->
     super()
-    for own key, val of @child_views
-      val.$el.detach()
+    for own _key, child of @child_views
+      child.el.parentNode?.removeChild(child.el)
     @$el.empty()
 
     tabs = @model.tabs
@@ -37,7 +37,7 @@ export class TabsView extends WidgetView
     $panels = html.find(".bk-bs-tab-pane")
 
     for [child, panel] in _.zip(children, $panels)
-      $(panel).html(@child_views[child.id].$el)
+      $(panel).html(@child_views[child.id].el)
 
     @$el.append(html)
     return @
