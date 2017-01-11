@@ -22,6 +22,7 @@ from ..builder import create_and_build, Builder
 from ..utils import (build_wedge_source, build_wedge_text_source,
                      build_agg_tooltip, derive_aggregation)
 from ..attributes import ColorAttr, CatAttr
+from ...models import HoverTool
 from ...models.sources import ColumnDataSource
 from ...models.glyphs import AnnularWedge, Text
 from ...models.renderers import GlyphRenderer
@@ -56,9 +57,10 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
             categorical variable or color attribute specification to use for coloring
             the wedges
         agg (str, optional): how the values associated with a wedge should be
-            aggregated hover_tool (bool, optional): whether to show the value of the
+            aggregated
+        hover_tool (bool, optional): whether to show the value of the
             wedge when hovering
-        hover_text (str, optional): provide an alternative string to use label the
+        hover_text (str, optional): provide an alternative string to use to label the
             value shown with the hover tool
         **kw:
 
@@ -120,7 +122,7 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
     if hover_tool:
         tooltip = build_agg_tooltip(hover_text=hover_text, aggregated_col=values,
                                     agg_text=agg)
-        chart.add_tooltips([tooltip])
+        chart.add_tools(HoverTool(tooltips=[tooltip]))
 
     return chart
 
