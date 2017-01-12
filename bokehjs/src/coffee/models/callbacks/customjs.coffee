@@ -23,6 +23,6 @@ export class CustomJS extends Model
     _.values(@args)
 
   _make_func: () ->
-    # this relies on _.keys(args) and _.values(args) returning keys and values
+    # this relies on Object.keys(args) and _.values(args) returning keys and values
     # in the same order
-    new Function(_.keys(@args)..., "cb_obj", "cb_data", "require", @code)
+    new Function(Object.keys(@args)..., "cb_obj", "cb_data", "require", @code)

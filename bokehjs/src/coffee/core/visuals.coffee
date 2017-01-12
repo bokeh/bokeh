@@ -33,7 +33,7 @@ class ContextProperties
 
 export class Line extends ContextProperties
 
-  attrs: _.keys(mixins.line())
+  attrs: Object.keys(mixins.line())
   do_attr: "line_color"
 
   set_value: (ctx) ->
@@ -80,7 +80,7 @@ export class Line extends ContextProperties
 
 export class Fill extends ContextProperties
 
-  attrs: _.keys(mixins.fill())
+  attrs: Object.keys(mixins.fill())
   do_attr: "fill_color"
 
   set_value: (ctx) ->
@@ -102,7 +102,7 @@ export class Fill extends ContextProperties
 
 export class Text extends ContextProperties
 
-  attrs: _.keys(mixins.text())
+  attrs: Object.keys(mixins.text())
   do_attr: "text_color"
 
   cache_select: (name, i) ->

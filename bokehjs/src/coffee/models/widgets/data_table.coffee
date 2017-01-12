@@ -22,7 +22,7 @@ export class DataProvider
 
   constructor: (@source) ->
     @data = @source.data
-    @fields = _.keys(@data)
+    @fields = Object.keys(@data)
 
     if not _.contains(@fields, "index")
       @data["index"] = [0...@getLength()]

@@ -110,7 +110,7 @@ export class Box extends LayoutDOM
       @_test_layoutable(child)
 
       vars = child.get_constrained_variables()
-      var_keys = _.keys(vars)
+      var_keys = Object.keys(vars)
 
       # Make total widget sizes fill the orthogonal direction
       # TODO(bird) Can't we make this shorter by using span which has already picked a
@@ -208,7 +208,7 @@ export class Box extends LayoutDOM
       throw new Error("#{child} is missing get_constrained_variables method")
     vars = child.get_constrained_variables()
     for key in required_constrained_variables
-      if key not in _.keys(vars)
+      if key not in Object.keys(vars)
         throw new Error("#{child} is missing constrained_variable #{key}")
       if not vars[key] instanceof Variable
         throw new Error("#{child} #{key} is not a solver Variable")

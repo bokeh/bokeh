@@ -16,7 +16,7 @@ export class FuncTickFormatter extends TickFormatter
     super(attrs, options)
 
   _make_func: () ->
-    return new Function("tick", _.keys(@args)..., "require", @code)
+    return new Function("tick", Object.keys(@args)..., "require", @code)
 
   doFormat: (ticks) ->
     func = @_make_func()

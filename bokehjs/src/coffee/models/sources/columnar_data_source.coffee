@@ -25,7 +25,7 @@ export class ColumnarDataSource extends DataSource
 
   columns: () ->
     # return the column names in this data source
-    return _.keys(@data)
+    return Object.keys(@data)
 
   get_length: (soft=true) ->
     lengths = _.uniq((val.length for _key, val of @data))

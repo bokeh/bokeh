@@ -33,7 +33,7 @@ var eventsApi = function(iteratee, events, name, callback, opts) {
   if (name && typeof name === 'object') {
     // Handle event maps.
     if (callback !== void 0 && 'context' in opts && opts.context === void 0) opts.context = callback;
-    for (names = _.keys(name); i < names.length ; i++) {
+    for (names = Object.keys(name); i < names.length ; i++) {
       events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
     }
   } else if (name && eventSplitter.test(name)) {
@@ -122,7 +122,7 @@ Events.stopListening = function(obj, name, callback) {
   var listeningTo = this._listeningTo;
   if (!listeningTo) return this;
 
-  var ids = obj ? [obj._listenId] : _.keys(listeningTo);
+  var ids = obj ? [obj._listenId] : Object.keys(listeningTo);
 
   for (var i = 0; i < ids.length; i++) {
     var listening = listeningTo[ids[i]];
@@ -146,7 +146,7 @@ var offApi = function(events, name, callback, options) {
 
   // Delete all events listeners and "drop" events.
   if (!name && !callback && !context) {
-    var ids = _.keys(listeners);
+    var ids = Object.keys(listeners);
     for (; i < ids.length; i++) {
       listening = listeners[ids[i]];
       delete listeners[listening.id];
@@ -155,7 +155,7 @@ var offApi = function(events, name, callback, options) {
     return;
   }
 
-  var names = name ? [name] : _.keys(events);
+  var names = name ? [name] : Object.keys(events);
   for (; i < names.length; i++) {
     name = names[i];
     var handlers = events[name];

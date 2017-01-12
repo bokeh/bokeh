@@ -29,7 +29,7 @@ export create_ref = (obj) ->
 #
 export is_ref = (arg) ->
   if _.isObject(arg)
-    keys = _.keys(arg).sort()
+    keys = Object.keys(arg).sort()
     if keys.length==2
       return keys[0]=='id' and keys[1]=='type'
     if keys.length==3
