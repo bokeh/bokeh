@@ -19,6 +19,7 @@ export class RangeSliderView extends InputWidgetView
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
+    @make_html_label()
     @callbackWrapper = null
     if @model.callback_policy == 'continuous'
       @callbackWrapper = () ->

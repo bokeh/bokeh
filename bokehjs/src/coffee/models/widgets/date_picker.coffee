@@ -11,7 +11,7 @@ export class DatePickerView extends InputWidgetView
 
   initialize: (options) ->
     super(options)
-    @label = $('<label>').text(@model.title)
+    @label = $('<label>').html(@model.title)
     @input = $('<input type="text">')
     @datepicker = @input.datepicker({
       defaultDate: new Date(@model.value)

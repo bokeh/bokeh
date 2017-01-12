@@ -23,6 +23,7 @@ export class TextInputView extends InputWidgetView
   render: () ->
     super()
     @$el.html(@template(@model.attributes))
+    @make_html_label()
     # TODO - This 35 is a hack we should be able to compute it
     if @model.height
       @$el.find('input').height(@model.height - 35)
