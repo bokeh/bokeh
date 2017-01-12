@@ -63,11 +63,11 @@ export class Surface3dView extends LayoutDOMView
     # already been loaded (e.g. in a custom app template). In the future Bokeh
     # models will be able to specify and load external scripts automatically.
     #
-    # Backbone Views create <div> elements by default, accessible as @$el. Many
+    # Backbone Views create <div> elements by default, accessible as @el. Many
     # Bokeh views ignore this default <div>, and instead do things like draw
     # to the HTML canvas. In this case though, we use the <div> to attach a
     # Graph3d to the DOM.
-    @_graph = new vis.Graph3d(@$el[0], @get_data(), OPTIONS)
+    @_graph = new vis.Graph3d(@el, @get_data(), OPTIONS)
 
     # Set Backbone listener so that when the Bokeh data source has a change
     # event, we can process the new data
