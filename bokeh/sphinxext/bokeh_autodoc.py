@@ -27,7 +27,7 @@ class PropDocumenter(AttributeDocumenter):
     directivetype = 'bokeh-prop'
     objtype = 'prop'
     priority = 20
-    member_order = -100
+    member_order = -100 # This puts properties first in the docs
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):

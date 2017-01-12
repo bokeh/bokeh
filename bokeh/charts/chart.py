@@ -247,7 +247,7 @@ class Chart(Plot):
             label (str): the label on the axis.
 
         Return:
-            axis: Axis instance
+            Axis: Axis instance
         """
 
         # ToDo: revisit how to handle multiple ranges
@@ -286,7 +286,7 @@ class Chart(Plot):
             ticker (obj): the axis.ticker object
 
         Return:
-            grid: Grid instance
+            Grid: A Grid instance
         """
 
         grid = Grid(dimension=dimension, ticker=ticker)

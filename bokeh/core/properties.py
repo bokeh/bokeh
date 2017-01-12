@@ -108,21 +108,13 @@ from ..colors import RGB
 from ..util.dependencies import import_optional
 from ..util.serialization import transform_column_source_data, decode_base64_dict
 from ..util.string import nice_join
+
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from . import enums
 
 pd = import_optional('pandas')
-
-# TODO: this should really be moved elsewhere, has_props.py or model.py
-def abstract(cls):
-    from .has_props import HasProps
-    ''' A phony decorator to mark abstract base classes. '''
-    if not issubclass(cls, HasProps):
-        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
-
-    return cls
 
 bokeh_bool_types = (bool,)
 try:

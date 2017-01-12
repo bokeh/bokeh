@@ -1,29 +1,24 @@
-""" Various kinds of layout components.
+''' Various kinds of layout components.
 
-"""
+'''
 from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
 
-from ..core import validation
-
-from ..core.validation.warnings import (
-    EMPTY_LAYOUT,
-    BOTH_CHILD_AND_ROOT,
-)
 from ..core.enums import SizingMode
-from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Seq, String
+from ..core.has_props import abstract
+from ..core.properties import Bool, Enum, Int, Instance, List, Seq, String
+from ..core.validation import warning
+from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
 from ..embed import notebook_div
 from ..model import Model
 
-
 @abstract
 class LayoutDOM(Model):
-    """ An abstract base class for layout components. ``LayoutDOM`` is not
-    generally useful to instantiate on its own.
+    ''' An abstract base class for layout components.
 
-    """
+    '''
 
     width = Int(help="""
     An optional width for the component (in pixels).
@@ -76,13 +71,15 @@ class LayoutDOM(Model):
 
 
 class Spacer(LayoutDOM):
-    """ A container for space used to fill an empty spot in a row or column.
+    ''' A container for space used to fill an empty spot in a row or column.
 
-    """
+    '''
 
 
 class WidgetBox(LayoutDOM):
-    """ A container for widgets that are part of a layout."""
+    ''' A container for widgets that are part of a layout.
+
+    '''
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -90,13 +87,13 @@ class WidgetBox(LayoutDOM):
             kwargs["children"] = list(args)
         super(WidgetBox, self).__init__(**kwargs)
 
-    @validation.warning(EMPTY_LAYOUT)
+    @warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
         from itertools import chain
         if not list(chain(self.children)):
             return str(self)
 
-    @validation.warning(BOTH_CHILD_AND_ROOT)
+    @warning(BOTH_CHILD_AND_ROOT)
     def _check_child_is_also_root(self):
         problems = []
         for c in self.children:
@@ -108,14 +105,15 @@ class WidgetBox(LayoutDOM):
             return None
 
     children = List(Instance('bokeh.models.widgets.Widget'), help="""
-        The list of widgets to put in the layout box.
+    The list of widgets to put in the layout box.
     """)
 
 
 @abstract
 class Box(LayoutDOM):
-    """ Abstract base class for Row and Column. Do not use directly.
-    """
+    ''' Abstract base class for Row and Column. Do not use directly.
+
+    '''
 
     def __init__(self, *args, **kwargs):
 
@@ -129,9 +127,9 @@ class Box(LayoutDOM):
         super(Box, self).__init__(**kwargs)
 
     def _wrap_children(self, children):
-        """ Wrap any Widgets of a list of child layouts in a WidgetBox.
+        ''' Wrap any Widgets of a list of child layouts in a WidgetBox.
         This allows for the convenience of just spelling Row(button1, button2).
-        """
+        '''
         from .widgets.widget import Widget
         wrapped_children = []
         for child in children:
@@ -146,13 +144,13 @@ class Box(LayoutDOM):
             wrapped_children.append(child)
         return wrapped_children
 
-    @validation.warning(EMPTY_LAYOUT)
+    @warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
         from itertools import chain
         if not list(chain(self.children)):
             return str(self)
 
-    @validation.warning(BOTH_CHILD_AND_ROOT)
+    @warning(BOTH_CHILD_AND_ROOT)
     def _check_child_is_also_root(self):
         problems = []
         for c in self.children:
@@ -175,43 +173,43 @@ class Box(LayoutDOM):
     #    The list of children, which can be other components including plots, rows, columns, and widgets.
     #""")
     children = List(Instance(LayoutDOM), help="""
-        The list of children, which can be other components including plots, rows, columns, and widgets.
+    The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
 
 
 class Row(Box):
-    """ Lay out child components in a single horizontal row.
+    ''' Lay out child components in a single horizontal row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
-    """
+    '''
 
 
 class Column(Box):
-    """ Lay out child components in a single vertical row.
+    ''' Lay out child components in a single vertical row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
-    """
+    '''
 
 
 def HBox(*args, **kwargs):
-    """ Lay out child components in a single horizontal row.
+    ''' Lay out child components in a single horizontal row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
 
     Returns a Row instance.
-    """
+    '''
     return Row(*args, **kwargs)
 
 
 def VBox(*args, **kwargs):
-    """ Lay out child components in a single vertical row.
+    ''' Lay out child components in a single vertical row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
 
     Returns a Column instance.
-    """
+    '''
     return Column(*args, **kwargs)

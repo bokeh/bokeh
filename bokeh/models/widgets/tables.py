@@ -1,31 +1,33 @@
-""" Various kinds of data table (data grid) widgets.
+''' Various kinds of data table (data grid) widgets.
 
-"""
+'''
 from __future__ import absolute_import
 
-from ...core.properties import abstract
-from ...core.properties import Bool, Int, Float, String, Color, Instance, Enum, List, Either, Override
+from ...core.enums import DateFormat, FontStyle, NumeralLanguage, TextAlign, RoundingFunction
+from ...core.has_props import abstract
+from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
 from ...model import Model
-from ...core.enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
+
 from ..sources import DataSource
+
 from .widget import Widget
 
 @abstract
 class CellFormatter(Model):
-    """ Abstract base class for data table's cell formatters.
+    ''' Abstract base class for data table's cell formatters.
 
-    """
+    '''
 
 @abstract
 class CellEditor(Model):
-    """ Abstract base class for data table's cell editors.
+    ''' Abstract base class for data table's cell editors.
 
-    """
+    '''
 
 class StringFormatter(CellFormatter):
-    """ Basic string cell formatter.
+    ''' Basic string cell formatter.
 
-    """
+    '''
 
     font_style = Enum(FontStyle, default="normal", help="""
     An optional text font style, e.g. bold, italic.
@@ -41,9 +43,9 @@ class StringFormatter(CellFormatter):
     """)
 
 class NumberFormatter(StringFormatter):
-    """ Number cell formatter.
+    ''' Number cell formatter.
 
-    """
+    '''
 
     format = String("0,0", help="""
     The number format, as defined in the following tables:
@@ -130,18 +132,18 @@ class NumberFormatter(StringFormatter):
     """)
 
 class BooleanFormatter(CellFormatter):
-    """ Boolean (check mark) cell formatter.
+    ''' Boolean (check mark) cell formatter.
 
-    """
+    '''
 
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
     The icon visualizing the check mark.
     """)
 
 class DateFormatter(CellFormatter):
-    """ Date cell formatter.
+    ''' Date cell formatter.
 
-    """
+    '''
 
     format = Either(Enum(DateFormat), String, default='yy M d', help="""
     The date format can be combinations of the following:
@@ -196,7 +198,7 @@ class DateFormatter(CellFormatter):
     """)
 
 class HTMLTemplateFormatter(CellFormatter):
-    """ HTML formatter using a template.
+    ''' HTML formatter using a template.
     This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
     The formatter has access other items in the row via the `dataContext` object passed to the formatter.
     So, for example, if another column in the datasource was named `url`, the template could access it as:
@@ -214,76 +216,76 @@ class HTMLTemplateFormatter(CellFormatter):
 
         HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>')
 
-    """
+    '''
     template = String('<%= value %>', help="""
     Template string to be used by Underscore's template method.
     """)
 
 class StringEditor(CellEditor):
-    """ Basic string cell editor with auto-completion.
+    ''' Basic string cell editor with auto-completion.
 
-    """
+    '''
 
     completions = List(String, help="""
     An optional list of completion strings.
     """)
 
 class TextEditor(CellEditor):
-    """ Multi-line string cell editor.
+    ''' Multi-line string cell editor.
 
-    """
+    '''
 
 class SelectEditor(CellEditor):
-    """ Select cell editor.
+    ''' Select cell editor.
 
-    """
+    '''
 
     options = List(String, help="""
     The list of options to select from.
     """)
 
 class PercentEditor(CellEditor):
-    """ ``IntEditor`` optimized for editing percentages.
+    ''' ``IntEditor`` optimized for editing percentages.
 
-    """
+    '''
 
 class CheckboxEditor(CellEditor):
-    """ Boolean value cell editor.
+    ''' Boolean value cell editor.
 
-    """
+    '''
 
 class IntEditor(CellEditor):
-    """ Spinner-based integer cell editor.
+    ''' Spinner-based integer cell editor.
 
-    """
+    '''
 
     step = Int(1, help="""
     The major step value.
     """)
 
 class NumberEditor(CellEditor):
-    """ Spinner-based number cell editor.
+    ''' Spinner-based number cell editor.
 
-    """
+    '''
 
     step = Float(0.01, help="""
     The major step value.
     """)
 
 class TimeEditor(CellEditor):
-    """ Spinner-based time cell editor.
+    ''' Spinner-based time cell editor.
 
-    """
+    '''
 
 class DateEditor(CellEditor):
-    """ Calendar-based date cell editor.
+    ''' Calendar-based date cell editor.
 
-    """
+    '''
 
 class TableColumn(Model):
-    """ Table column widget.
+    ''' Table column widget.
 
-    """
+    '''
 
     field = String(help="""
     The name of the field mapping to a column in the data source.
@@ -320,19 +322,19 @@ class TableColumn(Model):
 
 @abstract
 class TableWidget(Widget):
-    """ Abstract base class for data table (data grid) widgets.
+    ''' Abstract base class for data table (data grid) widgets.
 
-    """
+    '''
 
     source = Instance(DataSource, help="""
     The source of data for the widget.
     """)
 
 class DataTable(TableWidget):
-    """ Two dimensional grid for visualisation and editing large amounts
+    ''' Two dimensional grid for visualisation and editing large amounts
     of data.
 
-    """
+    '''
 
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
