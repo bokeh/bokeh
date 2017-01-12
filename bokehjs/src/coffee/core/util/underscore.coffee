@@ -17,7 +17,7 @@ _.uniqueId = (prefix) ->
     return uuid;
 
 _.setdefault = (obj, key, value) ->
-  if _.has(obj, key)
+  if obj[key]?
     return obj[key]
   else
     obj[key] = value

@@ -3,7 +3,7 @@ import * as Backbone from "./backbone"
 
 export class BokehView extends Backbone.View
   initialize: (options) ->
-    if not _.has(options, 'id')
+    if not options.id?
       this.id = _.uniqueId('BokehView')
 
   toString: () -> "#{@model.type}View(#{@id})"
@@ -11,7 +11,7 @@ export class BokehView extends Backbone.View
   bind_bokeh_events: () ->
 
   remove: ->
-    if _.has(this, 'eventers')
+    if @eventers?
       for own target, val of @eventers
         val.off(null, null, this)
     @trigger('remove', this)

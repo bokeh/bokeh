@@ -18,7 +18,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
   # * view_option: array, optional view specific options passed in to the construction of the view
 
   created_views = []
-  newmodels = view_models.filter((x) -> not _.has(view_storage, x.id))
+  newmodels = view_models.filter((x) -> not view_storage[x.id]?)
 
   for model, i_model in newmodels
     cls = view_types[i_model] ? model.default_view

@@ -172,7 +172,7 @@ export class HasProps extends Backbone.Model
       #throw new Error(
       console.log("attempted to redefine existing property #{@type}.#{prop_name}")
 
-    if _.has(@_computed, prop_name)
+    if @_computed[prop_name]?
       throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
 
     changedep = () =>
