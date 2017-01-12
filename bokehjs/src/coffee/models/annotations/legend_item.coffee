@@ -66,7 +66,7 @@ export class LegendItem extends Model
       if source instanceof ColumnDataSource
         data = source.get_column(field)
         if data?
-          return _.unique(data)
+          return _.uniq(data)
         else
           return ["Invalid field"]
     return []
