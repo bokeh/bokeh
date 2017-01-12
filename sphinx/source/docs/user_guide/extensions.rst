@@ -82,6 +82,8 @@ extensions in the next section.
 
 .. code-block:: coffeescript
 
+    import {div, empty} from "core/dom"
+
     # The "core/properties" module has all the property types
     import * as p from "core/properties"
 
@@ -103,12 +105,17 @@ extensions in the next section.
         @listenTo(@model.slider, 'change', () => @render())
 
       render: () ->
-        # Backbone Views create <div> elements by default, accessible as @$el.
+        # Backbone Views create <div> elements by default, accessible as @el.
         # Many Bokeh views ignore this default <div>, and instead do things
         # like draw to the HTML canvas. In this case though, we change the
         # contents of the <div>, based on the current slider value.
-        @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
-        @$el.find('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
+        empty(@el)
+        @el.appendChild(div({
+          style: {
+            color: '#686d8e'
+            'background-color': '#2a3153'
+          }
+        }, "#{@model.text}: #{@model.slider.value}"))
 
     export class Custom extends LayoutDOM
 
