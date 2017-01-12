@@ -17,13 +17,13 @@ def pytest_addoption(parser):
     )
 
 
-def get_phantomjs_screenshot(url, screenshot_path, wait, width=1000, height=1000):
+def get_phantomjs_screenshot(url, screenshot_path, local_wait, global_wait, width, height):
     """
     wait is in milliseconds
     """
     phantomjs = pytest.config.getoption('phantomjs')
 
-    cmd = [phantomjs, join(dirname(__file__), "phantomjs_screenshot.js"), url, screenshot_path, str(wait), str(width), str(height)]
+    cmd = [phantomjs, join(dirname(__file__), "phantomjs_screenshot.js"), url, screenshot_path, str(local_wait), str(global_wait), str(width), str(height)]
     info("Running command: %s" % " ".join(cmd))
 
     try:

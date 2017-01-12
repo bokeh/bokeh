@@ -137,23 +137,21 @@ def _print_phantomjs_output(result):
 
 
 def _assert_snapshot(example, url, example_type, diff):
-    # Get setup datapoints
-
     screenshot_path, _, _ = get_example_pngs(example, diff)
 
-    if example_type == 'notebook':
-        wait = pytest.config.option.notebook_phantom_wait * 1000
-        height = 2000
-    else:
-        wait = 1000
-        height = 1000
+    height = 2000 if example_type == 'notebook' else 1000
+    wait = 20000
 
-    result = get_phantomjs_screenshot(url, screenshot_path, wait, height=height)
+    result = get_phantomjs_screenshot(url, screenshot_path, 1000, wait, 1000, height)
 
     status = result['status']
+    timeout = result['timeout']
     errors = result['errors']
     messages = result['messages']
     resources = result['resources']
+
+    if timeout:
+        warn("%s: %s" % (red("TIMEOUT: "), "example did not finish in %s ms" % wait))
 
     if status != 'success':
         assert False, "PhantomJS did not succeed: %s | %s | %s" % (errors, messages, resources)
