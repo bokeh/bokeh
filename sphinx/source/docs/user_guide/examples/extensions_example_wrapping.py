@@ -19,8 +19,6 @@ JS_CODE = """
 # Pandas, etc.) to web presentations using the Bokeh server.
 
 # These "require" lines are similar to python "import" statements
-import * as $ from "jquery"
-
 import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
@@ -55,10 +53,14 @@ export class Surface3dView extends LayoutDOMView
     super(options)
 
     url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
-    $.getScript(url).done(@_init)
 
-  # NOTE: we have to use the "fat arrow" => here so that "this" is bound correctly
-  _init: () =>
+    script = document.createElement('script')
+    script.src = url
+    script.async = false
+    script.onreadystatechange = s.onload = () => @_init()
+    document.querySelector("head").appendChild(script)
+
+  _init: () ->
     # Create a new Graph3s using the vis.js API. This assumes the vis.js has
     # already been loaded (e.g. in a custom app template). In the future Bokeh
     # models will be able to specify and load external scripts automatically.
