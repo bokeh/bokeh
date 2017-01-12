@@ -59,7 +59,7 @@ class LayoutDOM(Model):
     ``plot_width/plot_height`` is maintained. A plot with ``"scale_height"`` mode needs
     to be wrapped in a ``Row`` or ``Column`` to be responsive.
 
-    ``"scale_both"`` elements will responsively resize to fir both the width and height available,
+    ``"scale_both"`` elements will responsively resize to for both the width and height available,
     *while maintaining the original aspect ratio*.
 
     """)
