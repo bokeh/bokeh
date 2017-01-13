@@ -15,10 +15,3 @@ _.uniqueId = (prefix) ->
     return prefix + "-" + uuid
   else
     return uuid;
-
-_.setdefault = (obj, key, value) ->
-  if obj[key]?
-    return obj[key]
-  else
-    obj[key] = value
-    return value
