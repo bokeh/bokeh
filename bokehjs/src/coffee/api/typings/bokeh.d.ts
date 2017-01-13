@@ -35,8 +35,18 @@ declare namespace Bokeh {
   }
 
   namespace LinAlg {
+    export function zip<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]>;
+    export function unzip<A, B>(ABs: Array<[A, B]>): [Array<A>, Array<B>];
+    export function range(start: number, stop?: number, step?: number): Array<number>;
+    export function linspace(start: number, stop: number, num?: number): Array<number>;
     export function transpose<T>(array: Array<Array<T>>): Array<Array<T>>;
-    export function linspace(start: number, stop: number, num?: Int): Array<number>;
-    export function arange(start: number, stop: number, step?: number): Array<number>;
+    export function sum(array: Array<number>): number;
+    export function cumsum(array: Array<number>): Array<number>;
+    export function min(array: Array<number>): number;
+    export function minBy<T>(array: Array<T>, key: (item: T) => number): T;
+    export function max(array: Array<number>): number;
+    export function maxBy<T>(array: Array<T>, key: (item: T) => number): T;
+    export function argmin(array: Array<number>): number;
+    export function argmax(array: Array<number>): number;
   }
 }

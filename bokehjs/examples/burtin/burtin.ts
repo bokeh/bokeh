@@ -1,7 +1,7 @@
 namespace Burtin {
   import _ = Bokeh._;
   import plt = Bokeh.Plotting;
-  import arange = Bokeh.LinAlg.arange;
+  import range = Bokeh.LinAlg.range;
   import Color = Bokeh.Color;
   import Map = Bokeh.Map;
 
@@ -110,7 +110,7 @@ namespace Burtin {
           {color: drug_color['Neomycin']})
 
   // circular axes and lables
-  const labels = arange(-3, 4).map((v) => 10**v)
+  const labels = range(-3, 4).map((v) => 10**v)
   const radii = labels.map((label) => a * Math.sqrt(Math.log(label * 1E4)) + b)
 
   p.circle(0, 0, {radius: radii, fill_color: null, line_color: "white"})

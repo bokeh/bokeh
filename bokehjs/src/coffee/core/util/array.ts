@@ -32,6 +32,34 @@ export function range(start: number, stop?: number, step: number = 1): Array<num
   return range
 }
 
+export function linspace(start: number, stop: number, num: number = 100): Array<number> {
+  const step = (stop - start) / (num - 1)
+  let array = new Array(num)
+
+  for (let i = 0; i < num; i++) {
+    array[i] = start + step*i
+  }
+
+  return array
+}
+
+export function transpose<T>(array: Array<Array<T>>): Array<Array<T>> {
+  const rows = array.length
+  const cols = array[0].length
+
+  let transposed: Array<Array<T>> = []
+
+  for (let j = 0; j < cols; j++) {
+    transposed[j] = []
+
+    for (let i = 0; i < rows; i++) {
+      transposed[j][i] = array[i][j]
+    }
+  }
+
+  return transposed
+}
+
 export function sum(array: Array<number>): number {
   return array.reduce((a, b) => a + b, 0)
 }
@@ -56,7 +84,7 @@ export function min(array: Array<number>): number {
   return result
 }
 
-export function minBy<T>(array: Array<T>, key: (T) => number): T {
+export function minBy<T>(array: Array<T>, key: (item: T) => number): T {
   let value: T
   let result: T
   let computed: number
@@ -88,7 +116,7 @@ export function max(array: Array<number>): number {
   return result
 }
 
-export function maxBy<T>(array: Array<T>, key: (T) => number): T {
+export function maxBy<T>(array: Array<T>, key: (item: T) => number): T {
   let value: T
   let result: T
   let computed: number
