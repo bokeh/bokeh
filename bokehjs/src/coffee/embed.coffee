@@ -30,7 +30,7 @@ _init_comms = (target, doc) ->
   if Jupyter? and Jupyter.notebook.kernel?
     logger.info("Registering Jupyter comms for target #{target}")
     comm_manager = Jupyter.notebook.kernel.comm_manager
-    update_comms = _.partial(_update_comms_callback, target, doc)
+    update_comms = (comm) -> _update_comms_callback(target, doc, comm)
     for id, promise of comm_manager.comms
       promise.then(update_comms)
     try
