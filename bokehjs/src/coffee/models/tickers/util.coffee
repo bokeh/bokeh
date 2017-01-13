@@ -10,6 +10,8 @@
 
 import * as _ from "underscore"
 
+import {range} from "../../core/util/array"
+
 # Some time constants, in milliseconds.
 export ONE_MILLI = 1.0
 export ONE_SECOND = 1000.0
@@ -25,7 +27,7 @@ export ONE_YEAR = 365 * ONE_DAY
 
 # Returns the index of the minimum element of an array.
 export argmin = (arr) ->
-  ret = _.min(_.range(arr.length), ((i) -> return arr[i]))
+  ret = _.min(range(arr.length), ((i) -> return arr[i]))
   return ret
 
 # ---------------------------------------------------------------------------

@@ -1,19 +1,7 @@
 import * as _ from "underscore"
+
+import {range} from "../../core/util/array"
 import {AdaptiveTicker} from "./adaptive_ticker"
-
-range = (start, stop, step) ->
-  if _.isUndefined(stop) # one param defined
-    stop = start
-    start = 0
-  step = 1 if _.isUndefined(step)
-  return [] if (step > 0 and start >= stop) or (step < 0 and start <= stop)
-  result = []
-  i = start
-
-  while (if step > 0 then i < stop else i > stop)
-    result.push i
-    i += step
-  return result
 
 export class LogTicker extends AdaptiveTicker
   type: 'LogTicker'
@@ -41,7 +29,7 @@ export class LogTicker extends AdaptiveTicker
       if _.isNaN(start_factor) or _.isNaN(end_factor)
         factors = []
       else
-        factors = _.range(start_factor, end_factor + 1)
+        factors = range(start_factor, end_factor + 1)
 
       ticks = (factor * interval for factor in factors when factor != 0)
 
