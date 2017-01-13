@@ -193,7 +193,7 @@ export class Box extends LayoutDOM
       look_up_list = [look_up]
     else
       look_up_list = look_up
-    return _.every(look_up_list, (x) -> x in var_keys)
+    return _.all(look_up_list, (x) -> x in var_keys)
 
   _test_layoutable: (child) ->
     required_constrained_variables = [
