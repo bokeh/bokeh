@@ -22,6 +22,7 @@ import io
 import json
 import os
 import warnings
+import uuid
 
 # Third-party imports
 
@@ -609,3 +610,14 @@ def _remove_roots(subplots):
     for sub in subplots:
         if sub in doc.roots:
             doc.remove_root(sub)
+
+def server_cell(server, script):
+    '''
+    Wraps a script returned by autoload_server in a div that allows cell
+    destruction/replacement to be detected.
+    '''
+    divid = uuid.uuid4().hex
+    _state.uuid_to_server[divid] = server
+    div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>'"
+    return div_html.format(script=script, divid=divid)
+
