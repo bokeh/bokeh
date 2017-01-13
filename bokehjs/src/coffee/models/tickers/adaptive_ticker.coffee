@@ -1,8 +1,8 @@
 import * as _ from "underscore"
 
-import {argmin} from "./util"
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "../../core/properties"
+import {argmin} from "../../core/util/array"
 
 # Forces a number x into a specified range [min_val, max_val].
 clamp = (x, min_val, max_val) ->
