@@ -621,3 +621,20 @@ def server_cell(server, script):
     div_html = "<div class='bokeh_class' id='{divid}'>{script}</div>'"
     return div_html.format(script=script, divid=divid)
 
+def _destroy_server(div_id):
+    '''
+    Given a uuid id of a div removed or replaced in the Jupyter
+    notebook, destroy the corresponding server sessions and stop it.
+    '''
+    server = _state.uuid_to_server.pop(div_id, None)
+    if server is None:
+        logger.debug("No server instance found for uuid: %r" % div_id)
+        return
+
+    try:
+        for session in server.get_sessions('/'):
+            session.destroy()
+        server.stop()
+
+    except Exception as e:
+        logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
