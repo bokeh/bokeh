@@ -133,13 +133,13 @@ _.extend(Model.prototype, Events, {
 // Creating a Backbone.View creates its initial element outside of the DOM,
 // if an existing element is not provided...
 export var View = function(options) {
-  _.extend(this, _.pick(options, viewOptions));
+  options = options || {};
+  this.model = options.model;
+  this.id = options.id;
+  this.el = options.el;
   this._ensureElement();
-  this.initialize.apply(this, arguments);
+  this.initialize(options);
 };
-
-// List of view options to be set as properties.
-var viewOptions = ['model', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
 // Set up all inheritable **Backbone.View** properties and methods.
 _.extend(View.prototype, Events, {
@@ -149,7 +149,7 @@ _.extend(View.prototype, Events, {
 
   // Initialize is an empty function by default. Override it with your own
   // initialization logic.
-  initialize: function(){},
+  initialize: function(options) {},
 
   // **render** is the core function that your view should override, in order
   // to populate its element (`this.el`), with the appropriate HTML. The
