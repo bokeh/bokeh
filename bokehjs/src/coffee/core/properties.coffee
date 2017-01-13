@@ -12,7 +12,6 @@ export class Property
   _.extend(@prototype, Events)
 
   dataspec: false
-  specifiers: ['field', 'value']
 
   constructor: ({@obj, @attr, @default_value}) ->
     @_init(false)
@@ -90,16 +89,10 @@ export class Property
 
       obj.setv(attr, attr_value, {silent: true, defaults: true})
 
-    # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
-    #   @spec = attr_value
-    #   if _.size(_.pick.apply(null, [@spec].concat(@specifiers))) != 1
-    #     throw new Error("Invalid property specifier #{JSON.stringify(@spec)}, must have exactly one of #{@specifiers}")
-
     if _.isArray(attr_value)
       @spec = {value: attr_value}
 
-    # is there a better way to check for "specs" ? this seems fragile
-    else if _.isObject(attr_value) and _.size(_.pick.apply(null, [attr_value].concat(@specifiers))) == 1
+    else if _.isObject(attr_value) and ((attr_value.value == undefined) != (attr_value.field == undefined))
       @spec = attr_value
 
     else
