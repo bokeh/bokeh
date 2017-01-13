@@ -3,9 +3,6 @@ declare namespace Bokeh {
 
   var index: Map<View<LayoutDOM>>;
 
-  var _: _.UnderscoreStatic;
-  var $: JQueryStatic;
-
   class LogLevel {
    name: string;
    level: number;
