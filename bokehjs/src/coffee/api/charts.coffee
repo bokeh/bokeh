@@ -4,15 +4,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"
-import {zip, unzip} from "../core/util/array"
-
-sum = (array) ->
-  return array.reduce(((a, b) => a + b), 0)
-
-cumsum = (array) ->
-  result = []
-  array.reduce(((a, b, i) -> result[i] = a + b), 0)
-  return result
+import {zip, unzip, sum, cumsum} from "../core/util/array"
 
 num2hexcolor = (num) -> sprintf("#%06x", num)
 hexcolor2rgb = (color) ->

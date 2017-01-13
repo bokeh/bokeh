@@ -33,3 +33,13 @@ export function range(start: number, stop?: number, step: number = 1): Array<num
 
   return range
 }
+
+export function sum(array: Array<number>): number {
+  return array.reduce((a, b) => a + b, 0)
+}
+
+export function cumsum(array: Array<number>): Array<number> {
+  const result = []
+  array.reduce((a, b, i) => result[i] = a + b, 0)
+  return result
+}
