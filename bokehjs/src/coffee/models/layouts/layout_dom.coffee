@@ -1,6 +1,6 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 import {Model} from "../../model"
+import {empty} from "../../core/dom"
 import * as p from "../../core/properties"
 import {GE, EQ, Strength, Variable} from "../../core/layout/solver"
 
@@ -13,11 +13,11 @@ export class LayoutDOMView extends BokehView
   initialize: (options) ->
     super(options)
     # Provides a hook so document can measure
-    @$el.attr("id", "modelid_#{@model.id}")
-    @$el.addClass("bk-layout-#{@model.sizing_mode}")
+    @el.setAttribute("id", "modelid_#{@model.id}")
+    @el.classList.add("bk-layout-#{@model.sizing_mode}")
     if @model.css_classes?
       for cls in @model.css_classes
-        @$el.addClass(cls)
+        @el.classList.add(cls)
     @child_views = {}
 
     # init_solver = false becuase we only need to init solver on subsequent
@@ -38,14 +38,14 @@ export class LayoutDOMView extends BokehView
     @child_views = {}
     build_views(@child_views, children)
 
-    @$el.empty()
+    empty(@el)
 
     for child in children
       # Look-up the child_view in @child_views and then append We can't just
       # read from @child_views because then we don't get guaranteed ordering.
       # Which is a problem in non-box layouts.
       child_view = @child_views[child.id]
-      @$el.append(child_view.$el)
+      @el.appendChild(child_view.el)
 
     @bind_bokeh_events()
 
@@ -100,39 +100,31 @@ export class LayoutDOMView extends BokehView
       s.suggest_value(@model._width, width)
       s.suggest_value(@model._height, height)
       s.update_variables()
-      @$el.css({
-        width: width
-        height: height
-      })
+      @el.style.width = "#{width}px"
+      @el.style.height = "#{height}px"
 
     if @model.sizing_mode is 'scale_width'
       height = @get_height()
 
       s.suggest_value(@model._height, height)
       s.update_variables()
-      @$el.css({
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.width = "#{@model._width._value}px"
+      @el.style.height = "#{@model._height._value}px"
 
     if @model.sizing_mode is 'scale_height'
       width = @get_width()
 
       s.suggest_value(@model._width, width)
       s.update_variables()
-      @$el.css({
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.width = "#{@model._width._value}px"
+      @el.style.height = "#{@model._height._value}px"
 
     if @model.sizing_mode is 'stretch_both'
-      @$el.css({
-        position: 'absolute'
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width._value
-        height: @model._height._value
-      })
+      @el.style.position = 'absolute'
+      @el.style.left = "#{@model._dom_left._value}px"
+      @el.style.top = "#{@model._dom_top._value}px"
+      @el.style.width = "#{@model._width._value}px"
+      @el.style.height = "#{@model._height._value}px"
 
   get_height: () ->
     # Subclasses should implement this to explain

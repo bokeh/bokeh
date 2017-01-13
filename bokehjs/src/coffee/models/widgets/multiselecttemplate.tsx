@@ -1,5 +1,5 @@
 import * as _ from "underscore";
-import * as DOM from "../../core/util/dom";
+import * as DOM from "../../core/dom";
 
 interface MultiSelectProps {
   id: string;

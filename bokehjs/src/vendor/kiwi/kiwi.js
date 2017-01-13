@@ -1508,7 +1508,7 @@ var kiwi;
         Solver.prototype.addEditVariable = function (variable, strength) {
             var editPair = this._editMap.find(variable);
             if (editPair !== undefined) {
-                throw new Error("duplicate edit variable");
+                throw new Error("duplicate edit variable: " + variable._name);
             }
             strength = kiwi.Strength.clip(strength);
             if (strength === kiwi.Strength.required) {
@@ -1528,7 +1528,7 @@ var kiwi;
         Solver.prototype.removeEditVariable = function (variable) {
             var editPair = this._editMap.erase(variable);
             if (editPair === undefined) {
-                throw new Error("unknown edit variable");
+                throw new Error("unknown edit variable: " + variable._name);
             }
             this.removeConstraint(editPair.second.constraint);
         };
@@ -1546,7 +1546,7 @@ var kiwi;
         Solver.prototype.suggestValue = function (variable, value) {
             var editPair = this._editMap.find(variable);
             if (editPair === undefined) {
-                throw new Error("unknown edit variable");
+                throw new Error("unknown edit variable: " + variable._name);
             }
 
             var rows = this._rowMap;

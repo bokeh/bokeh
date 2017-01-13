@@ -1,5 +1,4 @@
 import * as _ from "underscore"
-import * as $ from "jquery"
 
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
@@ -7,6 +6,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import * as hittest from "../../../core/hittest"
 import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
+import {table, td, tr, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
 
 _color_to_hex = (color) ->
@@ -27,7 +27,7 @@ export class HoverToolView extends InspectToolView
     for r in @model.computed_renderers
       @listenTo(r.data_source, 'inspect', @_update)
 
-    @plot_view.canvas_view.$el.css('cursor', 'crosshair')
+    @plot_view.canvas_view.el.style.cursor = "crosshair"
 
   _clear: () ->
 
@@ -242,48 +242,50 @@ export class HoverToolView extends InspectToolView
   _render_tooltips: (ds, i, vars) ->
     tooltips = @model.tooltips
     if _.isString(tooltips)
-      return $('<div>').html(replace_placeholders(tooltips, ds, i, vars))
+      el = div()
+      el.innerHTML = replace_placeholders(tooltips, ds, i, vars)
+      return el
     else if _.isFunction(tooltips)
       return tooltips(ds, vars)
     else
-      table = $('<table></table>')
+      rows = table()
 
       for [label, value] in tooltips
-        row = $("<tr></tr>")
-        row.append($("<td class='bk-tooltip-row-label'>").text("#{label}: "))
-        td = $("<td class='bk-tooltip-row-value'></td>")
+        row = tr()
+        row.appendChild(td({class: 'bk-tooltip-row-label'}, "#{label}: "))
+        cell = td({class: 'bk-tooltip-row-value'})
 
         if value.indexOf("$color") >= 0
           [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
           column = ds.get_column(colname)
           if not column?
-            span = $("<span>").text("#{colname} unknown")
-            td.append(span)
+            el = span({}, "#{colname} unknown")
+            cell.appendChild(el)
             continue
           hex = opts?.indexOf("hex") >= 0
           swatch = opts?.indexOf("swatch") >= 0
           color = column[i]
           if not color?
-            span = $("<span>(null)</span>")
-            td.append(span)
+            el = span({}, "(null)")
+            cell.appendChild(el)
             continue
           if hex
             color = _color_to_hex(color)
-          span = $("<span>").text(color)
-          td.append(span)
+          el = span({}, color)
+          cell.appendChild(el)
           if swatch
-            span = $("<span class='bk-tooltip-color-block'> </span>")
-            span.css({ backgroundColor: color})
-          td.append(span)
+            el = span({class: 'bk-tooltip-color-block', style: {backgroundColor: color}}, " ")
+            cell.appendChild(el)
         else
           value = value.replace("$~", "$data_")
-          value = replace_placeholders(value, ds, i, vars)
-          td.append($('<span>').html(value))
+          el = span()
+          el.innerHTML = replace_placeholders(value, ds, i, vars)
+          cell.appendChild(el)
 
-        row.append(td)
-        table.append(row)
+        row.appendChild(cell)
+        rows.appendChild(row)
 
-      return table
+      return rows
 
 export class HoverTool extends InspectTool
   default_view: HoverToolView

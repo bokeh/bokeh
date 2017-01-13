@@ -80,7 +80,7 @@ export class PlotCanvasView extends BokehView
 
     @canvas = @model.canvas
     @canvas_view = new @canvas.default_view({'model': @canvas})
-    @$el.append(@canvas_view.el)
+    @el.appendChild(@canvas_view.el)
     @canvas_view.render(true)
 
     # If requested, try enabling webgl
@@ -95,7 +95,7 @@ export class PlotCanvasView extends BokehView
       @model.document._unrendered_plots = {}  # poor man's set
     @model.document._unrendered_plots[@id] = true
 
-    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.$el)
+    @ui_event_bus = new UIEvents(@model.toolbar, @canvas_view.el)
 
     @levels = {}
     for level in enums.RenderLevel
@@ -117,6 +117,10 @@ export class PlotCanvasView extends BokehView
 
   get_canvas_element: () ->
     return @canvas_view.ctx.canvas
+
+  @getters {
+    canvas_overlays: () -> @el.querySelector('.bk-canvas-overlays')
+  }
 
   init_webgl: () ->
     ctx = @canvas_view.ctx
@@ -587,13 +591,11 @@ export class PlotCanvasView extends BokehView
       # first time we get here, but then layout initialization fails.
 
     # This allows the plot canvas to be positioned around the toolbar
-    @$el.css({
-      position: 'absolute'
-      left: @model._dom_left._value
-      top: @model._dom_top._value
-      width: @model._width._value
-      height: @model._height._value
-    })
+    @el.style.position = 'absolute'
+    @el.style.left = "#{@model._dom_left._value}px"
+    @el.style.top = "#{@model._dom_top._value}px"
+    @el.style.width = "#{@model._width._value}px"
+    @el.style.height = "#{@model._height._value}px"
 
   update_constraints: () ->
     s = @model.document.solver()
@@ -642,6 +644,19 @@ export class PlotCanvasView extends BokehView
     if @visuals.background_fill.doit
       @visuals.background_fill.set_value(ctx)
       ctx.fillRect(frame_box...)
+
+  save: (name) ->
+    canvas = @get_canvas_element()
+
+    if canvas.msToBlob?
+      blob = canvas.msToBlob()
+      window.navigator.msSaveBlob(blob, name)
+    else
+      link = document.createElement('a')
+      link.href = canvas.toDataURL('image/png')
+      link.download = name
+      link.target = "_blank"
+      link.dispatchEvent(new MouseEvent('click'))
 
 export class PlotCanvas extends LayoutDOM
   type: 'PlotCanvas'

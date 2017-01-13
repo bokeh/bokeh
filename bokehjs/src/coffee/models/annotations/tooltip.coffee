@@ -1,8 +1,8 @@
-import * as $ from "jquery"
 import * as _ from "underscore"
 
 import {Annotation, AnnotationView} from "./annotation"
 import {logger} from "../../core/logging"
+import {div, show, hide, empty} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class TooltipView extends AnnotationView
@@ -11,9 +11,9 @@ export class TooltipView extends AnnotationView
   initialize: (options) ->
     super(options)
     # TODO (bev) really probably need multiple divs
-    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.css({'z-index': 1010})
-    @$el.hide()
+    @plot_view.canvas_overlays.appendChild(@el)
+    @el.style.zIndex = 1010
+    hide(@el)
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:data', @_draw_tips)
@@ -23,10 +23,13 @@ export class TooltipView extends AnnotationView
 
   _draw_tips: () ->
     data = @model.data
-    @$el.empty()
-    @$el.hide()
+    empty(@el)
+    hide(@el)
 
-    @$el.toggleClass("bk-tooltip-custom", @model.custom)
+    if @model.custom
+      @el.classList.add("bk-tooltip-custom")
+    else
+      @el.classList.remove("bk-tooltip-custom")
 
     if _.isEmpty(data)
       return
@@ -35,8 +38,8 @@ export class TooltipView extends AnnotationView
       [vx, vy, content] = val
       if @model.inner_only and not @plot_view.frame.contains(vx, vy)
           continue
-      tip = $('<div />').appendTo(@$el)
-      tip.append(content)
+      tip = div({}, content)
+      @el.appendChild(tip)
     sx = @plot_view.model.canvas.vx_to_sx(vx)
     sy = @plot_view.model.canvas.vy_to_sy(vy)
 
@@ -59,37 +62,44 @@ export class TooltipView extends AnnotationView
       else
         side = attachment
 
-    @$el.removeClass('bk-right bk-left bk-above bk-below')
+    @el.classList.remove("bk-right")
+    @el.classList.remove("bk-left")
+    @el.classList.remove("bk-above")
+    @el.classList.remove("bk-below")
 
     arrow_size = 10 # XXX: keep in sync with less
 
+    show(@el) # XXX: {offset,client}Width() gives 0 when display="none"
+
     switch side
       when "right"
-        @$el.addClass("bk-left")
-        left = sx + (@$el.outerWidth() - @$el.innerWidth()) + arrow_size
-        top = sy - @$el.outerHeight()/2
+        @el.classList.add("bk-left")
+        left = sx + (@el.offsetWidth - @el.clientWidth) + arrow_size
+        top = sy - @el.offsetHeight/2
       when "left"
-        @$el.addClass("bk-right")
-        left = sx - @$el.outerWidth() - arrow_size
-        top = sy - @$el.outerHeight()/2
+        @el.classList.add("bk-right")
+        left = sx - @el.offsetWidth - arrow_size
+        top = sy - @el.offsetHeight/2
       when "above"
-        @$el.addClass("bk-above")
-        top = sy + (@$el.outerHeight() - @$el.innerHeight()) + arrow_size
-        left = Math.round(sx - @$el.outerWidth()/2)
+        @el.classList.add("bk-above")
+        top = sy + (@el.offsetHeight - @el.clientHeight) + arrow_size
+        left = Math.round(sx - @el.offsetWidth/2)
       when "below"
-        @$el.addClass("bk-below")
-        top = sy - @$el.outerHeight() - arrow_size
-        left = Math.round(sx - @$el.outerWidth()/2)
+        @el.classList.add("bk-below")
+        top = sy - @el.offsetHeight - arrow_size
+        left = Math.round(sx - @el.offsetWidth/2)
 
     if @model.show_arrow
-        @$el.addClass("bk-tooltip-arrow")
+        @el.classList.add("bk-tooltip-arrow")
 
     # TODO (bev) this is not currently bulletproof. If there are
     # two hits, not colocated and one is off the screen, that can
     # be problematic
-    if @$el.children().length > 0
-      @$el.css({top: top, left: left})
-      @$el.show()
+    if @el.childNodes.length > 0
+      @el.style.top = "#{top}px"
+      @el.style.left = "#{left}px"
+    else
+      hide(@el)
 
 export class Tooltip extends Annotation
   default_view: TooltipView

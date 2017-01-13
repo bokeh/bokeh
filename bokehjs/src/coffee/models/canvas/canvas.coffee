@@ -17,7 +17,7 @@ export class CanvasView extends BokehView
     super(options)
 
     html = @template({ map: @model.map })
-    @$el.html(html)
+    @el.appendChild(html)
 
     # create the canvas context that gets passed around for drawing
     @ctx = @get_ctx()
@@ -40,17 +40,15 @@ export class CanvasView extends BokehView
             @[i] = arr[i]
 
     # map plots reference this attribute
-    @map_div = @$el.find('div.bk-canvas-map') ? null
+    @map_div = @el.querySelector('div.bk-canvas-map')
     @set_dims([@model.initial_width, @model.initial_height])
     logger.debug("CanvasView initialized")
 
   get_canvas_element: () ->
-    return @$el.find('canvas.bk-canvas')[0]
+    return @el.querySelector('canvas.bk-canvas')
 
   get_ctx: () ->
-    canvas_el = @$el.find('canvas.bk-canvas')
-    ctx = canvas_el[0].getContext('2d')
-    return ctx
+    return @get_canvas_element().getContext('2d')
 
   prepare_canvas: (force=false) ->
     # Ensure canvas has the correct size, taking HIDPI into account
@@ -62,20 +60,16 @@ export class CanvasView extends BokehView
     # only resize the canvas when the canvas dimensions change unless force==true
     if not _.isEqual(@last_dims, [width, height, dpr]) or force
 
-      @$el.css({
-        width: width
-        height:height
-      })
+      @el.style.width = "#{width}px"
+      @el.style.height = "#{height}px"
 
       # Scale the canvas (this resets the context's state)
       @pixel_ratio = ratio = get_scale_ratio(@ctx, @model.use_hidpi)
-      canvas_el = @$el.find('.bk-canvas')
-      canvas_el.css({
-        width: width
-        height: height
-      })
-      canvas_el.attr('width', width*ratio)
-      canvas_el.attr('height', height*ratio)
+      canvas_el = @get_canvas_element()
+      canvas_el.style.width = "#{width}px"
+      canvas_el.style.height = "#{height}px"
+      canvas_el.setAttribute('width', width*ratio)
+      canvas_el.setAttribute('height', height*ratio)
 
       logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
       @model.pixel_ratio = @pixel_ratio

@@ -21,16 +21,10 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
   newmodels = view_models.filter((x) -> not _.has(view_storage, x.id))
 
   for model, i_model in newmodels
-    view_specific_option = _.extend({}, options, {'model': model})
-
-    if i_model < view_types.length
-      view_storage[model.id] = new view_types[i_model](view_specific_option)
-    else
-      view_storage[model.id] = new model.default_view(view_specific_option)
-
-    view_storage[model.id].$el.find("*[class*='ui-']").each (idx, el) ->
-      el.className = jQueryUIPrefixer(el)
-    created_views.push(view_storage[model.id])
+    cls = view_types[i_model] ? model.default_view
+    view_options = _.extend({model: model}, options)
+    view_storage[model.id] = view = new cls(view_options)
+    created_views.push(view)
 
   to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
 
@@ -39,11 +33,3 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
     delete view_storage[key]
 
   return created_views
-
-export jQueryUIPrefixer = (el) ->
-  return unless el.className?
-  classList = el.className.split " "
-  prefixedClassList = classList.map (a) ->
-    a = a.trim()
-    return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
-  return prefixedClassList.join " "

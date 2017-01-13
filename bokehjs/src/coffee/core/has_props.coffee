@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import * as _ from "underscore"
 import * as Backbone from "./backbone"
 

@@ -1,15 +1,16 @@
 import * as _ from "underscore"
 
 import {Annotation, AnnotationView} from "./annotation"
+import {show, hide} from "../../core/dom"
 import * as p from "../../core/properties"
 
 export class SpanView extends AnnotationView
 
   initialize: (options) ->
     super(options)
-    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-    @$el.css({position: 'absolute'})
-    @$el.hide()
+    @plot_view.canvas_overlays.appendChild(@el)
+    @el.style.position = "absolute"
+    hide(@el)
 
   bind_bokeh_events: () ->
     if @model.for_hover
@@ -30,7 +31,7 @@ export class SpanView extends AnnotationView
       loc = @model.location
 
     if not loc?
-      @$el.hide()
+      hide(@el)
       return
 
     frame = @plot_model.frame
@@ -50,16 +51,14 @@ export class SpanView extends AnnotationView
       height = frame.height
 
     if @model.render_mode == "css"
-      @$el.css({
-        'top': stop,
-        'left': sleft,
-        'width': "#{width}px",
-        'height': "#{height}px"
-        'z-index': 1000
-        'background-color': @model.properties.line_color.value()
-        'opacity': @model.properties.line_alpha.value()
-      })
-      @$el.show()
+      @el.style.top = "#{stop}px"
+      @el.style.left = "#{sleft}px"
+      @el.style.width = "#{width}px"
+      @el.style.height = "#{height}px"
+      @el.style.zIndex = 1000
+      @el.style.backgroundColor = @model.properties.line_color.value()
+      @el.style.opacity = @model.properties.line_alpha.value()
+      show(@el)
 
     else if @model.render_mode == "canvas"
       ctx = @plot_view.canvas_view.ctx

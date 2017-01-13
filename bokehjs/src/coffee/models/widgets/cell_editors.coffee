@@ -7,10 +7,11 @@ import * as p from "../../core/properties"
 
 import {BokehView} from "../../core/bokeh_view"
 import {Model} from "../../model"
+import {JQueryable} from "./jqueryable"
 
 export class CellEditorView extends BokehView
+  _.extend(@prototype, JQueryable)
 
-  tagName: "div"
   className: "bk-cell-editor"
 
   input: null
@@ -31,6 +32,7 @@ export class CellEditorView extends BokehView
     @$el.append(@$input)
     @renderEditor()
     @disableNavigation()
+    @_prefix_ui()
     return @
 
   renderEditor: () ->
@@ -235,7 +237,7 @@ export class TimeEditor extends CellEditor
 
 export class DateEditorView extends CellEditorView
 
-  emptyValue: new window.Date()
+  emptyValue: new Date()
 
   input: '<input type="text" />'
 
@@ -274,7 +276,7 @@ export class DateEditorView extends CellEditorView
 
   getValue: () -> return @$input.datepicker("getDate").getTime()
 
-  setValue: (val) -> @$input.datepicker("setDate", new window.Date(val))
+  setValue: (val) -> @$input.datepicker("setDate", new Date(val))
 
 export class DateEditor extends CellEditor
   type: 'DateEditor'

@@ -1,4 +1,4 @@
-import * as DOM from "../../core/util/dom";
+import * as DOM from "../../core/dom";
 
 interface ToolbarProps {
   location: "above" | "below" | "left" | "right";

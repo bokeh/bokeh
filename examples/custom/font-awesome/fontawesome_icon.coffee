@@ -8,7 +8,7 @@ import {WidgetView} from "models/widgets/widget"
 import "./fontawesome.less"
 
 export class FontAwesomeIconView extends WidgetView
-  tagName: "i"
+  tagName: "span"
 
   initialize: (options) ->
     super(options)
@@ -16,15 +16,19 @@ export class FontAwesomeIconView extends WidgetView
     @listenTo(@model, 'change', @render)
 
   render: () ->
-    @$el.empty()
-    @$el.addClass("bk-u-fa")
-    @$el.addClass("bk-u-fa-" + @model.icon_name)
-    size = @model.size
-    if size? then @$el.css("font-size": size + "em")
-    flip = @model.flip
-    if flip? then @$el.addClass("bk-u-fa-flip-" + flip)
+    @el.className = "" # erase all CSS classes if re-rendering
+
+    @el.classList.add("bk-u-fa")
+    @el.classList.add("bk-u-fa-#{@model.icon_name}")
+
+    @el.style.fontSize = "#{@model.size}em"
+
+    if @model.flip?
+      @el.classList.add("bk-u-fa-flip-#{@model.flip}")
+
     if @model.spin
-      @$el.addClass("bk-u-fa-spin")
+      @el.classList.add("bk-u-fa-spin")
+
     return @
 
   update_constraints: () -> null
@@ -35,7 +39,7 @@ export class FontAwesomeIcon extends AbstractIcon
 
   @define {
     icon_name: [ p.String, "check" ] # TODO (bev) enum?
-    size:      [ p.Number          ]
+    size:      [ p.Number, 1       ]
     flip:      [ p.Any             ] # TODO (bev)
     spin:      [ p.Bool,   false   ]
   }

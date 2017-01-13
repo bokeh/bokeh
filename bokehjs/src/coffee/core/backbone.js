@@ -6,7 +6,6 @@
 //     http://backbonejs.org
 
 import * as _ from "underscore";
-import * as $ from "jquery";
 
 import {Events} from './events';
 
@@ -139,9 +138,6 @@ export var View = function(options) {
   this.initialize.apply(this, arguments);
 };
 
-// Cached regex to split keys for `delegate`.
-var delegateEventSplitter = /^(\S+)\s*(.*)$/;
-
 // List of view options to be set as properties.
 var viewOptions = ['model', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
@@ -174,76 +170,20 @@ _.extend(View.prototype, Events, {
   // attached to it. Exposed for subclasses using an alternative DOM
   // manipulation API.
   _removeElement: function() {
-    this.$el.remove();
-  },
-
-  // Change the view's element (`this.el` property) and re-delegate the
-  // view's events on the new element.
-  setElement: function(element) {
-    this.undelegateEvents();
-    this._setElement(element);
-    this.delegateEvents();
-    return this;
-  },
-
-  // Creates the `this.el` and `this.$el` references for this view using the
-  // given `el`. `el` can be a CSS selector or an HTML string, a jQuery
-  // context or an element. Subclasses can override this to utilize an
-  // alternative DOM manipulation API and are only required to set the
-  // `this.el` property.
-  _setElement: function(el) {
-    this.$el = el instanceof $ ? el : $(el);
-    this.el = this.$el[0];
-  },
-
-  // Set callbacks, where `this.events` is a hash of
-  //
-  // *{"event selector": "callback"}*
-  //
-  //     {
-  //       'mousedown .title':  'edit',
-  //       'click .button':     'save',
-  //       'click .open':       function(e) { ... }
-  //     }
-  //
-  // pairs. Callbacks will be bound to the view, with `this` set properly.
-  // Uses event delegation for efficiency.
-  // Omitting the selector binds the event to `this.el`.
-  delegateEvents: function(events) {
-    events || (events = _.result(this, 'events'));
-    if (!events) return this;
-    this.undelegateEvents();
-    for (var key in events) {
-      var method = events[key];
-      if (!_.isFunction(method)) method = this[method];
-      if (!method) continue;
-      var match = key.match(delegateEventSplitter);
-      this.delegate(match[1], match[2], method.bind(this));
+    var parent = this.el.parentNode;
+    if (parent != null) {
+      parent.removeChild(this.el);
     }
+  },
+
+  setElement: function(element) {
+    this._setElement(element);
     return this;
   },
 
-  // Add a single event listener to the view's element (or a child element
-  // using `selector`). This only works for delegate-able events: not `focus`,
-  // `blur`, and not `change`, `submit`, and `reset` in Internet Explorer.
-  delegate: function(eventName, selector, listener) {
-    this.$el.on(eventName + '.delegateEvents' + this.id, selector, listener);
-    return this;
-  },
-
-  // Clears all callbacks previously bound to the view by `delegateEvents`.
-  // You usually don't need to use this, but may wish to if you have multiple
-  // Backbone views attached to the same DOM element.
-  undelegateEvents: function() {
-    if (this.$el) this.$el.off('.delegateEvents' + this.id);
-    return this;
-  },
-
-  // A finer-grained `undelegateEvents` for removing a single delegated event.
-  // `selector` and `listener` are both optional.
-  undelegate: function(eventName, selector, listener) {
-    this.$el.off(eventName + '.delegateEvents' + this.id, selector, listener);
-    return this;
+  // Creates the `this.el`.
+  _setElement: function(el) {
+    this.el = el;
   },
 
   // Produces a DOM element to be assigned to your view. Exposed for
@@ -258,22 +198,17 @@ _.extend(View.prototype, Events, {
   // an element from the `id`, `className` and `tagName` properties.
   _ensureElement: function() {
     if (!this.el) {
-      var attrs = _.extend({}, _.result(this, 'attributes'));
-      if (this.id) attrs.id = _.result(this, 'id');
-      if (this.className) attrs['class'] = _.result(this, 'className');
       this.setElement(this._createElement(_.result(this, 'tagName')));
-      this._setAttributes(attrs);
+      if (this.id) {
+        this.el.setAttribute('id', _.result(this, 'id'));
+      }
+      if (this.className) {
+        this.el.setAttribute('class', _.result(this, 'className'));
+      }
     } else {
       this.setElement(_.result(this, 'el'));
     }
-  },
-
-  // Set attributes from a hash on this view's element.  Exposed for
-  // subclasses using an alternative DOM manipulation API.
-  _setAttributes: function(attributes) {
-    this.$el.attr(attributes);
   }
-
 });
 
 Model.getter = View.getter = function(name, get) {

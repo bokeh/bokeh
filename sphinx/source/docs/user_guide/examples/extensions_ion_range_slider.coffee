@@ -1,7 +1,6 @@
 # These are similar to python imports. BokehJS vendors its own versions
 # of Underscore and JQuery. They are available as show here.
 import * as _ from "underscore"
-import * as $ from "jquery"
 # The "core/properties" module has all the property types
 import * as p from "core/properties"
 
@@ -13,7 +12,6 @@ import ionslidertemplate from "./extensions_ion_range_slider_template"
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that
 export class IonRangeSliderView extends InputWidgetView
-  tagName: "div"
   template: ionslidertemplate
 
   initialize: (options) ->

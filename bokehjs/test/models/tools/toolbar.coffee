@@ -42,7 +42,7 @@ describe "ToolbarView", ->
     tb_view = new @test_tb.default_view({ model: @test_tb })
     tb_view.render()
     expected_style = "left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
-    expect(tb_view.$el.attr('style')).to.be.equal expected_style
+    expect(tb_view.el.style.cssText).to.be.equal expected_style
 
   it "render should not render any styling in fixed mode", ->
     dom_left = 12
@@ -57,7 +57,7 @@ describe "ToolbarView", ->
 
     tb_view = new @test_tb.default_view({ model: @test_tb })
     tb_view.render()
-    expect(tb_view.$el.attr('style')).to.be.undefined
+    expect(tb_view.el.style.cssText).to.be.equal("")
 
 
 describe "Toolbar", ->

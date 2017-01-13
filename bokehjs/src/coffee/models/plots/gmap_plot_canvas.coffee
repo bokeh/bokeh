@@ -81,10 +81,11 @@ export class GMapPlotCanvasView extends PlotCanvasView
     left = @canvas.vx_to_sx(@frame.left)
     top = @canvas.vy_to_sy(@frame.top)
 
-    @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
-    @canvas_view.map_div.attr('style', "width:#{width}px;")
-    @canvas_view.map_div.attr('style', "height:#{height}px;")
-    @canvas_view.map_div.width("#{width}px").height("#{height}px")
+    @canvas_view.map_div.style.top = "#{top}px"
+    @canvas_view.map_div.style.left = "#{left}px"
+    @canvas_view.map_div.style.width = "#{width}px"
+    @canvas_view.map_div.style.height = "#{height}px"
+    @canvas_view.map_div.style.position = "absolute"
 
     @initial_zoom = @model.plot.map_options.zoom
 
@@ -107,7 +108,7 @@ export class GMapPlotCanvasView extends PlotCanvasView
         map_options.styles = JSON.parse(mo.styles)
 
       # Create the map with above options in div
-      @map = new maps.Map(@canvas_view.map_div[0], map_options)
+      @map = new maps.Map(@canvas_view.map_div, map_options)
       maps.event.addListenerOnce(@map, 'idle', @setRanges)
 
     if not window._bokeh_gmap_loads?
@@ -130,8 +131,10 @@ export class GMapPlotCanvasView extends PlotCanvasView
   _map_hook: (ctx, frame_box) ->
     [left, top, width, height] = frame_box
 
-    @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px;")
-    @canvas_view.map_div.width("#{width}px").height("#{height}px")
+    @canvas_view.map_div.style.top = "#{top}px"
+    @canvas_view.map_div.style.left = "#{left}px"
+    @canvas_view.map_div.style.width = "#{width}px"
+    @canvas_view.map_div.style.height = "#{height}px"
 
   _paint_empty: (ctx, frame_box) ->
     ow = @canvas.width

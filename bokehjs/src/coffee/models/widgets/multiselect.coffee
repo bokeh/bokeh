@@ -8,7 +8,6 @@ import multiselecttemplate from "./multiselecttemplate"
 
 
 export class MultiSelectView extends InputWidgetView
-  tagName: "div"
   template: multiselecttemplate
   events:
     "change select": "change_input"

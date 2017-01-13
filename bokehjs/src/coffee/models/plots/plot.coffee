@@ -8,7 +8,7 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {Toolbar} from "../tools/toolbar"
 import {ToolEvents} from "../tools/tool_events"
-import {PlotCanvas} from "./plot_canvas"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 
 import {ColumnDataSource} from "../sources/column_data_source"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -32,13 +32,11 @@ export class PlotView extends LayoutDOMView
       s = @model.document.solver()
       s.suggest_value(@model._width, width)
       s.suggest_value(@model._height, height)
-      @$el.css({
-        position: 'absolute'
-        left: @model._dom_left._value
-        top: @model._dom_top._value
-        width: @model._width.value()
-        height: @model._height.value()
-      })
+      @el.style.position = 'absolute'
+      @el.style.left = "#{@model._dom_left._value}px"
+      @el.style.top = "#{@model._dom_top._value}px"
+      @el.style.width = "#{@model._width.value()}px"
+      @el.style.height = "#{@model._height.value()}px"
 
   get_width_height: () ->
       parent_height = @el.parentNode.clientHeight
@@ -66,6 +64,9 @@ export class PlotView extends LayoutDOMView
 
   get_width: () ->
     return @model._height._value * @model.get_aspect_ratio()
+
+  save: (name) ->
+    (view for view in _.values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
 
 export class Plot extends LayoutDOM
   type: 'Plot'
