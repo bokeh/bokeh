@@ -7,6 +7,8 @@
 
 import * as _ from "underscore";
 
+import {uniqueId} from "./util/string"
+
 // Backbone.Events
 // ---------------
 
@@ -75,14 +77,14 @@ var internalOn = function(obj, name, callback, context, listening) {
 // for easier unbinding later.
 Events.listenTo = function(obj, name, callback) {
   if (!obj) return this;
-  var id = obj._listenId || (obj._listenId = _.uniqueId('l'));
+  var id = obj._listenId || (obj._listenId = uniqueId('l'));
   var listeningTo = this._listeningTo || (this._listeningTo = {});
   var listening = listeningTo[id];
 
   // This object is not listening to any other events on `obj` yet.
   // Setup the necessary references to track the listening callbacks.
   if (!listening) {
-    var thisId = this._listenId || (this._listenId = _.uniqueId('l'));
+    var thisId = this._listenId || (this._listenId = uniqueId('l'));
     listening = listeningTo[id] = {obj: obj, objId: id, id: thisId, listeningTo: listeningTo, count: 0};
   }
 

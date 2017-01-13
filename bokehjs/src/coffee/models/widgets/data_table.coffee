@@ -7,6 +7,7 @@ import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectco
 
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
+import {uniqueId} from "../../core/util/string"
 
 import {TableWidget} from "./table_widget"
 import {WidgetView} from "./widget"
@@ -134,7 +135,7 @@ export class DataTableView extends WidgetView
 
   newIndexColumn: () ->
     return {
-      id: _.uniqueId()
+      id: uniqueId()
       name: "#"
       field: "index"
       width: 40

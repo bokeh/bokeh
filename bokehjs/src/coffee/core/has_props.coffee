@@ -5,6 +5,7 @@ import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
+import {uniqueId} from "./util/string"
 import {array_max} from "./util/math"
 
 export class HasProps extends Backbone.Model
@@ -109,7 +110,7 @@ export class HasProps extends Backbone.Model
 
     # auto generating ID
     if not attrs.id?
-      this.id = _.uniqueId(this.type)
+      this.id = uniqueId(this.type)
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
