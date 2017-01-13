@@ -83,12 +83,7 @@ export class MarkerView extends GlyphView
       dist = Math.abs(@sx[i]-sx) + Math.abs(@sy[i]-sy)
       if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
         hits.push([i, dist])
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)

@@ -115,14 +115,8 @@ export class CircleView extends GlyphView
         dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
         if dist <= r2
           hits.push([i, dist])
-    hits = _.chain(hits)
-      .sortBy((elt) -> return elt[1])
-      .map((elt) -> return elt[0])
-      .value()
 
-    result = hittest.create_hit_test_result()
-    result['1d'].indices = hits
-    return result
+    return hittest.create_1d_hit_test_result(hits)
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
