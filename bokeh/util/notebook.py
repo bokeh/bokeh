@@ -118,3 +118,37 @@ def get_comms(target_name):
     '''
     from ipykernel.comm import Comm
     return Comm(target_name=target_name, data={})
+
+
+mutation_observer = """
+<script type='text/javascript'>
+var target = document.getElementById('notebook-container');
+
+var observer = new MutationObserver(function(mutations) {
+
+   for (var i = 0; i < mutations.length; i++) {
+      for (var j=0; j < mutations[i].removedNodes.length; j++) {
+        for (var k=0; k < mutations[i].removedNodes[j].childNodes.length; k++)
+          var bokeh_selector = $(mutations[i].removedNodes[j].childNodes[k]).find(".bokeh_class");
+          if (bokeh_selector) {
+            if (bokeh_selector.length > 0) {
+               var destroyed_id = bokeh_selector[0].id;
+               IPython.notebook.kernel.execute("from bokeh import io;"
+                                               + "io._destroy_server('"
+                                               + destroyed_id + "')");
+               console.log('Destroying server with id:' + destroyed_id);
+             }
+          }
+      }
+  }
+});
+observer.observe(target, { childList: true, subtree:true });
+</script>
+"""
+
+def watch_server_cells():
+    """
+    Installs a MutationObserver that detects deletion of cells using
+    io.server_cell to wrap the output.
+    """
+    publish_display_data({'text/html': mutation_observer}, source='bokeh')
