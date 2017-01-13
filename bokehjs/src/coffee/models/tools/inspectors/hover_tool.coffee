@@ -148,8 +148,7 @@ export class HoverToolView extends InspectToolView
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
       if not _.isEmpty(indices['2d'])
-        for pair in _.pairs(indices['2d'])
-          [i, j] = [pair[0], pair[1][0]]
+        for i, [j] of indices['2d']
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
 
