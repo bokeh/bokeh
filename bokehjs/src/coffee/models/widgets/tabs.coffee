@@ -3,6 +3,7 @@ import * as $ from "jquery"
 import "bootstrap/tab"
 
 import * as p from "../../core/properties"
+import {zip} from "../../core/util/array"
 
 import tabs_template from "./tabs_template"
 import {Widget, WidgetView} from "./widget"
@@ -36,7 +37,7 @@ export class TabsView extends WidgetView
 
     $panels = html.find(".bk-bs-tab-pane")
 
-    for [child, panel] in _.zip(children, $panels)
+    for [child, panel] in zip(children, $panels)
       $(panel).html(@child_views[child.id].el)
 
     @$el.append(html)

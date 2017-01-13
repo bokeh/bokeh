@@ -4,6 +4,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"
+import {zip, unzip} from "../core/util/array"
 
 sum = (array) ->
   return array.reduce(((a, b) => a + b), 0)
@@ -45,7 +46,7 @@ export pie = (data, opts={}) ->
 
   end_angles = cumulative_values.map((v) -> start_angle + to_radians(v))
   start_angles = [start_angle].concat(end_angles.slice(0, -1))
-  half_angles = _.zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
+  half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
 
   if not opts.center?
     cx = 0
@@ -71,7 +72,7 @@ export pie = (data, opts={}) ->
   to_cartesian = (r, alpha) -> [r*Math.cos(alpha), r*Math.sin(alpha)]
 
   half_radius = (inner_radius+outer_radius)/2
-  [text_cx, text_cy] = _.unzip(half_angles.map((half_angle) => to_cartesian(half_radius, half_angle)))
+  [text_cx, text_cy] = unzip(half_angles.map((half_angle) => to_cartesian(half_radius, half_angle)))
   text_cx = text_cx.map((x) -> x + cx)
   text_cy = text_cy.map((y) -> y + cy)
 
