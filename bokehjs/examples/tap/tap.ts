@@ -1,7 +1,6 @@
 namespace TappyScatter {
   import plt = Bokeh.Plotting;
-  import range = Bokeh.LinAlg.range;
-  import zip = Bokeh.LinAlg.zip;
+  const {range, zip} = Bokeh.LinAlg;
 
   Bokeh.set_log_level("info");
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
