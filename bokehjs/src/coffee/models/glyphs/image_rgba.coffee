@@ -2,6 +2,7 @@ import * as _ from "underscore"
 
 import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
+import {max} from "../../core/util/array"
 
 export class ImageRGBAView extends GlyphView
 
@@ -70,10 +71,10 @@ export class ImageRGBAView extends GlyphView
 
       @max_dw = 0
       if @_dw.units == "data"
-        @max_dw = _.max(@_dw)
+        @max_dw = max(@_dw)
       @max_dh = 0
       if @_dh.units == "data"
-        @max_dh = _.max(@_dh)
+        @max_dh = max(@_dh)
 
   _map_data: () ->
     switch @model.properties.dw.units

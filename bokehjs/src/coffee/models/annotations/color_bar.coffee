@@ -10,6 +10,7 @@ import {Range1d} from "../ranges/range1d"
 
 import * as p from "../../core/properties"
 import * as text_util from "../../core/util/text"
+import {min, max} from "../../core/util/array"
 
 SHORT_DIM = 25
 LONG_DIM_MIN_SCALAR = 0.3
@@ -274,7 +275,7 @@ export class ColorBarView extends AnnotationView
       switch @model.orientation
         when "vertical"
           formatted_labels = @model.formatter.doFormat(@model._tick_coordinates().major_labels)
-          label_extent = _.max((ctx.measureText(label.toString()).width for label in formatted_labels))
+          label_extent = max((ctx.measureText(label.toString()).width for label in formatted_labels))
         when "horizontal"
           label_extent = text_util.get_text_height(@visuals.major_label_text.font_value()).height
 
@@ -367,7 +368,7 @@ export class ColorBar extends Annotation
 
   _tick_extent: () ->
     if @color_mapper.low? and @color_mapper.high?
-      tick_extent = _.max([@major_tick_out, @minor_tick_out])
+      tick_extent = max([@major_tick_out, @minor_tick_out])
     else
       tick_extent = 0
     return tick_extent
@@ -407,10 +408,10 @@ export class ColorBar extends Annotation
           if @panel?
             height = frame_height - 2 * @padding - title_extent
           else
-            height = _.max([@color_mapper.palette.length * SHORT_DIM,
-                            frame_height * LONG_DIM_MIN_SCALAR])
-            height = _.min([height,
-                            frame_height * LONG_DIM_MAX_SCALAR - 2 * @padding - title_extent])
+            height = max([@color_mapper.palette.length * SHORT_DIM,
+                          frame_height * LONG_DIM_MIN_SCALAR])
+            height = min([height,
+                          frame_height * LONG_DIM_MAX_SCALAR - 2 * @padding - title_extent])
         else
           height = @height
 
@@ -423,10 +424,10 @@ export class ColorBar extends Annotation
           if @panel?
             width = frame_width - 2 * @padding
           else
-            width = _.max([@color_mapper.palette.length * SHORT_DIM,
-                           frame_width * LONG_DIM_MIN_SCALAR])
-            width = _.min([width,
-                           frame_width * LONG_DIM_MAX_SCALAR - 2 * @padding])
+            width = max([@color_mapper.palette.length * SHORT_DIM,
+                         frame_width * LONG_DIM_MIN_SCALAR])
+            width = min([width,
+                         frame_width * LONG_DIM_MAX_SCALAR - 2 * @padding])
         else
           width = @width
 

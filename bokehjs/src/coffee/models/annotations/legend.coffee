@@ -3,6 +3,7 @@ import * as _ from "underscore"
 import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 import {get_text_height} from "../../core/util/text"
+import {max} from "../../core/util/array"
 
 export class LegendView extends AnnotationView
   initialize: (options) ->
@@ -17,7 +18,7 @@ export class LegendView extends AnnotationView
     label_height = @model.label_height
     label_width = @model.label_width
 
-    @max_label_height = _.max(
+    @max_label_height = max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
     )
 
@@ -27,10 +28,10 @@ export class LegendView extends AnnotationView
     @visuals.label_text.set_value(ctx)
     @text_widths = {}
     for name in legend_names
-      @text_widths[name] = _.max([ctx.measureText(name).width, label_width])
+      @text_widths[name] = max([ctx.measureText(name).width, label_width])
     ctx.restore()
 
-    max_label_width = _.max(_.values(@text_widths))
+    max_label_width = max(_.values(@text_widths))
 
     legend_margin = @model.margin
     legend_padding = @model.padding
@@ -43,7 +44,7 @@ export class LegendView extends AnnotationView
     else
       legend_width = 2 * legend_padding + (legend_names.length - 1) * legend_spacing
       for name, width of @text_widths
-        legend_width += _.max([width, label_width]) + glyph_width + label_standoff
+        legend_width += max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
     location = @model.location

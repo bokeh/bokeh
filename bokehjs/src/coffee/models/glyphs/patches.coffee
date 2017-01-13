@@ -2,6 +2,7 @@ import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import {Glyph, GlyphView} from "./glyph"
+import {min, max} from "../../core/util/array"
 import * as hittest from "../../core/hittest"
 
 export class PatchesView extends GlyphView
@@ -55,10 +56,10 @@ export class PatchesView extends GlyphView
         if xs.length == 0
           continue
         pts.push({
-          minX: _.min(xs),
-          minY: _.min(ys),
-          maxX: _.max(xs),
-          maxY: _.max(ys),
+          minX: min(xs),
+          minY: min(ys),
+          maxX: max(xs),
+          maxY: max(ys),
           i: i
         })
     index.load(pts)

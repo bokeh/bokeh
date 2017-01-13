@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 import {Interpolator} from "./interpolator"
 import * as p from "../../core/properties"
+import {min} from "../../core/util/array"
 
 
 export class StepInterpolator extends Interpolator
@@ -35,7 +36,7 @@ export class StepInterpolator extends Interpolator
 
     if @mode == "center"
       diffs = (Math.abs(tx - x) for tx in @_x_sorted)
-      mdiff = _.min(diffs)
+      mdiff = min(diffs)
       ind = _.findIndex(diffs, (num) ->
         return mdiff == num
       )
