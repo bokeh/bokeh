@@ -356,7 +356,7 @@ def gridplot(*args, **kwargs):
             raise ValueError("Cannot provide a nested list when using ncols")
         children = list(_chunks(children, ncols))
 
-    # Additional children set-up for GridPlot
+    # Additional children set-up for grid plot
     if not children:
         children = []
 
