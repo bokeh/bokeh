@@ -11,8 +11,8 @@ export class GlyphRendererView extends RendererView
     super(options)
 
     base_glyph = @model.glyph
-    has_fill = _.contains(base_glyph.mixins, "fill")
-    has_line = _.contains(base_glyph.mixins, "line")
+    has_fill = "fill" in base_glyph.mixins
+    has_line = "line" in base_glyph.mixins
     glyph_attrs = _.clone(base_glyph.attributes)
     delete glyph_attrs.id
 

@@ -25,7 +25,7 @@ export class DataProvider
     @data = @source.data
     @fields = Object.keys(@data)
 
-    if not _.contains(@fields, "index")
+    if "index" not in @fields
       @data["index"] = [0...@getLength()]
       @fields.push("index")
 

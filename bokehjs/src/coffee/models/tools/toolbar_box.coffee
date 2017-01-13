@@ -52,7 +52,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
     new_help_tools = []
     new_help_urls = []
     for helptool in @help
-      if not _.contains(new_help_urls, helptool.redirect)
+      if helptool.redirect not in new_help_urls
         new_help_tools.push(helptool)
         new_help_urls.push(helptool.redirect)
     @help = new_help_tools

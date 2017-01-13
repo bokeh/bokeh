@@ -54,7 +54,7 @@ export class MercatorTileSource extends TileSource
     neighbor_y = (y for y in [ty - neighbor_radius .. ty + neighbor_radius])
 
     for key, tile of @tiles
-      if tile.tile_coords[2] == tz and _.contains(neighbor_x, tile.tile_coords[0]) and _.contains(neighbor_y, tile.tile_coords[1])
+      if tile.tile_coords[2] == tz and (tile.tile_coords[0] in neighbor_x) and (tile.tile_coords[1] in neighbor_y)
         tile.retain = true
 
   retain_parents:(reference_tile) ->
