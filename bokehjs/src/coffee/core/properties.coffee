@@ -118,7 +118,7 @@ export simple_prop = (name, pred) ->
     toString: () -> "#{name}(obj: #{@obj.id}, spec: #{JSON.stringify(@spec)})"
     validate: (value) ->
       if not pred(value)
-        throw new Error("#{name} property '#{@attr}' given invalid value: #{value}")
+        throw new Error("#{name} property '#{@attr}' given invalid value: #{JSON.stringify(value)}")
 
 export class Any extends simple_prop("Any", (x) -> true)
 
