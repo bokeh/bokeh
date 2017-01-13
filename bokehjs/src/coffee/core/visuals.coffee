@@ -11,7 +11,7 @@ class ContextProperties
     @cache = {}
 
     do_spec = obj.properties[prefix+@do_attr].spec
-    @doit = not _.isNull(do_spec.value)
+    @doit = do_spec.value != null
 
     for attr in @attrs
       @[attr] = obj.properties[prefix+attr]
