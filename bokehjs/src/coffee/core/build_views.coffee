@@ -26,7 +26,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
     view_storage[model.id] = view = new cls(view_options)
     created_views.push(view)
 
-  to_remove = _.difference(Object.keys(view_storage), _.pluck(view_models, 'id'))
+  to_remove = _.difference(Object.keys(view_storage), (view.id for view in view_models))
 
   for key in to_remove
     view_storage[key].remove()

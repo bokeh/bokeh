@@ -432,7 +432,7 @@ export class PlotCanvasView extends BokehView
     # should only bind events on NEW views
     old_renderers = Object.keys(@renderer_views)
     new_renderer_views = build_views(@renderer_views, renderer_models, @view_options())
-    renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
+    renderers_to_remove = _.difference(old_renderers, (model.id for model in renderer_models))
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
