@@ -48,7 +48,7 @@ export JQueryable = {
   # Uses event delegation for efficiency.
   # Omitting the selector binds the event to `this.el`.
   delegateEvents: (events) ->
-    events ?= _.result(this, 'events')
+    events ?= @events
     if not events then return @
     @undelegateEvents()
     for key, method of events

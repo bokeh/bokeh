@@ -198,15 +198,15 @@ _.extend(View.prototype, Events, {
   // an element from the `id`, `className` and `tagName` properties.
   _ensureElement: function() {
     if (!this.el) {
-      this.setElement(this._createElement(_.result(this, 'tagName')));
+      this.setElement(this._createElement(this.tagName));
       if (this.id) {
-        this.el.setAttribute('id', _.result(this, 'id'));
+        this.el.setAttribute('id', this.id);
       }
       if (this.className) {
-        this.el.setAttribute('class', _.result(this, 'className'));
+        this.el.setAttribute('class', this.className);
       }
     } else {
-      this.setElement(_.result(this, 'el'));
+      this.setElement(this.el);
     }
   }
 });
