@@ -19,14 +19,14 @@ class ContextProperties
   warm_cache: (source) ->
     for attr in @attrs
       prop = @obj.properties[@prefix+attr]
-      if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
+      if prop.spec.value != undefined # TODO (bev) better test?
         @cache[attr] = prop.spec.value
       else
         @cache[attr+"_array"] = prop.array(source)
 
   cache_select: (attr, i) ->
     prop = @obj.properties[@prefix+attr]
-    if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
+    if prop.spec.value != undefined # TODO (bev) better test?
       @cache[attr] = prop.spec.value
     else
       @cache[attr] = @cache[attr+"_array"][i]

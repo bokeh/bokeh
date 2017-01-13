@@ -63,8 +63,8 @@ export class Figure extends models.Plot
     attrs.x_range = @_get_range(attrs.x_range)
     attrs.y_range = @_get_range(attrs.y_range)
 
-    x_axis_type = if _.isUndefined(attrs.x_axis_type) then "auto" else attrs.x_axis_type
-    y_axis_type = if _.isUndefined(attrs.y_axis_type) then "auto" else attrs.y_axis_type
+    x_axis_type = if attrs.x_axis_type == undefined then "auto" else attrs.x_axis_type
+    y_axis_type = if attrs.y_axis_type == undefined then "auto" else attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
@@ -83,15 +83,15 @@ export class Figure extends models.Plot
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
-    if not _.isUndefined(attrs.width)
-      if _.isUndefined(attrs.plot_width)
+    if attrs.width != undefined
+      if attrs.plot_width == undefined
         attrs.plot_width = attrs.width
       else
         throw new Error("both 'width' and 'plot_width' can't be given at the same time")
       delete attrs.width
 
-    if not _.isUndefined(attrs.height)
-      if _.isUndefined(attrs.plot_height)
+    if attrs.height != undefined
+      if attrs.plot_height == undefined
         attrs.plot_height = attrs.height
       else
         throw new Error("both 'height' and 'plot_height' can't be given at the same time")
@@ -428,8 +428,8 @@ export show = (obj, target) ->
 export color = (r, g, b) -> sprintf("#%02x%02x%02x", r, g, b)
 
 export gridplot = (children, options={}) ->
-  toolbar_location = if _.isUndefined(options.toolbar_location) then 'above' else options.toolbar_location
-  sizing_mode = if _.isUndefined(options.sizing_mode) then 'fixed' else options.sizing_mode
+  toolbar_location = if options.toolbar_location == undefined then 'above' else options.toolbar_location
+  sizing_mode = if options.sizing_mode == undefined then 'fixed' else options.sizing_mode
   toolbar_sizing_mode = if options.sizing_mode == 'fixed' then 'scale_width' else sizing_mode
 
   tools = []

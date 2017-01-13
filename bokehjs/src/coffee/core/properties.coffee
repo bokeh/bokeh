@@ -35,7 +35,7 @@ export class Property
   # ----- property accessors
 
   value: (do_spec_transform=true) ->
-    if _.isUndefined(@spec.value)
+    if @spec.value == undefined
       throw new Error("attempted to retrieve property value for property without value specification")
     ret = @transform([@spec.value])[0]
     if @spec.transform? and do_spec_transform
@@ -78,11 +78,11 @@ export class Property
 
     attr_value = obj.getv(attr)
 
-    if _.isUndefined(attr_value)
+    if attr_value == undefined
       default_value = @default_value
 
       attr_value = switch
-        when _.isUndefined(default_value) then null
+        when default_value == undefined   then null
         when _.isArray(default_value)     then _.clone(default_value)
         when _.isFunction(default_value)  then default_value(obj)
         else                                   default_value
