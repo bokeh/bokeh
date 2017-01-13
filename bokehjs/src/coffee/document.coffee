@@ -172,7 +172,7 @@ export class Document
     for r in roots
       if r.document != null
         throw new Error("Somehow we didn't detach #{r}")
-    if _.size(@_all_models) != 0
+    if Object.keys(@_all_models).length != 0
       throw new Error("@_all_models still had stuff in it: #{ @_all_models }")
 
     for r in roots
