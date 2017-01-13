@@ -142,3 +142,13 @@ export function argmin(array: Array<number>): number {
 export function argmax(array: Array<number>): number {
   return maxBy(range(array.length), (i) => array[i])
 }
+
+export function values<T>(object: {[key: string]: T}): Array<T> {
+  const keys = Object.keys(object)
+  const length = keys.length
+  const values = new Array<T>(length)
+  for (let i = 0; i < length; i++) {
+    values[i] = object[keys[i]]
+  }
+  return values
+}

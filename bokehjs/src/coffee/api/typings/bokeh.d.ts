@@ -45,5 +45,6 @@ declare namespace Bokeh {
     export function maxBy<T>(array: Array<T>, key: (item: T) => number): T;
     export function argmin(array: Array<number>): number;
     export function argmax(array: Array<number>): number;
+    export function values<T>(object: {[key: string]: T}): Array<T>;
   }
 }
