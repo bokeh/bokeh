@@ -1,17 +1,18 @@
 export function zip<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]> {
-  const ABs: Array<[A, B]> = []
-  for (let i = 0; i < As.length && i < Bs.length; i++) {
-    ABs.push([As[i], Bs[i]])
+  const n = Math.min(As.length, Bs.length)
+  const ABs = new Array<[A, B]>(n)
+  for (let i = 0; i < n; i++) {
+    ABs[i] = [As[i], Bs[i]]
   }
   return ABs
 }
 
 export function unzip<A, B>(ABs: Array<[A, B]>): [Array<A>, Array<B>] {
-  const As: Array<A> = []
-  const Bs: Array<B> = []
-  for (const [a, b] of ABs) {
-    As.push(a)
-    Bs.push(b)
+  const n = ABs.length
+  const As = new Array<A>(n)
+  const Bs = new Array<B>(n)
+  for (let i = 0; i < n; i++) {
+    [As[i], Bs[i]] = ABs[i]
   }
   return [As, Bs]
 }
