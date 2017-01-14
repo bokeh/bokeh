@@ -56,7 +56,7 @@ export class MonthsTicker extends SingleIntervalTicker
         month_date.setUTCMonth(month)
         return month_date)
 
-    month_dates = _.flatten(months_of_year(date) for date in year_dates)
+    month_dates = [].concat((months_of_year(date) for date in year_dates)...)
 
     all_ticks = (month_date.getTime() for month_date in month_dates)
     ticks_in_range = all_ticks.filter((tick) -> data_low <= tick <= data_high)

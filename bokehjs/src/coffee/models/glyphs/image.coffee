@@ -40,7 +40,7 @@ export class ImageView extends GlyphView
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
-        img = _.flatten(@_image[i])
+        img = [].concat(@_image[i]...)
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
 
