@@ -6,6 +6,7 @@ import {TickFormatter} from "./tick_formatter"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import {zip, unzip} from "../../core/util/array"
+import {isFunction} from "../../core/util/types"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
@@ -19,7 +20,7 @@ _array = (t) ->
   return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
 
 _strftime = (t, format) ->
-  if _.isFunction(format)
+  if isFunction(format)
     return format(t)
   else
     # Python's datetime library augments the microsecond directive %f, which is not

@@ -1,5 +1,5 @@
-import * as _ from "underscore";
 import * as DOM from "../../core/dom";
+import {isString} from "../../core/util/types";
 
 interface SelectProps {
   id: string;
@@ -16,7 +16,7 @@ export default (props: SelectProps): HTMLElement => {
       <select class="bk-widget-form-input" id={props.id} name={props.name}>{
         props.options.map(option => {
           let value, label;
-          if (_.isString(option)) {
+          if (isString(option)) {
             value = label  = option
           } else {
             [value, label] = option

@@ -3,6 +3,7 @@ import {Events} from "./events"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
+import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
 
 #
 # Property base class
@@ -82,23 +83,23 @@ export class Property
       default_value = @default_value
 
       attr_value = switch
-        when default_value == undefined   then null
-        when _.isArray(default_value)     then _.clone(default_value)
-        when _.isFunction(default_value)  then default_value(obj)
-        else                                   default_value
+        when default_value == undefined then null
+        when isArray(default_value)     then _.clone(default_value)
+        when isFunction(default_value)  then default_value(obj)
+        else                                 default_value
 
       obj.setv(attr, attr_value, {silent: true, defaults: true})
 
-    if _.isArray(attr_value)
+    if isArray(attr_value)
       @spec = {value: attr_value}
 
-    else if _.isObject(attr_value) and ((attr_value.value == undefined) != (attr_value.field == undefined))
+    else if isObject(attr_value) and ((attr_value.value == undefined) != (attr_value.field == undefined))
       @spec = attr_value
 
     else
       @spec = {value: attr_value}
 
-    if @spec.field? and not _.isString(@spec.field)
+    if @spec.field? and not isString(@spec.field)
       throw new Error("field value for property '#{attr}' is not a string")
 
     if @spec.value?
@@ -122,9 +123,9 @@ export simple_prop = (name, pred) ->
 
 export class Any extends simple_prop("Any", (x) -> true)
 
-export class Array extends simple_prop("Array", (x) -> _.isArray(x) or x instanceof Float64Array)
+export class Array extends simple_prop("Array", (x) -> isArray(x) or x instanceof Float64Array)
 
-export class Bool extends simple_prop("Bool", _.isBoolean)
+export class Bool extends simple_prop("Bool", isBoolean)
 export Boolean = Bool
 
 export class Color extends simple_prop("Color", (x) ->
@@ -134,14 +135,14 @@ export class Color extends simple_prop("Color", (x) ->
 export class Instance extends simple_prop("Instance", (x) -> x.properties?)
 
 # TODO (bev) separate booleans?
-export class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
+export class Number extends simple_prop("Number", (x) -> isNumber(x) or isBoolean(x))
 export Int = Number
 
 # TODO extend Number instead of copying it's predicate
 #class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop("Number", (x) -> (_.isNumber(x) or _.isBoolean(x)) and (0 <= x <= 1.0) )
+export class Percent extends simple_prop("Number", (x) -> (isNumber(x) or isBoolean(x)) and (0 <= x <= 1.0) )
 
-export class String extends simple_prop("String", _.isString)
+export class String extends simple_prop("String", isString)
 
 # TODO (bev) don't think this exists python side
 export class Font extends String

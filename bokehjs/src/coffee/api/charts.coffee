@@ -5,6 +5,7 @@ import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"
 import {zip, unzip, sum, cumsum} from "../core/util/array"
+import {isArray} from "../core/util/types"
 
 num2hexcolor = (num) -> sprintf("#%06x", num)
 hexcolor2rgb = (color) ->
@@ -43,7 +44,7 @@ export pie = (data, opts={}) ->
   if not opts.center?
     cx = 0
     cy = 0
-  else if _.isArray(opts.center)
+  else if isArray(opts.center)
     cx = opts.center[0]
     cy = opts.center[1]
   else
@@ -53,7 +54,7 @@ export pie = (data, opts={}) ->
   inner_radius = opts.inner_radius ? 0
   outer_radius = opts.outer_radius ? 1
 
-  if _.isArray(opts.palette)
+  if isArray(opts.palette)
     palette = opts.palette
   else
     palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)
@@ -156,7 +157,7 @@ export bar = (data, opts={}) ->
   xaxis = new models.LinearAxis({formatter: xformatter})
   xdr = new models.DataRange1d({start: 0})
 
-  if _.isArray(opts.palette)
+  if isArray(opts.palette)
     palette = opts.palette
   else
     palette = palettes[opts.palette ? "Spectral11"].map(num2hexcolor)

@@ -3,6 +3,7 @@ import * as _ from "underscore"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {isString, isArray} from "../../core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
@@ -76,12 +77,12 @@ export class Plot extends LayoutDOM
     super(options)
     for xr in _.values(@extra_x_ranges).concat(@x_range)
       plots = xr.plots
-      if _.isArray(plots)
+      if isArray(plots)
         plots = plots.concat(@)
         xr.setv('plots', plots, {silent: true})
     for yr in _.values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
-      if _.isArray(plots)
+      if isArray(plots)
         plots = plots.concat(@)
         yr.setv('plots', plots, {silent: true})
 
@@ -102,7 +103,7 @@ export class Plot extends LayoutDOM
 
     # Add the title to layout
     if @title?
-      title = if _.isString(@title) then new Title({text: @title}) else @title
+      title = if isString(@title) then new Title({text: @title}) else @title
       @add_layout(title, @title_location)
 
     @_plot_canvas = new PlotCanvas({plot: @})

@@ -1,4 +1,5 @@
 import * as _ from "underscore"
+import {isArray} from "./types"
 
 export class MultiDict
 
@@ -14,19 +15,19 @@ export class MultiDict
     add_value: (key, value) ->
       if value == null
         throw new Error("Can't put null in this dict")
-      if _.isArray(value)
+      if isArray(value)
         throw new Error("Can't put arrays in this dict")
       existing = @_existing(key)
       if existing == null
         @_dict[key] = value
-      else if _.isArray(existing)
+      else if isArray(existing)
         existing.push(value)
       else
         @_dict[key] = [existing, value]
 
     remove_value: (key, value) ->
       existing = @_existing(key)
-      if _.isArray(existing)
+      if isArray(existing)
         new_array = _.without(existing, value)
         if new_array.length > 0
           @_dict[key] = new_array
@@ -37,7 +38,7 @@ export class MultiDict
 
     get_one: (key, duplicate_error) ->
       existing = @_existing(key)
-      if _.isArray(existing)
+      if isArray(existing)
         if existing.length == 1
           return existing[0]
         else

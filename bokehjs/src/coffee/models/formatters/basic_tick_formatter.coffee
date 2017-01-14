@@ -2,6 +2,7 @@ import * as _ from "underscore"
 
 import {TickFormatter} from "./tick_formatter"
 import * as p from "../../core/properties"
+import {isNumber} from "../../core/util/types"
 
 export class BasicTickFormatter extends TickFormatter
   type: 'BasicTickFormatter'
@@ -42,7 +43,7 @@ export class BasicTickFormatter extends TickFormatter
 
     precision = @precision
 
-    if not precision? or _.isNumber(precision)
+    if not precision? or isNumber(precision)
       labels = new Array(ticks.length)
       if need_sci
         for i in [0...ticks.length]

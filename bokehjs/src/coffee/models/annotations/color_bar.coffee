@@ -11,6 +11,7 @@ import {Range1d} from "../ranges/range1d"
 import * as p from "../../core/properties"
 import * as text_util from "../../core/util/text"
 import {min, max} from "../../core/util/array"
+import {isString, isArray} from "../../core/util/types"
 
 SHORT_DIM = 25
 LONG_DIM_MIN_SCALAR = 0.3
@@ -98,7 +99,7 @@ export class ColorBarView extends AnnotationView
     h_range = @plot_view.frame.h_range
     v_range = @plot_view.frame.v_range
 
-    if _.isString(location)
+    if isString(location)
       switch location
         when 'top_left'
           x = h_range.start + legend_margin
@@ -127,7 +128,7 @@ export class ColorBarView extends AnnotationView
         when 'center'
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = (v_range.end + v_range.start)/2 + legend_height/2
-    else if _.isArray(location) and location.length == 2
+    else if isArray(location) and location.length == 2
       [x, y] = location
 
     sx = @plot_view.canvas.vx_to_sx(x)

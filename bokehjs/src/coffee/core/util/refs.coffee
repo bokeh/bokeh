@@ -1,6 +1,5 @@
-import * as _ from "underscore"
-
 import {HasProps} from "../has_props"
+import {isArray, isObject} from "./types"
 
 # Create a Bokeh reference from a HasProps subclass
 #
@@ -28,7 +27,7 @@ export create_ref = (obj) ->
 #   only that the format is correct (all required keys are present)
 #
 export is_ref = (arg) ->
-  if _.isObject(arg)
+  if isObject(arg)
     keys = Object.keys(arg).sort()
     if keys.length==2
       return keys[0]=='id' and keys[1]=='type'
@@ -41,7 +40,7 @@ export is_ref = (arg) ->
 # @param value [HasProps or Array of HasProps]
 #
 export convert_to_ref = (value) ->
-  if _.isArray(value)
+  if isArray(value)
     return value.map(convert_to_ref)
   else
     if value instanceof HasProps

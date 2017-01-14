@@ -1,9 +1,10 @@
 import * as _ from "underscore"
 import * as SPrintf from "sprintf"
 import * as Numbro from "numbro"
+import {isNumber} from "./types"
 
 _format_number = (number) ->
-  if _.isNumber(number)
+  if isNumber(number)
     format = switch
       when Math.floor(number) == number
         "%d"

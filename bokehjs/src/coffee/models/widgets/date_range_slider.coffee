@@ -2,6 +2,7 @@ import * as _ from "underscore"
 import "jqrangeslider/jQDateRangeSlider"
 
 import * as p from "../../core/properties"
+import {isObject} from "../../core/util/types"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -25,8 +26,8 @@ export class DateRangeSliderView extends InputWidgetView
       defaultValues: { min: new Date(value_min), max: new Date(value_max) },
       bounds: { min: new Date(bounds_min), max: new Date(bounds_max) },
       range: {
-          min: if _.isObject(range_min) then range_min else false,
-          max: if _.isObject(range_max) then range_max else false,
+          min: if isObject(range_min) then range_min else false,
+          max: if isObject(range_max) then range_max else false,
       },
       step: @model.step or {},
       # formatter

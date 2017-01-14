@@ -1,10 +1,11 @@
 import * as _ from "underscore"
 import {LinearMapper} from "./linear_mapper"
+import {isNumber} from "../../core/util/types"
 
 export class CategoricalMapper extends LinearMapper
 
   map_to_target: (x, return_synthetic=false) ->
-    if _.isNumber(x)
+    if isNumber(x)
       if return_synthetic
         return x
       else
@@ -23,7 +24,7 @@ export class CategoricalMapper extends LinearMapper
       return super(result)
 
   v_map_to_target: (xs, return_synthetic=false) ->
-    if _.isNumber(xs[0])
+    if isNumber(xs[0])
       if return_synthetic
         return xs
       else

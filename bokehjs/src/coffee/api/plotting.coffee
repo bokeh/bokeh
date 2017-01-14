@@ -6,6 +6,7 @@ import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {startsWith} from "../core/util/string"
 import {div} from "../core/dom"
+import {isNumber, isString, isArray} from "../core/util/types"
 
 _default_tooltips = [
   ["index", "$index"],
@@ -208,7 +209,7 @@ export class Figure extends models.Plot
         if prop?
           if prop.type.prototype.dataspec
             if value?
-              if _.isArray(value)
+              if isArray(value)
                 if data[name]?
                   if data[name] != value
                     field = @_find_uniq_name(data, name)
@@ -220,7 +221,7 @@ export class Figure extends models.Plot
                   data[field] = value
 
                 attrs[name] = { field: field }
-              else if _.isNumber(value) or _.isString(value) # or Date?
+              else if isNumber(value) or isString(value) # or Date?
                 attrs[name] = { value: value }
 
   _glyph: (cls, params, args) ->
@@ -290,8 +291,8 @@ export class Figure extends models.Plot
       return new models.DataRange1d()
     if range instanceof models.Range
       return range
-    if _.isArray(range)
-      if _.all((x) -> _.isString(x) for x in range)
+    if isArray(range)
+      if _.all((x) -> isString(x) for x in range)
         return new models.FactorRange({factors: range})
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})
@@ -336,7 +337,7 @@ export class Figure extends models.Plot
         return models.LinearAxis
 
   _get_num_minor_ticks: (axis_class, num_minor_ticks) ->
-    if _.isNumber(num_minor_ticks)
+    if isNumber(num_minor_ticks)
       if num_minor_ticks <= 1
         throw new Error("num_minor_ticks must be > 1")
       return num_minor_ticks
@@ -348,11 +349,11 @@ export class Figure extends models.Plot
       return 5
 
   _process_tools: (tools) ->
-    if _.isString(tools)
+    if isString(tools)
       tools = tools.split(/\s*,\s*/)
 
     objs = for tool in tools
-      if _.isString(tool)
+      if isString(tool)
         _known_tools[tool](this)
       else
         tool
@@ -362,7 +363,7 @@ export class Figure extends models.Plot
   _process_legend: (legend, source) ->
     legend_item_label = null
     if legend?
-      if _.isString(legend)
+      if isString(legend)
         legend_item_label = { value: legend }
         if source? and source.column_names?
           if legend in source.column_names
@@ -392,7 +393,7 @@ export figure = (attributes={}, options={}) ->
   new Figure(attributes, options)
 
 export show = (obj, target) ->
-  multiple = _.isArray(obj)
+  multiple = isArray(obj)
 
   doc = new Document()
 
@@ -404,7 +405,7 @@ export show = (obj, target) ->
 
   if not target?
     element = document.body
-  else if _.isString(target)
+  else if isString(target)
     element = document.querySelector(target)
     if not element?
       throw new Error("'#{target}' selector didn't match any elements")

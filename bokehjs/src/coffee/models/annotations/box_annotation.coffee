@@ -3,6 +3,7 @@ import * as _ from "underscore"
 import {Annotation, AnnotationView} from "./annotation"
 import {show, hide} from "../../core/dom"
 import * as p from "../../core/properties"
+import {isString, isArray} from "../../core/util/types"
 
 export class BoxAnnotationView extends AnnotationView
   initialize: (options) ->
@@ -58,9 +59,9 @@ export class BoxAnnotationView extends AnnotationView
 
     # try our best to honor line dashing in some way, if we can
     ld = @model.line_dash
-    if _.isArray(ld)
+    if isArray(ld)
       ld = if ld.length < 2 then "solid" else "dashed"
-    if _.isString(ld)
+    if isString(ld)
       @el.style.borderStyle = ld
 
     show(@el)

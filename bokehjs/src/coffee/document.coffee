@@ -8,6 +8,7 @@ import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
+import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
 export class DocumentChangedEvent
@@ -366,9 +367,9 @@ export class Document
           new_references[v['id']]
         else
           throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
-      else if _.isArray(v)
+      else if isArray(v)
         resolve_array(v)
-      else if _.isObject(v)
+      else if isObject(v)
         resolve_dict(v)
       else
         v
@@ -420,10 +421,10 @@ export class Document
             for a, e of attrs
               foreach_value(e, f)
             f(v, attrs, was_new)
-        else if _.isArray(v)
+        else if isArray(v)
           for e in v
             foreach_value(e, f)
-        else if _.isObject(v)
+        else if isObject(v)
           for k, e of v
             foreach_value(e, f)
       for k, v of items

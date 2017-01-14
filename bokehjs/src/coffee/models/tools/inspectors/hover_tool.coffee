@@ -8,6 +8,7 @@ import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
 import {table, td, tr, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
+import {isString, isFunction} from "../../../core/util/types"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -231,7 +232,7 @@ export class HoverToolView extends InspectToolView
     callback = @model.callback
     [obj, data] = [callback, {index: indices, geometry: geometry}]
 
-    if _.isFunction(callback)
+    if isFunction(callback)
       callback(obj, data)
     else
       callback.execute(obj, data)
@@ -240,11 +241,11 @@ export class HoverToolView extends InspectToolView
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @model.tooltips
-    if _.isString(tooltips)
+    if isString(tooltips)
       el = div()
       el.innerHTML = replace_placeholders(tooltips, ds, i, vars)
       return el
-    else if _.isFunction(tooltips)
+    else if isFunction(tooltips)
       return tooltips(ds, vars)
     else
       rows = table()
@@ -337,7 +338,7 @@ export class HoverTool extends InspectTool
       if tooltips?
         for r in @computed_renderers
           tooltip = new Tooltip({
-            custom: _.isString(tooltips) or _.isFunction(tooltips)
+            custom: isString(tooltips) or isFunction(tooltips)
             attachment: @attachment
             show_arrow: @show_arrow
           })

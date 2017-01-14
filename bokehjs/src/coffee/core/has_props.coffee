@@ -7,6 +7,7 @@ import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
 import {array_max} from "./util/math"
+import {isString, isObject, isArray} from "./util/types"
 
 export class HasProps extends Backbone.Model
 
@@ -58,7 +59,7 @@ export class HasProps extends Backbone.Model
   @mixins: (names) -> @mixin(names...)
 
   @override: (name_or_object, default_value) ->
-    if _.isString(name_or_object)
+    if isString(name_or_object)
       object = {}
       object[name] = default_value
     else
@@ -123,7 +124,7 @@ export class HasProps extends Backbone.Model
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
-    if _.isObject(key) or key == null
+    if isObject(key) or key == null
       attrs = key
       options = value
     else
@@ -150,7 +151,7 @@ export class HasProps extends Backbone.Model
     # * prop_name - name of property
     # * object - object on which dependencies reside
     # * fields - attributes on that object
-    if not _.isArray(fields)
+    if not isArray(fields)
       fields = [fields]
     prop_spec = @_computed[prop_name]
     prop_spec.dependencies = prop_spec.dependencies.concat(
@@ -260,12 +261,12 @@ export class HasProps extends Backbone.Model
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps
       value.ref()
-    else if _.isArray(value)
+    else if isArray(value)
       ref_array = []
       for v, i in value
         ref_array.push(HasProps._value_to_json(i, v, value))
       ref_array
-    else if _.isObject(value)
+    else if isObject(value)
       ref_obj = {}
       for own subkey of value
         ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
@@ -297,10 +298,10 @@ export class HasProps extends Backbone.Model
       if v.id not of result
         model = doc.get_model_by_id(v.id)
         HasProps._value_record_references(model, result, recurse)
-    else if _.isArray(v)
+    else if isArray(v)
       for elem in v
         HasProps._json_record_references(doc, elem, result, recurse)
-    else if _.isObject(v)
+    else if isObject(v)
       for own k, elem of v
         HasProps._json_record_references(doc, elem, result, recurse)
 
@@ -318,10 +319,10 @@ export class HasProps extends Backbone.Model
           for obj in immediate
             HasProps._value_record_references(obj, result, true) # true=recurse
     else if v.buffer instanceof ArrayBuffer
-    else if _.isArray(v)
+    else if isArray(v)
       for elem in v
         HasProps._value_record_references(elem, result, recurse)
-    else if _.isObject(v)
+    else if isObject(v)
       for own k, elem of v
         HasProps._value_record_references(elem, result, recurse)
 

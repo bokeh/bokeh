@@ -6,6 +6,7 @@ import {Renderer, RendererView} from "../renderers/renderer"
 import {logger} from "../../core/logging"
 import {div} from "../../core/dom"
 import * as p from "../../core/properties"
+import {isString} from "../../core/util/types"
 
 export class TileRendererView extends RendererView
 
@@ -35,7 +36,7 @@ export class TileRendererView extends RendererView
   _add_attribution: () =>
     attribution = @model.tile_source.attribution
 
-    if _.isString(attribution) and attribution.length > 0
+    if isString(attribution) and attribution.length > 0
       if not @attributionEl?
         border_width = @map_plot.outline_line_width
         bottom_offset = @map_plot.min_border_bottom + border_width
