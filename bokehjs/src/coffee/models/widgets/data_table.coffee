@@ -101,9 +101,10 @@ export class DataTableView extends WidgetView
     super(options)
     wait_for_element(@el, () => @render())
     @listenTo(@model, 'change', () => @render())
-    source = @model.source
-    @listenTo(source, 'change:data', () => @updateGrid())
-    @listenTo(source, 'change:selected', () => @updateSelection())
+    @listenTo(@model.source, 'change:data', () => @updateGrid())
+    @listenTo(@model.source, 'stream', () => @updateGrid())
+    @listenTo(@model.source, 'patch', () => @updateGrid())
+    @listenTo(@model.source, 'change:selected', () => @updateSelection())
 
   updateGrid: () ->
     @data.constructor(@model.source)
