@@ -40,7 +40,7 @@ if [ $BUILD_FILE_COUNT != 3 ]; then
    exit 1
 fi
 
-conda install bokeh --use-local --yes
+conda install bokeh conda==4.2.15 --use-local --yes
 
 DEPS_RUN=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
@@ -60,7 +60,7 @@ conda install --yes $DEPS_TEST
 # conda nb extension is installed by default and breaks notebook image diff tests
 python -m nb_conda_kernels.install --disable --prefix=/home/travis/miniconda
 
-conda install --yes nodejs
+conda install --yes nodejs conda ==4.2.15
 echo "node version $(node -v)"
 echo "npm version $(npm -v)"
 
