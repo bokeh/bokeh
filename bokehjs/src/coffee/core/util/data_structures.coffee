@@ -28,7 +28,7 @@ export class MultiDict
     remove_value: (key, value) ->
       existing = @_existing(key)
       if isArray(existing)
-        new_array = _.without(existing, value)
+        new_array = _.difference(existing, [value])
         if new_array.length > 0
           @_dict[key] = new_array
         else

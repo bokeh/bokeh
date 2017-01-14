@@ -168,7 +168,7 @@ export class GlyphRendererView extends RendererView
       selection_glyph = @selection_glyph
 
     if @hover_glyph? and inspected.length
-      indices = _.without.bind(null, indices).apply(null, inspected)
+      indices = _.difference(indices, inspected)
 
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()
