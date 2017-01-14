@@ -44,6 +44,7 @@ requirements:
 
 test:
   requires:
+    - conda ==4.2.15
     # docs
     - pygments
     - sphinx >=1.3.1
