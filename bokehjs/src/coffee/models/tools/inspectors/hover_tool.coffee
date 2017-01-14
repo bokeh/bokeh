@@ -8,6 +8,7 @@ import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
 import {table, td, tr, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
+import {isEmpty} from "../../../core/util/array"
 import {isString, isFunction} from "../../../core/util/types"
 
 _color_to_hex = (color) ->
@@ -148,7 +149,7 @@ export class HoverToolView extends InspectToolView
 
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if not _.isEmpty(indices['2d'])
+      if not isEmpty(indices['2d'])
         for i, [j] of indices['2d']
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]

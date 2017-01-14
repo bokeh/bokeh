@@ -6,7 +6,7 @@ import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
-import {cloneObj} from "./util/array"
+import {cloneObj, isEmpty} from "./util/array"
 import {array_max} from "./util/math"
 import {isString, isObject, isArray} from "./util/types"
 
@@ -138,7 +138,7 @@ export class HasProps extends Backbone.Model
 
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
-    if not _.isEmpty(attrs)
+    if not isEmpty(attrs)
       old = {}
       for key, value of attrs
         old[key] = @getv(key)

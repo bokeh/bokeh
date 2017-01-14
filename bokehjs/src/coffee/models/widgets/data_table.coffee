@@ -8,7 +8,7 @@ import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectco
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {uniqueId} from "../../core/util/string"
-import {any} from "../../core/util/array"
+import {any, isEmpty} from "../../core/util/array"
 
 import {TableWidget} from "./table_widget"
 import {WidgetView} from "./widget"
@@ -74,7 +74,7 @@ export class DataProvider
     cols = for column in columns
       [column.sortCol.field, if column.sortAsc then 1 else -1]
 
-    if _.isEmpty(cols)
+    if isEmpty(cols)
       cols = [["index", 1]]
 
     records = @getRecords()

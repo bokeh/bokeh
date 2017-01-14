@@ -1,3 +1,5 @@
+import {isString, isArray} from "./types"
+
 export function zip<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]> {
   const n = Math.min(As.length, Bs.length)
   const ABs = new Array<[A, B]>(n)
@@ -188,4 +190,11 @@ export function any<T>(array: Array<T>, predicate: (item: T) => boolean): boolea
       return true
   }
   return false
+}
+
+export function isEmpty(obj: Array<any> | String | {[key: string]: any}): boolean {
+  if (isArray(obj) || isString(obj))
+    return obj.length === 0
+  else
+    return Object.keys(obj).length === 0
 }
