@@ -173,3 +173,19 @@ export function clone<T>(array: Array<T>): Array<T> {
 export function cloneObj<T>(obj: T): T {
   return extend({}, obj)
 }
+
+export function all<T>(array: Array<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of array) {
+    if (!predicate(item))
+      return false
+  }
+  return true
+}
+
+export function any<T>(array: Array<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of array) {
+    if (predicate(item))
+      return true
+  }
+  return false
+}
