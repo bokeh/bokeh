@@ -8,6 +8,7 @@ import * as CheckboxSelectColumn from "slick_grid/plugins/slick.checkboxselectco
 import * as hittest from "../../core/hittest"
 import * as p from "../../core/properties"
 import {uniqueId} from "../../core/util/string"
+import {any} from "../../core/util/array"
 
 import {TableWidget} from "./table_widget"
 import {WidgetView} from "./widget"
@@ -128,7 +129,7 @@ export class DataTableView extends WidgetView
     # console.log("DataTableView::updateSelection",
     #             @grid.getViewport(), @grid.getRenderedRange())
     cur_grid_range = @grid.getViewport()
-    if @model.scroll_to_selection and not _.any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
+    if @model.scroll_to_selection and not any(indices, (i) -> cur_grid_range.top <= i <= cur_grid_range.bottom)
       # console.log("DataTableView::updateSelection", min_index, indices)
       min_index = Math.max(0, Math.min.apply(null, indices) - 1)
       @grid.scrollRowToTop(min_index)

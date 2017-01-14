@@ -6,7 +6,7 @@ import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {div} from "../core/dom"
 import {startsWith} from "../core/util/string"
-import {cloneObj} from "../core/util/array"
+import {any, all, cloneObj} from "../core/util/array"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 _default_tooltips = [
@@ -241,8 +241,8 @@ export class Figure extends models.Plot
     legend = @_process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
-    has_sglyph = _.any(Object.keys(attrs), (key) -> startsWith(key, "selection_"))
-    has_hglyph = _.any(Object.keys(attrs), (key) -> startsWith(key, "hover_"))
+    has_sglyph = any(Object.keys(attrs), (key) -> startsWith(key, "selection_"))
+    has_hglyph = any(Object.keys(attrs), (key) -> startsWith(key, "hover_"))
 
     glyph_ca   = @_pop_colors_and_alpha(cls, attrs)
     nsglyph_ca = @_pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
@@ -293,7 +293,7 @@ export class Figure extends models.Plot
     if range instanceof models.Range
       return range
     if isArray(range)
-      if _.all((x) -> isString(x) for x in range)
+      if all(range, isString)
         return new models.FactorRange({factors: range})
       if range.length == 2
         return new models.Range1d({start: range[0], end: range[1]})

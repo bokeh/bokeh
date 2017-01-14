@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 
 import * as p from "../../core/properties"
+import {any} from "../../core/util/array"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
@@ -21,13 +22,13 @@ export class Toolbar extends ToolbarBase
   _init_tools: () ->
     for tool in @tools
       if tool instanceof InspectTool
-        if not _.any(@inspectors, (t) => t.id == tool.id)
+        if not any(@inspectors, (t) => t.id == tool.id)
           @inspectors = @inspectors.concat([tool])
       else if tool instanceof HelpTool
-        if not _.any(@help, (t) => t.id == tool.id)
+        if not any(@help, (t) => t.id == tool.id)
           @help = @help.concat([tool])
       else if tool instanceof ActionTool
-        if not _.any(@actions, (t) => t.id == tool.id)
+        if not any(@actions, (t) => t.id == tool.id)
           @actions = @actions.concat([tool])
       else if tool instanceof GestureTool
         et = tool.event_type
@@ -37,7 +38,7 @@ export class Toolbar extends ToolbarBase
                       #{tool.type} (#{tool.id})")
           continue
 
-        if not _.any(@gestures[et].tools, (t) => t.id == tool.id)
+        if not any(@gestures[et].tools, (t) => t.id == tool.id)
           @gestures[et].tools = @gestures[et].tools.concat([tool])
         @listenTo(tool, 'change:active', @_active_change.bind(tool))
 

@@ -2,6 +2,7 @@ import * as _ from "underscore"
 
 import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
+import {all} from "../../core/util/array"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
@@ -193,7 +194,7 @@ export class Box extends LayoutDOM
       look_up_list = [look_up]
     else
       look_up_list = look_up
-    return _.all(look_up_list, (x) -> x in var_keys)
+    return all(look_up_list, (x) -> x in var_keys)
 
   _test_layoutable: (child) ->
     required_constrained_variables = [
