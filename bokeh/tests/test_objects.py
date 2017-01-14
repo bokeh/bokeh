@@ -55,18 +55,18 @@ def large_plot(n):
     return vbox, objects
 
 
-class TestViewable(unittest.TestCase):
+class TestMetaModel(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.model import Viewable
-        self.viewable = Viewable
-        self.old_map = copy.copy(self.viewable.model_class_reverse_map)
+        from bokeh.model import MetaModel
+        self.metamodel = MetaModel
+        self.old_map = copy.copy(self.metamodel.model_class_reverse_map)
 
     def tearDown(self):
-        self.viewable.model_class_reverse_map = self.old_map
+        self.metamodel.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(with_metaclass(self.viewable)):
+        class Test_Class(with_metaclass(self.metamodel)):
             foo = 1
         return Test_Class
 
@@ -76,10 +76,11 @@ class TestViewable(unittest.TestCase):
         self.assertRaises(Warning, self.mkclass)
 
     def test_get_class(self):
+        from bokeh.model import get_class
         self.mkclass()
-        tclass = self.viewable.get_class('Test_Class')
+        tclass = get_class('Test_Class')
         self.assertTrue(hasattr(tclass, 'foo'))
-        self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
+        self.assertRaises(KeyError, get_class, 'Imaginary_Class')
 
 class DeepModel(Model):
     child = Instance(Model)

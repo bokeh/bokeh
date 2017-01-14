@@ -14,6 +14,22 @@ bokeh.server.application_context
 .. automodule:: bokeh.server.application_context
    :members:
 
+.. _bokeh.server.callbacks:
+
+bokeh.server.callbacks
+----------------------
+
+.. automodule:: bokeh.server.callbacks
+   :members:
+
+.. _bokeh.server.events:
+
+bokeh.server.events
+-------------------
+
+.. automodule:: bokeh.server.events
+   :members:
+
 .. _bokeh.server.server:
 
 bokeh.server.server
