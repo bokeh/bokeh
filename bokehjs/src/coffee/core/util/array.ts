@@ -152,3 +152,24 @@ export function values<T>(object: {[key: string]: T}): Array<T> {
   }
   return values
 }
+
+export function extend<T, T1>(dest: T, source: T1): T & T1;
+export function extend<R>(dest: any, ...sources: Array<any>): R {
+  for (const source of sources) {
+    for (const key in source) {
+      if (dest[key] === undefined && source.hasOwnProperty(key)) {
+        dest[key] = source[key]
+      }
+    }
+  }
+
+  return dest
+}
+
+export function clone<T>(array: Array<T>): Array<T> {
+  return array.slice()
+}
+
+export function cloneObj<T>(obj: T): T {
+  return extend({}, obj)
+}
