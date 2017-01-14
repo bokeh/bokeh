@@ -4,6 +4,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {logger} from "../../../core/logging"
 import * as p from "../../../core/properties"
+import {cloneObj} from "../../../core/util/array"
 
 export class SelectToolView extends GestureToolView
 
@@ -15,7 +16,7 @@ export class SelectToolView extends GestureToolView
         sm.clear()
 
   _save_geometry: (geometry, final, append) ->
-    g = _.clone(geometry)
+    g = cloneObj(geometry)
     xm = @plot_view.frame.x_mappers['default']
     ym = @plot_view.frame.y_mappers['default']
     switch g.type

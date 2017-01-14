@@ -4,8 +4,9 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
-import {startsWith} from "../core/util/string"
 import {div} from "../core/dom"
+import {startsWith} from "../core/util/string"
+import {cloneObj} from "../core/util/array"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 _default_tooltips = [
@@ -56,7 +57,7 @@ _with_default = (value, default_value) ->
 export class Figure extends models.Plot
 
   constructor: (attributes={}, options={}) ->
-    attrs = _.clone(attributes)
+    attrs = cloneObj(attributes)
 
     tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
@@ -229,10 +230,10 @@ export class Figure extends models.Plot
 
     if args.length == 1
       [attrs] = args
-      attrs = _.clone(attrs)
+      attrs = cloneObj(attrs)
     else
       [args..., opts] = args
-      attrs = _.clone(opts)
+      attrs = cloneObj(opts)
       for param, i in params
         do (param, i) ->
           attrs[param] = args[i]
@@ -249,7 +250,7 @@ export class Figure extends models.Plot
     hglyph_ca  = if has_hglyph then @_pop_colors_and_alpha(cls, attrs, "hover_") else {}
 
     source = attrs.source ? new models.ColumnDataSource()
-    data = _.clone(source.data)
+    data = cloneObj(source.data)
     delete attrs.source
 
     @_fixup_values(cls, data,   glyph_ca)

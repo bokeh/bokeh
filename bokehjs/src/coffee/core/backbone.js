@@ -8,6 +8,7 @@
 import * as _ from "underscore";
 
 import {Events} from './events';
+import {cloneObj} from './util/array';
 
 // Backbone.Model
 // --------------
@@ -66,7 +67,7 @@ _.extend(Model.prototype, Events, {
     this._changing = true;
 
     if (!changing) {
-      this._previousAttributes = _.clone(this.attributes);
+      this._previousAttributes = cloneObj(this.attributes);
       this.changed = {};
     }
 

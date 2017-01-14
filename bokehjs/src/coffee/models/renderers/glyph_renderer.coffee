@@ -4,6 +4,7 @@ import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {cloneObj} from "../../core/util/array"
 
 export class GlyphRendererView extends RendererView
 
@@ -13,11 +14,11 @@ export class GlyphRendererView extends RendererView
     base_glyph = @model.glyph
     has_fill = "fill" in base_glyph.mixins
     has_line = "line" in base_glyph.mixins
-    glyph_attrs = _.clone(base_glyph.attributes)
+    glyph_attrs = cloneObj(base_glyph.attributes)
     delete glyph_attrs.id
 
     mk_glyph = (defaults) ->
-      attrs = _.clone(glyph_attrs)
+      attrs = cloneObj(glyph_attrs)
       if has_fill then _.extend(attrs, defaults.fill)
       if has_line then _.extend(attrs, defaults.line)
       return new (base_glyph.constructor)(attrs)

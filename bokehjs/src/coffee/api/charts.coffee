@@ -4,7 +4,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import * as palettes from "./palettes"
-import {zip, unzip, sum, cumsum} from "../core/util/array"
+import {zip, unzip, sum, cumsum, clone} from "../core/util/array"
 import {isArray} from "../core/util/types"
 
 num2hexcolor = (num) -> sprintf("#%06x", num)
@@ -186,8 +186,8 @@ export bar = (data, opts={}) ->
 
       source = new Bokeh.ColumnDataSource({
         data: {
-          left: _.clone(left)
-          right: _.clone(right)
+          left: clone(left)
+          right: clone(right)
           top: top
           bottom: bottom
           labels: labels

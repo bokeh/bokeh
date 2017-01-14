@@ -6,6 +6,7 @@ import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
+import {cloneObj} from "./util/array"
 import {array_max} from "./util/math"
 import {isString, isObject, isArray} from "./util/types"
 
@@ -39,7 +40,7 @@ export class HasProps extends Backbone.Model
           internal: internal ? false
         }
 
-        props = _.clone(this.prototype.props)
+        props = cloneObj(this.prototype.props)
         props[name] = refined_prop
         this.prototype.props = props
 
@@ -70,7 +71,7 @@ export class HasProps extends Backbone.Model
         value = this.prototype.props[name]
         if not value?
           throw new Error("attempted to override nonexistent '#{this.name}.#{name}'")
-        props = _.clone(this.prototype.props)
+        props = cloneObj(this.prototype.props)
         props[name] = _.extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
