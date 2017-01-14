@@ -16,6 +16,7 @@ import {logger} from "../../core/logging"
 import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
+import {isStrictNaN} from "../../core/util/types"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
@@ -475,16 +476,14 @@ export class PlotCanvasView extends BokehView
     good_vals = true
     xrs = {}
     for name, rng of @frame.x_ranges
-      if (not rng.start? or not rng.end? or
-          _.isNaN(rng.start + rng.end))
+      if (not rng.start? or not rng.end? or isStrictNaN(rng.start + rng.end))
         good_vals = false
         break
       xrs[name] = { start: rng.start, end: rng.end }
     if good_vals
       yrs = {}
       for name, rng of @frame.y_ranges
-        if (not rng.start? or not rng.end? or
-            _.isNaN(rng.start + rng.end))
+        if (not rng.start? or not rng.end? or isStrictNaN(rng.start + rng.end))
           good_vals = false
           break
         yrs[name] = { start: rng.start, end: rng.end }

@@ -3,6 +3,7 @@ import * as rbush from "rbush"
 
 import {Glyph, GlyphView} from "./glyph"
 import {min, max} from "../../core/util/array"
+import {isStrictNaN} from "../../core/util/types"
 import * as hittest from "../../core/hittest"
 
 export class PatchesView extends GlyphView
@@ -30,7 +31,7 @@ export class PatchesView extends GlyphView
       qs = _.clone(nanned_qs[i])
       while qs.length > 0
 
-        nan_index = _.findLastIndex(qs, (q) ->  _.isNaN(q))
+        nan_index = _.findLastIndex(qs, (q) -> isStrictNaN(q))
 
         if nan_index >= 0
           qs_part = qs.splice(nan_index)
@@ -38,7 +39,7 @@ export class PatchesView extends GlyphView
           qs_part = qs
           qs = []
 
-        denanned = (q for q in qs_part when not _.isNaN(q))
+        denanned = (q for q in qs_part when not isStrictNaN(q))
         ds[i].push(denanned)
     return ds
 

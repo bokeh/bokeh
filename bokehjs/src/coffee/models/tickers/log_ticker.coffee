@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 
 import {range} from "../../core/util/array"
+import {isStrictNaN} from "../../core/util/types"
 import {AdaptiveTicker} from "./adaptive_ticker"
 
 export class LogTicker extends AdaptiveTicker
@@ -26,7 +27,7 @@ export class LogTicker extends AdaptiveTicker
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
 
-      if _.isNaN(start_factor) or _.isNaN(end_factor)
+      if isStrictNaN(start_factor) or isStrictNaN(end_factor)
         factors = []
       else
         factors = range(start_factor, end_factor + 1)
