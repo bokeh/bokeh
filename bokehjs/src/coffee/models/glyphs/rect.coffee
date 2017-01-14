@@ -129,8 +129,8 @@ export class RectView extends GlyphView
         py = s * (sx-@sx[i]) + c * (sy-@sy[i]) + @sy[i]
         sx = px
         sy = py
-      width_in = Math.abs(@sx[i]-sx) <= @sw[i]/2
-      height_in = Math.abs(@sy[i]-sy) <= @sh[i]/2
+      width_in = sx - @sx0[i] <= @sw[i] and sx - @sx0[i] >= 0
+      height_in = sy - @sy1[i] <= @sh[i] and sy - @sy1[i] >= 0
 
       if height_in and width_in
         hits.push(i)
