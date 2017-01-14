@@ -224,6 +224,42 @@ describe "Rect", ->
           expect(result2['1d'].indices).to.be.deep.equal([])
           expect(result3['1d'].indices).to.be.deep.equal([1])
 
+        it "should work when rects are rotated and axes ranges are very different", ->
+          glyph = new Rect({
+            x: {field: "x"}
+            y: {field: "y"}
+            width: {value: 10}
+            height: {value: 20}
+            angle: {value: -0.785398}
+          })
+
+          data = {x: [60, 100, 140], y: [60, 100, 140]}
+          glyph_view = create_glyph_view(glyph, data)
+
+          xmapper = new LinearMapper({
+            source_range: new Range1d({start: 0, end: 100})
+            target_range: new Range1d({start: 95, end: 105})
+          })
+
+          ymapper = new LinearMapper({
+            source_range: new Range1d({start: 0, end: 100})
+            target_range: new Range1d({start: 0, end: 200})
+          })
+
+          glyph_view.renderer.xmapper = xmapper
+          glyph_view.renderer.ymapper = ymapper
+          glyph_view.renderer.plot_view.frame.x_mappers['default'] = xmapper
+          glyph_view.renderer.plot_view.frame.y_mappers['default'] = ymapper
+          glyph_view.map_data()
+
+          result1 = glyph_view._hit_point({vx: 105, vy: 200})
+          result2 = glyph_view._hit_point({vx: 105, vy: 220})
+          result3 = glyph_view._hit_point({vx: 91, vy: 186})
+
+          expect(result1['1d'].indices).to.be.deep.equal([1])
+          expect(result2['1d'].indices).to.be.deep.equal([])
+          expect(result3['1d'].indices).to.be.deep.equal([1])
+
         it "should work when axis is log", ->
           data = {x: [60, 100, 140], y: [60, 100, 140]}
           glyph_view = create_glyph_view(@glyph, data)
