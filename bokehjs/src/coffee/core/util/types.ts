@@ -12,7 +12,7 @@ export function isString(obj: any): obj is string {
   return toString.call(obj) === "[object String]"
 }
 
-export function isNaN(obj: any): obj is number {
+export function isStrictNaN(obj: any): obj is number {
   return isNumber(obj) && obj !== +obj
 }
 
