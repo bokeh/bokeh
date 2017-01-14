@@ -1,4 +1,4 @@
-import {isBoolean, isString, isArray, isObject} from "underscore"
+import {isBoolean, isString, isArray, isObject} from "./util/types"
 
 type HTMLAttrs = { [name: string]: any }
 type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
