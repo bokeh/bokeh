@@ -159,7 +159,7 @@ export function extend<T, T1>(dest: T, source: T1): T & T1;
 export function extend<R>(dest: any, ...sources: Array<any>): R {
   for (const source of sources) {
     for (const key in source) {
-      if (dest[key] === undefined && source.hasOwnProperty(key)) {
+      if (source.hasOwnProperty(key)) {
         dest[key] = source[key]
       }
     }
