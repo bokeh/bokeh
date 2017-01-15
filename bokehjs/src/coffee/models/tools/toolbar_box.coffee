@@ -1,6 +1,6 @@
 import * as _ from "underscore"
 import * as p from "../../core/properties"
-import {any} from "../../core/util/array"
+import {any, sortBy} from "../../core/util/array"
 
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
@@ -109,7 +109,7 @@ export class ToolbarBoxToolbar extends ToolbarBase
       tools = @gestures[et].tools
       if tools.length == 0
         continue
-      @gestures[et].tools = _.sortBy(tools, (tool) -> tool.default_order)
+      @gestures[et].tools = sortBy(tools, (tool) -> tool.default_order)
       if et not in ['pinch', 'scroll']
         @gestures[et].tools[0].active = true
 

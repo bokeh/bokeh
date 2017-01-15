@@ -17,7 +17,7 @@ import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
 import {isStrictNaN} from "../../core/util/types"
-import {extend, values, isEmpty} from "../../core/util/array"
+import {extend, values, sortBy, isEmpty} from "../../core/util/array"
 import {defer} from "../../core/util/callback"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
@@ -627,7 +627,7 @@ export class PlotCanvasView extends BokehView
     sortKey = (renderer_view) -> indices[renderer_view.model.id]
 
     for level in levels
-      renderer_views = _.sortBy(values(@levels[level]), sortKey)
+      renderer_views = sortBy(values(@levels[level]), sortKey)
 
       for renderer_view in renderer_views
         renderer_view.render()

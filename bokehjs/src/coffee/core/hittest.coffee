@@ -1,4 +1,4 @@
-import * as _ from "underscore"
+import {sortBy} from "./util/array"
 
 export point_in_poly = (x, y, px, py) ->
   inside = false
@@ -53,7 +53,7 @@ export create_hit_test_result = () -> new HitTestResult()
 
 export create_1d_hit_test_result = (hits) ->
   result = new HitTestResult()
-  result['1d'].indices = (i for [i, _dist] in _.sortBy(hits, ([_i, dist]) -> dist))
+  result['1d'].indices = (i for [i, _dist] in sortBy(hits, ([_i, dist]) -> dist))
   return result
 
 export validate_bbox_coords = ([x0, x1], [y0, y1]) ->

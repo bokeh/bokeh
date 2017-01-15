@@ -5,7 +5,7 @@ import * as tz from "timezone"
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {zip, unzip} from "../../core/util/array"
+import {zip, unzip, sortBy} from "../../core/util/array"
 import {isFunction} from "../../core/util/types"
 
 _us = (t) ->
@@ -72,7 +72,7 @@ export class DatetimeTickFormatter extends TickFormatter
 
     _widths = (fmt_strings) ->
       sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
-      sorted = _.sortBy(zip(sizes, fmt_strings), ([size, fmt]) -> size)
+      sorted = sortBy(zip(sizes, fmt_strings), ([size, fmt]) -> size)
       return unzip(sorted)
 
     @_width_formats = {
