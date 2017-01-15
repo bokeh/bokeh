@@ -17,7 +17,7 @@ import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
 import {isStrictNaN} from "../../core/util/types"
-import {isEmpty} from "../../core/util/array"
+import {values, isEmpty} from "../../core/util/array"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
@@ -187,7 +187,7 @@ export class PlotCanvasView extends BokehView
     log_bounds = {}
 
     calculate_log_bounds = false
-    for r in _.values(frame.x_ranges).concat(_.values(frame.y_ranges))
+    for r in values(frame.x_ranges).concat(values(frame.y_ranges))
       if r instanceof DataRange1d
         if r.mapper_hint == "log"
           calculate_log_bounds = true
@@ -204,7 +204,7 @@ export class PlotCanvasView extends BokehView
     follow_enabled = false
     has_bounds = false
 
-    for xr in _.values(frame.x_ranges)
+    for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
         bounds_to_use = if xr.mapper_hint == "log" then log_bounds else bounds
         xr.update(bounds_to_use, 0, @model.id)
@@ -212,7 +212,7 @@ export class PlotCanvasView extends BokehView
           follow_enabled = true
       has_bounds = true if xr.bounds?
 
-    for yr in _.values(frame.y_ranges)
+    for yr in values(frame.y_ranges)
       if yr instanceof DataRange1d
         bounds_to_use = if yr.mapper_hint == "log" then log_bounds else bounds
         yr.update(bounds_to_use, 1, @model.id)
@@ -222,9 +222,9 @@ export class PlotCanvasView extends BokehView
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.x_ranges)
+      for xr in values(frame.x_ranges)
         xr.bounds = null
-      for yr in _.values(frame.y_ranges)
+      for yr in values(frame.y_ranges)
         yr.bounds = null
 
     @range_update_timestamp = Date.now()
@@ -626,7 +626,7 @@ export class PlotCanvasView extends BokehView
     sortKey = (renderer_view) -> indices[renderer_view.model.id]
 
     for level in levels
-      renderer_views = _.sortBy(_.values(@levels[level]), sortKey)
+      renderer_views = _.sortBy(values(@levels[level]), sortKey)
 
       for renderer_view in renderer_views
         renderer_view.render()

@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 import {get_text_height} from "../../core/util/text"
-import {max} from "../../core/util/array"
+import {max, values} from "../../core/util/array"
 import {isString, isArray} from "../../core/util/types"
 
 export class LegendView extends AnnotationView
@@ -32,7 +32,7 @@ export class LegendView extends AnnotationView
       @text_widths[name] = max([ctx.measureText(name).width, label_width])
     ctx.restore()
 
-    max_label_width = max(_.values(@text_widths))
+    max_label_width = max(values(@text_widths))
 
     legend_margin = @model.margin
     legend_padding = @model.padding

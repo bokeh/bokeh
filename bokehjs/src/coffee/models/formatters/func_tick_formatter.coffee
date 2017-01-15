@@ -1,6 +1,7 @@
 import * as _ from "underscore"
 
 import * as p from "../../core/properties"
+import {values} from "../../core/util/array"
 
 import {TickFormatter} from "../formatters/tick_formatter"
 
@@ -20,4 +21,4 @@ export class FuncTickFormatter extends TickFormatter
 
   doFormat: (ticks) ->
     func = @_make_func()
-    return (func(tick, _.values(@args)..., require) for tick in ticks)
+    return (func(tick, values(@args)..., require) for tick in ticks)

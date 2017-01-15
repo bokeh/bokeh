@@ -3,6 +3,7 @@ import * as _ from "underscore"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Span} from "../../annotations/span"
 import * as p from "../../../core/properties"
+import {values} from "../../../core/util/array"
 
 export class CrosshairToolView extends InspectToolView
 
@@ -49,7 +50,7 @@ export class CrosshairTool extends InspectTool
 
   @getters {
     tooltip: () -> @_get_dim_tooltip("Crosshair", @dimensions)
-    synthetic_renderers: () -> _.values(@spans)
+    synthetic_renderers: () -> values(@spans)
   }
 
   initialize: (attrs, options) ->

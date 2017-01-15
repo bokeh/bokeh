@@ -6,7 +6,7 @@ import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
-import {cloneObj, isEmpty} from "./util/array"
+import {values, cloneObj, isEmpty} from "./util/array"
 import {array_max} from "./util/math"
 import {isString, isObject, isArray} from "./util/types"
 
@@ -336,12 +336,12 @@ export class HasProps extends Backbone.Model
       value = attrs[key]
       HasProps._value_record_references(value, result, false) # false = no recurse
 
-    _.values(result)
+    values(result)
 
   references: () ->
     references = {}
     HasProps._value_record_references(this, references, true)
-    return _.values(references)
+    return values(references)
 
   attach_document: (doc) ->
     # This should only be called by the Document implementation to set the document field

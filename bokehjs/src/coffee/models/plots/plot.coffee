@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {cloneObj} from "../../core/util/array"
+import {values, cloneObj} from "../../core/util/array"
 import {isString, isArray} from "../../core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -68,7 +68,7 @@ export class PlotView extends LayoutDOMView
     return @model._height._value * @model.get_aspect_ratio()
 
   save: (name) ->
-    (view for view in _.values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
+    (view for view in values(@child_views) when view instanceof PlotCanvasView)[0].save(name)
 
 export class Plot extends LayoutDOM
   type: 'Plot'
@@ -76,12 +76,12 @@ export class Plot extends LayoutDOM
 
   initialize: (options) ->
     super(options)
-    for xr in _.values(@extra_x_ranges).concat(@x_range)
+    for xr in values(@extra_x_ranges).concat(@x_range)
       plots = xr.plots
       if isArray(plots)
         plots = plots.concat(@)
         xr.setv('plots', plots, {silent: true})
-    for yr in _.values(@extra_y_ranges).concat(@y_range)
+    for yr in values(@extra_y_ranges).concat(@y_range)
       plots = yr.plots
       if isArray(plots)
         plots = plots.concat(@)

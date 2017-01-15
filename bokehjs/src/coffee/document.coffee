@@ -8,6 +8,7 @@ import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
+import {values} from "./core/util/array"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
@@ -200,7 +201,7 @@ export class Document
 
     for r in @_roots
       new_all_models_set = new_all_models_set.union(r.references())
-    old_all_models_set = new Set(_.values(@_all_models))
+    old_all_models_set = new Set(values(@_all_models))
     to_detach = old_all_models_set.diff(new_all_models_set)
     to_attach = new_all_models_set.diff(old_all_models_set)
 
@@ -534,7 +535,7 @@ export class Document
 
     {
       'events' : events,
-      'references' : Document._references_json(_.values(value_refs), include_defaults=false)
+      'references' : Document._references_json(values(value_refs), include_defaults=false)
     }
 
   to_json_string : (include_defaults=true) ->
@@ -545,7 +546,7 @@ export class Document
     for r in @_roots
       root_ids.push(r.id)
 
-    root_references = _.values(@_all_models)
+    root_references = values(@_all_models)
 
     {
       'title' : @_title
@@ -608,7 +609,7 @@ export class Document
 
     result =
       events: json_events,
-      references: Document._references_json(_.values(references))
+      references: Document._references_json(values(references))
 
   apply_json_patch_string: (patch) ->
     @apply_json_patch(JSON.parse(patch))

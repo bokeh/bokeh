@@ -8,7 +8,7 @@ import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
 import {table, td, tr, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
-import {isEmpty} from "../../../core/util/array"
+import {values, isEmpty} from "../../../core/util/array"
 import {isString, isFunction} from "../../../core/util/types"
 
 _color_to_hex = (color) ->
@@ -351,5 +351,5 @@ export class HoverTool extends InspectTool
   @getters {
     computed_renderers: () -> @_get_computed('computed_renderers')
     ttmodels: () -> @_get_computed('ttmodels')
-    synthetic_renderers: () -> _.values(@ttmodels)
+    synthetic_renderers: () -> values(@ttmodels)
   }
