@@ -18,6 +18,7 @@ import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
 import {isStrictNaN} from "../../core/util/types"
 import {extend, values, isEmpty} from "../../core/util/array"
+import {defer} from "../../core/util/callback"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
@@ -569,7 +570,7 @@ export class PlotCanvasView extends BokehView
       delete @model.document._unrendered_plots[@id]
       if isEmpty(@model.document._unrendered_plots)
         @model.document._unrendered_plots = null
-        _.delay(@model.document.resize.bind(@model.document), 1)
+        defer(@model.document.resize.bind(@model.document))
 
   resize: () ->
     # Set the plot and canvas to the current model's size

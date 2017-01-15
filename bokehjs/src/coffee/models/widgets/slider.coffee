@@ -3,6 +3,7 @@ import "jquery-ui/slider"
 
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {throttle} from "../../core/util/callback"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -23,7 +24,7 @@ export class SliderView extends InputWidgetView
       @callbackWrapper = () ->
         @model.callback?.execute(@model)
     if @model.callback_policy == 'throttle' and @model.callback
-      @callbackWrapper = _.throttle(() ->
+      @callbackWrapper = throttle(() ->
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()

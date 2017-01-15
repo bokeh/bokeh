@@ -3,6 +3,7 @@ import {proj4, mercator} from "../../core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 import * as p from "../../core/properties"
+import {defer} from "../../core/util/callback"
 
 export class GMapPlotCanvasView extends PlotCanvasView
 
@@ -115,14 +116,14 @@ export class GMapPlotCanvasView extends PlotCanvasView
       window._bokeh_gmap_loads = []
 
     if window.google? and window.google.maps?
-      _.defer(build_map)
+      defer(build_map)
 
     else if window._bokeh_gmap_callback?
       window._bokeh_gmap_loads.push(build_map)
 
     else
       window._bokeh_gmap_loads.push(build_map)
-      window._bokeh_gmap_callback = () -> window._bokeh_gmap_loads.forEach(_.defer)
+      window._bokeh_gmap_callback = () -> window._bokeh_gmap_loads.forEach(defer)
       script = document.createElement('script')
       script.type = 'text/javascript'
       script.src = "https://maps.googleapis.com/maps/api/js?key=#{@model.plot.api_key}&callback=_bokeh_gmap_callback"

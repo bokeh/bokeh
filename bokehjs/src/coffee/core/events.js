@@ -5,9 +5,8 @@
 //     For all details and documentation:
 //     http://backbonejs.org
 
-import * as _ from "underscore";
-
 import {uniqueId} from "./util/string"
+import {once} from "./util/callback"
 
 // Backbone.Events
 // ---------------
@@ -216,11 +215,11 @@ Events.listenToOnce = function(obj, name, callback) {
 // `offer` unbinds the `onceWrapper` after it has been called.
 var onceMap = function(map, name, callback, offer) {
   if (callback) {
-    var once = map[name] = _.once(function() {
-      offer(name, once);
+    var fn = map[name] = once(function() {
+      offer(name, fn);
       callback.apply(this, arguments);
     });
-    once._callback = callback;
+    fn._callback = callback;
   }
   return map;
 };
