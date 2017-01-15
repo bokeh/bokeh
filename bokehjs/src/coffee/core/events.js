@@ -18,7 +18,7 @@ import {uniqueId} from "./util/string"
 // succession.
 //
 //     var object = {};
-//     _.extend(object, Backbone.Events);
+//     extend(object, Backbone.Events);
 //     object.on('expand', function(){ alert('expanded'); });
 //     object.trigger('expand');
 //

@@ -4,7 +4,7 @@ import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {cloneObj} from "../../core/util/array"
+import {extend, cloneObj} from "../../core/util/array"
 
 export class GlyphRendererView extends RendererView
 
@@ -19,8 +19,8 @@ export class GlyphRendererView extends RendererView
 
     mk_glyph = (defaults) ->
       attrs = cloneObj(glyph_attrs)
-      if has_fill then _.extend(attrs, defaults.fill)
-      if has_line then _.extend(attrs, defaults.line)
+      if has_fill then extend(attrs, defaults.fill)
+      if has_line then extend(attrs, defaults.line)
       return new (base_glyph.constructor)(attrs)
 
     @glyph = @build_glyph_view(base_glyph)

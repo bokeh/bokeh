@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
-import {all} from "../../core/util/array"
+import {extend, all} from "../../core/util/array"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
@@ -83,7 +83,7 @@ export class Box extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'box-equal-size-top' : @_box_equal_size_top
       'box-equal-size-bottom' : @_box_equal_size_bottom
       'box-equal-size-left' : @_box_equal_size_left

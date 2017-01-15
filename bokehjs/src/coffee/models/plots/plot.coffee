@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {values, cloneObj} from "../../core/util/array"
+import {extend, values, cloneObj} from "../../core/util/array"
 import {isString, isArray} from "../../core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -155,7 +155,7 @@ export class Plot extends LayoutDOM
   add_glyph: (glyph, source, attrs={}) ->
     if not source?
       source = new ColumnDataSource()
-    attrs = _.extend({}, attrs, {data_source: source, glyph: glyph})
+    attrs = extend({}, attrs, {data_source: source, glyph: glyph})
     renderer = new GlyphRenderer(attrs)
     @add_renderers(renderer)
     return renderer
@@ -270,7 +270,7 @@ export class Plot extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'on-edge-align-top'    : @plot_canvas._top
       'on-edge-align-bottom' : @plot_canvas._height_minus_bottom
       'on-edge-align-left'   : @plot_canvas._left
@@ -285,7 +285,7 @@ export class Plot extends LayoutDOM
       'box-equal-size-bottom': @plot_canvas._height_minus_bottom
     })
     if @sizing_mode isnt 'fixed'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'box-equal-size-left'  : @plot_canvas._left
         'box-equal-size-right' : @plot_canvas._width_minus_right
       })

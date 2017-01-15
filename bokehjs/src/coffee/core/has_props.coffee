@@ -6,7 +6,7 @@ import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
-import {values, cloneObj, isEmpty} from "./util/array"
+import {extend, values, cloneObj, isEmpty} from "./util/array"
 import {array_max} from "./util/math"
 import {isString, isObject, isArray} from "./util/types"
 
@@ -72,7 +72,7 @@ export class HasProps extends Backbone.Model
         if not value?
           throw new Error("attempted to override nonexistent '#{this.name}.#{name}'")
         props = cloneObj(this.prototype.props)
-        props[name] = _.extend({}, value, { default_value: default_value })
+        props[name] = extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
   @define {

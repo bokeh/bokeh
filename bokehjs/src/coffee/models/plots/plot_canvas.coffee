@@ -17,7 +17,7 @@ import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
 import {isStrictNaN} from "../../core/util/types"
-import {values, isEmpty} from "../../core/util/array"
+import {extend, values, isEmpty} from "../../core/util/array"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
@@ -38,7 +38,7 @@ export class PlotCanvasView extends BokehView
 
   state: { history: [], index: -1 }
 
-  view_options: () -> _.extend({plot_view: @}, @options)
+  view_options: () -> extend({plot_view: @}, @options)
 
   pause: () ->
     @is_paused = true
@@ -234,7 +234,7 @@ export class PlotCanvasView extends BokehView
 
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}
-    info = _.extend({}, @_initial_state_info, prev_info, info)
+    info = extend({}, @_initial_state_info, prev_info, info)
 
     @state.history.slice(0, @state.index + 1)
     @state.history.push({type: type, info: info})

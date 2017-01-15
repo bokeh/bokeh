@@ -1,4 +1,5 @@
 import * as _ from "underscore"
+import {extend} from "./util/array"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views
@@ -22,7 +23,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
 
   for model, i_model in newmodels
     cls = view_types[i_model] ? model.default_view
-    view_options = _.extend({model: model}, options)
+    view_options = extend({model: model}, options)
     view_storage[model.id] = view = new cls(view_options)
     created_views.push(view)
 

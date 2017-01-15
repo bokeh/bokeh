@@ -8,7 +8,7 @@ import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
-import {values} from "./core/util/array"
+import {extend, values} from "./core/util/array"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
@@ -332,7 +332,7 @@ export class Document
     references_json
 
   @_instantiate_object: (obj_id, obj_type, obj_attrs) ->
-    full_attrs = _.extend({}, obj_attrs, {id: obj_id})
+    full_attrs = extend({}, obj_attrs, {id: obj_id})
     model = Models(obj_type)
     new model(full_attrs, {silent: true, defer_initialization: true})
 

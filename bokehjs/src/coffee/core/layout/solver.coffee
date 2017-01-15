@@ -26,7 +26,7 @@ export WEAK_LE = _weak_constrainer(Operator.Le)
 export WEAK_GE = _weak_constrainer(Operator.Ge)
 
 export class Solver
-  _.extend(@prototype, Events)
+  @prototype extends Events
 
   constructor: () ->
     @solver = new ConstraintSolver()

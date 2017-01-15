@@ -11,7 +11,7 @@ import {Model} from "../../model"
 import {JQueryable} from "./jqueryable"
 
 export class CellEditorView extends BokehView
-  _.extend(@prototype, JQueryable)
+  @prototype extends JQueryable
 
   className: "bk-cell-editor"
 

@@ -11,7 +11,7 @@ import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./ut
 #
 
 export class Property
-  _.extend(@prototype, Events)
+  @prototype extends Events
 
   dataspec: false
 

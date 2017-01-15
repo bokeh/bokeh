@@ -10,6 +10,7 @@ import {Model} from "../../model"
 import {Visuals} from "../../core/visuals"
 import * as bokehgl from "./webgl/main"
 import {logger} from "../../core/logging"
+import {extend} from "../../core/util/array"
 import {isString, isArray} from "../../core/util/types"
 
 export class GlyphView extends BokehView
@@ -191,7 +192,7 @@ export class GlyphView extends BokehView
 
   set_data: (source) ->
     data = @model.materialize_dataspecs(source)
-    _.extend(@, data)
+    extend(@, data)
 
     if @renderer.plot_view.model.use_map
       if @_x?

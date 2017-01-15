@@ -6,7 +6,7 @@ import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {div} from "../core/dom"
 import {startsWith} from "../core/util/string"
-import {any, all, cloneObj} from "../core/util/array"
+import {any, all, extend, cloneObj} from "../core/util/array"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 _default_tooltips = [
@@ -263,7 +263,7 @@ export class Figure extends models.Plot
     source.data = data
 
     _make_glyph = (cls, attrs, extra_attrs) =>
-      new cls(_.extend({}, attrs, extra_attrs))
+      new cls(extend({}, attrs, extra_attrs))
 
     glyph   = _make_glyph(cls, attrs,   glyph_ca)
     nsglyph = _make_glyph(cls, attrs, nsglyph_ca)

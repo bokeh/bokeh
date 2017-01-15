@@ -8,7 +8,7 @@
 import * as _ from "underscore";
 
 import {Events} from './events';
-import {cloneObj} from './util/array';
+import {extend, cloneObj} from './util/array';
 
 // Backbone.Model
 // --------------
@@ -29,7 +29,7 @@ export var Model = function(attributes, options) {
 };
 
 // Attach all inheritable methods to the Model prototype.
-_.extend(Model.prototype, Events, {
+extend(Model.prototype, Events, {
 
   // A hash of attributes whose current and previous value differ.
   changed: null,
@@ -143,7 +143,7 @@ export var View = function(options) {
 };
 
 // Set up all inheritable **Backbone.View** properties and methods.
-_.extend(View.prototype, Events, {
+extend(View.prototype, Events, {
 
   // The default `tagName` of a View's element is `"div"`.
   tagName: 'div',

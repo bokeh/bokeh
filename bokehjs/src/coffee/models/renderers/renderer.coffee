@@ -5,6 +5,7 @@ import {Visuals} from "../../core/visuals"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import * as proj from "../../core/util/projections"
+import {extend} from "../../core/util/array"
 import {Model} from "../../model"
 
 export class RendererView extends BokehView
@@ -23,7 +24,7 @@ export class RendererView extends BokehView
 
   set_data: (source) ->
     data = @model.materialize_dataspecs(source)
-    _.extend(@, data)
+    extend(@, data)
 
     if @plot_model.use_map
       if @_x?

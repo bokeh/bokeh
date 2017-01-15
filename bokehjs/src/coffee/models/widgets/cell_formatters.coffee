@@ -3,6 +3,7 @@ import * as $ from "jquery"
 import * as Numbro from "numbro"
 
 import * as p from "../../core/properties"
+import {extend} from "../../core/util/array"
 import {isString} from "../../core/util/types"
 import {Model} from "../../model"
 
@@ -108,6 +109,6 @@ export class HTMLTemplateFormatter extends CellFormatter
     if value == null
       return ""
     else
-      dataContext = _.extend({}, dataContext, {value: value})
+      dataContext = extend({}, dataContext, {value: value})
       compiled_template = _.template(template)
       return compiled_template(dataContext)
