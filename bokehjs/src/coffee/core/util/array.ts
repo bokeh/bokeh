@@ -198,3 +198,18 @@ export function isEmpty(obj: Array<any> | String | {[key: string]: any}): boolea
   else
     return Object.keys(obj).length === 0
 }
+
+function findIndexFactory(dir: number) {
+  return function<T>(array: Array<T>, predicate: (item: T) => boolean): number {
+    const length = array.length
+    let index = dir > 0 ? 0 : length - 1
+    for (; index >= 0 && index < length; index += dir) {
+      if (predicate(array[index]))
+        return index
+    }
+    return -1
+  }
+}
+
+export const findIndex = findIndexFactory(1)
+export const findLastIndex = findIndexFactory(-1)

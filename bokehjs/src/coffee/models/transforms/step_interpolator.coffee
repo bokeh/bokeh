@@ -1,7 +1,6 @@
-import * as _ from "underscore"
 import {Interpolator} from "./interpolator"
 import * as p from "../../core/properties"
-import {min} from "../../core/util/array"
+import {min, findIndex, findLastIndex} from "../../core/util/array"
 
 
 export class StepInterpolator extends Interpolator
@@ -25,21 +24,15 @@ export class StepInterpolator extends Interpolator
 
     ind = -1
     if @mode == "after"
-      ind = _.findLastIndex(@_x_sorted, (num) ->
-        return x >= num
-      )
+      ind = findLastIndex(@_x_sorted, (num) -> x >= num)
 
     if @mode == "before"
-      ind = _.findIndex(@_x_sorted, (num) ->
-        return x <= num
-      )
+      ind = findIndex(@_x_sorted, (num) -> x <= num)
 
     if @mode == "center"
       diffs = (Math.abs(tx - x) for tx in @_x_sorted)
       mdiff = min(diffs)
-      ind = _.findIndex(diffs, (num) ->
-        return mdiff == num
-      )
+      ind = findIndex(diffs, (num) -> mdiff == num)
 
     if ind != -1
       ret = @_y_sorted[ind]

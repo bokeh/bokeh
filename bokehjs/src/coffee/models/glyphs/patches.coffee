@@ -1,8 +1,7 @@
-import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import {Glyph, GlyphView} from "./glyph"
-import {min, max, clone} from "../../core/util/array"
+import {min, max, clone, findLastIndex} from "../../core/util/array"
 import {isStrictNaN} from "../../core/util/types"
 import * as hittest from "../../core/hittest"
 
@@ -31,7 +30,7 @@ export class PatchesView extends GlyphView
       qs = clone(nanned_qs[i])
       while qs.length > 0
 
-        nan_index = _.findLastIndex(qs, (q) -> isStrictNaN(q))
+        nan_index = findLastIndex(qs, (q) -> isStrictNaN(q))
 
         if nan_index >= 0
           qs_part = qs.splice(nan_index)
