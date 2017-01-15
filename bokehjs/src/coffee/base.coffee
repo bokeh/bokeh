@@ -1,10 +1,10 @@
 import * as _ from "underscore"
 
 import * as models from "./models/index"
-import {cloneObj} from "./core/util/array"
+import {clone} from "./core/util/array"
 
 export overrides = {}
-_all_models = cloneObj(models)
+_all_models = clone(models)
 
 export Models = (name) ->
   model = overrides[name] ? _all_models[name]

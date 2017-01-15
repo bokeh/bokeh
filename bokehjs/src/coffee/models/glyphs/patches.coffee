@@ -1,7 +1,7 @@
 import * as rbush from "rbush"
 
 import {Glyph, GlyphView} from "./glyph"
-import {min, max, clone, findLastIndex} from "../../core/util/array"
+import {min, max, copy, findLastIndex} from "../../core/util/array"
 import {isStrictNaN} from "../../core/util/types"
 import * as hittest from "../../core/hittest"
 
@@ -27,7 +27,7 @@ export class PatchesView extends GlyphView
     ds = {}
     for i in [0...nanned_qs.length]
       ds[i] = []
-      qs = clone(nanned_qs[i])
+      qs = copy(nanned_qs[i])
       while qs.length > 0
 
         nan_index = findLastIndex(qs, (q) -> isStrictNaN(q))

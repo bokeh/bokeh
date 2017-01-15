@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {extend, values, cloneObj} from "../../core/util/array"
+import {extend, values, clone} from "../../core/util/array"
 import {isString, isArray} from "../../core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -170,7 +170,7 @@ export class Plot extends LayoutDOM
       else
         # XXX: this part should be unnecessary, but you can't configure tool.plot
         # after construting a tool. When this limitation is lifted, remove this code.
-        attrs = cloneObj(tool.attributes)
+        attrs = clone(tool.attributes)
         attrs.plot = this
         new tool.constructor(attrs)
 

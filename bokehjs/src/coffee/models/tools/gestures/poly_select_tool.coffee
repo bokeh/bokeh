@@ -3,7 +3,7 @@ import * as _ from "underscore"
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import * as p from "../../../core/properties"
-import {clone} from "../../../core/util/array"
+import {copy} from "../../../core/util/array"
 
 export class PolySelectToolView extends SelectToolView
 
@@ -44,8 +44,8 @@ export class PolySelectToolView extends SelectToolView
 
     overlay = @model.overlay
     new_data = {}
-    new_data.vx = clone(@data.vx)
-    new_data.vy = clone(@data.vy)
+    new_data.vx = copy(@data.vx)
+    new_data.vy = copy(@data.vy)
     overlay.update({xs: @data.vx, ys: @data.vy})
 
   _select: (vx, vy, final, append) ->

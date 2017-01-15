@@ -3,7 +3,7 @@ import {Events} from "./events"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
-import {clone} from "./util/array"
+import {copy} from "./util/array"
 import {isBoolean, isNumber, isString, isFunction, isArray, isObject} from "./util/types"
 
 #
@@ -85,7 +85,7 @@ export class Property
 
       attr_value = switch
         when default_value == undefined then null
-        when isArray(default_value)     then clone(default_value)
+        when isArray(default_value)     then copy(default_value)
         when isFunction(default_value)  then default_value(obj)
         else                                 default_value
 

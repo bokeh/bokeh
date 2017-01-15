@@ -168,11 +168,11 @@ export function extend<R>(dest: any, ...sources: Array<any>): R {
   return dest
 }
 
-export function clone<T>(array: Array<T>): Array<T> {
+export function copy<T>(array: Array<T>): Array<T> {
   return array.slice()
 }
 
-export function cloneObj<T>(obj: T): T {
+export function clone<T>(obj: T): T {
   return extend({}, obj)
 }
 
