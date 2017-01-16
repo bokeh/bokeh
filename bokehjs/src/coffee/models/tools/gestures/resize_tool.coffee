@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {show, hide} from "../../../core/dom"
 import * as p from "../../../core/properties"

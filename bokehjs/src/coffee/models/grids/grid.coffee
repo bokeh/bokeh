@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
 import * as p from "../../core/properties"

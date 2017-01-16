@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as Hammer from "hammerjs"
 
 import {Events} from "./events"

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import * as p from "../../core/properties"

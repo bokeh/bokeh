@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import * as hittest from "../../core/hittest"

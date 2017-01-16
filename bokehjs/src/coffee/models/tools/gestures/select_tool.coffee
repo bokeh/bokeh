@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {logger} from "../../../core/logging"

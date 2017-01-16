@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"

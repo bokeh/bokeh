@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Models} from "./base"
 import {version as js_version} from "./version"
 import {EQ, Solver, Variable} from "./core/layout/solver"

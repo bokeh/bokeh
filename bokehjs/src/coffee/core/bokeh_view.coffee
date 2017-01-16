@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as Backbone from "./backbone"
 
 import {uniqueId} from "./util/string"

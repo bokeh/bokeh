@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import {BokehView} from "../../core/bokeh_view"

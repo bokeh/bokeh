@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as sprintf from "sprintf"
 import {Document} from "../document"
 import * as embed from "../embed"

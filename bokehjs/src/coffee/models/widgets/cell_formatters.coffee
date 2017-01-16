@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import * as Numbro from "numbro"
 

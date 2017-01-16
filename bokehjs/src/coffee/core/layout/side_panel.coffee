@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {EQ, GE} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 

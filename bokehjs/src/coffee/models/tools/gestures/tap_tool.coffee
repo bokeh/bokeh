@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {SelectTool, SelectToolView} from "./select_tool"
 import * as p from "../../../core/properties"
 import {isFunction} from "../../../core/util/types"

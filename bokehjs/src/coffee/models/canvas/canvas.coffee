@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import canvas_template from "./canvas_template"
 import {LayoutCanvas} from "../../core/layout/layout_canvas"
 

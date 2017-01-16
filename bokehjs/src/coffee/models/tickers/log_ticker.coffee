@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {range} from "../../core/util/array"
 import {isStrictNaN} from "../../core/util/types"
 import {AdaptiveTicker} from "./adaptive_ticker"

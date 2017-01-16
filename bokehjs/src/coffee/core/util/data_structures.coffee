@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {difference} from "./array"
 import {isEqual} from "./eq"
 import {isArray} from "./types"

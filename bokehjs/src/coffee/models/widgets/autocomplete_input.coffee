@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import "jquery-ui/autocomplete"
 
 import {TextInput, TextInputView} from "./text_input"

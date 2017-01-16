@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as SPrintf from "sprintf"
 
 import {TickFormatter} from "./tick_formatter"

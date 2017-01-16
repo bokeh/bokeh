@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as p from "../../core/properties"
 
 import {color2hex} from "../../core/util/color"

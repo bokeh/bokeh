@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {JQueryable} from "./jqueryable"
 

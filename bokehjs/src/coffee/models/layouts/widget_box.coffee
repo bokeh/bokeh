@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {build_views} from "../../core/build_views"
 import {BokehView} from "../../core/bokeh_view"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
 import {show, hide} from "../../core/dom"
 import * as p from "../../core/properties"

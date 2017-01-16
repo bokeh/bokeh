@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import {CategoricalMapper} from "../mappers/categorical_mapper"

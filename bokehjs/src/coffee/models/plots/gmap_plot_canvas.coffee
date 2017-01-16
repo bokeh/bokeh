@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {proj4, mercator} from "../../core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"

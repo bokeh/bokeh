@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {SidePanel} from "../../core/layout/side_panel"
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"

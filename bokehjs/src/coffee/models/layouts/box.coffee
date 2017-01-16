@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
 import {extend, all} from "../../core/util/array"

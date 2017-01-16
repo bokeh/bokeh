@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as mixins from "./property_mixins"
 import {color2rgba} from "./util/color"
 

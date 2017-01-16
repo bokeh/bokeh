@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {extend} from "../../core/util/array"
 

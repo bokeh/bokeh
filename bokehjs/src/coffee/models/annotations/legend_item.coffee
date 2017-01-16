@@ -1,7 +1,4 @@
-import * as _ from "underscore"
-
 import {Model} from "../../model"
-
 import * as p from "../../core/properties"
 import {logger} from "../../core/logging"
 import {uniq} from "../../core/util/array"

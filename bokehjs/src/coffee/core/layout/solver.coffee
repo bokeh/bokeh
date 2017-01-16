@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Variable, Expression, Constraint, Operator, Strength, Solver as ConstraintSolver} from "kiwi"
 import {Events} from "../events"
 

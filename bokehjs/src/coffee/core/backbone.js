@@ -5,8 +5,6 @@
 //     For all details and documentation:
 //     http://backbonejs.org
 
-import * as _ from "underscore";
-
 import {Events} from './events';
 import {isEqual} from './util/eq';
 import {extend, clone} from './util/array';

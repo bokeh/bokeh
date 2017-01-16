@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {HasProps} from "./core/has_props"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"

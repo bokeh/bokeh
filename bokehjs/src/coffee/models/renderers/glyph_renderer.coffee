@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"

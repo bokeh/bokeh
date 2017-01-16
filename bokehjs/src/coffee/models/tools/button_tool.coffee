@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {BokehView} from "../../core/bokeh_view"
 import {Tool, ToolView} from "./tool"
 import {div, span, empty} from "../../core/dom"

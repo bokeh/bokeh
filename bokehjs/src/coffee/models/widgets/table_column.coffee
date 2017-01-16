@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {StringFormatter} from "./cell_formatters"
 import {StringEditor} from "./cell_editors"
 import * as p from "../../core/properties"

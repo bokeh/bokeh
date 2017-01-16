@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
 import * as base from "./base"

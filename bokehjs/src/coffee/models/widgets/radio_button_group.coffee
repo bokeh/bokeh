@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import "bootstrap/button"
 
 import {input, label} from "../../core/dom"

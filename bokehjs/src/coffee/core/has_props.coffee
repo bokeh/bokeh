@@ -1,6 +1,4 @@
-import * as _ from "underscore"
 import * as Backbone from "./backbone"
-
 import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"

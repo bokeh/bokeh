@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
 import {HasProps} from "./core/has_props"

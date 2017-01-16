@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Span} from "../../annotations/span"
 import * as p from "../../../core/properties"

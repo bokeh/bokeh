@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import "jquery-ui/slider"
 
 import {logger} from "../../core/logging"

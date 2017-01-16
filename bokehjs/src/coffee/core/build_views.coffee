@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {extend, difference} from "./util/array"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->

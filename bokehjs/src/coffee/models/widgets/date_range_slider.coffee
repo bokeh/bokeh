@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import "jqrangeslider/jQDateRangeSlider"
 
 import * as p from "../../core/properties"

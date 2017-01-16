@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {LinearMapper} from "./linear_mapper"
 import {isNumber} from "../../core/util/types"
 

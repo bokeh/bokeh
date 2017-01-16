@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "./properties"
 import {extend} from "./util/array"
 

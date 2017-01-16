@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as p from "../../core/properties"
 
 import {Model} from "../../model"

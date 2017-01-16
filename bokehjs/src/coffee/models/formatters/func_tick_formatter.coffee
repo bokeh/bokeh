@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "../../core/properties"
 import {values} from "../../core/util/array"
 

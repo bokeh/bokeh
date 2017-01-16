@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"

@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as p from "../../core/properties"
 
 import {ColorMapper} from "./color_mapper"

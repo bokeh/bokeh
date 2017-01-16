@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "../../core/properties"
 import {any, sortBy} from "../../core/util/array"
 

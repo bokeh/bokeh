@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Events} from "./events"
 import * as enums from "./enums"
 import * as svg_colors from "./util/svg_colors"

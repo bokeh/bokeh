@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "../../core/properties"
 import {argmin} from "../../core/util/array"

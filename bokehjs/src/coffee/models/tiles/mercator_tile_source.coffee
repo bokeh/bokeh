@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {TileSource} from "./tile_source"
 import * as p from "../../core/properties"
 

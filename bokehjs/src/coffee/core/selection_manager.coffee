@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {HasProps} from "./has_props"
 import {logger} from "./logging"
 import {Selector} from "./selector"
