@@ -53,10 +53,10 @@ gulp.task "scripts:tsjs", ["scripts:coffee", "scripts:js", "scripts:ts"], () ->
   error = (err) ->
     result = err.message.match(/(.*)(\(\d+,\d+\): .*)/)
     if result?
-      [_match, file, _rest] = result
+      [_match, file, rest] = result
       real = path.join('src', 'coffee', file.split(path.sep)[3...]...)
       if fs.existsSync(real)
-        gutil.log(err.message)
+        gutil.log("#{gutil.colors.red(real)}#{rest}")
         return
     if not argv.ts?
       return
