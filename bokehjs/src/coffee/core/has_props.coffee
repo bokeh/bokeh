@@ -4,8 +4,7 @@ import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
-import {extend, values, clone, isEmpty} from "./util/array"
-import {array_max} from "./util/math"
+import {max, extend, values, clone, isEmpty} from "./util/array"
 import {isString, isObject, isArray} from "./util/types"
 
 export class HasProps extends Backbone.Model
@@ -402,5 +401,5 @@ export class HasProps extends Backbone.Model
       if name of source._shapes
         data["_#{name}_shape"] = source._shapes[name]
       if prop instanceof p.Distance
-        data["max_#{name}"] = array_max(data["_#{name}"])
+        data["max_#{name}"] = max(data["_#{name}"])
     return data
