@@ -56,9 +56,10 @@ export class WidgetBoxView extends LayoutDOMView
 
   get_height: () ->
     height = 0
-    # We have to add on 10px because widgets have a margin at the top.
     for own key, child_view of @child_views
-      height += $(child_view.el).outerHeight(true)
+      styles = window.getComputedStyle(el)
+      margin = parseFloat(styles['marginTop']) + parseFloat(styles['marginBottom'])
+      height += Math.ceil(child_view.el.offsetHeight + margin)
     return height
 
   get_width: () ->
