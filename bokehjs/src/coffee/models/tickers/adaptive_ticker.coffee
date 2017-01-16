@@ -52,7 +52,7 @@ export class AdaptiveTicker extends ContinuousTicker
     ideal_mantissa = ideal_interval / ideal_magnitude
 
     # An untested optimization.
-#       index = _.sortedIndex(@extended_mantissas, ideal_mantissa)
+#       index = sortedIndex(@extended_mantissas, ideal_mantissa)
 #       candidate_mantissas = @extended_mantissas[index..index + 1]
     candidate_mantissas = @extended_mantissas
 

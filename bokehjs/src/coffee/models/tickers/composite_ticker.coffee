@@ -2,7 +2,7 @@ import * as _ from "underscore"
 
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "../../core/properties"
-import {argmin} from "../../core/util/array"
+import {argmin, sortedIndex} from "../../core/util/array"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate
 # for a given range.
@@ -30,8 +30,8 @@ export class CompositeTicker extends ContinuousTicker
     ideal_interval = @get_ideal_interval(data_low, data_high,
                                          desired_n_ticks)
     ticker_ndxs = [
-      _.sortedIndex(@min_intervals, ideal_interval) - 1,
-      _.sortedIndex(@max_intervals, ideal_interval)
+      sortedIndex(@min_intervals, ideal_interval) - 1
+      sortedIndex(@max_intervals, ideal_interval)
     ]
     intervals = [@min_intervals[ticker_ndxs[0]],
                  @max_intervals[ticker_ndxs[1]]]

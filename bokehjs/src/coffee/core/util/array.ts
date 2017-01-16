@@ -214,6 +214,19 @@ function findIndexFactory(dir: number) {
 export const findIndex = findIndexFactory(1)
 export const findLastIndex = findIndexFactory(-1)
 
+export function sortedIndex<T>(array: Array<T>, value: T): number {
+  let low = 0
+  let high = array.length
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2)
+    if (array[mid] < value)
+      low = mid + 1
+    else
+      high = mid
+  }
+  return low
+}
+
 export function sortBy<T>(array: Array<T>, key: (item: T) => number): Array<T> {
   const tmp = array.map((value, index) => {
     return {value: value, index: index, key: key(value) }
