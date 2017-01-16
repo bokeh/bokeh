@@ -8,6 +8,7 @@
 import * as _ from "underscore";
 
 import {Events} from './events';
+import {isEqual} from './util/eq';
 import {extend, clone} from './util/array';
 
 // Backbone.Model
@@ -78,8 +79,8 @@ extend(Model.prototype, Events, {
     // For each `set` attribute, update or delete the current value.
     for (var attr in attrs) {
       val = attrs[attr];
-      if (!_.isEqual(current[attr], val)) changes.push(attr);
-      if (!_.isEqual(prev[attr], val)) {
+      if (!isEqual(current[attr], val)) changes.push(attr);
+      if (!isEqual(prev[attr], val)) {
         changed[attr] = val;
       } else {
         delete changed[attr];

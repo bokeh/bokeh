@@ -7,6 +7,7 @@ import {BokehView} from "../../core/bokeh_view"
 import {GE, EQ} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {isEqual} from "../../core/util/eq"
 import {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio, fixup_ellipse} from "../../core/util/canvas"
 
 export class CanvasView extends BokehView
@@ -58,7 +59,7 @@ export class CanvasView extends BokehView
     dpr = window.devicePixelRatio
 
     # only resize the canvas when the canvas dimensions change unless force==true
-    if not _.isEqual(@last_dims, [width, height, dpr]) or force
+    if not isEqual(@last_dims, [width, height, dpr]) or force
 
       @el.style.width = "#{width}px"
       @el.style.height = "#{height}px"
@@ -92,7 +93,7 @@ export class CanvasView extends BokehView
     if requested_width < MIN_SIZE or requested_height < MIN_SIZE
       return
 
-    if _.isEqual(@last_requested_dims, [requested_width, requested_height])
+    if isEqual(@last_requested_dims, [requested_width, requested_height])
       return
 
     s = @model.document.solver()

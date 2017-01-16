@@ -1,5 +1,6 @@
 import * as _ from "underscore"
 import {difference} from "./array"
+import {isEqual} from "./eq"
 import {isArray} from "./types"
 
 export class MultiDict
@@ -34,7 +35,7 @@ export class MultiDict
           @_dict[key] = new_array
         else
           delete @_dict[key]
-      else if _.isEqual(existing, value)
+      else if isEqual(existing, value)
         delete @_dict[key]
 
     get_one: (key, duplicate_error) ->

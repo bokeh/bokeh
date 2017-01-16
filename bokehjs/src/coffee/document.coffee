@@ -9,6 +9,7 @@ import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {extend, values, difference, intersection} from "./core/util/array"
+import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
@@ -482,7 +483,7 @@ export class Document
       else if old_value == null or new_value == null
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       else
-        if not _.isEqual(old_value, new_value)
+        if not isEqual(old_value, new_value)
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
 
     events.filter((e) -> e != null)

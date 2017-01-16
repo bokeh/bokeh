@@ -6,6 +6,7 @@ import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {div} from "../core/dom"
 import {startsWith} from "../core/util/string"
+import {isEqual} from "../core/util/eq"
 import {any, all, extend, clone} from "../core/util/array"
 import {isNumber, isString, isArray} from "../core/util/types"
 
@@ -376,7 +377,7 @@ export class Figure extends models.Plot
   _update_legend: (legend_item_label, glyph_renderer) ->
     added = false
     for item in @_legend.items
-      if _.isEqual(item.label, legend_item_label)
+      if isEqual(item.label, legend_item_label)
         if item.label.value?
           item.renderers.push(glyph_renderer)
           added = true
