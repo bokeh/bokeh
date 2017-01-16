@@ -19,3 +19,16 @@ export function uniqueId(prefix?: string): string {
   else
     return uuid
 }
+
+export function escape(s: string): string {
+  return s.replace(/(?:[&<>"'`])/g, (ch) => {
+    switch (ch) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case "'": return '&#x27;';
+      case '`': return '&#x60;';
+    }
+  })
+}
