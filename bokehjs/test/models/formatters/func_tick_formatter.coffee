@@ -34,7 +34,7 @@ describe "func_tick_formatter module", ->
 
     it "should support imports using require", ->
       formatter = new FuncTickFormatter({
-        code: "return Math.max(1, 2, 3)"
+        code: "var max = require('../../core/util/array').max; return max([1, 2, 3])"
       })
       labels = formatter.doFormat([0, 0, 0])
       expect(labels).to.be.deep.equal([3,3,3])
