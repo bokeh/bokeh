@@ -2,6 +2,7 @@
 
 '''
 from __future__ import absolute_import
+from bokeh.core.templates import NOTEBOOK_CELL_OBSERVER
 
 _notebook_loaded = None
 
@@ -120,35 +121,21 @@ def get_comms(target_name):
     return Comm(target_name=target_name, data={})
 
 
-mutation_observer = """
-<script type='text/javascript'>
-var target = document.getElementById('notebook-container');
-
-var observer = new MutationObserver(function(mutations) {
-
-   for (var i = 0; i < mutations.length; i++) {
-      for (var j=0; j < mutations[i].removedNodes.length; j++) {
-        for (var k=0; k < mutations[i].removedNodes[j].childNodes.length; k++)
-          var bokeh_selector = $(mutations[i].removedNodes[j].childNodes[k]).find(".bokeh_class");
-          if (bokeh_selector) {
-            if (bokeh_selector.length > 0) {
-               var destroyed_id = bokeh_selector[0].id;
-               Jupyter.notebook.kernel.execute("from bokeh import io;"
-                                               + "io._destroy_server('"
-                                               + destroyed_id + "')");
-               console.log('Destroying server with id:' + destroyed_id);
-             }
-          }
-      }
-  }
-});
-observer.observe(target, { childList: true, subtree:true });
-</script>
-"""
-
-def watch_server_cells():
+def watch_server_cells(inner_block=None):
     """
     Installs a MutationObserver that detects deletion of cells using
     io.server_cell to wrap the output.
+
+    The inner_block is a Javascript block that is executed when a server
+    cell is removed from the DOM. The id of the destroyed div is in
+    scope as the variable destroyed_id.
     """
-    publish_display_data({'text/html': mutation_observer}, source='bokeh')
+    destroy_server_js = """
+    var cmd = "from bokeh import io; io._destroy_server('<%= destroyed_id %>')";
+    var command = _.template(cmd)({destroyed_id:destroyed_id});
+    Jupyter.notebook.kernel.execute(command);
+    """
+    inner_block = destroy_server_js if (inner_block is None) else inner_block
+    js = NOTEBOOK_CELL_OBSERVER.render(inner_block=inner_block)
+    script = "<script type='text/javascript'>{js}</script>".format(js=js)
+    publish_display_data({'text/html': script}, source='bokeh')
