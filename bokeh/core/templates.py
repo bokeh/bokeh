@@ -44,3 +44,5 @@ AUTOLOAD_JS = _env.get_template("autoload_js.js")
 AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
 
 AUTOLOAD_TAG = _env.get_template("autoload_tag.html")
+
+NOTEBOOK_CELL_OBSERVER = _env.get_template("notebook_cell_observer.js")
