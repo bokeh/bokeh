@@ -1,6 +1,6 @@
 import * as DOM from "../../core/dom";
 
-interface TabsProps {
+export interface TabsProps {
   tabs: Array<{ id: string; title: string; }>;
   active_tab_id: string;
 }

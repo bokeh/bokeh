@@ -1,7 +1,7 @@
 import * as DOM from "../../core/dom";
 import {isString} from "../../core/util/types";
 
-interface MultiSelectProps {
+export interface MultiSelectProps {
   id: string;
   title: string;
   name: string;

@@ -1,6 +1,6 @@
 import * as DOM from "../../core/dom";
 
-interface TextInputProps {
+export interface TextInputProps {
   id: string;
   title: string;
   name: string;

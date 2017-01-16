@@ -1,7 +1,7 @@
 import {isBoolean, isString, isArray, isObject} from "./util/types"
 
-type HTMLAttrs = { [name: string]: any }
-type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
+export type HTMLAttrs = { [name: string]: any }
+export type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
 
 const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChildren): HTMLElement => {
   let element

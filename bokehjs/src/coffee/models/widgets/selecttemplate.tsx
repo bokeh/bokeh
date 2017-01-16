@@ -1,7 +1,7 @@
 import * as DOM from "../../core/dom";
 import {isString} from "../../core/util/types";
 
-interface SelectProps {
+export interface SelectProps {
   id: string;
   title: string;
   name: string;

@@ -1,4 +1,4 @@
-type TimeoutID = number
+export type TimeoutID = number
 
 export function delay(func: () => void, wait: number): TimeoutID {
   return setTimeout(func, wait)
