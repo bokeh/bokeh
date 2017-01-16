@@ -137,7 +137,7 @@ export class DatetimeTickFormatter extends TickFormatter
         if widths[i] * ticks.length < fill_ratio * char_width
           good_formats.push(@_width_formats[i])
       if good_formats.length > 0
-        format = _.last(good_formats)
+        format = good_formats[good_formats.length-1]
 
     # Apply the format to the tick values
     labels = []

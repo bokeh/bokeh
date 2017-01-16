@@ -21,8 +21,8 @@ export class CompositeTicker extends ContinuousTicker
   @getters {
     min_intervals: () -> (ticker.get_min_interval() for ticker in @tickers)
     max_intervals: () -> (ticker.get_max_interval() for ticker in @tickers)
-    min_interval: () -> _.first(@min_intervals)
-    max_interval: () -> _.first(@max_intervals)
+    min_interval: () -> @min_intervals[0]
+    max_interval: () -> @max_intervals[0]
   }
 
   get_best_ticker: (data_low, data_high, desired_n_ticks) ->

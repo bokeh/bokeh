@@ -37,8 +37,8 @@ export class AdaptiveTicker extends ContinuousTicker
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    prefix_mantissa =  _.last(@mantissas) / @base
-    suffix_mantissa = _.first(@mantissas) * @base
+    prefix_mantissa = @mantissas[@mantissas.length-1] / @base
+    suffix_mantissa = @mantissas[0]                   * @base
     @extended_mantissas = [prefix_mantissa, @mantissas..., suffix_mantissa]
 
     @base_factor = if @get_min_interval() == 0.0 then 1.0 else @get_min_interval()
