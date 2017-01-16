@@ -1,6 +1,6 @@
 import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
-import {max} from "../../core/util/array"
+import {max, concat} from "../../core/util/array"
 
 export class ImageRGBAView extends GlyphView
 
@@ -46,7 +46,7 @@ export class ImageRGBAView extends GlyphView
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
-        flat = [].concat(@_image[i]...)
+        flat = concat(@_image[i])
         buf = new ArrayBuffer(flat.length * 4)
         color = new Uint32Array(buf)
         for j in [0...flat.length]

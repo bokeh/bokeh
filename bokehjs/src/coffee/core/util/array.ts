@@ -1,5 +1,9 @@
 import {isString, isArray} from "./types"
 
+export function concat<T>(arrays: Array<Array<T>>): Array<T> {
+  return [].concat(...arrays)
+}
+
 export function zip<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]> {
   const n = Math.min(As.length, Bs.length)
   const ABs = new Array<[A, B]>(n)
@@ -271,7 +275,7 @@ export function uniqBy<T, U>(array: Array<T>, key: (item: T) => U): Array<T> {
 }
 
 export function union<T>(...arrays: Array<Array<T>>): Array<T> {
-  return uniq([].concat(...arrays))
+  return uniq(concat(arrays))
 }
 
 export function intersection<T>(array: Array<T>, ...arrays: Array<Array<T>>): Array<T> {
@@ -289,6 +293,6 @@ export function intersection<T>(array: Array<T>, ...arrays: Array<Array<T>>): Ar
 }
 
 export function difference<T>(array: Array<T>, ...arrays: Array<Array<T>>): Array<T> {
-  const rest = [].concat(...arrays)
+  const rest = concat(arrays)
   return array.filter((value) => !contains(rest, value))
 }

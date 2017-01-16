@@ -1,7 +1,7 @@
 import {Glyph, GlyphView} from "./glyph"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import * as p from "../../core/properties"
-import {max} from "../../core/util/array"
+import {max, concat} from "../../core/util/array"
 
 export class ImageView extends GlyphView
 
@@ -38,7 +38,7 @@ export class ImageView extends GlyphView
         @_height[i] = shape[0]
         @_width[i] = shape[1]
       else
-        img = [].concat(@_image[i]...)
+        img = concat(@_image[i])
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
 
