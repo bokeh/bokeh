@@ -19,10 +19,10 @@ export class CellEditorView extends BokehView
   emptyValue: null
   defaultValue: null
 
-  initialize: (args) ->
-    @args = args
+  initialize: (options) ->
+    @args = options
     @model = @args.column.editor
-    super()
+    super(options)
     @render()
 
   render: () ->
