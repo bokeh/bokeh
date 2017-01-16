@@ -171,13 +171,6 @@ export function any<T>(array: Array<T>, predicate: (item: T) => boolean): boolea
   return false
 }
 
-export function isEmpty(obj: Array<any> | String | {[key: string]: any}): boolean {
-  if (isArray(obj) || isString(obj))
-    return obj.length === 0
-  else
-    return Object.keys(obj).length === 0
-}
-
 function findIndexFactory(dir: number) {
   return function<T>(array: Array<T>, predicate: (item: T) => boolean): number {
     const length = array.length

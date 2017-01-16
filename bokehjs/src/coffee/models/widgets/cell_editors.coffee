@@ -3,7 +3,6 @@ import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
 
 import * as p from "../../core/properties"
-import {isEmpty} from "../../core/util/array"
 
 import {BokehView} from "../../core/bokeh_view"
 import {Model} from "../../model"
@@ -97,7 +96,7 @@ export class StringEditorView extends CellEditorView
 
   renderEditor: () ->
     completions = @model.completions
-    if not isEmpty(completions)
+    if completions.length != 0
       @$input.autocomplete(source: completions)
       @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
     @$input.focus().select()

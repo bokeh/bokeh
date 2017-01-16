@@ -2,7 +2,6 @@ import {Annotation, AnnotationView} from "./annotation"
 import {logger} from "../../core/logging"
 import {div, show, hide, empty} from "../../core/dom"
 import * as p from "../../core/properties"
-import {isEmpty} from "../../core/util/array"
 
 export class TooltipView extends AnnotationView
   className: "bk-tooltip"
@@ -30,7 +29,7 @@ export class TooltipView extends AnnotationView
     else
       @el.classList.remove("bk-tooltip-custom")
 
-    if isEmpty(data)
+    if data.length == 0
       return
 
     for val in data

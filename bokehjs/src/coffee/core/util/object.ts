@@ -26,3 +26,7 @@ export function extend<R>(dest: any, ...sources: Array<any>): R {
 export function clone<T>(obj: T): T {
   return extend({}, obj)
 }
+
+export function isEmpty<T>(obj: T): boolean {
+  return Object.keys(obj).length === 0
+}
