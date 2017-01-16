@@ -1,5 +1,3 @@
-_ = require "underscore"
-
 {expect} = require "chai"
 utils = require "../../utils"
 { stdoutTrap, stderrTrap } = require 'logtrap'
