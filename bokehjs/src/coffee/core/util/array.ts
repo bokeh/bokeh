@@ -229,3 +229,53 @@ export function sortBy<T>(array: Array<T>, key: (item: T) => number): Array<T> {
   })
   return tmp.map((item) => item.value)
 }
+
+export function contains<T>(array: Array<T>, value: T): boolean {
+  return array.indexOf(value) >= 0
+}
+
+export function uniq<T>(array: Array<T>): Array<T> {
+  const result: Array<T> = []
+  for (const value of array) {
+    if (!contains(result, value)) {
+      result.push(value)
+    }
+  }
+  return result
+}
+
+export function uniqBy<T, U>(array: Array<T>, key: (item: T) => U): Array<T> {
+  const result: Array<T> = []
+  const seen: Array<U> = []
+  for (const value of array) {
+    const computed = key(value)
+    if (!contains(seen, computed)) {
+      seen.push(computed)
+      result.push(value)
+    }
+  }
+  return result
+}
+
+export function union<T>(...arrays: Array<Array<T>>): Array<T> {
+  return uniq([].concat(...arrays))
+}
+
+export function intersection<T>(array: Array<T>, ...arrays: Array<Array<T>>): Array<T> {
+  const result: Array<T> = []
+  top: for (const item of array) {
+    if (contains(result, item))
+      continue
+    for (const other of arrays) {
+      if (!contains(other, item))
+        break top;
+    }
+    result.push(item)
+  }
+  return result
+}
+
+export function difference<T>(array: Array<T>, ...arrays: Array<Array<T>>): Array<T> {
+  const rest = [].concat(...arrays)
+  return array.filter((value) => !contains(rest, value))
+}
