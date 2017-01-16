@@ -4,7 +4,7 @@ import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {extend, clone} from "../../core/util/array"
+import {extend, clone, difference} from "../../core/util/array"
 
 export class GlyphRendererView extends RendererView
 
@@ -169,7 +169,7 @@ export class GlyphRendererView extends RendererView
       selection_glyph = @selection_glyph
 
     if @hover_glyph? and inspected.length
-      indices = _.difference(indices, inspected)
+      indices = difference(indices, inspected)
 
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()

@@ -8,7 +8,7 @@ import {HasProps} from "./core/has_props"
 import {is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
-import {extend, values} from "./core/util/array"
+import {extend, values, difference, intersection} from "./core/util/array"
 import {isArray, isObject} from "./core/util/types"
 import {ColumnDataSource} from "./models/sources/column_data_source"
 
@@ -458,9 +458,9 @@ export class Document
   @_events_to_sync_objects: (from_obj, to_obj, to_doc, value_refs) ->
     from_keys = Object.keys(from_obj.attributes)
     to_keys = Object.keys(to_obj.attributes)
-    removed = _.difference(from_keys, to_keys)
-    added = _.difference(to_keys, from_keys)
-    shared = _.intersection(from_keys, to_keys)
+    removed = difference(from_keys, to_keys)
+    added = difference(to_keys, from_keys)
+    shared = intersection(from_keys, to_keys)
 
     events = []
     for key in removed
@@ -515,8 +515,8 @@ export class Document
     from_root_ids.sort()
     to_root_ids.sort()
 
-    if _.difference(from_root_ids, to_root_ids).length > 0 or
-       _.difference(to_root_ids, from_root_ids).length > 0
+    if difference(from_root_ids, to_root_ids).length > 0 or
+       difference(to_root_ids, from_root_ids).length > 0
       # this would arise if someone does add_root/remove_root during
       # document deserialization, hopefully they won't ever do so.
       throw new Error("Not implemented: computing add/remove of document roots")

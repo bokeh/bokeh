@@ -1,5 +1,5 @@
 import * as _ from "underscore"
-import {extend} from "./util/array"
+import {extend, difference} from "./util/array"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views
@@ -27,7 +27,7 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
     view_storage[model.id] = view = new cls(view_options)
     created_views.push(view)
 
-  to_remove = _.difference(Object.keys(view_storage), (view.id for view in view_models))
+  to_remove = difference(Object.keys(view_storage), (view.id for view in view_models))
 
   for key in to_remove
     view_storage[key].remove()

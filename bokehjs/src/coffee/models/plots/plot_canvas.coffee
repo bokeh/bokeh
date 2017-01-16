@@ -17,7 +17,7 @@ import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
 import {isStrictNaN} from "../../core/util/types"
-import {extend, values, sortBy, isEmpty} from "../../core/util/array"
+import {extend, values, difference, sortBy, isEmpty} from "../../core/util/array"
 import {defer} from "../../core/util/callback"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
@@ -435,7 +435,7 @@ export class PlotCanvasView extends BokehView
     # should only bind events on NEW views
     old_renderers = Object.keys(@renderer_views)
     new_renderer_views = build_views(@renderer_views, renderer_models, @view_options())
-    renderers_to_remove = _.difference(old_renderers, (model.id for model in renderer_models))
+    renderers_to_remove = difference(old_renderers, (model.id for model in renderer_models))
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
