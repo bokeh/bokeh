@@ -55,12 +55,13 @@ export class WidgetBoxView extends LayoutDOMView
       @el.style.width = css_width
 
   get_height: () ->
+    # We have to add on 10px because widgets container has a padding of 5px on top and button.
     height = 0
     for own key, child_view of @child_views
-      styles = window.getComputedStyle(el)
+      styles = window.getComputedStyle(child_view.el)
       margin = parseFloat(styles['marginTop']) + parseFloat(styles['marginBottom'])
       height += Math.ceil(child_view.el.offsetHeight + margin)
-    return height
+    return height + 10
 
   get_width: () ->
     if @model.width?
