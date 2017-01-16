@@ -6,7 +6,7 @@ import {GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {build_views} from "../../core/build_views"
 import {BokehView} from "../../core/bokeh_view"
 import {logger} from "../../core/logging"
-import {extend} from "../../core/util/array"
+import {extend} from "../../core/util/object"
 
 export class LayoutDOMView extends BokehView
 

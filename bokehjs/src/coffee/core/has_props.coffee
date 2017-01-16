@@ -4,7 +4,8 @@ import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
 import {uniqueId} from "./util/string"
-import {max, extend, values, clone, isEmpty} from "./util/array"
+import {max, isEmpty} from "./util/array"
+import {extend, values, clone} from "./util/object"
 import {isString, isObject, isArray} from "./util/types"
 
 export class HasProps extends Backbone.Model

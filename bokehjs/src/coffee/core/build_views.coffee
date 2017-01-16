@@ -1,4 +1,5 @@
-import {extend, difference} from "./util/array"
+import {difference} from "./util/array"
+import {extend} from "./util/object"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views

@@ -1,7 +1,8 @@
 import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
 import {isString} from "../../core/util/types"
-import {extend, all} from "../../core/util/array"
+import {all} from "../../core/util/array"
+import {extend} from "../../core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 

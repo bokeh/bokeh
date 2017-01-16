@@ -1,7 +1,8 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 import {get_text_height} from "../../core/util/text"
-import {max, values} from "../../core/util/array"
+import {max} from "../../core/util/array"
+import {values} from "../../core/util/object"
 import {isString, isArray} from "../../core/util/types"
 
 export class LegendView extends AnnotationView

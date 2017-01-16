@@ -1,5 +1,5 @@
 import * as models from "./models/index"
-import {clone} from "./core/util/array"
+import {clone} from "./core/util/object"
 
 export overrides = {}
 _all_models = clone(models)

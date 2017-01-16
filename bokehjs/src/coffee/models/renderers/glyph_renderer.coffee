@@ -2,7 +2,8 @@ import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
-import {extend, clone, difference} from "../../core/util/array"
+import {difference} from "../../core/util/array"
+import {extend, clone} from "../../core/util/object"
 
 export class GlyphRendererView extends RendererView
 

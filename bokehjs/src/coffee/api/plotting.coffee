@@ -6,7 +6,8 @@ import * as models from "./models"
 import {div} from "../core/dom"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
-import {any, all, extend, clone} from "../core/util/array"
+import {any, all} from "../core/util/array"
+import {extend, clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 _default_tooltips = [

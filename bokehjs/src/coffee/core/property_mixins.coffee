@@ -1,5 +1,5 @@
 import * as p from "./properties"
-import {extend} from "./util/array"
+import {extend} from "./util/object"
 
 _gen_mixin = (mixin, prefix) ->
   result = {}

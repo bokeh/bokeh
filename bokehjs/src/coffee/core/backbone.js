@@ -7,7 +7,7 @@
 
 import {Events} from './events';
 import {isEqual} from './util/eq';
-import {extend, clone} from './util/array';
+import {extend, clone} from './util/object';
 
 // Backbone.Model
 // --------------

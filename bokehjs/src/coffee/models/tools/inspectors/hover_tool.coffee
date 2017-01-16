@@ -6,7 +6,8 @@ import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
 import {table, td, tr, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
-import {values, isEmpty} from "../../../core/util/array"
+import {isEmpty} from "../../../core/util/array"
+import {values} from "../../../core/util/object"
 import {isString, isFunction} from "../../../core/util/types"
 
 _color_to_hex = (color) ->

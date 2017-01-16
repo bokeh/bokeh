@@ -9,7 +9,7 @@ import {Model} from "../../model"
 import {Visuals} from "../../core/visuals"
 import * as bokehgl from "./webgl/main"
 import {logger} from "../../core/logging"
-import {extend} from "../../core/util/array"
+import {extend} from "../../core/util/object"
 import {isString, isArray} from "../../core/util/types"
 
 export class GlyphView extends BokehView
