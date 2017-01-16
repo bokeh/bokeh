@@ -133,7 +133,7 @@ var observer = new MutationObserver(function(mutations) {
           if (bokeh_selector) {
             if (bokeh_selector.length > 0) {
                var destroyed_id = bokeh_selector[0].id;
-               IPython.notebook.kernel.execute("from bokeh import io;"
+               Jupyter.notebook.kernel.execute("from bokeh import io;"
                                                + "io._destroy_server('"
                                                + destroyed_id + "')");
                console.log('Destroying server with id:' + destroyed_id);
