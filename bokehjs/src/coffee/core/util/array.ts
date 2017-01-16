@@ -1,7 +1,13 @@
-import {isString, isArray} from "./types"
+export function copy<T>(array: Array<T>): Array<T> {
+  return array.slice()
+}
 
 export function concat<T>(arrays: Array<Array<T>>): Array<T> {
   return [].concat(...arrays)
+}
+
+export function contains<T>(array: Array<T>, value: T): boolean {
+  return array.indexOf(value) >= 0
 }
 
 export function zip<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]> {
@@ -149,37 +155,6 @@ export function argmax(array: Array<number>): number {
   return maxBy(range(array.length), (i) => array[i])
 }
 
-export function values<T>(object: {[key: string]: T}): Array<T> {
-  const keys = Object.keys(object)
-  const length = keys.length
-  const values = new Array<T>(length)
-  for (let i = 0; i < length; i++) {
-    values[i] = object[keys[i]]
-  }
-  return values
-}
-
-export function extend<T, T1>(dest: T, source: T1): T & T1;
-export function extend<R>(dest: any, ...sources: Array<any>): R {
-  for (const source of sources) {
-    for (const key in source) {
-      if (source.hasOwnProperty(key)) {
-        dest[key] = source[key]
-      }
-    }
-  }
-
-  return dest
-}
-
-export function copy<T>(array: Array<T>): Array<T> {
-  return array.slice()
-}
-
-export function clone<T>(obj: T): T {
-  return extend({}, obj)
-}
-
 export function all<T>(array: Array<T>, predicate: (item: T) => boolean): boolean {
   for (const item of array) {
     if (!predicate(item))
@@ -245,10 +220,6 @@ export function sortBy<T>(array: Array<T>, key: (item: T) => number): Array<T> {
     return left.index - right.index
   })
   return tmp.map((item) => item.value)
-}
-
-export function contains<T>(array: Array<T>, value: T): boolean {
-  return array.indexOf(value) >= 0
 }
 
 export function uniq<T>(array: Array<T>): Array<T> {
