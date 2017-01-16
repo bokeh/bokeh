@@ -1,6 +1,5 @@
-# These are similar to python imports. BokehJS vendors its own versions
-# of Underscore and JQuery. They are available as show here.
-import * as _ from "underscore"
+import {throttle} from "core/util/callback"
+
 # The "core/properties" module has all the property types
 import * as p from "core/properties"
 
@@ -25,7 +24,7 @@ export class IonRangeSliderView extends InputWidgetView
       @callbackWrapper = () ->
         @model.callback?.execute(@model)
     if @model.callback_policy == 'throttle' and @model.callback
-      @callbackWrapper = _.throttle(() ->
+      @callbackWrapper = throttle(() ->
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()
