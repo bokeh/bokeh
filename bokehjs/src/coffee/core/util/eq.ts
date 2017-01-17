@@ -92,6 +92,6 @@ function eq(a: any, b: any, aStack?: Array<any>, bStack?: Array<any>): boolean {
 }
 
 // Perform a deep comparison to check if two objects are equal.
-export function isEqual(a: any, b: any) {
+export function isEqual(a: any, b: any): boolean {
   return eq(a, b)
 }
