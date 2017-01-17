@@ -59,13 +59,19 @@ removed, as well as the following properties of ``Plot``
 * ``title_text_font``
 * ``title_text_font_size``
 
-Jquery removed from BokehJS
+JQuery removed from BokehJS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Jquery has been removed as a build dependency of BokehJS, resulting in a ~10%
+JQuery has been removed as a build dependency of BokehJS, resulting in a ~10%
 reduction in the size of the minified code. The variable `Bokeh.$` is no
-longer available. If you require Jquery (i.e. for a custom extension or when
+longer available. If you require JQuery (i.e. for a custom extension or when
 using the JavaScript API) you will need to provide it explicitly.
 
+underscore.js removed from BokehJS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+underscore.js has been removed as a build dependency of BokehJS. The variable
+`Bokeh._` is no longer available. If you require underscore.js (i.e. for a custom
+extension or when using the JavaScript API) you will need to provide it explicitly.
 
 .. _project roadmap: http://bokehplots.com/pages/roadmap.html
