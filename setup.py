@@ -7,6 +7,57 @@
 #-----------------------------------------------------------------------------
 ''' Setup script for Bokeh.
 
+Two separate components comprise Bokeh:
+
+* A JavaScript runtime BokehJS that draws and handles events in browsers
+* Python "bindings" and an optional server for interacting with BokehJS
+
+The BokehJS library is written in a mixture of CoffeeScript, TypeScript, and
+pure JavaScript. This necessitates a "compilation" step to build a complete
+BokehJS from these sources, and this fact makes the Bokeh setup and install
+more complicated than typical pure Python projects.
+
+In order to build BokehJS, the first step is to make sure that the "npm"
+command is installed. If you are using conda, you can typically just run
+
+    conda install -c bokeh nodejs
+
+Othewise, you can find general instructions for installing NodeJS here:
+
+    https://nodejs.org/en/download/
+
+Once you have "npm" installed, this script can be used to build BokehJS
+from the ``bokehjs`` source subdirectory, and install Bokeh into the python
+source package by issuing the command:
+
+    python setup.py install --build-js
+
+The script also supports the standard "develop" mode that setuptools offers:
+
+    python setup.py develop --build-js
+
+It can take a few minutes for BokehJS to build, if you are not making changes
+to the BokehJS source code, then you only need to build it once, the first
+time. Subsequence invocations can be made to install the previously built
+BokehJS from the ``bokehjs`` source subdirectoruy with the ``--install-js``
+option, e.g:
+
+    python setup.py develop --install-js
+
+It is also possible to build BokehJS "by hand" under the ``bokehjs`` source
+subdirectory. In this case, to simply install the build BokehJS quickly into
+the python source tree, the following command may be issued:
+
+    python setup.py --install-js
+
+This will copy BokehJS from the ``bokehjs`` source directory, into the python
+package directory, and perform no other actions.
+
+Note that source distributions (sdists) are published with a pre-built BokehJS
+included inside the python package, and do not include the ``bokehjs`` source.
+The ``--build-js`` and ``-install-js`` options are not valid when running from
+an sdist. They will be ignored, and warning printed.
+
 '''
 from os.path import join
 from shutil import copy
@@ -14,11 +65,11 @@ import sys
 
 from setuptools import find_packages, setup
 
-from _setup_support import (build_or_install_bokehjs, develop,
-                            fixup_argv_for_sdist, fixup_old_js_args, install,
-                            get_cmdclass, get_package_data, get_version,
-                            install_js, package_files, package_path,
-                            ROOT, SERVER, show_help)
+from _setup_support import (build_or_install_bokehjs, fixup_building_sdist,
+                            fixup_for_packaged, fixup_old_jsargs, get_cmdclass,
+                            get_package_data, get_version, install_js,
+                            package_files, package_path, ROOT, SERVER,
+                            show_bokehjs, show_help)
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
@@ -48,11 +99,13 @@ REQUIRES = [
 if sys.version_info[:2] == (2, 7):
     REQUIRES.append('futures >=3.0.3')
 
-fixup_old_js_args()    # handle --build_js and --install_js
+fixup_old_jsargs()     # handle --build_js and --install_js
 
-fixup_argv_for_sdist() # must build BokehJS when making sdists
+fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
 
-jsbuild, jsinstall = build_or_install_bokehjs()
+fixup_building_sdist() # must build BokehJS when MAKING sdists
+
+bokehjs_action = build_or_install_bokehjs()
 
 # configuration to include all the special or non-python files in the package
 # directory that need to also be installed or included in a build
@@ -87,6 +140,6 @@ setup(
 )
 
 # report on extra information specific to the bokeh build
-if '--help'  in sys.argv: show_help(jsbuild, jsinstall)
-if 'develop' in sys.argv: develop(jsbuild, jsinstall)
-if 'install' in sys.argv: install(jsbuild, jsinstall)
+if '--help'  in sys.argv: show_help(bokehjs_action)
+if 'develop' in sys.argv: show_bokehjs(bokehjs_action, develop=True)
+if 'install' in sys.argv: show_bokehjs(bokehjs_action)
