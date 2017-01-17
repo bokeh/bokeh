@@ -5,9 +5,9 @@
 //     For all details and documentation:
 //     http://backbonejs.org
 
-import * as _ from "underscore";
-
 import {Events} from './events';
+import {isEqual} from './util/eq';
+import {extend, clone} from './util/object';
 
 // Backbone.Model
 // --------------
@@ -28,7 +28,7 @@ export var Model = function(attributes, options) {
 };
 
 // Attach all inheritable methods to the Model prototype.
-_.extend(Model.prototype, Events, {
+extend(Model.prototype, Events, {
 
   // A hash of attributes whose current and previous value differ.
   changed: null,
@@ -66,7 +66,7 @@ _.extend(Model.prototype, Events, {
     this._changing = true;
 
     if (!changing) {
-      this._previousAttributes = _.clone(this.attributes);
+      this._previousAttributes = clone(this.attributes);
       this.changed = {};
     }
 
@@ -77,8 +77,8 @@ _.extend(Model.prototype, Events, {
     // For each `set` attribute, update or delete the current value.
     for (var attr in attrs) {
       val = attrs[attr];
-      if (!_.isEqual(current[attr], val)) changes.push(attr);
-      if (!_.isEqual(prev[attr], val)) {
+      if (!isEqual(current[attr], val)) changes.push(attr);
+      if (!isEqual(prev[attr], val)) {
         changed[attr] = val;
       } else {
         delete changed[attr];
@@ -133,23 +133,23 @@ _.extend(Model.prototype, Events, {
 // Creating a Backbone.View creates its initial element outside of the DOM,
 // if an existing element is not provided...
 export var View = function(options) {
-  _.extend(this, _.pick(options, viewOptions));
+  options = options || {};
+  this.model = options.model;
+  this.id = options.id;
+  this.el = options.el;
   this._ensureElement();
-  this.initialize.apply(this, arguments);
+  this.initialize(options);
 };
 
-// List of view options to be set as properties.
-var viewOptions = ['model', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
-
 // Set up all inheritable **Backbone.View** properties and methods.
-_.extend(View.prototype, Events, {
+extend(View.prototype, Events, {
 
   // The default `tagName` of a View's element is `"div"`.
   tagName: 'div',
 
   // Initialize is an empty function by default. Override it with your own
   // initialization logic.
-  initialize: function(){},
+  initialize: function(options) {},
 
   // **render** is the core function that your view should override, in order
   // to populate its element (`this.el`), with the appropriate HTML. The
@@ -198,15 +198,15 @@ _.extend(View.prototype, Events, {
   // an element from the `id`, `className` and `tagName` properties.
   _ensureElement: function() {
     if (!this.el) {
-      this.setElement(this._createElement(_.result(this, 'tagName')));
+      this.setElement(this._createElement(this.tagName));
       if (this.id) {
-        this.el.setAttribute('id', _.result(this, 'id'));
+        this.el.setAttribute('id', this.id);
       }
       if (this.className) {
-        this.el.setAttribute('class', _.result(this, 'className'));
+        this.el.setAttribute('class', this.className);
       }
     } else {
-      this.setElement(_.result(this, 'el'));
+      this.setElement(this.el);
     }
   }
 });

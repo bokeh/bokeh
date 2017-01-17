@@ -1,4 +1,5 @@
-import * as _ from "underscore"
+import {difference} from "./util/array"
+import {extend} from "./util/object"
 
 export build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function: build_views
@@ -18,15 +19,15 @@ export build_views = (view_storage, view_models, options, view_types=[]) ->
   # * view_option: array, optional view specific options passed in to the construction of the view
 
   created_views = []
-  newmodels = view_models.filter((x) -> not _.has(view_storage, x.id))
+  newmodels = view_models.filter((x) -> not view_storage[x.id]?)
 
   for model, i_model in newmodels
     cls = view_types[i_model] ? model.default_view
-    view_options = _.extend({model: model}, options)
+    view_options = extend({model: model}, options)
     view_storage[model.id] = view = new cls(view_options)
     created_views.push(view)
 
-  to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
+  to_remove = difference(Object.keys(view_storage), (view.id for view in view_models))
 
   for key in to_remove
     view_storage[key].remove()

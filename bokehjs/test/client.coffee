@@ -1,4 +1,3 @@
-_ = require "underscore"
 chai = require "chai"
 chai.use(require "chai-as-promised")
 expect = chai.expect
@@ -52,7 +51,7 @@ with_server = (f) ->
   else
     pypath = basedir
   port = next_port()
-  env = _.extend({}, process.env, { PYTHONPATH: pypath })
+  env = Object.assign({}, process.env, { PYTHONPATH: pypath })
   handle = child_process.spawn("python", ["-m", "bokeh", "serve", "--port=#{port}"], {
     env: env,
     cwd: basedir

@@ -1,12 +1,10 @@
 # Various utilities for working with code
-_ = require "underscore"
 fs = require "fs"
 gulp = require "gulp"
 path = require "path"
 
 scriptFilter = (name) ->
   /(\.(js|coffee)$)/i.test(path.extname(name))
-
 
 copySourceToTaskName = (source) ->
   "copy:#{source}"

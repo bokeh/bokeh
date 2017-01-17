@@ -1,21 +1,3 @@
-export array_min = (arr) ->
-  len = arr.length
-  min = Infinity
-  while len--
-    val = arr[len]
-    if val < min
-      min = val
-  min
-
-export array_max = (arr) ->
-  len = arr.length
-  max = -Infinity
-  while len--
-    val = arr[len]
-    if val > max
-      max = val
-  max
-
 export angle_norm = (angle) ->
   while (angle < 0)
     angle += 2*Math.PI

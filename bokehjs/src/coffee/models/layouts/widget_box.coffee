@@ -1,10 +1,9 @@
-import * as _ from "underscore"
-
 import {build_views} from "../../core/build_views"
 import {BokehView} from "../../core/bokeh_view"
 import {WEAK_EQ, GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {extend} from "../../core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
@@ -103,7 +102,7 @@ export class WidgetBox extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'on-edge-align-top'    : @_top
       'on-edge-align-bottom' : @_height_minus_bottom
       'on-edge-align-left'   : @_left
@@ -118,7 +117,7 @@ export class WidgetBox extends LayoutDOM
       'box-equal-size-bottom': @_height_minus_bottom
     })
     if @sizing_mode isnt 'fixed'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'box-equal-size-left'  : @_left
         'box-equal-size-right' : @_width_minus_right
       })

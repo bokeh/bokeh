@@ -1,9 +1,7 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
 import {show, hide} from "../../core/dom"
 import * as p from "../../core/properties"
-
+import {isString, isArray} from "../../core/util/types"
 import {get_text_height} from "../../core/util/text"
 
 export class TextAnnotationView extends AnnotationView
@@ -91,12 +89,12 @@ export class TextAnnotationView extends AnnotationView
 
     # attempt to support vector string-style ("8 4 8") line dashing for css mode
     ld = @visuals.border_line.line_dash.value()
-    if _.isArray(ld)
+    if isArray(ld)
       if ld.length < 2
         line_dash = "solid"
       else
         line_dash = "dashed"
-    if _.isString(ld)
+    if isString(ld)
         line_dash = ld
 
     @visuals.border_line.set_value(ctx)

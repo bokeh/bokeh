@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Canvas} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {DataRange1d} from "../ranges/data_range1d"
@@ -16,6 +14,10 @@ import {logger} from "../../core/logging"
 import * as enums from "../../core/enums"
 import * as p from "../../core/properties"
 import {throttle} from "../../core/util/throttle"
+import {isStrictNaN} from "../../core/util/types"
+import {difference, sortBy} from "../../core/util/array"
+import {extend, values, isEmpty} from "../../core/util/object"
+import {defer} from "../../core/util/callback"
 import {update_constraints as update_panel_constraints} from "../../core/layout/side_panel"
 
 # Notes on WebGL support:
@@ -36,7 +38,7 @@ export class PlotCanvasView extends BokehView
 
   state: { history: [], index: -1 }
 
-  view_options: () -> _.extend({plot_view: @}, @options)
+  view_options: () -> extend({plot_view: @}, @options)
 
   pause: () ->
     @is_paused = true
@@ -185,7 +187,7 @@ export class PlotCanvasView extends BokehView
     log_bounds = {}
 
     calculate_log_bounds = false
-    for r in _.values(frame.x_ranges).concat(_.values(frame.y_ranges))
+    for r in values(frame.x_ranges).concat(values(frame.y_ranges))
       if r instanceof DataRange1d
         if r.mapper_hint == "log"
           calculate_log_bounds = true
@@ -202,7 +204,7 @@ export class PlotCanvasView extends BokehView
     follow_enabled = false
     has_bounds = false
 
-    for xr in _.values(frame.x_ranges)
+    for xr in values(frame.x_ranges)
       if xr instanceof DataRange1d
         bounds_to_use = if xr.mapper_hint == "log" then log_bounds else bounds
         xr.update(bounds_to_use, 0, @model.id)
@@ -210,7 +212,7 @@ export class PlotCanvasView extends BokehView
           follow_enabled = true
       has_bounds = true if xr.bounds?
 
-    for yr in _.values(frame.y_ranges)
+    for yr in values(frame.y_ranges)
       if yr instanceof DataRange1d
         bounds_to_use = if yr.mapper_hint == "log" then log_bounds else bounds
         yr.update(bounds_to_use, 1, @model.id)
@@ -220,9 +222,9 @@ export class PlotCanvasView extends BokehView
 
     if follow_enabled and has_bounds
       logger.warn('Follow enabled so bounds are unset.')
-      for xr in _.values(frame.x_ranges)
+      for xr in values(frame.x_ranges)
         xr.bounds = null
-      for yr in _.values(frame.y_ranges)
+      for yr in values(frame.y_ranges)
         yr.bounds = null
 
     @range_update_timestamp = Date.now()
@@ -232,7 +234,7 @@ export class PlotCanvasView extends BokehView
 
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}
-    info = _.extend({}, @_initial_state_info, prev_info, info)
+    info = extend({}, @_initial_state_info, prev_info, info)
 
     @state.history.slice(0, @state.index + 1)
     @state.history.push({type: type, info: info})
@@ -430,9 +432,9 @@ export class PlotCanvasView extends BokehView
     renderer_models = @model.plot.all_renderers
 
     # should only bind events on NEW views
-    old_renderers = _.keys(@renderer_views)
+    old_renderers = Object.keys(@renderer_views)
     new_renderer_views = build_views(@renderer_views, renderer_models, @view_options())
-    renderers_to_remove = _.difference(old_renderers, _.pluck(renderer_models, 'id'))
+    renderers_to_remove = difference(old_renderers, (model.id for model in renderer_models))
 
     for id_ in renderers_to_remove
       delete @levels.glyph[id_]
@@ -475,16 +477,14 @@ export class PlotCanvasView extends BokehView
     good_vals = true
     xrs = {}
     for name, rng of @frame.x_ranges
-      if (not rng.start? or not rng.end? or
-          _.isNaN(rng.start + rng.end))
+      if (not rng.start? or not rng.end? or isStrictNaN(rng.start + rng.end))
         good_vals = false
         break
       xrs[name] = { start: rng.start, end: rng.end }
     if good_vals
       yrs = {}
       for name, rng of @frame.y_ranges
-        if (not rng.start? or not rng.end? or
-            _.isNaN(rng.start + rng.end))
+        if (not rng.start? or not rng.end? or isStrictNaN(rng.start + rng.end))
           good_vals = false
           break
         yrs[name] = { start: rng.start, end: rng.end }
@@ -567,9 +567,9 @@ export class PlotCanvasView extends BokehView
     # after the plots have been rendered. See #4401.
     if @model.document._unrendered_plots?
       delete @model.document._unrendered_plots[@id]
-      if _.isEmpty(@model.document._unrendered_plots)
+      if isEmpty(@model.document._unrendered_plots)
         @model.document._unrendered_plots = null
-        _.delay(@model.document.resize.bind(@model.document), 1)
+        defer(@model.document.resize.bind(@model.document))
 
   resize: () ->
     # Set the plot and canvas to the current model's size
@@ -626,7 +626,7 @@ export class PlotCanvasView extends BokehView
     sortKey = (renderer_view) -> indices[renderer_view.model.id]
 
     for level in levels
-      renderer_views = _.sortBy(_.values(@levels[level]), sortKey)
+      renderer_views = sortBy(values(@levels[level]), sortKey)
 
       for renderer_view in renderer_views
         renderer_view.render()

@@ -1,4 +1,3 @@
-_ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 sinon = require 'sinon'
@@ -60,12 +59,12 @@ describe "PlotCanvas", ->
   it "should have panels, frame, and canvas returned in get_layoutable_children", ->
     layoutable_children = @plot_canvas.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 6
-    expect(_.contains(layoutable_children, @plot_canvas.above_panel)).to.be.true
-    expect(_.contains(layoutable_children, @plot_canvas.below_panel)).to.be.true
-    expect(_.contains(layoutable_children, @plot_canvas.left_panel)).to.be.true
-    expect(_.contains(layoutable_children, @plot_canvas.right_panel)).to.be.true
-    expect(_.contains(layoutable_children, @plot_canvas.frame)).to.be.true
-    expect(_.contains(layoutable_children, @plot_canvas.canvas)).to.be.true
+    expect(@plot_canvas.above_panel in layoutable_children).to.be.true
+    expect(@plot_canvas.below_panel in layoutable_children).to.be.true
+    expect(@plot_canvas.left_panel  in layoutable_children).to.be.true
+    expect(@plot_canvas.right_panel in layoutable_children).to.be.true
+    expect(@plot_canvas.frame       in layoutable_children).to.be.true
+    expect(@plot_canvas.canvas      in layoutable_children).to.be.true
 
   it "should have axis panels in get_layoutable_children if axes added", ->
     plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
@@ -81,10 +80,10 @@ describe "PlotCanvas", ->
     plot_canvas = plot.plot_canvas
     layoutable_children = plot_canvas.get_layoutable_children()
     expect(layoutable_children.length).to.be.equal 10
-    expect(_.contains(layoutable_children, above_axis.panel)).to.be.true
-    expect(_.contains(layoutable_children, below_axis.panel)).to.be.true
-    expect(_.contains(layoutable_children, left_axis.panel)).to.be.true
-    expect(_.contains(layoutable_children, right_axis.panel)).to.be.true
+    expect(above_axis.panel in layoutable_children).to.be.true
+    expect(below_axis.panel in layoutable_children).to.be.true
+    expect(left_axis.panel  in layoutable_children).to.be.true
+    expect(right_axis.panel in layoutable_children).to.be.true
 
   it "should call get_edit_variables on layoutable children", ->
     plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})

@@ -1,9 +1,9 @@
-import * as _ from "underscore"
-
 import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {difference} from "../../core/util/array"
+import {extend, clone} from "../../core/util/object"
 
 export class GlyphRendererView extends RendererView
 
@@ -11,14 +11,15 @@ export class GlyphRendererView extends RendererView
     super(options)
 
     base_glyph = @model.glyph
-    has_fill = _.contains(base_glyph.mixins, "fill")
-    has_line = _.contains(base_glyph.mixins, "line")
-    glyph_attrs = _.omit(_.clone(base_glyph.attributes), 'id')
+    has_fill = "fill" in base_glyph.mixins
+    has_line = "line" in base_glyph.mixins
+    glyph_attrs = clone(base_glyph.attributes)
+    delete glyph_attrs.id
 
     mk_glyph = (defaults) ->
-      attrs = _.clone(glyph_attrs)
-      if has_fill then _.extend(attrs, defaults.fill)
-      if has_line then _.extend(attrs, defaults.line)
+      attrs = clone(glyph_attrs)
+      if has_fill then extend(attrs, defaults.fill)
+      if has_line then extend(attrs, defaults.line)
       return new (base_glyph.constructor)(attrs)
 
     @glyph = @build_glyph_view(base_glyph)
@@ -167,7 +168,7 @@ export class GlyphRendererView extends RendererView
       selection_glyph = @selection_glyph
 
     if @hover_glyph? and inspected.length
-      indices = _.without.bind(null, indices).apply(null, inspected)
+      indices = difference(indices, inspected)
 
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()

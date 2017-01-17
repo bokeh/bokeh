@@ -1,6 +1,6 @@
 import * as DOM from "core/dom";
 
-interface RangeSliderProps {
+export interface RangeSliderProps {
   id: string;
   title?: string;
 }

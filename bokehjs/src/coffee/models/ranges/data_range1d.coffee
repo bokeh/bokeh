@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {DataRange} from "./data_range"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {logger} from "../../core/logging"

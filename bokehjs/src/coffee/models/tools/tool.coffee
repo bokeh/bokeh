@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 import {BokehView} from "../../core/bokeh_view"
+import {min, max} from "../../core/util/array"
 import {Model} from "../../model"
 
 export class ToolView extends BokehView
@@ -56,15 +55,15 @@ export class Tool extends Model
   _get_dim_limits: ([vx0, vy0], [vx1, vy1], frame, dims) ->
     hr = frame.h_range
     if dims == 'width' or dims == 'both'
-      vxlim = [_.min([vx0, vx1]), _.max([vx0, vx1])]
-      vxlim = [_.max([vxlim[0], hr.min]), _.min([vxlim[1], hr.max])]
+      vxlim = [min([vx0, vx1]),         max([vx0, vx1])]
+      vxlim = [max([vxlim[0], hr.min]), min([vxlim[1], hr.max])]
     else
       vxlim = [hr.min, hr.max]
 
     vr = frame.v_range
     if dims == 'height' or dims == 'both'
-      vylim = [_.min([vy0, vy1]), _.max([vy0, vy1])]
-      vylim = [_.max([vylim[0], vr.min]), _.min([vylim[1], vr.max])]
+      vylim = [min([vy0, vy1]),         max([vy0, vy1])]
+      vylim = [max([vylim[0], vr.min]), min([vylim[1], vr.max])]
     else
       vylim = [vr.min, vr.max]
 

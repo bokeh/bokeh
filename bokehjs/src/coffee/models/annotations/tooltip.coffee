@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
 import {logger} from "../../core/logging"
 import {div, show, hide, empty} from "../../core/dom"
@@ -31,7 +29,7 @@ export class TooltipView extends AnnotationView
     else
       @el.classList.remove("bk-tooltip-custom")
 
-    if _.isEmpty(data)
+    if data.length == 0
       return
 
     for val in data

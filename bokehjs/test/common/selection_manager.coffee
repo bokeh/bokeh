@@ -86,7 +86,6 @@ describe "SelectionManager", ->
   selector = null
 
   it.skip "should add a selector when encountering a new renderer", ->
-    utils.require("core/util/underscore").patch()
     selector = sm._get_selector(glyph_renderer_view_normal)
     expect(Object.keys(sm.selectors)).to.have.lengthOf(1)
     expect(sm.selectors).to.have.property glyph_renderer_view_normal.model.id

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import * as p from "core/properties"
 
 import {AbstractIcon} from "models/widgets/abstract_icon"

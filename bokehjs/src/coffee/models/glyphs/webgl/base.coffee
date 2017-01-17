@@ -1,6 +1,5 @@
 # This module implements the Base GL Glyph and some utilities
 
-import * as _ from "underscore"
 import {color2rgba} from "../../../core/util/color"
 
 export class BaseGLGlyph
@@ -72,7 +71,7 @@ export fill_array_with_vec = (n, m, val) ->
 export visual_prop_is_singular = (visual, propname) ->
     # This touches the internals of the visual, so we limit use in this function
     # See renderer.coffee:cache_select() for similar code
-    return not _.isUndefined(visual[propname].spec.value)
+    return visual[propname].spec.value != undefined
 
 export attach_float = (prog, vbo, att_name, n, visual, name) ->
     # Attach a float attribute to the program. Use singleton value if we can,

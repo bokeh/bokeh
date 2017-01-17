@@ -5,6 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
+    "declaration": true,
     "jsx": "react",
     "reactNamespace": "DOM"
   }

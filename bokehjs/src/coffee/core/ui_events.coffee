@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as Hammer from "hammerjs"
 
 import {Events} from "./events"
@@ -7,7 +6,7 @@ import {offset} from "./dom"
 import {getDeltaY} from "./util/wheel"
 
 export class UIEvents
-  _.extend(@prototype, Events)
+  @prototype extends Events
 
   # new (toolbar: Toolbar, hit_area: Element)
   constructor: (@toolbar, @hit_area) ->

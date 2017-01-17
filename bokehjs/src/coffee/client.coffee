@@ -1,8 +1,9 @@
-import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
 import {HasProps} from "./core/has_props"
 import {logger} from "./core/logging"
+import {uniqueId} from "./core/util/string"
+import {extend} from "./core/util/object"
 import {Document, ModelChangedEvent} from "./document"
 
 export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
@@ -24,10 +25,10 @@ class Message
 
   @create_header : (msgtype, options) ->
     header = {
-      'msgid'   : _.uniqueId()
+      'msgid'   : uniqueId()
       'msgtype' : msgtype
     }
-    _.extend(header, options)
+    extend(header, options)
 
   @create : (msgtype, header_options, content) ->
     if not content?

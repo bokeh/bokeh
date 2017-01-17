@@ -1,9 +1,8 @@
-import * as _ from "underscore"
-
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {div, show} from "../../core/dom"
 import * as p from "../../core/properties"
+import {isString, isArray} from "../../core/util/types"
 
 export class LabelSetView extends TextAnnotationView
   initialize: (options) ->
@@ -114,9 +113,9 @@ export class LabelSetView extends TextAnnotationView
 
     # attempt to support vector-style ("8 4 8") line dashing for css mode
     ld = @visuals.border_line.line_dash.value()
-    if _.isArray(ld)
+    if isArray(ld)
       line_dash = if ld.length < 2 then "solid" else "dashed"
-    if _.isString(ld)
+    if isString(ld)
       line_dash = ld
 
     @visuals.border_line.set_vectorize(ctx, i)

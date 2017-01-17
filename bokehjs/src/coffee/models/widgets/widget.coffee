@@ -1,10 +1,8 @@
-import * as _ from "underscore"
-
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {JQueryable} from "./jqueryable"
 
 export class WidgetView extends LayoutDOMView
-  _.extend(@prototype, JQueryable)
+  @prototype extends JQueryable
 
   className: "bk-widget"
 

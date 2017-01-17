@@ -1,7 +1,8 @@
-import * as _ from "underscore"
 import * as rbush from "rbush"
 
 import * as hittest from "../../core/hittest"
+import {min, max} from "../../core/util/array"
+import {isStrictNaN} from "../../core/util/types"
 import {Glyph, GlyphView} from "./glyph"
 
 export class MultiLineView extends GlyphView
@@ -10,15 +11,15 @@ export class MultiLineView extends GlyphView
     index = rbush()
     pts = []
     for i in [0...@_xs.length]
-      xs = (x for x in @_xs[i] when not _.isNaN(x))
-      ys = (y for y in @_ys[i] when not _.isNaN(y))
+      xs = (x for x in @_xs[i] when not isStrictNaN(x))
+      ys = (y for y in @_ys[i] when not isStrictNaN(y))
       if xs.length == 0
         continue
       pts.push({
-        minX: _.min(xs),
-        minY: _.min(ys),
-        maxX: _.max(xs),
-        maxY: _.max(ys),
+        minX: min(xs),
+        minY: min(ys),
+        maxX: max(xs),
+        maxY: max(ys),
         i: i
       })
     index.load(pts)
@@ -62,7 +63,7 @@ export class MultiLineView extends GlyphView
       if points
         hits[i] = points
 
-    result['1d'].indices = _.keys(hits)
+    result['1d'].indices = Object.keys(hits)
     result['2d'] = hits
 
     return result
@@ -87,7 +88,7 @@ export class MultiLineView extends GlyphView
       if points.length > 0
         hits[i] = points
 
-    result['1d'].indices = _.keys(hits)
+    result['1d'].indices = Object.keys(hits)
     result['2d'] = hits
 
     return result

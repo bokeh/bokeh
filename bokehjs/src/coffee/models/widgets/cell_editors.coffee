@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import "jquery-ui/autocomplete"
 import "jquery-ui/spinner"
@@ -10,7 +9,7 @@ import {Model} from "../../model"
 import {JQueryable} from "./jqueryable"
 
 export class CellEditorView extends BokehView
-  _.extend(@prototype, JQueryable)
+  @prototype extends JQueryable
 
   className: "bk-cell-editor"
 
@@ -19,10 +18,10 @@ export class CellEditorView extends BokehView
   emptyValue: null
   defaultValue: null
 
-  initialize: (args) ->
-    @args = args
+  initialize: (options) ->
+    @args = options
     @model = @args.column.editor
-    super()
+    super(options)
     @render()
 
   render: () ->
@@ -97,7 +96,7 @@ export class StringEditorView extends CellEditorView
 
   renderEditor: () ->
     completions = @model.completions
-    if not _.isEmpty(completions)
+    if completions.length != 0
       @$input.autocomplete(source: completions)
       @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
     @$input.focus().select()

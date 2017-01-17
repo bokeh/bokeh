@@ -1,4 +1,4 @@
-import * as _ from "underscore"
+import {isArray, isObject} from "./types"
 
 ARRAY_TYPES =
   float32: Float32Array
@@ -48,15 +48,15 @@ export decode_column_data = (data) ->
   new_data = {}
   data_shapes = {}
   for k, v of data
-    if _.isArray(v)
+    if isArray(v)
       arrays = []
       shapes = []
       for arr in v
-        if _.isObject(arr) and '__ndarray__' of arr
+        if isObject(arr) and '__ndarray__' of arr
           [arr, shape] = decode_base64(arr)
           shapes.push(shape)
           arrays.push(arr)
-        else if _.isArray(arr)
+        else if isArray(arr)
           shapes.push([])
           arrays.push(arr)
       if shapes.length > 0
@@ -64,7 +64,7 @@ export decode_column_data = (data) ->
         data_shapes[k] = shapes
       else
         new_data[k] = v
-    else if _.isObject(v) and '__ndarray__' of v
+    else if isObject(v) and '__ndarray__' of v
       [arr, shape] = decode_base64(v)
       new_data[k] = arr
       data_shapes[k] = shape
@@ -78,7 +78,7 @@ export encode_column_data = (data, shapes) ->
   for k, v of data
     if v?.buffer instanceof ArrayBuffer
       v = encode_base64(v, shapes?[k])
-    else if _.isArray(v)
+    else if isArray(v)
       new_array = []
       for i in [0...v.length]
         if v[i]?.buffer instanceof ArrayBuffer

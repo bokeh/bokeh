@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
 import * as base from "./base"
@@ -6,6 +5,7 @@ import {pull_session} from "./client"
 import {logger, set_log_level} from "./core/logging"
 import {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./document"
 import {div, link, style, replaceWith} from "./core/dom"
+import {delay} from "./core/util/callback"
 
 # Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 # with this var prevents user configurations where css styling is unset.
@@ -30,7 +30,7 @@ _init_comms = (target, doc) ->
   if Jupyter? and Jupyter.notebook.kernel?
     logger.info("Registering Jupyter comms for target #{target}")
     comm_manager = Jupyter.notebook.kernel.comm_manager
-    update_comms = _.partial(_update_comms_callback, target, doc)
+    update_comms = (comm) -> _update_comms_callback(target, doc, comm)
     for id, promise of comm_manager.comms
       promise.then(update_comms)
     try
@@ -86,11 +86,11 @@ add_model_static = (element, model_id, doc) ->
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
   view = _create_view(model)
-  _.delay(-> replaceWith(element, view.el))
+  delay(-> replaceWith(element, view.el))
 
 # Fill element with the roots from doc
 export add_document_static = (element, doc, use_for_title) ->
-  _.delay(-> _render_document_to_element(element, doc, use_for_title))
+  delay(-> _render_document_to_element(element, doc, use_for_title))
 
 export add_document_standalone = (document, element, use_for_title=false) ->
   return _render_document_to_element(element, document, use_for_title)

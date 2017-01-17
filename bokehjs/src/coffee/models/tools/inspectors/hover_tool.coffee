@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip} from "../../annotations/tooltip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -8,6 +6,8 @@ import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
 import {div, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
+import {values, isEmpty} from "../../../core/util/object"
+import {isString, isFunction} from "../../../core/util/types"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -147,9 +147,8 @@ export class HoverToolView extends InspectToolView
 
     for i in indices['1d'].indices
       # multiglyphs will set '1d' and '2d' results, but have different tooltips
-      if not _.isEmpty(indices['2d'])
-        for pair in _.pairs(indices['2d'])
-          [i, j] = [pair[0], pair[1][0]]
+      if not isEmpty(indices['2d'])
+        for i, [j] of indices['2d']
           data_x = renderer.glyph._xs[i][j]
           data_y = renderer.glyph._ys[i][j]
 
@@ -232,7 +231,7 @@ export class HoverToolView extends InspectToolView
     callback = @model.callback
     [obj, data] = [callback, {index: indices, geometry: geometry}]
 
-    if _.isFunction(callback)
+    if isFunction(callback)
       callback(obj, data)
     else
       callback.execute(obj, data)
@@ -241,11 +240,11 @@ export class HoverToolView extends InspectToolView
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @model.tooltips
-    if _.isString(tooltips)
+    if isString(tooltips)
       el = div()
       el.innerHTML = replace_placeholders(tooltips, ds, i, vars)
       return el
-    else if _.isFunction(tooltips)
+    else if isFunction(tooltips)
       return tooltips(ds, vars)
     else
       rows = div({style: {display: "table", borderSpacing: "2px"}})
@@ -340,7 +339,7 @@ export class HoverTool extends InspectTool
       if tooltips?
         for r in @computed_renderers
           tooltip = new Tooltip({
-            custom: _.isString(tooltips) or _.isFunction(tooltips)
+            custom: isString(tooltips) or isFunction(tooltips)
             attachment: @attachment
             show_arrow: @show_arrow
           })
@@ -352,5 +351,5 @@ export class HoverTool extends InspectTool
   @getters {
     computed_renderers: () -> @_get_computed('computed_renderers')
     ttmodels: () -> @_get_computed('ttmodels')
-    synthetic_renderers: () -> _.values(@ttmodels)
+    synthetic_renderers: () -> values(@ttmodels)
   }

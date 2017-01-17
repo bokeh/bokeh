@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {ColumnarDataSource} from "./columnar_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"

@@ -1,8 +1,8 @@
-import * as _ from "underscore"
 import "bootstrap/button"
 
 import {input, label} from "../../core/dom"
 import * as p from "../../core/properties"
+import {uniqueId} from "../../core/util/string"
 
 import {Widget, WidgetView} from "./widget"
 import template from "./button_group_template"
@@ -25,7 +25,7 @@ export class RadioButtonGroupView extends WidgetView
     html = @template()
     @$el.append(html)
 
-    name = _.uniqueId("RadioButtonGroup")
+    name = uniqueId("RadioButtonGroup")
     active = @model.active
     for text, i in @model.labels
       inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})

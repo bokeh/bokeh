@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import * as util from "./util"
 import * as p from "../../core/properties"
+import {concat} from "../../core/util/array"
 
 copy_date = util.copy_date
 last_year_no_later_than = util.last_year_no_later_than
@@ -56,7 +55,7 @@ export class MonthsTicker extends SingleIntervalTicker
         month_date.setUTCMonth(month)
         return month_date)
 
-    month_dates = _.flatten(months_of_year(date) for date in year_dates)
+    month_dates = concat((months_of_year(date) for date in year_dates))
 
     all_ticks = (month_date.getTime() for month_date in month_dates)
     ticks_in_range = all_ticks.filter((tick) -> data_low <= tick <= data_high)

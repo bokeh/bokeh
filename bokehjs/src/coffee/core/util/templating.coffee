@@ -1,9 +1,10 @@
-import * as _ from "underscore"
 import * as SPrintf from "sprintf"
 import * as Numbro from "numbro"
+import {escape} from "./string"
+import {isNumber} from "./types"
 
 _format_number = (number) ->
-  if _.isNumber(number)
+  if isNumber(number)
     format = switch
       when Math.floor(number) == number
         "%d"
@@ -38,6 +39,6 @@ export replace_placeholders = (string, data_source, i, special_vars = {}) ->
         replacement = Numbro.format(value, format)
       else
         replacement = _format_number(value)
-    replacement = "#{prefix}#{_.escape(replacement)}"
+    replacement = "#{prefix}#{escape(replacement)}"
 
   return string

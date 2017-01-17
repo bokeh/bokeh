@@ -1,7 +1,7 @@
-import * as _ from "underscore"
 import * as p from "../../core/properties"
 
 import {color2hex} from "../../core/util/color"
+import {min, max} from "../../core/util/array"
 import {ColorMapper} from "./color_mapper"
 
 # Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
@@ -26,8 +26,8 @@ export class LogColorMapper extends ColorMapper
 
   _get_values: (data, palette, image_glyph=false) ->
     n = palette.length
-    low = @low ? _.min(data)
-    high = @high ? _.max(data)
+    low = @low ? min(data)
+    high = @high ? max(data)
     scale = n / (log1p(high) - log1p(low))  # subtract the low offset
     max_key = palette.length - 1
     values = []

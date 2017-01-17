@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "../../../core/properties"
 

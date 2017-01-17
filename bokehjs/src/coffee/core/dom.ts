@@ -1,7 +1,7 @@
-import {isBoolean, isString, isArray, isObject, flatten} from "underscore"
+import {isBoolean, isString, isArray, isObject} from "./util/types"
 
-type HTMLAttrs = { [name: string]: any }
-type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
+export type HTMLAttrs = { [name: string]: any }
+export type HTMLChildren = Array<string | HTMLElement | Array<string | HTMLElement>>
 
 const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTMLChildren): HTMLElement => {
   let element
@@ -33,11 +33,21 @@ const _createElement = (tag: string) => (attrs: HTMLAttrs = {}, ...children: HTM
     }
   }
 
-  for (const child of flatten(children, true)) {
+  function append(child: HTMLElement | string) {
     if (child instanceof HTMLElement)
       element.appendChild(child)
     else if (isString(child))
       element.appendChild(document.createTextNode(child))
+    else if (child != null && child !== false)
+      throw new Error(`expected an HTMLElement, string, false or null, got ${JSON.stringify(child)}`)
+  }
+
+  for (const child of children) {
+    if (isArray(child)) {
+      for (const _child of child)
+        append(_child)
+    } else
+      append(child)
   }
 
   return element

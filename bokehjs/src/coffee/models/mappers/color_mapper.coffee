@@ -1,8 +1,7 @@
-import * as _ from "underscore"
 import * as p from "../../core/properties"
 
 import {Model} from "../../model"
-
+import {isNumber} from "../../core/util/types"
 
 export class ColorMapper extends Model
   type: "ColorMapper"
@@ -67,7 +66,7 @@ export class ColorMapper extends Model
   _build_palette: (palette) ->
     new_palette = new Uint32Array(palette.length)
     _convert = (value) ->
-      if _.isNumber(value)
+      if isNumber(value)
         return value
       else
         return parseInt(value.slice(1), 16)

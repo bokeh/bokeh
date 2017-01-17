@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Model} from "../../model"
 import {empty} from "../../core/dom"
 import * as p from "../../core/properties"
@@ -7,6 +6,7 @@ import {GE, EQ, Strength, Variable} from "../../core/layout/solver"
 import {build_views} from "../../core/build_views"
 import {BokehView} from "../../core/bokeh_view"
 import {logger} from "../../core/logging"
+import {extend} from "../../core/util/object"
 
 export class LayoutDOMView extends BokehView
 
@@ -230,16 +230,16 @@ export class LayoutDOM extends Model
       'whitespace-right' : @_whitespace_right
     }
     if @sizing_mode is 'stretch_both'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'width': @_width
         'height': @_height
       })
     if @sizing_mode is 'scale_width'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'width': @_width
       })
     if @sizing_mode is 'scale_height'
-      constrained_variables = _.extend(constrained_variables, {
+      constrained_variables = extend(constrained_variables, {
         'height': @_height
       })
     return constrained_variables

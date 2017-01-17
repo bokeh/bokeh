@@ -1,4 +1,3 @@
-_ = require "underscore"
 {expect} = require "chai"
 sinon = require "sinon"
 utils = require "../../utils"

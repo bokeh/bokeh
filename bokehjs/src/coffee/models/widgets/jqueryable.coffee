@@ -1,5 +1,6 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
+
+import {isFunction} from "../../core/util/types"
 
 # Cached regex to split keys for `delegate`.
 delegateEventSplitter = /^(\S+)\s*(.*)$/
@@ -48,11 +49,11 @@ export JQueryable = {
   # Uses event delegation for efficiency.
   # Omitting the selector binds the event to `this.el`.
   delegateEvents: (events) ->
-    events ?= _.result(this, 'events')
+    events ?= @events
     if not events then return @
     @undelegateEvents()
     for key, method of events
-      if not _.isFunction(method) then method = @[method]
+      if not isFunction(method) then method = @[method]
       if not method? then continue
       match = key.match(delegateEventSplitter)
       @delegate(match[1], match[2], method.bind(@))

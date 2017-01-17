@@ -1,7 +1,5 @@
-import * as _ from "underscore"
-
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-
+import {extend} from "../../core/util/object"
 
 export class SpacerView extends LayoutDOMView
   className: "bk-spacer-box"
@@ -23,7 +21,7 @@ export class Spacer extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'on-edge-align-top'    : @_top
       'on-edge-align-bottom' : @_height_minus_bottom
       'on-edge-align-left'   : @_left
