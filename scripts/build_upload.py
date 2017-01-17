@@ -98,17 +98,19 @@ CONFIG = config()
 #
 #--------------------------------------
 
-def run(cmd):
-    print("+%s" % cmd)
+def run(cmd, silent=False):
+    if not silent:
+        print("+%s" % cmd)
     cmd = cmd.split()
     p = Popen(cmd,  stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
+    out = out.decode('utf-8').strip()
     if p.returncode != 0:
-        out = out.decode('utf-8').strip()
         raise RuntimeError(out)
+    return out
 
 def clean():
-    for plat in "osx-64 win-32 win-64 linux-32 linux-64".split()
+    for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
         run("rm -rf %s" % plat)
     run("rm -rf dist/")
     run("rm -rf build/")
@@ -145,6 +147,7 @@ def upload_wrapper(name):
     return decorator
 
 def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id):
+    print(":uploading to CDN: %s" % cdn_path)
     url = 'https://storage101.dfw1.clouddrive.com/v1/%s/%s' % (cdn_id, cdn_path)
     c = pycurl.Curl()
     c.setopt(c.CAINFO, certifi.where())
@@ -233,6 +236,18 @@ def check_environment_var(name, message):
         failed("Missing %s (%s)" % (message, name))
         abort_checks()
 
+def check_anaconda_creds():
+    try:
+        token = os.environ['ANACONDA_TOKEN']
+        out = run("anaconda -t %s whoami" % token, silent=True)
+        if "Anonymous User" in out:
+            failed("Could NOT verify Anaconda credentials")
+            abort_checks()
+        passed("Verified Anaconda credentials")
+    except Exception as e:
+        failed("Could NOT verify Anaconda credentials")
+        abort_checks()
+
 def check_cdn_creds():
     try:
         username = os.environ['RSUSER']
@@ -279,10 +294,9 @@ def check_cdn_creds():
 def build_conda_packages():
     for v in "27 34 35 36".split():
         os.environ['CONDA_PY'] = v
-        run("conda build conda.recipe --quiet --no-test")
+        run("conda build conda.recipe --quiet")
         # TODO (bev) make platform detected or configurable
-    #files = " ".join(glob.glob('/home/travis/miniconda/conda-bld/osx-64/bokeh*'))
-    files = " ".join(glob.glob('/Users/bryan/anaconda/conda-bld/osx-64/bokeh*'))
+    files = " ".join(glob.glob('/home/travis/miniconda/conda-bld/linux-64/bokeh*'))
     run("conda convert -p all %s" % files)
     del os.environ['CONDA_PY']
 
@@ -334,7 +348,9 @@ def upload_anaconda():
     token = os.environ['ANACONDA_TOKEN']
     channel = 'dev' if V(CONFIG.version).is_prerelease else 'main'
     for plat in "osx-64 win-32 win-64 linux-32 linux-64".split():
-        run("anaconda -t %s upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress" % (token, plat, channel))
+        cmd = "anaconda -t %s upload -u bokeh %s/bokeh*.tar.bz2 -c %s --force --no-progress"
+        print("+" + cmd % ("<hidden>", plat, channel))
+        run(cmd % (token, plat, channel), silent=True)
 
 @upload_wrapper('pypi')
 def upload_pypi():
@@ -370,7 +386,7 @@ def upload_npm():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build and upload all assets for a Bokeh release.')
-    parser.add_argument('clean',
+    parser.add_argument('--clean',
                         type=bool,
                         default=False,
                         help='Whether to clean the local checkout (default: False)')
@@ -388,12 +404,14 @@ if __name__ == '__main__':
         CONFIG.version = versioneer.get_version()
         passed("%r is a valid version for release" % CONFIG.version)
     except ValueError:
-        failed()
-        abort_checks("%r is NOT a valid version for release" % CONFIG.version)
+        failed("%r is NOT a valid version for release" % CONFIG.version)
+        abort_checks()
 
     check_environment_var('ANACONDA_TOKEN', 'access token for Anaconda.org')
     check_environment_var('RSUSER', 'username for CDN')
     check_environment_var('RSAPIKEY', 'API key for CDN')
+
+    check_anaconda_creds()
 
     cdn_token, cdn_id = check_cdn_creds()
 
