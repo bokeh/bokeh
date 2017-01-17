@@ -10,6 +10,10 @@ export function contains<T>(array: Array<T>, value: T): boolean {
   return array.indexOf(value) >= 0
 }
 
+export function nth<T>(array: Array<T>, index: number): T {
+  return array[index >= 0 ? index : array.length + index]
+}
+
 export function zip<A, B>(As: Array<A>, Bs: Array<B>): Array<[A, B]> {
   const n = Math.min(As.length, Bs.length)
   const ABs = new Array<[A, B]>(n)

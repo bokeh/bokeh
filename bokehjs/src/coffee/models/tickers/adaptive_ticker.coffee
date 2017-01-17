@@ -1,6 +1,6 @@
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "../../core/properties"
-import {argmin} from "../../core/util/array"
+import {argmin, nth} from "../../core/util/array"
 
 # Forces a number x into a specified range [min_val, max_val].
 clamp = (x, min_val, max_val) ->
@@ -35,8 +35,8 @@ export class AdaptiveTicker extends ContinuousTicker
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    prefix_mantissa = @mantissas[@mantissas.length-1] / @base
-    suffix_mantissa = @mantissas[0]                   * @base
+    prefix_mantissa = nth(@mantissas, -1) / @base
+    suffix_mantissa = nth(@mantissas,  0) * @base
     @extended_mantissas = [prefix_mantissa, @mantissas..., suffix_mantissa]
 
     @base_factor = if @get_min_interval() == 0.0 then 1.0 else @get_min_interval()
