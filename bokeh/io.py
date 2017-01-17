@@ -319,7 +319,7 @@ def _show_notebook_app_with_state(app, _state, app_path, notebook_url):
                     allow_websocket_origin=[notebook_url])
     server.start()
     script = autoload_server(model=None, url='http://127.0.0.1:%d' % server.port)
-    display(HTML(server_cell(server, script)))
+    display(HTML(_server_cell(server, script)))
 
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
@@ -629,7 +629,7 @@ def _remove_roots(subplots):
         if sub in doc.roots:
             doc.remove_root(sub)
 
-def server_cell(server, script):
+def _server_cell(server, script):
     '''
     Wraps a script returned by autoload_server in a div that allows cell
     destruction/replacement to be detected.
