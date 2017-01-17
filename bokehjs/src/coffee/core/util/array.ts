@@ -1,5 +1,7 @@
-export function copy<T>(array: Array<T>): Array<T> {
-  return array.slice()
+const slice = Array.prototype.slice
+
+export function copy<T>(array: Array<T> /*| TypedArray*/): Array<T> {
+  return slice.call(array)
 }
 
 export function concat<T>(arrays: Array<Array<T>>): Array<T> {
