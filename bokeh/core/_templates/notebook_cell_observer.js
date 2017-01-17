@@ -1,3 +1,14 @@
+{#
+Registers a MutationObserver that can detect deletion of cells with a
+class of 'bokeh_class'
+
+:param inner_block: Javascript block to be executed when deletion detected
+:type inner_block: str
+
+The supplied Javascript is executed with the id of the destroyed div in
+ scope as variable destroyed_id.
+
+#}
 
 var target = document.getElementById('notebook-container');
 

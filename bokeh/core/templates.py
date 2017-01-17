@@ -12,6 +12,7 @@
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_DIV
 .. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
 .. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
+.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_CELL_OBSERVER
 
 '''
 from __future__ import absolute_import
