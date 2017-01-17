@@ -41,7 +41,6 @@ from .util.serialization import make_id
 
 from .application import Application
 from .server.server import Server
-from tornado.ioloop import IOLoop
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -314,6 +313,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False,
 
 def _show_notebook_app_with_state(app, _state, app_path, notebook_url):
     from IPython.display import HTML, display
+    from tornado.ioloop import IOLoop
     loop = IOLoop.current()
     server = Server({'/': app}, io_loop=loop, port=0, host='*',
                     allow_websocket_origin=[notebook_url])
