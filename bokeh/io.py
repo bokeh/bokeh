@@ -652,7 +652,6 @@ def _destroy_server(div_id):
     try:
         for session in server.get_sessions('/'):
             session.destroy()
-        server.stop()
 
     except Exception as e:
         logger.debug("Could not destroy server for id %r: %s" % (div_id, e))
