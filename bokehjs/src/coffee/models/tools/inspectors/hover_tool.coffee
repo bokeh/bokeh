@@ -6,7 +6,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import * as hittest from "../../../core/hittest"
 import {logger} from "../../../core/logging"
 import {replace_placeholders} from "../../../core/util/templating"
-import {table, td, tr, span} from "../../../core/dom"
+import {div, span} from "../../../core/dom"
 import * as p from "../../../core/properties"
 
 _color_to_hex = (color) ->
@@ -248,12 +248,17 @@ export class HoverToolView extends InspectToolView
     else if _.isFunction(tooltips)
       return tooltips(ds, vars)
     else
-      rows = table()
+      rows = div({style: {display: "table", borderSpacing: "2px"}})
 
       for [label, value] in tooltips
-        row = tr()
-        row.appendChild(td({class: 'bk-tooltip-row-label'}, "#{label}: "))
-        cell = td({class: 'bk-tooltip-row-value'})
+        row = div({style: {display: "table-row"}})
+        rows.appendChild(row)
+
+        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-label'}, "#{label}: ")
+        row.appendChild(cell)
+
+        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-value'})
+        row.appendChild(cell)
 
         if value.indexOf("$color") >= 0
           [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
@@ -281,9 +286,6 @@ export class HoverToolView extends InspectToolView
           el = span()
           el.innerHTML = replace_placeholders(value, ds, i, vars)
           cell.appendChild(el)
-
-        row.appendChild(cell)
-        rows.appendChild(row)
 
       return rows
 
