@@ -38,6 +38,9 @@ from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .util.serialization import make_id
 
+from .application import Application
+from .server.server import Server
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -196,7 +199,8 @@ def curstate():
     '''
     return _state
 
-def show(obj, browser=None, new="tab", notebook_handle=False):
+def show(obj, browser=None, new="tab", notebook_handle=False,
+                            app_path="/", notebook_url="127.0.0.1:8888"):
     ''' Immediately display a plot object.
 
     In a Jupyter notebook, the output is displayed in an output cell. Otherwise,
@@ -230,9 +234,23 @@ def show(obj, browser=None, new="tab", notebook_handle=False):
         a Jupyter notebook.
 
     '''
+    if isinstance(obj, Application):
+        return _show_notebook_app_with_state(obj, _state, app_path, notebook_url)
+
     if obj not in _state.document.roots:
         _state.document.add_root(obj)
     return _show_with_state(obj, _state, browser, new, notebook_handle=notebook_handle)
+
+
+def _show_notebook_app_with_state(app, _state, app_path, notebook_url):
+    from IPython.display import HTML, display
+    from tornado.ioloop import IOLoop
+    loop = IOLoop.current()
+    server = Server({'/': app}, io_loop=loop, port=0, host='*',
+                    allow_websocket_origin=[notebook_url])
+    server.start()
+    script = autoload_server(model=None, url='http://127.0.0.1:%d' % server.port)
+    display(HTML(server_cell(server, script)))
 
 
 def _show_with_state(obj, state, browser, new, notebook_handle=False):
