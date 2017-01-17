@@ -104,7 +104,7 @@
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "~1.10.5",
 
-    "numbro": "https://github.com/bokeh/numbro.git#b4ccab0",
+    "numbro": "https://github.com/bokeh/numbro.git#5ed67cf",
     "root-require": "^0.3.1"
   },
   "scripts": {
