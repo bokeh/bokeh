@@ -1,5 +1,6 @@
 # This is based on sympy's sympy/utilities/tests/test_code_quality.py
 
+import io
 import subprocess
 from os import walk, sep, pardir
 from os.path import split, join, isabs, abspath, relpath, exists, isfile, basename, splitext
@@ -45,7 +46,6 @@ def collect_errors():
         line = None
 
         for idx, line in enumerate(test_file):
-            line = line.decode('utf-8')
             line_no = idx + 1
 
             if idx == 0 and len(line.strip()) == 0:
@@ -65,7 +65,7 @@ def collect_errors():
             if not line.endswith('\n'):
                 errors.append((message_eof, fname, line_no))
 
-    paths = subprocess.check_output(["git", "ls-files"]).split("\n")
+    paths = subprocess.check_output(["git", "ls-files"]).decode('utf-8').split("\n")
 
     for path in paths:
         if not path:
@@ -77,7 +77,7 @@ def collect_errors():
         if path.startswith(exclude_dirs):
             continue
 
-        with open(path, "Urb") as file:
+        with io.open(path, 'r', encoding='utf-8') as file:
             test_this_file(path, file)
 
     return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]
