@@ -16,22 +16,25 @@ env:
 
 matrix:
   include:
-    # Unit tests on all three versions of python
+    # unit tests (python 2.7, 3.4, and 3.5)
     - python: 2.7
       env: GROUP=unit
     - python: 3.4
       env: GROUP=unit
     - python: 3.5
       env: GROUP=unit
-    # Examples tests
+
+    # examples tests (python 2.7 and 3.4)
     - python: 2.7
       env: GROUP=examples
     - python: 3.4
       env: GROUP=examples
-    # Linting and Docs
+
+    # linting, package and docs building (python 3.4)
     - python: 3.4
       env: GROUP=flake_docs
-    # Integration test
+
+    # integration tests (python 3.4)
     - python: 3.4
       env: GROUP=integration
       addons:
@@ -40,14 +43,13 @@ matrix:
 branches:
   only:
   - master
-  - "/^\\d+.\\d+.\\d+dev\\d+$/"
+  - "/^\\d+.\\d+.\\d+.dev\\d+$/"
   - "/^\\d+.\\d+.\\d+rc\\d+$/"
   - "/^\\d+.\\d+.\\d+$/"
 
 before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/bin:$PATH"
-  - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
   - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
   - if [[ -z "${SAUCE_USERNAME}" ]] || [[ -z "${SAUCE_ACCESS_KEY}" ]]; then echo "External committer, not using saucelabs"; else export SAUCELABS=true; fi
 
@@ -55,40 +57,54 @@ install:
 - scripts/travis_install
 
 script:
-  # Unit tests
+  # unit tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=3 -s -m js;
     fi
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then
       py.test --rerun=5 -m 'not (examples or js or integration or quality)' --cov=bokeh --cov-config=bokeh/.coveragerc;
     fi
-  # Examples tests
+
+  # examples tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then
       if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then
-        echo "Examples run disabled by commit"; else
+        echo "Examples run disabled by commit";
+      else
         export BOKEH_DEFAULT_DIFF=FETCH_HEAD;
         export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1;
         py.test -v -m examples --rerun=5 --upload --examplereport=examples.html;
       fi;
     fi
-  # Linting
+
+  # linting, package and docs building
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
-      py.test -m quality ;
+      py.test -m quality;
     fi
-  # Build docs
+  - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
+      CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe;
+      LINUX64_DIR="$HOME/miniconda/conda-bld/linux-64";
+      echo "linux-64 build output contents:";
+      ls -l $LINUX64_DIR;
+      BUILD_FILE_COUNT="$(ls $LINUX64_DIR | wc -l)";
+      if [ $BUILD_FILE_COUNT != 3 ]; then
+         echo "linux-64 build has wrong number of files";
+         exit 1;
+      fi
+    fi
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then
       cd sphinx;
       GOOGLE_API_KEY=${GOOGLE_API_KEY:-"junk"} make SPHINXOPTS=-v all;
     fi
-  # Integration tests
+
+  # integration tests
   - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then
       if [ "$SAUCELABS" == "true" ]; then
         py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n4 -r3 --upload;
       fi;
     fi
 
-  # Poor mans logger
-  - echo "***** POOR MAN LOGGER ******";
+  # Simple build log
+  - echo "********** SIMPLE BUILD LOG **********";
     echo $BOKEH_DEFAULT_DIFF;
     echo $TRAVIS_COMMIT_MSG;
     echo $TRAVIS_PULL_REQUEST;
@@ -100,7 +116,7 @@ script:
     fi;
     killall python;
     ps -efw;
-    echo "********** END POOR MAN LOGGER ************"
+    echo "********** END SIMPLE BUILD LOG **********";
 
 after_success: |
   if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '3.4' && "$GROUP" == flake_docs ]]; then
@@ -118,17 +134,13 @@ after_success: |
       ssh-add bokeh_key
       # Signal the correct build
       if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
-        echo "Building a dev or rc package."
-        # We signal the devel build with the "devel" string into the __travis_build_number__.txt file
-        echo "devel" > __travis_build_number__.txt
+        echo "Building a DEV or RC package: $TRAVIS_TAG"
       else
-        echo "Building a release package."
-        # We signal the release with an the "release" string into the __travis_build_number__.txt file
-        echo "release" > __travis_build_number__.txt
+        echo "Building a FULL RELEASE package: $TRAVIS_TAG"
       fi
-      bash scripts/build_upload.sh -b $ANACONDA_TOKEN -u $RSUSER -k $RSAPIKEY
+      python scripts/build_upload.py
   else
-      echo "Not building because there is no tag."
+      echo "No tag present, not building a release package."
   fi
 
 notifications:
