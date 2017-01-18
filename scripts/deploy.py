@@ -26,7 +26,7 @@ except ImportError:
 
 
 class config(object):
-    ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|rc)\d+)?$")
+    ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc)\d+)?$")
     FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)?$")
 
     def __init__(self):

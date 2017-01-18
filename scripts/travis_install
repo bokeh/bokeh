@@ -19,29 +19,29 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
+echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.3.4 conda-env=2.6.0 conda-build=2.1.1"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda=4.1.11 conda-env=2.5.2 conda-build=1.21.14"
 conda install --yes $DEPS_TRAVIS
 
-conda config --set auto_update_conda off
 conda config --append channels bokeh
 conda config --append channels conda-forge
 conda config --get channels
+conda config --set auto_update_conda off
 
-DEPS_BUILD=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("requirements/build")]))
-EOF
-)
+CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
-conda install --yes $DEPS_BUILD
+NOARCH_DIR="$HOME/miniconda/conda-bld/noarch"
+echo "noarch build output contents:"
+ls -l $NOARCH_DIR
 
-pushd bokehjs
-npm install
-popd
+BUILD_FILE_COUNT="$(ls $NOARCH_DIR | wc -l)"
+if [ $BUILD_FILE_COUNT != 3 ]; then
+   echo "noarch build has wrong number of files"
+   exit 1
+fi
 
-python setup.py --quiet install --build-js
+conda install bokeh --use-local --yes
 
 DEPS_RUN=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
