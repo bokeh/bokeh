@@ -132,7 +132,7 @@ class _SessionCoordinates(object):
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
-_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(\-dev|rc)")
+_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 
 def _cdn_base_url():

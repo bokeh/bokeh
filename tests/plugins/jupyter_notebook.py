@@ -18,10 +18,12 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
-def jupyter_notebook(request, log_file):
+def jupyter_notebook(request, bokeh_server, log_file):
     """
     Starts a jupyter notebook server at the beginning of a session, and
     closes at the end of a session.
+
+    Requires the bokeh_server fixture.
 
     Adds custom.js that runs all the cells on notebook opening. Cleans out
     this custom.js at the end of the test run.
