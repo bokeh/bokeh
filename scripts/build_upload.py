@@ -50,7 +50,7 @@ COMPLETED = "COMPLETED"
 class config(object):
 
     # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
-    ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:\-dev|rc)\d+)?$")
+    ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc)\d+)?$")
 
     def __init__(self):
         self._version = None

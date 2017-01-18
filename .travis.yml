@@ -43,7 +43,7 @@ matrix:
 branches:
   only:
   - master
-  - "/^\\d+.\\d+.\\d+-dev\\d+$/"
+  - "/^\\d+.\\d+.\\d+dev\\d+$/"
   - "/^\\d+.\\d+.\\d+rc\\d+$/"
   - "/^\\d+.\\d+.\\d+$/"
 
