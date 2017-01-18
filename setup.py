@@ -99,13 +99,13 @@ REQUIRES = [
 if sys.version_info[:2] == (2, 7):
     REQUIRES.append('futures >=3.0.3')
 
-fixup_old_jsargs()     # handle --build_js and --install_js
+# if this is just conda-build skimming information, skip all this actual work
+if "conda-build" not in sys.argv[0]:
+    fixup_old_jsargs()     # handle --build_js and --install_js
+    fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
+    fixup_building_sdist() # must build BokehJS when MAKING sdists
 
-fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
-
-fixup_building_sdist() # must build BokehJS when MAKING sdists
-
-bokehjs_action = build_or_install_bokehjs()
+    bokehjs_action = build_or_install_bokehjs()
 
 # configuration to include all the special or non-python files in the package
 # directory that need to also be installed or included in a build
@@ -139,7 +139,8 @@ setup(
 
 )
 
-# report on extra information specific to the bokeh build
-if '--help'  in sys.argv: show_help(bokehjs_action)
-if 'develop' in sys.argv: show_bokehjs(bokehjs_action, develop=True)
-if 'install' in sys.argv: show_bokehjs(bokehjs_action)
+# if this is just conda-build skimming information, skip all this actual work
+if "conda-build" not in sys.argv[0]:
+    if '--help'  in sys.argv: show_help(bokehjs_action)
+    if 'develop' in sys.argv: show_bokehjs(bokehjs_action, develop=True)
+    if 'install' in sys.argv: show_bokehjs(bokehjs_action)
