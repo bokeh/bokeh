@@ -93,9 +93,9 @@ def collect_errors():
 
             test(fname)
 
-    check_files(["setup.py"])
+    check_files(["setup.py", "_setup_support.py"])
     check_tree('bin',          ['*'])
-    check_tree('bokeh',        ['*.py', '*.html', '*.js'], ["server/static"], ["__conda_version__.py"])
+    check_tree('bokeh',        ['*.py', '*.html', '*.js'], ["server/static"])
     check_tree('bokehjs',      ['*.coffee', '*.js', '*.ts', '*.less', '*.css', '*.json'], ['build', 'node_modules', 'src/vendor', 'typings'])
     check_tree('conda.recipe', ['*.py', '*.sh', '*.yaml'])
     check_tree('examples',     ['*.py', '*.ipynb'])
