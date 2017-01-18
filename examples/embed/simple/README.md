@@ -1,4 +1,3 @@
-
 This example demonstrates embedding a standalone Bokeh document
 into a simple Flask application, with a basic HTML web form.
 
