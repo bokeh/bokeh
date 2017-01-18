@@ -1,6 +1,7 @@
 .. data:: {{ name }}
     :module: {{ module }}
     :annotation: = {{ shortrepr }}
+    {% if noindex %}:noindex:{% endif %}
 
     {% for line in content %}
     {{ line }}

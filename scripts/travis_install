@@ -9,6 +9,7 @@ MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
+notebook ==4.2.3
 EOF
 )
 
@@ -26,6 +27,7 @@ conda install --yes $DEPS_TRAVIS
 conda config --append channels bokeh
 conda config --append channels conda-forge
 conda config --get channels
+conda config --set auto_update_conda off
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
@@ -56,9 +58,11 @@ EOF
 conda install --yes $DEPS_RUN
 conda install --yes $DEPS_TEST
 
-conda install --yes nodejs
-echo "node version $(node -v)"
-echo "npm version $(npm -v)"
+# conda nb extension is installed by default and breaks notebook image diff tests
+python -m nb_conda_kernels.install --disable --prefix=/home/travis/miniconda
+
+echo "node version: $(node -v)"
+echo "npm version: $(npm -v)"
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC

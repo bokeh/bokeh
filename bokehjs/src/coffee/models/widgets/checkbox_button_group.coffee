@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/button"
 
@@ -23,7 +22,7 @@ export class CheckboxButtonGroupView extends WidgetView
 
     @$el.empty()
     html = @template()
-    @$el.append(html)
+    @el.appendChild(html)
 
     active = @model.active
     for label, i in @model.labels
@@ -38,7 +37,7 @@ export class CheckboxButtonGroupView extends WidgetView
     return @
 
   change_input: () ->
-    active = (i for checkbox, i in @$("input") when checkbox.checked)
+    active = (i for checkbox, i in @$el.find("input") when checkbox.checked)
     @model.active = active
     @model.callback?.execute(@model)
 

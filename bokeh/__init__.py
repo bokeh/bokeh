@@ -20,10 +20,12 @@ from .util.version import __base_version__; __base_version__
 from .util import logconfig
 del logconfig
 
-# configure deprecation warnings
+# Configure warnings to always show, despite Python's active efforts
+# to hide them from users.
 import warnings
-from .util.deprecation import BokehDeprecationWarning
+from .util.warnings import BokehDeprecationWarning, BokehUserWarning
 warnings.simplefilter('always', BokehDeprecationWarning)
+warnings.simplefilter('always', BokehUserWarning)
 
 # imports below are names we want to make available in the bokeh
 # module as transitive imports

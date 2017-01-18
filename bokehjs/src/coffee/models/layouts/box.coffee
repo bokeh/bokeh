@@ -1,7 +1,8 @@
-import * as _ from "underscore"
-
 import {EQ, GE, Strength, Variable, WEAK_EQ} from "../../core/layout/solver"
 import * as p from "../../core/properties"
+import {isString} from "../../core/util/types"
+import {all} from "../../core/util/array"
+import {extend} from "../../core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
@@ -82,7 +83,7 @@ export class Box extends LayoutDOM
 
   get_constrained_variables: () ->
     constrained_variables = super()
-    constrained_variables = _.extend(constrained_variables, {
+    constrained_variables = extend(constrained_variables, {
       'box-equal-size-top' : @_box_equal_size_top
       'box-equal-size-bottom' : @_box_equal_size_bottom
       'box-equal-size-left' : @_box_equal_size_left
@@ -110,7 +111,7 @@ export class Box extends LayoutDOM
       @_test_layoutable(child)
 
       vars = child.get_constrained_variables()
-      var_keys = _.keys(vars)
+      var_keys = Object.keys(vars)
 
       # Make total widget sizes fill the orthogonal direction
       # TODO(bird) Can't we make this shorter by using span which has already picked a
@@ -187,13 +188,8 @@ export class Box extends LayoutDOM
     return constraints
 
   _has_var: (look_up, var_keys) ->
-    # Convenience wrapper on an underscore method to
-    # keep code in get_constraints cleaner
-    if typeof look_up is 'string'
-      look_up_list = [look_up]
-    else
-      look_up_list = look_up
-    return _.every(look_up_list, (x) -> x in var_keys)
+    look_up_list = if isString(look_up) then [look_up] else look_up
+    return all(look_up_list, (x) -> x in var_keys)
 
   _test_layoutable: (child) ->
     required_constrained_variables = [
@@ -208,7 +204,7 @@ export class Box extends LayoutDOM
       throw new Error("#{child} is missing get_constrained_variables method")
     vars = child.get_constrained_variables()
     for key in required_constrained_variables
-      if key not in _.keys(vars)
+      if key not in Object.keys(vars)
         throw new Error("#{child} is missing constrained_variable #{key}")
       if not vars[key] instanceof Variable
         throw new Error("#{child} #{key} is not a solver Variable")

@@ -1,10 +1,4 @@
-import "./core/util/underscore"
-
 export {version} from "./version"
-
-import * as _ from "underscore"
-import * as $ from "jquery"
-export {_, $}
 
 import * as embed from "./embed"
 export {embed}

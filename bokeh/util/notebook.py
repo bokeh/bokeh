@@ -34,7 +34,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
     publish_display_data({'application/javascript': js})
 
 FINALIZE_JS = """
-Bokeh.$("#%s").text("BokehJS is loading...");
+document.getElementById("%s").textContent = "BokehJS is loading...";
 """
 
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
@@ -79,9 +79,9 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False,
         elementid = '' if hide_banner else element_id,
         js_urls  = resources.js_files,
         css_urls = resources.css_files,
-        js_raw   = resources.js_raw + [FINALIZE_JS % element_id],
+        js_raw   = resources.js_raw + ([] if hide_banner else [FINALIZE_JS % element_id]),
         css_raw  = resources.css_raw_str,
-        force    = 1,
+        force    = True,
         timeout  = load_timeout
     )
 

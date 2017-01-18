@@ -1,12 +1,12 @@
-import * as $ from "jquery"
-import * as _ from "underscore"
 import * as Backbone from "./backbone"
-
 import {logger} from "./logging"
 import * as property_mixins from "./property_mixins"
 import * as refs from "./util/refs"
 import * as p from "./properties"
-import {array_max} from "./util/math"
+import {uniqueId} from "./util/string"
+import {max} from "./util/array"
+import {extend, values, clone, isEmpty} from "./util/object"
+import {isString, isObject, isArray} from "./util/types"
 
 export class HasProps extends Backbone.Model
 
@@ -38,7 +38,7 @@ export class HasProps extends Backbone.Model
           internal: internal ? false
         }
 
-        props = _.clone(this.prototype.props)
+        props = clone(this.prototype.props)
         props[name] = refined_prop
         this.prototype.props = props
 
@@ -58,7 +58,7 @@ export class HasProps extends Backbone.Model
   @mixins: (names) -> @mixin(names...)
 
   @override: (name_or_object, default_value) ->
-    if _.isString(name_or_object)
+    if isString(name_or_object)
       object = {}
       object[name] = default_value
     else
@@ -69,8 +69,8 @@ export class HasProps extends Backbone.Model
         value = this.prototype.props[name]
         if not value?
           throw new Error("attempted to override nonexistent '#{this.name}.#{name}'")
-        props = _.clone(this.prototype.props)
-        props[name] = _.extend({}, value, { default_value: default_value })
+        props = clone(this.prototype.props)
+        props[name] = extend({}, value, { default_value: default_value })
         this.prototype.props = props
 
   @define {
@@ -110,7 +110,7 @@ export class HasProps extends Backbone.Model
 
     # auto generating ID
     if not attrs.id?
-      this.id = _.uniqueId(this.type)
+      this.id = uniqueId(this.type)
 
     # allowing us to defer initialization when loading many models
     # when loading a bunch of models, we want to do initialization as a second pass
@@ -123,7 +123,7 @@ export class HasProps extends Backbone.Model
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
-    if _.isObject(key) or key == null
+    if isObject(key) or key == null
       attrs = key
       options = value
     else
@@ -136,7 +136,7 @@ export class HasProps extends Backbone.Model
 
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
-    if not _.isEmpty(attrs)
+    if not isEmpty(attrs)
       old = {}
       for key, value of attrs
         old[key] = @getv(key)
@@ -144,13 +144,13 @@ export class HasProps extends Backbone.Model
 
       if not options?.silent?
         for key, value of attrs
-          @_tell_document_about_change(key, old[key], @getv(key))
+          @_tell_document_about_change(key, old[key], @getv(key), options)
 
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
     # * object - object on which dependencies reside
     # * fields - attributes on that object
-    if not _.isArray(fields)
+    if not isArray(fields)
       fields = [fields]
     prop_spec = @_computed[prop_name]
     prop_spec.dependencies = prop_spec.dependencies.concat(
@@ -173,7 +173,7 @@ export class HasProps extends Backbone.Model
       #throw new Error(
       console.log("attempted to redefine existing property #{@type}.#{prop_name}")
 
-    if _.has(@_computed, prop_name)
+    if @_computed[prop_name]?
       throw new Error("attempted to redefine existing computed property #{@type}.#{prop_name}")
 
     changedep = () =>
@@ -260,12 +260,12 @@ export class HasProps extends Backbone.Model
   @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProps
       value.ref()
-    else if _.isArray(value)
+    else if isArray(value)
       ref_array = []
       for v, i in value
         ref_array.push(HasProps._value_to_json(i, v, value))
       ref_array
-    else if _.isObject(value)
+    else if isObject(value)
       ref_obj = {}
       for own subkey of value
         ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
@@ -297,10 +297,10 @@ export class HasProps extends Backbone.Model
       if v.id not of result
         model = doc.get_model_by_id(v.id)
         HasProps._value_record_references(model, result, recurse)
-    else if _.isArray(v)
+    else if isArray(v)
       for elem in v
         HasProps._json_record_references(doc, elem, result, recurse)
-    else if _.isObject(v)
+    else if isObject(v)
       for own k, elem of v
         HasProps._json_record_references(doc, elem, result, recurse)
 
@@ -317,10 +317,11 @@ export class HasProps extends Backbone.Model
           immediate = v._immediate_references()
           for obj in immediate
             HasProps._value_record_references(obj, result, true) # true=recurse
-    else if _.isArray(v)
+    else if v.buffer instanceof ArrayBuffer
+    else if isArray(v)
       for elem in v
         HasProps._value_record_references(elem, result, recurse)
-    else if _.isObject(v)
+    else if isObject(v)
       for own k, elem of v
         HasProps._value_record_references(elem, result, recurse)
 
@@ -333,12 +334,12 @@ export class HasProps extends Backbone.Model
       value = attrs[key]
       HasProps._value_record_references(value, result, false) # false = no recurse
 
-    _.values(result)
+    values(result)
 
   references: () ->
     references = {}
     HasProps._value_record_references(this, references, true)
-    return _.values(references)
+    return values(references)
 
   attach_document: (doc) ->
     # This should only be called by the Document implementation to set the document field
@@ -360,7 +361,7 @@ export class HasProps extends Backbone.Model
     # This should only be called by the Document implementation to unset the document field
     @document = null
 
-  _tell_document_about_change: (attr, old, new_) ->
+  _tell_document_about_change: (attr, old, new_, options) ->
     if not @attribute_is_serializable(attr)
       return
 
@@ -386,9 +387,10 @@ export class HasProps extends Backbone.Model
       if need_invalidate
         @document._invalidate_all_models()
 
-      @document._notify_change(@, attr, old, new_)
+      @document._notify_change(@, attr, old, new_, options)
 
   materialize_dataspecs: (source) ->
+    # Note: this should be moved to a function separate from HasProps
     data = {}
     for name, prop of @properties
       if not prop.dataspec
@@ -397,6 +399,8 @@ export class HasProps extends Backbone.Model
       if (prop.optional || false) and prop.spec.value == null and (name not of @_set_after_defaults)
         continue
       data["_#{name}"] = prop.array(source)
+      if name of source._shapes
+        data["_#{name}_shape"] = source._shapes[name]
       if prop instanceof p.Distance
-        data["max_#{name}"] = array_max(data["_#{name}"])
+        data["max_#{name}"] = max(data["_#{name}"])
     return data

@@ -2,9 +2,7 @@ from bokeh.core.properties import String, Instance
 from bokeh.models import LayoutDOM, Slider
 
 CODE ="""
-import * as _ from "underscore"
-import * as $ from "jquery"
-
+import {div, empty} from "core/dom"
 import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
@@ -20,12 +18,17 @@ export class CustomView extends LayoutDOMView
     @listenTo(@model.slider, 'change', () => @render())
 
   render: () ->
-    # Backbone Views create <div> elements by default, accessible as @$el.
+    # Backbone Views create <div> elements by default, accessible as @el.
     # Many Bokeh views ignore this default <div>, and instead do things
     # like draw to the HTML canvas. In this case though, we change the
     # contents of the <div>, based on the current slider value.
-    @$el.html("<h1>#{ @model.text }: #{ @model.slider.value }</h1>")
-    @$('h1').css({ 'color': '#686d8e', 'background-color': '#2a3153' })
+    empty(@el)
+    @el.appendChild(div({
+      style: {
+        color: '#686d8e'
+        'background-color': '#2a3153'
+      }
+    }, "#{@model.text}: #{@model.slider.value}"))
 
 export class Custom extends LayoutDOM
 

@@ -1,9 +1,5 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
-
-import * as p from "../../core/properties"
-
 import {Widget, WidgetView} from "./widget"
+import * as p from "../../core/properties"
 
 export class PanelView extends WidgetView
 

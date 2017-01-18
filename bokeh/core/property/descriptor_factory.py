@@ -1,0 +1,109 @@
+''' Provide a Base class for all Bokeh properties.
+
+Bokeh properties work by contributing Python descriptor objects to
+``HasProps`` classes. These descriptors then delegate attribute access back
+to the Bokeh property class, which handles validation, serialization, and
+documentation needs.
+
+The ``PropertyDescriptorFactory`` class provides two methods ``autocreate`` and
+``make_descriptors`` that are used by the metaclass ``MetaHasProps`` during
+class creation to create and install the necessary descriptors corresponding
+to the declared properties.
+
+This machinery helps to make Bokeh much more user friendly. For example,
+the DataSpec properties mediate between fixed values and references to column
+data source columns. A user can use a very simple syntax, and the property
+will correctly serialize and validate automatically:
+
+.. code-block:: python
+
+    from bokeh.models import Circle
+
+    c = Circle()
+
+    c.x = 10      # serializes to {'value': 10}
+
+    c.x = 'foo'   # serializes to {'field': 'foo'}
+
+    c.x = [1,2,3] # raises a ValueError validation exception
+
+There are many other examples like this throughout Bokeh. In this way users
+may operate simply and naturally, and not be concerned with the low-level
+details around validation, serialization, and documentation.
+
+.. note::
+    These classes form part of the very low-level machinery that implements
+    the Bokeh model and property system. It is unlikely that any of these
+    classes or their methods will be applicable to any standard usage or to
+    anyone who is not directly developing on Bokeh's own infrastructure.
+
+'''
+
+class PropertyDescriptorFactory(object):
+    ''' Base class for all Bokeh properties.
+
+    A Bokeh property really consist of two parts: the familar "property"
+    portion, such as ``Int``, ``String``, etc., as well as an associated
+    Python descriptor that delegates attribute access (e.g. ``range.start``)
+    to the property instance.
+
+    Consider the following class definition:
+
+    .. code-block:: python
+
+        from bokeh.model import Model
+        from bokeh.core.properties import Int
+
+        class SomeModel(Model):
+            foo = Int(default=10)
+
+    Then we can observe the following:
+
+    .. code-block:: python
+
+        >>> m = SomeModel()
+
+        # The class itself has had a descriptor for 'foo' installed
+        >>> getattr(SomeModel, 'foo')
+        <bokeh.core.property.descriptors.BasicPropertyDescriptor at 0x1065ffb38>
+
+        # which is used when 'foo' is accessed on instances
+        >>> m.foo
+        10
+
+    '''
+
+    @classmethod
+    def autocreate(cls):
+        ''' Called by the ``MetaHasProps`` metaclass to create a new instance
+        of this descriptor when the property is assigned using only the
+        property type. For example:
+
+        .. code-block:: python
+
+            class Foo(Model):
+
+                bar = String   # no parens used here
+
+        '''
+        return cls()
+
+    def make_descriptors(self, name):
+        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        class, in order to delegate attribute access to this property.
+
+        Args:
+            name (str) : the name of the property these descriptors are for
+
+        Returns:
+            list[PropertyDescriptor]
+
+        The descriptors returned are collected by the ``MetaHasProps``
+        metaclass and added to ``HasProps`` subclasses during class creation.
+
+        Subclasses of ``PropertyDescriptorFactory`` are responsible for
+        implementing this function to return descriptors specific to their
+        needs.
+
+        '''
+        raise NotImplementedError("make_descriptors not implemented")

@@ -10,6 +10,16 @@ describe "bbox module", ->
     it "should be an unbounded box", ->
       expect(bbox.empty()).to.deep.equal {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY:-Infinity}
 
+  describe "positive_x", ->
+
+    it "should be box covering the area where x is positive", ->
+      expect(bbox.positive_x()).to.deep.equal {minX: Number.MIN_VALUE, minY: -Infinity, maxX: Infinity, maxY: Infinity}
+
+  describe "positive_y", ->
+
+    it "should be box covering the area where y is positive", ->
+      expect(bbox.positive_y()).to.deep.equal {minX: -Infinity, minY: Number.MIN_VALUE, maxX: Infinity, maxY: Infinity}
+
   describe "union", ->
     empty    = bbox.empty()
     outside  = { minX: 0, maxX: 10, minY:  0, maxY: 10 }

@@ -30,6 +30,11 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
 
+    def test_default_template_vars(self):
+        d = document.Document()
+        assert not d.roots
+        assert d.template_variables == {}
+
     def test_add_roots(self):
         d = document.Document()
         assert not d.roots
@@ -662,7 +667,7 @@ class TestDocument(unittest.TestCase):
         assert len(d.roots) == 1
 
         def patch_test(new_value):
-            serializable_new = root1.lookup('foo').descriptor.to_serializable(root1,
+            serializable_new = root1.lookup('foo').property.to_serializable(root1,
                                                                               'foo',
                                                                               new_value)
             event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, new_value,

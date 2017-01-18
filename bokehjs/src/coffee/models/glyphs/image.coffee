@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import * as p from "../../core/properties"
+import {max, concat} from "../../core/util/array"
 
 export class ImageView extends GlyphView
 
@@ -30,22 +29,29 @@ export class ImageView extends GlyphView
       @_height = new Array(@_image.length)
 
     for i in [0...@_image.length]
-      if @_rows?
-        @_height[i] = @_rows[i]
-        @_width[i] = @_cols[i]
+      shape = []
+      if @_image_shape?
+        shape = @_image_shape[i]
+
+      if shape.length > 0
+        img = @_image[i]
+        @_height[i] = shape[0]
+        @_width[i] = shape[1]
       else
+        img = concat(@_image[i])
         @_height[i] = @_image[i].length
         @_width[i] = @_image[i][0].length
-      canvas = document.createElement('canvas')
-      canvas.width = @_width[i]
-      canvas.height = @_height[i]
+
+      if @image_data[i]? and @image_data[i].width == @_width[i] and @image_data[i].height == @_height[i]
+        canvas = @image_data[i]
+      else
+        canvas = document.createElement('canvas')
+        canvas.width = @_width[i]
+        canvas.height = @_height[i]
+
       ctx = canvas.getContext('2d')
       image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
       cmap = @model.color_mapper
-      if @_rows?
-        img = @_image[i]
-      else
-        img = _.flatten(@_image[i])
       buf = cmap.v_map_screen(img, true)
       buf8 = new Uint8Array(buf)
       image_data.data.set(buf8)
@@ -54,10 +60,10 @@ export class ImageView extends GlyphView
 
       @max_dw = 0
       if @_dw.units == "data"
-        @max_dw = _.max(@_dw)
+        @max_dw = max(@_dw)
       @max_dh = 0
       if @_dh.units == "data"
-        @max_dh = _.max(@_dh)
+        @max_dh = max(@_dh)
       @_xy_index()
 
   _map_data: () ->

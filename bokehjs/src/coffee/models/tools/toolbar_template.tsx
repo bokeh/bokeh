@@ -1,6 +1,6 @@
-import * as DOM from "../../core/util/dom";
+import * as DOM from "../../core/dom";
 
-interface ToolbarProps {
+export interface ToolbarProps {
   location: "above" | "below" | "left" | "right";
   sticky: "sticky" | "non-sticky";
   logo?: "normal" | "grey";

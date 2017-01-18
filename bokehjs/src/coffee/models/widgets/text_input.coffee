@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {build_views} from "../../core/build_views"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
@@ -9,7 +7,6 @@ import template from "./text_input_template"
 
 
 export class TextInputView extends InputWidgetView
-  tagName: "div"
   className: "bk-widget-form-group"
   template: template
   events:
@@ -29,7 +26,7 @@ export class TextInputView extends InputWidgetView
     return @
 
   change_input: () ->
-    value = @$('input').val()
+    value = @$el.find('input').val()
     logger.debug("widget/text_input: value = #{value}")
     @model.value = value
     super()

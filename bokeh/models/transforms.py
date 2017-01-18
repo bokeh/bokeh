@@ -7,7 +7,7 @@ from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.properties import abstract
 from ..core.properties import Either, Enum, Float, Instance, Seq, String, Bool
 from ..model import Model
-from .sources import ColumnDataSource
+from .sources import ColumnarDataSource
 
 @abstract
 class Transform(Model):
@@ -84,7 +84,7 @@ class Interpolator(Transform):
     Dependant coordinate denoting the value of a point at a location.
     """)
 
-    data = Instance(ColumnDataSource, help="""
+    data = Instance(ColumnarDataSource, help="""
     Data which defines the source for the named columns if a string is passed to either the ``x`` or ``y`` parameters.
     """)
 

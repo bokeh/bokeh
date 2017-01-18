@@ -1,7 +1,6 @@
-import * as _ from "underscore"
-
 import {Glyph, GlyphView} from "./glyph"
 import * as p from "../../core/properties"
+import {max, concat} from "../../core/util/array"
 
 export class ImageRGBAView extends GlyphView
 
@@ -24,36 +23,56 @@ export class ImageRGBAView extends GlyphView
       if arg?
         if i != arg
           continue
+
+      shape = []
+      if @_image_shape?
+        shape = @_image_shape[i]
+
+      # Note specifying rows and cols is deprecated and this can soon
+      # be removed.
       if @_rows?
         @_height[i] = @_rows[i]
         @_width[i] = @_cols[i]
+        if shape.length > 0
+          buf = @_image[i].buffer
+        else
+          flat = @_image[i]
+          buf = new ArrayBuffer(flat.length * 4)
+          color = new Uint32Array(buf)
+          for j in [0...flat.length]
+            color[j] = flat[j]
+      else if shape.length > 0
+        buf = @_image[i].buffer
+        @_height[i] = shape[0]
+        @_width[i] = shape[1]
       else
-        @_height[i] = @_image[i].length
-        @_width[i] = @_image[i][0].length
-      canvas = document.createElement('canvas')
-      canvas.width = @_width[i]
-      canvas.height = @_height[i]
-      ctx = canvas.getContext('2d')
-      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
-      if @_rows?
-        image_data.data.set(new Uint8ClampedArray(@_image[i]))
-      else
-        flat = _.flatten(@_image[i])
+        flat = concat(@_image[i])
         buf = new ArrayBuffer(flat.length * 4)
         color = new Uint32Array(buf)
         for j in [0...flat.length]
           color[j] = flat[j]
-        buf8 = new Uint8Array(buf)
-        image_data.data.set(buf8)
+        @_height[i] = @_image[i].length
+        @_width[i] = @_image[i][0].length
+
+      if @image_data[i]? and @image_data[i].width == @_width[i] and @image_data[i].height == @_height[i]
+        canvas = @image_data[i]
+      else
+        canvas = document.createElement('canvas')
+        canvas.width = @_width[i]
+        canvas.height = @_height[i]
+      ctx = canvas.getContext('2d')
+      image_data = ctx.getImageData(0, 0, @_width[i], @_height[i])
+      buf8 = new Uint8Array(buf)
+      image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       @image_data[i] = canvas
 
       @max_dw = 0
       if @_dw.units == "data"
-        @max_dw = _.max(@_dw)
+        @max_dw = max(@_dw)
       @max_dh = 0
       if @_dh.units == "data"
-        @max_dh = _.max(@_dh)
+        @max_dh = max(@_dh)
 
   _map_data: () ->
     switch @model.properties.dw.units

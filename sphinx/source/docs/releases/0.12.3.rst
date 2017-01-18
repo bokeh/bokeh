@@ -1,7 +1,7 @@
-0.12.2 (Oct 2016)
+0.12.3 (Oct 2016)
 =================
 
-Bokeh Version ``0.12.2`` is a minor, incremental update that adds a few new
+Bokeh Version ``0.12.3`` is a minor, incremental update that adds a few new
 small features and fixes several bugs. Some of the highlights include:
 
 * BokehJS reduced in size by nearly twenty percent

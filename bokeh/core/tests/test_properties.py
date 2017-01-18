@@ -6,14 +6,15 @@ import numpy as np
 import pandas as pd
 from copy import copy
 
-from bokeh.core.properties import (
-    HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
+from bokeh.core.properties import (field, value,
+    NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, Seq, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds, TitleProp)
+    Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec,
+    DistanceSpec, FontSizeSpec, Override, Include, MinMaxBounds)
+
+from bokeh.core.has_props import HasProps
 
 from bokeh.models import Plot
-from bokeh.models.annotations import Title
 
 class Basictest(unittest.TestCase):
 
@@ -94,12 +95,12 @@ class Basictest(unittest.TestCase):
         self.assertEqual(f.x, 12)
         self.assertEqual(f.y, "red")
         self.assertEqual(f.z, "blah")
-        f.set(**dict(x=20, y="green", z="hello"))
+        f.update(**dict(x=20, y="green", z="hello"))
         self.assertEqual(f.x, 20)
         self.assertEqual(f.y, "green")
         self.assertEqual(f.z, "hello")
         with self.assertRaises(ValueError):
-            f.set(y="orange")
+            f.update(y="orange")
 
     def test_no_parens(self):
         class Foo(HasProps):
@@ -229,6 +230,40 @@ class Basictest(unittest.TestCase):
         self.assertTrue('y' in o.properties_with_values(include_defaults=True))
         self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
         self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_readonly(self):
+        class Readonly(HasProps):
+            x = Int(12, readonly=True)    # with default
+            y = Int(readonly=True)        # without default
+            z = String("hello")
+
+        o = Readonly()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, None)
+        self.assertEqual(o.z, 'hello')
+
+        # readonly props are still in the list of props
+        self.assertTrue('x' in o.properties())
+        self.assertTrue('y' in o.properties())
+        self.assertTrue('z' in o.properties())
+
+        # but they aren't in the dict of props with values
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('z' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('z' not in o.properties_with_values(include_defaults=False))
+
+        with self.assertRaises(RuntimeError):
+            o.x = 7
+        with self.assertRaises(RuntimeError):
+            o.y = 7
+        o.z = "xyz"
+
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, None)
+        self.assertEqual(o.z, 'xyz')
 
     def test_include_defaults(self):
         class IncludeDefaultsTest(HasProps):
@@ -1409,9 +1444,8 @@ class TestProperties(unittest.TestCase):
         self.assertTrue(prop.is_valid("BLUE"))
         self.assertFalse(prop.is_valid("foobar"))
 
-    def test_Align(self):
-        prop = Align() # TODO
-        assert prop
+        self.assertEqual(prop.transform((0, 127, 255)), "rgb(0, 127, 255)")
+        self.assertEqual(prop.transform((0, 127, 255, 0.1)), "rgba(0, 127, 255, 0.1)")
 
     def test_DashPattern(self):
         prop = DashPattern()
@@ -1617,9 +1651,12 @@ bokeh.core.tests.test_properties.Foo5(
     foo6=bokeh.core.tests.test_properties.Foo6(
         foo5=bokeh.core.tests.test_properties.Foo5(...)))"""
 
-def test_titleprop_transforms_string_into_title_object():
-    class Foo(HasProps):
-        title = TitleProp
-    f = Foo(title="hello")
-    assert isinstance(f.title, Title)
-    assert f.title.text == "hello"
+def test_field_function():
+    assert field("foo") == dict(field="foo")
+    # TODO (bev) would like this to work I think
+    #assert field("foo", transform="junk") == dict(field="foo", transform="junk")
+
+def test_value_function():
+    assert value("foo") == dict(value="foo")
+    # TODO (bev) would like this to work I think
+    #assert value("foo", transform="junk") == dict(value="foo", transform="junk")

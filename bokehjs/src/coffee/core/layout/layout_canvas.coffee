@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Variable, EQ, GE, Strength} from "./solver"
 import {Model} from "../../model"
 import * as p from "../properties"

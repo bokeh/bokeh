@@ -65,6 +65,7 @@ class CallbackManager(object):
         '''
         if len(callbacks) == 0:
             raise ValueError("on_change takes an attribute name and one or more callbacks, got only one parameter")
+
         _callbacks = self._callbacks.setdefault(attr, [])
         for callback in callbacks:
 
@@ -83,7 +84,7 @@ class CallbackManager(object):
         for callback in callbacks:
             _callbacks.remove(callback)
 
-    def trigger(self, attr, old, new, hint=None):
+    def trigger(self, attr, old, new, hint=None, setter=None):
         ''' Trigger callbacks for ``attr`` on this object.
 
         Args:
@@ -101,7 +102,7 @@ class CallbackManager(object):
                 for callback in callbacks:
                     callback(attr, old, new)
         if hasattr(self, '_document') and self._document is not None:
-            self._document._notify_change(self, attr, old, new, hint)
+            self._document._notify_change(self, attr, old, new, hint, setter)
             self._document._with_self_as_curdoc(invoke)
         else:
             invoke()

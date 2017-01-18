@@ -1,8 +1,7 @@
-import * as _ from "underscore"
-
 import {StringFormatter} from "./cell_formatters"
 import {StringEditor} from "./cell_editors"
 import * as p from "../../core/properties"
+import {uniqueId} from "../../core/util/string"
 import {Model} from "../../model"
 
 export class TableColumn extends Model
@@ -21,7 +20,7 @@ export class TableColumn extends Model
 
   toColumn: () ->
     return {
-      id: _.uniqueId()
+      id: uniqueId()
       field: @field
       name: @title
       width: @width

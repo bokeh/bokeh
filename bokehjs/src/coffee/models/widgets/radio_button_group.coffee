@@ -1,8 +1,8 @@
-import * as _ from "underscore"
-import * as $ from "jquery"
 import "bootstrap/button"
 
+import {input, label} from "../../core/dom"
 import * as p from "../../core/properties"
+import {uniqueId} from "../../core/util/string"
 
 import {Widget, WidgetView} from "./widget"
 import template from "./button_group_template"
@@ -25,21 +25,18 @@ export class RadioButtonGroupView extends WidgetView
     html = @template()
     @$el.append(html)
 
-    name = _.uniqueId("RadioButtonGroup")
+    name = uniqueId("RadioButtonGroup")
     active = @model.active
-    for label, i in @model.labels
-      $input = $('<input type="radio">').attr(name: name, value: "#{i}")
-      if i == active then $input.prop("checked", true)
-      $label = $('<label class="bk-bs-btn"></label>')
-      $label.text(label).prepend($input)
-      $label.addClass("bk-bs-btn-" + @model.button_type)
-      if i == active then $label.addClass("bk-bs-active")
-      @$el.find('.bk-bs-btn-group').append($label)
+    for text, i in @model.labels
+      inputEl = input({type: "radio", name: name, value: "#{i}", checked: i == active})
+      labelEl = label({class: ["bk-bs-btn", "bk-bs-btn-#{@model.button_type}"]}, inputEl, text)
+      if i == active then labelEl.classList.add("bk-bs-active")
+      @$el.find('.bk-bs-btn-group').append(labelEl)
 
     return @
 
   change_input: () ->
-    active = (i for radio, i in @$("input") when radio.checked)
+    active = (i for radio, i in @$el.find("input") when radio.checked)
     @model.active = active[0]
     @model.callback?.execute(@model)
 

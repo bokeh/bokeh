@@ -1,7 +1,33 @@
-""" Glyph renderer models for displaying simple scatter-type
-markers on Bokeh plots.
+''' Display a variety of simple scatter marker shapes whose attributes
+can be associated with data columns from ``ColumnDataSources``.
 
-"""
+The full list of markers built into Bokeh is given below:
+
+* :class:`~bokeh.models.markers.Asterisk`
+* :class:`~bokeh.models.markers.Circle`
+* :class:`~bokeh.models.markers.CircleCross`
+* :class:`~bokeh.models.markers.CircleX`
+* :class:`~bokeh.models.markers.Cross`
+* :class:`~bokeh.models.markers.Diamond`
+* :class:`~bokeh.models.markers.DiamondCross`
+* :class:`~bokeh.models.markers.InvertedTriangle`
+* :class:`~bokeh.models.markers.Square`
+* :class:`~bokeh.models.markers.SquareCross`
+* :class:`~bokeh.models.markers.SquareX`
+* :class:`~bokeh.models.markers.Triangle`
+* :class:`~bokeh.models.markers.X`
+
+Markers are all subclasses of ``Glyph``. Additionally, they all share the
+same common interface providing fill and line properties provided by their
+base class ``Marker``. Note that a few glyphs, ``Cross`` and ``X``, only
+draw lines. For these the fill property values are ignored. Also note that
+the ``Circle`` glyph has some additional properties such as ``radius`` that
+other markers do not.
+
+.. autoclass:: Marker
+    :members:
+
+'''
 from __future__ import absolute_import
 
 from .glyphs import Glyph

@@ -1,8 +1,8 @@
-import * as _ from "underscore"
 import "jquery-ui/slider"
 
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {throttle} from "../../core/util/callback"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -10,7 +10,6 @@ import slidertemplate from "./slidertemplate"
 
 
 export class RangeSliderView extends InputWidgetView
-  tagName: "div"
   template: slidertemplate
 
   initialize: (options) ->
@@ -24,7 +23,7 @@ export class RangeSliderView extends InputWidgetView
       @callbackWrapper = () ->
         @model.callback?.execute(@model)
     if @model.callback_policy == 'throttle' and @model.callback
-      @callbackWrapper = _.throttle(() ->
+      @callbackWrapper = throttle(() ->
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()
@@ -48,13 +47,14 @@ export class RangeSliderView extends InputWidgetView
     }
     @$el.find('.slider').slider(opts)
     if @model.title?
-      @$( "##{ @model.id }" ).val( @$('.slider').slider('values').join(' - ') )
+      @$el.find( "##{ @model.id }" ).val( @$el.find('.slider').slider('values').join(' - ') )
     @$el.find('.bk-slider-parent').height(@model.height)
     bk_handle = @$el.find('.bk-ui-slider-handle')
     # Map bk handle to ui handle - otherwise slide doesn't work
     if bk_handle.length == 2
       bk_handle[0].style.left = @$el.find('.ui-slider-handle')[0].style.left
       bk_handle[1].style.left = @$el.find('.ui-slider-handle')[1].style.left
+    @_prefix_ui()
     return @
 
   slidestop: (event, ui) =>
@@ -66,7 +66,7 @@ export class RangeSliderView extends InputWidgetView
     values_str = values.join(' - ')
     logger.debug("range-slide value = #{values_str}")
     if @model.title?
-      @$( "##{ @model.id }" ).val( values_str )
+      @$el.find( "##{ @model.id }" ).val( values_str )
     @model.range = values
     if @callbackWrapper then @callbackWrapper()
 

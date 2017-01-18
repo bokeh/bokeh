@@ -1,8 +1,8 @@
-import * as _ from "underscore"
 import * as $ from "jquery"
 import "bootstrap/tab"
 
 import * as p from "../../core/properties"
+import {zip, findIndex} from "../../core/util/array"
 
 import tabs_template from "./tabs_template"
 import {Widget, WidgetView} from "./widget"
@@ -11,8 +11,8 @@ export class TabsView extends WidgetView
 
   render: () ->
     super()
-    for own key, val of @child_views
-      val.$el.detach()
+    for own _key, child of @child_views
+      child.el.parentNode?.removeChild(child.el)
     @$el.empty()
 
     tabs = @model.tabs
@@ -30,14 +30,14 @@ export class TabsView extends WidgetView
       $(this).tab('show')
       panelId = $(this).attr('href').replace('#tab-','')
       tabs = that.model.tabs
-      panelIdx = _.findIndex(tabs, (panel) -> panel.id == panelId)
+      panelIdx = findIndex(tabs, (panel) -> panel.id == panelId)
       that.model.active = panelIdx
       that.model.callback?.execute(that.model)
 
     $panels = html.find(".bk-bs-tab-pane")
 
-    for [child, panel] in _.zip(children, $panels)
-      $(panel).html(@child_views[child.id].$el)
+    for [child, panel] in zip(children, $panels)
+      $(panel).html(@child_views[child.id].el)
 
     @$el.append(html)
     return @

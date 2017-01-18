@@ -3,7 +3,6 @@
 """
 from __future__ import absolute_import
 
-import warnings
 import logging
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,6 @@ from ..core.enums import SizingMode
 from ..core.properties import abstract, Bool, Enum, Int, Instance, List, Seq, String
 from ..embed import notebook_div
 from ..model import Model
-from ..util.deprecation import deprecated
 
 
 @abstract
@@ -61,7 +59,7 @@ class LayoutDOM(Model):
     ``plot_width/plot_height`` is maintained. A plot with ``"scale_height"`` mode needs
     to be wrapped in a ``Row`` or ``Column`` to be responsive.
 
-    ``"scale_both"`` elements will responsively resize to fir both the width and height available,
+    ``"scale_both"`` elements will responsively resize to for both the width and height available,
     *while maintaining the original aspect ratio*.
 
     """)
@@ -217,33 +215,3 @@ def VBox(*args, **kwargs):
     Returns a Column instance.
     """
     return Column(*args, **kwargs)
-
-# ---- DEPRECATIONS
-
-def GridPlot(*args, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.models.layout.GridPlot', 'bokeh.layouts.gridplot')
-    from bokeh.layouts import gridplot
-    return gridplot(*args, **kwargs)
-
-def VBoxForm(*args, **kwargs):
-    deprecated((0, 12, 0), 'bokeh.models.layout.VBoxForm', 'bokeh.models.layouts.WidgetBox')
-    from bokeh.models.widgets.widget import Widget
-
-    if len(args) > 0 and "children" in kwargs:
-        raise ValueError("'children' keyword cannot be used with positional arguments")
-    elif len(args) > 0:
-        children = list(args)
-    else:
-        children = kwargs.get("children", [])
-    is_widget = [isinstance(item, Widget) for item in children]
-    if all(is_widget):
-        return WidgetBox(*args, **kwargs)
-    else:
-        warnings.warn(
-            """WARNING: Non-widgets added to VBoxForm! VBoxForm is deprecated and is
-            being replaced with WidgetBox. WidgetBox does not allow you to add non-widgets to it.
-            We have transformed your request into a Column, with your Plots and WidgetBox(es) inside
-            it. In the future, you will need to update your code to use Row and Column. You may
-            find the new bokeh.layouts functions helpful.
-            """)
-        return Column(*args, **kwargs)

@@ -1,6 +1,6 @@
-import * as _ from "underscore"
-
 import {Model} from "../../model"
+import {range} from "../../core/util/array"
+import {isStrictNaN} from "../../core/util/types"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.
@@ -27,10 +27,10 @@ export class Ticker extends Model
     interval = @get_interval(data_low, data_high, desired_n_ticks)
     start_factor = Math.floor(data_low / interval)
     end_factor   = Math.ceil(data_high / interval)
-    if _.isNaN(start_factor) or _.isNaN(end_factor)
+    if isStrictNaN(start_factor) or isStrictNaN(end_factor)
       factors = []
     else
-      factors = _.range(start_factor, end_factor + 1)
+      factors = range(start_factor, end_factor + 1)
     ticks = (factor * interval for factor in factors)
     num_minor_ticks = @num_minor_ticks
     minor_ticks = []

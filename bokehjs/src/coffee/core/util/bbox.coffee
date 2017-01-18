@@ -1,8 +1,22 @@
 export empty = () -> {
-  minX:  Infinity,
-  minY:  Infinity,
-  maxX: -Infinity,
+  minX:  Infinity
+  minY:  Infinity
+  maxX: -Infinity
   maxY: -Infinity
+}
+
+export positive_x = () -> {
+  minX:  Number.MIN_VALUE
+  minY: -Infinity
+  maxX:  Infinity
+  maxY:  Infinity
+}
+
+export positive_y = () -> {
+  minX:  -Infinity
+  minY:  Number.MIN_VALUE
+  maxX:  Infinity
+  maxY:  Infinity
 }
 
 export union = (a, b) ->

@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {Range} from "./range"
 import * as p from "../../core/properties"
 

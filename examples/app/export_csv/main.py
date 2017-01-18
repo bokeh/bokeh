@@ -7,7 +7,7 @@ from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.models.widgets import Slider, Button, DataTable, TableColumn, NumberFormatter
 from bokeh.io import curdoc
 
-df = pd.read_csv('salary_data.csv')
+df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
 
 source = ColumnDataSource(data=dict())
 

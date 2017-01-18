@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {SidePanel} from "../../core/layout/side_panel"
 import {GuideRenderer} from "../renderers/guide_renderer"
 import {RendererView} from "../renderers/renderer"
@@ -7,6 +5,7 @@ import {RendererView} from "../renderers/renderer"
 import {GE} from "../../core/layout/solver"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {isString, isArray} from "../../core/util/types"
 
 export class AxisView extends RendererView
   initialize: (options) ->
@@ -91,7 +90,7 @@ export class AxisView extends RendererView
     dim = @model.dimension
     side = @model.panel_side
     orient = @model.major_label_orientation
-    if _.isString(orient)
+    if isString(orient)
       angle = @model.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
@@ -156,7 +155,7 @@ export class AxisView extends RendererView
     labels = @model.formatter.doFormat(coords[dim])
     @visuals.major_label_text.set_value(ctx)
 
-    if _.isString(orient)
+    if isString(orient)
       hscale = 1
       angle = @model.panel.get_label_angle_heuristic(orient)
     else
@@ -311,7 +310,7 @@ export class Axis extends GuideRenderer
     if user_bounds == 'auto'
       return range_bounds
 
-    if _.isArray(user_bounds)
+    if isArray(user_bounds)
       if Math.abs(user_bounds[0]-user_bounds[1]) >
                   Math.abs(range_bounds[0]-range_bounds[1])
         start = Math.max(Math.min(user_bounds[0], user_bounds[1]),

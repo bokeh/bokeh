@@ -1,9 +1,10 @@
-import * as _ from "underscore"
 import {Promise} from "es6-promise"
 
 import {HasProps} from "./core/has_props"
 import {logger} from "./core/logging"
-import {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} from "./document"
+import {uniqueId} from "./core/util/string"
+import {extend} from "./core/util/object"
+import {Document, ModelChangedEvent} from "./document"
 
 export DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export DEFAULT_SESSION_ID = "default"
@@ -24,10 +25,10 @@ class Message
 
   @create_header : (msgtype, options) ->
     header = {
-      'msgid'   : _.uniqueId()
+      'msgid'   : uniqueId()
       'msgtype' : msgtype
     }
-    _.extend(header, options)
+    extend(header, options)
 
   @create : (msgtype, header_options, content) ->
     if not content?
@@ -349,7 +350,6 @@ class ClientConnection
 class ClientSession
 
   constructor : (@_connection, @document, @id) ->
-    @_current_patch = null
     # we save the bound function so we can remove it later
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
@@ -383,33 +383,9 @@ class ClientSession
   force_roundtrip : () ->
     @request_server_info().then((ignored) -> undefined)
 
-  _should_suppress_on_change : (patch, event) ->
-    if event instanceof ModelChangedEvent
-      for event_json in patch.content['events']
-        if event_json['kind'] == 'ModelChanged' and event_json['model']['id'] == event.model.id and event_json['attr'] == event.attr
-          patch_new = event_json['new']
-          if event.new_ instanceof HasProps
-            if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event.new_.id
-              return true
-          else if _.isEqual(patch_new, event.new_)
-            return true
-    else if event instanceof RootAddedEvent
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'RootAdded' and event_json['model']['id'] == event.model.id
-            return true
-    else if event instanceof RootRemovedEvent
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event.model.id
-            return true
-    else if event instanceof TitleChangedEvent
-        for event_json in patch.content['events']
-          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event.title
-            return true
-
-    return false
-
   _document_changed : (event) ->
-    if @_current_patch? and @_should_suppress_on_change(@_current_patch, event)
+    # Filter out events that were initiated by the ClientSession itself
+    if event.setter_id == @id
       return
 
     # Filter out changes to attributes that aren't server-visible
@@ -422,11 +398,7 @@ class ClientSession
     @_connection.send(patch)
 
   _handle_patch : (message) ->
-    @_current_patch = message
-    try
-      @document.apply_json_patch(message.content)
-    finally
-      @_current_patch = null
+    @document.apply_json_patch(message.content, @id)
 
 # Returns a promise of a ClientSession
 # The returned promise has a close() method

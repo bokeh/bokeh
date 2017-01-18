@@ -37,7 +37,7 @@ def _get_audio_data():
             fft = sp.fft(signal)
             spectrum = abs(fft)[:NUM_SAMPLES/2]
             power = spectrum**2
-            bins = [simps(a) for a in np.split(power, NUM_BINS)]
+            bins = simps(np.split(power, NUM_BINS))
             data['values'] = signal, spectrum, bins
         except:
             continue

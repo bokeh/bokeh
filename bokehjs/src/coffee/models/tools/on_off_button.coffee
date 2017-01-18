@@ -4,7 +4,10 @@ export class OnOffButtonView extends ButtonToolButtonView
 
   render: () ->
     super()
-    @$el.toggleClass('bk-active', @model.active)
+    if @model.active
+      @el.classList.add('bk-active')
+    else
+      @el.classList.remove('bk-active')
 
   _clicked: () ->
     active = @model.active

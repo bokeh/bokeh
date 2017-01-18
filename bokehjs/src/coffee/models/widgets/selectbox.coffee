@@ -1,5 +1,3 @@
-import * as _ from "underscore"
-
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
 
@@ -26,7 +24,7 @@ export class SelectView extends InputWidgetView
     return @
 
   change_input: () ->
-    value = @$('select').val()
+    value = @$el.find('select').val()
     logger.debug("selectbox: value = #{value}")
     @model.value = value
     super()

@@ -2,7 +2,7 @@ declare namespace Bokeh {
  interface ViewOptions<ModelType extends Model> {
    model: ModelType;
    id?: string;
-   el?: HTMLElement | JQuery;
+   el?: HTMLElement;
   }
 
   class BokehView<ModelType extends Model> {
@@ -11,7 +11,6 @@ declare namespace Bokeh {
     model: ModelType;
     id: string;
     el: HTMLElement;
-    $el: JQuery;
 
     render(): this;
     remove(): this;

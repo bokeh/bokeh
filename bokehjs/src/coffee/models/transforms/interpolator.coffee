@@ -1,4 +1,3 @@
-import * as _ from "underscore"
 import {Transform} from "./transform"
 import * as p from "../../core/properties"
 import {logger} from "../../core/logging"

@@ -1,7 +1,5 @@
-# These are similar to python imports. BokehJS vendors its own versions
-# of Underscore and JQuery. They are available as show here.
-import * as _ from "underscore"
-import * as $ from "jquery"
+import {throttle} from "core/util/callback"
+
 # The "core/properties" module has all the property types
 import * as p from "core/properties"
 
@@ -13,7 +11,6 @@ import ionslidertemplate from "./extensions_ion_range_slider_template"
 # This model will actually need to render things, so we must provide
 # view. The LayoutDOM model has a view already, so we will start with that
 export class IonRangeSliderView extends InputWidgetView
-  tagName: "div"
   template: ionslidertemplate
 
   initialize: (options) ->
@@ -27,7 +24,7 @@ export class IonRangeSliderView extends InputWidgetView
       @callbackWrapper = () ->
         @model.callback?.execute(@model)
     if @model.callback_policy == 'throttle' and @model.callback
-      @callbackWrapper = _.throttle(() ->
+      @callbackWrapper = throttle(() ->
         @model.callback?.execute(@model)
       , @model.callback_throttle)
     @render()
@@ -62,7 +59,7 @@ export class IonRangeSliderView extends InputWidgetView
     input = @$el.find('.slider')[0]
     slider = jQuery(input).ionRangeSlider(opts)
     range = [from, to]
-    @$( "##{ @model.id }" ).val( range.join(' - '))
+    @$el.find( "##{ @model.id }" ).val( range.join(' - '))
     @$el.find('.bk-slider-parent').height(@model.height)
     return @
 
@@ -74,7 +71,7 @@ export class IonRangeSliderView extends InputWidgetView
   slide: (data) =>
     range = [data.from, data.to]
     value = range.join(' - ')
-    @$( "##{ @model.id }" ).val( value )
+    @$el.find( "##{ @model.id }" ).val( value )
     @model.range = range
     if @callbackWrapper then @callbackWrapper()
 

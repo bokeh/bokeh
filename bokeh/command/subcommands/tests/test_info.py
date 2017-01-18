@@ -30,12 +30,14 @@ def test_run(capsys):
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 5
+    assert len(lines) == 7
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Bokeh version")
     assert lines[3].startswith("BokehJS static")
-    assert lines[4] == ""
+    assert lines[4].startswith("node.js version")
+    assert lines[5].startswith("npm version")
+    assert lines[6] == ""
     assert err == ""
 
 def test_run_static(capsys):

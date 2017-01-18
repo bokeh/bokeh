@@ -1,6 +1,5 @@
-import * as _ from "underscore"
-
 import * as p from "../../core/properties"
+import {values} from "../../core/util/object"
 
 import {TickFormatter} from "../formatters/tick_formatter"
 
@@ -16,8 +15,8 @@ export class FuncTickFormatter extends TickFormatter
     super(attrs, options)
 
   _make_func: () ->
-    return new Function("tick", _.keys(@args)..., "require", @code)
+    return new Function("tick", Object.keys(@args)..., "require", @code)
 
   doFormat: (ticks) ->
     func = @_make_func()
-    return (func(tick, _.values(@args)..., require) for tick in ticks)
+    return (func(tick, values(@args)..., require) for tick in ticks)

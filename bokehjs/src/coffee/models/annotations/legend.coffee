@@ -1,9 +1,10 @@
-import * as _ from "underscore"
-
 import {Annotation, AnnotationView} from "./annotation"
 import * as p from "../../core/properties"
 import {get_text_height} from "../../core/util/text"
 import {BBox} from "../../core/util/bbox"
+import {max} from "../../core/util/array"
+import {values} from "../../core/util/object"
+import {isString, isArray} from "../../core/util/types"
 
 export class LegendView extends AnnotationView
   initialize: (options) ->
@@ -18,7 +19,7 @@ export class LegendView extends AnnotationView
     label_height = @model.label_height
     label_width = @model.label_width
 
-    @max_label_height = _.max(
+    @max_label_height = max(
       [get_text_height(@visuals.label_text.font_value()).height, label_height, glyph_height]
     )
 
@@ -28,10 +29,10 @@ export class LegendView extends AnnotationView
     @visuals.label_text.set_value(ctx)
     @text_widths = {}
     for name in legend_names
-      @text_widths[name] = _.max([ctx.measureText(name).width, label_width])
+      @text_widths[name] = max([ctx.measureText(name).width, label_width])
     ctx.restore()
 
-    max_label_width = _.max(_.values(@text_widths))
+    max_label_width = max(values(@text_widths))
 
     legend_margin = @model.margin
     legend_padding = @model.padding
@@ -44,7 +45,7 @@ export class LegendView extends AnnotationView
     else
       legend_width = 2 * legend_padding + (legend_names.length - 1) * legend_spacing
       for name, width of @text_widths
-        legend_width += _.max([width, label_width]) + glyph_width + label_standoff
+        legend_width += max([width, label_width]) + glyph_width + label_standoff
       legend_height = @max_label_height + 2 * legend_padding
 
     panel = @model.panel ? @plot_view.frame
@@ -52,7 +53,7 @@ export class LegendView extends AnnotationView
     v_range = {start: panel.bottom, end: panel.top}
 
     location = @model.location
-    if _.isString(location)
+    if isString(location)
       switch location
         when 'top_left'
           x = h_range.start + legend_margin
@@ -81,7 +82,7 @@ export class LegendView extends AnnotationView
         when 'center'
           x = (h_range.end + h_range.start)/2 - legend_width/2
           y = (v_range.end + v_range.start)/2 + legend_height/2
-    else if _.isArray(location) and location.length == 2
+    else if isArray(location) and location.length == 2
       [x, y] = location   # left, bottom wrt panel
       x += h_range.start
       y += v_range.start + legend_height
@@ -205,6 +206,8 @@ export class LegendView extends AnnotationView
           ctx.rect(x1, y1, w, h)
           @visuals.inactive_fill.set_value(ctx)
           ctx.fill()
+
+    return null
 
   _get_size: () ->
     bbox = @compute_legend_bbox()

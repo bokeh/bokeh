@@ -1,8 +1,8 @@
-import * as _ from "underscore"
 import {proj4, mercator} from "../../core/util/proj4"
 
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 import * as p from "../../core/properties"
+import {defer} from "../../core/util/callback"
 
 export class GMapPlotCanvasView extends PlotCanvasView
 
@@ -81,10 +81,11 @@ export class GMapPlotCanvasView extends PlotCanvasView
     left = @canvas.vx_to_sx(@frame.left)
     top = @canvas.vy_to_sy(@frame.top)
 
-    @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
-    @canvas_view.map_div.attr('style', "width:#{width}px;")
-    @canvas_view.map_div.attr('style', "height:#{height}px;")
-    @canvas_view.map_div.width("#{width}px").height("#{height}px")
+    @canvas_view.map_div.style.top = "#{top}px"
+    @canvas_view.map_div.style.left = "#{left}px"
+    @canvas_view.map_div.style.width = "#{width}px"
+    @canvas_view.map_div.style.height = "#{height}px"
+    @canvas_view.map_div.style.position = "absolute"
 
     @initial_zoom = @model.plot.map_options.zoom
 
@@ -107,21 +108,21 @@ export class GMapPlotCanvasView extends PlotCanvasView
         map_options.styles = JSON.parse(mo.styles)
 
       # Create the map with above options in div
-      @map = new maps.Map(@canvas_view.map_div[0], map_options)
+      @map = new maps.Map(@canvas_view.map_div, map_options)
       maps.event.addListenerOnce(@map, 'idle', @setRanges)
 
     if not window._bokeh_gmap_loads?
       window._bokeh_gmap_loads = []
 
     if window.google? and window.google.maps?
-      _.defer(build_map)
+      defer(build_map)
 
     else if window._bokeh_gmap_callback?
       window._bokeh_gmap_loads.push(build_map)
 
     else
       window._bokeh_gmap_loads.push(build_map)
-      window._bokeh_gmap_callback = () -> window._bokeh_gmap_loads.forEach(_.defer)
+      window._bokeh_gmap_callback = () -> window._bokeh_gmap_loads.forEach(defer)
       script = document.createElement('script')
       script.type = 'text/javascript'
       script.src = "https://maps.googleapis.com/maps/api/js?key=#{@model.plot.api_key}&callback=_bokeh_gmap_callback"
@@ -130,8 +131,10 @@ export class GMapPlotCanvasView extends PlotCanvasView
   _map_hook: (ctx, frame_box) ->
     [left, top, width, height] = frame_box
 
-    @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px;")
-    @canvas_view.map_div.width("#{width}px").height("#{height}px")
+    @canvas_view.map_div.style.top = "#{top}px"
+    @canvas_view.map_div.style.left = "#{left}px"
+    @canvas_view.map_div.style.width = "#{width}px"
+    @canvas_view.map_div.style.height = "#{height}px"
 
   _paint_empty: (ctx, frame_box) ->
     ow = @canvas.width

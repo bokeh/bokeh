@@ -1,4 +1,4 @@
-""" Statistical methods used to define or modify position of glyphs.
+''' Statistical methods used to define or modify position of glyphs.
 
 References:
     Wilkinson L. The Grammer of Graphics, sections 7, 7.1
@@ -10,18 +10,17 @@ Method Types:
     - Smooth: Produces values representing smoothed versions of the input data.
     - Link: Produces edges from pairs of nodes in a graph.
 
-"""
-
+'''
 from __future__ import absolute_import
 
 import numpy as np
 import pandas as pd
 
 from bokeh.models.sources import ColumnDataSource
-from bokeh.core.properties import (HasProps, Float, Either, String, Date, Datetime, Int,
-                              Bool, List, Instance)
-from .properties import Column, EitherColumn, ColumnLabel
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Bool, Date, Datetime, Either, Float, Instance, Int, List, String
 
+from .properties import Column, ColumnLabel, EitherColumn
 
 class Stat(HasProps):
     """Represents a statistical operation to summarize a column of data.
@@ -434,9 +433,9 @@ class Histogram(BinnedStat):
         for i, b in enumerate(binned):
             width = bin_bounds[i+1] - bin_bounds[i]
             if i == 0:
-                lbl = "[%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
+                lbl = "[%f, %f]" % (bin_bounds[i], bin_bounds[i+1])
             else:
-                lbl = "(%.1f, %.1f]" % (bin_bounds[i], bin_bounds[i+1])
+                lbl = "(%f, %f]" % (bin_bounds[i], bin_bounds[i+1])
             self.bins.append(Bin(bin_label=lbl, values=[binned[i]], stat=Max(),
                 width=width))
 

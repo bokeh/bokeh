@@ -1,8 +1,8 @@
 {% extends "autoload_js.js" %}
 
 {% block autoload_init %}
-  if (typeof (window._bokeh_timeout) === "undefined" || force !== "") {
-    window._bokeh_timeout = Date.now() + {{ timeout|default(0) }};
+  if (typeof (window._bokeh_timeout) === "undefined" || force === true) {
+    window._bokeh_timeout = Date.now() + {{ timeout|default(0)|json }};
     window._bokeh_failed_load = false;
   }
 
@@ -24,7 +24,7 @@
 
   function display_loaded() {
     if (window.Bokeh !== undefined) {
-      Bokeh.$("#{{ elementid }}").text("BokehJS successfully loaded.");
+      document.getElementById({{ elementid|json }}).textContent = "BokehJS successfully loaded.";
     } else if (Date.now() < window._bokeh_timeout) {
       setTimeout(display_loaded, 100)
     }
@@ -33,18 +33,18 @@
   {%- if comms_target -%}
   if ((window.Jupyter !== undefined) && Jupyter.notebook.kernel) {
     comm_manager = Jupyter.notebook.kernel.comm_manager
-    comm_manager.register_target("{{ comms_target }}", function () {});
+    comm_manager.register_target({{ comms_target|json }}, function () {});
   }
   {%- endif -%}
 {% endblock %}
 
 {% block run_inline_js %}
-    if ((window.Bokeh !== undefined) || (force === "1")) {
+    if ((window.Bokeh !== undefined) || (force === true)) {
       for (var i = 0; i < inline_js.length; i++) {
         inline_js[i](window.Bokeh);
       }
       {%- if elementid -%}
-      if (force === "1") {
+      if (force === true) {
         display_loaded();
       }
       {%- endif -%}
@@ -53,8 +53,8 @@
     } else if (!window._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       window._bokeh_failed_load = true;
-    } else if (!force) {
-      var cell = $("#{{ elementid }}").parents('.cell').data().cell;
+    } else if (force !== true) {
+      var cell = $(document.getElementById({{ elementid|json }})).parents('.cell').data().cell;
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
     }
 {% endblock %}

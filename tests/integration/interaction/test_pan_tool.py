@@ -20,7 +20,7 @@ def get_non_stale_pan_buttons(selenium):
     attempts = 0
     while attempts < 4 and not used:
         try:
-            pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] button')
+            pan_buttons = selenium.find_elements_by_css_selector('.bk-button-bar-list[type="pan"] .bk-toolbar-button')
             pan_buttons[0].get_attribute('class')
             used = True
         except StaleElementReferenceException:

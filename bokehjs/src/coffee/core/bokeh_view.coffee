@@ -1,18 +1,16 @@
-import * as _ from "underscore"
 import * as Backbone from "./backbone"
+
+import {uniqueId} from "./util/string"
 
 export class BokehView extends Backbone.View
   initialize: (options) ->
-    if not _.has(options, 'id')
-      this.id = _.uniqueId('BokehView')
+    if not options.id?
+      @id = uniqueId('BokehView')
 
   toString: () -> "#{@model.type}View(#{@id})"
 
   bind_bokeh_events: () ->
 
   remove: ->
-    if _.has(this, 'eventers')
-      for own target, val of @eventers
-        val.off(null, null, this)
-    @trigger('remove', this)
+    @trigger('remove', @)
     super()

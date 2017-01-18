@@ -1,6 +1,6 @@
-import * as DOM from "../../core/util/dom";
+import * as DOM from "../../core/dom";
 
-interface CanvasProps {
+export interface CanvasProps {
   map: boolean;
 }
 

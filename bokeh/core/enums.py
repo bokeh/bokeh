@@ -1,20 +1,56 @@
 ''' Common enumerations to be used together with |Enum| property.
 
-Typical usage of the enumerations in this module look similar to this:
+This module provides many pre-defined enumerations, as well as functions
+for creating new enumerations.
+
+New enumerations can be created using the |enumeration| function:
+
+.. code-block:: python
+
+    #: Specify a nautically named side, port or starboard
+    MyEnum = enumeration("port", "starboard")
+
+Typically, enumerations are used to define |Enum| properties:
 
 .. code-block:: python
 
     from bokeh.model import Model
-    from bokeh.core.enums import StartEnd
     from bokeh.core.properties import Enum
 
     class MyModel(Model):
 
-        location = Enum(StartEnd, help="""
-        Whether the thing should be located at the start or the end.
+        location = Enum(MyEnum, help="""
+        Whether the thing should be a port or starboard.
         """)
 
+Enumerations have a defined order and support iteration:
+
+.. code-block:: python
+
+    >>> for loc in MyEnum:
+    ...     print(loc)
+    ...
+    port
+    starboard
+
+as well as containment tests:
+
+.. code-block:: python
+
+    >>> "port" in MyEnum
+    True
+
+Enumerations can be easily documented in Sphinx documentation with the
+:ref:`bokeh.sphinxext.bokeh_enum` Sphinx extension.
+
+----
+
+.. autofunction:: bokeh.core.enums.enumeration
+
+----
+
 .. |Enum| replace:: :class:`~bokeh.core.properties.Enum`
+.. |enumeration| replace:: :func:`~bokeh.core.enums.enumeration`
 
 '''
 
@@ -22,11 +58,15 @@ from __future__ import absolute_import
 
 from six import string_types
 
-from .. import colors, icons, palettes
+from .. import colors, palettes
 from ..util.deprecation import deprecated
 
 class Enumeration(object):
     ''' Represent an enumerated collection of values.
+
+    .. note::
+        Instances of ``Enumeration`` typically should not be constructed
+        directly. Instead, use the |enumeration| function.
 
     '''
     __slots__ = ()
@@ -45,16 +85,32 @@ class Enumeration(object):
     __repr__ = __str__
 
 def enumeration(*values, **kwargs):
-    ''' Create an |Enumeration| from a sequence of values.
+    ''' Create an |Enumeration| object from a sequence of values.
+
+    Call ``enumeration`` with a sequence of (unique) strings to create an
+    Enumeration object:
+
+    .. code-block:: python
+
+        #: Specify the horizontal alignment for rendering text
+        TextAlign = enumeration("left", "right", "center")
 
     Args:
+        values (str) : string enumeration values, passed as positional arguments
+
+            The order of arguments is the order of the enumeration, and the
+            first element will be considered the default value when used
+            to create |Enum| properties.
+
+    Keyword Args:
         case_sensitive (bool, optional) :
             Whether validation should consider case or not (default: True)
 
-    Returns:
-        |Enumeration|: enum
+    Raises:
+        ValueError if values empty, if any value is not a string or not unique
 
-    .. |Enumeration| replace:: :class:`~bokeh.core.enums.Enumeration`
+    Returns:
+        Enumeration
 
     '''
     if not (values and all(isinstance(value, string_types) and value for value in values)):
@@ -121,6 +177,14 @@ LegendLocation = Anchor = enumeration(
 #: Deprecated legend location/anchor
 DeprecatedLegendLocation = DeprecatedAnchor = enumeration("left_center", "right_center")
 def accept_left_right_center(value):
+    ''' Accept and convert deprecated location values.
+
+    NOT FOR GENERAL USE
+
+    This is a temporary function to support a deprecation, and will be removed
+    when the deprecation is completed.
+
+    '''
     deprecated((0, 12, 4), "'left_center' and 'right_center' enumerations",
                            "'center_left' or 'center_right' respectively")
     return {"left_center": "center_left", "right_center": "center_right"}[value]
@@ -142,9 +206,6 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger", "
 
 #: Specify one of the 137 named CSS colors
 NamedColor = enumeration(*colors.__colors__, case_sensitive=False)
-
-#: Specify the name of an from :ref:`bokeh.icons`
-NamedIcon = enumeration(*icons.__icons__)
 
 #: Specify the name of a palette from :ref:`bokeh.palettes`
 Palette = enumeration(*palettes.__palettes__)

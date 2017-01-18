@@ -1,9 +1,9 @@
-import * as _ from "underscore"
-
 import {Renderer, RendererView} from "./renderer"
 import {RemoteDataSource} from "../sources/remote_data_source"
 import {logger} from "../../core/logging"
 import * as p from "../../core/properties"
+import {difference} from "../../core/util/array"
+import {extend, clone} from "../../core/util/object"
 
 export class GlyphRendererView extends RendererView
 
@@ -11,25 +11,30 @@ export class GlyphRendererView extends RendererView
     super(options)
 
     base_glyph = @model.glyph
-    has_fill = _.contains(base_glyph.mixins, "fill")
-    has_line = _.contains(base_glyph.mixins, "line")
-    glyph_attrs = _.omit(_.clone(base_glyph.attributes), 'id')
+    has_fill = "fill" in base_glyph.mixins
+    has_line = "line" in base_glyph.mixins
+    glyph_attrs = clone(base_glyph.attributes)
+    delete glyph_attrs.id
 
     mk_glyph = (defaults) ->
-      attrs = _.clone(glyph_attrs)
-      if has_fill then _.extend(attrs, defaults.fill)
-      if has_line then _.extend(attrs, defaults.line)
+      attrs = clone(glyph_attrs)
+      if has_fill then extend(attrs, defaults.fill)
+      if has_line then extend(attrs, defaults.line)
       return new (base_glyph.constructor)(attrs)
 
     @glyph = @build_glyph_view(base_glyph)
 
     selection_glyph = @model.selection_glyph
     if not selection_glyph?
+      selection_glyph = mk_glyph({fill: {}, line: {}})
+    else if selection_glyph == "auto"
       selection_glyph = mk_glyph(@model.selection_defaults)
     @selection_glyph = @build_glyph_view(selection_glyph)
 
     nonselection_glyph = @model.nonselection_glyph
     if not nonselection_glyph?
+      nonselection_glyph = mk_glyph({fill: {}, line: {}})
+    else if nonselection_glyph == "auto"
       nonselection_glyph = mk_glyph(@model.nonselection_defaults)
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
@@ -169,7 +174,7 @@ export class GlyphRendererView extends RendererView
       selection_glyph = @selection_glyph
 
     if @hover_glyph? and inspected.length
-      indices = _.without.bind(null, indices).apply(null, inspected)
+      indices = difference(indices, inspected)
 
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()
@@ -242,15 +247,15 @@ export class GlyphRenderer extends Renderer
     return index
 
   @define {
-      x_range_name:       [ p.String,      'default' ]
-      y_range_name:       [ p.String,      'default' ]
-      data_source:        [ p.Instance               ]
-      glyph:              [ p.Instance               ]
-      nonselection_glyph: [ p.Instance               ]
-      selection_glyph:    [ p.Instance               ]
-      hover_glyph:        [ p.Instance               ]
-      muted_glyph:        [ p.Instance               ]
-      muted:              [ p.Bool,        false     ]
+      x_range_name:       [ p.String,  'default' ]
+      y_range_name:       [ p.String,  'default' ]
+      data_source:        [ p.Instance           ]
+      glyph:              [ p.Instance           ]
+      hover_glyph:        [ p.Instance           ]
+      nonselection_glyph: [ p.Any,      'auto'   ] # Instance or "auto"
+      selection_glyph:    [ p.Any,      'auto'   ] # Instance or "auto"
+      muted_glyph:        [ p.Instance           ]
+      muted:              [ p.Bool,        false ]
     }
 
   @override {

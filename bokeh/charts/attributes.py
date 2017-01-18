@@ -1,19 +1,23 @@
+'''
+
+'''
 from __future__ import absolute_import
 
 from copy import copy
 from itertools import cycle
+
 import pandas as pd
 
-from bokeh.charts import DEFAULT_PALETTE
-from bokeh.charts.properties import ColumnLabel
-from bokeh.charts.utils import marker_types
-from bokeh.charts.data_source import ChartDataSource
-from bokeh.charts.stats import Bins
 from bokeh.core.enums import DashPattern
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Any, Bool, Dict, Either, Instance, List, Override, String
 from bokeh.models.sources import ColumnDataSource
-from bokeh.core.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Bool, Override)
 
+from . import DEFAULT_PALETTE
+from .data_source import ChartDataSource
+from .properties import ColumnLabel
+from .utils import marker_types
+from .stats import Bins
 
 class AttrSpec(HasProps):
     """A container for assigning attributes to values and retrieving them as needed.

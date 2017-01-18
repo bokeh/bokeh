@@ -11,7 +11,6 @@ from bokeh.models.widgets import (
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
-    Icon,
     TextInput, AutocompleteInput,
     Select, MultiSelect,
     Slider, RangeSlider, DateRangeSlider,
@@ -22,7 +21,7 @@ from bokeh.models.widgets import (
 from bokeh.plotting import figure
 from bokeh.sampledata.iris import flowers
 
-button = Button(label="Button (disabled) - still has click event", icon=Icon(icon_name="check"), button_type="primary", disabled=True)
+button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 
 toggle = Toggle(label="Toggle button", button_type="success")
 
@@ -40,15 +39,13 @@ checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Opt
 
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 
-icon = Icon(icon_name="check")
-
 text_input = TextInput(placeholder="Enter value ...")
 
 autocomplete_input = AutocompleteInput()
 
 select = Select(options=["Option 1", "Option 2", "Option 3"])
 
-multi_select = MultiSelect(options=["Option 1", "Option 2", "Option 3"])
+multi_select = MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
 
 slider = Slider(value=10, start=0, end=100)
 
@@ -78,7 +75,6 @@ widgets = Row(children=[
         checkbox_button_group, radio_button_group,
     ]),
     WidgetBox(children=[
-        icon,
         text_input, autocomplete_input,
         select, multi_select,
         slider, range_slider, #date_range_slider,

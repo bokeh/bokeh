@@ -22,7 +22,8 @@ from operator import itemgetter
 from six import iteritems
 
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, HasProps, Instance, List, MetaHasProps, String
+from .core.properties import Any, Dict, Instance, List, String
+from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
 from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
@@ -160,6 +161,21 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     def document(self):
         return self._document
 
+    def on_change(self, attr, *callbacks):
+        ''' Add a callback on this object to trigger when ``attr`` changes.
+
+        Args:
+            attr (str) : an attribute name on this object
+            callback (callable) : a callback function to register
+
+        Returns:
+            None
+
+        '''
+        if attr not in self.properties():
+            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
+        super(Model, self).on_change(attr, *callbacks)
+
     def js_on_change(self, event, *callbacks):
         ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
 
@@ -202,7 +218,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 continue
             self.js_callbacks[event].append(callback)
 
-    def trigger(self, attr, old, new, hint=None):
+    def trigger(self, attr, old, new, hint=None, setter=None):
         # The explicit assumption here is that hinted events do not
         # need to go through all the same invalidation steps. Currently
         # as of Bokeh 0.11.1 the only hinted event is ColumnsStreamedEvent.
@@ -219,7 +235,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint)
+        super(Model, self).trigger(attr, old, new, hint, setter)
 
     @property
     def ref(self):

@@ -3,92 +3,61 @@
 Server Architecture
 ===================
 
-This chapter is a "deep dive" into Bokeh server's internals... it
-assumes you're already familiar with the information on Bokeh
-server in the `User Guide <http://bokeh.pydata.org/en/0.11.0/docs/user_guide.html>`_.
+This chapter is a "deep dive" into Bokeh server's internals. It assumes you're
+already familiar with the information on Bokeh server in the :ref`userguide`.
 
-You might want to read this if:
+You might want to read this if you are:
 
-- you're trying to work on the Bokeh codebase
-- you're trying to write your own custom server process to use rather than ``bokeh serve``
+- trying to work on the Bokeh codebase
+- writing your own custom server process to use rather than ``bokeh serve``
 
 A custom server process can add additional routes (web pages or
-REST endpoints) using `Tornado's web framework
-<http://www.tornadoweb.org/en/stable/webframework.html>`__.
+REST endpoints) using Tornado's web framework.
 
-The public API of Bokeh server is the ``Server`` class (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/server.py>`__). The
-``bokeh serve`` command wraps ``Server`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/command/subcommands/serve.py>`__). ``Server``
-is intended to hide some of the Tornado implementation
-details... most of the server implementation is in
-``BokehTornado`` which subclasses Tornado's ``TornadoApplication``
-type (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/tornado.py#L58>`__).
-``BokehTornado`` isn't meant to be a public API.
-
-If an application developer uses ``bokeh serve`` they shouldn't
-need to import the ``bokeh.server`` package at all... they can
-ignore it entirely. An application developer would only use the
-``Server`` class if they are doing something custom, such as a
-custom server process.
+If an application developer uses ``bokeh serve`` they typically should not need
+to import from ``bokeh.server`` at all. An application developer would only use
+the ``Server`` class if it is doing something specialized, such as a custom
+or embedded server process.
 
 Applications, Sessions, and Connections
 ---------------------------------------
 
-Each server contains one or more applications; you can think of an
-application as a session template, or a factory for
-sessions. Sessions have a 1-1 relationship with instances of
-``bokeh.document.Document``: each session has a document
-instance. When a browser connects to the server, it gets a new
-session; the application fills in the session's document with
-whatever plots, widgets, or other content it desires. The
-application can also set up callbacks, to run periodically or to
-run when the document changes.
+Each server contains one or more applications; you can think of an application
+as a session template, or a factory for sessions. Sessions have a 1-1
+relationship with instances of ``bokeh.document.Document``: each session has a
+document instance. When a browser connects to the server, it gets a new
+session; the application fills in the session's document with whatever plots,
+widgets, or other content it desires. The application can also set up
+callbacks, to run periodically or to run when the document changes.
 
-Applications are represented by the ``Application`` class (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/application/application.py#L97>`__). This
-class is little more than a list of ``Handler`` instances (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/application/handlers/handler.py>`__).
-Handlers can be created in lots of ways; from JSON files, from
-Python functions, from Python files, and perhaps many more ways in
-the future.
+Applications are represented by the ``Application`` class. This class is
+little more than a list of ``Handler`` instances. Handlers can be created
+in lots of ways; from JSON files, from Python functions, from Python files,
+and perhaps many more ways in the future.
 
-Around each application, the server creates an
-``ApplicationContext`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/application_context.py#L82>`__),
-its primary role is to hold the set of sessions for the
-application.
+Around each application, the server creates an ``ApplicationContext``. Its
+primary role is to hold the set of sessions for the application.
 
-Sessions are represented by class ``ServerSession`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/session.py#L56>`__).
+Sessions are represented by class ``ServerSession``.
 
 Each application has a route (called an ``app_path`` in the client
 API), and each session has an ID. The combination of the two
 specifies a ``Document`` instance (the server looks up the
 application by path, and then looks up the session by ID).
 
-Each session has 0-N connections, represented by the
-``ServerConnection`` class (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/connection.py#L8>`__). Connections
-are websocket connections. In general, sessions last as long as
-they have connections, though they only expire after a timeout (to
+Each session has 0-N connections, represented by the ``ServerConnection``
+class. Connections are websocket connections. In general, sessions last as
+long as they have connections, though they only expire after a timeout (to
 allow for page reloads and the like).
 
 Applications and application handlers cannot access the ``Server``
-``ServerSession``, or ``ApplicationContext`` directly; they have a
-much more limited interface defined in two pieces,
-``ServerContext`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/application/application.py#L17>`__)
-and ``SessionContext`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/application/application.py#L60>`__). ``ServerContext``
-presents a limited interface to some aspects of
-``ApplicationContext`` and ``Server``, while ``SessionContext``
-presents a limited interface to some aspects of
-``ServerSession``. Concrete implementations of these interfaces
-are ``BokehServerContext`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/application_context.py#L18>`__)
-and ``BokehSessionContext`` (`source <https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/application_context.py#L55>`__).
+``ServerSession``, or ``ApplicationContext`` directly; they have a much more
+limited interface defined in two pieces, ``ServerContext``  and
+``SessionContext``. ``ServerContext`` presents a limited interface to some
+aspects of ``ApplicationContext`` and ``Server``, while ``SessionContext``
+presents a limited interface to some aspects of ``ServerSession``. Concrete
+implementations of these interfaces are ``BokehServerContext`` and
+``BokehSessionContext``.
 
 Summarizing the object graph:
 
@@ -115,9 +84,8 @@ Tornado ``IOLoop`` and Async Code
 To work on the server, you'll need an understanding of Tornado's
 ``IOLoop`` and the ``tornado.gen`` module.
 
-The `Tornado documentation
-<http://www.tornadoweb.org/en/stable/gen.html>`__ will be the best
-resource, but here are some quick things to know:
+The Tornado documentation will be the best resource, but here are
+some quick things to know:
 
 - the Bokeh server is single-threaded, so it's important not to
   write "blocking" code, meaning code that uses up the single
@@ -156,15 +124,14 @@ when we unload an application or destroy a session.
 Lifecycle
 ---------
 
-If you look at the ``Application`` class (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/application/application.py#L97>`__),
-there are two ways the server can call into it.
+If you look at the ``Application`` class, there are two ways the
+server can call into it.
 
-1. the `modify_document()` method which does just what it says: it
-   passes in the session's `Document` and allows the application
+1. the ``modify_document()`` method which does just what it says: it
+   passes in the session's ``Document`` and allows the application
    to modify it (perhaps adding some plots and widgets).
-2. a set of "hooks" `on_server_loaded()`, `on_server_unloaded()`,
-   `on_session_created()`, `on_session_destroyed()`.
+2. a set of "hooks" ``on_server_loaded()``, ``on_server_unloaded()``,
+   ``on_session_created()``, ``on_session_destroyed()``.
 
 The "hooks" are called "lifecycle hooks" since they happen at
 defined points in the lifetime of an application and a session.
@@ -172,23 +139,22 @@ defined points in the lifetime of an application and a session.
 Here are the steps in the lifecycle:
 
 1. When the server process starts up, it calls
-   `on_server_loaded()` on each application.
+   ``on_server_loaded()`` on each application.
 2. When a client connects with a previously-unused session ID, the
    server creates a ``ServerSession`` and calls
-   `on_session_created()` with an empty `Document`, then
-   `modify_document()` to initialize the `Document`. The
-   `on_session_created()` can also initialize part of the
-   `Document` if it likes. `on_session_created()` happens before
-   `modify_document()`.
+   ``on_session_created()`` with an empty ``Document``, then
+   ``modify_document()`` to initialize the ``Document``. The
+   ``on_session_created()`` can also initialize part of the
+   ``Document`` if it likes. ``on_session_created()`` happens before
+   ``modify_document()``.
 3. When there are no connections to a session, it will eventually
-   time out and `on_session_destroyed()` will be called.
+   time out and ``on_session_destroyed()`` will be called.
 4. If the server process shuts down cleanly, it will call
-   `on_server_unloaded()` on each application. This is probably
+   ``on_server_unloaded()`` on each application. This is probably
    rare in production: it's typical for server processes to be
-   killed by a signal.  `on_server_unloaded()` may be more useful
+   killed by a signal.  ``on_server_unloaded()`` may be more useful
    during development so that apps can be reloaded without leaking
-   resources (in 0.11, dynamic reloading of applications hasn't
-   been implemented, but we'd like to add it).
+   resources.
 
 These hooks can add periodic or one-shot callbacks to the
 ``ServerContext``. These callbacks may be asynchronous (using
@@ -212,20 +178,18 @@ the server.
 Locking
 ^^^^^^^
 
-The trickiest aspect of ``ServerSession`` may be locking.  In
-general, we want one callback or one websocket request to be
-processed at a time; we don't want to interleave them, because it
-would be difficult to implement callbacks and request handlers if
-they had to worry about interleaving.
+The trickiest aspect of ``ServerSession`` may be locking.  In general, we
+want one callback or one websocket request to be processed at a time; we
+don't want to interleave them, because it would be difficult to implement
+callbacks and request handlers if they had to worry about interleaving.
 
 So ``ServerSession`` does one thing at a time, controlled by
 ``ServerSession._lock``, which is a Tornado lock.
 
-If you're familiar with locking and threads, the situation here is
-conceptually identical; but race conditions can only happen at
-"yield points" (when we return to the ``IOLoop``) rather than at
-any point, and the lock is a Tornado lock rather than a thread
-lock.
+If you're familiar with locking and threads, the situation here is conceptually
+identical; but race conditions can only happen at "yield points" (when we
+return to the ``IOLoop``) rather than at any point, and the lock is a Tornado
+lock rather than a thread lock.
 
 The rule is: *to touch ServerSession.document code must
 hold ServerSession._lock*.
@@ -234,99 +198,79 @@ For callbacks added through the ``Document`` API, we automatically
 acquire the lock on the callback's behalf before we execute the
 callback, and release it afterward.
 
-For callbacks added through the ``ServerContext`` API, they can
-only obtain a reference to the session document using the
-``SessionContext.with_locked_document()`` method (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/application/application.py#L84>`__). ``with_locked_document()``
-executes a function with the document lock held, passing the
-document to that function. The lock is held while the function
-runs (even if the function is asynchronous! if the function
-returns a ``Future``, the lock is held until the ``Future``
+For callbacks added through the ``ServerContext`` API, they can only obtain
+a reference to the session document using the method ``with_locked_document()``
+on ``SessionContext``. ``with_locked_document()`` executes a function with
+the document lock held, passing the document to that function. The lock is
+held while the function runs (even if the function is asynchronous! if the
+function returns a ``Future``, the lock is held until the ``Future``
 completes).
 
-**It is very easy to modify the server code in such a way that
-you're touching the document without holding the lock. If you do
-this, things will break in subtle and painful-to-debug ways. When
-you touch the session document, triple-check that the lock is
-held.**
+**It is very easy to modify the server code in such a way that you're
+touching the document without holding the lock. If you do this, things will
+break in subtle and painful-to-debug ways. When you touch the session document,
+triple-check that the lock is held.**
 
 Session Security
 ^^^^^^^^^^^^^^^^
 
-For background on session IDs, check out the ``bokeh serve``
-`documentation on it
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/command/subcommands/serve.py#L115-L179>`__.
+For background on session IDs, check out the ``bokeh serve`` documentation on
+it.
 
-We rely on session IDs being cryptographically random and
-difficult to guess; if an attacker knows someone's session ID,
-they can eavesdrop on or modify the session. If you're writing a
-larger web app with a Bokeh app embedded inside, this may affect
-how you design your larger app.
+We rely on session IDs being cryptographically random and difficult to guess.
+If an attacker knows someone's session ID, they can eavesdrop on or modify
+the session. If you're writing a larger web app with a Bokeh app embedded
+inside, this may affect how you design your larger app.
 
-When hacking on the server, for the most part session IDs are
-opaque strings and after initially validating the ID, it doesn't
-matter to the server code what the ID is.
+When hacking on the server, for the most part session IDs are opaque strings
+and after initially validating the ID, it doesn't matter to the server code
+what the ID is.
 
 Session Timeout
 ^^^^^^^^^^^^^^^^
 
-To avoid resource exhaustion, the server times out unused
-sessions. You can find the code for this in
-`application_context.py
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/application_context.py#L185-L236>`__.
+To avoid resource exhaustion, the server times out unused sessions. You can
+find the code for this in ``application_context.py``
 
 Websocket Protocol
 ------------------
 
-The server has a websocket connection open to each client (each
-browser tab, in typical usage). The primary role of the websocket
-is to keep the session's ``Document`` in sync between the client
-and the server.
+The server has a websocket connection open to each client (each browser tab,
+in typical usage). The primary role of the websocket is to keep the session's
+``Document`` in sync between the client and the server.
 
-There are two client implementations in the Bokeh codebase; one is
-a Python ``ClientSession`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/client/session.py#L179>`__),
-the other is a JavaScript (via CoffeeScript ``ClientSession``
-(`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokehjs/src/coffee/common/client.coffee#L348>`__).
-Client and server sessions are mostly symmetrical; on both sides,
-we are receiving change notifications from the other side's
-``Document``, and sending notification of changes made on our
-side. In this way, the two ``Document`` are kept in sync.
+There are two client implementations in the Bokeh codebase; one is a Python
+``ClientSession``, the other is a JavaScript ``ClientSession``.
+Client and server sessions are mostly symmetrical; on both sides, we are
+receiving change notifications from the other side's ``Document``, and sending
+notification of changes made on our side. In this way, the two ``Document``
+are kept in sync.
 
-The Python implementation of the websocket protocol can be found
-in ``bokeh.server.protocol``, though both the client side and the
-server side use it (`source
-<https://github.com/bokeh/bokeh/tree/0.11.0rc1/bokeh/server/protocol>`__).
+The Python implementation of the websocket protocol can be found in
+``bokeh.server.protocol``, though both the client side and the server side
+use it.
 
-Websockets already implement "frames" for us, and they guarantee
-frames will arrive in the same order they were sent. Frames are
-strings or byte arrays (or special internal frame types, such as
-pings). A websocket looks like a two sequences of frames, one
-sequence in each direction ("full duplex").
+Websockets already implement "frames" for us, and they guarantee frames will
+arrive in the same order they were sent. Frames are strings or byte arrays
+(or special internal frame types, such as pings). A websocket looks like a
+two sequences of frames, one sequence in each direction ("full duplex").
 
-On top of websocket frames, we implement our own ``Message``
-concept (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/protocol/message.py#L14>`__). A
-Bokeh ``Message`` spans multiple websocket frames. It always
-contains a header frame, metadata frame, and content frame. These
-three frames each contain a JSON string. The code permits these
-three frames to be followed by binary data frames, but in Bokeh
-0.11 binary data frames are not used.
+On top of websocket frames, we implement our own ``Message`` concept. A Bokeh
+``Message`` spans multiple websocket frames. It always contains a header frame,
+metadata frame, and content frame. These three frames each contain a JSON
+string. The code permits these three frames to be followed by binary data
+frames, but currently in Bokeh binary data frames are not used.
 
-The header frame indicates the message type and gives messages
-an ID. Message IDs are used to match replies with requests (the
-reply contains a field saying "I am the reply to the request with
-ID xyz").
+The header frame indicates the message type and gives messages an ID. Message
+IDs are used to match replies with requests (the reply contains a field saying
+"I am the reply to the request with ID xyz").
 
-The metadata frame has nothing in it for now, but could be used
-for debugging data or another purpose in the future.
+The metadata frame has nothing in it for now, but could be used for debugging
+data or another purpose in the future.
 
 The content frame has the "body" of the message.
 
-There aren't many messages right now. You can find them `all here
-<https://github.com/bokeh/bokeh/tree/0.11.0rc1/bokeh/server/protocol/messages>`__
-but a quick overview:
+There aren't many messages right now. A quick overview:
 
 - ``ACK`` is used for an initial handshake when setting up the connection
 - ``OK`` is a generic reply when a request doesn't require any
@@ -370,16 +314,14 @@ Some Current Protocol Caveats
    changes.
 
 3. At the moment, we do not optimize binary data by sending it
-   over binary websocket frames. If we did, we could copy it
-   directly into typed arrays on the JavaScript side.
+   over binary websocket frames.
 
 
 HTTP Endpoints
 --------------
 
 The server only supports a few HTTP routes; you can find them in
-``bokeh.server.urls`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/urls.py>`__).
+``bokeh.server.urls``.
 
 In brief:
 
@@ -389,16 +331,66 @@ In brief:
 - ``/app_path/autoload.js`` serves a chunk of JavaScript that
   backs the ``bokeh.embed.autoload_server()`` functionality
 
-Bokeh server isn't intended to be a general-purpose web
-framework. You can however pass new endpoints to ``Server`` using
-the ``extra_patterns`` parameter and the Tornado APIs.
+Bokeh server isn't intended to be a general-purpose web framework. You can
+however pass new endpoints to ``Server`` using the ``extra_patterns`` parameter
+and the Tornado APIs.
+
+Additional details
+------------------
+
+Events
+^^^^^^
+
+In general whenever a model property is modified, the new value is
+first validated, and the ``Document`` is notified of the change. Just
+as models may have ``on_change`` callbacks, so can a
+``Document``. When a ``Document`` is notified of a change to one of
+its models it will generate the appropriate event (usually a
+``ModelChangedEvent``) and trigger the ``on_change`` callbacks,
+passing them this new event. Sessions are one such callback, which
+will turn the event into a patch that can be sent across the web
+socket connection. When a message is received by the client or server
+session it will extract the patch and apply it directly to the
+``Document``.
+
+In order to avoid events bouncing back and forth between client and
+server (as each patch would generate new events, which would in turn
+be sent back), the session informs the ``Document`` that it was
+responsible for generating the patch and any subsequent events that
+are generated. In this way, when a ``Session`` is notified of a change
+to the document it can check whether the ``event.setter`` is identical
+with itself and therefore skip processing the event.
+
+Serialization
+^^^^^^^^^^^^^
+
+In general all the concepts above are agnostic as to how precisely the
+models and change events are encoded and decoded. Each model and its
+properties are responsible for converting their values to a JSON-like
+format, which can be sent across the Websocket connection. One
+difficulty here is that one model can reference other models, often in
+highly interconnected and even circular ways. Therefore during the
+conversion to a JSON-like format all references by one model to other
+models are replaced with ID references.  Additionally models and
+properties can define special serialization behaviors, one such
+example is the ``ColumnData`` property on a ``ColumnDataSource``,
+which will convert NumPy arrays to a base64 encoded representation,
+which is significantly more efficient than sending numeric arrays in a
+string based format. The ``ColumnData`` property
+``serializable_value`` method applies this encoding and the from_json
+method will convert the data back. Equivalently the JS-based
+``ColumnDataSource`` knows how to interpret the base64 encoded data
+and converts it to Javascript typed arrays and its
+``attributes_as_json`` methods also knows how to encode the data. In
+this way models can implement optimized serialization formats.
+
 
 Testing
 -------
 
 To test client-server functionality, use the utilities in
-``bokeh.server.tests.utils`` (`source
-<https://github.com/bokeh/bokeh/blob/0.11.0rc1/bokeh/server/tests/utils.py>`__).
+``bokeh.server.tests.utils``.
+
 Using ``ManagedServerLoop``, you can start up a server instance
 in-process; share ``server.io_loop`` with a client and you can
 test any aspect of the server. Check out the existing tests for

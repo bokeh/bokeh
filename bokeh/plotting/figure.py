@@ -279,7 +279,13 @@ Examples:
 
 """)
 
-    image = _glyph_function(glyphs.Image)
+    image = _glyph_function(glyphs.Image, """
+.. note::
+    If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+    exception will be raised. If neither is passed, then the ``Greys9``
+    palette will be used as a default.
+
+""")
 
     image_rgba = _glyph_function(glyphs.ImageRGBA, """
 .. note::
@@ -587,7 +593,8 @@ Examples:
             marker (str, optional): a valid marker_type, defaults to "circle"
             color (color value, optional): shorthand to set both fill and line color
             source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
-                If none is supplied, one is created for the user automatically.
+                An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
+                if needed. If none is supplied, one is created for the user automatically.
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
 
         Examples:

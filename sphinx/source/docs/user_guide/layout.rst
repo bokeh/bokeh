@@ -22,8 +22,8 @@ There are two things to keep in mind for best results using layout:
 These guidelines are explained in more detail below:
 
 Consistent sizing mode
-    Everything item in a layout must have the same sizing mode for the layout
-    to behave as expected. It is for this reason that we recommend using the
+    Every item in a layout must have the same sizing mode for the layout to
+    behave as expected. It is for this reason that we recommend using the
     layout functions as they help ensure that all the children of the row or
     column have the same sizing mode. We hope to lift this restriction in
     future releases.

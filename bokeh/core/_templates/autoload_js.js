@@ -29,9 +29,9 @@ calls it with the rendered model.
     return new Date();
   }
 
-  var force = "{{ force }}";
+  var force = {{ force|default(False)|json }};
 
-  if (typeof (window._bokeh_onload_callbacks) === "undefined" || force !== "") {
+  if (typeof (window._bokeh_onload_callbacks) === "undefined" || force === true) {
     window._bokeh_onload_callbacks = [];
     window._bokeh_is_loading = undefined;
   }
@@ -79,14 +79,14 @@ calls it with the rendered model.
   };
 
   {%- if elementid -%}
-  var element = document.getElementById("{{ elementid }}");
+  var element = document.getElementById({{ elementid|json }});
   if (element == null) {
     console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
     return false;
   }
   {%- endif %}
 
-  var js_urls = {{ js_urls }};
+  var js_urls = {{ js_urls|json }};
 
   var inline_js = [
     {%- for js in js_raw %}
@@ -97,7 +97,7 @@ calls it with the rendered model.
     function(Bokeh) {
       {%- for url in css_urls %}
       console.log("Bokeh: injecting CSS: {{ url }}");
-      Bokeh.embed.inject_css("{{ url }}");
+      Bokeh.embed.inject_css({{ url|json }});
       {%- endfor %}
       {%- for css in css_raw %}
       console.log("Bokeh: injecting raw CSS");
