@@ -6,27 +6,21 @@ For packaged releases based off tags, the version string is hard coded in the
 files packaged for distribution.
 
 Attributes:
-    __version__: the version string for this installed Bokeh library
+    __version__:
+        The full version string for this installed Bokeh library
 
-.. note::
-    It is also possible to override the normal version computation by creating
-    a special ``__conda_version__.py`` file at the top level of the library,
-    that defines a ``conda_version`` attribute. This facility is not normally
-    of interest to anyone except package maintainers.
+    __base_version__:
+        The base version string , without any "dev", "rc" or local build
+        information appended.
 
 .. _versioneer: https://github.com/warner/python-versioneer
 
 """
 from __future__ import absolute_import
 
-try:
-    from ..__conda_version__ import conda_version
-    __version__ = conda_version.replace("'","")
-    del conda_version
-except ImportError:
-    from .._version import get_versions
-    __version__ = get_versions()['version']
-    del get_versions
+from .._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 def base_version():
     import re
