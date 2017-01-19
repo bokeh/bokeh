@@ -23,6 +23,8 @@ matrix:
       env: GROUP=unit
     - python: 3.5
       env: GROUP=unit
+    - python: 3.6
+      env: GROUP=unit
 
     # examples tests (python 2.7 and 3.4)
     - python: 2.7
