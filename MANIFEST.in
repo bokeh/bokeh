@@ -1,6 +1,10 @@
 global-exclude .git*
+include CHANGELOG
+include classifiers.txt
 include LICENSE.txt
+include setup.cfg
 include versioneer.py
+include _setup_support.py
 include bokeh/themes/*.yaml
 recursive-include examples *.py *.ipynb *.md
 prune examples/charts/.ipynb_checkpoints
