@@ -58,9 +58,6 @@ EOF
 conda install --yes $DEPS_RUN
 conda install --yes $DEPS_TEST
 
-# conda nb extension is installed by default and breaks notebook image diff tests
-python -m nb_conda_kernels.install --disable --prefix=/home/travis/miniconda
-
 echo "node version: $(node -v)"
 echo "npm version: $(npm -v)"
 
