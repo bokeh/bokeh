@@ -1,4 +1,3 @@
-
 Options
 -------
 
@@ -10,5 +9,3 @@ Options
     {{ opt['doc']|indent(4) }}
 
 {% endfor %}
-
-
