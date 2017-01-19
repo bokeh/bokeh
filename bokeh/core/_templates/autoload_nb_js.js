@@ -24,7 +24,8 @@
 
   function display_loaded() {
     if (window.Bokeh !== undefined) {
-      document.getElementById({{ elementid|json }}).textContent = "BokehJS successfully loaded.";
+      var el = document.getElementById({{ elementid|json }});
+      el.textContent = "BokehJS " + Bokeh.version + " successfully loaded.";
     } else if (Date.now() < window._bokeh_timeout) {
       setTimeout(display_loaded, 100)
     }
