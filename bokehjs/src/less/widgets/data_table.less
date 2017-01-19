@@ -12,16 +12,10 @@
   // XXX: SlickGrid depends on the content-box model, so lets force it on all sub-elements.
   // This is needed, because frameworks, like bootstrap, can change the box model for all
   // elements. Fix SlickGrid to work with border-box model.
-  * {
-    -webkit-box-sizing: content-box;
-       -moz-box-sizing: content-box;
-            box-sizing: content-box;
-  }
+  box-sizing: content-box;
 
-  *:before, *:after {
-    -webkit-box-sizing: content-box;
-       -moz-box-sizing: content-box;
-            box-sizing: content-box;
+  *, *:before, *:after {
+    box-sizing: inherit;
   }
 }
 
